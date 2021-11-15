@@ -1,0 +1,5 @@
+openai==0.2.4
+bottle==0.12.19
+Paste==3.5.0
+Mako==1.1.5
+pyhocon==0.3.58
