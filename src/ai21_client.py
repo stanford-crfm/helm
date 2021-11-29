@@ -35,7 +35,9 @@ class AI21Client(Client):
         if 'completions' not in response:
             return RequestResult(
                 success=False,
+                cached=False,
                 error=response['detail'],
+                completions=[],
             )
 
         completions = []

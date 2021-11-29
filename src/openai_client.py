@@ -29,6 +29,7 @@ class OpenAIClient(Client):
         except openai.error.InvalidRequestError as e:
             return RequestResult(
                 success=False,
+                cached=False,
                 error=str(e),
                 completions=[],
             )
