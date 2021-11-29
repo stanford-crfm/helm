@@ -127,7 +127,10 @@ $(function () {
 
   function renderRequest(changingKeys, request) {
     const title = JSON.stringify(request);
-    return $('<div>', {title}).append('[' + changingKeys.filter((key) => key != 'prompt').map(key => key + ':' + request[key]).join(', ') + '] ' + multiline(request.prompt));
+    // Always include model, never prompt (since that's shown right after).
+    const showKeys = ['model'].concat(changingKeys.filter((key) => key !== 'prompt' && key !== 'model'));
+    const summary = '[' + showKeys.map(key => key + ':' + request[key]).join(', ') + ']';
+    return $('<div>', {title}).append(summary + ' ' + multiline(request.prompt));
   }
 
   function renderTime(time) {

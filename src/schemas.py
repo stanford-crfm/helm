@@ -5,8 +5,8 @@ from models import Model
 @dataclass
 class Request:
     """A request is a concrete query that we make to a client."""
-    model: str
-    prompt: str
+    model: str = 'openai/davinci'
+    prompt: str = ''
     temperature: float = 1.0
     numSamples: int = 1  # Generate this many independent samples
     topK: int = 1 # Generate a k-best

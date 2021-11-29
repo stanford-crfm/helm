@@ -51,12 +51,6 @@ def synthesize_request(prompt: str, settings: str, environment: Dict[str, str]) 
     request = {}
     request['prompt'] = substitute_text(prompt, environment)
     request.update(parse_hocon(substitute_text(settings, environment)))
-    model_names = [model.name for model in all_models]
-    if 'model' not in request:
-        raise Exception(f'model is missing from settings; possibilities: {model_names}')
-    model_name = request['model']
-    if model_name not in model_names:
-        raise Exception(f'model "{model_name}" in settings is not valid; must be one of {model_names}')
     return Request(**request)
 
 class Service(object):
