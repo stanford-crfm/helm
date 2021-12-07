@@ -13,6 +13,11 @@ class Request:
     maxTokens: int = 100
     stopSequences: List[str] = field(default_factory=list)
 
+    # For OpenAI's API
+    topP: float = 1  # Enable nucleus sampling
+    presencePenalty: float = 0
+    frequencyPenalty: float = 0
+
     def model_organization(self):
         """Example: 'openai/davinci' => 'openai'"""
         return self.model.split('/')[0]

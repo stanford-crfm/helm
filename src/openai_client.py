@@ -19,6 +19,9 @@ class OpenAIClient(Client):
             'max_tokens': request.maxTokens,
             'best_of': request.topK,
             'stop': request.stopSequences or None,  # API doesn't like empty list
+            'top_p': request.topP,
+            'presence_penalty': request.presencePenalty,
+            'frequency_penalty': request.frequencyPenalty,
             'logprobs': 1,
         }
 

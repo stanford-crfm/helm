@@ -45,6 +45,9 @@
                     <li><tt>topK</tt>: number of items in the k-best list to return</li>
                     <li><tt>maxTokens</tt>: maximum number of tokens before generation stops</li>
                     <li><tt>stopSequences</tt>: list of strings that will stop generation (e.g., <tt>'.'</tt> or <tt>'\n'</tt>)</li>
+                    <li><tt>topP</tt>: An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. (OpenAI only)</li>
+                    <li><tt>presencePenalty</tt>: Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics. (OpenAI only)</li>
+                    <li><tt>frequencyPenalty</tt>: Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim. (OpenAI only)</li>
                   </ul>
                   Settings can also have variables in them (e.g., <tt>temperature</tt>).
                 </li>
