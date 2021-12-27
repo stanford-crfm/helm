@@ -11,8 +11,6 @@ if ! [ -e venv ]; then
 fi
 venv/bin/pip install -r requirements.dev.txt
 
-venv/bin/pip install -e .
-
 venv/bin/pip check
 
 # Python style checks and linting
