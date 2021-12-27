@@ -1,9 +1,9 @@
-from typing import Any, Dict
 import requests
 
 from client import Client
 from cache import Cache
 from schemas import Request, RequestResult, Completion
+
 
 # https://studio.ai21.com/docs/api/
 class AI21Client(Client):

@@ -23,7 +23,7 @@ params = {
 }
 
 response = requests.get(
-    f"http://crfm-models.stanford.edu/api/makeRequest?" + parse.urlencode(params)
+    f"http://crfm-models.stanford.edu/api/makeRequest?{parse.urlencode(params)}"
 ).json()
 print(json.dumps(response, indent=2))
 

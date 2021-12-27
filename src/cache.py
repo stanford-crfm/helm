@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import json
 import os
-from typing import Dict, Tuple, Callable
+from typing import Dict, Callable
 
 
 def request_to_key(request: Dict) -> str:

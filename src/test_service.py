@@ -1,4 +1,3 @@
-import json
 from service import Service
 from users import Authentication
 

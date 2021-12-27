@@ -19,4 +19,4 @@ venv/bin/black .
 
 ## Check if there are any mypy or flake8 errors
 venv/bin/mypy .
-# venv/bin/flake8 .
+venv/bin/flake8 .

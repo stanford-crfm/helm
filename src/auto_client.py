@@ -1,8 +1,9 @@
 from typing import Dict
 
-from client import Client
-from openai_client import OpenAIClient
 from ai21_client import AI21Client
+from client import Client
+from huggingface_client import HuggingFaceClient
+from openai_client import OpenAIClient
 from schemas import Request, RequestResult
 
 

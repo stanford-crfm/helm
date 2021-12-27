@@ -11,7 +11,9 @@ class Client:
     def make_request(self, request: Request) -> RequestResult:
         raise NotImplementedError
 
-    ### Utilities
+    """
+    Utility methods
+    """
 
     @staticmethod
     def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:

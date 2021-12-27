@@ -1,4 +1,3 @@
-from typing import Any, Dict
 import openai
 
 from client import Client
