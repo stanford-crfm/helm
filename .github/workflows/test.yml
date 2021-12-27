@@ -43,7 +43,7 @@ jobs:
           key: pip-${{ hashFiles('requirements.txt') }}-${{ matrix.python-version }}
           restore-keys: |
             pip-
-      - run: cl
+      - run: echo "Finished installation."
 
   build:
     name: Build
