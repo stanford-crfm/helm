@@ -1,7 +1,7 @@
 __pycache__
 
 var
-credentials.conf
+src/credentials.conf
 users.jsonl
 
 BIG-bench
@@ -9,3 +9,11 @@ lm-evaluation-harness
 
 nav
 tags
+
+venv
+
+# For Macs
+.DS_Store
+
+# For PyCharm and IntelliJ
+.idea

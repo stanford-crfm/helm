@@ -1,9 +1,9 @@
 # An example of how to use the request API.
 
-import urllib
 import requests
 import json
 import getpass
+from urllib import parse
 
 auth = {
     'username': 'crfm',
@@ -20,5 +20,5 @@ params = {
     'request': json.dumps(request),
 }
 
-response = requests.get(f'http://crfm-models.stanford.edu/api/makeRequest?' + urllib.parse.urlencode(params)).json()
+response = requests.get(f'http://crfm-models.stanford.edu/api/makeRequest?' + parse.urlencode(params)).json()
 print(json.dumps(response, indent=2))

@@ -1,0 +1,104 @@
+name: Test
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.6
+      - run: npm ci
+        working-directory: ./src/static
+      - run: npm run check-ci
+        working-directory: ./src/static
+        env:
+          CI: true
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('requirements.dev.txt') }}
+          restore-keys: |
+            pip-
+      - run: ./pre-commit.sh && git diff --exit-code
+
+  install:
+    name: Install
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('requirements.txt') }}-${{ matrix.python-version }}
+          restore-keys: |
+            pip-
+      - run: pip install -e .
+      - run: cl
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.6
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            pip-
+      - run: pip install -r requirements.txt
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Clear free space
+        run: |
+            sudo rm -rf /opt/ghc
+            df -h
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.6
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            pip-
+      - run: pip install -r requirements.txt
+      - name: Run tests
+        run: |
+          echo "TODO: add tests."
+        env:
+          TEST: ${{ matrix.test }}
+          VERSION: ${{ github.head_ref || 'master' }}
+
+  ci:
+    name: All CI tasks complete
+    runs-on: ubuntu-latest
+    needs: [format, install, build, test]
+    steps:
+      - uses: actions/checkout@v2
+      - run: echo Done
