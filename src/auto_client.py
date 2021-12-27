@@ -5,8 +5,10 @@ from openai_client import OpenAIClient
 from ai21_client import AI21Client
 from schemas import Request, RequestResult
 
+
 class AutoClient(Client):
     """Automatically dispatch to the proper client."""
+
     def __init__(self, credentials: Dict[str, str]):
         self.credentials = credentials
         self.clients: Dict[str, Client] = {}
@@ -15,14 +17,14 @@ class AutoClient(Client):
         """Return a client based on `organization`, creating it if necessary."""
         client = self.clients.get(organization)
         if client is None:
-            if organization == 'openai':
-                client = OpenAIClient(api_key=self.credentials['openaiApiKey'])
-            elif organization == 'ai21':
-                client = AI21Client(api_key=self.credentials['ai21ApiKey'])
-            elif organization == 'huggingface':
+            if organization == "openai":
+                client = OpenAIClient(api_key=self.credentials["openaiApiKey"])
+            elif organization == "ai21":
+                client = AI21Client(api_key=self.credentials["ai21ApiKey"])
+            elif organization == "huggingface":
                 client = HuggingFaceClient()
             else:
-                raise Exception(f'Unknown organization: {organization}')
+                raise Exception(f"Unknown organization: {organization}")
             self.clients[organization] = client
         return client
 
