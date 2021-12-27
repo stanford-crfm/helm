@@ -4,14 +4,15 @@ import requests
 import json
 import getpass
 from urllib import parse
+from typing import Any, Dict
 
-auth = {
+auth: Dict[str, str] = {
     "username": "crfm",
     "password": getpass.getpass(),
 }
 
 # Generation
-request = {
+request: Dict[str, Any] = {
     "prompt": "Life is like a box of",
     "model": "openai/davinci",
 }
@@ -54,5 +55,5 @@ response = requests.get(
 ).json()
 
 print(f"Response: {json.dumps(response, indent=2)}")
-sentiment = response["completions"][0]["text"].strip()
+sentiment: str = response["completions"][0]["text"].strip()
 print(f"Output sentiment: {sentiment}")
