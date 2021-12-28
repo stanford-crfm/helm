@@ -1,16 +1,18 @@
 from typing import Dict
 
+
 class Stat:
     """A mutable class that allows us to aggregate values and report mean/stddev."""
+
     def __init__(self, name: str):
         self.name = name
         self.count = 0
         self.sum = 0
         self.sum_squared = 0
-        self.min = float('+inf')
-        self.max = float('-inf')
+        self.min = float("+inf")
+        self.max = float("-inf")
 
-    def add(self, x) -> 'Stat':
+    def add(self, x) -> "Stat":
         if isinstance(x, bool):
             x = 1 if x is True else 0
         self.count += 1
@@ -20,7 +22,7 @@ class Stat:
         self.max = max(self.max, x)
         return self
 
-    def merge(self, other: 'Stat') -> 'Stat':
+    def merge(self, other: "Stat") -> "Stat":
         self.count += other.count
         self.sum += other.sum
         self.sum_squared += other.sum_squared
@@ -29,19 +31,19 @@ class Stat:
         return self
 
     def __repr__(self):
-        return f'{self.name}[min={self.min}, mean={self.mean}, max={self.max} ({self.count})]'
+        return f"{self.name}[min={self.min}, mean={self.mean}, max={self.max} ({self.count})]"
 
     @property
     def mean(self):
         if self.count == 0:
-            return float('nan')
+            return float("nan")
         return self.sum / self.count
 
     @property
     def stddev(self):
         if self.count == 0:
-            return float('nan')
-        return self.sum_squared / self.count - self.mean**2
+            return float("nan")
+        return self.sum_squared / self.count - self.mean ** 2
 
     def collapse_uncertainty(self):
         """Return a version of the stat that only has the mean."""

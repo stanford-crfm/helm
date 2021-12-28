@@ -66,6 +66,7 @@ class Service(object):
     """
     Main class that supports various functionality for the server.
     """
+
     def __init__(self, base_path: str = ".", read_only: bool = False):
         credentials_path = os.path.join(base_path, CREDENTIALS_FILE)
         cache_path = os.path.join(base_path, CACHE_DIR)

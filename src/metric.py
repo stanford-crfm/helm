@@ -14,6 +14,7 @@ class Metric(ABC):
     """
     Evaluates all the results from a `Scenario` and produces numbers.
     """
+
     def evaluate(self, scenario_state: ScenarioState) -> List[Stat]:
         """Given all the `InstanceResult`s for a `scenario`, compute the metrics and return the list of `MetricResult`s."""
         adapter_spec = scenario_state.adapter_spec
@@ -32,7 +33,7 @@ class Metric(ABC):
 
                 # Ranking
                 request_states = [
-                    singleton(scenario_state.get_request_states(train_trial_index, instance, reference_index)) \
+                    singleton(scenario_state.get_request_states(train_trial_index, instance, reference_index))
                     for reference_index in range(len(instance.references))
                 ]
                 instance_stats.extend(self.evaluate_references(request_states))
@@ -46,18 +47,18 @@ class Metric(ABC):
 
         return global_stats.values()
 
-
     def evaluate_generation(self, request_state: RequestState) -> List[Stat]:
         """Evaluate free-form generation.  Override me!"""
         return []
-
 
     def evaluate_references(self, reference_request_states: List[RequestState]) -> List[Stat]:
         """Evaluate the references.  Override me!"""
         return []
 
+
 class MetricSpec(ObjectSpec):
     """Specifies how to create a `Metric`."""
+
     pass
 
 

@@ -4,6 +4,7 @@ import time
 from schemas import Request, RequestResult, Query, QueryResult
 from typing import Callable, Any
 
+
 class Client(ABC):
     @abstractmethod
     def make_request(self, request: Request) -> RequestResult:

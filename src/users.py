@@ -104,6 +104,7 @@ class Users:
     `path`: where the information about users is stored.
     If `read_only` is set, don't write to `path`.
     """
+
     def __init__(self, path: str, read_only: bool = False):
         self.path = path
         self.read_only = read_only

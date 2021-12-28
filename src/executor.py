@@ -9,6 +9,7 @@ from adapter import RequestState, ScenarioState
 from schemas import Request, RequestResult
 from users import Authentication
 
+
 @dataclass(frozen=True)
 class ExecutionSpec:
     auth: Authentication
@@ -19,14 +20,15 @@ class ExecutionSpec:
     # How many threads to have at once
     parallelism: int
 
+
 def make_request(auth: Authentication, url: str, request: Request) -> RequestResult:
     params = {
-        'auth': json.dumps(dataclasses.asdict(auth)),
-        'request': json.dumps(dataclasses.asdict(request)),
+        "auth": json.dumps(dataclasses.asdict(auth)),
+        "request": json.dumps(dataclasses.asdict(request)),
     }
-    response = requests.get(url + '?' + urllib.parse.urlencode(params)).json()
-    if response.get('error'):
-        print(response['error'])
+    response = requests.get(url + "?" + urllib.parse.urlencode(params)).json()
+    if response.get("error"):
+        print(response["error"])
     return from_dict(data_class=RequestResult, data=response)
 
 
@@ -35,6 +37,7 @@ class Executor:
     An `Executor` takes a `ScenarioState` which has a bunch of requests.
     Issue them to the API. and return the results.
     """
+
     def __init__(self, execution_spec: ExecutionSpec):
         self.execution_spec = execution_spec
 
@@ -43,5 +46,6 @@ class Executor:
         def process(request_state: RequestState) -> RequestState:
             result = make_request(self.execution_spec.auth, self.execution_spec.url, request_state.request)
             return replace(request_state, result=result)
+
         request_states = list(map(process, scenario_state.request_states))
         return ScenarioState(scenario_state.adapter_spec, request_states)

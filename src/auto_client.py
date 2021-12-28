@@ -11,6 +11,7 @@ from simple_client import SimpleClient
 
 class AutoClient(Client):
     """Automatically dispatch to the proper client."""
+
     def __init__(self, credentials: Dict[str, str], cache_path: str):
         self.credentials = credentials
         self.cache_path = cache_path

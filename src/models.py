@@ -11,7 +11,6 @@ class Model:
 
 
 all_models = [
-
     Model(group="gpt3", name="openai/davinci", description="GPT-3 (175B parameters)"),
     Model(group="gpt3", name="openai/curie", description="GPT-3 (6.7B parameters)"),
     Model(group="gpt3", name="openai/babbage", description="GPT-3 (1.3B parameters)"),
@@ -29,7 +28,6 @@ all_models = [
     ),
     Model(group="jurassic", name="ai21/j1-jumbo", description="Jurassic J1-Jumbo (178B parameters)"),
     Model(group="jurassic", name="ai21/j1-large", description="Jurassic J1-Large (7.5B parameters)"),
-
     Model(group="simple", name="simple/model1", description="Copy last tokens (for debugging)"),
 ]
 
