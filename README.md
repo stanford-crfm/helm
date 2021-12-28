@@ -33,3 +33,8 @@ To update and start the public server (be careful!):
     virtualenv venv
     venv/bin/pip install -r requirements.txt
     sudo venv/bin/python src/server.py -p 80
+
+# Contributing
+
+To contribute to this project, first install the dev dependencies and git hook scripts:
+`pip install -r requirements.dev.txt && pre-commit install`.
