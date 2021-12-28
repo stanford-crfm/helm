@@ -3,3 +3,10 @@ bottle==0.12.19
 Paste==3.5.0
 Mako==1.1.5
 pyhocon==0.3.58
+
+# For development
+black==19.10b0
+flake8==3.8.3
+mypy==0.782
+pre-commit==2.16.0
+typed-ast<1.5.0,>=1.4.0
