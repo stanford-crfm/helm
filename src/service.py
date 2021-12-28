@@ -1,7 +1,6 @@
-import json
 import mako.template
 import pyhocon
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple
 from schemas import Query, QueryResult, Request, RequestResult, GeneralInfo
 from models import all_models, get_model_group
 from users import Authentication, Users, User
@@ -9,13 +8,15 @@ from users import Authentication, Users, User
 from auto_client import AutoClient
 from example_queries import example_queries
 
-VERSION = '1.0'
-CREDENTIALS_PATH = 'credentials.conf'
-USERS_PATH = 'users.jsonl'
+VERSION = "1.0"
+CREDENTIALS_PATH = "credentials.conf"
+USERS_PATH = "users.jsonl"
 MAX_EXPANSION = 1000
+
 
 def parse_hocon(text: str):
     return pyhocon.ConfigFactory.parse_string(text)
+
 
 def expand_environments(environments: Dict[str, List[str]]):
     """
@@ -23,6 +24,7 @@ def expand_environments(environments: Dict[str, List[str]]):
     Return: a list of environments, where for each variable, we choose one of its string.
     """
     output_environments: List[Dict[str, str]] = []
+
     def recurse(old_items: List[Tuple[str, str]], new_items: List[Tuple[str, str]]):
         if len(output_environments) >= MAX_EXPANSION:
             return
@@ -33,6 +35,7 @@ def expand_environments(environments: Dict[str, List[str]]):
             key, list_value = item
             for elem_value in list_value:
                 recurse(rest_old_items, new_items + [(key, elem_value)])
+
     recurse(list(environments.items()), [])
     return output_environments
 
@@ -46,17 +49,20 @@ def substitute_text(text: str, environment: Dict[str, str]) -> str:
     """
     return mako.template.Template(text).render(**environment)
 
+
 def synthesize_request(prompt: str, settings: str, environment: Dict[str, str]) -> Request:
     """Substitute `environment` into `prompt` and `settings`."""
     request = {}
-    request['prompt'] = substitute_text(prompt, environment)
+    request["prompt"] = substitute_text(prompt, environment)
     request.update(parse_hocon(substitute_text(settings, environment)))
     return Request(**request)
+
 
 class Service(object):
     """
     Main class that supports various functionality for the server.
     """
+
     def __init__(self):
         with open(CREDENTIALS_PATH) as f:
             credentials = parse_hocon(f.read())
@@ -67,11 +73,7 @@ class Service(object):
         self.users.finish()
 
     def get_general_info(self):
-        return GeneralInfo(
-            version=VERSION,
-            exampleQueries=example_queries,
-            allModels=all_models,
-        )
+        return GeneralInfo(version=VERSION, exampleQueries=example_queries, allModels=all_models)
 
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""
@@ -97,7 +99,7 @@ class Service(object):
         # Only deduct if not cached
         if not request_result.cached:
             # Estimate number of tokens (TODO: fix this)
-            count = sum(len(completion.text.split(' ')) for completion in request_result.completions)
+            count = sum(len(completion.text.split(" ")) for completion in request_result.completions)
             self.users.use(auth.username, model_group, count)
 
         return request_result
