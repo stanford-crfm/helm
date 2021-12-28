@@ -59,7 +59,7 @@ class User:
         }
 
 
-@dataclass
+@dataclass(frozen=True)
 class Authentication:
     """How a request can be authenticated."""
     username: str

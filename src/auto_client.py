@@ -4,6 +4,7 @@ from client import Client
 from openai_client import OpenAIClient
 from ai21_client import AI21Client
 from schemas import Request, RequestResult
+from simple_client import SimpleClient
 
 class AutoClient(Client):
     """Automatically dispatch to the proper client."""
@@ -21,6 +22,8 @@ class AutoClient(Client):
                 client = AI21Client(api_key=self.credentials['ai21ApiKey'])
             elif organization == 'huggingface':
                 client = HuggingFaceClient()
+            elif organization == 'simple':
+                client = SimpleClient()
             else:
                 raise Exception(f'Unknown organization: {organization}')
             self.clients[organization] = client

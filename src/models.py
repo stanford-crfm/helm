@@ -21,6 +21,8 @@ all_models = [
 
     Model(group='jurassic', name='ai21/j1-jumbo', description='Jurassic J1-Jumbo (178B parameters)'),
     Model(group='jurassic', name='ai21/j1-large', description='Jurassic J1-Large (7.5B parameters)'),
+
+    Model(group='simple', name='simple/model1', description='Debugging only (return last tokens)'),
 ]
 
 def get_model_group(name: str):
