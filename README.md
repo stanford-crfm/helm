@@ -36,5 +36,5 @@ To update and start the public server (be careful!):
 
 # Contributing
 
-To contribute to this project, first install the dev dependencies and git hook scripts:
+To contribute to this project, install the dev dependencies and git hook scripts:
 `pip install -r requirements.dev.txt && pre-commit install`.
