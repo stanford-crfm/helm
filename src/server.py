@@ -10,10 +10,11 @@ import bottle
 import dataclasses
 import json
 import os
-from paste import httpserver
 import signal
+import ssl
 import sys
 import time
+from paste import httpserver
 from service import Service
 from schemas import Query, Request
 from users import Authentication
@@ -110,6 +111,17 @@ def handle_shutdown():
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument("-h", "--host", type=int, help="What host", default="0.0.0.0")
 parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=1959)
+parser.add_argument("--ssl-key-file", type=str, help="Path to SSL key file")
+parser.add_argument("--ssl-cert-file", type=str, help="Path to SSL cert file")
 args = parser.parse_args()
-httpserver.serve(app, host="0.0.0.0", port=args.port)
+
+if args.ssl_key_file and args.ssl_cert_file:
+    ssl_context: ssl.SSLContext = ssl.create_default_context()
+    ssl_context.load_cert_chain(keyfile=args.ssl_key_file, certfile=args.ssl_cert_file)
+    ssl_context.set_ciphers("ECDHE+AESGCM:!ECDSA")
+    ssl_context.set_ecdh_curve("prime256v1")
+    httpserver.serve(app, host=args.host, port=args.port, ssl_context=ssl_context)
+else:
+    httpserver.serve(app, host=args.host, port=args.port)
