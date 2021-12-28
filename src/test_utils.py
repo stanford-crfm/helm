@@ -1,6 +1,5 @@
 from scenario import ScenarioSpec
 from adapter import AdapterSpec
-from executor import ExecutionSpec
 from metric import MetricSpec
 from runner import RunSpec
 

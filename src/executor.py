@@ -1,7 +1,7 @@
 from dacite import from_dict
 import dataclasses
 import requests
-import urllib
+from urllib.parse import urlencode
 from dataclasses import dataclass, replace
 import json
 
@@ -26,7 +26,7 @@ def make_request(auth: Authentication, url: str, request: Request) -> RequestRes
         "auth": json.dumps(dataclasses.asdict(auth)),
         "request": json.dumps(dataclasses.asdict(request)),
     }
-    response = requests.get(url + "?" + urllib.parse.urlencode(params)).json()
+    response = requests.get(url + "?" + urlencode(params)).json()
     if response.get("error"):
         print(response["error"])
     return from_dict(data_class=RequestResult, data=response)

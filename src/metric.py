@@ -1,9 +1,6 @@
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import List, Dict, Optional
+from abc import ABC
+from typing import List, Dict
 
-from scenario import Instance
-from schemas import Request, RequestResult
 from adapter import ScenarioState, RequestState
 from statistic import Stat, merge_stat
 from object_spec import ObjectSpec, create_object
@@ -16,7 +13,10 @@ class Metric(ABC):
     """
 
     def evaluate(self, scenario_state: ScenarioState) -> List[Stat]:
-        """Given all the `InstanceResult`s for a `scenario`, compute the metrics and return the list of `MetricResult`s."""
+        """
+        Given all the `InstanceResult`s for a `scenario`, compute the metrics
+        and return the list of `MetricResult`s.
+        """
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[str, Stat] = {}  # name -> Stat
 
@@ -45,7 +45,7 @@ class Metric(ABC):
             for stat in trial_stats.values():
                 merge_stat(global_stats, stat.collapse_uncertainty())
 
-        return global_stats.values()
+        return list(global_stats.values())
 
     def evaluate_generation(self, request_state: RequestState) -> List[Stat]:
         """Evaluate free-form generation.  Override me!"""

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Dict, Tuple, Optional
 from collections import defaultdict
 import random
 
@@ -53,7 +53,7 @@ class ScenarioState:
     def __post_init__(self):
         # Create an index for `instances` and `request_states`.
         self.instances = []
-        self.request_state_map: Dict[Tuple[int, Instance, reference_index], List[RequestState]] = defaultdict(list)
+        self.request_state_map: Dict[Tuple[int, Instance, Optional[int]], List[RequestState]] = defaultdict(list)
         instances_set = set()
         for request_state in self.request_states:
             instances_set.add(request_state.instance)
@@ -87,11 +87,14 @@ class Adapter:
         all_train_instances = [instance for instance in instances if TRAIN_TAG in instance.tags]
         if len(all_train_instances) < self.adapter_spec.max_train_instances:
             print(
-                f"WARNING: only {len(all_train_instances)} training instances, wanted {self.adapter_spec.max_train_instances}"
+                f"WARNING: only {len(all_train_instances)} training instances, "
+                f"wanted {self.adapter_spec.max_train_instances}"
             )
         eval_instances = [instance for instance in instances if VALID_TAG in instance.tags or TEST_TAG in instance.tags]
         print(
-            f"{len(instances)} instances, choosing {self.adapter_spec.max_train_instances}/{len(all_train_instances)} train instances, {len(eval_instances)} eval instances"
+            f"{len(instances)} instances, "
+            f"choosing {self.adapter_spec.max_train_instances}/{len(all_train_instances)} train instances, "
+            f"{len(eval_instances)} eval instances"
         )
 
         request_states: List[RequestState] = []
@@ -105,7 +108,7 @@ class Adapter:
 
             # Create request_states
             for eval_instance in eval_instances:
-                for reference_index, reference in [(None, None)] + list(enumerate(eval_instance.references)):
+                def process(reference_index: Optional[int], reference: Optional[Reference]):
                     prompt = self.construct_prompt(train_instances, eval_instance, reference)
                     request = Request(
                         model=self.adapter_spec.model,
@@ -123,6 +126,13 @@ class Adapter:
                     )
                     request_states.append(request_state)
 
+                # Request without reference (free-form generation)
+                process(None, None)
+
+                # Request for each reference
+                for reference_index, reference in enumerate(eval_instance.references):
+                    process(reference_index, reference)
+
         print(f"{len(request_states)} requests")
         return ScenarioState(self.adapter_spec, request_states)
 
@@ -134,6 +144,7 @@ class Adapter:
         `train_instances` (in-context training examples), the input part of the
         `eval_instance`, and optionally the `reference`.
         """
+        # TODO: support input + output formats
         # TODO: make this configurable if desired
         # TODO: what happens if we have multiline text?
         input_prefix = "Input: "
@@ -148,11 +159,18 @@ class Adapter:
             lines.append(input_prefix + instance.input)
             # Put only the correct reference as the output
             reference = instance.first_correct_reference
-            lines.append(output_prefix + reference.output)
+            if reference is not None:
+                lines.append(output_prefix + reference.output)
+            else:
+                print(f"No correct reference for {instance}")
+                lines.append(output_prefix + "???")
 
         # Evaluation instance
         lines.append(input_prefix + eval_instance.input)
         # TODO: removing trailing whitespace
-        lines.append(output_prefix)
+        if reference is None:
+            lines.append(output_prefix)
+        else:
+            lines.append(output_prefix + reference.output)
 
         return "\n".join(lines)

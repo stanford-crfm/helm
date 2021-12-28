@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
-import os
 import time
-from schemas import Request, RequestResult, Query, QueryResult
+from schemas import Request, RequestResult
 from typing import Callable, Any
 
 

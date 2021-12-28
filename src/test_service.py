@@ -1,4 +1,3 @@
-import json
 from schemas import Query, Request
 from service import Service
 from users import Authentication

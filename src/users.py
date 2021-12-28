@@ -170,7 +170,7 @@ class Users:
         if user.password != auth.password:
             raise AuthenticationError(f"Incorrect password for user {auth.username}")
 
-    def check_can_use(self, username: str, model_group: str) -> bool:
+    def check_can_use(self, username: str, model_group: str):
         """Check if the given `username` can use `model_group`.  Throw exceptions if not."""
 
         def granular_check_can_use(

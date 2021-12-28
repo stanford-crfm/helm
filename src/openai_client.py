@@ -1,4 +1,4 @@
-import openai
+import openai  # type: ignore
 
 from client import Client
 from cache import Cache

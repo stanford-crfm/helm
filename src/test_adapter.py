@@ -1,5 +1,3 @@
-from typing import List
-
 from scenario import create_scenario
 from test_utils import get_scenario_spec1, get_adapter_spec1
 from adapter import Adapter

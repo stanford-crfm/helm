@@ -10,9 +10,13 @@ class BasicMetric(Metric):
 
     def evaluate_generation(self, request_state: RequestState) -> List[Stat]:
         # TODO: make this more robust
+        assert request_state.result is not None
         prediction = request_state.result.completions[0].text
-        gold = request_state.instance.first_correct_reference.output
-        ranking = 0
+
+        gold_reference = request_state.instance.first_correct_reference
+        assert gold_reference is not None
+        gold = gold_reference.output
+
         return [
             Stat("exact_match").add(prediction == gold),
             # Highest probability of the highest correct reference

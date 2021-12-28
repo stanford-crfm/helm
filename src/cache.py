@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import json
 import os
-from typing import Dict, Callable
+from typing import Dict, Callable, Tuple
 
 
 def request_to_key(request: Dict) -> str:
@@ -47,7 +47,7 @@ class Cache(object):
                 print(json.dumps(item), file=f)
             print(f"{len(self.data)} entries")
 
-    def get(self, request: Dict, compute: Callable[[], Dict]) -> Dict:
+    def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
         key = request_to_key(request)
         if key in self.data:

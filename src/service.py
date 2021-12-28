@@ -1,9 +1,8 @@
-import json
 import os
-import mako.template
-import pyhocon
+import mako.template  # type: ignore
+import pyhocon  # type: ignore
 from general import ensure_directory_exists
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple, Any
 from schemas import Query, QueryResult, Request, RequestResult, GeneralInfo
 from models import all_models, get_model_group
 from users import Authentication, Users, User
@@ -29,7 +28,7 @@ def expand_environments(environments: Dict[str, List[str]]):
     """
     output_environments: List[Dict[str, str]] = []
 
-    def recurse(old_items: List[Tuple[str, str]], new_items: List[Tuple[str, str]]):
+    def recurse(old_items: List[Tuple[str, List[str]]], new_items: List[Tuple[str, str]]):
         if len(output_environments) >= MAX_EXPANSION:
             return
         if len(old_items) == 0:
@@ -56,7 +55,7 @@ def substitute_text(text: str, environment: Dict[str, str]) -> str:
 
 def synthesize_request(prompt: str, settings: str, environment: Dict[str, str]) -> Request:
     """Substitute `environment` into `prompt` and `settings`."""
-    request = {}
+    request: Dict[str, Any] = {}
     request["prompt"] = substitute_text(prompt, environment)
     request.update(parse_hocon(substitute_text(settings, environment)))
     return Request(**request)
