@@ -16,10 +16,10 @@ class Metric(ABC):
     """
     def evaluate(self, scenario_state: ScenarioState) -> List[Stat]:
         """Given all the `InstanceResult`s for a `scenario`, compute the metrics and return the list of `MetricResult`s."""
-        adaptation_spec = scenario_state.adaptation_spec
+        adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[str, Stat] = {}  # name -> Stat
 
-        for train_trial_index in range(adaptation_spec.num_train_trials):
+        for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[str, Stat] = {}  # Statistics just for this trial
             # TODO: incorporate robustness (worst case over a group of instances with some tag)
             # TODO: incorporate disparities (compute difference between average over instances with some tag)

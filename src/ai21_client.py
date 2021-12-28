@@ -7,9 +7,9 @@ from schemas import Request, RequestResult, Completion
 
 # https://studio.ai21.com/docs/api/
 class AI21Client(Client):
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, cache_path: str):
         self.api_key = api_key
-        self.cache = Cache(self.get_cache_path('ai21'))
+        self.cache = Cache(cache_path)
 
     def make_request(self, request: Request) -> RequestResult:
         model = request.model

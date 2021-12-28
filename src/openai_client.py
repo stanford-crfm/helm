@@ -6,9 +6,9 @@ from cache import Cache
 from schemas import Request, RequestResult, Completion
 
 class OpenAIClient(Client):
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, cache_path: str):
         openai.api_key = api_key
-        self.cache = Cache(self.get_cache_path('openai'))
+        self.cache = Cache(cache_path)
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = {

@@ -7,7 +7,7 @@ from scenario import Instance, Scenario, Reference, TRAIN_TAG, VALID_TAG, TEST_T
 from schemas import Request, RequestResult
 
 @dataclass(frozen=True)
-class AdaptationSpec:
+class AdapterSpec:
     """
     Specifies how to take an `Instance` and produce a set of `Request`s (e.g.,
     concatenate instructions and number of training examples) and make one
@@ -43,7 +43,7 @@ class RequestState:
 @dataclass
 class ScenarioState:
     """All the `RequestState` results that come about from evaluating a particular scenario."""
-    adaptation_spec: AdaptationSpec
+    adapter_spec: AdapterSpec
     request_states: List[RequestState]
 
     def __post_init__(self):
@@ -63,8 +63,8 @@ class ScenarioState:
 
 class Adapter:
     """An `Adapter`"""
-    def __init__(self, adaptation_spec: AdaptationSpec):
-        self.adaptation_spec = adaptation_spec
+    def __init__(self, adapter_spec: AdapterSpec):
+        self.adapter_spec = adapter_spec
 
     def adapt(self, scenario: Scenario) -> ScenarioState:
         """
@@ -78,28 +78,28 @@ class Adapter:
 
         # Choose training instances and evaluation instances
         all_train_instances = [instance for instance in instances if TRAIN_TAG in instance.tags]
-        if len(all_train_instances) < self.adaptation_spec.max_train_instances:
-            print(f'WARNING: only {len(all_train_instances)} training instances, wanted {self.adaptation_spec.max_train_instances}')
+        if len(all_train_instances) < self.adapter_spec.max_train_instances:
+            print(f'WARNING: only {len(all_train_instances)} training instances, wanted {self.adapter_spec.max_train_instances}')
         eval_instances = [instance for instance in instances if VALID_TAG in instance.tags or TEST_TAG in instance.tags]
-        print(f'{len(instances)} instances, choosing {self.adaptation_spec.max_train_instances}/{len(all_train_instances)} train instances, {len(eval_instances)} eval instances')
+        print(f'{len(instances)} instances, choosing {self.adapter_spec.max_train_instances}/{len(all_train_instances)} train instances, {len(eval_instances)} eval instances')
 
         request_states: List[RequestState] = []
 
-        for train_trial_index in range(self.adaptation_spec.num_train_trials):
+        for train_trial_index in range(self.adapter_spec.num_train_trials):
             # Choose a random set of training instances
             random.seed(train_trial_index)
-            train_instances = random.sample(all_train_instances, min(len(all_train_instances), self.adaptation_spec.max_train_instances))
+            train_instances = random.sample(all_train_instances, min(len(all_train_instances), self.adapter_spec.max_train_instances))
 
             # Create request_states
             for eval_instance in eval_instances:
                 for reference_index, reference in [(None, None)] + list(enumerate(eval_instance.references)):
                     prompt = self.construct_prompt(train_instances, eval_instance, reference)
                     request = Request(
-                        model=self.adaptation_spec.model,
+                        model=self.adapter_spec.model,
                         prompt=prompt,
-                        temperature=self.adaptation_spec.temperature,
-                        topK=self.adaptation_spec.num_outputs,
-                        stopSequences=self.adaptation_spec.stop_sequences,
+                        temperature=self.adapter_spec.temperature,
+                        topK=self.adapter_spec.num_outputs,
+                        stopSequences=self.adapter_spec.stop_sequences,
                     )
                     request_state = RequestState(
                         instance=eval_instance,
@@ -111,11 +111,11 @@ class Adapter:
                     request_states.append(request_state)
 
         print(f'{len(request_states)} requests')
-        return ScenarioState(self.adaptation_spec, request_states)
+        return ScenarioState(self.adapter_spec, request_states)
 
     def construct_prompt(self, train_instances: List[Instance], eval_instance: Instance, reference: Optional[Reference]) -> str:
         """
-        Returns a prompt (string) given `self.adaptation_spec.instructions`,
+        Returns a prompt (string) given `self.adapter_spec.instructions`,
         `train_instances` (in-context training examples), the input part of the
         `eval_instance`, and optionally the `reference`.
         """
@@ -125,7 +125,7 @@ class Adapter:
         output_prefix = 'Output: '
 
         # Instructions
-        lines = [self.adaptation_spec.instructions]
+        lines = [self.adapter_spec.instructions]
 
         # In-context training instances
         for instance in train_instances:

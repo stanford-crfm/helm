@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 
 from scenario import ScenarioSpec, create_scenario
-from adapter import AdaptationSpec, Adapter
+from adapter import AdapterSpec, Adapter
 from executor import ExecutionSpec, Executor
 from metric import MetricSpec, create_metric
 
@@ -12,7 +12,7 @@ class RunSpec:
     Specifies how to run on one scenario (apply the different adaptation procedures)
     """
     scenario: ScenarioSpec             # Which scenario
-    adaptation_spec: AdaptationSpec    # Specifies how to adapt an instance into a set of requests
+    adapter_spec: AdapterSpec    # Specifies how to adapt an instance into a set of requests
     metrics: List[MetricSpec]          # What to evaluate on
 
 
@@ -31,7 +31,7 @@ class Runner:
         scenario = create_scenario(run_spec.scenario)
 
         # Build pieces (contextualized requests)
-        adapter = Adapter(run_spec.adaptation_spec)
+        adapter = Adapter(run_spec.adapter_spec)
         scenario_state = adapter.adapt(scenario)
 
         # Execute the requests

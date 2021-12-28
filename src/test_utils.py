@@ -1,5 +1,5 @@
 from scenario import ScenarioSpec
-from adapter import AdaptationSpec
+from adapter import AdapterSpec
 from executor import ExecutionSpec
 from metric import MetricSpec
 from runner import RunSpec
@@ -12,8 +12,8 @@ def get_scenario_spec1():
         'num_test_instances': 10,
     })
 
-def get_adaptation_spec1():
-    return AdaptationSpec(
+def get_adapter_spec1():
+    return AdapterSpec(
         instructions='Please solve the following problem.',
         max_train_instances=5,
         max_eval_instances=10,
@@ -28,7 +28,7 @@ def get_run_spec1():
     """An run spec for debugging."""
     return RunSpec(
         scenario=get_scenario_spec1(),
-        adaptation_spec=get_adaptation_spec1(),
+        adapter_spec=get_adapter_spec1(),
         metrics=[
             MetricSpec(class_name='basic_metrics.BasicMetric', args={}),
         ],

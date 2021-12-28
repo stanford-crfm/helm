@@ -44,4 +44,4 @@ class Executor:
             result = make_request(self.execution_spec.auth, self.execution_spec.url, request_state.request)
             return replace(request_state, result=result)
         request_states = list(map(process, scenario_state.request_states))
-        return ScenarioState(scenario_state.adaptation_spec, request_states)
+        return ScenarioState(scenario_state.adapter_spec, request_states)

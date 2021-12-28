@@ -1,3 +1,4 @@
+import os
 from typing import Dict
 
 from client import Client
@@ -8,18 +9,20 @@ from simple_client import SimpleClient
 
 class AutoClient(Client):
     """Automatically dispatch to the proper client."""
-    def __init__(self, credentials: Dict[str, str]):
+    def __init__(self, credentials: Dict[str, str], cache_path: str):
         self.credentials = credentials
+        self.cache_path = cache_path
         self.clients: Dict[str, Client] = {}
 
     def get_client(self, organization: str) -> Client:
         """Return a client based on `organization`, creating it if necessary."""
         client = self.clients.get(organization)
         if client is None:
+            client_cache_path = os.path.join(self.cache_path, organization + '.jsonl')
             if organization == 'openai':
-                client = OpenAIClient(api_key=self.credentials['openaiApiKey'])
+                client = OpenAIClient(api_key=self.credentials['openaiApiKey'], cache_path=client_cache_path)
             elif organization == 'ai21':
-                client = AI21Client(api_key=self.credentials['ai21ApiKey'])
+                client = AI21Client(api_key=self.credentials['ai21ApiKey'], cache_path=client_cache_path)
             elif organization == 'huggingface':
                 client = HuggingFaceClient()
             elif organization == 'simple':
