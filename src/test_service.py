@@ -2,7 +2,6 @@ import json
 from schemas import Query, Request
 from service import Service
 from users import Authentication
-import pytest
 
 def get_service():
     return Service(base_path='test_env', read_only=True)

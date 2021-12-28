@@ -1,11 +1,13 @@
 import os
 from typing import Dict
 
-from client import Client
-from openai_client import OpenAIClient
 from ai21_client import AI21Client
+from client import Client
+from huggingface_client import HuggingFaceClient
+from openai_client import OpenAIClient
 from schemas import Request, RequestResult
 from simple_client import SimpleClient
+
 
 class AutoClient(Client):
     """Automatically dispatch to the proper client."""
@@ -18,17 +20,17 @@ class AutoClient(Client):
         """Return a client based on `organization`, creating it if necessary."""
         client = self.clients.get(organization)
         if client is None:
-            client_cache_path = os.path.join(self.cache_path, organization + '.jsonl')
-            if organization == 'openai':
-                client = OpenAIClient(api_key=self.credentials['openaiApiKey'], cache_path=client_cache_path)
-            elif organization == 'ai21':
-                client = AI21Client(api_key=self.credentials['ai21ApiKey'], cache_path=client_cache_path)
-            elif organization == 'huggingface':
+            client_cache_path = os.path.join(self.cache_path, organization + ".jsonl")
+            if organization == "openai":
+                client = OpenAIClient(api_key=self.credentials["openaiApiKey"], cache_path=client_cache_path)
+            elif organization == "ai21":
+                client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
+            elif organization == "huggingface":
                 client = HuggingFaceClient()
-            elif organization == 'simple':
+            elif organization == "simple":
                 client = SimpleClient()
             else:
-                raise Exception(f'Unknown organization: {organization}')
+                raise Exception(f"Unknown organization: {organization}")
             self.clients[organization] = client
         return client
 

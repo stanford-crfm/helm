@@ -7,4 +7,15 @@ lm-evaluation-harness
 
 nav
 tags
+<<<<<<< HEAD
 notes.otl
+=======
+
+venv
+
+# For Macs
+.DS_Store
+
+# For PyCharm and IntelliJ
+.idea
+>>>>>>> master
