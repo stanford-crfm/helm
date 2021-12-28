@@ -30,20 +30,11 @@ class OpenAIClient(Client):
             def do_it():
                 return openai.Completion.create(**raw_request)
 
-            response, cached = self.cache.get(
-                raw_request, self.wrap_request_time(do_it)
-            )
+            response, cached = self.cache.get(raw_request, self.wrap_request_time(do_it))
         except openai.error.InvalidRequestError as e:
-            return RequestResult(
-                success=False, cached=False, error=str(e), completions=[],
-            )
+            return RequestResult(success=False, cached=False, error=str(e), completions=[])
 
         completions = []
         for choice in response["choices"]:
-            completions.append(Completion(text=choice["text"],))
-        return RequestResult(
-            success=True,
-            cached=cached,
-            requestTime=response["requestTime"],
-            completions=completions,
-        )
+            completions.append(Completion(text=choice["text"]))
+        return RequestResult(success=True, cached=cached, requestTime=response["requestTime"], completions=completions)

@@ -50,9 +50,7 @@ def substitute_text(text: str, environment: Dict[str, str]) -> str:
     return mako.template.Template(text).render(**environment)
 
 
-def synthesize_request(
-    prompt: str, settings: str, environment: Dict[str, str]
-) -> Request:
+def synthesize_request(prompt: str, settings: str, environment: Dict[str, str]) -> Request:
     """Substitute `environment` into `prompt` and `settings`."""
     request = {}
     request["prompt"] = substitute_text(prompt, environment)
@@ -75,9 +73,7 @@ class Service(object):
         self.users.finish()
 
     def get_general_info(self):
-        return GeneralInfo(
-            version=VERSION, exampleQueries=example_queries, allModels=all_models,
-        )
+        return GeneralInfo(version=VERSION, exampleQueries=example_queries, allModels=all_models)
 
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""
@@ -103,10 +99,7 @@ class Service(object):
         # Only deduct if not cached
         if not request_result.cached:
             # Estimate number of tokens (TODO: fix this)
-            count = sum(
-                len(completion.text.split(" "))
-                for completion in request_result.completions
-            )
+            count = sum(len(completion.text.split(" ")) for completion in request_result.completions)
             self.users.use(auth.username, model_group, count)
 
         return request_result

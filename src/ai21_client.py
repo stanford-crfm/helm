@@ -34,16 +34,9 @@ class AI21Client(Client):
         response, cached = self.cache.get(raw_request, self.wrap_request_time(do_it))
 
         if "completions" not in response:
-            return RequestResult(
-                success=False, cached=False, error=response["detail"], completions=[],
-            )
+            return RequestResult(success=False, cached=False, error=response["detail"], completions=[])
 
         completions = []
         for completion in response["completions"]:
-            completions.append(Completion(text=completion["data"]["text"],))
-        return RequestResult(
-            success=True,
-            cached=cached,
-            requestTime=response["requestTime"],
-            completions=completions,
-        )
+            completions.append(Completion(text=completion["data"]["text"]))
+        return RequestResult(success=True, cached=cached, requestTime=response["requestTime"], completions=completions)

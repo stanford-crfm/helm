@@ -22,7 +22,7 @@ example_queries = [
             maxTokens: 100
             #model: ai21/j1-jumbo
             model: openai/davinci
-        """
+            """
         ),
         environments="",
     ),
@@ -33,13 +33,13 @@ example_queries = [
             temperature: 0.5
             maxTokens: 100
             model: ${model}
-        """
+            """
         ),
         environments=dedent(
             """
             occupation: [mathematician, lawyer, doctor, programmer, president]
             model: [ai21/j1-jumbo, openai/davinci]
-        """
+            """
         ),
     ),
     Query(
@@ -47,7 +47,7 @@ example_queries = [
         settings=dedent(
             """
             model: openai/davinci-codex
-        """
+            """
         ),
         environments="",
     ),

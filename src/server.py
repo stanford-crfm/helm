@@ -39,11 +39,7 @@ def safe_call(func, to_json=True):
         result = func(params)
         end_time = time.time()
         result = json.dumps(result) if to_json else result
-        print(
-            "REQUEST {}: {} seconds, {} bytes".format(
-                bottle.request, end_time - start_time, len(result)
-            )
-        )
+        print("REQUEST {}: {} seconds, {} bytes".format(bottle.request, end_time - start_time, len(result)))
         return result
     except Exception as e:
         import traceback
@@ -51,12 +47,7 @@ def safe_call(func, to_json=True):
         if not isinstance(e, ValueError):
             traceback.print_exc()
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        error_str = (
-            "EXCEPTION: "
-            + str(e)
-            + "\n"
-            + "\n".join(traceback.format_tb(exc_traceback))
-        )
+        error_str = "EXCEPTION: " + str(e) + "\n" + "\n".join(traceback.format_tb(exc_traceback))
         return json.dumps({"error": error_str}) if to_json else error_str
 
 
@@ -67,9 +58,7 @@ def handle_root():
 
 @app.get("/static/<filename:path>")
 def handle_static_filename(filename):
-    resp = bottle.static_file(
-        filename, root=os.path.join(os.path.dirname(__file__), "static")
-    )
+    resp = bottle.static_file(filename, root=os.path.join(os.path.dirname(__file__), "static"))
     resp.add_header("Cache-Control", "no-store, must-revalidate ")
     return resp
 
@@ -121,8 +110,6 @@ def handle_shutdown():
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument(
-    "-p", "--port", type=int, help="What port to listen on", default=1959
-)
+parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=1959)
 args = parser.parse_args()
 httpserver.serve(app, host="0.0.0.0", port=args.port)

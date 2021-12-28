@@ -25,9 +25,7 @@ class InsufficientQuotaError(Exception):
 class Usage:
     """Usage information (for a given user, model group, and granularity)."""
 
-    period: Optional[
-        str
-    ] = None  # marks the current period (so we know when to reset `used`)
+    period: Optional[str] = None  # marks the current period (so we know when to reset `used`)
     used: int = 0
     quota: Optional[int] = None
 
@@ -168,39 +166,26 @@ class Users:
         """Check if the given `username` can use `model_group`.  Throw exceptions if not."""
 
         def granular_check_can_use(
-            granularity: str,
-            usages: Dict[str, Usage],
-            model_group: str,
-            compute_period: Callable[[], str],
+            granularity: str, usages: Dict[str, Usage], model_group: str, compute_period: Callable[[], str],
         ):
             """Helper that checks the usage at a certain granularity (e.g., daily, monthly, total)."""
             usage = usages[model_group]
             period = compute_period()
             usage.update_period(period)
             if not usage.can_use():
-                raise InsufficientQuotaError(
-                    f"{granularity} quota ({usage.quota}) for {model_group} already used up"
-                )
+                raise InsufficientQuotaError(f"{granularity} quota ({usage.quota}) for {model_group} already used up")
 
         with self.global_lock:
             user = self.username_to_users[username]
-            granular_check_can_use(
-                "daily", user.daily, model_group, compute_daily_period
-            )
-            granular_check_can_use(
-                "monthly", user.monthly, model_group, compute_monthly_period
-            )
-            granular_check_can_use(
-                "total", user.total, model_group, compute_total_period
-            )
+            granular_check_can_use("daily", user.daily, model_group, compute_daily_period)
+            granular_check_can_use("monthly", user.monthly, model_group, compute_monthly_period)
+            granular_check_can_use("total", user.total, model_group, compute_total_period)
 
     def use(self, username: str, model_group: str, delta: int):
         """Call this function when user with `username` used `delta` of `model_group`."""
 
         def granular_use(
-            usages: Dict[str, Usage],
-            model_group: str,
-            compute_period: Callable[[], str],
+            usages: Dict[str, Usage], model_group: str, compute_period: Callable[[], str],
         ):
             """Helper that checks the usage at a certain granularity (e.g., daily, monthly, total)."""
             usage = usages[model_group]
