@@ -108,6 +108,7 @@ class Adapter:
 
             # Create request_states
             for eval_instance in eval_instances:
+
                 def process(reference_index: Optional[int], reference: Optional[Reference]):
                     prompt = self.construct_prompt(train_instances, eval_instance, reference)
                     request = Request(

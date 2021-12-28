@@ -1,6 +1,7 @@
 from client import Client
 from schemas import Request, RequestResult
 
+
 class HuggingFaceClient(Client):
     # TODO: use Hugging Face's APIs.
     # https://huggingface.co/gpt2
