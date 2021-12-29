@@ -1,5 +1,6 @@
 import json
 import os
+import threading
 from collections import OrderedDict
 from typing import Dict, Callable, Tuple
 
@@ -28,6 +29,7 @@ class Cache(object):
     def __init__(self, cache_path: str):
         self.cache_path = cache_path
         self.read()
+        self._lock = threading.RLock()
 
     def read(self):
         """Read cache data from disk."""
@@ -59,7 +61,8 @@ class Cache(object):
             cached = False
 
             # Cache new request and response
-            with SqliteDict(self.cache_path) as cache_dict:
-                cache_dict[key] = response
-                cache_dict.commit()
+            with self._lock:
+                with SqliteDict(self.cache_path) as cache_dict:
+                    cache_dict[key] = response
+                    cache_dict.commit()
         return response, cached
