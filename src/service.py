@@ -1,6 +1,6 @@
 import os
-import mako.template  # type: ignore
-import pyhocon  # type: ignore
+import mako.template
+import pyhocon
 from general import ensure_directory_exists
 from typing import Dict, List, Tuple, Any
 from schemas import Query, QueryResult, Request, RequestResult, GeneralInfo

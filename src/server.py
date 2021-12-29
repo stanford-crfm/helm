@@ -6,11 +6,11 @@ Look at `index.js` to see how the functionality is invoked.
 """
 
 import argparse
-import bottle  # type: ignore
+import bottle
 import dataclasses
 import json
 import os
-from paste import httpserver  # type: ignore
+from paste import httpserver
 import signal
 import sys
 import time
