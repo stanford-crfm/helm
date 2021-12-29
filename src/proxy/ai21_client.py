@@ -1,7 +1,7 @@
 import requests
 
 from common.cache import Cache
-from common.request import Request, RequestResult, Completion
+from common.request import Request, RequestResult, Sequence
 from .client import Client
 
 
@@ -38,7 +38,7 @@ class AI21Client(Client):
 
         completions = []
         for completion in response["completions"]:
-            completions.append(Completion(text=completion["data"]["text"]))
+            completions.append(Sequence(text=completion["data"]["text"]))
         return RequestResult(
             success=True, cached=cached, request_time=response["request_time"], completions=completions
         )

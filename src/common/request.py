@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 
 @dataclass(frozen=True)
@@ -29,18 +29,32 @@ class Request:
 
 
 @dataclass(frozen=True)
-class Completion:
-    """Represents one result from the API."""
+class Token:
+    """
+    A `Token` represents one token position in the sequence, which has the
+    chosen `text` as well as the top probabilities under the model.
+    """
+    text: str                      # Text that was chosen
+    log_prob: float                # Log probability of that text
+    top_choices: Dict[str, float]  # text -> log_prob
+
+
+@dataclass(frozen=True)
+class Sequence:
+    """A `Sequence` is a sequence of tokens."""
 
     text: str
+    log_prob: float
+    tokens: List[Token]
 
 
 @dataclass(frozen=True)
 class RequestResult:
-    """What comes back due to a request."""
+    """What comes back due to a `Request`."""
 
     success: bool
-    completions: List[Completion]
+    prompt: Sequence
+    completions: List[Sequence]
     cached: bool
     request_time: Optional[float] = None
     error: Optional[str] = None

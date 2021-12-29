@@ -1,7 +1,7 @@
 from typing import List
 
 from .client import Client
-from common.request import Request, RequestResult, Completion
+from common.request import Request, RequestResult, Sequence, Token
 
 
 class SimpleClient(Client):
@@ -12,9 +12,9 @@ class SimpleClient(Client):
             completions = self.invoke_model1(request)
         else:
             raise ValueError("Unknown model")
-        return RequestResult(success=True, cached=False, request_time=0, completions=completions)
+        return RequestResult(success=True, cached=False, request_time=0, prompt=Sequence(text=request.prompt, log_prob=0, tokens=[]), completions=completions)
 
-    def invoke_model1(self, request: Request) -> List[Completion]:
+    def invoke_model1(self, request: Request) -> List[Sequence]:
         """
         Example: 7 2 4 6
         Completions (num_completions = 3):
@@ -22,5 +22,12 @@ class SimpleClient(Client):
         - 4
         - 2
         """
-        tokens = request.prompt.split(" ")
-        return [Completion(text=token) for token in reversed(tokens[-request.num_completions :])]
+        prompt_tokens = request.prompt.split(" ")
+
+        choices = reversed(prompt_tokens[-request.num_completions :])
+        top_choices = dict((text, -i) for i, text in enumerate(choices))
+
+        return [
+            Sequence(text=text, log_prob=log_prob, tokens=[Token(text=text, log_prob=log_prob, top_choices=top_choices)])
+            for text, log_prob in top_choices.items()
+        ]
