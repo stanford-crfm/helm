@@ -39,4 +39,6 @@ class AI21Client(Client):
         completions = []
         for completion in response["completions"]:
             completions.append(Completion(text=completion["data"]["text"]))
-        return RequestResult(success=True, cached=cached, request_time=response["request_time"], completions=completions)
+        return RequestResult(
+            success=True, cached=cached, request_time=response["request_time"], completions=completions
+        )
