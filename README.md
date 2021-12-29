@@ -77,10 +77,14 @@ To update and start the public server (be careful!):
 
 # Contributing
 
-To contribute to this project, install the dev dependencies and git hook scripts:
+To contribute to this project, install the dependencies:
   
-    pip install -r requirements.txt && pre-commit install
+    ./pre-commit.sh
 
 To run unit tests:
 
     python -m pytest
+
+Before pushing code changes to the remote repo, run the pre-commit script:
+
+    ./pre-commit.sh
