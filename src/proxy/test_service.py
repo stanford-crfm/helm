@@ -22,10 +22,10 @@ def test_expand_query():
 def test_make_request():
     service = get_service()
     auth = get_authentication()
-    top_k = 2
-    request = Request(prompt="1 2 3", model="simple/model1", topK=top_k,)
+    num_completions = 2
+    request = Request(prompt="1 2 3", model="simple/model1", num_completions=num_completions)
     result = service.make_request(auth, request)
-    assert len(result.completions) == top_k
+    assert len(result.completions) == num_completions
     service.finish()
 
 
@@ -33,7 +33,7 @@ def test_example_queries():
     """Make sure example queries parse."""
     service = get_service()
     general_info = service.get_general_info()
-    for query in general_info.exampleQueries:
+    for query in general_info.example_queries:
         response = service.expand_query(query)
         assert len(response.requests) > 0
     service.finish()

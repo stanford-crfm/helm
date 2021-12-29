@@ -9,15 +9,15 @@ class Request:
     model: str = "openai/davinci"
     prompt: str = ""
     temperature: float = 1.0
-    numSamples: int = 1  # Generate this many independent samples
-    topK: int = 1  # Generate a k-best
-    maxTokens: int = 100
-    stopSequences: List[str] = field(default_factory=list)
+    num_completions: int = 1  # Generate this many completions
+    top_k_per_token: int = 1  # Take this many highest probability candidates per token in the completion
+    max_tokens: int = 100  # Maximum number of tokens to generate
+    stop_sequences: List[str] = field(default_factory=list)
 
     # For OpenAI's API
-    topP: float = 1  # Enable nucleus sampling
-    presencePenalty: float = 0
-    frequencyPenalty: float = 0
+    top_p: float = 1  # Enable nucleus sampling
+    presence_penalty: float = 0
+    frequency_penalty: float = 0
 
     def model_organization(self):
         """Example: 'openai/davinci' => 'openai'"""
@@ -42,5 +42,5 @@ class RequestResult:
     success: bool
     completions: List[Completion]
     cached: bool
-    requestTime: Optional[float] = None
+    request_time: Optional[float] = None
     error: Optional[str] = None

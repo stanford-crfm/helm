@@ -64,7 +64,7 @@ def handle_static_filename(filename):
     return resp
 
 
-@app.get("/api/getGeneralInfo")
+@app.get("/api/general_info")
 def handle_get_general_info():
     def perform(args):
         return dataclasses.asdict(service.get_general_info())
@@ -72,7 +72,7 @@ def handle_get_general_info():
     return safe_call(perform)
 
 
-@app.get("/api/getUser")
+@app.get("/api/user")
 def handle_get_user():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
@@ -81,8 +81,8 @@ def handle_get_user():
     return safe_call(perform)
 
 
-@app.get("/api/expandQuery")
-def handle_expand_query():
+@app.get("/api/query")
+def handle_query():
     def perform(args):
         query = Query(**args)
         return dataclasses.asdict(service.expand_query(query))
@@ -90,8 +90,8 @@ def handle_expand_query():
     return safe_call(perform)
 
 
-@app.get("/api/makeRequest")
-def handle_make_request():
+@app.get("/api/request")
+def handle_request():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
         request = Request(**json.loads(args["request"]))

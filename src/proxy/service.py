@@ -22,7 +22,7 @@ MAX_EXPANSION = 1000
 @dataclass(frozen=True)
 class GeneralInfo:
     version: str
-    exampleQueries: List[Query]
+    example_queries: List[Query]
     allModels: List[Model]
 
 
@@ -89,7 +89,7 @@ class Service(object):
         self.users.finish()
 
     def get_general_info(self):
-        return GeneralInfo(version=VERSION, exampleQueries=example_queries, allModels=all_models)
+        return GeneralInfo(version=VERSION, example_queries=example_queries, allModels=all_models)
 
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""

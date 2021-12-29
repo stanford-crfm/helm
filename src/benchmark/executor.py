@@ -14,7 +14,7 @@ from .adapter import RequestState, ScenarioState
 class ExecutionSpec:
     auth: Authentication
 
-    # Where the REST endpoint is (e.g., http://localhost:1959/api/makeRequest)
+    # Where the REST endpoint is (e.g., http://localhost:1959/api/request)
     url: str
 
     # How many threads to have at once
