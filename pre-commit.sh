@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Run this script before you commit: ./pre-commit.sh
-
 # This script fails when any of its commands fail.
 set -e
 
@@ -18,7 +16,13 @@ set +e
 venv/bin/black --check --diff src
 exit_code=$?
 if [ $exit_code -ne 0 ]; then
-  printf "\nThe code formatting check failed. To fix the formatting, run:\n\n\tblack src\n\n"
+  echo ""
+  echo "The code formatting check failed. To fix the formatting, run:"
+  echo ""
+  echo ""
+  echo "    venv/bin/black src"
+  echo ""
+  echo ""
   exit $exit_code
 fi
 set -e
