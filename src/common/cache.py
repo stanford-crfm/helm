@@ -58,7 +58,7 @@ class Cache(object):
             response = self.data[key] = compute()
             cached = False
 
-            # Comit request and response
+            # Cache new request and response
             with SqliteDict(self.cache_path) as cache_dict:
                 cache_dict[key] = response
                 cache_dict.commit()
