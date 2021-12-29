@@ -7,7 +7,7 @@ from sqlitedict import SqliteDict
 from common.cache import Cache
 
 
-class DependencyManagerTest(unittest.TestCase):
+class CacheTest(unittest.TestCase):
     def setUp(self):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path = cache_file.name
