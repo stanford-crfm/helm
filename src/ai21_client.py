@@ -13,8 +13,7 @@ class AI21Client(Client):
 
     def make_request(self, request: Request) -> RequestResult:
         model = request.model
-        if model not in [
-            "ai21/j1-large", "ai21/j1-jumbo"]:
+        if model not in ["ai21/j1-large", "ai21/j1-jumbo"]:
             raise Exception("Invalid model")
         raw_request = {
             "prompt": request.prompt,
