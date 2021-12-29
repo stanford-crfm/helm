@@ -1,14 +1,15 @@
 import os
 import mako.template
-import pyhocon
-from general import ensure_directory_exists
 from typing import Dict, List, Tuple, Any
-from schemas import Query, QueryResult, Request, RequestResult, GeneralInfo
-from models import all_models, get_model_group
+from src.general import ensure_directory_exists
+from .query import Query, QueryResult
+from src.request import Request, RequestResult
+from .models import all_models, get_model_group
 from users import Authentication, Users, User
 
 from auto_client import AutoClient
 from example_queries import example_queries
+from general import parse_hocon
 
 VERSION = "1.0"
 CREDENTIALS_FILE = "credentials.conf"
@@ -16,10 +17,11 @@ USERS_FILE = "users.jsonl"
 CACHE_DIR = "cache"
 MAX_EXPANSION = 1000
 
-
-def parse_hocon(text: str):
-    return pyhocon.ConfigFactory.parse_string(text)
-
+@dataclass(frozen=True)
+class GeneralInfo:
+    version: str
+    exampleQueries: List[Query]
+    allModels: List[Model]
 
 def expand_environments(environments: Dict[str, List[str]]):
     """

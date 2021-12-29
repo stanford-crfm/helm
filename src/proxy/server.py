@@ -14,9 +14,10 @@ from paste import httpserver
 import signal
 import sys
 import time
-from service import Service
-from schemas import Query, Request
-from users import Authentication
+from .service import Service
+from .query import Query
+from .users import Authentication
+from request import Request
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
