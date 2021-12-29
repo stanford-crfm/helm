@@ -115,8 +115,9 @@ class Adapter:
                         model=self.adapter_spec.model,
                         prompt=prompt,
                         temperature=self.adapter_spec.temperature,
-                        topK=self.adapter_spec.num_outputs,
-                        stopSequences=self.adapter_spec.stop_sequences,
+                        # TODO: if using single token, then set top_k_per_token instead
+                        num_completions=self.adapter_spec.num_outputs,
+                        stop_sequences=self.adapter_spec.stop_sequences,
                     )
                     request_state = RequestState(
                         instance=eval_instance,

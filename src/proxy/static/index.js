@@ -50,7 +50,7 @@ $(function () {
   function renderExampleQueries(updateQuery) {
     const $examplesBlock = $('<div>');
     $examplesBlock.append($('<span>').append('Examples:'));
-    generalInfo.exampleQueries.forEach((query, i) => {
+    generalInfo.example_queries.forEach((query, i) => {
       const href = '#';
       const title = '[Prompt]\n' + query.prompt + '\n[Settings]\n' + query.settings + '\n[Environments]\n' + query.environments;
       const $link = $('<a>', {href, title}).append(`[${i}]`);
@@ -103,7 +103,7 @@ $(function () {
       urlParams.environments = query.environments;
       updateBrowserLocation(urlParams);
 
-      $.getJSON('/api/expandQuery', query, handleQueryResult);
+      $.getJSON('/api/query', query, handleQueryResult);
     }
 
     $queryBlock.append($('<h4>').append('Query'));
@@ -146,15 +146,15 @@ $(function () {
       $result.append($('<ul>').append($('<li>')
         .append(multiline(completion.text))));
     });
-    $result.append($('<i>').append(renderTime(requestResult.requestTime)));
+    $result.append($('<i>').append(renderTime(requestResult.request_time)));
     return $result;
   }
 
   function renderUser() {
     const $userBlock = $('<div>');
     const args = {auth: JSON.stringify(auth)};
-    $.getJSON('/api/getUser', args, (user) => {
-      console.log('getUser', user);
+    $.getJSON('/api/user', args, (user) => {
+      console.log('user', user);
       const items = [];
       items.push('Usage');
       ['daily', 'monthly', 'total'].forEach((granularity) => {
@@ -189,7 +189,7 @@ $(function () {
     // Allow editing the query
     const $queryBlock = renderQuery((queryResult) => {
       // Create requests
-      console.log('expandQuery', queryResult);
+      console.log('query', queryResult);
       $requestsBlock.empty();
 
       if (queryResult.error) {
@@ -210,8 +210,8 @@ $(function () {
           auth: JSON.stringify(auth),
           request: JSON.stringify(request),
         };
-        $.getJSON('/api/makeRequest', args, (requestResult) => {
-          console.log('makeRequest', request, requestResult);
+        $.getJSON('/api/request', args, (requestResult) => {
+          console.log('request', request, requestResult);
           $requestResult.empty().append(renderRequestResult(requestResult));
           if (!requestResult.cached) {
             $userBlock.empty().append(renderUser());
@@ -238,9 +238,9 @@ $(function () {
 
   let generalInfo;
 
-  $.getJSON('/api/getGeneralInfo', (response) => {
+  $.getJSON('/api/general_info', (response) => {
     generalInfo = response;
-    console.log('generalInfo', generalInfo);
+    console.log('general_info', generalInfo);
     $('#main').empty().append(renderQueryInterface());
 
     const $helpModels = $('#help-models');

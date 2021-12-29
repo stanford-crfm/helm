@@ -11,7 +11,7 @@ def main():
     # TODO: make a general client for this
     execution_spec = ExecutionSpec(
         auth=Authentication(username="crfm", password="crfm"),
-        url="http://localhost:1959/api/makeRequest",
+        url="http://localhost:1959/api/request",
         parallelism=5,
     )
 
@@ -20,6 +20,3 @@ def main():
 
     runner = Runner(execution_spec, [run_spec])
     runner.run_all()
-
-
-main()

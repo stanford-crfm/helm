@@ -15,14 +15,15 @@ class OpenAIClient(Client):
             "engine": request.model_engine(),
             "prompt": request.prompt,
             "temperature": request.temperature,
-            "n": request.numSamples,
-            "max_tokens": request.maxTokens,
-            "best_of": request.topK,
-            "stop": request.stopSequences or None,  # API doesn't like empty list
-            "top_p": request.topP,
-            "presence_penalty": request.presencePenalty,
-            "frequency_penalty": request.frequencyPenalty,
-            "logprobs": 1,
+            "n": request.num_completions,
+            "max_tokens": request.max_tokens,
+            "best_of": request.top_k_per_token,
+            "logprobs": request.top_k_per_token,
+            "stop": request.stop_sequences or None,  # API doesn't like empty list
+            "top_p": request.top_p,
+            "presence_penalty": request.presence_penalty,
+            "frequency_penalty": request.frequency_penalty,
+            "echo": True,
         }
 
         try:
@@ -37,4 +38,4 @@ class OpenAIClient(Client):
         completions = []
         for choice in response["choices"]:
             completions.append(Completion(text=choice["text"]))
-        return RequestResult(success=True, cached=cached, requestTime=response["requestTime"], completions=completions)
+        return RequestResult(success=True, cached=cached, request_time=response["request_time"], completions=completions)
