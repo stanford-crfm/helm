@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import List, Dict
 
-from adapter import ScenarioState, RequestState
+from adapter import AdapterSpec, ScenarioState, RequestState
 from statistic import Stat, merge_stat
 from object_spec import ObjectSpec, create_object
 from general import singleton
@@ -29,14 +29,14 @@ class Metric(ABC):
 
                 # Evaluate generated request_state
                 request_state = singleton(scenario_state.get_request_states(train_trial_index, instance, None))
-                instance_stats.extend(self.evaluate_generation(request_state))
+                instance_stats.extend(self.evaluate_generation(adapter_spec, request_state))
 
                 # Ranking
                 request_states = [
                     singleton(scenario_state.get_request_states(train_trial_index, instance, reference_index))
                     for reference_index in range(len(instance.references))
                 ]
-                instance_stats.extend(self.evaluate_references(request_states))
+                instance_stats.extend(self.evaluate_references(adapter_spec, request_states))
 
                 # Merge
                 for stat in instance_stats:
@@ -47,11 +47,13 @@ class Metric(ABC):
 
         return list(global_stats.values())
 
-    def evaluate_generation(self, request_state: RequestState) -> List[Stat]:
+    def evaluate_generation(self, adapter_spec: AdapterSpec, request_state: RequestState) -> List[Stat]:
         """Evaluate free-form generation.  Override me!"""
         return []
 
-    def evaluate_references(self, reference_request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_references(
+        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState]
+    ) -> List[Stat]:
         """Evaluate the references.  Override me!"""
         return []
 

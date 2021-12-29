@@ -25,6 +25,10 @@ class Reference:
     output: str  # The output text
     tags: List[str]  # Extra metadata (e.g., whether it's correct/factual/toxic)
 
+    @property
+    def is_correct(self) -> bool:
+        return CORRECT_TAG in self.tags
+
 
 @dataclass(frozen=True, eq=False)
 class Instance:
@@ -42,7 +46,7 @@ class Instance:
     def first_correct_reference(self) -> Optional[Reference]:
         """Return the first correct reference."""
         for reference in self.references:
-            if CORRECT_TAG in reference.tags:
+            if reference.is_correct:
                 return reference
         return None
 

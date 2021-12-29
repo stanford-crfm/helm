@@ -9,8 +9,8 @@ Here's a birds-eye view of how the benchmarking process interacts with the main 
   an input (e.g., question) and a set of `Reference` outputs (e.g., multiple
   choice answers).
 
-- An `Adapter` (given by an `AdaptationSpec`) takes a `Scenario` should be
-  adapted to a set of `Request`s to the API (e.g., the model, temperature,
+- An `Adapter` (given by an `AdaptationSpec`) takes a `Scenario` and
+  adapts it to a set of `Request`s to the API (e.g., the model, temperature,
   number of in-context training examples).  Formally, the output
   is a `ScenarioState` containing a set of `RequestState`s, where each
   `RequestState` consists of a `Request` and any metadata used to track the
