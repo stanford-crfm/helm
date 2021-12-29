@@ -32,7 +32,7 @@ models you have access to.
 
 To start a local server (go to `http://localhost:1959` to try it out):
 
-    venv/bin/python src/proxy/server.py
+    venv/bin/proxy-server
 
 ## Deploying to production (for maintainers)
 
@@ -66,7 +66,7 @@ If everything looks okay:
 
     # Hit ctrl-c to kill the existing process
 
-    sudo venv/bin/python src/proxy/server.py -p 80  # TODO: replace this with https
+    sudo venv/bin/proxy-server -p 80  # TODO: replace this with https
 
 Double check that the web site still works.
 
@@ -115,7 +115,7 @@ There are three types of classes:
 
 Run the benchmark:
 
-    venv/bin/python src/benchmark/run_benchmark.py
+    venv/bin/benchmark-run
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
