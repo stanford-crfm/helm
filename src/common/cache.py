@@ -1,7 +1,9 @@
-from collections import OrderedDict
 import json
 import os
+from collections import OrderedDict
 from typing import Dict, Callable, Tuple
+
+from sqlitedict import SqliteDict
 
 from common.hierarchical_logger import hlog
 
@@ -32,21 +34,18 @@ class Cache(object):
         self.data = OrderedDict()
         if os.path.exists(self.cache_path):
             hlog(f"Reading {self.cache_path}...")
-            for line in open(self.cache_path):
-                item = json.loads(line)
-                self.data[request_to_key(item["request"])] = item["response"]
+            with SqliteDict(self.cache_path) as cache_dict:
+                for key, response in cache_dict.items():
+                    self.data[key] = response
             hlog(f"{len(self.data)} entries")
 
     def write(self):
         """Write cache data to disk (never should need to do this)."""
-        with open(self.cache_path, "w") as f:
+        with SqliteDict(self.cache_path) as cache_dict:
             hlog(f"Writing {self.cache_path}...")
-            for key, value in self.data.items():
-                item = {
-                    "request": key_to_request(key),
-                    "response": value,
-                }
-                print(json.dumps(item), file=f)
+            for key, response in self.data.items():
+                cache_dict[key] = response
+            cache_dict.commit()
             hlog(f"{len(self.data)} entries")
 
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
@@ -58,11 +57,9 @@ class Cache(object):
         else:
             response = self.data[key] = compute()
             cached = False
-            # Just append
-            with open(self.cache_path, "a") as f:
-                item = {
-                    "request": request,
-                    "response": response,
-                }
-                print(json.dumps(item), file=f)
+
+            # Comit request and response
+            with SqliteDict(self.cache_path) as cache_dict:
+                cache_dict[key] = response
+                cache_dict.commit()
         return response, cached
