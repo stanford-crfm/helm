@@ -1,15 +1,16 @@
 import os
 import mako.template
+from dataclasses import dataclass
 from typing import Dict, List, Tuple, Any
-from src.general import ensure_directory_exists
-from .query import Query, QueryResult
-from src.request import Request, RequestResult
-from .models import all_models, get_model_group
-from users import Authentication, Users, User
 
-from auto_client import AutoClient
-from example_queries import example_queries
-from general import parse_hocon
+from common.general import ensure_directory_exists, parse_hocon
+from common.request import Request, RequestResult
+from .models import Model
+from .query import Query, QueryResult
+from .models import all_models, get_model_group
+from .users import Authentication, Users, User
+from .auto_client import AutoClient
+from .example_queries import example_queries
 
 VERSION = "1.0"
 CREDENTIALS_FILE = "credentials.conf"

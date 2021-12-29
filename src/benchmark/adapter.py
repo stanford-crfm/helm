@@ -3,8 +3,8 @@ from typing import List, Dict, Tuple, Optional
 from collections import defaultdict
 import random
 
-from scenario import Instance, Scenario, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG
-from schemas import Request, RequestResult
+from common.request import Request, RequestResult
+from .scenario import Instance, Scenario, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG
 
 
 @dataclass(frozen=True)

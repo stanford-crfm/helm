@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 import time
-from schemas import Request, RequestResult
 from typing import Callable, Any
+
+from common.request import Request, RequestResult
 
 
 class Client(ABC):

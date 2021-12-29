@@ -35,8 +35,8 @@ setup(
     install_requires=get_requirements("requirements.txt"),
     entry_points={
         "console_scripts": [
-            "run-benchmark=benchmark.run_benchmark:main",
-            "server=benchmark.server:main",
+            "benchmark-run=benchmark.run:main",
+            "proxy-server=proxy.server:main",
         ]
     },
     zip_safe=False,

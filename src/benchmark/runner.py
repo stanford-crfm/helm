@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import List
 
-from scenario import ScenarioSpec, create_scenario
-from adapter import AdapterSpec, Adapter
-from executor import ExecutionSpec, Executor
-from metric import MetricSpec, create_metric
+from .scenario import ScenarioSpec, create_scenario
+from .adapter import AdapterSpec, Adapter
+from .executor import ExecutionSpec, Executor
+from .metric import MetricSpec, create_metric
 
 
 @dataclass(frozen=True)

@@ -1,8 +1,8 @@
 import requests
 
-from client import Client
-from cache import Cache
-from schemas import Request, RequestResult, Completion
+from .client import Client
+from common.cache import Cache
+from common.request import Request, RequestResult, Completion
 
 
 # https://studio.ai21.com/docs/api/

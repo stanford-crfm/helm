@@ -1,6 +1,7 @@
-from schemas import Query, Request
-from service import Service
-from users import Authentication
+from common.authentication import Authentication
+from common.request import Request
+from .query import Query
+from .service import Service
 
 
 def get_service():
