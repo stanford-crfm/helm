@@ -1,15 +1,13 @@
-import os
+from abc import ABC, abstractmethod
 import time
-from schemas import Request, RequestResult, Query, QueryResult
+from schemas import Request, RequestResult
 from typing import Callable, Any
 
 
-class Client:
-    def expand_query(self, query: Query) -> QueryResult:
-        raise NotImplementedError
-
+class Client(ABC):
+    @abstractmethod
     def make_request(self, request: Request) -> RequestResult:
-        raise NotImplementedError
+        pass
 
     """
     Utility methods
@@ -27,7 +25,3 @@ class Client:
             return response
 
         return wrapped_compute
-
-    @staticmethod
-    def get_cache_path(name: str):
-        return os.path.join("var", f"{name}-cache.jsonl")
