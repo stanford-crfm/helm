@@ -1,8 +1,8 @@
 from typing import List, Callable
 
-from adapter import AdapterSpec, RequestState
-from statistic import Stat
-from metric import Metric
+from common.statistic import Stat
+from .adapter import AdapterSpec, RequestState
+from .metric import Metric
 
 
 class BasicMetric(Metric):

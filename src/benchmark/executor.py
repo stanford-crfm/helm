@@ -5,9 +5,9 @@ from urllib.parse import urlencode
 from dataclasses import dataclass, replace
 import json
 
-from adapter import RequestState, ScenarioState
-from schemas import Request, RequestResult
-from users import Authentication
+from common.request import Request, RequestResult
+from common.authentication import Authentication
+from .adapter import RequestState, ScenarioState
 
 
 @dataclass(frozen=True)

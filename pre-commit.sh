@@ -10,6 +10,7 @@ if ! [ -e venv ]; then
   python3 -m virtualenv -p python3 venv
 fi
 venv/bin/pip install -r requirements.dev.txt
+venv/bin/pip install -e .
 
 #venv/bin/pip check
 

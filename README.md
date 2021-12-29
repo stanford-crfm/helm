@@ -1,8 +1,81 @@
-Welcome!  This internal repository contains all the assets for the CRFM/Mercury benchmarking project.
+Welcome!  This internal repository contains all the assets for the CRFM/Mercury
+benchmarking project.  There are two related parts:
+
+1. Proxy (`src/proxy`): provides a unified way to access major language models.
+2. Benchmarking (see `src/benchmark`): evaluates such language models.
+
+# Setup
+
+To install any dependencies (into `venv`):
+
+    ./pre-commit.sh
+
+# Proxy access to language models
+
+We provide a single unified entry point into accessing large language models
+(e.g., GPT-3, Jurassic).  This provides both a web interface and a REST API.
+
+## Using (for most people)
+
+To use the web interface, go to `http://crfm-models.stanford.edu` (TODO: update
+this to https).
+
+To use the REST API, see [demo.py](demo.py).  (TODO: provide some Python classes.)
+
+## Deploying locally (for developers)
+
+Create `prod_env/credentials.conf` to contain the API keys for any language
+models you have access to.
+
+    openaiApiKey: ...
+    ai21ApiKey: ...
+
+To start a local server (go to `http://localhost:1959` to try it out):
+
+    venv/bin/proxy-server
+
+## Deploying to production (for maintainers)
+
+The production version of the proxy is running on `crfm-models.stanford.edu`;
+you need to get permission to get ssh access.
+
+### One-time setup
+
+This is done, but just for the record:
+
+    laptop:$ ssh crfm-models.stanford.edu
+    crfm-models:$ cd /home
+    crfm-models:$ git clone git@github.com:stanford-crfm/benchmarking
+    crfm-models:$ cd benchmarking
+    crfm-models:$ mkdir prod_env
+    laptop:$ rsync -arvz prod_env/credentials.conf crfm-models.stanford.edu:/home/benchmarking/prod_env
+
+### Every time we need to deploy:
+
+Update the code:
+
+    laptop:$ ssh crfm-models.stanford.edu
+    crfm-models:$ cd /home/benchmarking
+    crfm-models:$ git pull
+    crfm-models:$ ./pre-commit.sh
+
+If everything looks okay:
+
+    # Switch into the screen session
+    crfm-models:$ gos bench
+
+    # Hit ctrl-c to kill the existing process
+
+    sudo venv/bin/proxy-server -p 80  # TODO: replace this with https
+
+Double check that the web site still works.
 
 # Benchmarking
 
-Here's a birds-eye view of how the benchmarking process interacts with the main classes:
+## Code structure
+
+Here's a birds-eye view of how the benchmarking process interacts with the main
+classes (see `benchmark`):
 
 - A `Scenario` (given by a `ScenarioSpec`) specifies a task and a data
   distribution.  It specifies a set of `Instance`s, where each `Instance` has
@@ -40,40 +113,12 @@ There are three types of classes:
 
 ## Running the benchmark
 
-Start a server locally (see below).
+Run the benchmark:
 
-    python src/run_benchmark.py
+    venv/bin/benchmark-run
 
-
-# Access to language models
-
-We provide a single unified entry point into accessing large language models
-(e.g., GPT-3, Jurassic).  This provides both a web interface and an API.
-
-To use the web interface, go to `http://crfm-models.stanford.edu`.
-
-To use the API, see [demo.py](demo.py).
-
-## Deployment (for maintainers)
-
-Create `credentials.conf` to contain the API keys for the language models.
-
-    openaiApiKey: ...
-    ai21ApiKey: ...
-
-To start a local server (go to `http://localhost:1959` to try it out):
-
-    pip install -r requirements.txt
-    python src/server.py
-
-To update and start the public server (be careful!):
-
-    rsync -arvz requirements.txt src credentials.conf crfm-models.stanford.edu:/home/benchmarking
-    ssh crfm-models
-    cd /home/benchmarking
-    virtualenv venv
-    venv/bin/pip install -r requirements.txt
-    sudo venv/bin/python src/server.py -p 80
+You can also run the benchmark using a local proxy, in which case you have to
+first start a local server (see instructions above for more details).
 
 # Development
 

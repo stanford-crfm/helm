@@ -1,5 +1,5 @@
-from client import Client
-from schemas import Request, RequestResult
+from common.request import Request, RequestResult
+from .client import Client
 
 
 class HuggingFaceClient(Client):
