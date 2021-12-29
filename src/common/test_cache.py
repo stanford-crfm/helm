@@ -37,7 +37,7 @@ class DependencyManagerTest(unittest.TestCase):
         request = {"name": "request1"}
         compute = lambda: {"response1"}
 
-        # The request should not be cached yet
+        # The request should not be cached the first time
         response, cached = self.cache.get(request, compute)
         self.assertEqual(response, {"response1"})
         self.assertFalse(cached)
