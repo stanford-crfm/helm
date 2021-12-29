@@ -15,14 +15,15 @@ import ssl
 import sys
 import time
 from paste import httpserver
-from service import Service
-from schemas import Query, Request
-from users import Authentication
+
+from common.request import Request
+from .service import Service
+from .query import Query
+from .users import Authentication
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
 app = bottle.default_app()
-service = Service()
 
 
 def safe_call(func, to_json=True):
@@ -64,7 +65,7 @@ def handle_static_filename(filename):
     return resp
 
 
-@app.get("/api/getGeneralInfo")
+@app.get("/api/general_info")
 def handle_get_general_info():
     def perform(args):
         return dataclasses.asdict(service.get_general_info())
@@ -72,7 +73,7 @@ def handle_get_general_info():
     return safe_call(perform)
 
 
-@app.get("/api/getUser")
+@app.get("/api/user")
 def handle_get_user():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
@@ -81,8 +82,8 @@ def handle_get_user():
     return safe_call(perform)
 
 
-@app.get("/api/expandQuery")
-def handle_expand_query():
+@app.get("/api/query")
+def handle_query():
     def perform(args):
         query = Query(**args)
         return dataclasses.asdict(service.expand_query(query))
@@ -90,8 +91,8 @@ def handle_expand_query():
     return safe_call(perform)
 
 
-@app.get("/api/makeRequest")
-def handle_make_request():
+@app.get("/api/request")
+def handle_request():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
         request = Request(**json.loads(args["request"]))
@@ -110,18 +111,23 @@ def handle_shutdown():
     return safe_call(perform)
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-h", "--host", type=int, help="What host", default="0.0.0.0")
-parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=1959)
-parser.add_argument("--ssl-key-file", type=str, help="Path to SSL key file")
-parser.add_argument("--ssl-cert-file", type=str, help="Path to SSL cert file")
-args = parser.parse_args()
+def main():
+    global service
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-h", "--host", type=int, help="What host", default="0.0.0.0")
+    parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=1959)
+    parser.add_argument("--ssl-key-file", type=str, help="Path to SSL key file")
+    parser.add_argument("--ssl-cert-file", type=str, help="Path to SSL cert file")
+    parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
+    args = parser.parse_args()
 
-if args.ssl_key_file and args.ssl_cert_file:
-    ssl_context: ssl.SSLContext = ssl.create_default_context()
-    ssl_context.load_cert_chain(keyfile=args.ssl_key_file, certfile=args.ssl_cert_file)
-    ssl_context.set_ciphers("ECDHE+AESGCM:!ECDSA")
-    ssl_context.set_ecdh_curve("prime256v1")
-    httpserver.serve(app, host=args.host, port=args.port, ssl_context=ssl_context)
-else:
-    httpserver.serve(app, host=args.host, port=args.port)
+    service = Service(base_path=args.base_path)
+
+    if args.ssl_key_file and args.ssl_cert_file:
+        ssl_context: ssl.SSLContext = ssl.create_default_context()
+        ssl_context.load_cert_chain(keyfile=args.ssl_key_file, certfile=args.ssl_cert_file)
+        ssl_context.set_ciphers("ECDHE+AESGCM:!ECDSA")
+        ssl_context.set_ecdh_curve("prime256v1")
+        httpserver.serve(app, host=args.host, port=args.port, ssl_context=ssl_context)
+    else:
+        httpserver.serve(app, host=args.host, port=args.port)

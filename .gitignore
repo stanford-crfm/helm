@@ -1,16 +1,14 @@
 __pycache__
 
-var
-credentials.conf
-users.jsonl
+prod_env
+venv
+*.egg-info
 
 BIG-bench
 lm-evaluation-harness
-
 nav
 tags
-
-venv
+notes.otl
 
 # For Macs
 .DS_Store

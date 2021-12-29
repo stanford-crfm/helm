@@ -1,5 +1,6 @@
-from schemas import Query
 import textwrap
+
+from .query import Query
 
 
 def dedent(text: str) -> str:
@@ -19,7 +20,7 @@ example_queries = [
         settings=dedent(
             """
             temperature: 0.5
-            maxTokens: 100
+            max_tokens: 100
             #model: ai21/j1-jumbo
             model: openai/davinci
             """
@@ -31,7 +32,7 @@ example_queries = [
         settings=dedent(
             """
             temperature: 0.5
-            maxTokens: 100
+            max_tokens: 100
             model: ${model}
             """
         ),
@@ -43,7 +44,7 @@ example_queries = [
         ),
     ),
     Query(
-        prompt='"""Takes two vectors a and b and returns their Euclidean distance"""',
+        prompt="Takes two vectors a and b and returns their Euclidean distance",
         settings=dedent(
             """
             model: openai/davinci-codex

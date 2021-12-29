@@ -2,13 +2,12 @@
 
 import requests
 import json
-import getpass
 from urllib import parse
 from typing import Any, Dict
 
 auth: Dict[str, str] = {
     "username": "crfm",
-    "password": getpass.getpass(),
+    "password": "crfm",
 }
 
 # Generation
@@ -22,5 +21,5 @@ params = {
     "request": json.dumps(request),
 }
 
-response = requests.get(f"http://crfm-models.stanford.edu/api/makeRequest?{parse.urlencode(params)}").json()
+response = requests.get(f"http://crfm-models.stanford.edu/api/request?{parse.urlencode(params)}").json()
 print(json.dumps(response, indent=2))

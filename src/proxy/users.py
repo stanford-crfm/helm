@@ -8,6 +8,8 @@ import threading
 import time
 from typing import Dict, Optional, Any, Callable
 
+from common.authentication import Authentication
+
 
 def create_usage_dict():
     return defaultdict(Usage)
@@ -64,14 +66,6 @@ class User:
         }
 
 
-@dataclass
-class Authentication:
-    """How a request can be authenticated."""
-
-    username: str
-    password: str
-
-
 def dict_usage_from_dict(raw: Dict[str, Any]) -> Dict[str, Usage]:
     result = create_usage_dict()
     for key, value in raw.items():
@@ -99,10 +93,15 @@ def compute_total_period():
 
 
 class Users:
-    """Contains information about users."""
+    """
+    Contains information about users.
+    `path`: where the information about users is stored.
+    If `read_only` is set, don't write to `path`.
+    """
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, read_only: bool = False):
         self.path = path
+        self.read_only = read_only
         self.global_lock = threading.Lock()
 
         self.read()
@@ -120,13 +119,16 @@ class Users:
                     break
 
         self.done = False
-        self.write_thread = threading.Thread(target=write_loop)
-        self.write_thread.start()
+        if not self.read_only:
+            self.write_thread = threading.Thread(target=write_loop)
+            self.write_thread.start()
 
     def finish(self):
         self.done = True
-        self.write_thread.join()
-        self.write()
+        if not self.read_only:
+            self.write_thread.join()
+            if self.dirty:
+                self.write()
 
     def read(self):
         with self.global_lock:
@@ -162,7 +164,7 @@ class Users:
         if user.password != auth.password:
             raise AuthenticationError(f"Incorrect password for user {auth.username}")
 
-    def check_can_use(self, username: str, model_group: str) -> bool:
+    def check_can_use(self, username: str, model_group: str):
         """Check if the given `username` can use `model_group`.  Throw exceptions if not."""
 
         def granular_check_can_use(
@@ -207,8 +209,9 @@ class Users:
             for user in self.users:
                 raw_users.append(user.as_dict())
 
-            print(f"Writing {len(self.users)} users to {self.path}")
-            with open(self.path, "w") as f:
-                for raw_user in raw_users:
-                    print(json.dumps(raw_user), file=f)
+            if not self.read_only:
+                print(f"Writing {len(self.users)} users to {self.path}")
+                with open(self.path, "w") as f:
+                    for raw_user in raw_users:
+                        print(json.dumps(raw_user), file=f)
             self.dirty = False

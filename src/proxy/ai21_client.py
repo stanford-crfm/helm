@@ -1,15 +1,15 @@
 import requests
 
-from client import Client
-from cache import Cache
-from schemas import Request, RequestResult, Completion
+from common.cache import Cache
+from common.request import Request, RequestResult, Completion
+from .client import Client
 
 
 # https://studio.ai21.com/docs/api/
 class AI21Client(Client):
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, cache_path: str):
         self.api_key = api_key
-        self.cache = Cache(self.get_cache_path("ai21"))
+        self.cache = Cache(cache_path)
 
     def make_request(self, request: Request) -> RequestResult:
         model = request.model
@@ -18,10 +18,10 @@ class AI21Client(Client):
         raw_request = {
             "prompt": request.prompt,
             "temperature": request.temperature,
-            "numResults": request.numSamples,  # independent
-            "topKReturn": request.topK,
-            "maxTokens": request.maxTokens,
-            "stopSequences": request.stopSequences,
+            "numResults": request.num_completions,
+            "topKReturn": request.top_k_per_token,
+            "maxTokens": request.max_tokens,
+            "stopSequences": request.stop_sequences,
         }
 
         def do_it():
@@ -39,4 +39,6 @@ class AI21Client(Client):
         completions = []
         for completion in response["completions"]:
             completions.append(Completion(text=completion["data"]["text"]))
-        return RequestResult(success=True, cached=cached, requestTime=response["requestTime"], completions=completions)
+        return RequestResult(
+            success=True, cached=cached, request_time=response["request_time"], completions=completions
+        )
