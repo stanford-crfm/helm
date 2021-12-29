@@ -11,12 +11,9 @@ if ! [ -e venv ]; then
 fi
 venv/bin/pip install -r requirements.dev.txt
 
-venv/bin/pip check
+#venv/bin/pip check
 
 # Python style checks and linting
-## Fix Python style (mutates code!)
-venv/bin/black .
-
-## Check if there are any mypy or flake8 errors
-venv/bin/mypy .
-venv/bin/flake8 .
+venv/bin/black src  # Mutates code!
+venv/bin/mypy src
+venv/bin/flake8 src

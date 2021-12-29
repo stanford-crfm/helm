@@ -21,7 +21,6 @@ from users import Authentication
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
 app = bottle.default_app()
-service = Service()
 
 
 def safe_call(func, to_json=True):
@@ -111,5 +110,8 @@ def handle_shutdown():
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=1959)
+parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
 args = parser.parse_args()
+
+service = Service(base_path=args.base_path)
 httpserver.serve(app, host="0.0.0.0", port=args.port)

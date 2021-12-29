@@ -1,6 +1,8 @@
+import os
 import mako.template
 import pyhocon
-from typing import Dict, List, Tuple
+from general import ensure_directory_exists
+from typing import Dict, List, Tuple, Any
 from schemas import Query, QueryResult, Request, RequestResult, GeneralInfo
 from models import all_models, get_model_group
 from users import Authentication, Users, User
@@ -9,8 +11,9 @@ from auto_client import AutoClient
 from example_queries import example_queries
 
 VERSION = "1.0"
-CREDENTIALS_PATH = "credentials.conf"
-USERS_PATH = "users.jsonl"
+CREDENTIALS_FILE = "credentials.conf"
+USERS_FILE = "users.jsonl"
+CACHE_DIR = "cache"
 MAX_EXPANSION = 1000
 
 
@@ -25,7 +28,7 @@ def expand_environments(environments: Dict[str, List[str]]):
     """
     output_environments: List[Dict[str, str]] = []
 
-    def recurse(old_items: List[Tuple[str, str]], new_items: List[Tuple[str, str]]):
+    def recurse(old_items: List[Tuple[str, List[str]]], new_items: List[Tuple[str, str]]):
         if len(output_environments) >= MAX_EXPANSION:
             return
         if len(old_items) == 0:
@@ -52,7 +55,7 @@ def substitute_text(text: str, environment: Dict[str, str]) -> str:
 
 def synthesize_request(prompt: str, settings: str, environment: Dict[str, str]) -> Request:
     """Substitute `environment` into `prompt` and `settings`."""
-    request = {}
+    request: Dict[str, Any] = {}
     request["prompt"] = substitute_text(prompt, environment)
     request.update(parse_hocon(substitute_text(settings, environment)))
     return Request(**request)
@@ -63,11 +66,19 @@ class Service(object):
     Main class that supports various functionality for the server.
     """
 
-    def __init__(self):
-        with open(CREDENTIALS_PATH) as f:
-            credentials = parse_hocon(f.read())
-        self.client = AutoClient(credentials)
-        self.users = Users(USERS_PATH)
+    def __init__(self, base_path: str = ".", read_only: bool = False):
+        credentials_path = os.path.join(base_path, CREDENTIALS_FILE)
+        cache_path = os.path.join(base_path, CACHE_DIR)
+        ensure_directory_exists(cache_path)
+        users_path = os.path.join(base_path, USERS_FILE)
+
+        if os.path.exists(credentials_path):
+            with open(credentials_path) as f:
+                credentials = parse_hocon(f.read())
+        else:
+            credentials = {}
+        self.client = AutoClient(credentials, cache_path)
+        self.users = Users(users_path, read_only=read_only)
 
     def finish(self):
         self.users.finish()

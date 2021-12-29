@@ -1,14 +1,15 @@
 __pycache__
 
-var
-credentials.conf
-users.jsonl
+prod_env
 
 BIG-bench
 lm-evaluation-harness
 
 nav
 tags
+<<<<<<< HEAD
+notes.otl
+=======
 
 venv
 
@@ -17,3 +18,4 @@ venv
 
 # For PyCharm and IntelliJ
 .idea
+>>>>>>> master
