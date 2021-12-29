@@ -48,11 +48,7 @@ def format_time(s: float) -> str:
     h = int(m / 60)
     m -= h * 60
     s = int(s * 1000) / 1000.0
-    return (
-        ("" if h == 0 else str(h) + "h")
-        + ("" if m == 0 else str(m) + "m")
-        + (str(s) + "s")
-    )
+    return ("" if h == 0 else str(h) + "h") + ("" if m == 0 else str(m) + "m") + (str(s) + "s")
 
 
 singleton = HierarchicalLogger()
