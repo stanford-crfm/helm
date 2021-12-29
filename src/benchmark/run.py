@@ -20,6 +20,3 @@ def main():
 
     runner = Runner(execution_spec, [run_spec])
     runner.run_all()
-
-
-main()
