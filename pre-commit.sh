@@ -20,7 +20,7 @@ if [ $exit_code -ne 0 ]; then
   echo "The code formatting check failed. To fix the formatting, run:"
   echo ""
   echo ""
-  echo "    venv/bin/black src"
+  echo -e "\tvenv/bin/black src"
   echo ""
   echo ""
   exit $exit_code
