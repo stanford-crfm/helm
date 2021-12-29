@@ -38,4 +38,6 @@ class OpenAIClient(Client):
         completions = []
         for choice in response["choices"]:
             completions.append(Completion(text=choice["text"]))
-        return RequestResult(success=True, cached=cached, request_time=response["request_time"], completions=completions)
+        return RequestResult(
+            success=True, cached=cached, request_time=response["request_time"], completions=completions
+        )
