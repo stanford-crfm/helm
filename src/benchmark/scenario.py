@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional
 
-from object_spec import ObjectSpec, create_object
+from common.object_spec import ObjectSpec, create_object
 
 # Tags for instances
 TRAIN_TAG = "train"

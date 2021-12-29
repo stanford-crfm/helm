@@ -1,10 +1,10 @@
 from abc import ABC
 from typing import List, Dict
 
-from adapter import AdapterSpec, ScenarioState, RequestState
-from statistic import Stat, merge_stat
-from object_spec import ObjectSpec, create_object
-from general import singleton
+from common.statistic import Stat, merge_stat
+from common.object_spec import ObjectSpec, create_object
+from common.general import singleton
+from .adapter import AdapterSpec, ScenarioState, RequestState
 
 
 class Metric(ABC):

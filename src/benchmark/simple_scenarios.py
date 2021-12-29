@@ -1,7 +1,7 @@
 import random
 from typing import List
 
-from scenario import Scenario, Instance, Reference, TRAIN_TAG, TEST_TAG, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_TAG, TEST_TAG, CORRECT_TAG
 
 
 class SimpleScenario(Scenario):

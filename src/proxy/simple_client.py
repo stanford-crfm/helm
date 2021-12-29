@@ -1,7 +1,7 @@
 from typing import List
 
-from client import Client
-from schemas import Request, RequestResult, Completion
+from .client import Client
+from common.request import Request, RequestResult, Completion
 
 
 class SimpleClient(Client):

@@ -1,14 +1,16 @@
 import os
 import mako.template
-import pyhocon
-from general import ensure_directory_exists
+from dataclasses import dataclass
 from typing import Dict, List, Tuple, Any
-from schemas import Query, QueryResult, Request, RequestResult, GeneralInfo
-from models import all_models, get_model_group
-from users import Authentication, Users, User
 
-from auto_client import AutoClient
-from example_queries import example_queries
+from common.general import ensure_directory_exists, parse_hocon
+from common.request import Request, RequestResult
+from .models import Model
+from .query import Query, QueryResult
+from .models import all_models, get_model_group
+from .users import Authentication, Users, User
+from .auto_client import AutoClient
+from .example_queries import example_queries
 
 VERSION = "1.0"
 CREDENTIALS_FILE = "credentials.conf"
@@ -17,8 +19,11 @@ CACHE_DIR = "cache"
 MAX_EXPANSION = 1000
 
 
-def parse_hocon(text: str):
-    return pyhocon.ConfigFactory.parse_string(text)
+@dataclass(frozen=True)
+class GeneralInfo:
+    version: str
+    exampleQueries: List[Query]
+    allModels: List[Model]
 
 
 def expand_environments(environments: Dict[str, List[str]]):

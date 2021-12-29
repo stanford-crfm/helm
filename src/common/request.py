@@ -1,9 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
-from models import Model
 
 
-@dataclass
+@dataclass(frozen=True)
 class Request:
     """A request is a concrete query that we make to a client."""
 
@@ -29,14 +28,14 @@ class Request:
         return self.model.split("/")[1]
 
 
-@dataclass
+@dataclass(frozen=True)
 class Completion:
     """Represents one result from the API."""
 
     text: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class RequestResult:
     """What comes back due to a request."""
 
@@ -45,30 +44,3 @@ class RequestResult:
     cached: bool
     requestTime: Optional[float] = None
     error: Optional[str] = None
-
-
-@dataclass
-class Query:
-    """
-    A query consists of a `prompt` string, and `settings` (HOCON encoding of things like `temperature`).
-    Both can have variables (e.g., ${model}) which can be filled in by `environments`.
-    `environments` is a HOCON encoding of a mapping from variables (e.g., model) to a list of arguments.
-    """
-
-    prompt: str
-    settings: str
-    environments: str
-
-
-@dataclass
-class QueryResult:
-    """A query produces a list of requests."""
-
-    requests: List[Request]
-
-
-@dataclass
-class GeneralInfo:
-    version: str
-    exampleQueries: List[Query]
-    allModels: List[Model]

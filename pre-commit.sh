@@ -8,14 +8,11 @@ if ! [ -e venv ]; then
   python3 -m virtualenv -p python3 venv
 fi
 
-venv/bin/pip install -r requirements.txt
+venv/bin/pip install -e .
 venv/bin/pip check
 
 # Python style checks and linting
-set +e
-venv/bin/black --check --diff src
-exit_code=$?
-if [ $exit_code -ne 0 ]; then
+venv/bin/black --check --diff src || (
   echo ""
   echo "The code formatting check failed. To fix the formatting, run:"
   echo ""
@@ -23,9 +20,8 @@ if [ $exit_code -ne 0 ]; then
   echo -e "\tvenv/bin/black src"
   echo ""
   echo ""
-  exit $exit_code
-fi
-set -e
+  exit 1
+)
 
 venv/bin/mypy src
 venv/bin/flake8 src

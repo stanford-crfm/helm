@@ -1,12 +1,12 @@
 import os
 from typing import Dict
 
-from ai21_client import AI21Client
-from client import Client
-from huggingface_client import HuggingFaceClient
-from openai_client import OpenAIClient
-from schemas import Request, RequestResult
-from simple_client import SimpleClient
+from .client import Client
+from .ai21_client import AI21Client
+from .huggingface_client import HuggingFaceClient
+from .openai_client import OpenAIClient
+from .simple_client import SimpleClient
+from common.request import Request, RequestResult
 
 
 class AutoClient(Client):

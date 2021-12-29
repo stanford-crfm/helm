@@ -8,6 +8,8 @@ import threading
 import time
 from typing import Dict, Optional, Any, Callable
 
+from common.authentication import Authentication
+
 
 def create_usage_dict():
     return defaultdict(Usage)
@@ -62,14 +64,6 @@ class User:
             "monthly": dict_usage_as_dict(self.monthly),
             "total": dict_usage_as_dict(self.total),
         }
-
-
-@dataclass(frozen=True)
-class Authentication:
-    """How a request can be authenticated."""
-
-    username: str
-    password: str
 
 
 def dict_usage_from_dict(raw: Dict[str, Any]) -> Dict[str, Usage]:

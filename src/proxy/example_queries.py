@@ -1,5 +1,6 @@
-from schemas import Query
 import textwrap
+
+from .query import Query
 
 
 def dedent(text: str) -> str:
