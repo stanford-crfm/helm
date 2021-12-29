@@ -4,3 +4,6 @@ dacite==1.6.0
 Mako==1.1.5
 Paste==3.5.0
 pyhocon==0.3.58
+
+# For development
+pytest==6.2.5
