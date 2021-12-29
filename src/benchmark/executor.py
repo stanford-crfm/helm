@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 from dataclasses import dataclass, replace
 import json
 
+from common.hierarchical_logger import htrack
 from common.request import Request, RequestResult
 from common.authentication import Authentication
 from .adapter import RequestState, ScenarioState
@@ -28,7 +29,7 @@ def make_request(auth: Authentication, url: str, request: Request) -> RequestRes
     }
     response = requests.get(url + "?" + urlencode(params)).json()
     if response.get("error"):
-        print(response["error"])
+        hlog(response["error"])
     return from_dict(data_class=RequestResult, data=response)
 
 
@@ -41,6 +42,7 @@ class Executor:
     def __init__(self, execution_spec: ExecutionSpec):
         self.execution_spec = execution_spec
 
+    @htrack
     def execute(self, scenario_state: ScenarioState) -> ScenarioState:
         # TODO: make a thread pool to process all of these in parallel up to a certain number
         def process(request_state: RequestState) -> RequestState:

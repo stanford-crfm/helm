@@ -3,6 +3,7 @@ from typing import List, Dict, Tuple, Optional
 from collections import defaultdict
 import random
 
+from common.hierarchical_logger import hlog, htrack
 from common.request import Request, RequestResult
 from .scenario import Instance, Scenario, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG
 
@@ -73,6 +74,7 @@ class Adapter:
     def __init__(self, adapter_spec: AdapterSpec):
         self.adapter_spec = adapter_spec
 
+    @htrack
     def adapt(self, scenario: Scenario) -> ScenarioState:
         """
         Takes a `Scenario` containing a list of instances and builds a list of
@@ -86,12 +88,12 @@ class Adapter:
         # Choose training instances and evaluation instances
         all_train_instances = [instance for instance in instances if TRAIN_TAG in instance.tags]
         if len(all_train_instances) < self.adapter_spec.max_train_instances:
-            print(
+            hlog(
                 f"WARNING: only {len(all_train_instances)} training instances, "
                 f"wanted {self.adapter_spec.max_train_instances}"
             )
         eval_instances = [instance for instance in instances if VALID_TAG in instance.tags or TEST_TAG in instance.tags]
-        print(
+        hlog(
             f"{len(instances)} instances, "
             f"choosing {self.adapter_spec.max_train_instances}/{len(all_train_instances)} train instances, "
             f"{len(eval_instances)} eval instances"
@@ -135,7 +137,7 @@ class Adapter:
                 for reference_index, reference in enumerate(eval_instance.references):
                     process(reference_index, reference)
 
-        print(f"{len(request_states)} requests")
+        hlog(f"{len(request_states)} requests")
         return ScenarioState(self.adapter_spec, request_states)
 
     def construct_prompt(
@@ -164,7 +166,7 @@ class Adapter:
             if reference is not None:
                 lines.append(output_prefix + reference.output)
             else:
-                print(f"No correct reference for {instance}")
+                hlog(f"WARNING: no correct reference for {instance}")
                 lines.append(output_prefix + "???")
 
         # Evaluation instance
