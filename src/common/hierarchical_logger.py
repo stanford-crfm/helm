@@ -8,7 +8,7 @@ class HierarchicalLogger(object):
     A hierarchical logger that tracks the execution flow of the code, along
     with how long we're spending in each block.  Usage:
 
-        @htrack
+        @htrack(None)
         def compute_stuff(...):
             with htrack_block('Training'):
                 hlog('something')
@@ -82,7 +82,7 @@ class htrack:
     Display `spec`, which is a string, where $0, $1, $2 stand in for the various arguments to the function.
     For example:
 
-        @htrack('a=$1, b=$2'):
+        @htrack("a=$1, b=$2"):
         def compute(self, a, b):
             ...
     """

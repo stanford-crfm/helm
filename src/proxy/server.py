@@ -15,6 +15,7 @@ import signal
 import sys
 import time
 
+from common.hierarchical_logger import hlog
 from common.request import Request
 from .service import Service
 from .query import Query

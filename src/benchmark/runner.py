@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 
-from common.hierarchical_logger import hlog
+from common.hierarchical_logger import hlog, htrack_block
 from .scenario import ScenarioSpec, create_scenario
 from .adapter import AdapterSpec, Adapter
 from .executor import ExecutionSpec, Executor

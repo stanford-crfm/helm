@@ -74,7 +74,7 @@ class Adapter:
     def __init__(self, adapter_spec: AdapterSpec):
         self.adapter_spec = adapter_spec
 
-    @htrack
+    @htrack(None)
     def adapt(self, scenario: Scenario) -> ScenarioState:
         """
         Takes a `Scenario` containing a list of instances and builds a list of
