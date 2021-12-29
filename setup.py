@@ -5,13 +5,11 @@ import os
 import sys
 
 
-def get_requirements(*requirements_file_paths):
+def get_requirements(path: str):
     requirements = []
-    for requirements_file_path in requirements_file_paths:
-        with open(requirements_file_path) as requirements_file:
-            for line in requirements_file:
-                if line[0:2] != "-r":
-                    requirements.append(line.strip())
+    for line in open(path):
+        if not line.startswith('-r'):
+            requirements.append(line.strip())
     return requirements
 
 
@@ -28,13 +26,12 @@ setup(
     packages=find_packages(exclude=["tests*"]),
     classifiers=[
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.8",
         "License :: OSI Approved :: Apache Software License",
     ],
-    #py_modules=["codalab_service"],
-    python_requires="~=3.6",
-    #cmdclass={"install": Install},
+    python_requires="~=3.8",
     include_package_data=True,
+    package_dir={"": "src"},
     install_requires=get_requirements("requirements.txt"),
     entry_points={
         "console_scripts": [

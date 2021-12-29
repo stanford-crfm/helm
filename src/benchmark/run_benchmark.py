@@ -1,7 +1,7 @@
-from executor import ExecutionSpec
-from runner import Runner
-from users import Authentication
-from test_utils import get_run_spec1
+from .executor import ExecutionSpec
+from .runner import Runner
+from .users import Authentication
+from .test_utils import get_run_spec1
 
 
 def main():
