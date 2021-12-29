@@ -8,6 +8,7 @@ import threading
 import time
 from typing import Dict, Optional, Any, Callable
 
+from common.hierarchical_logger import hlog
 from common.authentication import Authentication
 
 
@@ -210,7 +211,7 @@ class Users:
                 raw_users.append(user.as_dict())
 
             if not self.read_only:
-                print(f"Writing {len(self.users)} users to {self.path}")
+                hlog(f"Writing {len(self.users)} users to {self.path}")
                 with open(self.path, "w") as f:
                     for raw_user in raw_users:
                         print(json.dumps(raw_user), file=f)

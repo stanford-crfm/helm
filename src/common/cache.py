@@ -3,6 +3,8 @@ import json
 import os
 from typing import Dict, Callable, Tuple
 
+from common.hierarchical_logger import hlog
+
 
 def request_to_key(request: Dict) -> str:
     """Normalize a `request` into a `key` so that we can hash using it."""
@@ -29,23 +31,23 @@ class Cache(object):
         """Read cache data from disk."""
         self.data = OrderedDict()
         if os.path.exists(self.cache_path):
-            print(f"Reading {self.cache_path}...", end="")
+            hlog(f"Reading {self.cache_path}...")
             for line in open(self.cache_path):
                 item = json.loads(line)
                 self.data[request_to_key(item["request"])] = item["response"]
-            print(f"{len(self.data)} entries")
+            hlog(f"{len(self.data)} entries")
 
     def write(self):
         """Write cache data to disk (never should need to do this)."""
         with open(self.cache_path, "w") as f:
-            print(f"Writing {self.cache_path}...", end="")
+            hlog(f"Writing {self.cache_path}...")
             for key, value in self.data.items():
                 item = {
                     "request": key_to_request(key),
                     "response": value,
                 }
                 print(json.dumps(item), file=f)
-            print(f"{len(self.data)} entries")
+            hlog(f"{len(self.data)} entries")
 
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""

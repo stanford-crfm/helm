@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 
+from common.hierarchical_logger import hlog, htrack_block
 from .scenario import ScenarioSpec, create_scenario
 from .adapter import AdapterSpec, Adapter
 from .executor import ExecutionSpec, Executor
@@ -42,11 +43,12 @@ class Runner:
 
         # Apply the metrics
         metrics = [create_metric(metric) for metric in run_spec.metrics]
-        print(f"{len(metrics)} metrics")
+        hlog(f"{len(metrics)} metrics")
         stats = []
         for metric in metrics:
             stats.extend(metric.evaluate(scenario_state))
 
         # Print out stats
-        for stat in stats:
-            print(stat)
+        with htrack_block("Stats"):
+            for stat in stats:
+                hlog(stat)
