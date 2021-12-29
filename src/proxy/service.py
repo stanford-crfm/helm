@@ -18,11 +18,13 @@ USERS_FILE = "users.jsonl"
 CACHE_DIR = "cache"
 MAX_EXPANSION = 1000
 
+
 @dataclass(frozen=True)
 class GeneralInfo:
     version: str
     exampleQueries: List[Query]
     allModels: List[Model]
+
 
 def expand_environments(environments: Dict[str, List[str]]):
     """

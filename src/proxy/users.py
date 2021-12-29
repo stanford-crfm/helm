@@ -66,7 +66,6 @@ class User:
         }
 
 
-
 def dict_usage_from_dict(raw: Dict[str, Any]) -> Dict[str, Usage]:
     result = create_usage_dict()
     for key, value in raw.items():

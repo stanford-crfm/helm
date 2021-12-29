@@ -1,8 +1,8 @@
 import openai
 
-from .client import Client
 from common.cache import Cache
 from common.request import Request, RequestResult, Completion
+from .client import Client
 
 
 class OpenAIClient(Client):

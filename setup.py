@@ -6,6 +6,7 @@ import sys
 
 
 def get_requirements(path: str):
+    # TODO: don't include all the dev packages
     requirements = []
     for line in open(path):
         if not line.startswith('-r'):

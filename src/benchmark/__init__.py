@@ -1,2 +1,2 @@
-from . import simple_scenarios
-from . import basic_metrics
+from . import simple_scenarios  # noqa
+from . import basic_metrics  # noqa

@@ -1,5 +1,5 @@
+from common.request import Request, RequestResult
 from .client import Client
-from common.request import Request, RequestResult, Completion
 
 
 class HuggingFaceClient(Client):

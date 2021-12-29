@@ -13,7 +13,6 @@ def ensure_directory_exists(path: str):
     if not os.path.exists(path):
         os.mkdir(path)
 
+
 def parse_hocon(text: str):
     return pyhocon.ConfigFactory.parse_string(text)
-
-
