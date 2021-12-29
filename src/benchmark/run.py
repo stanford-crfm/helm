@@ -1,9 +1,11 @@
+from common.hierarchical_logger import htrack
 from common.authentication import Authentication
 from .executor import ExecutionSpec
 from .runner import Runner
 from .test_utils import get_run_spec1
 
 
+@htrack(None)
 def main():
     """
     Main entry point for running the benchmark.

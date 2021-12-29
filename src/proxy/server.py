@@ -16,6 +16,7 @@ import sys
 import time
 from paste import httpserver
 
+from common.hierarchical_logger import hlog
 from common.request import Request
 from .service import Service
 from .query import Query
@@ -41,7 +42,7 @@ def safe_call(func, to_json=True):
         result = func(params)
         end_time = time.time()
         result = json.dumps(result) if to_json else result
-        print("REQUEST {}: {} seconds, {} bytes".format(bottle.request, end_time - start_time, len(result)))
+        hlog("REQUEST {}: {} seconds, {} bytes".format(bottle.request, end_time - start_time, len(result)))
         return result
     except Exception as e:
         import traceback
@@ -105,8 +106,8 @@ def handle_request():
 def handle_shutdown():
     def perform(args):
         pid = os.getpid()
-        print("Shutting down server by killing own process {}...".format(pid))
-        print(os.kill(pid, signal.SIGTERM))
+        hlog(f"Shutting down server by killing own process {pid}...")
+        hlog(os.kill(pid, signal.SIGTERM))
 
     return safe_call(perform)
 
