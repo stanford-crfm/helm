@@ -1,7 +1,8 @@
 import requests
+from typing import Dict
 
 from common.cache import Cache
-from common.request import Request, RequestResult, Sequence
+from common.request import Request, RequestResult, Sequence, Token
 from .client import Client
 
 
@@ -20,6 +21,7 @@ class AI21Client(Client):
             "temperature": request.temperature,
             "numResults": request.num_completions,
             "topKReturn": request.top_k_per_token,
+            "topP": request.top_p,
             "maxTokens": request.max_tokens,
             "stopSequences": request.stop_sequences,
         }
@@ -36,9 +38,33 @@ class AI21Client(Client):
         if "completions" not in response:
             return RequestResult(success=False, cached=False, error=response["detail"], completions=[])
 
+        def fix_text(x: str, first: str) -> str:
+            # For some reason, this is the space character used by AI21 Labs.
+            x = x.replace('▁', ' ')
+            # For some reason, the first token sometimes starts with a space, so get rid of it
+            if first and x.startswith(' '):
+                x = x[1:]
+            return x
+
+        def parse_token(raw: Dict, first: bool) -> Token:
+            return Token(
+                text=fix_text(raw['generatedToken']['token'], first),
+                logprob=raw['generatedToken']['logprob'],
+                top_logprobs=dict((x['token'], x['logprob']) for x in raw['topTokens']),
+            )
+
+        def parse_sequence(raw: Dict, first: bool) -> Sequence:
+            text = raw['text']
+            tokens = [parse_token(token, first and i == 0) for i, token in enumerate(raw['tokens'])]
+            logprob = sum(token.logprob for token in tokens)
+            return Sequence(text=text, logprob=logprob, tokens=tokens)
+
+        prompt = parse_sequence(response['prompt'], True)
         completions = []
-        for completion in response["completions"]:
-            completions.append(Sequence(text=completion["data"]["text"]))
+        for raw_completion in response["completions"]:
+            completion = parse_sequence(raw_completion["data"], False)
+            completions.append(prompt + completion if request.echo_prompt else completion)
+
         return RequestResult(
             success=True, cached=cached, request_time=response["request_time"], completions=completions
         )

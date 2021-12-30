@@ -30,11 +30,11 @@ class SimpleClient(Client):
         prompt_tokens = request.prompt.split(" ")
 
         choices = reversed(prompt_tokens[-request.num_completions :])
-        top_choices = dict((text, -i) for i, text in enumerate(choices))
+        top_logprobs = dict((text, -i) for i, text in enumerate(choices))
 
         return [
             Sequence(
-                text=text, log_prob=log_prob, tokens=[Token(text=text, log_prob=log_prob, top_choices=top_choices)]
+                text=text, logprob=logprob, tokens=[Token(text=text, logprob=logprob, top_logprobs=top_logprobs)]
             )
-            for text, log_prob in top_choices.items()
+            for text, logprob in top_logprobs.items()
         ]

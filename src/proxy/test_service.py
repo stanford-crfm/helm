@@ -44,24 +44,67 @@ def test_example_queries():
         assert len(response.requests) > 0
     service.finish()
 
+
+def helper_prod_test_service(request: Request, expected_text: str):
+    """Make a `request` to the production server."""
+    service = get_prod_service()
+    auth = get_authentication()
+    result = service.make_request(auth, request)
+    print(result)
+    assert result.success
+    assert len(result.completions) == request.num_completions
+
+    for completion in result.completions:
+        # Make sure the token text builds the same as the top-level text
+        assert ''.join(token.text for token in completion.tokens) == completion.text
+
+        # Check echo is working
+        if request.echo_prompt:
+            assert completion.text.startswith(request.prompt)
+
+        # Don't generate too many tokens
+        if not request.echo_prompt:
+            assert len(completion.tokens) <= request.max_tokens
+
+        # Consistency of log probs
+        assert completion.logprob == sum(token.logprob for token in completion.tokens)
+
+        # TODO: OpenAI's API returns null for the first token, so skip checking it; investigate this
+        for token in completion.tokens[1:]:
+            assert len(token.top_logprobs) == request.top_k_per_token
+
+            # If generated token was one of the top, make sure has the right probability
+            if token.text in token.top_logprobs:
+                assert token.logprob == token.top_logprobs[token.text]
+
+            # If temperature = 0, then make sure we're getting the top probability token
+            if request.temperature == 0:
+                assert token.text in token.top_logprobs
+                assert token.logprob == max(token.top_logprobs.values())
+
+
+    # Make sure we get the expected_text in one of the completions
+    assert any(completion.text == expected_text for completion in result.completions)
+
+# Models that we want to test
+prod_models = ["openai/davinci", "ai21/j1-jumbo"]
+
+
 # TODO: put a flag on this so that it's easy to use pytest to still run these slow tests
 # https://www.py4u.net/discuss/204728
 @pytest.mark.skip(reason="Requires production")
-def test_openai_client1():
-    service = get_prod_service()
-    auth = get_authentication()
-    request = Request(prompt="Paris is the capital of", model="openai/davinci", max_tokens=1, num_completions=1, temperature=0)
-    result = service.make_request(auth, request)
-    assert result.success
-    assert len(result.completions) == 1
-    assert result.completions[0].text == " France"
+def test_prod_continue():
+    # Test that we're continuing
+    prompt = "Paris is the capital of"
+    for model in prod_models:
+        request = Request(prompt=prompt, model=model, max_tokens=1, num_completions=1, temperature=0)
+        helper_prod_test_service(request, " France")
+
 
 @pytest.mark.skip(reason="Requires production")
-def test_openai_client2():
-    service = get_prod_service()
-    auth = get_authentication()
-    request = Request(prompt="I like cheese.", model="openai/davinci", max_tokens=0, num_completions=1, temperature=0, echo_prompt=True)
-    result = service.make_request(auth, request)
-    assert result.success
-    assert len(result.completions) == 1
-    assert result.completions[0].text == "I like cheese."
+def test_prod_echo():
+    # If we're echoing the prompt, make sure we're getting the same thing back
+    prompt = "I like pickles."
+    for model in prod_models:
+        request = Request(prompt=prompt, model=model, max_tokens=0, num_completions=1, echo_prompt=True)
+        helper_prod_test_service(request, prompt)

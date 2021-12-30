@@ -38,16 +38,16 @@ class OpenAIClient(Client):
 
         completions = []
         for raw_completion in response["choices"]:
-            sequence_log_prob = 0
+            sequence_logprob = 0
             tokens: List[Token] = []
 
             raw_data = raw_completion["logprobs"]
-            for text, log_prob, top_choices in zip(raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]):
+            for text, logprob, top_logprobs in zip(raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]):
                 # For some reason, the first log probability and top choices are None.
                 # TODO: look in to why this is
-                tokens.append(Token(text=text, log_prob=log_prob or 0, top_choices=dict(top_choices or {})))
-                sequence_log_prob += log_prob or 0
-            completion = Sequence(text=raw_completion["text"], log_prob=sequence_log_prob, tokens=tokens)
+                tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
+                sequence_logprob += logprob or 0
+            completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
             completions.append(completion)
         return RequestResult(
             success=True, cached=cached, request_time=response["request_time"], completions=completions

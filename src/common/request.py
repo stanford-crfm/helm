@@ -37,8 +37,8 @@ class Token:
     """
 
     text: str  # Text that was chosen
-    log_prob: float  # Log probability of that text
-    top_choices: Dict[str, float]  # text -> log_prob
+    logprob: float  # Log probability of that text
+    top_logprobs: Dict[str, float]  # text -> log probability of that text
 
 
 @dataclass(frozen=True)
@@ -46,8 +46,15 @@ class Sequence:
     """A `Sequence` is a sequence of tokens."""
 
     text: str
-    log_prob: float
+    logprob: float
     tokens: List[Token]
+
+    def __add__(self, other: 'Sequence') -> 'Sequence':
+        return Sequence(
+            self.text + other.text,
+            self.logprob + other.logprob,
+            self.tokens + other.tokens,
+        )
 
 
 @dataclass(frozen=True)
