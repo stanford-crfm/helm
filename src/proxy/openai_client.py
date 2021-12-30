@@ -1,7 +1,8 @@
 import openai
+from typing import List
 
 from common.cache import Cache
-from common.request import Request, RequestResult, Completion
+from common.request import Request, RequestResult, Sequence, Token
 from .client import Client
 
 
@@ -23,7 +24,7 @@ class OpenAIClient(Client):
             "top_p": request.top_p,
             "presence_penalty": request.presence_penalty,
             "frequency_penalty": request.frequency_penalty,
-            "echo": True,
+            "echo": request.echo_prompt,
         }
 
         try:
@@ -36,8 +37,20 @@ class OpenAIClient(Client):
             return RequestResult(success=False, cached=False, error=str(e), completions=[])
 
         completions = []
-        for choice in response["choices"]:
-            completions.append(Completion(text=choice["text"]))
+        for raw_completion in response["choices"]:
+            sequence_logprob = 0
+            tokens: List[Token] = []
+
+            raw_data = raw_completion["logprobs"]
+            for text, logprob, top_logprobs in zip(
+                raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
+            ):
+                # For some reason, the first log probability and top choices are None.
+                # TODO: look in to why this is
+                tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
+                sequence_logprob += logprob or 0
+            completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
+            completions.append(completion)
         return RequestResult(
             success=True, cached=cached, request_time=response["request_time"], completions=completions
         )

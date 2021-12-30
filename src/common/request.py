@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 
 @dataclass(frozen=True)
@@ -13,6 +13,7 @@ class Request:
     top_k_per_token: int = 1  # Take this many highest probability candidates per token in the completion
     max_tokens: int = 100  # Maximum number of tokens to generate
     stop_sequences: List[str] = field(default_factory=list)
+    echo_prompt: bool = False  # `prompt` should be prefix of each completion? (for evaluating perplexity)
 
     # For OpenAI's API
     top_p: float = 1  # Enable nucleus sampling
@@ -29,18 +30,35 @@ class Request:
 
 
 @dataclass(frozen=True)
-class Completion:
-    """Represents one result from the API."""
+class Token:
+    """
+    A `Token` represents one token position in the sequence, which has the
+    chosen `text` as well as the top probabilities under the model.
+    """
+
+    text: str  # Text that was chosen
+    logprob: float  # Log probability of that text
+    top_logprobs: Dict[str, float]  # text -> log probability of that text
+
+
+@dataclass(frozen=True)
+class Sequence:
+    """A `Sequence` is a sequence of tokens."""
 
     text: str
+    logprob: float
+    tokens: List[Token]
+
+    def __add__(self, other: "Sequence") -> "Sequence":
+        return Sequence(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens,)
 
 
 @dataclass(frozen=True)
 class RequestResult:
-    """What comes back due to a request."""
+    """What comes back due to a `Request`."""
 
     success: bool
-    completions: List[Completion]
+    completions: List[Sequence]
     cached: bool
     request_time: Optional[float] = None
     error: Optional[str] = None
