@@ -39,8 +39,8 @@ class AI21Client(Client):
             return RequestResult(success=False, cached=False, error=response["detail"], completions=[])
 
         def fix_text(x: str, first: bool) -> str:
-            # For some reason, this is the space character used by AI21 Labs.
             x = x.replace("▁", " ")
+            x = x.replace("<|newline|>", "\n")
             # For some reason, the first token sometimes starts with a space, so get rid of it
             if first and x.startswith(" "):
                 x = x[1:]
@@ -50,7 +50,7 @@ class AI21Client(Client):
             return Token(
                 text=fix_text(raw["generatedToken"]["token"], first),
                 logprob=raw["generatedToken"]["logprob"],
-                top_logprobs=dict((x["token"], x["logprob"]) for x in raw["topTokens"]),
+                top_logprobs=dict((fix_text(x["token"], first), x["logprob"]) for x in raw["topTokens"]),
             )
 
         def parse_sequence(raw: Dict, first: bool) -> Sequence:

@@ -137,6 +137,24 @@ $(function () {
     return (Math.round(time * 10) / 10) + 's';
   }
 
+  function renderTokens(tokens) {
+    // Render text as a sequence of tokens
+    const $result = $('<div>');
+    for (const token of tokens) {
+      // When mouse over token, show the alternative tokens and their log probabilities (including the one that's generated)
+      const entries = Object.entries(token.top_logprobs);
+      if (!(token.text in token.top_logprobs)) {
+        entries.push([token.text, token.logprob]);
+      }
+      entries.sort((a, b) => b[1] - a[1]);
+      function marker(text) { return text === token.text ? '*' : ''; }
+      const title = entries.map(([text, logprob]) => `${marker(text)}${text}: ${logprob}`).join('\n');
+      const $token = $('<span>', {class: 'token', title}).append(multiline(token.text));
+      $result.append($token);
+    }
+    return $result;
+  }
+
   function renderRequestResult(requestResult) {
     if (requestResult.error) {
       return renderError(requestResult.error);
@@ -144,7 +162,7 @@ $(function () {
     const $result = $('<div>');
     requestResult.completions.forEach((completion) => {
       $result.append($('<ul>').append($('<li>')
-        .append(multiline(completion.text))));
+        .append(renderTokens(completion.tokens))));
     });
     $result.append($('<i>').append(renderTime(requestResult.request_time)));
     return $result;
