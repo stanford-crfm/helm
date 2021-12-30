@@ -8,13 +8,13 @@ from common.request import Request, RequestResult
 from .models import Model
 from .query import Query, QueryResult
 from .models import all_models, get_model_group
-from .users import Authentication, Users, User
+from .accounts import Authentication, Accounts, Account
 from .auto_client import AutoClient
 from .example_queries import example_queries
 
 VERSION = "1.0"
 CREDENTIALS_FILE = "credentials.conf"
-USERS_FILE = "users.jsonl"
+ACCOUNTS_FILE = "accounts.jsonl"
 CACHE_DIR = "cache"
 MAX_EXPANSION = 1000
 
@@ -23,7 +23,7 @@ MAX_EXPANSION = 1000
 class GeneralInfo:
     version: str
     example_queries: List[Query]
-    allModels: List[Model]
+    all_models: List[Model]
 
 
 def expand_environments(environments: Dict[str, List[str]]):
@@ -75,7 +75,7 @@ class Service(object):
         credentials_path = os.path.join(base_path, CREDENTIALS_FILE)
         cache_path = os.path.join(base_path, CACHE_DIR)
         ensure_directory_exists(cache_path)
-        users_path = os.path.join(base_path, USERS_FILE)
+        accounts_path = os.path.join(base_path, ACCOUNTS_FILE)
 
         if os.path.exists(credentials_path):
             with open(credentials_path) as f:
@@ -83,13 +83,13 @@ class Service(object):
         else:
             credentials = {}
         self.client = AutoClient(credentials, cache_path)
-        self.users = Users(users_path, read_only=read_only)
+        self.accounts = Accounts(accounts_path, read_only=read_only)
 
     def finish(self):
-        self.users.finish()
+        self.accounts.finish()
 
     def get_general_info(self):
-        return GeneralInfo(version=VERSION, example_queries=example_queries, allModels=all_models)
+        return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=all_models)
 
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""
@@ -104,10 +104,13 @@ class Service(object):
 
     def make_request(self, auth: Authentication, request: Request) -> RequestResult:
         """Actually make a request to an API."""
-        self.users.authenticate(auth)
+        # TODO: try to invoke the API even if we're not authenticated, and if
+        # it turns out the results are cached, then we can just hand back the results.
+
+        self.accounts.authenticate(auth)
         model_group = get_model_group(request.model)
         # Make sure we can use
-        self.users.check_can_use(auth.username, model_group)
+        self.accounts.check_can_use(auth.api_key, model_group)
 
         # Use!
         request_result = self.client.make_request(request)
@@ -116,11 +119,11 @@ class Service(object):
         if not request_result.cached:
             # Estimate number of tokens (TODO: fix this)
             count = sum(len(completion.text.split(" ")) for completion in request_result.completions)
-            self.users.use(auth.username, model_group, count)
+            self.accounts.use(auth.api_key, model_group, count)
 
         return request_result
 
-    def get_user(self, auth: Authentication) -> User:
-        """Get information about a user."""
-        self.users.authenticate(auth)
-        return self.users.username_to_users[auth.username]
+    def get_account(self, auth: Authentication) -> Account:
+        """Get information about an account."""
+        self.accounts.authenticate(auth)
+        return self.accounts.api_key_to_accounts[auth.api_key]

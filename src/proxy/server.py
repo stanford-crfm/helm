@@ -19,7 +19,7 @@ from common.hierarchical_logger import hlog
 from common.request import Request
 from .service import Service
 from .query import Query
-from .users import Authentication
+from common.authentication import Authentication
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
@@ -73,11 +73,11 @@ def handle_get_general_info():
     return safe_call(perform)
 
 
-@app.get("/api/user")
-def handle_get_user():
+@app.get("/api/account")
+def handle_get_account():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
-        return service.get_user(auth).as_dict()
+        return dataclasses.asdict(service.get_account(auth))
 
     return safe_call(perform)
 

@@ -15,7 +15,7 @@ def get_prod_service():
 
 
 def get_authentication():
-    return Authentication(username="crfm", password="crfm")
+    return Authentication(api_key="crfm")
 
 
 def test_expand_query():

@@ -3,32 +3,35 @@ $(function () {
   const rootUrl = '/static/index.html';
   let auth = null;
 
+  function censor(api_key) {
+    // Show only the first k letters
+    const k = 2;
+    if (api_key.length <= k) {
+      return api_key;
+    }
+    return api_key.substring(0, k) + '*'.repeat(api_key.length - k);
+  }
+
   // Logging in and out
   function updateLogin() {
     const $loginInfo = $('#loginInfo');
     $loginInfo.empty();
-    let username = readCookie('username');
-    let password = readCookie('password');
-    auth = {username, password};
-    if (username) {
-      $loginInfo.append($('<span>').append('You are logged in as ' + username + '&nbsp;'));
+    let api_key = readCookie('api_key');
+    if (api_key) {
+      auth = {api_key};
+      $loginInfo.append($('<span>').append('You are logged in with API key ' + censor(api_key) + '&nbsp;'));
       $loginInfo.append($('<button>').append('Logout').click(() => {
-        eraseCookie('username');
-        eraseCookie('password');
+        eraseCookie('api_key');
         updateLogin();
       }));
     } else {
+      auth = null;
       $loginInfo.append($('<button>').append('Login').click(() => {
-        username = prompt('Enter your username:');
-        if (!username) {
+        api_key = prompt('Enter your API key:');
+        if (!api_key) {
           return;
         }
-        password = prompt('Enter your password (NOT SECURE):');
-        if (!password) {
-          return;
-        }
-        createCookie('username', username);
-        createCookie('password', password);
+        createCookie('api_key', api_key);
         updateLogin();
       }));
     }
@@ -49,7 +52,7 @@ $(function () {
 
   function renderExampleQueries(updateQuery) {
     const $examplesBlock = $('<div>');
-    $examplesBlock.append($('<span>').append('Examples:'));
+    $examplesBlock.append($('<span>').append('Example queries:'));
     generalInfo.example_queries.forEach((query, i) => {
       const href = '#';
       const title = '[Prompt]\n' + query.prompt + '\n[Settings]\n' + query.settings + '\n[Environments]\n' + query.environments;
@@ -147,8 +150,8 @@ $(function () {
         entries.push([token.text, token.logprob]);
       }
       entries.sort((a, b) => b[1] - a[1]);
-      function marker(text) { return text === token.text ? '*' : ''; }
-      const title = entries.map(([text, logprob]) => `${marker(text)}${text}: ${logprob}`).join('\n');
+      function marker(text) { return text === token.text ? ' [selected]' : ''; }
+      const title = 'Candidates (with logprobs):\n' + entries.map(([text, logprob]) => `${text}: ${logprob}${marker(text)}`).join('\n');
       const $token = $('<span>', {class: 'token', title}).append(multiline(token.text));
       $result.append($token);
     }
@@ -168,30 +171,39 @@ $(function () {
     return $result;
   }
 
-  function renderUser() {
-    const $userBlock = $('<div>');
+  function renderAccount() {
+    if (!auth) {
+      return null;
+    }
+
+    const $accountBlock = $('<div>');
     const args = {auth: JSON.stringify(auth)};
-    $.getJSON('/api/user', args, (user) => {
-      console.log('user', user);
+    $.getJSON('/api/account', args, (account) => {
+      console.log('/api/account', account);
       const items = [];
-      items.push('Usage');
-      ['daily', 'monthly', 'total'].forEach((granularity) => {
-        const usages = user[granularity];
-        for (const group in usages) {
-          const usage = usages[group];
-          if (usage.quota != null) {
+      for (modelGroup in account.usages) {
+        for (granularity in account.usages[modelGroup]) {
+          const usage = account.usages[modelGroup][granularity];
+          // Only print out usage for model groups and granularities where there is a quota
+          if (usage.quota) {
             const percent = Math.round(usage.used / usage.quota * 100);
-            items.push(`<b>${group}</b>: ${usage.period} (${usage.used} / ${usage.quota} = ${percent}%)`);
+            items.push(`<b>${modelGroup}</b>: ${usage.period} (${usage.used} / ${usage.quota} = ${percent}%)`);
           }
         }
-      });
-      $userBlock.empty().append(items.join(' | '));
+      }
+      if (items.length === 0) {
+        items.push('no restrictions');
+      }
+      $accountBlock.empty()
+        .append($('<a>', {href: 'help.html#quotas'}).append('Usage'))
+        .append(': ')
+        .append(items.join(' | '));
     });
-    return $userBlock;
+    return $accountBlock;
   }
 
   function renderQueryInterface() {
-    const $userBlock = $('<div>').append(renderUser());
+    const $accountBlock = $('<div>').append(renderAccount());
 
     // Show examples of queries
     const $exampleQueries = renderExampleQueries((query) => {
@@ -207,7 +219,7 @@ $(function () {
     // Allow editing the query
     const $queryBlock = renderQuery((queryResult) => {
       // Create requests
-      console.log('query', queryResult);
+      console.log('/api/query', queryResult);
       $requestsBlock.empty();
 
       if (queryResult.error) {
@@ -229,10 +241,10 @@ $(function () {
           request: JSON.stringify(request),
         };
         $.getJSON('/api/request', args, (requestResult) => {
-          console.log('request', request, requestResult);
+          console.log('/api/request', request, requestResult);
           $requestResult.empty().append(renderRequestResult(requestResult));
           if (!requestResult.cached) {
-            $userBlock.empty().append(renderUser());
+            $accountBlock.empty().append(renderAccount());
           }
         });
         $request.append($requestResult);
@@ -244,7 +256,7 @@ $(function () {
     const $requestsBlock = $('<div>');
 
     const $group = $('<div>');
-    $group.append($userBlock);
+    $group.append($accountBlock);
     $group.append($exampleQueries);
     $group.append($queryBlock);
     $group.append($requestsBlock);
@@ -258,7 +270,7 @@ $(function () {
 
   $.getJSON('/api/general_info', (response) => {
     generalInfo = response;
-    console.log('general_info', generalInfo);
+    console.log('/api/general_info', generalInfo);
     $('#main').empty().append(renderQueryInterface());
 
     const $helpModels = $('#help-models');
@@ -269,11 +281,13 @@ $(function () {
     // Render the list of models
     const $table = $('<table>', {class: 'table'});
     const $header = $('<tr>')
+      .append($('<td>').append('group'))
       .append($('<td>').append('name'))
       .append($('<td>').append('description'));
     $table.append($header);
-    generalInfo.allModels.forEach((model) => {
+    generalInfo.all_models.forEach((model) => {
       const $row = $('<tr>')
+        .append($('<td>').append($('<tt>').append(model.group)))
         .append($('<td>').append($('<tt>').append(model.name)))
         .append($('<td>').append(model.description));
       $table.append($row);
