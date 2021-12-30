@@ -10,19 +10,15 @@ class Client(ABC):
     def make_request(self, request: Request) -> RequestResult:
         pass
 
-    """
-    Utility methods
-    """
 
-    @staticmethod
-    def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:
-        """Return a version of `compute` that puts `request_time` into its output."""
+def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:
+    """Return a version of `compute` that puts `request_time` into its output."""
 
-        def wrapped_compute():
-            start_time = time.time()
-            response = compute()
-            end_time = time.time()
-            response["request_time"] = end_time - start_time
-            return response
+    def wrapped_compute():
+        start_time = time.time()
+        response = compute()
+        end_time = time.time()
+        response["request_time"] = end_time - start_time
+        return response
 
-        return wrapped_compute
+    return wrapped_compute

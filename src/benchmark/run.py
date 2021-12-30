@@ -11,9 +11,7 @@ def main():
     Main entry point for running the benchmark.
     """
     # TODO: make a general client for this
-    execution_spec = ExecutionSpec(
-        auth=Authentication(api_key="crfm"), url="http://localhost:1959/api/request", parallelism=5,
-    )
+    execution_spec = ExecutionSpec(auth=Authentication(api_key="crfm"), url="http://localhost:1959", parallelism=5,)
 
     # TODO: load this dynamically from a conf file
     run_spec = get_run_spec1()

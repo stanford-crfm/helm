@@ -11,7 +11,8 @@ from .metric import MetricSpec, create_metric
 @dataclass(frozen=True)
 class RunSpec:
     """
-    Specifies how to run on one scenario (apply the different adaptation procedures)
+    Specifies how to do a single run, which gets a scenario, adapts it, and
+    computes a list of metrics.
     """
 
     scenario: ScenarioSpec  # Which scenario
@@ -20,7 +21,10 @@ class RunSpec:
 
 
 class Runner:
-    """The main class for running everything."""
+    """
+    The main entry point for running the entire benchmark.  Mostly just
+    dispatches to other classes.
+    """
 
     def __init__(self, execution_spec: ExecutionSpec, run_specs: List[RunSpec]):
         self.executor = Executor(execution_spec)
@@ -34,11 +38,11 @@ class Runner:
         # Load the scenario
         scenario = create_scenario(run_spec.scenario)
 
-        # Build pieces (contextualized requests)
+        # Adaptation
         adapter = Adapter(run_spec.adapter_spec)
         scenario_state = adapter.adapt(scenario)
 
-        # Execute the requests
+        # Execution
         scenario_state = self.executor.execute(scenario_state)
 
         # Apply the metrics

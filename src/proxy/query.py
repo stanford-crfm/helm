@@ -18,6 +18,6 @@ class Query:
 
 @dataclass(frozen=True)
 class QueryResult:
-    """A query produces a list of requests."""
+    """When expanded, a query produces a list of `Request`s."""
 
     requests: List[Request]

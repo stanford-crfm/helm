@@ -13,21 +13,23 @@ from .adapter import RequestState, ScenarioState
 
 @dataclass(frozen=True)
 class ExecutionSpec:
-    auth: Authentication
-
-    # Where the REST endpoint is (e.g., http://localhost:1959/api/request)
+    # Where the service lives (e.g., http://localhost:1959)
     url: str
+
+    # Pass into the service
+    auth: Authentication
 
     # How many threads to have at once
     parallelism: int
 
 
 def make_request(auth: Authentication, url: str, request: Request) -> RequestResult:
+    # TODO: replace this by `RemoteService`
     params = {
         "auth": json.dumps(dataclasses.asdict(auth)),
         "request": json.dumps(dataclasses.asdict(request)),
     }
-    response = requests.get(url + "?" + urlencode(params)).json()
+    response = requests.get(url + "/api/request?" + urlencode(params)).json()
     if response.get("error"):
         hlog(response["error"])
     return from_dict(data_class=RequestResult, data=response)

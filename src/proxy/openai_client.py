@@ -3,7 +3,7 @@ from typing import List
 
 from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
-from .client import Client
+from .client import Client, wrap_request_time
 
 
 class OpenAIClient(Client):
@@ -13,7 +13,7 @@ class OpenAIClient(Client):
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = {
-            "engine": request.model_engine(),
+            "engine": request.model_engine,
             "prompt": request.prompt,
             "temperature": request.temperature,
             "n": request.num_completions,
@@ -32,7 +32,7 @@ class OpenAIClient(Client):
             def do_it():
                 return openai.Completion.create(**raw_request)
 
-            response, cached = self.cache.get(raw_request, self.wrap_request_time(do_it))
+            response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
         except openai.error.InvalidRequestError as e:
             return RequestResult(success=False, cached=False, error=str(e), completions=[])
 
