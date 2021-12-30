@@ -115,7 +115,7 @@ def handle_shutdown():
 def main():
     global service
     parser = argparse.ArgumentParser()
-    parser.add_argument("-h", "--host", type=int, help="What host", default="0.0.0.0")
+    parser.add_argument("--host", type=str, help="What host", default="0.0.0.0")
     parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=1959)
     parser.add_argument("--ssl-key-file", type=str, help="Path to SSL key file")
     parser.add_argument("--ssl-cert-file", type=str, help="Path to SSL cert file")
