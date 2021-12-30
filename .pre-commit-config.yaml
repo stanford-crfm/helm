@@ -1,0 +1,7 @@
+repos:
+- repo: local
+  hooks:
+    - id: run-pre-commit
+      name: run-pre-commit
+      entry: ./pre-commit.sh
+      language: script

@@ -120,8 +120,12 @@ Run the benchmark:
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
 
-# Development
+# Contributing
 
-Run unit tests:
+To contribute to this project, install the dependencies and git hook scripts:
+  
+    ./pre-commit.sh && pre-commit install
+
+To run unit tests:
 
     python -m pytest
