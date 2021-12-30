@@ -35,7 +35,7 @@ class AdapterSpec:
     # set of training instances.  Used to compute error bars.
     num_train_trials: int
 
-    ### Decoding parameters (inherited by `Request`)
+    # Decoding parameters (inherited by `Request`)
 
     # Model to make the request to
     model: str
