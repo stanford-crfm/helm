@@ -21,7 +21,7 @@ class AutoClient(Client):
         """Return a client based on `organization`, creating it if necessary."""
         client = self.clients.get(organization)
         if client is None:
-            client_cache_path = os.path.join(self.cache_path, organization + ".jsonl")
+            client_cache_path = os.path.join(self.cache_path, f"{organization}.sqlite")
             if organization == "openai":
                 client = OpenAIClient(api_key=self.credentials["openaiApiKey"], cache_path=client_cache_path)
             elif organization == "ai21":
