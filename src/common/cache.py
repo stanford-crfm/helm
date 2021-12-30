@@ -60,7 +60,11 @@ class Cache(object):
             response = self.data[key] = compute()
             cached = False
 
-            # Cache new request and response
+            # Cache new request and response.
+            # We acquire the lock before executing the following operation just in case
+            # it is not thread-safe.
+            # TODO: Check if the following operation is thread-safe. If it is, remove the lock.
+            #       https://github.com/RaRe-Technologies/sqlitedict/issues/145
             with self._lock:
                 with SqliteDict(self.cache_path) as cache_dict:
                     cache_dict[key] = response
