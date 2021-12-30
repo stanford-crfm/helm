@@ -42,7 +42,9 @@ class OpenAIClient(Client):
             tokens: List[Token] = []
 
             raw_data = raw_completion["logprobs"]
-            for text, logprob, top_logprobs in zip(raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]):
+            for text, logprob, top_logprobs in zip(
+                raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
+            ):
                 # For some reason, the first log probability and top choices are None.
                 # TODO: look in to why this is
                 tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))

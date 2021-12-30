@@ -49,12 +49,8 @@ class Sequence:
     logprob: float
     tokens: List[Token]
 
-    def __add__(self, other: 'Sequence') -> 'Sequence':
-        return Sequence(
-            self.text + other.text,
-            self.logprob + other.logprob,
-            self.tokens + other.tokens,
-        )
+    def __add__(self, other: "Sequence") -> "Sequence":
+        return Sequence(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens,)
 
 
 @dataclass(frozen=True)

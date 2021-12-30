@@ -56,7 +56,7 @@ def helper_prod_test_service(request: Request, expected_text: str):
 
     for completion in result.completions:
         # Make sure the token text builds the same as the top-level text
-        assert ''.join(token.text for token in completion.tokens) == completion.text
+        assert "".join(token.text for token in completion.tokens) == completion.text
 
         # Check echo is working
         if request.echo_prompt:
@@ -82,9 +82,9 @@ def helper_prod_test_service(request: Request, expected_text: str):
                 assert token.text in token.top_logprobs
                 assert token.logprob == max(token.top_logprobs.values())
 
-
     # Make sure we get the expected_text in one of the completions
     assert any(completion.text == expected_text for completion in result.completions)
+
 
 # Models that we want to test
 prod_models = ["openai/davinci", "ai21/j1-jumbo"]

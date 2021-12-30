@@ -12,12 +12,7 @@ class SimpleClient(Client):
             completions = self.invoke_model1(request)
         else:
             raise ValueError("Unknown model")
-        return RequestResult(
-            success=True,
-            cached=False,
-            request_time=0,
-            completions=completions,
-        )
+        return RequestResult(success=True, cached=False, request_time=0, completions=completions)
 
     def invoke_model1(self, request: Request) -> List[Sequence]:
         """
@@ -33,8 +28,6 @@ class SimpleClient(Client):
         top_logprobs = dict((text, -i) for i, text in enumerate(choices))
 
         return [
-            Sequence(
-                text=text, logprob=logprob, tokens=[Token(text=text, logprob=logprob, top_logprobs=top_logprobs)]
-            )
+            Sequence(text=text, logprob=logprob, tokens=[Token(text=text, logprob=logprob, top_logprobs=top_logprobs)])
             for text, logprob in top_logprobs.items()
         ]
