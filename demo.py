@@ -6,8 +6,7 @@ from urllib import parse
 from typing import Any, Dict
 
 auth: Dict[str, str] = {
-    "username": "crfm",
-    "password": "crfm",
+    "api_key": "crfm",
 }
 
 # Generation
