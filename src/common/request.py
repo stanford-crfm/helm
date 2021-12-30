@@ -13,6 +13,7 @@ class Request:
     top_k_per_token: int = 1  # Take this many highest probability candidates per token in the completion
     max_tokens: int = 100  # Maximum number of tokens to generate
     stop_sequences: List[str] = field(default_factory=list)
+    echo_prompt: bool = False  # `prompt` should be prefix of each completion? (for evaluating perplexity)
 
     # For OpenAI's API
     top_p: float = 1  # Enable nucleus sampling
@@ -34,8 +35,9 @@ class Token:
     A `Token` represents one token position in the sequence, which has the
     chosen `text` as well as the top probabilities under the model.
     """
-    text: str                      # Text that was chosen
-    log_prob: float                # Log probability of that text
+
+    text: str  # Text that was chosen
+    log_prob: float  # Log probability of that text
     top_choices: Dict[str, float]  # text -> log_prob
 
 
@@ -53,7 +55,6 @@ class RequestResult:
     """What comes back due to a `Request`."""
 
     success: bool
-    prompt: Sequence
     completions: List[Sequence]
     cached: bool
     request_time: Optional[float] = None
