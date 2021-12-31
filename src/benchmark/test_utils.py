@@ -1,7 +1,7 @@
 from typing import List
 
 from .scenario import ScenarioSpec
-from .adapter import AdapterSpec
+from .adapter import AdapterSpec, ADAPT_MULTIPLE_CHOICE
 from .metric import MetricSpec
 from .runner import RunSpec
 
@@ -45,13 +45,15 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         return subject.replace("_", " ")
 
     adapter_spec = AdapterSpec(
-        instructions=f"The following are multiple choice questions (with answers) about {format(subject)}.\n\n",
+        method=ADAPT_MULTIPLE_CHOICE,
+        instructions=f"The following are multiple choice questions (with answers) about {format(subject)}.",
+        input_prefix='',
+        output_prefix='\nAnswer: ',
         max_train_instances=5,
-        max_eval_instances=10,
+        max_eval_instances=1000,
         num_outputs=10,
         num_train_trials=1,
-        model="simple/model1",
-        # model="openai/davinci",
+        model="openai/davinci",
         temperature=0,
     )
 

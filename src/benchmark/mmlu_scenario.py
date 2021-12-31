@@ -3,7 +3,7 @@ import os
 from typing import List
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
 
 
 class MMLUScenario(Scenario):
@@ -34,8 +34,18 @@ class MMLUScenario(Scenario):
 
         # Read all the instances
         instances = []
-        for split in ["dev", "val", "test"]:
+        splits = {
+            "auxiliary_train": TRAIN_TAG,
+            "dev": TRAIN_TAG,
+            "val": VALID_TAG,
+            "test": TEST_TAG,
+        }
+        for split in splits:
             csv_path = os.path.join(data_path, split, f"{self.subject}_{split}.csv")
+            if not os.path.exists(csv_path):
+                hlog(f"{csv_path} doesn't exist, skipping")
+                continue
+
             hlog(f"Reading {csv_path}")
             with open(csv_path) as f:
                 reader = csv.reader(f, delimiter=",")
@@ -49,7 +59,7 @@ class MMLUScenario(Scenario):
                         return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
 
                     instance = Instance(
-                        input=question, references=list(map(answer_to_reference, answers)), tags=[split],
+                        input=question, references=list(map(answer_to_reference, answers)), tags=[splits[split]],
                     )
                     instances.append(instance)
 

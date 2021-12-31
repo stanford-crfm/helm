@@ -36,10 +36,11 @@ class BasicMetric(Metric):
         # Predicted outputs
         assert request_state.result is not None
         # TODO: Sort the predictions, or take them from the top tokens of the first completion
-        preds = [completion.text for completion in request_state.result.completions]
+        preds = [completion.text.strip() for completion in request_state.result.completions]
 
         # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
-        # TODO
+        if request_state.output_mapping is not None:
+            preds = [request_state.output_mapping.get(pred) for pred in preds]
 
         # TODO: add perplexity of the input text
 

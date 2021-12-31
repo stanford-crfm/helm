@@ -48,19 +48,24 @@ class Executor:
     @htrack(None)
     def execute(self, scenario_state: ScenarioState) -> ScenarioState:
         # TODO: make a thread pool to process all of these in parallel up to a certain number
+        def render_instance(instance: Instance, pred_output: str) -> str:
+            tags_str = ",".join(instance.tags)
+            gold_output = instance.first_correct_reference and instance.first_correct_reference.output
+            if request_state.output_mapping is not None:
+                pred_output = request_state.output_mapping.get(pred_output.strip())
+            correct_str = "CORRECT" if gold_output == pred_output else "WRONG"
+            return f"[{tags_str}] \"{instance.input[:100]}\" => \"{gold_output}\", predicted \"{pred_output}\" [{correct_str}]"
+
         def process(request_state: RequestState) -> RequestState:
             result = make_request(self.execution_spec.auth, self.execution_spec.url, request_state.request)
+            prediction = result.completions[0].text
+            hlog(f"{i}/{len(scenario_state.request_states)}: {render_instance(instance, prediction)}")
             return replace(request_state, result=result)
 
         request_states = []
         for i, request_state in enumerate(scenario_state.request_states):
             instance = request_state.instance
 
-            def render_instance(instance: Instance) -> str:
-                tags_str = ",".join(instance.tags)
-                return f"[{tags_str}] {instance.input[:100]}"
-
-            hlog(f"{i}/{len(scenario_state.request_states)}: {render_instance(instance)}")
             request_states.append(process(request_state))
         hlog(f"Processed {len(request_states)} requests")
         return ScenarioState(scenario_state.adapter_spec, request_states)
