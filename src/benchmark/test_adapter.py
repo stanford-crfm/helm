@@ -12,7 +12,6 @@ def test_adapter1():
     # Make sure we generated the right number of request_states:
     # For each trial, instance and reference (+ 1 for free-form generation).
     num_instances = len(scenario_state.instances)
-    num_references = len(scenario_state.instances[0].references)
     assert num_instances * adapter_spec.num_train_trials == len(scenario_state.request_states)
 
     # TODO: write tests to check the contents of the actual prompt
