@@ -16,6 +16,10 @@ class SimpleScenario(Scenario):
     """
 
     def __init__(self, num_input_tokens: int, vocab_size: int, num_train_instances: int, num_test_instances: int):
+        self.name = "Simple Scenario"
+        self.description = "A simple scenario."
+        self.tags = ["simple", "basic"]
+
         self.num_input_tokens = num_input_tokens
         self.vocab_size = vocab_size
         self.num_train_instances = num_train_instances
@@ -37,7 +41,7 @@ class SimpleScenario(Scenario):
                 Reference(output=output, tags=[CORRECT_TAG]),  # Correct output
                 Reference(output="-1", tags=[]),  # Wrong output
             ]
-            return Instance(input=input, references=references, tags=tags,)
+            return Instance(input=input, references=references, tags=tags)
 
         def generate_instances(num_instances: int, tags: List[str]):
             return [generate_instance(tags) for _ in range(num_instances)]

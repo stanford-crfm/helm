@@ -11,6 +11,13 @@ def get_scenario_spec1():
     )
 
 
+def get_scenario_spec_tiny():
+    return ScenarioSpec(
+        class_name="benchmark.simple_scenarios.SimpleScenario",
+        args={"num_input_tokens": 5, "vocab_size": 20, "num_train_instances": 2, "num_test_instances": 2},
+    )
+
+
 def get_adapter_spec1():
     return AdapterSpec(
         instructions="Please solve the following problem.",
@@ -30,4 +37,5 @@ def get_run_spec1():
         scenario=get_scenario_spec1(),
         adapter_spec=get_adapter_spec1(),
         metrics=[MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={}),],
+        output_path="output/benchmarking/debug",
     )

@@ -1,7 +1,8 @@
+import json
+import random
 from dataclasses import dataclass
 from typing import List, Dict, Tuple, Optional
 from collections import defaultdict
-import random
 
 from common.hierarchical_logger import hlog, htrack
 from common.request import Request, RequestResult
@@ -28,6 +29,30 @@ class AdapterSpec:
     temperature: float  # Temperature to use
     stop_sequences: List[str]  # When to stop
 
+    def __str__(self) -> str:
+        return (
+            f"Instructions: {self.instructions}\n"
+            f"Maximum train instances: {self.max_train_instances}\n"
+            f"Maximum eval instances: {self.max_eval_instances}\n"
+            f"Number of outputs: {self.num_outputs}\n"
+            f"Number of train trials: {self.num_train_trials}\n\n"
+            f"Model: {self.model}\n"
+            f"Temperature: {self.temperature}\n"
+            f"Stop sequences: {', '.join(self.stop_sequences)}\n"
+        )
+
+    def to_dict(self) -> Dict:
+        return {
+            "instructions": self.instructions,
+            "max_train_instances": self.max_train_instances,
+            "max_eval_instances": self.max_eval_instances,
+            "num_outputs": self.num_outputs,
+            "num_train_trials": self.num_train_trials,
+            "model": self.model,
+            "temperature": self.temperature,
+            "stop_sequences": self.stop_sequences,
+        }
+
 
 @dataclass(frozen=True)
 class RequestState:
@@ -43,6 +68,29 @@ class RequestState:
     request: Request  # The request that is synthesized
     result: Optional[RequestResult]  # Filled in when we make the call
 
+    def __str__(self) -> str:
+        output = f"Train trial index: {self.train_trial_index}\n"
+        if self.reference_index:
+            output += f"Reference index: {self.reference_index}\n"
+
+        output += f"Instance\n{self.instance}\n\n"
+        output += f"Request\n{self.request}\n\n"
+        if self.result:
+            output += f"Request result\n{self.result}"
+        return output
+
+    def to_dict(self) -> Dict:
+        result = {
+            "instance": self.instance.to_dict(),
+            "train_trial_index": self.train_trial_index,
+            "request": self.request.to_dict(),
+        }
+        if self.reference_index:
+            result["reference_index"] = self.reference_index
+        if self.result:
+            result["result"] = self.result.to_dict()
+        return result
+
 
 @dataclass
 class ScenarioState:
@@ -50,6 +98,13 @@ class ScenarioState:
 
     adapter_spec: AdapterSpec
     request_states: List[RequestState]
+
+    def __str__(self) -> str:
+        total: int = len(self.request_states)
+        output: str = f"Adapter\n{self.adapter_spec}\n{total} request states"
+        for i, request_state in enumerate(self.request_states):
+            output += f"\n\n------- Request state {i + 1}/{total}\n{request_state}"
+        return output
 
     def __post_init__(self):
         # Create an index for `instances` and `request_states`.
@@ -66,6 +121,18 @@ class ScenarioState:
         self, train_trial_index: int, instance: Instance, reference_index: Optional[int]
     ) -> List[RequestState]:
         return self.request_state_map.get((train_trial_index, instance, reference_index), [])
+
+    def to_dict(self) -> Dict:
+        return {
+            "adapter_spec": self.adapter_spec.to_dict(),
+            "request_states": [request_state.to_dict() for request_state in self.request_states],
+        }
+
+    def to_json(self, pretty=False) -> str:
+        """
+        Converts `ScenarioState` into JSON string.
+        """
+        return json.dumps(self.to_dict(), indent=4) if pretty else json.dumps(self.to_dict())
 
 
 class Adapter:

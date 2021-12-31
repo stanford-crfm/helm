@@ -1,6 +1,7 @@
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from common.object_spec import ObjectSpec, create_object
 
@@ -25,9 +26,15 @@ class Reference:
     output: str  # The output text
     tags: List[str]  # Extra metadata (e.g., whether it's correct/factual/toxic)
 
+    def __str__(self):
+        return f"Reference ({', '.join(self.tags)}): {self.output}"
+
     @property
     def is_correct(self) -> bool:
         return CORRECT_TAG in self.tags
+
+    def to_dict(self):
+        return {"output": self.output, "tags": self.tags}
 
 
 @dataclass(frozen=True, eq=False)
@@ -42,6 +49,9 @@ class Instance:
     references: List[Reference]  # References that helps us evaluate
     tags: List[str]  # Extra metadata (e.g., train/valid/test, demographic group, etc.)
 
+    def __str__(self):
+        return f"Input: {self.input}\n" + "\n".join(str(reference) for reference in self.references)
+
     @property
     def first_correct_reference(self) -> Optional[Reference]:
         """Return the first correct reference."""
@@ -49,6 +59,13 @@ class Instance:
             if reference.is_correct:
                 return reference
         return None
+
+    def to_dict(self) -> Dict:
+        return {
+            "input": self.input,
+            "tags": self.tags,
+            "references": [reference.to_dict() for reference in self.references],
+        }
 
 
 class Scenario(ABC):
@@ -62,6 +79,18 @@ class Scenario(ABC):
     description: str  # Description of the scenario (task, data)
     tags: List[str]  # Extra metadata (e.g., whether this is a question answering or commonsense task)
 
+    def __str__(self) -> str:
+        """
+        Converts the Scenario into a string for pretty printing.
+        """
+        instances: List[Instance] = self.get_instances()
+        total = len(instances)
+
+        output: str = f"Scenario: {self.name}\n{self.description}\nTags: {', '.join(self.tags)}\n{total} instances"
+        for i, instance in enumerate(instances):
+            output += f"\n\n------- Instance {i+1}/{total}: {', '.join(instance.tags)}\n{instance}"
+        return output
+
     @abstractmethod
     def get_instances(self) -> List[Instance]:
         """
@@ -69,6 +98,21 @@ class Scenario(ABC):
         Load the data and convert it into a list of instances.
         """
         pass
+
+    def to_dict(self) -> Dict:
+        instances: List[Instance] = self.get_instances()
+        return {
+            "name": self.name,
+            "description": self.description,
+            "tags": self.tags,
+            "instances": [instance.to_dict() for instance in instances],
+        }
+
+    def to_json(self, pretty=False) -> str:
+        """
+        Converts `Scenario` into JSON string.
+        """
+        return json.dumps(self.to_dict(), indent=4) if pretty else json.dumps(self.to_dict())
 
 
 class ScenarioSpec(ObjectSpec):
