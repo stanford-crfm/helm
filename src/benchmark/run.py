@@ -1,11 +1,11 @@
 import argparse
-from typing import List
+from typing import List, Dict, Any, Tuple
 
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.authentication import Authentication
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
-from .test_utils import get_run_spec1, get_mmlu_spec, get_basic_metrics
+from .test_utils import get_run_spec1, get_mmlu_spec
 
 
 def parse_run_specs(description: str) -> List[RunSpec]:
@@ -14,9 +14,14 @@ def parse_run_specs(description: str) -> List[RunSpec]:
     `description` has the format:
         <name>:<key>=<value>,<key>=<value>
     """
+
+    def parse_arg(arg: str) -> Tuple[str, Any]:
+        key, value = arg.split("=", 1)
+        return (key, value)
+
     if ":" in description:
         name, args_str = description.split(":", 1)
-        args = dict(arg.split("=") for arg in args_str.split(","))
+        args: Dict[str, Any] = dict(parse_arg(arg) for arg in args_str.split(","))
     else:
         name = description
         args = {}
