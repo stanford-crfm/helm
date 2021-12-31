@@ -25,24 +25,21 @@ def get_adapter_spec1() -> AdapterSpec:
         stop_sequences=["."],
     )
 
+
 def get_basic_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={})]
 
+
 ############################################################
+
 
 def get_run_spec1() -> RunSpec:
     """An run spec for debugging."""
-    return RunSpec(
-        scenario=get_scenario_spec1(),
-        adapter_spec=get_adapter_spec1(),
-        metrics=get_basic_metrics(),
-    )
+    return RunSpec(scenario=get_scenario_spec1(), adapter_spec=get_adapter_spec1(), metrics=get_basic_metrics(),)
+
 
 def get_mmlu_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(
-        class_name='benchmark.mmlu_scenario.MMLUScenario',
-        args={'subject': subject},
-    )
+    scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject},)
 
     def format(subject: str):
         return subject.replace("_", " ")
@@ -54,12 +51,8 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         num_outputs=10,
         num_train_trials=1,
         model="simple/model1",
-        #model="openai/davinci",
+        # model="openai/davinci",
         temperature=0,
     )
 
-    return RunSpec(
-        scenario=scenario,
-        adapter_spec=adapter_spec,
-        metrics=get_basic_metrics(),
-    )
+    return RunSpec(scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics(),)

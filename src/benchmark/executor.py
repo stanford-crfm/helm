@@ -55,9 +55,11 @@ class Executor:
         request_states = []
         for i, request_state in enumerate(scenario_state.request_states):
             instance = request_state.instance
+
             def render_instance(instance: Instance) -> str:
                 tags_str = ",".join(instance.tags)
                 return f"[{tags_str}] {instance.input[:100]}"
+
             hlog(f"{i}/{len(scenario_state.request_states)}: {render_instance(instance)}")
             request_states.append(process(request_state))
         hlog(f"Processed {len(request_states)} requests")

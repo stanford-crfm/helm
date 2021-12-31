@@ -14,6 +14,7 @@ class Simple1Scenario(Scenario):
         2 5 3 -> 2
         1 4 0 -> 0
     """
+
     name = "simple1"
 
     def __init__(self, num_input_tokens: int, vocab_size: int, num_train_instances: int, num_test_instances: int):

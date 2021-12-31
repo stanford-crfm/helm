@@ -7,24 +7,26 @@ from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
 from .test_utils import get_run_spec1, get_mmlu_spec, get_basic_metrics
 
+
 def parse_run_specs(description: str) -> List[RunSpec]:
     """
     Parse `description` into a list of `RunSpec`s.
     `description` has the format:
         <name>:<key>=<value>,<key>=<value>
     """
-    if ':' in description:
-        name, args_str = description.split(':', 1)
-        args = dict(arg.split('=') for arg in args_str.split(','))
+    if ":" in description:
+        name, args_str = description.split(":", 1)
+        args = dict(arg.split("=") for arg in args_str.split(","))
     else:
         name = description
         args = {}
 
-    if name == 'simple1':
+    if name == "simple1":
         return [get_run_spec1()]
-    if name == 'mmlu':
+    if name == "mmlu":
         return [get_mmlu_spec(**args)]
     raise ValueError(f"Unknown run spec: {description}")
+
 
 @htrack(None)
 def main():
@@ -32,14 +34,14 @@ def main():
     Main entry point for running the benchmark.
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("-r", "--run-specs", nargs="*", help="Specifies what to run", default=['simple1'])
+    parser.add_argument("-r", "--run-specs", nargs="*", help="Specifies what to run", default=["simple1"])
     parser.add_argument("-o", "--output-path", help="Where to save all the output", default="benchmark_output")
     args = parser.parse_args()
 
     execution_spec = ExecutionSpec(auth=Authentication(api_key="crfm"), url="http://localhost:1959", parallelism=5,)
 
     run_specs = [run_spec for description in args.run_specs for run_spec in parse_run_specs(description)]
-    with htrack_block('Run specs'):
+    with htrack_block("Run specs"):
         for run_spec in run_specs:
             hlog(run_spec.scenario)
 

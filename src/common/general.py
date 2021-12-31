@@ -24,6 +24,7 @@ def parse_hocon(text: str):
     """Parse `text` (in HOCON format) into a dict-like object."""
     return pyhocon.ConfigFactory.parse_string(text)
 
+
 def shell(args: List[str]):
     """Executes the shell command in `args`."""
     cmd = shlex.join(args)
