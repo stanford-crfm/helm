@@ -8,6 +8,7 @@ import json
 from common.hierarchical_logger import htrack, hlog
 from common.request import Request, RequestResult
 from common.authentication import Authentication
+from .scenario import Instance
 from .adapter import RequestState, ScenarioState
 
 
@@ -51,5 +52,13 @@ class Executor:
             result = make_request(self.execution_spec.auth, self.execution_spec.url, request_state.request)
             return replace(request_state, result=result)
 
-        request_states = list(map(process, scenario_state.request_states))
+        request_states = []
+        for i, request_state in enumerate(scenario_state.request_states):
+            instance = request_state.instance
+            def render_instance(instance: Instance) -> str:
+                tags_str = ",".join(instance.tags)
+                return f"[{tags_str}] {instance.input[:100]}"
+            hlog(f"{i}/{len(scenario_state.request_states)}: {render_instance(instance)}")
+            request_states.append(process(request_state))
+        hlog(f"Processed {len(request_states)} requests")
         return ScenarioState(scenario_state.adapter_spec, request_states)
