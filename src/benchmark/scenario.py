@@ -1,7 +1,6 @@
-import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from common.object_spec import ObjectSpec, create_object
 
@@ -29,15 +28,12 @@ class Reference:
     # Extra metadata (e.g., whether it's correct/factual/toxic)
     tags: List[str]
 
-    def __str__(self):
+    def __repr__(self):
         return f"Reference ({', '.join(self.tags)}): {self.output}"
 
     @property
     def is_correct(self) -> bool:
         return CORRECT_TAG in self.tags
-
-    def to_dict(self):
-        return {"output": self.output, "tags": self.tags}
 
 
 @dataclass(frozen=True, eq=False)
@@ -68,14 +64,17 @@ class Instance:
                 return reference
         return None
 
-    def to_dict(self) -> Dict:
-        return {
-            "input": self.input,
-            "tags": self.tags,
-            "references": [reference.to_dict() for reference in self.references],
-        }
+    @property
+    def info(self) -> List[str]:
+        info = [
+            f"Input: {self.input}",
+        ]
+        for reference in self.references:
+            info.append(str(reference))
+        return info
 
 
+@dataclass  # type: ignore
 class Scenario(ABC):
     """
     A scenario represents a (task, data distribution).
@@ -95,18 +94,6 @@ class Scenario(ABC):
     # Extra metadata (e.g., whether this is a question answering or commonsense task)
     tags: List[str]
 
-    def __str__(self) -> str:
-        """
-        Converts the Scenario into a string for pretty printing.
-        """
-        instances: List[Instance] = self.get_instances()
-        total = len(instances)
-
-        output: str = f"Scenario: {self.name}\n{self.description}\nTags: {', '.join(self.tags)}\n{total} instances"
-        for i, instance in enumerate(instances):
-            output += f"\n\n------- Instance {i+1}/{total}: {', '.join(instance.tags)}\n{instance}"
-        return output
-
     @abstractmethod
     def get_instances(self) -> List[Instance]:
         """
@@ -115,20 +102,13 @@ class Scenario(ABC):
         """
         pass
 
-    def to_dict(self) -> Dict:
-        instances: List[Instance] = self.get_instances()
-        return {
-            "name": self.name,
-            "description": self.description,
-            "tags": self.tags,
-            "instances": [instance.to_dict() for instance in instances],
-        }
-
-    def to_json(self, pretty=False) -> str:
-        """
-        Converts `Scenario` into JSON string.
-        """
-        return json.dumps(self.to_dict(), indent=4) if pretty else json.dumps(self.to_dict())
+    @property
+    def info(self) -> List[str]:
+        return [
+            f"Scenario: {self.name}",
+            self.description,
+            f"Tags: {', '.join(self.tags)}",
+        ]
 
 
 class ScenarioSpec(ObjectSpec):

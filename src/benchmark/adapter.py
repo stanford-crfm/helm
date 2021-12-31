@@ -1,4 +1,3 @@
-import json
 import random
 from dataclasses import dataclass
 from typing import List, Dict, Tuple, Optional
@@ -47,7 +46,7 @@ class AdapterSpec:
     # When to stop
     stop_sequences: List[str]
 
-    def __str__(self) -> str:
+    def __repr__(self):
         return (
             f"Instructions: {self.instructions}\n"
             f"Maximum train instances: {self.max_train_instances}\n"
@@ -58,18 +57,6 @@ class AdapterSpec:
             f"Temperature: {self.temperature}\n"
             f"Stop sequences: {', '.join(self.stop_sequences)}\n"
         )
-
-    def to_dict(self) -> Dict:
-        return {
-            "instructions": self.instructions,
-            "max_train_instances": self.max_train_instances,
-            "max_eval_instances": self.max_eval_instances,
-            "num_outputs": self.num_outputs,
-            "num_train_trials": self.num_train_trials,
-            "model": self.model,
-            "temperature": self.temperature,
-            "stop_sequences": self.stop_sequences,
-        }
 
 
 @dataclass(frozen=True)
@@ -105,18 +92,6 @@ class RequestState:
         if self.result:
             output += f"Request result\n{self.result}"
         return output
-
-    def to_dict(self) -> Dict:
-        result = {
-            "instance": self.instance.to_dict(),
-            "train_trial_index": self.train_trial_index,
-            "request": self.request.to_dict(),
-        }
-        if self.reference_index:
-            result["reference_index"] = self.reference_index
-        if self.result:
-            result["result"] = self.result.to_dict()
-        return result
 
 
 @dataclass
@@ -157,18 +132,6 @@ class ScenarioState:
         self, train_trial_index: int, instance: Instance, reference_index: Optional[int]
     ) -> List[RequestState]:
         return self.request_state_map.get((train_trial_index, instance, reference_index), [])
-
-    def to_dict(self) -> Dict:
-        return {
-            "adapter_spec": self.adapter_spec.to_dict(),
-            "request_states": [request_state.to_dict() for request_state in self.request_states],
-        }
-
-    def to_json(self, pretty=False) -> str:
-        """
-        Converts `ScenarioState` into JSON string.
-        """
-        return json.dumps(self.to_dict(), indent=4) if pretty else json.dumps(self.to_dict())
 
 
 class Adapter:

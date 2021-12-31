@@ -70,21 +70,6 @@ class Request:
         """Example: 'openai/davinci' => 'davinci'"""
         return self.model.split("/")[1]
 
-    def to_dict(self) -> Dict:
-        return {
-            "model": self.model,
-            "prompt": self.prompt,
-            "temperature": self.temperature,
-            "num_completions": self.num_completions,
-            "top_k_per_tokens": self.top_k_per_token,
-            "max_tokens": self.max_tokens,
-            "stop_sequences": self.stop_sequences,
-            "echo_prompt": self.echo_prompt,
-            "top_p": self.top_p,
-            "presence_penalty": self.presence_penalty,
-            "frequency_penalty": self.frequency_penalty,
-        }
-
 
 @dataclass(frozen=True)
 class Token:
@@ -110,9 +95,6 @@ class Token:
             f"Top log probabilities: {json.dumps(self.top_logprobs)}"
         )
 
-    def to_dict(self) -> Dict:
-        return {"text": self.text, "logprob": self.logprob, "top_logprobs": self.top_logprobs}
-
 
 @dataclass(frozen=True)
 class Sequence:
@@ -133,9 +115,6 @@ class Sequence:
     def __str__(self) -> str:
         tokens: str = "\n".join(str(token) for token in self.tokens)
         return f"Text: {self.text}\nLog probability: {self.logprob}\nTokens:\n{tokens}"
-
-    def to_dict(self) -> Dict:
-        return {"text": self.text, "logprob": self.logprob, "tokens": [token.to_dict() for token in self.tokens]}
 
 
 @dataclass(frozen=True)
@@ -166,15 +145,3 @@ class RequestResult:
             output += f"Error: {self.error}"
         output += f"\nCompletions:\n{completions}"
         return output
-
-    def to_dict(self) -> Dict:
-        result = {
-            "success": self.success,
-            "completions": [completion.to_dict() for completion in self.completions],
-            "cached": self.cached,
-        }
-        if self.request_time:
-            result["request_time"] = self.request_time
-        if self.error:
-            result["error"] = self.error
-        return result
