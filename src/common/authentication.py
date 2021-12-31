@@ -5,5 +5,4 @@ from dataclasses import dataclass
 class Authentication:
     """How a request to the proxy server is authenticated."""
 
-    username: str
-    password: str
+    api_key: str
