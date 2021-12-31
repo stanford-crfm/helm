@@ -43,7 +43,9 @@ class Metric(ABC):
                 # Evaluate the references
                 request_states = []
                 for reference_index in range(len(instance.references)):
-                    request_states.extend(scenario_state.get_request_states(train_trial_index, instance, reference_index))
+                    request_states.extend(
+                        scenario_state.get_request_states(train_trial_index, instance, reference_index)
+                    )
                 instance_stats.extend(self.evaluate_references(adapter_spec, request_states))
 
                 # Merge these statistics back.

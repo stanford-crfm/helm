@@ -1,5 +1,6 @@
 from dacite import from_dict
 import dataclasses
+from typing import Optional
 import requests
 from urllib.parse import urlencode
 from dataclasses import dataclass, replace
@@ -48,13 +49,18 @@ class Executor:
     @htrack(None)
     def execute(self, scenario_state: ScenarioState) -> ScenarioState:
         # TODO: make a thread pool to process all of these in parallel up to a certain number
-        def render_instance(instance: Instance, pred_output: str) -> str:
+        def render_instance(instance: Instance, pred_output: Optional[str]) -> str:
             tags_str = ",".join(instance.tags)
-            gold_output = instance.first_correct_reference and instance.first_correct_reference.output
-            if request_state.output_mapping is not None:
+            gold_output: Optional[str] = None
+            if instance.first_correct_reference is not None:
+                gold_output = instance.first_correct_reference.output
+
+            if request_state.output_mapping is not None and pred_output is not None:
                 pred_output = request_state.output_mapping.get(pred_output.strip())
             correct_str = "CORRECT" if gold_output == pred_output else "WRONG"
-            return f"[{tags_str}] \"{instance.input[:100]}\" => \"{gold_output}\", predicted \"{pred_output}\" [{correct_str}]"
+            return (
+                f'[{tags_str}] "{instance.input[:100]}" => "{gold_output}", predicted "{pred_output}" [{correct_str}]'
+            )
 
         def process(request_state: RequestState) -> RequestState:
             result = make_request(self.execution_spec.auth, self.execution_spec.url, request_state.request)

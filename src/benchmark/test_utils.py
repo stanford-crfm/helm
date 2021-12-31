@@ -1,7 +1,7 @@
 from typing import List
 
 from .scenario import ScenarioSpec
-from .adapter import AdapterSpec, ADAPT_MULTIPLE_CHOICE
+from .adapter import AdapterSpec, ADAPT_MULTIPLE_CHOICE, ADAPT_GENERATION
 from .metric import MetricSpec
 from .runner import RunSpec
 
@@ -15,6 +15,7 @@ def get_scenario_spec1() -> ScenarioSpec:
 
 def get_adapter_spec1() -> AdapterSpec:
     return AdapterSpec(
+        method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
         max_train_instances=5,
         max_eval_instances=10,
@@ -47,8 +48,8 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions=f"The following are multiple choice questions (with answers) about {format(subject)}.",
-        input_prefix='',
-        output_prefix='\nAnswer: ',
+        input_prefix="",
+        output_prefix="\nAnswer: ",
         max_train_instances=5,
         max_eval_instances=1000,
         num_outputs=10,

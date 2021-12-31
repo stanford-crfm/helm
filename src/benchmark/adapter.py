@@ -5,13 +5,14 @@ import random
 
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
-from .scenario import Instance, Scenario, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG
+from .scenario import Instance, Scenario, TRAIN_TAG, VALID_TAG, TEST_TAG
 
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"
 ADAPT_MULTIPLE_CHOICE = "multiple_choice"
 ADAPT_GENERATION = "generation"
+
 
 @dataclass(frozen=True)
 class AdapterSpec:
@@ -21,20 +22,21 @@ class AdapterSpec:
     hacking, we try to make the process more declarative and systematic.
     Note that an `Instance` could produce many `Request`s (e.g., one for each `Reference`).
     """
+
     # Method of adaptation
     method: str
 
     # Prompt starts with instructions
-    instructions: str = ''
+    instructions: str = ""
 
     # What goes before the input
-    input_prefix: str = 'Input: '
+    input_prefix: str = "Input: "
 
     # What goes before the input (for multiple choice)
-    reference_prefix: str = '\nA. '
+    reference_prefix: str = "\nA. "
 
     # What goes before the input
-    output_prefix: str = '\nOutput: '
+    output_prefix: str = "\nOutput: "
 
     # Maximum number of (in-context) training instances to put into the prompt
     max_train_instances: int = 5
@@ -54,7 +56,7 @@ class AdapterSpec:
     # Decoding parameters (inherited by `Request`)
 
     # Model to make the request to
-    model: str = 'openai/davinci'
+    model: str = "openai/davinci"
 
     # Temperature to use
     temperature: float = 1
@@ -213,7 +215,7 @@ class Adapter:
         # metrics.
         eval_instances = [instance for instance in instances if VALID_TAG in instance.tags or TEST_TAG in instance.tags]
         if self.adapter_spec.max_eval_instances is not None:
-            eval_instances = eval_instances[:self.adapter_spec.max_eval_instances]
+            eval_instances = eval_instances[: self.adapter_spec.max_eval_instances]
         hlog(
             f"{len(instances)} instances, "
             f"choosing {self.adapter_spec.max_train_instances}/{len(all_train_instances)} train instances, "
@@ -237,7 +239,7 @@ class Adapter:
                 # Just print one prompt (useful for debugging)
                 if train_trial_index == 0 and eval_index == 0:
                     with htrack_block("Sample prompt"):
-                        for line in prompt.split('\n'):
+                        for line in prompt.split("\n"):
                             hlog(line)
 
                 # Define the request
@@ -315,7 +317,6 @@ class Adapter:
 
         return "\n\n".join(blocks)
 
-
     def construct_example_prompt(self, instance: Instance, include_output: bool) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
 
@@ -325,16 +326,16 @@ class Adapter:
         # References (optionally) and output
         if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE:
             # If multiple choice, include the references
-            output = 'n/a'
+            output = "n/a"
             for reference_index, reference in enumerate(instance.references):
                 prefix = self.get_reference_prefix(self.adapter_spec.reference_prefix, reference_index)
                 result += prefix + reference.output
-                if reference.is_correct and output == 'n/a':
+                if reference.is_correct and output == "n/a":
                     output = self.get_reference_prefix("A", reference_index)
         else:
             # Put only the correct reference as the output
-            reference = instance.first_correct_reference
-            output = reference.output if reference is not None else "n/a"
+            correct_reference = instance.first_correct_reference
+            output = correct_reference.output if correct_reference is not None else "n/a"
 
         if include_output:
             result += self.adapter_spec.output_prefix + output
@@ -348,4 +349,3 @@ class Adapter:
         Example: prefix = "\nA. ", i = 2, return "\nC. "
         """
         return prefix.replace("A", chr(ord("A") + i))
-
