@@ -4,26 +4,52 @@ from typing import List, Optional, Dict
 
 @dataclass(frozen=True)
 class Request:
-    """A request is a concrete query that we make to a client."""
+    """
+    A `Request` specifies how to query a language model (given a prompt,
+    complete it).  It is the unified representation for communicating with
+    various APIs (e.g., GPT-3, Jurassic).
+    """
 
+    # Which model to query
     model: str = "openai/davinci"
-    prompt: str = ""
-    temperature: float = 1.0
-    num_completions: int = 1  # Generate this many completions
-    top_k_per_token: int = 1  # Take this many highest probability candidates per token in the completion
-    max_tokens: int = 100  # Maximum number of tokens to generate
-    stop_sequences: List[str] = field(default_factory=list)
-    echo_prompt: bool = False  # `prompt` should be prefix of each completion? (for evaluating perplexity)
 
-    # For OpenAI's API
-    top_p: float = 1  # Enable nucleus sampling
+    # What prompt do condition the language model on
+    prompt: str = ""
+
+    # Temperature parameter that governs diversity
+    temperature: float = 1.0
+
+    # Generate this many completions (by sampling from the model)
+    num_completions: int = 1
+
+    # Take this many highest probability candidates per token in the completion
+    top_k_per_token: int = 1
+
+    # Maximum number of tokens to generate (per completion)
+    max_tokens: int = 100
+
+    # Stop generating once we hit one of these strings.
+    stop_sequences: List[str] = field(default_factory=list)
+
+    # Should `prompt` be included as a prefix of each completion? (e.g., for
+    # evaluating perplexity of the prompt)
+    echo_prompt: bool = False
+
+    # Same from tokens that occupy this probability mass (nucleus sampling)
+    top_p: float = 1
+
+    # Penalize repetition (OpenAI only)
     presence_penalty: float = 0
+
+    # Penalize repetition (OpenAI only)
     frequency_penalty: float = 0
 
+    @property
     def model_organization(self):
         """Example: 'openai/davinci' => 'openai'"""
         return self.model.split("/")[0]
 
+    @property
     def model_engine(self):
         """Example: 'openai/davinci' => 'davinci'"""
         return self.model.split("/")[1]
@@ -32,21 +58,33 @@ class Request:
 @dataclass(frozen=True)
 class Token:
     """
-    A `Token` represents one token position in the sequence, which has the
+    A `Token` represents one token position in a `Sequence`, which has the
     chosen `text` as well as the top probabilities under the model.
+
+    Note: (text, logprob) could exist or not exist in `top_logprobs`.
     """
 
-    text: str  # Text that was chosen
-    logprob: float  # Log probability of that text
-    top_logprobs: Dict[str, float]  # text -> log probability of that text
+    # Text that was chosen
+    text: str
+
+    # Log probability of generating that
+    logprob: float
+
+    # text -> log probability of generating that
+    top_logprobs: Dict[str, float]
 
 
 @dataclass(frozen=True)
 class Sequence:
     """A `Sequence` is a sequence of tokens."""
 
+    # The concatenation of all the tokens
     text: str
+
+    # The sum of the log probabilities of all tokens
     logprob: float
+
+    # The tokens
     tokens: List[Token]
 
     def __add__(self, other: "Sequence") -> "Sequence":
@@ -57,8 +95,17 @@ class Sequence:
 class RequestResult:
     """What comes back due to a `Request`."""
 
+    # Whether the request was successful
     success: bool
+
+    # List of completion
     completions: List[Sequence]
+
+    # Whether the query was actually cached
     cached: bool
+
+    # How long did the query take?
     request_time: Optional[float] = None
+
+    # If `success` is false, what was the error?
     error: Optional[str] = None

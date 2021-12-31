@@ -11,22 +11,40 @@ from .scenario import Instance, Scenario, Reference, TRAIN_TAG, VALID_TAG, TEST_
 @dataclass(frozen=True)
 class AdapterSpec:
     """
-    Specifies how to take an `Instance` and produce a set of `Request`s (e.g.,
-    concatenate instructions and number of training examples) and make one
-    request for each reference output).
+    Specifies how to take a `Scenario` (a list of `Instance`s) and produce a
+    `ScenarioState` (set of `Request`s ).  Instead of having free-form prompt
+    hacking, we try to make the process more declarative and systematic.
+    Note that an `Instance` could produce many `Request`s (e.g., one for each `Reference`).
     """
 
-    instructions: str  # Prompt starts with instructions.
-    max_train_instances: int  # Maximum number of (in-context) training instances to put into the prompt
-    max_eval_instances: int  # Maximum number of evaluation instances (only reduce this for piloting)
-    num_outputs: int  # Generate this many outputs per request
+    # Prompt starts with instructions
+    instructions: str
 
-    num_train_trials: int  # Number of random training instances we want to randomize over
+    # Maximum number of (in-context) training instances to put into the prompt
+    max_train_instances: int
 
-    # Decoding parameters
-    model: str  # Name of the model we want to query
-    temperature: float  # Temperature to use
-    stop_sequences: List[str]  # When to stop
+    # Maximum number of evaluation instances.  For getting valid numbers, this
+    # should be the entire dataset; only reduce this for piloting.
+    max_eval_instances: Optional[int]
+
+    # Generate this many outputs (which could be realized by `num_completions`
+    # or `top_k_per_token`).
+    num_outputs: int
+
+    # Number of trials, where in each trial we choose an independent, random
+    # set of training instances.  Used to compute error bars.
+    num_train_trials: int
+
+    # Decoding parameters (inherited by `Request`)
+
+    # Model to make the request to
+    model: str
+
+    # Temperature to use
+    temperature: float
+
+    # When to stop
+    stop_sequences: List[str]
 
 
 @dataclass(frozen=True)
@@ -37,24 +55,42 @@ class RequestState:
     able to understand the `Request` and its `RequestResult`.
     """
 
-    instance: Instance  # Which instance we're evaluating
-    reference_index: Optional[int]  # Which reference of the instance we're evaluating (if any)
-    train_trial_index: int  # Which training set
-    request: Request  # The request that is synthesized
-    result: Optional[RequestResult]  # Filled in when we make the call
+    # Which instance we're evaluating
+    instance: Instance
+
+    # Which reference of the instance we're evaluating (if any)
+    reference_index: Optional[int]
+
+    # Which training set this request is for
+    train_trial_index: int
+
+    # The request that is actually made
+    request: Request
+
+    # The result of the request (filled in when the request is executed)
+    result: Optional[RequestResult]
 
 
 @dataclass
 class ScenarioState:
-    """All the `RequestState` results that come about from evaluating a particular scenario."""
+    """
+    A `ScenarioState` represents the output of adaptation.  Contains a set of
+    `RequestState` that were created and executed (a `ScenarioState` could be
+    pre-execution or post-execution).
+    """
 
+    # What strategy we used for adaptation
     adapter_spec: AdapterSpec
+
+    # List of `RequestState`s that were produced by adaptation (and execution)
     request_states: List[RequestState]
 
     def __post_init__(self):
-        # Create an index for `instances` and `request_states`.
+        # Create derived indices based on `request_states` so it's easier for
+        # the `Metric` later to access them.  Two things are produced:
         self.instances = []
         self.request_state_map: Dict[Tuple[int, Instance, Optional[int]], List[RequestState]] = defaultdict(list)
+
         instances_set = set()
         for request_state in self.request_states:
             instances_set.add(request_state.instance)
@@ -69,7 +105,11 @@ class ScenarioState:
 
 
 class Adapter:
-    """An `Adapter`"""
+    """
+    An `Adapter`, guided by the `AdapterSpec`, takes a `Scenario` and produces
+    a `ScenarioState`.  This is where all the prompt hacking for language
+    models should go.
+    """
 
     def __init__(self, adapter_spec: AdapterSpec):
         self.adapter_spec = adapter_spec
@@ -85,13 +125,17 @@ class Adapter:
         # Create instances
         instances = scenario.get_instances()
 
-        # Choose training instances and evaluation instances
+        # Pick out training instances
         all_train_instances = [instance for instance in instances if TRAIN_TAG in instance.tags]
         if len(all_train_instances) < self.adapter_spec.max_train_instances:
             hlog(
                 f"WARNING: only {len(all_train_instances)} training instances, "
                 f"wanted {self.adapter_spec.max_train_instances}"
             )
+
+        # Pick out evaluation instances.  This includes both valid and test
+        # (and any other splits).  We can slice and dice later in defining the
+        # metrics.
         eval_instances = [instance for instance in instances if VALID_TAG in instance.tags or TEST_TAG in instance.tags]
         hlog(
             f"{len(instances)} instances, "
@@ -99,6 +143,7 @@ class Adapter:
             f"{len(eval_instances)} eval instances"
         )
 
+        # Accumulate all the request states due to adaptation
         request_states: List[RequestState] = []
 
         for train_trial_index in range(self.adapter_spec.num_train_trials):
@@ -144,9 +189,11 @@ class Adapter:
         self, train_instances: List[Instance], eval_instance: Instance, reference: Optional[Reference]
     ) -> str:
         """
-        Returns a prompt (string) given `self.adapter_spec.instructions`,
-        `train_instances` (in-context training examples), the input part of the
-        `eval_instance`, and optionally the `reference`.
+        Returns a prompt (string) given:
+        - the `self.adapter_spec.instructions`
+        - the `train_instances` (in-context training examples)
+        - the input part of the `eval_instance`
+        - the `reference` (if provided)
         """
         # TODO: support input + output formats
         # TODO: make this configurable if desired

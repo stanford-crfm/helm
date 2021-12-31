@@ -1,3 +1,8 @@
+/**
+ * This is a very quick and dirty frontend for just interacting with the models.
+ * Please refrain from adding additional functionality to this.
+ * TODO: Write this in React.
+ */
 $(function () {
   const urlParams = decodeUrlParams(window.location.search);
   const rootUrl = '/static/index.html';
@@ -19,14 +24,13 @@ $(function () {
     let api_key = readCookie('api_key');
     if (api_key) {
       auth = {api_key};
-      $loginInfo.append($('<span>').append('You are logged in with API key ' + censor(api_key) + '&nbsp;'));
-      $loginInfo.append($('<button>').append('Logout').click(() => {
+      $loginInfo.append($('<a>', {class: 'nav-link', href: '#'}).append('Logout of API key ' + censor(api_key)).click(() => {
         eraseCookie('api_key');
         updateLogin();
       }));
     } else {
       auth = null;
-      $loginInfo.append($('<button>').append('Login').click(() => {
+      $loginInfo.append($('<a>', {class: 'nav-link', href: '#'}).append('Login').click(() => {
         api_key = prompt('Enter your API key:');
         if (!api_key) {
           return;
@@ -42,15 +46,16 @@ $(function () {
   ////////////////////////////////////////////////////////////
   // Rendering functions
 
-  function multiline(s) {
+  function multilineHtml(s) {
     return s.replace(/\n/g, '<br>');
   }
 
   function renderError(e) {
-    return $('<div>').addClass('alert alert-danger').append(multiline(e));
+    return $('<div>').addClass('alert alert-danger').append(multilineHtml(e));
   }
 
   function renderExampleQueries(updateQuery) {
+    // Show links for each example query, so when you click on them, they populate the textboxes.
     const $examplesBlock = $('<div>');
     $examplesBlock.append($('<span>').append('Example queries:'));
     generalInfo.example_queries.forEach((query, i) => {
@@ -72,7 +77,7 @@ $(function () {
   }
 
   function renderQuery(handleQueryResult) {
-    // A query that we're making.
+    // Render the textboxes for entering the query (which includes the prompt, settings, and environment)
     const $queryBlock = $('<div>');
     const $prompt = $('<textarea>', {cols: 90, rows: 7, placeholder: 'Enter prompt'}).val(urlParams.prompt);
     const $settings = $('<textarea>', {cols: 90, rows: 5, placeholder: 'Enter settings (e.g., model: openai/davinci for GPT-3)'}).val(urlParams.settings);
@@ -95,6 +100,11 @@ $(function () {
     bindSubmit($environments);
 
     function submit() {
+      if (!auth) {
+        alert('You must log in first.');
+        return;
+      }
+
       const query = {
         prompt: $prompt.val(),
         settings: $settings.val(),
@@ -129,11 +139,12 @@ $(function () {
   }
 
   function renderRequest(changingKeys, request) {
+    // Render the request metadata (e.g., temperature if it is changing)
     const title = JSON.stringify(request);
     // Always include model, never prompt (since that's shown right after).
     const showKeys = ['model'].concat(changingKeys.filter((key) => key !== 'prompt' && key !== 'model'));
     const summary = '[' + showKeys.map(key => key + ':' + request[key]).join(', ') + ']';
-    return $('<div>', {title}).append(summary + ' ' + multiline(request.prompt));
+    return $('<div>', {title}).append(summary + ' ' + multilineHtml(request.prompt));
   }
 
   function renderTime(time) {
@@ -141,7 +152,7 @@ $(function () {
   }
 
   function renderTokens(tokens) {
-    // Render text as a sequence of tokens
+    // Render text as a sequence of tokens that you can interact with to see more information (e.g., logprobs)
     const $result = $('<div>');
     for (const token of tokens) {
       // When mouse over token, show the alternative tokens and their log probabilities (including the one that's generated)
@@ -152,26 +163,27 @@ $(function () {
       entries.sort((a, b) => b[1] - a[1]);
       function marker(text) { return text === token.text ? ' [selected]' : ''; }
       const title = 'Candidates (with logprobs):\n' + entries.map(([text, logprob]) => `${text}: ${logprob}${marker(text)}`).join('\n');
-      const $token = $('<span>', {class: 'token', title}).append(multiline(token.text));
+      const $token = $('<span>', {class: 'token', title}).append(multilineHtml(token.text));
       $result.append($token);
     }
     return $result;
   }
 
   function renderRequestResult(requestResult) {
+    // Render the list of completions.
     if (requestResult.error) {
       return renderError(requestResult.error);
     }
     const $result = $('<div>');
     requestResult.completions.forEach((completion) => {
-      $result.append($('<ul>').append($('<li>')
-        .append(renderTokens(completion.tokens))));
+      $result.append($('<div>', {class: 'completion'}).append(renderTokens(completion.tokens)));
     });
     $result.append($('<i>').append(renderTime(requestResult.request_time)));
     return $result;
   }
 
   function renderAccount() {
+    // Render the account information (usage, quotas).
     if (!auth) {
       return null;
     }
@@ -202,7 +214,11 @@ $(function () {
     return $accountBlock;
   }
 
+  ////////////////////////////////////////////////////////////
+  // For index.html
+
   function renderQueryInterface() {
+    // For index.html
     const $accountBlock = $('<div>').append(renderAccount());
 
     // Show examples of queries
@@ -264,18 +280,7 @@ $(function () {
   }
 
   ////////////////////////////////////////////////////////////
-  // Main
-
-  let generalInfo;
-
-  $.getJSON('/api/general_info', (response) => {
-    generalInfo = response;
-    console.log('/api/general_info', generalInfo);
-    $('#main').empty().append(renderQueryInterface());
-
-    const $helpModels = $('#help-models');
-    $helpModels.empty().append(renderModelsTable);
-  });
+  // For help.html
 
   function renderModelsTable() {
     // Render the list of models
@@ -295,4 +300,25 @@ $(function () {
     return $table;
   };
 
+  ////////////////////////////////////////////////////////////
+  // Main
+
+  let generalInfo;
+
+  $.getJSON('/api/general_info', (response) => {
+    generalInfo = response;
+    console.log('/api/general_info', generalInfo);
+
+    // For index.html
+    const $main = $('#main');
+    if ($main.length > 0) {
+      $main.empty().append(renderQueryInterface());
+    }
+
+    // For help.html
+    const $helpModels = $('#help-models');
+    if ($helpModels.length > 0) {
+      $helpModels.empty().append(renderModelsTable());
+    }
+  });
 });

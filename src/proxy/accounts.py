@@ -34,17 +34,22 @@ class InsufficientQuotaError(Exception):
 class Usage:
     """Usage information (for a given account, model group, and granularity)."""
 
-    period: Optional[str] = None  # marks the current period (so we know when to reset `used`)
+    # What period it is (so we know when to reset `used`) - for exmaple, for
+    # daily granularity, period might be 2021-12-30
+    period: Optional[str] = None
+
+    # How many tokens was used
     used: int = 0
+
+    # How much quota do we have (None means unlimited)
     quota: Optional[int] = None
 
     def update_period(self, period: str):
         if self.period != period:
             self.period = period
-            self.used = 0  # Reset
+            self.used = 0  # Reset in a new period
 
     def can_use(self):
-        # Important: if quota is None, that means there's no quota!
         return self.quota is None or self.used < self.quota
 
 
@@ -108,6 +113,10 @@ class Accounts:
     Contains information about accounts.
     `path`: where the information about accounts is stored.
     If `read_only` is set, don't write to `path`.
+
+    We are storing the accounts in a jsonl file for simplicity.
+    Any reads/writes happen in memory, and we have a separate thread that
+    writes it out to disk once in a while.
     """
 
     def __init__(self, path: str, read_only: bool = False):
@@ -118,8 +127,9 @@ class Accounts:
         self.read()
 
         def write_loop():
-            check_period = 0.1
+            check_period = 0.1  # How often (seconds) to check if we're done
             while True:
+                # Write less frequently than we check for done.
                 if self.dirty:
                     self.write()
                 for _ in range(int(5 / check_period)):
@@ -135,6 +145,10 @@ class Accounts:
             self.write_thread.start()
 
     def finish(self):
+        """
+        Clean up threads and write out.  Important to remember to call this
+        after the `Service` is done or else it will hang.
+        """
         self.done = True
         if not self.read_only:
             self.write_thread.join()
@@ -142,6 +156,7 @@ class Accounts:
                 self.write()
 
     def read(self):
+        """Read the accounts from disk."""
         with self.global_lock:
             # Read from a file (each line is a JSON file with an account).
             self.accounts = []
@@ -197,7 +212,9 @@ class Accounts:
             granular_check_can_use(account, model_group, "total", compute_total_period)
 
     def use(self, api_key: str, model_group: str, delta: int):
-        """Call this function when account with `api_key` used `delta` of `model_group`."""
+        """
+        Updates the usages: account with `api_key` has used `delta` tokens of `model_group`.
+        """
 
         def granular_use(
             account: Account, model_group: str, granularity: str, compute_period: Callable[[], str],

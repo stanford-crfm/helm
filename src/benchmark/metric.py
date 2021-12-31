@@ -9,13 +9,22 @@ from .adapter import AdapterSpec, ScenarioState, RequestState
 
 class Metric(ABC):
     """
-    Evaluates all the results from a `Scenario` and produces numbers.
+    A `Metric` takes the results of execution and produces `Stat`s for a
+    scenario.
+
+    Note: `Metric` actually right now is a bit of misnomer because it produces many
+    `Stat`s, that might be distinct but are computed together.  Eventually we
+    might move to a world where there is one (or very few metrics that are domain-independent).
     """
 
     def evaluate(self, scenario_state: ScenarioState) -> List[Stat]:
         """
-        Given all the `InstanceResult`s for a `scenario`, compute the metrics
-        and return the list of `MetricResult`s.
+        Main entry point for a `Metric`.  This function groups the the single
+        list of `RequestState` by training trial and instance, and invokes
+        other functions to process those.  This should serve most purposes.
+
+        Any logic that doesn't decompose along instances should go here, such
+        as robustness.
         """
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[str, Stat] = {}  # name -> Stat
@@ -31,19 +40,21 @@ class Metric(ABC):
                 request_state = singleton(scenario_state.get_request_states(train_trial_index, instance, None))
                 instance_stats.extend(self.evaluate_generation(adapter_spec, request_state))
 
-                # Ranking
+                # Evaluate the references
                 request_states = [
                     singleton(scenario_state.get_request_states(train_trial_index, instance, reference_index))
                     for reference_index in range(len(instance.references))
                 ]
                 instance_stats.extend(self.evaluate_references(adapter_spec, request_states))
 
-                # Merge
+                # Merge these statistics back.
+                # TODO: we should add statistics with the individual instances too and serialize them out.
                 for stat in instance_stats:
                     merge_stat(trial_stats, stat)
 
+            # We only take the mean value for each trial
             for stat in trial_stats.values():
-                merge_stat(global_stats, stat.collapse_uncertainty())
+                merge_stat(global_stats, stat.take_mean())
 
         return list(global_stats.values())
 
