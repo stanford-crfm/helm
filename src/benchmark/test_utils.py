@@ -7,7 +7,7 @@ from .runner import RunSpec
 def get_scenario_spec1():
     return ScenarioSpec(
         class_name="benchmark.simple_scenarios.SimpleScenario",
-        args={"num_input_tokens": 5, "vocab_size": 20, "num_train_instances": 10, "num_test_instances": 10,},
+        args={"num_input_tokens": 5, "vocab_size": 20, "num_train_instances": 10, "num_test_instances": 10},
     )
 
 

@@ -48,6 +48,7 @@ This is done, but just for the record:
     crfm-models:$ git clone git@github.com:stanford-crfm/benchmarking
     crfm-models:$ cd benchmarking
     crfm-models:$ mkdir prod_env
+    crfm-models:$ echo '{"api_key": "crfm"}' > prod_env/accounts.jsonl
     laptop:$ rsync -arvz prod_env/credentials.conf crfm-models.stanford.edu:/home/benchmarking/prod_env
 
 ### Every time we need to deploy:

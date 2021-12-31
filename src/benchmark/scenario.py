@@ -23,8 +23,11 @@ class Reference:
     multiple-choice exam).
     """
 
-    output: str  # The output text
-    tags: List[str]  # Extra metadata (e.g., whether it's correct/factual/toxic)
+    # The output text
+    output: str
+
+    # Extra metadata (e.g., whether it's correct/factual/toxic)
+    tags: List[str]
 
     def __str__(self):
         return f"Reference ({', '.join(self.tags)}): {self.output}"
@@ -45,9 +48,14 @@ class Instance:
     Note: `eq=False` means that we hash by the identity.
     """
 
-    input: str  # The input text
-    references: List[Reference]  # References that helps us evaluate
-    tags: List[str]  # Extra metadata (e.g., train/valid/test, demographic group, etc.)
+    # The input text
+    input: str
+
+    # References that helps us evaluate
+    references: List[Reference]
+
+    # Extra metadata (e.g., train/valid/test, demographic group, etc.)
+    tags: List[str]
 
     def __str__(self):
         return f"Input: {self.input}\n" + "\n".join(str(reference) for reference in self.references)
@@ -73,11 +81,19 @@ class Scenario(ABC):
     A scenario represents a (task, data distribution).
     It is usually based on some raw dataset and is converted into a list of `Instance`s.
     Override this class.
+
+    Note: the constructor should be lightweight, `get_instances` should do all
+    the heavy lifting.
     """
 
-    name: str  # Short unique identifier of the scenario (e.g., RealToxicityPrompts)
-    description: str  # Description of the scenario (task, data)
-    tags: List[str]  # Extra metadata (e.g., whether this is a question answering or commonsense task)
+    # Short unique identifier of the scenario (e.g., RealToxicityPrompts)
+    name: str
+
+    # Description of the scenario (task, data)
+    description: str
+
+    # Extra metadata (e.g., whether this is a question answering or commonsense task)
+    tags: List[str]
 
     def __str__(self) -> str:
         """
@@ -94,8 +110,8 @@ class Scenario(ABC):
     @abstractmethod
     def get_instances(self) -> List[Instance]:
         """
-        Download any necessary datasets.
-        Load the data and convert it into a list of instances.
+        Does the main work in the `Scenario` (e.g., download datasets, convert
+        it into a list of instances).
         """
         pass
 

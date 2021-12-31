@@ -5,8 +5,17 @@ from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 
 
+def exact_match(gold: str, pred: str) -> float:
+    return 1 if gold == pred else 0
+
+
 class BasicMetric(Metric):
-    """Produce basic metrics that just look at probabilities."""
+    """
+    Defines basic metrics which don't require domain knowledge.  This should be
+    fairly comprehensive already and we should try to use this as much as possible.
+    If we need a different variant, try to generalize this or factor things out.
+    It's possible we don't need to subclass this.
+    """
 
     def evaluate_generation(self, adapter_spec: AdapterSpec, request_state: RequestState) -> List[Stat]:
         """
@@ -20,19 +29,17 @@ class BasicMetric(Metric):
         - ${score}: max_i score(Gi, P1)
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
-        # Gold
+        # Gold outputs
         golds = [reference.output for reference in request_state.instance.references if reference.is_correct]
         assert len(golds) > 0
 
-        # Prediction
+        # Predicted outputs
         assert request_state.result is not None
         # TODO: Sort the predictions, or take them from the top tokens of the first completion
         preds = [completion.text for completion in request_state.result.completions]
 
         # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
-
-        def exact_match(gold: str, pred: str) -> float:
-            return 1 if gold == pred else 0
+        # TODO
 
         # TODO: add perplexity of the input text
 
@@ -46,6 +53,7 @@ class BasicMetric(Metric):
             ]
 
         # Future: add F1, BLEU, etc.
+        # TODO: pass in arguments to `BasicMetric`
         return compute_metrics("exact_match", exact_match)
 
     def evaluate_references(
@@ -54,7 +62,7 @@ class BasicMetric(Metric):
         """
         Setup: for each reference, we have a model score (log probability) and whether it's correct.
         We define the following metrics:
-        - ranking
+        - correct_rank: if we sort references by their logprobs, what is the ranking of the first correct reference.
         """
         # TODO
         return []

@@ -45,7 +45,7 @@ class Stat:
             return float("nan")
         return self.sum_squared / self.count - self.mean ** 2
 
-    def collapse_uncertainty(self):
+    def take_mean(self):
         """Return a version of the stat that only has the mean."""
         return Stat(self.name).add(self.mean)
 
