@@ -1,6 +1,8 @@
+import os
 from dataclasses import dataclass
 from typing import List
 
+from common.general import ensure_directory_exists
 from common.hierarchical_logger import hlog, htrack_block
 from .scenario import ScenarioSpec, create_scenario
 from .adapter import AdapterSpec, Adapter
@@ -26,9 +28,11 @@ class Runner:
     dispatches to other classes.
     """
 
-    def __init__(self, execution_spec: ExecutionSpec, run_specs: List[RunSpec]):
+    def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_specs: List[RunSpec]):
         self.executor = Executor(execution_spec)
+        self.output_path = output_path
         self.run_specs = run_specs
+        ensure_directory_exists(self.output_path)
 
     def run_all(self):
         for run_spec in self.run_specs:
@@ -37,6 +41,13 @@ class Runner:
     def run_one(self, run_spec: RunSpec):
         # Load the scenario
         scenario = create_scenario(run_spec.scenario)
+
+        # Decide where to save the raw data (e.g., "output/scenarios/mmlu").
+        # This `output_path` will be used when `Adapter` calls `Scenario.get_instances`.
+        scenarios_path = os.path.join(self.output_path, "scenarios")
+        ensure_directory_exists(scenarios_path)
+        scenario.output_path = os.path.join(scenarios_path, scenario.name)
+        ensure_directory_exists(scenario.output_path)
 
         # Adaptation
         adapter = Adapter(run_spec.adapter_spec)

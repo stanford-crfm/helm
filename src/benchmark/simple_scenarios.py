@@ -4,7 +4,7 @@ from typing import List
 from .scenario import Scenario, Instance, Reference, TRAIN_TAG, TEST_TAG, CORRECT_TAG
 
 
-class SimpleScenario(Scenario):
+class Simple1Scenario(Scenario):
     """
     A silly task for debugging the infrastructure where the input is a random
     sequence of tokens and the output is one of those tokens.
@@ -14,6 +14,7 @@ class SimpleScenario(Scenario):
         2 5 3 -> 2
         1 4 0 -> 0
     """
+    name = "simple1"
 
     def __init__(self, num_input_tokens: int, vocab_size: int, num_train_instances: int, num_test_instances: int):
         self.num_input_tokens = num_input_tokens

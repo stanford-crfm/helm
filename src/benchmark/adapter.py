@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Optional
 from collections import defaultdict
 import random
@@ -44,7 +44,7 @@ class AdapterSpec:
     temperature: float
 
     # When to stop
-    stop_sequences: List[str]
+    stop_sequences: List[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
