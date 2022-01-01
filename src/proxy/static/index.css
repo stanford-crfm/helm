@@ -6,10 +6,19 @@
   background-color: #f0f0f0;
 }
 
+.instructions {
+  font-style: italic;
+}
+
 .request {
   background-color: #f0f0f0;
   margin-top: 20px;
   margin-bottom: 20px;
+}
+
+.resultHeader {
+  font-weight: bold;
+  margin-top: 15px;
 }
 
 .completion {

@@ -176,6 +176,8 @@ $(function () {
     }
     const $result = $('<div>');
     requestResult.completions.forEach((completion) => {
+      $result.append($('<div>', {class: 'text'}).append(multilineHtml(completion.text)));
+      $result.append($('<div>', {class: 'resultHeader'}).append("Tokens:"));
       $result.append($('<div>', {class: 'completion'}).append(renderTokens(completion.tokens)));
     });
     $result.append($('<i>').append(renderTime(requestResult.request_time)));
@@ -243,7 +245,11 @@ $(function () {
         return;
       }
 
+      $requestsBlock.append($('<br>'));
       $requestsBlock.append($('<h4>').append(`Requests (${queryResult.requests.length})`));
+      $requestsBlock.append($('<div>', {class: 'instructions'}).append(
+        'Hover over the individual tokens to see the top candidates and their log probabilities.'
+      ));
       if (queryResult.error) {
         $requestsBlock.append(renderError(queryResult.error));
         return;
