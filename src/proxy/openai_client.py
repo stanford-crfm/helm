@@ -45,8 +45,10 @@ class OpenAIClient(Client):
             for text, logprob, top_logprobs in zip(
                 raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
             ):
-                # OpenAI is sending tokens including and past the stop sequences.
                 # Do not include these excess tokens in the response.
+                # TODO: this is a hacky solution until we figure out why
+                #       OpenAI is sending tokens including and past the stop sequences.
+                # TODO: This logic doesn't work when the stop sequences spans multiple tokens.
                 if text.strip() in request.stop_sequences:
                     break
 
