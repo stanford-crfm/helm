@@ -1,1 +1,1 @@
-{"api_key": "crfm"}
+{"api_key": "crfm", "description": "", "emails": [], "groups": [], "is_admin": true, "usages": {"gpt3": {"daily": {"period": null, "used": 0, "quota": 10000}}, "codex": {"daily": {"period": null, "used": 0, "quota": 10000}}, "jurassic": {"daily": {"period": null, "used": 0, "quota": 10000}}, "simple": {"daily": {"period": "2022-1-2", "used": 4, "quota": null}, "monthly": {"period": "2022-1", "used": 4, "quota": null}, "total": {"period": "all", "used": 4, "quota": null}}}}

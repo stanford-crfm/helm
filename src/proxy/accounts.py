@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 import datetime
 import json
 import os
+import random
+import string
 import threading
 import time
 from typing import Dict, Optional, Callable, List
@@ -108,6 +110,10 @@ def compute_total_period():
     return "all"
 
 
+def generate_api_key() -> str:
+    return "".join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(32))
+
+
 class Accounts:
     """
     Contains information about accounts.
@@ -178,9 +184,82 @@ class Accounts:
             self.dirty = False
 
     def authenticate(self, auth: Authentication):
-        """Make sure this is a valid api key.  Throw exceptions if not."""
+        """Make sure this is a valid api key.  Throw exception if not."""
         if auth.api_key not in self.api_key_to_accounts:
             raise AuthenticationError(f"Invalid API key {auth.api_key}")
+
+    def check_admin(self, auth: Authentication):
+        """Make sure this is an admin account. Throw exception if not."""
+        self.authenticate(auth)
+        account: Account = self.api_key_to_accounts[auth.api_key]
+        if not account.is_admin:
+            raise AuthenticationError(f"API key {auth.api_key} does not have admin privileges.")
+
+    def create_account(self) -> Account:
+        """
+        Creates a new account with a random API key and returns that account.
+        """
+        with self.global_lock:
+            api_key: str = generate_api_key()
+            account = Account(api_key=api_key)
+            self.accounts.append(account)
+            self.api_key_to_accounts[api_key] = account
+            self.dirty = True
+
+        return account
+
+    def change_api_key(self, account: Account) -> Account:
+        """
+        Generate a new API key for an account.
+        """
+        with self.global_lock:
+            old_api_key: str = account.api_key
+            new_api_key: str = generate_api_key()
+
+            account = self.api_key_to_accounts[old_api_key]
+            account.api_key = new_api_key
+            self.api_key_to_accounts[new_api_key] = account
+            del self.api_key_to_accounts[old_api_key]
+            self.dirty = True
+
+        return account
+
+    def update_account(self, auth: Authentication, account: Account) -> None:
+        """
+        Update account except `api_key`. Only an admin or the owner of the account can update.
+        """
+
+        with self.global_lock:
+            # Check that the account were updating exists.
+            if auth.api_key != account.api_key and account.api_key not in self.api_key_to_accounts:
+                hlog(f"Account with API key {auth.api_key} does not exist.")
+                return
+
+            editor: Account = self.api_key_to_accounts[auth.api_key]
+            current_account: Account = self.api_key_to_accounts[account.api_key]
+
+            if editor.is_admin or editor.api_key == account.api_key:
+                current_account.description = account.description
+                current_account.emails = account.emails
+                current_account.groups = account.groups
+
+                if editor.is_admin:
+                    current_account.is_admin = account.is_admin
+                    # `used` field in any Usage is immutable, so copy current values of used
+                    for service_key, service in account.usages.items():
+                        for granularity_key, granularity in service.items():
+                            if (
+                                service_key in current_account.usages
+                                and granularity_key in current_account.usages[service_key]
+                            ):
+                                current_used: int = current_account.usages[service_key][granularity_key].used
+                                account.usages[service_key][granularity_key].used = current_used
+                    current_account.usages = account.usages
+            else:
+                hlog(f"A user with API key {auth.api_key} attempted to edit an account that doesn't belong to them.")
+                return
+
+            self.dirty = True
 
     def check_can_use(self, api_key: str, model_group: str):
         """Check if the given `api_key` can use `model_group`.  Throw exceptions if not."""

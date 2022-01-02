@@ -1,7 +1,14 @@
+import json
 import os
 import mako.template
-from dataclasses import dataclass
+import requests
+import urllib.parse
+import urllib.request
+from abc import ABC, abstractmethod
+from dataclasses import asdict, dataclass
 from typing import Dict, List, Tuple, Any
+
+from dacite import from_dict
 
 from common.general import ensure_directory_exists, parse_hocon
 from common.request import Request, RequestResult
@@ -66,7 +73,49 @@ def synthesize_request(prompt: str, settings: str, environment: Dict[str, str]) 
     return Request(**request)
 
 
-class Service(object):
+class Service(ABC):
+    @abstractmethod
+    def get_general_info(self) -> GeneralInfo:
+        """Get general info."""
+        pass
+
+    @abstractmethod
+    def expand_query(self, query: Query) -> QueryResult:
+        """Turn the `query` into requests."""
+        pass
+
+    @abstractmethod
+    def make_request(self, auth: Authentication, request: Request) -> RequestResult:
+        """Actually make a request to an API."""
+        pass
+
+    @abstractmethod
+    def create_account(self, auth: Authentication) -> Account:
+        """Creates a new account."""
+        pass
+
+    @abstractmethod
+    def get_accounts(self, auth: Authentication) -> List[Account]:
+        """Get list of accounts."""
+        pass
+
+    @abstractmethod
+    def get_account(self, auth: Authentication) -> Account:
+        """Get information about an account."""
+        pass
+
+    @abstractmethod
+    def update_account(self, auth: Authentication, account: Account) -> None:
+        """Get information about an account."""
+        pass
+
+    @abstractmethod
+    def change_api_key(self, auth: Authentication, account: Account) -> Account:
+        """Generate a new API key for a given account."""
+        pass
+
+
+class ServerService(Service):
     """
     Main class that supports various functionality for the server.
     """
@@ -88,7 +137,7 @@ class Service(object):
     def finish(self):
         self.accounts.finish()
 
-    def get_general_info(self):
+    def get_general_info(self) -> GeneralInfo:
         return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=all_models)
 
     def expand_query(self, query: Query) -> QueryResult:
@@ -123,7 +172,96 @@ class Service(object):
 
         return request_result
 
+    def create_account(self, auth: Authentication) -> Account:
+        """Creates a new account."""
+        self.accounts.check_admin(auth)
+        return self.accounts.create_account()
+
+    def get_accounts(self, auth: Authentication) -> List[Account]:
+        """Get list of accounts."""
+        self.accounts.check_admin(auth)
+        return self.accounts.accounts
+
     def get_account(self, auth: Authentication) -> Account:
         """Get information about an account."""
         self.accounts.authenticate(auth)
         return self.accounts.api_key_to_accounts[auth.api_key]
+
+    def update_account(self, auth: Authentication, account: Account) -> None:
+        """Update account."""
+        self.accounts.authenticate(auth)
+        self.accounts.update_account(auth, account)
+
+    def change_api_key(self, auth: Authentication, account: Account) -> Account:
+        """Generate a new API key for this account."""
+        self.accounts.check_admin(auth)
+        return self.accounts.change_api_key(account)
+
+
+class RemoteServiceError(Exception):
+    pass
+
+
+class RemoteService(Service):
+    def __init__(self, base_url="http://crfm-models.stanford.edu"):
+        self.base_url = base_url
+
+    @staticmethod
+    def _check_response(response: Any):
+        if type(response) is dict and "error" in response and response["error"]:
+            raise RemoteServiceError(response["error"])
+
+    def get_general_info(self) -> GeneralInfo:
+        response = requests.get(f"{self.base_url}/api/general_info").json()
+        return from_dict(GeneralInfo, response)
+
+    def expand_query(self, query: Query) -> QueryResult:
+        params = asdict(query)
+        response = requests.get(f"{self.base_url}/api/query?{urllib.parse.urlencode(params)}").json()
+        RemoteService._check_response(response)
+        return from_dict(QueryResult, response)
+
+    def make_request(self, auth: Authentication, request: Request) -> RequestResult:
+        params = {
+            "auth": json.dumps(asdict(auth)),
+            "request": json.dumps(asdict(request)),
+        }
+        response = requests.get(f"{self.base_url}/api/request?{urllib.parse.urlencode(params)}").json()
+        RemoteService._check_response(response)
+        return from_dict(RequestResult, response)
+
+    def create_account(self, auth: Authentication) -> Account:
+        data = {"auth": json.dumps(asdict(auth))}
+        response = requests.post(f"{self.base_url}/api/account", data=data).json()
+        RemoteService._check_response(response)
+        return from_dict(Account, response)
+
+    def get_accounts(self, auth: Authentication) -> List[Account]:
+        params = {"auth": json.dumps(asdict(auth)), "all": "true"}
+        response = requests.get(f"{self.base_url}/api/account?{urllib.parse.urlencode(params)}").json()
+        RemoteService._check_response(response)
+        return [from_dict(Account, account_response) for account_response in response]
+
+    def get_account(self, auth: Authentication) -> Account:
+        params = {"auth": json.dumps(asdict(auth))}
+        response = requests.get(f"{self.base_url}/api/account?{urllib.parse.urlencode(params)}").json()
+        RemoteService._check_response(response)
+        return from_dict(Account, response)
+
+    def update_account(self, auth: Authentication, account: Account) -> None:
+        data = {
+            "auth": json.dumps(asdict(auth)),
+            "account": json.dumps(asdict(account)),
+        }
+        response = requests.put(f"{self.base_url}/api/account", data=data).json()
+        RemoteService._check_response(response)
+
+    def change_api_key(self, auth: Authentication, account: Account) -> Account:
+        """Generate a new API key for this account."""
+        data = {
+            "auth": json.dumps(asdict(auth)),
+            "account": json.dumps(asdict(account)),
+        }
+        response = requests.put(f"{self.base_url}/api/account/api_key", data=data).json()
+        RemoteService._check_response(response)
+        return response

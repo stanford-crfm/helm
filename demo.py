@@ -1,24 +1,17 @@
 # An example of how to use the request API.
+from src.common.authentication import Authentication
+from src.common.request import Request, RequestResult
+from src.proxy.accounts import Account
+from src.proxy.service import RemoteService
 
-import requests
-import json
-from urllib import parse
-from typing import Any, Dict
+auth = Authentication(api_key="crfm")
+service = RemoteService("http://crfm-models.stanford.edu")
 
-auth: Dict[str, str] = {
-    "api_key": "crfm",
-}
+# Make a request
+request = Request(prompt="Life is like a box of")
+request_result: RequestResult = service.make_request(auth, request)
 
-# Generation
-request: Dict[str, Any] = {
-    "prompt": "Life is like a box of",
-    "model": "openai/davinci",
-}
-
-params = {
-    "auth": json.dumps(auth),
-    "request": json.dumps(request),
-}
-
-response = requests.get(f"http://crfm-models.stanford.edu/api/request?{parse.urlencode(params)}").json()
-print(json.dumps(response, indent=2))
+# Modify account
+account: Account = service.get_account(auth)
+account.description = "some description"
+service.update_account(auth, account)

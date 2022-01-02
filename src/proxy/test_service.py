@@ -1,48 +1,139 @@
+import copy
+import os
 import pytest
+
 from common.authentication import Authentication
 from common.request import Request
+from proxy.accounts import AuthenticationError
 from .query import Query
-from .service import Service
-
-
-def get_test_service():
-    return Service(base_path="test_env", read_only=True)
-
-
-def get_prod_service():
-    # Note that this is not checked in / available by default
-    return Service(base_path="prod_env", read_only=True)
+from .service import ServerService
+from shutil import copyfile
 
 
 def get_authentication():
     return Authentication(api_key="crfm")
 
 
-def test_expand_query():
-    service = get_test_service()
-    query = Query(prompt="8 5 4 ${x} ${y}", settings="", environments="x: [1, 2, 3]\ny: [4, 5]",)
-    assert len(service.expand_query(query).requests) == 3 * 2
-    service.finish()
+class TestServerService:
+    def setup_method(self, method):
+        base_path = "test_env"
+        self.service = ServerService(base_path=base_path)
+        self.auth = get_authentication()
+        copyfile(self.service.accounts.path, self.service.accounts.path + ".copy")
+
+    def teardown_method(self, method):
+        self.service.finish()
+        copyfile(self.service.accounts.path + ".copy", self.service.accounts.path)
+        os.remove(self.service.accounts.path + ".copy")
+
+    def test_expand_query(self):
+        query = Query(prompt="8 5 4 ${x} ${y}", settings="", environments="x: [1, 2, 3]\ny: [4, 5]",)
+        assert len(self.service.expand_query(query).requests) == 3 * 2
+
+    def test_make_request(self):
+        num_completions = 2
+        request = Request(prompt="1 2 3", model="simple/model1", num_completions=num_completions)
+        result = self.service.make_request(self.auth, request)
+        assert len(result.completions) == num_completions
+
+    def test_example_queries(self):
+        """Make sure example queries parse."""
+        general_info = self.service.get_general_info()
+        for query in general_info.example_queries:
+            response = self.service.expand_query(query)
+            assert len(response.requests) > 0
+
+    def test_create_account(self):
+        account = self.service.create_account(self.auth)
+        assert account.api_key
+        non_admin_auth = Authentication(account.api_key)
+
+        # Only admins can create accounts
+        raised = False
+        try:
+            self.service.create_account(non_admin_auth)
+        except Exception as e:
+            raised = True
+            assert type(e) == AuthenticationError
+        assert raised
+
+    def test_get_accounts(self):
+        account = self.service.create_account(self.auth)
+        non_admin_auth = Authentication(account.api_key)
+
+        accounts = self.service.get_accounts(self.auth)
+        assert len(accounts) == 2
+
+        # Only admins can get all accounts
+        raised = False
+        try:
+            self.service.get_accounts(non_admin_auth)
+        except Exception as e:
+            raised = True
+            assert type(e) == AuthenticationError
+        assert raised
+
+    def test_get_account(self):
+        account = self.service.get_account(self.auth)
+        assert account.api_key == "crfm"
+
+        # Any user can access their own account
+        account = self.service.create_account(self.auth)
+        non_admin_auth = Authentication(account.api_key)
+        self.service.get_account(non_admin_auth)
+
+    def test_update_account(self):
+        # Users can update their own account
+        account = self.service.get_account(self.auth)
+        account_copy = copy.deepcopy(account)
+        account_copy.description = "new description"
+        self.service.update_account(self.auth, account_copy)
+        account = self.service.get_account(self.auth)
+        assert account.description == "new description"
+
+        # Admin cannot update usage.used
+        account_copy = copy.deepcopy(account)
+        current_usage: int = account.usages["gpt3"]["daily"].used
+        account_copy.usages["gpt3"]["daily"].used = -1
+        self.service.update_account(self.auth, account_copy)
+        account = self.service.get_account(self.auth)
+        assert account.usages["gpt3"]["daily"].used == current_usage
+
+        # Non-admin users cannot promote themselves to admins
+        account = self.service.create_account(self.auth)
+        account_copy = copy.deepcopy(account)
+        account_copy.is_admin = True
+        non_admin_auth = Authentication(account.api_key)
+        self.service.update_account(non_admin_auth, account_copy)
+        account = self.service.get_account(non_admin_auth)
+        assert not account.is_admin
+
+        # Admins can make new admins though
+        self.service.update_account(self.auth, account_copy)
+        account = self.service.get_account(self.auth)
+        assert account.is_admin
+
+    def test_change_api_key(self):
+        # Admin can change other's API key
+        account = self.service.create_account(self.auth)
+        old_api_key = account.api_key
+        non_admin_auth = Authentication(account.api_key)
+        account = self.service.change_api_key(self.auth, account)
+        assert account.api_key != old_api_key
+
+        # Only admins can change API key for a user
+        raised = False
+        try:
+            self.service.change_api_key(non_admin_auth, account)
+        except Exception as e:
+            raised = True
+            assert type(e) == AuthenticationError
+        assert raised
 
 
-def test_make_request():
-    service = get_test_service()
-    auth = get_authentication()
-    num_completions = 2
-    request = Request(prompt="1 2 3", model="simple/model1", num_completions=num_completions)
-    result = service.make_request(auth, request)
-    assert len(result.completions) == num_completions
-    service.finish()
-
-
-def test_example_queries():
-    """Make sure example queries parse."""
-    service = get_test_service()
-    general_info = service.get_general_info()
-    for query in general_info.example_queries:
-        response = service.expand_query(query)
-        assert len(response.requests) > 0
-    service.finish()
+def get_prod_service():
+    # Note that this is not checked in / available by default
+    return ServerService(base_path="prod_env", read_only=True)
 
 
 def helper_prod_test_service(request: Request, expected_text: str):
