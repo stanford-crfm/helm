@@ -54,7 +54,7 @@ class OpenAIClient(Client):
                 # TODO: this is a hacky solution until we figure out why
                 #       OpenAI is sending tokens including and past the stop sequences.
                 # TODO: This logic doesn't work when the stop sequences spans multiple tokens.
-                if text.strip() in request.stop_sequences:
+                if any(stop in text for stop in request.stop_sequences):
                     break
 
                 # For some reason, the first log probability and top choices are None.
