@@ -45,6 +45,11 @@ class OpenAIClient(Client):
             for text, logprob, top_logprobs in zip(
                 raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
             ):
+                # OpenAI is sending tokens including and past the stop sequences.
+                # Do not include these excess tokens in the response.
+                if text.strip() in request.stop_sequences:
+                    break
+
                 # For some reason, the first log probability and top choices are None.
                 # TODO: look in to why this is
                 tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
