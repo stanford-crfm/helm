@@ -27,6 +27,11 @@ class OpenAIClient(Client):
             "echo": request.echo_prompt,
         }
 
+        # OpenAI doesn't let you ask for more completions than the number of
+        # per-token candidates.
+        raw_request["best_of"] = max(raw_request["best_of"], raw_request["n"])
+        raw_request["logprobs"] = max(raw_request["logprobs"], raw_request["n"])
+
         try:
 
             def do_it():
