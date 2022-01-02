@@ -31,7 +31,7 @@ class Stat:
         return self
 
     def __repr__(self):
-        return f"{self.name}[min={self.min}, mean={self.mean:.3f}, max={self.max} ({self.count})]"
+        return f"{self.name}[min={self.min:.3f}, mean={self.mean:.3f}, max={self.max:.3f} ({self.count})]"
 
     @property
     def mean(self):
@@ -45,7 +45,7 @@ class Stat:
             return float("nan")
         return self.sum_squared / self.count - self.mean ** 2
 
-    def collapse_uncertainty(self):
+    def take_mean(self):
         """Return a version of the stat that only has the mean."""
         return Stat(self.name).add(self.mean)
 

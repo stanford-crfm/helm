@@ -48,6 +48,7 @@ This is done, but just for the record:
     crfm-models:$ git clone git@github.com:stanford-crfm/benchmarking
     crfm-models:$ cd benchmarking
     crfm-models:$ mkdir prod_env
+    crfm-models:$ echo '{"api_key": "crfm"}' > prod_env/accounts.jsonl
     laptop:$ rsync -arvz prod_env/credentials.conf crfm-models.stanford.edu:/home/benchmarking/prod_env
 
 ### Every time we need to deploy:
@@ -113,9 +114,10 @@ There are three types of classes:
 
 ## Running the benchmark
 
-Run the benchmark:
+Examples of running the benchmark:
 
     venv/bin/benchmark-run
+    venv/bin/benchmark-run -r mmlu:subject=philosophy
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).

@@ -1,34 +1,46 @@
+/**
+ * This is a very quick and dirty frontend for just interacting with the models.
+ * Please refrain from adding additional functionality to this.
+ * TODO: Write this in React.
+ */
 $(function () {
   const urlParams = decodeUrlParams(window.location.search);
   const rootUrl = '/static/index.html';
   let auth = null;
 
+  function censor(api_key) {
+    // Show only the first k letters
+    const k = 2;
+    if (api_key.length <= k) {
+      return api_key;
+    }
+    return api_key.substring(0, k) + '*'.repeat(api_key.length - k);
+  }
+
+  function helpIcon(help, link) {
+    // Show a ?
+    return $('<a>', {href: link, target: 'blank_', class: 'help-icon'}).append($('<img>', {src: 'info-icon.png', width: 15, title: help}));
+  }
+
   // Logging in and out
   function updateLogin() {
     const $loginInfo = $('#loginInfo');
     $loginInfo.empty();
-    let username = readCookie('username');
-    let password = readCookie('password');
-    auth = {username, password};
-    if (username) {
-      $loginInfo.append($('<span>').append('You are logged in as ' + username + '&nbsp;'));
-      $loginInfo.append($('<button>').append('Logout').click(() => {
-        eraseCookie('username');
-        eraseCookie('password');
+    let api_key = readCookie('api_key');
+    if (api_key) {
+      auth = {api_key};
+      $loginInfo.append($('<a>', {class: 'nav-link', href: '#'}).append('Logout of API key ' + censor(api_key)).click(() => {
+        eraseCookie('api_key');
         updateLogin();
       }));
     } else {
-      $loginInfo.append($('<button>').append('Login').click(() => {
-        username = prompt('Enter your username:');
-        if (!username) {
+      auth = null;
+      $loginInfo.append($('<a>', {class: 'nav-link', href: '#'}).append('Login').click(() => {
+        api_key = prompt('Enter your API key:');
+        if (!api_key) {
           return;
         }
-        password = prompt('Enter your password (NOT SECURE):');
-        if (!password) {
-          return;
-        }
-        createCookie('username', username);
-        createCookie('password', password);
+        createCookie('api_key', api_key);
         updateLogin();
       }));
     }
@@ -39,15 +51,16 @@ $(function () {
   ////////////////////////////////////////////////////////////
   // Rendering functions
 
-  function multiline(s) {
+  function multilineHtml(s) {
     return s.replace(/\n/g, '<br>');
   }
 
   function renderError(e) {
-    return $('<div>').addClass('alert alert-danger').append(multiline(e));
+    return $('<div>').addClass('alert alert-danger').append(multilineHtml(e));
   }
 
   function renderExampleQueries(updateQuery) {
+    // Show links for each example query, so when you click on them, they populate the textboxes.
     const $examplesBlock = $('<div>');
     $examplesBlock.append($('<span>').append('Examples:'));
     generalInfo.example_queries.forEach((query, i) => {
@@ -69,8 +82,8 @@ $(function () {
   }
 
   function renderQuery(handleQueryResult) {
-    // A query that we're making.
-    const $queryBlock = $('<div>');
+    // Render the textboxes for entering the query (which includes the prompt, settings, and environment)
+    const $queryBlock = $('<div>', {class: 'block'});
     const $prompt = $('<textarea>', {cols: 90, rows: 7, placeholder: 'Enter prompt'}).val(urlParams.prompt);
     const $settings = $('<textarea>', {cols: 90, rows: 5, placeholder: 'Enter settings (e.g., model: openai/davinci for GPT-3)'}).val(urlParams.settings);
     const $environments = $('<textarea>', {cols: 90, rows: 3, placeholder: 'Enter environment variables (e.g., city: [Boston, New York])'}).val(urlParams.environments);
@@ -92,6 +105,11 @@ $(function () {
     bindSubmit($environments);
 
     function submit() {
+      if (!auth) {
+        alert('You must log in first.');
+        return;
+      }
+
       const query = {
         prompt: $prompt.val(),
         settings: $settings.val(),
@@ -106,10 +124,32 @@ $(function () {
       $.getJSON('/api/query', query, handleQueryResult);
     }
 
+    // Show examples of queries
+    const $exampleQueries = renderExampleQueries((query) => {
+      $queryBlock.data('prompt').val(query.prompt);
+      $queryBlock.data('settings').val(query.settings);
+      $queryBlock.data('environments').val(query.environments);
+      urlParams.prompt = query.prompt;
+      urlParams.settings = query.settings;
+      urlParams.environments = query.environments;
+      updateBrowserLocation();
+    });
+
+    const promptHelp = 'This is the text you feed into the language model to complete.\nExample:\n  Life is like';
+    const settingsHelp = 'Specifies what information we want from the language model (see [Help] for more details).\nExample:\n  temperature: ${temperature}\n  model: openai/davinci\n  max_tokens: 10\n  num_completions: 5';
+    const environmentsHelp = 'Specifies a list of values to try for each variable that appears in the prompt or settings.\nExample:\n  temperature: [0, 0.5, 1]';
+
+    const $promptLabel = $('<span>').append(helpIcon(promptHelp, 'help.html#query')).append('Prompt');
+    const $settingsLabel = $('<span>').append(helpIcon(settingsHelp, 'help.html#query')).append('Settings');
+    const $environmentsLabel = $('<span>').append(helpIcon(environmentsHelp, 'help.html#query')).append('Environments');
+
     $queryBlock.append($('<h4>').append('Query'));
-    $queryBlock.append($('<div>').append($prompt));
-    $queryBlock.append($('<div>').append($settings));
-    $queryBlock.append($('<div>').append($environments));
+    $queryBlock.append($exampleQueries);
+    const $table = $('<table>', {class: 'query-table'});
+    $table.append($('<tr>').append($('<td>').append($promptLabel)).append($('<td>').append($prompt)));
+    $table.append($('<tr>').append($('<td>').append($settingsLabel)).append($('<td>').append($settings)));
+    $table.append($('<tr>').append($('<td>').append($environmentsLabel)).append($('<td>').append($environments)));
+    $queryBlock.append($table);
     $queryBlock.append($('<button>').append('Submit').click(submit));
 
     return $queryBlock;
@@ -126,70 +166,93 @@ $(function () {
   }
 
   function renderRequest(changingKeys, request) {
+    // Render the request metadata (e.g., temperature if it is changing)
     const title = JSON.stringify(request);
     // Always include model, never prompt (since that's shown right after).
     const showKeys = ['model'].concat(changingKeys.filter((key) => key !== 'prompt' && key !== 'model'));
     const summary = '[' + showKeys.map(key => key + ':' + request[key]).join(', ') + ']';
-    return $('<div>', {title}).append(summary + ' ' + multiline(request.prompt));
+    return $('<div>', {title}).append(summary + ' ' + multilineHtml(request.prompt));
   }
 
   function renderTime(time) {
     return (Math.round(time * 10) / 10) + 's';
   }
 
+  function renderTokens(tokens) {
+    // Render text as a sequence of tokens that you can interact with to see more information (e.g., logprobs)
+    const $result = $('<div>');
+    for (const token of tokens) {
+      // When mouse over token, show the alternative tokens and their log probabilities (including the one that's generated)
+      const entries = Object.entries(token.top_logprobs);
+      if (!(token.text in token.top_logprobs)) {
+        entries.push([token.text, token.logprob]);
+      }
+      entries.sort((a, b) => b[1] - a[1]);
+      function marker(text) { return text === token.text ? ' [selected]' : ''; }
+      const title = 'Candidates (with logprobs):\n' + entries.map(([text, logprob]) => `${text}: ${logprob}${marker(text)}`).join('\n');
+      const $token = $('<span>', {class: 'token', title}).append(multilineHtml(token.text));
+      $result.append($token);
+    }
+    return $result;
+  }
+
   function renderRequestResult(requestResult) {
+    // Render the list of completions.
     if (requestResult.error) {
       return renderError(requestResult.error);
     }
     const $result = $('<div>');
     requestResult.completions.forEach((completion) => {
-      $result.append($('<ul>').append($('<li>')
-        .append(multiline(completion.text))));
+      $result.append($('<div>', {class: 'completion'}).append(renderTokens(completion.tokens)));
     });
     $result.append($('<i>').append(renderTime(requestResult.request_time)));
     return $result;
   }
 
-  function renderUser() {
-    const $userBlock = $('<div>');
+  function renderAccount() {
+    // Render the account information (usage, quotas).
+    if (!auth) {
+      return null;
+    }
+
+    const $accountBlock = $('<div>', {class: 'block'});
     const args = {auth: JSON.stringify(auth)};
-    $.getJSON('/api/user', args, (user) => {
-      console.log('user', user);
+    $.getJSON('/api/account', args, (account) => {
+      console.log('/api/account', account);
       const items = [];
-      items.push('Usage');
-      ['daily', 'monthly', 'total'].forEach((granularity) => {
-        const usages = user[granularity];
-        for (const group in usages) {
-          const usage = usages[group];
-          if (usage.quota != null) {
+      for (modelGroup in account.usages) {
+        for (granularity in account.usages[modelGroup]) {
+          const usage = account.usages[modelGroup][granularity];
+          // Only print out usage for model groups and granularities where there is a quota
+          if (usage.quota) {
             const percent = Math.round(usage.used / usage.quota * 100);
-            items.push(`<b>${group}</b>: ${usage.period} (${usage.used} / ${usage.quota} = ${percent}%)`);
+            items.push(`<b>${modelGroup}</b>: ${usage.period} (${usage.used} / ${usage.quota} = ${percent}%)`);
           }
         }
-      });
-      $userBlock.empty().append(items.join(' | '));
+      }
+      if (items.length === 0) {
+        items.push('no restrictions');
+      }
+      $accountBlock.empty()
+        .append(helpIcon('Specifies your usage/quota (321/10000) for each model group (e.g., gpt3) for the current period (e.g., 2022-1-2).', 'help.html#quotas'))
+        .append('Usage')
+        .append(': ')
+        .append(items.join(' | '));
     });
-    return $userBlock;
+    return $accountBlock;
   }
 
-  function renderQueryInterface() {
-    const $userBlock = $('<div>').append(renderUser());
+  ////////////////////////////////////////////////////////////
+  // For index.html
 
-    // Show examples of queries
-    const $exampleQueries = renderExampleQueries((query) => {
-      $queryBlock.data('prompt').val(query.prompt);
-      $queryBlock.data('settings').val(query.settings);
-      $queryBlock.data('environments').val(query.environments);
-      urlParams.prompt = query.prompt;
-      urlParams.settings = query.settings;
-      urlParams.environments = query.environments;
-      updateBrowserLocation();
-    });
+  function renderQueryInterface() {
+    // For index.html
+    const $accountBlock = $('<div>').append(renderAccount());
 
     // Allow editing the query
     const $queryBlock = renderQuery((queryResult) => {
       // Create requests
-      console.log('query', queryResult);
+      console.log('/api/query', queryResult);
       $requestsBlock.empty();
 
       if (queryResult.error) {
@@ -211,10 +274,10 @@ $(function () {
           request: JSON.stringify(request),
         };
         $.getJSON('/api/request', args, (requestResult) => {
-          console.log('request', request, requestResult);
+          console.log('/api/request', request, requestResult);
           $requestResult.empty().append(renderRequestResult(requestResult));
           if (!requestResult.cached) {
-            $userBlock.empty().append(renderUser());
+            $accountBlock.empty().append(renderAccount());
           }
         });
         $request.append($requestResult);
@@ -223,15 +286,35 @@ $(function () {
     });
 
     // Where the requests and responses come in
-    const $requestsBlock = $('<div>');
+    const $requestsBlock = $('<div>', {class: 'block'});
 
     const $group = $('<div>');
-    $group.append($userBlock);
-    $group.append($exampleQueries);
+    $group.append($accountBlock);
     $group.append($queryBlock);
     $group.append($requestsBlock);
     return $group;
   }
+
+  ////////////////////////////////////////////////////////////
+  // For help.html
+
+  function renderModelsTable() {
+    // Render the list of models
+    const $table = $('<table>', {class: 'table'});
+    const $header = $('<tr>')
+      .append($('<td>').append('group'))
+      .append($('<td>').append('name'))
+      .append($('<td>').append('description'));
+    $table.append($header);
+    generalInfo.all_models.forEach((model) => {
+      const $row = $('<tr>')
+        .append($('<td>').append($('<tt>').append(model.group)))
+        .append($('<td>').append($('<tt>').append(model.name)))
+        .append($('<td>').append(model.description));
+      $table.append($row);
+    });
+    return $table;
+  };
 
   ////////////////////////////////////////////////////////////
   // Main
@@ -240,27 +323,18 @@ $(function () {
 
   $.getJSON('/api/general_info', (response) => {
     generalInfo = response;
-    console.log('general_info', generalInfo);
-    $('#main').empty().append(renderQueryInterface());
+    console.log('/api/general_info', generalInfo);
 
+    // For index.html
+    const $main = $('#main');
+    if ($main.length > 0) {
+      $main.empty().append(renderQueryInterface());
+    }
+
+    // For help.html
     const $helpModels = $('#help-models');
-    $helpModels.empty().append(renderModelsTable);
+    if ($helpModels.length > 0) {
+      $helpModels.empty().append(renderModelsTable());
+    }
   });
-
-  function renderModelsTable() {
-    // Render the list of models
-    const $table = $('<table>', {class: 'table'});
-    const $header = $('<tr>')
-      .append($('<td>').append('name'))
-      .append($('<td>').append('description'));
-    $table.append($header);
-    generalInfo.allModels.forEach((model) => {
-      const $row = $('<tr>')
-        .append($('<td>').append($('<tt>').append(model.name)))
-        .append($('<td>').append(model.description));
-      $table.append($row);
-    });
-    return $table;
-  };
-
 });

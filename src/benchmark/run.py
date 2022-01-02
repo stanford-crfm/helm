@@ -1,8 +1,36 @@
-from common.hierarchical_logger import htrack
+import argparse
+from typing import List, Dict, Any, Tuple
+
+from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.authentication import Authentication
 from .executor import ExecutionSpec
-from .runner import Runner
-from .test_utils import get_run_spec1
+from .runner import Runner, RunSpec
+from .test_utils import get_run_spec1, get_mmlu_spec
+
+
+def parse_run_specs(description: str) -> List[RunSpec]:
+    """
+    Parse `description` into a list of `RunSpec`s.
+    `description` has the format:
+        <name>:<key>=<value>,<key>=<value>
+    """
+
+    def parse_arg(arg: str) -> Tuple[str, Any]:
+        key, value = arg.split("=", 1)
+        return (key, value)
+
+    if ":" in description:
+        name, args_str = description.split(":", 1)
+        args: Dict[str, Any] = dict(parse_arg(arg) for arg in args_str.split(","))
+    else:
+        name = description
+        args = {}
+
+    if name == "simple1":
+        return [get_run_spec1()]
+    if name == "mmlu":
+        return [get_mmlu_spec(**args)]
+    raise ValueError(f"Unknown run spec: {description}")
 
 
 @htrack(None)
@@ -10,13 +38,17 @@ def main():
     """
     Main entry point for running the benchmark.
     """
-    # TODO: make a general client for this
-    execution_spec = ExecutionSpec(
-        auth=Authentication(username="crfm", password="crfm"), url="http://localhost:1959/api/request", parallelism=5,
-    )
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-r", "--run-specs", nargs="*", help="Specifies what to run", default=["simple1"])
+    parser.add_argument("-o", "--output-path", help="Where to save all the output", default="benchmark_output")
+    args = parser.parse_args()
 
-    # TODO: load this dynamically from a conf file, for now, just use a test.
-    run_spec = get_run_spec1()
+    execution_spec = ExecutionSpec(auth=Authentication(api_key="crfm"), url="http://localhost:1959", parallelism=5,)
 
-    runner = Runner(execution_spec, [run_spec])
+    run_specs = [run_spec for description in args.run_specs for run_spec in parse_run_specs(description)]
+    with htrack_block("Run specs"):
+        for run_spec in run_specs:
+            hlog(run_spec.scenario)
+
+    runner = Runner(execution_spec, args.output_path, run_specs)
     runner.run_all()

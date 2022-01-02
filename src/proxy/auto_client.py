@@ -10,7 +10,7 @@ from common.request import Request, RequestResult
 
 
 class AutoClient(Client):
-    """Automatically dispatch to the proper client."""
+    """Automatically dispatch to the proper `Client` based on the organization."""
 
     def __init__(self, credentials: Dict[str, str], cache_path: str):
         self.credentials = credentials
@@ -37,6 +37,6 @@ class AutoClient(Client):
 
     def make_request(self, request: Request) -> RequestResult:
         # Dispatch based on the organization (e.g., openai/davinci)
-        organization = request.model_organization()
+        organization = request.model_organization
         client = self.get_client(organization)
         return client.make_request(request)

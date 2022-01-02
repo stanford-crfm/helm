@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Mercury Models API</title>
+		<title>CRFM Models API</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
@@ -19,19 +19,19 @@
           <ul class="navbar-nav">
             <li class="nav-item"><a class="nav-link" href="/static/index.html">Query</a></li>
             <li class="nav-item"><a class="nav-link active" href="/static/help.html">Help</a></li>
+            <li class="nav-item" id="loginInfo"></li>
           </ul>
-        </div>
-        <div class="col-sm-6">
-        <p class="text-right" id="loginInfo">
-        </p>
         </div>
       </nav>
 
       <div class="row">
         <div class="col-sm-12">
+          <p>
+            This web interface and API allows you to experiment with multiple large language models using a unified interface.
+            To log in, you need an API key.
+          </p>
+          <h2>Query</h2>
           <ul>
-            <li>This web interface and API allows you to experiment with multiple large language models using a unified interface.</li>
-            <li>You don't have to log in if you are just playing around with it casually, but please login if you plan to do heavy use.</li>
             <li>In the web interface, you can enter a <b>query</b>, which consists of the following components:
               <ul>
                 <li><b>prompt</b>, which is what text we want to feed into the language model.  The prompt can have variables (e.g., <tt>${name}</tt>) which are filled in later.</li>
@@ -45,7 +45,8 @@
                     <li><tt>top_k_per_token</tt>: number of candidates per token position in each completion</li>
                     <li><tt>max_tokens</tt>: maximum number of tokens before generation stops</li>
                     <li><tt>stop_sequences</tt>: list of strings that will stop generation (e.g., <tt>'.'</tt> or <tt>'\n'</tt>)</li>
-                    <li><tt>top_p</tt>: An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. (OpenAI only)</li>
+                    <li><tt>echo_prompt</tt>: Whether to include the prompt as a prefix of the completion</li>
+                    <li><tt>top_p</tt>: An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.</li>
                     <li><tt>presence_penalty</tt>: Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics. (OpenAI only)</li>
                     <li><tt>frequency_penalty</tt>: Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim. (OpenAI only)</li>
                   </ul>
@@ -72,6 +73,18 @@
               </ul>
             </li>
           </ul>
+
+          <h2><a name="quotas">Quotas</a></h2>
+          <p>
+            For each model group (e.g., <tt>gpt3</tt>) and time granularity
+            (e.g., <tt>daily</tt>, <tt>monthly</tt>, <tt>total</tt>), you are
+            given a quota of a certain number of tokens.
+            Once you go over that number, you won't be able to use the API.
+            However, note that requests that have already been made (by you or
+            anyone) that are cached are not counted towards your quota.
+            For example, if your daily quota for <tt>gpt3</tt> is <tt>10000</tt>,
+            that means each day, you will get 10000 tokens.
+          </p>
         </div>
       </div>
 		</div>
