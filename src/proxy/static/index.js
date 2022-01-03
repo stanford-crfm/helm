@@ -217,7 +217,7 @@ $(function () {
 
     const $accountBlock = $('<div>', {class: 'block'});
     const args = {auth: JSON.stringify(auth)};
-    $.getJSON('/api/account', args, (account) => {
+    $.getJSON('/api/account', args, ([account]) => {
       console.log('/api/account', account);
       const items = [];
       for (modelGroup in account.usages) {
