@@ -1,14 +1,10 @@
-from dacite import from_dict
-import dataclasses
 from typing import Optional
-import requests
-from urllib.parse import urlencode
 from dataclasses import dataclass, replace
-import json
 
 from common.hierarchical_logger import htrack, hlog
-from common.request import Request, RequestResult
+from common.request import RequestResult
 from common.authentication import Authentication
+from proxy.remote_service import RemoteService
 from .scenario import Instance
 from .adapter import RequestState, ScenarioState
 
@@ -25,18 +21,6 @@ class ExecutionSpec:
     parallelism: int
 
 
-def make_request(auth: Authentication, url: str, request: Request) -> RequestResult:
-    # TODO: replace this by `RemoteService`
-    params = {
-        "auth": json.dumps(dataclasses.asdict(auth)),
-        "request": json.dumps(dataclasses.asdict(request)),
-    }
-    response = requests.get(url + "/api/request?" + urlencode(params)).json()
-    if response.get("error"):
-        hlog(response["error"])
-    return from_dict(data_class=RequestResult, data=response)
-
-
 class Executor:
     """
     An `Executor` takes a `ScenarioState` which has a bunch of requests.
@@ -45,6 +29,7 @@ class Executor:
 
     def __init__(self, execution_spec: ExecutionSpec):
         self.execution_spec = execution_spec
+        self.remote_service = RemoteService(self.execution_spec.url)
 
     @htrack(None)
     def execute(self, scenario_state: ScenarioState) -> ScenarioState:
@@ -63,7 +48,7 @@ class Executor:
             )
 
         def process(request_state: RequestState) -> RequestState:
-            result = make_request(self.execution_spec.auth, self.execution_spec.url, request_state.request)
+            result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, request_state.request)
             prediction = result.completions[0].text
             hlog(f"{i}/{len(scenario_state.request_states)}: {render_instance(instance, prediction)}")
             return replace(request_state, result=result)
