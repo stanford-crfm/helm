@@ -203,7 +203,7 @@ $(function () {
     }
     const $result = $('<div>');
     requestResult.completions.forEach((completion) => {
-      $result.append($('<div>', {class: 'completion'}).append(renderTokens(completion.tokens)));
+      $result.append($('<div>', {class: 'completion', title: `logprob: ${completion.logprob}`}).append(renderTokens(completion.tokens)));
     });
     $result.append($('<i>').append(renderTime(requestResult.request_time)));
     return $result;
