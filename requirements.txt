@@ -1,10 +1,10 @@
 openai==0.2.4
 bottle==0.12.19
 dacite==1.6.0
+gevent==21.12.0
 Mako==1.1.5
-Paste==3.5.0
 pyhocon==0.3.58
-pyOpenSSL==19.1.0
+pyOpenSSL==21.0.0
 sqlitedict==1.7.0
 
 # For development

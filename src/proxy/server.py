@@ -13,11 +13,9 @@ import os
 import signal
 import sys
 import time
-from paste import httpserver
-from OpenSSL import SSL
-from OpenSSL import crypto
 
 from dacite import from_dict
+from gevent.pywsgi import WSGIServer
 
 from common.authentication import Authentication
 from common.hierarchical_logger import hlog
@@ -155,27 +153,14 @@ def main():
     parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=1959)
     parser.add_argument("--ssl-key-file", type=str, help="Path to SSL key file")
     parser.add_argument("--ssl-cert-file", type=str, help="Path to SSL cert file")
-    parser.add_argument("--ssl-dh-params-file", type=str, help="Path to DH params file")
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
     args = parser.parse_args()
 
     service = ServerService(base_path=args.base_path)
 
-    if args.ssl_key_file and args.ssl_cert_file and args.ssl_dh_params_file:
-        # Adapted from
-        # https://stackoverflow.com/questions/32094145/python-paste-ssl-server-with-tlsv1-2-and-forward-secrecy
-        ssl_context = SSL.Context(SSL.SSLv23_METHOD)
-        ssl_context.use_privatekey_file(args.ssl_key_file)
-        ssl_context.use_certificate_chain_file(args.ssl_cert_file)
-        ssl_context.load_tmp_dh(args.ssl_dh_params_file)
-        ssl_context.set_tmp_ecdh(crypto.get_elliptic_curve("prime256v1"))
-        ssl_context.set_options(SSL.OP_NO_SSLv2)
-        ssl_context.set_options(SSL.OP_NO_SSLv3)
-        ssl_context.set_options(SSL.OP_SINGLE_DH_USE)
-        ssl_context.set_cipher_list(
-            b"EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+"
-            b"aRSA+SHA256:EECDH:EDH+aRSA:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS:!RC4"
-        )
-        httpserver.serve(app, host=args.host, port=args.port, ssl_context=ssl_context)
+    if args.ssl_key_file and args.ssl_cert_file:
+        server = WSGIServer((args.host, args.port), app, keyfile=args.ssl_key_file, certfile=args.ssl_cert_file)
     else:
-        httpserver.serve(app, host=args.host, port=args.port)
+        server = WSGIServer((args.host, args.port), app)
+
+    server.serve_forever()
