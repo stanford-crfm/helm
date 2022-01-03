@@ -82,16 +82,14 @@ class TestServerService:
         account = self.service.get_account(self.auth)
         account_copy = copy.deepcopy(account)
         account_copy.description = "new description"
-        self.service.update_account(self.auth, account_copy)
-        account = self.service.get_account(self.auth)
+        account = self.service.update_account(self.auth, account_copy)
         assert account.description == "new description"
 
         # Admin cannot update usage.used
         account_copy = copy.deepcopy(account)
         current_usage: int = account.usages["gpt3"]["daily"].used
         account_copy.usages["gpt3"]["daily"].used = -1
-        self.service.update_account(self.auth, account_copy)
-        account = self.service.get_account(self.auth)
+        account = self.service.update_account(self.auth, account_copy)
         assert account.usages["gpt3"]["daily"].used == current_usage
 
         # Non-admin users cannot promote themselves to admins
@@ -99,13 +97,11 @@ class TestServerService:
         account_copy = copy.deepcopy(account)
         account_copy.is_admin = True
         non_admin_auth = Authentication(account.api_key)
-        self.service.update_account(non_admin_auth, account_copy)
-        account = self.service.get_account(non_admin_auth)
+        account = self.service.update_account(non_admin_auth, account_copy)
         assert not account.is_admin
 
         # Admins can make new admins though
-        self.service.update_account(self.auth, account_copy)
-        account = self.service.get_account(self.auth)
+        account = self.service.update_account(self.auth, account_copy)
         assert account.is_admin
 
     def test_rotate_api_key(self):

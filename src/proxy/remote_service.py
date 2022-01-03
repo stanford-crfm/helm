@@ -69,7 +69,7 @@ class RemoteService(Service):
         }
         response = requests.put(f"{self.base_url}/api/account", data=data).json()
         RemoteService._check_response(response)
-        return response
+        return from_dict(Account, response)
 
     def rotate_api_key(self, auth: Authentication, account: Account) -> Account:
         """Generate a new API key for this account."""
@@ -79,4 +79,4 @@ class RemoteService(Service):
         }
         response = requests.put(f"{self.base_url}/api/account/api_key", data=data).json()
         RemoteService._check_response(response)
-        return response
+        return from_dict(Account, response)
