@@ -17,11 +17,14 @@ from paste import httpserver
 from OpenSSL import SSL
 from OpenSSL import crypto
 
+from dacite import from_dict
+
+from common.authentication import Authentication
 from common.hierarchical_logger import hlog
 from common.request import Request
-from .service import Service
+from proxy.accounts import Account
+from proxy.server_service import ServerService
 from .query import Query
-from common.authentication import Authentication
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
@@ -75,11 +78,43 @@ def handle_get_general_info():
     return safe_call(perform)
 
 
+@app.post("/api/account")
+def handle_create_account():
+    def perform(args):
+        auth = Authentication(**json.loads(args["auth"]))
+        return dataclasses.asdict(service.create_account(auth))
+
+    return safe_call(perform)
+
+
 @app.get("/api/account")
 def handle_get_account():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
-        return dataclasses.asdict(service.get_account(auth))
+        if "all" in args and args["all"].lower() == "true":
+            return [dataclasses.asdict(account) for account in service.get_accounts(auth)]
+        else:
+            return [dataclasses.asdict(service.get_account(auth))]
+
+    return safe_call(perform)
+
+
+@app.put("/api/account")
+def handle_update_account():
+    def perform(args):
+        auth = Authentication(**json.loads(args["auth"]))
+        account = from_dict(Account, json.loads(args["account"]))
+        return dataclasses.asdict(service.update_account(auth, account))
+
+    return safe_call(perform)
+
+
+@app.put("/api/account/api_key")
+def handle_update_api_key():
+    def perform(args):
+        auth = Authentication(**json.loads(args["auth"]))
+        account = from_dict(Account, json.loads(args["account"]))
+        return dataclasses.asdict(service.rotate_api_key(auth, account))
 
     return safe_call(perform)
 
@@ -124,7 +159,7 @@ def main():
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
     args = parser.parse_args()
 
-    service = Service(base_path=args.base_path)
+    service = ServerService(base_path=args.base_path)
 
     if args.ssl_key_file and args.ssl_cert_file and args.ssl_dh_params_file:
         # Adapted from
