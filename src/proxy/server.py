@@ -92,7 +92,7 @@ def handle_get_account():
         if "all" in args and args["all"].lower() == "true":
             return [dataclasses.asdict(account) for account in service.get_accounts(auth)]
         else:
-            return dataclasses.asdict(service.get_account(auth))
+            return [dataclasses.asdict(service.get_account(auth))]
 
     return safe_call(perform)
 
@@ -102,7 +102,7 @@ def handle_update_account():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
         account = from_dict(Account, json.loads(args["account"]))
-        service.update_account(auth, account)
+        return dataclasses.asdict(service.update_account(auth, account))
 
     return safe_call(perform)
 
@@ -112,7 +112,7 @@ def handle_update_api_key():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
         account = from_dict(Account, json.loads(args["account"]))
-        service.change_api_key(auth, account)
+        return dataclasses.asdict(service.rotate_api_key(auth, account))
 
     return safe_call(perform)
 

@@ -195,10 +195,26 @@ class Accounts:
         if not account.is_admin:
             raise AuthenticationError(f"API key {auth.api_key} does not have admin privileges.")
 
-    def create_account(self) -> Account:
+    def get_account(self, auth: Authentication) -> Account:
         """
-        Creates a new account with a random API key and returns that account.
+        Fetch current user's account.
         """
+        self.authenticate(auth)
+        return self.api_key_to_accounts[auth.api_key]
+
+    def get_all_accounts(self, auth: Authentication) -> List[Account]:
+        """
+        Fetch all accounts (admin-only).
+        """
+        self.check_admin(auth)
+        return self.accounts
+
+    def create_account(self, auth: Authentication) -> Account:
+        """
+        Creates a new account with a random API key and returns that account (admin-only).
+        """
+        self.check_admin(auth)
+
         with self.global_lock:
             api_key: str = generate_api_key()
             account = Account(api_key=api_key)
@@ -208,10 +224,12 @@ class Accounts:
 
         return account
 
-    def change_api_key(self, account: Account) -> Account:
+    def rotate_api_key(self, auth: Authentication, account: Account) -> Account:
         """
-        Generate a new API key for an account.
+        Generate a new API key for an account (admin-only).
         """
+        self.check_admin(auth)
+
         with self.global_lock:
             old_api_key: str = account.api_key
             new_api_key: str = generate_api_key()
@@ -224,42 +242,45 @@ class Accounts:
 
         return account
 
-    def update_account(self, auth: Authentication, account: Account) -> None:
+    def update_account(self, auth: Authentication, account: Account) -> Account:
         """
         Update account except `api_key`. Only an admin or the owner of the account can update.
         """
+        self.authenticate(auth)
 
         with self.global_lock:
             # Check that the account were updating exists.
-            if auth.api_key != account.api_key and account.api_key not in self.api_key_to_accounts:
-                hlog(f"Account with API key {auth.api_key} does not exist.")
-                return
+            if account.api_key not in self.api_key_to_accounts:
+                raise ValueError(f"Account with API key {auth.api_key} does not exist.")
 
             editor: Account = self.api_key_to_accounts[auth.api_key]
             current_account: Account = self.api_key_to_accounts[account.api_key]
 
-            if editor.is_admin or editor.api_key == account.api_key:
-                current_account.description = account.description
-                current_account.emails = account.emails
-                current_account.groups = account.groups
+            if not editor.is_admin and editor.api_key != account.api_key:
+                raise AuthenticationError(
+                    f"A user with API key {auth.api_key} attempted to edit an account that doesn't belong to them."
+                )
 
-                if editor.is_admin:
-                    current_account.is_admin = account.is_admin
-                    # `used` field in any Usage is immutable, so copy current values of used
-                    for service_key, service in account.usages.items():
-                        for granularity_key, granularity in service.items():
-                            if (
-                                service_key in current_account.usages
-                                and granularity_key in current_account.usages[service_key]
-                            ):
-                                current_used: int = current_account.usages[service_key][granularity_key].used
-                                account.usages[service_key][granularity_key].used = current_used
-                    current_account.usages = account.usages
-            else:
-                hlog(f"A user with API key {auth.api_key} attempted to edit an account that doesn't belong to them.")
-                return
+            current_account.description = account.description
+            current_account.emails = account.emails
+            current_account.groups = account.groups
+
+            if editor.is_admin:
+                current_account.is_admin = account.is_admin
+
+                # `used` field in any Usage is immutable, so copy current values of used
+                for service_key, service in account.usages.items():
+                    for granularity_key, granularity in service.items():
+                        if (
+                            service_key in current_account.usages
+                            and granularity_key in current_account.usages[service_key]
+                        ):
+                            current_used: int = current_account.usages[service_key][granularity_key].used
+                            account.usages[service_key][granularity_key].used = current_used
+                current_account.usages = account.usages
 
             self.dirty = True
+            return current_account
 
     def check_can_use(self, api_key: str, model_group: str):
         """Check if the given `api_key` can use `model_group`.  Throw exceptions if not."""

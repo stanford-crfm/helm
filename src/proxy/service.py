@@ -105,12 +105,12 @@ class Service(ABC):
         pass
 
     @abstractmethod
-    def update_account(self, auth: Authentication, account: Account) -> None:
-        """Get information about an account."""
+    def update_account(self, auth: Authentication, account: Account) -> Account:
+        """Update account."""
         pass
 
     @abstractmethod
-    def change_api_key(self, auth: Authentication, account: Account) -> Account:
+    def rotate_api_key(self, auth: Authentication, account: Account) -> Account:
         """Generate a new API key for a given account."""
         pass
 
@@ -174,28 +174,23 @@ class ServerService(Service):
 
     def create_account(self, auth: Authentication) -> Account:
         """Creates a new account."""
-        self.accounts.check_admin(auth)
-        return self.accounts.create_account()
+        return self.accounts.create_account(auth)
 
     def get_accounts(self, auth: Authentication) -> List[Account]:
         """Get list of accounts."""
-        self.accounts.check_admin(auth)
-        return self.accounts.accounts
+        return self.accounts.get_all_accounts(auth)
 
     def get_account(self, auth: Authentication) -> Account:
         """Get information about an account."""
-        self.accounts.authenticate(auth)
-        return self.accounts.api_key_to_accounts[auth.api_key]
+        return self.accounts.get_account(auth)
 
-    def update_account(self, auth: Authentication, account: Account) -> None:
+    def update_account(self, auth: Authentication, account: Account) -> Account:
         """Update account."""
-        self.accounts.authenticate(auth)
-        self.accounts.update_account(auth, account)
+        return self.accounts.update_account(auth, account)
 
-    def change_api_key(self, auth: Authentication, account: Account) -> Account:
+    def rotate_api_key(self, auth: Authentication, account: Account) -> Account:
         """Generate a new API key for this account."""
-        self.accounts.check_admin(auth)
-        return self.accounts.change_api_key(account)
+        return self.accounts.rotate_api_key(auth, account)
 
 
 class RemoteServiceError(Exception):
@@ -246,17 +241,21 @@ class RemoteService(Service):
         params = {"auth": json.dumps(asdict(auth))}
         response = requests.get(f"{self.base_url}/api/account?{urllib.parse.urlencode(params)}").json()
         RemoteService._check_response(response)
-        return from_dict(Account, response)
+        import pdb
 
-    def update_account(self, auth: Authentication, account: Account) -> None:
+        pdb.set_trace()
+        return from_dict(Account, response[0])
+
+    def update_account(self, auth: Authentication, account: Account) -> Account:
         data = {
             "auth": json.dumps(asdict(auth)),
             "account": json.dumps(asdict(account)),
         }
         response = requests.put(f"{self.base_url}/api/account", data=data).json()
         RemoteService._check_response(response)
+        return response
 
-    def change_api_key(self, auth: Authentication, account: Account) -> Account:
+    def rotate_api_key(self, auth: Authentication, account: Account) -> Account:
         """Generate a new API key for this account."""
         data = {
             "auth": json.dumps(asdict(auth)),

@@ -1,5 +1,4 @@
 import copy
-import os
 import pytest
 
 from common.authentication import Authentication
@@ -7,7 +6,6 @@ from common.request import Request
 from proxy.accounts import AuthenticationError
 from .query import Query
 from .service import ServerService
-from shutil import copyfile
 
 
 def get_authentication():
@@ -17,14 +15,11 @@ def get_authentication():
 class TestServerService:
     def setup_method(self, method):
         base_path = "test_env"
-        self.service = ServerService(base_path=base_path)
+        self.service = ServerService(base_path=base_path, read_only=True)
         self.auth = get_authentication()
-        copyfile(self.service.accounts.path, self.service.accounts.path + ".copy")
 
     def teardown_method(self, method):
         self.service.finish()
-        copyfile(self.service.accounts.path + ".copy", self.service.accounts.path)
-        os.remove(self.service.accounts.path + ".copy")
 
     def test_expand_query(self):
         query = Query(prompt="8 5 4 ${x} ${y}", settings="", environments="x: [1, 2, 3]\ny: [4, 5]",)
@@ -113,18 +108,18 @@ class TestServerService:
         account = self.service.get_account(self.auth)
         assert account.is_admin
 
-    def test_change_api_key(self):
+    def test_rotate_api_key(self):
         # Admin can change other's API key
         account = self.service.create_account(self.auth)
         old_api_key = account.api_key
         non_admin_auth = Authentication(account.api_key)
-        account = self.service.change_api_key(self.auth, account)
+        account = self.service.rotate_api_key(self.auth, account)
         assert account.api_key != old_api_key
 
         # Only admins can change API key for a user
         raised = False
         try:
-            self.service.change_api_key(non_admin_auth, account)
+            self.service.rotate_api_key(non_admin_auth, account)
         except Exception as e:
             raised = True
             assert type(e) == AuthenticationError
