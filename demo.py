@@ -1,24 +1,20 @@
+import getpass
+
+from src.common.authentication import Authentication
+from src.common.request import Request, RequestResult
+from src.proxy.accounts import Account
+from proxy.remote_service import RemoteService
+
 # An example of how to use the request API.
+api_key = getpass.getpass(prompt="Enter a valid API key: ")
+auth = Authentication(api_key=api_key)
+service = RemoteService("http://crfm-models.stanford.edu")
 
-import requests
-import json
-from urllib import parse
-from typing import Any, Dict
+# Access account and show my current quotas and usages
+account: Account = service.get_account(auth)
+print(account.usages)
 
-auth: Dict[str, str] = {
-    "api_key": "crfm",
-}
-
-# Generation
-request: Dict[str, Any] = {
-    "prompt": "Life is like a box of",
-    "model": "openai/davinci",
-}
-
-params = {
-    "auth": json.dumps(auth),
-    "request": json.dumps(request),
-}
-
-response = requests.get(f"http://crfm-models.stanford.edu/api/request?{parse.urlencode(params)}").json()
-print(json.dumps(response, indent=2))
+# Make a request
+request = Request(prompt="Life is like a box of")
+request_result: RequestResult = service.make_request(auth, request)
+print(request_result.completions[0].text)
