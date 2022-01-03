@@ -20,6 +20,10 @@
   margin-bottom: 5px;
 }
 
+.completion:hover {
+  background-color: #e8e8e8;
+}
+
 .token:hover {
   background-color: lightgreen;
 }
