@@ -21,7 +21,7 @@ from common.authentication import Authentication
 from common.hierarchical_logger import hlog
 from common.request import Request
 from proxy.accounts import Account
-from .service import ServerService
+from proxy.server_service import ServerService
 from .query import Query
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024

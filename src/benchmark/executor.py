@@ -4,7 +4,7 @@ from dataclasses import dataclass, replace
 from common.hierarchical_logger import htrack, hlog
 from common.request import RequestResult
 from common.authentication import Authentication
-from proxy.service import RemoteService
+from proxy.remote_service import RemoteService
 from .scenario import Instance
 from .adapter import RequestState, ScenarioState
 

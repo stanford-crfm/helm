@@ -1,6 +1,4 @@
-from dacite import from_dict
-import dataclasses
-from dataclasses import dataclass, field
+import copy
 import datetime
 import json
 import os
@@ -9,6 +7,9 @@ import string
 import threading
 import time
 from typing import Dict, Optional, Callable, List
+
+from dacite import from_dict
+from dataclasses import asdict, dataclass, field
 
 from common.hierarchical_logger import hlog
 from common.authentication import Authentication
@@ -108,10 +109,6 @@ def compute_monthly_period():
 
 def compute_total_period():
     return "all"
-
-
-def generate_api_key() -> str:
-    return "".join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(32))
 
 
 class Accounts:
@@ -216,7 +213,7 @@ class Accounts:
         self.check_admin(auth)
 
         with self.global_lock:
-            api_key: str = generate_api_key()
+            api_key: str = self._generate_nonexistent_api_key()
             account = Account(api_key=api_key)
             self.accounts.append(account)
             self.api_key_to_accounts[api_key] = account
@@ -232,7 +229,7 @@ class Accounts:
 
         with self.global_lock:
             old_api_key: str = account.api_key
-            new_api_key: str = generate_api_key()
+            new_api_key: str = self._generate_nonexistent_api_key()
 
             account = self.api_key_to_accounts[old_api_key]
             account.api_key = new_api_key
@@ -241,6 +238,18 @@ class Accounts:
             self.dirty = True
 
         return account
+
+    def _generate_nonexistent_api_key(self):
+        def generate_api_key() -> str:
+            return "".join(
+                random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(32)
+            )
+
+        # The chance of generating an api key that already exists is tiny, but be extra safe.
+        api_key: str = generate_api_key()
+        while api_key in self.api_key_to_accounts:
+            api_key = generate_api_key()
+        return api_key
 
     def update_account(self, auth: Authentication, account: Account) -> Account:
         """
@@ -269,15 +278,16 @@ class Accounts:
                 current_account.is_admin = account.is_admin
 
                 # `used` field in any Usage is immutable, so copy current values of used
-                for service_key, service in account.usages.items():
+                usages = copy.deepcopy(account.usages)
+                for service_key, service in usages.items():
                     for granularity_key, granularity in service.items():
                         if (
                             service_key in current_account.usages
                             and granularity_key in current_account.usages[service_key]
                         ):
                             current_used: int = current_account.usages[service_key][granularity_key].used
-                            account.usages[service_key][granularity_key].used = current_used
-                current_account.usages = account.usages
+                            usages[service_key][granularity_key].used = current_used
+                current_account.usages = usages
 
             self.dirty = True
             return current_account
@@ -345,7 +355,7 @@ class Accounts:
         with self.global_lock:
             raw_accounts = []
             for account in self.accounts:
-                raw_accounts.append(dataclasses.asdict(account))
+                raw_accounts.append(asdict(account))
 
             if not self.read_only:
                 hlog(f"Writing {len(self.accounts)} accounts to {self.path}")

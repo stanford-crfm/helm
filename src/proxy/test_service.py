@@ -5,7 +5,7 @@ from common.authentication import Authentication
 from common.request import Request
 from proxy.accounts import AuthenticationError
 from .query import Query
-from .service import ServerService
+from proxy.server_service import ServerService
 
 
 def get_authentication():
