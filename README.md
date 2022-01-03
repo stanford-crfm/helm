@@ -67,7 +67,7 @@ If everything looks okay:
 
     # Hit ctrl-c to kill the existing process
 
-    sudo venv/bin/proxy-server -p 80  # TODO: replace this with https
+    sudo venv/bin/proxy-server -p 443 --ssl-key-file /home/ssl/private.key --ssl-cert-file /home/ssl/crfm-models.crt --ssl-dh-params-file /home/ssl/dhparams.pem
 
 Double check that the web site still works.
 
