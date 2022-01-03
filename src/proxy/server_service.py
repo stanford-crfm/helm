@@ -61,6 +61,7 @@ class ServerService(Service):
         """Actually make a request to an API."""
         # TODO: try to invoke the API even if we're not authenticated, and if
         #       it turns out the results are cached, then we can just hand back the results.
+        #       https://github.com/stanford-crfm/benchmarking/issues/56
 
         self.accounts.authenticate(auth)
         model_group = get_model_group(request.model)
@@ -72,7 +73,8 @@ class ServerService(Service):
 
         # Only deduct if not cached
         if not request_result.cached:
-            # Estimate number of tokens (TODO: fix this)
+            # Estimate number of tokens
+            # TODO: https://github.com/stanford-crfm/benchmarking/issues/4
             count = sum(len(completion.text.split(" ")) for completion in request_result.completions)
             self.accounts.use(auth.api_key, model_group, count)
 

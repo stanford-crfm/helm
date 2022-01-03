@@ -16,6 +16,7 @@ from common.authentication import Authentication
 
 
 # TODO: Move this to a configuration file (`default_quotas.conf` alongside `accounts.jsonl`)
+#       https://github.com/stanford-crfm/benchmarking/issues/52
 # There is no limit if nothing is specified.
 DEFAULT_QUOTAS = {
     # model group -> {granularity -> quota}
