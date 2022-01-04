@@ -42,7 +42,7 @@ class Runner:
 
     def run_one(self, run_spec: RunSpec):
         def write(file_name: str, content: str):
-            path: str = os.path.join(self.output_path, file_name)
+            path: str = os.path.join(scenario.output_path, file_name)
             with open(path, "w") as f:
                 f.write(content)
 

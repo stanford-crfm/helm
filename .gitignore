@@ -3,7 +3,6 @@ venv
 __pycache__
 *.egg-info
 
-output
 prod_env
 benchmark_output
 

@@ -95,7 +95,7 @@ class Scenario(ABC):
     tags: List[str]
 
     # To be set by the `Runner`
-    output_path: str
+    output_path: str = ""
 
     @abstractmethod
     def get_instances(self) -> List[Instance]:

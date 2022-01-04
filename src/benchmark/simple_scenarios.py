@@ -16,12 +16,10 @@ class Simple1Scenario(Scenario):
     """
 
     name = "simple1"
+    description = "A simple scenario"
+    tags = ["simple"]
 
     def __init__(self, num_input_tokens: int, vocab_size: int, num_train_instances: int, num_test_instances: int):
-        self.name = "Simple Scenario"
-        self.description = "A simple scenario."
-        self.tags = ["simple", "basic"]
-
         self.num_input_tokens = num_input_tokens
         self.vocab_size = vocab_size
         self.num_train_instances = num_train_instances

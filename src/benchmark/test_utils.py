@@ -15,7 +15,7 @@ def get_scenario_spec1() -> ScenarioSpec:
 
 def get_scenario_spec_tiny():
     return ScenarioSpec(
-        class_name="benchmark.simple_scenarios.SimpleScenario",
+        class_name="benchmark.simple_scenarios.Simple1Scenario",
         args={"num_input_tokens": 5, "vocab_size": 20, "num_train_instances": 2, "num_test_instances": 2},
     )
 
