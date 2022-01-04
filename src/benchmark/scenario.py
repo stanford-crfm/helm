@@ -62,9 +62,7 @@ class Instance:
         return None
 
     def info(self) -> List[str]:
-        info = [
-            f"Input: {self.input}",
-        ]
+        info = [f"Input: {self.input}"]
         for reference in self.references:
             info.append(str(reference))
         return info

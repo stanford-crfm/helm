@@ -115,11 +115,9 @@ class RequestState:
         output.append("Instance")
         output.extend(self.instance.info())
         output.append("")
-        output.append("")
 
         output.append("Request")
         output.extend(self.request.info())
-        output.append("")
         output.append("")
 
         if self.result:

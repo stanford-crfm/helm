@@ -75,7 +75,7 @@ class Runner:
             for stat in stats:
                 hlog(stat)
 
-        # Output benchmarking information out to files.
+        # Output benchmarking information and results to files
         scenario_dict = asdict(scenario)
         scenario_dict["instances"] = [asdict(instance) for instance in scenario_state.instances]
         write("scenario.txt", "\n".join(scenario.info(scenario_state.instances)))
