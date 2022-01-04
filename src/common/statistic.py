@@ -57,15 +57,6 @@ class Stat:
         """Return a version of the stat that only has the mean."""
         return Stat(self.name).add(self.mean)
 
-    def to_dict(self) -> Dict:
-        return {
-            "name": self.name,
-            "count": self.count,
-            "min": self.min,
-            "max": self.max,
-            "mean": self.mean,
-        }
-
 
 def merge_stat(stats: Dict[str, Stat], stat: Stat):
     """Mutate the appropriate part of `stats`."""
