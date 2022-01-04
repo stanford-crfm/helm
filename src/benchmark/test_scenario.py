@@ -6,7 +6,7 @@ class TestScenario:
     def setup_method(self, method):
         self.scenario: Scenario = create_scenario(get_scenario_spec_tiny())
 
-    def test_str(self):
+    def test_info(self):
         instances = self.scenario.get_instances()
         assert self.scenario.info(instances) == [
             "Scenario: simple1",
