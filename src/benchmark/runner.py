@@ -3,6 +3,7 @@ import os
 from dataclasses import dataclass, asdict
 from typing import List
 
+from common.general import ensure_directory_exists
 from common.hierarchical_logger import hlog, htrack_block
 from .scenario import Scenario, ScenarioSpec, create_scenario
 from .adapter import AdapterSpec, Adapter, ScenarioState
@@ -20,7 +21,6 @@ class RunSpec:
     scenario: ScenarioSpec  # Which scenario
     adapter_spec: AdapterSpec  # Specifies how to adapt an instance into a set of requests
     metrics: List[MetricSpec]  # What to evaluate on
-    output_path: str  # Output path
 
 
 class Runner:
@@ -29,9 +29,11 @@ class Runner:
     dispatches to other classes.
     """
 
-    def __init__(self, execution_spec: ExecutionSpec, run_specs: List[RunSpec]):
+    def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_specs: List[RunSpec]):
         self.executor = Executor(execution_spec)
+        self.output_path = output_path
         self.run_specs = run_specs
+        ensure_directory_exists(self.output_path)
 
     def run_all(self):
         for run_spec in self.run_specs:
@@ -40,12 +42,19 @@ class Runner:
 
     def run_one(self, run_spec: RunSpec):
         def write(file_name: str, content: str):
-            path: str = os.path.join(run_spec.output_path, file_name)
+            path: str = os.path.join(self.output_path, file_name)
             with open(path, "w") as f:
                 f.write(content)
 
         # Load the scenario
         scenario: Scenario = create_scenario(run_spec.scenario)
+
+        # Decide where to save the raw data (e.g., "output/scenarios/mmlu").
+        # This `output_path` will be used when `Adapter` calls `Scenario.get_instances`.
+        scenarios_path = os.path.join(self.output_path, "scenarios")
+        ensure_directory_exists(scenarios_path)
+        scenario.output_path = os.path.join(scenarios_path, scenario.name)
+        ensure_directory_exists(scenario.output_path)
 
         # Adaptation
         adapter = Adapter(run_spec.adapter_spec)
@@ -67,9 +76,6 @@ class Runner:
                 hlog(stat)
 
         # Output benchmarking information out to files.
-        # Create output directory if it doesn't exist.
-        os.makedirs(run_spec.output_path, exist_ok=True)
-
         scenario_dict = asdict(scenario)
         scenario_dict["instances"] = [asdict(instance) for instance in scenario_state.instances]
         write("scenario.txt", str(scenario))

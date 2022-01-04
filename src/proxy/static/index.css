@@ -20,6 +20,27 @@
   margin-bottom: 5px;
 }
 
+.completion:hover {
+  background-color: #e8e8e8;
+}
+
 .token:hover {
   background-color: lightgreen;
+}
+
+.block {
+  margin: 15px;
+  padding: 15px;
+  border: solid 1px;
+  border-color: lightgray;
+}
+
+td {
+  text-align: left;
+  vertical-align: top;
+}
+
+.help-icon {
+  margin-left: 3px;
+  margin-right: 3px;
 }

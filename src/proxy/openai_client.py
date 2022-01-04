@@ -27,6 +27,11 @@ class OpenAIClient(Client):
             "echo": request.echo_prompt,
         }
 
+        # OpenAI doesn't let you ask for more completions than the number of
+        # per-token candidates.
+        raw_request["best_of"] = max(raw_request["best_of"], raw_request["n"])
+        raw_request["logprobs"] = max(raw_request["logprobs"], raw_request["n"])
+
         try:
 
             def do_it():
@@ -45,6 +50,13 @@ class OpenAIClient(Client):
             for text, logprob, top_logprobs in zip(
                 raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
             ):
+                # Do not include these excess tokens in the response.
+                # TODO: this is a hacky solution until we figure out why
+                #       OpenAI is sending tokens including and past the stop sequences.
+                # TODO: This logic doesn't work when the stop sequences spans multiple tokens.
+                if any(stop in text for stop in request.stop_sequences):
+                    break
+
                 # For some reason, the first log probability and top choices are None.
                 # TODO: look in to why this is
                 tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))

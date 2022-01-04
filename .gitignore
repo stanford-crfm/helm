@@ -1,12 +1,13 @@
+# General Python stuff
+venv
 __pycache__
+*.egg-info
 
 output
 prod_env
-venv
-*.egg-info
+benchmark_output
 
-BIG-bench
-lm-evaluation-harness
+# Percy's stuff
 nav
 tags
 notes.otl

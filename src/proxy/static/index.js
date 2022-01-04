@@ -17,6 +17,11 @@ $(function () {
     return api_key.substring(0, k) + '*'.repeat(api_key.length - k);
   }
 
+  function helpIcon(help, link) {
+    // Show a ?
+    return $('<a>', {href: link, target: 'blank_', class: 'help-icon'}).append($('<img>', {src: 'info-icon.png', width: 15, title: help}));
+  }
+
   // Logging in and out
   function updateLogin() {
     const $loginInfo = $('#loginInfo');
@@ -57,7 +62,7 @@ $(function () {
   function renderExampleQueries(updateQuery) {
     // Show links for each example query, so when you click on them, they populate the textboxes.
     const $examplesBlock = $('<div>');
-    $examplesBlock.append($('<span>').append('Example queries:'));
+    $examplesBlock.append($('<span>').append('Examples:'));
     generalInfo.example_queries.forEach((query, i) => {
       const href = '#';
       const title = '[Prompt]\n' + query.prompt + '\n[Settings]\n' + query.settings + '\n[Environments]\n' + query.environments;
@@ -78,7 +83,7 @@ $(function () {
 
   function renderQuery(handleQueryResult) {
     // Render the textboxes for entering the query (which includes the prompt, settings, and environment)
-    const $queryBlock = $('<div>');
+    const $queryBlock = $('<div>', {class: 'block'});
     const $prompt = $('<textarea>', {cols: 90, rows: 7, placeholder: 'Enter prompt'}).val(urlParams.prompt);
     const $settings = $('<textarea>', {cols: 90, rows: 5, placeholder: 'Enter settings (e.g., model: openai/davinci for GPT-3)'}).val(urlParams.settings);
     const $environments = $('<textarea>', {cols: 90, rows: 3, placeholder: 'Enter environment variables (e.g., city: [Boston, New York])'}).val(urlParams.environments);
@@ -119,10 +124,32 @@ $(function () {
       $.getJSON('/api/query', query, handleQueryResult);
     }
 
+    // Show examples of queries
+    const $exampleQueries = renderExampleQueries((query) => {
+      $queryBlock.data('prompt').val(query.prompt);
+      $queryBlock.data('settings').val(query.settings);
+      $queryBlock.data('environments').val(query.environments);
+      urlParams.prompt = query.prompt;
+      urlParams.settings = query.settings;
+      urlParams.environments = query.environments;
+      updateBrowserLocation();
+    });
+
+    const promptHelp = 'This is the text you feed into the language model to complete.\nExample:\n  Life is like';
+    const settingsHelp = 'Specifies what information we want from the language model (see [Help] for more details).\nExample:\n  temperature: ${temperature}\n  model: openai/davinci\n  max_tokens: 10\n  num_completions: 5';
+    const environmentsHelp = 'Specifies a list of values to try for each variable that appears in the prompt or settings.\nExample:\n  temperature: [0, 0.5, 1]';
+
+    const $promptLabel = $('<span>').append(helpIcon(promptHelp, 'help.html#query')).append('Prompt');
+    const $settingsLabel = $('<span>').append(helpIcon(settingsHelp, 'help.html#query')).append('Settings');
+    const $environmentsLabel = $('<span>').append(helpIcon(environmentsHelp, 'help.html#query')).append('Environments');
+
     $queryBlock.append($('<h4>').append('Query'));
-    $queryBlock.append($('<div>').append($prompt));
-    $queryBlock.append($('<div>').append($settings));
-    $queryBlock.append($('<div>').append($environments));
+    $queryBlock.append($exampleQueries);
+    const $table = $('<table>', {class: 'query-table'});
+    $table.append($('<tr>').append($('<td>').append($promptLabel)).append($('<td>').append($prompt)));
+    $table.append($('<tr>').append($('<td>').append($settingsLabel)).append($('<td>').append($settings)));
+    $table.append($('<tr>').append($('<td>').append($environmentsLabel)).append($('<td>').append($environments)));
+    $queryBlock.append($table);
     $queryBlock.append($('<button>').append('Submit').click(submit));
 
     return $queryBlock;
@@ -176,7 +203,7 @@ $(function () {
     }
     const $result = $('<div>');
     requestResult.completions.forEach((completion) => {
-      $result.append($('<div>', {class: 'completion'}).append(renderTokens(completion.tokens)));
+      $result.append($('<div>', {class: 'completion', title: `logprob: ${completion.logprob}`}).append(renderTokens(completion.tokens)));
     });
     $result.append($('<i>').append(renderTime(requestResult.request_time)));
     return $result;
@@ -188,9 +215,9 @@ $(function () {
       return null;
     }
 
-    const $accountBlock = $('<div>');
+    const $accountBlock = $('<div>', {class: 'block'});
     const args = {auth: JSON.stringify(auth)};
-    $.getJSON('/api/account', args, (account) => {
+    $.getJSON('/api/account', args, ([account]) => {
       console.log('/api/account', account);
       const items = [];
       for (modelGroup in account.usages) {
@@ -207,7 +234,8 @@ $(function () {
         items.push('no restrictions');
       }
       $accountBlock.empty()
-        .append($('<a>', {href: 'help.html#quotas'}).append('Usage'))
+        .append(helpIcon('Specifies your usage/quota (321/10000) for each model group (e.g., gpt3) for the current period (e.g., 2022-1-2).', 'help.html#quotas'))
+        .append('Usage')
         .append(': ')
         .append(items.join(' | '));
     });
@@ -220,17 +248,6 @@ $(function () {
   function renderQueryInterface() {
     // For index.html
     const $accountBlock = $('<div>').append(renderAccount());
-
-    // Show examples of queries
-    const $exampleQueries = renderExampleQueries((query) => {
-      $queryBlock.data('prompt').val(query.prompt);
-      $queryBlock.data('settings').val(query.settings);
-      $queryBlock.data('environments').val(query.environments);
-      urlParams.prompt = query.prompt;
-      urlParams.settings = query.settings;
-      urlParams.environments = query.environments;
-      updateBrowserLocation();
-    });
 
     // Allow editing the query
     const $queryBlock = renderQuery((queryResult) => {
@@ -269,11 +286,10 @@ $(function () {
     });
 
     // Where the requests and responses come in
-    const $requestsBlock = $('<div>');
+    const $requestsBlock = $('<div>', {class: 'block'});
 
     const $group = $('<div>');
     $group.append($accountBlock);
-    $group.append($exampleQueries);
     $group.append($queryBlock);
     $group.append($requestsBlock);
     return $group;

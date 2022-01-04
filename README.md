@@ -114,9 +114,10 @@ There are three types of classes:
 
 ## Running the benchmark
 
-Run the benchmark:
+Examples of running the benchmark:
 
     venv/bin/benchmark-run
+    venv/bin/benchmark-run -r mmlu:subject=philosophy
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).

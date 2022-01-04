@@ -39,7 +39,7 @@ class Stat:
         return self
 
     def __repr__(self):
-        return f"{self.name}[min={self.min}, mean={self.mean:.3f}, max={self.max} ({self.count})]"
+        return f"{self.name}[min={self.min:.3f}, mean={self.mean:.3f}, max={self.max:.3f} ({self.count})]"
 
     @property
     def mean(self):

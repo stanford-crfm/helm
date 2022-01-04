@@ -94,6 +94,9 @@ class Scenario(ABC):
     # Extra metadata (e.g., whether this is a question answering or commonsense task)
     tags: List[str]
 
+    # To be set by the `Runner`
+    output_path: str
+
     @abstractmethod
     def get_instances(self) -> List[Instance]:
         """
