@@ -7,25 +7,31 @@ class TestScenario:
         self.scenario: Scenario = create_scenario(get_scenario_spec_tiny())
 
     def test_str(self):
-        assert (
-            str(self.scenario) == "Scenario: Simple Scenario\n"
-            "A simple scenario.\n"
-            "Tags: simple\n"
-            "4 instances\n\n"
-            "------- Instance 1/4: train\n"
-            "Input: 4 18 2 8 3\n"
-            "Reference (correct): 8\n"
-            "Reference (): -1\n\n"
-            "------- Instance 2/4: train\n"
-            "Input: 14 15 12 6 3\n"
-            "Reference (correct): 6\n"
-            "Reference (): -1\n\n"
-            "------- Instance 3/4: test\n"
-            "Input: 0 12 13 19 0\n"
-            "Reference (correct): 19\n"
-            "Reference (): -1\n\n"
-            "------- Instance 4/4: test\n"
-            "Input: 8 7 18 3 10\n"
-            "Reference (correct): 8\n"
-            "Reference (): -1"
-        )
+        instances = self.scenario.get_instances()
+        assert self.scenario.info(instances) == [
+            "Scenario: simple1",
+            "A simple scenario",
+            "Tags: simple",
+            "4 instances",
+            "",
+            "------- Instance 1/4: train",
+            "Input: 4 18 2 8 3",
+            "Reference (correct): 8",
+            "Reference (): -1",
+            "",
+            "------- Instance 2/4: train",
+            "Input: 14 15 12 6 3",
+            "Reference (correct): 6",
+            "Reference (): -1",
+            "",
+            "------- Instance 3/4: test",
+            "Input: 0 12 13 19 0",
+            "Reference (correct): 19",
+            "Reference (): -1",
+            "",
+            "------- Instance 4/4: test",
+            "Input: 8 7 18 3 10",
+            "Reference (correct): 8",
+            "Reference (): -1",
+            "",
+        ]

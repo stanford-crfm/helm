@@ -53,9 +53,6 @@ class Instance:
     # Extra metadata (e.g., train/valid/test, demographic group, etc.)
     tags: List[str]
 
-    def __str__(self):
-        return f"Input: {self.input}\n" + "\n".join(str(reference) for reference in self.references)
-
     @property
     def first_correct_reference(self) -> Optional[Reference]:
         """Return the first correct reference."""
@@ -64,7 +61,6 @@ class Instance:
                 return reference
         return None
 
-    @property
     def info(self) -> List[str]:
         info = [
             f"Input: {self.input}",
@@ -105,13 +101,21 @@ class Scenario(ABC):
         """
         pass
 
-    @property
-    def info(self) -> List[str]:
-        return [
+    def info(self, instances: List[Instance]) -> List[str]:
+        total = len(instances)
+        output = [
             f"Scenario: {self.name}",
             self.description,
             f"Tags: {', '.join(self.tags)}",
+            f"{total} instances",
+            "",
         ]
+
+        for i, instance in enumerate(instances):
+            output.append(f"------- Instance {i + 1}/{total}: {', '.join(instance.tags)}")
+            output.extend(instance.info())
+            output.append("")
+        return output
 
 
 class ScenarioSpec(ObjectSpec):

@@ -67,17 +67,18 @@ class AdapterSpec:
     # When to stop
     stop_sequences: List[str] = field(default_factory=list)
 
-    def __repr__(self):
-        return (
-            f"Instructions: {self.instructions}\n"
-            f"Maximum train instances: {self.max_train_instances}\n"
-            f"Maximum eval instances: {self.max_eval_instances}\n"
-            f"Number of outputs: {self.num_outputs}\n"
-            f"Number of train trials: {self.num_train_trials}\n\n"
-            f"Model: {self.model}\n"
-            f"Temperature: {self.temperature}\n"
-            f"Stop sequences: {', '.join(self.stop_sequences)}\n"
-        )
+    def info(self) -> List[str]:
+        return [
+            f"Instructions: {self.instructions}",
+            f"Maximum train instances: {self.max_train_instances}",
+            f"Maximum eval instances: {self.max_eval_instances}",
+            f"Number of outputs: {self.num_outputs}",
+            f"Number of train trials: {self.num_train_trials}",
+            "",
+            f"Model: {self.model}",
+            f"Temperature: {self.temperature}",
+            f"Stop sequences: {', '.join(self.stop_sequences)}",
+        ]
 
 
 @dataclass(frozen=True)
@@ -106,15 +107,25 @@ class RequestState:
     # The result of the request (filled in when the request is executed)
     result: Optional[RequestResult]
 
-    def __str__(self) -> str:
-        output = f"Train trial index: {self.train_trial_index}\n"
+    def info(self) -> List[str]:
+        output = [f"Train trial index: {self.train_trial_index}"]
         if self.reference_index:
-            output += f"Reference index: {self.reference_index}\n"
+            output.append(f"Reference index: {self.reference_index}")
 
-        output += f"Instance\n{self.instance}\n\n"
-        output += f"Request\n{self.request}\n\n"
+        output.append("Instance")
+        output.extend(self.instance.info())
+        output.append("")
+        output.append("")
+
+        output.append("Request")
+        output.extend(self.request.info())
+        output.append("")
+        output.append("")
+
         if self.result:
-            output += f"Request result\n{self.result}"
+            output.append("Result")
+            output.extend(self.result.info())
+
         return output
 
 
@@ -131,13 +142,6 @@ class ScenarioState:
 
     # List of `RequestState`s that were produced by adaptation (and execution)
     request_states: List[RequestState]
-
-    def __str__(self) -> str:
-        total: int = len(self.request_states)
-        output: str = f"Adapter\n{self.adapter_spec}\n{total} request states"
-        for i, request_state in enumerate(self.request_states):
-            output += f"\n\n------- Request state {i + 1}/{total}\n{request_state}"
-        return output
 
     def __post_init__(self):
         # Create derived indices based on `request_states` so it's easier for
@@ -156,6 +160,19 @@ class ScenarioState:
         self, train_trial_index: int, instance: Instance, reference_index: Optional[int]
     ) -> List[RequestState]:
         return self.request_state_map.get((train_trial_index, instance, reference_index), [])
+
+    def info(self) -> List[str]:
+        total: int = len(self.request_states)
+        result = ["Adapter"]
+        result.extend(self.adapter_spec.info())
+        result.extend([f"{total} request states", ""])
+
+        for i, request_state in enumerate(self.request_states):
+            result.append(f"------- Request state {i + 1}/{total}")
+            result.extend(request_state.info())
+            result.append("")
+
+        return result
 
 
 class Adapter:

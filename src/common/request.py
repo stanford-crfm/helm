@@ -45,21 +45,6 @@ class Request:
     # Penalize repetition (OpenAI only)
     frequency_penalty: float = 0
 
-    def __str__(self) -> str:
-        return (
-            f"Model: {self.model}\n"
-            f"Temperature: {self.temperature}\n"
-            f"Number of completions: {self.num_completions}\n"
-            f"Top k per token: {self.top_k_per_token}\n"
-            f"Maximum number of tokens: {self.max_tokens}\n"
-            f"Stop sequences: {', '.join(self.stop_sequences)}\n"
-            f"Echo prompt: {self.echo_prompt}\n"
-            f"Top p: {self.top_p}\n"
-            f"Presence penalty: {self.presence_penalty}\n"
-            f"Frequency penalty: {self.frequency_penalty}\n"
-            f"Prompt: {self.prompt}\n"
-        )
-
     @property
     def model_organization(self):
         """Example: 'openai/davinci' => 'openai'"""
@@ -69,6 +54,21 @@ class Request:
     def model_engine(self):
         """Example: 'openai/davinci' => 'davinci'"""
         return self.model.split("/")[1]
+
+    def info(self) -> List[str]:
+        return [
+            f"Model: {self.model}",
+            f"Temperature: {self.temperature}",
+            f"Number of completions: {self.num_completions}",
+            f"Top k per token: {self.top_k_per_token}",
+            f"Maximum number of tokens: {self.max_tokens}",
+            f"Stop sequences: {', '.join(self.stop_sequences)}",
+            f"Echo prompt: {self.echo_prompt}",
+            f"Top p: {self.top_p}",
+            f"Presence penalty: {self.presence_penalty}",
+            f"Frequency penalty: {self.frequency_penalty}",
+            f"Prompt: {self.prompt}",
+        ]
 
 
 @dataclass(frozen=True)
@@ -89,11 +89,12 @@ class Token:
     # text -> log probability of generating that
     top_logprobs: Dict[str, float]
 
-    def __str__(self) -> str:
-        return (
-            f"Text: {self.text}\nLog probability: {self.logprob}\n"
-            f"Top log probabilities: {json.dumps(self.top_logprobs)}"
-        )
+    def info(self) -> List[str]:
+        return [
+            f"Text: {self.text}",
+            f"Log probability: {self.logprob}",
+            f"Top log probabilities: {json.dumps(self.top_logprobs)}",
+        ]
 
 
 @dataclass(frozen=True)
@@ -112,9 +113,11 @@ class Sequence:
     def __add__(self, other: "Sequence") -> "Sequence":
         return Sequence(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)
 
-    def __str__(self) -> str:
-        tokens: str = "\n".join(str(token) for token in self.tokens)
-        return f"Text: {self.text}\nLog probability: {self.logprob}\nTokens:\n{tokens}"
+    def info(self) -> List[str]:
+        result = [f"Text: {self.text}", f"Log probability: {self.logprob}", "Tokens:"]
+        for token in self.tokens:
+            result.extend(token.info())
+        return result
 
 
 @dataclass(frozen=True)
@@ -136,12 +139,18 @@ class RequestResult:
     # If `success` is false, what was the error?
     error: Optional[str] = None
 
-    def __str__(self) -> str:
-        completions: str = "\n\n".join(str(completion) for completion in self.completions)
-        output: str = f"Success: {self.success}\nCached: {self.cached}\n"
+    def info(self) -> List[str]:
+        output = [
+            f"Success: {self.success}",
+            f"Cached: {self.cached}",
+        ]
         if self.request_time:
-            output += f"Request time: {self.request_time}"
+            output.append(f"Request time: {self.request_time}")
         if self.error:
-            output += f"Error: {self.error}"
-        output += f"\nCompletions:\n{completions}"
+            output.append(f"Error: {self.error}")
+
+        output.append("Completions")
+        for completion in self.completions:
+            output.extend(completion.info())
+
         return output

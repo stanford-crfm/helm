@@ -78,10 +78,10 @@ class Runner:
         # Output benchmarking information out to files.
         scenario_dict = asdict(scenario)
         scenario_dict["instances"] = [asdict(instance) for instance in scenario_state.instances]
-        write("scenario.txt", str(scenario))
+        write("scenario.txt", "\n".join(scenario.info(scenario_state.instances)))
         write("scenario.json", json.dumps(scenario_dict, indent=4))
 
-        write("scenario_state.txt", str(scenario_state))
+        write("scenario_state.txt", "\n".join(scenario_state.info()))
         write("scenario_state.json", json.dumps(asdict(scenario_state), indent=4))
 
         write("metrics.txt", "\n".join(str(stat) for stat in stats))
