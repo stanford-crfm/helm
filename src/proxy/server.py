@@ -14,7 +14,7 @@ import signal
 import sys
 import time
 from paste import httpserver
-from urllib.parse import parse_qs, unquote
+from urllib.parse import unquote
 
 from dacite import from_dict
 
