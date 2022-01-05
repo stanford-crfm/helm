@@ -14,6 +14,7 @@ import signal
 import sys
 import time
 from paste import httpserver
+from urllib.parse import parse_qs, unquote
 
 from dacite import from_dict
 
@@ -39,7 +40,11 @@ def safe_call(func, to_json=True):
             else:
                 params = bottle.request.forms
         else:
-            params = bottle.request.query
+            # bottle.request.query doesn't decode unicode properly, so do it ourselves
+            params = {}
+            for item in bottle.request.query_string.split('&'):
+                key, value = item.split('=', 1)
+                params[key] = unquote(value)
         start_time = time.time()
         result = func(params)
         end_time = time.time()

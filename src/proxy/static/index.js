@@ -8,6 +8,11 @@ $(function () {
   const rootUrl = '/static/index.html';
   let auth = null;
 
+  function round(x, n) {
+    const base = Math.pow(10, n);
+    return Math.round(x * base) / base;
+  }
+
   function censor(api_key) {
     // Show only the first k letters
     const k = 2;
@@ -203,7 +208,9 @@ $(function () {
     }
     const $result = $('<div>');
     requestResult.completions.forEach((completion) => {
-      $result.append($('<div>', {class: 'completion', title: `logprob: ${completion.logprob}`}).append(renderTokens(completion.tokens)));
+      const $contents = $('<span>', {title: `logprob: ${completion.logprob}`}).append(renderTokens(completion.tokens));
+      const $metadata = $('<span>', {class: 'metadata'}).append(round(completion.logprob, 2));
+      $result.append($('<div>', {class: 'completion'}).append($metadata).append($contents));
     });
     $result.append($('<i>').append(renderTime(requestResult.request_time)));
     return $result;
