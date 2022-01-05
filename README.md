@@ -124,10 +124,18 @@ first start a local server (see instructions above for more details).
 
 # Contributing
 
+## Prerequisites
+
 To contribute to this project, install the dependencies and git hook scripts:
   
     ./pre-commit.sh && pre-commit install
 
+## Tests
+
 To run unit tests:
 
     python -m pytest
+
+Append `-vv` to output the full diff and results:
+
+    python -m pytest -vv

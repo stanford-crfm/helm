@@ -3,6 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Optional
 
+from common.general import serialize
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from .scenario import Instance, Scenario, TRAIN_TAG, VALID_TAG, TEST_TAG
@@ -67,19 +68,6 @@ class AdapterSpec:
     # When to stop
     stop_sequences: List[str] = field(default_factory=list)
 
-    def info(self) -> List[str]:
-        return [
-            f"Instructions: {self.instructions}",
-            f"Maximum train instances: {self.max_train_instances}",
-            f"Maximum eval instances: {self.max_eval_instances}",
-            f"Number of outputs: {self.num_outputs}",
-            f"Number of train trials: {self.num_train_trials}",
-            "",
-            f"Model: {self.model}",
-            f"Temperature: {self.temperature}",
-            f"Stop sequences: {', '.join(self.stop_sequences)}",
-        ]
-
 
 @dataclass(frozen=True)
 class RequestState:
@@ -117,7 +105,7 @@ class RequestState:
         output.append("")
 
         output.append("Request")
-        output.extend(self.request.info())
+        output.append(serialize(self.request))
         output.append("")
 
         if self.result:
@@ -161,8 +149,7 @@ class ScenarioState:
 
     def info(self) -> List[str]:
         total: int = len(self.request_states)
-        result = ["Adapter"]
-        result.extend(self.adapter_spec.info())
+        result = ["Adapter", serialize(self.adapter_spec)]
         result.extend([f"{total} request states", ""])
 
         for i, request_state in enumerate(self.request_states):

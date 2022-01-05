@@ -1,6 +1,7 @@
 from typing import Optional
 from dataclasses import dataclass, replace
 
+from common.general import format_tags
 from common.hierarchical_logger import htrack, hlog
 from common.request import RequestResult
 from common.authentication import Authentication
@@ -35,7 +36,7 @@ class Executor:
     def execute(self, scenario_state: ScenarioState) -> ScenarioState:
         # TODO: make a thread pool to process all of these in parallel up to a certain number
         def render_instance(instance: Instance, pred_output: Optional[str]) -> str:
-            tags_str = ",".join(instance.tags)
+            tags_str = format_tags(instance.tags)
             gold_output: Optional[str] = None
             if instance.first_correct_reference is not None:
                 gold_output = instance.first_correct_reference.output

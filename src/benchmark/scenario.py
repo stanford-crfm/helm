@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from common.object_spec import ObjectSpec, create_object
+from common.general import format_tags
 
 # Tags for instances
 TRAIN_TAG = "train"
@@ -28,12 +29,12 @@ class Reference:
     # Extra metadata (e.g., whether it's correct/factual/toxic)
     tags: List[str]
 
-    def __repr__(self):
-        return f"Reference ({', '.join(self.tags)}): {self.output}"
-
     @property
     def is_correct(self) -> bool:
         return CORRECT_TAG in self.tags
+
+    def info(self) -> List[str]:
+        return [f"Reference ({format_tags(self.tags)}): {self.output}"]
 
 
 @dataclass(frozen=True, eq=False)
@@ -64,7 +65,7 @@ class Instance:
     def info(self) -> List[str]:
         info = [f"Input: {self.input}"]
         for reference in self.references:
-            info.append(str(reference))
+            info.extend(reference.info())
         return info
 
 
@@ -89,7 +90,7 @@ class Scenario(ABC):
     tags: List[str]
 
     # To be set by the `Runner`
-    output_path: str = ""
+    output_path: str
 
     @abstractmethod
     def get_instances(self) -> List[Instance]:
@@ -102,15 +103,15 @@ class Scenario(ABC):
     def info(self, instances: List[Instance]) -> List[str]:
         total = len(instances)
         output = [
-            f"Scenario: {self.name}",
-            self.description,
-            f"Tags: {', '.join(self.tags)}",
+            f"Name: {self.name}",
+            f"Description: {self.description}",
+            f"Tags: {format_tags(self.tags)}",
             f"{total} instances",
             "",
         ]
 
         for i, instance in enumerate(instances):
-            output.append(f"------- Instance {i + 1}/{total}: {', '.join(instance.tags)}")
+            output.append(f"------- Instance {i + 1}/{total}: {format_tags(instance.tags)}")
             output.extend(instance.info())
             output.append("")
         return output

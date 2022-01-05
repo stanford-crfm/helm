@@ -55,21 +55,6 @@ class Request:
         """Example: 'openai/davinci' => 'davinci'"""
         return self.model.split("/")[1]
 
-    def info(self) -> List[str]:
-        return [
-            f"Model: {self.model}",
-            f"Temperature: {self.temperature}",
-            f"Number of completions: {self.num_completions}",
-            f"Top k per token: {self.top_k_per_token}",
-            f"Maximum number of tokens: {self.max_tokens}",
-            f"Stop sequences: {', '.join(self.stop_sequences)}",
-            f"Echo prompt: {self.echo_prompt}",
-            f"Top p: {self.top_p}",
-            f"Presence penalty: {self.presence_penalty}",
-            f"Frequency penalty: {self.frequency_penalty}",
-            f"Prompt: {self.prompt}",
-        ]
-
 
 @dataclass(frozen=True)
 class Token:
@@ -91,9 +76,7 @@ class Token:
 
     def info(self) -> List[str]:
         return [
-            f"Text: {self.text}",
-            f"Log probability: {self.logprob}",
-            f"Top log probabilities: {json.dumps(self.top_logprobs)}",
+            f"Text: {repr(self.text)} logprob={self.logprob} Top log probabilities: {json.dumps(self.top_logprobs)}",
         ]
 
 
@@ -114,7 +97,11 @@ class Sequence:
         return Sequence(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)
 
     def info(self) -> List[str]:
-        result = [f"Text: {self.text}", f"Log probability: {self.logprob}", "Tokens:"]
+        result = [
+            f"Text: {self.text}",
+            f"Log probability: {self.logprob}",
+            "Tokens:",
+        ]
         for token in self.tokens:
             result.extend(token.info())
         return result
@@ -152,5 +139,6 @@ class RequestResult:
         output.append("Completions")
         for completion in self.completions:
             output.extend(completion.info())
+            output.append("")
 
         return output
