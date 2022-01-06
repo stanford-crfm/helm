@@ -8,6 +8,8 @@ from proxy.tokenizer.token_counter import TokenCounter
 
 
 class AutoTokenCounter(TokenCounter):
+    """Automatically count tokens based on the organization."""
+
     def __init__(self):
         self.token_counters: Dict[str, TokenCounter] = {}
 
@@ -28,7 +30,7 @@ class AutoTokenCounter(TokenCounter):
 
     def count_tokens(self, request: Request, completions: List[Sequence]) -> int:
         """
-        Counts token based on the organization.
+        Counts tokens based on the organization.
         """
         token_counter: TokenCounter = self.get_token_counter(request.model_organization)
         return token_counter.count_tokens(request, completions)

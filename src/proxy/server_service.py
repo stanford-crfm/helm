@@ -4,6 +4,7 @@ from typing import List
 from common.authentication import Authentication
 from common.general import ensure_directory_exists, parse_hocon
 from common.request import Request, RequestResult
+from common.hierarchical_logger import hlog
 from proxy.accounts import Accounts, Account
 from proxy.auto_client import AutoClient
 from proxy.example_queries import example_queries
@@ -76,6 +77,7 @@ class ServerService(Service):
         if not request_result.cached:
             # Count the number of tokens used
             count: int = self.token_counter.count_tokens(request, request_result.completions)
+            hlog(f"{request.model_organization}: {count} tokens")
             self.accounts.use(auth.api_key, model_group, count)
 
         return request_result
