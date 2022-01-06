@@ -156,7 +156,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=1959)
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
-    parser.add_argument("-r", "--read-only", action="store_true", help="To start a read-only service (for debugging).")
+    parser.add_argument(
+        "-r", "--read-only", action="store_true", help="To start a read-only service (for testing and debugging)."
+    )
     args = parser.parse_args()
 
     service = ServerService(base_path=args.base_path, read_only=args.read_only)

@@ -50,7 +50,7 @@ class TestRemoteServerService:
             print(f"There was an error while creating the temp instance: {str(e)}")
             raise
 
-        # Return the URL of the server
+        # Return the URL of the newly started server
         return url
 
     @classmethod
