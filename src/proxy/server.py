@@ -45,7 +45,8 @@ def safe_call(func, to_json=True):
             if bottle.request.query_string != "":
                 for item in bottle.request.query_string.split("&"):
                     key, value = item.split("=", 1)
-                    params[key] = unquote(value)
+                    # urllib.parse also replaces "+" with " " for bottle.request.query
+                    params[key] = unquote(value).replace("+", " ")
         start_time = time.time()
         result = func(params)
         end_time = time.time()
