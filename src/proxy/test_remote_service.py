@@ -12,7 +12,8 @@ from .remote_service import RemoteService
 class TestRemoteServerService:
     """
     The following are our end-to-end integration tests.
-    The tests will bring up a rest server and ping different endpoints using `RemoteService`.
+    This suite of tests will bring up a rest server on an available port
+    and ping different endpoints using `RemoteService`.
     """
 
     _SERVER_EXECUTABLE: str = "venv/bin/proxy-server"
