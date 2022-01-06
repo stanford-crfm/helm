@@ -8,6 +8,11 @@ $(function () {
   const rootUrl = '/static/index.html';
   let auth = null;
 
+  function round(x, n) {
+    const base = Math.pow(10, n);
+    return Math.round(x * base) / base;
+  }
+
   function censor(api_key) {
     // Show only the first k letters
     const k = 2;
@@ -178,20 +183,53 @@ $(function () {
     return (Math.round(time * 10) / 10) + 's';
   }
 
+  function constructTokenGroups(tokens) {
+    // Note: sometimes multiple tokens correspond to one character, for example:
+    // ["bytes:\xe2\x80", "bytes:\x99"] => ’
+    // For these, we keep these in the buffer and collapse them, and concatenate the entries.
+    const groups = [];
+    for (let i = 0; i < tokens.length;) {
+      // Aggregate consecutive tokens while they're "bytes:..."
+      const group = {tokens: []};
+      if (tokens[i].text.startsWith('bytes:')) {
+        let bytestring = '';
+        while (i < tokens.length && tokens[i].text.startsWith('bytes:')) {
+          group.tokens.push(tokens[i]);
+          // Extract part after : (e.g., \xe2\x80)
+          bytestring += tokens[i].text.split(':')[1];
+          i++;
+        }
+        // Convert to encoded URI (e.g., %e2%80%99) and decode
+        group.text = decodeURIComponent(bytestring.replaceAll('\\x', '%'));
+      } else {
+        group.tokens.push(tokens[i]);
+        group.text = tokens[i].text;
+        i++;
+      }
+      groups.push(group);
+    }
+    return groups;
+  }
+
+  function renderTopLogprobs(token) {
+    const entries = Object.entries(token.top_logprobs);
+    if (!(token.text in token.top_logprobs)) {
+      entries.push([token.text, token.logprob]);
+    }
+    entries.sort((a, b) => b[1] - a[1]);
+    function marker(text) { return text === token.text ? ' [selected]' : ''; }
+    return `Candidates for ${token.text} (with logprobs):\n` + entries.map(([text, logprob]) => `${text}: ${logprob}${marker(text)}`).join('\n');
+  }
+
   function renderTokens(tokens) {
     // Render text as a sequence of tokens that you can interact with to see more information (e.g., logprobs)
     const $result = $('<div>');
-    for (const token of tokens) {
+    const groups = constructTokenGroups(tokens);
+    for (const group of groups) {
       // When mouse over token, show the alternative tokens and their log probabilities (including the one that's generated)
-      const entries = Object.entries(token.top_logprobs);
-      if (!(token.text in token.top_logprobs)) {
-        entries.push([token.text, token.logprob]);
-      }
-      entries.sort((a, b) => b[1] - a[1]);
-      function marker(text) { return text === token.text ? ' [selected]' : ''; }
-      const title = 'Candidates (with logprobs):\n' + entries.map(([text, logprob]) => `${text}: ${logprob}${marker(text)}`).join('\n');
-      const $token = $('<span>', {class: 'token', title}).append(multilineHtml(token.text));
-      $result.append($token);
+      const title = group.tokens.map(renderTopLogprobs).join('\n\n');
+      const $group = $('<span>', {class: 'token', title}).append(multilineHtml(group.text));
+      $result.append($group);
     }
     return $result;
   }
@@ -203,7 +241,9 @@ $(function () {
     }
     const $result = $('<div>');
     requestResult.completions.forEach((completion) => {
-      $result.append($('<div>', {class: 'completion', title: `logprob: ${completion.logprob}`}).append(renderTokens(completion.tokens)));
+      const $contents = $('<span>', {title: `logprob: ${completion.logprob}`}).append(renderTokens(completion.tokens));
+      const $metadata = $('<span>', {class: 'metadata'}).append(round(completion.logprob, 2));
+      $result.append($('<div>', {class: 'completion'}).append($metadata).append($contents));
     });
     $result.append($('<i>').append(renderTime(requestResult.request_time)));
     return $result;
@@ -324,6 +364,10 @@ $(function () {
   $.getJSON('/api/general_info', (response) => {
     generalInfo = response;
     console.log('/api/general_info', generalInfo);
+    if (generalInfo.error) {
+      alert(generalInfo.error);
+      return;
+    }
 
     // For index.html
     const $main = $('#main');

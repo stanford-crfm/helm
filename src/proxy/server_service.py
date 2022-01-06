@@ -4,6 +4,7 @@ from typing import List
 from common.authentication import Authentication
 from common.general import ensure_directory_exists, parse_hocon
 from common.request import Request, RequestResult
+from common.hierarchical_logger import hlog
 from proxy.accounts import Accounts, Account
 from proxy.auto_client import AutoClient
 from proxy.example_queries import example_queries
@@ -19,6 +20,7 @@ from proxy.service import (
     expand_environments,
     synthesize_request,
 )
+from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 
 
 class ServerService(Service):
@@ -38,6 +40,7 @@ class ServerService(Service):
         else:
             credentials = {}
         self.client = AutoClient(credentials, cache_path)
+        self.token_counter = AutoTokenCounter()
         self.accounts = Accounts(accounts_path, read_only=read_only)
 
     def finish(self):
@@ -73,9 +76,9 @@ class ServerService(Service):
 
         # Only deduct if not cached
         if not request_result.cached:
-            # Estimate number of tokens
-            # TODO: https://github.com/stanford-crfm/benchmarking/issues/4
-            count = sum(len(completion.text.split(" ")) for completion in request_result.completions)
+            # Count the number of tokens used
+            count: int = self.token_counter.count_tokens(request, request_result.completions)
+            hlog(f"{request.model_organization}: {count} tokens")
             self.accounts.use(auth.api_key, model_group, count)
 
         return request_result
