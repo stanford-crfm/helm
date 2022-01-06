@@ -24,6 +24,11 @@
   background-color: #e8e8e8;
 }
 
+.metadata {
+  float: right;
+  font-style: italic;
+}
+
 .token:hover {
   background-color: lightgreen;
 }
