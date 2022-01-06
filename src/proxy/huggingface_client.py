@@ -4,6 +4,7 @@ from .client import Client
 
 class HuggingFaceClient(Client):
     # TODO: use Hugging Face's APIs.
+    #       https://github.com/stanford-crfm/benchmarking/issues/6
     # https://huggingface.co/gpt2
     def __init__(self):
         pass

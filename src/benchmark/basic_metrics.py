@@ -36,6 +36,7 @@ class BasicMetric(Metric):
         # Predicted outputs
         assert request_state.result is not None
         # TODO: Sort the predictions, or take them from the top tokens of the first completion
+        #       https://github.com/stanford-crfm/benchmarking/issues/42
         preds = [completion.text.strip() for completion in request_state.result.completions]
 
         # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
@@ -43,6 +44,7 @@ class BasicMetric(Metric):
             preds = [request_state.output_mapping.get(pred) for pred in preds]
 
         # TODO: add perplexity of the input text
+        #       https://github.com/stanford-crfm/benchmarking/issues/43
 
         def compute_metrics(name: str, score_func: Callable[[str, str], float]) -> List[Stat]:
             score_1 = max(score_func(gold, preds[0]) for gold in golds)
@@ -55,6 +57,7 @@ class BasicMetric(Metric):
 
         # Future: add F1, BLEU, etc.
         # TODO: pass in arguments to `BasicMetric`
+        #       https://github.com/stanford-crfm/benchmarking/issues/44
         return compute_metrics("exact_match", exact_match)
 
     def evaluate_references(
@@ -65,5 +68,5 @@ class BasicMetric(Metric):
         We define the following metrics:
         - correct_rank: if we sort references by their logprobs, what is the ranking of the first correct reference.
         """
-        # TODO
+        # TODO: https://github.com/stanford-crfm/benchmarking/issues/45
         return []
