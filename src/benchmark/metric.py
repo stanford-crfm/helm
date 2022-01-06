@@ -32,7 +32,9 @@ class Metric(ABC):
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[str, Stat] = {}  # Statistics just for this trial
             # TODO: incorporate robustness (worst case over a group of instances with some tag)
+            #       https://github.com/stanford-crfm/benchmarking/issues/47
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
+            #       https://github.com/stanford-crfm/benchmarking/issues/48
             for instance in scenario_state.instances:
                 instance_stats = []
 
@@ -50,6 +52,7 @@ class Metric(ABC):
 
                 # Merge these statistics back.
                 # TODO: we should add statistics with the individual instances too and serialize them out.
+                #       https://github.com/stanford-crfm/benchmarking/issues/49
                 for stat in instance_stats:
                     merge_stat(trial_stats, stat)
 

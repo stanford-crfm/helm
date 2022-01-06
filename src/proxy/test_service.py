@@ -152,6 +152,7 @@ def helper_prod_test_service(request: Request, expected_text: str):
         assert completion.logprob == sum(token.logprob for token in completion.tokens)
 
         # TODO: OpenAI's API returns null for the first token, so skip checking it; investigate this
+        #       https://github.com/stanford-crfm/benchmarking/issues/54
         for token in completion.tokens[1:]:
             assert len(token.top_logprobs) == request.top_k_per_token
 
@@ -173,7 +174,7 @@ prod_models = ["openai/davinci", "ai21/j1-jumbo"]
 
 
 # TODO: put a flag on this so that it's easy to use pytest to still run these slow tests
-# https://www.py4u.net/discuss/204728
+#       https://github.com/stanford-crfm/benchmarking/issues/55
 @pytest.mark.skip(reason="Requires production")
 def test_prod_continue():
     # Test that we're continuing

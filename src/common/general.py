@@ -47,6 +47,7 @@ def ensure_file_downloaded(source_url: str, target_path: str, untar: bool = Fals
     # Download
     tmp_path = target_path + ".tmp"
     # TODO: -c doesn't work for some URLs
+    #       https://github.com/stanford-crfm/benchmarking/issues/51
     shell(["wget", source_url, "-O", tmp_path])
 
     # Unpack (if needed) and put it in the right location

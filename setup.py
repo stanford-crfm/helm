@@ -7,6 +7,7 @@ import sys
 
 def get_requirements(path: str):
     # TODO: don't include all the dev packages
+    #       https://github.com/stanford-crfm/benchmarking/issues/41
     requirements = []
     for line in open(path):
         if not line.startswith('-r'):

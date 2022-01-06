@@ -35,6 +35,7 @@ class Executor:
     @htrack(None)
     def execute(self, scenario_state: ScenarioState) -> ScenarioState:
         # TODO: make a thread pool to process all of these in parallel up to a certain number
+        #       https://github.com/stanford-crfm/benchmarking/issues/46
         def render_instance(instance: Instance, pred_output: Optional[str]) -> str:
             tags_str = format_tags(instance.tags)
             gold_output: Optional[str] = None
