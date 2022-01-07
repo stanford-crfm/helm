@@ -17,7 +17,7 @@ class TestRemoteServerService:
     """
 
     _SERVER_EXECUTABLE: str = "venv/bin/proxy-server"
-    _SERVER_TIMEOUT_SECONDS: int = 10
+    _SERVER_TIMEOUT_SECONDS: int = 60
 
     @staticmethod
     def start_temp_server() -> str:
