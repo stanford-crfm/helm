@@ -76,7 +76,7 @@ class TestRemoteServerService:
         cls.service.shutdown(cls.auth)
 
     def test_noop(self):
-        assert True
+        assert self.service.get_general_info() == ""
 
     # def test_make_request(self):
     #     request = Request(prompt="1 2 3", model="simple/model1")
