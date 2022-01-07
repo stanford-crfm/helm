@@ -75,6 +75,9 @@ class TestRemoteServerService:
     def teardown_class(cls):
         cls.service.shutdown(cls.auth)
 
+    def test_noop(self):
+        assert True
+
     # def test_make_request(self):
     #     request = Request(prompt="1 2 3", model="simple/model1")
     #     response = self.service.make_request(self.auth, request)
