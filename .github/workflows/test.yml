@@ -59,7 +59,7 @@ jobs:
           key: pip-${{ hashFiles('requirements.txt') }}
           restore-keys: |
             pip-
-      - run: pip install -r requirements.txt
+      - run: ./pre-commit.sh
 
   test:
     name: Tests

@@ -4,7 +4,8 @@ import subprocess
 import time
 
 from common.authentication import Authentication
-from common.request import Request
+
+# from common.request import Request
 
 from .remote_service import RemoteService
 
@@ -32,7 +33,7 @@ class TestRemoteServerService:
             return port
 
         rest_port: str = get_free_port()
-        rest_port = 3000
+        rest_port = "3000"
         url: str = f"http://127.0.0.1:{rest_port}"
 
         # Start server in a separate thread
@@ -73,9 +74,9 @@ class TestRemoteServerService:
                 time.sleep(1)
 
         elapsed_time_seconds = time.time() - start
-        assert elapsed_time_seconds <= TestRemoteServerService._SERVER_TIMEOUT_SECONDS, f"elapsed: {elapsed_time_seconds}"
-
-
+        assert (
+            elapsed_time_seconds <= TestRemoteServerService._SERVER_TIMEOUT_SECONDS
+        ), f"elapsed: {elapsed_time_seconds}"
 
     @classmethod
     def teardown_class(cls):
