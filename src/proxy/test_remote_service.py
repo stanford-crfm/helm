@@ -33,7 +33,7 @@ class TestRemoteServerService:
             return port
 
         rest_port: str = get_free_port()
-        rest_port = "3000"
+        rest_port = "1959"
         url: str = f"http://127.0.0.1:{rest_port}"
 
         # Start server in a separate thread
@@ -83,7 +83,7 @@ class TestRemoteServerService:
         cls.service.shutdown(cls.auth)
 
     def test_noop(self):
-        assert self.service.get_general_info() == ""
+        assert self.service.get_general_info()
 
     # def test_make_request(self):
     #     request = Request(prompt="1 2 3", model="simple/model1")

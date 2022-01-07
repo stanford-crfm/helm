@@ -66,9 +66,9 @@ jobs:
       - run: ./pre-commit.sh
       - name: Run tests
         run: |
-          nohup venv/bin/proxy-server -p 3000 --base-path test_env > server.logs &
+          nohup venv/bin/proxy-server -p 1959 --base-path test_env > server.logs &
           sleep 30
-          python -m pytest
+          venv/bin/pytest
         env:
           TEST: ${{ matrix.test }}
           VERSION: ${{ github.head_ref || 'master' }}
