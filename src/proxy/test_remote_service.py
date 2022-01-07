@@ -5,8 +5,7 @@ import time
 
 from common.authentication import Authentication
 
-# from common.request import Request
-
+from common.request import Request
 from .remote_service import RemoteService
 
 
@@ -82,28 +81,25 @@ class TestRemoteServerService:
     def teardown_class(cls):
         cls.service.shutdown(cls.auth)
 
-    def test_noop(self):
-        assert self.service.get_general_info()
+    def test_make_request(self):
+        request = Request(prompt="1 2 3", model="simple/model1")
+        response = self.service.make_request(self.auth, request)
+        assert response.success
 
-    # def test_make_request(self):
-    #     request = Request(prompt="1 2 3", model="simple/model1")
-    #     response = self.service.make_request(self.auth, request)
-    #     assert response.success
-    #
-    # def test_update_account(self):
-    #     account = self.service.get_account(self.auth)
-    #     assert account.api_key == "crfm"
-    #     account.description = "new description"
-    #     account = self.service.update_account(self.auth, account)
-    #     assert account.description == "new description"
-    #
-    # def test_create_account(self):
-    #     self.service.create_account(self.auth)
-    #     accounts = self.service.get_accounts(self.auth)
-    #     assert len(accounts) == 2
-    #
-    # def test_rotate_api_key(self):
-    #     account = self.service.create_account(self.auth)
-    #     old_api_key = account.api_key
-    #     account = self.service.rotate_api_key(self.auth, account)
-    #     assert account.api_key != old_api_key
+    def test_update_account(self):
+        account = self.service.get_account(self.auth)
+        assert account.api_key == "crfm"
+        account.description = "new description"
+        account = self.service.update_account(self.auth, account)
+        assert account.description == "new description"
+
+    def test_create_account(self):
+        self.service.create_account(self.auth)
+        accounts = self.service.get_accounts(self.auth)
+        assert len(accounts) == 2
+
+    def test_rotate_api_key(self):
+        account = self.service.create_account(self.auth)
+        old_api_key = account.api_key
+        account = self.service.rotate_api_key(self.auth, account)
+        assert account.api_key != old_api_key
