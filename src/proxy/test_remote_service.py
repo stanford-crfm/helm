@@ -71,6 +71,11 @@ class TestRemoteServerService:
             except requests.exceptions.ConnectionError:
                 time.sleep(1)
 
+        elapsed_time_seconds = time.time() - start
+        assert elapsed_time_seconds <= TestRemoteServerService._SERVER_TIMEOUT_SECONDS, f"elapsed: {elapsed_time_seconds}"
+
+
+
     @classmethod
     def teardown_class(cls):
         cls.service.shutdown(cls.auth)
