@@ -32,6 +32,7 @@ class TestRemoteServerService:
             return port
 
         rest_port: str = get_free_port()
+        rest_port = "443"
         url: str = f"http://127.0.0.1:{rest_port}"
 
         # Start server in a separate thread
