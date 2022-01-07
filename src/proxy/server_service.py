@@ -1,4 +1,5 @@
 import os
+import signal
 from typing import List
 
 from common.authentication import Authentication
@@ -102,3 +103,12 @@ class ServerService(Service):
     def rotate_api_key(self, auth: Authentication, account: Account) -> Account:
         """Generate a new API key for this account."""
         return self.accounts.rotate_api_key(auth, account)
+
+    def shutdown(self, auth: Authentication):
+        """Shutdown server (admin-only)."""
+        self.accounts.check_admin(auth)
+
+        pid = os.getpid()
+        hlog(f"Shutting down server by killing its own process {pid}...")
+        os.kill(pid, signal.SIGTERM)
+        hlog("Done.")

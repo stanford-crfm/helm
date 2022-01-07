@@ -103,3 +103,8 @@ class Service(ABC):
     def rotate_api_key(self, auth: Authentication, account: Account) -> Account:
         """Generate a new API key for a given account."""
         pass
+
+    @abstractmethod
+    def shutdown(self, auth: Authentication):
+        """Shutdown server."""
+        pass
