@@ -48,6 +48,8 @@ jobs:
   test:
     name: Tests
     runs-on: ubuntu-latest
+    env:
+      TEST_PORT: 1959
     steps:
       - name: Clear free space
         run: |
@@ -66,8 +68,7 @@ jobs:
       - run: ./pre-commit.sh
       - name: Run tests
         run: |
-          nohup venv/bin/proxy-server -p 1959 --base-path test_env > server.logs &
-          sleep 30
+          nohup venv/bin/proxy-server -p ${TEST_PORT} --base-path test_env > server.logs &
           venv/bin/pytest
         env:
           TEST: ${{ matrix.test }}

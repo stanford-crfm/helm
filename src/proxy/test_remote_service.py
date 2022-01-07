@@ -1,3 +1,4 @@
+import os
 import requests
 import socket
 import subprocess
@@ -22,7 +23,6 @@ class TestRemoteServerService:
     @staticmethod
     def start_temp_server() -> str:
         def get_free_port() -> str:
-            # TODO: connection refused error in GHA -Tony
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             # When binding a socket to port 0, the kernel will assign it a free port
             sock.bind(("", 0))
@@ -31,8 +31,7 @@ class TestRemoteServerService:
             sock.listen(10)
             return port
 
-        rest_port: str = get_free_port()
-        rest_port = "1959"
+        rest_port: str = os.environ.get("TEST_PORT", get_free_port())
         url: str = f"http://127.0.0.1:{rest_port}"
 
         # Start server in a separate thread
