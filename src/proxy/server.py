@@ -10,7 +10,6 @@ import bottle
 import dataclasses
 import json
 import os
-import signal
 import sys
 import time
 from paste import httpserver
@@ -45,6 +44,7 @@ def safe_call(func, to_json=True):
             if bottle.request.query_string != "":
                 for item in bottle.request.query_string.split("&"):
                     key, value = item.split("=", 1)
+                    # urllib.parse also replaces "+" with " " for bottle.request.query
                     params[key] = unquote(value).replace("+", " ")
         start_time = time.time()
         result = func(params)
@@ -145,9 +145,8 @@ def handle_request():
 @app.get("/api/shutdown")
 def handle_shutdown():
     def perform(args):
-        pid = os.getpid()
-        hlog(f"Shutting down server by killing own process {pid}...")
-        hlog(os.kill(pid, signal.SIGTERM))
+        auth = Authentication(**json.loads(args["auth"]))
+        service.shutdown(auth)
 
     return safe_call(perform)
 
@@ -157,7 +156,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=1959)
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
+    parser.add_argument(
+        "-r", "--read-only", action="store_true", help="To start a read-only service (for testing and debugging)."
+    )
     args = parser.parse_args()
 
-    service = ServerService(base_path=args.base_path)
+    service = ServerService(base_path=args.base_path, read_only=args.read_only)
     httpserver.serve(app, host="0.0.0.0", port=args.port)

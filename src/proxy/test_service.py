@@ -121,6 +121,19 @@ class TestServerService:
             assert type(e) == AuthenticationError
         assert raised
 
+    def test_shutdown(self):
+        # Only admins can shutdown the server
+        account = self.service.create_account(self.auth)
+        non_admin_auth = Authentication(account.api_key)
+
+        raised = False
+        try:
+            self.service.shutdown(non_admin_auth)
+        except Exception as e:
+            raised = True
+            assert type(e) == AuthenticationError
+        assert raised
+
 
 def get_prod_service():
     # Note that this is not checked in / available by default
