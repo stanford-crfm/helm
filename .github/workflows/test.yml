@@ -48,7 +48,6 @@ jobs:
   test:
     name: Tests
     runs-on: ubuntu-latest
-    needs: [build]
     steps:
       - name: Clear free space
         run: |
