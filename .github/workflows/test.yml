@@ -83,7 +83,7 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Run tests
         run: |
-          venv/bin/proxy-server -p 3000
+          proxy-server -p 3000
           sleep 30
           python -m pytest
         env:
