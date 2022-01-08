@@ -1,4 +1,5 @@
 import argparse
+import getpass
 from typing import List, Dict, Any, Tuple
 
 from common.hierarchical_logger import hlog, htrack, htrack_block
@@ -39,11 +40,19 @@ def main():
     Main entry point for running the benchmark.
     """
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-u",
+        "--url",
+        type=str,
+        default="http://crfm-models.stanford.edu",
+        help="URL of the instance to run benchmarking on.",
+    )
     parser.add_argument("-r", "--run-specs", nargs="*", help="Specifies what to run", default=["simple1"])
     parser.add_argument("-o", "--output-path", help="Where to save all the output", default="benchmark_output")
     args = parser.parse_args()
 
-    execution_spec = ExecutionSpec(auth=Authentication(api_key="crfm"), url="http://localhost:1959", parallelism=5,)
+    api_key: str = getpass.getpass(prompt="Enter a valid API key: ")
+    execution_spec = ExecutionSpec(auth=Authentication(api_key=api_key), url=args.url, parallelism=5)
 
     run_specs = [run_spec for description in args.run_specs for run_spec in parse_run_specs(description)]
     with htrack_block("Run specs"):
