@@ -60,7 +60,7 @@ def render_account(account: Account) -> Dict[str, str]:
 
 def print_table(header: List[str], items: List[Dict[str, str]]):
     """Print a table with `header`, and one row per item."""
-    rows = [[item.get(key, '') for key in header] for item in items]
+    rows = [[item.get(key, "") for key in header] for item in items]
     widths = [max(len(row[i]) for row in [header] + rows) for i in range(len(header))]
     fmt_str = "".join("{:" + str(widths[i] + 2) + "}" for i in range(len(header)))
     for row in [header] + rows:
@@ -111,9 +111,11 @@ def do_create_update_command(service: RemoteService, auth: Authentication, args)
 
     # Update quotas
     for quota_str in args.quotas:
-        m = re.match('(\w+)\.(\w+)=(\d+)', quota_str)
+        m = re.match("(\w+)\.(\w+)=(\d+)", quota_str)
         if not m:
-            raise Exception(f"Invalid format: {quota_str}, expect <model_group>.<granularity>=<quota> (e.g., gpt3.daily=10000)")
+            raise Exception(
+                f"Invalid format: {quota_str}, expect <model_group>.<granularity>=<quota> (e.g., gpt3.daily=10000)"
+            )
         model_group, granularity, quota = m.group(1), m.group(2), m.group(3)
 
         if model_group not in account.usages:
