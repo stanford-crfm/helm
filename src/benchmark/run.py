@@ -45,7 +45,7 @@ def main():
         "--url",
         type=str,
         default="http://crfm-models.stanford.edu",
-        help="URL of the instance to run benchmarking on.",
+        help="URL of the instance to use when benchmarking.",
     )
     parser.add_argument("-r", "--run-specs", nargs="*", help="Specifies what to run", default=["simple1"])
     parser.add_argument("-o", "--output-path", help="Where to save all the output", default="benchmark_output")

@@ -58,6 +58,18 @@ class Instance:
                 return reference
         return None
 
+    @property
+    def group_name(self) -> str:
+        """Return the name of the group this instance belongs to based on its tags."""
+        tags = self.tags.copy()
+        for tag_to_remove in [TRAIN_TAG, VALID_TAG, TEST_TAG]:
+            if tag_to_remove in tags:
+                tags.remove(tag_to_remove)
+
+        # Sort the tags so we get consistent group names
+        tags.sort()
+        return "-".join(tags)
+
 
 class Scenario(ABC):
     """

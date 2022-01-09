@@ -1,3 +1,4 @@
+import copy
 from abc import ABC
 from typing import List, Dict
 
@@ -31,8 +32,6 @@ class Metric(ABC):
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[str, Stat] = {}  # Statistics just for this trial
-            # TODO: incorporate robustness (worst case over a group of instances with some tag)
-            #       https://github.com/stanford-crfm/benchmarking/issues/47
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
             #       https://github.com/stanford-crfm/benchmarking/issues/48
             for instance in scenario_state.instances:
@@ -55,6 +54,11 @@ class Metric(ABC):
                 #       https://github.com/stanford-crfm/benchmarking/issues/49
                 for stat in instance_stats:
                     merge_stat(trial_stats, stat)
+
+                    # Add stats per group
+                    group_stat: Stat = copy.deepcopy(stat)
+                    group_stat.name = f"group{instance.group_name}_{group_stat.name}"
+                    merge_stat(trial_stats, group_stat)
 
             # We only take the mean value for each trial
             for stat in trial_stats.values():
