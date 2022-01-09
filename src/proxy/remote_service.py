@@ -1,3 +1,4 @@
+import argparse
 import json
 import requests
 import urllib.parse
@@ -98,3 +99,23 @@ class RemoteService(Service):
         except requests.exceptions.ConnectionError:
             # A ConnectionError is expected when shutting down the server.
             pass
+
+
+def add_service_args(parser: argparse.ArgumentParser):
+    """Add command-line arguments to enable command-line utilities to specify how to connect to a remote server."""
+    parser.add_argument(
+        "--server-url", default="http://crfm-models.stanford.edu", help="URL of proxy server to connect to"
+    )
+    parser.add_argument(
+        "--api-key-path", type=str, default="proxy_api_key.txt", help="Path to a file containing the API key"
+    )
+
+
+def create_remote_service(args) -> RemoteService:
+    return RemoteService(args.server_url)
+
+
+def create_authentication(args) -> Authentication:
+    with open(args.api_key_path) as f:
+        api_key = f.read().strip()
+    return Authentication(api_key=api_key)

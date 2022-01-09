@@ -216,6 +216,7 @@ class Accounts:
         with self.global_lock:
             api_key: str = self._generate_nonexistent_api_key()
             account = Account(api_key=api_key)
+            set_default_quotas(account)
             self.accounts.append(account)
             self.api_key_to_accounts[api_key] = account
             self.dirty = True
