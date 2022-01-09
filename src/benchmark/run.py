@@ -3,6 +3,8 @@ from typing import List, Dict, Any, Tuple
 
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.authentication import Authentication
+from proxy.remote_service import create_authentication
+
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
 from .test_utils import get_run_spec1, get_mmlu_spec
@@ -47,17 +49,15 @@ def main():
         help="URL of the instance to use when benchmarking",
     )
     parser.add_argument(
-        "-a", "--api-key-path", type=str, default="crfm_benchmarking_api_key.txt", help="Path to API key",
+        "-a", "--api-key-path", type=str, default="proxy_api_key.txt", help="Path to API key",
     )
     parser.add_argument("-r", "--run-specs", nargs="*", help="Specifies what to run", default=["simple1"])
     parser.add_argument("-o", "--output-path", help="Where to save all the output", default="benchmark_output")
     parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads to make requests", default=5)
     args = parser.parse_args()
 
-    with open(args.api_key_path, "r") as f:
-        api_key: str = f.read().strip()
-
-    execution_spec = ExecutionSpec(auth=Authentication(api_key=api_key), url=args.url, parallelism=args.num_threads)
+    auth: Authentication = create_authentication(args)
+    execution_spec = ExecutionSpec(auth=auth, url=args.url, parallelism=args.num_threads)
 
     run_specs = [run_spec for description in args.run_specs for run_spec in parse_run_specs(description)]
     with htrack_block("Run specs"):
