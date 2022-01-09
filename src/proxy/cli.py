@@ -24,7 +24,7 @@ from .remote_service import RemoteService, add_service_args, create_remote_servi
 from common.authentication import Authentication
 from .accounts import Usage, Account
 
-granularities = ["daily", "monthly", "total"]
+GRANULARITIES = ["daily", "monthly", "total"]
 
 
 def render_usage(usage: Usage) -> str:
@@ -39,7 +39,7 @@ def render_header(show_model_groups: List[str]) -> List[str]:
     """Return list of column headers related to an account."""
     header = ["api_key", "description", "emails", "groups", "is_admin"]
     for model_group in show_model_groups:
-        for granularity in granularities:
+        for granularity in GRANULARITIES:
             header.append(f"{model_group}.{granularity}")
     return header
 
@@ -53,7 +53,7 @@ def render_account(account: Account) -> Dict[str, str]:
         "is_admin": "admin" if account.is_admin else "-",
     }
     for model_group, usages in account.usages.items():
-        for granularity in granularities:
+        for granularity in GRANULARITIES:
             result[f"{model_group}.{granularity}"] = render_usage(usages[granularity])
     return result
 
@@ -88,7 +88,7 @@ def do_create_update_command(service: RemoteService, auth: Authentication, args)
     if args.command == "create":
         account = service.create_account(auth)
     elif args.command == "update":
-        # TODO: support way select a single account based on api key
+        # TODO: add additional arguments to `get_accounts` to select a single account based on api key
         accounts = [account for account in service.get_accounts(auth) if account.api_key == args.api_key]
         if len(accounts) == 0:
             hlog(f"No account found with API key {args.api_key}")
