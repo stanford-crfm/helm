@@ -138,7 +138,7 @@ def do_create_update_command(service: RemoteService, auth: Authentication, args)
     account = service.update_account(auth, account)
 
     # Print out created/updated account information
-    header = render_header(show_model_groups=list(account.usages.keys()))
+    header = render_header(show_model_groups=args.show_model_groups)
     item = render_account(account)
     print_item(header, item)
 
