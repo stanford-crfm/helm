@@ -39,6 +39,7 @@ setup(
         "console_scripts": [
             "benchmark-run=benchmark.run:main",
             "proxy-server=proxy.server:main",
+            "proxy-cli=proxy.cli:main",
         ]
     },
     zip_safe=False,
