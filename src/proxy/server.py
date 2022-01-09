@@ -33,7 +33,8 @@ def safe_call(func, to_json=True):
     try:
         if to_json:
             bottle.response.content_type = "application/json"
-        if bottle.request.method in ["POST", "PUT"]:
+
+        if bottle.request.method in ["DELETE", "POST", "PUT"]:
             if bottle.request.content_type == "application/json":
                 params = bottle.request.json
             else:
@@ -87,6 +88,16 @@ def handle_create_account():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
         return dataclasses.asdict(service.create_account(auth))
+
+    return safe_call(perform)
+
+
+@app.delete("/api/account")
+def handle_delete_account():
+    def perform(args):
+        auth = Authentication(**json.loads(args["auth"]))
+        account = from_dict(Account, json.loads(args["account"]))
+        service.delete_account(auth, account)
 
     return safe_call(perform)
 

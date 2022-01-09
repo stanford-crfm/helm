@@ -50,6 +50,14 @@ class RemoteService(Service):
         RemoteService._check_response(response)
         return from_dict(Account, response)
 
+    def delete_account(self, auth: Authentication, account: Account):
+        data = {
+            "auth": json.dumps(asdict(auth)),
+            "account": json.dumps(asdict(account)),
+        }
+        response = requests.delete(f"{self.base_url}/api/account", data=data).json()
+        RemoteService._check_response(response)
+
     def get_accounts(self, auth: Authentication) -> List[Account]:
         params = {"auth": json.dumps(asdict(auth)), "all": "true"}
         response = requests.get(f"{self.base_url}/api/account?{urllib.parse.urlencode(params)}").json()

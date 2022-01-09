@@ -85,6 +85,11 @@ class Service(ABC):
         pass
 
     @abstractmethod
+    def delete_account(self, auth: Authentication, account: Account):
+        """Deletes an account."""
+        pass
+
+    @abstractmethod
     def get_accounts(self, auth: Authentication) -> List[Account]:
         """Get list of accounts."""
         pass

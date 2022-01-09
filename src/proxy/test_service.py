@@ -52,6 +52,26 @@ class TestServerService:
             assert type(e) == AuthenticationError
         assert raised
 
+    def test_delete_account(self):
+        account = self.service.create_account(self.auth)
+        assert account.api_key
+        non_admin_auth = Authentication(account.api_key)
+
+        # Only admins can delete accounts
+        raised = False
+        try:
+            self.service.delete_account(non_admin_auth, account)
+        except Exception as e:
+            raised = True
+            assert type(e) == AuthenticationError
+        assert raised
+
+        # Delete the account as an admin and verify the account no longer exists
+        self.service.delete_account(self.auth, account)
+        accounts = self.service.get_accounts(self.auth)
+        assert len(accounts) == 1
+        assert account not in accounts
+
     def test_get_accounts(self):
         account = self.service.create_account(self.auth)
         non_admin_auth = Authentication(account.api_key)

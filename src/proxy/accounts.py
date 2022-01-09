@@ -222,6 +222,22 @@ class Accounts:
 
         return account
 
+    def delete_account(self, auth: Authentication, account: Account):
+        """
+        Deletes an account (admin-only).
+        """
+        self.check_admin(auth)
+
+        with self.global_lock:
+            # Check that the account were deleting exists.
+            if account.api_key not in self.api_key_to_accounts:
+                raise ValueError(f"Account with API key {auth.api_key} does not exist.")
+
+            account = self.api_key_to_accounts[account.api_key]
+            self.accounts.remove(account)
+            del self.api_key_to_accounts[account.api_key]
+            self.dirty = True
+
     def rotate_api_key(self, auth: Authentication, account: Account) -> Account:
         """
         Generate a new API key for an account (admin-only).
