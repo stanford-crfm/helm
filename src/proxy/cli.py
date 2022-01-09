@@ -53,17 +53,23 @@ def render_account(account: Account) -> Dict[str, str]:
         "is_admin": "admin" if account.is_admin else "-",
     }
     for model_group, usages in account.usages.items():
-        for granularity in GRANULARITIES:
-            result[f"{model_group}.{granularity}"] = render_usage(usages[granularity])
+        for granularity, usage in usages.items():
+            result[f"{model_group}.{granularity}"] = render_usage(usage)
     return result
 
 
 def print_table(header: List[str], items: List[Dict[str, str]]):
     """Print a table with `header`, and one row per item."""
+    # `items` contains a list of dictionaries, convert to `rows`, which is a list of arrays
     rows = [[item.get(key, "") for key in header] for item in items]
+
+    # Compute the maximum width needed for each column
     widths = [max(len(row[i]) for row in [header] + rows) for i in range(len(header))]
+
     fmt_str = "".join("{:" + str(widths[i] + 2) + "}" for i in range(len(header)))
-    for row in [header] + rows:
+    hlog(fmt_str.format(*header))
+    hlog("-" * sum(width + 2 for width in widths))
+    for row in rows:
         hlog(fmt_str.format(*row))
 
 
