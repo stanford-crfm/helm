@@ -82,6 +82,16 @@ class RemoteService(Service):
         RemoteService._check_response(response)
         return from_dict(Account, response)
 
+    def shutdown(self, auth: Authentication):
+        """Shutdown server (admin-only)."""
+        params = {"auth": json.dumps(asdict(auth))}
+        try:
+            response = requests.get(f"{self.base_url}/api/shutdown?{urllib.parse.urlencode(params)}").json()
+            RemoteService._check_response(response)
+        except requests.exceptions.ConnectionError:
+            # A ConnectionError is expected when shutting down the server.
+            pass
+
 
 def add_service_args(parser: argparse.ArgumentParser):
     """Add command-line arguments to enable command-line utilities to specify how to connect to a remote server."""
