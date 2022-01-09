@@ -96,8 +96,8 @@ def handle_create_account():
 def handle_delete_account():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
-        account = from_dict(Account, json.loads(args["account"]))
-        service.delete_account(auth, account)
+        api_key = args["api_key"]
+        return dataclasses.asdict(service.delete_account(auth, api_key))
 
     return safe_call(perform)
 

@@ -88,8 +88,8 @@ class ServerService(Service):
         """Creates a new account."""
         return self.accounts.create_account(auth)
 
-    def delete_account(self, auth: Authentication, account: Account):
-        self.accounts.delete_account(auth, account)
+    def delete_account(self, auth: Authentication, api_key: str) -> Account:
+        return self.accounts.delete_account(auth, api_key)
 
     def get_accounts(self, auth: Authentication) -> List[Account]:
         """Get list of accounts."""

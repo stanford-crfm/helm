@@ -85,7 +85,7 @@ class Service(ABC):
         pass
 
     @abstractmethod
-    def delete_account(self, auth: Authentication, account: Account):
+    def delete_account(self, auth: Authentication, api_key: str) -> Account:
         """Deletes an account."""
         pass
 
