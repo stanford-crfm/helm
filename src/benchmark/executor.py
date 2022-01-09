@@ -55,7 +55,9 @@ class Executor:
 
         def process(state: RequestState) -> RequestState:
             result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, state.request)
-            return replace(state, result=result)
+            state = replace(state, result=result)
+            tqdm.write(render_instance(state))
+            return state
 
         with ThreadPoolExecutor(max_workers=self.execution_spec.parallelism) as executor:
             # Run `process` on each request state
