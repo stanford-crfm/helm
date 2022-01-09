@@ -5,6 +5,7 @@ __pycache__
 
 prod_env
 benchmark_output
+crfm_benchmarking_api_key.txt
 
 # Percy's stuff
 nav
