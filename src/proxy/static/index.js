@@ -51,7 +51,7 @@ $(function () {
         $.getJSON('/api/account', args, (response) => {
           console.log('/api/account', response);
           if ('error' in response) {
-            alert('The API key you’ve entered is invalid. Try again.');
+            alert("The API key you've entered is invalid. Try again.");
           }
           else {
             createCookie('api_key', api_key);
