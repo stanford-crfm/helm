@@ -46,6 +46,7 @@ $(function () {
           return;
         }
 
+        // Check the API key the user entered using endpoint /api/account
         const args = {auth: JSON.stringify({api_key})};
         $.getJSON('/api/account', args, (response) => {
           console.log('/api/account', response);
