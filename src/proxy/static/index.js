@@ -45,8 +45,18 @@ $(function () {
         if (!api_key) {
           return;
         }
-        createCookie('api_key', api_key);
-        updateLogin();
+
+        const args = {auth: JSON.stringify({api_key})};
+        $.getJSON('/api/account', args, (response) => {
+          console.log('/api/account', response);
+          if ('error' in response) {
+            alert('The API key you’ve entered is invalid. Try again.');
+          }
+          else {
+            createCookie('api_key', api_key);
+            updateLogin();
+          }
+        });
       }));
     }
   }
