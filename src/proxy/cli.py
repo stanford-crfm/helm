@@ -8,6 +8,8 @@ A simple utility to edit accounts.  Example usage:
     proxy-cli create                      # Create a new account
     proxy-cli create -e psl@stanford.edu  # Create a new account with extra information
 
+    proxy-cli delete -k ...               # Delete an account
+
     proxy-cli update -k ... -d "For robustness project"  # Set the description
     proxy-cli update -k ... -g cs324 test                # Set the groups
     proxy-cli update -k ... -q gpt3.daily=10000          # Set quota
@@ -143,6 +145,14 @@ def do_create_update_command(service: RemoteService, auth: Authentication, args)
     print_item(header, item)
 
 
+def do_delete_command(service: RemoteService, auth: Authentication, args):
+    account = service.delete_account(auth, args.api_key)
+    hlog("Deleted account:")
+    header = render_header(show_model_groups=args.show_model_groups)
+    item = render_account(account)
+    print_item(header, item)
+
+
 def main():
     parser = argparse.ArgumentParser()
     add_service_args(parser)
@@ -173,6 +183,10 @@ def main():
     )
     add_account_arguments(update_parser)
 
+    delete_parser = subparsers.add_parser("delete", help="Delete an existing account")
+    delete_parser.add_argument("-k", "--api-key", help="Delete this account", required=True)
+    add_account_arguments(delete_parser)
+
     args = parser.parse_args()
 
     service = create_remote_service(args)
@@ -182,6 +196,8 @@ def main():
         do_list_command(service, auth, args)
     elif args.command == "create" or args.command == "update":
         do_create_update_command(service, auth, args)
+    elif args.command == "delete":
+        do_delete_command(service, auth, args)
     else:
         parser.print_help()
         sys.exit(1)
