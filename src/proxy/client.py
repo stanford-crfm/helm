@@ -13,6 +13,7 @@ class Client(ABC):
         Add `request.random` to the key, if defined.
         """
         if request.random is not None:
+            assert "random" not in raw_request
             cache_key = {**raw_request, "random": request.random}
         else:
             cache_key = raw_request
