@@ -45,6 +45,10 @@ class Request:
     # Penalize repetition (OpenAI only)
     frequency_penalty: float = 0
 
+    # Used to control randomness. Expect different responses for the same
+    # request but with different values for `random`.
+    random: Optional[str] = None
+
     @property
     def model_organization(self):
         """Example: 'openai/davinci' => 'openai'"""
