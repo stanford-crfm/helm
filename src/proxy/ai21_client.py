@@ -37,7 +37,8 @@ class AI21Client(Client):
                 json=raw_request,
             ).json()
 
-        response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
+        cache_key = {**raw_request, "random": request.random} if request.random is not None else raw_request
+        response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
 
         if "completions" not in response:
             return RequestResult(success=False, cached=False, error=response["detail"], completions=[])

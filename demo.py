@@ -18,3 +18,9 @@ print(account.usages)
 request = Request(prompt="Life is like a box of")
 request_result: RequestResult = service.make_request(auth, request)
 print(request_result.completions[0].text)
+
+# Expect different responses for the same request but with different values for `random`.
+# Passing in the same value for random guarantees the same results.
+request = Request(prompt="Life is like a box of", random="1")
+request_result: RequestResult = service.make_request(auth, request)
+print(request_result.completions[0].text)
