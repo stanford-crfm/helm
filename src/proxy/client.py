@@ -1,11 +1,23 @@
 from abc import ABC, abstractmethod
 import time
-from typing import Callable, Any
+from typing import Callable, Any, Dict
 
 from common.request import Request, RequestResult
 
 
 class Client(ABC):
+    @staticmethod
+    def make_cache_key(raw_request: Dict, request: Request) -> Dict:
+        """
+        Construct the key for the cache using the raw request.
+        Add `request.random` to the key, if defined.
+        """
+        if request.random is not None:
+            cache_key = {**raw_request, "random": request.random}
+        else:
+            cache_key = raw_request
+        return cache_key
+
     @abstractmethod
     def make_request(self, request: Request) -> RequestResult:
         pass
