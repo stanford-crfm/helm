@@ -124,7 +124,7 @@ first start a local server (see instructions above for more details).
 
 # Contributing
 
-## Prerequisites
+## One-time setup
 
 To contribute to this project, install the dependencies and git hook scripts:
   
