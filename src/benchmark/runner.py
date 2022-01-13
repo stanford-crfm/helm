@@ -18,6 +18,7 @@ class RunSpec:
     computes a list of metrics.
     """
 
+    name: str  # Unique identifier of the RunSpec
     scenario: ScenarioSpec  # Which scenario
     adapter_spec: AdapterSpec  # Specifies how to adapt an instance into a set of requests
     metrics: List[MetricSpec]  # What to evaluate on
@@ -50,12 +51,12 @@ class Runner:
         ensure_directory_exists(scenarios_path)
         scenario.output_path = os.path.join(scenarios_path, scenario.name)
         ensure_directory_exists(scenario.output_path)
+        runs_path = os.path.join(scenario.output_path, "runs", run_spec.name)
+        ensure_directory_exists(runs_path)
 
         # Adaptation
         adapter = Adapter(run_spec.adapter_spec)
         scenario_state: ScenarioState = adapter.adapt(scenario)
-        runs_path = os.path.join(self.output_path, "runs")
-        ensure_directory_exists(runs_path)
 
         # Execution
         scenario_state = self.executor.execute(scenario_state)
@@ -81,7 +82,5 @@ class Runner:
         write(os.path.join(runs_path, "scenario_state.txt"), "\n".join(scenario_state.info()))
         write(os.path.join(runs_path, "scenario_state.json"), json.dumps(asdict(scenario_state), indent=4))
 
-        write(os.path.join(scenario.output_path, "metrics.txt"), "\n".join(str(stat) for stat in stats))
-        write(
-            os.path.join(scenario.output_path, "metrics.json"), json.dumps([asdict(stat) for stat in stats], indent=4)
-        )
+        write(os.path.join(runs_path, "metrics.txt"), "\n".join(str(stat) for stat in stats))
+        write(os.path.join(runs_path, "metrics.json"), json.dumps([asdict(stat) for stat in stats], indent=4))

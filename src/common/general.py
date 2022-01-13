@@ -18,8 +18,7 @@ def singleton(items: List):
 
 def ensure_directory_exists(path: str):
     """Create `path` if it doesn't exist."""
-    if not os.path.exists(path):
-        os.mkdir(path)
+    os.makedirs(path, exist_ok=True)
 
 
 def parse_hocon(text: str):
@@ -73,12 +72,9 @@ def format_tags(tags: List[str]) -> str:
     return ", ".join([f"[{tag}]" for tag in tags])
 
 
-def serialize(obj: dataclass) -> str:
-    """Takes in a dataclass and outputs all of its fields and values on separate lines."""
-    output = []
-    for key, value in asdict(obj).items():
-        output.append(f"{key}: {value}")
-    return "\n".join(output)
+def serialize(obj: dataclass) -> List[str]:
+    """Takes in a dataclass and outputs all of its fields and values in a list."""
+    return [f"{key}: {value}" for key, value in asdict(obj).items()]
 
 
 def write(file_path: str, content: str):

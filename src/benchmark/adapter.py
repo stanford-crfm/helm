@@ -105,7 +105,7 @@ class RequestState:
         output.append("")
 
         output.append("Request")
-        output.append(serialize(self.request))
+        output.extend(serialize(self.request))
         output.append("")
 
         if self.result:
@@ -149,7 +149,8 @@ class ScenarioState:
 
     def info(self) -> List[str]:
         total: int = len(self.request_states)
-        result = ["Adapter", serialize(self.adapter_spec)]
+        result = ["Adapter"]
+        result.extend(serialize(self.adapter_spec))
         result.extend([f"{total} request states", ""])
 
         for i, request_state in enumerate(self.request_states):
