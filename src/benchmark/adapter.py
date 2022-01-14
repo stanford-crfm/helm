@@ -95,13 +95,13 @@ class RequestState:
     # The result of the request (filled in when the request is executed)
     result: Optional[RequestResult]
 
-    def info(self) -> List[str]:
+    def render_lines(self) -> List[str]:
         output = [f"Train trial index: {self.train_trial_index}"]
         if self.reference_index:
             output.append(f"Reference index: {self.reference_index}")
 
         output.append("Instance")
-        output.extend(self.instance.info())
+        output.extend(self.instance.render_lines())
         output.append("")
 
         output.append("Request")
@@ -110,7 +110,7 @@ class RequestState:
 
         if self.result:
             output.append("Result")
-            output.extend(self.result.info())
+            output.extend(self.result.render_lines())
 
         return output
 
@@ -147,7 +147,7 @@ class ScenarioState:
     ) -> List[RequestState]:
         return self.request_state_map.get((train_trial_index, instance, reference_index), [])
 
-    def info(self) -> List[str]:
+    def render_lines(self) -> List[str]:
         total: int = len(self.request_states)
         result = ["Adapter"]
         result.extend(serialize(self.adapter_spec))
@@ -155,7 +155,7 @@ class ScenarioState:
 
         for i, request_state in enumerate(self.request_states):
             result.append(f"------- Request state {i + 1}/{total}")
-            result.extend(request_state.info())
+            result.extend(request_state.render_lines())
             result.append("")
 
         return result

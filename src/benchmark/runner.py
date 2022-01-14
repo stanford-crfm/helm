@@ -76,11 +76,14 @@ class Runner:
         # Output benchmarking information and results to files
         scenario_dict = asdict(scenario)
         scenario_dict["instances"] = [asdict(instance) for instance in scenario_state.instances]
-        write(os.path.join(scenario.output_path, "scenario.txt"), "\n".join(scenario.info(scenario_state.instances)))
-        write(os.path.join(scenario.output_path, "scenario.json"), json.dumps(scenario_dict, indent=4))
+        write(
+            os.path.join(scenario.output_path, "scenario.txt"),
+            "\n".join(scenario.render_lines(scenario_state.instances)),
+        )
+        write(os.path.join(scenario.output_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
 
-        write(os.path.join(runs_path, "scenario_state.txt"), "\n".join(scenario_state.info()))
-        write(os.path.join(runs_path, "scenario_state.json"), json.dumps(asdict(scenario_state), indent=4))
+        write(os.path.join(runs_path, "scenario_state.txt"), "\n".join(scenario_state.render_lines()))
+        write(os.path.join(runs_path, "scenario_state.json"), json.dumps(asdict(scenario_state), indent=2))
 
         write(os.path.join(runs_path, "metrics.txt"), "\n".join(str(stat) for stat in stats))
-        write(os.path.join(runs_path, "metrics.json"), json.dumps([asdict(stat) for stat in stats], indent=4))
+        write(os.path.join(runs_path, "metrics.json"), json.dumps([asdict(stat) for stat in stats], indent=2))

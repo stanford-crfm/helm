@@ -68,8 +68,8 @@ def ensure_file_downloaded(source_url: str, target_path: str, untar: bool = Fals
 
 
 def format_tags(tags: List[str]) -> str:
-    """Takes a list of tags and outputs a string: [tag_1], [tag_2], ... , [tag_n]."""
-    return ", ".join([f"[{tag}]" for tag in tags])
+    """Takes a list of tags and outputs a string: [tag_1,tag_2,...,tag_n]."""
+    return f"[{','.join(tags)}]"
 
 
 def serialize(obj: dataclass) -> List[str]:

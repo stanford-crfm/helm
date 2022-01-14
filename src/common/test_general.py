@@ -11,4 +11,4 @@ def test_ensure_file_downloaded():
 
 def test_format_tags():
     tags = ["tag_1", "tag_2", "tag_3"]
-    assert format_tags(tags) == "[tag_1], [tag_2], [tag_3]"
+    assert format_tags(tags) == "[tag_1,tag_2,tag_3]"

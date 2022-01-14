@@ -78,7 +78,7 @@ class Token:
     # text -> log probability of generating that
     top_logprobs: Dict[str, float]
 
-    def info(self) -> List[str]:
+    def render_lines(self) -> List[str]:
         return [
             f"Text: {repr(self.text)} logprob={self.logprob} Top log probabilities: {json.dumps(self.top_logprobs)}",
         ]
@@ -100,14 +100,14 @@ class Sequence:
     def __add__(self, other: "Sequence") -> "Sequence":
         return Sequence(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)
 
-    def info(self) -> List[str]:
+    def render_lines(self) -> List[str]:
         result = [
             f"Text: {self.text}",
             f"Log probability: {self.logprob}",
             "Tokens:",
         ]
         for token in self.tokens:
-            result.extend(token.info())
+            result.extend(token.render_lines())
         return result
 
 
@@ -130,7 +130,7 @@ class RequestResult:
     # If `success` is false, what was the error?
     error: Optional[str] = None
 
-    def info(self) -> List[str]:
+    def render_lines(self) -> List[str]:
         output = [
             f"Success: {self.success}",
             f"Cached: {self.cached}",
@@ -142,7 +142,7 @@ class RequestResult:
 
         output.append("Completions")
         for completion in self.completions:
-            output.extend(completion.info())
+            output.extend(completion.render_lines())
             output.append("")
 
         return output

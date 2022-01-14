@@ -33,7 +33,7 @@ class Reference:
     def is_correct(self) -> bool:
         return CORRECT_TAG in self.tags
 
-    def info(self) -> List[str]:
+    def render_lines(self) -> List[str]:
         return [f"Reference ({format_tags(self.tags)}): {self.output}"]
 
 
@@ -62,10 +62,10 @@ class Instance:
                 return reference
         return None
 
-    def info(self) -> List[str]:
+    def render_lines(self) -> List[str]:
         info = [f"Input: {self.input}"]
         for reference in self.references:
-            info.extend(reference.info())
+            info.extend(reference.render_lines())
         return info
 
 
@@ -100,7 +100,7 @@ class Scenario(ABC):
         """
         pass
 
-    def info(self, instances: List[Instance]) -> List[str]:
+    def render_lines(self, instances: List[Instance]) -> List[str]:
         total = len(instances)
         output = [
             f"Name: {self.name}",
@@ -112,7 +112,7 @@ class Scenario(ABC):
 
         for i, instance in enumerate(instances):
             output.append(f"------- Instance {i + 1}/{total}: {format_tags(instance.tags)}")
-            output.extend(instance.info())
+            output.extend(instance.render_lines())
             output.append("")
         return output
 
