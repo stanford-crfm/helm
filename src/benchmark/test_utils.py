@@ -13,6 +13,13 @@ def get_scenario_spec1() -> ScenarioSpec:
     )
 
 
+def get_scenario_spec_tiny():
+    return ScenarioSpec(
+        class_name="benchmark.simple_scenarios.Simple1Scenario",
+        args={"num_input_tokens": 5, "vocab_size": 20, "num_train_instances": 2, "num_test_instances": 2},
+    )
+
+
 def get_adapter_spec1() -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_GENERATION,
@@ -36,7 +43,9 @@ def get_basic_metrics() -> List[MetricSpec]:
 
 def get_run_spec1() -> RunSpec:
     """An run spec for debugging."""
-    return RunSpec(scenario=get_scenario_spec1(), adapter_spec=get_adapter_spec1(), metrics=get_basic_metrics(),)
+    return RunSpec(
+        name="run1", scenario=get_scenario_spec1(), adapter_spec=get_adapter_spec1(), metrics=get_basic_metrics()
+    )
 
 
 def get_mmlu_spec(subject: str) -> RunSpec:
@@ -58,4 +67,6 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         temperature=0,
     )
 
-    return RunSpec(scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics(),)
+    return RunSpec(
+        name=f"mmlu_subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics()
+    )

@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 
@@ -77,6 +78,11 @@ class Token:
     # text -> log probability of generating that
     top_logprobs: Dict[str, float]
 
+    def render_lines(self) -> List[str]:
+        return [
+            f"Text: {repr(self.text)} logprob={self.logprob} Top log probabilities: {json.dumps(self.top_logprobs)}",
+        ]
+
 
 @dataclass(frozen=True)
 class Sequence:
@@ -92,7 +98,17 @@ class Sequence:
     tokens: List[Token]
 
     def __add__(self, other: "Sequence") -> "Sequence":
-        return Sequence(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens,)
+        return Sequence(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)
+
+    def render_lines(self) -> List[str]:
+        result = [
+            f"Text: {self.text}",
+            f"Log probability: {self.logprob}",
+            "Tokens:",
+        ]
+        for token in self.tokens:
+            result.extend(token.render_lines())
+        return result
 
 
 @dataclass(frozen=True)
@@ -113,3 +129,20 @@ class RequestResult:
 
     # If `success` is false, what was the error?
     error: Optional[str] = None
+
+    def render_lines(self) -> List[str]:
+        output = [
+            f"Success: {self.success}",
+            f"Cached: {self.cached}",
+        ]
+        if self.request_time:
+            output.append(f"Request time: {self.request_time}")
+        if self.error:
+            output.append(f"Error: {self.error}")
+
+        output.append("Completions")
+        for completion in self.completions:
+            output.extend(completion.render_lines())
+            output.append("")
+
+        return output

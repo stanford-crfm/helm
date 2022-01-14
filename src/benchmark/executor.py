@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, replace
 from tqdm import tqdm
 
+from common.general import format_tags
 from common.hierarchical_logger import htrack, hlog
 from common.request import RequestResult
 from common.authentication import Authentication
@@ -47,7 +48,7 @@ class Executor:
             if state.output_mapping is not None and pred_output is not None:
                 pred_output = state.output_mapping.get(pred_output.strip())
 
-            tags_str = ",".join(instance.tags)
+            tags_str = format_tags(instance.tags)
             correct_str = "CORRECT" if gold_output == pred_output else "WRONG"
             return (
                 f'[{tags_str}] "{instance.input[:100]}" => "{gold_output}", predicted "{pred_output}" [{correct_str}]'

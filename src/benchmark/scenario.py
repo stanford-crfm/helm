@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from common.object_spec import ObjectSpec, create_object
+from common.general import format_tags
 
 # Tags for instances
 TRAIN_TAG = "train"
@@ -32,6 +33,9 @@ class Reference:
     def is_correct(self) -> bool:
         return CORRECT_TAG in self.tags
 
+    def render_lines(self) -> List[str]:
+        return [f"Reference ({format_tags(self.tags)}): {self.output}"]
+
 
 @dataclass(frozen=True, eq=False)
 class Instance:
@@ -58,7 +62,14 @@ class Instance:
                 return reference
         return None
 
+    def render_lines(self) -> List[str]:
+        info = [f"Input: {self.input}"]
+        for reference in self.references:
+            info.extend(reference.render_lines())
+        return info
 
+
+@dataclass  # type: ignore
 class Scenario(ABC):
     """
     A scenario represents a (task, data distribution).
@@ -88,6 +99,22 @@ class Scenario(ABC):
         it into a list of instances).
         """
         pass
+
+    def render_lines(self, instances: List[Instance]) -> List[str]:
+        total = len(instances)
+        output = [
+            f"Name: {self.name}",
+            f"Description: {self.description}",
+            f"Tags: {format_tags(self.tags)}",
+            f"{total} instances",
+            "",
+        ]
+
+        for i, instance in enumerate(instances):
+            output.append(f"------- Instance {i + 1}/{total}: {format_tags(instance.tags)}")
+            output.extend(instance.render_lines())
+            output.append("")
+        return output
 
 
 class ScenarioSpec(ObjectSpec):

@@ -1,8 +1,16 @@
 from typing import Dict
+from dataclasses import dataclass
 
 
+@dataclass
 class Stat:
     """A mutable class that allows us to aggregate values and report mean/stddev."""
+
+    name: str
+    count: int
+    min: float
+    max: float
+    mean: float
 
     def __init__(self, name: str):
         self.name = name
