@@ -38,6 +38,10 @@ def get_basic_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={})]
 
 
+def get_toxicity_metrics() -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
+
+
 ############################################################
 
 
@@ -69,4 +73,23 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 
     return RunSpec(
         name=f"mmlu_subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics()
+    )
+
+
+def get_real_toxicity_prompts_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.real_toxicity_prompts_scenario.RealToxicityPromptsScenario", args={})
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=0,
+        max_eval_instances=100,  # TODO: set this to a higher value. 10000? -Tony
+        model="openai/davinci",
+        temperature=1,  # From https://arxiv.org/pdf/2009.11462.pdf, "we use a temperature of 1 during generation..."
+        max_tokens=20,  # "We generate up to 20 tokens per example..."
+        num_outputs=25,  # "...the expected maximum toxicity over k = 25 generations..."
+    )
+    return RunSpec(
+        name=f"real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics()
     )

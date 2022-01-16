@@ -51,6 +51,10 @@ This is done, but just for the record:
     crfm-models:$ echo '{"api_key": "crfm"}' > prod_env/accounts.jsonl
     laptop:$ rsync -arvz prod_env/credentials.conf crfm-models.stanford.edu:/home/benchmarking/prod_env
 
+#### Perspective API
+
+TODO: -Tony
+
 ### Every time we need to deploy:
 
 Update the code:
