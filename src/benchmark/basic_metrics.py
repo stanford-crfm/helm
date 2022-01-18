@@ -1,7 +1,6 @@
 from typing import List, Callable
 
 from common.statistic import Stat
-from common.request import Sequence
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 
