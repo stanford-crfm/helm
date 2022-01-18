@@ -30,7 +30,7 @@ class AutoPerspectiveAPIClient(PerspectiveAPIClient):
                 self.client = AuthenticatedPerspectiveAPIClient(
                     api_key=self.credentials["perspectiveApiKey"], cache_path=self.client_cache_path,
                 )
-            except HttpError as e:
+            except (HttpError, KeyError) as e:
                 hlog(f"Disabling Perspective API. An error occurred while authenticating: {e}")
                 self.client = NoopPerspectiveAPIClient()
 

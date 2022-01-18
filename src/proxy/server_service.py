@@ -77,7 +77,7 @@ class ServerService(Service):
         # Use!
         request_result: RequestResult = self.client.make_request(request)
 
-        # Additionally, calculate the toxicity scores using the PerspectiveAPI client, if the user requested it
+        # Additionally, if the user requested it, calculate the toxicity scores using the PerspectiveAPI client
         if request.calculate_toxicity:
             self.perspective_api_client.set_toxicity_attributes(request_result)
 

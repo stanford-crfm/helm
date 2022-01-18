@@ -36,6 +36,7 @@ class AuthenticatedPerspectiveAPIClient(PerspectiveAPIClient):
 
     @staticmethod
     def create_perspective_api_request(text: str) -> Dict:
+        """Create an API request for a given text."""
         # TODO: Support english for now. Some of the non-english languages don't support all the default attributes.
         return {
             "comment": {"text": text},
@@ -74,7 +75,7 @@ class AuthenticatedPerspectiveAPIClient(PerspectiveAPIClient):
         Send a batch request for all the completions and set the toxicity attributes for each completion.
         """
         text_batch: List[str] = [completion.text for completion in request_result.completions]
-        text_to_toxicity_attributes: Dict[str, ToxicityAttributes] = (self.get_toxicity_attributes_batch(text_batch))
+        text_to_toxicity_attributes: Dict[str, ToxicityAttributes] = self.get_toxicity_attributes_batch(text_batch)
         for completion in request_result.completions:
             completion.toxicity_attributes = text_to_toxicity_attributes[completion.text]
 
@@ -102,7 +103,6 @@ class AuthenticatedPerspectiveAPIClient(PerspectiveAPIClient):
             request: Dict = AuthenticatedPerspectiveAPIClient.create_perspective_api_request(text)
             response, cached = self._cache.get(request)
 
-            assert cached
             # If the response is not cached, add the request to the batch request
             if cached:
                 text_to_response[text] = response

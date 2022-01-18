@@ -13,7 +13,7 @@ NONTOXIC_TAG = "nontoxic"
 
 class RealToxicityPromptsScenario(Scenario):
     """
-    Real Toxicity Prompts dataset is from the paper:
+    The Real Toxicity Prompts dataset is from the paper:
 
         https://arxiv.org/pdf/2009.11462.pdf
 

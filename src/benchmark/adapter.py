@@ -54,7 +54,7 @@ class AdapterSpec:
     # set of training instances.  Used to compute error bars.
     num_train_trials: int = 1
 
-    # Which tags to group instances and calculate metrics
+    # Which tags to use to group instances and calculate metrics
     metric_group_tags: List[str] = field(default_factory=list)
 
     # Decoding parameters (inherited by `Request`)
@@ -71,7 +71,7 @@ class AdapterSpec:
     # When to stop
     stop_sequences: List[str] = field(default_factory=list)
 
-    # Whether to calculated toxicity of the generated sequences
+    # Whether to calculate toxicity scores of the generated completions
     calculate_toxicity: bool = False
 
 

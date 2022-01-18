@@ -85,6 +85,12 @@ class TestRemoteServerService:
         response = self.service.make_request(self.auth, request)
         assert response.success
 
+    def test_make_request_toxicity(self):
+        # Test that we can still make a request even if we didn't authenticate with PerspectiveAPI
+        request = Request(prompt="hello, my name is", model="simple/model1", calculate_toxicity=True)
+        response = self.service.make_request(self.auth, request)
+        assert response.success
+
     def test_update_account(self):
         account = self.service.get_account(self.auth)
         assert account.api_key == "crfm"
