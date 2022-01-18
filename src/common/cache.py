@@ -87,7 +87,7 @@ class Cache(object):
         if len(requests_and_responses) == 0:
             return
 
-        # Acquire the lock as only one thread can loop and modify `data` at a time
+        # Acquire the lock as only a single thread can loop and modify `data` simultaneously.
         with self._lock:
             for request, response in requests_and_responses:
                 key = request_to_key(request)
