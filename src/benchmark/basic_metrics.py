@@ -1,6 +1,7 @@
 from typing import List, Callable
 
 from common.statistic import Stat
+from common.request import Sequence
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 
@@ -17,6 +18,10 @@ class BasicMetric(Metric):
     It's possible we don't need to subclass this.
     """
 
+    # The name of the metric to be computed
+    def __init__(self, names):
+        self.names = names
+
     def evaluate_generation(self, adapter_spec: AdapterSpec, request_state: RequestState) -> List[Stat]:
         """
         Setup:
@@ -29,23 +34,6 @@ class BasicMetric(Metric):
         - ${score}: max_i score(Gi, P1)
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
-        # Gold outputs
-        golds = [reference.output for reference in request_state.instance.references if reference.is_correct]
-        assert len(golds) > 0
-
-        # Predicted outputs
-        assert request_state.result is not None
-        # TODO: Sort the predictions, or take them from the top tokens of the first completion
-        #       https://github.com/stanford-crfm/benchmarking/issues/42
-        preds = [completion.text.strip() for completion in request_state.result.completions]
-
-        # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
-        if request_state.output_mapping is not None:
-            preds = [request_state.output_mapping.get(pred) for pred in preds]
-
-        # TODO: add perplexity of the input text
-        #       https://github.com/stanford-crfm/benchmarking/issues/43
-
         def compute_metrics(name: str, score_func: Callable[[str, str], float]) -> List[Stat]:
             score_1 = max(score_func(gold, preds[0]) for gold in golds)
             score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
@@ -55,10 +43,37 @@ class BasicMetric(Metric):
                 Stat(f"{name}@{adapter_spec.num_outputs}").add(score_k),
             ]
 
+        metrics = []
+
+        if "exact_match" in self.names:
+            # Gold outputs
+            golds = [reference.output for reference in request_state.instance.references if reference.is_correct]
+            assert len(golds) > 0
+
+            # Predicted outputs
+            assert request_state.result is not None
+            # TODO: Sort the predictions, or take them from the top tokens of the first completion
+            #       https://github.com/stanford-crfm/benchmarking/issues/42
+            preds = [completion.text.strip() for completion in request_state.result.completions]
+
+            # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
+            if request_state.output_mapping is not None:
+                preds = [request_state.output_mapping.get(pred) for pred in preds]
+            metrics.extend(compute_metrics("exact_match", exact_match))
+
+        # Compute the negative log likelihood and normalization factors fo the first completion
+        sequence = request_state.result.completions[0]
+        nll = -sequence.logprob
+        metrics.extend([
+            Stat("nll").add(nll),
+            Stat("num of tokens").add(len(sequence.tokens))
+        ])
+        
         # Future: add F1, BLEU, etc.
         # TODO: pass in arguments to `BasicMetric`
         #       https://github.com/stanford-crfm/benchmarking/issues/44
-        return compute_metrics("exact_match", exact_match)
+        
+        return metrics
 
     def evaluate_references(
         self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState]

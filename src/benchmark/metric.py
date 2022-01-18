@@ -56,6 +56,10 @@ class Metric(ABC):
                 for stat in instance_stats:
                     merge_stat(trial_stats, stat)
 
+            # Aggregate the corpus-level metrics
+            if "nll" in trial_stats and "num of tokens" in trial_stats:
+                merge_stat(trial_stats, Stat("perplexity").add(2**(trial_stats["nll"].sum / trial_stats["num of tokens"].sum)))
+
             # We only take the mean value for each trial
             for stat in trial_stats.values():
                 merge_stat(global_stats, stat.take_mean())

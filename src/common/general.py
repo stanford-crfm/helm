@@ -36,7 +36,7 @@ def shell(args: List[str]):
 
 
 @htrack(None)
-def ensure_file_downloaded(source_url: str, target_path: str, untar: bool = False):
+def ensure_file_downloaded(source_url: str, target_path: str, untar: bool = False, unzip: bool = False):
     """Download `source_url` to `target_path` if it doesn't exist."""
     if os.path.exists(target_path):
         # Assume it's all good
@@ -54,6 +54,18 @@ def ensure_file_downloaded(source_url: str, target_path: str, untar: bool = Fals
         tmp2_path = target_path + ".tmp2"
         ensure_directory_exists(tmp2_path)
         shell(["tar", "xf", tmp_path, "-C", tmp2_path])
+        files = os.listdir(tmp2_path)
+        if len(files) == 1:
+            # If contains one file, just get that one file
+            shell(["mv", os.path.join(tmp2_path, files[0]), target_path])
+            os.rmdir(tmp2_path)
+        else:
+            shell(["mv", tmp2_path, target_path])
+        os.unlink(tmp_path)
+    elif unzip:
+        tmp2_path = target_path + ".tmp2"
+        ensure_directory_exists(tmp2_path)
+        shell(["unzip", tmp_path, "-d", tmp2_path])
         files = os.listdir(tmp2_path)
         if len(files) == 1:
             # If contains one file, just get that one file
