@@ -5,6 +5,7 @@ from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
 from .adapter import AdapterSpec, ScenarioState, RequestState
+from .scenario import Instance, Scenario, TRAIN_TAG, VALID_TAG, TEST_TAG
 
 
 class Metric(ABC):
