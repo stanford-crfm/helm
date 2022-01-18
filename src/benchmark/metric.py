@@ -54,7 +54,12 @@ class Metric(ABC):
                 # TODO: we should add statistics with the individual instances too and serialize them out.
                 #       https://github.com/stanford-crfm/benchmarking/issues/49
                 for stat in instance_stats:
-                    merge_stat(trial_stats, stat)
+                    if VALID_TAG in instance.tags:
+                        stat.name = "val_" + stat.name
+                        merge_stat(trial_stats, stat)
+                    elif TEST_TAG in instance.tags:
+                        stat.name = "test_" + stat.name
+                        merge_stat(trial_stats, stat)
 
             # We only take the mean value for each trial
             for stat in trial_stats.values():
