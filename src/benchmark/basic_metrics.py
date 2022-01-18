@@ -63,21 +63,22 @@ class BasicMetric(Metric):
             metrics.extend(compute_metrics("exact_match", exact_match))
 
         # Compute the negative log likelihood and normalization factors fo the first completion
-        sequence = request_state.result.completions[0]
-        nll = -sequence.logprob
-        metrics.extend(
-            [
-                Stat("nll").add(nll),
-                Stat("num of tokens").add(len(sequence.tokens)),
-                Stat("num of bytes").add(len(bytes(sequence.text, encoding="utf-8"))),
-                Stat("gpt3 num of tokens").add(
-                    len(sequence.tokens) - 1
-                ),  # the logprob of the first token is not returned by GPT-3
-                Stat("gpt3 num of bytes").add(
-                    len(bytes(sequence.text[len(sequence.tokens[0].text) :], encoding="utf-8"))
-                ),
-            ]
-        )
+        if request_state.result is not None:
+            sequence = request_state.result.completions[0]
+            nll = -sequence.logprob
+            metrics.extend(
+                [
+                    Stat("nll").add(nll),
+                    Stat("num of tokens").add(len(sequence.tokens)),
+                    Stat("num of bytes").add(len(bytes(sequence.text, encoding="utf-8"))),
+                    Stat("gpt3 num of tokens").add(
+                        len(sequence.tokens) - 1
+                    ),  # the logprob of the first token is not returned by GPT-3
+                    Stat("gpt3 num of bytes").add(
+                        len(bytes(sequence.text[len(sequence.tokens[0].text) :], encoding="utf-8"))
+                    ),
+                ]
+            )
 
         # Future: add F1, BLEU, etc.
         # TODO: pass in arguments to `BasicMetric`
