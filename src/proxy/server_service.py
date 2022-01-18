@@ -10,6 +10,7 @@ from proxy.accounts import Accounts, Account
 from proxy.auto_client import AutoClient
 from proxy.example_queries import example_queries
 from proxy.models import all_models, get_model_group
+from proxy.perspective.auto_perspective_api_client import AutoPerspectiveAPIClient
 from proxy.query import Query, QueryResult
 from proxy.service import (
     Service,
@@ -43,6 +44,7 @@ class ServerService(Service):
         self.client = AutoClient(credentials, cache_path)
         self.token_counter = AutoTokenCounter()
         self.accounts = Accounts(accounts_path, read_only=read_only)
+        self.perspective_api_client = AutoPerspectiveAPIClient(credentials, cache_path)
 
     def finish(self):
         self.accounts.finish()
@@ -73,7 +75,11 @@ class ServerService(Service):
         self.accounts.check_can_use(auth.api_key, model_group)
 
         # Use!
-        request_result = self.client.make_request(request)
+        request_result: RequestResult = self.client.make_request(request)
+
+        # Additionally, calculate the toxicity scores using the PerspectiveAPI client, if the user requested it
+        if request.calculate_toxicity:
+            self.perspective_api_client.set_toxicity_attributes(request_result)
 
         # Only deduct if not cached
         if not request_result.cached:

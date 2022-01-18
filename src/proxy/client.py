@@ -17,6 +17,10 @@ class Client(ABC):
             cache_key = {**raw_request, "random": request.random}
         else:
             cache_key = raw_request
+
+        # To maintain backwards compatibility with the existing cache
+        cache_key.pop("calculate_toxicity", None)
+
         return cache_key
 
     @abstractmethod

@@ -54,6 +54,9 @@ class AdapterSpec:
     # set of training instances.  Used to compute error bars.
     num_train_trials: int = 1
 
+    # Which tags to group instances and calculate metrics
+    metric_group_tags: List[str] = field(default_factory=list)
+
     # Decoding parameters (inherited by `Request`)
 
     # Model to make the request to
@@ -67,6 +70,9 @@ class AdapterSpec:
 
     # When to stop
     stop_sequences: List[str] = field(default_factory=list)
+
+    # Whether to calculated toxicity of the generated sequences
+    calculate_toxicity: bool = False
 
 
 @dataclass(frozen=True)
@@ -311,6 +317,7 @@ class Adapter:
                         temperature=self.adapter_spec.temperature,
                         max_tokens=self.adapter_spec.max_tokens,
                         stop_sequences=[],
+                        calculate_toxicity=self.adapter_spec.calculate_toxicity,
                     )
                 else:
                     raise ValueError(f"Invalid method: {method}")
