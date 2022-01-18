@@ -34,6 +34,7 @@ class BasicMetric(Metric):
         - ${score}: max_i score(Gi, P1)
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
+
         def compute_metrics(name: str, score_func: Callable[[str, str], float]) -> List[Stat]:
             score_1 = max(score_func(gold, preds[0]) for gold in golds)
             score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
@@ -64,18 +65,24 @@ class BasicMetric(Metric):
         # Compute the negative log likelihood and normalization factors fo the first completion
         sequence = request_state.result.completions[0]
         nll = -sequence.logprob
-        metrics.extend([
-            Stat("nll").add(nll),
-            Stat("num of tokens").add(len(sequence.tokens)),
-            Stat("num of bytes").add(len(bytes(sequence.text, encoding='utf-8'))),
-            Stat("gpt3 num of tokens").add(len(sequence.tokens)-1), # the logprob of the first token is not returned by GPT-3
-            Stat("gpt3 num of bytes").add(len(bytes(sequence.text[len(sequence.tokens[0].text):], encoding='utf-8'))),
-        ])
-        
+        metrics.extend(
+            [
+                Stat("nll").add(nll),
+                Stat("num of tokens").add(len(sequence.tokens)),
+                Stat("num of bytes").add(len(bytes(sequence.text, encoding="utf-8"))),
+                Stat("gpt3 num of tokens").add(
+                    len(sequence.tokens) - 1
+                ),  # the logprob of the first token is not returned by GPT-3
+                Stat("gpt3 num of bytes").add(
+                    len(bytes(sequence.text[len(sequence.tokens[0].text) :], encoding="utf-8"))
+                ),
+            ]
+        )
+
         # Future: add F1, BLEU, etc.
         # TODO: pass in arguments to `BasicMetric`
         #       https://github.com/stanford-crfm/benchmarking/issues/44
-        
+
         return metrics
 
     def evaluate_references(

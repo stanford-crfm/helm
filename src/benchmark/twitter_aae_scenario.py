@@ -23,7 +23,7 @@ class TwitterAAEScenario(Scenario):
     tags = ["bias", "language_modeling"]
 
     def __init__(self, demographic: str = "aa"):
-        self.demographics = {"aa":0, "white":1}
+        self.demographics = {"aa": 0, "white": 1}
         assert demographic in self.demographics
         self.demographic = demographic
 
@@ -31,12 +31,14 @@ class TwitterAAEScenario(Scenario):
         # Download the raw data
         data_path = os.path.join(self.output_path, "data")
         ensure_file_downloaded(
-            source_url="http://slanglab.cs.umass.edu/TwitterAAE/TwitterAAE-full-v1.zip", target_path=data_path, unzip=True
+            source_url="http://slanglab.cs.umass.edu/TwitterAAE/TwitterAAE-full-v1.zip",
+            target_path=data_path,
+            unzip=True,
         )
 
         # Read all the instances
         instances = []
-        
+
         # TODO: This is a fake dataset just for testing purpose!
         tsv_path = os.path.join(data_path, "twitteraae_all_aa")
         if not os.path.exists(tsv_path):
@@ -47,9 +49,7 @@ class TwitterAAEScenario(Scenario):
             for row in reader:
                 # Example: ['293846693215096832', 'Tue Jan 22 22:24:45 +0000 2013', '1028920752', '[-80.01040975, 32.80108357]', '450190027021', "Click Clack Motha Fucka I ain't tryin to hear Nothin!", '0.894545454545', '0.0163636363636', '0.0', '0.0890909090909']
                 tweet = row[5]
-                instance = Instance(
-                    input=tweet, references=[], tags=[TEST_TAG],
-                )
+                instance = Instance(input=tweet, references=[], tags=[TEST_TAG],)
                 instances.append(instance)
 
         return instances

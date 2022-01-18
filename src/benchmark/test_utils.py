@@ -34,9 +34,8 @@ def get_adapter_spec1() -> AdapterSpec:
     )
 
 
-def get_basic_metrics(args: Dict[str,List[str]] = {"names": []}) -> List[MetricSpec]:
+def get_basic_metrics(args: Dict[str, List[str]] = {"names": []}) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=args)]
-
 
 
 ############################################################
@@ -69,19 +68,25 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"mmlu_subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": ["exact_match"]})
+        name=f"mmlu_subject={subject}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
+
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},)
+    scenario = ScenarioSpec(
+        class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
         instructions="",
-        input_prefix="<|endoftext|>", # the end-of-text token of GPT-3
+        input_prefix="<|endoftext|>",  # the end-of-text token of GPT-3
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=1000, # limiting this for testing purpose
+        max_eval_instances=1000,  # limiting this for testing purpose
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
@@ -89,4 +94,9 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
         max_tokens=0,
     )
 
-    return RunSpec(name="twitter_aae_demographic={demographic}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics(),)
+    return RunSpec(
+        name="twitter_aae_demographic={demographic}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics(),
+    )
