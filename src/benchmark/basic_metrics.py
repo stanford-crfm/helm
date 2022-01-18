@@ -66,7 +66,10 @@ class BasicMetric(Metric):
         nll = -sequence.logprob
         metrics.extend([
             Stat("nll").add(nll),
-            Stat("num of tokens").add(len(sequence.tokens))
+            Stat("num of tokens").add(len(sequence.tokens)),
+            Stat("num of bytes").add(len(bytes(sequence.text, encoding='utf-8'))),
+            Stat("gpt3 num of tokens").add(len(sequence.tokens)-1), # the logprob of the first token is not returned by GPT-3
+            Stat("gpt3 num of bytes").add(len(bytes(sequence.text[len(sequence.tokens[0].text):], encoding='utf-8'))),
         ])
         
         # Future: add F1, BLEU, etc.

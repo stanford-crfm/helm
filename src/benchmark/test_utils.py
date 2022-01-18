@@ -78,7 +78,7 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
         instructions="",
-        input_prefix="<|endoftext|> ", # the end-of-text token of GPT-3
+        input_prefix="<|endoftext|>", # the end-of-text token of GPT-3
         output_prefix="",
         max_train_instances=0,
         max_eval_instances=1000, # limiting this for testing purpose
