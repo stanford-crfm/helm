@@ -81,7 +81,7 @@ class BasicMetric(Metric):
             num_bytes -= get_num_bytes(adapter_spec.conditioning_prefix)
 
             metrics.extend(
-                [Stat("logprob").add(logprob), Stat("num_tokens").add(num_tokens), Stat("num_bytes").add(num_bytes),]
+                [Stat("logprob").add(logprob), Stat("num_tokens").add(num_tokens), Stat("num_bytes").add(num_bytes)]
             )
 
         # Future: add F1, BLEU, etc.
