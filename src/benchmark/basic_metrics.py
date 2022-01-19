@@ -18,7 +18,7 @@ class BasicMetric(Metric):
     """
 
     # The name of the metric to be computed
-    def __init__(self, names):
+    def __init__(self, names: List[str]):
         self.names = names
 
     def evaluate_generation(self, adapter_spec: AdapterSpec, request_state: RequestState) -> List[Stat]:
@@ -43,6 +43,9 @@ class BasicMetric(Metric):
                 Stat(f"{name}@{adapter_spec.num_outputs}").add(score_k),
             ]
 
+        def get_num_bytes(text: str):
+            return len(bytes(text, encoding="utf-8"))
+
         metrics = []
 
         if "exact_match" in self.names:
@@ -64,19 +67,21 @@ class BasicMetric(Metric):
         # Compute the negative log likelihood and normalization factors fo the first completion
         if request_state.result is not None:
             sequence = request_state.result.completions[0]
-            nll = -sequence.logprob
+            logprob, num_tokens, num_bytes = sequence.logprob, len(sequence.tokens), get_num_bytes(sequence.text)
+
+            # Ignore the condition prefix
+            # This implementation requires ''.join(token.text for token in sequence.tokens]) == sequence.text.
+            condition_prefix_length = len(adapter_spec.condition_prefix)
+            for token in sequence.tokens:
+                if condition_prefix_length == 0:
+                    break
+                logprob -= token.logprob
+                num_tokens -= 1
+                condition_prefix_length -= len(token.text)
+            num_bytes -= get_num_bytes(adapter_spec.condition_prefix)
+
             metrics.extend(
-                [
-                    Stat("nll").add(nll),
-                    Stat("num of tokens").add(len(sequence.tokens)),
-                    Stat("num of bytes").add(len(bytes(sequence.text, encoding="utf-8"))),
-                    Stat("gpt3 num of tokens").add(
-                        len(sequence.tokens) - 1
-                    ),  # the logprob of the first token is not returned by GPT-3
-                    Stat("gpt3 num of bytes").add(
-                        len(bytes(sequence.text[len(sequence.tokens[0].text) :], encoding="utf-8"))
-                    ),
-                ]
+                [Stat("logprob").add(logprob), Stat("num_tokens").add(num_tokens), Stat("num_bytes").add(num_bytes),]
             )
 
         # Future: add F1, BLEU, etc.

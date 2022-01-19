@@ -5,6 +5,8 @@ from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
 from .client import Client, wrap_request_time
 
+OPENAI_END_OF_TEXT_TOKEN = "<|endoftext|>"
+
 
 class OpenAIClient(Client):
     def __init__(self, api_key: str, cache_path: str):

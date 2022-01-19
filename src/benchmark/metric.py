@@ -58,28 +58,15 @@ class Metric(ABC):
                     merge_stat(trial_stats, stat)
 
             # Aggregate the corpus-level metrics
-            if "nll" in trial_stats and "num of tokens" in trial_stats:
+            if "logprob" in trial_stats and "num_tokens" in trial_stats:
                 merge_stat(
                     trial_stats,
-                    Stat("perplexity").add(2 ** (trial_stats["nll"].sum / trial_stats["num of tokens"].sum)),
+                    Stat("perplexity").add(2 ** (-trial_stats["logprob"].sum / trial_stats["num_tokens"].sum)),
                 )
                 merge_stat(
                     trial_stats,
-                    Stat("bits per byte").add(trial_stats["nll"].sum / trial_stats["num of bytes"].sum / log(2)),
+                    Stat("bits_per_byte").add(-trial_stats["logprob"].sum / trial_stats["num_bytes"].sum / log(2)),
                 )
-                if trial_stats["gpt3 num of tokens"].sum != 0:
-                    merge_stat(
-                        trial_stats,
-                        Stat("gpt3 perplexity").add(
-                            2 ** (trial_stats["nll"].sum / trial_stats["gpt3 num of tokens"].sum)
-                        ),
-                    )
-                    merge_stat(
-                        trial_stats,
-                        Stat("gpt3 bits per byte").add(
-                            trial_stats["nll"].sum / trial_stats["gpt3 num of bytes"].sum / log(2)
-                        ),
-                    )
 
             # We only take the mean value for each trial
             for stat in trial_stats.values():
