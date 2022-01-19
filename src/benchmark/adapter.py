@@ -27,8 +27,8 @@ class AdapterSpec:
     # Method of adaptation
     method: str
 
-    # Condition prefix whose logprob is ignored
-    condition_prefix: str = ""
+    # Conditioning prefix whose logprob is ignored
+    conditioning_prefix: str = ""
 
     # Prompt starts with instructions
     instructions: str = ""
@@ -351,7 +351,7 @@ class Adapter:
 
         blocks.append(self.construct_example_prompt(eval_instance, include_output=False))
 
-        return self.adapter_spec.condition_prefix + "\n\n".join(blocks)
+        return self.adapter_spec.conditioning_prefix + "\n\n".join(blocks)
 
     def construct_example_prompt(self, instance: Instance, include_output: bool) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""

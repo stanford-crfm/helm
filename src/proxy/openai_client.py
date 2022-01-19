@@ -7,6 +7,7 @@ from .client import Client, wrap_request_time
 
 OPENAI_END_OF_TEXT_TOKEN = "<|endoftext|>"
 
+
 class OpenAIClient(Client):
     def __init__(self, api_key: str, cache_path: str):
         openai.api_key = api_key

@@ -29,7 +29,10 @@ class MMLUScenario(Scenario):
         # Download the raw data
         data_path = os.path.join(self.output_path, "data")
         ensure_file_downloaded(
-            source_url="https://people.eecs.berkeley.edu/~hendrycks/data.tar", target_path=data_path, unpack=True, unpack_type="untar"
+            source_url="https://people.eecs.berkeley.edu/~hendrycks/data.tar",
+            target_path=data_path,
+            unpack=True,
+            unpack_type="untar",
         )
 
         # Read all the instances

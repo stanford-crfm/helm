@@ -15,9 +15,9 @@ class BasicMetric(Metric):
     fairly comprehensive already and we should try to use this as much as possible.
     If we need a different variant, try to generalize this or factor things out.
     It's possible we don't need to subclass this.
+    `names` is a list of optional metrics to be specified by the user. Currently only `exact_match` is supported.
     """
 
-    # The name of the metric to be computed
     def __init__(self, names: List[str]):
         self.names = names
 
@@ -43,7 +43,7 @@ class BasicMetric(Metric):
                 Stat(f"{name}@{adapter_spec.num_outputs}").add(score_k),
             ]
 
-        def get_num_bytes(text: str):
+        def get_num_bytes(text: str) -> int:
             return len(bytes(text, encoding="utf-8"))
 
         metrics = []
@@ -69,16 +69,16 @@ class BasicMetric(Metric):
             sequence = request_state.result.completions[0]
             logprob, num_tokens, num_bytes = sequence.logprob, len(sequence.tokens), get_num_bytes(sequence.text)
 
-            # Ignore the condition prefix
+            # Ignore the conditioning prefix
             # This implementation requires ''.join(token.text for token in sequence.tokens]) == sequence.text.
-            condition_prefix_length = len(adapter_spec.condition_prefix)
+            conditioning_prefix_length = len(adapter_spec.conditioning_prefix)
             for token in sequence.tokens:
-                if condition_prefix_length == 0:
+                if conditioning_prefix_length == 0:
                     break
                 logprob -= token.logprob
                 num_tokens -= 1
-                condition_prefix_length -= len(token.text)
-            num_bytes -= get_num_bytes(adapter_spec.condition_prefix)
+                conditioning_prefix_length -= len(token.text)
+            num_bytes -= get_num_bytes(adapter_spec.conditioning_prefix)
 
             metrics.extend(
                 [Stat("logprob").add(logprob), Stat("num_tokens").add(num_tokens), Stat("num_bytes").add(num_bytes),]
