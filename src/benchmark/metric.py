@@ -1,12 +1,11 @@
 from abc import ABC
 from typing import List, Dict
 
-from benchmark.executor import Executor
 from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
-
 from .adapter import AdapterSpec, ScenarioState, RequestState
+from .executor import Executor
 
 
 class Metric(ABC):

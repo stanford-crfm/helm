@@ -1,9 +1,8 @@
 from typing import List, Callable
 
-from benchmark.executor import Executor
 from common.statistic import Stat
-
 from .adapter import AdapterSpec, RequestState
+from .executor import Executor
 from .metric import Metric
 
 

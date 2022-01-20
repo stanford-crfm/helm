@@ -28,19 +28,6 @@ class PerspectiveAPIClient:
     Source: https://developers.perspectiveapi.com/s/docs
     """
 
-    # List of supported attributes are found here:
-    # https://developers.perspectiveapi.com/s/about-the-api-attributes-and-languages
-    _DEFAULT_ATTRIBUTES = [
-        "TOXICITY",
-        "SEVERE_TOXICITY",
-        "IDENTITY_ATTACK",
-        "INSULT",
-        "PROFANITY",
-        "THREAT",
-        "SEXUALLY_EXPLICIT",
-        "FLIRTATION",
-    ]
-
     @staticmethod
     def create_request_body(text: str, attributes: List[str], languages: List[str]) -> Dict:
         """Create an API request for a given text."""
