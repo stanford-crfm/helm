@@ -14,8 +14,10 @@ import sys
 import time
 from urllib.parse import unquote
 
+import tornado.wsgi
+import tornado.httpserver
+import tornado.ioloop
 from dacite import from_dict
-from gevent.pywsgi import WSGIServer
 
 from common.authentication import Authentication
 from common.hierarchical_logger import hlog
@@ -177,9 +179,14 @@ def main():
 
     service = ServerService(base_path=args.base_path, read_only=args.read_only)
 
-    if args.ssl_key_file and args.ssl_cert_file:
-        server = WSGIServer((args.host, args.port), app, keyfile=args.ssl_key_file, certfile=args.ssl_cert_file)
-    else:
-        server = WSGIServer((args.host, args.port), app)
+    wsgi_container = tornado.wsgi.WSGIContainer(app)
 
-    server.serve_forever()
+    if args.ssl_key_file and args.ssl_cert_file:
+        server = tornado.httpserver.HTTPServer(
+            wsgi_container, ssl_options={"certfile": args.ssl_cert_file, "keyfile": args.ssl_key_file,}
+        )
+    else:
+        server = tornado.httpserver.HTTPServer(wsgi_container)
+
+    server.listen(port=args.port)
+    tornado.ioloop.IOLoop.instance().start()
