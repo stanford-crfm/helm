@@ -6,6 +6,7 @@ from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
 from .adapter import AdapterSpec, ScenarioState, RequestState
 from .executor import Executor
+from .scenario import VALID_TAG, TEST_TAG
 
 
 class Metric(ABC):
@@ -55,6 +56,10 @@ class Metric(ABC):
                 # TODO: we should add statistics with the individual instances too and serialize them out.
                 #       https://github.com/stanford-crfm/benchmarking/issues/49
                 for stat in instance_stats:
+                    if VALID_TAG in instance.tags:
+                        stat = Stat(name=VALID_TAG + "." + stat.name).merge(stat)
+                    elif TEST_TAG in instance.tags:
+                        stat = Stat(name=TEST_TAG + "." + stat.name).merge(stat)
                     merge_stat(trial_stats, stat)
 
             # We only take the mean value for each trial
