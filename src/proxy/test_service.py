@@ -52,6 +52,29 @@ class TestServerService:
             assert type(e) == AuthenticationError
         assert raised
 
+    def test_delete_account(self):
+        account = self.service.create_account(self.auth)
+        assert account.api_key
+        non_admin_api_key = account.api_key
+        non_admin_auth = Authentication(non_admin_api_key)
+
+        # Only admins can delete accounts
+        raised = False
+        try:
+            self.service.delete_account(non_admin_auth, non_admin_api_key)
+        except Exception as e:
+            raised = True
+            assert type(e) == AuthenticationError
+        assert raised
+
+        # Delete the account as an admin and verify the account no longer exists
+        account = self.service.delete_account(self.auth, non_admin_api_key)
+        assert account.api_key == non_admin_api_key
+
+        accounts = self.service.get_accounts(self.auth)
+        assert len(accounts) == 1
+        assert account not in accounts
+
     def test_get_accounts(self):
         account = self.service.create_account(self.auth)
         non_admin_auth = Authentication(account.api_key)
@@ -121,6 +144,19 @@ class TestServerService:
             assert type(e) == AuthenticationError
         assert raised
 
+    def test_shutdown(self):
+        # Only admins can shutdown the server
+        account = self.service.create_account(self.auth)
+        non_admin_auth = Authentication(account.api_key)
+
+        raised = False
+        try:
+            self.service.shutdown(non_admin_auth)
+        except Exception as e:
+            raised = True
+            assert type(e) == AuthenticationError
+        assert raised
+
 
 def get_prod_service():
     # Note that this is not checked in / available by default
@@ -152,6 +188,7 @@ def helper_prod_test_service(request: Request, expected_text: str):
         assert completion.logprob == sum(token.logprob for token in completion.tokens)
 
         # TODO: OpenAI's API returns null for the first token, so skip checking it; investigate this
+        #       https://github.com/stanford-crfm/benchmarking/issues/54
         for token in completion.tokens[1:]:
             assert len(token.top_logprobs) == request.top_k_per_token
 
@@ -173,7 +210,7 @@ prod_models = ["openai/davinci", "ai21/j1-jumbo"]
 
 
 # TODO: put a flag on this so that it's easy to use pytest to still run these slow tests
-# https://www.py4u.net/discuss/204728
+#       https://github.com/stanford-crfm/benchmarking/issues/55
 @pytest.mark.skip(reason="Requires production")
 def test_prod_continue():
     # Test that we're continuing

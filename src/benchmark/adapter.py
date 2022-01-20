@@ -1,8 +1,9 @@
+import random
+from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Optional
-from collections import defaultdict
-import random
 
+from common.general import serialize
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from .scenario import Instance, Scenario, TRAIN_TAG, VALID_TAG, TEST_TAG
@@ -94,6 +95,25 @@ class RequestState:
     # The result of the request (filled in when the request is executed)
     result: Optional[RequestResult]
 
+    def render_lines(self) -> List[str]:
+        output = [f"Train trial index: {self.train_trial_index}"]
+        if self.reference_index:
+            output.append(f"Reference index: {self.reference_index}")
+
+        output.append("Instance")
+        output.extend(self.instance.render_lines())
+        output.append("")
+
+        output.append("Request")
+        output.extend(serialize(self.request))
+        output.append("")
+
+        if self.result:
+            output.append("Result")
+            output.extend(self.result.render_lines())
+
+        return output
+
 
 @dataclass
 class ScenarioState:
@@ -126,6 +146,19 @@ class ScenarioState:
         self, train_trial_index: int, instance: Instance, reference_index: Optional[int]
     ) -> List[RequestState]:
         return self.request_state_map.get((train_trial_index, instance, reference_index), [])
+
+    def render_lines(self) -> List[str]:
+        total: int = len(self.request_states)
+        result = ["Adapter"]
+        result.extend(serialize(self.adapter_spec))
+        result.extend([f"{total} request states", ""])
+
+        for i, request_state in enumerate(self.request_states):
+            result.append(f"------- Request state {i + 1}/{total}")
+            result.extend(request_state.render_lines())
+            result.append("")
+
+        return result
 
 
 class Adapter:

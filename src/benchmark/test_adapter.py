@@ -15,3 +15,4 @@ def test_adapter1():
     assert num_instances * adapter_spec.num_train_trials == len(scenario_state.request_states)
 
     # TODO: write tests to check the contents of the actual prompt
+    #       https://github.com/stanford-crfm/benchmarking/issues/50

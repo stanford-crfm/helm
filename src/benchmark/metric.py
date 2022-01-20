@@ -5,6 +5,7 @@ from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
 from .adapter import AdapterSpec, ScenarioState, RequestState
+from .scenario import VALID_TAG, TEST_TAG
 
 
 class Metric(ABC):
@@ -32,7 +33,9 @@ class Metric(ABC):
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[str, Stat] = {}  # Statistics just for this trial
             # TODO: incorporate robustness (worst case over a group of instances with some tag)
+            #       https://github.com/stanford-crfm/benchmarking/issues/47
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
+            #       https://github.com/stanford-crfm/benchmarking/issues/48
             for instance in scenario_state.instances:
                 instance_stats = []
 
@@ -50,7 +53,12 @@ class Metric(ABC):
 
                 # Merge these statistics back.
                 # TODO: we should add statistics with the individual instances too and serialize them out.
+                #       https://github.com/stanford-crfm/benchmarking/issues/49
                 for stat in instance_stats:
+                    if VALID_TAG in instance.tags:
+                        stat = Stat(name=VALID_TAG + "." + stat.name).merge(stat)
+                    elif TEST_TAG in instance.tags:
+                        stat = Stat(name=TEST_TAG + "." + stat.name).merge(stat)
                     merge_stat(trial_stats, stat)
 
             # We only take the mean value for each trial

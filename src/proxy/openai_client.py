@@ -37,7 +37,8 @@ class OpenAIClient(Client):
             def do_it():
                 return openai.Completion.create(**raw_request)
 
-            response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
+            cache_key = Client.make_cache_key(raw_request, request)
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.error.InvalidRequestError as e:
             return RequestResult(success=False, cached=False, error=str(e), completions=[])
 
@@ -54,11 +55,12 @@ class OpenAIClient(Client):
                 # TODO: this is a hacky solution until we figure out why
                 #       OpenAI is sending tokens including and past the stop sequences.
                 # TODO: This logic doesn't work when the stop sequences spans multiple tokens.
+                #       https://github.com/stanford-crfm/benchmarking/issues/53
                 if any(stop in text for stop in request.stop_sequences):
                     break
 
-                # For some reason, the first log probability and top choices are None.
-                # TODO: look in to why this is
+                # TODO: For some reason, the first log probability and top choices are None.
+                #       https://github.com/stanford-crfm/benchmarking/issues/54
                 tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                 sequence_logprob += logprob or 0
             completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)

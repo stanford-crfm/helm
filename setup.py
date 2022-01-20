@@ -7,6 +7,7 @@ import sys
 
 def get_requirements(path: str):
     # TODO: don't include all the dev packages
+    #       https://github.com/stanford-crfm/benchmarking/issues/41
     requirements = []
     for line in open(path):
         if not line.startswith('-r'):
@@ -38,6 +39,7 @@ setup(
         "console_scripts": [
             "benchmark-run=benchmark.run:main",
             "proxy-server=proxy.server:main",
+            "proxy-cli=proxy.cli:main",
         ]
     },
     zip_safe=False,

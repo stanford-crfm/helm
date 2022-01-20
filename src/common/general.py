@@ -2,7 +2,9 @@ import os
 import shlex
 import subprocess
 from typing import List
+
 import pyhocon
+from dataclasses import asdict, dataclass
 
 from common.hierarchical_logger import htrack, hlog
 
@@ -16,8 +18,7 @@ def singleton(items: List):
 
 def ensure_directory_exists(path: str):
     """Create `path` if it doesn't exist."""
-    if not os.path.exists(path):
-        os.mkdir(path)
+    os.makedirs(path, exist_ok=True)
 
 
 def parse_hocon(text: str):
@@ -45,6 +46,7 @@ def ensure_file_downloaded(source_url: str, target_path: str, untar: bool = Fals
     # Download
     tmp_path = target_path + ".tmp"
     # TODO: -c doesn't work for some URLs
+    #       https://github.com/stanford-crfm/benchmarking/issues/51
     shell(["wget", source_url, "-O", tmp_path])
 
     # Unpack (if needed) and put it in the right location
@@ -63,3 +65,19 @@ def ensure_file_downloaded(source_url: str, target_path: str, untar: bool = Fals
     else:
         shell(["mv", tmp_path, target_path])
     hlog(f"Finished downloading {source_url} to {target_path}")
+
+
+def format_tags(tags: List[str]) -> str:
+    """Takes a list of tags and outputs a string: [tag_1,tag_2,...,tag_n]."""
+    return f"[{','.join(tags)}]"
+
+
+def serialize(obj: dataclass) -> List[str]:
+    """Takes in a dataclass and outputs all of its fields and values in a list."""
+    return [f"{key}: {value}" for key, value in asdict(obj).items()]
+
+
+def write(file_path: str, content: str):
+    """Write content out to a file at path file_path."""
+    with open(file_path, "w") as f:
+        f.write(content)

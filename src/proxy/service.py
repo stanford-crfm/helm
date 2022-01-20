@@ -85,6 +85,11 @@ class Service(ABC):
         pass
 
     @abstractmethod
+    def delete_account(self, auth: Authentication, api_key: str) -> Account:
+        """Deletes an account."""
+        pass
+
+    @abstractmethod
     def get_accounts(self, auth: Authentication) -> List[Account]:
         """Get list of accounts."""
         pass
@@ -102,4 +107,9 @@ class Service(ABC):
     @abstractmethod
     def rotate_api_key(self, auth: Authentication, account: Account) -> Account:
         """Generate a new API key for a given account."""
+        pass
+
+    @abstractmethod
+    def shutdown(self, auth: Authentication):
+        """Shutdown server."""
         pass

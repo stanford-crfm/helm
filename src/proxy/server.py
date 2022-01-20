@@ -10,9 +10,9 @@ import bottle
 import dataclasses
 import json
 import os
-import signal
 import sys
 import time
+from urllib.parse import unquote
 
 from dacite import from_dict
 from gevent.pywsgi import WSGIServer
@@ -33,13 +33,20 @@ def safe_call(func, to_json=True):
     try:
         if to_json:
             bottle.response.content_type = "application/json"
-        if bottle.request.method in ["POST", "PUT"]:
+
+        if bottle.request.method in ["DELETE", "POST", "PUT"]:
             if bottle.request.content_type == "application/json":
                 params = bottle.request.json
             else:
                 params = bottle.request.forms
         else:
-            params = bottle.request.query
+            # bottle.request.query doesn't decode unicode properly, so do it ourselves
+            params = {}
+            if bottle.request.query_string != "":
+                for item in bottle.request.query_string.split("&"):
+                    key, value = item.split("=", 1)
+                    # urllib.parse also replaces "+" with " " for bottle.request.query
+                    params[key] = unquote(value).replace("+", " ")
         start_time = time.time()
         result = func(params)
         end_time = time.time()
@@ -81,6 +88,16 @@ def handle_create_account():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
         return dataclasses.asdict(service.create_account(auth))
+
+    return safe_call(perform)
+
+
+@app.delete("/api/account")
+def handle_delete_account():
+    def perform(args):
+        auth = Authentication(**json.loads(args["auth"]))
+        api_key = args["api_key"]
+        return dataclasses.asdict(service.delete_account(auth, api_key))
 
     return safe_call(perform)
 
@@ -139,9 +156,8 @@ def handle_request():
 @app.get("/api/shutdown")
 def handle_shutdown():
     def perform(args):
-        pid = os.getpid()
-        hlog(f"Shutting down server by killing own process {pid}...")
-        hlog(os.kill(pid, signal.SIGTERM))
+        auth = Authentication(**json.loads(args["auth"]))
+        service.shutdown(auth)
 
     return safe_call(perform)
 
@@ -154,9 +170,12 @@ def main():
     parser.add_argument("--ssl-key-file", type=str, help="Path to SSL key file")
     parser.add_argument("--ssl-cert-file", type=str, help="Path to SSL cert file")
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
+    parser.add_argument(
+        "-r", "--read-only", action="store_true", help="To start a read-only service (for testing and debugging)."
+    )
     args = parser.parse_args()
 
-    service = ServerService(base_path=args.base_path)
+    service = ServerService(base_path=args.base_path, read_only=args.read_only)
 
     if args.ssl_key_file and args.ssl_cert_file:
         server = WSGIServer((args.host, args.port), app, keyfile=args.ssl_key_file, certfile=args.ssl_cert_file)

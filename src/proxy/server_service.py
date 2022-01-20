@@ -1,9 +1,11 @@
 import os
+import signal
 from typing import List
 
 from common.authentication import Authentication
 from common.general import ensure_directory_exists, parse_hocon
 from common.request import Request, RequestResult
+from common.hierarchical_logger import hlog
 from proxy.accounts import Accounts, Account
 from proxy.auto_client import AutoClient
 from proxy.example_queries import example_queries
@@ -19,6 +21,7 @@ from proxy.service import (
     expand_environments,
     synthesize_request,
 )
+from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 
 
 class ServerService(Service):
@@ -38,6 +41,7 @@ class ServerService(Service):
         else:
             credentials = {}
         self.client = AutoClient(credentials, cache_path)
+        self.token_counter = AutoTokenCounter()
         self.accounts = Accounts(accounts_path, read_only=read_only)
 
     def finish(self):
@@ -61,6 +65,7 @@ class ServerService(Service):
         """Actually make a request to an API."""
         # TODO: try to invoke the API even if we're not authenticated, and if
         #       it turns out the results are cached, then we can just hand back the results.
+        #       https://github.com/stanford-crfm/benchmarking/issues/56
 
         self.accounts.authenticate(auth)
         model_group = get_model_group(request.model)
@@ -72,8 +77,9 @@ class ServerService(Service):
 
         # Only deduct if not cached
         if not request_result.cached:
-            # Estimate number of tokens (TODO: fix this)
-            count = sum(len(completion.text.split(" ")) for completion in request_result.completions)
+            # Count the number of tokens used
+            count: int = self.token_counter.count_tokens(request, request_result.completions)
+            hlog(f"{request.model_organization}: {count} tokens")
             self.accounts.use(auth.api_key, model_group, count)
 
         return request_result
@@ -81,6 +87,9 @@ class ServerService(Service):
     def create_account(self, auth: Authentication) -> Account:
         """Creates a new account."""
         return self.accounts.create_account(auth)
+
+    def delete_account(self, auth: Authentication, api_key: str) -> Account:
+        return self.accounts.delete_account(auth, api_key)
 
     def get_accounts(self, auth: Authentication) -> List[Account]:
         """Get list of accounts."""
@@ -97,3 +106,12 @@ class ServerService(Service):
     def rotate_api_key(self, auth: Authentication, account: Account) -> Account:
         """Generate a new API key for this account."""
         return self.accounts.rotate_api_key(auth, account)
+
+    def shutdown(self, auth: Authentication):
+        """Shutdown server (admin-only)."""
+        self.accounts.check_admin(auth)
+
+        pid = os.getpid()
+        hlog(f"Shutting down server by killing its own process {pid}...")
+        os.kill(pid, signal.SIGTERM)
+        hlog("Done.")

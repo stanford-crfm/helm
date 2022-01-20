@@ -1,3 +1,4 @@
+import argparse
 import json
 import requests
 import urllib.parse
@@ -50,6 +51,15 @@ class RemoteService(Service):
         RemoteService._check_response(response)
         return from_dict(Account, response)
 
+    def delete_account(self, auth: Authentication, api_key: str) -> Account:
+        data = {
+            "auth": json.dumps(asdict(auth)),
+            "api_key": api_key,
+        }
+        response = requests.delete(f"{self.base_url}/api/account", data=data).json()
+        RemoteService._check_response(response)
+        return from_dict(Account, response)
+
     def get_accounts(self, auth: Authentication) -> List[Account]:
         params = {"auth": json.dumps(asdict(auth)), "all": "true"}
         response = requests.get(f"{self.base_url}/api/account?{urllib.parse.urlencode(params)}").json()
@@ -80,3 +90,33 @@ class RemoteService(Service):
         response = requests.put(f"{self.base_url}/api/account/api_key", data=data).json()
         RemoteService._check_response(response)
         return from_dict(Account, response)
+
+    def shutdown(self, auth: Authentication):
+        """Shutdown server (admin-only)."""
+        params = {"auth": json.dumps(asdict(auth))}
+        try:
+            response = requests.get(f"{self.base_url}/api/shutdown?{urllib.parse.urlencode(params)}").json()
+            RemoteService._check_response(response)
+        except requests.exceptions.ConnectionError:
+            # A ConnectionError is expected when shutting down the server.
+            pass
+
+
+def add_service_args(parser: argparse.ArgumentParser):
+    """Add command-line arguments to enable command-line utilities to specify how to connect to a remote server."""
+    parser.add_argument(
+        "--server-url", default="http://crfm-models.stanford.edu", help="URL of proxy server to connect to"
+    )
+    parser.add_argument(
+        "--api-key-path", type=str, default="proxy_api_key.txt", help="Path to a file containing the API key"
+    )
+
+
+def create_remote_service(args) -> RemoteService:
+    return RemoteService(args.server_url)
+
+
+def create_authentication(args) -> Authentication:
+    with open(args.api_key_path) as f:
+        api_key = f.read().strip()
+    return Authentication(api_key=api_key)
