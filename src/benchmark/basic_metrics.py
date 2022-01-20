@@ -1,6 +1,8 @@
 from typing import List, Callable
 
+from benchmark.executor import Executor
 from common.statistic import Stat
+
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 
@@ -17,7 +19,9 @@ class BasicMetric(Metric):
     It's possible we don't need to subclass this.
     """
 
-    def evaluate_generation(self, adapter_spec: AdapterSpec, request_state: RequestState) -> List[Stat]:
+    def evaluate_generation(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, executor: Executor
+    ) -> List[Stat]:
         """
         Setup:
         - Gold (correct references): G1 ... Gm
@@ -61,7 +65,7 @@ class BasicMetric(Metric):
         return compute_metrics("exact_match", exact_match)
 
     def evaluate_references(
-        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState]
+        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState], executor: Executor
     ) -> List[Stat]:
         """
         Setup: for each reference, we have a model score (log probability) and whether it's correct.

@@ -49,9 +49,6 @@ class Request:
     # request but with different values for `random`.
     random: Optional[str] = None
 
-    # Whether to calculate toxicity scores of the completions.
-    calculate_toxicity: bool = False
-
     @property
     def model_organization(self):
         """Example: 'openai/davinci' => 'openai'"""
@@ -88,39 +85,6 @@ class Token:
 
 
 @dataclass(frozen=True)
-class ToxicityAttributes:
-    """
-    Toxicity attributes and scores calculated by PerspectiveAPI. All scores are a value from 0 to 1.
-    For a list of supported attributes and their description, see the following documentation:
-    https://developers.perspectiveapi.com/s/about-the-api-attributes-and-languages
-    """
-
-    # Attribute: TOXICITY
-    toxicity_score: Optional[float] = None
-
-    # Attribute: SEVERE_TOXICITY
-    severe_toxicity_score: Optional[float] = None
-
-    # Attribute: IDENTITY_ATTACK
-    identity_attack_score: Optional[float] = None
-
-    # Attribute: INSULT
-    insult_score: Optional[float] = None
-
-    # Attribute: PROFANITY
-    profanity_score: Optional[float] = None
-
-    # Attribute: THREAT
-    threat_score: Optional[float] = None
-
-    # Attribute: SEXUALLY_EXPLICIT
-    sexually_explicit_score: Optional[float] = None
-
-    # Attribute: FLIRTATION
-    flirtation_score: Optional[float] = None
-
-
-@dataclass
 class Sequence:
     """A `Sequence` is a sequence of tokens."""
 
@@ -132,9 +96,6 @@ class Sequence:
 
     # The tokens
     tokens: List[Token]
-
-    # Toxicity attributes for this sequence
-    toxicity_attributes: Optional[ToxicityAttributes] = None
 
     def __add__(self, other: "Sequence") -> "Sequence":
         return Sequence(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)

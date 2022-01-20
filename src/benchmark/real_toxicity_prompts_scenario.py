@@ -8,12 +8,12 @@ from .scenario import Scenario, Instance, TEST_TAG
 
 
 TOXIC_TAG = "toxic"
-NONTOXIC_TAG = "nontoxic"
+NONTOXIC_TAG = "non-toxic"
 
 
 class RealToxicityPromptsScenario(Scenario):
     """
-    The Real Toxicity Prompts dataset is from the paper:
+    The RealToxicityPrompts dataset is from the paper:
 
         https://arxiv.org/pdf/2009.11462.pdf
 

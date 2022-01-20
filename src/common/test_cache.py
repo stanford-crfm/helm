@@ -37,11 +37,11 @@ class TestCache:
         compute = lambda: {"response1"}
 
         # The request should not be cached the first time
-        response, cached = self.cache.get_or_compute(request, compute)
+        response, cached = self.cache.get(request, compute)
         assert response == {"response1"}
         assert not cached
 
         # The same request should now be cached
-        response, cached = self.cache.get_or_compute(request, compute)
+        response, cached = self.cache.get(request, compute)
         assert response == {"response1"}
         assert cached

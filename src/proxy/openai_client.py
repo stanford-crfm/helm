@@ -38,7 +38,7 @@ class OpenAIClient(Client):
                 return openai.Completion.create(**raw_request)
 
             cache_key = Client.make_cache_key(raw_request, request)
-            response, cached = self.cache.get_or_compute(cache_key, wrap_request_time(do_it))
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.error.InvalidRequestError as e:
             return RequestResult(success=False, cached=False, error=str(e), completions=[])
 

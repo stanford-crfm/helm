@@ -1,6 +1,7 @@
 import getpass
 
 from src.common.authentication import Authentication
+from src.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from src.common.request import Request, RequestResult
 from src.proxy.accounts import Account
 from proxy.remote_service import RemoteService
@@ -19,13 +20,14 @@ request = Request(prompt="Life is like a box of")
 request_result: RequestResult = service.make_request(auth, request)
 print(request_result.completions[0].text)
 
-# Calculate the toxicity of completions with PerspectiveAPI
-request = Request(prompt="Life is like a box of", calculate_toxicity=True)
-request_result: RequestResult = service.make_request(auth, request)
-print(f"Toxicity score: {request_result.completions[0].toxicity_attributes.toxicity_score}")
-
 # Expect different responses for the same request but with different values for `random`.
 # Passing in the same value for `random` guarantees the same results.
 request = Request(prompt="Life is like a box of", random="1")
 request_result: RequestResult = service.make_request(auth, request)
-print(request_result.completions[0].text)
+text: str = request_result.completions[0].text
+print(text)
+
+# Calculate the toxicity scores of completions.
+request = PerspectiveAPIRequest(text_batch=[text])
+request_result: PerspectiveAPIRequestResult = service.get_toxicity_scores(auth, request)
+print(f"Toxicity score: {request_result.text_to_toxicity_attributes[text].toxicity_score}")

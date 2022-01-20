@@ -66,7 +66,7 @@ class Runner:
         hlog(f"{len(metrics)} metrics")
         stats: List[Stat] = []
         for metric in metrics:
-            stats.extend(metric.evaluate(scenario_state))
+            stats.extend(metric.evaluate(scenario_state, self.executor))
 
         # Print out stats
         with htrack_block("Stats"):

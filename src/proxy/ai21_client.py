@@ -38,7 +38,7 @@ class AI21Client(Client):
             ).json()
 
         cache_key = Client.make_cache_key(raw_request, request)
-        response, cached = self.cache.get_or_compute(cache_key, wrap_request_time(do_it))
+        response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
 
         if "completions" not in response:
             return RequestResult(success=False, cached=False, error=response["detail"], completions=[])

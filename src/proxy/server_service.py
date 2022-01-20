@@ -4,13 +4,14 @@ from typing import List
 
 from common.authentication import Authentication
 from common.general import ensure_directory_exists, parse_hocon
+from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from common.request import Request, RequestResult
 from common.hierarchical_logger import hlog
 from proxy.accounts import Accounts, Account
 from proxy.auto_client import AutoClient
 from proxy.example_queries import example_queries
 from proxy.models import all_models, get_model_group
-from proxy.perspective.auto_perspective_api_client import AutoPerspectiveAPIClient
+from proxy.perspective_api_client import PerspectiveAPIClient
 from proxy.query import Query, QueryResult
 from proxy.service import (
     Service,
@@ -44,7 +45,7 @@ class ServerService(Service):
         self.client = AutoClient(credentials, cache_path)
         self.token_counter = AutoTokenCounter()
         self.accounts = Accounts(accounts_path, read_only=read_only)
-        self.perspective_api_client = AutoPerspectiveAPIClient(credentials, cache_path)
+        self.perspective_api_client = PerspectiveAPIClient(credentials, cache_path)
 
     def finish(self):
         self.accounts.finish()
@@ -77,10 +78,6 @@ class ServerService(Service):
         # Use!
         request_result: RequestResult = self.client.make_request(request)
 
-        # Additionally, if the user requested it, calculate the toxicity scores using the PerspectiveAPI client
-        if request.calculate_toxicity:
-            self.perspective_api_client.set_toxicity_attributes(request_result)
-
         # Only deduct if not cached
         if not request_result.cached:
             # Count the number of tokens used
@@ -89,6 +86,10 @@ class ServerService(Service):
             self.accounts.use(auth.api_key, model_group, count)
 
         return request_result
+
+    def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
+        self.accounts.authenticate(auth)
+        return self.perspective_api_client.get_toxicity_scores(request)
 
     def create_account(self, auth: Authentication) -> Account:
         """Creates a new account."""

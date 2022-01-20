@@ -2,7 +2,7 @@ import json
 import os
 import threading
 from collections import OrderedDict
-from typing import Dict, Callable, Tuple, Optional, List
+from typing import Dict, Callable, Tuple
 
 from sqlitedict import SqliteDict
 
@@ -50,7 +50,7 @@ class Cache(object):
             cache_dict.commit()
             hlog(f"{len(self.data)} entries")
 
-    def get_or_compute(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
+    def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
         key = request_to_key(request)
         if key in self.data:
@@ -70,26 +70,3 @@ class Cache(object):
                     cache_dict[key] = response
                     cache_dict.commit()
         return response, cached
-
-    def get(self, request: Dict) -> Tuple[Optional[Dict], bool]:
-        """Retrieve the cached response of `request`, if it exists."""
-        key: str = request_to_key(request)
-        if key in self.data:
-            response = self.data[key]
-            cached = True
-        else:
-            response = None
-            cached = False
-        return response, cached
-
-    def bulk_update(self, requests_and_responses: List[Tuple[Dict, Dict]]):
-        """Put multiple entries of request and response pairs into the cache."""
-        if len(requests_and_responses) == 0:
-            return
-
-        # Acquire the lock as only a single thread can loop and modify `data` simultaneously.
-        with self._lock:
-            for request, response in requests_and_responses:
-                key = request_to_key(request)
-                self.data[key] = response
-            self.write()
