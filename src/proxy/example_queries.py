@@ -69,7 +69,7 @@ example_queries = [
         environments=dedent(
             """
             occupation: [mathematician, lawyer, doctor]
-            model: [openai/davinci, ai21/j1-jumbo]
+            model: [openai/text-davinci-001, ai21/j1-jumbo]
             """
         ),
     ),
@@ -93,7 +93,7 @@ example_queries = [
         ),
         environments=dedent(
             """
-            model: [openai/davinci, ai21/j1-jumbo]
+            model: [openai/text-davinci-001, ai21/j1-jumbo]
             """
         ),
     ),
@@ -127,7 +127,7 @@ example_queries = [
         ),
         environments=dedent(
             """
-            model: [openai/davinci, ai21/j1-jumbo]
+            model: [openai/text-davinci-001, ai21/j1-jumbo]
             """
         ),
     ),
@@ -135,7 +135,7 @@ example_queries = [
         prompt="Takes two vectors a and b and returns their Euclidean distance",
         settings=dedent(
             """
-            model: openai/davinci-codex  # Codex for code generation
+            model: openai/code-davinci-001  # Codex for code generation
             """
         ),
         environments="",

@@ -12,7 +12,7 @@ class Request:
     """
 
     # Which model to query
-    model: str = "openai/davinci"
+    model: str = "openai/text-davinci-001"
 
     # What prompt do condition the language model on
     prompt: str = ""

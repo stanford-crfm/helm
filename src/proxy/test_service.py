@@ -206,7 +206,7 @@ def helper_prod_test_service(request: Request, expected_text: str):
 
 
 # Models that we want to test
-prod_models = ["openai/davinci", "ai21/j1-jumbo"]
+prod_models = ["openai/text-davinci-001", "ai21/j1-jumbo"]
 
 
 # TODO: put a flag on this so that it's easy to use pytest to still run these slow tests
