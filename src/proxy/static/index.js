@@ -101,7 +101,7 @@ $(function () {
     // Render the textboxes for entering the query (which includes the prompt, settings, and environment)
     const $queryBlock = $('<div>', {class: 'block'});
     const $prompt = $('<textarea>', {cols: 90, rows: 7, placeholder: 'Enter prompt'}).val(urlParams.prompt);
-    const $settings = $('<textarea>', {cols: 90, rows: 5, placeholder: 'Enter settings (e.g., model: openai/text-davinci-001 for GPT-3)'}).val(urlParams.settings);
+    const $settings = $('<textarea>', {cols: 90, rows: 5, placeholder: 'Enter settings (e.g., model: openai/davinci for GPT-3)'}).val(urlParams.settings);
     const $environments = $('<textarea>', {cols: 90, rows: 3, placeholder: 'Enter environment variables (e.g., city: [Boston, New York])'}).val(urlParams.environments);
 
     $queryBlock.data('prompt', $prompt);
@@ -152,7 +152,7 @@ $(function () {
     });
 
     const promptHelp = 'This is the text you feed into the language model to complete.\nExample:\n  Life is like';
-    const settingsHelp = 'Specifies what information we want from the language model (see [Help] for more details).\nExample:\n  temperature: ${temperature}\n  model: openai/text-davinci-001\n  max_tokens: 10\n  num_completions: 5';
+    const settingsHelp = 'Specifies what information we want from the language model (see [Help] for more details).\nExample:\n  temperature: ${temperature}\n  model: openai/davinci\n  max_tokens: 10\n  num_completions: 5';
     const environmentsHelp = 'Specifies a list of values to try for each variable that appears in the prompt or settings.\nExample:\n  temperature: [0, 0.5, 1]';
 
     const $promptLabel = $('<span>').append(helpIcon(promptHelp, 'help.html#query')).append('Prompt');

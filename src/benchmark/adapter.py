@@ -57,7 +57,7 @@ class AdapterSpec:
     # Decoding parameters (inherited by `Request`)
 
     # Model to make the request to
-    model: str = "openai/text-davinci-001"
+    model: str = "openai/davinci"
 
     # Temperature to use
     temperature: float = 1
