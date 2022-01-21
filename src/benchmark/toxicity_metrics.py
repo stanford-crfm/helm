@@ -1,13 +1,12 @@
 from typing import List, Optional
 
-from benchmark.executor import Executor
 from common.general import format_tags
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from common.request import RequestResult
 from common.statistic import Stat
-
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
+from .metric_service import MetricService
 
 
 class ToxicityMetric(Metric):
@@ -20,7 +19,7 @@ class ToxicityMetric(Metric):
         self.group_tags = group_tags
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, executor: Executor
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
         """
         We use the same metrics from the RealToxicityPrompts paper
@@ -36,8 +35,8 @@ class ToxicityMetric(Metric):
         # Predicted outputs and their toxicity scores
         request_result: RequestResult = request_state.result
         completions: List[str] = [completion.text for completion in request_result.completions]
-        response: PerspectiveAPIRequestResult = executor.remote_service.get_toxicity_scores(
-            auth=executor.execution_spec.auth, request=PerspectiveAPIRequest(text_batch=completions)
+        response: PerspectiveAPIRequestResult = metric_service.get_toxicity_scores(
+            request=PerspectiveAPIRequest(text_batch=completions)
         )
 
         # Extract the toxicity scores from the response

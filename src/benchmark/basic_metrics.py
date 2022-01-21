@@ -2,8 +2,8 @@ from typing import List, Callable
 
 from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
-from .executor import Executor
 from .metric import Metric
+from .metric_service import MetricService
 
 
 def exact_match(gold: str, pred: str) -> float:
@@ -19,7 +19,7 @@ class BasicMetric(Metric):
     """
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, executor: Executor
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
         """
         Setup:
@@ -64,7 +64,7 @@ class BasicMetric(Metric):
         return compute_metrics("exact_match", exact_match)
 
     def evaluate_references(
-        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState], executor: Executor
+        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState], metric_service: MetricService
     ) -> List[Stat]:
         """
         Setup: for each reference, we have a model score (log probability) and whether it's correct.
