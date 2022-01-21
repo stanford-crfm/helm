@@ -70,3 +70,29 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     return RunSpec(
         name=f"mmlu_subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics()
     )
+
+
+def get_language_pattern_matching_spec(subject: str) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.language_pattern_matching_scenario.LanguagePatternMatchingScenario",
+        args={"subject": subject},
+    )
+
+    def format(subject: str):
+        return subject.replace("_", " ")
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Please solve the following problem.",
+        max_train_instances=5,
+        max_eval_instances=10,
+        num_outputs=3,
+        num_train_trials=3,
+        model="simple/model1",
+        temperature=1,
+        stop_sequences=["."],
+    )
+
+    return RunSpec(
+        name=f"mmlu_subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics()
+    )

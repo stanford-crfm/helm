@@ -7,7 +7,7 @@ from proxy.remote_service import create_authentication
 
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
-from .test_utils import get_run_spec1, get_mmlu_spec
+from .test_utils import get_run_spec1, get_mmlu_spec, get_language_pattern_matching_spec
 
 
 def parse_run_specs(description: str) -> List[RunSpec]:
@@ -32,6 +32,8 @@ def parse_run_specs(description: str) -> List[RunSpec]:
         return [get_run_spec1()]
     if name == "mmlu":
         return [get_mmlu_spec(**args)]
+    if name == "language_pm":
+        return [get_language_pattern_matching_spec(**args)]
     raise ValueError(f"Unknown run spec: {description}")
 
 
