@@ -33,7 +33,7 @@ class Runner:
 
     def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_specs: List[RunSpec]):
         self.executor = Executor(execution_spec)
-        self.metric_service = MetricService(self.executor)
+        self.metric_service = MetricService(self.executor.remote_service, execution_spec.auth)
         self.output_path = output_path
         self.run_specs = run_specs
         ensure_directory_exists(self.output_path)

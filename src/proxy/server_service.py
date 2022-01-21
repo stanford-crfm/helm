@@ -45,7 +45,10 @@ class ServerService(Service):
         self.client = AutoClient(credentials, cache_path)
         self.token_counter = AutoTokenCounter()
         self.accounts = Accounts(accounts_path, read_only=read_only)
-        self.perspective_api_client = PerspectiveAPIClient(credentials, cache_path)
+        self.perspective_api_client = PerspectiveAPIClient(
+            api_key=credentials["perspectiveApiKey"] if "perspectiveApiKey" in credentials else "",
+            cache_path=cache_path,
+        )
 
     def finish(self):
         self.accounts.finish()

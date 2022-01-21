@@ -47,9 +47,9 @@ class PerspectiveAPIClient:
         }
         return from_dict(data_class=ToxicityAttributes, data=all_scores)
 
-    def __init__(self, credentials: Dict[str, str], cache_path: str):
-        # Credentials loaded from credentials.conf
-        self.credentials = credentials
+    def __init__(self, api_key: str, cache_path: str):
+        # API key obtained from GCP that works with PerspectiveAPI
+        self.api_key = api_key
 
         # Google API client
         self.client: Optional[discovery.Resource] = None
@@ -66,7 +66,7 @@ class PerspectiveAPIClient:
                 self.client = discovery.build(
                     "commentanalyzer",
                     "v1alpha1",
-                    developerKey=self.credentials["perspectiveApiKey"],
+                    developerKey=self.api_key,
                     discoveryServiceUrl="https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
                     static_discovery=False,
                 )
