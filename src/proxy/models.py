@@ -37,17 +37,6 @@ ALL_MODELS = [
         name="openai/code-davinci-001",
         description="Codex (for natural language to code) - 4096 max tokens",
     ),
-    # The following engine names are still supported by OpenAI.
-    Model(
-        group="codex",
-        name="openai/cushman-codex",
-        description="Codex (for natural language to code) - 2048 max tokens. Equivalent to openai/code-cushman-001.",
-    ),
-    Model(
-        group="codex",
-        name="openai/davinci-codex",
-        description="Codex (for natural language to code) - 4096 max tokens. Equivalent to openai/code-davinci-001.",
-    ),
     # For debugging
     Model(group="simple", name="simple/model1", description="Copy last tokens (for debugging)"),
 ]
