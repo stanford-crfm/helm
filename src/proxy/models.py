@@ -29,13 +29,13 @@ ALL_MODELS = [
     Model(group="gpt3", name="openai/text-ada-001", description="GPT-3 from Instruct series (350M parameters)"),
     Model(
         group="codex",
-        name="openai/code-cushman-001",
-        description="Codex (for natural language to code) - 2048 max tokens.",
+        name="openai/code-davinci-001",
+        description="Codex (for natural language to code) - 4096 max tokens",
     ),
     Model(
         group="codex",
-        name="openai/code-davinci-001",
-        description="Codex (for natural language to code) - 4096 max tokens",
+        name="openai/code-cushman-001",
+        description="Codex (for natural language to code) - 2048 max tokens.",
     ),
     # For debugging
     Model(group="simple", name="simple/model1", description="Copy last tokens (for debugging)"),
