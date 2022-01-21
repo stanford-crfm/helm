@@ -5,6 +5,7 @@ from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
 from .adapter import AdapterSpec, ScenarioState, RequestState
+from .metric_service import MetricService
 from .scenario import VALID_TAG, TEST_TAG
 
 
@@ -18,7 +19,7 @@ class Metric(ABC):
     might move to a world where there is one (or very few metrics that are domain-independent).
     """
 
-    def evaluate(self, scenario_state: ScenarioState) -> List[Stat]:
+    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
         """
         Main entry point for a `Metric`.  This function groups the the single
         list of `RequestState` by training trial and instance, and invokes
@@ -41,7 +42,7 @@ class Metric(ABC):
 
                 # Evaluate generated request_state
                 request_state = singleton(scenario_state.get_request_states(train_trial_index, instance, None))
-                instance_stats.extend(self.evaluate_generation(adapter_spec, request_state))
+                instance_stats.extend(self.evaluate_generation(adapter_spec, request_state, metric_service))
 
                 # Evaluate the references
                 request_states = []
@@ -49,7 +50,7 @@ class Metric(ABC):
                     request_states.extend(
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
-                instance_stats.extend(self.evaluate_references(adapter_spec, request_states))
+                instance_stats.extend(self.evaluate_references(adapter_spec, request_states, metric_service))
 
                 # Merge these statistics back.
                 # TODO: we should add statistics with the individual instances too and serialize them out.
@@ -67,12 +68,14 @@ class Metric(ABC):
 
         return list(global_stats.values())
 
-    def evaluate_generation(self, adapter_spec: AdapterSpec, request_state: RequestState) -> List[Stat]:
+    def evaluate_generation(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    ) -> List[Stat]:
         """Evaluate free-form generation.  Override me!"""
         return []
 
     def evaluate_references(
-        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState]
+        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState], metric_service: MetricService
     ) -> List[Stat]:
         """Evaluate the references.  Override me!"""
         return []

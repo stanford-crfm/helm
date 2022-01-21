@@ -51,6 +51,26 @@ This is done, but just for the record:
     crfm-models:$ echo '{"api_key": "crfm"}' > prod_env/accounts.jsonl
     laptop:$ rsync -arvz prod_env/credentials.conf crfm-models.stanford.edu:/home/benchmarking/prod_env
 
+#### Perspective API
+
+We use Google's [Perspective API](https://www.perspectiveapi.com) to calculate the toxicity of completions. 
+To send requests to PerspectiveAPI, we need to generate an API key from GCP. Follow the 
+[Get Started guide](https://developers.perspectiveapi.com/s/docs-get-started) 
+to request the service and the [Enable the API guide](https://developers.perspectiveapi.com/s/docs-enable-the-api) 
+to generate the API key. Once you have a valid API key, add an entry to `credentials.conf`:
+
+```
+perspectiveApiKey: <Generated API key>
+```
+
+By default, Perspective API allows only 1 query per second. Fill out this 
+[form](https://developers.perspectiveapi.com/s/request-quota-increase) to increase the request quota.
+
+The [current API key](https://console.cloud.google.com/apis/api/commentanalyzer.googleapis.com/overview?authuser=1&project=hai-gcp-models) 
+we are using in production was created with the `hai-gcp-models` account and allows 100 queries per second. 
+**The API key expires on 4/15/2022.**
+
+
 ### Every time we need to deploy:
 
 Update the code:

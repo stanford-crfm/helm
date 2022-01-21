@@ -36,7 +36,7 @@ class AdapterSpec:
     # What goes before the input (for multiple choice)
     reference_prefix: str = "\nA. "
 
-    # What goes before the input
+    # What goes before the output
     output_prefix: str = "\nOutput: "
 
     # Maximum number of (in-context) training instances to put into the prompt
@@ -308,8 +308,8 @@ class Adapter:
                         model=self.adapter_spec.model,
                         prompt=prompt,
                         num_completions=self.adapter_spec.num_outputs,
-                        temperature=0,
-                        max_tokens=1,
+                        temperature=self.adapter_spec.temperature,
+                        max_tokens=self.adapter_spec.max_tokens,
                         stop_sequences=[],
                     )
                 else:

@@ -1,6 +1,7 @@
 openai==0.2.4
 bottle==0.12.19
 dacite==1.6.0
+google-api-python-client==2.35.0
 Mako==1.1.5
 Paste==3.5.0
 pyhocon==0.3.58
