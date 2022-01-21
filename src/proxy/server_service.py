@@ -10,8 +10,8 @@ from common.hierarchical_logger import hlog
 from proxy.accounts import Accounts, Account
 from proxy.auto_client import AutoClient
 from proxy.example_queries import example_queries
-from proxy.models import all_models, get_model_group
 from proxy.perspective_api_client import PerspectiveAPIClient
+from proxy.models import ALL_MODELS, get_model_group
 from proxy.query import Query, QueryResult
 from proxy.service import (
     Service,
@@ -51,7 +51,7 @@ class ServerService(Service):
         self.accounts.finish()
 
     def get_general_info(self) -> GeneralInfo:
-        return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=all_models)
+        return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=ALL_MODELS)
 
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""
