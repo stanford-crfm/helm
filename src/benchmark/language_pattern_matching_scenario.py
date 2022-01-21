@@ -179,12 +179,12 @@ class LanguagePatternMatchingScenario(Scenario):
 
     def __init__(self, difficulty: str, random_seed=42):
         self.attribute_groups, self.subjects = get_vocab()
-        self.generic_attributes = difficulty == 'easy'
-        self.specific_category = difficulty != 'hard' 
-        # generic_attributes specifies that the top level attribute should always be used 
-        # e.g. "cold" instead of "chill"
         # specific_category specifies that the specific category should always be used
         # e.g. "dog" instead of "an animal"
+        self.specific_category = difficulty == 'easy' 
+        # generic_attributes specifies that the top level attribute should always be used 
+        # e.g. "cold" instead of "chill"
+        self.generic_attributes = difficulty != 'hard'
         self.include_intermediates = False
         self.n_train_samples = 5
         self.n_valid_samples = 50
