@@ -8,6 +8,10 @@ def test_ensure_file_downloaded():
     assert os.path.isdir("test-tar")
     shutil.rmtree("test-tar")
 
+    ensure_file_downloaded("https://ftp.gnu.org/gnu/gzip/gzip-1.9.zip", "test-zip", unpack=True)
+    assert os.path.isdir("test-zip")
+    shutil.rmtree("test-zip")
+
 
 def test_format_tags():
     tags = ["tag_1", "tag_2", "tag_3"]
