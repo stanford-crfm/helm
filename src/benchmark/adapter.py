@@ -1,6 +1,7 @@
 import random
 from collections import defaultdict
 from dataclasses import dataclass, field
+from tracemalloc import stop
 from typing import List, Dict, Tuple, Optional
 
 from common.general import serialize
@@ -13,6 +14,7 @@ from .scenario import Instance, Scenario, TRAIN_TAG, VALID_TAG, TEST_TAG
 ADAPT_LANGUAGE_MODELING = "language_modeling"
 ADAPT_MULTIPLE_CHOICE = "multiple_choice"
 ADAPT_GENERATION = "generation"
+ADAPT_LANGUAGE_GENERATION = "generative_language_modeling"
 
 
 @dataclass(frozen=True)
@@ -311,6 +313,16 @@ class Adapter:
                         temperature=0,
                         max_tokens=1,
                         stop_sequences=[],
+                    )
+                elif method == ADAPT_LANGUAGE_GENERATION:
+                    output_mapping = None
+                    request = Request(
+                        model=self.adapter_spec.model,
+                        prompt=prompt,
+                        num_completions=1,
+                        temperature=self.adapter_spec.temperature,
+                        max_tokens=self.adapter_spec.max_tokens,
+                        stop_sequences=self.adapter_spec.stop_sequences,
                     )
                 else:
                     raise ValueError(f"Invalid method: {method}")

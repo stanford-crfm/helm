@@ -177,20 +177,21 @@ class LanguagePatternMatchingScenario(Scenario):
     description = "Massive Multitask Language Understanding"
     tags = ["reasoning", "language", "pattern_matching"]
 
-    def __init__(self, subject: str):
+    def __init__(self, difficulty: str, random_seed=42):
         self.attribute_groups, self.subjects = get_vocab()
-        self.generic_attributes = False
-        self.specific_category = False
-        self.include_intermediates = True
-        self.n_train_samples = 100
-        self.n_valid_samples = 100
-        self.n_test_samples = 100
+        self.generic_attributes = difficulty != 'easy'
+        self.specific_category = difficulty == 'hard' 
+        self.include_intermediates = False
+        self.n_train_samples = 3
+        self.n_valid_samples = 50
+        self.n_test_samples = 50
+        random.seed(random_seed)
 
     def get_instances(self) -> List[Instance]:
         # Read all the instances
         instances = []
 
-        for sample_idx in range(self.n_train_samples + self.n_test_samples):
+        for sample_idx in range(self.n_train_samples + self.n_valid_samples + self.n_test_samples):
             # generic_attributes specifies that the top level attribute should always be used
             # e.g. "cold" instead of "chill"
             # specific_category specifies that the specific category should always be used
@@ -204,7 +205,8 @@ class LanguagePatternMatchingScenario(Scenario):
                 self.attribute_groups, subject, rules
             )
 
-            question = "Rules:\n"
+            # question = "Rules:\n"
+            question = ""
             for rule in rules:
                 question += parse_rule(rule) + "\n"
 

@@ -1,7 +1,7 @@
 from typing import List
 
 from .scenario import ScenarioSpec
-from .adapter import AdapterSpec, ADAPT_MULTIPLE_CHOICE, ADAPT_GENERATION
+from .adapter import ADAPT_LANGUAGE_MODELING, AdapterSpec, ADAPT_MULTIPLE_CHOICE, ADAPT_GENERATION, ADAPT_LANGUAGE_GENERATION
 from .metric import MetricSpec
 from .runner import RunSpec
 
@@ -37,6 +37,8 @@ def get_adapter_spec1() -> AdapterSpec:
 def get_basic_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={})]
 
+def get_lpm_metrics() -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.lpm_metrics.LPMMetric", args={})]
 
 ############################################################
 
@@ -72,27 +74,31 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     )
 
 
-def get_language_pattern_matching_spec(subject: str) -> RunSpec:
+def get_language_pattern_matching_spec(difficulty: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.language_pattern_matching_scenario.LanguagePatternMatchingScenario",
-        args={"subject": subject},
+        args={"difficulty": difficulty},
     )
 
-    def format(subject: str):
-        return subject.replace("_", " ")
+    def format(difficulty: str):
+        return difficulty.replace("_", " ")
 
     adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
+        method=ADAPT_LANGUAGE_GENERATION,
         instructions="Please solve the following problem.",
-        max_train_instances=5,
-        max_eval_instances=10,
+        max_train_instances=3,
+        max_eval_instances=50,
         num_outputs=3,
-        num_train_trials=3,
-        model="simple/model1",
-        temperature=1,
-        stop_sequences=["."],
+        num_train_trials=1,
+        model="openai/davinci",
+        # model="simple/model1",
+        temperature=0.2,
+        stop_sequences=["\n"],
+        max_tokens=20,
+        input_prefix="Rules:\n",
+        output_prefix="",
     )
 
     return RunSpec(
-        name=f"mmlu_subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics()
+        name=f"lpm_difficulty={difficulty}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_lpm_metrics()
     )
