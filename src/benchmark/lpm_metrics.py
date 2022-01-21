@@ -17,6 +17,16 @@ def iou_match(gold: str, pred: str) -> float:
         len(gold_set.union(pred_set))
     )
 
+def exact_set_match(gold: str, pred: str) -> float:
+    pred = pred.split('\n')[0]
+    if gold == "Nothing.":
+        return float(pred == 'Nothing.')
+    pred = pred.replace('.', '')
+    gold = gold.replace('.', '')
+    gold_set = set(gold.split(" is ")[-1].split(' and '))
+    pred_set = set(pred.split(" is ")[-1].split(' and '))
+    return float(gold_set == pred_set)
+
 class LPMMetric(Metric):
     """
     Compare a predicted set to a target set
@@ -63,7 +73,7 @@ class LPMMetric(Metric):
         # Future: add F1, BLEU, etc.
         # TODO: pass in arguments to `BasicMetric`
         #       https://github.com/stanford-crfm/benchmarking/issues/44
-        return compute_metrics("iou_match", iou_match)
+        return compute_metrics("iou_match", iou_match) + compute_metrics("exact_set_match", exact_set_match)
 
     def evaluate_references(
         self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState]
