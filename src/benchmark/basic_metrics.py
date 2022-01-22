@@ -64,20 +64,23 @@ class BasicMetric(Metric):
                 preds = [request_state.output_mapping.get(pred) for pred in preds]
             metrics.extend(compute_metrics("exact_match", exact_match))
 
-        # Compute the negative log likelihood and normalization factors fo the first completion
+        # Compute the logprob and normalization factors for the first completion
         if request_state.result is not None:
             sequence = request_state.result.completions[0]
             logprob, num_tokens, num_bytes = sequence.logprob, len(sequence.tokens), get_num_bytes(sequence.text)
 
             # Ignore the conditioning prefix
-            # This implementation requires ''.join(token.text for token in sequence.tokens]) == sequence.text.
             conditioning_prefix_length = len(adapter_spec.conditioning_prefix)
+            conditioning_prefix_tokens = []
             for token in sequence.tokens:
-                if conditioning_prefix_length == 0:
+                if conditioning_prefix_length <= 0:
                     break
-                logprob -= token.logprob
-                num_tokens -= 1
+                conditioning_prefix_tokens.append(token)
                 conditioning_prefix_length -= len(token.text)
+            assert "".join([token.text for token in conditioning_prefix_tokens]) == adapter_spec.conditioning_prefix
+
+            logprob -= sum(token.logprob for token in conditioning_prefix_tokens)
+            num_tokens -= len(conditioning_prefix_tokens)
             num_bytes -= get_num_bytes(adapter_spec.conditioning_prefix)
 
             metrics.extend(
