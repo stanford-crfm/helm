@@ -64,15 +64,20 @@ class Metric(ABC):
                     merge_stat(trial_stats, stat)
 
             # Aggregate the corpus-level metrics
-            if "logprob" in trial_stats and "num_tokens" in trial_stats:
-                merge_stat(
-                    trial_stats,
-                    Stat("perplexity").add(2 ** (-trial_stats["logprob"].sum / trial_stats["num_tokens"].sum)),
-                )
-                merge_stat(
-                    trial_stats,
-                    Stat("bits_per_byte").add(-trial_stats["logprob"].sum / trial_stats["num_bytes"].sum / log(2)),
-                )
+            for tag in [VALID_TAG, TEST_TAG]:
+                if tag + "." + "logprob" in trial_stats and tag + "." + "num_tokens" in trial_stats:
+                    merge_stat(
+                        trial_stats,
+                        Stat(tag + "." + "perplexity").add(
+                            2 ** (-trial_stats[tag + "." + "logprob"].sum / trial_stats[tag + "." + "num_tokens"].sum)
+                        ),
+                    )
+                    merge_stat(
+                        trial_stats,
+                        Stat(tag + "." + "bits_per_byte").add(
+                            -trial_stats[tag + "." + "logprob"].sum / trial_stats[tag + "." + "num_bytes"].sum / log(2)
+                        ),
+                    )
 
             # We only take the mean value for each trial
             for stat in trial_stats.values():
