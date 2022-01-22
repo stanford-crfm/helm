@@ -78,13 +78,13 @@ class BasicMetric(Metric):
             logprob, num_tokens, num_bytes = sequence.logprob, len(sequence.tokens), get_num_bytes(sequence.text)
 
             # Ignore the conditioning prefix
-            conditioning_prefix_length = len(adapter_spec.conditioning_prefix)
+            conditioning_prefix_length = 0
             conditioning_prefix_tokens = []
             for token in sequence.tokens:
-                if conditioning_prefix_length <= 0:
+                if conditioning_prefix_length >= len(adapter_spec.conditioning_prefix):
                     break
                 conditioning_prefix_tokens.append(token)
-                conditioning_prefix_length -= len(token.text)
+                conditioning_prefix_length += len(token.text)
             assert "".join([token.text for token in conditioning_prefix_tokens]) == adapter_spec.conditioning_prefix
 
             logprob -= sum(token.logprob for token in conditioning_prefix_tokens)
