@@ -96,7 +96,7 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
         input_prefix="",
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=1000,  # limiting this for testing purpose
+        max_eval_instances=1000,  # TODO: remove this line once deployed, so we can cache everything in prod
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
