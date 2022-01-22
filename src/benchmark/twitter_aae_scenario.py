@@ -11,6 +11,9 @@ class TwitterAAEScenario(Scenario):
     The TwitterAAE corpus from this paper:
 
         https://aclanthology.org/D16-1120.pdf
+
+    The current implementation of this scenario is incomplete and should only be used for testing purposes.
+    It does not support `demographic=white`; the `aa` subset is unfiltered, either.
     """
 
     name = "twitter_aae"
@@ -35,7 +38,6 @@ class TwitterAAEScenario(Scenario):
         # Read all the instances
         instances = []
 
-        # TODO: This is a fake dataset just for testing purpose!
         tsv_path = os.path.join(data_path, "twitteraae_all_aa")
         if not os.path.exists(tsv_path):
             raise Exception(f"{tsv_path} doesn't exist")
