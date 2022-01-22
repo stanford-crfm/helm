@@ -3,6 +3,7 @@ from typing import List, Callable
 from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
+from .metric_service import MetricService
 
 
 def exact_match(gold: str, pred: str) -> float:
@@ -21,7 +22,9 @@ class BasicMetric(Metric):
     def __init__(self, names: List[str]):
         self.names = names
 
-    def evaluate_generation(self, adapter_spec: AdapterSpec, request_state: RequestState) -> List[Stat]:
+    def evaluate_generation(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    ) -> List[Stat]:
         """
         Setup:
         - Gold (correct references): G1 ... Gm
@@ -105,7 +108,7 @@ class BasicMetric(Metric):
         return metrics
 
     def evaluate_references(
-        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState]
+        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState], metric_service: MetricService
     ) -> List[Stat]:
         """
         Setup: for each reference, we have a model score (log probability) and whether it's correct.

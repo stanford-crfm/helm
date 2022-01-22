@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Tuple, Any
 
 from common.general import parse_hocon
+from common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
 from common.request import Request, RequestResult
 from .models import Model
 from .query import Query, QueryResult
@@ -77,6 +78,11 @@ class Service(ABC):
     @abstractmethod
     def make_request(self, auth: Authentication, request: Request) -> RequestResult:
         """Actually make a request to an API."""
+        pass
+
+    @abstractmethod
+    def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
+        """Get toxicity scores for a batch of text."""
         pass
 
     @abstractmethod
