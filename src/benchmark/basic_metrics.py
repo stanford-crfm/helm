@@ -34,38 +34,43 @@ class BasicMetric(Metric):
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
 
-        def compute_metrics(name: str, score_func: Callable[[str, str], float]) -> List[Stat]:
-            score_1 = max(score_func(gold, preds[0]) for gold in golds)
-            score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
-
-            return [
-                Stat(name).add(score_1),
-                Stat(f"{name}@{adapter_spec.num_outputs}").add(score_k),
-            ]
-
         def get_num_bytes(text: str) -> int:
+            """Compute the byte length of the input string"""
             return len(bytes(text, encoding="utf-8"))
 
-        metrics = []
+        def compute_reference_metrics():
+            """Compute the reference metrics."""
 
-        if "exact_match" in self.names:
-            # Gold outputs
-            golds = [reference.output for reference in request_state.instance.references if reference.is_correct]
-            assert len(golds) > 0
+            def compute_metrics_helper(name: str, score_func: Callable[[str, str], float]) -> List[Stat]:
+                score_1 = max(score_func(gold, preds[0]) for gold in golds)
+                score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
 
-            # Predicted outputs
-            assert request_state.result is not None
-            # TODO: Sort the predictions, or take them from the top tokens of the first completion
-            #       https://github.com/stanford-crfm/benchmarking/issues/42
-            preds = [completion.text.strip() for completion in request_state.result.completions]
+                return [
+                    Stat(name).add(score_1),
+                    Stat(f"{name}@{adapter_spec.num_outputs}").add(score_k),
+                ]
 
-            # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
-            if request_state.output_mapping is not None:
-                preds = [request_state.output_mapping.get(pred) for pred in preds]
-            metrics.extend(compute_metrics("exact_match", exact_match))
+            reference_metrics = []
 
-        # Compute the logprob and normalization factors for the first completion
-        if request_state.result is not None:
+            if "exact_match" in self.names:
+                # Gold outputs
+                golds = [reference.output for reference in request_state.instance.references if reference.is_correct]
+                assert len(golds) > 0
+
+                # Predicted outputs
+                assert request_state.result is not None
+                # TODO: Sort the predictions, or take them from the top tokens of the first completion
+                #       https://github.com/stanford-crfm/benchmarking/issues/42
+                preds = [completion.text.strip() for completion in request_state.result.completions]
+
+                # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
+                if request_state.output_mapping is not None:
+                    preds = [request_state.output_mapping.get(pred) for pred in preds]
+                reference_metrics.extend(compute_metrics_helper("exact_match", exact_match))
+            return reference_metrics
+
+        def compute_language_modeling_metrics():
+            """Compute the logprob and normalization factors for the first completion"""
             sequence = request_state.result.completions[0]
             logprob, num_tokens, num_bytes = sequence.logprob, len(sequence.tokens), get_num_bytes(sequence.text)
 
@@ -83,9 +88,15 @@ class BasicMetric(Metric):
             num_tokens -= len(conditioning_prefix_tokens)
             num_bytes -= get_num_bytes(adapter_spec.conditioning_prefix)
 
-            metrics.extend(
-                [Stat("logprob").add(logprob), Stat("num_tokens").add(num_tokens), Stat("num_bytes").add(num_bytes)]
-            )
+            return [Stat("logprob").add(logprob), Stat("num_tokens").add(num_tokens), Stat("num_bytes").add(num_bytes)]
+
+        metrics = []
+
+        if len(request_state.instance.references) > 0:
+            metrics.extend(compute_reference_metrics())
+
+        if request_state.result is not None:
+            metrics.extend(compute_language_modeling_metrics())
 
         # Future: add F1, BLEU, etc.
         # TODO: pass in arguments to `BasicMetric`
