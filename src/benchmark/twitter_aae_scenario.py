@@ -14,6 +14,8 @@ class TwitterAAEScenario(Scenario):
 
     The current implementation of this scenario is incomplete and should only be used for testing purposes.
     It does not support `demographic=white`; the `aa` subset is unfiltered, either.
+    # TODO: Implement the data filtering process for `white` and `aa`
+    #       https://github.com/stanford-crfm/benchmarking/issues/73
     """
 
     name = "twitter_aae"
