@@ -84,6 +84,34 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     )
 
 
+def get_commonsense_qa_spec(dataset: str) -> RunSpec:
+    if dataset == "hellaswag":
+        scenario = ScenarioSpec(class_name="benchmark.commonsense_qa_scenario.HellaSwagScenario", args={})
+    else:
+        raise ValueError(f"Unknown commonsense QA dataset: {dataset}")
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        conditioning_prefix="",
+        instructions="The following are multiple choice questions (with answers) about common sense.",
+        input_prefix="",
+        output_prefix="\nAnswer: ",
+        max_train_instances=5,
+        max_eval_instances=1000,
+        num_outputs=10,
+        num_train_trials=1,
+        model="simple/model1",
+        temperature=0,
+    )
+
+    return RunSpec(
+        name=f"commonsense_qa_dataset={dataset}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
