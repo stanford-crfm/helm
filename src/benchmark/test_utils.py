@@ -87,6 +87,8 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 def get_commonsense_qa_spec(dataset: str) -> RunSpec:
     if dataset == "hellaswag":
         scenario = ScenarioSpec(class_name="benchmark.commonsense_qa_scenario.HellaSwagScenario", args={})
+    elif dataset == "openbookqa":
+        scenario = ScenarioSpec(class_name="benchmark.commonsense_qa_scenario.OpenBookQAScenario", args={})
     else:
         raise ValueError(f"Unknown commonsense QA dataset: {dataset}")
 
