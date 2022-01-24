@@ -1,7 +1,7 @@
 from typing import List
 
 from common.request import Request, Sequence
-from proxy.tokenizer.token_counter import TokenCounter
+from common.tokenizer.token_counter import TokenCounter
 from transformers import GPT2TokenizerFast
 
 

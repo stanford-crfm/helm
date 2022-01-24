@@ -2,7 +2,7 @@ from typing import List, Dict
 
 from common.request import Request
 from common.statistic import Stat, merge_stat
-from proxy.tokenizer.auto_token_counter import AutoTokenCounter
+from common.tokenizer.auto_token_counter import AutoTokenCounter
 from .adapter import ScenarioState
 from .metric import Metric
 from .metric_service import MetricService
