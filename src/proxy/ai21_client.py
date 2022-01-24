@@ -6,7 +6,7 @@ from common.request import Request, RequestResult, Sequence, Token
 from .client import Client, wrap_request_time
 
 
-class AI21ClientError(Exception):
+class AI21RequestError(Exception):
     pass
 
 
@@ -15,8 +15,6 @@ class AI21Client(Client):
     AI21 Labs provides Jurassic models.
     https://studio.ai21.com/docs/api/
     """
-
-    QUOTA_EXCEEDED_ERROR = "Quota exceeded."
 
     def __init__(self, api_key: str, cache_path: str):
         self.api_key = api_key
@@ -36,24 +34,24 @@ class AI21Client(Client):
             "stopSequences": request.stop_sequences,
         }
 
-        def do_it():
-            response = requests.post(
-                f"https://api.ai21.com/studio/v1/{request.model_engine}/complete",
-                headers={"Authorization": f"Bearer {self.api_key}"},
-                json=raw_request,
-            ).json()
+        try:
 
-            # Throw an error instead of caching responses with a 'Quota exceeded' error from AI21
-            if "detail" in response and response["detail"] == AI21Client.QUOTA_EXCEEDED_ERROR:
-                raise AI21ClientError(f"AI21 - {response['detail']}")
+            def do_it():
+                response = requests.post(
+                    f"https://api.ai21.com/studio/v1/{request.model_engine}/complete",
+                    headers={"Authorization": f"Bearer {self.api_key}"},
+                    json=raw_request,
+                ).json()
 
-            return response
+                if "completions" not in response and "detail" in response:
+                    raise AI21RequestError(f"AI21 error: {response['detail']}")
 
-        cache_key = Client.make_cache_key(raw_request, request)
-        response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+                return response
 
-        if "completions" not in response:
-            return RequestResult(success=False, cached=False, error=response["detail"], completions=[])
+            cache_key = Client.make_cache_key(raw_request, request)
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except AI21RequestError as e:
+            return RequestResult(success=False, cached=False, error=str(e), completions=[])
 
         def fix_text(x: str, first: bool) -> str:
             x = x.replace("▁", " ")

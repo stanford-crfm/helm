@@ -2,7 +2,6 @@ import argparse
 import os
 
 from common.cache import Cache
-from proxy.ai21_client import AI21Client
 
 """
 Script to fix an existing AI21 cache.
@@ -13,6 +12,8 @@ Usage:
 
 """
 
+QUOTA_EXCEEDED_ERROR = "Quota exceeded."
+
 
 def remove_quota_exceeded_entries(cache_path: str):
     cache = Cache(cache_path)
@@ -22,7 +23,7 @@ def remove_quota_exceeded_entries(cache_path: str):
         response = cache.data[key]
 
         # Remove entries from the cache that has the 'Quota exceeded' error
-        if "detail" in response and response["detail"] == AI21Client.QUOTA_EXCEEDED_ERROR:
+        if "detail" in response and response["detail"] == QUOTA_EXCEEDED_ERROR:
             del cache.data[key]
 
     # Delete the old cache file and write out the repaired cache to cache_path
