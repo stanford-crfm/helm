@@ -7,7 +7,7 @@ from proxy.remote_service import create_authentication
 
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
-from .test_utils import get_run_spec1, get_mmlu_spec, get_real_toxicity_prompts_spec
+from .test_utils import get_tokens_metrics, get_run_spec1, get_mmlu_spec, get_real_toxicity_prompts_spec
 
 
 def parse_run_specs(description: str) -> List[RunSpec]:
@@ -56,15 +56,25 @@ def main():
     parser.add_argument("-r", "--run-specs", nargs="*", help="Specifies what to run", default=["simple1"])
     parser.add_argument("-o", "--output-path", help="Where to save all the output", default="benchmark_output")
     parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads to make requests", default=5)
+    parser.add_argument(
+        "-d",
+        "--dry-run",
+        action="store_true",
+        help="If set, the runner will skip execution, dump the scenario states and estimate token usage.",
+    )
     args = parser.parse_args()
 
     auth: Authentication = create_authentication(args)
-    execution_spec = ExecutionSpec(auth=auth, url=args.url, parallelism=args.num_threads)
+    execution_spec = ExecutionSpec(auth=auth, url=args.url, parallelism=args.num_threads, dry_run=args.dry_run)
 
     run_specs = [run_spec for description in args.run_specs for run_spec in parse_run_specs(description)]
     with htrack_block("Run specs"):
         for run_spec in run_specs:
             hlog(run_spec.scenario)
+
+            # When performing a dry run, just estimate the number of tokens instead of calculating the metrics
+            if args.dry_run:
+                run_spec.metrics = get_tokens_metrics()
 
     runner = Runner(execution_spec, args.output_path, run_specs)
     runner.run_all()

@@ -34,3 +34,10 @@ class AutoTokenCounter(TokenCounter):
         """
         token_counter: TokenCounter = self.get_token_counter(request.model_organization)
         return token_counter.count_tokens(request, completions)
+
+    def estimate_tokens(self, request: Request) -> int:
+        """
+        Estimate the number of tokens for a given request based on the organization.
+        """
+        token_counter: TokenCounter = self.get_token_counter(request.model_organization)
+        return token_counter.estimate_tokens(request)

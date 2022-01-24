@@ -7,7 +7,7 @@ from typing import Any, List
 
 from common.authentication import Authentication
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
-from common.request import Request, RequestResult
+from common.request import Request, RequestResult, TokenEstimationRequestResult
 from dacite import from_dict
 from proxy.accounts import Account
 from proxy.query import Query, QueryResult
@@ -45,6 +45,12 @@ class RemoteService(Service):
         response = requests.get(f"{self.base_url}/api/request?{urllib.parse.urlencode(params)}").json()
         RemoteService._check_response(response)
         return from_dict(RequestResult, response)
+
+    def estimate_tokens(self, request: Request) -> TokenEstimationRequestResult:
+        params = {"request": json.dumps(asdict(request))}
+        response = requests.get(f"{self.base_url}/api/estimate_tokens?{urllib.parse.urlencode(params)}").json()
+        RemoteService._check_response(response)
+        return from_dict(TokenEstimationRequestResult, response)
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         params = {

@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple, Any
 
 from common.general import parse_hocon
 from common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
-from common.request import Request, RequestResult
+from common.request import Request, RequestResult, TokenEstimationRequestResult
 from .models import Model
 from .query import Query, QueryResult
 from .accounts import Authentication, Account
@@ -78,6 +78,11 @@ class Service(ABC):
     @abstractmethod
     def make_request(self, auth: Authentication, request: Request) -> RequestResult:
         """Actually make a request to an API."""
+        pass
+
+    @abstractmethod
+    def estimate_tokens(self, request: Request) -> TokenEstimationRequestResult:
+        """Roughly estimate the number of tokens the request will use."""
         pass
 
     @abstractmethod

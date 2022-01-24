@@ -5,7 +5,7 @@ from typing import List
 from common.authentication import Authentication
 from common.general import ensure_directory_exists, parse_hocon
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
-from common.request import Request, RequestResult
+from common.request import Request, RequestResult, TokenEstimationRequestResult
 from common.hierarchical_logger import hlog
 from proxy.accounts import Accounts, Account
 from proxy.auto_client import AutoClient
@@ -89,6 +89,11 @@ class ServerService(Service):
             self.accounts.use(auth.api_key, model_group, count)
 
         return request_result
+
+    def estimate_tokens(self, request: Request) -> TokenEstimationRequestResult:
+        return TokenEstimationRequestResult(
+            model_group=get_model_group(request.model), num_tokens=self.token_counter.estimate_tokens(request)
+        )
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         self.accounts.authenticate(auth)

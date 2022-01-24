@@ -146,3 +146,14 @@ class RequestResult:
             output.append("")
 
         return output
+
+
+@dataclass(frozen=True)
+class TokenEstimationRequestResult:
+    """What comes back when estimating the number of tokens for a `Request`."""
+
+    # Name of the model group
+    model_group: str
+
+    # The estimated number of tokens
+    num_tokens: int

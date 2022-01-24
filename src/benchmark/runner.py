@@ -12,7 +12,7 @@ from .executor import ExecutionSpec, Executor
 from .metric import Metric, MetricSpec, create_metric, Stat
 
 
-@dataclass(frozen=True)
+@dataclass
 class RunSpec:
     """
     Specifies how to do a single run, which gets a scenario, adapts it, and

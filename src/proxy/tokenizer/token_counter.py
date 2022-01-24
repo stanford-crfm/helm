@@ -11,3 +11,10 @@ class TokenCounter(ABC):
         Counts the total number of tokens given a request and completions.
         """
         pass
+
+    @abstractmethod
+    def estimate_tokens(self, request: Request) -> int:
+        """
+        Given a request, roughly estimate the number of tokens.
+        """
+        pass

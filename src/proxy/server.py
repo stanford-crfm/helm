@@ -154,6 +154,15 @@ def handle_request():
     return safe_call(perform)
 
 
+@app.get("/api/estimate_tokens")
+def handle_token_estimation():
+    def perform(args):
+        request = Request(**json.loads(args["request"]))
+        return dataclasses.asdict(service.estimate_tokens(request))
+
+    return safe_call(perform)
+
+
 @app.get("/api/toxicity")
 def handle_toxicity_request():
     def perform(args):
