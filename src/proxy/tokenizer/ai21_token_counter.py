@@ -1,7 +1,7 @@
 from typing import List
 
 from common.request import Request, Sequence
-from common.tokenizer.token_counter import TokenCounter
+from .token_counter import TokenCounter
 
 
 class AI21TokenCounter(TokenCounter):

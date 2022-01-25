@@ -23,7 +23,7 @@ from proxy.service import (
     expand_environments,
     synthesize_request,
 )
-from common.tokenizer.auto_token_counter import AutoTokenCounter
+from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 
 
 class ServerService(Service):

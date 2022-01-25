@@ -1,10 +1,10 @@
 from typing import Dict, List
 
 from common.request import Request, Sequence
-from common.tokenizer.ai21_token_counter import AI21TokenCounter
-from common.tokenizer.free_token_counter import FreeTokenCounter
-from common.tokenizer.openai_token_counter import OpenAITokenCounter
-from common.tokenizer.token_counter import TokenCounter
+from .ai21_token_counter import AI21TokenCounter
+from .free_token_counter import FreeTokenCounter
+from .openai_token_counter import OpenAITokenCounter
+from .token_counter import TokenCounter
 
 
 class AutoTokenCounter(TokenCounter):

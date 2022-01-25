@@ -2,7 +2,7 @@ from typing import List, Dict
 
 from common.request import Request
 from common.statistic import Stat, merge_stat
-from common.tokenizer.auto_token_counter import AutoTokenCounter
+from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from .adapter import ScenarioState
 from .metric import Metric
 from .metric_service import MetricService
@@ -10,7 +10,7 @@ from .metric_service import MetricService
 
 class TokensMetric(Metric):
     """
-    Defines metrics for tokens.
+    Estimates the total number of tokens that will be used based on the requests.
     """
 
     def __init__(self):
