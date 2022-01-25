@@ -6,6 +6,7 @@ from dataclasses import asdict
 from typing import Any, List
 
 from common.authentication import Authentication
+from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from common.request import Request, RequestResult
 from dacite import from_dict
 from proxy.accounts import Account
@@ -44,6 +45,15 @@ class RemoteService(Service):
         response = requests.get(f"{self.base_url}/api/request?{urllib.parse.urlencode(params)}").json()
         RemoteService._check_response(response)
         return from_dict(RequestResult, response)
+
+    def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
+        params = {
+            "auth": json.dumps(asdict(auth)),
+            "request": json.dumps(asdict(request)),
+        }
+        response = requests.get(f"{self.base_url}/api/toxicity?{urllib.parse.urlencode(params)}").json()
+        RemoteService._check_response(response)
+        return from_dict(PerspectiveAPIRequestResult, response)
 
     def create_account(self, auth: Authentication) -> Account:
         data = {"auth": json.dumps(asdict(auth))}

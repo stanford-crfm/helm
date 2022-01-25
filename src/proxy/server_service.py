@@ -4,12 +4,14 @@ from typing import List
 
 from common.authentication import Authentication
 from common.general import ensure_directory_exists, parse_hocon
+from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from common.request import Request, RequestResult
 from common.hierarchical_logger import hlog
 from proxy.accounts import Accounts, Account
 from proxy.auto_client import AutoClient
 from proxy.example_queries import example_queries
-from proxy.models import all_models, get_model_group
+from proxy.perspective_api_client import PerspectiveAPIClient
+from proxy.models import ALL_MODELS, get_model_group
 from proxy.query import Query, QueryResult
 from proxy.service import (
     Service,
@@ -43,12 +45,16 @@ class ServerService(Service):
         self.client = AutoClient(credentials, cache_path)
         self.token_counter = AutoTokenCounter()
         self.accounts = Accounts(accounts_path, read_only=read_only)
+        self.perspective_api_client = PerspectiveAPIClient(
+            api_key=credentials["perspectiveApiKey"] if "perspectiveApiKey" in credentials else "",
+            cache_path=cache_path,
+        )
 
     def finish(self):
         self.accounts.finish()
 
     def get_general_info(self) -> GeneralInfo:
-        return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=all_models)
+        return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=ALL_MODELS)
 
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""
@@ -73,7 +79,7 @@ class ServerService(Service):
         self.accounts.check_can_use(auth.api_key, model_group)
 
         # Use!
-        request_result = self.client.make_request(request)
+        request_result: RequestResult = self.client.make_request(request)
 
         # Only deduct if not cached
         if not request_result.cached:
@@ -83,6 +89,10 @@ class ServerService(Service):
             self.accounts.use(auth.api_key, model_group, count)
 
         return request_result
+
+    def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
+        self.accounts.authenticate(auth)
+        return self.perspective_api_client.get_toxicity_scores(request)
 
     def create_account(self, auth: Authentication) -> Account:
         """Creates a new account."""

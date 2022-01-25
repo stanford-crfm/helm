@@ -22,6 +22,7 @@ from dacite import from_dict
 from common.authentication import Authentication
 from common.hierarchical_logger import hlog
 from common.request import Request
+from common.perspective_api_request import PerspectiveAPIRequest
 from proxy.accounts import Account
 from proxy.server_service import ServerService
 from .query import Query
@@ -151,6 +152,16 @@ def handle_request():
         auth = Authentication(**json.loads(args["auth"]))
         request = Request(**json.loads(args["request"]))
         return dataclasses.asdict(service.make_request(auth, request))
+
+    return safe_call(perform)
+
+
+@app.get("/api/toxicity")
+def handle_toxicity_request():
+    def perform(args):
+        auth = Authentication(**json.loads(args["auth"]))
+        request = PerspectiveAPIRequest(**json.loads(args["request"]))
+        return dataclasses.asdict(service.get_toxicity_scores(auth, request))
 
     return safe_call(perform)
 
