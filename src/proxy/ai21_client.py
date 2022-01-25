@@ -34,20 +34,19 @@ class AI21Client(Client):
             "stopSequences": request.stop_sequences,
         }
 
+        def do_it():
+            response = requests.post(
+                f"https://api.ai21.com/studio/v1/{request.model_engine}/complete",
+                headers={"Authorization": f"Bearer {self.api_key}"},
+                json=raw_request,
+            ).json()
+
+            if "completions" not in response and "detail" in response:
+                raise AI21RequestError(f"AI21 error: {response['detail']}")
+
+            return response
+
         try:
-
-            def do_it():
-                response = requests.post(
-                    f"https://api.ai21.com/studio/v1/{request.model_engine}/complete",
-                    headers={"Authorization": f"Bearer {self.api_key}"},
-                    json=raw_request,
-                ).json()
-
-                if "completions" not in response and "detail" in response:
-                    raise AI21RequestError(f"AI21 error: {response['detail']}")
-
-                return response
-
             cache_key = Client.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except AI21RequestError as e:
