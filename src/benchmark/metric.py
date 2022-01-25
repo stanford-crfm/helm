@@ -1,5 +1,6 @@
 from abc import ABC
 from typing import List, Dict
+from math import log
 
 from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
@@ -61,6 +62,22 @@ class Metric(ABC):
                     elif TEST_TAG in instance.tags:
                         stat = Stat(name=TEST_TAG + "." + stat.name).merge(stat)
                     merge_stat(trial_stats, stat)
+
+            # Aggregate the corpus-level metrics
+            for tag in [VALID_TAG, TEST_TAG]:
+                if tag + "." + "logprob" in trial_stats and tag + "." + "num_tokens" in trial_stats:
+                    merge_stat(
+                        trial_stats,
+                        Stat(tag + "." + "perplexity").add(
+                            2 ** (-trial_stats[tag + "." + "logprob"].sum / trial_stats[tag + "." + "num_tokens"].sum)
+                        ),
+                    )
+                    merge_stat(
+                        trial_stats,
+                        Stat(tag + "." + "bits_per_byte").add(
+                            -trial_stats[tag + "." + "logprob"].sum / trial_stats[tag + "." + "num_bytes"].sum / log(2)
+                        ),
+                    )
 
             # We only take the mean value for each trial
             for stat in trial_stats.values():
