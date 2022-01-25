@@ -6,6 +6,10 @@ from common.request import Request, RequestResult, Sequence, Token
 from .client import Client, wrap_request_time
 
 
+class AI21RequestError(Exception):
+    pass
+
+
 class AI21Client(Client):
     """
     AI21 Labs provides Jurassic models.
@@ -31,17 +35,22 @@ class AI21Client(Client):
         }
 
         def do_it():
-            return requests.post(
+            response = requests.post(
                 f"https://api.ai21.com/studio/v1/{request.model_engine}/complete",
                 headers={"Authorization": f"Bearer {self.api_key}"},
                 json=raw_request,
             ).json()
 
-        cache_key = Client.make_cache_key(raw_request, request)
-        response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            if "completions" not in response and "detail" in response:
+                raise AI21RequestError(f"AI21 error: {response['detail']}")
 
-        if "completions" not in response:
-            return RequestResult(success=False, cached=False, error=response["detail"], completions=[])
+            return response
+
+        try:
+            cache_key = Client.make_cache_key(raw_request, request)
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except AI21RequestError as e:
+            return RequestResult(success=False, cached=False, error=str(e), completions=[])
 
         def fix_text(x: str, first: bool) -> str:
             x = x.replace("▁", " ")
