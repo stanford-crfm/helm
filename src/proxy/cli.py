@@ -27,6 +27,7 @@ from common.authentication import Authentication
 from .accounts import Usage, Account
 
 GRANULARITIES = ["daily", "monthly", "total"]
+UNLIMITED_QUOTA = "unlimited"
 
 
 def render_usage(usage: Usage) -> str:
@@ -119,11 +120,11 @@ def do_create_update_command(service: RemoteService, auth: Authentication, args)
 
     # Update quotas
     for quota_str in args.quotas:
-        m = re.match("(\w+)\.(\w+)=(\d+|None)", quota_str)
+        m = re.match(f"(\w+)\.(\w+)=(\d+|{UNLIMITED_QUOTA})", quota_str)
         if not m:
             raise Exception(
                 f"Invalid format: {quota_str}, expect <model_group>.<granularity>=<quota> "
-                f"(e.g., gpt3.daily=10000 or gpt3.daily=None)"
+                f"(e.g., gpt3.daily=10000 or gpt3.daily={UNLIMITED_QUOTA})"
             )
         model_group, granularity, quota = m.group(1), m.group(2), m.group(3)
 
@@ -135,7 +136,7 @@ def do_create_update_command(service: RemoteService, auth: Authentication, args)
             usage = usages[granularity] = Usage()
         else:
             usage = usages[granularity]
-        usage.quota = None if quota == "None" else int(quota)
+        usage.quota = None if quota == UNLIMITED_QUOTA else int(quota)
 
     # Commit changes
     account = service.update_account(auth, account)
