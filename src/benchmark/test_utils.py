@@ -39,10 +39,6 @@ def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=args)]
 
 
-def get_tokens_metrics() -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.tokens_metric.TokensMetric", args={})]
-
-
 def get_toxicity_metrics(group_tags: List[str]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={"group_tags": group_tags})]
 

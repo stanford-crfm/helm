@@ -8,7 +8,6 @@ from proxy.remote_service import create_authentication
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
 from .test_utils import (
-    get_tokens_metrics,
     get_run_spec1,
     get_mmlu_spec,
     get_real_toxicity_prompts_spec,
@@ -68,7 +67,9 @@ def main():
         "-d",
         "--dry-run",
         action="store_true",
-        help="If set, the runner will skip execution, dump the scenario states and estimate token usage.",
+        help="If set, the runner will skip execution, dump the scenario states and estimate token usage. "
+        "We use a GPT-2 Tokenizer to estimate token usage. The tokenizer will be downloaded and "
+        "cached at ~/.cache/huggingface/transformers.",
     )
     args = parser.parse_args()
 
@@ -79,10 +80,6 @@ def main():
     with htrack_block("Run specs"):
         for run_spec in run_specs:
             hlog(run_spec.scenario)
-
-            # When performing a dry run, just estimate the number of tokens instead of calculating the metrics
-            if args.dry_run:
-                run_spec.metrics = get_tokens_metrics()
 
     runner = Runner(execution_spec, args.output_path, run_specs)
     runner.run_all()

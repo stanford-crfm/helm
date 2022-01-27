@@ -1,3 +1,4 @@
+from tqdm import tqdm
 from typing import List, Dict
 
 from common.request import Request
@@ -22,7 +23,7 @@ class TokensMetric(Metric):
         """
         stats: Dict[str, Stat] = {}
 
-        for request_state in scenario_state.request_states:
+        for request_state in tqdm(scenario_state.request_states):
             request: Request = request_state.request
             num_tokens: int = self.token_counter.estimate_tokens(request)
             merge_stat(stats, Stat(f"{request.model}_estimated_number_of_tokens").add(num_tokens))
