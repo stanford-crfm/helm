@@ -17,10 +17,9 @@ We provide a single unified entry point into accessing large language models
 
 ## Using (for most people)
 
-To use the web interface, go to `https://crfm-models.stanford.edu` (TODO: update
-this to https).
+To use the web interface, go to https://crfm-models.stanford.edu.
 
-To use the REST API, see [demo.py](demo.py).  (TODO: provide some Python classes.)
+To use the REST API, see [demo.py](demo.py).
 
 ## Deploying locally (for developers)
 
