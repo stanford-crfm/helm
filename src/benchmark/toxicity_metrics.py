@@ -34,7 +34,8 @@ class ToxicityMetric(Metric):
         """
         # Predicted outputs and their toxicity scores
         request_result: RequestResult = request_state.result
-        completions: List[str] = [completion.text for completion in request_result.completions]
+        # Filter out empty completions as Perspective API will error
+        completions: List[str] = [completion.text for completion in request_result.completions if completion.text]
         response: PerspectiveAPIRequestResult = metric_service.get_toxicity_scores(
             request=PerspectiveAPIRequest(text_batch=completions)
         )

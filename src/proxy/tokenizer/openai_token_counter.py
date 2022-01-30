@@ -1,7 +1,7 @@
 from typing import List
 
 from common.request import Request, Sequence
-from proxy.tokenizer.token_counter import TokenCounter
+from .token_counter import TokenCounter
 from transformers import GPT2TokenizerFast
 
 
@@ -19,7 +19,20 @@ class OpenAITokenCounter(TokenCounter):
         TODO: OpenAI will support counting the number of tokens for us. Adapt this method accordingly.
               https://github.com/stanford-crfm/benchmarking/issues/59
         """
-        n_tokens = len(self.tokenizer.encode(request.prompt))
+        n_tokens: int = self.tokenize_and_count(request.prompt)
         for sequence in completions:
             n_tokens += len(sequence.tokens)
         return n_tokens
+
+    def estimate_tokens(self, request: Request) -> int:
+        """
+        Estimate the number of tokens for a given request. Include the tokens in the prompt
+        when estimating number of tokens. Formula:
+
+            num_tokens(prompt) + num_completions * max_tokens
+        """
+        return self.tokenize_and_count(request.prompt) + request.num_completions * request.max_tokens
+
+    def tokenize_and_count(self, text: str):
+        """Count the number of tokens for a given text using the GPT-2 tokenizer."""
+        return len(self.tokenizer.encode(text))

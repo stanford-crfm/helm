@@ -143,6 +143,26 @@ Examples of running the benchmark:
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
 
+### To estimate token usage
+
+To estimate token usage without making any requests, append the `--dry-run` option: 
+
+    venv/bin/benchmark-run -r <RunSpec to estimate token usage> --dry-run
+
+For example, running `venv/bin/benchmark-run -r real_toxicity_prompts --dry-run` outputs:
+
+```text
+  Stats {
+    openai/davinci_estimated_number_of_tokens[min=505.000, mean=514.957, max=536.000, sum=514957.000, (1000)]
+  }
+```
+
+where `sum` indicates the estimated total number of tokens used for the specific `RunSpec`.
+
+For the OpenAI models, we use a 
+[GPT-2 Tokenizer](https://github.com/stanford-crfm/benchmarking/blob/master/src/proxy/tokenizer/openai_token_counter.py#L12) 
+to estimate the token usage. The tokenizer will be downloaded and cached when running a dry run.
+
 # Contributing
 
 ## One-time setup
