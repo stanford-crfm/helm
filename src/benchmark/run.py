@@ -67,9 +67,7 @@ def main():
         "-d",
         "--dry-run",
         action="store_true",
-        help="If set, the runner will skip execution, dump the scenario states and estimate token usage. "
-        "We use a GPT-2 Tokenizer to estimate token usage. The tokenizer will be downloaded and "
-        "cached at ~/.cache/huggingface/transformers.",
+        help="If set, the runner will skip execution, dump the scenario states and estimate token usage.",
     )
     args = parser.parse_args()
 
