@@ -135,3 +135,30 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_toxicity_metrics([TOXIC_TAG, NONTOXIC_TAG]),
     )
+
+def get_the_pile_spec(subset: str) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.the_pile_scenario.ThePileScenario", args={"subset": subset},
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_MODELING,
+        conditioning_prefix=OPENAI_END_OF_TEXT_TOKEN,
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        max_eval_instances=1000,  # TODO: remove this line once deployed, so we can cache everything in prod
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        max_tokens=0,
+    )
+
+    return RunSpec(
+        name="the_pile_subset={subset}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": []}),
+    )

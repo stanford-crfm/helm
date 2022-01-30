@@ -8,7 +8,7 @@ from proxy.remote_service import create_authentication
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
 
-from .test_utils import get_run_spec1, get_mmlu_spec, get_real_toxicity_prompts_spec, get_twitter_aae_spec
+from .test_utils import get_run_spec1, get_mmlu_spec, get_real_toxicity_prompts_spec, get_twitter_aae_spec, get_the_pile_spec
 
 
 def parse_run_specs(description: str) -> List[RunSpec]:
@@ -37,6 +37,8 @@ def parse_run_specs(description: str) -> List[RunSpec]:
         return [get_twitter_aae_spec(**args)]
     if name == "real_toxicity_prompts":
         return [get_real_toxicity_prompts_spec()]
+    if name == "the_pile":
+        return [get_the_pile_spec(**args)]
     raise ValueError(f"Unknown run spec: {description}")
 
 
