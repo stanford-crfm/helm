@@ -75,21 +75,14 @@ class BasicMetric(Metric):
         """Compute the logprob and normalization factors for the first completion"""
         assert request_state.result is not None
         sequence = request_state.result.completions[0]
+        assert "".join([token.text for token in sequence.tokens]) == sequence.text
         logprob, num_tokens, num_bytes = sequence.logprob, len(sequence.tokens), get_num_bytes(sequence.text)
 
         # Ignore the conditioning prefix
-        conditioning_prefix_length = 0
-        conditioning_prefix_tokens = []
-        for token in sequence.tokens:
-            if conditioning_prefix_length >= len(adapter_spec.conditioning_prefix):
-                break
-            conditioning_prefix_tokens.append(token)
-            conditioning_prefix_length += len(token.text)
-        assert "".join([token.text for token in conditioning_prefix_tokens]) == adapter_spec.conditioning_prefix
-
+        conditioning_prefix_tokens = sequence.tokens[: request_state.num_conditioning_tokens]
         logprob -= sum(token.logprob for token in conditioning_prefix_tokens)
         num_tokens -= len(conditioning_prefix_tokens)
-        num_bytes -= get_num_bytes(adapter_spec.conditioning_prefix)
+        num_bytes -= get_num_bytes("".join([token.text for token in conditioning_prefix_tokens]))
 
         return [Stat("logprob").add(logprob), Stat("num_tokens").add(num_tokens), Stat("num_bytes").add(num_bytes)]
 

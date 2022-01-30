@@ -1,6 +1,5 @@
 from typing import List, Dict
 
-from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from .scenario import ScenarioSpec
 from .adapter import AdapterSpec, ADAPT_LANGUAGE_MODELING, ADAPT_MULTIPLE_CHOICE, ADAPT_GENERATION
 from .metric import MetricSpec
@@ -64,7 +63,6 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
-        conditioning_prefix="",
         instructions=f"The following are multiple choice questions (with answers) about {format(subject)}.",
         input_prefix="",
         output_prefix="\nAnswer: ",
@@ -91,7 +89,6 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
-        conditioning_prefix=OPENAI_END_OF_TEXT_TOKEN,
         instructions="",
         input_prefix="",
         output_prefix="",
@@ -136,14 +133,12 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         metrics=get_toxicity_metrics([TOXIC_TAG, NONTOXIC_TAG]),
     )
 
+
 def get_the_pile_spec(subset: str) -> RunSpec:
-    scenario = ScenarioSpec(
-        class_name="benchmark.the_pile_scenario.ThePileScenario", args={"subset": subset},
-    )
+    scenario = ScenarioSpec(class_name="benchmark.the_pile_scenario.ThePileScenario", args={"subset": subset},)
 
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
-        conditioning_prefix=OPENAI_END_OF_TEXT_TOKEN,
         instructions="",
         input_prefix="",
         output_prefix="",

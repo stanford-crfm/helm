@@ -7,6 +7,8 @@ from common.general import serialize
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from .scenario import Instance, Scenario, TRAIN_TAG, VALID_TAG, TEST_TAG
+from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
+from proxy.tokenizer.openai_token_counter import OpenAITokenCounter
 
 
 # Methods of adaptation
@@ -26,9 +28,6 @@ class AdapterSpec:
 
     # Method of adaptation
     method: str
-
-    # Conditioning prefix whose logprob is ignored
-    conditioning_prefix: str = ""
 
     # Prompt starts with instructions
     instructions: str = ""
@@ -97,6 +96,9 @@ class RequestState:
 
     # The result of the request (filled in when the request is executed)
     result: Optional[RequestResult]
+
+    # The number of initial tokens that will be ignored when computing langauge modeling metrics
+    num_conditioning_tokens: int = 0
 
     def render_lines(self) -> List[str]:
         output = [f"Train trial index: {self.train_trial_index}"]
@@ -235,6 +237,10 @@ class Adapter:
         instance is that we create a common set of training instances which is
         shared across all eval instances.
         """
+        # Use the LM-specific method to adapt LM scenarios
+        if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
+            return self.adapt_language_modeling(scenario)
+
         # Create instances
         instances = scenario.get_instances()
 
@@ -280,18 +286,7 @@ class Adapter:
 
                 # Define the request
                 method = self.adapter_spec.method
-                if method == ADAPT_LANGUAGE_MODELING:
-                    output_mapping = None
-                    request = Request(
-                        model=self.adapter_spec.model,
-                        prompt=prompt,
-                        num_completions=1,
-                        temperature=0,
-                        max_tokens=self.adapter_spec.max_tokens,
-                        stop_sequences=self.adapter_spec.stop_sequences,
-                        echo_prompt=True,
-                    )
-                elif method == ADAPT_MULTIPLE_CHOICE:
+                if method == ADAPT_MULTIPLE_CHOICE:
                     output_mapping = dict(
                         (self.get_reference_prefix("A", reference_index), reference.output)
                         for reference_index, reference in enumerate(eval_instance.references)
@@ -351,7 +346,7 @@ class Adapter:
 
         blocks.append(self.construct_example_prompt(eval_instance, include_output=False))
 
-        return self.adapter_spec.conditioning_prefix + "\n\n".join(blocks)
+        return "\n\n".join(blocks)
 
     def construct_example_prompt(self, instance: Instance, include_output: bool) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
@@ -385,3 +380,85 @@ class Adapter:
         Example: prefix = "\nA. ", i = 2, return "\nC. "
         """
         return prefix.replace("A", chr(ord("A") + i))
+
+    def adapt_language_modeling(self, scenario: Scenario) -> ScenarioState:
+        """ Code is adapted from:
+
+        https://github.com/EleutherAI/lm_perplexity/blob/main/lm_perplexity/utils.py
+        """
+        instances = scenario.get_instances()
+        if self.adapter_spec.max_eval_instances is not None:
+            instances = instances[: self.adapter_spec.max_eval_instances]
+        hlog(f"{len(instances)} instances, " f"choosing {len(instances)} eval instances")
+
+        request_states: List[RequestState] = []
+
+        if self.adapter_spec.model.startswith("openai/"):
+            tokenizer = OpenAITokenCounter().tokenizer
+            max_seq_len = 2048
+            prefix_token = OPENAI_END_OF_TEXT_TOKEN
+        else:
+            raise Exception(f"Unsupported model: {self.adapter_spec.model}")
+
+        for instance in instances:
+            tokens = tokenizer.encode(instance.input)
+            assert tokenizer.decode(tokens, clean_up_tokenization_spaces=False) == instance.input
+
+            predicted = 0
+
+            # Special handling for first window: predict all tokens
+            first_seq_len = min(max_seq_len, len(tokens))
+            prompt = tokenizer.decode(
+                tokenizer.encode(prefix_token) + tokens[:first_seq_len], clean_up_tokenization_spaces=False
+            )
+            request = Request(
+                model=self.adapter_spec.model,
+                prompt=prompt,
+                num_completions=1,
+                temperature=0,
+                max_tokens=self.adapter_spec.max_tokens,  # usually this is zero
+                stop_sequences=self.adapter_spec.stop_sequences,
+                echo_prompt=True,
+            )
+            request_state = RequestState(
+                instance=instance,
+                reference_index=None,
+                train_trial_index=0,
+                output_mapping=None,
+                request=request,
+                result=None,
+                num_conditioning_tokens=1,
+            )
+            request_states.append(request_state)
+            predicted += first_seq_len
+
+            while predicted < len(tokens):
+                window_pred_len = min(len(tokens) - predicted, max_seq_len)
+                window_end = predicted + window_pred_len
+                prompt = tokenizer.decode(
+                    tokens[window_end - max_seq_len - 1 : window_end], clean_up_tokenization_spaces=False
+                )
+
+                request = Request(
+                    model=self.adapter_spec.model,
+                    prompt=prompt,
+                    num_completions=1,
+                    temperature=0,
+                    max_tokens=self.adapter_spec.max_tokens,  # usually this is zero
+                    stop_sequences=self.adapter_spec.stop_sequences,
+                    echo_prompt=True,
+                )
+                request_state = RequestState(
+                    instance=instance,
+                    reference_index=None,
+                    train_trial_index=0,
+                    output_mapping=None,
+                    request=request,
+                    result=None,
+                    num_conditioning_tokens=max_seq_len - window_pred_len + 1,
+                )
+                request_states.append(request_state)
+                predicted += window_pred_len
+
+        hlog(f"{len(request_states)} requests")
+        return ScenarioState(self.adapter_spec, request_states)

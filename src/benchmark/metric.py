@@ -8,6 +8,7 @@ from common.general import singleton
 from .adapter import AdapterSpec, ScenarioState, RequestState
 from .metric_service import MetricService
 from .scenario import VALID_TAG, TEST_TAG
+from .adapter import AdapterSpec, ADAPT_LANGUAGE_MODELING
 
 
 class Metric(ABC):
@@ -29,6 +30,9 @@ class Metric(ABC):
         Any logic that doesn't decompose along instances should go here, such
         as robustness.
         """
+        if scenario_state.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
+            return self.evaluate_language_modeling(scenario_state, metric_service)
+
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[str, Stat] = {}  # name -> Stat
 
@@ -96,6 +100,40 @@ class Metric(ABC):
     ) -> List[Stat]:
         """Evaluate the references.  Override me!"""
         return []
+
+    def evaluate_language_modeling(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+        global_stats: Dict[str, Stat] = {}
+        # The first and only trial
+        trial_stats: Dict[str, Stat] = {}
+
+        for request_state in scenario_state.request_states:
+            # Evaluate request_state
+            request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
+
+            # Assume models are only evaluated on the test set
+            tag = TEST_TAG
+            for stat in request_stats:
+                stat = Stat(name=tag + "." + stat.name).merge(stat)
+                merge_stat(trial_stats, stat)
+
+        # Aggregate the corpus-level metrics
+        if tag + "." + "logprob" in trial_stats and tag + "." + "num_tokens" in trial_stats:
+            merge_stat(
+                trial_stats,
+                Stat(tag + "." + "perplexity").add(
+                    2 ** (-trial_stats[tag + "." + "logprob"].sum / trial_stats[tag + "." + "num_tokens"].sum)
+                ),
+            )
+            merge_stat(
+                trial_stats,
+                Stat(tag + "." + "bits_per_byte").add(
+                    -trial_stats[tag + "." + "logprob"].sum / trial_stats[tag + "." + "num_bytes"].sum / log(2)
+                ),
+            )
+
+        for stat in trial_stats.values():
+            merge_stat(global_stats, stat.take_mean())
+        return list(global_stats.values())
 
 
 class MetricSpec(ObjectSpec):
