@@ -89,16 +89,10 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 
 
 def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
-    if dataset == "hellaswag":
-        scenario = ScenarioSpec(
-            class_name="benchmark.commonsense_qa_scenario.HellaSwagScenario", args={"method": method}
-        )
-    elif dataset == "openbookqa":
-        scenario = ScenarioSpec(
-            class_name="benchmark.commonsense_qa_scenario.OpenBookQAScenario", args={"method": method}
-        )
-    else:
-        raise ValueError(f"Unknown commonsense QA dataset: {dataset}")
+    scenario = ScenarioSpec(
+        class_name="benchmark.commonsense_qa_scenario.CommonSenseQAScenario",
+        args={"dataset": dataset, "method": method,},
+    )
 
     if method == "mcqa":
         adapter_spec = AdapterSpec(
@@ -128,7 +122,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             input_prefix="",
             output_prefix="",
             max_train_instances=0,
-            max_eval_instances=160,
+            max_eval_instances=80,
             num_outputs=10,
             max_tokens=0,
             num_train_trials=1,
