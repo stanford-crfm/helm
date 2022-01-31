@@ -54,7 +54,7 @@ def main():
         "-u",
         "--url",
         type=str,
-        default="http://crfm-models.stanford.edu",
+        default="https://crfm-models.stanford.edu",
         help="URL of the instance to use when benchmarking",
     )
     parser.add_argument(

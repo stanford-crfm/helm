@@ -12,9 +12,11 @@ import json
 import os
 import sys
 import time
-from paste import httpserver
 from urllib.parse import unquote
 
+import tornado.wsgi
+import tornado.httpserver
+import tornado.ioloop
 from dacite import from_dict
 
 from common.authentication import Authentication
@@ -177,6 +179,8 @@ def main():
     global service
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=1959)
+    parser.add_argument("--ssl-key-file", type=str, help="Path to SSL key file")
+    parser.add_argument("--ssl-cert-file", type=str, help="Path to SSL cert file")
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
     parser.add_argument(
         "-r", "--read-only", action="store_true", help="To start a read-only service (for testing and debugging)."
@@ -184,4 +188,15 @@ def main():
     args = parser.parse_args()
 
     service = ServerService(base_path=args.base_path, read_only=args.read_only)
-    httpserver.serve(app, host="0.0.0.0", port=args.port)
+
+    wsgi_container = tornado.wsgi.WSGIContainer(app)
+
+    if args.ssl_key_file and args.ssl_cert_file:
+        server = tornado.httpserver.HTTPServer(
+            wsgi_container, ssl_options={"certfile": args.ssl_cert_file, "keyfile": args.ssl_key_file}
+        )
+    else:
+        server = tornado.httpserver.HTTPServer(wsgi_container)
+
+    server.listen(port=args.port)
+    tornado.ioloop.IOLoop.instance().start()
