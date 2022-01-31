@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Any
 
 from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from .scenario import ScenarioSpec
@@ -37,6 +37,10 @@ def get_adapter_spec1() -> AdapterSpec:
 
 def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=args)]
+
+
+def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
 
 def get_toxicity_metrics(group_tags: List[str]) -> List[MetricSpec]:
@@ -84,34 +88,63 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     )
 
 
-def get_commonsense_qa_spec(dataset: str) -> RunSpec:
+def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
     if dataset == "hellaswag":
-        scenario = ScenarioSpec(class_name="benchmark.commonsense_qa_scenario.HellaSwagScenario", args={})
+        scenario = ScenarioSpec(
+            class_name="benchmark.commonsense_qa_scenario.HellaSwagScenario", args={"method": method}
+        )
     elif dataset == "openbookqa":
-        scenario = ScenarioSpec(class_name="benchmark.commonsense_qa_scenario.OpenBookQAScenario", args={})
+        scenario = ScenarioSpec(
+            class_name="benchmark.commonsense_qa_scenario.OpenBookQAScenario", args={"method": method}
+        )
     else:
         raise ValueError(f"Unknown commonsense QA dataset: {dataset}")
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE,
-        conditioning_prefix="",
-        instructions="The following are multiple choice questions (with answers) about common sense.",
-        input_prefix="",
-        output_prefix="\nAnswer: ",
-        max_train_instances=5,
-        max_eval_instances=1000,
-        num_outputs=10,
-        num_train_trials=1,
-        model="simple/model1",
-        temperature=0,
-    )
+    if method == "mcqa":
+        adapter_spec = AdapterSpec(
+            method=ADAPT_MULTIPLE_CHOICE,
+            conditioning_prefix="",
+            instructions="The following are multiple choice questions (with answers) about common sense.",
+            input_prefix="",
+            output_prefix="\nAnswer: ",
+            max_train_instances=5,
+            max_eval_instances=10,
+            num_outputs=10,
+            num_train_trials=1,
+            model="openai/davinci",
+            temperature=0,
+        )
+        run_spec = RunSpec(
+            name=f"dataset={dataset},method={method}",
+            scenario=scenario,
+            adapter_spec=adapter_spec,
+            metrics=get_basic_metrics({"names": ["exact_match"]}),
+        )
+    elif method == "clm":
+        adapter_spec = AdapterSpec(
+            method=ADAPT_LANGUAGE_MODELING,
+            conditioning_prefix="",
+            instructions="",
+            input_prefix="",
+            output_prefix="",
+            max_train_instances=0,
+            max_eval_instances=160,
+            num_outputs=10,
+            max_tokens=0,
+            num_train_trials=1,
+            model="openai/davinci",
+            temperature=0,
+        )
+        run_spec = RunSpec(
+            name=f"dataset={dataset},method={method}",
+            scenario=scenario,
+            adapter_spec=adapter_spec,
+            metrics=get_commonsense_qa_metrics({"n_choice": 4}),
+        )
+    else:
+        raise ValueError(f"Unknown commonsense QA method: {method}")
 
-    return RunSpec(
-        name=f"commonsense_qa_dataset={dataset}",
-        scenario=scenario,
-        adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
-    )
+    return run_spec
 
 
 def get_twitter_aae_spec(demographic: str) -> RunSpec:

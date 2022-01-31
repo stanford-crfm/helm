@@ -4,6 +4,9 @@ from typing import List
 from common.general import ensure_file_downloaded, ensure_directory_exists
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
+from functools import partial
+
+CLM_CORRECT_TAG = "clm_correct"
 
 
 class HellaSwagScenario(Scenario):
@@ -22,20 +25,21 @@ class HellaSwagScenario(Scenario):
     description = "HellaSwag: Can a Machine Really Finish Your Sentence?"
     tags = ["knowledge", "multiple_choice"]
 
-    def __init__(self):
-        pass
+    def __init__(self, method):
+        self.method = method
+        assert self.method in ["mcqa", "clm"]
 
     def get_instances(self) -> List[Instance]:
         # Download the raw data
         data_path = os.path.join(self.output_path, "data")
         ensure_directory_exists(data_path)
 
-        # Read all the instances
+        # Read all the instances in the train and val set.
+        # Ignore test set because HellaSwag test set does not have label information.
         instances = []
         splits = {
             "train": TRAIN_TAG,
             "val": VALID_TAG,
-            # "test": TEST_TAG # <Yuhui>: hellaswag test set does not have label information
         }
         for split in splits:
             ensure_file_downloaded(
@@ -69,16 +73,40 @@ class HellaSwagScenario(Scenario):
                     """
                     item = json.loads(line)
                     assert item["split"] == split
-                    question, answers, correct_choice = item["ctx"], item["endings"], item["label"]
+                    ctx_b_fixed = item["ctx_b"][0].upper() + item["ctx_b"][1:] if len(item["ctx_b"]) != 0 else ""
+                    question, answers, correct_choice = (
+                        f"{item['activity_label']}: {item['ctx_a']} {ctx_b_fixed}",
+                        item["endings"],
+                        item["label"],
+                    )
+                    assert len(answers) == 4
                     correct_answer = answers[correct_choice]
 
-                    def answer_to_reference(answer):
-                        return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
+                    def answer_to_reference(answer, correct_tag):
+                        return Reference(output=answer, tags=[correct_tag] if answer == correct_answer else [])
 
-                    instance = Instance(
-                        input=question, references=list(map(answer_to_reference, answers)), tags=[splits[split]],
-                    )
-                    instances.append(instance)
+                    if self.method == "mcqa":
+                        answer_to_reference_mcqa = partial(answer_to_reference, correct_tag=CORRECT_TAG)
+                        instance = Instance(
+                            input=question,
+                            references=list(map(answer_to_reference_mcqa, answers)),
+                            tags=[splits[split]],
+                        )
+                        instances.append(instance)
+                    elif self.method == "clm":
+                        answer_to_reference_clm = partial(answer_to_reference, correct_tag=CLM_CORRECT_TAG)
+                        for answer in answers:
+                            instance1 = Instance(
+                                input=f"{question} {answer}",
+                                references=[answer_to_reference_clm(answer)],
+                                tags=[splits[split]],
+                            )
+                            instance2 = Instance(
+                                input=f"Answer: {answer}",
+                                references=[answer_to_reference_clm(answer)],
+                                tags=[splits[split]],
+                            )
+                            instances += [instance1, instance2]
 
         return instances
 
@@ -150,6 +178,7 @@ class OpenBookQAScenario(Scenario):
                         item["question"]["choices"],
                         item["answerKey"],
                     )
+                    assert len(answers) == 4
 
                     def answer_to_reference(answer):
                         return Reference(
