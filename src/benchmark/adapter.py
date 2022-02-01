@@ -1,7 +1,6 @@
 import random
 from collections import defaultdict
 from dataclasses import dataclass, field
-from tracemalloc import stop
 from typing import List, Dict, Tuple, Optional
 
 from common.general import serialize

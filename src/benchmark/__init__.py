@@ -6,4 +6,4 @@ from . import mmlu_scenario  # noqa
 from . import lpm_scenario  # noqa
 
 from . import basic_metrics  # noqa
-from . import lpm_metrics # noqa
+from . import lpm_metrics  # noqa

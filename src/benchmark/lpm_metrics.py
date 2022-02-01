@@ -4,28 +4,28 @@ from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 
+
 def iou_match(gold: str, pred: str) -> float:
-    pred = pred.split('\n')[0]
+    pred = pred.split("\n")[0]
     if gold == "Nothing.":
-        return float(pred == 'Nothing.')
-    pred = pred.replace('.', '')
-    gold = gold.replace('.', '')
-    gold_set = set(gold.split(" is ")[-1].split(' and '))
-    pred_set = set(pred.split(" is ")[-1].split(' and '))
-    return (
-        len(gold_set.intersection(pred_set)) / 
-        len(gold_set.union(pred_set))
-    )
+        return float(pred == "Nothing.")
+    pred = pred.replace(".", "")
+    gold = gold.replace(".", "")
+    gold_set = set(gold.split(" is ")[-1].split(" and "))
+    pred_set = set(pred.split(" is ")[-1].split(" and "))
+    return len(gold_set.intersection(pred_set)) / len(gold_set.union(pred_set))
+
 
 def exact_set_match(gold: str, pred: str) -> float:
-    pred = pred.split('\n')[0]
+    pred = pred.split("\n")[0]
     if gold == "Nothing.":
-        return float(pred == 'Nothing.')
-    pred = pred.replace('.', '')
-    gold = gold.replace('.', '')
-    gold_set = set(gold.split(" is ")[-1].split(' and '))
-    pred_set = set(pred.split(" is ")[-1].split(' and '))
+        return float(pred == "Nothing.")
+    pred = pred.replace(".", "")
+    gold = gold.replace(".", "")
+    gold_set = set(gold.split(" is ")[-1].split(" and "))
+    pred_set = set(pred.split(" is ")[-1].split(" and "))
     return float(gold_set == pred_set)
+
 
 class LPMMetric(Metric):
     """

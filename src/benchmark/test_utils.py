@@ -1,7 +1,12 @@
 from typing import List
 
 from .scenario import ScenarioSpec
-from .adapter import ADAPT_LANGUAGE_MODELING, AdapterSpec, ADAPT_MULTIPLE_CHOICE, ADAPT_GENERATION, ADAPT_LANGUAGE_GENERATION
+from .adapter import (
+    AdapterSpec,
+    ADAPT_MULTIPLE_CHOICE,
+    ADAPT_GENERATION,
+    ADAPT_LANGUAGE_GENERATION,
+)
 from .metric import MetricSpec
 from .runner import RunSpec
 
@@ -37,8 +42,10 @@ def get_adapter_spec1() -> AdapterSpec:
 def get_basic_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={})]
 
+
 def get_lpm_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.lpm_metrics.LPMMetric", args={})]
+
 
 ############################################################
 
@@ -75,10 +82,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 
 
 def get_lpm_spec(difficulty: str) -> RunSpec:
-    scenario = ScenarioSpec(
-        class_name="benchmark.lpm_scenario.LPMScenario",
-        args={"difficulty": difficulty},
-    )
+    scenario = ScenarioSpec(class_name="benchmark.lpm_scenario.LPMScenario", args={"difficulty": difficulty},)
 
     def format(difficulty: str):
         return difficulty.replace("_", " ")

@@ -6,6 +6,7 @@ from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_
 
 
 def get_vocab():
+    # All potential subjects for the facts and rules for LPM as well as their categories
     subjects = {
         "person": ["Alice", "Bob", "Carol", "Dan", "Erin", "Frank"],
         "animal": [
@@ -27,6 +28,7 @@ def get_vocab():
         "plant": ["poppy", "dandelion", "tree", "rose", "sunflower"],
     }
 
+    # A list of attributes for the facts and rules which only correspond to themselves
     attributes = [
         # 'red', 'blue', 'green', 'young', 'rough',
         # 'fuzzy', 'sad', 'tasty', 'soft', 'fine', 'funny', 'rich',
@@ -39,7 +41,9 @@ def get_vocab():
         # # 'heavy', 'tall', 'short', 'light', 'long', 'fat', 'gentle', 'elegant', 'sparkly', 'great',
     ]
 
+    # Convert list of attributes into dictionary
     attribute_groups = {attribute: [attribute] for attribute in attributes}
+    # A list of attributes and their overarching meaning (used in hard difficulty)
     attribute_groups.update(
         {
             "cold": ["cold", "chill", "cool"],
@@ -65,6 +69,7 @@ def get_vocab():
             "round": ["round", "circular", "spherical"],
         }
     )
+    # Remove any keys which duplicate subitems
     new_attribute_groups = copy(attribute_groups)
     for general_attribute, specific_attributes in attribute_groups.items():
         for specific_attribute in specific_attributes:
@@ -75,6 +80,7 @@ def get_vocab():
     return attribute_groups, subjects
 
 
+# Figure out whether to use "A" or "An" (heuristic)
 def generate_specifier(subject, upper=False):
     base_char = "A" if upper else "a"
     if subject[0].lower() in ["a", "e", "i", "o", "u"]:
@@ -176,10 +182,10 @@ class LPMScenario(Scenario):
         self.attribute_groups, self.subjects = get_vocab()
         # specific_category specifies that the specific category should always be used
         # e.g. "dog" instead of "an animal"
-        self.specific_category = difficulty == 'easy' 
-        # generic_attributes specifies that the top level attribute should always be used 
+        self.specific_category = difficulty == "easy"
+        # generic_attributes specifies that the top level attribute should always be used
         # e.g. "cold" instead of "chill"
-        self.generic_attributes = difficulty != 'hard'
+        self.generic_attributes = difficulty != "hard"
         self.include_intermediates = False
         self.n_train_samples = 5
         self.n_valid_samples = 50
