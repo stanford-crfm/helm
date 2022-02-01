@@ -105,7 +105,7 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
     )
 
     return RunSpec(
-        name="twitter_aae_demographic={demographic}",
+        name=f"twitter_aae_demographic={demographic}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": []}),
