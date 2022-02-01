@@ -218,13 +218,15 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 
 ## Final benchmarking (Infrastructure team only)
 
-1. Running all the `RunSpec`s will take a long time, so use SCDT: `ssh scdt`.
+1. Running all the `RunSpec`s can take a long time, so use SCDT: `ssh scdt`.
 1. Create a screen session: `screen -S benchmarking`.   
-1. Go to the `benchmarking` code in the `benchmarking` directory: `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
+1. Go to the source code directory: `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
 1. Pull the latest changes: `git pull`.
-1. Run `python3 presentation/run_all.py`.
+1. Run `python3 presentation/run_all.py -s /u/apache/htdocs/crfm/benchmarking/status.txt`.
 1. Exit the screen session: `ctrl+ad`.
 
+Once all the runs complete, visit the 
+[Benchmarking project status page](https://nlp.stanford.edu/crfm/benchmarking/status.txt).
 
 # Contributing
 
