@@ -1,11 +1,13 @@
 openai==0.2.4
 bottle==0.12.19
 dacite==1.6.0
+google-api-python-client==2.35.0
 Mako==1.1.5
-Paste==3.5.0
 pyhocon==0.3.58
+pyOpenSSL==21.0.0
 sqlitedict==1.7.0
 transformers==4.13.0
+tornado==6.1
 
 # For development
 black==19.10b0

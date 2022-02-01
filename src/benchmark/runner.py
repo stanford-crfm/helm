@@ -3,12 +3,14 @@ import os
 from dataclasses import dataclass, asdict
 from typing import List
 
+from benchmark.metric_service import MetricService
 from common.general import ensure_directory_exists, write
 from common.hierarchical_logger import hlog, htrack_block
 from .scenario import Scenario, ScenarioSpec, create_scenario
 from .adapter import AdapterSpec, Adapter, ScenarioState
 from .executor import ExecutionSpec, Executor
 from .metric import Metric, MetricSpec, create_metric, Stat
+from .tokens_metric import TokensMetric
 
 
 @dataclass(frozen=True)
@@ -32,6 +34,8 @@ class Runner:
 
     def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_specs: List[RunSpec]):
         self.executor = Executor(execution_spec)
+        self.dry_run = execution_spec.dry_run
+        self.metric_service = MetricService(self.executor.remote_service, execution_spec.auth)
         self.output_path = output_path
         self.run_specs = run_specs
         ensure_directory_exists(self.output_path)
@@ -62,11 +66,14 @@ class Runner:
         scenario_state = self.executor.execute(scenario_state)
 
         # Apply the metrics
-        metrics: List[Metric] = [create_metric(metric) for metric in run_spec.metrics]
+        # When performing a dry run, just estimate the number of tokens instead of calculating the metrics
+        metrics: List[Metric] = (
+            [TokensMetric()] if self.dry_run else [create_metric(metric) for metric in run_spec.metrics]
+        )
         hlog(f"{len(metrics)} metrics")
         stats: List[Stat] = []
         for metric in metrics:
-            stats.extend(metric.evaluate(scenario_state))
+            stats.extend(metric.evaluate(scenario_state, self.metric_service))
 
         # Print out stats
         with htrack_block("Stats"):

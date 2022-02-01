@@ -135,7 +135,7 @@ example_queries = [
         prompt="Takes two vectors a and b and returns their Euclidean distance",
         settings=dedent(
             """
-            model: openai/davinci-codex  # Codex for code generation
+            model: openai/code-davinci-001  # Codex for code generation
             """
         ),
         environments="",

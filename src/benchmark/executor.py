@@ -22,6 +22,9 @@ class ExecutionSpec:
     # How many threads to have at once
     parallelism: int
 
+    # Whether to skip execution
+    dry_run: bool = False
+
 
 class Executor:
     """
@@ -35,6 +38,10 @@ class Executor:
 
     @htrack(None)
     def execute(self, scenario_state: ScenarioState) -> ScenarioState:
+        if self.execution_spec.dry_run:
+            hlog("Skipped execution.")
+            return scenario_state
+
         def render_instance(state: RequestState) -> str:
             instance = state.instance
             gold_output: Optional[str] = None

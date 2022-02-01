@@ -1,7 +1,7 @@
 import os
 import shlex
 import subprocess
-from typing import List
+from typing import List, Optional
 
 import pyhocon
 from dataclasses import asdict, dataclass
@@ -36,7 +36,7 @@ def shell(args: List[str]):
 
 
 @htrack(None)
-def ensure_file_downloaded(source_url: str, target_path: str, untar: bool = False):
+def ensure_file_downloaded(source_url: str, target_path: str, unpack: bool = False, unpack_type: Optional[str] = None):
     """Download `source_url` to `target_path` if it doesn't exist."""
     if os.path.exists(target_path):
         # Assume it's all good
@@ -50,10 +50,27 @@ def ensure_file_downloaded(source_url: str, target_path: str, untar: bool = Fals
     shell(["wget", source_url, "-O", tmp_path])
 
     # Unpack (if needed) and put it in the right location
-    if untar:
+    if unpack:
+        if unpack_type is None:
+            if source_url.endswith(".tar") or source_url.endswith(".tar.gz"):
+                unpack_type = "untar"
+            elif source_url.endswith(".zip"):
+                unpack_type = "unzip"
+            elif source_url.endswith(".zst"):
+                unpack_type = "unzstd"
+            else:
+                raise Exception("Failed to infer the file format from source_url. Please specify unpack_type.")
+
         tmp2_path = target_path + ".tmp2"
         ensure_directory_exists(tmp2_path)
-        shell(["tar", "xf", tmp_path, "-C", tmp2_path])
+        if unpack_type == "untar":
+            shell(["tar", "xf", tmp_path, "-C", tmp2_path])
+        elif unpack_type == "unzip":
+            shell(["unzip", tmp_path, "-d", tmp2_path])
+        elif unpack_type == "unzstd":
+            shell(["unzstd", tmp_path, "-o", tmp2_path])
+        else:
+            raise Exception("Invalid unpack_type")
         files = os.listdir(tmp2_path)
         if len(files) == 1:
             # If contains one file, just get that one file

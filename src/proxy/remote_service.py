@@ -6,6 +6,7 @@ from dataclasses import asdict
 from typing import Any, List
 
 from common.authentication import Authentication
+from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from common.request import Request, RequestResult
 from dacite import from_dict
 from proxy.accounts import Account
@@ -18,7 +19,7 @@ class RemoteServiceError(Exception):
 
 
 class RemoteService(Service):
-    def __init__(self, base_url="http://crfm-models.stanford.edu"):
+    def __init__(self, base_url="https://crfm-models.stanford.edu"):
         self.base_url = base_url
 
     @staticmethod
@@ -44,6 +45,15 @@ class RemoteService(Service):
         response = requests.get(f"{self.base_url}/api/request?{urllib.parse.urlencode(params)}").json()
         RemoteService._check_response(response)
         return from_dict(RequestResult, response)
+
+    def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
+        params = {
+            "auth": json.dumps(asdict(auth)),
+            "request": json.dumps(asdict(request)),
+        }
+        response = requests.get(f"{self.base_url}/api/toxicity?{urllib.parse.urlencode(params)}").json()
+        RemoteService._check_response(response)
+        return from_dict(PerspectiveAPIRequestResult, response)
 
     def create_account(self, auth: Authentication) -> Account:
         data = {"auth": json.dumps(asdict(auth))}
@@ -105,7 +115,7 @@ class RemoteService(Service):
 def add_service_args(parser: argparse.ArgumentParser):
     """Add command-line arguments to enable command-line utilities to specify how to connect to a remote server."""
     parser.add_argument(
-        "--server-url", default="http://crfm-models.stanford.edu", help="URL of proxy server to connect to"
+        "--server-url", default="https://crfm-models.stanford.edu", help="URL of proxy server to connect to"
     )
     parser.add_argument(
         "--api-key-path", type=str, default="proxy_api_key.txt", help="Path to a file containing the API key"

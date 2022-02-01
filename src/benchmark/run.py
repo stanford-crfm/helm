@@ -7,8 +7,13 @@ from proxy.remote_service import create_authentication
 
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
-from .test_utils import get_run_spec1, get_mmlu_spec, get_lpm_spec
-
+from .test_utils import (
+    get_run_spec1,
+    get_mmlu_spec,
+    get_real_toxicity_prompts_spec,
+    get_twitter_aae_spec,
+    get_lpm_spec,
+)
 
 def parse_run_specs(description: str) -> List[RunSpec]:
     """
@@ -32,6 +37,10 @@ def parse_run_specs(description: str) -> List[RunSpec]:
         return [get_run_spec1()]
     if name == "mmlu":
         return [get_mmlu_spec(**args)]
+    if name == "twitter_aae":
+        return [get_twitter_aae_spec(**args)]
+    if name == "real_toxicity_prompts":
+        return [get_real_toxicity_prompts_spec()]
     if name == "lpm":
         return [get_lpm_spec(**args)]
     raise ValueError(f"Unknown run spec: {description}")
@@ -47,7 +56,7 @@ def main():
         "-u",
         "--url",
         type=str,
-        default="http://crfm-models.stanford.edu",
+        default="https://crfm-models.stanford.edu",
         help="URL of the instance to use when benchmarking",
     )
     parser.add_argument(
@@ -56,10 +65,16 @@ def main():
     parser.add_argument("-r", "--run-specs", nargs="*", help="Specifies what to run", default=["simple1"])
     parser.add_argument("-o", "--output-path", help="Where to save all the output", default="benchmark_output")
     parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads to make requests", default=5)
+    parser.add_argument(
+        "-d",
+        "--dry-run",
+        action="store_true",
+        help="If set, the runner will skip execution, dump the scenario states and estimate token usage.",
+    )
     args = parser.parse_args()
 
     auth: Authentication = create_authentication(args)
-    execution_spec = ExecutionSpec(auth=auth, url=args.url, parallelism=args.num_threads)
+    execution_spec = ExecutionSpec(auth=auth, url=args.url, parallelism=args.num_threads, dry_run=args.dry_run)
 
     run_specs = [run_spec for description in args.run_specs for run_spec in parse_run_specs(description)]
     with htrack_block("Run specs"):
