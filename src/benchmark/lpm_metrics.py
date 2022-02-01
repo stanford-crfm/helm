@@ -3,6 +3,7 @@ from typing import List, Callable
 from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
+from .metric_service import MetricService
 
 
 def iou_match(gold: str, pred: str) -> float:
@@ -32,7 +33,9 @@ class LPMMetric(Metric):
     Compare a predicted set to a target set
     """
 
-    def evaluate_generation(self, adapter_spec: AdapterSpec, request_state: RequestState) -> List[Stat]:
+    def evaluate_generation(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    ) -> List[Stat]:
         """
         Setup:
         - Gold (correct references): G1 ... Gm
@@ -74,14 +77,3 @@ class LPMMetric(Metric):
         # TODO: pass in arguments to `BasicMetric`
         #       https://github.com/stanford-crfm/benchmarking/issues/44
         return compute_metrics("iou_match", iou_match) + compute_metrics("exact_set_match", exact_set_match)
-
-    def evaluate_references(
-        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState]
-    ) -> List[Stat]:
-        """
-        Setup: for each reference, we have a model score (log probability) and whether it's correct.
-        We define the following metrics:
-        - correct_rank: if we sort references by their logprobs, what is the ranking of the first correct reference.
-        """
-        # TODO: https://github.com/stanford-crfm/benchmarking/issues/45
-        return []
