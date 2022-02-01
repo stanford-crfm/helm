@@ -3,16 +3,16 @@ import os.path
 import subprocess
 from pathlib import Path
 from tqdm import tqdm
-from typing import List, Optional, Set
+from typing import Dict, List
 
-from pyhocon import ConfigFactory, ConfigTree
+from pyhocon import ConfigFactory
 
 """
 Script that runs all the RunSpecs in run_specs.conf and outputs a status page.
 
 Usage:
     
-    python3 presentation/run_all.py -o <Where to output benchmarking results> -s <Where to output status page>
+    python3 presentation/run_all.py -s <Where to output the status page>
 
 """
 
@@ -26,15 +26,6 @@ WIP_STATE = "WIP"
 class Runner:
     BENCHMARK_RUN_EXECUTABLE: str = "venv/bin/benchmark-run"
 
-    @staticmethod
-    def get_run_spec_description(run_spec_name: str, run_spec_args: Optional[ConfigTree]) -> str:
-        """Get full the run spec description by appending args to the RunSpec name."""
-        if run_spec_args:
-            args_str: str = ",".join([f"{arg}={run_spec_args[arg]}" for arg in run_spec_args])
-            return f"{run_spec_name}:{args_str}"
-        else:
-            return run_spec_name
-
     def __init__(self, url: str, api_key_path: str, output_path: str, status_path: str, num_threads: int):
         self.url: str = url
         self.api_key_path: str = api_key_path
@@ -45,23 +36,24 @@ class Runner:
     def run(self):
         print("Reading RunSpecs from run_specs.conf...")
         conf = ConfigFactory.parse_file("presentation/run_specs.conf")
-        ready_run_specs: Set[str] = set()
+        ready_run_spec_dir_to_description: Dict[str, str] = {}
+        wip_run_spec_dir_to_description: Dict[str, str] = {}
 
         print("Running all RunSpecs...")
-        for run_spec_name, run_spec in tqdm(conf.items()):
-            state: str = run_spec.state
-            run_spec_description: str = Runner.get_run_spec_description(
-                run_spec_name, run_spec_args=run_spec.get("args", default=None),
-            )
+        for run_spec, run_spec_state in tqdm(conf.items()):
+            run_spec = run_spec.replace('"', "")
+            state: str = run_spec_state.state
+            # Folders and filenames with ":" will be replaced with "_"
+            run_spec_dir: str = run_spec.replace(":", "_")
 
             if state == READY_STATE:
-                # Folders and filenames with ":" will be replaced with "_"
-                ready_run_specs.add(run_spec_description.replace(":", "_"))
-                self.run_benchmarking(run_spec_description)
+                ready_run_spec_dir_to_description[run_spec_dir] = run_spec
+                self.run_benchmarking(run_spec)
             elif state == WIP_STATE:
-                self.run_benchmarking(run_spec_description, dry_run=True)
+                wip_run_spec_dir_to_description[run_spec_dir] = run_spec
+                self.run_benchmarking(run_spec, dry_run=True)
             else:
-                raise ValueError(f"RunSpec {run_spec_name} has an invalid state: {state}")
+                raise ValueError(f"RunSpec {run_spec} has an invalid state: {state}")
 
         # Create the status page by traversing through and extracting metrics from the benchmarking output files
         print("Creating the status page...")
@@ -72,7 +64,7 @@ class Runner:
             "we just estimate the number of tokens needed.",
             "",
         ]
-        ready_content: List[str] = ["##### Ready Run Specs ######"]
+        ready_content: List[str] = ["##### Ready Run Specs ######\n"]
 
         scenarios_dir: str = os.path.join(self.output_path, "scenarios")
         for scenario in os.listdir(scenarios_dir):
@@ -80,31 +72,35 @@ class Runner:
             if not os.path.isdir(scenario_dir):
                 continue
 
-            runs_dir: str = os.path.join(scenario_dir, "runs")
-            for run in os.listdir(runs_dir):
-                run_dir: str = os.path.join(runs_dir, run)
-                if not os.path.isdir(run_dir):
+            run_spec_dirs: str = os.path.join(scenario_dir, "runs")
+            for run_spec_dir in os.listdir(run_spec_dirs):
+                full_run_spec_path: str = os.path.join(run_spec_dirs, run_spec_dir)
+                if not os.path.isdir(full_run_spec_path):
                     continue
 
-                content: List[str] = ready_content if run in ready_run_specs else wip_content
-                metrics_text: str = Path(os.path.join(run_dir, "metrics.txt")).read_text()
-                content.append(f"{run.replace('_', ':', 1)} - {metrics_text}")
+                metrics_text: str = Path(os.path.join(full_run_spec_path, "metrics.txt")).read_text()
 
-        # Write out the status page
+                if run_spec_dir in ready_run_spec_dir_to_description:
+                    run_spec: str = ready_run_spec_dir_to_description[run_spec_dir]
+                    ready_content.append(f"{run_spec} - \n{metrics_text}\n")
+                else:
+                    run_spec: str = wip_run_spec_dir_to_description[run_spec_dir]
+                    wip_content.append(f"{run_spec} - {metrics_text}")
+
+        # Write out the status page with the WIP RunSpecs first
         with open(self.status_path, "w") as f:
-            # Write out the WIP RunSpecs first
             f.write("\n".join(wip_content))
             f.write("\n" * 2 + "-" * 150 + "\n" * 2)
             f.write("\n".join(ready_content))
 
-    def run_benchmarking(self, run_spec_description: str, dry_run: bool = False):
+    def run_benchmarking(self, run_spec: str, dry_run: bool = False):
         command: List[str] = [
             Runner.BENCHMARK_RUN_EXECUTABLE,
             f"--url {self.url}",
             f"--api-key-path {self.api_key_path}",
             f"--output-path {self.output_path}",
             f"--num-threads {self.num_threads}",
-            f"--run-specs {run_spec_description}",
+            f"--run-specs {run_spec}",
         ]
         if dry_run:
             command.append("--dry-run")
@@ -114,7 +110,7 @@ class Runner:
                 " ".join(command), shell=True,
             )
         except subprocess.CalledProcessError as e:
-            print(f"There was an error while creating the temp instance: {e}")
+            print(f"There was an error while running the {Runner.BENCHMARK_RUN_EXECUTABLE} command: {e}")
             raise
 
 
