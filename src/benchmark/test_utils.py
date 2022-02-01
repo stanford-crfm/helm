@@ -74,9 +74,9 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     )
 
 
-def get_language_pattern_matching_spec(difficulty: str) -> RunSpec:
+def get_lpm_spec(difficulty: str) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.language_pattern_matching_scenario.LanguagePatternMatchingScenario",
+        class_name="benchmark.lpm_scenario.LPMScenario",
         args={"difficulty": difficulty},
     )
 
@@ -87,11 +87,10 @@ def get_language_pattern_matching_spec(difficulty: str) -> RunSpec:
         method=ADAPT_LANGUAGE_GENERATION,
         instructions="Please solve the following problem.",
         max_train_instances=3,
-        max_eval_instances=50,
+        max_eval_instances=10,
         num_outputs=3,
         num_train_trials=1,
         model="openai/davinci",
-        # model="simple/model1",
         temperature=0.2,
         stop_sequences=["\n"],
         max_tokens=20,

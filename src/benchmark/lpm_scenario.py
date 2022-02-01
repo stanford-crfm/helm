@@ -28,7 +28,7 @@ def get_vocab():
     }
 
     attributes = [
-        # 'red', 'blue', 'green', 'young', 'round', 'rough',
+        # 'red', 'blue', 'green', 'young', 'rough',
         # 'fuzzy', 'sad', 'tasty', 'soft', 'fine', 'funny', 'rich',
         # 'new', 'sick', 'poor', 'boring', 'powerful',
         # 'friendly', 'orange', 'wide', 'lost', 'yellow',
@@ -62,6 +62,7 @@ def get_vocab():
             "slow": ["slow", "sluggish"],
             "bad": ["bad", "evil", "wicked", "mean"],
             "happy": ["happy", "elated", "glad"],
+            "round": ["round", "circular", "spherical"],
         }
     )
     new_attribute_groups = copy(attribute_groups)
@@ -161,20 +162,14 @@ def generate_test(attribute_groups, subject, rules, p_consquenceless=0.1):
     return test_attributes, test_attributes_specific, test_consequents, test_rules_used
 
 
-class LanguagePatternMatchingScenario(Scenario):
+class LPMScenario(Scenario):
     """
-    The Massive Multitask Language Understanding benchmark from this paper:
-
-        https://arxiv.org/pdf/2009.03300.pdf
-
-    Code is adapted from:
-
-        https://github.com/hendrycks/test/blob/master/evaluate.py
-        https://github.com/EleutherAI/lm-evaluation-harness/blob/master/lm_eval/tasks/hendrycks_test.py
+    Language Pattern Matching benchmark based on "Transformers as Soft Reasoners over Language"
+        https://arxiv.org/abs/2002.05867
     """
 
-    name = "mmlu"
-    description = "Massive Multitask Language Understanding"
+    name = "lpm"
+    description = "Language Pattern Matching"
     tags = ["reasoning", "language", "pattern_matching"]
 
     def __init__(self, difficulty: str, random_seed=42):
@@ -196,10 +191,6 @@ class LanguagePatternMatchingScenario(Scenario):
         instances = []
 
         for sample_idx in range(self.n_train_samples + self.n_valid_samples + self.n_test_samples):
-            # generic_attributes specifies that the top level attribute should always be used
-            # e.g. "cold" instead of "chill"
-            # specific_category specifies that the specific category should always be used
-            # e.g. "dog" instead of "an animal"
             subject_category = random.choice(list(self.subjects.keys()))
             subject = random.choice(self.subjects[subject_category])
             rules = generate_rules(
