@@ -17,10 +17,10 @@ Usage:
 """
 
 # For READY RunSpecs, evaluate and generate metrics.
-READY_STATE = "READY"
+READY_STATUS = "READY"
 
 # For WIP RunSpecs, just estimate token usage.
-WIP_STATE = "WIP"
+WIP_STATUS = "WIP"
 
 
 class Runner:
@@ -42,18 +42,18 @@ class Runner:
         print("Running all RunSpecs...")
         for run_spec, run_spec_state in tqdm(conf.items()):
             run_spec = run_spec.replace('"', "")
-            state: str = run_spec_state.state
+            status: str = run_spec_state.status
             # Folders and filenames with ":" will be replaced with "_"
             run_spec_dir: str = run_spec.replace(":", "_")
 
-            if state == READY_STATE:
+            if status == READY_STATUS:
                 ready_run_spec_dir_to_description[run_spec_dir] = run_spec
                 self.run_benchmarking(run_spec)
-            elif state == WIP_STATE:
+            elif status == WIP_STATUS:
                 wip_run_spec_dir_to_description[run_spec_dir] = run_spec
                 self.run_benchmarking(run_spec, dry_run=True)
             else:
-                raise ValueError(f"RunSpec {run_spec} has an invalid state: {state}")
+                raise ValueError(f"RunSpec {run_spec} has an invalid status: {status}")
 
         # Create the status page by traversing through and extracting metrics from the benchmarking output files
         print("Creating the status page...")
