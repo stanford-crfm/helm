@@ -1,9 +1,14 @@
 from typing import List
 
 from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
+<<<<<<< HEAD
 from .run_specs import get_scenario_spec1, get_adapter_spec1, get_adapter_spec1_with_data_augmentation
 from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, Adapter, AdapterSpec
 from proxy.tokenizer.openai_token_counter import OpenAITokenCounter
+=======
+from .run_specs import get_scenario_spec1, get_adapter_spec1, get_adapter_spec1_with_data_augmentation, get_numeracy_scenario_spec, get_numeracy_adapter_spec
+from .adapter import ADAPT_GENERATION, Adapter, AdapterSpec
+>>>>>>> 90f2e53 (use adapter)
 
 
 def test_adapter1():
@@ -60,6 +65,7 @@ def test_construct_prompt():
     assert adapter.construct_prompt(train_instances, eval_instances) == prompt
 
 
+<<<<<<< HEAD
 def test_construct_language_modeling_prompt():
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING, input_prefix="", model="openai/davinci", output_prefix="", max_tokens=0,
@@ -78,3 +84,27 @@ def test_construct_language_modeling_prompt():
 
     # Ensure the number of conditioning tokens is correct
     assert num_conditioning_tokens == 1
+
+
+def test_numeracy_adapter():
+    scenario = create_scenario(get_numeracy_scenario_spec(num_in_context_samples=10, seed=3))
+    adapter_spec = get_numeracy_adapter_spec(num_in_context_samples=10)
+
+    scenario_state = Adapter(adapter_spec).adapt(scenario)
+
+    # Make sure we generated the right number of request_states:
+    # For each trial, instance and reference (+ 1 for free-form generation).
+    num_instances = len(scenario_state.instances)
+    assert num_instances * adapter_spec.num_train_trials == len(scenario_state.request_states)
+
+    # print('\n'.join(scenario_state.render_lines()))
+    def print_lines():
+        lines = scenario_state.render_lines()
+        for line in lines:
+            print(line)
+
+    # import pdb
+    # pdb.set_trace()
+
+    # TODO: write tests to check the contents of the actual prompt
+

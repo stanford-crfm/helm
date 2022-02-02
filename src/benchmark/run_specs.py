@@ -382,15 +382,32 @@ def get_raft_spec(subset: str) -> RunSpec:
     )
 
 
-def get_numeracy_scenario_spec(num_in_context_samples: int = 3) -> ScenarioSpec:
+def get_numeracy_scenario_spec(num_in_context_samples: int = 3, seed: int = 1) -> ScenarioSpec:
     return ScenarioSpec(
         class_name="benchmark.numeracy_scenario.NumeracyScenario",
-        args={
-            "num_in_context_samples": num_in_context_samples,
-            "relation_size": 2,
-            "num_train_instances": 2,
-            "num_test_instances": 2,
-        },
+        args={"seed": seed, "relation_size": 2, "num_train_instances": 200, "num_test_instances": 2,},
+    )
+
+
+def get_numeracy_adapter_spec(num_in_context_samples: int = 3) -> AdapterSpec:
+    return AdapterSpec(
+        method=ADAPT_GENERATION,
+        # instructions="Please solve the following problem.",
+        instructions="Continue the pattern.",
+        max_train_instances=num_in_context_samples,
+        max_eval_instances=50,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        # model="simple/model1",
+        temperature=0,
+        stop_sequences=["\n"],
+        max_tokens=20,
+        input_prefix="",
+        output_prefix=", ",
+        block_prefix="\n",
+        # input_prefix="Input: ",
+        # output_prefix="\nOutput: ",
     )
 
 
@@ -400,21 +417,7 @@ def get_numeracy_run_spec(num_in_context_samples: int = 3) -> RunSpec:
     def format(num_in_context_samples: int):
         return str(num_in_context_samples)
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        instructions="Please solve the following problem.",
-        max_train_instances=3,
-        max_eval_instances=50,
-        num_outputs=3,
-        num_train_trials=1,
-        model="openai/davinci",
-        # model="simple/model1",
-        temperature=0,
-        stop_sequences=["\n"],
-        max_tokens=20,
-        input_prefix="Rules:\n",
-        output_prefix="",
-    )
+    adapter_spec = get_numeracy_adapter_spec(num_in_context_samples)
 
     return RunSpec(
         name=f"num_in_context_samples={num_in_context_samples}",
@@ -424,8 +427,6 @@ def get_numeracy_run_spec(num_in_context_samples: int = 3) -> RunSpec:
     )
 
 
-
->>>>>>> fc10b43 (numeracy sketch)
 def get_boolq_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={})
 

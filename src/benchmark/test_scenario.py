@@ -42,8 +42,8 @@ class TestNumeracyScenario:
 
     def test_render_lines(self):
         instances = self.scenario.get_instances()
-        # print('\n'.join(self.scenario.render_lines(instances)))
-        print(self.scenario.render_lines(instances))
+        print("\n".join(self.scenario.render_lines(instances)))
+        # print(self.scenario.render_lines(instances))
         assert self.scenario.render_lines(instances) == [
             "Name: numeracy",
             "Description: A simple scenario",
