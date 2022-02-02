@@ -124,6 +124,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_copyright_spec(**args)]
     if name == "lpm":
         return [get_lpm_spec(**args)]
+    if name == "numeracy":
+        return [get_numeracy_run_spec(**args)]
     if name == "mmlu":
         return [get_mmlu_spec(**args)]
     if name == "narrativeqa":
@@ -382,14 +384,38 @@ def get_raft_spec(subset: str) -> RunSpec:
     )
 
 
-def get_numeracy_scenario_spec(num_in_context_samples: int = 3, seed: int = 1) -> ScenarioSpec:
+def get_numeracy_scenario_spec(
+    seed: Optional[int] = 1, num_train_instances: int = 200, num_test_instances: int = 2
+) -> ScenarioSpec:
     return ScenarioSpec(
         class_name="benchmark.numeracy_scenario.NumeracyScenario",
-        args={"seed": seed, "relation_size": 2, "num_train_instances": 200, "num_test_instances": 2,},
+        args={
+            "seed": seed,
+            "num_train_instances": num_train_instances,
+            "num_test_instances": num_test_instances,
+            # ### Example 0
+            # default settings
+            # ### Example 1
+            # "degree": 2,
+            # "num_variables": 2,
+            # "range_coeffs": [(1, 5), (1, 5), (1, 5), (-5, 5), (-5, 5), (-5, 5)],
+            # "range_vals": [(-100, 100), (-100, 100)],
+            # ### Example 2
+            # "degree": 2,
+            # "num_variables": 2,
+            # "range_coeffs": [(0, 0), (0, 0), (-1, 1), (1, 5), (1, 5), (1, 5)],
+            # # "range_coeffs": [(0, 0), (0, 0), (-1, 1), (0, 0), (1, 5), (1, 5)],  # Should fail
+            # "range_vals": [(-5, 5), (-5, 5)],
+            # ### Example 3
+            # "degree": 2,
+            # "num_variables": 1,
+            # "range_coeffs": [(1, 5), (1, 5), (1, 5)],
+            # "range_vals": [(-5, 5)],
+        },
     )
 
 
-def get_numeracy_adapter_spec(num_in_context_samples: int = 3) -> AdapterSpec:
+def get_numeracy_adapter_spec(num_in_context_samples: int = 10) -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_GENERATION,
         # instructions="Please solve the following problem.",
@@ -411,19 +437,16 @@ def get_numeracy_adapter_spec(num_in_context_samples: int = 3) -> AdapterSpec:
     )
 
 
-def get_numeracy_run_spec(num_in_context_samples: int = 3) -> RunSpec:
+def get_numeracy_run_spec(num_in_context_samples: int = 10) -> RunSpec:
     scenario = get_numeracy_scenario_spec(num_in_context_samples)
-
-    def format(num_in_context_samples: int):
-        return str(num_in_context_samples)
 
     adapter_spec = get_numeracy_adapter_spec(num_in_context_samples)
 
     return RunSpec(
-        name=f"num_in_context_samples={num_in_context_samples}",
+        name="numeracy",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics(),
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
 

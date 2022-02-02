@@ -2,11 +2,21 @@ from typing import List
 
 from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
 <<<<<<< HEAD
+<<<<<<< HEAD
 from .run_specs import get_scenario_spec1, get_adapter_spec1, get_adapter_spec1_with_data_augmentation
 from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, Adapter, AdapterSpec
 from proxy.tokenizer.openai_token_counter import OpenAITokenCounter
 =======
 from .run_specs import get_scenario_spec1, get_adapter_spec1, get_adapter_spec1_with_data_augmentation, get_numeracy_scenario_spec, get_numeracy_adapter_spec
+=======
+from .run_specs import (
+    get_scenario_spec1,
+    get_adapter_spec1,
+    get_adapter_spec1_with_data_augmentation,
+    get_numeracy_scenario_spec,
+    get_numeracy_adapter_spec,
+)
+>>>>>>> 50e89fc (generalize numeracy scenario)
 from .adapter import ADAPT_GENERATION, Adapter, AdapterSpec
 >>>>>>> 90f2e53 (use adapter)
 
@@ -65,7 +75,6 @@ def test_construct_prompt():
     assert adapter.construct_prompt(train_instances, eval_instances) == prompt
 
 
-<<<<<<< HEAD
 def test_construct_language_modeling_prompt():
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING, input_prefix="", model="openai/davinci", output_prefix="", max_tokens=0,
@@ -87,7 +96,7 @@ def test_construct_language_modeling_prompt():
 
 
 def test_numeracy_adapter():
-    scenario = create_scenario(get_numeracy_scenario_spec(num_in_context_samples=10, seed=3))
+    scenario = create_scenario(get_numeracy_scenario_spec(seed=1, num_train_instances=20, num_test_instances=1))
     adapter_spec = get_numeracy_adapter_spec(num_in_context_samples=10)
 
     scenario_state = Adapter(adapter_spec).adapt(scenario)
@@ -103,8 +112,57 @@ def test_numeracy_adapter():
         for line in lines:
             print(line)
 
-    # import pdb
-    # pdb.set_trace()
+    result = "\n".join(scenario_state.render_lines())
+    expected = """Adapter
+method: generative_language_modeling
+instructions: Continue the pattern.
+input_prefix: 
+reference_prefix: 
+A. 
+output_prefix: , 
+block_prefix: 
 
-    # TODO: write tests to check the contents of the actual prompt
+max_train_instances: 10
+max_eval_instances: 50
+num_outputs: 1
+num_train_trials: 1
+model: openai/davinci
+temperature: 0
+max_tokens: 20
+stop_sequences: ['\\n']
+1 request states
+
+------- Request state 1/1
+Train trial index: 0
+Instance
+Input: 78
+Reference ([correct]): 160
+
+Request
+model: openai/davinci
+prompt: Continue the pattern.
+24, 52
+-93, -182
+-84, -164
+66, 136
+10, 24
+15, 34
+-100, -196
+26, 56
+20, 44
+94, 192
+78,
+temperature: 0
+num_completions: 1
+top_k_per_token: 1
+max_tokens: 20
+stop_sequences: ['\\n']
+echo_prompt: False
+top_p: 1
+presence_penalty: 0
+frequency_penalty: 0
+random: None
+
+"""  # noqa
+    assert result == expected
 
