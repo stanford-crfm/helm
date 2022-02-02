@@ -171,3 +171,30 @@ def get_lpm_spec(difficulty: str) -> RunSpec:
     return RunSpec(
         name=f"lpm_difficulty={difficulty}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_lpm_metrics()
     )
+
+
+def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.synthetic_reasoning_scenario.SyntheticReasoningScenario", args={"mode": mode},)
+
+    def format(difficulty: str):
+        return difficulty.replace("_", " ")
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_GENERATION,
+        instructions="Please solve the following problem.",
+        max_train_instances=3,
+        max_eval_instances=10,
+        num_outputs=3,
+        num_train_trials=1,
+        model="openai/davinci",
+        # model="simple/model1",
+        temperature=0.2,
+        stop_sequences=["\n"],
+        max_tokens=20,
+        input_prefix="",
+        output_prefix="| Target: ",
+    )
+
+    return RunSpec(
+        name=f"synrea_mode={mode}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({'names':['exact_match']})
+    )

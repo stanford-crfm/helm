@@ -13,6 +13,7 @@ from .test_utils import (
     get_real_toxicity_prompts_spec,
     get_twitter_aae_spec,
     get_lpm_spec,
+    get_synthetic_reasoning_spec,
 )
 
 
@@ -44,6 +45,8 @@ def parse_run_specs(description: str) -> List[RunSpec]:
         return [get_real_toxicity_prompts_spec()]
     if name == "lpm":
         return [get_lpm_spec(**args)]
+    if name == "synthetic_reason":
+        return [get_synthetic_reasoning_spec(**args)]
     raise ValueError(f"Unknown run spec: {description}")
 
 
