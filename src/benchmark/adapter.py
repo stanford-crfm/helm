@@ -271,6 +271,7 @@ class Adapter:
             # Create request_states
             for eval_index, eval_instance in enumerate(eval_instances):
                 prompt = self.construct_prompt(train_instances, eval_instance)
+                # TODO: truncate here -Tony?
 
                 # Just print one prompt (useful for debugging)
                 if train_trial_index == 0 and eval_index == 0:

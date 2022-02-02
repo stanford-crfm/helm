@@ -6,6 +6,9 @@ from transformers import GPT2TokenizerFast
 
 
 class OpenAITokenCounter(TokenCounter):
+    # TODO: Add link to documentation
+    MAX_CONTEXT_TOKEN_LENGTH = 2049
+
     def __init__(self):
         # OpenAI used the same tokenizer for GPT-2 and GPT-3.
         # Weights are cached at ~/.cache/huggingface/transformers.
@@ -33,6 +36,11 @@ class OpenAITokenCounter(TokenCounter):
         """
         return self.tokenize_and_count(request.prompt) + request.num_completions * request.max_tokens
 
-    def tokenize_and_count(self, text: str):
+    def tokenize_and_count(self, text: str) -> int:
         """Count the number of tokens for a given text using the GPT-2 tokenizer."""
         return len(self.tokenizer.encode(text))
+
+    def truncate(self, text: str) -> str:
+        """Tokenizes and truncates text to fit within the GPT-3 context window."""
+        tokens: List[int] = self.tokenizer.encode(text)
+        return self.tokenizer.decode(tokens[: OpenAITokenCounter.MAX_CONTEXT_TOKEN_LENGTH])
