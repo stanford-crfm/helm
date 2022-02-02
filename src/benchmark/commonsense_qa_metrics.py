@@ -71,7 +71,6 @@ class CommonSenseQAMetric(Metric):
         return [
             Stat("logprob").add(logprob),
             Stat("num_tokens").add(num_tokens),
-            Stat("length_normalized_logprob").add(length_normalized_logprob),
         ]
 
     def evaluate_references(
@@ -90,11 +89,11 @@ class CommonSenseQAMetric(Metric):
         ]
         assert len(answers) == 2 and answers[0] == answers[1]
         answer = answers[0]
-        original_logprobs = [stats[i][-1].mean for i in range(0, self.n_request_per_instance, 2)]
-        choice_logprobs = [stats[i][-1].mean for i in range(1, self.n_request_per_instance, 2)]
-        calibrated_logprobs = [
-            p_original - p_choice for p_original, p_choice in zip(original_logprobs, choice_logprobs)
-        ]
+
+        # Original: sum of token logprob in answer given context / num of tokens in answer
+        original_logprobs = [stats[i][0].mean / stats[i][1].mean for i in range(0, self.n_request_per_instance, 2)] 
+        # Calibration: sum of token logprob in answer given context - sum of token logprob in answer without context
+        calibrated_logprobs = [stats[i][0].mean - stats[i + 1][0].mean for i in range(0, self.n_request_per_instance, 2)] 
         return [
             Stat("original_acc").add(float(max(original_logprobs) == original_logprobs[answer])),
             Stat("calibrated_acc").add(float(max(calibrated_logprobs) == calibrated_logprobs[answer])),
