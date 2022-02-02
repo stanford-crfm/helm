@@ -66,7 +66,6 @@ class CommonSenseQAMetric(Metric):
 
         logprob = sum(token.logprob for token in answer_tokens)
         num_tokens = len(answer_tokens)
-        length_normalized_logprob = logprob / num_tokens
 
         return [
             Stat("logprob").add(logprob),
@@ -91,9 +90,11 @@ class CommonSenseQAMetric(Metric):
         answer = answers[0]
 
         # Original: sum of token logprob in answer given context / num of tokens in answer
-        original_logprobs = [stats[i][0].mean / stats[i][1].mean for i in range(0, self.n_request_per_instance, 2)] 
+        original_logprobs = [stats[i][0].mean / stats[i][1].mean for i in range(0, self.n_request_per_instance, 2)]
         # Calibration: sum of token logprob in answer given context - sum of token logprob in answer without context
-        calibrated_logprobs = [stats[i][0].mean - stats[i + 1][0].mean for i in range(0, self.n_request_per_instance, 2)] 
+        calibrated_logprobs = [
+            stats[i][0].mean - stats[i + 1][0].mean for i in range(0, self.n_request_per_instance, 2)
+        ]
         return [
             Stat("original_acc").add(float(max(original_logprobs) == original_logprobs[answer])),
             Stat("calibrated_acc").add(float(max(calibrated_logprobs) == calibrated_logprobs[answer])),

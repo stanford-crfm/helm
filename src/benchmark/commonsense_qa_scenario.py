@@ -79,22 +79,22 @@ class CommonSenseQAScenario(Scenario):
         data_path = os.path.join(self.output_path, "data", self.dataset)
 
         if self.dataset == "hellaswag":
-            split2file = {
+            split_to_file = {
                 split: os.path.join(data_path, f"hellaswag_{split}.jsonl") for split in ["train", "val"]
             }  # Ignore HellaSwag test set because no label information
             item_process_func = self.process_hellaswag_item
         elif self.dataset == "openbookqa":
-            split2file = {
+            split_to_file = {
                 split: os.path.join(data_path, "OpenBookQA-V1-Sep2018", "Data", "Main", f"{split}.jsonl")
-                for split in ["train", "val", "test"]
+                for split in ["train", "test"]
             }
             item_process_func = self.process_openbookqa_item
         else:
             raise ValueError(f"Unknown dataset: {self.dataset}")
 
         data = []
-        for split in split2file:
-            file_path = split2file[split]
+        for split in split_to_file:
+            file_path = split_to_file[split]
             if not os.path.exists(file_path):
                 hlog(f"{file_path} doesn't exist, skipping")
                 continue
