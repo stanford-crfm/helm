@@ -7,13 +7,13 @@ from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_
 """Language Pattern Matching Scenario.
 
 We define a set of reasoning tasks related to pattern matching in language. In essence, each problem is composed
-of some combination of 
+of some combination of
 - Rules, a list of conditional statement such as "If a person is red and kind, then the person is cold."
-- Fact, a single case from which something may or may not be deduced given the rules. 
+- Fact, a single case from which something may or may not be deduced given the rules.
     For example, "The dog is big and red."
-- Consequents, the set of all things implied by the combination of the fact and rules. 
-    For example, given a problem such as 
-    " 
+- Consequents, the set of all things implied by the combination of the fact and rules.
+    For example, given a problem such as
+    "
       Rules:
       If a cow is weak, then the cow is small.
       If a cow is hot, then the cow is purple.
@@ -28,16 +28,16 @@ of some combination of
 - Intermediates used, the set of rules which are actually used to go from the rules and fact to the consequent.
     In the previous example, this would be "If a cow is hot, then the cow is purple"
 
-We can support a variety of tasks from this framework. 
+We can support a variety of tasks from this framework.
 - Rules + Fact -> Consequents (highlights deduction)
 - Intermediates + Consequents -> Fact (abduction)
 - Facts + Consequents -> Intermediates (induction)
 - Rules + Fact -> Intermediates + Consequents (a variation on the first example with intermediate steps)
 - Rules + Fact -> Intermediates (a pure pattern matching test, without substitution)
 
-We also support multiple levels of difficulty. 
+We also support multiple levels of difficulty.
 - At the medium level, we add the need to understand that the subject of rules may be a broader class
-    For example, instead of 
+    For example, instead of
         "If Carol is happy, then Carol is green."
     We may have
         "If a person is happy, then the person is green."
@@ -45,12 +45,13 @@ We also support multiple levels of difficulty.
 - At the hard level, we add the need to understand that the attributes of rules may be a broader class
     For example, consider the rule:
         "If an animal is cold or old, then the animal is good."
-    Instead of 
+    Instead of
         "The dog is old and big."
     We may have
         "The dog is ancient and huge."
     And the model would need to still apply this rule to Carol.
 """
+
 
 def get_vocab():
     """All potential subjects for the facts and rules for LPM as well as their categories.
