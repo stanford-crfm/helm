@@ -24,7 +24,7 @@ of some combination of
       A cow is smart and hot.
       The following can be determined about the cow:
     "
-    The response would be "The cow is purple."
+    The consequent would be "The cow is purple."
 - Intermediates used, the set of rules which are actually used to go from the rules and fact to the consequent.
     In the previous example, this would be "If a cow is hot, then the cow is purple"
 
