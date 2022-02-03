@@ -225,9 +225,9 @@ def generate_rules(attribute_groups, subject_category, subject, max_rules=5, spe
     return rules
 
 
-def generate_test(attribute_groups, subject, rules, p_consquenceless=0.1):
+def generate_test(attribute_groups, subject, rules, p_consequenceless=0.1):
     """ Generates a test case given a set of rules, i.e. a statement about the subject from which something
-    can be potentially deduced given the rules. We include an argument, p_consquenceless, to re-roll with
+    can be potentially deduced given the rules. We include an argument, p_consequenceless, to re-roll with
     some probability if the generated fact does not allow anything to be determined.
     """
     test_attributes = random.sample(list(attribute_groups.keys()), 2)
@@ -248,8 +248,8 @@ def generate_test(attribute_groups, subject, rules, p_consquenceless=0.1):
             if not set(rule_condition).isdisjoint(test_attributes):
                 test_rules_used.append(rule)
                 test_consequents.append(rule_consequent)
-    if len(test_consequents) == 0 and random.random() > p_consquenceless:
-        return generate_test(attribute_groups, subject, rules, p_consquenceless)
+    if len(test_consequents) == 0 and random.random() > p_consequenceless:
+        return generate_test(attribute_groups, subject, rules, p_consequenceless)
     return test_attributes, test_attributes_specific, test_consequents, test_rules_used
 
 
