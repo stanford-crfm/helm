@@ -32,7 +32,7 @@ def get_adapter_spec1() -> AdapterSpec:
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
         max_train_instances=5,
-        max_eval_instances=10,
+        max_eval_instances=20,
         num_outputs=3,
         num_train_trials=3,
         model="simple/model1",
@@ -50,7 +50,8 @@ def get_toxicity_metrics(group_tags: List[str]) -> List[MetricSpec]:
 
 
 def get_lpm_metrics() -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.lpm_metrics.LPMMetric", args={})]
+    metric_names = {"names": ["iou_set_match", "exact_set_match"]}
+    return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
 ############################################################
@@ -160,7 +161,7 @@ def get_lpm_spec(difficulty: str) -> RunSpec:
         max_eval_instances=10,
         num_outputs=3,
         num_train_trials=1,
-        model="openai/davinci",
+        model="simple/model1",
         temperature=0.2,
         stop_sequences=["\n"],
         max_tokens=20,

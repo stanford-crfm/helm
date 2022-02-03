@@ -17,7 +17,7 @@ def get_vocab():
     attributes e.g. if we know something is chilly, we know that it is cold (but not assuming the reverse.
     """
 
-    # 
+    # A list of subjects and their categories
     subjects = {
         "person": ["Alice", "Bob", "Carol", "Dan", "Erin", "Frank"],
         "animal": [
