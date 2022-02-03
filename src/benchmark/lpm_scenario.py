@@ -6,14 +6,14 @@ from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_
 
 
 def get_vocab():
-    """All potential subjects for the facts and rules for LPM as well as their categories. 
+    """All potential subjects for the facts and rules for LPM as well as their categories.
     Subjects is a dictionary of subject categories like "person" and "animal" which correspond to
-    a list of potential subjects. 
-    
+    a list of potential subjects.
+
     Attributes corresponds to an initial list of attributes which are only synonymous with themselves.
     Intially, we default to not including these attributes, but we leave this feature in for convenience.
-    
-    Attribute groups are a more general version of attributes, where a single attribute corresponds to a class of 
+
+    Attribute groups are a more general version of attributes, where a single attribute corresponds to a class of
     attributes e.g. if we know something is chilly, we know that it is cold (but not assuming the reverse.
     """
 
@@ -94,7 +94,7 @@ def get_vocab():
 def generate_specifier(subject, upper=False):
     """Figure out whether to use "A" or "An" (heuristic)
 
-    This determines whether to use A or An in a given sentence for a subject. 
+    This determines whether to use A or An in a given sentence for a subject.
 
     Example:
         generate_specifier("cat", upper=False) -> "a"
@@ -108,7 +108,7 @@ def generate_specifier(subject, upper=False):
 
 
 def parse_rule(rule):
-    """Takes in a rule as a dictionary, i.e. corresponding to "if x (and/or y) then z" 
+    """Takes in a rule as a dictionary, i.e. corresponding to "if x (and/or y) then z"
     and returns a string corresponding to the rule
 
     Rules should have the following format:
@@ -119,7 +119,7 @@ def parse_rule(rule):
         'consequent': 'cold'
         'specified': True
     }
-    
+
     and this example will output a string: "If a person is red and kind, then the person is cold."
     """
 
@@ -144,10 +144,10 @@ def parse_fact(subject, attributes, prefix="", specifier=""):
 
 
 def generate_rules(attribute_groups, subject_category, subject, max_rules=5, specific_category=False):
-    """ Generates a random set of rules about a subject as dictionaries, 
+    """ Generates a random set of rules about a subject as dictionaries,
     given a list of potential attributes and the category (e.g. person) of the subject (e.g. Alice)
-    
-    These rules are guaranteed to not contradict one another, and attributes implied by a single rule will 
+
+    These rules are guaranteed to not contradict one another, and attributes implied by a single rule will
     not imply any attributes in any other rules (i.e. there is only a single step of reasoning).
     """
     attributes_shuffled = list(attribute_groups.keys()).copy()
@@ -179,7 +179,7 @@ def generate_rules(attribute_groups, subject_category, subject, max_rules=5, spe
 
 def generate_test(attribute_groups, subject, rules, p_consquenceless=0.1):
     """ Generates a test case given a set of rules, i.e. a statement about the subject from which something
-    can be potentially deduced given the rules. We include an argument, p_consquenceless, to re-roll with 
+    can be potentially deduced given the rules. We include an argument, p_consquenceless, to re-roll with
     some probability if the generated fact does not allow anything to be determined.
     """
     # test_attributes = random.sample(attributes, 2)
