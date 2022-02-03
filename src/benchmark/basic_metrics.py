@@ -83,8 +83,8 @@ class BasicMetric(Metric):
         }
 
         reference_metrics = []
-        for cur_metric_name in self.names:
-            if cur_metric_name in metric_fn_mapping:
+        for metric_name in self.names:
+            if metric_name in metric_fn_mapping:
                 # Gold outputs
                 golds = [reference.output for reference in request_state.instance.references if reference.is_correct]
                 assert len(golds) > 0
@@ -98,7 +98,9 @@ class BasicMetric(Metric):
                 # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
                 if request_state.output_mapping is not None:
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
-                reference_metrics.extend(compute_metrics_helper(cur_metric_name, metric_fn_mapping[cur_metric_name]))
+                reference_metrics.extend(compute_metrics_helper(metric_name, metric_fn_mapping[metric_name]))
+            else:
+                raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics
 
     def compute_language_modeling_metrics(
