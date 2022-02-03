@@ -88,17 +88,7 @@ def get_vocab():
     }
 
     # A list of attributes for the facts and rules which only correspond to themselves
-    attributes = [
-        # 'red', 'blue', 'green', 'young', 'rough',
-        # 'fuzzy', 'sad', 'tasty', 'soft', 'fine', 'funny', 'rich',
-        # 'new', 'sick', 'poor', 'boring', 'powerful',
-        # 'friendly', 'orange', 'wide', 'lost', 'yellow',
-        # 'white', 'grey', 'black', 'pink', 'brown', 'cheerful',
-        # 'striped', 'wild', 'shiny',
-        # 'fluffy', 'gray', 'curly', 'busy', 'plain', 'flat',  'sleek',
-        # 'scary', 'harmless', 'graceful'
-        # # 'heavy', 'tall', 'short', 'light', 'long', 'fat', 'gentle', 'elegant', 'sparkly', 'great',
-    ]
+    attributes = ["young", "rough", "soft", "sad", "scary", "white", "grey", "black"]
 
     # Convert list of attributes into dictionary
     attribute_groups = {attribute: [attribute] for attribute in attributes}
@@ -124,7 +114,7 @@ def get_vocab():
             "fast": ["fast", "quick"],
             "slow": ["slow", "sluggish"],
             "bad": ["bad", "evil", "wicked", "mean"],
-            "happy": ["happy", "elated", "glad"],
+            "happy": ["happy", "elated", "glad", "cheerful"],
             "round": ["round", "circular", "spherical"],
         }
     )
@@ -291,10 +281,7 @@ class LPMScenario(Scenario):
                 self.attribute_groups, subject, rules
             )
 
-            # question = "Rules:\n"
-            question = ""
-            for rule in rules:
-                question += parse_rule(rule) + "\n"
+            question = "\n".join(parse_rule(rule) for rule in rules) + "\n"
 
             test_specifier_base = generate_specifier(subject, upper=True)
             test_specifier_first = test_specifier_base + " " if subject_category != "person" else ""
