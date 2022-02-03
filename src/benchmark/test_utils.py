@@ -7,7 +7,6 @@ from .adapter import (
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE,
     ADAPT_GENERATION,
-    ADAPT_LANGUAGE_GENERATION,
 )
 from .metric import MetricSpec
 from .runner import RunSpec
@@ -151,17 +150,14 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
 def get_lpm_spec(difficulty: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.lpm_scenario.LPMScenario", args={"difficulty": difficulty},)
 
-    def format(difficulty: str):
-        return difficulty.replace("_", " ")
-
     adapter_spec = AdapterSpec(
-        method=ADAPT_LANGUAGE_GENERATION,
+        method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
         max_train_instances=3,
         max_eval_instances=10,
         num_outputs=3,
         num_train_trials=1,
-        model="simple/model1",
+        model="openai/davinci",
         temperature=0.2,
         stop_sequences=["\n"],
         max_tokens=20,
