@@ -150,6 +150,7 @@ def get_copyright_spec(pilot_study=True) -> RunSpec:
         instructions="",
         input_prefix="",
         output_prefix="",
+        max_train_instances=0,
         max_eval_instances=100 if pilot_study else None,
         num_outputs=10,
         num_train_trials=1,
