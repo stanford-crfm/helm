@@ -1,10 +1,10 @@
 from typing import List, Dict
 
 from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
-from .scenario import ScenarioSpec
 from .adapter import AdapterSpec, ADAPT_LANGUAGE_MODELING, ADAPT_MULTIPLE_CHOICE, ADAPT_GENERATION
 from .metric import MetricSpec
 from .runner import RunSpec
+from .scenario import ScenarioSpec
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -43,6 +43,10 @@ def get_toxicity_metrics(group_tags: List[str]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={"group_tags": group_tags})]
 
 
+def get_copyright_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.copyright_metrics.CopyrightMetric", args=args)]
+
+
 ############################################################
 
 
@@ -57,7 +61,7 @@ def get_run_spec1() -> RunSpec:
 
 
 def get_mmlu_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject},)
+    scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject}, )
 
     def format(subject: str):
         return subject.replace("_", " ")
@@ -134,4 +138,29 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_toxicity_metrics([TOXIC_TAG, NONTOXIC_TAG]),
+    )
+
+
+def get_copyright_spec(pilot_study=True) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.copyright_scenario.CopyrightScenario", args=dict())
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        conditioning_prefix="",
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        max_eval_instances=100 if pilot_study else None,
+        num_outputs=10,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0.7,
+        max_tokens=2000,
+    )
+
+    return RunSpec(
+        name=f"copyright",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_copyright_metrics({"names": ["exact_match"]}),
     )

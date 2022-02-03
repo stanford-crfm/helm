@@ -1,14 +1,15 @@
 import argparse
 from typing import List, Dict, Any, Tuple
 
-from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.authentication import Authentication
+from common.hierarchical_logger import hlog, htrack, htrack_block
 from proxy.remote_service import create_authentication
-
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
-
-from .test_utils import get_run_spec1, get_mmlu_spec, get_real_toxicity_prompts_spec, get_twitter_aae_spec
+from .test_utils import (
+    get_run_spec1, get_mmlu_spec, get_real_toxicity_prompts_spec, get_twitter_aae_spec,
+    get_copyright_spec
+)
 
 
 def parse_run_specs(description: str) -> List[RunSpec]:
@@ -37,6 +38,8 @@ def parse_run_specs(description: str) -> List[RunSpec]:
         return [get_twitter_aae_spec(**args)]
     if name == "real_toxicity_prompts":
         return [get_real_toxicity_prompts_spec()]
+    if name == "copyright":
+        return [get_copyright_spec()]
     raise ValueError(f"Unknown run spec: {description}")
 
 
