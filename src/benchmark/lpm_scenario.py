@@ -4,6 +4,53 @@ from typing import List
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
 
+"""Language Pattern Matching Scenario.
+
+We define a set of reasoning tasks related to pattern matching in language. In essence, each problem is composed
+of some combination of 
+- Rules, a list of conditional statement such as "If a person is red and kind, then the person is cold."
+- Fact, a single case from which something may or may not be deduced given the rules. 
+    For example, "The dog is big and red."
+- Consequents, the set of all things implied by the combination of the fact and rules. 
+    For example, given a problem such as 
+    " 
+      Rules:
+      If a cow is weak, then the cow is small.
+      If a cow is hot, then the cow is purple.
+      If a cow is beautiful and slow, then the cow is bad.
+      If a cow is old, then the cow is cold.
+      If a cow is green and red, then the cow is strong.
+      Fact:
+      A cow is smart and hot.
+      The following can be determined about the cow:
+    "
+    The response would be "The cow is purple."
+- Intermediates used, the set of rules which are actually used to go from the rules and fact to the consequent.
+    In the previous example, this would be "If a cow is hot, then the cow is purple"
+
+We can support a variety of tasks from this framework. 
+- Rules + Fact -> Consequents (highlights deduction)
+- Intermediates + Consequents -> Fact (abduction)
+- Facts + Consequents -> Intermediates (induction)
+- Rules + Fact -> Intermediates + Consequents (a variation on the first example with intermediate steps)
+- Rules + Fact -> Intermediates (a pure pattern matching test, without substitution)
+
+We also support multiple levels of difficulty. 
+- At the medium level, we add the need to understand that the subject of rules may be a broader class
+    For example, instead of 
+        "If Carol is happy, then Carol is green."
+    We may have
+        "If a person is happy, then the person is green."
+    And the model would need to still apply this rule to Carol.
+- At the hard level, we add the need to understand that the attributes of rules may be a broader class
+    For example, consider the rule:
+        "If an animal is cold or old, then the animal is good."
+    Instead of 
+        "The dog is old and big."
+    We may have
+        "The dog is ancient and huge."
+    And the model would need to still apply this rule to Carol.
+"""
 
 def get_vocab():
     """All potential subjects for the facts and rules for LPM as well as their categories.
@@ -182,7 +229,6 @@ def generate_test(attribute_groups, subject, rules, p_consquenceless=0.1):
     can be potentially deduced given the rules. We include an argument, p_consquenceless, to re-roll with
     some probability if the generated fact does not allow anything to be determined.
     """
-    # test_attributes = random.sample(attributes, 2)
     test_attributes = random.sample(list(attribute_groups.keys()), 2)
     test_attributes_specific = [random.choice(attribute_groups[subcondition]) for subcondition in test_attributes]
     test_consequents = []
@@ -225,16 +271,16 @@ class LPMScenario(Scenario):
         # e.g. "cold" instead of "chill"
         self.generic_attributes = difficulty != "hard"
         self.include_intermediates = False
-        self.n_train_samples = 5
-        self.n_valid_samples = 50
-        self.n_test_samples = 50
+        self.num_train_instances = 5
+        self.num_val_instances = 50
+        self.num_test_instances = 50
         random.seed(random_seed)
 
     def get_instances(self) -> List[Instance]:
         # Read all the instances
         instances = []
 
-        for sample_idx in range(self.n_train_samples + self.n_valid_samples + self.n_test_samples):
+        for sample_idx in range(self.num_train_instances + self.num_val_instances + self.num_test_instances):
             subject_category = random.choice(list(self.subjects.keys()))
             subject = random.choice(self.subjects[subject_category])
             rules = generate_rules(
@@ -263,9 +309,9 @@ class LPMScenario(Scenario):
             question += f"The following can be determined about {test_specifier_third}{subject}:\n"
             correct_answer = parse_fact(subject, test_consequents, specifier=test_specifier_second)
 
-            if sample_idx < self.n_train_samples:
+            if sample_idx < self.num_train_instances:
                 cur_tag = TRAIN_TAG
-            elif sample_idx < self.n_train_samples + self.n_valid_samples:
+            elif sample_idx < self.num_train_instances + self.num_val_instances:
                 cur_tag = VALID_TAG
             else:
                 cur_tag = TEST_TAG
