@@ -31,7 +31,7 @@ def get_adapter_spec1() -> AdapterSpec:
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
         max_train_instances=5,
-        max_eval_instances=20,
+        max_eval_instances=10,
         num_outputs=3,
         num_train_trials=3,
         model="simple/model1",
