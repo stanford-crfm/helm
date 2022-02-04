@@ -69,6 +69,19 @@ class BasicMetric(Metric):
             reference_metrics.extend(compute_metrics_helper("exact_match", exact_match))
         return reference_metrics
 
+    def compute_runtime_metrics(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    ) -> List[Stat]:
+        """Record runtime"""
+        assert request_state.result is not None
+        sequence = request_state.result.completions[0]
+        num_tokens = len(sequence.tokens)
+
+        runtime = request_state.result.request_time
+        # TODO: Should we ignore condition_prefix_tokens when computing normalized inference runtime?
+
+        return [Stat("runtime").add(runtime), Stat("normalized_runtime").add(runtime / num_tokens)]
+
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
@@ -102,6 +115,7 @@ class BasicMetric(Metric):
             metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
 
         metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_runtime_metrics(adapter_spec, request_state, metric_service))
 
         # Future: add F1, BLEU, etc.
         # TODO: pass in arguments to `BasicMetric`
