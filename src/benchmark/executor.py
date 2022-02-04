@@ -9,7 +9,6 @@ from common.request import RequestResult
 from common.authentication import Authentication
 from proxy.remote_service import RemoteService
 from .adapter import RequestState, ScenarioState
-from proxy.tokenizer.openai_token_counter import OpenAITokenCounter  # debug
 
 
 @dataclass(frozen=True)
@@ -64,20 +63,7 @@ class Executor:
             )
 
         def process(state: RequestState) -> RequestState:
-            # tokenizer = OpenAITokenCounter().tokenizer # debug
-            # assert len(tokenizer.encode(state.request.prompt)) <= 2049 # debug
             result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, state.request)
-            # try: # debug
-            #     result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, state.request)
-            # except Exception as e:
-            #     # print("debugging_start "+state.request.prompt+" debugging_end")
-            #     print(len(state.request.prompt))
-            #     print(str(e))
-            #     if not str(e).startswith("[Errno Expecting value]") and not state.request.prompt.startswith(")) = y$, and $\gamma^"):
-            #         import pickle
-            #         with open("extra_example.pkl", "wb") as f: # debug
-            #             pickle.dump(state.request.prompt, f)
-            #     raise Exception("Service Error")
             state = replace(state, result=result)
             tqdm.write(render_instance(state))
             return state
