@@ -73,16 +73,48 @@ class BasicMetric(Metric):
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
         """Compute the logprob and normalization factors for the first completion"""
+        # TODO: implement tokens2text
+        # def convert_tokens_to_text(tokens: List[Token]):
+        #     # Note: sometimes multiple tokens correspond to one character, for example:
+        #     # ["bytes:\xe2\x80", "bytes:\x99"] => ’
+        #     # For these, we keep these in the buffer and collapse them, and concatenate the entries.
+        #     const groups = [];
+        #     for (let i = 0; i < tokens.length;) {
+        #     // Aggregate consecutive tokens while they're "bytes:..."
+        #     const group = {tokens: []};
+        #     if (tokens[i].text.startsWith('bytes:')) {
+        #         let bytestring = '';
+        #         while (i < tokens.length && tokens[i].text.startsWith('bytes:')) {
+        #         group.tokens.push(tokens[i]);
+        #         // Extract part after : (e.g., \xe2\x80)
+        #         bytestring += tokens[i].text.split(':')[1];
+        #         i++;
+        #         }
+        #         // Convert to encoded URI (e.g., %e2%80%99) and decode
+        #         group.text = decodeURIComponent(bytestring.replaceAll('\\x', '%'));
+        #     } else {
+        #         group.tokens.push(tokens[i]);
+        #         group.text = tokens[i].text;
+        #         i++;
+        #     }
+        #     groups.push(group);
+        #     }
+        #     return groups;
+
         assert request_state.result is not None
         sequence = request_state.result.completions[0]
-        assert "".join([token.text for token in sequence.tokens]) == sequence.text
+        # try: # debug
+        #     assert "".join([token.text for token in sequence.tokens]) == sequence.text
+        # except:
+        #     print('#!#!#', "".join([token.text for token in sequence.tokens]), '!#!', sequence.text, '#!#!#')
+        #     raise Exception("Assertion Error")
         logprob, num_tokens, num_bytes = sequence.logprob, len(sequence.tokens), get_num_bytes(sequence.text)
 
         # Ignore the conditioning prefix
         conditioning_prefix_tokens = sequence.tokens[: request_state.num_conditioning_tokens]
         logprob -= sum(token.logprob for token in conditioning_prefix_tokens)
         num_tokens -= len(conditioning_prefix_tokens)
-        num_bytes -= get_num_bytes("".join([token.text for token in conditioning_prefix_tokens]))
+        num_bytes -= get_num_bytes("".join([token.text for token in conditioning_prefix_tokens])) #TODO
 
         return [Stat("logprob").add(logprob), Stat("num_tokens").add(num_tokens), Stat("num_bytes").add(num_bytes)]
 

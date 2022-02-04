@@ -2,6 +2,7 @@ import os
 import json
 import csv
 import sys
+import requests
 from typing import List
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
@@ -92,4 +93,44 @@ class ThePileScenario(Scenario):
                 instance = Instance(input=row[0], references=[], tags=[TEST_TAG],)
                 instances.append(instance)
 
+        # Load the subsample indices
+        # Short names of the datasets
+        DATASET_NAMES_DICT = {
+            "Github": "github",
+            "ArXiv": "arxiv",
+            "Wikipedia (en)": "wikipedia",
+            "OpenSubtitles": "opensubtitles",
+            "OpenWebText2": "openwebtext2",
+            "Gutenberg (PG-19)": "gutenberg",
+            "DM Mathematics": "dm-mathematics",
+            "Enron Emails": "enron",
+            "Books3": "bibliotik",
+            "PubMed Abstracts": "pubmed-abstracts",
+            "YoutubeSubtitles": "youtubesubtitles",
+            "HackerNews": "hackernews",
+            "Pile-CC": "commoncrawl",
+            "EuroParl": "europarl",
+            "USPTO Backgrounds": "uspto",
+            "FreeLaw": "freelaw",
+            "NIH ExPorter": "nih-exporter",
+            "StackExchange": "stackexchange",
+            "PubMed Central": "pubmed-central",
+            "Ubuntu IRC": "ubuntu-irc",
+            "BookCorpus2": "bookcorpus",
+            "PhilPapers": "philpapers",
+        }
+
+        # These datasets were too small (in number of docs) to split 10-ways
+        DATASETS_WITHOUT_SPLIT = [
+            "ubuntu-irc",
+            "bookcorpus",
+            "philpapers",
+        ]
+
+        short_name = DATASET_NAMES_DICT[self.subset]
+        if short_name not in DATASETS_WITHOUT_SPLIT:
+            url = f"https://raw.githubusercontent.com/EleutherAI/lm_perplexity/main/assets/test_subsample_indices/{short_name}/group0.json"
+            indices = sorted(list(set(requests.get(url).json())))
+            instances = [instances[i] for i in indices]
+        
         return instances
