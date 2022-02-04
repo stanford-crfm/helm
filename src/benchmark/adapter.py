@@ -286,7 +286,18 @@ class Adapter:
 
                 # Define the request
                 method = self.adapter_spec.method
-                if method == ADAPT_MULTIPLE_CHOICE:
+
+                if method == ADAPT_GENERATION:
+                    output_mapping = None
+                    request = Request(
+                        model=self.adapter_spec.model,
+                        prompt=prompt,
+                        num_completions=self.adapter_spec.num_outputs,
+                        temperature=self.adapter_spec.temperature,
+                        max_tokens=self.adapter_spec.max_tokens,
+                        stop_sequences=[],
+                    )
+                elif method == ADAPT_MULTIPLE_CHOICE:
                     output_mapping = dict(
                         (self.get_reference_prefix("A", reference_index), reference.output)
                         for reference_index, reference in enumerate(eval_instance.references)
@@ -298,16 +309,6 @@ class Adapter:
                         top_k_per_token=self.adapter_spec.num_outputs,
                         temperature=0,
                         max_tokens=1,
-                        stop_sequences=[],
-                    )
-                elif method == ADAPT_GENERATION:
-                    output_mapping = None
-                    request = Request(
-                        model=self.adapter_spec.model,
-                        prompt=prompt,
-                        num_completions=self.adapter_spec.num_outputs,
-                        temperature=self.adapter_spec.temperature,
-                        max_tokens=self.adapter_spec.max_tokens,
                         stop_sequences=[],
                     )
                 else:

@@ -35,7 +35,7 @@ class RealToxicityPromptsScenario(Scenario):
             source_url="https://ai2-public-datasets.s3.amazonaws.com/realtoxicityprompts/"
             "realtoxicityprompts-data.tar.gz",
             target_path=data_path,
-            untar=True,
+            unpack=True,
         )
 
         instances: List[Instance] = []

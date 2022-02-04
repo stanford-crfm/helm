@@ -9,3 +9,4 @@ from . import the_pile_scenario  # noqa
 
 from . import basic_metrics  # noqa
 from . import toxicity_metrics  # noqa
+from . import tokens_metric  # noqa

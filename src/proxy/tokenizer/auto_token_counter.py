@@ -1,10 +1,10 @@
 from typing import Dict, List
 
 from common.request import Request, Sequence
-from proxy.tokenizer.ai21_token_counter import AI21TokenCounter
-from proxy.tokenizer.free_token_counter import FreeTokenCounter
-from proxy.tokenizer.openai_token_counter import OpenAITokenCounter
-from proxy.tokenizer.token_counter import TokenCounter
+from .ai21_token_counter import AI21TokenCounter
+from .free_token_counter import FreeTokenCounter
+from .openai_token_counter import OpenAITokenCounter
+from .token_counter import TokenCounter
 
 
 class AutoTokenCounter(TokenCounter):
@@ -34,3 +34,10 @@ class AutoTokenCounter(TokenCounter):
         """
         token_counter: TokenCounter = self.get_token_counter(request.model_organization)
         return token_counter.count_tokens(request, completions)
+
+    def estimate_tokens(self, request: Request) -> int:
+        """
+        Estimate the number of tokens for a given request based on the organization.
+        """
+        token_counter: TokenCounter = self.get_token_counter(request.model_organization)
+        return token_counter.estimate_tokens(request)

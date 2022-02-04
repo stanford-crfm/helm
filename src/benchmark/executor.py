@@ -9,7 +9,8 @@ from common.request import RequestResult
 from common.authentication import Authentication
 from proxy.remote_service import RemoteService
 from .adapter import RequestState, ScenarioState
-from proxy.tokenizer.openai_token_counter import OpenAITokenCounter # debug
+from proxy.tokenizer.openai_token_counter import OpenAITokenCounter  # debug
+
 
 @dataclass(frozen=True)
 class ExecutionSpec:
@@ -21,6 +22,9 @@ class ExecutionSpec:
 
     # How many threads to have at once
     parallelism: int
+
+    # Whether to skip execution
+    dry_run: bool = False
 
 
 class Executor:
@@ -35,6 +39,10 @@ class Executor:
 
     @htrack(None)
     def execute(self, scenario_state: ScenarioState) -> ScenarioState:
+        if self.execution_spec.dry_run:
+            hlog("Skipped execution.")
+            return scenario_state
+
         # TODO: make this render_request_state
         def render_instance(state: RequestState) -> str:
             instance = state.instance

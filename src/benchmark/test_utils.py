@@ -120,7 +120,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         output_prefix="",
         num_train_trials=1,
         max_train_instances=0,
-        max_eval_instances=100,  # TODO: set this to 100,000 once deployed, so we can cache everything in prod
+        max_eval_instances=1000,  # TODO: set this to 100,000 once deployed, so we can cache everything in prod
         model="openai/davinci",  # "...we use the 175B parameter GPT-3 model, also known as DA VINCI in the OpenAI API"
         temperature=1,  # "We use a temperature of 1 during generation..."
         max_tokens=20,  # "We generate up to 20 tokens per example..."

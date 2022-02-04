@@ -114,7 +114,7 @@ class BasicMetric(Metric):
         conditioning_prefix_tokens = sequence.tokens[: request_state.num_conditioning_tokens]
         logprob -= sum(token.logprob for token in conditioning_prefix_tokens)
         num_tokens -= len(conditioning_prefix_tokens)
-        num_bytes -= get_num_bytes("".join([token.text for token in conditioning_prefix_tokens])) #TODO
+        num_bytes -= get_num_bytes("".join([token.text for token in conditioning_prefix_tokens]))  # TODO
 
         return [Stat("logprob").add(logprob), Stat("num_tokens").add(num_tokens), Stat("num_bytes").add(num_bytes)]
 

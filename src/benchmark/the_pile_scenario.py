@@ -132,5 +132,5 @@ class ThePileScenario(Scenario):
             url = f"https://raw.githubusercontent.com/EleutherAI/lm_perplexity/main/assets/test_subsample_indices/{short_name}/group0.json"
             indices = sorted(list(set(requests.get(url).json())))
             instances = [instances[i] for i in indices]
-        
+
         return instances

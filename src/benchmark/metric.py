@@ -5,10 +5,9 @@ from math import log
 from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
-from .adapter import AdapterSpec, ScenarioState, RequestState
+from .adapter import AdapterSpec, ScenarioState, RequestState, ADAPT_LANGUAGE_MODELING
 from .metric_service import MetricService
 from .scenario import VALID_TAG, TEST_TAG
-from .adapter import AdapterSpec, ADAPT_LANGUAGE_MODELING
 
 
 class Metric(ABC):
