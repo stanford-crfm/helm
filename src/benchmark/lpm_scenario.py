@@ -93,19 +93,19 @@ class LanguageRule(LanguageLogicalStatement):
     consequent: str  # the attribute resulting from the application of the rule
 
     def __str__(self) -> str:
-        """Takes in a rule as a dictionary, i.e. corresponding to "if x (and/or y) then z"
-        and returns a string corresponding to the rule
+        """Renders the rule, i.e. corresponding to "if x (and/or y) then z"
 
         Rules should have the following format:
         {
-            'subject': 'person',
+            'subject': 'Alice',
+            'subject_category': 'person',
+            'specifier_type': 'the' or 'a'
             'condition': ['red', 'kind'],
             'condition_conjunction': 'and',
             'consequent': 'cold'
-            'specified': True
         }
 
-        and this example will output a string: "If a person is red and kind, then the person is cold."
+        and this example will output a string: "If Alice is red and kind, then Alice is cold."
         """
 
         condition = f" {self.condition_conjunction} ".join(self.condition)
@@ -120,8 +120,7 @@ class LanguageFact(LanguageLogicalStatement):
 
     specific_attributes: List[str]  # more specific versions of the attributes
     generic_attributes: List[str]  # a list of attributes which apply to the subject
-    use_specific_attributes: bool  # whether to use the more specific attributes
-    prefix: str = ""  # the attribute resulting from the application of the rule
+    use_specific_attributes: bool  # whether to use the more specific attributes (i.e. hard mode)
     upper: bool = True  # whether the statement should be uppercase
 
     def __str__(self) -> str:
@@ -135,7 +134,7 @@ class LanguageFact(LanguageLogicalStatement):
             return "Nothing."
         target_attributes = self.specific_attributes if self.use_specific_attributes else self.generic_attributes
         specified_subject = self.generate_specified_subject(upper=self.upper)
-        return f"{self.prefix}{specified_subject} is {' and '.join(target_attributes)}."
+        return f"{specified_subject} is {' and '.join(target_attributes)}."
 
 
 def get_vocab() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
@@ -172,37 +171,35 @@ def get_vocab() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
         "plant": ["poppy", "dandelion", "tree", "rose", "sunflower"],
     }
 
-    # A list of attributes for the facts and rules which only correspond to themselves
-    attributes: List[str] = ["young", "rough", "soft", "sad", "scary", "white", "grey", "black"]
-
     # Convert list of attributes into dictionary
-    attribute_groups: Dict[str, List[str]] = {attribute: [attribute] for attribute in attributes}
     # A list of attributes and their overarching meaning (used in hard difficulty)
-    attribute_groups.update(
-        {
-            "cold": ["cold", "chill", "cool"],
-            "hot": ["hot", "warm"],
-            "smart": ["smart", "clever", "wise", "intelligent"],
-            "clean": ["clean", "tidy"],
-            "small": ["small", "little", "tiny"],
-            "big": ["big", "enormous", "giant", "huge"],
-            "good": ["good", "kind", "nice"],
-            "beautiful": ["beautiful", "pretty"],
-            "red": ["red", "crimson"],
-            "blue": ["blue", "cobalt"],
-            "green": ["green", "viridian"],
-            "purple": ["purple", "violet"],
-            "boring": ["boring", "dull"],
-            "old": ["old", "ancient", "antique"],
-            "strong": ["strong", "powerful", "muscular"],
-            "weak": ["weak", "frail", "fragile"],
-            "fast": ["fast", "quick"],
-            "slow": ["slow", "sluggish"],
-            "bad": ["bad", "evil", "wicked", "mean"],
-            "happy": ["happy", "elated", "glad", "cheerful"],
-            "round": ["round", "circular", "spherical"],
-        }
-    )
+    attribute_groups = {
+        "young": ["young"],
+        "soft": ["soft"],
+        "sad": ["sad"],
+        "scray": ["scary"],
+        "cold": ["cold", "chill", "cool"],
+        "hot": ["hot", "warm"],
+        "smart": ["smart", "clever", "wise", "intelligent"],
+        "clean": ["clean", "tidy"],
+        "small": ["small", "little", "tiny"],
+        "big": ["big", "enormous", "giant", "huge"],
+        "good": ["good", "kind", "nice"],
+        "beautiful": ["beautiful", "pretty"],
+        "red": ["red", "crimson"],
+        "blue": ["blue", "cobalt"],
+        "green": ["green", "viridian"],
+        "purple": ["purple", "violet"],
+        "boring": ["boring", "dull"],
+        "old": ["old", "ancient", "antique"],
+        "strong": ["strong", "powerful", "muscular"],
+        "weak": ["weak", "frail", "fragile"],
+        "fast": ["fast", "quick"],
+        "slow": ["slow", "sluggish"],
+        "bad": ["bad", "evil", "wicked", "mean"],
+        "happy": ["happy", "elated", "glad", "cheerful"],
+        "round": ["round", "circular", "spherical"],
+    }
     # Remove any keys which duplicate subitems
     new_attribute_groups: Dict[str, List[str]] = copy(attribute_groups)
     for general_attribute, specific_attributes in attribute_groups.items():
@@ -287,7 +284,7 @@ def generate_test(
             attribute_groups, subject, subject_category, rules, use_specific_attributes, p_consequenceless
         )
 
-    test_fact = LanguageFact(
+    test_fact: LanguageFact = LanguageFact(
         subject,
         subject_category,
         specifier_type="the",
