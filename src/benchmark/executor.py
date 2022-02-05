@@ -43,7 +43,7 @@ class Executor:
             return scenario_state
 
         # TODO: make this render_request_state
-        def render_instance(state: RequestState) -> str:
+        def render_request_state(state: RequestState) -> str:
             instance = state.instance
             gold_output: Optional[str] = None
             if instance.first_correct_reference is not None:
@@ -59,13 +59,13 @@ class Executor:
             tags_str = format_tags(instance.tags)
             correct_str = "CORRECT" if gold_output == pred_output else "WRONG"
             return (
-                f'[{tags_str}] "{instance.input[:100]}" => "{gold_output}", predicted "{pred_output}" [{correct_str}]'
+                f'[{tags_str}] "{state.request.prompt[:100]}" => "{gold_output}", predicted "{pred_output[:100]}" [{correct_str}]'
             )
 
         def process(state: RequestState) -> RequestState:
             result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, state.request)
             state = replace(state, result=result)
-            tqdm.write(render_instance(state))
+            tqdm.write(render_request_state(state))
             return state
 
         with ThreadPoolExecutor(max_workers=self.execution_spec.parallelism) as executor:
@@ -76,7 +76,7 @@ class Executor:
 
         # Output instances and their predictions
         for i, request_state in enumerate(request_states):
-            hlog(f"{i+1}/{len(scenario_state.request_states)}: {render_instance(request_state)}")
+            hlog(f"{i+1}/{len(scenario_state.request_states)}: {render_request_state(request_state)}")
 
         hlog(f"Processed {len(request_states)} requests")
         return ScenarioState(scenario_state.adapter_spec, request_states)
