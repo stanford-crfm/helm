@@ -46,6 +46,7 @@ We also support multiple levels of difficulty.
         "If a person is happy, then the person is green."
     And the model would need to still apply this rule to Carol.
 - At the hard level, we add the need to understand that the attributes of rules may be a broader class
+    (In addition to the subject abstraction from the medium level.)
     For example, consider the rule:
         "If an animal is cold or old, then the animal is good."
     Instead of
