@@ -38,6 +38,7 @@ We can support a variety of tasks from this framework.
 - Rules + Fact -> Intermediates (a pure pattern matching test, without substitution)
 
 We also support multiple levels of difficulty.
+- At the easy level, we assume that the subject and any attributes match exactly in any rules and facts
 - At the medium level, we add the need to understand that the subject of rules may be a broader class
     For example, instead of
         "If Carol is happy, then Carol is green."
