@@ -74,13 +74,16 @@ class BasicMetric(Metric):
     ) -> List[Stat]:
         """Record runtime"""
         assert request_state.result is not None
-        sequence = request_state.result.completions[0]
-        num_tokens = len(sequence.tokens)
 
-        runtime = request_state.result.request_time
-        # TODO: Should we ignore condition_prefix_tokens when computing normalized inference runtime?
+        runtime_stat = Stat("runtime")
+        normalized_runtime_stat = Stat("normalized_runtime")
+        for sequence in request_state.result.completions:
+            num_tokens = len(sequence.tokens)
+            runtime = request_state.result.request_time
 
-        return [Stat("runtime").add(runtime), Stat("normalized_runtime").add(runtime / num_tokens)]
+            runtime_stat.add(runtime)
+            normalized_runtime_stat.add(runtime / num_tokens)
+        return [runtime_stat, normalized_runtime_stat]
 
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
