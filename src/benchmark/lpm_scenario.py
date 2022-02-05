@@ -10,7 +10,7 @@ from dataclasses import dataclass
 
 We define a set of reasoning tasks related to pattern matching in language. In essence, each problem is composed
 of some combination of
-- Rules, a list of conditional statement such as "If a person is red and kind, then the person is cold."
+- Rules, a list of conditional statements such as "If a person is red and kind, then the person is cold."
 - Fact, a single case from which something may or may not be deduced given the rules.
     For example, "The dog is big and red."
 - Consequents, the set of all things implied by the combination of the fact and rules.
@@ -214,7 +214,11 @@ def get_vocab() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
 
 
 def generate_rules(
-    attribute_groups, subject, subject_category, max_rules=5, specific_category=False
+    attribute_groups: Dict[str, List[str]],
+    subject: str,
+    subject_category: str,
+    max_rules: int = 5,
+    specific_category: bool = False,
 ) -> List[LanguageRule]:
     """ Generates a random set of rules about a subject as dictionaries,
     given a list of potential attributes and the category (e.g. person) of the subject (e.g. Alice)
@@ -247,7 +251,12 @@ def generate_rules(
 
 
 def generate_test(
-    attribute_groups, subject, subject_category, rules, use_specific_attributes, p_consequenceless=0.1
+    attribute_groups: Dict[str, List[str]],
+    subject: str,
+    subject_category: str,
+    rules: List[LanguageRule],
+    use_specific_attributes: bool,
+    p_consequenceless=0.1,
 ) -> Tuple[LanguageFact, List[LanguageRule], LanguageFact]:
     """ Generates a test case given a set of rules, i.e. a statement about the subject from which something
     can be potentially deduced given the rules. We include an argument, p_consequenceless, to re-roll with
