@@ -408,10 +408,13 @@ class Adapter:
             predicted = 0
 
             # Special handling for first window: predict all tokens
+            # Raw token sequence format: string_tokens | bytes (total length <= 2048 tokens)
+            # Convert it to: <eot> | string_tokens (total length <= 2049 tokens)
+            # Num_conditioning_tokens = 1
             first_seq_len = min(max_seq_len, len(tokens))
             prompt = tokenizer.decode(
                 tokenizer.encode(prefix_token) + tokens[:first_seq_len], clean_up_tokenization_spaces=False
-            )
+            ).rstrip("�") # decode token_ids and remove the trailing bytes
             request = Request(
                 model=self.adapter_spec.model,
                 prompt=prompt,
@@ -434,12 +437,26 @@ class Adapter:
             predicted += first_seq_len
 
             while predicted < len(tokens):
+                # Raw token sequence format: bytes | conditioning_string_tokens | pred_string_tokens | bytes (total length <= 2049 tokens)
+                # Convert it to: conditioning_string_tokens | pred_string_tokens (total length <= 2049 tokens)
                 window_pred_len = min(len(tokens) - predicted, max_seq_len)
                 window_end = predicted + window_pred_len
-                prompt = tokenizer.decode(
+                conditioning_tokens = tokens[window_end - max_seq_len - 1: predicted]
+                pred_tokens = tokens[predicted: window_end]
+                raw_prompt = tokenizer.decode(
                     tokens[window_end - max_seq_len - 1 : window_end], clean_up_tokenization_spaces=False
                 )
-
+                num_leading_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("�")))
+                num_trailing_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("�")))
+                prompt = raw_prompt.strip("�")
+                # There are no string tokens to predict
+                if num_trailing_byte_tokens >= len(pred_tokens):
+                    num_conditioning_tokens = len(tokenizer.encode(prompt))
+                # There are no conditioning string tokens
+                elif num_leading_byte_tokens >= len(conditioning_tokens):
+                    num_conditioning_tokens = 1
+                else:
+                    num_conditioning_tokens = len(conditioning_tokens) - num_leading_byte_tokens
                 request = Request(
                     model=self.adapter_spec.model,
                     prompt=prompt,
@@ -456,7 +473,7 @@ class Adapter:
                     output_mapping=None,
                     request=request,
                     result=None,
-                    num_conditioning_tokens=max_seq_len - window_pred_len + 1,
+                    num_conditioning_tokens=num_conditioning_tokens,
                 )
                 request_states.append(request_state)
                 predicted += window_pred_len

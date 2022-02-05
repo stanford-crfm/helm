@@ -108,21 +108,9 @@ class BasicMetric(Metric):
         assert request_state.result is not None
         sequence = request_state.result.completions[0]
         assert "".join([group["text"] for group in convert_tokens_to_text(sequence.tokens)]) == request_state.request.prompt
-        # try: # debug
-        #     assert "".join([token.text for token in sequence.tokens]) == sequence.text
-        # except:
-        #     # print('#!#!#', "".join([token.text for token in sequence.tokens]), '!#!', sequence.text, '#!#!#')
-        #     print('#!#!#', "".join([token.text for token in sequence.tokens]), '#!#!#')
-        #     raise Exception("Assertion Error")
 
         pred_tokens = sequence.tokens[request_state.num_conditioning_tokens:]
         logprob, num_tokens, num_bytes = sum(token.logprob for token in pred_tokens), len(pred_tokens), get_num_bytes(pred_tokens)
-
-        # Ignore the conditioning prefix
-        # conditioning_prefix_tokens = sequence.tokens[: request_state.num_conditioning_tokens]
-        # logprob -= sum(token.logprob for token in conditioning_prefix_tokens)
-        # num_tokens -= len(conditioning_prefix_tokens)
-        # num_bytes -= get_num_bytes("".join([token.text for token in conditioning_prefix_tokens]))  # TODO
 
         return [Stat("logprob").add(logprob), Stat("num_tokens").add(num_tokens), Stat("num_bytes").add(num_bytes)]
 
