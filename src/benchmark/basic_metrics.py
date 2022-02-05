@@ -1,6 +1,8 @@
-from typing import List, Callable
+from typing import List, Callable, Dict
+from urllib.parse import unquote
 
 from common.statistic import Stat
+from common.request import Token
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_service import MetricService
@@ -10,10 +12,40 @@ def exact_match(gold: str, pred: str) -> float:
     return 1 if gold == pred else 0
 
 
-def get_num_bytes(text: str) -> int:
-    """Compute the byte length of the input string"""
-    return len(bytes(text, encoding="utf-8"))
+def get_num_bytes(tokens: List[Token]) -> int:
+    """Compute the byte length of the input tokens"""
+    num_bytes = 0
+    for token in tokens:
+        if token.text.startswith("bytes:"):
+            num_bytes += token.text.count("\\x")
+        else:
+            num_bytes += len(bytes(token.text, encoding="utf-8"))
+    return num_bytes
 
+def convert_tokens_to_text(tokens: List[Token]) -> List[Dict]:
+    # Note: sometimes multiple tokens correspond to one character, for example:
+    # ["bytes:\xe2\x80", "bytes:\x99"] => ’
+    # For these, we keep these in the buffer and collapse them, and concatenate the entries.
+    groups = []
+    i = 0
+    while i < len(tokens):
+        # Aggregate consecutive tokens while they're "bytes:..."
+        group = {"tokens": []}
+        if (tokens[i].text.startswith('bytes:')):
+            bytestring = ''
+            while (i < len(tokens) and tokens[i].text.startswith('bytes:')):
+                group["tokens"].append(tokens[i])
+                # Extract part after : (e.g., \xe2\x80)
+                bytestring += tokens[i].text.split(':')[1]
+                i += 1
+            # Convert to encoded URI (e.g., %e2%80%99) and decode
+            group["text"] = unquote(bytestring.replace('\\x', '%'))
+        else:
+            group["tokens"].append(tokens[i])
+            group["text"] = tokens[i].text
+            i += 1
+        groups.append(group)
+    return groups
 
 class BasicMetric(Metric):
     """
@@ -73,48 +105,24 @@ class BasicMetric(Metric):
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
         """Compute the logprob and normalization factors for the first completion"""
-        # TODO: implement tokens2text
-        # def convert_tokens_to_text(tokens: List[Token]):
-        #     # Note: sometimes multiple tokens correspond to one character, for example:
-        #     # ["bytes:\xe2\x80", "bytes:\x99"] => ’
-        #     # For these, we keep these in the buffer and collapse them, and concatenate the entries.
-        #     const groups = [];
-        #     for (let i = 0; i < tokens.length;) {
-        #     // Aggregate consecutive tokens while they're "bytes:..."
-        #     const group = {tokens: []};
-        #     if (tokens[i].text.startsWith('bytes:')) {
-        #         let bytestring = '';
-        #         while (i < tokens.length && tokens[i].text.startsWith('bytes:')) {
-        #         group.tokens.push(tokens[i]);
-        #         // Extract part after : (e.g., \xe2\x80)
-        #         bytestring += tokens[i].text.split(':')[1];
-        #         i++;
-        #         }
-        #         // Convert to encoded URI (e.g., %e2%80%99) and decode
-        #         group.text = decodeURIComponent(bytestring.replaceAll('\\x', '%'));
-        #     } else {
-        #         group.tokens.push(tokens[i]);
-        #         group.text = tokens[i].text;
-        #         i++;
-        #     }
-        #     groups.push(group);
-        #     }
-        #     return groups;
-
         assert request_state.result is not None
         sequence = request_state.result.completions[0]
+        assert "".join([group["text"] for group in convert_tokens_to_text(sequence.tokens)]) == request_state.request.prompt
         # try: # debug
         #     assert "".join([token.text for token in sequence.tokens]) == sequence.text
         # except:
-        #     print('#!#!#', "".join([token.text for token in sequence.tokens]), '!#!', sequence.text, '#!#!#')
+        #     # print('#!#!#', "".join([token.text for token in sequence.tokens]), '!#!', sequence.text, '#!#!#')
+        #     print('#!#!#', "".join([token.text for token in sequence.tokens]), '#!#!#')
         #     raise Exception("Assertion Error")
-        logprob, num_tokens, num_bytes = sequence.logprob, len(sequence.tokens), get_num_bytes(sequence.text)
+
+        pred_tokens = sequence.tokens[request_state.num_conditioning_tokens:]
+        logprob, num_tokens, num_bytes = sum(token.logprob for token in pred_tokens), len(pred_tokens), get_num_bytes(pred_tokens)
 
         # Ignore the conditioning prefix
-        conditioning_prefix_tokens = sequence.tokens[: request_state.num_conditioning_tokens]
-        logprob -= sum(token.logprob for token in conditioning_prefix_tokens)
-        num_tokens -= len(conditioning_prefix_tokens)
-        num_bytes -= get_num_bytes("".join([token.text for token in conditioning_prefix_tokens]))  # TODO
+        # conditioning_prefix_tokens = sequence.tokens[: request_state.num_conditioning_tokens]
+        # logprob -= sum(token.logprob for token in conditioning_prefix_tokens)
+        # num_tokens -= len(conditioning_prefix_tokens)
+        # num_bytes -= get_num_bytes("".join([token.text for token in conditioning_prefix_tokens]))  # TODO
 
         return [Stat("logprob").add(logprob), Stat("num_tokens").add(num_tokens), Stat("num_bytes").add(num_bytes)]
 
