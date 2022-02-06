@@ -57,7 +57,7 @@ We also support multiple levels of difficulty.
 """
 
 
-@dataclass
+@dataclass(frozen=True)
 class LanguageLogicalStatement:
     subject: str  # e.g. either the individual or group to which this statement applies
     subject_category: str  # e.g. the group to which this fact applies
@@ -84,7 +84,7 @@ class LanguageLogicalStatement:
         return f"{base_char} {self.subject}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class LanguageRule(LanguageLogicalStatement):
     """Class describing how a set of attributes about an individual/group imply another attribute."""
 
@@ -114,7 +114,7 @@ class LanguageRule(LanguageLogicalStatement):
         return f"If {specified_subject} is {condition}, then {specified_particular_subject} is {self.consequent}."
 
 
-@dataclass
+@dataclass(frozen=True)
 class LanguageFact(LanguageLogicalStatement):
     """Class describing a statement that a subject has some attributes."""
 
@@ -319,7 +319,7 @@ class LPMScenario(Scenario):
         # use_specific_attributes specifies that the synonymous attributes can be used
         # e.g. "chill" instead of "cold"
         self.use_specific_attributes: bool = difficulty == "hard"
-        self.include_intermediates: bool = True
+        self.include_intermediates: bool = False
         self.num_train_instances: int = 5
         self.num_val_instances: int = 50
         self.num_test_instances: int = 50
