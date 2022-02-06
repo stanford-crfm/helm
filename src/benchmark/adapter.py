@@ -313,7 +313,7 @@ class Adapter:
                         num_completions=self.adapter_spec.num_outputs,
                         temperature=self.adapter_spec.temperature,
                         max_tokens=self.adapter_spec.max_tokens,
-                        stop_sequences=[],
+                        stop_sequences=self.adapter_spec.stop_sequences,
                     )
                 else:
                     raise ValueError(f"Invalid method: {method}")

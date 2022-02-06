@@ -2,7 +2,12 @@ from typing import List, Dict
 
 from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from .scenario import ScenarioSpec
-from .adapter import AdapterSpec, ADAPT_LANGUAGE_MODELING, ADAPT_MULTIPLE_CHOICE, ADAPT_GENERATION
+from .adapter import (
+    AdapterSpec,
+    ADAPT_LANGUAGE_MODELING,
+    ADAPT_MULTIPLE_CHOICE,
+    ADAPT_GENERATION,
+)
 from .metric import MetricSpec
 from .runner import RunSpec
 
@@ -41,6 +46,11 @@ def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
 
 def get_toxicity_metrics(group_tags: List[str]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={"group_tags": group_tags})]
+
+
+def get_lpm_metrics() -> List[MetricSpec]:
+    metric_names = {"names": ["iou_set_match", "exact_set_match"]}
+    return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
 ############################################################
@@ -134,4 +144,27 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_toxicity_metrics([TOXIC_TAG, NONTOXIC_TAG]),
+    )
+
+
+def get_lpm_spec(difficulty: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.lpm_scenario.LPMScenario", args={"difficulty": difficulty},)
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Please solve the following problem.",
+        max_train_instances=3,
+        max_eval_instances=100,
+        num_outputs=3,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0.2,
+        stop_sequences=["\n"],
+        max_tokens=20,
+        input_prefix="Rules:\n",
+        output_prefix="",
+    )
+
+    return RunSpec(
+        name=f"lpm_difficulty={difficulty}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_lpm_metrics()
     )

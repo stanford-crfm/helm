@@ -15,6 +15,30 @@ def get_num_bytes(text: str) -> int:
     return len(bytes(text, encoding="utf-8"))
 
 
+def iou_set_match(gold: str, pred: str) -> float:
+    """Compute the intersection over union of the gold and pred sets"""
+    pred = pred.split("\n")[0]
+    if gold == "Nothing.":
+        return float(pred == "Nothing.")
+    pred = pred.replace(".", "")
+    gold = gold.replace(".", "")
+    gold_set = set(gold.split(" is ")[-1].split(" and "))
+    pred_set = set(pred.split(" is ")[-1].split(" and "))
+    return len(gold_set.intersection(pred_set)) / len(gold_set.union(pred_set))
+
+
+def exact_set_match(gold: str, pred: str) -> float:
+    """Compute whether the sets generated exactly match"""
+    pred = pred.split("\n")[0]
+    if gold == "Nothing.":
+        return float(pred == "Nothing.")
+    pred = pred.replace(".", "")
+    gold = gold.replace(".", "")
+    gold_set = set(gold.split(" is ")[-1].split(" and "))
+    pred_set = set(pred.split(" is ")[-1].split(" and "))
+    return float(gold_set == pred_set)
+
+
 class BasicMetric(Metric):
     """
     Defines basic metrics which don't require domain knowledge.  This should be
@@ -51,22 +75,32 @@ class BasicMetric(Metric):
                 Stat(f"{name}@{adapter_spec.num_outputs}").add(score_k),
             ]
 
+        # maps each string metric name to its associated function
+        metric_fn_mapping = {
+            "exact_match": exact_match,
+            "exact_set_match": exact_set_match,
+            "iou_set_match": iou_set_match,
+        }
+
         reference_metrics = []
-        if "exact_match" in self.names:
-            # Gold outputs
-            golds = [reference.output for reference in request_state.instance.references if reference.is_correct]
-            assert len(golds) > 0
+        for metric_name in self.names:
+            if metric_name in metric_fn_mapping:
+                # Gold outputs
+                golds = [reference.output for reference in request_state.instance.references if reference.is_correct]
+                assert len(golds) > 0
 
-            # Predicted outputs
-            assert request_state.result is not None
-            # TODO: Sort the predictions, or take them from the top tokens of the first completion
-            #       https://github.com/stanford-crfm/benchmarking/issues/42
-            preds = [completion.text.strip() for completion in request_state.result.completions]
+                # Predicted outputs
+                assert request_state.result is not None
+                # TODO: Sort the predictions, or take them from the top tokens of the first completion
+                #       https://github.com/stanford-crfm/benchmarking/issues/42
+                preds = [completion.text.strip() for completion in request_state.result.completions]
 
-            # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
-            if request_state.output_mapping is not None:
-                preds = [request_state.output_mapping.get(pred) for pred in preds]
-            reference_metrics.extend(compute_metrics_helper("exact_match", exact_match))
+                # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
+                if request_state.output_mapping is not None:
+                    preds = [request_state.output_mapping.get(pred) for pred in preds]
+                reference_metrics.extend(compute_metrics_helper(metric_name, metric_fn_mapping[metric_name]))
+            else:
+                raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics
 
     def compute_language_modeling_metrics(
