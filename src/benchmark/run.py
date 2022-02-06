@@ -12,6 +12,8 @@ from .test_utils import (
     get_mmlu_spec,
     get_real_toxicity_prompts_spec,
     get_twitter_aae_spec,
+    get_boolq_spec,
+    get_boolq_contrast_sets_spec,
 )
 
 
@@ -41,6 +43,10 @@ def parse_run_specs(description: str) -> List[RunSpec]:
         return [get_twitter_aae_spec(**args)]
     if name == "real_toxicity_prompts":
         return [get_real_toxicity_prompts_spec()]
+    if name == "boolq":
+        return [get_boolq_spec()]
+    if name == "boolq_contrast_sets":
+        return [get_boolq_contrast_sets_spec()]
     raise ValueError(f"Unknown run spec: {description}")
 
 

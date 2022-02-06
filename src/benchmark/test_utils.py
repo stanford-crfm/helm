@@ -135,3 +135,52 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_toxicity_metrics([TOXIC_TAG, NONTOXIC_TAG]),
     )
+
+
+def get_boolq_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={})
+
+    # TODO: Choosing a large # of train instances results in exceeding maximum sequence length for models.
+    # What's the best way to solve this?
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Remove this once deployed
+        num_outputs=1,
+        max_tokens=1,
+    )
+    return RunSpec(
+        name="boolq",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_boolq_contrast_sets_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQContrastSetScenario", args={})
+    # TODO: Choosing a large # of train instances results in exceeding maximum sequence length for models.
+    # What's the best way to solve this?
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Remove this once deployed
+        num_outputs=1,
+        max_tokens=1,
+    )
+    return RunSpec(
+        name="boolq-contrast-sets",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
