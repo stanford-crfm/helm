@@ -72,18 +72,14 @@ class BasicMetric(Metric):
     def compute_runtime_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
-        """Record runtime"""
+        """Compute per-token normalized runtime"""
         assert request_state.result is not None
 
-        runtime_stat = Stat("runtime")
-        normalized_runtime_stat = Stat("normalized_runtime")
-        for sequence in request_state.result.completions:
-            num_tokens = len(sequence.tokens)
-            runtime = request_state.result.request_time
+        runtime = request_state.result.request_time
+        # Compute total number of tokens across completions
+        num_tokens: int = sum([len(sequence.tokens) for sequence in request_state.result.completions])
 
-            runtime_stat.add(runtime)
-            normalized_runtime_stat.add(runtime / num_tokens)
-        return [runtime_stat, normalized_runtime_stat]
+        return [Stat("runtime").add(runtime), Stat("normalized_runtime").add(runtime / num_tokens)]
 
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
