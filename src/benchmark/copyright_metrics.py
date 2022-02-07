@@ -1,4 +1,5 @@
 from typing import List
+import warnings
 
 from nltk.tokenize.treebank import TreebankWordTokenizer
 
@@ -6,6 +7,14 @@ from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_service import MetricService
+
+
+def _handle_unused_kwargs(unused_kwargs, msg=None):
+    if len(unused_kwargs) > 0:
+        if msg is not None:
+            warnings.warn(f"{msg}: Unexpected arguments {unused_kwargs}")
+        else:
+            warnings.warn(f"Unexpected arguments {unused_kwargs}")
 
 
 def _longest_common_prefix_length(s1: List[str], s2: List[str]) -> int:
@@ -16,11 +25,58 @@ def _longest_common_prefix_length(s1: List[str], s2: List[str]) -> int:
     return min_len
 
 
-class LongestCommonPrefixMetric(Metric):
-    def __init__(self, normalize_by_prefix_length=False, **unused_kwargs):
+def _edit_distance(s1: List[str], s2: List[str]) -> int:
+    """Compute the Levenshtein distance between two sequences of tokens.
+
+    Note edit distance is really an umbrella term. We focus on the Levenshtein distance.
+    Simple dynamic programming with memoization.
+    """
+    l1, l2 = len(s1), len(s2)
+    distance_grid = [[0 for _ in range(l2 + 1)] for _ in range(l1 + 1)]  # l1 x l2 grid.
+
+    for i in range(l1 + 1):
+        distance_grid[i][0] = i
+
+    for j in range(l2 + 1):
+        distance_grid[0][j] = j
+
+    for i in range(1, l1 + 1):
+        for j in range(1, l2 + 1):
+            if s1[i] == s2[j]:
+                distance_grid[i][j] = distance_grid[i - 1][j - 1]
+            else:
+                distance_grid[i][j] = min(
+                    distance_grid[i][j - 1] + 1,  # Remove from s1.
+                    distance_grid[i - 1][j] + 1,  # Remove from s2.
+                    distance_grid[i - 1][j - 1] + 1,  # Replace.
+                )
+    return distance_grid[l1][l2]
+
+
+metric_fns = {
+    'longest_common_prefix_length': _longest_common_prefix_length,
+    'edit_distance': _edit_distance,
+}
+
+
+class BasicCopyrightMetric(Metric):
+    """Basic copyright metric for evaluating surface-level similarity.
+
+    This class supports `longest_common_prefix_length` and `edit_distance`.
+    In contrast to model-based semantic similarity evaluation.
+    """
+
+    def __init__(self, name, normalize_by_prefix_length=False, **unused_kwargs):
+        if name not in ('longest_common_prefix_length', 'edit_distance'):
+            raise ValueError(
+                f"Expected name to be either `longest_common_prefix_length` or `edit_distance`, but got {name}."
+            )
+        _handle_unused_kwargs(unused_kwargs)
+
+        self.name = name
+        self.metric_fn = metric_fns[name]
         self.normalize_by_prefix_length = normalize_by_prefix_length
         self.tokenizer = TreebankWordTokenizer()
-        del unused_kwargs
 
     def evaluate_generation(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -36,6 +92,7 @@ class LongestCommonPrefixMetric(Metric):
             reference: AAD
             returns: 2
             explanation: The longest common prefix is AA (between AABC and AAD).
+                We assume A, B, C, D, M are all separate tokens.
         """
         references = request_state.instance.references
         num_references = len(references)
@@ -54,23 +111,11 @@ class LongestCommonPrefixMetric(Metric):
             completion_tokens = self.tokenizer.tokenize(completion)
             truncated_reference_tokens = self.tokenizer.tokenize(truncated_reference)
             result = max(
-                result, _longest_common_prefix_length(completion_tokens, truncated_reference_tokens)
+                result, self.metric_fn(completion_tokens, truncated_reference_tokens)
             )
 
         if self.normalize_by_prefix_length:
             prefix_tokens = self.tokenizer.tokenize(prefix)
             result /= len(prefix_tokens)
 
-        return [Stat('longest_common_prefix_length').add(result)]
-
-
-class EditDistanceMetric(Metric):
-    def __init__(self, **unused_kwargs):
-        del unused_kwargs
-
-    def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
-    ) -> List[Stat]:
-        """"""
-        metrics = []
-        return metrics
+        return [Stat(f'{self.name}').add(result)]

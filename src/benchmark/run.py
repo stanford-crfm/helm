@@ -39,7 +39,7 @@ def parse_run_specs(description: str) -> List[RunSpec]:
     if name == "real_toxicity_prompts":
         return [get_real_toxicity_prompts_spec()]
     if name == "copyright":
-        return [get_copyright_spec()]
+        return [get_copyright_spec(**args)]
     raise ValueError(f"Unknown run spec: {description}")
 
 

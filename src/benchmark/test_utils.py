@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from .adapter import AdapterSpec, ADAPT_LANGUAGE_MODELING, ADAPT_MULTIPLE_CHOICE, ADAPT_GENERATION
@@ -43,8 +43,17 @@ def get_toxicity_metrics(group_tags: List[str]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={"group_tags": group_tags})]
 
 
-def get_copyright_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.copyright_metrics.CopyrightMetric", args=args)]
+def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric",
+            args={**args, "name": "longest_common_prefix_length"},
+        ),
+        MetricSpec(
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric",
+            args={**args, "name": "edit_distance"},
+        ),
+    ]
 
 
 ############################################################
@@ -141,8 +150,24 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
     )
 
 
-def get_copyright_spec(pilot_study=True) -> RunSpec:
+def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.copyright_scenario.CopyrightScenario", args=dict())
+
+    # TODO(lxuechen): Use yaml config files to specify this in the future.
+    if pilot_study.lower() in ('t', 'true'):
+        kwargs = dict(
+            max_eval_instances=100,
+            num_outputs=1,
+            model="simple/model1",
+            max_tokens=60,
+        )
+    else:
+        kwargs = dict(
+            max_eval_instances=None,
+            num_outputs=10,
+            model="openai/davinci",
+            max_tokens=2000,
+        )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -151,17 +176,14 @@ def get_copyright_spec(pilot_study=True) -> RunSpec:
         input_prefix="",
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=100 if pilot_study else None,
-        num_outputs=10,
         num_train_trials=1,
-        model="openai/davinci",
         temperature=0.7,
-        max_tokens=2000,
+        **kwargs,
     )
 
     return RunSpec(
         name=f"copyright",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_copyright_metrics({"names": ["exact_match"]}),
+        metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),
     )
