@@ -61,8 +61,10 @@ class Executor:
             # Truncate pred_output for a better visualization
             if pred_output is not None:
                 pred_output = pred_output[:100]
-            return f'[{tags_str}] "{state.request.prompt[:100]}" => \
-            "{gold_output}", predicted "{pred_output}" [{correct_str}]'
+            return (
+                f'[{tags_str}] "{state.request.prompt[:100]}" =>'
+                f'"{gold_output}", predicted "{pred_output}" [{correct_str}]'
+            )
 
         def process(state: RequestState) -> RequestState:
             result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, state.request)
