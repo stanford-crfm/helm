@@ -1,6 +1,7 @@
 import os
 import shlex
 import subprocess
+import zstandard
 from typing import List, Optional
 
 import pyhocon
@@ -68,7 +69,9 @@ def ensure_file_downloaded(source_url: str, target_path: str, unpack: bool = Fal
         elif unpack_type == "unzip":
             shell(["unzip", tmp_path, "-d", tmp2_path])
         elif unpack_type == "unzstd":
-            shell(["unzstd", tmp_path, "-o", os.path.join(tmp2_path, "data")])
+            dctx = zstandard.ZstdDecompressor()
+            with open(tmp_path, "rb") as ifh, open(os.path.join(tmp2_path, "data"), "wb") as ofh:
+                dctx.copy_stream(ifh, ofh)
         else:
             raise Exception("Invalid unpack_type")
         files = os.listdir(tmp2_path)
