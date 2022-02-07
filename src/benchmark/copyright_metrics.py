@@ -28,8 +28,8 @@ def _longest_common_prefix_length(s1: List[str], s2: List[str]) -> int:
 def _edit_distance(s1: List[str], s2: List[str]) -> int:
     """Compute the Levenshtein distance between two sequences of tokens.
 
-    Note edit distance is really an umbrella term. We focus on the Levenshtein distance.
-    Simple dynamic programming with memoization.
+    Edit distance is really an umbrella term. We focus on the Levenshtein distance.
+    Dynamic programming implementation with memoization.
     """
     l1, l2 = len(s1), len(s2)
     distance_grid = [[0 for _ in range(l2 + 1)] for _ in range(l1 + 1)]  # l1 x l2 grid.
@@ -42,13 +42,13 @@ def _edit_distance(s1: List[str], s2: List[str]) -> int:
 
     for i in range(1, l1 + 1):
         for j in range(1, l2 + 1):
-            if s1[i] == s2[j]:
+            if s1[i - 1] == s2[j - 1]:  # Don't get bitten by off-by-one!
                 distance_grid[i][j] = distance_grid[i - 1][j - 1]
             else:
-                distance_grid[i][j] = min(
-                    distance_grid[i][j - 1] + 1,  # Remove from s1.
-                    distance_grid[i - 1][j] + 1,  # Remove from s2.
-                    distance_grid[i - 1][j - 1] + 1,  # Replace.
+                distance_grid[i][j] = 1 + min(
+                    distance_grid[i][j - 1],  # Remove from s1.
+                    distance_grid[i - 1][j],  # Remove from s2.
+                    distance_grid[i - 1][j - 1],  # Replace.
                 )
     return distance_grid[l1][l2]
 
