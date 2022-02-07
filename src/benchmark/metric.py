@@ -104,13 +104,13 @@ class Metric(ABC):
         global_stats: Dict[str, Stat] = {}
         # The first and only trial
         trial_stats: Dict[str, Stat] = {}
+        # Assume models are only evaluated on the test set
+        tag = TEST_TAG
 
         for request_state in scenario_state.request_states:
             # Evaluate request_state
             request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
 
-            # Assume models are only evaluated on the test set
-            tag = TEST_TAG
             for stat in request_stats:
                 stat = Stat(name=tag + "." + stat.name).merge(stat)
                 merge_stat(trial_stats, stat)
