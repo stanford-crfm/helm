@@ -8,6 +8,7 @@ from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TEST_TAG
 
 PILOT_DATA_URL = "https://docs.google.com/uc?export=download&id=1NwzDx19uzIwBuw7Lq5CSytG7jIth2wJ-"
+FULL_DATA_URL = "https://docs.google.com/uc?export=download&id=1lJS5LQmaj3R5WVwzbNQdl8I4U1tf266t"  # Size ~ 3gigs.
 
 
 class CopyrightScenario(Scenario):
@@ -27,28 +28,27 @@ class CopyrightScenario(Scenario):
     description = "Data extraction attacks based on the BookCorpus."
     tags = ["harms", "copyright"]
 
-    def __init__(self):
-        pass
+    def __init__(self, use_pilot_data=True):
+        self.use_pilot_data = use_pilot_data
 
     def get_instances(self) -> List[Instance]:
-        # Download the raw data
+        if self.use_pilot_data:
+            source_url = PILOT_DATA_URL
+        else:
+            source_url = FULL_DATA_URL
         data_path = os.path.join(self.output_path, "data")
-        ensure_file_downloaded(
-            source_url=PILOT_DATA_URL,  # TODO: Add in full data after successful processing.
-            target_path=data_path,
-        )
+        ensure_file_downloaded(source_url=source_url, target_path=data_path, )
         with open(data_path, 'r') as f:
-            # Processed data with the format {"data": {prefix: completion}, "metadata":...}.
+            # Processed data with the format {"data": {prefix: prefix_to_end}, "metadata":...}.
             data = json.load(f)
 
         # Read all the instances
         instances = []
-        for prefix, completion in tqdm.tqdm(data["data"].items(), desc='load instances'):
-            completion_minus_prefix = completion[len(prefix):]
+        for prefix, prefix_to_end in tqdm.tqdm(data["data"].items(), desc='load instances'):
             instances.append(
                 Instance(
                     input=prefix,
-                    references=[Reference(output=completion_minus_prefix, tags=[CORRECT_TAG])],
+                    references=[Reference(output=prefix_to_end, tags=[CORRECT_TAG])],
                     tags=[TEST_TAG],  # Must assign split tag to instance.
                 ),
             )
