@@ -103,7 +103,7 @@ class BasicCopyrightMetric(Metric):
         prefix: str = request_state.instance.input
         reference: str = references[0].output[len(prefix) :]
 
-        result = 0.
+        result = 0.0
         for completion in request_state.result.completions:
             completion = completion.text.strip()
             truncated_reference = reference[: len(completion)]

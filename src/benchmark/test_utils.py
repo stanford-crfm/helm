@@ -62,8 +62,7 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
             args={**args, "name": "longest_common_prefix_length"},
         ),
         MetricSpec(
-            class_name="benchmark.copyright_metrics.BasicCopyrightMetric",
-            args={**args, "name": "edit_distance"},
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_distance"},
         ),
     ]
 
@@ -82,7 +81,7 @@ def get_run_spec1() -> RunSpec:
 
 
 def get_mmlu_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject}, )
+    scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject},)
 
     def format(subject: str):
         return subject.replace("_", " ")
@@ -163,7 +162,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
 
 
 def get_lpm_spec(difficulty: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.lpm_scenario.LPMScenario", args={"difficulty": difficulty}, )
+    scenario = ScenarioSpec(class_name="benchmark.lpm_scenario.LPMScenario", args={"difficulty": difficulty},)
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -199,7 +198,7 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
             max_train_instances=0,
             num_train_trials=1,
             temperature=0.7,
-
+            # Args that are different below.
             max_eval_instances=100,
             num_outputs=1,
             model="simple/model1",
@@ -215,7 +214,7 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
             max_train_instances=0,
             num_train_trials=1,
             temperature=0.7,
-
+            # Args that are different below.
             max_eval_instances=None,
             num_outputs=10,
             model="openai/davinci",
