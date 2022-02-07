@@ -103,6 +103,18 @@ class BasicMetric(Metric):
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics
 
+    def compute_runtime_metrics(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    ) -> List[Stat]:
+        """Compute per-token normalized runtime"""
+        assert request_state.result is not None
+
+        runtime = request_state.result.request_time
+        # Compute total number of tokens across completions
+        num_tokens: int = sum([len(sequence.tokens) for sequence in request_state.result.completions])
+
+        return [Stat("runtime").add(runtime), Stat("normalized_runtime").add(runtime / num_tokens)]
+
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
@@ -136,6 +148,7 @@ class BasicMetric(Metric):
             metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
 
         metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_runtime_metrics(adapter_spec, request_state, metric_service))
 
         # Future: add F1, BLEU, etc.
         # TODO: pass in arguments to `BasicMetric`
