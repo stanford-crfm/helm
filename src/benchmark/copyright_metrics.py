@@ -59,6 +59,7 @@ metric_fns = {
 }
 
 
+# TODO(lxuechen): Create mock data to test `longest_common_prefix_length`.
 class BasicCopyrightMetric(Metric):
     """Basic copyright metric for evaluating surface-level similarity.
 
