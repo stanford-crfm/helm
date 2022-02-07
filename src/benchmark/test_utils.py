@@ -174,7 +174,9 @@ def get_lpm_spec(difficulty: str) -> RunSpec:
 
 
 def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.synthetic_reasoning_scenario.SyntheticReasoningScenario", args={"mode": mode},)
+    scenario = ScenarioSpec(
+        class_name="benchmark.synthetic_reasoning_scenario.SyntheticReasoningScenario", args={"mode": mode},
+    )
 
     def format(difficulty: str):
         return difficulty.replace("_", " ")
@@ -196,5 +198,35 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"synrea_mode={mode}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({'names':['exact_match']})
+        name=f"synrea_mode={mode}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+
+def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.dyck_language_scenario.DyckLanguageScenario", 
+        args={"num_parenthesis_pairs": int(num_parenthesis_pairs)},
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_GENERATION,
+        conditioning_prefix="",
+        instructions=f"Please complete the rest of the following Dyck sequence, making sure that the parentheses are closed properly. ",
+        input_prefix="Input: ",
+        output_prefix="\nOutput: ",
+        model="openai/davinci",
+        temperature=0.0,
+        stop_sequences=["\n"],
+        max_tokens=10,
+    )
+
+    return RunSpec(
+        name=f"dyck_language_np={int(num_parenthesis_pairs)}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
