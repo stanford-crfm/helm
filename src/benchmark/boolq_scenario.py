@@ -44,10 +44,14 @@ class BoolQScenario(Scenario):
     def __init__(self):
         pass
 
-    def get_context(self, passage: str, question: str):
-        return f"{passage}\nquestion:{question}"
+    def get_context(self, passage: str, question: str) -> str:
+        """
+        We follow the format from https://arxiv.org/abs/2005.14165.
+        For more details, see Figure G.29: Formatted dataset example for BoolQ.
+        """
+        return f"{passage}\nquestion: {question}"
 
-    def get_split_instances(self, split_path: str, tags: List[str]) -> List[Instance]:
+    def get_split_instances(self, split_path: str, tag: str) -> List[Instance]:
         split_instances: List[Instance] = []
         with open(split_path, "r") as f:
             all_triplets = list(f)
@@ -60,7 +64,7 @@ class BoolQScenario(Scenario):
                 correct_answer = "yes" if answer else "no"
                 context = self.get_context(passage, question)
                 instance: Instance = Instance(
-                    input=context, references=[Reference(output=correct_answer, tags=[CORRECT_TAG])], tags=tags
+                    input=context, references=[Reference(output=correct_answer, tags=[CORRECT_TAG])], tags=[tag]
                 )
                 split_instances.append(instance)
         return split_instances
@@ -80,8 +84,7 @@ class BoolQScenario(Scenario):
 
         for split in splits:
             split_path: str = os.path.join(data_path, f"{split}.jsonl")
-            tags: List[str] = [splits[split]]
-            instances.extend(self.get_split_instances(split_path, tags))
+            instances.extend(self.get_split_instances(split_path, splits[split]))
         return instances
 
 
@@ -140,8 +143,7 @@ class BoolQContrastSetScenario(BoolQScenario):
         split_path: str = os.path.join(data_path, "train.jsonl")
         ensure_file_downloaded(source_url=url, target_path=split_path, unpack=False)
 
-        training_tags: List[str] = [TRAIN_TAG]
-        training_instances: List[Instance] = self.get_split_instances(split_path, training_tags)
+        training_instances: List[Instance] = self.get_split_instances(split_path, TRAIN_TAG)
 
         # Ensure contrast sets are downloaded
         url = "https://raw.githubusercontent.com/allenai/contrast-sets/main/BoolQ/boolq_perturbed.json"
@@ -156,7 +158,6 @@ class BoolQContrastSetScenario(BoolQScenario):
             for items in all_questions["data"][1:]:
                 passage: str = items["paragraph"]
 
-                tags: List[str] = [VALID_TAG]
                 for perturbed_item in items["perturbed_questions"]:
                     perturbed_question: str = perturbed_item["perturbed_q"]
                     perturbed_answer: str = "yes" if perturbed_item["answer"] == "TRUE" else "no"
@@ -164,7 +165,7 @@ class BoolQContrastSetScenario(BoolQScenario):
                     instance: Instance = Instance(
                         input=perturbed_context,
                         references=[Reference(output=perturbed_answer, tags=[CORRECT_TAG])],
-                        tags=tags,
+                        tags=[VALID_TAG],
                     )
                     contrast_instances.append(instance)
 
