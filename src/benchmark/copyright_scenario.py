@@ -37,14 +37,16 @@ class CopyrightScenario(Scenario):
         else:
             source_url = FULL_DATA_URL
         data_path = os.path.join(self.output_path, "data")
-        ensure_file_downloaded(source_url=source_url, target_path=data_path, )
-        with open(data_path, 'r') as f:
+        ensure_file_downloaded(
+            source_url=source_url, target_path=data_path,
+        )
+        with open(data_path, "r") as f:
             # Processed data with the format {"data": {prefix: prefix_to_end}, "metadata":...}.
             data = json.load(f)
 
         # Read all the instances
         instances = []
-        for prefix, prefix_to_end in tqdm.tqdm(data["data"].items(), desc='load instances'):
+        for prefix, prefix_to_end in tqdm.tqdm(data["data"].items(), desc="load instances"):
             instances.append(
                 Instance(
                     input=prefix,

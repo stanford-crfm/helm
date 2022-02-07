@@ -54,8 +54,8 @@ def _edit_distance(s1: List[str], s2: List[str]) -> int:
 
 
 metric_fns = {
-    'longest_common_prefix_length': _longest_common_prefix_length,
-    'edit_distance': _edit_distance,
+    "longest_common_prefix_length": _longest_common_prefix_length,
+    "edit_distance": _edit_distance,
 }
 
 
@@ -68,7 +68,7 @@ class BasicCopyrightMetric(Metric):
     """
 
     def __init__(self, name, normalize_by_prefix_length=False, **unused_kwargs):
-        if name not in ('longest_common_prefix_length', 'edit_distance'):
+        if name not in ("longest_common_prefix_length", "edit_distance"):
             raise ValueError(
                 f"Expected name to be either `longest_common_prefix_length` or `edit_distance`, but got {name}."
             )
@@ -98,25 +98,21 @@ class BasicCopyrightMetric(Metric):
         references = request_state.instance.references
         num_references = len(references)
         if num_references != 1:
-            raise ValueError(
-                f"Copyright scenario expects a single reference, but found {num_references} references."
-            )
+            raise ValueError(f"Copyright scenario expects a single reference, but found {num_references} references.")
         prefix: str = request_state.instance.input
-        reference: str = references[0].output[len(prefix):]
+        reference: str = references[0].output[len(prefix) :]
 
         result = 0
         for completion in request_state.result.completions:
             completion = completion.text.strip()
-            truncated_reference = reference[:len(completion)]
+            truncated_reference = reference[: len(completion)]
 
             completion_tokens = self.tokenizer.tokenize(completion)
             truncated_reference_tokens = self.tokenizer.tokenize(truncated_reference)
-            result = max(
-                result, self.metric_fn(completion_tokens, truncated_reference_tokens)
-            )
+            result = max(result, self.metric_fn(completion_tokens, truncated_reference_tokens))
 
         if self.normalize_by_prefix_length:
             prefix_tokens = self.tokenizer.tokenize(prefix)
             result /= len(prefix_tokens)
 
-        return [Stat(f'{self.name}').add(result)]
+        return [Stat(f"{self.name}").add(result)]

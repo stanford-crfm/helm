@@ -60,8 +60,7 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
             args={**args, "name": "longest_common_prefix_length"},
         ),
         MetricSpec(
-            class_name="benchmark.copyright_metrics.BasicCopyrightMetric",
-            args={**args, "name": "edit_distance"},
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_distance"},
         ),
     ]
 
@@ -80,7 +79,7 @@ def get_run_spec1() -> RunSpec:
 
 
 def get_mmlu_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject}, )
+    scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject},)
 
     def format(subject: str):
         return subject.replace("_", " ")
@@ -161,7 +160,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
 
 
 def get_lpm_spec(difficulty: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.lpm_scenario.LPMScenario", args={"difficulty": difficulty}, )
+    scenario = ScenarioSpec(class_name="benchmark.lpm_scenario.LPMScenario", args={"difficulty": difficulty},)
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -187,20 +186,10 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.copyright_scenario.CopyrightScenario", args=dict())
 
     # TODO(lxuechen): Use yaml config files to specify this in the future.
-    if pilot_study.lower() in ('t', 'true'):
-        kwargs = dict(
-            max_eval_instances=100,
-            num_outputs=1,
-            model="simple/model1",
-            max_tokens=60,
-        )
+    if pilot_study.lower() in ("t", "true"):
+        kwargs = dict(max_eval_instances=100, num_outputs=1, model="simple/model1", max_tokens=60,)
     else:
-        kwargs = dict(
-            max_eval_instances=None,
-            num_outputs=10,
-            model="openai/davinci",
-            max_tokens=2000,
-        )
+        kwargs = dict(max_eval_instances=None, num_outputs=10, model="openai/davinci", max_tokens=2000,)
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
