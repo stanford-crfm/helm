@@ -129,7 +129,8 @@ class ThePileScenario(Scenario):
 
         short_name = DATASET_NAMES_DICT[self.subset]
         if short_name not in DATASETS_WITHOUT_SPLIT:
-            url = f"https://raw.githubusercontent.com/EleutherAI/lm_perplexity/main/assets/test_subsample_indices/{short_name}/group0.json"
+            url = f"https://raw.githubusercontent.com/EleutherAI/lm_perplexity/main/assets/test_subsample_indices/ \
+            {short_name}/group0.json"
             indices = sorted(list(set(requests.get(url).json())))
             instances = [instances[i] for i in indices]
 

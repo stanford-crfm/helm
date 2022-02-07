@@ -22,6 +22,7 @@ def get_num_bytes(tokens: List[Token]) -> int:
             num_bytes += len(bytes(token.text, encoding="utf-8"))
     return num_bytes
 
+
 def convert_tokens_to_text(tokens: List[Token]) -> List[Dict]:
     # Note: sometimes multiple tokens correspond to one character, for example:
     # ["bytes:\xe2\x80", "bytes:\x99"] => ’
@@ -30,22 +31,23 @@ def convert_tokens_to_text(tokens: List[Token]) -> List[Dict]:
     i = 0
     while i < len(tokens):
         # Aggregate consecutive tokens while they're "bytes:..."
-        group = {"tokens": []}
-        if (tokens[i].text.startswith('bytes:')):
-            bytestring = ''
-            while (i < len(tokens) and tokens[i].text.startswith('bytes:')):
+        group: Dict = {"tokens": []}
+        if tokens[i].text.startswith("bytes:"):
+            bytestring = ""
+            while i < len(tokens) and tokens[i].text.startswith("bytes:"):
                 group["tokens"].append(tokens[i])
                 # Extract part after : (e.g., \xe2\x80)
-                bytestring += tokens[i].text.split(':')[1]
+                bytestring += tokens[i].text.split(":")[1]
                 i += 1
             # Convert to encoded URI (e.g., %e2%80%99) and decode
-            group["text"] = unquote(bytestring.replace('\\x', '%'))
+            group["text"] = unquote(bytestring.replace("\\x", "%"))
         else:
             group["tokens"].append(tokens[i])
             group["text"] = tokens[i].text
             i += 1
         groups.append(group)
     return groups
+
 
 class BasicMetric(Metric):
     """
@@ -107,10 +109,17 @@ class BasicMetric(Metric):
         """Compute the logprob and normalization factors for the first completion"""
         assert request_state.result is not None
         sequence = request_state.result.completions[0]
-        assert "".join([group["text"] for group in convert_tokens_to_text(sequence.tokens)]) == request_state.request.prompt
+        assert (
+            "".join([group["text"] for group in convert_tokens_to_text(sequence.tokens)])
+            == request_state.request.prompt
+        )
 
-        pred_tokens = sequence.tokens[request_state.num_conditioning_tokens:]
-        logprob, num_tokens, num_bytes = sum(token.logprob for token in pred_tokens), len(pred_tokens), get_num_bytes(pred_tokens)
+        pred_tokens = sequence.tokens[request_state.num_conditioning_tokens :]
+        logprob, num_tokens, num_bytes = (
+            sum(token.logprob for token in pred_tokens),
+            len(pred_tokens),
+            get_num_bytes(pred_tokens),
+        )
 
         return [Stat("logprob").add(logprob), Stat("num_tokens").add(num_tokens), Stat("num_bytes").add(num_bytes)]
 
