@@ -1,4 +1,3 @@
-import json
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 from .general import indent_lines, format_text

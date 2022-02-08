@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-import json
 from typing import List, Optional
 
 from common.object_spec import ObjectSpec, create_object

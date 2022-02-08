@@ -74,7 +74,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_real_toxicity_prompts_spec()]
     if name == "lpm":
         return [get_lpm_spec(**args)]
-    raise ValueError(f"Unknown run spec: {description}")
+    raise ValueError(f"Unknown run spec: {spec}")
 
 
 def get_run_spec1() -> RunSpec:

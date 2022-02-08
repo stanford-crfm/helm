@@ -110,6 +110,14 @@ def write(file_path: str, content: str):
         f.write(content)
 
 
+def write_lines(file_path: str, lines: List[str]):
+    """Write lines out to a file at path file_path."""
+    hlog(f"Writing {len(lines)} lines to {file_path}")
+    with open(file_path, "w") as f:
+        for line in lines:
+            print(line, file=f)
+
+
 def indent_lines(lines: List[str], count: int = 2) -> List[str]:
     """Add `count` spaces before each line in `lines`."""
     prefix = " " * count

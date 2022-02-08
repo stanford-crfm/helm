@@ -1,5 +1,4 @@
 import argparse
-from typing import List, Dict, Any, Tuple
 
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.authentication import Authentication
@@ -7,7 +6,7 @@ from common.object_spec import parse_object_spec
 from proxy.remote_service import create_authentication
 
 from .executor import ExecutionSpec
-from .runner import Runner, RunSpec
+from .runner import Runner
 from .run_specs import construct_run_specs
 
 
