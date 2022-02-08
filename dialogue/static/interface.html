@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Abel&family=Cairo&family=Cantarell&family=Jost&family=Noto+Sans&family=Nunito+Sans&family=Quattrocento+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/vue@next"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+</head>
+<body>
+<div class="container">
+    <div class='chat-box' id="app">
+        <div class="transcript">
+            <div class="speech-bubble-container" v-bind:class="[utterance.speaker]" v-for="utterance in utterances">
+                <div class='speech-bubble'> {{utterance.text}} </div>
+            </div>
+        </div>
+        <form @submit.prevent="submit" class="next-utterance-input" autocomplete="off" name="newUtteranceForm">
+            <input type="text" name="newUtterance" class="new-utterance" required v-model="newUtterance"/>
+            <!--<textarea type="text" name="newUtterance" class="new-utterance" required v-model="newUtterance" oninput="this.style.height = '';this.style.height = (this.scrollHeight) + 'px'"></textarea>-->
+            <button type="submit" class="submit" value="Send">
+                <svg class="send-icon" viewBox="0 0 24 24" aria-labelledby="title">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/><path d="M0 0h24v24H0z" fill="none"/>
+                    </use>
+                </svg>
+            </button>
+        </form>
+
+    </div>
+</div>
+<script src="crfm-wrapper.js"></script>
+</body>
+</html>
