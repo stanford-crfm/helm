@@ -10,6 +10,7 @@ from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
 from .run_specs import construct_run_specs
 
+
 @htrack(None)
 def main():
     """
@@ -40,7 +41,9 @@ def main():
     auth: Authentication = create_authentication(args)
     execution_spec = ExecutionSpec(auth=auth, url=args.url, parallelism=args.num_threads, dry_run=args.dry_run)
 
-    run_specs = [run_spec for description in args.run_specs for run_spec in construct_run_specs(parse_object_spec(description))]
+    run_specs = [
+        run_spec for description in args.run_specs for run_spec in construct_run_specs(parse_object_spec(description))
+    ]
     with htrack_block("run_specs"):
         for run_spec in run_specs:
             hlog(run_spec.scenario)

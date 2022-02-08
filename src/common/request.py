@@ -81,7 +81,9 @@ class Token:
 
     def render_lines(self) -> List[str]:
         top_logprobs_entries = sorted(self.top_logprobs.items(), key=lambda entry: -entry[1])
-        top_logprobs_str = "{" + ", ".join(f"{format_text(text)}: {logprob}" for text, logprob in top_logprobs_entries) + "}"
+        top_logprobs_str = (
+            "{" + ", ".join(f"{format_text(text)}: {logprob}" for text, logprob in top_logprobs_entries) + "}"
+        )
         return [
             f"{format_text(self.text)} logprob={self.logprob} top_logprobs={top_logprobs_str}",
         ]
