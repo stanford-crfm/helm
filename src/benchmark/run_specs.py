@@ -87,7 +87,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"mmlu_subject={subject}",
+        name=f"mmlu:subject={subject}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -115,7 +115,7 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
     )
 
     return RunSpec(
-        name="twitter_aae_demographic={demographic}",
+        name="twitter_aae:demographic={demographic}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": []}),
@@ -166,5 +166,5 @@ def get_lpm_spec(difficulty: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"lpm_difficulty={difficulty}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_lpm_metrics()
+        name=f"lpm:difficulty={difficulty}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_lpm_metrics()
     )

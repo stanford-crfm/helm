@@ -1,3 +1,4 @@
+import json
 import os
 import shlex
 import subprocess
@@ -85,16 +86,23 @@ def ensure_file_downloaded(source_url: str, target_path: str, unpack: bool = Fal
 
 
 def format_tags(tags: List[str]) -> str:
-    """Takes a list of tags and outputs a string: [tag_1,tag_2,...,tag_n]."""
-    return f"[{','.join(tags)}]"
+    """Takes a list of tags and outputs a string: tag_1,tag_2,...,tag_n"""
+    return f"{','.join(tags)}"
 
 
 def serialize(obj: dataclass) -> List[str]:
     """Takes in a dataclass and outputs all of its fields and values in a list."""
-    return [f"{key}: {value}" for key, value in asdict(obj).items()]
+    return [f"{key}: {json.dumps(value)}" for key, value in asdict(obj).items()]
 
 
 def write(file_path: str, content: str):
     """Write content out to a file at path file_path."""
+    hlog(f"Writing {len(content)} characters to {file_path}")
     with open(file_path, "w") as f:
         f.write(content)
+
+
+def indent_lines(lines: List[str], count: int = 2) -> List[str]:
+    """Add `count` spaces before each line in `lines`."""
+    prefix = " " * count
+    return [prefix + line for line in lines]

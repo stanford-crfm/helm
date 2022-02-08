@@ -34,7 +34,7 @@ class Reference:
         return CORRECT_TAG in self.tags
 
     def render_lines(self) -> List[str]:
-        return [f"Reference ({format_tags(self.tags)}): {self.output}"]
+        return [f"reference ({format_tags(self.tags)}): {self.output}"]
 
 
 @dataclass(frozen=True, eq=False)
@@ -63,7 +63,7 @@ class Instance:
         return None
 
     def render_lines(self) -> List[str]:
-        info = [f"Input: {self.input}"]
+        info = [f"input: {self.input}"]
         for reference in self.references:
             info.extend(reference.render_lines())
         return info

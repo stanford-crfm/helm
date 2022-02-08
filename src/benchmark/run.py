@@ -7,7 +7,7 @@ from proxy.remote_service import create_authentication
 
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
-from .test_utils import (
+from .run_specs import (
     get_run_spec1,
     get_mmlu_spec,
     get_real_toxicity_prompts_spec,

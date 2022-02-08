@@ -3,7 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Optional
 
-from common.general import serialize
+from common.general import serialize, indent_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from .scenario import Instance, Scenario, TRAIN_TAG, VALID_TAG, TEST_TAG
@@ -99,21 +99,22 @@ class RequestState:
     result: Optional[RequestResult]
 
     def render_lines(self) -> List[str]:
-        output = [f"Train trial index: {self.train_trial_index}"]
+        output = [f"train_trial_index: {self.train_trial_index}"]
         if self.reference_index:
-            output.append(f"Reference index: {self.reference_index}")
+            output.append(f"reference_index: {self.reference_index}")
 
-        output.append("Instance")
-        output.extend(self.instance.render_lines())
-        output.append("")
+        output.append("instance {")
+        output.extend(indent_lines(self.instance.render_lines()))
+        output.append("}")
 
-        output.append("Request")
-        output.extend(serialize(self.request))
-        output.append("")
+        output.append("request {")
+        output.extend(indent_lines(serialize(self.request)))
+        output.append("}")
 
         if self.result:
-            output.append("Result")
-            output.extend(self.result.render_lines())
+            output.append("result {")
+            output.extend(indent_lines(self.result.render_lines()))
+            output.append("}")
 
         return output
 
@@ -152,14 +153,14 @@ class ScenarioState:
 
     def render_lines(self) -> List[str]:
         total: int = len(self.request_states)
-        result = ["Adapter"]
-        result.extend(serialize(self.adapter_spec))
-        result.extend([f"{total} request states", ""])
+        result = ["adapter_spec {"]
+        result.extend(indent_lines(serialize(self.adapter_spec)))
+        result.append("}")
 
         for i, request_state in enumerate(self.request_states):
-            result.append(f"------- Request state {i + 1}/{total}")
-            result.extend(request_state.render_lines())
-            result.append("")
+            result.append(f"request_state {i}/{total} {{")
+            result.extend(indent_lines(request_state.render_lines()))
+            result.append("}")
 
         return result
 
