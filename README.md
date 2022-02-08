@@ -193,6 +193,7 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r mmlu:subject=philosophy
     venv/bin/benchmark-run -r lpm:difficulty=easy
     venv/bin/benchmark-run -r twitter_aae:demographic=aa
+    venv/bin/benchmark-run -r copyright:pilot_study=true
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).

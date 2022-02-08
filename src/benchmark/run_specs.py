@@ -1,8 +1,8 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from common.object_spec import ObjectSpec
-from .scenario import ScenarioSpec
+
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
@@ -11,6 +11,7 @@ from .adapter import (
 )
 from .metric import MetricSpec
 from .runner import RunSpec
+from .scenario import ScenarioSpec
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -54,6 +55,20 @@ def get_lpm_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
+def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
+    if args is None:
+        args = dict()
+    return [
+        MetricSpec(
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric",
+            args={**args, "name": "longest_common_prefix_length"},
+        ),
+        MetricSpec(
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_distance"},
+        ),
+    ]
+
+
 ############################################################
 
 
@@ -78,6 +93,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_boolq_spec()]
     if name == "boolq_contrast_sets":
         return [get_boolq_contrast_sets_spec()]
+
     raise ValueError(f"Unknown run spec: {spec}")
 
 
@@ -241,4 +257,49 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+ 
+
+def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.copyright_scenario.CopyrightScenario", args=dict())
+
+    # TODO(lxuechen): Loop over models and other hyperparameter combos in the future.
+    if pilot_study.lower() in ("t", "true"):
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            conditioning_prefix="",
+            instructions="",
+            input_prefix="",
+            output_prefix="",
+            max_train_instances=0,
+            num_train_trials=1,
+            temperature=0.7,
+            # Args that are different below.
+            max_eval_instances=100,
+            num_outputs=1,
+            model="simple/model1",
+            max_tokens=60,
+        )
+    else:
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            conditioning_prefix="",
+            instructions="",
+            input_prefix="",
+            output_prefix="",
+            max_train_instances=0,
+            num_train_trials=1,
+            temperature=0.7,
+            # Args that are different below.
+            max_eval_instances=None,
+            num_outputs=10,
+            model="openai/davinci",
+            max_tokens=2000,
+        )
+
+    return RunSpec(
+        name="copyright",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),
     )
