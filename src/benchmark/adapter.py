@@ -163,7 +163,7 @@ class ScenarioState:
         result.append("}")
 
         for i, request_state in enumerate(self.request_states):
-            result.append(f"request_state {i}/{total} {{")
+            result.append(f"request_state {i} ({total} total) {{")
             result.extend(indent_lines(request_state.render_lines()))
             result.append("}")
 

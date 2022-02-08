@@ -111,7 +111,7 @@ class Scenario(ABC):
         ]
 
         for i, instance in enumerate(instances):
-            output.append(f"instance {i}/{total} {format_tags(instance.tags)} {{")
+            output.append(f"instance {i} ({total} total) {format_tags(instance.tags)} {{")
             output.extend(indent_lines(instance.render_lines()))
             output.append("}")
         return output
