@@ -3,6 +3,7 @@ import re
 from flask import render_template
 from flask import Flask, request
 import uuid
+import json
 
 app = Flask(__name__)
 #from flask_cors import CORS
@@ -87,6 +88,7 @@ def conversational_turn():
     request_result: RequestResult = service.make_request(auth, model_request)
     response = request_result.completions[0].text
     payload += ['Bob:'+response.strip(),]
+    
 
     #TODO: Consider returning the deserialized current state
     json_response = {
@@ -95,6 +97,8 @@ def conversational_turn():
         'bot_utterance': response,
         'payload': payload
     }
+    with open(session_uuid+'.json', 'w') as f:
+        json.dump(json_response, f)
     return json_response
 
 # Make a request
