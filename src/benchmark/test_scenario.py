@@ -1,5 +1,5 @@
 from .scenario import create_scenario, Scenario
-from .test_utils import get_scenario_spec_tiny
+from .run_specs import get_scenario_spec_tiny
 
 
 class TestScenario:
@@ -9,29 +9,28 @@ class TestScenario:
     def test_render_lines(self):
         instances = self.scenario.get_instances()
         assert self.scenario.render_lines(instances) == [
-            "Name: simple1",
-            "Description: A simple scenario",
-            "Tags: [simple]",
-            "4 instances",
+            "name: simple1",
+            "description: A simple scenario",
+            "tags: [simple]",
             "",
-            "------- Instance 1/4: [train]",
-            "Input: 4 18 2 8 3",
-            "Reference ([correct]): 8",
-            "Reference ([]): -1",
-            "",
-            "------- Instance 2/4: [train]",
-            "Input: 14 15 12 6 3",
-            "Reference ([correct]): 6",
-            "Reference ([]): -1",
-            "",
-            "------- Instance 3/4: [test]",
-            "Input: 0 12 13 19 0",
-            "Reference ([correct]): 19",
-            "Reference ([]): -1",
-            "",
-            "------- Instance 4/4: [test]",
-            "Input: 8 7 18 3 10",
-            "Reference ([correct]): 8",
-            "Reference ([]): -1",
-            "",
+            "instance 0 (4 total) [train] {",
+            '  input: "4 18 2 8 3"',
+            '  reference [correct]: "8"',
+            '  reference []: "-1"',
+            "}",
+            "instance 1 (4 total) [train] {",
+            '  input: "14 15 12 6 3"',
+            '  reference [correct]: "6"',
+            '  reference []: "-1"',
+            "}",
+            "instance 2 (4 total) [test] {",
+            '  input: "0 12 13 19 0"',
+            '  reference [correct]: "19"',
+            '  reference []: "-1"',
+            "}",
+            "instance 3 (4 total) [test] {",
+            '  input: "8 7 18 3 10"',
+            '  reference [correct]: "8"',
+            '  reference []: "-1"',
+            "}",
         ]
