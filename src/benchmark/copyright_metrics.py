@@ -1,5 +1,4 @@
 from typing import List
-import warnings
 
 from nltk.tokenize.treebank import TreebankWordTokenizer
 from common.request import RequestResult
