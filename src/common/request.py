@@ -1,6 +1,6 @@
-import json
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
+from .general import indent_lines, format_text
 
 
 @dataclass(frozen=True)
@@ -79,8 +79,12 @@ class Token:
     top_logprobs: Dict[str, float]
 
     def render_lines(self) -> List[str]:
+        top_logprobs_entries = sorted(self.top_logprobs.items(), key=lambda entry: -entry[1])
+        top_logprobs_str = (
+            "{" + ", ".join(f"{format_text(text)}: {logprob}" for text, logprob in top_logprobs_entries) + "}"
+        )
         return [
-            f"Text: {repr(self.text)} logprob={self.logprob} Top log probabilities: {json.dumps(self.top_logprobs)}",
+            f"{format_text(self.text)} logprob={self.logprob} top_logprobs={top_logprobs_str}",
         ]
 
 
@@ -102,12 +106,13 @@ class Sequence:
 
     def render_lines(self) -> List[str]:
         result = [
-            f"Text: {self.text}",
-            f"Log probability: {self.logprob}",
-            "Tokens:",
+            f"text: {self.text}",
+            f"log_prob: {self.logprob}",
+            "tokens {",
         ]
         for token in self.tokens:
-            result.extend(token.render_lines())
+            result.extend(indent_lines(token.render_lines(), 2))
+        result.append("}")
         return result
 
 
@@ -132,17 +137,17 @@ class RequestResult:
 
     def render_lines(self) -> List[str]:
         output = [
-            f"Success: {self.success}",
-            f"Cached: {self.cached}",
+            f"success: {self.success}",
+            f"cached: {self.cached}",
         ]
         if self.request_time:
-            output.append(f"Request time: {self.request_time}")
+            output.append(f"request_time: {self.request_time}")
         if self.error:
-            output.append(f"Error: {self.error}")
+            output.append(f"error: {self.error}")
 
-        output.append("Completions")
+        output.append("completions {")
         for completion in self.completions:
-            output.extend(completion.render_lines())
-            output.append("")
+            output.extend(indent_lines(completion.render_lines()))
+        output.append("}")
 
         return output

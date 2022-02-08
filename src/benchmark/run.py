@@ -1,52 +1,13 @@
 import argparse
-from typing import List, Dict, Any, Tuple
 
-from common.authentication import Authentication
 from common.hierarchical_logger import hlog, htrack, htrack_block
+from common.authentication import Authentication
+from common.object_spec import parse_object_spec
 from proxy.remote_service import create_authentication
+
 from .executor import ExecutionSpec
-from .runner import Runner, RunSpec
-from .test_utils import (
-    get_lpm_spec,
-    get_run_spec1,
-    get_mmlu_spec,
-    get_real_toxicity_prompts_spec,
-    get_twitter_aae_spec,
-    get_copyright_spec,
-)
-
-
-def parse_run_specs(description: str) -> List[RunSpec]:
-    """
-    Parse `description` into a list of `RunSpec`s.
-    `description` has the format:
-        <name>:<key>=<value>,<key>=<value>
-    """
-
-    def parse_arg(arg: str) -> Tuple[str, Any]:
-        key, value = arg.split("=", 1)
-        return (key, value)
-
-    if ":" in description:
-        name, args_str = description.split(":", 1)
-        args: Dict[str, Any] = dict(parse_arg(arg) for arg in args_str.split(","))
-    else:
-        name = description
-        args = {}
-
-    if name == "simple1":
-        return [get_run_spec1()]
-    if name == "mmlu":
-        return [get_mmlu_spec(**args)]
-    if name == "twitter_aae":
-        return [get_twitter_aae_spec(**args)]
-    if name == "real_toxicity_prompts":
-        return [get_real_toxicity_prompts_spec()]
-    if name == "lpm":
-        return [get_lpm_spec(**args)]
-    if name == "copyright":
-        return [get_copyright_spec(**args)]
-    raise ValueError(f"Unknown run spec: {description}")
+from .runner import Runner
+from .run_specs import construct_run_specs
 
 
 @htrack(None)
@@ -79,8 +40,10 @@ def main():
     auth: Authentication = create_authentication(args)
     execution_spec = ExecutionSpec(auth=auth, url=args.url, parallelism=args.num_threads, dry_run=args.dry_run)
 
-    run_specs = [run_spec for description in args.run_specs for run_spec in parse_run_specs(description)]
-    with htrack_block("Run specs"):
+    run_specs = [
+        run_spec for description in args.run_specs for run_spec in construct_run_specs(parse_object_spec(description))
+    ]
+    with htrack_block("run_specs"):
         for run_spec in run_specs:
             hlog(run_spec.scenario)
 
