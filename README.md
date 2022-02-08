@@ -207,7 +207,7 @@ For example, running `venv/bin/benchmark-run -r real_toxicity_prompts --dry-run`
 
 ```text
   Stats {
-    openai/davinci_estimated_number_of_tokens[min=505.000, mean=514.957, max=536.000, sum=514957.000, (1000)]
+    openai/davinci_estimated_number_of_tokens[min=505.000, mean=514.957, max=536.000, sum=514957.000 (1000)]
   }
 ```
 

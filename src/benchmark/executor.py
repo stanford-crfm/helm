@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, replace
 from tqdm import tqdm
 
-from common.general import format_tags
+from common.general import format_tags, format_text
 from common.hierarchical_logger import htrack, hlog
 from common.request import RequestResult
 from common.authentication import Authentication
@@ -57,7 +57,7 @@ class Executor:
 
             tags_str = format_tags(instance.tags)
             correct_str = "CORRECT" if gold_output == pred_output else "WRONG"
-            return f'{tags_str} "{instance.input[:100]}" => "{gold_output}", predicted "{pred_output}" [{correct_str}]'
+            return f'{tags_str} {format_text(instance.input[:100])} => {format_text(gold_output)}, predicted {format_text(pred_output)} [{correct_str}]'
 
         def process(state: RequestState) -> RequestState:
             result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, state.request)
