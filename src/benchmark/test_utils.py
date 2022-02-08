@@ -187,7 +187,7 @@ def get_lpm_spec(difficulty: str) -> RunSpec:
 def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.copyright_scenario.CopyrightScenario", args=dict())
 
-    # TODO(lxuechen): Use yaml config files to specify this in the future.
+    # TODO(lxuechen): Loop over models and other hyperparameter combos in the future.
     if pilot_study.lower() in ("t", "true"):
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,

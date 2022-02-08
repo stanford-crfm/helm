@@ -10,14 +10,6 @@ from .metric import Metric
 from .metric_service import MetricService
 
 
-def _handle_unused_kwargs(unused_kwargs, msg=None):
-    if len(unused_kwargs) > 0:
-        if msg is not None:
-            warnings.warn(f"{msg}: Unexpected arguments {unused_kwargs}")
-        else:
-            warnings.warn(f"Unexpected arguments {unused_kwargs}")
-
-
 def _longest_common_prefix_length(s1: List[str], s2: List[str]) -> int:
     min_len = min(len(s1), len(s2))
     for i in range(min_len):
@@ -68,12 +60,11 @@ class BasicCopyrightMetric(Metric):
     In contrast to model-based semantic similarity evaluation.
     """
 
-    def __init__(self, name, normalize_by_prefix_length=False, **unused_kwargs):
+    def __init__(self, name, normalize_by_prefix_length=False):
         if name not in ("longest_common_prefix_length", "edit_distance"):
             raise ValueError(
                 f"Expected name to be either `longest_common_prefix_length` or `edit_distance`, but got {name}."
             )
-        _handle_unused_kwargs(unused_kwargs)
 
         self.name = name
         self.metric_fn = metric_fns[name]
