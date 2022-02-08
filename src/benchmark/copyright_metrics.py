@@ -90,11 +90,10 @@ class BasicCopyrightMetric(Metric):
 
         Example:
             input: A
-            generations: [AABC, AMD]
-            reference: AAD
+            generations: [A A B C, A M D]
+            reference: A A D
             returns: 2
-            explanation: The longest common prefix is AA (between AABC and AAD).
-                We assume A, B, C, D, M are all separate tokens.
+            explanation: The longest common prefix is A A (between A A B C and A A D).
         """
         references = request_state.instance.references
         num_references = len(references)
@@ -107,6 +106,8 @@ class BasicCopyrightMetric(Metric):
         request_result: RequestResult = request_state.result
         for completion in request_result.completions:
             completion = completion.text.strip()
+            # `reference` is the entire remaining book for each instance.
+            # Truncate it here to be of the same length as the completion to ensure edit-distance is meaningful.
             truncated_reference = reference[: len(completion)]
 
             completion_tokens = self.tokenizer.tokenize(completion)
