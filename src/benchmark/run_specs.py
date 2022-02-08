@@ -93,6 +93,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_boolq_spec()]
     if name == "boolq_contrast_sets":
         return [get_boolq_contrast_sets_spec()]
+    if name == "copyright":
+        return [get_copyright_spec(**args)]
 
     raise ValueError(f"Unknown run spec: {spec}")
 
@@ -258,7 +260,7 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
- 
+
 
 def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.copyright_scenario.CopyrightScenario", args=dict())
