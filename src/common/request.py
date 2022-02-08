@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
-from .general import indent_lines
+from .general import indent_lines, format_text
 
 
 @dataclass(frozen=True)
@@ -80,8 +80,10 @@ class Token:
     top_logprobs: Dict[str, float]
 
     def render_lines(self) -> List[str]:
+        top_logprobs_entries = sorted(self.top_logprobs.items(), key=lambda entry: -entry[1])
+        top_logprobs_str = "{" + ", ".join(f"{format_text(text)}: {logprob}" for text, logprob in top_logprobs_entries) + "}"
         return [
-            f"{json.dumps(self.text)} logprob={self.logprob} top_logprobs={json.dumps(self.top_logprobs)}",
+            f"{format_text(self.text)} logprob={self.logprob} top_logprobs={top_logprobs_str}",
         ]
 
 

@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+import json
 from typing import List, Optional
 
 from common.object_spec import ObjectSpec, create_object
-from common.general import format_tags
+from common.general import format_text, format_tags, indent_lines
 
 # Tags for instances
 TRAIN_TAG = "train"
@@ -34,7 +35,7 @@ class Reference:
         return CORRECT_TAG in self.tags
 
     def render_lines(self) -> List[str]:
-        return [f"reference ({format_tags(self.tags)}): {self.output}"]
+        return [f"reference {format_tags(self.tags)}: {format_text(self.output)}"]
 
 
 @dataclass(frozen=True, eq=False)
@@ -63,7 +64,7 @@ class Instance:
         return None
 
     def render_lines(self) -> List[str]:
-        info = [f"input: {self.input}"]
+        info = [f"input: {format_text(self.input)}"]
         for reference in self.references:
             info.extend(reference.render_lines())
         return info
@@ -89,7 +90,7 @@ class Scenario(ABC):
     # Extra metadata (e.g., whether this is a question answering or commonsense task)
     tags: List[str]
 
-    # To be set by the `Runner`
+    # To be set by the `Runner` (for caching data)
     output_path: str
 
     @abstractmethod
@@ -103,17 +104,16 @@ class Scenario(ABC):
     def render_lines(self, instances: List[Instance]) -> List[str]:
         total = len(instances)
         output = [
-            f"Name: {self.name}",
-            f"Description: {self.description}",
-            f"Tags: {format_tags(self.tags)}",
-            f"{total} instances",
+            f"name: {self.name}",
+            f"description: {self.description}",
+            f"tags: {format_tags(self.tags)}",
             "",
         ]
 
         for i, instance in enumerate(instances):
-            output.append(f"------- Instance {i + 1}/{total}: {format_tags(instance.tags)}")
-            output.extend(instance.render_lines())
-            output.append("")
+            output.append(f"instance {i}/{total} {format_tags(instance.tags)} {{")
+            output.extend(indent_lines(instance.render_lines()))
+            output.append("}")
         return output
 
 

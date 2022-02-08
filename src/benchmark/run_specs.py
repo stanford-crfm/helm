@@ -1,6 +1,7 @@
 from typing import List, Dict
 
 from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
+from common.object_spec import ObjectSpec
 from .scenario import ScenarioSpec
 from .adapter import (
     AdapterSpec,
@@ -54,6 +55,25 @@ def get_lpm_metrics() -> List[MetricSpec]:
 
 
 ############################################################
+
+def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
+    """
+    Takes a specification (name, args) and returns a list of `RunSpec`s.
+    """
+    # Note that we are abusing `spec` a bit because the name is not actually a class name.
+    name = spec.class_name
+    args = spec.args
+    if name == "simple1":
+        return [get_run_spec1()]
+    if name == "mmlu":
+        return [get_mmlu_spec(**args)]
+    if name == "twitter_aae":
+        return [get_twitter_aae_spec(**args)]
+    if name == "real_toxicity_prompts":
+        return [get_real_toxicity_prompts_spec()]
+    if name == "lpm":
+        return [get_lpm_spec(**args)]
+    raise ValueError(f"Unknown run spec: {description}")
 
 
 def get_run_spec1() -> RunSpec:

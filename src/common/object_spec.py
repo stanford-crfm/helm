@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 
 @dataclass(frozen=True)
@@ -21,3 +21,25 @@ def create_object(spec: ObjectSpec):
     for component in components[1:]:
         module = getattr(module, component)
     return module(**spec.args)
+
+
+def parse_object_spec(description: str) -> ObjectSpec:
+    """
+    Parse `description` into an `ObjectSpec`.
+    `description` has the format:
+        <class_name>:<key>=<value>,<key>=<value>
+    Usually, the description is something that's succinct and can be typed on the command-line.
+    Here, value defaults to string.
+    """
+
+    def parse_arg(arg: str) -> Tuple[str, Any]:
+        key, value = arg.split("=", 1)
+        return (key, value)
+
+    if ":" in description:
+        name, args_str = description.split(":", 1)
+        args: Dict[str, Any] = dict(parse_arg(arg) for arg in args_str.split(","))
+    else:
+        name = description
+        args = {}
+    return ObjectSpec(name, args)

@@ -85,9 +85,17 @@ def ensure_file_downloaded(source_url: str, target_path: str, unpack: bool = Fal
     hlog(f"Finished downloading {source_url} to {target_path}")
 
 
+def format_text(text: str) -> str:
+    return json.dumps(text)
+
+
+def format_text_lines(text: str) -> List[str]:
+    return text.split("\n")
+
+
 def format_tags(tags: List[str]) -> str:
     """Takes a list of tags and outputs a string: tag_1,tag_2,...,tag_n"""
-    return f"{','.join(tags)}"
+    return f"[{','.join(tags)}]"
 
 
 def serialize(obj: dataclass) -> List[str]:
@@ -105,4 +113,4 @@ def write(file_path: str, content: str):
 def indent_lines(lines: List[str], count: int = 2) -> List[str]:
     """Add `count` spaces before each line in `lines`."""
     prefix = " " * count
-    return [prefix + line for line in lines]
+    return [prefix + line if len(line) > 0 else "" for line in lines]

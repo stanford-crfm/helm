@@ -3,7 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Optional
 
-from common.general import serialize, indent_lines
+from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from .scenario import Instance, Scenario, TRAIN_TAG, VALID_TAG, TEST_TAG
@@ -105,6 +105,11 @@ class RequestState:
 
         output.append("instance {")
         output.extend(indent_lines(self.instance.render_lines()))
+        output.append("}")
+
+        # Part of request but render multiline
+        output.append("request.prompt {")
+        output.extend(indent_lines(format_text_lines(self.request.prompt)))
         output.append("}")
 
         output.append("request {")
