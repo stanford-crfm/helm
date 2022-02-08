@@ -83,8 +83,7 @@ class Runner:
         scenario_dict = asdict(scenario)
         scenario_dict["instances"] = [asdict(instance) for instance in scenario_state.instances]
         write(
-            os.path.join(runs_path, "scenario.txt"),
-            "\n".join(scenario.render_lines(scenario_state.instances)),
+            os.path.join(runs_path, "scenario.txt"), "\n".join(scenario.render_lines(scenario_state.instances)),
         )
         write(os.path.join(runs_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
 

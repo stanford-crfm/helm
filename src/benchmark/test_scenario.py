@@ -1,5 +1,5 @@
 from .scenario import create_scenario, Scenario
-from .test_utils import get_scenario_spec_tiny
+from .run_specs import get_scenario_spec_tiny
 
 
 class TestScenario:
