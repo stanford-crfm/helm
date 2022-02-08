@@ -189,7 +189,7 @@ class Adapter:
 
         <input>
 
-    2. [multiple_choice_label] We can define a label (e.g., letter) for each reference:
+    2. [multiple_choice] We can define a label (e.g., letter) for each reference:
 
         <instructions>
 
@@ -242,7 +242,8 @@ class Adapter:
         shared across all eval instances.
         """
         # Create instances
-        instances = scenario.get_instances()
+        with htrack_block("scenario.get_instances"):
+            instances = scenario.get_instances()
 
         # Pick out training instances
         all_train_instances = [instance for instance in instances if TRAIN_TAG in instance.tags]
