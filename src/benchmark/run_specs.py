@@ -79,22 +79,24 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     # Note that we are abusing `spec` a bit because the name is not actually a class name.
     name = spec.class_name
     args = spec.args
-    if name == "simple1":
-        return [get_run_spec1()]
-    if name == "mmlu":
-        return [get_mmlu_spec(**args)]
-    if name == "twitter_aae":
-        return [get_twitter_aae_spec(**args)]
-    if name == "real_toxicity_prompts":
-        return [get_real_toxicity_prompts_spec()]
-    if name == "lpm":
-        return [get_lpm_spec(**args)]
+
+    # Place these alphabetically
     if name == "boolq":
         return [get_boolq_spec()]
     if name == "boolq_contrast_sets":
         return [get_boolq_contrast_sets_spec()]
     if name == "copyright":
         return [get_copyright_spec(**args)]
+    if name == "lpm":
+        return [get_lpm_spec(**args)]
+    if name == "mmlu":
+        return [get_mmlu_spec(**args)]
+    if name == "real_toxicity_prompts":
+        return [get_real_toxicity_prompts_spec()]
+    if name == "simple1":
+        return [get_run_spec1()]
+    if name == "twitter_aae":
+        return [get_twitter_aae_spec(**args)]
 
     raise ValueError(f"Unknown run spec: {spec}")
 
