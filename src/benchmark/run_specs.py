@@ -257,7 +257,7 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
         max_tokens=1,
     )
     return RunSpec(
-        name="boolq-contrast-sets",
+        name="boolq_contrast_sets",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),

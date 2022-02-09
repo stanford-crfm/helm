@@ -27,9 +27,14 @@ READY_STATUS = "READY"
 WIP_STATUS = "WIP"
 
 
-class Runner:
-    def __init__(self, auth: Authentication, url: str, output_path: str, status_path: str, num_threads: int):
+class AllRunner:
+    """Runs all RunSpecs specified in the configuration file."""
+
+    def __init__(
+        self, auth: Authentication, conf_path: str, url: str, output_path: str, status_path: str, num_threads: int
+    ):
         self.auth: Authentication = auth
+        self.conf_path: str = conf_path
         self.url: str = url
         self.output_path: str = output_path
         self.status_path: str = status_path
@@ -37,7 +42,7 @@ class Runner:
 
     def run(self):
         hlog("Reading RunSpecs from run_specs.conf...")
-        with open("presentation/run_specs.conf") as f:
+        with open(self.conf_path) as f:
             conf = parse_hocon(f.read())
 
         # Keep track of the output of READY and WIP RunSpecs separately
@@ -53,6 +58,8 @@ class Runner:
         hlog("Running all RunSpecs...")
         runs_dir: str = os.path.join(self.output_path, "runs")
         for run_spec, run_spec_state in tqdm(conf.items()):
+            # We placed double quotes around the descriptions since they can have colons.
+            # Remove the double quotes from the descriptions.
             run_spec = run_spec.replace('"', "")
             status: str = run_spec_state.status
 
@@ -83,9 +90,10 @@ class Runner:
 
 
 def main():
-    runner = Runner(
+    runner = AllRunner(
         auth=create_authentication(args),
-        url=args.url,
+        conf_path=args.conf_path,
+        url=args.server_url,
         output_path=args.output_path,
         status_path=args.status_path,
         num_threads=args.num_threads,
@@ -97,6 +105,9 @@ def main():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_service_args(parser)
+    parser.add_argument(
+        "--conf-path", help="Where to read RunSpecs to run from", default="presentation/run_specs.conf",
+    )
     parser.add_argument(
         "-o", "--output-path", help="Where to save all the benchmarking output", default="benchmark_output",
     )

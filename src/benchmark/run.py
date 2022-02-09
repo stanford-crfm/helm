@@ -52,7 +52,7 @@ def main():
     run_benchmarking(
         args.run_specs,
         auth=auth,
-        url=args.url,
+        url=args.server_url,
         num_threads=args.num_threads,
         output_path=args.output_path,
         dry_run=args.dry_run,
