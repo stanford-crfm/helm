@@ -302,7 +302,7 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
         )
 
     return RunSpec(
-        name="copyright",
+        name=f"copyright:pilot_study={pilot_study}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),
