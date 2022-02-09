@@ -85,6 +85,13 @@ class TestRemoteServerService:
         response = self.service.make_request(self.auth, request)
         assert response.success
 
+    def test_make_request_plus_sign(self):
+        # Ensure + in prompt doesn't get replaced by a blank space
+        request = Request(prompt="+", model="simple/model1")
+        response = self.service.make_request(self.auth, request)
+        assert response.completions[0].text == "+"
+        assert response.success
+
     def test_update_account(self):
         account = self.service.get_account(self.auth)
         assert account.api_key == "crfm"

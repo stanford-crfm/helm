@@ -52,26 +52,26 @@ This is done, but just for the record:
 
 #### Perspective API
 
-We use Google's [Perspective API](https://www.perspectiveapi.com) to calculate the toxicity of completions. 
-To send requests to PerspectiveAPI, we need to generate an API key from GCP. Follow the 
-[Get Started guide](https://developers.perspectiveapi.com/s/docs-get-started) 
-to request the service and the [Enable the API guide](https://developers.perspectiveapi.com/s/docs-enable-the-api) 
+We use Google's [Perspective API](https://www.perspectiveapi.com) to calculate the toxicity of completions.
+To send requests to PerspectiveAPI, we need to generate an API key from GCP. Follow the
+[Get Started guide](https://developers.perspectiveapi.com/s/docs-get-started)
+to request the service and the [Enable the API guide](https://developers.perspectiveapi.com/s/docs-enable-the-api)
 to generate the API key. Once you have a valid API key, add an entry to `credentials.conf`:
 
 ```
 perspectiveApiKey: <Generated API key>
 ```
 
-By default, Perspective API allows only 1 query per second. Fill out this 
+By default, Perspective API allows only 1 query per second. Fill out this
 [form](https://developers.perspectiveapi.com/s/request-quota-increase) to increase the request quota.
 
-The [current API key](https://console.cloud.google.com/apis/api/commentanalyzer.googleapis.com/overview?authuser=1&project=hai-gcp-models) 
-we are using in production was created with the `hai-gcp-models` account and allows 100 queries per second. 
+The [current API key](https://console.cloud.google.com/apis/api/commentanalyzer.googleapis.com/overview?authuser=1&project=hai-gcp-models)
+we are using in production was created with the `hai-gcp-models` account and allows 100 queries per second.
 **The API key expires on 4/15/2022.**
 
 #### SSL
 
-The SSL certificate, CSR and private key for crfm-models.stanford.edu is stored at `/home/ssl`. 
+The SSL certificate, CSR and private key for crfm-models.stanford.edu is stored at `/home/ssl`.
 **The current SSL certificate expires on 12/30/2022.**
 
 To renew the SSL certificate, follow these steps:
@@ -83,11 +83,11 @@ To renew the SSL certificate, follow these steps:
     1. For `Contact group/mailman address`, enter your Stanford email address.
     1. Under `Copy and paste your CSR`, paste the content of `/home/ssl/public.csr`.
     1. Leave the optional fields blank and click `Submit`.
-    1. You should receive your certificate by email within 2 business days.   
-2. Once you receive the SSL cert, concatenate the contents of `X509 Certificate only, Base64 encoded` 
-   with the contents of `X509 Intermediates/root only Reverse, Base64 encoded` 
+    1. You should receive your certificate by email within 2 business days.
+2. Once you receive the SSL cert, concatenate the contents of `X509 Certificate only, Base64 encoded`
+   with the contents of `X509 Intermediates/root only Reverse, Base64 encoded`
    and place it at path `/home/ssl/crfm-models.crt`. `crfm-models.crt` should look something like this:
-   
+
    ```text
     -----BEGIN CERTIFICATE-----
     (Your Primary SSL certificate: .crt)
@@ -122,7 +122,7 @@ A challenge password []:
 An optional company name []:
 ```
 
-Then, follow the steps above to request for a new SSL certificate. 
+Then, follow the steps above to request for a new SSL certificate.
 
 ### Every time we need to deploy:
 
@@ -191,14 +191,16 @@ Examples of running the benchmark:
 
     venv/bin/benchmark-run
     venv/bin/benchmark-run -r mmlu:subject=philosophy
+    venv/bin/benchmark-run -r lpm:difficulty=easy
     venv/bin/benchmark-run -r twitter_aae:demographic=aa
+    venv/bin/benchmark-run -r copyright:pilot_study=true
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
 
 ### To estimate token usage
 
-To estimate token usage without making any requests, append the `--dry-run` option: 
+To estimate token usage without making any requests, append the `--dry-run` option:
 
     venv/bin/benchmark-run -r <RunSpec to estimate token usage> --dry-run
 
@@ -206,14 +208,14 @@ For example, running `venv/bin/benchmark-run -r real_toxicity_prompts --dry-run`
 
 ```text
   Stats {
-    openai/davinci_estimated_number_of_tokens[min=505.000, mean=514.957, max=536.000, sum=514957.000, (1000)]
+    openai/davinci_estimated_number_of_tokens[min=505.000, mean=514.957, max=536.000, sum=514957.000 (1000)]
   }
 ```
 
 where `sum` indicates the estimated total number of tokens used for the specific `RunSpec`.
 
-For the OpenAI models, we use a 
-[GPT-2 Tokenizer](https://github.com/stanford-crfm/benchmarking/blob/master/src/proxy/tokenizer/openai_token_counter.py#L12) 
+For the OpenAI models, we use a
+[GPT-2 Tokenizer](https://github.com/stanford-crfm/benchmarking/blob/master/src/proxy/tokenizer/openai_token_counter.py#L12)
 to estimate the token usage. The tokenizer will be downloaded and cached when running a dry run.
 
 ## Final benchmarking (Infrastructure team only)
@@ -234,7 +236,7 @@ Once all the runs complete, visit the
 ## One-time setup
 
 To contribute to this project, install the dependencies and git hook scripts:
-  
+
     ./pre-commit.sh && pre-commit install
 
 ## Tests
