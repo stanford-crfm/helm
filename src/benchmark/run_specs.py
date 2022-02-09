@@ -105,7 +105,7 @@ def get_run_spec1() -> RunSpec:
 
 
 def get_mmlu_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject},)
+    scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject})
 
     def format(subject: str):
         return subject.replace("_", " ")
@@ -186,7 +186,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
 
 
 def get_lpm_spec(difficulty: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.lpm_scenario.LPMScenario", args={"difficulty": difficulty},)
+    scenario = ScenarioSpec(class_name="benchmark.lpm_scenario.LPMScenario", args={"difficulty": difficulty})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
