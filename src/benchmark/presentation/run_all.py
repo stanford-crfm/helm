@@ -15,8 +15,8 @@ from proxy.remote_service import add_service_args, create_authentication
 Script that runs all the RunSpecs in run_specs.conf and outputs a status page.
 
 Usage:
-    
-    python3 presentation/run_all.py -s <Where to output the status page>
+
+    venv/bin/benchmark-aggregate -s <Where to output the status page>
 
 """
 
@@ -58,8 +58,10 @@ class AllRunner:
         hlog("Running all RunSpecs...")
         runs_dir: str = os.path.join(self.output_path, "runs")
         for run_spec, run_spec_state in tqdm(conf.items()):
-            # We placed double quotes around the descriptions since they can have colons.
-            # Remove the double quotes from the descriptions.
+            # We placed double quotes around the descriptions since they can have colons or equal signs.
+            # There is a bug with pyhocon. pyhocon keeps the double quote when there is a ".", ":" or "=" in the string:
+            # https://github.com/chimpler/pyhocon/issues/267
+            # We have to manually remove the double quotes from the descriptions.
             run_spec = run_spec.replace('"', "")
             status: str = run_spec_state.status
 
@@ -90,23 +92,10 @@ class AllRunner:
 
 
 def main():
-    runner = AllRunner(
-        auth=create_authentication(args),
-        conf_path=args.conf_path,
-        url=args.server_url,
-        output_path=args.output_path,
-        status_path=args.status_path,
-        num_threads=args.num_threads,
-    )
-    runner.run()
-    hlog("\nDone.")
-
-
-if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_service_args(parser)
     parser.add_argument(
-        "--conf-path", help="Where to read RunSpecs to run from", default="presentation/run_specs.conf",
+        "--conf-path", help="Where to read RunSpecs to run from", default="src/benchmark/presentation/run_specs.conf"
     )
     parser.add_argument(
         "-o", "--output-path", help="Where to save all the benchmarking output", default="benchmark_output",
@@ -122,4 +111,13 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    main()
+    runner = AllRunner(
+        auth=create_authentication(args),
+        conf_path=args.conf_path,
+        url=args.server_url,
+        output_path=args.output_path,
+        status_path=args.status_path,
+        num_threads=args.num_threads,
+    )
+    runner.run()
+    hlog("\nDone.")

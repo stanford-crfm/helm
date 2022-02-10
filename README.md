@@ -225,7 +225,7 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Go to the source code directory: `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
    We have 700 GB of disk space total on `/u/scr/nlp/crfm`.
 1. Pull the latest changes: `git pull`.
-1. Run `python3 presentation/run_all.py -s /u/apache/htdocs/crfm/benchmarking/status.txt`.
+1. Run `venv/bin/benchmark-aggregate -s /u/apache/htdocs/crfm/benchmarking/status.txt`.
 1. Exit the screen session: `ctrl+ad`.
 
 Once all the runs complete, visit the 
