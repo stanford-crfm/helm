@@ -4,7 +4,7 @@ from dataclasses import dataclass, asdict
 from typing import List
 
 from benchmark.metric_service import MetricService
-from common.general import ensure_directory_exists, write
+from common.general import ensure_directory_exists, write, write_lines
 from common.hierarchical_logger import hlog, htrack_block
 from .scenario import Scenario, ScenarioSpec, create_scenario
 from .adapter import AdapterSpec, Adapter, ScenarioState
@@ -43,7 +43,6 @@ class Runner:
     def run_all(self):
         for run_spec in self.run_specs:
             self.run_one(run_spec)
-        hlog("\nDone.")
 
     def run_one(self, run_spec: RunSpec):
         # Load the scenario
@@ -55,7 +54,7 @@ class Runner:
         ensure_directory_exists(scenarios_path)
         scenario.output_path = os.path.join(scenarios_path, scenario.name)
         ensure_directory_exists(scenario.output_path)
-        runs_path = os.path.join(scenario.output_path, "runs", run_spec.name)
+        runs_path = os.path.join(self.output_path, "runs", run_spec.name)
         ensure_directory_exists(runs_path)
 
         # Adaptation
@@ -83,14 +82,11 @@ class Runner:
         # Output benchmarking information and results to files
         scenario_dict = asdict(scenario)
         scenario_dict["instances"] = [asdict(instance) for instance in scenario_state.instances]
-        write(
-            os.path.join(scenario.output_path, "scenario.txt"),
-            "\n".join(scenario.render_lines(scenario_state.instances)),
-        )
-        write(os.path.join(scenario.output_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
+        write_lines(os.path.join(runs_path, "scenario.txt"), scenario.render_lines(scenario_state.instances))
+        write(os.path.join(runs_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
 
-        write(os.path.join(runs_path, "scenario_state.txt"), "\n".join(scenario_state.render_lines()))
+        write_lines(os.path.join(runs_path, "scenario_state.txt"), scenario_state.render_lines())
         write(os.path.join(runs_path, "scenario_state.json"), json.dumps(asdict(scenario_state), indent=2))
 
-        write(os.path.join(runs_path, "metrics.txt"), "\n".join(str(stat) for stat in stats))
+        write_lines(os.path.join(runs_path, "metrics.txt"), [str(stat) for stat in stats])
         write(os.path.join(runs_path, "metrics.json"), json.dumps([asdict(stat) for stat in stats], indent=2))

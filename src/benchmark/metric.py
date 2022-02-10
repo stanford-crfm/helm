@@ -22,7 +22,7 @@ class Metric(ABC):
 
     def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
         """
-        Main entry point for a `Metric`.  This function groups the the single
+        Main entry point for a `Metric`.  This function groups the single
         list of `RequestState` by training trial and instance, and invokes
         other functions to process those.  This should serve most purposes.
 
