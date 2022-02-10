@@ -12,11 +12,11 @@ from benchmark.run import run_benchmarking
 from proxy.remote_service import add_service_args, create_authentication
 
 """
-Script that runs all the RunSpecs in run_specs.conf and outputs a status page.
+Runs all the RunSpecs in run_specs.conf and outputs a status page.
 
 Usage:
 
-    venv/bin/benchmark-aggregate -s <Where to output the status page>
+    venv/bin/benchmark-present -s <Where to output the status page>
 
 """
 
