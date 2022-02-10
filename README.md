@@ -182,7 +182,7 @@ There are three types of classes:
   subclass name and a free-form dictionary of arguments.
 - States (e.g., `Instance`, `ScenarioState`, `Request`, `RequestResult`): these
   are automatically generated and can be serialized.
-- Controllers (e.g., `Scenario`, `Adapter`, `Executor`, `Metric, `Runner`):
+- Controllers (e.g., `Scenario`, `Adapter`, `Executor`, `Metric`, `Runner`):
   these have the bulk of the code and should not be serialized.
 
 ## Running the benchmark
@@ -217,6 +217,19 @@ where `sum` indicates the estimated total number of tokens used for the specific
 For the OpenAI models, we use a
 [GPT-2 Tokenizer](https://github.com/stanford-crfm/benchmarking/blob/master/src/proxy/tokenizer/openai_token_counter.py#L12)
 to estimate the token usage. The tokenizer will be downloaded and cached when running a dry run.
+
+## Final benchmarking (Infrastructure team only)
+
+1. Running all the `RunSpec`s can take a long time, so use SCDT: `ssh scdt`.
+1. Create a screen session: `screen -S benchmarking`.   
+1. Go to the source code directory: `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
+   We have 700 GB of disk space total on `/u/scr/nlp/crfm`.
+1. Pull the latest changes: `git pull`.
+1. Run `venv/bin/benchmark-present -s /u/apache/htdocs/crfm/benchmarking/status.txt`.
+1. Exit the screen session: `ctrl+ad`.
+
+Once all the runs complete, visit the 
+[Benchmarking project status page](https://nlp.stanford.edu/crfm/benchmarking/status.txt).
 
 # Contributing
 

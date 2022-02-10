@@ -79,22 +79,24 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     # Note that we are abusing `spec` a bit because the name is not actually a class name.
     name = spec.class_name
     args = spec.args
-    if name == "simple1":
-        return [get_run_spec1()]
-    if name == "mmlu":
-        return [get_mmlu_spec(**args)]
-    if name == "twitter_aae":
-        return [get_twitter_aae_spec(**args)]
-    if name == "real_toxicity_prompts":
-        return [get_real_toxicity_prompts_spec()]
-    if name == "lpm":
-        return [get_lpm_spec(**args)]
+
+    # Place these alphabetically
     if name == "boolq":
         return [get_boolq_spec()]
     if name == "boolq_contrast_sets":
         return [get_boolq_contrast_sets_spec()]
     if name == "copyright":
         return [get_copyright_spec(**args)]
+    if name == "lpm":
+        return [get_lpm_spec(**args)]
+    if name == "mmlu":
+        return [get_mmlu_spec(**args)]
+    if name == "real_toxicity_prompts":
+        return [get_real_toxicity_prompts_spec()]
+    if name == "simple1":
+        return [get_run_spec1()]
+    if name == "twitter_aae":
+        return [get_twitter_aae_spec(**args)]
 
     raise ValueError(f"Unknown run spec: {spec}")
 
@@ -110,7 +112,7 @@ def get_run_spec1() -> RunSpec:
 
 
 def get_mmlu_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject},)
+    scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject})
 
     def format(subject: str):
         return subject.replace("_", " ")
@@ -191,7 +193,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
 
 
 def get_lpm_spec(difficulty: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.lpm_scenario.LPMScenario", args={"difficulty": difficulty},)
+    scenario = ScenarioSpec(class_name="benchmark.lpm_scenario.LPMScenario", args={"difficulty": difficulty})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -255,7 +257,7 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
         max_tokens=1,
     )
     return RunSpec(
-        name="boolq-contrast-sets",
+        name="boolq_contrast_sets",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -300,7 +302,7 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
         )
 
     return RunSpec(
-        name="copyright",
+        name=f"copyright:pilot_study={pilot_study}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),

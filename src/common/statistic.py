@@ -10,6 +10,7 @@ class Stat:
     count: int
     min: float
     max: float
+    sum: float
     mean: float
 
     def __init__(self, name: str):
