@@ -102,7 +102,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             input_prefix="",
             output_prefix="\nAnswer: ",
             max_train_instances=0,
-            max_eval_instances=1000,
+            max_eval_instances=10,
             num_outputs=10,
             num_train_trials=1,
             model="openai/davinci",
@@ -115,6 +115,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             metrics=get_basic_metrics({"names": ["exact_match"]}),
         )
     elif method == "clm":
+        n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             conditioning_prefix="",
@@ -122,7 +123,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             input_prefix="",
             output_prefix="",
             max_train_instances=0,
-            max_eval_instances=8000,
+            max_eval_instances=10 * n_choice * 2,
             num_outputs=10,
             max_tokens=0,
             num_train_trials=1,
@@ -133,7 +134,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             name=f"dataset={dataset},method={method}",
             scenario=scenario,
             adapter_spec=adapter_spec,
-            metrics=get_commonsense_qa_metrics({"n_choice": 4}),
+            metrics=get_commonsense_qa_metrics({"n_choice": n_choice}),
         )
     else:
         raise ValueError(f"Unknown commonsense QA method: {method}")
