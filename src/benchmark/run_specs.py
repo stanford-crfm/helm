@@ -91,6 +91,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_lpm_spec(**args)]
     if name == "mmlu":
         return [get_mmlu_spec(**args)]
+    if name == "narrativeqa":
+        return [get_narrativeqa_spec()]
     if name == "real_toxicity_prompts":
         return [get_real_toxicity_prompts_spec()]
     if name == "simple1":
@@ -306,4 +308,29 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),
+    )
+
+
+def get_narrativeqa_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.narrativeqa_scenario.NarrativeQAScenario", args=dict())
+
+    # TODO: Similar problem to the BoolQ scenario.
+    # Prompts are too long in the few-shot setting (>2048 tokens)
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=3,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Remove this once deployed
+        num_outputs=1,
+        max_tokens=5,
+        temperature=0.0,
+    )
+    return RunSpec(
+        name="narrativeqa",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["f1_score"]}),
     )

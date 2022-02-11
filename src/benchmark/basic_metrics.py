@@ -4,10 +4,15 @@ from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_service import MetricService
+from nltk.metrics.scores import f_measure
 
 
 def exact_match(gold: str, pred: str) -> float:
     return 1 if gold == pred else 0
+
+
+def f1_score(gold: str, pred: str) -> float:
+    return f_measure(set(gold.split()), set(pred.split()), alpha=0.5)
 
 
 def get_num_bytes(text: str) -> int:
@@ -80,6 +85,7 @@ class BasicMetric(Metric):
             "exact_match": exact_match,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
+            "f1_score": f1_score,
         }
 
         reference_metrics = []
