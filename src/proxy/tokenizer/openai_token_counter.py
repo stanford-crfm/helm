@@ -6,7 +6,10 @@ from transformers import GPT2TokenizerFast
 
 
 class OpenAITokenCounter(TokenCounter):
-    # TODO: Add link to documentation
+
+    # From https://beta.openai.com/docs/introduction/key-concepts, "one limitation to keep in mind is that your
+    # text prompt and generated completion combined must be no more than the model's maximum context length
+    # (for most models this is 2048 tokens, or about 1500 words)."
     MAX_CONTEXT_TOKEN_LENGTH = 2049
 
     def __init__(self):
@@ -39,6 +42,16 @@ class OpenAITokenCounter(TokenCounter):
     def tokenize_and_count(self, text: str) -> int:
         """Count the number of tokens for a given text using the GPT-2 tokenizer."""
         return len(self.tokenizer.encode(text))
+
+    def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
+        """
+        Checks if the given text fits within the GPT-3 context window taking to account
+        the expected completion length (defaults to 0).
+        """
+        return (
+            self.tokenize_and_count(text) + expected_completion_token_length
+            <= OpenAITokenCounter.MAX_CONTEXT_TOKEN_LENGTH
+        )
 
     def truncate(self, text: str) -> str:
         """Tokenizes and truncates text to fit within the GPT-3 context window."""

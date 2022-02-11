@@ -5,17 +5,21 @@ from .openai_token_counter import OpenAITokenCounter
 
 
 class TestOpenAITokenCounter:
+
+    # The following prompt has 51 tokens according to the GPT-2 tokenizer
+    TEST_PROMPT: str = (
+        "The Center for Research on Foundation Models (CRFM) is "
+        "an interdisciplinary initiative born out of the Stanford "
+        "Institute for Human-Centered Artificial Intelligence (HAI) "
+        "that aims to make fundamental advances in the study, development, "
+        "and deployment of foundation models."
+    )
+
     def setup_method(self, method):
         self.token_counter = OpenAITokenCounter()
 
     def test_count_tokens(self):
-        request = Request(
-            prompt="The Center for Research on Foundation Models (CRFM) is "
-            "an interdisciplinary initiative born out of the Stanford "
-            "Institute for Human-Centered Artificial Intelligence (HAI) "
-            "that aims to make fundamental advances in the study, development, "
-            "and deployment of foundation models."
-        )
+        request = Request(prompt=TestOpenAITokenCounter.TEST_PROMPT)
         completions: List[Sequence] = [
             Sequence(
                 text=" The CRFM is dedicated to advancing our knowledge of the foundations of artificial intelligence "
@@ -62,15 +66,23 @@ class TestOpenAITokenCounter:
         assert self.token_counter.count_tokens(request, completions) == 51 + 32
 
     def test_estimate_tokens(self):
-        request = Request(
-            prompt="The Center for Research on Foundation Models (CRFM) is "
-            "an interdisciplinary initiative born out of the Stanford "
-            "Institute for Human-Centered Artificial Intelligence (HAI) "
-            "that aims to make fundamental advances in the study, development, "
-            "and deployment of foundation models.",
-            num_completions=3,
-            max_tokens=100,
-        )
+        request = Request(prompt=TestOpenAITokenCounter.TEST_PROMPT, num_completions=3, max_tokens=100)
 
         # Prompt + max number of tokens from completions = 51 + 3 * 100
         assert self.token_counter.estimate_tokens(request) == 51 + 3 * 100
+
+    def test_fits_within_context_window(self):
+        # Should fit in the context window since we subtracted the number of tokens of the test prompt
+        # from the max context window
+        assert self.token_counter.fits_within_context_window(TestOpenAITokenCounter.TEST_PROMPT, 2049 - 51)
+        # Should not fit in the context window because we're expecting one more extra token in the completion
+        assert not self.token_counter.fits_within_context_window(TestOpenAITokenCounter.TEST_PROMPT, 2049 - 51 + 1)
+
+    def test_truncate(self):
+        # Create a prompt that exceed max context length: 51 * 41 = 2091 tokens
+        long_prompt: str = TestOpenAITokenCounter.TEST_PROMPT * 41
+        assert not self.token_counter.fits_within_context_window(long_prompt)
+
+        # Truncate and ensure it fits within the context window
+        truncated_long_prompt: str = self.token_counter.truncate(long_prompt)
+        assert self.token_counter.fits_within_context_window(truncated_long_prompt)

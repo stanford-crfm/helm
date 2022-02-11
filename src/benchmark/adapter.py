@@ -7,6 +7,7 @@ from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from .scenario import Instance, Scenario, TRAIN_TAG, VALID_TAG, TEST_TAG
+from proxy.tokenizer.openai_token_counter import OpenAITokenCounter
 
 
 # Methods of adaptation
@@ -233,6 +234,14 @@ class Adapter:
     def __init__(self, adapter_spec: AdapterSpec):
         self.adapter_spec = adapter_spec
 
+        # We use the OpenAI tokenizer to fit prompts within the context window for two reasons:
+        # 1. The tokenizer used for the Jurassic models was not made public. Instead, they have
+        #    a tokenizer API, which we want to avoid calling to limit the number of requests we
+        #    make to AI21.
+        # 2. The Jurassic tokenizer is coarser than the GPT-3 tokenizer, so if the prompt fits
+        #    within the GPT-3 context window, it should also fit in the Jurassic context window.
+        self.token_counter = OpenAITokenCounter()
+
     @htrack(None)
     def adapt(self, scenario: Scenario) -> ScenarioState:
         """
@@ -277,8 +286,7 @@ class Adapter:
 
             # Create request_states
             for eval_index, eval_instance in enumerate(eval_instances):
-                prompt = self.construct_prompt(train_instances, eval_instance)
-                # TODO: truncate here -Tony?
+                prompt: str = self.construct_prompt(train_instances, eval_instance)
 
                 # Just print one prompt (useful for debugging)
                 if train_trial_index == 0 and eval_index == 0:
@@ -346,20 +354,46 @@ class Adapter:
         - the `train_instances` (in-context training examples)
         - the input part of the `eval_instance`
         - the `reference` (if provided)
+
+        Fits the prompt within the context window by removing in-context training examples.
         """
-        # Instructions
-        blocks = []
 
-        if self.adapter_spec.instructions:
-            blocks.append(self.adapter_spec.instructions)
+        def construct_prompt_helper(train_instances: List[Instance]) -> str:
+            # Instructions
+            blocks = []
 
-        # In-context training instances
-        for instance in train_instances:
-            blocks.append(self.construct_example_prompt(instance, include_output=True))
+            if self.adapter_spec.instructions:
+                blocks.append(self.adapter_spec.instructions)
 
-        blocks.append(self.construct_example_prompt(eval_instance, include_output=False))
+            # In-context training instances
+            for instance in train_instances:
+                blocks.append(self.construct_example_prompt(instance, include_output=True))
 
-        return self.adapter_spec.conditioning_prefix + "\n\n".join(blocks)
+            blocks.append(self.construct_example_prompt(eval_instance, include_output=False))
+
+            return self.adapter_spec.conditioning_prefix + "\n\n".join(blocks)
+
+        orig_train_instances_count: int = len(train_instances)
+        prompt: str = construct_prompt_helper(train_instances)
+
+        # Following what was done for MMLU to handle prompts that exceed the max context length,
+        # we remove train instances one by one until it fits within the context window.
+        while (
+            not self.token_counter.fits_within_context_window(prompt, self.adapter_spec.max_tokens)
+            and len(train_instances) > 0
+        ):
+            train_instances = train_instances[:-1]
+            prompt = construct_prompt_helper(train_instances)
+
+        removed_train_instances_count: int = orig_train_instances_count - len(train_instances)
+        if removed_train_instances_count > 0:
+            hlog(
+                f"The original constructed prompt exceeded the max context length. Removed "
+                f"{removed_train_instances_count} in-context examples to fit it within the context window."
+            )
+
+        # If removing the in-context example is still not enough, we simply truncate the prompt.
+        return self.token_counter.truncate(prompt)
 
     def construct_example_prompt(self, instance: Instance, include_output: bool) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
