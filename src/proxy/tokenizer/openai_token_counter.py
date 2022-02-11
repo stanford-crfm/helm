@@ -7,9 +7,8 @@ from transformers import GPT2TokenizerFast
 
 class OpenAITokenCounter(TokenCounter):
 
-    # From https://beta.openai.com/docs/introduction/key-concepts, "one limitation to keep in mind is that your
-    # text prompt and generated completion combined must be no more than the model's maximum context length
-    # (for most models this is 2048 tokens, or about 1500 words)."
+    # From https://help.openai.com/en/articles/5072518-controlling-the-length-of-completions,
+    # "these requests can use up to 2,049 tokens, shared between prompt and completion."
     MAX_CONTEXT_TOKEN_LENGTH = 2049
 
     def __init__(self):

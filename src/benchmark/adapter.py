@@ -377,7 +377,8 @@ class Adapter:
         prompt: str = construct_prompt_helper(train_instances)
 
         # Following what was done for MMLU to handle prompts that exceed the max context length,
-        # we remove train instances one by one until it fits within the context window.
+        # we remove train instances one by one until it fits within the context window or
+        # until we run out of train instances to remove.
         while (
             not self.token_counter.fits_within_context_window(prompt, self.adapter_spec.max_tokens)
             and len(train_instances) > 0
