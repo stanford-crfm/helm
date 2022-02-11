@@ -6,6 +6,8 @@ from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
 from functools import partial
 
+MULTI_CHOICE_QUESTION_ANSWERING_METHOD = "mcqa"
+CAUSAL_LANGUAGE_MODELING_METHOD = "clm"
 CLM_CORRECT_TAG = "clm_correct"
 
 
@@ -37,7 +39,7 @@ class CommonSenseQAScenario(Scenario):
         self.dataset = dataset
         assert self.dataset in ["hellaswag", "openbookqa", "commonsenseqa", "piqa", "siqa"]
         self.method = method
-        assert self.method in ["mcqa", "clm"]
+        assert self.method in [MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD]
 
     @staticmethod
     def process_hellaswag_item(item):
@@ -243,13 +245,13 @@ class CommonSenseQAScenario(Scenario):
             return Reference(output=answer, tags=[correct_tag] if answer == correct_answer else [])
 
         for (question, answers, correct_answer, split) in data:
-            if self.method == "mcqa":
+            if self.method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
                 answer_to_reference_mcqa = partial(answer_to_reference, correct_tag=CORRECT_TAG)
                 instance = Instance(
                     input=question, references=list(map(answer_to_reference_mcqa, answers)), tags=[splits[split]],
                 )
                 instances.append(instance)
-            elif self.method == "clm":
+            elif self.method == CAUSAL_LANGUAGE_MODELING_METHOD:
                 answer_to_reference_clm = partial(answer_to_reference, correct_tag=CLM_CORRECT_TAG)
                 for answer in answers:
                     instance1 = Instance(

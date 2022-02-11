@@ -2,6 +2,7 @@ from typing import List, Dict, Any
 
 from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from .scenario import ScenarioSpec
+from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .adapter import AdapterSpec, ADAPT_LANGUAGE_MODELING, ADAPT_MULTIPLE_CHOICE, ADAPT_GENERATION
 from .metric import MetricSpec
 from .runner import RunSpec
@@ -94,7 +95,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
         args={"dataset": dataset, "method": method,},
     )
 
-    if method == "mcqa":
+    if method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE,
             conditioning_prefix="",
@@ -114,7 +115,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             adapter_spec=adapter_spec,
             metrics=get_basic_metrics({"names": ["exact_match"]}),
         )
-    elif method == "clm":
+    elif method == CAUSAL_LANGUAGE_MODELING_METHOD:
         n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
