@@ -81,13 +81,12 @@ class CommonSenseQAMetric(Metric):
             self.evaluate_generation(adapter_spec, request_state, metric_service)
             for request_state in reference_request_states
         ]
-        answers = [
-            i // 2
-            for i, request_state in enumerate(reference_request_states)
-            if CLM_CORRECT_TAG in request_state.instance.references[0].tags
-        ]
-        assert len(answers) == 2 and answers[0] == answers[1]
-        answer = answers[0]
+        choice_labels = [
+            CLM_CORRECT_TAG in request_state.instance.references[0].tags
+            for request_state in reference_request_states[::2]
+        ]  # [::2] because each choice has two requests: one w/ context and one w/o context
+        assert choice_labels.count(True) == 1
+        answer = choice_labels.index(True)
 
         # Original: sum of token logprob in answer given context / num of tokens in answer
         original_logprobs = [stats[i][0].mean / stats[i][1].mean for i in range(0, self.n_request_per_instance, 2)]
