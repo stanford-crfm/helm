@@ -217,8 +217,7 @@ class CommonSenseQAScenario(Scenario):
         for split in split_to_file:
             file_path = split_to_file[split]
             if not os.path.exists(file_path):
-                hlog(f"{file_path} doesn't exist, skipping")
-                continue
+                raise FileNotFoundError(f"File not found: {file_path}")
 
             hlog(f"Reading {file_path}")
             with open(file_path) as f:
