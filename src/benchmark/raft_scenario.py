@@ -12,10 +12,10 @@ from .scenario import Scenario, Instance, Reference, TRAIN_TAG, TEST_TAG, CORREC
 PROMPT_SETTINGS_URL = "https://www.dropbox.com/s/a5cyevryzw8rt4f/prompt_construction_settings.json?dl=0"
 
 
-def get_raft_instructions(subset: str):
-    # Load prompt construction settings
-    tmp_dir = tempfile.gettempdir()
-    prompt_construction_settings_path = os.path.join(tmp_dir, "prompt_construction_settings.json")
+def get_raft_prompt_settings(subset: str, cache_dir=None):
+    if cache_dir is None:
+        cache_dir = tempfile.gettempdir()
+    prompt_construction_settings_path = os.path.join(cache_dir, "prompt_construction_settings.json")
     ensure_file_downloaded(
         source_url=PROMPT_SETTINGS_URL, target_path=prompt_construction_settings_path,
     )
@@ -24,7 +24,11 @@ def get_raft_instructions(subset: str):
 
     assert subset in instructions, "Unknown subset: {}".format(subset)
 
-    return instructions[subset]
+    return field_ordering[subset], instructions[subset]
+
+
+def get_raft_instructions(subset: str, cache_dir=None):
+    return get_raft_prompt_settings(subset, cache_dir)[1]
 
 
 class RAFTScenario(Scenario):
@@ -62,7 +66,6 @@ class RAFTScenario(Scenario):
     def __init__(self, subset: str, random_seed=42):
         self.subset = subset
         self.random_seed = random_seed
-        self.instructions = get_raft_instructions(subset)
         self.fields = None
         random.seed(random_seed)
 
@@ -70,14 +73,9 @@ class RAFTScenario(Scenario):
         # Skip if already loaded
         if self.fields:
             return
-        # Download prompt construction settings
-        prompt_construction_settings_path = str(Path(self.output_path) / "data" / "prompt_construction_settings.json")
-        ensure_file_downloaded(
-            source_url=PROMPT_SETTINGS_URL, target_path=prompt_construction_settings_path,
-        )
-        with open(prompt_construction_settings_path, "r") as f:
-            FIELD_ORDERING, _ = map(json.loads, f.read().strip().split("\n"))
-        self.fields = FIELD_ORDERING[self.subset]
+        # Load from prompt construction settings
+        cache_dir = str(Path(self.output_path) / "data")
+        self.fields = get_raft_prompt_settings(self.subset, cache_dir)[0]
 
     def get_instances(self) -> List[Instance]:
         self.load_prompt_construction_settings()
