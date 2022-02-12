@@ -91,11 +91,6 @@ def get_lpm_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
-def get_raft_metrics() -> List[MetricSpec]:
-    metric_names = {"names": ["exact_match"]}
-    return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
-
-
 def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
     if args is None:
         args = dict()
@@ -327,7 +322,10 @@ def get_raft_spec(subset: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"raft:subset={subset}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_raft_metrics(),
+        name=f"raft:subset={subset}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
 

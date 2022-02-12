@@ -11,18 +11,33 @@ from .scenario import Scenario, Instance, Reference, TRAIN_TAG, TEST_TAG, CORREC
 # TODO: replace with permalink
 PROMPT_SETTINGS_URL = "https://www.dropbox.com/s/a5cyevryzw8rt4f/prompt_construction_settings.json?dl=0"
 
+SUBSETS = [
+    "ade_corpus_v2",
+    "banking_77",
+    "neurips_impact_statement_risks",
+    "one_stop_english",
+    "overruling",
+    "semiconducto r_org_types",
+    "systematic_review_inclusion",
+    "tai_safety_research",
+    "terms_of_service",
+    "tweet_eval_hate",
+    "twitter_complaints",
+]
+
 
 def get_raft_prompt_settings(subset: str, cache_dir=None):
+    assert subset in SUBSETS, "Unknown subset: {}".format(subset)
+
     if cache_dir is None:
         cache_dir = tempfile.gettempdir()
+
     prompt_construction_settings_path = os.path.join(cache_dir, "prompt_construction_settings.json")
     ensure_file_downloaded(
         source_url=PROMPT_SETTINGS_URL, target_path=prompt_construction_settings_path,
     )
     with open(prompt_construction_settings_path, "r") as f:
         field_ordering, instructions = map(json.loads, f.read().strip().split("\n"))
-
-    assert subset in instructions, "Unknown subset: {}".format(subset)
 
     return field_ordering[subset], instructions[subset]
 
@@ -64,6 +79,7 @@ class RAFTScenario(Scenario):
     tags = ["text_classification", "robustness"]
 
     def __init__(self, subset: str, random_seed=42):
+        assert subset in SUBSETS, "Unknown subset: {}".format(subset)
         self.subset = subset
         self.random_seed = random_seed
         self.fields = None
