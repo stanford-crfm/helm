@@ -60,3 +60,17 @@ class TestOpenAITokenCounter:
 
         # Verified against https://beta.openai.com/tokenizer. Prompt + completions = 51 + 32.
         assert self.token_counter.count_tokens(request, completions) == 51 + 32
+
+    def test_estimate_tokens(self):
+        request = Request(
+            prompt="The Center for Research on Foundation Models (CRFM) is "
+            "an interdisciplinary initiative born out of the Stanford "
+            "Institute for Human-Centered Artificial Intelligence (HAI) "
+            "that aims to make fundamental advances in the study, development, "
+            "and deployment of foundation models.",
+            num_completions=3,
+            max_tokens=100,
+        )
+
+        # Prompt + max number of tokens from completions = 51 + 3 * 100
+        assert self.token_counter.estimate_tokens(request) == 51 + 3 * 100

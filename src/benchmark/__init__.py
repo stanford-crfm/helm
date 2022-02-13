@@ -10,3 +10,4 @@ from . import real_toxicity_prompts_scenario  # noqa
 from . import basic_metrics  # noqa
 from . import commonsense_qa_metrics  # noqa
 from . import toxicity_metrics  # noqa
+from . import tokens_metric  # noqa
