@@ -38,6 +38,7 @@ setup(
     entry_points={
         "console_scripts": [
             "benchmark-run=benchmark.run:main",
+            "benchmark-present=benchmark.presentation.present:main",
             "proxy-server=proxy.server:main",
             "proxy-cli=proxy.cli:main",
         ]

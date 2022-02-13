@@ -1,11 +1,18 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Optional, Any
 
 from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
-from .scenario import ScenarioSpec
-from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
-from .adapter import AdapterSpec, ADAPT_LANGUAGE_MODELING, ADAPT_MULTIPLE_CHOICE, ADAPT_GENERATION
+from common.object_spec import ObjectSpec
+
+from .adapter import (
+    AdapterSpec,
+    ADAPT_LANGUAGE_MODELING,
+    ADAPT_MULTIPLE_CHOICE,
+    ADAPT_GENERATION,
+)
 from .metric import MetricSpec
 from .runner import RunSpec
+from .scenario import ScenarioSpec
+from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -48,7 +55,57 @@ def get_toxicity_metrics(group_tags: List[str]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={"group_tags": group_tags})]
 
 
+def get_lpm_metrics() -> List[MetricSpec]:
+    metric_names = {"names": ["iou_set_match", "exact_set_match"]}
+    return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
+
+
+def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
+    if args is None:
+        args = dict()
+    return [
+        MetricSpec(
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric",
+            args={**args, "name": "longest_common_prefix_length"},
+        ),
+        MetricSpec(
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_distance"},
+        ),
+    ]
+
+
 ############################################################
+
+
+def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
+    """
+    Takes a specification (name, args) and returns a list of `RunSpec`s.
+    """
+    # Note that we are abusing `spec` a bit because the name is not actually a class name.
+    name = spec.class_name
+    args = spec.args
+
+    # Place these alphabetically
+    if name == "boolq":
+        return [get_boolq_spec()]
+    if name == "boolq_contrast_sets":
+        return [get_boolq_contrast_sets_spec()]
+    if name == "copyright":
+        return [get_copyright_spec(**args)]
+    if name == "lpm":
+        return [get_lpm_spec(**args)]
+    if name == "mmlu":
+        return [get_mmlu_spec(**args)]
+    if name == "commonsense_qa":
+        return [get_commonsense_qa_spec(**args)]
+    if name == "real_toxicity_prompts":
+        return [get_real_toxicity_prompts_spec()]
+    if name == "simple1":
+        return [get_run_spec1()]
+    if name == "twitter_aae":
+        return [get_twitter_aae_spec(**args)]
+
+    raise ValueError(f"Unknown run spec: {spec}")
 
 
 def get_run_spec1() -> RunSpec:
@@ -62,7 +119,7 @@ def get_run_spec1() -> RunSpec:
 
 
 def get_mmlu_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject},)
+    scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject})
 
     def format(subject: str):
         return subject.replace("_", " ")
@@ -82,7 +139,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"mmlu_subject={subject}",
+        name=f"mmlu:subject={subject}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -164,7 +221,7 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
     )
 
     return RunSpec(
-        name="twitter_aae_demographic={demographic}",
+        name=f"twitter_aae:demographic={demographic}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": []}),
@@ -193,4 +250,121 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_toxicity_metrics([TOXIC_TAG, NONTOXIC_TAG]),
+    )
+
+
+def get_lpm_spec(difficulty: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.lpm_scenario.LPMScenario", args={"difficulty": difficulty})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Please solve the following problem.",
+        max_train_instances=3,
+        max_eval_instances=100,
+        num_outputs=3,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0.2,
+        stop_sequences=["\n"],
+        max_tokens=20,
+        input_prefix="Rules:\n",
+        output_prefix="",
+    )
+
+    return RunSpec(
+        name=f"lpm:difficulty={difficulty}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_lpm_metrics()
+    )
+
+
+def get_boolq_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={})
+
+    # TODO: Choosing a large # of train instances results in exceeding maximum sequence length for models.
+    # What's the best way to solve this?
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Remove this once deployed
+        num_outputs=1,
+        max_tokens=1,
+    )
+    return RunSpec(
+        name="boolq",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_boolq_contrast_sets_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQContrastSetScenario", args={})
+    # TODO: Choosing a large # of train instances results in exceeding maximum sequence length for models.
+    # What's the best way to solve this?
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Remove this once deployed
+        num_outputs=1,
+        max_tokens=1,
+    )
+    return RunSpec(
+        name="boolq_contrast_sets",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.copyright_scenario.CopyrightScenario", args=dict())
+
+    # TODO(lxuechen): Loop over models and other hyperparameter combos in the future.
+    if pilot_study.lower() in ("t", "true"):
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            conditioning_prefix="",
+            instructions="",
+            input_prefix="",
+            output_prefix="",
+            max_train_instances=0,
+            num_train_trials=1,
+            temperature=0.7,
+            # Args that are different below.
+            max_eval_instances=100,
+            num_outputs=1,
+            model="simple/model1",
+            max_tokens=60,
+        )
+    else:
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            conditioning_prefix="",
+            instructions="",
+            input_prefix="",
+            output_prefix="",
+            max_train_instances=0,
+            num_train_trials=1,
+            temperature=0.7,
+            # Args that are different below.
+            max_eval_instances=None,
+            num_outputs=10,
+            model="openai/davinci",
+            max_tokens=2000,
+        )
+
+    return RunSpec(
+        name=f"copyright:pilot_study={pilot_study}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),
     )

@@ -10,6 +10,7 @@ class Stat:
     count: int
     min: float
     max: float
+    sum: float
     mean: float
 
     def __init__(self, name: str):
@@ -41,7 +42,7 @@ class Stat:
     def __repr__(self):
         return (
             f"{self.name}[min={self.min:.3f}, mean={self.mean:.3f}, max={self.max:.3f}, "
-            f"sum={self.sum:.3f}, ({self.count})]"
+            f"sum={self.sum:.3f} ({self.count})]"
         )
 
     @property
