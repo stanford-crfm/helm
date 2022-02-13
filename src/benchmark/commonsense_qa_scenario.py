@@ -29,6 +29,9 @@ class CommonSenseQAScenario(Scenario):
 
     The "SIQA" benchmark from this paper:
         https://arxiv.org/pdf/1904.09728.pdf
+
+    TODO: Make it available (multiple requests per instance + calibration)
+    in Adapter beyond the commonsense scenarios.
     """
 
     name = "commonsense_qa"

@@ -11,6 +11,8 @@ from .commonsense_qa_scenario import CLM_CORRECT_TAG
 class CommonSenseQAMetric(Metric):
     """
     Metrics for CommonsenseQA datasets using causal language modeling
+    TODO: Make it available (multiple requests per instance + calibration)
+    in Adapter beyond the commonsense scenarios.
     """
 
     def __init__(self, n_choice: int = 4):
