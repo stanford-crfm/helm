@@ -1,5 +1,6 @@
-from typing import Dict
-from dataclasses import dataclass
+from typing import Dict, List
+from dataclasses import dataclass, field
+import random
 
 
 @dataclass
@@ -12,14 +13,17 @@ class Stat:
     max: float
     sum: float
     mean: float
+    values: List[float] = field(default_factory=list)
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, num_values: int = 300):
         self.name = name
+        self.num_values = num_values
         self.count = 0
         self.sum = 0
         self.sum_squared = 0
         self.min = float("+inf")
         self.max = float("-inf")
+        self.values = []
 
     def add(self, x) -> "Stat":
         if isinstance(x, bool):
@@ -29,6 +33,14 @@ class Stat:
         self.sum_squared += x * x
         self.min = min(self.min, x)
         self.max = max(self.max, x)
+        if len(self.values) < self.num_values:
+            self.values.append(x)
+        else:
+            # Remove existing value from sketch with probability n/n+1.
+            index_to_remove = random.randint(0, self.num_values)
+            if index_to_remove < self.num_values:
+                self.values.pop(index_to_remove)
+                self.values.append(x)
         return self
 
     def merge(self, other: "Stat") -> "Stat":
@@ -37,6 +49,11 @@ class Stat:
         self.sum_squared += other.sum_squared
         self.min = min(self.min, other.min)
         self.max = max(self.max, other.max)
+        self.values.extend(other.values)
+        # Remove values with probability 1/len(self.values) if list is too long.
+        while len(self.values) > self.num_values:
+            index_to_remove = random.randint(0, len(self.values) - 1)
+            self.values.pop(index_to_remove)
         return self
 
     def __repr__(self):
