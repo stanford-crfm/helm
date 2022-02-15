@@ -74,3 +74,18 @@ class TestOpenAITokenCounter:
 
         # Prompt + max number of tokens from completions = 51 + 3 * 100
         assert self.token_counter.estimate_tokens(request) == 51 + 3 * 100
+
+    def test_estimate_tokens_with_echo_prompt(self):
+        request = Request(
+            prompt="The Center for Research on Foundation Models (CRFM) is "
+            "an interdisciplinary initiative born out of the Stanford "
+            "Institute for Human-Centered Artificial Intelligence (HAI) "
+            "that aims to make fundamental advances in the study, development, "
+            "and deployment of foundation models.",
+            echo_prompt=True,
+            num_completions=1,
+            max_tokens=0,
+        )
+
+        # Prompt + Prompt (echoed) = 51 + 51
+        assert self.token_counter.estimate_tokens(request) == 51 + 51
