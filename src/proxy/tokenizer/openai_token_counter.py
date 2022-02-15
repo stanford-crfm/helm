@@ -30,8 +30,14 @@ class OpenAITokenCounter(TokenCounter):
         when estimating number of tokens. Formula:
 
             num_tokens(prompt) + num_completions * max_tokens
+
+        Add num_tokens(prompt) if Request.echo_prompt is True.
         """
-        return self.tokenize_and_count(request.prompt) + request.num_completions * request.max_tokens
+        num_tokens_in_prompt: int = self.tokenize_and_count(request.prompt)
+        total_estimated_tokens: int = num_tokens_in_prompt + request.num_completions * request.max_tokens
+        if request.echo_prompt:
+            total_estimated_tokens += num_tokens_in_prompt
+        return total_estimated_tokens
 
     def tokenize_and_count(self, text: str):
         """Count the number of tokens for a given text using the GPT-2 tokenizer."""
