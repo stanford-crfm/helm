@@ -15,15 +15,24 @@ class Stat:
     mean: float
     values: List[float] = field(default_factory=list)
 
-    def __init__(self, name: str, num_values: int = 300):
+    def __init__(self, name: str, values_buffer_size: int = 300):
         self.name = name
-        self.num_values = num_values
+        self.values_buffer_size = values_buffer_size
         self.count = 0
         self.sum = 0
         self.sum_squared = 0
         self.min = float("+inf")
         self.max = float("-inf")
         self.values = []
+
+    def _add_to_values(self, x: float):
+        if len(self.values) < self.values_buffer_size:
+            self.values.append(x)
+        else:
+            # Remove existing value from sketch with probability n/n+1.
+            index_to_remove = random.randint(0, self.values_buffer_size)
+            if index_to_remove < self.values_buffer_size:
+                self.values[index_to_remove] = x
 
     def add(self, x) -> "Stat":
         if isinstance(x, bool):
@@ -33,14 +42,7 @@ class Stat:
         self.sum_squared += x * x
         self.min = min(self.min, x)
         self.max = max(self.max, x)
-        if len(self.values) < self.num_values:
-            self.values.append(x)
-        else:
-            # Remove existing value from sketch with probability n/n+1.
-            index_to_remove = random.randint(0, self.num_values)
-            if index_to_remove < self.num_values:
-                self.values.pop(index_to_remove)
-                self.values.append(x)
+        self._add_to_values(x)
         return self
 
     def merge(self, other: "Stat") -> "Stat":
@@ -49,11 +51,8 @@ class Stat:
         self.sum_squared += other.sum_squared
         self.min = min(self.min, other.min)
         self.max = max(self.max, other.max)
-        self.values.extend(other.values)
-        # Remove values with probability 1/len(self.values) if list is too long.
-        while len(self.values) > self.num_values:
-            index_to_remove = random.randint(0, len(self.values) - 1)
-            self.values.pop(index_to_remove)
+        for x in other.values:
+            self._add_to_values(x)
         return self
 
     def __repr__(self):
