@@ -95,7 +95,4 @@ class TestOpenAITokenCounter:
 
         # Truncate and ensure it fits within the context window
         truncated_long_prompt: str = self.token_counter.truncate_from_right("openai/davinci", long_prompt)
-        import pdb
-
-        pdb.set_trace()
         assert self.token_counter.fits_within_context_window("openai/davinci", truncated_long_prompt)

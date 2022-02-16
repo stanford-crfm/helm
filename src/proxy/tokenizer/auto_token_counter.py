@@ -44,8 +44,8 @@ class AutoTokenCounter(TokenCounter):
 
     def fits_within_context_window(self, model: str, text: str, expected_completion_token_length: int = 0) -> bool:
         """
-        Whether for a given a model and expected token length of the completion, the given text fits within
-        the context window.
+        Whether the given text fits within the context window given the model
+        and expected token length of the completion.
         """
         token_counter: TokenCounter = self.get_token_counter(organization=model.split("/")[0])
         return token_counter.fits_within_context_window(model, text, expected_completion_token_length)
