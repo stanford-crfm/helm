@@ -5,6 +5,7 @@ from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_service import MetricService
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
+from proxy.tokenizer.token_counter import TokenCounter
 
 
 def exact_match(gold: str, pred: str) -> float:
@@ -51,7 +52,7 @@ class BasicMetric(Metric):
 
     def __init__(self, names: List[str]):
         self.names = names
-        self.auto_token_counter: AutoTokenCounter = AutoTokenCounter()
+        self.token_counter: TokenCounter = AutoTokenCounter()
 
     def compute_reference_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -117,7 +118,7 @@ class BasicMetric(Metric):
         num_tokens: int = sum([len(sequence.tokens) for sequence in request_state.result.completions])
         # Account for the tokens in prompt as well if echo_prompt is False
         if not request_state.request.echo_prompt:
-            num_tokens_in_prompt: int = self.auto_token_counter.tokenize_and_count(
+            num_tokens_in_prompt: int = self.token_counter.tokenize_and_count(
                 model=request_state.request.model, text=request_state.request.prompt
             )
             num_tokens += num_tokens_in_prompt
