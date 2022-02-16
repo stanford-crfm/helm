@@ -7,7 +7,7 @@ from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from .scenario import Instance, Scenario, TRAIN_TAG, VALID_TAG, TEST_TAG
-from proxy.tokenizer.openai_token_counter import OpenAITokenCounter
+from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 
 
 # Methods of adaptation
@@ -233,14 +233,7 @@ class Adapter:
 
     def __init__(self, adapter_spec: AdapterSpec):
         self.adapter_spec = adapter_spec
-
-        # We use the OpenAI tokenizer to fit prompts within the context window for two reasons:
-        # 1. The tokenizer used for the Jurassic models was not made public. Instead, they have
-        #    a tokenizer API, which we want to avoid calling to limit the number of requests we
-        #    make to AI21.
-        # 2. The Jurassic tokenizer is coarser than the GPT-3 tokenizer, so if the prompt fits
-        #    within the GPT-3 context window, it should also fit in the Jurassic context window.
-        self.token_counter = OpenAITokenCounter()
+        self.token_counter = AutoTokenCounter()
 
     @htrack(None)
     def adapt(self, scenario: Scenario) -> ScenarioState:
@@ -376,11 +369,16 @@ class Adapter:
         orig_train_instances_count: int = len(train_instances)
         prompt: str = construct_prompt_helper(train_instances)
 
-        # Following what was done for MMLU to handle prompts that exceed the max context length,
+        # Following what was done for MMLU (https://arxiv.org/abs/2009.03300) to handle prompts that
+        # exceed the max context length (https://github.com/hendrycks/test/blob/master/evaluate.py#L58),
         # we remove train instances one by one until it fits within the context window or
         # until we run out of train instances to remove.
         while (
-            not self.token_counter.fits_within_context_window(prompt, self.adapter_spec.max_tokens)
+            not self.token_counter.fits_within_context_window(
+                model=self.adapter_spec.model,
+                text=prompt,
+                expected_completion_token_length=self.adapter_spec.max_tokens,
+            )
             and len(train_instances) > 0
         ):
             train_instances = train_instances[:-1]
@@ -394,7 +392,8 @@ class Adapter:
             )
 
         # If removing the in-context example is still not enough, we simply truncate the prompt.
-        return self.token_counter.truncate(prompt)
+        # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
+        return self.token_counter.truncate_from_right(self.adapter_spec.model, prompt)
 
     def construct_example_prompt(self, instance: Instance, include_output: bool) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""

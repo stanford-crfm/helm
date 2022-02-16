@@ -35,14 +35,23 @@ class OpenAITokenCounter(TokenCounter):
         when estimating number of tokens. Formula:
 
             num_tokens(prompt) + num_completions * max_tokens
+
+        Add num_tokens(prompt) if Request.echo_prompt is True.
         """
-        return self.tokenize_and_count(request.prompt) + request.num_completions * request.max_tokens
+        num_tokens_in_prompt: int = self.tokenize_and_count(request.prompt)
+        total_estimated_tokens: int = num_tokens_in_prompt + request.num_completions * request.max_tokens
+
+        # We should add the number of tokens in the prompt twice when echo_prompt is True because OpenAI counts
+        # both the tokens in the prompt and the completions, which in this case, the original prompt is included.
+        if request.echo_prompt:
+            total_estimated_tokens += num_tokens_in_prompt
+        return total_estimated_tokens
 
     def tokenize_and_count(self, text: str) -> int:
         """Count the number of tokens for a given text using the GPT-2 tokenizer."""
         return len(self.tokenizer.encode(text))
 
-    def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
+    def fits_within_context_window(self, model: str, text: str, expected_completion_token_length: int = 0) -> bool:
         """
         Checks if the given text fits within the GPT-3 context window taking to account
         the expected completion length (defaults to 0).
@@ -52,7 +61,16 @@ class OpenAITokenCounter(TokenCounter):
             <= OpenAITokenCounter.MAX_CONTEXT_TOKEN_LENGTH
         )
 
-    def truncate(self, text: str) -> str:
-        """Tokenizes and truncates text to fit within the GPT-3 context window."""
-        tokens: List[int] = self.tokenizer.encode(text)
-        return self.tokenizer.decode(tokens[: OpenAITokenCounter.MAX_CONTEXT_TOKEN_LENGTH])
+    def truncate_from_right(self, model: str, text: str) -> str:
+        """
+        Truncates text from the right to fit within the GPT-3 context window.
+
+        By default, HuggingFace uses the 'longest_first' truncation strategy:
+        "Iteratively reduce the inputs sequence until the input is under max_length starting from the longest one
+        at each token (when there is a pair of input sequences)."
+
+        Since we are only passing in a single string, the tokenizer will simply truncate from the right.
+        """
+        return self.tokenizer.decode(
+            self.tokenizer.encode(text, truncation=True, max_length=OpenAITokenCounter.MAX_CONTEXT_TOKEN_LENGTH)
+        )

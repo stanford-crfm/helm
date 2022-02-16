@@ -21,7 +21,9 @@ def test_adapter1():
 
 
 def test_construct_prompt():
-    adapter_spec = AdapterSpec(method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=100)
+    adapter_spec = AdapterSpec(
+        model="openai/davinci", method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=100
+    )
     adapter = Adapter(adapter_spec)
     correct_reference = Reference(output="", tags=[CORRECT_TAG])
     train_instances: List[Instance] = [
@@ -31,7 +33,15 @@ def test_construct_prompt():
     prompt: str = adapter.construct_prompt(train_instances, eval_instances)
 
     # Ensure the prompt fits within the context window
-    assert adapter.token_counter.fits_within_context_window(prompt)
+    assert adapter.token_counter.fits_within_context_window(adapter_spec.model, prompt)
 
     # Ensure the in-context examples were removed before touching the evaluation instance
     assert prompt.endswith("eval")
+
+    # Using a Jurassic model should yield the same prompt as using a GPT-3 model,
+    # since we use a GPT-2 tokenizer to truncate prompts for both.
+    adapter_spec = AdapterSpec(
+        model="ai21/j1-jumbo", method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=100
+    )
+    adapter = Adapter(adapter_spec)
+    assert adapter.construct_prompt(train_instances, eval_instances) == prompt
