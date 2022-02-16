@@ -40,6 +40,12 @@ class AI21TokenCounter(TokenCounter):
         """
         return request.num_completions * request.max_tokens
 
+    def tokenize_and_count(self, model: str, text: str) -> int:
+        """
+        Tokenizes text and counts number of tokens using the OpenAITokenCounter.
+        """
+        return self.openai_token_counter.tokenize_and_count(model, text)
+
     def fits_within_context_window(self, model: str, text: str, expected_completion_token_length: int) -> bool:
         """
         For a given a model and expected token length of the completion, checks if the given text fits within

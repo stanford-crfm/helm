@@ -77,6 +77,9 @@ class TestOpenAITokenCounter:
         # Prompt + Prompt (echoed) = 51 + 51
         assert self.token_counter.estimate_tokens(request) == 51 + 51
 
+    def test_tokenize_and_count(self):
+        assert self.token_counter.tokenize_and_count("openai/davinci", TestOpenAITokenCounter.TEST_PROMPT) == 51
+
     def test_fits_within_context_window(self):
         # Should fit in the context window since we subtracted the number of tokens of the test prompt
         # from the max context window

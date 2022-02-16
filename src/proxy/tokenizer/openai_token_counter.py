@@ -24,7 +24,7 @@ class OpenAITokenCounter(TokenCounter):
         TODO: OpenAI will support counting the number of tokens for us. Adapt this method accordingly.
               https://github.com/stanford-crfm/benchmarking/issues/59
         """
-        n_tokens: int = self.tokenize_and_count(request.prompt)
+        n_tokens: int = self.tokenize_and_count(request.model, request.prompt)
         for sequence in completions:
             n_tokens += len(sequence.tokens)
         return n_tokens
@@ -38,7 +38,7 @@ class OpenAITokenCounter(TokenCounter):
 
         Add num_tokens(prompt) if Request.echo_prompt is True.
         """
-        num_tokens_in_prompt: int = self.tokenize_and_count(request.prompt)
+        num_tokens_in_prompt: int = self.tokenize_and_count(request.model, request.prompt)
         total_estimated_tokens: int = num_tokens_in_prompt + request.num_completions * request.max_tokens
 
         # We should add the number of tokens in the prompt twice when echo_prompt is True because OpenAI counts
@@ -47,7 +47,7 @@ class OpenAITokenCounter(TokenCounter):
             total_estimated_tokens += num_tokens_in_prompt
         return total_estimated_tokens
 
-    def tokenize_and_count(self, text: str) -> int:
+    def tokenize_and_count(self, model: str, text: str) -> int:
         """Count the number of tokens for a given text using the GPT-2 tokenizer."""
         return len(self.tokenizer.encode(text))
 
@@ -57,7 +57,7 @@ class OpenAITokenCounter(TokenCounter):
         the expected completion length (defaults to 0).
         """
         return (
-            self.tokenize_and_count(text) + expected_completion_token_length
+            self.tokenize_and_count(model, text) + expected_completion_token_length
             <= OpenAITokenCounter.MAX_CONTEXT_TOKEN_LENGTH
         )
 

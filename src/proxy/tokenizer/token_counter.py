@@ -20,6 +20,13 @@ class TokenCounter(ABC):
         pass
 
     @abstractmethod
+    def tokenize_and_count(self, model: str, text: str) -> int:
+        """
+        Tokenizes the text and counts the number of tokens.
+        """
+        pass
+
+    @abstractmethod
     def fits_within_context_window(self, model: str, text: str, expected_completion_token_length: int) -> bool:
         """
         Whether the given text fits within the context window given the model and
