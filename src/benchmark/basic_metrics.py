@@ -40,6 +40,12 @@ def exact_set_match(gold: str, pred: str) -> float:
     pred_set = set(pred.split(" is ")[-1].split(" and "))
     return float(gold_set == pred_set)
 
+def code_eval(gold: str, pred: str) -> float:
+    """Evaluate Code Correctness on test examples"""
+    ###### Warning: will execute machine generated code; need to sandbox before executing this 
+    # TODO
+    return False
+
 
 class BasicMetric(Metric):
     """
@@ -83,6 +89,7 @@ class BasicMetric(Metric):
             "exact_match": exact_match,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
+            "code_eval": code_eval,
         }
 
         reference_metrics = []

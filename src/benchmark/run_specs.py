@@ -73,6 +73,11 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
         ),
     ]
 
+def get_code_metrics() -> List[MetricSpec]:
+    metric_names = {"names": ["code_eval"]}
+    return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
+
+
 
 ############################################################
 
@@ -104,6 +109,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_run_spec1()]
     if name == "twitter_aae":
         return [get_twitter_aae_spec(**args)]
+    if name == "code":
+        return [get_code_spec(**args)]
 
     raise ValueError(f"Unknown run spec: {spec}")
 
@@ -368,3 +375,27 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),
     )
+
+
+def get_code_spec(dataset: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.code_scenario.CodeScenario", args={"dataset": dataset})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Please solve the following problem.",
+        max_train_instances=4,
+        max_eval_instances=160,
+        num_outputs=3,
+        num_train_trials=1,
+        model="simple/model1",
+        temperature=0.2,
+        stop_sequences=['\nclass', '\ndef', '\n#', '\nif', '\nprint',],
+        max_tokens=1000,
+        input_prefix="",
+        output_prefix="",
+    )
+
+    return RunSpec(
+        name=f"code:dataset={dataset}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_code_metrics()
+    )
+
