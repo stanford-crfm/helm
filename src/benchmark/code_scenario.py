@@ -96,9 +96,7 @@ class CodeScenario(Scenario):
                 cur_tag = TEST_TAG
             instance = Instance(
                 input=problems[task_id]["prompt"], references=[
-                    Reference(output=problems[task_id]["canonical_solution"], tags=[CORRECT_TAG]),
-                    Reference(output=problems[task_id]["test"], tags=[CORRECT_TAG]),
-                    Reference(output=problems[task_id]["entry_point"], tags=[CORRECT_TAG]),
+                    Reference(output=problems[task_id]["canonical_solution"], data = problems[task_id], tags=[CORRECT_TAG]),
                 ], tags=[cur_tag],
             )
             instances.append(instance)

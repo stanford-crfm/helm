@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from common.object_spec import ObjectSpec, create_object
 from common.general import format_text, format_tags, indent_lines
@@ -26,6 +26,9 @@ class Reference:
     # The output text
     output: str
 
+    # Extra Info for testing (e.g., code test cases)
+    data: Dict
+        
     # Extra metadata (e.g., whether it's correct/factual/toxic)
     tags: List[str]
 
