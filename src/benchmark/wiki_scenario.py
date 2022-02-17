@@ -1,9 +1,11 @@
 import csv
+from email.policy import default
 import os
 from typing import List
 from collections import defaultdict
 import re
 import pdb
+import json
 
 from pyparsing import delimited_list
 from transformers import DEBERTA_PRETRAINED_CONFIG_ARCHIVE_MAP
@@ -11,6 +13,8 @@ from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
 
+
+flatten_list=lambda l: sum(map(flatten_list, l),[]) if isinstance(l,list) else [l]
 
 class WIKIScenario(Scenario):
     """
@@ -20,8 +24,9 @@ class WIKIScenario(Scenario):
     description = "Fact Completion in WikiData"
     tags = ["knowledge", "generation"]
 
-    def __init__(self):
-        pass
+    def __init__(self, subject: str):
+        self.subject = subject
+        assert subject in ['P31', 'P17', 'P131', 'P279', 'P20', 'P19', 'P27', 'P106', 'P127', 'P138', 'P30', 'P361', 'P407', 'P50', 'P136', 'P527', 'P57', 'P364', 'P495', 'P69', 'P1412', 'P47', 'P413', 'P54', 'P159', 'P170', 'P276', 'P108', 'P176', 'P86', 'P264', 'P1923', 'P1303', 'P449', 'P102', 'P101', 'P140', 'P39', 'P452', 'P463', 'P103', 'P166', 'P1001', 'P61', 'P178', 'P36', 'P306', 'P277', 'P937', 'P6', 'P737', 'P1906', 'P5826', 'P740', 'P135', 'P414', 'P1313', 'P1591', 'P1376', 'P2176', 'P355', 'P37', 'P189', 'P2175', 'P2568', 'P122', 'P190', 'P2293', 'P38', 'P780', 'P111', 'P35', 'P2384', 'P8111', 'P530', 'P1304', 'P3014', 'P1620', 'P1136', 'P4006', 'P4044']
 
     def get_instances(self) -> List[Instance]:
         # Download the raw data
@@ -30,48 +35,47 @@ class WIKIScenario(Scenario):
 
         # Read all the instances
         instances = []
-        qid2name = defaultdict(list)
-        with open(os.path.join(data_path, "names.tsv")) as f:
-            reader = csv.reader(f, delimiter="\t")
-            for row in reader:
-                qid2name[row[0]].append(row[1])
+        splits = {
+            "train": TRAIN_TAG,
+            "dev": VALID_TAG,
+            "test": TEST_TAG,
+        }
 
-        def answer_to_reference(answer):
-            references = []
-            if re.match("^[Q][0-9]+", answer) is not None:  # QID as answer, use qid2name to convert it to a string
-                # assert answer in qid2name
-                for name in qid2name[answer]:
-                    references.append(Reference(output=" "+name+".", tags=[CORRECT_TAG]))
-            else:
-                references.append(Reference(output=answer, tags=[CORRECT_TAG]))
-            return references
+        for split in splits:
+            json_path = os.path.join(data_path, f"{split}.jsonl")
 
-        def check_valid_references(references):
-            return len(references) > 0
-
-        sentence_ends = defaultdict(int)
-        with open(os.path.join(data_path, "data.tsv")) as f:
-            reader = csv.reader(f, delimiter="\t")
-            for idx, row in enumerate(reader):
-                question, answer = row[0], row[1]
-                if idx < 32227 or idx >= 32247:
+            hlog(f"Reading {json_path}")
+            with open(json_path) as f:
+                all_raw_data = f.readlines()
+            for line in all_raw_data:
+                raw_data = json.loads(line)
+                if raw_data['property'] != self.subject:
                     continue
-                references = answer_to_reference(answer)
-                if not check_valid_references(references):
-                    continue
-                sentence_ends[question[-1]] += 1
-                # if question[-1] != " ":
-                #     question += " "
-                if idx < 32232:
-                    instance = Instance(input=question, references=references, tags=[TRAIN_TAG],)
-                else:
-                    instance = Instance(input=question, references=references, tags=[TEST_TAG],)
+                question, answers = raw_data['template'], flatten_list(raw_data['result_names'])
+
+                def answer_to_reference(answer):
+                    return Reference(output=" "+answer.strip(), tags=[CORRECT_TAG])
+
+                instance = Instance(
+                    input=question, references=list(map(answer_to_reference, answers)), tags=[splits[split]],
+                )
                 instances.append(instance)
+        
         return instances
 
 
 if __name__ == "__main__":
-    s = WIKIScenario()
+    # f = open("benchmark_output/scenarios/wiki/data/test.jsonl").readlines()
+    # t = defaultdict(int)
+    # for line in f:
+    #     r = json.loads(line)
+    #     t[len(r['result_names'])] += 1
+    #     if len(r['result_names']) != 1:
+    #         print(r)
+    #         pdb.set_trace()
+    # print(t)
+    # exit(-1)
+    s = WIKIScenario(subject='P31')
     s.output_path = "benchmark_output/scenarios/wiki"
     i = s.get_instances()
     for ii in i:
