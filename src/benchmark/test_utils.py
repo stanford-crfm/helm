@@ -72,12 +72,39 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         max_eval_instances=1000,
         num_outputs=10,
         num_train_trials=1,
-        model="openai/davinci",
+        # model="openai/davinci",
+        model="simple/model1",
         temperature=0,
     )
 
     return RunSpec(
         name=f"mmlu_subject={subject}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_wiki_spec(k: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.wiki_scenario.WIKIScenario", args={},)
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=5,
+        max_eval_instances=15,
+        num_outputs=int(k),
+        model="openai/davinci",
+        # model="simple/model1",
+        temperature=1,
+        max_tokens=8,
+        stop_sequences=["."],
+    )
+
+    return RunSpec(
+        name=f"wiki_top{k}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
