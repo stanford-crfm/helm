@@ -26,11 +26,11 @@ class Reference:
     # The output text
     output: str
 
-    # Extra Info for testing (e.g., code test cases)
-    data: Dict
-        
     # Extra metadata (e.g., whether it's correct/factual/toxic)
     tags: List[str]
+
+    # Extra Info for testing (e.g., code test cases)
+    data: Dict = {}
 
     @property
     def is_correct(self) -> bool:

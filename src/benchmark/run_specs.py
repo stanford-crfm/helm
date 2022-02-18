@@ -73,10 +73,10 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
         ),
     ]
 
+
 def get_code_metrics() -> List[MetricSpec]:
     metric_names = {"names": ["code_eval"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
-
 
 
 ############################################################
@@ -384,13 +384,14 @@ def get_code_spec(dataset: str) -> RunSpec:
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
         max_train_instances=4,
-        max_eval_instances=160,
-        num_outputs=3,
+        max_eval_instances=2,
+        num_outputs=1,
         num_train_trials=1,
-        model="simple/model1",
+        model="openai/code-davinci-001",
         temperature=0.2,
-        stop_sequences=['\nclass', '\ndef', '\n#', '\nif', '\nprint',],
-        max_tokens=1000,
+        stop_sequences=["\nclass", "\ndef", "\n#", "\nif", "\nprint",],
+        # stop_sequences = [],
+        max_tokens=200,
         input_prefix="",
         output_prefix="",
     )
@@ -398,4 +399,3 @@ def get_code_spec(dataset: str) -> RunSpec:
     return RunSpec(
         name=f"code:dataset={dataset}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_code_metrics()
     )
-

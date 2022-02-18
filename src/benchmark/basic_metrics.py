@@ -17,8 +17,7 @@ from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from proxy.tokenizer.token_counter import TokenCounter
 
 
-def check_correctness(problem: Dict, completion: str, timeout: float,
-                      completion_id: Optional[int] = None) -> Dict:
+def check_correctness(problem: Dict, completion: str, timeout: float, completion_id: Optional[int] = None) -> Dict:
     """
     Evaluates the functional correctness of a completion by running the test
     suite provided in the problem. 
@@ -33,6 +32,7 @@ def check_correctness(problem: Dict, completion: str, timeout: float,
             # These system calls are needed when cleaning up tempdir.
             import os
             import shutil
+
             rmtree = shutil.rmtree
             rmdir = os.rmdir
             chdir = os.chdir
@@ -42,26 +42,24 @@ def check_correctness(problem: Dict, completion: str, timeout: float,
 
             # Construct the check program and run it.
             check_program = (
-                problem["prompt"] + completion + "\n" +
-                problem["test"] + "\n" +
-                f"check({problem['entry_point']})"
+                problem["prompt"] + completion + "\n" + problem["test"] + "\n" + f"check({problem['entry_point']})"
             )
 
             try:
                 exec_globals = {}
                 with swallow_io():
                     with time_limit(timeout):
-# WARNING
-# This program exists to execute untrusted model-generated code. Although
-# it is highly unlikely that model-generated code will do something overtly
-# malicious in response to this test suite, model-generated code may act
-# destructively due to a lack of model capability or alignment.
-# Users are strongly encouraged to sandbox this evaluation suite so that it 
-# does not perform destructive actions on their host or network. For more 
-# information on how OpenAI sandboxes its code, see the accompanying paper.
-# Once you have read this disclaimer and taken appropriate precautions, 
-# uncomment the following line and proceed at your own risk:
-#                         exec(check_program, exec_globals)
+                        # WARNING
+                        # This program exists to execute untrusted model-generated code. Although
+                        # it is highly unlikely that model-generated code will do something overtly
+                        # malicious in response to this test suite, model-generated code may act
+                        # destructively due to a lack of model capability or alignment.
+                        # Users are strongly encouraged to sandbox this evaluation suite so that it
+                        # does not perform destructive actions on their host or network. For more
+                        # information on how OpenAI sandboxes its code, see the accompanying paper.
+                        # Once you have read this disclaimer and taken appropriate precautions,
+                        # uncomment the following line and proceed at your own risk:
+                        # exec(check_program, exec_globals)
                         pass
                 result.append("passed")
             except TimeoutException:
@@ -75,7 +73,7 @@ def check_correctness(problem: Dict, completion: str, timeout: float,
             os.chdir = chdir
 
     manager = multiprocessing.Manager()
-    result = manager.list()
+    result: List[str] = manager.list()
 
     p = multiprocessing.Process(target=unsafe_execute)
     p.start()
@@ -87,10 +85,7 @@ def check_correctness(problem: Dict, completion: str, timeout: float,
         result.append("timed out")
 
     return dict(
-        task_id=problem["task_id"],
-        passed=result[0] == "passed",
-        result=result[0],
-        completion_id=completion_id,
+        task_id=problem["task_id"], passed=result[0] == "passed", result=result[0], completion_id=completion_id,
     )
 
 
@@ -98,6 +93,7 @@ def check_correctness(problem: Dict, completion: str, timeout: float,
 def time_limit(seconds: float):
     def signal_handler(signum, frame):
         raise TimeoutException("Timed out!")
+
     signal.setitimer(signal.ITIMER_REAL, seconds)
     signal.signal(signal.SIGALRM, signal_handler)
     try:
@@ -144,7 +140,7 @@ class WriteOnlyStringIO(io.StringIO):
 
 
 class redirect_stdin(contextlib._RedirectStream):  # type: ignore
-    _stream = 'stdin'
+    _stream = "stdin"
 
 
 @contextlib.contextmanager
@@ -176,19 +172,22 @@ def reliability_guard(maximum_memory_bytes: Optional[int] = None):
 
     if maximum_memory_bytes is not None:
         import resource
+
         resource.setrlimit(resource.RLIMIT_AS, (maximum_memory_bytes, maximum_memory_bytes))
         resource.setrlimit(resource.RLIMIT_DATA, (maximum_memory_bytes, maximum_memory_bytes))
-        if not platform.uname().system == 'Darwin':
+        if not platform.uname().system == "Darwin":
             resource.setrlimit(resource.RLIMIT_STACK, (maximum_memory_bytes, maximum_memory_bytes))
 
     faulthandler.disable()
 
     import builtins
+
     builtins.exit = None
     builtins.quit = None
 
     import os
-    os.environ['OMP_NUM_THREADS'] = '1'
+
+    os.environ["OMP_NUM_THREADS"] = "1"
 
     os.kill = None
     os.system = None
@@ -219,24 +218,28 @@ def reliability_guard(maximum_memory_bytes: Optional[int] = None):
     os.chdir = None
 
     import shutil
+
     shutil.rmtree = None
     shutil.move = None
     shutil.chown = None
 
     import subprocess
+
     subprocess.Popen = None  # type: ignore
 
-    __builtins__['help'] = None
+    __builtins__["help"] = None
 
     import sys
-    sys.modules['ipdb'] = None
-    sys.modules['joblib'] = None
-    sys.modules['resource'] = None
-    sys.modules['psutil'] = None
-    sys.modules['tkinter'] = None
 
-def exact_match(gold: str, pred: str) -> float:
-    return 1 if gold == pred else 0
+    sys.modules["ipdb"] = None
+    sys.modules["joblib"] = None
+    sys.modules["resource"] = None
+    sys.modules["psutil"] = None
+    sys.modules["tkinter"] = None
+
+
+def exact_match(gold: Tuple[str, Dict], pred: str) -> float:
+    return 1 if gold[0] == pred else 0
 
 
 def get_num_bytes(text: str) -> int:
@@ -244,33 +247,36 @@ def get_num_bytes(text: str) -> int:
     return len(bytes(text, encoding="utf-8"))
 
 
-def iou_set_match(gold: str, pred: str) -> float:
+def iou_set_match(gold: Tuple[str, Dict], pred: str) -> float:
     """Compute the intersection over union of the gold and pred sets"""
     pred = pred.split("\n")[0]
-    if gold == "Nothing.":
+    gold_text = gold[0]
+    if gold_text == "Nothing.":
         return float(pred == "Nothing.")
     pred = pred.replace(".", "")
-    gold = gold.replace(".", "")
-    gold_set = set(gold.split(" is ")[-1].split(" and "))
+    gold_text = gold_text.replace(".", "")
+    gold_set = set(gold_text.split(" is ")[-1].split(" and "))
     pred_set = set(pred.split(" is ")[-1].split(" and "))
     return len(gold_set.intersection(pred_set)) / len(gold_set.union(pred_set))
 
 
-def exact_set_match(gold: str, pred: str) -> float:
+def exact_set_match(gold: Tuple[str, Dict], pred: str) -> float:
     """Compute whether the sets generated exactly match"""
     pred = pred.split("\n")[0]
-    if gold == "Nothing.":
+    gold_text = gold[0]
+    if gold_text == "Nothing.":
         return float(pred == "Nothing.")
     pred = pred.replace(".", "")
-    gold = gold.replace(".", "")
-    gold_set = set(gold.split(" is ")[-1].split(" and "))
+    gold_text = gold_text.replace(".", "")
+    gold_set = set(gold_text.split(" is ")[-1].split(" and "))
     pred_set = set(pred.split(" is ")[-1].split(" and "))
     return float(gold_set == pred_set)
 
-def code_eval(gold: str, pred: str) -> float:
+
+def code_eval(gold: Tuple[str, Dict], pred: str) -> float:
     """Evaluate Code Correctness on test examples"""
-    ###### Warning: will execute machine generated code; need to sandbox before executing thisgithub 
-    return check_correctness(gold, pred, 3.0)["passed"]
+    ###### Warning: will execute machine generated code; need to sandbox before executing thisgithub
+    return check_correctness(gold[1], pred, 3.0)["passed"]
 
 
 class BasicMetric(Metric):
@@ -301,11 +307,12 @@ class BasicMetric(Metric):
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
 
-        def compute_metrics_helper(name: str, score_func: Callable[[str, str], float], golds: List[Tuple[str, Dict]], preds: List[str]) -> List[Stat]:
-            if name != "code_eval":
-                golds = [gold[0] for gold in golds]
-            else:
-                golds = [gold[1] for gold in golds]
+        def compute_metrics_helper(
+            name: str,
+            score_func: Callable[[Tuple[str, Dict], str], float],
+            golds: List[Tuple[str, Dict]],
+            preds: List[str],
+        ) -> List[Stat]:
             score_1 = max(score_func(gold, preds[0]) for gold in golds)
             score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
 
@@ -326,7 +333,11 @@ class BasicMetric(Metric):
         for metric_name in self.names:
             if metric_name in metric_fn_mapping:
                 # Gold outputs
-                golds = [(reference.output, reference.data) for reference in request_state.instance.references if reference.is_correct]
+                golds = [
+                    (reference.output, reference.data)
+                    for reference in request_state.instance.references
+                    if reference.is_correct
+                ]
                 assert len(golds) > 0
 
                 # Predicted outputs
@@ -338,7 +349,9 @@ class BasicMetric(Metric):
                 # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
                 if request_state.output_mapping is not None:
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
-                reference_metrics.extend(compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], golds, preds))
+                reference_metrics.extend(
+                    compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], golds, preds)
+                )
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics

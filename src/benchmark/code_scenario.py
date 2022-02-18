@@ -18,7 +18,7 @@ def stream_jsonl(filename: str) -> Iterable[Dict]:
     """
     if filename.endswith(".gz"):
         with open(filename, "rb") as gzfp:
-            with gzip.open(gzfp, 'rt') as fp:
+            with gzip.open(gzfp, "rt") as fp:
                 for line in fp:
                     if any(not x.isspace() for x in line):
                         yield json.loads(line)
@@ -34,19 +34,19 @@ def write_jsonl(filename: str, data: Iterable[Dict], append: bool = False):
     Writes an iterable of dictionaries to jsonl
     """
     if append:
-        mode = 'ab'
+        mode = "ab"
     else:
-        mode = 'wb'
+        mode = "wb"
     filename = os.path.expanduser(filename)
     if filename.endswith(".gz"):
         with open(filename, mode) as fp:
-            with gzip.GzipFile(fileobj=fp, mode='wb') as gzfp:
+            with gzip.GzipFile(fileobj=fp, mode="wb") as gzfp:
                 for x in data:
-                    gzfp.write((json.dumps(x) + "\n").encode('utf-8'))
+                    gzfp.write((json.dumps(x) + "\n").encode("utf-8"))
     else:
         with open(filename, mode) as fp:
             for x in data:
-                fp.write((json.dumps(x) + "\n").encode('utf-8'))
+                fp.write((json.dumps(x) + "\n").encode("utf-8"))
 
 
 class CodeScenario(Scenario):
@@ -69,7 +69,6 @@ class CodeScenario(Scenario):
         self.num_train_instances: int = 4
         self.num_val_instances: int = 60
         self.num_test_instances: int = 100
-            
 
     def get_instances(self) -> List[Instance]:
         # Download the raw data
@@ -84,9 +83,9 @@ class CodeScenario(Scenario):
             # Read all the instances
             problems = read_problems(data_path)
         else:
-            raise "Not exists"
-        
-        instances = []            
+            ValueError(f"Unknown dataset: {self.dataset}")
+
+        instances = []
         for sample_idx, task_id in enumerate(problems):
             if sample_idx < self.num_train_instances:
                 cur_tag = TRAIN_TAG
@@ -95,9 +94,13 @@ class CodeScenario(Scenario):
             else:
                 cur_tag = TEST_TAG
             instance = Instance(
-                input=problems[task_id]["prompt"], references=[
-                    Reference(output=problems[task_id]["canonical_solution"], data = problems[task_id], tags=[CORRECT_TAG]),
-                ], tags=[cur_tag],
+                input=problems[task_id]["prompt"],
+                references=[
+                    Reference(
+                        output=problems[task_id]["canonical_solution"], data=problems[task_id], tags=[CORRECT_TAG]
+                    ),
+                ],
+                tags=[cur_tag],
             )
             instances.append(instance)
 
