@@ -32,7 +32,12 @@ class WIKIScenario(Scenario):
         # Download the raw data
         data_path = os.path.join(self.output_path, "data")
         # TODO: download the file from server
-
+        ensure_file_downloaded(
+            source_url="https://snap.stanford.edu/betae/fact_completion_data.zip",
+            target_path=data_path,
+            unpack=True,
+            unpack_type="unzip",
+        )
         # Read all the instances
         instances = []
         splits = {
