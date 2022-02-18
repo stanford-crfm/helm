@@ -116,7 +116,11 @@ class Metric(ABC):
                 merge_stat(trial_stats, stat)
 
         # Aggregate the corpus-level metrics
-        if tag + "." + "logprob" in trial_stats and tag + "." + "num_tokens" in trial_stats and trial_stats[tag + "." + "num_tokens"].sum != 0:
+        if (
+            tag + "." + "logprob" in trial_stats
+            and tag + "." + "num_tokens" in trial_stats
+            and trial_stats[tag + "." + "num_tokens"].sum != 0
+        ):
             merge_stat(
                 trial_stats,
                 Stat(tag + "." + "perplexity").add(

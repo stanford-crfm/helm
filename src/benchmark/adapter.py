@@ -414,7 +414,9 @@ class Adapter:
             first_seq_len = min(max_seq_len, len(tokens))
             prompt = tokenizer.decode(
                 tokenizer.encode(prefix_token) + tokens[:first_seq_len], clean_up_tokenization_spaces=False
-            ).rstrip("�") # decode token_ids and remove the trailing bytes
+            ).rstrip(
+                "\ufffd"
+            )  # decode token_ids and remove the trailing bytes
             request = Request(
                 model=self.adapter_spec.model,
                 prompt=prompt,
@@ -441,14 +443,14 @@ class Adapter:
                 # Convert it to: conditioning_string_tokens | pred_string_tokens (total length <= 2049 tokens)
                 window_pred_len = min(len(tokens) - predicted, max_seq_len)
                 window_end = predicted + window_pred_len
-                conditioning_tokens = tokens[window_end - max_seq_len - 1: predicted]
-                pred_tokens = tokens[predicted: window_end]
+                conditioning_tokens = tokens[window_end - max_seq_len - 1 : predicted]
+                pred_tokens = tokens[predicted:window_end]
                 raw_prompt = tokenizer.decode(
                     tokens[window_end - max_seq_len - 1 : window_end], clean_up_tokenization_spaces=False
                 )
-                num_leading_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("�")))
-                num_trailing_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("�")))
-                prompt = raw_prompt.strip("�")
+                num_leading_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
+                num_trailing_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
+                prompt = raw_prompt.strip("\ufffd")
                 # There are no string tokens to predict
                 if num_trailing_byte_tokens >= len(pred_tokens):
                     num_conditioning_tokens = len(tokenizer.encode(prompt))
