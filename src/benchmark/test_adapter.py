@@ -1,7 +1,7 @@
 from typing import List
 
 from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
-from .run_specs import get_scenario_spec1, get_adapter_spec1
+from .run_specs import get_scenario_spec1, get_adapter_spec1, get_adapter_spec1_with_data_augmentation
 from .adapter import ADAPT_GENERATION, Adapter, AdapterSpec
 
 
@@ -18,6 +18,22 @@ def test_adapter1():
 
     # TODO: write tests to check the contents of the actual prompt
     #       https://github.com/stanford-crfm/benchmarking/issues/50
+
+
+def test_adapter1_with_data_augmentation():
+    scenario = create_scenario(get_scenario_spec1())
+    adapter_spec = get_adapter_spec1_with_data_augmentation()
+    data_augmentation_tag: str = "extra_space|num_spaces=5"
+    assert data_augmentation_tag in adapter_spec.data_augmenter_spec.tags
+
+    # After adaptation, check that the augmentation has been applied
+    # by verifying that the instances with the augmentation tag are perturbed
+    scenario_state = Adapter(adapter_spec).adapt(scenario)
+    for instance in scenario_state.instances:
+        if data_augmentation_tag in instance.tags:
+            assert " " * 5 in instance.input
+        else:
+            assert " " * 5 not in instance.input
 
 
 def test_construct_prompt():

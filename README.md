@@ -176,7 +176,7 @@ classes (see `benchmark`):
 
 There are three types of classes:
 
-- Specifications (e.g., `AdaptationSpec`, `ExecutionSpec`, `RunSpec`):
+- Specifications (e.g., `AdapterSpec`, `ExecutionSpec`, `RunSpec`):
   specified manually by the user.  Note that `Scenario` and `Metric` are
   subclassed, so they are constructed by `ObjectSpec`, which specifies the
   subclass name and a free-form dictionary of arguments.
@@ -184,6 +184,45 @@ There are three types of classes:
   are automatically generated and can be serialized.
 - Controllers (e.g., `Scenario`, `Adapter`, `Executor`, `Metric`, `Runner`):
   these have the bulk of the code and should not be serialized.
+
+## Data Augmentations
+
+To apply data augmentations, create a `DataAugmenterSpec` with a list of 
+`DataAugmentationSpec`s and pass it into `AdapterSpec`. The following is an
+example:
+
+```python
+    data_augmenter_spec = DataAugmenterSpec(
+        data_augmentation_specs=[
+            DataAugmentationSpec(
+                class_name="benchmark.augmentations.data_augmentation.ExtraSpaceAugmentation", 
+                args={"num_spaces": 5},
+            )
+        ],
+        should_perturb_references=False,
+        should_augment_train_instances=False,
+        should_include_original_train=False,
+        should_augment_eval_instances=True,
+        should_include_original_eval=True,
+    )
+    adapter_spec = AdapterSpec(
+        ...
+        data_augmenter_spec=data_augmenter_spec,
+    )
+```
+
+In the example above, the `Adapter` will augment the set of evaluation instances by perturbing
+the original set of instances with the `ExtraSpaceAugmentation`, where spaces in the text are 
+replaced with `num_spaces` number of spaces. 
+
+We currently only support applying a single data augmentation to an instance instead of chaining
+multiple data augmentations and applying it onto a single instance.
+
+### Adding a Data Augmentation
+
+To add a new data augmentation to the framework, simply create a new class in `data_augmentation.py`,
+extend the abstract class `DataAugmentation` and implement the `perturb` method which takes in
+text and outputs the perturbed text.
 
 ## Running the benchmark
 
@@ -248,3 +287,7 @@ To run unit tests:
 Append `-vv` to output the full diff and results:
 
     python -m pytest -vv
+
+To run a specific file, simply specify the path:
+
+    python -m pytest <path/to/file>
