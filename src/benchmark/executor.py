@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, replace
 from tqdm import tqdm
 
-from common.general import format_tags
+from common.general import format_tags, format_text
 from common.hierarchical_logger import htrack, hlog
 from common.request import RequestResult
 from common.authentication import Authentication
@@ -62,8 +62,8 @@ class Executor:
             if pred_output is not None:
                 pred_output = pred_output[:100]
             return (
-                f'[{tags_str}] "{state.request.prompt[:100]}" =>'
-                f'"{gold_output}", predicted "{pred_output}" [{correct_str}]'
+                f"{tags_str} {format_text(instance.input[:100])} => {format_text(gold_output)}, "
+                + f"predicted {format_text(pred_output)} [{correct_str}]"
             )
 
         def process(state: RequestState) -> RequestState:
