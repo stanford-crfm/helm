@@ -31,7 +31,7 @@ def convert_tokens_to_text(tokens: List[Token]) -> List[Dict]:
     i = 0
     while i < len(tokens):
         # Aggregate consecutive tokens while they're "bytes:..."
-        group = {"tokens": []}
+        group: Dict = {"tokens": []}
         if tokens[i].text.startswith("bytes:"):
             bytestring = ""
             while i < len(tokens) and tokens[i].text.startswith("bytes:"):

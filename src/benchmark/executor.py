@@ -58,7 +58,13 @@ class Executor:
 
             tags_str = format_tags(instance.tags)
             correct_str = "CORRECT" if gold_output == pred_output else "WRONG"
-            return f'[{tags_str}] "{state.request.prompt[:100]}" => "{gold_output}", predicted "{pred_output[:100]}" [{correct_str}]'
+            # Truncate pred_output for a better visualization
+            if pred_output is not None:
+                pred_output = pred_output[:100]
+            return (
+                f'[{tags_str}] "{state.request.prompt[:100]}" =>'
+                f'"{gold_output}", predicted "{pred_output}" [{correct_str}]'
+            )
 
         def process(state: RequestState) -> RequestState:
             result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, state.request)

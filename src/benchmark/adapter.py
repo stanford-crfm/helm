@@ -439,7 +439,8 @@ class Adapter:
             predicted += first_seq_len
 
             while predicted < len(tokens):
-                # Raw token sequence format: bytes | conditioning_string_tokens | pred_string_tokens | bytes (total length <= 2049 tokens)
+                # Raw token sequence format: bytes | conditioning_string_tokens | pred_string_tokens | bytes
+                # (total length <= 2049 tokens)
                 # Convert it to: conditioning_string_tokens | pred_string_tokens (total length <= 2049 tokens)
                 window_pred_len = min(len(tokens) - predicted, max_seq_len)
                 window_end = predicted + window_pred_len
