@@ -6,16 +6,16 @@ from client import Client, wrap_request_time
 import time
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from typing import List, Dict
 
 
-class GPTJServer:
-
-    def __init__(self):
+class HuggingFaceServer:
+    def __init__(self, model_name):
         self.device: str = "cuda:0" if torch.cuda.is_available() else "cpu"
 
         start_time: float = time.time()
-        self.model = AutoModelForCausalLM.from_pretrained("EleutherAI/gpt-j-6B").to(self.device)
-        self.tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
+        self.model = AutoModelForCausalLM.from_pretrained(model_name).to(self.device)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         runtime: float = time.time() - start_time
         print(f"Done loading model and tokenizer! Took {runtime:.2f} seconds...")
 
@@ -57,15 +57,17 @@ class GPTJServer:
 class HuggingFaceClient(Client):
     def __init__(self, cache_path: str):
         self.cache = Cache(cache_path)
-        self.model_stubs = {}
+        self.model_stubs: Dict[str, HuggingFaceServer] = {}
 
-    def get_model_stub(self, model_name):
-        if model_name not in self.model_stubs:
-            if model_name == "huggingface/gptj_6b":
-                self.model_stubs[model_name] = GPTJServer()
+    def get_model_stub(self, model_engine):
+        if model_engine not in self.model_stubs:
+            if model_engine == "gptj_6b":
+                self.model_stubs[model_engine] = HuggingFaceServer("EleutherAI/gpt-j-6B")
+            elif model_engine == "gpt2":
+                self.model_stubs[model_engine] = HuggingFaceServer("gpt2")
             else:
                 raise Exception("Unknown model!")
-        return self.model_stubs[model_name]
+        return self.model_stubs[model_engine]
 
     def make_request(self, request: Request) -> RequestResult:
         print(request)
@@ -83,7 +85,7 @@ class HuggingFaceClient(Client):
             "frequency_penalty": request.frequency_penalty,
             "echo_prompt": request.echo_prompt,
         }
-        model_stub = self.get_model_stub("huggingface/gptj_6b")
+        model_stub = self.get_model_stub(request.model_engine)
 
         try:
 
@@ -113,5 +115,13 @@ class HuggingFaceClient(Client):
 
 if __name__ == "__main__":
     client = HuggingFaceClient(cache_path="huggingface_cache")
-    print(client.make_request(Request(prompt="I am a computer scientist.", num_completions=2)))
-    print(client.make_request(Request(prompt="My name is Joe.", num_completions=1, max_tokens=10)))
+    print(
+        client.make_request(
+            Request(model="huggingface/gptj_6b", prompt="I am a computer scientist.", num_completions=2)
+        )
+    )
+    print(
+        client.make_request(
+            Request(model="huggingface/gpt2", prompt="My name is Joe.", num_completions=1, max_tokens=10)
+        )
+    )
