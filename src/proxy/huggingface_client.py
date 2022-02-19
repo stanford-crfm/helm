@@ -2,7 +2,6 @@ from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
 from client import Client, wrap_request_time
 
-
 import time
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -31,24 +30,34 @@ class HuggingFaceServer:
             output_scores=True,
         )
         sequences = output.sequences
-        all_logprobs = []
-        logprobs_of_chosen_tokens = []
-        for i in range(len(sequences[0]) - len(encoded_input.input_ids[0])):
-            logprobs = torch.log(torch.nn.functional.softmax(output.scores[i][0]))
-            all_logprobs.append(logprobs)
+        all_logprobs_of_chosen_tokens = []
+        print(f"Length of sequences = {len(sequences)}, length of sequences[0] = {len(sequences[0])}")
+        print(f"Length of output.scores = {len(output.scores)}, length of output.scores[0] = {len(output.scores[0])}")
 
-            # Get log probability of chosen token.
-            j = i + len(encoded_input.input_ids[0])
-            logprobs_of_chosen_tokens.append(logprobs[sequences[0][j]].item())
+        # TODO: Make this more efficient?
+        for completion_id in range(raw_request["num_completions"]):
+            logprobs_of_chosen_tokens = []
+            # Compute logprobs for each completed sequence separately.
+            for i in range(len(sequences[completion_id]) - len(encoded_input.input_ids[0])):
+                logprobs = torch.log(torch.nn.functional.softmax(output.scores[i][completion_id]))
+
+                # Get log probability of chosen token.
+                j = i + len(encoded_input.input_ids[0])
+                logprobs_of_chosen_tokens.append(logprobs[sequences[completion_id][j]].item())
+            all_logprobs_of_chosen_tokens.append(logprobs_of_chosen_tokens)
 
         # Remove prompt from the start of each sequence if echo_prompt is False.
         if not raw_request["echo_prompt"]:
             sequences = [sequence[len(encoded_input.input_ids[0]) :] for sequence in sequences]
+        # TODO: Get rid of the extra tokenization?
         all_tokens = [self.tokenizer.convert_ids_to_tokens(sequence) for sequence in sequences]
         all_decoded_text = self.tokenizer.batch_decode(sequences)
 
         completions = []
-        for (decoded_text, tokens) in zip(all_decoded_text, all_tokens):
+        for (decoded_text, tokens, logprobs_of_chosen_tokens) in zip(
+            all_decoded_text, all_tokens, all_logprobs_of_chosen_tokens
+        ):
+            # TODO: Populate top_logprobs as well?
             completions.append({"text": decoded_text, "tokens": tokens, "logprobs": logprobs_of_chosen_tokens})
 
         return {"completions": completions}
@@ -114,6 +123,7 @@ class HuggingFaceClient(Client):
 
 
 if __name__ == "__main__":
+    # TODO: Move this to a separate test file.
     client = HuggingFaceClient(cache_path="huggingface_cache")
     print(
         client.make_request(
@@ -122,6 +132,6 @@ if __name__ == "__main__":
     )
     print(
         client.make_request(
-            Request(model="huggingface/gpt2", prompt="My name is Joe.", num_completions=1, max_tokens=10)
+            Request(model="huggingface/gpt2", prompt="My name is Joe.", num_completions=2, max_tokens=30)
         )
     )
