@@ -6,9 +6,9 @@ from .data_augmenter import DataAugmenter
 from benchmark.augmentations.perturbation import IdentityPerturbation, ExtraSpacePerturbation
 
 
-# TODO: Get rid of the following test after we add the new instance fields and remove CleanPerturbation:
+# TODO: Get rid of the following test after we add the new instance fields and remove IdentityPerturbation:
 #       https://github.com/stanford-crfm/benchmarking/issues/124
-def test_clean_perturbation():
+def test_identity_perturbation():
     instance: Instance = Instance(input="Hello my name is", references=[], tags=[])
     perturbation = IdentityPerturbation()
     clean_instance: Instance = perturbation.apply("id0", instance)
