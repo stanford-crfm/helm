@@ -187,15 +187,15 @@ There are three types of classes:
 
 ## Data Augmentations
 
-To apply data augmentations, create a `DataAugmenterSpec` with a list of 
-`DataAugmentationSpec`s and pass it into `AdapterSpec`. The following is an
+To apply data augmentation, create a `DataAugmenterSpec` with a list of 
+`PerturbationSpec`s and pass it into `AdapterSpec`. The following is an
 example:
 
 ```python
     data_augmenter_spec = DataAugmenterSpec(
-        data_augmentation_specs=[
-            DataAugmentationSpec(
-                class_name="benchmark.augmentations.data_augmentation.ExtraSpaceAugmentation", 
+        perturbation_specs=[
+            PerturbationSpec(
+                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", 
                 args={"num_spaces": 5},
             )
         ],
@@ -207,22 +207,22 @@ example:
     )
     adapter_spec = AdapterSpec(
         ...
-        data_augmenter_spec=data_augmenter_spec,
+        data_augmenter_spec=data_augmenter_spec
     )
 ```
 
 In the example above, the `Adapter` will augment the set of evaluation instances by perturbing
-the original set of instances with the `ExtraSpaceAugmentation`, where spaces in the text are 
+the original set of instances with the `ExtraSpacePerturbation`, where spaces in the text are 
 replaced with `num_spaces` number of spaces. 
 
-We currently only support applying a single data augmentation to an instance instead of chaining
-multiple data augmentations and applying it onto a single instance.
+We currently only support applying a single perturbation to an instance instead of chaining
+multiple perturbations and applying it onto a single instance.
 
-### Adding a Data Augmentation
+### Adding a new perturbation
 
-To add a new data augmentation to the framework, simply create a new class in `data_augmentation.py`,
-extend the abstract class `DataAugmentation` and implement the `perturb` method which takes in
-text and outputs the perturbed text.
+To add a new perturbation to the framework, simply create a new class in `perturbation.py` that
+extends the abstract class `Perturbation` and implement the `perturb` method which takes in
+text and outputs the perturbed text. Add a test for the new perturbation in `test_perturbation.py`.
 
 ## Running the benchmark
 
@@ -280,7 +280,7 @@ To contribute to this project, install the dependencies and git hook scripts:
 
 ## Tests
 
-To run unit tests:
+To run all unit tests:
 
     python -m pytest
 
@@ -290,4 +290,4 @@ Append `-vv` to output the full diff and results:
 
 To run a specific file, simply specify the path:
 
-    python -m pytest <path/to/file>
+    python -m pytest <path/to/file> -vv

@@ -262,7 +262,7 @@ class Adapter:
                 f"wanted {self.adapter_spec.max_train_instances}"
             )
 
-        # Applies data augmentations to generate more train instances
+        # Applies data augmentation to generate more train instances
         if data_augmenter_spec.should_augment_train_instances:
             all_train_instances = data_augmenter.generate(
                 all_train_instances, include_original=data_augmenter_spec.should_include_original_train
@@ -275,7 +275,7 @@ class Adapter:
         if self.adapter_spec.max_eval_instances is not None:
             eval_instances = eval_instances[: self.adapter_spec.max_eval_instances]
 
-        # Applies data augmentations to generate more eval instances
+        # Applies data augmentation to generate more eval instances
         if data_augmenter_spec.should_augment_eval_instances:
             eval_instances = data_augmenter.generate(
                 eval_instances, include_original=data_augmenter_spec.should_include_original_eval

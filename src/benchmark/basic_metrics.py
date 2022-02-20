@@ -78,6 +78,8 @@ class BasicMetric(Metric):
             score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
 
             group: str = format_tags([tag]) if tag else ""
+            # TODO: clean this up once we have MetricNames
+            #       https://github.com/stanford-crfm/benchmarking/issues/125
             return [
                 Stat(f"{group + '_' if group else ''}{name}").add(score_1),
                 Stat(f"{group + '_' if group else ''}{name}@{adapter_spec.num_outputs}").add(score_k),

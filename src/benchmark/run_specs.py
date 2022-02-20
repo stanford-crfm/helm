@@ -4,7 +4,7 @@ from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from common.object_spec import ObjectSpec
 
 from .augmentations.data_augmenter import DataAugmenterSpec
-from .augmentations.data_augmentation import DataAugmentationSpec
+from .augmentations.perturbation import PerturbationSpec
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
@@ -47,9 +47,9 @@ def get_adapter_spec1() -> AdapterSpec:
 
 def get_adapter_spec1_with_data_augmentation() -> AdapterSpec:
     data_augmenter_spec = DataAugmenterSpec(
-        data_augmentation_specs=[
-            DataAugmentationSpec(
-                class_name="benchmark.augmentations.data_augmentation.ExtraSpaceAugmentation", args={"num_spaces": 5}
+        perturbation_specs=[
+            PerturbationSpec(
+                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", args={"num_spaces": 5}
             )
         ],
         should_perturb_references=False,

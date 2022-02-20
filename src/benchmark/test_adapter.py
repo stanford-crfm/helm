@@ -23,14 +23,14 @@ def test_adapter1():
 def test_adapter1_with_data_augmentation():
     scenario = create_scenario(get_scenario_spec1())
     adapter_spec = get_adapter_spec1_with_data_augmentation()
-    data_augmentation_tag: str = "extra_space|num_spaces=5"
-    assert data_augmentation_tag in adapter_spec.data_augmenter_spec.tags
+    perturbation_tag: str = "extra_space|num_spaces=5"
+    assert perturbation_tag in adapter_spec.data_augmenter_spec.tags
 
     # After adaptation, check that the augmentation has been applied
     # by verifying that the instances with the augmentation tag are perturbed
     scenario_state = Adapter(adapter_spec).adapt(scenario)
     for instance in scenario_state.instances:
-        if data_augmentation_tag in instance.tags:
+        if perturbation_tag in instance.tags:
             assert " " * 5 in instance.input
         else:
             assert " " * 5 not in instance.input

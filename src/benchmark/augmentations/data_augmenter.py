@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
 from typing import List
 
-from benchmark.augmentations.data_augmentation import (
-    DataAugmentation,
-    DataAugmentationSpec,
-    create_data_augmentation,
-    CleanAugmentation,
+from benchmark.augmentations.perturbation import (
+    Perturbation,
+    PerturbationSpec,
+    create_perturbation,
+    CleanPerturbation,
 )
 from benchmark.scenario import Instance
 
@@ -13,35 +13,33 @@ from benchmark.scenario import Instance
 @dataclass(frozen=True)
 class DataAugmenter:
 
-    # Data augmentations to use to generate new instances
-    data_augmentations: List[DataAugmentation]
+    # Perturbations to use to generate new instances
+    perturbations: List[Perturbation]
 
     # Whether to perturb references
     should_perturb_references: bool
 
     def generate(self, instances: List[Instance], include_original: bool = True) -> List[Instance]:
         """
-        Given a list of Instances, generate a new list of Instances with data augmentations.
-        include_original controls whether to include the original Instance when generating data augmentations.
+        Given a list of Instances, generate a new list of perturbed Instances.
+        include_original controls whether to include the original Instance in the new list of Instances.
         """
-        data_augmentations = (
-            self.data_augmentations + [CleanAugmentation()] if include_original else self.data_augmentations
-        )
+        perturbations = self.perturbations + [CleanPerturbation()] if include_original else self.perturbations
 
         result: List[Instance] = []
         for i, instance in enumerate(instances):
-            # Tag all the augmented instances generated from the same instance with the same ID
+            # Tag all the perturbed instances generated from the same instance with the same ID
             id_tag: str = f"id{i}"
-            for data_augmentation in data_augmentations:
-                result.append(data_augmentation.apply(id_tag, instance, self.should_perturb_references))
+            for perturbation in perturbations:
+                result.append(perturbation.apply(id_tag, instance, self.should_perturb_references))
         return result
 
 
 @dataclass(frozen=True)
 class DataAugmenterSpec:
 
-    # List of data augmentation specs to use to augment the data
-    data_augmentation_specs: List[DataAugmentationSpec] = field(default_factory=list)
+    # List of perturbation specs to use to augment the data
+    perturbation_specs: List[PerturbationSpec] = field(default_factory=list)
 
     # Whether to perturb references
     should_perturb_references: bool = False
@@ -59,22 +57,22 @@ class DataAugmenterSpec:
     should_include_original_eval: bool = False
 
     @property
-    def data_augmentations(self) -> List[DataAugmentation]:
-        return [create_data_augmentation(spec) for spec in self.data_augmentation_specs]
+    def perturbations(self) -> List[Perturbation]:
+        return [create_perturbation(spec) for spec in self.perturbation_specs]
 
     # TODO: Get rid of this after we add the new instance fields:
     #       https://github.com/stanford-crfm/benchmarking/issues/124
     @property
     def tags(self) -> List[str]:
-        tags: List[str] = [data_augmentation.tag for data_augmentation in self.data_augmentations]
+        tags: List[str] = [perturbation.tag for perturbation in self.perturbations]
         if self.should_include_original_eval:
-            tags.append(CleanAugmentation.CLEAN_TAG)
+            tags.append(CleanPerturbation.CLEAN_TAG)
         return tags
 
 
 def create_data_augmenter(data_augmenter_spec: DataAugmenterSpec) -> DataAugmenter:
     """Creates a DataAugmenter from a DataAugmenterSpec."""
     return DataAugmenter(
-        data_augmentations=data_augmenter_spec.data_augmentations,
+        perturbations=data_augmenter_spec.perturbations,
         should_perturb_references=data_augmenter_spec.should_perturb_references,
     )
