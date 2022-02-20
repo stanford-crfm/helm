@@ -6,6 +6,8 @@ from .data_augmenter import DataAugmenter
 from benchmark.augmentations.perturbation import CleanPerturbation, ExtraSpacePerturbation
 
 
+# TODO: Get rid of the following test after we add the new instance fields and remove CleanPerturbation:
+#       https://github.com/stanford-crfm/benchmarking/issues/124
 def test_clean_perturbation():
     instance: Instance = Instance(input="Hello my name is", references=[], tags=[])
     perturbation = CleanPerturbation()

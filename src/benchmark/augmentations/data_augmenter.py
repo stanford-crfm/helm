@@ -13,7 +13,7 @@ from benchmark.scenario import Instance
 @dataclass(frozen=True)
 class DataAugmenter:
 
-    # Perturbations to use to generate new instances
+    # Perturbations to apply to generate new instances
     perturbations: List[Perturbation]
 
     # Whether to perturb references

@@ -69,7 +69,10 @@ class CleanPerturbation(Perturbation):
 
 @dataclass
 class ExtraSpacePerturbation(Perturbation):
-    """A toy perturbation that adds additional spaces to existing spaces."""
+    """
+    A toy perturbation that replaces existing spaces in the text with
+    `num_spaces` number of spaces.
+    """
 
     name = "extra_space"
 
