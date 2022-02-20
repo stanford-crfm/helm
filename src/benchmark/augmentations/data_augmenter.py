@@ -5,7 +5,7 @@ from benchmark.augmentations.perturbation import (
     Perturbation,
     PerturbationSpec,
     create_perturbation,
-    CleanPerturbation,
+    IdentityPerturbation,
 )
 from benchmark.scenario import Instance
 
@@ -24,7 +24,7 @@ class DataAugmenter:
         Given a list of Instances, generate a new list of perturbed Instances.
         include_original controls whether to include the original Instance in the new list of Instances.
         """
-        perturbations = self.perturbations + [CleanPerturbation()] if include_original else self.perturbations
+        perturbations = self.perturbations + [IdentityPerturbation()] if include_original else self.perturbations
 
         result: List[Instance] = []
         for i, instance in enumerate(instances):
@@ -66,7 +66,7 @@ class DataAugmenterSpec:
     def tags(self) -> List[str]:
         tags: List[str] = [perturbation.tag for perturbation in self.perturbations]
         if self.should_include_original_eval:
-            tags.append(CleanPerturbation.CLEAN_TAG)
+            tags.append(IdentityPerturbation.IDENTITY_TAG)
         return tags
 
 

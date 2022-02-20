@@ -56,12 +56,12 @@ def create_perturbation(perturbation_spec: PerturbationSpec) -> Perturbation:
 # TODO: Get rid of this after we add the new instance fields:
 #       https://github.com/stanford-crfm/benchmarking/issues/124
 @dataclass
-class CleanPerturbation(Perturbation):
-    """Doesn't apply any perturbation, but just adds 'clean' to the list of tags."""
+class IdentityPerturbation(Perturbation):
+    """Doesn't apply any perturbation, but just adds 'identity' to the list of tags."""
 
-    CLEAN_TAG = "clean"
+    IDENTITY_TAG = "identity"
 
-    name = CLEAN_TAG
+    name = IDENTITY_TAG
 
     def perturb(self, text: str) -> str:
         return text
