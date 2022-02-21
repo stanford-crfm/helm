@@ -77,13 +77,13 @@ class BoolQScenario(Scenario):
         split_to_filename: Dict[str, str] = {TRAIN_SPLIT: "train", VALID_SPLIT: "dev"}
 
         # First, ensure all splits are downloaded
-        for split, file in split_to_filename.items():
-            url: str = f"https://storage.googleapis.com/boolq/{file}.jsonl"
-            target_path: str = os.path.join(data_path, file)
+        for split, filename in split_to_filename.items():
+            url: str = f"https://storage.googleapis.com/boolq/{filename}.jsonl"
+            target_path: str = os.path.join(data_path, filename)
             ensure_file_downloaded(source_url=url, target_path=target_path, unpack=False)
 
-        for split, file in split_to_filename.items():
-            split_path: str = os.path.join(data_path, file)
+        for split, filename in split_to_filename.items():
+            split_path: str = os.path.join(data_path, filename)
             instances.extend(self.get_split_instances(split, split_path))
         return instances
 
