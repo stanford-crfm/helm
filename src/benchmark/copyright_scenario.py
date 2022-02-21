@@ -5,7 +5,7 @@ from typing import List
 import tqdm
 
 from common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TEST_TAG
+from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TEST_SPLIT
 
 PILOT_DATA_URL = "https://docs.google.com/uc?export=download&id=1NwzDx19uzIwBuw7Lq5CSytG7jIth2wJ-"
 FULL_DATA_URL = "https://docs.google.com/uc?export=download&id=1lJS5LQmaj3R5WVwzbNQdl8I4U1tf266t"  # Size ~ 3gigs.
@@ -49,9 +49,7 @@ class CopyrightScenario(Scenario):
         for prefix, prefix_to_end in tqdm.tqdm(data["data"].items(), desc="load instances"):
             instances.append(
                 Instance(
-                    input=prefix,
-                    references=[Reference(output=prefix_to_end, tags=[CORRECT_TAG])],
-                    tags=[TEST_TAG],  # Must assign split tag to instance.
+                    input=prefix, references=[Reference(output=prefix_to_end, tags=[CORRECT_TAG])], split=TEST_SPLIT,
                 ),
             )
         return instances

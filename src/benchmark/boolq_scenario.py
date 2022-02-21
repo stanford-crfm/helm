@@ -3,7 +3,7 @@ import os
 from typing import List, Dict
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
 
 
 class BoolQScenario(Scenario):
@@ -51,9 +51,9 @@ class BoolQScenario(Scenario):
         """
         return f"{passage}\nquestion: {question}"
 
-    def get_split_instances(self, split_path: str, tag: str) -> List[Instance]:
+    def get_split_instances(self, split: str, path: str) -> List[Instance]:
         split_instances: List[Instance] = []
-        with open(split_path, "r") as f:
+        with open(path, "r") as f:
             all_triplets = list(f)
             for item in all_triplets:
                 triplet: Dict = json.loads(item)
@@ -61,30 +61,30 @@ class BoolQScenario(Scenario):
                 question: str = triplet["question"]
                 answer: bool = triplet["answer"]
 
-                correct_answer = "yes" if answer else "no"
-                context = self.get_context(passage, question)
+                correct_answer: str = "yes" if answer else "no"
+                context: str = self.get_context(passage, question)
                 instance: Instance = Instance(
-                    input=context, references=[Reference(output=correct_answer, tags=[CORRECT_TAG])], tags=[tag]
+                    input=context, references=[Reference(output=correct_answer, tags=[CORRECT_TAG])], split=split
                 )
                 split_instances.append(instance)
         return split_instances
 
     def get_instances(self) -> List[Instance]:
-        data_path = os.path.join(self.output_path, "data")
+        data_path: str = os.path.join(self.output_path, "data")
         ensure_directory_exists(data_path)
 
         instances: List[Instance] = []
-        splits = {"train": TRAIN_TAG, "dev": VALID_TAG}
+        split_to_filename: Dict[str, str] = {TRAIN_SPLIT: "train", VALID_SPLIT: "dev"}
 
         # First, ensure all splits are downloaded
-        for split in splits:
-            url = f"https://storage.googleapis.com/boolq/{split}.jsonl"
-            target_path: str = os.path.join(data_path, f"{split}.jsonl")
+        for split, file in split_to_filename.items():
+            url: str = f"https://storage.googleapis.com/boolq/{file}.jsonl"
+            target_path: str = os.path.join(data_path, file)
             ensure_file_downloaded(source_url=url, target_path=target_path, unpack=False)
 
-        for split in splits:
-            split_path: str = os.path.join(data_path, f"{split}.jsonl")
-            instances.extend(self.get_split_instances(split_path, splits[split]))
+        for split, file in split_to_filename.items():
+            split_path: str = os.path.join(data_path, file)
+            instances.extend(self.get_split_instances(split, split_path))
         return instances
 
 
@@ -125,25 +125,23 @@ class BoolQContrastSetScenario(BoolQScenario):
     """
 
     name = "boolq-contrast-sets"
-    description = "Contrast Sets for BoolQ question answering dataset with naturally occuring yes/no questions."
+    description = "Contrast Sets for BoolQ question answering dataset with naturally occurring yes/no questions."
     tags = ["question_answering", "robustness"]
 
     def __init__(self):
         pass
 
     def get_instances(self) -> List[Instance]:
-        data_path = os.path.join(self.output_path, "data")
+        data_path: str = os.path.join(self.output_path, "data")
         ensure_directory_exists(data_path)
 
         # Ensure the training instances for BoolQ are downloaded
         # Note: Contrast Sets are constructed using the dev set of the original BoolQ dataset.
         # Hence, it is safe to use training examples as the in-context examples.
-
         url = "https://storage.googleapis.com/boolq/train.jsonl"
         split_path: str = os.path.join(data_path, "train.jsonl")
         ensure_file_downloaded(source_url=url, target_path=split_path, unpack=False)
-
-        training_instances: List[Instance] = self.get_split_instances(split_path, TRAIN_TAG)
+        training_instances: List[Instance] = self.get_split_instances(TRAIN_SPLIT, split_path)
 
         # Ensure contrast sets are downloaded
         url = "https://raw.githubusercontent.com/allenai/contrast-sets/main/BoolQ/boolq_perturbed.json"
@@ -165,7 +163,7 @@ class BoolQContrastSetScenario(BoolQScenario):
                     instance: Instance = Instance(
                         input=perturbed_context,
                         references=[Reference(output=perturbed_answer, tags=[CORRECT_TAG])],
-                        tags=[VALID_TAG],
+                        split=VALID_SPLIT,
                     )
                     contrast_instances.append(instance)
 
