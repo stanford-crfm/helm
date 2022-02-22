@@ -99,7 +99,8 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
             args={**args, "name": "longest_common_prefix_length"},
         ),
         MetricSpec(
-            class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_distance"},
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric",
+            args={**args, "name": "edit_distance"},
         ),
     ]
 
@@ -134,6 +135,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_run_spec1()]
     if name == "twitter_aae":
         return [get_twitter_aae_spec(**args)]
+    if name == "synthetic":
+        return [get_synthetic_spec(**args)]
 
     raise ValueError(f"Unknown run spec: {spec}")
 
@@ -179,7 +182,10 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.commonsense_qa_scenario.CommonSenseQAScenario",
-        args={"dataset": dataset, "method": method,},
+        args={
+            "dataset": dataset,
+            "method": method,
+        },
     )
 
     if method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
@@ -203,7 +209,13 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             metrics=get_basic_metrics({"names": ["exact_match"]}),
         )
     elif method == CAUSAL_LANGUAGE_MODELING_METHOD:
-        n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
+        n_choice = {
+            "hellaswag": 4,
+            "openbookqa": 4,
+            "commonsenseqa": 5,
+            "piqa": 2,
+            "siqa": 3,
+        }[dataset]
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             conditioning_prefix="",
@@ -232,7 +244,8 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
 
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
+        class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario",
+        args={"demographic": demographic},
     )
 
     adapter_spec = AdapterSpec(
@@ -319,7 +332,7 @@ def get_boolq_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Remove this once deployed
+        Gmax_eval_instances=50,  # TODO : Remove this once deployed
         num_outputs=1,
         max_tokens=1,
     )
@@ -397,4 +410,30 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),
+    )
+
+
+def get_synthetic_spec(num_tokens_per_instance: int, num_instances: int, num_output_tokens: int) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.synthetic_scenario.SyntheticScenario",
+        args={"num_tokens_per_instance": int(num_tokens_per_instance), "num_instances": int(num_instances)},
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        num_train_trials=1,
+        temperature=1.0,
+        max_eval_instances=int(num_instances),
+        num_outputs=1,
+        model="openai/ada",
+        max_tokens=int(num_output_tokens),
+    )
+    return RunSpec(
+        name=f"synthetic:num_tokens_per_instance={num_tokens_per_instance},num_instances={num_instances},num_output_tokens={num_output_tokens}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": [] }),
     )
