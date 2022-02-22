@@ -74,7 +74,7 @@ class BabiQAScenario(Scenario):
                     is_question = "?" in fact
                     if is_question:
                         question, asnwer = fact.split("\t")[:2]
-                        question, answer = question.strip(), asnwer.strip()
+                        question, answer = question.strip(), asnwer.strip().replace(",", "")
                         context = f"{''.join(story)}{question}"
                         instance: Instance = Instance(
                             input=context,
