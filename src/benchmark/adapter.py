@@ -303,7 +303,7 @@ class Adapter:
                         num_completions=self.adapter_spec.num_outputs,
                         temperature=self.adapter_spec.temperature,
                         max_tokens=self.adapter_spec.max_tokens,
-                        stop_sequences=[],
+                        stop_sequences=self.adapter_spec.stop_sequences,
                     )
                 elif method == ADAPT_MULTIPLE_CHOICE:
                     output_mapping = dict(
@@ -318,16 +318,6 @@ class Adapter:
                         temperature=0,
                         max_tokens=1,
                         stop_sequences=[],
-                    )
-                elif method == ADAPT_GENERATION:
-                    output_mapping = None
-                    request = Request(
-                        model=self.adapter_spec.model,
-                        prompt=prompt,
-                        num_completions=self.adapter_spec.num_outputs,
-                        temperature=self.adapter_spec.temperature,
-                        max_tokens=self.adapter_spec.max_tokens,
-                        stop_sequences=self.adapter_spec.stop_sequences,
                     )
                 else:
                     raise ValueError(f"Invalid method: {method}")
