@@ -1,41 +1,33 @@
 from common.cache import Cache
+from common.hierarchical_logger import htrack_block
 from common.request import Request, RequestResult, Sequence, Token
 from client import Client, wrap_request_time
 
-import time
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from typing import List, Dict
+from typing import Any, Dict, List
 
 
 class HuggingFaceServer:
-    def __init__(self, model_name):
+    def __init__(self, model_name: str):
         self.device: str = "cuda:0" if torch.cuda.is_available() else "cpu"
 
-        start_time: float = time.time()
-        self.model = AutoModelForCausalLM.from_pretrained(model_name).to(self.device)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        runtime: float = time.time() - start_time
-        print(f"Done loading model and tokenizer! Took {runtime:.2f} seconds...")
+        with htrack_block("Loading model"):
+            self.model = AutoModelForCausalLM.from_pretrained(model_name).to(self.device)
+        with htrack_block("Loading tokenizer"):
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    def serve_request(self, raw_request):
+    def serve_request(self, raw_request: Dict[str, Any]):
         encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt").to(self.device)
-        output = self.model.generate(
-            **encoded_input,
-            temperature=raw_request["temperature"],
-            max_length=raw_request["max_tokens"],
-            num_return_sequences=raw_request["num_completions"],
-            do_sample=True,
-            return_dict_in_generate=True,
-            output_scores=True,
-        )
+        raw_request["do_sample"] = True
+        raw_request["return_dict_in_generate"] = True
+        raw_request["output_scores"] = True
+        output = self.model.generate(**encoded_input, **raw_request)
         sequences = output.sequences
-        all_logprobs_of_chosen_tokens = []
-        print(f"Length of sequences = {len(sequences)}, length of sequences[0] = {len(sequences[0])}")
-        print(f"Length of output.scores = {len(output.scores)}, length of output.scores[0] = {len(output.scores[0])}")
 
         # TODO: Make this more efficient?
-        for completion_id in range(raw_request["num_completions"]):
+        all_logprobs_of_chosen_tokens = []
+        for completion_id in range(raw_request["num_return_sequences"]):
             logprobs_of_chosen_tokens = []
             # Compute logprobs for each completed sequence separately.
             for i in range(len(sequences[completion_id]) - len(encoded_input.input_ids[0])):
@@ -60,23 +52,23 @@ class HuggingFaceServer:
             # TODO: Populate top_logprobs as well?
             completions.append({"text": decoded_text, "tokens": tokens, "logprobs": logprobs_of_chosen_tokens})
 
-        return {"completions": completions}
+        return {"completions": completions, "input_length": len(encoded_input.input_ids[0])}
 
 
 class HuggingFaceClient(Client):
     def __init__(self, cache_path: str):
         self.cache = Cache(cache_path)
-        self.model_stubs: Dict[str, HuggingFaceServer] = {}
+        self.model_server_instances: Dict[str, HuggingFaceServer] = {}
 
-    def get_model_stub(self, model_engine):
-        if model_engine not in self.model_stubs:
+    def get_model_server_instance(self, model_engine):
+        if model_engine not in self.model_server_instances:
             if model_engine == "gptj_6b":
-                self.model_stubs[model_engine] = HuggingFaceServer("EleutherAI/gpt-j-6B")
+                self.model_server_instances[model_engine] = HuggingFaceServer("EleutherAI/gpt-j-6B")
             elif model_engine == "gpt2":
-                self.model_stubs[model_engine] = HuggingFaceServer("gpt2")
+                self.model_server_instances[model_engine] = HuggingFaceServer("gpt2")
             else:
                 raise Exception("Unknown model!")
-        return self.model_stubs[model_engine]
+        return self.model_server_instances[model_engine]
 
     def make_request(self, request: Request) -> RequestResult:
         print(request)
@@ -84,22 +76,18 @@ class HuggingFaceClient(Client):
             "engine": request.model_engine,
             "prompt": request.prompt,
             "temperature": request.temperature,
-            "num_completions": request.num_completions,
-            "max_tokens": request.max_tokens,
-            "best_of": request.top_k_per_token,
-            "logprobs": request.top_k_per_token,
-            "stop": request.stop_sequences or None,  # API doesn't like empty list
+            "num_return_sequences": request.num_completions,
+            "max_length": request.max_tokens,
+            "top_k": request.top_k_per_token,
             "top_p": request.top_p,
-            "presence_penalty": request.presence_penalty,
-            "frequency_penalty": request.frequency_penalty,
             "echo_prompt": request.echo_prompt,
         }
-        model_stub = self.get_model_stub(request.model_engine)
+        model_server_instance = self.get_model_server_instance(request.model_engine)
 
         try:
 
             def do_it():
-                return model_stub.serve_request(raw_request)
+                return model_server_instance.serve_request(raw_request)
 
             cache_key = Client.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
@@ -112,8 +100,14 @@ class HuggingFaceClient(Client):
             sequence_logprob = 0
             tokens: List[Token] = []
 
-            for text, logprob in zip(raw_completion["tokens"], raw_completion["logprobs"]):
-                tokens.append(Token(text=text, logprob=logprob, top_logprobs={}))
+            if request.echo_prompt:
+                generated_tokens = raw_completion["tokens"][response["input_length"] :]
+                for token_text in raw_completion["tokens"][: response["input_length"]]:
+                    tokens.append(Token(text=token_text, logprob=0.0, top_logprobs={}))
+            else:
+                generated_tokens = raw_completion["tokens"]
+            for token_text, logprob in zip(generated_tokens, raw_completion["logprobs"]):
+                tokens.append(Token(text=token_text, logprob=logprob, top_logprobs={}))
                 sequence_logprob += logprob
             completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
             completions.append(completion)
@@ -127,11 +121,20 @@ if __name__ == "__main__":
     client = HuggingFaceClient(cache_path="huggingface_cache")
     print(
         client.make_request(
-            Request(model="huggingface/gptj_6b", prompt="I am a computer scientist.", num_completions=2)
+            Request(
+                model="huggingface/gptj_6b", prompt="I am a computer scientist.", num_completions=2, top_k_per_token=50
+            )
         )
     )
     print(
         client.make_request(
-            Request(model="huggingface/gpt2", prompt="My name is Joe.", num_completions=2, max_tokens=30)
+            Request(
+                model="huggingface/gpt2",
+                prompt="My name is Joe.",
+                num_completions=2,
+                max_tokens=30,
+                top_k_per_token=50,
+                echo_prompt=True,
+            )
         )
     )
