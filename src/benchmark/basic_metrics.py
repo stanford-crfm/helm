@@ -101,7 +101,12 @@ class BasicMetric(Metric):
 
                 # Predicted outputs
                 assert request_state.result is not None
-                preds = [i[0] for i in sorted(request_state.result.completions[0].tokens[0].top_logprobs.items(), key=lambda kv: -kv[1])]
+                preds = [
+                    i[0]
+                    for i in sorted(
+                        request_state.result.completions[0].tokens[0].top_logprobs.items(), key=lambda kv: -kv[1]
+                    )
+                ]
                 # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
                 if request_state.output_mapping is not None:
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
