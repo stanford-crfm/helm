@@ -2,7 +2,6 @@ import random
 from typing import List
 
 from .scenario import Scenario, Instance, Reference, TRAIN_TAG, TEST_TAG, CORRECT_TAG
-import pdb
 
 
 class Simple1Scenario(Scenario):
@@ -42,10 +41,6 @@ class Simple1Scenario(Scenario):
                 Reference(output=output, tags=[CORRECT_TAG]),  # Correct output
                 Reference(output="-1", tags=[]),  # Wrong output
             ]
-            print(input)
-            print(references)
-            print(tags)
-            pdb.set_trace()
             return Instance(input=input, references=references, tags=tags)
 
         def generate_instances(num_instances: int, tags: List[str]):
@@ -54,11 +49,3 @@ class Simple1Scenario(Scenario):
         return generate_instances(self.num_train_instances, [TRAIN_TAG]) + generate_instances(
             self.num_test_instances, [TEST_TAG]
         )
-
-
-if __name__ == "__main__":
-    s = Simple1Scenario(10, 20, 5, 5)
-    i = s.get_instances()
-    pdb.set_trace()
-    print(TRAIN_TAG)
-    print(TEST_TAG)
