@@ -176,7 +176,7 @@ classes (see `benchmark`):
 
 There are three types of classes:
 
-- Specifications (e.g., `AdaptationSpec`, `ExecutionSpec`, `RunSpec`):
+- Specifications (e.g., `AdapterSpec`, `ExecutionSpec`, `RunSpec`):
   specified manually by the user.  Note that `Scenario` and `Metric` are
   subclassed, so they are constructed by `ObjectSpec`, which specifies the
   subclass name and a free-form dictionary of arguments.
@@ -184,6 +184,45 @@ There are three types of classes:
   are automatically generated and can be serialized.
 - Controllers (e.g., `Scenario`, `Adapter`, `Executor`, `Metric`, `Runner`):
   these have the bulk of the code and should not be serialized.
+
+## Data Augmentations
+
+To apply data augmentation, create a `DataAugmenterSpec` with a list of 
+`PerturbationSpec`s and pass it into `AdapterSpec`. The following is an
+example:
+
+```python
+    data_augmenter_spec = DataAugmenterSpec(
+        perturbation_specs=[
+            PerturbationSpec(
+                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", 
+                args={"num_spaces": 5},
+            )
+        ],
+        should_perturb_references=False,
+        should_augment_train_instances=False,
+        should_include_original_train=False,
+        should_augment_eval_instances=True,
+        should_include_original_eval=True,
+    )
+    adapter_spec = AdapterSpec(
+        ...
+        data_augmenter_spec=data_augmenter_spec
+    )
+```
+
+In the example above, the `Adapter` will augment the set of evaluation instances by perturbing
+the original set of instances with the `ExtraSpacePerturbation`, where spaces in the text are 
+replaced with `num_spaces` number of spaces. 
+
+We currently only support applying a single perturbation to an instance instead of chaining
+multiple perturbations and applying it onto a single instance.
+
+### Adding a new perturbation
+
+To add a new perturbation to the framework, simply create a new class in `perturbation.py` that
+extends the abstract class `Perturbation` and implement the `perturb` method which takes in
+text and outputs the perturbed text. Add a test for the new perturbation in `test_perturbation.py`.
 
 ## Running the benchmark
 
@@ -242,10 +281,14 @@ To contribute to this project, install the dependencies and git hook scripts:
 
 ## Tests
 
-To run unit tests:
+To run all unit tests:
 
     python -m pytest
 
 Append `-vv` to output the full diff and results:
 
     python -m pytest -vv
+
+To run a specific file, simply specify the path:
+
+    python -m pytest <path/to/file> -vv
