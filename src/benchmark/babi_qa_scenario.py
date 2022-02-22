@@ -46,8 +46,14 @@ class BabiQAScenario(Scenario):
     tags = ["question_answering"]
 
     def __init__(self, task):
-        self.task = task
+        self.task = int(task)
         pass
+
+    def process_path(self, path: str) -> str:
+        steps: List[str] = path.split(",")
+        directions = {"s": "south", "n": "north", "e": "east", "w": "west"}
+        path = " ".join([directions[step] for step in steps])
+        return path
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
@@ -74,7 +80,9 @@ class BabiQAScenario(Scenario):
                     is_question = "?" in fact
                     if is_question:
                         question, asnwer = fact.split("\t")[:2]
-                        question, answer = question.strip(), asnwer.strip().replace(",", "")
+                        question, answer = question.strip(), asnwer.strip()
+                        if self.task == 19:
+                            answer = self.process_path(answer)
                         context = f"{''.join(story)}{question}"
                         instance: Instance = Instance(
                             input=context,

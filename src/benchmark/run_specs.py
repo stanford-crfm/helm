@@ -327,7 +327,7 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
     )
 
 
-def get_babi_qa_spec(task: int) -> RunSpec:
+def get_babi_qa_spec(task: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.babi_qa_scenario.BabiQAScenario", args={"task": task})
 
     adapter_spec = AdapterSpec(
@@ -337,9 +337,9 @@ def get_babi_qa_spec(task: int) -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=None,  # TODO: Remove after debugging
+        max_eval_instances=50,  # TODO: Change to None
         num_outputs=1,
-        max_tokens=1,
+        max_tokens=2 if task == "19" else 1,
     )
     return RunSpec(
         name=f"babi_qa:task={task}",
