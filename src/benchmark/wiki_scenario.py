@@ -1,20 +1,14 @@
-import csv
-from email.policy import default
 import os
 from typing import List
-from collections import defaultdict
-import re
-import pdb
 import json
 
-from pyparsing import delimited_list
-from transformers import DEBERTA_PRETRAINED_CONFIG_ARCHIVE_MAP
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
 
 
-flatten_list = lambda l: sum(map(flatten_list, l), []) if isinstance(l, list) else [l]
+def flatten_list(l: list):
+    return sum(map(flatten_list, l), []) if isinstance(l, list) else [l]
 
 
 class WIKIScenario(Scenario):
