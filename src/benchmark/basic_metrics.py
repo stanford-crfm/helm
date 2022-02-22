@@ -101,10 +101,7 @@ class BasicMetric(Metric):
 
                 # Predicted outputs
                 assert request_state.result is not None
-                # TODO: Sort the predictions, or take them from the top tokens of the first completion
-                #       https://github.com/stanford-crfm/benchmarking/issues/42
-                preds = [completion.text.strip() for completion in request_state.result.completions]
-
+                preds = [i[0] for i in sorted(request_state.result.completions[0].tokens[0].top_logprobs.items(), key=lambda kv: -kv[1])]
                 # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
                 if request_state.output_mapping is not None:
                     preds = [request_state.output_mapping.get(pred) for pred in preds]

@@ -18,6 +18,7 @@ flatten_list=lambda l: sum(map(flatten_list, l),[]) if isinstance(l,list) else [
 
 class WIKIScenario(Scenario):
     """
+    Fact Completion task using knowledge from WikiData.
     """
 
     name = "wiki"
@@ -31,7 +32,6 @@ class WIKIScenario(Scenario):
     def get_instances(self) -> List[Instance]:
         # Download the raw data
         data_path = os.path.join(self.output_path, "data")
-        # TODO: download the file from server
         ensure_file_downloaded(
             source_url="https://snap.stanford.edu/betae/fact_completion_data.zip",
             target_path=data_path,
@@ -67,30 +67,3 @@ class WIKIScenario(Scenario):
                 instances.append(instance)
         
         return instances
-
-
-if __name__ == "__main__":
-    # f = open("benchmark_output/scenarios/wiki/data/test.jsonl").readlines()
-    # t = defaultdict(int)
-    # for line in f:
-    #     r = json.loads(line)
-    #     t[len(r['result_names'])] += 1
-    #     if len(r['result_names']) != 1:
-    #         print(r)
-    #         pdb.set_trace()
-    # print(t)
-    # exit(-1)
-    s = WIKIScenario(subject='P31')
-    s.output_path = "benchmark_output/scenarios/wiki"
-    i = s.get_instances()
-    for ii in i:
-        print('-'*10)
-        print(ii)
-    pdb.set_trace()
-'''
-1. 71555 queries in data.tsv
- 70814 have answers with qid in names.tsv
-2. Do we want to have space to be the end of a question? 
-clean the data so that it ends with a space.
-defaultdict(<class 'int'>, {'f': 7101, 'n': 7583, 's': 44727, 'e': 1787, 'y': 5011, 'r': 899, 'h': 2991, ' ': 622, 'm': 93})
-'''
