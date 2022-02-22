@@ -13,8 +13,8 @@ class BabiQAScenario(Scenario):
     Original repository can be found at:
         https://github.com/facebookarchive/bAbI-tasks
 
-    bAbi is a QA dataset containing 20 reasoning tasks.
-    Each sample contains a passage (an ordered list of facts), a question and
+    bAbi is a QA dataset containing 20 reasoning tasks,
+    each sample contains a passage (an ordered list of facts), a question and
     an answer that are generated in an unconstrained/unprompted setting.
 
     We prompt models using the following format:
@@ -65,29 +65,25 @@ class BabiQAScenario(Scenario):
             with open(split_path, "r") as f:
 
                 facts = list(f)
-                story, answer = "", None
-                section: List[str] = []
+                answer: str = None
+                story: List[str] = []
                 for fact in facts:
                     fid = int(fact.split(" ")[0])
                     if fid == 1:
-                        if story != "":
-                            story_list = story.split("?")
-                            story, answer = "?".join(story_list[:-1]) + "?", story_list[-1][1:-1]
-                            instance: Instance = Instance(
-                                input=story,
-                                references=[Reference(output=answer, tags=[CORRECT_TAG])],
-                                tags=[splits[split]],
-                            )
-                            instances.append(instance)
-                        story, section = "", []
+                        story = []
                     fact = " ".join(fact.split(" ")[1:])
                     is_question = "?" in fact
                     if is_question:
-                        fact = " ".join(fact.split("\t")[:2]).replace("  ", " ")
-                        section.append(fact)
-                        story += "".join(section) + "\n"
-                        section = []
+                        question, asnwer = fact.split("\t")[:2]
+                        question, answer = question.strip(), asnwer.strip()
+                        context = f"{''.join(story)}{question}"
+                        instance: Instance = Instance(
+                            input=context,
+                            references=[Reference(output=answer, tags=[CORRECT_TAG])],
+                            tags=[splits[split]],
+                        )
+                        instances.append(instance)
                     else:
-                        section.append(fact)
+                        story.append(fact)
 
         return instances
