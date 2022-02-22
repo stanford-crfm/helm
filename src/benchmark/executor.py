@@ -42,7 +42,6 @@ class Executor:
             hlog("Skipped execution.")
             return scenario_state
 
-        # TODO: make this render_request_state
         def render_request_state(state: RequestState) -> str:
             instance = state.instance
             gold_output: Optional[str] = None

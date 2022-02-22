@@ -374,7 +374,7 @@ def get_the_pile_spec(subset: str) -> RunSpec:
         input_prefix="",
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=5,  # TODO: remove this line once deployed, so we can cache everything in prod
+        max_eval_instances=51,  # TODO: remove this line once deployed, so we can cache everything in prod
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
