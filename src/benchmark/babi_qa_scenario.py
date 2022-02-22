@@ -65,7 +65,6 @@ class BabiQAScenario(Scenario):
             with open(split_path, "r") as f:
 
                 facts = list(f)
-                answer: str = None
                 story: List[str] = []
                 for fact in facts:
                     fid = int(fact.split(" ")[0])
