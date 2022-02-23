@@ -3,8 +3,6 @@ from typing import List, Dict, Optional, Any
 from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from common.object_spec import ObjectSpec
 
-from .augmentations.data_augmenter import DataAugmenterSpec
-from .augmentations.perturbation import PerturbationSpec
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
@@ -42,34 +40,6 @@ def get_adapter_spec1() -> AdapterSpec:
         model="simple/model1",
         temperature=1,
         stop_sequences=["."],
-    )
-
-
-def get_adapter_spec1_with_data_augmentation() -> AdapterSpec:
-    data_augmenter_spec = DataAugmenterSpec(
-        perturbation_specs=[
-            PerturbationSpec(
-                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", args={"num_spaces": 5}
-            )
-        ],
-        should_perturb_references=False,
-        should_augment_train_instances=False,
-        should_include_original_train=False,
-        should_augment_eval_instances=True,
-        should_include_original_eval=True,
-    )
-
-    return AdapterSpec(
-        method=ADAPT_GENERATION,
-        instructions="Please solve the following problem.",
-        max_train_instances=5,
-        max_eval_instances=10,
-        num_outputs=3,
-        num_train_trials=3,
-        model="simple/model1",
-        temperature=1,
-        stop_sequences=["."],
-        data_augmenter_spec=data_augmenter_spec,
     )
 
 
@@ -128,6 +98,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_mmlu_spec(**args)]
     if name == "commonsense_qa":
         return [get_commonsense_qa_spec(**args)]
+    if name == "babi_qa":
+        return [get_babi_qa_spec(**args)]
+    if name == "lsat_qa":
+        return [get_lsat_qa_spec(**args)]
     if name == "real_toxicity_prompts":
         return [get_real_toxicity_prompts_spec()]
     if name == "simple1":
@@ -349,6 +323,51 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
     )
     return RunSpec(
         name="boolq_contrast_sets",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_babi_qa_spec(task: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.babi_qa_scenario.BabiQAScenario", args={"task": task})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO: Change to None
+        num_outputs=1,
+        max_tokens=2 if task == "19" else 1,
+    )
+    return RunSpec(
+        name=f"babi_qa:task={task}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_lsat_qa_spec(task: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.lsat_qa_scenario.LSATScenario", args={"task": task})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        conditioning_prefix="",
+        instructions="The following are multiple choice questions (with answers).",
+        input_prefix="",
+        output_prefix="\nAnswer: ",
+        max_train_instances=2,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO: Change to None
+        num_outputs=1,
+    )
+
+    return RunSpec(
+        name=f"lsat_qa:task={task}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
