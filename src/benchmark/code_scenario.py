@@ -110,15 +110,24 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
                 sols_str_list = json.load(f)
                 solutions = [_reindent_code(sol_str) for sol_str in sols_str_list]
 
+            # Tests
+            tests_fname = os.path.join(problem_dir, "input_output.py")
+            with open(tests_fname, 'r') as f:
+                data = json.load(f)
+                test_inputs: List = data["inputs"]
+                test_outputs: List = data["outputs"]
+
             # TODO: Truncate long instance.
-            # TODO: Add input-output pairs.
             prompt = _make_input_for_apps(
                 question=question, starter_code=starter_code, answer_type=answer_type
             )
             instance = Instance(
                 input=prompt,
                 references=[
-                    Reference(output=solution, tags=[CORRECT_TAG])
+                    Reference(
+                        output=solution,
+                        tags=[CORRECT_TAG],
+                        data=dict(test_inputs=test_inputs, test_outputs=test_outputs))
                     for solution in solutions
                 ],
                 tags=[tag],
