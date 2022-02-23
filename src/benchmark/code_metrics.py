@@ -11,7 +11,7 @@ import json
 import os
 import signal
 import sys
-from typing import List
+from typing import List, Union
 from unittest.mock import patch, mock_open
 
 import numpy as np
@@ -70,15 +70,15 @@ class Capturing(list):
         sys.stdout = self._stdout
 
 
-def run_test(root: str, test: str) -> List[int]:
+def run_test(root: str, test: str) -> List[Union[int, bool]]:
     """Run a single test.
 
     Args:
         root: Path to the problem folder.
         test: Candidate source code solution in string format.
     Returns:
-        A list of numbers, one for each test case.
-        -2 means compile error, -1 means runtime error, 0 means passed.
+        A list of numbers/booleans, one for each test case.
+        -2 means compile error, -1 means runtime error, `True` means passed, `False` means failed.
     """
 
     input_output_fname = os.path.join(root, "input_output.json")
@@ -170,17 +170,19 @@ def run_test(root: str, test: str) -> List[int]:
             if isinstance(inputs[0], dict):
                 inputs = [{int(k): v for k, v in inputs[0].items()}]
         except:
-            True
+            pass
+
         try:
             if isinstance(in_outs["outputs"][index], dict):
                 in_outs["outputs"][index] = [{int(k): v for k, v in in_outs["outputs"][index].items()}]
         except:
-            True
+            pass
+
         try:
             if isinstance(in_outs["outputs"][index][0], dict):
                 in_outs["outputs"][index] = [{int(k): v for k, v in in_outs["outputs"][index][0].items()}]
         except:
-            True
+            pass
 
         if which_type == CodeType.call_based:  # Call-based
             signal.alarm(timeout)
@@ -201,7 +203,7 @@ def run_test(root: str, test: str) -> List[int]:
                     if isinstance(output[0], tuple):
                         tmp_result = tmp_result or ([list(x) for x in output] == in_outs["outputs"][index][0])
                 except:
-                    True
+                    pass
                 results.append(tmp_result)
 
                 # reset the alarm
@@ -260,7 +262,7 @@ def run_test(root: str, test: str) -> List[int]:
                 hlog(f"Failed check1 exception = {e}")
                 pass
 
-            if tmp_result == True:
+            if tmp_result:
                 results.append(tmp_result)
                 continue
 
@@ -283,7 +285,7 @@ def run_test(root: str, test: str) -> List[int]:
                 hlog(f"Failed check2 exception = {e}")
                 pass
 
-            if tmp_result == True:
+            if tmp_result:
                 results.append(tmp_result)
                 continue
 
@@ -308,7 +310,7 @@ def run_test(root: str, test: str) -> List[int]:
                 gt_float = [float(e) for e in in_outs['outputs'][index]]
                 tmp_result = tmp_result or (
                     (len(output_float) == len(gt_float)) and np.allclose(output_float, gt_float))
-            except Exception as e:
+            except:
                 pass
             try:
                 if isinstance(output[0], list):
@@ -316,7 +318,7 @@ def run_test(root: str, test: str) -> List[int]:
                     gt_float = [float(e) for e in in_outs['outputs'][index][0]]
                     tmp_result = tmp_result or (
                         (len(output_float) == len(gt_float)) and np.allclose(output_float, gt_float))
-            except Exception as e:
+            except:
                 pass
 
             if tmp_result:
@@ -336,7 +338,7 @@ def run_test(root: str, test: str) -> List[int]:
                 hlog(f"Failed check4 exception = {e}")
                 continue
 
-            if tmp_result == True:
+            if tmp_result:
                 results.append(tmp_result)
                 continue
 
