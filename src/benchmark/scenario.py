@@ -30,7 +30,7 @@ class Reference:
     tags: List[str]
 
     # Extra Info for testing (e.g., code test cases)
-    data: Dict = None
+    data: Optional[Dict] = None
 
     @property
     def is_correct(self) -> bool:

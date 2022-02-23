@@ -71,21 +71,39 @@ def _stream_jsonl(filename: str) -> Iterable[Dict]:
 def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
     """Read APPS dataset.
 
-    Adapted from https://github.com/lxuechen/apps/blob/main/train/dataset_apps/APPSBaseDataset.py
+    Adapted from
+        https://github.com/lxuechen/apps/blob/main/train/dataset_apps/APPSBaseDataset.py
     """
+    SINGLE_STR_LIMIT = 150000  # From original codebase.
+
     instances = []
     for split, tag in zip(('train', 'test'), (TRAIN_TAG, TEST_TAG)):
         split_dir = os.path.join(target_path, split)
 
+        num_problems = 0
         skipped_problems = []
         for problem_name in os.listdir(split_dir):
             problem_dir = os.path.join(split_dir, problem_name)
 
             question_fname = os.path.join(problem_dir, "question.txt")
             sols_fname = os.path.join(problem_dir, "solutions.json")
-            if (not os.path.isfile(question_fname)) or (not os.path.isfile(sols_fname)):
+            tests_fname = os.path.join(problem_dir, "input_output.json")
+
+            # All instances must have the question description.
+            if not os.path.isfile(question_fname):
                 skipped_problems.append(problem_name)
                 continue
+            else:
+                # Train instances must have solution code.
+                if split in ('train',):
+                    if not os.path.isfile(sols_fname):
+                        skipped_problems.append(problem_name)
+                        continue
+                # Test instances can ignore solution code, but must have test cases.
+                elif split in ('test',):
+                    if not os.path.exists(tests_fname) or not os.path.isfile(tests_fname):
+                        skipped_problems.append(problem_name)
+                        continue
 
             # Answer type.
             starter_code_fname = os.path.join(problem_dir, "starter_code.py")
@@ -96,7 +114,7 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
 
             # Starter code.
             if os.path.isfile(starter_code_fname):
-                with open(starter_code, 'r') as f:
+                with open(starter_code_fname, 'r') as f:
                     starter_code = f.read()
             else:
                 starter_code = ""
@@ -106,35 +124,47 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
                 question = f.read()
 
             # Solutions. Multiple of them!
-            with open(sols_fname, 'r') as f:
-                sols_str_list = json.load(f)
-                solutions = [_reindent_code(sol_str) for sol_str in sols_str_list]
+            if os.path.isfile(sols_fname):
+                with open(sols_fname, 'r') as f:
+                    sols_str_list = json.load(f)
+                    solutions = [_reindent_code(sol_str) for sol_str in sols_str_list]
+            else:
+                solutions = []
 
-            # Tests
-            tests_fname = os.path.join(problem_dir, "input_output.py")
-            with open(tests_fname, 'r') as f:
-                data = json.load(f)
-                test_inputs: List = data["inputs"]
-                test_outputs: List = data["outputs"]
+            # Tests.
+            if os.path.exists(tests_fname):
+                with open(tests_fname, 'r') as f:
+                    # Some files may contain the key `fn_name`, which indicates it's
+                    # call-based instance. Annoying!
 
-            # TODO: Truncate long instance.
+                    # Call-based instances check function input/outputs; for other instances
+                    # I/O is handled through stdin and stdout streams.
+                    data = json.load(f)
+            else:
+                data = None
+
+            # Truncate for training, following original codebase.
+            question = question[:SINGLE_STR_LIMIT]
+            starter_code = starter_code[:SINGLE_STR_LIMIT]
+            solutions = [sol[:SINGLE_STR_LIMIT] for sol in solutions]
+
+            # Create overall prompt.
             prompt = _make_input_for_apps(
-                question=question, starter_code=starter_code, answer_type=answer_type
+                question=question, starter_code=starter_code, answer_type=answer_type,
             )
             instance = Instance(
                 input=prompt,
                 references=[
-                    Reference(
-                        output=solution,
-                        tags=[CORRECT_TAG],
-                        data=dict(test_inputs=test_inputs, test_outputs=test_outputs))
+                    Reference(output=solution, tags=[CORRECT_TAG], data=data)
                     for solution in solutions
                 ],
                 tags=[tag],
             )
             instances.append(instance)
+            num_problems += 1
+        # Should not skip any cases; just defensive.
         hlog(
-            f"Split {split}, skipped {len(skipped_problems)} problems with no description or solution."
+            f"Split {split}, skipped {len(skipped_problems)}/{num_problems} problems with no description or solution."
             f"\nTheir ids are: {skipped_problems}"
         )
     return instances
@@ -195,6 +225,8 @@ class CodeScenario(Scenario):
             instances = _read_and_preprocess_human_eval(target_path=target_path, **self.human_eval_hparams)
 
         elif self.dataset == "APPS":
+            # This dataset doesn't have a validation set.
+            # Unclear how they do validation. Also not clarified in their paper.
             # `target_path` is the output folder, not the compressed file, since we unpack!
             target_path = os.path.join(self.output_path, "APPS")
             ensure_file_downloaded(
@@ -202,7 +234,6 @@ class CodeScenario(Scenario):
                 target_path=target_path,
                 unpack=True,
             )
-            # TODO: Control the validation split.
             instances = _read_and_preprocess_apps(target_path)
 
         else:
