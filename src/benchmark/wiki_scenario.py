@@ -7,8 +7,8 @@ from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
 
 
-def flatten_list(l: list):
-    return sum(map(flatten_list, l), []) if isinstance(l, list) else [l]
+def flatten_list(ll: list):
+    return sum(map(flatten_list, ll), []) if isinstance(ll, list) else [ll]
 
 
 class WIKIScenario(Scenario):
