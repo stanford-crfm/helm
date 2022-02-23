@@ -49,8 +49,6 @@ METRICS = {
 }
 
 
-# TODO: Fix == issue for booln
-
 class APPSMetric(Metric):
     def __init__(self, names):
         super(APPSMetric, self).__init__()
@@ -310,7 +308,7 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
                 hlog(f"Failed check1 exception = {e}")
                 pass
 
-            if tmp_result:
+            if isinstance(tmp_result, bool) and tmp_result:
                 results.append(tmp_result)
                 continue
 
@@ -333,7 +331,7 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
                 hlog(f"Failed check2 exception = {e}")
                 pass
 
-            if tmp_result:
+            if isinstance(tmp_result, bool) and tmp_result:
                 results.append(tmp_result)
                 continue
 
@@ -341,7 +339,7 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
             if isinstance(output, list):
                 output = list(filter(len, output))
 
-            if tmp_result:
+            if isinstance(tmp_result, bool) and tmp_result:
                 results.append(tmp_result)
                 continue
 
@@ -369,7 +367,7 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
             except:
                 pass
 
-            if tmp_result:
+            if isinstance(tmp_result, bool) and tmp_result:
                 results.append(tmp_result)
                 continue
 
@@ -386,7 +384,7 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
                 hlog(f"Failed check4 exception = {e}")
                 continue
 
-            if tmp_result:
+            if isinstance(tmp_result, bool) and tmp_result:
                 results.append(tmp_result)
                 continue
 
