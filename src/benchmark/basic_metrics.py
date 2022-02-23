@@ -15,6 +15,16 @@ from .metric import Metric
 from .metric_service import MetricService
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from proxy.tokenizer.token_counter import TokenCounter
+import numpy as np
+
+
+def estimator(n: int, c: int, k: int) -> float:
+        """
+        Calculates 1 - comb(n - c, k) / comb(n, k).
+        """
+        if n - c < k:
+            return 1.0
+        return 1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))
 
 
 def check_correctness(problem: Dict, completion: str, timeout: float, completion_id: Optional[int] = None) -> Dict:
@@ -275,7 +285,7 @@ def exact_set_match(gold: Tuple[str, Dict], pred: str) -> float:
 def code_eval(gold: Tuple[str, Dict], pred: str) -> float:
     """Evaluate Code Correctness on test examples"""
     ###### Warning: will execute machine generated code; need to sandbox before executing thisgithub
-    return check_correctness(gold[1], pred, 3.0)["passed"]
+    return float(check_correctness(gold[1], pred, 3.0)["passed"])
 
 
 class BasicMetric(Metric):
@@ -314,6 +324,12 @@ class BasicMetric(Metric):
         ) -> List[Stat]:
             score_1 = max(score_func(gold, preds[0]) for gold in golds)
             score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
+
+
+            # Calculate pass@k.
+            if name == "code_eval":
+                results = [score_func(gold, pred) for gold in golds for pred in preds]
+                score_k = estimator(len(results), sum(results), adapter_spec.num_outputs)
 
             return [
                 Stat(name).add(score_1),
