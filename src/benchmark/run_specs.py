@@ -90,6 +90,11 @@ def get_lpm_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
+def get_math_metrics() -> List[MetricSpec]:
+    metric_names = {"names": ["exact_boxed_match"]}
+    return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
+
+
 def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
     if args is None:
         args = dict()
@@ -124,6 +129,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_copyright_spec(**args)]
     if name == "lpm":
         return [get_lpm_spec(**args)]
+    if name == "math":
+        return [get_math_spec(**args)]
     if name == "mmlu":
         return [get_mmlu_spec(**args)]
     if name == "commonsense_qa":
@@ -303,6 +310,29 @@ def get_lpm_spec(difficulty: str) -> RunSpec:
 
     return RunSpec(
         name=f"lpm:difficulty={difficulty}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_lpm_metrics()
+    )
+
+
+def get_math_spec(type: str, level: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.math_scenario.MATHScenario", args={"type": type, "level": level})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Please solve the following problem.",
+        max_train_instances=3,
+        max_eval_instances=100,
+        num_outputs=3,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0.2,
+        stop_sequences=["\n"],
+        max_tokens=20,  # TODO
+        input_prefix="Problem: ",
+        output_prefix="\nSolution: ",
+    )
+
+    return RunSpec(
+        name=f"math:type={type},level={level}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_math_metrics()
     )
 
 

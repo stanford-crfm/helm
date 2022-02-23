@@ -1,3 +1,4 @@
+import re
 from typing import List, Callable, Optional
 
 from common.general import format_tags
@@ -40,6 +41,26 @@ def exact_set_match(gold: str, pred: str) -> float:
     gold_set = set(gold.split(" is ")[-1].split(" and "))
     pred_set = set(pred.split(" is ")[-1].split(" and "))
     return float(gold_set == pred_set)
+
+
+def regex_comparison(inner_metric_fn: Callable[[str, str], float], regex: str,) -> Callable[[str, str], float]:
+    """Evaluates only on first matching occurrence."""
+
+    def metric_fn(gold: str, pred: str) -> float:
+        def get_answer(text):
+            """Extracts out the first matching substring from the text for comparison."""
+            match = re.search(regex, text)
+            if match is not None:
+                return match.group()
+            else:
+                return ""
+
+        pred = get_answer(pred).replace(" ", "")
+        gold = get_answer(gold).replace(" ", "")
+
+        return inner_metric_fn(gold, pred)
+
+    return metric_fn
 
 
 class BasicMetric(Metric):
@@ -90,6 +111,7 @@ class BasicMetric(Metric):
             "exact_match": exact_match,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
+            "exact_boxed_match": regex_comparison(inner_metric_fn=exact_match, regex=r"boxed\{.+\}"),
         }
 
         reference_metrics = []
