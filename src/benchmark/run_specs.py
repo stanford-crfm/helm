@@ -78,7 +78,7 @@ def get_code_metrics(dataset: str) -> List[MetricSpec]:
         metric_names = {"names": ["code_eval"]}
         return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
     else:  # APPS.
-        metric_names = {"names": ["test_avg"]}  # TODO:
+        metric_names = {"names": ["test_avg", "strict_acc"]}
         return [MetricSpec(class_name="benchmark.code_metrics.APPSMetric", args=metric_names)]
 
 
