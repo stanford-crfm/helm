@@ -14,8 +14,8 @@ class LSATScenario(Scenario):
     Original repository can be found at:
         https://github.com/facebookarchive/bAbI-tasks
 
-    bAbi is a QA dataset containing question that test analytical reasoning,
-    from Law School Admission Test (LSAT).
+    This is a multi-choice QA dataset containing question that test analytical reasoning,
+    from the Law School Admission Test (LSAT).
 
     We prompt models using the following format:
         Passage: <passage>
@@ -58,7 +58,7 @@ class LSATScenario(Scenario):
         self.task = task
         question_types = {
             "grouping": ["in/out grouping", "distribution grouping"],
-            "ordering": ["relative ordering", "simple ordering", "complex ordering"],
+            "ordering": ["simple ordering", "relative ordering", "complex ordering"],
             "assignment": ["determined assignment", "undetermined assignment"],
             "miscellaneous": [],
         }
@@ -70,7 +70,7 @@ class LSATScenario(Scenario):
 
     def get_question_types(self, tags):
         qtype: str = tags[2].replace("grouping (distribution)", "distribution grouping") or "miscellaneous"
-        return [qtype.replace(" ", "_"), self.subtype2type.get(qtype)]
+        return [qtype.replace(" ", "_").replace("/", "_"), self.subtype2type.get(qtype)]
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
