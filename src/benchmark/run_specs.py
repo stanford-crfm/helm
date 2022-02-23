@@ -98,8 +98,6 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_mmlu_spec(**args)]
     if name == "commonsense_qa":
         return [get_commonsense_qa_spec(**args)]
-    if name == "babi_qa":
-        return [get_babi_qa_spec(**args)]
     if name == "lsat_qa":
         return [get_lsat_qa_spec(**args)]
     if name == "real_toxicity_prompts":
@@ -323,28 +321,6 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
     )
     return RunSpec(
         name="boolq_contrast_sets",
-        scenario=scenario,
-        adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
-    )
-
-
-def get_babi_qa_spec(task: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.babi_qa_scenario.BabiQAScenario", args={"task": task})
-
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="\nanswer:",
-        num_train_trials=1,
-        max_train_instances=5,
-        model="ai21/j1-large",
-        max_eval_instances=50,  # TODO: Change to None
-        num_outputs=1,
-        max_tokens=2 if task == "19" else 1,
-    )
-    return RunSpec(
-        name=f"babi_qa:task={task}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
