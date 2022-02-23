@@ -166,8 +166,8 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
             num_problems += 1
         # Should not skip any cases; just defensive.
         hlog(
-            f"Split {split}, skipped {len(skipped_problems)}/{num_problems} problems with no description or solution."
-            f"\nTheir ids are: {skipped_problems}"
+            f"Split {split}, skipped {len(skipped_problems)}/{num_problems} problems with no description or solution. "
+            f"Their ids are: {skipped_problems}"
         )
     return instances
 

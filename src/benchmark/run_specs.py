@@ -1,18 +1,17 @@
 from typing import List, Dict, Optional, Any
 
-from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from common.object_spec import ObjectSpec
-
+from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE,
     ADAPT_GENERATION,
 )
+from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .metric import MetricSpec
 from .runner import RunSpec
 from .scenario import ScenarioSpec
-from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -74,9 +73,13 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
     ]
 
 
-def get_code_metrics() -> List[MetricSpec]:
-    metric_names = {"names": ["code_eval"]}
-    return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
+def get_code_metrics(dataset: str) -> List[MetricSpec]:
+    if dataset == "HumanEval":
+        metric_names = {"names": ["code_eval"]}
+        return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
+    else:  # APPS.
+        metric_names = {"names": ["test_avg"]}  # TODO:
+        return [MetricSpec(class_name="benchmark.code_metrics.APPSMetric", args=metric_names)]
 
 
 ############################################################
@@ -156,7 +159,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.commonsense_qa_scenario.CommonSenseQAScenario",
-        args={"dataset": dataset, "method": method,},
+        args={"dataset": dataset, "method": method, },
     )
 
     if method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
@@ -180,7 +183,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             metrics=get_basic_metrics({"names": ["exact_match"]}),
         )
     elif method == CAUSAL_LANGUAGE_MODELING_METHOD:
-        n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
+        n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3, }[dataset]
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             conditioning_prefix="",
@@ -397,5 +400,5 @@ def get_code_spec(dataset: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"code:dataset={dataset}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_code_metrics()
+        name=f"code:dataset={dataset}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_code_metrics(dataset)
     )

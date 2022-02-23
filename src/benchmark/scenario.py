@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional, Dict
 
-from common.object_spec import ObjectSpec, create_object
 from common.general import format_text, format_tags, indent_lines
+from common.object_spec import ObjectSpec, create_object
 
 # Tags for instances
 TRAIN_TAG = "train"
@@ -56,6 +56,9 @@ class Instance:
 
     # Extra metadata (e.g., train/valid/test, demographic group, etc.)
     tags: List[str]
+
+    # Extra none-string metadata, e.g., paths.
+    data: Optional[Dict] = None
 
     @property
     def first_correct_reference(self) -> Optional[Reference]:

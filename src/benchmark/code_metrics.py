@@ -18,21 +18,40 @@ import numpy as np
 from pyext import RuntimeModule
 
 from common.hierarchical_logger import hlog
+from common.request import RequestResult
 from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_service import MetricService
 
+METRICS = ("test_avg", "strict_acc")
+
 
 class APPSMetric(Metric):
-    def __init__(self):
+    def __init__(self, name):
         super(APPSMetric, self).__init__()
+        if name not in METRICS:
+            raise ValueError(f"Expected name to be either one of {METRICS}, but got {name}.")
 
     def evaluate_generation(
         self,
         adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
-        pass
+        # Take best result over all completions.
+        instance = request_state.instance
+        references = instance.references
+        root = instance.data["root"]
+
+        result = 0.0
+        request_result: RequestResult = request_state.result
+        for completion in request_result.completions:
+            completion = completion.text.strip()
+            results = run_test(root=root, test=completion)
+            print(results)
+            results = run_test(root=root, test=references[0].output)
+            print(results)
+            import pdb; pdb.set_trace()
+        exit()
 
 
 # === Code below are adapted from APPS codebase; less clean as I intend ===
