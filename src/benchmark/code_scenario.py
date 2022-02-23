@@ -139,9 +139,10 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
 
                     # Call-based instances check function input/outputs; for other instances
                     # I/O is handled through stdin and stdout streams.
-                    data = json.load(f)
+                    data: Dict = json.load(f)
             else:
-                data = None
+                data = dict()
+            data["root"] = problem_dir
 
             # Truncate for training, following original codebase.
             question = question[:SINGLE_STR_LIMIT]
@@ -155,10 +156,11 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
             instance = Instance(
                 input=prompt,
                 references=[
-                    Reference(output=solution, tags=[CORRECT_TAG], data=data)
+                    Reference(output=solution, tags=[CORRECT_TAG])
                     for solution in solutions
                 ],
                 tags=[tag],
+                data=data,
             )
             instances.append(instance)
             num_problems += 1
