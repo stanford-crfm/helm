@@ -1,21 +1,26 @@
-import csv
-import os
+"""Scenario related to source code.
+
+Includes
+    - HumanEval: https://github.com/openai/human-eval
+    - APPS: https://github.com/hendrycks/apps
+"""
 import gzip
 import json
+import os
 from typing import List, Dict, Iterable
+
 from common.general import ensure_file_downloaded
-from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
+from .scenario import (
+    Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
+)
 
 
-def read_problems(evalset_file: str = "HumanEval.jsonl.gz") -> Dict[str, Dict]:
-    return {task["task_id"]: task for task in stream_jsonl(evalset_file)}
+def _read_human_eval(evalset_file: str = "HumanEval.jsonl.gz") -> Dict[str, Dict]:
+    return {task["task_id"]: task for task in _stream_jsonl(evalset_file)}
 
 
-def stream_jsonl(filename: str) -> Iterable[Dict]:
-    """
-    Parses each jsonl line and yields it as a dictionary
-    """
+def _stream_jsonl(filename: str) -> Iterable[Dict]:
+    """Parses each jsonl line and yields it as a dictionary."""
     if filename.endswith(".gz"):
         with open(filename, "rb") as gzfp:
             with gzip.open(gzfp, "rt") as fp:
@@ -29,37 +34,11 @@ def stream_jsonl(filename: str) -> Iterable[Dict]:
                     yield json.loads(line)
 
 
-def write_jsonl(filename: str, data: Iterable[Dict], append: bool = False):
-    """
-    Writes an iterable of dictionaries to jsonl
-    """
-    if append:
-        mode = "ab"
-    else:
-        mode = "wb"
-    filename = os.path.expanduser(filename)
-    if filename.endswith(".gz"):
-        with open(filename, mode) as fp:
-            with gzip.GzipFile(fileobj=fp, mode="wb") as gzfp:
-                for x in data:
-                    gzfp.write((json.dumps(x) + "\n").encode("utf-8"))
-    else:
-        with open(filename, mode) as fp:
-            for x in data:
-                fp.write((json.dumps(x) + "\n").encode("utf-8"))
+def _read_apps(filename: str) -> Dict[str, Dict]:
+    raise NotImplemented
 
 
 class CodeScenario(Scenario):
-    """
-    The Code Generation task HumanEval:
-
-        https://arxiv.org/pdf/2107.03374.pdf
-
-    Code is adapted from:
-
-        https://github.com/openai/human-eval
-    """
-
     name = "code"
     description = "Code Generation"
     tags = ["Reasoning", "Code Generation"]
@@ -80,28 +59,36 @@ class CodeScenario(Scenario):
                 unpack=False,
             )
 
-            # Read all the instances
-            problems = read_problems(data_path)
-        else:
-            ValueError(f"Unknown dataset: {self.dataset}")
+            problems = _read_human_eval(data_path)
 
-        instances = []
-        for sample_idx, task_id in enumerate(problems):
-            if sample_idx < self.num_train_instances:
-                cur_tag = TRAIN_TAG
-            elif sample_idx < self.num_train_instances + self.num_val_instances:
-                cur_tag = VALID_TAG
-            else:
-                cur_tag = TEST_TAG
-            instance = Instance(
-                input=problems[task_id]["prompt"],
-                references=[
-                    Reference(
-                        output=problems[task_id]["canonical_solution"], data=problems[task_id], tags=[CORRECT_TAG]
-                    ),
-                ],
-                tags=[cur_tag],
+            instances = []
+            for sample_idx, task_id in enumerate(problems):
+                if sample_idx < self.num_train_instances:
+                    cur_tag = TRAIN_TAG
+                elif sample_idx < self.num_train_instances + self.num_val_instances:
+                    cur_tag = VALID_TAG
+                else:
+                    cur_tag = TEST_TAG
+                instance = Instance(
+                    input=problems[task_id]["prompt"],
+                    references=[
+                        Reference(
+                            output=problems[task_id]["canonical_solution"], data=problems[task_id], tags=[CORRECT_TAG]
+                        ),
+                    ],
+                    tags=[cur_tag],
+                )
+                instances.append(instance)
+
+        elif self.dataset == "apps":
+            ensure_file_downloaded(
+                source_url="https://people.eecs.berkeley.edu/~hendrycks/APPS.tar.gz",
+                target_path=data_path,
+                unpack=False,
             )
-            instances.append(instance)
+            # TODO:
+            instances = []
+        else:
+            raise ValueError(f"Unknown dataset: {self.dataset}")
 
         return instances
