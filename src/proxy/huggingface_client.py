@@ -1,7 +1,7 @@
 from common.cache import Cache
 from common.hierarchical_logger import htrack_block
 from common.request import Request, RequestResult, Sequence, Token
-from client import Client, wrap_request_time
+from .client import Client, wrap_request_time
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -19,19 +19,21 @@ class HuggingFaceServer:
 
     def serve_request(self, raw_request: Dict[str, Any]):
         encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt").to(self.device)
+
         raw_request["do_sample"] = True
         raw_request["return_dict_in_generate"] = True
         raw_request["output_scores"] = True
+
         output = self.model.generate(**encoded_input, **raw_request)
         sequences = output.sequences
+        scores = output.scores
 
-        # TODO: Make this more efficient?
+        # Compute logprobs for each completed sequence.
         all_logprobs_of_chosen_tokens = []
         for completion_id in range(raw_request["num_return_sequences"]):
             logprobs_of_chosen_tokens = []
-            # Compute logprobs for each completed sequence separately.
             for i in range(len(sequences[completion_id]) - len(encoded_input.input_ids[0])):
-                logprobs = torch.log(torch.nn.functional.softmax(output.scores[i][completion_id]))
+                logprobs = torch.nn.functional.log_softmax(scores[i][completion_id], dim=0)
 
                 # Get log probability of chosen token.
                 j = i + len(encoded_input.input_ids[0])
@@ -71,7 +73,6 @@ class HuggingFaceClient(Client):
         return self.model_server_instances[model_engine]
 
     def make_request(self, request: Request) -> RequestResult:
-        print(request)
         raw_request = {
             "engine": request.model_engine,
             "prompt": request.prompt,
@@ -114,27 +115,3 @@ class HuggingFaceClient(Client):
         return RequestResult(
             success=True, cached=cached, request_time=response["request_time"], completions=completions
         )
-
-
-if __name__ == "__main__":
-    # TODO: Move this to a separate test file.
-    client = HuggingFaceClient(cache_path="huggingface_cache")
-    print(
-        client.make_request(
-            Request(
-                model="huggingface/gptj_6b", prompt="I am a computer scientist.", num_completions=2, top_k_per_token=50
-            )
-        )
-    )
-    print(
-        client.make_request(
-            Request(
-                model="huggingface/gpt2",
-                prompt="My name is Joe.",
-                num_completions=2,
-                max_tokens=30,
-                top_k_per_token=50,
-                echo_prompt=True,
-            )
-        )
-    )
