@@ -217,16 +217,19 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         conditioning_prefix="",
         instructions=f"Please complete the rest of the following Dyck sequence, making sure that the parentheses are closed properly. ",
         input_prefix="Input: ",
-        output_prefix="\nOutput: ",
+        output_prefix="",
         model="openai/davinci",
         temperature=0.0,
+        max_train_instances=3,
+        max_eval_instances=100,
         stop_sequences=["\n"],
         max_tokens=10,
+        num_outputs=1,
     )
 
     return RunSpec(
         name=f"dyck_language_np={int(num_parenthesis_pairs)}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["iou_set_match", "exact_match"]}),
     )
