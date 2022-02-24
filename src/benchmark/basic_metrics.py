@@ -52,7 +52,7 @@ def check_correctness(problem: Dict, completion: str, timeout: float, completion
 
             # Construct the check program and run it.
             check_program = (
-                problem["prompt"] + completion + "\n" + problem["test"] + "\n" + f"check({problem['entry_point']})"
+                problem["prompt"] + "    " + completion + "\n" + problem["test"] + "\n" + f"check({problem['entry_point']})"
             )
 
             try:
@@ -285,6 +285,7 @@ def exact_set_match(gold: Tuple[str, Dict], pred: str) -> float:
 def code_eval(gold: Tuple[str, Dict], pred: str) -> float:
     """Evaluate Code Correctness on test examples"""
     ###### Warning: will execute machine generated code; need to sandbox before executing thisgithub
+    #gold[1]["canonical_solution"]
     return float(check_correctness(gold[1], pred, 3.0)["passed"])
 
 
@@ -329,13 +330,19 @@ class BasicMetric(Metric):
             # Calculate pass@k.
             if name == "code_eval":
                 results = [score_func(gold, pred) for gold in golds for pred in preds]
-                score_k = estimator(len(results), sum(results), adapter_spec.num_outputs)
+                pass_1 = estimator(len(results), sum(results), 1)
+                pass_k = estimator(len(results), sum(results), adapter_spec.num_outputs)
 
-            return [
-                Stat(name).add(score_1),
-                Stat(f"{name}@{adapter_spec.num_outputs}").add(score_k),
-            ]
-
+                return [
+                    Stat(name).add(score_1),
+                    Stat(f"Pass@1").add(pass_1),
+                    Stat(f"Pass@{adapter_spec.num_outputs}").add(pass_k),
+                ]
+            else:
+                return [
+                    Stat(name).add(score_1),
+                    Stat(f"{name}@{adapter_spec.num_outputs}").add(score_k),
+                ]
         # maps each string metric name to its associated function
         metric_fn_mapping = {
             "exact_match": exact_match,
