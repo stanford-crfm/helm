@@ -231,5 +231,5 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         name=f"dyck_language_np={int(num_parenthesis_pairs)}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["iou_set_match", "exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
