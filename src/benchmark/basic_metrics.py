@@ -19,12 +19,12 @@ import numpy as np
 
 
 def estimator(n: int, c: int, k: int) -> float:
-        """
+    """
         Calculates 1 - comb(n - c, k) / comb(n, k).
         """
-        if n - c < k:
-            return 1.0
-        return 1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))
+    if n - c < k:
+        return 1.0
+    return 1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))
 
 
 def check_correctness(problem: Dict, completion: str, timeout: float, completion_id: Optional[int] = None) -> Dict:
@@ -52,7 +52,13 @@ def check_correctness(problem: Dict, completion: str, timeout: float, completion
 
             # Construct the check program and run it.
             check_program = (
-                problem["prompt"] + "    " + completion + "\n" + problem["test"] + "\n" + f"check({problem['entry_point']})"
+                problem["prompt"]
+                + "    "
+                + completion
+                + "\n"
+                + problem["test"]
+                + "\n"
+                + f"check({problem['entry_point']})"
             )
 
             try:
@@ -247,7 +253,7 @@ def reliability_guard(maximum_memory_bytes: Optional[int] = None):
     sys.modules["tkinter"] = None
 
 
-def exact_match(gold: Tuple[str, Dict], pred: str) -> float:
+def exact_match(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
     return 1 if gold[0] == pred else 0
 
 
@@ -256,7 +262,7 @@ def get_num_bytes(text: str) -> int:
     return len(bytes(text, encoding="utf-8"))
 
 
-def iou_set_match(gold: Tuple[str, Dict], pred: str) -> float:
+def iou_set_match(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
     """Compute the intersection over union of the gold and pred sets"""
     pred = pred.split("\n")[0]
     gold_text = gold[0]
@@ -269,7 +275,7 @@ def iou_set_match(gold: Tuple[str, Dict], pred: str) -> float:
     return len(gold_set.intersection(pred_set)) / len(gold_set.union(pred_set))
 
 
-def exact_set_match(gold: Tuple[str, Dict], pred: str) -> float:
+def exact_set_match(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
     """Compute whether the sets generated exactly match"""
     pred = pred.split("\n")[0]
     gold_text = gold[0]
@@ -282,10 +288,11 @@ def exact_set_match(gold: Tuple[str, Dict], pred: str) -> float:
     return float(gold_set == pred_set)
 
 
-def code_eval(gold: Tuple[str, Dict], pred: str) -> float:
+def code_eval(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
     """Evaluate Code Correctness on test examples"""
     ###### Warning: will execute machine generated code; need to sandbox before executing thisgithub
-    #gold[1]["canonical_solution"]
+    # gold[1]["canonical_solution"]
+    assert gold[1] is not None
     return float(check_correctness(gold[1], pred, 3.0)["passed"])
 
 
@@ -319,36 +326,31 @@ class BasicMetric(Metric):
 
         def compute_metrics_helper(
             name: str,
-            score_func: Callable[[Tuple[str, Dict], str], float],
-            golds: List[Tuple[str, Dict]],
+            score_func: Callable[[Tuple[str, Optional[Dict]], str], float],
+            golds: List[Tuple[str, Optional[Dict]]],
             preds: List[str],
         ) -> List[Stat]:
             score_1 = max(score_func(gold, preds[0]) for gold in golds)
             score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
 
-
             # Calculate pass@k.
-            if name == "code_eval":
+            if name == "pass":
                 results = [score_func(gold, pred) for gold in golds for pred in preds]
-                pass_1 = estimator(len(results), sum(results), 1)
-                pass_k = estimator(len(results), sum(results), adapter_spec.num_outputs)
+                score_1 = estimator(len(results), sum(results), 1)
+                score_k = estimator(len(results), sum(results), adapter_spec.num_outputs)
 
-                return [
-                    Stat(name).add(score_1),
-                    Stat(f"Pass@1").add(pass_1),
-                    Stat(f"Pass@{adapter_spec.num_outputs}").add(pass_k),
-                ]
-            else:
-                return [
-                    Stat(name).add(score_1),
-                    Stat(f"{name}@{adapter_spec.num_outputs}").add(score_k),
-                ]
+            return [
+                Stat(f"{name}@1").add(score_1),
+                Stat(f"{name}@{adapter_spec.num_outputs}").add(score_k),
+            ]
+
         # maps each string metric name to its associated function
         metric_fn_mapping = {
             "exact_match": exact_match,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
-            "code_eval": code_eval,
+            "code_eval_acc": code_eval,
+            "pass": code_eval,
         }
 
         reference_metrics = []

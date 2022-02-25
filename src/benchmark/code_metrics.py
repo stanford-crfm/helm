@@ -28,7 +28,7 @@ from .metric_service import MetricService
 def _convert_scores(scores: Sequence[Union[int, bool]]) -> List[float]:
     """Convert boolean scores to int."""
     # `scores` is returned by `run_test`, and is a list of bools/ints.
-    return [1. if isinstance(score, bool) and score else 0. for score in scores]
+    return [1.0 if isinstance(score, bool) and score else 0.0 for score in scores]
 
 
 def _test_avg(scores: Sequence[Union[int, bool]]) -> float:
@@ -40,7 +40,7 @@ def _test_avg(scores: Sequence[Union[int, bool]]) -> float:
 
 def _strict_acc(scores: Sequence[Union[int, bool]]) -> float:
     scores = _convert_scores(scores)
-    return 1. if sum(scores) == len(scores) else 0.
+    return 1.0 if sum(scores) == len(scores) else 0.0
 
 
 METRICS = {
@@ -58,8 +58,7 @@ class APPSMetric(Metric):
         self.names = names
 
     def evaluate_generation(
-        self,
-        adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
         instance = request_state.instance
         request_result: RequestResult = request_state.result
@@ -269,8 +268,8 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
 
             if isinstance(inputs, list):
                 inputs = "\n".join(inputs)
-            if isinstance(in_outs['outputs'][index], list):
-                in_outs['outputs'][index] = "\n".join(in_outs['outputs'][index])
+            if isinstance(in_outs["outputs"][index], list):
+                in_outs["outputs"][index] = "\n".join(in_outs["outputs"][index])
 
             with Capturing() as output:
                 try:
@@ -288,7 +287,7 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
             if not passed:
                 continue
 
-            if custom_compare_(output, in_outs['outputs'][index]):
+            if custom_compare_(output, in_outs["outputs"][index]):
                 tmp_result = True
                 results.append(tmp_result)
                 continue
@@ -299,7 +298,7 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
 
             tmp_result = False
             try:
-                tmp_result = (output == [in_outs["outputs"][index]])
+                tmp_result = output == [in_outs["outputs"][index]]
                 if isinstance(in_outs["outputs"][index], list):
                     tmp_result = tmp_result or (output == in_outs["outputs"][index])
                     if isinstance(output[0], str):
@@ -316,15 +315,16 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
             if isinstance(in_outs["outputs"][index], list):
                 for tmp_index, i in enumerate(in_outs["outputs"][index]):
                     in_outs["outputs"][index][tmp_index] = i.split("\n")
-                    in_outs["outputs"][index][tmp_index] = [x.strip() for x in in_outs["outputs"][index][tmp_index]
-                                                            if x]
+                    in_outs["outputs"][index][tmp_index] = [
+                        x.strip() for x in in_outs["outputs"][index][tmp_index] if x
+                    ]
             else:
                 in_outs["outputs"][index] = in_outs["outputs"][index].split("\n")
                 in_outs["outputs"][index] = list(filter(len, in_outs["outputs"][index]))
                 in_outs["outputs"][index] = list(map(lambda x: x.strip(), in_outs["outputs"][index]))
 
             try:
-                tmp_result = (output == [in_outs["outputs"][index]])
+                tmp_result = output == [in_outs["outputs"][index]]
                 if isinstance(in_outs["outputs"][index], list):
                     tmp_result = tmp_result or (output == in_outs["outputs"][index])
             except Exception as e:
@@ -344,7 +344,7 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
                 continue
 
             try:
-                tmp_result = (output == [in_outs["outputs"][index]])
+                tmp_result = output == [in_outs["outputs"][index]]
                 if isinstance(in_outs["outputs"][index], list):
                     tmp_result = tmp_result or (output == in_outs["outputs"][index])
             except Exception as e:
@@ -353,17 +353,19 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
 
             try:
                 output_float = [float(e) for e in output]
-                gt_float = [float(e) for e in in_outs['outputs'][index]]
+                gt_float = [float(e) for e in in_outs["outputs"][index]]
                 tmp_result = tmp_result or (
-                    (len(output_float) == len(gt_float)) and np.allclose(output_float, gt_float))
+                    (len(output_float) == len(gt_float)) and np.allclose(output_float, gt_float)
+                )
             except:
                 pass
             try:
                 if isinstance(output[0], list):
                     output_float = [float(e) for e in output[0]]
-                    gt_float = [float(e) for e in in_outs['outputs'][index][0]]
+                    gt_float = [float(e) for e in in_outs["outputs"][index][0]]
                     tmp_result = tmp_result or (
-                        (len(output_float) == len(gt_float)) and np.allclose(output_float, gt_float))
+                        (len(output_float) == len(gt_float)) and np.allclose(output_float, gt_float)
+                    )
             except:
                 pass
 
@@ -379,7 +381,7 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
                 in_outs["outputs"][index] = set(in_outs["outputs"][index].split())
 
             try:
-                tmp_result = (output == in_outs["outputs"][index])
+                tmp_result = output == in_outs["outputs"][index]
             except Exception as e:
                 hlog(f"Failed check4 exception = {e}")
                 continue
@@ -401,16 +403,16 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
                 output = set(output)
 
             try:
-                tmp_result = (
-                    set(frozenset(s) for s in output) == set(frozenset(s) for s in in_outs["outputs"][index]))
+                tmp_result = set(frozenset(s) for s in output) == set(frozenset(s) for s in in_outs["outputs"][index])
             except Exception as e:
                 hlog(f"Failed check5 exception = {e}")
 
             # if they are all numbers, round so that similar numbers are treated as identical
             try:
-                tmp_result = tmp_result or (set(frozenset(round(float(t), 3) for t in s) for s in output) == \
-                                            set(frozenset(round(float(t), 3) for t in s) for s in
-                                                in_outs["outputs"][index]))
+                tmp_result = tmp_result or (
+                    set(frozenset(round(float(t), 3) for t in s) for s in output)
+                    == set(frozenset(round(float(t), 3) for t in s) for s in in_outs["outputs"][index])
+                )
             except Exception as e:
                 hlog(f"Failed check6 exception = {e}")
 
@@ -446,11 +448,11 @@ def call_method(method, inputs):
 
     inputs_line_iterator = iter(inputs.split("\n"))
 
-    @patch('builtins.open', mock_open(read_data=inputs))
-    @patch('sys.stdin', StringIO(inputs))
-    @patch('sys.stdin.readline', lambda *args: next(inputs_line_iterator))
-    @patch('sys.stdin.readlines', lambda *args: inputs.split("\n"))
-    @patch('sys.stdin.read', lambda *args: inputs)
+    @patch("builtins.open", mock_open(read_data=inputs))
+    @patch("sys.stdin", StringIO(inputs))
+    @patch("sys.stdin.readline", lambda *args: next(inputs_line_iterator))
+    @patch("sys.stdin.readlines", lambda *args: inputs.split("\n"))
+    @patch("sys.stdin.read", lambda *args: inputs)
     def _inner_call_method(_method):
         try:
             return _method()

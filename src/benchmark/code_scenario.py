@@ -13,15 +13,12 @@ from typing import List, Dict, Iterable
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .code_scenario_helper import run as run_reindent
-from .scenario import (
-    Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
-)
+from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
 
 
 # === HumanEval ===
 def _read_and_preprocess_human_eval(
-    target_path: str,
-    num_train_instances: int, num_val_instances: int, num_test_instances: int
+    target_path: str, num_train_instances: int, num_val_instances: int, num_test_instances: int
 ) -> List[Instance]:
     problems = _read_human_eval(target_path)
     instances = []
@@ -36,11 +33,7 @@ def _read_and_preprocess_human_eval(
         instance = Instance(
             input=problems[task_id]["prompt"],
             references=[
-                Reference(
-                    output=problems[task_id]["canonical_solution"],
-                    data=problems[task_id],
-                    tags=[CORRECT_TAG],
-                ),
+                Reference(output=problems[task_id]["canonical_solution"], data=problems[task_id], tags=[CORRECT_TAG],),
             ],
             tags=[tag],
         )
@@ -77,7 +70,7 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
     SINGLE_STR_LIMIT = 150000  # From original codebase.
 
     instances = []
-    for split, tag in zip(('train', 'test'), (TRAIN_TAG, TEST_TAG)):
+    for split, tag in zip(("train", "test"), (TRAIN_TAG, TEST_TAG)):
         split_dir = os.path.join(target_path, split)
 
         num_problems = 0
@@ -95,12 +88,12 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
                 continue
             else:
                 # Train instances must have solution code.
-                if split in ('train',):
+                if split in ("train",):
                     if not os.path.isfile(sols_fname):
                         skipped_problems.append(problem_name)
                         continue
                 # Test instances can ignore solution code, but must have test cases.
-                elif split in ('test',):
+                elif split in ("test",):
                     if not os.path.exists(tests_fname) or not os.path.isfile(tests_fname):
                         skipped_problems.append(problem_name)
                         continue
@@ -114,18 +107,18 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
 
             # Starter code.
             if os.path.isfile(starter_code_fname):
-                with open(starter_code_fname, 'r') as f:
+                with open(starter_code_fname, "r") as f:
                     starter_code = f.read()
             else:
                 starter_code = ""
 
             # Question description.
-            with open(question_fname, 'r') as f:
+            with open(question_fname, "r") as f:
                 question = f.read()
 
             # Solutions. Multiple of them!
             if os.path.isfile(sols_fname):
-                with open(sols_fname, 'r') as f:
+                with open(sols_fname, "r") as f:
                     sols_str_list = json.load(f)
                     solutions = [_reindent_code(sol_str) for sol_str in sols_str_list]
             else:
@@ -133,7 +126,7 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
 
             # Tests.
             if os.path.exists(tests_fname):
-                with open(tests_fname, 'r') as f:
+                with open(tests_fname, "r") as f:
                     # Some files may contain the key `fn_name`, which indicates it's
                     # call-based instance. Annoying!
 
@@ -150,15 +143,10 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
             solutions = [sol[:SINGLE_STR_LIMIT] for sol in solutions]
 
             # Create overall prompt.
-            prompt = _make_input_for_apps(
-                question=question, starter_code=starter_code, answer_type=answer_type,
-            )
+            prompt = _make_input_for_apps(question=question, starter_code=starter_code, answer_type=answer_type,)
             instance = Instance(
                 input=prompt,
-                references=[
-                    Reference(output=solution, tags=[CORRECT_TAG])
-                    for solution in solutions
-                ],
+                references=[Reference(output=solution, tags=[CORRECT_TAG]) for solution in solutions],
                 tags=[tag],
                 data=data,
             )
@@ -188,17 +176,15 @@ def _reindent_code(codestr):
             "encoding": "utf-8",
             "is-tabs": False,
             "tabsize": 4,
-            "all-tabs": False
-        }
+            "all-tabs": False,
+        },
     )
     return ret.getvalue()
 
 
 def _make_input_for_apps(question: str, starter_code: str, answer_type: str) -> str:
     """Format the prompt as in the original training pipeline."""
-    return (
-        "\nQUESTION:\n" + question + "\n" + starter_code + "\n" + answer_type + "\nANSWER:\n"
-    )
+    return "\nQUESTION:\n" + question + "\n" + starter_code + "\n" + answer_type + "\nANSWER:\n"
 
 
 class CodeScenario(Scenario):
@@ -209,11 +195,7 @@ class CodeScenario(Scenario):
     def __init__(self, dataset: str):
         self.dataset = dataset
 
-        self.human_eval_hparams = dict(
-            num_train_instances=0,
-            num_val_instances=0,
-            num_test_instances=164
-        )
+        self.human_eval_hparams = dict(num_train_instances=0, num_val_instances=0, num_test_instances=164)
 
     def get_instances(self) -> List[Instance]:
         # By construction, self.output_path == 'benchmark_output/scenarios/code'.

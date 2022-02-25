@@ -75,7 +75,7 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
 
 def get_code_metrics(dataset: str) -> List[MetricSpec]:
     if dataset == "HumanEval":
-        metric_names = {"names": ["code_eval"]}
+        metric_names = {"names": ["code_eval_acc", "pass"]}
         return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
     else:  # APPS.
         metric_names = {"names": ["test_avg", "strict_acc"]}
@@ -159,7 +159,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.commonsense_qa_scenario.CommonSenseQAScenario",
-        args={"dataset": dataset, "method": method, },
+        args={"dataset": dataset, "method": method,},
     )
 
     if method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
@@ -183,7 +183,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             metrics=get_basic_metrics({"names": ["exact_match"]}),
         )
     elif method == CAUSAL_LANGUAGE_MODELING_METHOD:
-        n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3, }[dataset]
+        n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             conditioning_prefix="",
@@ -387,14 +387,13 @@ def get_code_spec(dataset: str) -> RunSpec:
         method=ADAPT_GENERATION,
         instructions="",
         max_train_instances=0,
-        max_eval_instances=10,
+        max_eval_instances=60,
         num_outputs=1,
         num_train_trials=1,
         model="openai/code-davinci-001",
-        # model="simple/model1",
-        temperature=0.95,
+        temperature=0.2,
         stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],
-       # stop_sequences=[],
+        # stop_sequences=[],
         max_tokens=600,
         input_prefix="",
         output_prefix="",
