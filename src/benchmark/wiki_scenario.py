@@ -8,12 +8,17 @@ from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_
 
 
 def flatten_list(ll: list):
+    """
+    Input: Nested lists
+    Output: Flattened input
+    """
     return sum(map(flatten_list, ll), []) if isinstance(ll, list) else [ll]
 
 
 class WIKIScenario(Scenario):
     """
     Fact Completion task using knowledge from WikiData.
+    Data constructed using the dump at https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
     """
 
     name = "wiki"
