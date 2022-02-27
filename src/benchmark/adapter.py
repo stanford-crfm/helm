@@ -468,7 +468,7 @@ class Adapter:
             tokens = tokenizer.encode(instance.input)
             assert tokenizer.decode(tokens, clean_up_tokenization_spaces=False) == instance.input
 
-            predicted = 0
+            num_predicted_tokens = 0
 
             # Special handling for first window: predict all tokens
             # Raw token sequence format: string_tokens | bytes (total length <= 2048 tokens)
@@ -499,16 +499,16 @@ class Adapter:
                 num_conditioning_tokens=1,
             )
             request_states.append(request_state)
-            predicted += first_seq_len
+            num_predicted_tokens += first_seq_len
 
-            while predicted < len(tokens):
+            while num_predicted_tokens < len(tokens):
                 # Raw token sequence format: bytes | conditioning_string_tokens | pred_string_tokens | bytes
                 # (total length <= 2049 tokens)
                 # Convert it to: conditioning_string_tokens | pred_string_tokens (total length <= 2049 tokens)
-                window_pred_len = min(len(tokens) - predicted, max_seq_len)
-                window_end = predicted + window_pred_len
-                conditioning_tokens = tokens[window_end - max_seq_len - 1 : predicted]
-                pred_tokens = tokens[predicted:window_end]
+                window_pred_len = min(len(tokens) - num_predicted_tokens, max_seq_len)
+                window_end = num_predicted_tokens + window_pred_len
+                conditioning_tokens = tokens[window_end - max_seq_len - 1 : num_predicted_tokens]
+                pred_tokens = tokens[num_predicted_tokens:window_end]
                 raw_prompt = tokenizer.decode(
                     tokens[window_end - max_seq_len - 1 : window_end], clean_up_tokenization_spaces=False
                 )
@@ -542,7 +542,7 @@ class Adapter:
                     num_conditioning_tokens=num_conditioning_tokens,
                 )
                 request_states.append(request_state)
-                predicted += window_pred_len
+                num_predicted_tokens += window_pred_len
 
         hlog(f"{len(request_states)} requests")
         return ScenarioState(self.adapter_spec, request_states)
