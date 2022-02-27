@@ -100,7 +100,7 @@ def format_tags(tags: List[str]) -> str:
 
 def format_split(split: str) -> str:
     """Format split"""
-    return f"[{split}]"
+    return f"|{split}|"
 
 
 def serialize(obj: dataclass) -> List[str]:
