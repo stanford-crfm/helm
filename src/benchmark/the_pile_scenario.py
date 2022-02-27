@@ -5,7 +5,7 @@ import sys
 import requests
 from typing import List
 from common.general import ensure_file_downloaded
-from common.hierarchical_logger import hlog
+from common.hierarchical_logger import hlog, htrack, htrack_block
 from .scenario import Scenario, Instance, TEST_TAG
 
 csv.field_size_limit(sys.maxsize)
@@ -50,26 +50,30 @@ class ThePileScenario(Scenario):
         assert subset in self.pile_subsets
         self.subset = subset
 
+    @htrack(None)
     def load_and_cache_all_subsets(self):
         data_path = os.path.join(self.output_path, "data")
-        hlog(f"Extracting subsets from {data_path}")
         subsets = {subset: [] for subset in self.pile_subsets}
 
         # Load all data into memory
-        with open(data_path) as f:
-            data = [json.loads(line) for line in f]
+        with htrack_block("Loading"):
+            hlog(f"Loading all data from {data_path}")
+            with open(data_path) as f:
+                data = [json.loads(line) for line in f]
 
         # Classify the documents by subset
+        hlog("Classifying the documents into subsets")
         for doc in data:
             subsets[doc["meta"]["pile_set_name"]].append([doc["text"]])
 
         # Write each subset to disk
-        hlog(f"Caching subsets to {self.output_path}")
-        for subset in subsets:
-            subset_path = os.path.join(self.output_path, subset + ".csv")
-            with open(subset_path, "w") as f:
-                writer = csv.writer(f)
-                writer.writerows(subsets[subset])
+        with htrack_block("Caching"):
+            hlog(f"Caching subsets to {self.output_path}")
+            for subset in subsets:
+                subset_path = os.path.join(self.output_path, subset + ".csv")
+                with open(subset_path, "w") as f:
+                    writer = csv.writer(f)
+                    writer.writerows(subsets[subset])
 
     def get_instances(self) -> List[Instance]:
         # Download the raw data
