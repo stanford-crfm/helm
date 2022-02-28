@@ -2,7 +2,8 @@ from typing import List
 
 from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
 from .run_specs import get_scenario_spec1, get_adapter_spec1, get_adapter_spec1_with_data_augmentation
-from .adapter import ADAPT_GENERATION, Adapter, AdapterSpec
+from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, Adapter, AdapterSpec
+from proxy.tokenizer.openai_token_counter import OpenAITokenCounter
 
 
 def test_adapter1():
@@ -61,3 +62,23 @@ def test_construct_prompt():
     )
     adapter = Adapter(adapter_spec)
     assert adapter.construct_prompt(train_instances, eval_instances) == prompt
+
+
+def test_construct_language_modeling_prompt():
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_MODELING, input_prefix="", model="openai/davinci", output_prefix="", max_tokens=0,
+    )
+    adapter = Adapter(adapter_spec)
+    tokenizer = OpenAITokenCounter().tokenizer
+
+    # The tokens translate to: '�Excuse me�'
+    conditioning_tokens, pred_tokens = [110, 40127], [1904, 502, 447]
+    prompt, num_conditioning_tokens = adapter.construct_language_modeling_prompt(
+        conditioning_tokens, pred_tokens, tokenizer, 5
+    )
+
+    # Ensure the prompt is correct
+    assert prompt == "Excuse me"
+
+    # Ensure the number of conditioning tokens is correct
+    assert num_conditioning_tokens == 1

@@ -444,6 +444,23 @@ class Adapter:
         """
         return prefix.replace("A", chr(ord("A") + i))
 
+    def construct_language_modeling_prompt(
+        self, conditioning_tokens: List[int], pred_tokens: List[int], tokenizer, max_seq_len: int
+    ) -> Tuple[str, int]:
+        raw_prompt = tokenizer.decode(conditioning_tokens + pred_tokens, clean_up_tokenization_spaces=False)
+        num_leading_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
+        num_trailing_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
+        prompt = raw_prompt.strip("\ufffd")
+        # There are no string tokens to predict
+        if num_trailing_byte_tokens >= len(pred_tokens):
+            num_conditioning_tokens = len(tokenizer.encode(prompt))
+        # There are no conditioning string tokens
+        elif num_leading_byte_tokens >= len(conditioning_tokens):
+            num_conditioning_tokens = 1
+        else:
+            num_conditioning_tokens = len(conditioning_tokens) - num_leading_byte_tokens
+        return prompt, num_conditioning_tokens
+
     def adapt_language_modeling(self, instances: List[Instance]) -> List[RequestState]:
         """ Code is adapted from:
 
@@ -505,20 +522,10 @@ class Adapter:
                 window_end = num_predicted_tokens + window_pred_len
                 conditioning_tokens = tokens[window_end - max_seq_len - 1 : num_predicted_tokens]
                 pred_tokens = tokens[num_predicted_tokens:window_end]
-                raw_prompt = tokenizer.decode(
-                    tokens[window_end - max_seq_len - 1 : window_end], clean_up_tokenization_spaces=False
+                prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
+                    conditioning_tokens, pred_tokens, tokenizer, max_seq_len
                 )
-                num_leading_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
-                num_trailing_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
-                prompt = raw_prompt.strip("\ufffd")
-                # There are no string tokens to predict
-                if num_trailing_byte_tokens >= len(pred_tokens):
-                    num_conditioning_tokens = len(tokenizer.encode(prompt))
-                # There are no conditioning string tokens
-                elif num_leading_byte_tokens >= len(conditioning_tokens):
-                    num_conditioning_tokens = 1
-                else:
-                    num_conditioning_tokens = len(conditioning_tokens) - num_leading_byte_tokens
+
                 request = Request(
                     model=self.adapter_spec.model,
                     prompt=prompt,
