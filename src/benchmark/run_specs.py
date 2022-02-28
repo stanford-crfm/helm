@@ -241,11 +241,11 @@ def get_quac_spec() -> RunSpec:
         input_prefix="",
         output_prefix="",
         num_train_trials=1,
-        max_train_instances=3,
+        max_train_instances=5,
         model="simple/model1", # or "ai21/j1-large",
         max_eval_instances=50,  # TODO : Remove this once deployed
         num_outputs=1,
-        max_tokens=10,
+        max_tokens=100, # answers are at most 30 words
         temperature=0.0,
     )
     return RunSpec(
@@ -254,7 +254,6 @@ def get_quac_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["f1_score"]}),
     )
-
 
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario = ScenarioSpec(

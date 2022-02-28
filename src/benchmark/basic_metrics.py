@@ -14,6 +14,7 @@ from nltk.metrics.scores import f_measure
 def exact_match(gold: str, pred: str) -> float:
     return 1 if gold == pred else 0
 
+# TODO should we be normalizing everything this way? (e.g., iou_set_match)
 def normalize_answer(s):
   """Lower text and remove punctuation, articles and extra whitespace.
      Copied from the [QuAC](http://quac.ai/) evaluation script found at
