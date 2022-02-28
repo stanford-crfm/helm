@@ -16,7 +16,14 @@ def exact_match(gold: str, pred: str) -> float:
 
 
 def get_num_bytes(tokens: List[Token]) -> int:
-    """Compute the byte length of the input tokens"""
+    """
+    Compute the byte length of the input tokens. For a UTF-8 string token, we use byte() to convert
+    it to bytes; for byte tokens, we directly count the number of bytes in the token.
+
+    Examples: ["bytes:\x99", "Hello", ' world', "bytes:\xe2\x80"] => 1 + 5 + 6 + 2 = 14
+
+    The function is adapted from src/proxy/static/index.js: constructTokenGroups()
+    """
     num_bytes = 0
     for token in tokens:
         if token.text.startswith("bytes:"):

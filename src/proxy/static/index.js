@@ -198,6 +198,8 @@ $(function () {
     // Note: sometimes multiple tokens correspond to one character, for example:
     // ["bytes:\xe2\x80", "bytes:\x99"] => ’
     // For these, we keep these in the buffer and collapse them, and concatenate the entries.
+    //
+    // Get_num_bytes() in src/benchmark/basic_metrics.py is adapted from this function.
     const groups = [];
     for (let i = 0; i < tokens.length;) {
       // Aggregate consecutive tokens while they're "bytes:..."
