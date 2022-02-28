@@ -25,7 +25,7 @@ from .metric import Metric
 from .metric_service import MetricService
 
 
-def _convert_scores(scores: Sequence[Union[int, bool]]) -> List[float]:
+def _convert_scores(scores: Sequence[Union[int, bool]]):
     """Convert boolean scores to int."""
     # `scores` is returned by `run_test`, and is a list of bools/ints.
     return [1.0 if isinstance(score, bool) and score else 0.0 for score in scores]
@@ -63,7 +63,10 @@ class APPSMetric(Metric):
         instance = request_state.instance
         request_result: RequestResult = request_state.result
         # Path to folder of the instance, with files like input_output.json.
-        root = instance.data["root"]
+        if isinstance(instance.data, dict):
+            root = instance.data["root"]
+        else:
+            raise ValueError(f"Expected path in `instance.data`, but found instance to be {instance}")
 
         metrics = []
         for name in self.names:
