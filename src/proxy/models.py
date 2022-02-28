@@ -38,8 +38,8 @@ ALL_MODELS = [
         description="Codex (for natural language to code) - 2048 max tokens.",
     ),
     # HuggingFace
-    Model(group="eleuther", name="huggingface/gptj_6b", description="GPT-J (6B parameters)"),
-    Model(group="gpt2", name="huggingface/gpt2", description="GPT-2 (1.5B parameters)"),
+    Model(group="huggingface", name="huggingface/gptj_6b", description="GPT-J (6B parameters)"),
+    Model(group="huggingface", name="huggingface/gpt2", description="GPT-2 (1.5B parameters)"),
     # For debugging
     Model(group="simple", name="simple/model1", description="Copy last tokens (for debugging)"),
 ]
