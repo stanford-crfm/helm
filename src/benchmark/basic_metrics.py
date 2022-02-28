@@ -34,9 +34,14 @@ def get_num_bytes(tokens: List[Token]) -> int:
 
 
 def convert_tokens_to_text(tokens: List[Token]) -> List[Dict]:
-    # Note: sometimes multiple tokens correspond to one character, for example:
-    # ["bytes:\xe2\x80", "bytes:\x99"] => ’
-    # For these, we keep these in the buffer and collapse them, and concatenate the entries.
+    """
+    Convert tokens to strings. This function is especially useful when tokens include byte tokens.
+
+    Example: ["<|endoftext|>", "bytes:\\xe2\\x80", "bytes:\\x99", "Hello", " world", "bytes:\\xe2\\x80",
+        "bytes:\\x99", "<|endoftext|>"] => ["<|endoftext|>", "’", "Hello", " world", "’", "<|endoftext|>"]
+
+    The function is adapted from src/proxy/static/index.js: constructTokenGroups()
+    """
     groups = []
     i = 0
     while i < len(tokens):
