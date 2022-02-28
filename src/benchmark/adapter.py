@@ -447,6 +447,14 @@ class Adapter:
     def construct_language_modeling_prompt(
         self, conditioning_tokens: List[int], pred_tokens: List[int], tokenizer, max_seq_len: int
     ) -> Tuple[str, int]:
+        """
+        Some subwords/symbols might translate to multiple tokens. e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"].
+
+        When a subword of this type happens to be the last token of a chunk, we need to strip the leading and
+        trailing bytes to ensure the prompt is a valid string.
+
+        Since some tokens are removed, we also need to recompute num_conditioning_tokens.
+        """
         raw_prompt = tokenizer.decode(conditioning_tokens + pred_tokens, clean_up_tokenization_spaces=False)
         num_leading_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
         num_trailing_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
@@ -488,11 +496,12 @@ class Adapter:
             # Convert it to: <eot> | string_tokens (total length <= 2049 tokens)
             # Num_conditioning_tokens = 1
             first_seq_len = min(max_seq_len, len(tokens))
+            # Some subwords/symbols might translate to multiple tokens. e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]
+            # When a subword of this type happens to be the last token of a chunk, we need to strip the trailing bytes
+            # to ensure the prompt is a valid string.
             prompt = tokenizer.decode(
                 tokenizer.encode(prefix_token) + tokens[:first_seq_len], clean_up_tokenization_spaces=False
-            ).rstrip(
-                "\ufffd"
-            )  # decode token_ids and remove the trailing bytes
+            ).rstrip("\ufffd")
             request = Request(
                 model=self.adapter_spec.model,
                 prompt=prompt,
