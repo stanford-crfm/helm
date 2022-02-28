@@ -247,9 +247,6 @@ class Adapter:
         instance is that we create a common set of training instances which is
         shared across all eval instances.
         """
-        # Use the LM-specific method to adapt LM scenarios
-        if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
-            return self.adapt_language_modeling(scenario)
 
         # Create instances
         with htrack_block("scenario.get_instances"):
@@ -295,62 +292,66 @@ class Adapter:
         # Accumulate all the request states due to adaptation
         request_states: List[RequestState] = []
 
-        for train_trial_index in range(self.adapter_spec.num_train_trials):
-            # Choose a random set of training instances
-            random.seed(train_trial_index)
-            train_instances = random.sample(
-                all_train_instances, min(len(all_train_instances), self.adapter_spec.max_train_instances)
-            )
-
-            # Create request_states
-            for eval_index, eval_instance in enumerate(eval_instances):
-                prompt: str = self.construct_prompt(train_instances, eval_instance)
-
-                # Just print one prompt (useful for debugging)
-                if train_trial_index == 0 and eval_index == 0:
-                    with htrack_block("Sample prompt"):
-                        for line in prompt.split("\n"):
-                            hlog(line)
-
-                # Define the request
-                method = self.adapter_spec.method
-
-                if method == ADAPT_GENERATION:
-                    output_mapping = None
-                    request = Request(
-                        model=self.adapter_spec.model,
-                        prompt=prompt,
-                        num_completions=self.adapter_spec.num_outputs,
-                        temperature=self.adapter_spec.temperature,
-                        max_tokens=self.adapter_spec.max_tokens,
-                        stop_sequences=self.adapter_spec.stop_sequences,
-                    )
-                elif method == ADAPT_MULTIPLE_CHOICE:
-                    output_mapping = dict(
-                        (self.get_reference_prefix("A", reference_index), reference.output)
-                        for reference_index, reference in enumerate(eval_instance.references)
-                    )
-                    request = Request(
-                        model=self.adapter_spec.model,
-                        prompt=prompt,
-                        num_completions=1,
-                        top_k_per_token=self.adapter_spec.num_outputs,
-                        temperature=0,
-                        max_tokens=1,
-                        stop_sequences=[],
-                    )
-                else:
-                    raise ValueError(f"Invalid method: {method}")
-
-                request_state = RequestState(
-                    instance=eval_instance,
-                    reference_index=None,
-                    train_trial_index=train_trial_index,
-                    output_mapping=output_mapping,
-                    request=request,
-                    result=None,
+        if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
+            # Use the LM-specific method to adapt LM scenarios
+            request_states = self.adapt_language_modeling(eval_instances)
+        else:
+            for train_trial_index in range(self.adapter_spec.num_train_trials):
+                # Choose a random set of training instances
+                random.seed(train_trial_index)
+                train_instances = random.sample(
+                    all_train_instances, min(len(all_train_instances), self.adapter_spec.max_train_instances)
                 )
-                request_states.append(request_state)
+
+                # Create request_states
+                for eval_index, eval_instance in enumerate(eval_instances):
+                    prompt: str = self.construct_prompt(train_instances, eval_instance)
+
+                    # Just print one prompt (useful for debugging)
+                    if train_trial_index == 0 and eval_index == 0:
+                        with htrack_block("Sample prompt"):
+                            for line in prompt.split("\n"):
+                                hlog(line)
+
+                    # Define the request
+                    method = self.adapter_spec.method
+
+                    if method == ADAPT_GENERATION:
+                        output_mapping = None
+                        request = Request(
+                            model=self.adapter_spec.model,
+                            prompt=prompt,
+                            num_completions=self.adapter_spec.num_outputs,
+                            temperature=self.adapter_spec.temperature,
+                            max_tokens=self.adapter_spec.max_tokens,
+                            stop_sequences=self.adapter_spec.stop_sequences,
+                        )
+                    elif method == ADAPT_MULTIPLE_CHOICE:
+                        output_mapping = dict(
+                            (self.get_reference_prefix("A", reference_index), reference.output)
+                            for reference_index, reference in enumerate(eval_instance.references)
+                        )
+                        request = Request(
+                            model=self.adapter_spec.model,
+                            prompt=prompt,
+                            num_completions=1,
+                            top_k_per_token=self.adapter_spec.num_outputs,
+                            temperature=0,
+                            max_tokens=1,
+                            stop_sequences=[],
+                        )
+                    else:
+                        raise ValueError(f"Invalid method: {method}")
+
+                    request_state = RequestState(
+                        instance=eval_instance,
+                        reference_index=None,
+                        train_trial_index=train_trial_index,
+                        output_mapping=output_mapping,
+                        request=request,
+                        result=None,
+                    )
+                    request_states.append(request_state)
 
         hlog(f"{len(request_states)} requests")
         return ScenarioState(self.adapter_spec, request_states)
@@ -443,16 +444,11 @@ class Adapter:
         """
         return prefix.replace("A", chr(ord("A") + i))
 
-    def adapt_language_modeling(self, scenario: Scenario) -> ScenarioState:
+    def adapt_language_modeling(self, instances: List[Instance]) -> List[RequestState]:
         """ Code is adapted from:
 
         https://github.com/EleutherAI/lm_perplexity/blob/main/lm_perplexity/utils.py
         """
-        instances = scenario.get_instances()
-        if self.adapter_spec.max_eval_instances is not None:
-            instances = instances[: self.adapter_spec.max_eval_instances]
-        hlog(f"{len(instances)} instances, " f"choosing {len(instances)} eval instances")
-
         request_states: List[RequestState] = []
 
         if self.adapter_spec.model.startswith("openai/"):
@@ -544,5 +540,4 @@ class Adapter:
                 request_states.append(request_state)
                 num_predicted_tokens += window_pred_len
 
-        hlog(f"{len(request_states)} requests")
-        return ScenarioState(self.adapter_spec, request_states)
+        return request_states
