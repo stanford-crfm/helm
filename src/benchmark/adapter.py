@@ -492,13 +492,14 @@ class Adapter:
             num_predicted_tokens = 0
 
             # Special handling for first window: predict all tokens
-            # Raw token sequence format: string_tokens | bytes (total length <= 2048 tokens)
-            # Convert it to: <eot> | string_tokens (total length <= 2049 tokens)
+            # Raw token sequence format: [<str_tok1>, <str_tok2>, ..., <byte_tok1>, ...] (total length <= max_seq_len)
+            # Convert it to: [<eot>, <str_tok1>, <str_tok2>, ...] (total length <= max_seq_len+1)
             # Num_conditioning_tokens = 1
+            # Example: ["Hello", " world", "bytes:\xe2\x80"] => "<eot>Hello world"
+            #
+            # Note: There are trailing byte tokens in the raw sequence because some subwords/symbols might translate to
+            # multiple tokens (e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]) and we chunk documents by token, not by word.
             first_seq_len = min(max_seq_len, len(tokens))
-            # Some subwords/symbols might translate to multiple tokens. e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]
-            # When a subword of this type happens to be the last token of a chunk, we need to strip the trailing bytes
-            # to ensure the prompt is a valid string.
             prompt = tokenizer.decode(
                 tokenizer.encode(prefix_token) + tokens[:first_seq_len], clean_up_tokenization_spaces=False
             ).rstrip("\ufffd")
@@ -524,9 +525,15 @@ class Adapter:
             num_predicted_tokens += first_seq_len
 
             while num_predicted_tokens < len(tokens):
-                # Raw token sequence format: bytes | conditioning_string_tokens | pred_string_tokens | bytes
-                # (total length <= 2049 tokens)
-                # Convert it to: conditioning_string_tokens | pred_string_tokens (total length <= 2049 tokens)
+                # Raw token sequence format:
+                # [<cond_byte1>, ..., <cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, ..., <pred_byte1>, ...]
+                # (total length <= max_seq_len+1)
+                #
+                # Convert it to: [<cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, <pred_str_tok2>. ...]
+                # (total length <= max_seq_len+1)
+                #
+                # Example: conditioning_tokens=["bytes:\x99", "Exc"], pred_tokens=["use", " me", "bytes:\xe2\x80"] =>
+                # prompt="Excuse me", num_conditioning_tokens = 1
                 window_pred_len = min(len(tokens) - num_predicted_tokens, max_seq_len)
                 window_end = num_predicted_tokens + window_pred_len
                 conditioning_tokens = tokens[window_end - max_seq_len - 1 : num_predicted_tokens]
