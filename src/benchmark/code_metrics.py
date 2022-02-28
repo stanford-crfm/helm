@@ -60,7 +60,7 @@ class APPSMetric(Metric):
             score = 0.0
             for completion in request_result.completions:
                 completion = completion.text.strip()
-                scores = code_metrics_helper.run_test(root=root, test=completion)
+                scores = code_metrics_helper.run_test(root=root, test=completion)  # type: ignore
                 metric = metric_fn(scores)
                 if metric > score:
                     score = metric
