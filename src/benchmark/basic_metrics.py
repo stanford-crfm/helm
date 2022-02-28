@@ -10,6 +10,13 @@ def exact_match(gold: str, pred: str) -> float:
     return 1 if gold == pred else 0
 
 
+def exact_match_indicator(gold: str, pred: str) -> float:
+    indicator: str = "#"
+    pred = pred.split(indicator)[-1].strip()
+    gold = gold.split(indicator)[-1].strip()
+    return exact_match(gold, pred)
+
+
 def get_num_bytes(text: str) -> int:
     """Compute the byte length of the input string"""
     return len(bytes(text, encoding="utf-8"))
@@ -78,6 +85,7 @@ class BasicMetric(Metric):
         # maps each string metric name to its associated function
         metric_fn_mapping = {
             "exact_match": exact_match,
+            "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
         }

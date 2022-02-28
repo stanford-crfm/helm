@@ -104,6 +104,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_run_spec1()]
     if name == "twitter_aae":
         return [get_twitter_aae_spec(**args)]
+    if name == "gsm":
+        return [get_gsm_spec()]
 
     raise ValueError(f"Unknown run spec: {spec}")
 
@@ -250,6 +252,30 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_toxicity_metrics([TOXIC_TAG, NONTOXIC_TAG]),
+    )
+
+
+def get_gsm_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.gsm_scenario.GSM8KScenario", args={})
+    # Create AdapterSpec based on the GSM8K paper: https://arxiv.org/pdf/2110.14168.pdf
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=3,
+        max_eval_instances=20,
+        model="ai21/j1-large",
+        temperature=0.7,
+        stop_sequences=["\n\n"],
+        max_tokens=400,  # The paper uses 400 tokens as the max sample length
+        num_outputs=1,
+    )
+    return RunSpec(
+        name="gsm",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match_indicator"]}),
     )
 
 
