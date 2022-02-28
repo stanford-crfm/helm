@@ -1,6 +1,5 @@
 from typing import List, Callable, Optional
 
-from common.general import format_tags
 from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
@@ -51,9 +50,8 @@ class BasicMetric(Metric):
     `names` is a list of optional metrics to be specified by the user. Currently only `exact_match` is supported.
     """
 
-    def __init__(self, names: List[str], group_tags: Optional[List[str]] = None):
+    def __init__(self, names: List[str]):
         self.names: List[str] = names
-        self.group_tags: List[str] = group_tags if group_tags else []
         self.token_counter: TokenCounter = AutoTokenCounter()
 
     def compute_reference_metrics(
@@ -72,12 +70,11 @@ class BasicMetric(Metric):
         """
 
         def compute_metrics_helper(
-            name: str, score_func: Callable[[str, str], float], tag: Optional[str] = None
+            name: str, score_func: Callable[[str, str], float], group: Optional[str] = None
         ) -> List[Stat]:
             score_1 = max(score_func(gold, preds[0]) for gold in golds)
             score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
 
-            group: str = format_tags([tag]) if tag else ""
             # TODO: clean this up once we have MetricNames
             #       https://github.com/stanford-crfm/benchmarking/issues/125
             return [
@@ -110,11 +107,11 @@ class BasicMetric(Metric):
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
                 reference_metrics.extend(compute_metrics_helper(metric_name, metric_fn_mapping[metric_name]))
 
-                for group_tag in self.group_tags:
-                    if group_tag in request_state.instance.tags:
-                        reference_metrics.extend(
-                            compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], group_tag)
-                        )
+                perturbation: Optional[str] = request_state.instance.perturbation
+                if perturbation:
+                    reference_metrics.extend(
+                        compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], group=perturbation)
+                    )
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics

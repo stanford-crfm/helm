@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Optional
 
 from common.object_spec import ObjectSpec, create_object
@@ -52,16 +52,17 @@ class Instance:
     # References that helps us evaluate
     references: List[Reference]
 
-    # TODO: get rid of tags and replace with the new Instance fields
-    #       https://github.com/stanford-crfm/benchmarking/issues/124
-    # Extra metadata (e.g. demographic group, etc.)
-    tags: List[str] = field(default_factory=list)
-
     # Split (e.g., train, valid, test)
     split: Optional[str] = None
 
     # Sub split (e.g. toxic, non-toxic)
     sub_split: Optional[str] = None
+
+    # Used to group Instances that were created from a particular Instance through data augmentation
+    id: Optional[str] = None
+
+    # Description of the Perturbation that was applied when creating this Instance (e.g. extra_space|num_spaces=3)
+    perturbation: Optional[str] = None
 
     @property
     def first_correct_reference(self) -> Optional[Reference]:
@@ -75,6 +76,10 @@ class Instance:
         info = [f"input: {format_text(self.input)}"]
         if self.sub_split:
             info.append(f"sub_split: {format_text(self.sub_split)}")
+        if self.id:
+            info.append(f"id: {format_text(self.id)}")
+        if self.perturbation:
+            info.append(f"perturbation: {format_text(self.perturbation)}")
 
         for reference in self.references:
             info.extend(reference.render_lines())

@@ -23,14 +23,12 @@ def test_adapter1():
 def test_adapter1_with_data_augmentation():
     scenario = create_scenario(get_scenario_spec1())
     adapter_spec = get_adapter_spec1_with_data_augmentation()
-    perturbation_tag: str = "extra_space|num_spaces=5"
-    assert perturbation_tag in adapter_spec.data_augmenter_spec.tags
 
     # After adaptation, check that the data augmentation has been applied
     # by verifying that the instances with the perturbation tag are perturbed
     scenario_state = Adapter(adapter_spec).adapt(scenario)
     for instance in scenario_state.instances:
-        if perturbation_tag in instance.tags:
+        if instance.perturbation == "extra_space|num_spaces=5":
             assert " " * 5 in instance.input
         else:
             assert " " * 5 not in instance.input
@@ -42,10 +40,8 @@ def test_construct_prompt():
     )
     adapter = Adapter(adapter_spec)
     correct_reference = Reference(output="", tags=[CORRECT_TAG])
-    train_instances: List[Instance] = [
-        Instance(input="train", references=[correct_reference], tags=[]) for _ in range(2049)
-    ]
-    eval_instances = Instance(input="eval", references=[], tags=[])
+    train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(2049)]
+    eval_instances = Instance(input="eval", references=[])
     prompt: str = adapter.construct_prompt(train_instances, eval_instances)
 
     # Ensure the prompt fits within the context window
