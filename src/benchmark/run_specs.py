@@ -332,7 +332,7 @@ def get_boolq_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        Gmax_eval_instances=50,  # TODO : Remove this once deployed
+        max_eval_instances=50,  # TODO : Remove this once deployed
         num_outputs=1,
         max_tokens=1,
     )
@@ -413,7 +413,9 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
     )
 
 
-def get_synthetic_spec(num_tokens_per_instance: int, num_instances: int, num_output_tokens: int) -> RunSpec:
+def get_synthetic_spec(
+    model: str, num_tokens_per_instance: int, num_instances: int, num_output_tokens: int, num_completions: int
+) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.synthetic_scenario.SyntheticScenario",
         args={"num_tokens_per_instance": int(num_tokens_per_instance), "num_instances": int(num_instances)},
@@ -427,13 +429,19 @@ def get_synthetic_spec(num_tokens_per_instance: int, num_instances: int, num_out
         num_train_trials=1,
         temperature=1.0,
         max_eval_instances=int(num_instances),
-        num_outputs=1,
-        model="openai/ada",
+        num_outputs=int(num_completions),
+        model=model,
         max_tokens=int(num_output_tokens),
     )
     return RunSpec(
-        name=f"synthetic:num_tokens_per_instance={num_tokens_per_instance},num_instances={num_instances},num_output_tokens={num_output_tokens}",
+        name=(
+            f"synthetic:model={model.replace('/', '-')},"
+            f"num_tokens_per_instance={num_tokens_per_instance},"
+            f"num_instances={num_instances},"
+            f"num_output_tokens={num_output_tokens},"
+            f"num_completions={num_completions}"
+        ),
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": [] }),
+        metrics=get_basic_metrics({"names": []}),
     )
