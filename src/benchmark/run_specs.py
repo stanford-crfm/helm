@@ -1,20 +1,19 @@
 from typing import List, Dict, Optional, Any
 
-from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from common.object_spec import ObjectSpec
-
-from .augmentations.data_augmenter import DataAugmenterSpec
-from .augmentations.perturbation import PerturbationSpec
+from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE,
     ADAPT_GENERATION,
 )
+from .augmentations.data_augmenter import DataAugmenterSpec
+from .augmentations.perturbation import PerturbationSpec
+from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .metric import MetricSpec
 from .runner import RunSpec
 from .scenario import ScenarioSpec
-from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -123,7 +122,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     if name == "copyright":
         return [get_copyright_spec(**args)]
     if name == "disinformation":
-        return [get_disinfo_spec(**args)]
+        return [get_disinformation_spec(**args)]
     if name == "lpm":
         return [get_lpm_spec(**args)]
     if name == "mmlu":
@@ -402,8 +401,10 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
     )
 
 
-def get_disinfo_spec(capability: str = "reiteration") -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.disinformation_scenario.DisinformationScenario", args={"capability": capability})
+def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.disinformation_scenario.DisinformationScenario", args={"capability": capability}
+    )
 
     if capability == "reiteration":
         adapter_spec = AdapterSpec(
@@ -419,7 +420,7 @@ def get_disinfo_spec(capability: str = "reiteration") -> RunSpec:
             num_outputs=5,
             model="openai/text-davinci-001",
             max_tokens=60,
-            stop_sequences=["\n", "."]
+            stop_sequences=["\n", "."],
         )
     elif capability == "wedging":
         adapter_spec = AdapterSpec(
@@ -434,13 +435,12 @@ def get_disinfo_spec(capability: str = "reiteration") -> RunSpec:
             num_outputs=5,
             model="openai/text-davinci",
             max_tokens=60,
-            stop_sequences=["\n", "."]
+            stop_sequences=["\n", "."],
         )
     else:
         raise ValueError(
-            "Unsupported evaluation for disinformation capability '{capability}'. Please choose one of 'reiteration'"
-            " or 'wedging'."
+            f"Unsupported evaluation for disinformation capability '{capability}'. "
+            f"Please choose one of 'reiteration' or 'wedging'."
         )
-
 
     return RunSpec(name=f"disinfo:type={capability}", scenario=scenario, adapter_spec=adapter_spec, metrics=[])
