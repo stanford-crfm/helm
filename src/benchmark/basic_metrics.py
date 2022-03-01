@@ -41,8 +41,8 @@ def normalize_answer(s):
 
 def f1_score(gold: str, pred: str) -> float:
     ret = f_measure(set(normalize_answer(gold).split()), set(normalize_answer(pred).split()))
-    if ret in None:
-        return 0.
+    if ret is None:  # answer is the empty string after normalizing
+        return 0.0
 
     return ret
 
