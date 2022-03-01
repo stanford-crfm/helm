@@ -6,9 +6,8 @@ import datasets
 from pathlib import Path
 from common.general import ensure_file_downloaded
 from typing import List, Dict
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, TEST_TAG, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT
 
-# TODO: replace with permalink
 PROMPT_SETTINGS_URL = "https://www.dropbox.com/s/a5cyevryzw8rt4f/prompt_construction_settings.json?dl=0"
 
 SUBSETS = [
@@ -17,7 +16,7 @@ SUBSETS = [
     "neurips_impact_statement_risks",
     "one_stop_english",
     "overruling",
-    "semiconducto r_org_types",
+    "semiconductor_org_types",
     "systematic_review_inclusion",
     "tai_safety_research",
     "terms_of_service",
@@ -82,19 +81,15 @@ class RAFTScenario(Scenario):
         assert subset in SUBSETS, "Unknown subset: {}".format(subset)
         self.subset = subset
         self.random_seed = random_seed
-        self.fields = None
         random.seed(random_seed)
 
     def load_prompt_construction_settings(self):
-        # Skip if already loaded
-        if self.fields:
-            return
         # Load from prompt construction settings
         cache_dir = str(Path(self.output_path) / "data")
-        self.fields = get_raft_prompt_settings(self.subset, cache_dir)[0]
+        return get_raft_prompt_settings(self.subset, cache_dir)
 
     def get_instances(self) -> List[Instance]:
-        self.load_prompt_construction_settings()
+        fields, _ = self.load_prompt_construction_settings()
         cache_dir = str(Path(self.output_path) / "data")
         # Download raw data
         # TODO: Only using labeled instances now. Check if we can get the hidden test set labels.
@@ -105,20 +100,20 @@ class RAFTScenario(Scenario):
         class_label_to_string = train_dataset.features["Label"].int2str
 
         dataset_splits: Dict[str, datasets.Dataset] = {
-            TRAIN_TAG: train_dataset,
-            TEST_TAG: test_dataset,
+            TRAIN_SPLIT: train_dataset,
+            TEST_SPLIT: test_dataset,
         }
 
         # # Read all instances
         instances: List[Instance] = []
-        for tag, subset in dataset_splits.items():
+        for split, subset in dataset_splits.items():
             for x in subset:
-                assert self.fields is not None, "Field ordering not loaded"
-                prompt = "\n".join([f"{field}: {x[field]}" for field in self.fields])
+                assert fields is not None, "Field ordering not loaded"
+                prompt = "\n".join([f"{field}: {x[field]}" for field in fields])
                 instance = Instance(
                     input=prompt,
                     references=[Reference(output=class_label_to_string(x["Label"]), tags=[CORRECT_TAG])],
-                    tags=[tag],
+                    split=split,
                 )
                 instances.append(instance)
 
