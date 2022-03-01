@@ -104,7 +104,7 @@ class RAFTScenario(Scenario):
             TEST_SPLIT: test_dataset,
         }
 
-        # # Read all instances
+        # Read all instances
         instances: List[Instance] = []
         for split, subset in dataset_splits.items():
             for x in subset:
