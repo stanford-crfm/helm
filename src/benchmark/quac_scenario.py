@@ -1,10 +1,10 @@
-import os
 import json
-from typing import List, Dict
+import os
+import random
+from typing import List, Tuple
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, \
-                      TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
 
 
 class QuACScenario(Scenario):
@@ -14,7 +14,7 @@ class QuACScenario(Scenario):
 
     The original webpage is:
         http://quac.ai/
-   
+
     QuAC is a QA dataset based on student-teacher dialogue. The student is shown
     the title and first paragraph of a Wikipedia page and tries to learn
     information about a section of the page.
@@ -47,7 +47,7 @@ class QuACScenario(Scenario):
         ...
 
         Question: <question_k>
-        Answer: 
+        Answer:
 
         Target completion:
             <answer>
@@ -84,7 +84,7 @@ class QuACScenario(Scenario):
     has argued that his regime belongs to a strand of Cold War anti-communism
 
     Question: Is there something else interesting to know?
-    Answer: 
+    Answer:
 
     Reference:
     ["It is notable that in all the declarations of Pinochet's men, nobody has
@@ -99,37 +99,36 @@ class QuACScenario(Scenario):
     def __init__(self):
         pass
 
-    def create_prompt(self, sample: str) -> (str, List[str]):
+    def create_prompt(self, sample: dict) -> Tuple[str, List[str]]:
         """
         Given an example in dataset format, create the prompt and the list of
         correct references.
         """
         prompt = ""
-		prompt += f"Title: {sample['title']}\n\n"
-		prompt += f"Background: {sample['background']}\n\n"
+        prompt += f"Title: {sample['title']}\n\n"
+        prompt += f"Background: {sample['background']}\n\n"
 
-		prompt += f"Section: {sample['section_title']}\n"
-		dialogue = sample['paragraphs'][0]
-		prompt += f"Context: {dialogue['context']}\n\n"
+        prompt += f"Section: {sample['section_title']}\n"
+        dialogue = sample["paragraphs"][0]
+        prompt += f"Context: {dialogue['context']}\n\n"
 
-		qas = dialogue['qas']
-		num_qas = len(qas)
-		k = random.randint(3, num_qas)
+        qas = dialogue["qas"]
+        num_qas = len(qas)
+        k = random.randint(3, num_qas) - 1  # allow at least two QAs in dialogue
 
-		for i in range(k - 1):
-			prompt += f"Question: {qas[i]['question']}\n"
-			prompt += f"Answer: {qas[i]['orig_answer']['text']}\n\n"
-			
-		prompt += f"Question: {qas[k]['question']}\n"
-		prompt += f"Answer: "
+        for i in range(k - 1):
+            prompt += f"Question: {qas[i]['question']}\n"
+            prompt += f"Answer: {qas[i]['orig_answer']['text']}\n\n"
 
-		answers = [ans['text'] for ans in qas[k]['answers']]
-		answers = list(set(answers)) # deduplicate
-        
-	    return prompt, answers
+        prompt += f"Question: {qas[k]['question']}\n"
+        prompt += "Answer: "
 
-    def get_split_instances(self, split_file: str,
-                            split: str) -> List[Instance]:
+        answers = [ans["text"] for ans in qas[k]["answers"]]
+        answers = list(set(answers))  # deduplicate
+
+        return prompt, answers
+
+    def get_split_instances(self, split_file: str, split: str) -> List[Instance]:
         """
         Helper for generating instances for a split.
         Args:
@@ -142,16 +141,13 @@ class QuACScenario(Scenario):
         split_instances: List[Instance] = []
 
         with open(split_file, encoding="utf-8") as f:
-            all_samples = json.load(f)
+            all_samples = json.load(f)["data"]
 
         for sample in all_samples:
-            prompt, answers = create_prompt(sample)
+            prompt, answers = self.create_prompt(sample)
 
             instance = Instance(
-                input=prompt,
-                references=[Reference(output=ans,
-                                      tags=[CORRECT_TAG]) for ans in answers],
-                split=split,
+                input=prompt, references=[Reference(output=ans, tags=[CORRECT_TAG]) for ans in answers], split=split,
             )
             split_instances.append(instance)
 
@@ -165,13 +161,12 @@ class QuACScenario(Scenario):
 
         instances: List[Instance] = []
         splits = {"train": TRAIN_SPLIT, "val": VALID_SPLIT}
+        random.seed(0)
         for split, split_tag in splits.items():
             source_url: str = f"{base_url}/{split}_v0.2.json"
             split_path: str = os.path.join(data_path, f"{split}.json")
-            ensure_file_downloaded(source_url=source_url,
-                                   target_path=split_path)
+            ensure_file_downloaded(source_url=source_url, target_path=split_path)
 
-            instances.extend(self.get_split_instances(split_file,
-                                                      split=[split_tag]))
+            instances.extend(self.get_split_instances(split_path, split=split_tag))
 
         return instances

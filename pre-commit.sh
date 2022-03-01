@@ -5,7 +5,7 @@ set -e
 
 if ! [ -e venv ]; then
   python3 -m pip install virtualenv
-  python3 -m virtualenv -p python3 venv
+  python3 -m virtualenv -p /u/nlp/anaconda/main/anaconda3/envs/shibani-benchmarking/bin/python venv
 fi
 
 venv/bin/pip install -e .

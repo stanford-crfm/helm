@@ -1,3 +1,5 @@
+import re
+import string
 from typing import List, Callable, Optional
 
 from common.general import format_tags
@@ -14,25 +16,36 @@ from nltk.metrics.scores import f_measure
 def exact_match(gold: str, pred: str) -> float:
     return 1 if gold == pred else 0
 
+
 # TODO should we be normalizing everything this way? (e.g., iou_set_match)
 def normalize_answer(s):
-  """Lower text and remove punctuation, articles and extra whitespace.
+    """Lower text and remove punctuation, articles and extra whitespace.
      Copied from the [QuAC](http://quac.ai/) evaluation script found at
- 	 https://s3.amazonaws.com/my89public/quac/scorer.py"""
-  def remove_articles(text):
-    return re.sub(r'\b(a|an|the)\b', ' ', text)
-  def white_space_fix(text):corer.py
-    return ' '.join(text.split())
-  def remove_punc(text):
-    exclude = set(string.punctuation)
-    return ''.join(ch for ch in text if ch not in exclude)
-  def lower(text):
-    return text.lower()
-  return white_space_fix(remove_articles(remove_punc(lower(s))))
+     https://s3.amazonaws.com/my89public/quac/scorer.py"""
+
+    def remove_articles(text):
+        return re.sub(r"\b(a|an|the)\b", " ", text)
+
+    def white_space_fix(text):
+        return " ".join(text.split())
+
+    def remove_punc(text):
+        exclude = set(string.punctuation)
+        return "".join(ch for ch in text if ch not in exclude)
+
+    def lower(text):
+        return text.lower()
+
+    return white_space_fix(remove_articles(remove_punc(lower(s))))
+
 
 def f1_score(gold: str, pred: str) -> float:
-    return f_measure(set(normalize_answer(gold).split()),
-				     set(normalize_answer(pred).split()))
+    ret = f_measure(set(normalize_answer(gold).split()), set(normalize_answer(pred).split()))
+    if ret in None:
+        return 0.
+
+    return ret
+
 
 def get_num_bytes(text: str) -> int:
     """Compute the byte length of the input string"""
