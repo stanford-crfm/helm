@@ -14,7 +14,7 @@ NEGATIVE_TAG = "negative"
 NON_NEGATIVE_TAG = "non-negative"
 
 
-def BBQMetric(Metric):
+class BBQMetric(Metric):
     """
     Defines metrics for the BBQ dataset.
     """
