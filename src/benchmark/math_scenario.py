@@ -1,9 +1,19 @@
 import collections
+import re
 import typing
 from typing import List
 from .scenario import Scenario, Instance, Reference, TRAIN_TAG, TEST_TAG, CORRECT_TAG
 
 from datasets import load_dataset, DatasetDict
+
+
+def get_answer(text, regex=r"boxed\{.+\}"):
+    """Extracts out the first matching substring from the text for comparison."""
+    match = re.search(regex, text)
+    if match is not None:
+        return match.group()
+    else:
+        return ""
 
 
 class MATHScenario(Scenario):
@@ -53,8 +63,9 @@ class MATHScenario(Scenario):
             dataset[tag] = dataset[tag][f"Level {self.level}"]
 
             for ex in dataset[tag]:
+                ex["answer"] = get_answer(ex["solution"])
                 instance = Instance(
-                    input=ex["problem"], references=[Reference(output=ex["solution"], tags=[CORRECT_TAG])], tags=[tag],
+                    input=ex["problem"], references=[Reference(output=ex["answer"], tags=[CORRECT_TAG])], tags=[tag],
                 )
                 instances.append(instance)
 

@@ -319,16 +319,18 @@ def get_math_spec(type: str, level: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
-        max_train_instances=3,
+        max_train_instances=8,
         max_eval_instances=100,
-        num_outputs=3,
+        num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.2,
         stop_sequences=["\n"],
         max_tokens=20,  # TODO
-        input_prefix="Problem: ",
-        output_prefix="\nSolution: ",
+        # input_prefix="Problem: ",
+        # output_prefix="\nSolution: ",
+        input_prefix="",
+        output_prefix="\nFINAL ANSWER:\n",
     )
 
     return RunSpec(
