@@ -3,10 +3,12 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Optional
 
+from .augmentations.data_augmenter import create_data_augmenter, DataAugmenterSpec, DataAugmenter
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
-from .scenario import Instance, Scenario, TRAIN_TAG, VALID_TAG, TEST_TAG
+from .scenario import Instance, Scenario, TRAIN_SPLIT, EVAL_SPLITS
+from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 
 
 # Methods of adaptation
@@ -70,6 +72,9 @@ class AdapterSpec:
 
     # When to stop
     stop_sequences: List[str] = field(default_factory=list)
+
+    # Data augmenter. The default DataAugmenterSpec does nothing.
+    data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec()
 
 
 @dataclass(frozen=True)
@@ -141,7 +146,6 @@ class ScenarioState:
     def __post_init__(self):
         # Create derived indices based on `request_states` so it's easier for
         # the `Metric` later to access them.  Two things are produced:
-        self.instances = []
         self.request_state_map: Dict[Tuple[int, Instance, Optional[int]], List[RequestState]] = defaultdict(list)
 
         instances_set = set()
@@ -149,7 +153,7 @@ class ScenarioState:
             instances_set.add(request_state.instance)
             key = (request_state.train_trial_index, request_state.instance, request_state.reference_index)
             self.request_state_map[key].append(request_state)
-        self.instances = list(instances_set)
+        self.instances: List[Instance] = list(instances_set)
 
     def get_request_states(
         self, train_trial_index: int, instance: Instance, reference_index: Optional[int]
@@ -232,6 +236,7 @@ class Adapter:
 
     def __init__(self, adapter_spec: AdapterSpec):
         self.adapter_spec = adapter_spec
+        self.token_counter = AutoTokenCounter()
 
     @htrack(None)
     def adapt(self, scenario: Scenario) -> ScenarioState:
@@ -245,20 +250,37 @@ class Adapter:
         with htrack_block("scenario.get_instances"):
             instances = scenario.get_instances()
 
+        # Create a DataAugmenter to augment the set of instances
+        data_augmenter_spec: DataAugmenterSpec = self.adapter_spec.data_augmenter_spec
+        data_augmenter: DataAugmenter = create_data_augmenter(data_augmenter_spec)
+
         # Pick out training instances
-        all_train_instances = [instance for instance in instances if TRAIN_TAG in instance.tags]
+        all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
         if len(all_train_instances) < self.adapter_spec.max_train_instances:
             hlog(
                 f"WARNING: only {len(all_train_instances)} training instances, "
                 f"wanted {self.adapter_spec.max_train_instances}"
             )
 
+        # Applies data augmentation to generate more train instances
+        if data_augmenter_spec.should_augment_train_instances:
+            all_train_instances = data_augmenter.generate(
+                all_train_instances, include_original=data_augmenter_spec.should_include_original_train
+            )
+
         # Pick out evaluation instances.  This includes both valid and test
         # (and any other splits).  We can slice and dice later in defining the
         # metrics.
-        eval_instances = [instance for instance in instances if VALID_TAG in instance.tags or TEST_TAG in instance.tags]
+        eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
         if self.adapter_spec.max_eval_instances is not None:
             eval_instances = eval_instances[: self.adapter_spec.max_eval_instances]
+
+        # Applies data augmentation to generate more eval instances
+        if data_augmenter_spec.should_augment_eval_instances:
+            eval_instances = data_augmenter.generate(
+                eval_instances, include_original=data_augmenter_spec.should_include_original_eval
+            )
+
         hlog(
             f"{len(instances)} instances, "
             f"choosing {self.adapter_spec.max_train_instances}/{len(all_train_instances)} train instances, "
@@ -277,7 +299,7 @@ class Adapter:
 
             # Create request_states
             for eval_index, eval_instance in enumerate(eval_instances):
-                prompt = self.construct_prompt(train_instances, eval_instance)
+                prompt: str = self.construct_prompt(train_instances, eval_instance)
 
                 # Just print one prompt (useful for debugging)
                 if train_trial_index == 0 and eval_index == 0:
@@ -345,20 +367,53 @@ class Adapter:
         - the `train_instances` (in-context training examples)
         - the input part of the `eval_instance`
         - the `reference` (if provided)
+
+        Fits the prompt within the context window by removing in-context training examples.
         """
-        # Instructions
-        blocks = []
 
-        if self.adapter_spec.instructions:
-            blocks.append(self.adapter_spec.instructions)
+        def construct_prompt_helper(train_instances: List[Instance]) -> str:
+            # Instructions
+            blocks = []
 
-        # In-context training instances
-        for instance in train_instances:
-            blocks.append(self.construct_example_prompt(instance, include_output=True))
+            if self.adapter_spec.instructions:
+                blocks.append(self.adapter_spec.instructions)
 
-        blocks.append(self.construct_example_prompt(eval_instance, include_output=False))
+            # In-context training instances
+            for instance in train_instances:
+                blocks.append(self.construct_example_prompt(instance, include_output=True))
 
-        return self.adapter_spec.conditioning_prefix + "\n\n".join(blocks)
+            blocks.append(self.construct_example_prompt(eval_instance, include_output=False))
+
+            return self.adapter_spec.conditioning_prefix + "\n\n".join(blocks)
+
+        orig_train_instances_count: int = len(train_instances)
+        prompt: str = construct_prompt_helper(train_instances)
+
+        # Following what was done for MMLU (https://arxiv.org/abs/2009.03300) to handle prompts that
+        # exceed the max context length (https://github.com/hendrycks/test/blob/master/evaluate.py#L58),
+        # we remove train instances one by one until it fits within the context window or
+        # until we run out of train instances to remove.
+        while (
+            not self.token_counter.fits_within_context_window(
+                model=self.adapter_spec.model,
+                text=prompt,
+                expected_completion_token_length=self.adapter_spec.max_tokens,
+            )
+            and len(train_instances) > 0
+        ):
+            train_instances = train_instances[:-1]
+            prompt = construct_prompt_helper(train_instances)
+
+        removed_train_instances_count: int = orig_train_instances_count - len(train_instances)
+        if removed_train_instances_count > 0:
+            hlog(
+                f"The original constructed prompt exceeded the max context length. Removed "
+                f"{removed_train_instances_count} in-context examples to fit it within the context window."
+            )
+
+        # If removing the in-context example is still not enough, we simply truncate the prompt.
+        # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
+        return self.token_counter.truncate_from_right(self.adapter_spec.model, prompt)
 
     def construct_example_prompt(self, instance: Instance, include_output: bool) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""

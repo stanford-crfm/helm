@@ -21,9 +21,10 @@ class AI21Client(Client):
         self.cache = Cache(cache_path)
 
     def make_request(self, request: Request) -> RequestResult:
-        model = request.model
+        model: str = request.model
         if model not in ["ai21/j1-large", "ai21/j1-jumbo"]:
             raise Exception("Invalid model")
+
         raw_request = {
             "prompt": request.prompt,
             "temperature": request.temperature,
@@ -47,7 +48,8 @@ class AI21Client(Client):
             return response
 
         try:
-            cache_key = Client.make_cache_key(raw_request, request)
+            # We need to include the engine's name to differentiate among requests made for different model engines
+            cache_key = Client.make_cache_key({"engine": request.model_engine, **raw_request}, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except AI21RequestError as e:
             return RequestResult(success=False, cached=False, error=str(e), completions=[])

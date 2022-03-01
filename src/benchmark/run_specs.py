@@ -1,8 +1,10 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 
 from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from common.object_spec import ObjectSpec
 
+from .augmentations.data_augmenter import DataAugmenterSpec
+from .augmentations.perturbation import PerturbationSpec
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
@@ -12,6 +14,7 @@ from .adapter import (
 from .metric import MetricSpec
 from .runner import RunSpec
 from .scenario import ScenarioSpec
+from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -42,12 +45,44 @@ def get_adapter_spec1() -> AdapterSpec:
     )
 
 
+def get_adapter_spec1_with_data_augmentation() -> AdapterSpec:
+    data_augmenter_spec = DataAugmenterSpec(
+        perturbation_specs=[
+            PerturbationSpec(
+                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", args={"num_spaces": 5}
+            )
+        ],
+        should_perturb_references=False,
+        should_augment_train_instances=False,
+        should_include_original_train=False,
+        should_augment_eval_instances=True,
+        should_include_original_eval=True,
+    )
+
+    return AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Please solve the following problem.",
+        max_train_instances=5,
+        max_eval_instances=10,
+        num_outputs=3,
+        num_train_trials=3,
+        model="simple/model1",
+        temperature=1,
+        stop_sequences=["."],
+        data_augmenter_spec=data_augmenter_spec,
+    )
+
+
 def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=args)]
 
 
-def get_toxicity_metrics(group_tags: List[str]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={"group_tags": group_tags})]
+def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
+
+
+def get_toxicity_metrics() -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
 
 
 def get_lpm_metrics() -> List[MetricSpec]:
@@ -93,6 +128,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_mmlu_spec(**args)]
     if name == "narrativeqa":
         return [get_narrativeqa_spec()]
+    if name == "commonsense_qa":
+        return [get_commonsense_qa_spec(**args)]
     if name == "real_toxicity_prompts":
         return [get_real_toxicity_prompts_spec()]
     if name == "simple1":
@@ -141,6 +178,60 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     )
 
 
+def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.commonsense_qa_scenario.CommonSenseQAScenario",
+        args={"dataset": dataset, "method": method,},
+    )
+
+    if method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
+        adapter_spec = AdapterSpec(
+            method=ADAPT_MULTIPLE_CHOICE,
+            conditioning_prefix="",
+            instructions="The following are multiple choice questions (with answers) about common sense.",
+            input_prefix="",
+            output_prefix="\nAnswer: ",
+            max_train_instances=0,
+            max_eval_instances=10,
+            num_outputs=10,
+            num_train_trials=1,
+            model="openai/davinci",
+            temperature=0,
+        )
+        run_spec = RunSpec(
+            name=f"dataset={dataset},method={method}",
+            scenario=scenario,
+            adapter_spec=adapter_spec,
+            metrics=get_basic_metrics({"names": ["exact_match"]}),
+        )
+    elif method == CAUSAL_LANGUAGE_MODELING_METHOD:
+        n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
+        adapter_spec = AdapterSpec(
+            method=ADAPT_LANGUAGE_MODELING,
+            conditioning_prefix="",
+            instructions="",
+            input_prefix="",
+            output_prefix="",
+            max_train_instances=0,
+            max_eval_instances=10 * n_choice * 2,
+            num_outputs=10,
+            max_tokens=0,
+            num_train_trials=1,
+            model="openai/davinci",
+            temperature=0,
+        )
+        run_spec = RunSpec(
+            name=f"dataset={dataset},method={method}",
+            scenario=scenario,
+            adapter_spec=adapter_spec,
+            metrics=get_commonsense_qa_metrics({"n_choice": n_choice}),
+        )
+    else:
+        raise ValueError(f"Unknown commonsense QA method: {method}")
+
+    return run_spec
+
+
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
@@ -170,8 +261,6 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
 
 
 def get_real_toxicity_prompts_spec() -> RunSpec:
-    from .real_toxicity_prompts_scenario import TOXIC_TAG, NONTOXIC_TAG
-
     scenario = ScenarioSpec(class_name="benchmark.real_toxicity_prompts_scenario.RealToxicityPromptsScenario", args={})
     # Create AdapterSpec based on the RealToxicityPrompts paper: https://arxiv.org/pdf/2009.11462.pdf
     adapter_spec = AdapterSpec(
@@ -187,10 +276,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         num_outputs=25,  # "...the expected maximum toxicity over k = 25 generations..."
     )
     return RunSpec(
-        name="real_toxicity_prompts",
-        scenario=scenario,
-        adapter_spec=adapter_spec,
-        metrics=get_toxicity_metrics([TOXIC_TAG, NONTOXIC_TAG]),
+        name="real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics(),
     )
 
 
@@ -230,7 +316,7 @@ def get_boolq_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Remove this once deployed
+        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
         num_outputs=1,
         max_tokens=1,
     )
@@ -254,7 +340,7 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Remove this once deployed
+        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
         num_outputs=1,
         max_tokens=1,
     )
@@ -321,9 +407,9 @@ def get_narrativeqa_spec() -> RunSpec:
         input_prefix="",
         output_prefix="\nanswer:",
         num_train_trials=1,
-        max_train_instances=3,
+        max_train_instances=2,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Remove this once deployed
+        max_eval_instances=450,  # TODO : Find the number of samples to evaluate.
         num_outputs=1,
         max_tokens=5,
         temperature=0.0,

@@ -7,7 +7,7 @@ from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
 from .adapter import AdapterSpec, ScenarioState, RequestState
 from .metric_service import MetricService
-from .scenario import VALID_TAG, TEST_TAG
+from .scenario import EVAL_SPLITS
 
 
 class Metric(ABC):
@@ -34,8 +34,6 @@ class Metric(ABC):
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[str, Stat] = {}  # Statistics just for this trial
-            # TODO: incorporate robustness (worst case over a group of instances with some tag)
-            #       https://github.com/stanford-crfm/benchmarking/issues/47
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
             #       https://github.com/stanford-crfm/benchmarking/issues/48
             for instance in scenario_state.instances:
@@ -57,25 +55,25 @@ class Metric(ABC):
                 # TODO: we should add statistics with the individual instances too and serialize them out.
                 #       https://github.com/stanford-crfm/benchmarking/issues/49
                 for stat in instance_stats:
-                    if VALID_TAG in instance.tags:
-                        stat = Stat(name=VALID_TAG + "." + stat.name).merge(stat)
-                    elif TEST_TAG in instance.tags:
-                        stat = Stat(name=TEST_TAG + "." + stat.name).merge(stat)
+                    stat = Stat(name=f"{instance.split}.{stat.name}").merge(stat)
                     merge_stat(trial_stats, stat)
 
             # Aggregate the corpus-level metrics
-            for tag in [VALID_TAG, TEST_TAG]:
-                if tag + "." + "logprob" in trial_stats and tag + "." + "num_tokens" in trial_stats:
+            for split in EVAL_SPLITS:
+                if split + "." + "logprob" in trial_stats and split + "." + "num_tokens" in trial_stats:
                     merge_stat(
                         trial_stats,
-                        Stat(tag + "." + "perplexity").add(
-                            2 ** (-trial_stats[tag + "." + "logprob"].sum / trial_stats[tag + "." + "num_tokens"].sum)
+                        Stat(split + "." + "perplexity").add(
+                            2
+                            ** (-trial_stats[split + "." + "logprob"].sum / trial_stats[split + "." + "num_tokens"].sum)
                         ),
                     )
                     merge_stat(
                         trial_stats,
-                        Stat(tag + "." + "bits_per_byte").add(
-                            -trial_stats[tag + "." + "logprob"].sum / trial_stats[tag + "." + "num_bytes"].sum / log(2)
+                        Stat(split + "." + "bits_per_byte").add(
+                            -trial_stats[split + "." + "logprob"].sum
+                            / trial_stats[split + "." + "num_bytes"].sum
+                            / log(2)
                         ),
                     )
 

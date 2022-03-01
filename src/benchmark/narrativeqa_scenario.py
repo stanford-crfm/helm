@@ -3,12 +3,12 @@ import csv
 from typing import List, Dict
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, CORRECT_TAG, TEST_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, TEST_SPLIT
 
 
 class NarrativeQAScenario(Scenario):
     """
-    The NNarrativeQA dataset is from the paper:
+    The NarrativeQA dataset is from the paper:
         https://arxiv.org/abs/1712.07040
 
     Original repository can be found at:
@@ -61,7 +61,7 @@ class NarrativeQAScenario(Scenario):
         """
         return f"{summary}\nquestion: {question}"
 
-    def get_split_instances(self, summaries_file: str, qaps_file: str, split: str, tags: List[str]) -> List[Instance]:
+    def get_split_instances(self, summaries_file: str, qaps_file: str, split_name: str, split: str) -> List[Instance]:
         """
         Helper for generating instances for a split.
         Args:
@@ -79,31 +79,31 @@ class NarrativeQAScenario(Scenario):
         with open(summaries_file, encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                if row["set"] != split:
+                if row["set"] != split_name:
                     continue
                 split_summaries[row["document_id"]] = row
 
         with open(qaps_file, encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                if row["set"] != split:
+                if row["set"] != split_name:
                     continue
                 document_id: str = row["document_id"]
                 summary: str = split_summaries[document_id]["summary"]
                 question: str = row["question"]
                 answer1: str = row["answer1"]
                 answer2: str = row["answer2"]
-                context = self.get_context(summary, question)
+                context: str = self.get_context(summary, question)
 
                 # There are two potential answers. We are adding each of them as different instances.
                 # TODO: Make sure that this strategy is fine.
                 instance1: Instance = Instance(
-                    input=context, references=[Reference(output=answer1, tags=[CORRECT_TAG])], tags=tags
+                    input=context, references=[Reference(output=answer1, tags=[CORRECT_TAG])], split=split
                 )
                 split_instances.append(instance1)
 
                 instance2: Instance = Instance(
-                    input=context, references=[Reference(output=answer2, tags=[CORRECT_TAG])], tags=tags
+                    input=context, references=[Reference(output=answer2, tags=[CORRECT_TAG])], split=split
                 )
                 split_instances.append(instance2)
         return split_instances
@@ -112,7 +112,7 @@ class NarrativeQAScenario(Scenario):
         data_path = os.path.join(self.output_path, "data")
         ensure_directory_exists(data_path)
 
-        splits = {"train": TRAIN_TAG, "valid": VALID_TAG, "test": TEST_TAG}
+        splits = {"train": TRAIN_SPLIT, "valid": VALID_SPLIT, "test": TEST_SPLIT}
 
         repo_url: str = "https://github.com/deepmind/narrativeqa/archive/master.zip"
         repo_path: str = os.path.join(data_path, "narrativeqa-master")
@@ -124,10 +124,10 @@ class NarrativeQAScenario(Scenario):
         qaps_file: str = os.path.join(repo_path, "qaps.csv")
 
         instances: List[Instance] = []
-        for split, split_tag in splits.items():
+        for split_name, split in splits.items():
             instances.extend(
                 self.get_split_instances(
-                    summaries_file=summaries_file, qaps_file=qaps_file, split=split, tags=[split_tag]
+                    summaries_file=summaries_file, qaps_file=qaps_file, split_name=split_name, split=split
                 )
             )
 

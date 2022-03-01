@@ -1,9 +1,12 @@
-from typing import List, Callable
+from typing import List, Callable, Optional
 
+from common.general import format_tags
 from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_service import MetricService
+from proxy.tokenizer.auto_token_counter import AutoTokenCounter
+from proxy.tokenizer.token_counter import TokenCounter
 from nltk.metrics.scores import f_measure
 
 
@@ -12,7 +15,7 @@ def exact_match(gold: str, pred: str) -> float:
 
 
 def f1_score(gold: str, pred: str) -> float:
-    return f_measure(set(gold.split()), set(pred.split()), alpha=0.5)
+    return f_measure(set(gold.split()), set(pred.split()))
 
 
 def get_num_bytes(text: str) -> int:
@@ -53,8 +56,10 @@ class BasicMetric(Metric):
     `names` is a list of optional metrics to be specified by the user. Currently only `exact_match` is supported.
     """
 
-    def __init__(self, names: List[str]):
-        self.names = names
+    def __init__(self, names: List[str], group_tags: Optional[List[str]] = None):
+        self.names: List[str] = names
+        self.group_tags: List[str] = group_tags if group_tags else []
+        self.token_counter: TokenCounter = AutoTokenCounter()
 
     def compute_reference_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -71,13 +76,18 @@ class BasicMetric(Metric):
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
 
-        def compute_metrics_helper(name: str, score_func: Callable[[str, str], float]) -> List[Stat]:
+        def compute_metrics_helper(
+            name: str, score_func: Callable[[str, str], float], tag: Optional[str] = None
+        ) -> List[Stat]:
             score_1 = max(score_func(gold, preds[0]) for gold in golds)
             score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
 
+            group: str = format_tags([tag]) if tag else ""
+            # TODO: clean this up once we have MetricNames
+            #       https://github.com/stanford-crfm/benchmarking/issues/125
             return [
-                Stat(name).add(score_1),
-                Stat(f"{name}@{adapter_spec.num_outputs}").add(score_k),
+                Stat(f"{group + '_' if group else ''}{name}").add(score_1),
+                Stat(f"{group + '_' if group else ''}{name}@{adapter_spec.num_outputs}").add(score_k),
             ]
 
         # maps each string metric name to its associated function
@@ -105,6 +115,12 @@ class BasicMetric(Metric):
                 if request_state.output_mapping is not None:
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
                 reference_metrics.extend(compute_metrics_helper(metric_name, metric_fn_mapping[metric_name]))
+
+                for group_tag in self.group_tags:
+                    if group_tag in request_state.instance.tags:
+                        reference_metrics.extend(
+                            compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], group_tag)
+                        )
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics
@@ -115,9 +131,16 @@ class BasicMetric(Metric):
         """Compute per-token normalized runtime"""
         assert request_state.result is not None
 
-        runtime = request_state.result.request_time
+        runtime: float = request_state.result.request_time
+
         # Compute total number of tokens across completions
         num_tokens: int = sum([len(sequence.tokens) for sequence in request_state.result.completions])
+        # Account for the tokens in prompt as well if echo_prompt is False
+        if not request_state.request.echo_prompt:
+            num_tokens_in_prompt: int = self.token_counter.tokenize_and_count(
+                model=request_state.request.model, text=request_state.request.prompt
+            )
+            num_tokens += num_tokens_in_prompt
 
         return [Stat("runtime").add(runtime), Stat("normalized_runtime").add(runtime / num_tokens)]
 
