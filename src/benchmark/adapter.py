@@ -7,7 +7,7 @@ from .augmentations.data_augmenter import create_data_augmenter, DataAugmenterSp
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
-from .scenario import Instance, Scenario, TRAIN_TAG, VALID_TAG, TEST_TAG
+from .scenario import Instance, Scenario, TRAIN_SPLIT, EVAL_SPLITS
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 
 
@@ -255,7 +255,7 @@ class Adapter:
         data_augmenter: DataAugmenter = create_data_augmenter(data_augmenter_spec)
 
         # Pick out training instances
-        all_train_instances = [instance for instance in instances if TRAIN_TAG in instance.tags]
+        all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
         if len(all_train_instances) < self.adapter_spec.max_train_instances:
             hlog(
                 f"WARNING: only {len(all_train_instances)} training instances, "
@@ -271,7 +271,7 @@ class Adapter:
         # Pick out evaluation instances.  This includes both valid and test
         # (and any other splits).  We can slice and dice later in defining the
         # metrics.
-        eval_instances = [instance for instance in instances if VALID_TAG in instance.tags or TEST_TAG in instance.tags]
+        eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
         if self.adapter_spec.max_eval_instances is not None:
             eval_instances = eval_instances[: self.adapter_spec.max_eval_instances]
 

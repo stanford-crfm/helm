@@ -2,17 +2,9 @@ import os
 from typing import List
 import json
 
-from common.general import ensure_file_downloaded
+from common.general import ensure_file_downloaded, flatten_list
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
-
-
-def flatten_list(ll: list):
-    """
-    Input: Nested lists
-    Output: Flattened input
-    """
-    return sum(map(flatten_list, ll), []) if isinstance(ll, list) else [ll]
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
 class WIKIScenario(Scenario):
@@ -121,11 +113,11 @@ class WIKIScenario(Scenario):
             unpack_type="unzip",
         )
         # Read all the instances
-        instances = []
+        instances: List[Instance] = []
         splits = {
-            "train": TRAIN_TAG,
-            "dev": VALID_TAG,
-            "test": TEST_TAG,
+            "train": TRAIN_SPLIT,
+            "dev": VALID_SPLIT,
+            "test": TEST_SPLIT,
         }
 
         for split in splits:
@@ -144,7 +136,7 @@ class WIKIScenario(Scenario):
                     return Reference(output=" " + answer.strip(), tags=[CORRECT_TAG])
 
                 instance = Instance(
-                    input=question, references=list(map(answer_to_reference, answers)), tags=[splits[split]],
+                    input=question, references=list(map(answer_to_reference, answers)), split=splits[split],
                 )
                 instances.append(instance)
 
