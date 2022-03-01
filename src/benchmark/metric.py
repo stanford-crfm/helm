@@ -81,6 +81,12 @@ class Metric(ABC):
                             -trial_stats[tag + "." + "logprob"].sum / trial_stats[tag + "." + "num_bytes"].sum / log(2)
                         ),
                     )
+                    merge_stat(
+                        trial_stats,
+                        Stat(tag + "." + "logprob_per_byte").add(
+                            trial_stats[tag + "." + "logprob"].sum / trial_stats[tag + "." + "num_bytes"].sum
+                        ),
+                    )
 
             # We only take the mean value for each trial
             for stat in trial_stats.values():
@@ -131,6 +137,12 @@ class Metric(ABC):
                 trial_stats,
                 Stat(tag + "." + "bits_per_byte").add(
                     -trial_stats[tag + "." + "logprob"].sum / trial_stats[tag + "." + "num_bytes"].sum / log(2)
+                ),
+            )
+            merge_stat(
+                trial_stats,
+                Stat(tag + "." + "logprob_per_byte").add(
+                    trial_stats[tag + "." + "logprob"].sum / trial_stats[tag + "." + "num_bytes"].sum
                 ),
             )
 
