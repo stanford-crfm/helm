@@ -26,6 +26,7 @@ class HuggingFaceServer:
         top_k_per_token: int = raw_request["top_k_per_token"]
         del raw_request["top_k_per_token"]
 
+        # Use HuggingFace's `generate` method.
         output = self.model.generate(**encoded_input, **raw_request)
         sequences = output.sequences
         scores = output.scores
@@ -38,6 +39,8 @@ class HuggingFaceServer:
             top_logprobs_dicts = []
             for i in range(len(sequences[completion_id]) - len(encoded_input.input_ids[0])):
                 logprobs = torch.nn.functional.log_softmax(scores[i][completion_id], dim=0)
+
+                # Get top tokens in terms of log probability.
                 topk_logprobs = torch.topk(logprobs, k=top_k_per_token)
                 top_logprobs_dicts.append(
                     {
@@ -101,6 +104,8 @@ class HuggingFaceClient(Client):
             "echo_prompt": request.echo_prompt,
             "top_k_per_token": request.top_k_per_token,
         }
+        # Get cached model server instance if possible (to save on model and tokenizer
+        # loading times).
         model_server_instance = self.get_model_server_instance(request.model_engine)
 
         try:
@@ -120,6 +125,7 @@ class HuggingFaceClient(Client):
             tokens: List[Token] = []
 
             if request.echo_prompt:
+                # Add prompt to list of generated tokens.
                 generated_tokens = raw_completion["tokens"][response["input_length"] :]
                 for token_text in raw_completion["tokens"][: response["input_length"]]:
                     tokens.append(Token(text=token_text, logprob=0.0, top_logprobs={}))
