@@ -32,6 +32,8 @@ def _self_bleu(completions: List[Sequence], **unused_kwargs) -> float:
 
 def _monte_carlo_entropy(completions: List[Sequence], **unused_kwargs) -> float:
     """Monte Carlo estimate of model entropy in nats."""
+    # TODO(lxuechen): This estimator is biased with non-unit temperature, since OpenAI API doesn't adjust logprob
+    #  computation based on temperature.
     mlogps = [-sum(token.logprob for token in completion.tokens) for completion in completions]
     return sum(mlogps) / len(mlogps)
 
