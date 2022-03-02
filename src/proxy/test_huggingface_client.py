@@ -7,7 +7,11 @@ if __name__ == "__main__":
     print(
         client.make_request(
             Request(
-                model="huggingface/gptj_6b", prompt="I am a computer scientist.", num_completions=2, top_k_per_token=5,
+                model="huggingface/gptj_6b",
+                prompt="I am a computer scientist.",
+                num_completions=2,
+                max_tokens=20,
+                top_k_per_token=5,
             )
         )
     )
@@ -15,9 +19,20 @@ if __name__ == "__main__":
         client.make_request(
             Request(
                 model="huggingface/gpt2",
-                prompt="My name is Joe.",
+                prompt="I am a computer scientist.",
                 num_completions=2,
-                max_tokens=30,
+                max_tokens=20,
+                top_k_per_token=5,
+            )
+        )
+    )
+    print(
+        client.make_request(
+            Request(
+                model="huggingface/gpt2",
+                prompt="I am a computer scientist.",
+                num_completions=2,
+                max_tokens=20,
                 top_k_per_token=5,
                 echo_prompt=True,
             )
