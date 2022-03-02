@@ -25,8 +25,3 @@ def test_flatten_list():
 
 def test_format_split():
     assert format_split("split") == "|split|"
-
-
-if __name__ == '__main__':
-    test_flatten_list()
-

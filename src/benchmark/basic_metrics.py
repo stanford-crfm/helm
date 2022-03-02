@@ -101,67 +101,10 @@ class BasicMetric(Metric):
 
                 # Predicted outputs
                 assert request_state.result is not None
-                """
-                Below is an example of request_state.result.completions,
-                where I set num_outputs=5.
-                As you can see the request_state.result.completions just have identical elements for 5 times, 
-                but what we really need is to sort the items in the dictionary request_state.result.completions[0].tokens[0].top_logprobs by its value.
-
-                [
-                    Sequence(text=' beetle', 
-                             logprob=-1.3080821, 
-                             tokens=[
-                                 Token(text=' beetle', 
-                                       logprob=-1.3080821, 
-                                       top_logprobs={' insect': -2.7491431, ' tax': -2.8675036, ' beetle': -1.3080821, ' species': -1.3589168, ' animal': -3.1938853}
-                                 )
-                             ]
-                    ), 
-                    Sequence(text=' beetle', 
-                             logprob=-1.3080821, 
-                             tokens=[
-                                 Token(text=' beetle', 
-                                       logprob=-1.3080821, 
-                                       top_logprobs={' insect': -2.7491431, ' tax': -2.8675036, ' beetle': -1.3080821, ' species': -1.3589168, ' animal': -3.1938853}
-                                 )
-                             ]
-                    ), 
-                    Sequence(text=' beetle', 
-                             logprob=-1.3080821, 
-                             tokens=[
-                                 Token(text=' beetle', 
-                                       logprob=-1.3080821, 
-                                       top_logprobs={' insect': -2.7491431, ' tax': -2.8675036, ' beetle': -1.3080821, ' species': -1.3589168, ' animal': -3.1938853}
-                                 )
-                             ]
-                    ), 
-                    Sequence(text=' beetle', 
-                             logprob=-1.3080821, 
-                             tokens=[
-                                 Token(text=' beetle', 
-                                       logprob=-1.3080821, 
-                                       top_logprobs={' insect': -2.7491431, ' tax': -2.8675036, ' beetle': -1.3080821, ' species': -1.3589168, ' animal': -3.1938853}
-                                 )
-                             ]
-                    ), 
-                    Sequence(text=' beetle', 
-                             logprob=-1.3080821, 
-                             tokens=[
-                                 Token(text=' beetle', 
-                                       logprob=-1.3080821, 
-                                       top_logprobs={' insect': -2.7491431, ' tax': -2.8675036, ' beetle': -1.3080821, ' species': -1.3589168, ' animal': -3.1938853}
-                                 )
-                             ]
-                    ), 
-                ]
-                """
-
-                preds = [
-                    i[0]
-                    for i in sorted(
-                        request_state.result.completions[0].tokens[0].top_logprobs.items(), key=lambda kv: -kv[1]
-                    )
-                ]
+                # TODO: Sort the predictions, or take them from the top tokens of the first completion
+                #       https://github.com/stanford-crfm/benchmarking/issues/42
+                preds = [completion.text for completion in request_state.result.completions]
+                # import pdb; pdb.set_trace()
                 # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
                 if request_state.output_mapping is not None:
                     preds = [request_state.output_mapping.get(pred) for pred in preds]

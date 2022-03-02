@@ -190,7 +190,7 @@ def get_wiki_spec(k: str, subject: str) -> RunSpec:
         max_eval_instances=1000,
         num_outputs=int(k),
         model="openai/davinci",
-        temperature=0.2,
+        temperature=1.0,
         max_tokens=8,
         stop_sequences=["\n"],
     )
