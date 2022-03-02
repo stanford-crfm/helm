@@ -1,10 +1,11 @@
 import json
 import os
+from functools import partial
 from typing import List
+
 from common.general import ensure_file_downloaded, ensure_directory_exists
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
-from functools import partial
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 MULTI_CHOICE_QUESTION_ANSWERING_METHOD = "mcqa"
 CAUSAL_LANGUAGE_MODELING_METHOD = "clm"
@@ -237,12 +238,12 @@ class CommonSenseQAScenario(Scenario):
         data = self.load_dataset()
 
         splits = {
-            "train": TRAIN_TAG,
-            "val": VALID_TAG,
-            "test": TEST_TAG,
+            "train": TRAIN_SPLIT,
+            "val": VALID_SPLIT,
+            "test": TEST_SPLIT,
         }
 
-        instances = []
+        instances: List[Instance] = []
 
         def answer_to_reference(answer, correct_tag):
             return Reference(output=answer, tags=[correct_tag] if answer == correct_answer else [])
@@ -251,19 +252,17 @@ class CommonSenseQAScenario(Scenario):
             if self.method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
                 answer_to_reference_mcqa = partial(answer_to_reference, correct_tag=CORRECT_TAG)
                 instance = Instance(
-                    input=question, references=list(map(answer_to_reference_mcqa, answers)), tags=[splits[split]],
+                    input=question, references=list(map(answer_to_reference_mcqa, answers)), split=splits[split],
                 )
                 instances.append(instance)
             elif self.method == CAUSAL_LANGUAGE_MODELING_METHOD:
                 answer_to_reference_clm = partial(answer_to_reference, correct_tag=CLM_CORRECT_TAG)
                 for answer in answers:
                     instance1 = Instance(
-                        input=f"{question} {answer}",
-                        references=[answer_to_reference_clm(answer)],
-                        tags=[splits[split]],
+                        input=f"{question} {answer}", references=[answer_to_reference_clm(answer)], split=splits[split],
                     )
                     instance2 = Instance(
-                        input=f"Answer: {answer}", references=[answer_to_reference_clm(answer)], tags=[splits[split]],
+                        input=f"Answer: {answer}", references=[answer_to_reference_clm(answer)], split=splits[split],
                     )
-                    instances += [instance1, instance2]
+                    instances.extend([instance1, instance2])
         return instances

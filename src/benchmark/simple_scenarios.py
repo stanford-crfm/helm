@@ -1,7 +1,7 @@
 import random
 from typing import List
 
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, TEST_TAG, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
 class Simple1Scenario(Scenario):
@@ -32,7 +32,7 @@ class Simple1Scenario(Scenario):
             """An input is just a random sequence of tokens (e.g., 4 2 5 6)."""
             return [str(random.randint(0, self.vocab_size - 1)) for _ in range(self.num_input_tokens)]
 
-        def generate_instance(tags: List[str]):
+        def generate_instance(split: str):
             """Generate a random instance with `tags`."""
             tokens = generate_seq()
             input = " ".join(tokens)
@@ -41,11 +41,11 @@ class Simple1Scenario(Scenario):
                 Reference(output=output, tags=[CORRECT_TAG]),  # Correct output
                 Reference(output="-1", tags=[]),  # Wrong output
             ]
-            return Instance(input=input, references=references, tags=tags)
+            return Instance(input=input, references=references, split=split)
 
-        def generate_instances(num_instances: int, tags: List[str]):
-            return [generate_instance(tags) for _ in range(num_instances)]
+        def generate_instances(num_instances: int, split: str):
+            return [generate_instance(split) for _ in range(num_instances)]
 
-        return generate_instances(self.num_train_instances, [TRAIN_TAG]) + generate_instances(
-            self.num_test_instances, [TEST_TAG]
+        return generate_instances(self.num_train_instances, TRAIN_SPLIT) + generate_instances(
+            self.num_test_instances, TEST_SPLIT
         )
