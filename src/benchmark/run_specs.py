@@ -154,6 +154,19 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     def format(subject: str):
         return subject.replace("_", " ")
 
+    data_augmenter_spec = DataAugmenterSpec(
+        perturbation_specs=[
+            PerturbationSpec(
+                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", args={"num_spaces": 3}
+            )
+        ],
+        should_perturb_references=False,
+        should_augment_train_instances=False,
+        should_include_original_train=False,
+        should_augment_eval_instances=True,
+        should_include_original_eval=True,
+    )
+
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         conditioning_prefix="",
@@ -166,6 +179,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         num_train_trials=1,
         model="openai/davinci",
         temperature=0,
+        data_augmenter_spec=data_augmenter_spec,
     )
 
     return RunSpec(

@@ -1,5 +1,6 @@
 from typing import List, Callable, Optional
 
+from benchmark.augmentations.perturbation_description import PerturbationDescription
 from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
@@ -107,10 +108,10 @@ class BasicMetric(Metric):
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
                 reference_metrics.extend(compute_metrics_helper(metric_name, metric_fn_mapping[metric_name]))
 
-                perturbation: Optional[str] = request_state.instance.perturbation
+                perturbation: Optional[PerturbationDescription] = request_state.instance.perturbation
                 if perturbation:
                     reference_metrics.extend(
-                        compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], group=perturbation)
+                        compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], group=str(perturbation))
                     )
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")

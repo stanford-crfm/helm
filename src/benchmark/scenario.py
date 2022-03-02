@@ -4,6 +4,7 @@ from typing import List, Optional
 
 from common.object_spec import ObjectSpec, create_object
 from common.general import format_text, format_split, format_tags, indent_lines
+from benchmark.augmentations.perturbation_description import PerturbationDescription
 
 # Data splits
 TRAIN_SPLIT: str = "train"
@@ -61,8 +62,8 @@ class Instance:
     # Used to group Instances that were created from a particular Instance through data augmentation
     id: Optional[str] = None
 
-    # Description of the Perturbation that was applied when creating this Instance (e.g. extra_space|num_spaces=3)
-    perturbation: Optional[str] = None
+    # Description of the Perturbation that was applied when creating this Instance
+    perturbation: Optional[PerturbationDescription] = None
 
     @property
     def first_correct_reference(self) -> Optional[Reference]:
@@ -79,7 +80,7 @@ class Instance:
         if self.id:
             info.append(f"id: {format_text(self.id)}")
         if self.perturbation:
-            info.append(f"perturbation: {format_text(self.perturbation)}")
+            info.append(f"perturbation: {self.perturbation}")
 
         for reference in self.references:
             info.extend(reference.render_lines())

@@ -2,19 +2,20 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from typing import List
 
+from .perturbation_description import PerturbationDescription
 from benchmark.scenario import Instance, Reference
 from common.object_spec import ObjectSpec, create_object
 
 
 class Perturbation(ABC):
 
-    # Unique name to describe perturbation. We use the name to tag instances.
+    # Unique name to describe perturbation
     name: str
 
     @property
-    def description(self) -> str:
+    def description(self) -> PerturbationDescription:
         """Description of the perturbation."""
-        return self.name
+        return PerturbationDescription(self.name)
 
     def apply(self, instance_id: str, instance: Instance, should_perturb_references: bool = True) -> Instance:
         """
@@ -71,14 +72,19 @@ class ExtraSpacePerturbation(Perturbation):
     `num_spaces` number of spaces.
     """
 
+    @dataclass(frozen=True)
+    class Description(PerturbationDescription):
+        name: str
+        num_spaces: int
+
     name: str = "extra_space"
 
     def __init__(self, num_spaces: int):
         self.num_spaces = num_spaces
 
     @property
-    def description(self) -> str:
-        return f"{self.name}|num_spaces={self.num_spaces}"
+    def description(self) -> PerturbationDescription:
+        return ExtraSpacePerturbation.Description(self.name, self.num_spaces)
 
     def perturb(self, text: str) -> str:
         return text.replace(" ", " " * self.num_spaces)

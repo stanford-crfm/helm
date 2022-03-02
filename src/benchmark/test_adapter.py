@@ -28,7 +28,7 @@ def test_adapter1_with_data_augmentation():
     # by verifying that the instances with the perturbation tag are perturbed
     scenario_state = Adapter(adapter_spec).adapt(scenario)
     for instance in scenario_state.instances:
-        if instance.perturbation == "extra_space|num_spaces=5":
+        if instance.perturbation.name == "extra_space":
             assert " " * 5 in instance.input
         else:
             assert " " * 5 not in instance.input
