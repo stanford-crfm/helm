@@ -23,6 +23,8 @@ class HuggingFaceServer:
         raw_request["do_sample"] = True
         raw_request["return_dict_in_generate"] = True
         raw_request["output_scores"] = True
+        top_k_per_token: int = raw_request["top_k_per_token"]
+        del raw_request["top_k_per_token"]
 
         output = self.model.generate(**encoded_input, **raw_request)
         sequences = output.sequences
@@ -30,15 +32,25 @@ class HuggingFaceServer:
 
         # Compute logprobs for each completed sequence.
         all_logprobs_of_chosen_tokens = []
+        all_top_logprobs_dicts = []
         for completion_id in range(raw_request["num_return_sequences"]):
             logprobs_of_chosen_tokens = []
+            top_logprobs_dicts = []
             for i in range(len(sequences[completion_id]) - len(encoded_input.input_ids[0])):
                 logprobs = torch.nn.functional.log_softmax(scores[i][completion_id], dim=0)
+                topk_logprobs = torch.topk(logprobs, k=top_k_per_token)
+                top_logprobs_dicts.append(
+                    {
+                        self.tokenizer.convert_ids_to_tokens(k.item()): v.item()
+                        for (k, v) in zip(topk_logprobs.indices, topk_logprobs.values)
+                    }
+                )
 
                 # Get log probability of chosen token.
                 j = i + len(encoded_input.input_ids[0])
                 logprobs_of_chosen_tokens.append(logprobs[sequences[completion_id][j]].item())
             all_logprobs_of_chosen_tokens.append(logprobs_of_chosen_tokens)
+            all_top_logprobs_dicts.append(top_logprobs_dicts)
 
         # Remove prompt from the start of each sequence if echo_prompt is False.
         if not raw_request["echo_prompt"]:
@@ -48,11 +60,17 @@ class HuggingFaceServer:
         all_decoded_text = self.tokenizer.batch_decode(sequences)
 
         completions = []
-        for (decoded_text, tokens, logprobs_of_chosen_tokens) in zip(
-            all_decoded_text, all_tokens, all_logprobs_of_chosen_tokens
+        for (decoded_text, tokens, logprobs_of_chosen_tokens, top_logprobs_dicts) in zip(
+            all_decoded_text, all_tokens, all_logprobs_of_chosen_tokens, all_top_logprobs_dicts
         ):
-            # TODO: Populate top_logprobs as well?
-            completions.append({"text": decoded_text, "tokens": tokens, "logprobs": logprobs_of_chosen_tokens})
+            completions.append(
+                {
+                    "text": decoded_text,
+                    "tokens": tokens,
+                    "logprobs": logprobs_of_chosen_tokens,
+                    "top_logprobs_dicts": top_logprobs_dicts,
+                }
+            )
 
         return {"completions": completions, "input_length": len(encoded_input.input_ids[0])}
 
@@ -76,12 +94,12 @@ class HuggingFaceClient(Client):
         raw_request = {
             "engine": request.model_engine,
             "prompt": request.prompt,
-            "temperature": request.temperature,
+            "temperature": 1e-7 if request.temperature == 0 else request.temperature,
             "num_return_sequences": request.num_completions,
             "max_length": request.max_tokens,
-            "top_k": request.top_k_per_token,
             "top_p": request.top_p,
             "echo_prompt": request.echo_prompt,
+            "top_k_per_token": request.top_k_per_token,
         }
         model_server_instance = self.get_model_server_instance(request.model_engine)
 
@@ -107,8 +125,10 @@ class HuggingFaceClient(Client):
                     tokens.append(Token(text=token_text, logprob=0.0, top_logprobs={}))
             else:
                 generated_tokens = raw_completion["tokens"]
-            for token_text, logprob in zip(generated_tokens, raw_completion["logprobs"]):
-                tokens.append(Token(text=token_text, logprob=logprob, top_logprobs={}))
+            for token_text, logprob, top_logprobs_dict in zip(
+                generated_tokens, raw_completion["logprobs"], raw_completion["top_logprobs_dicts"]
+            ):
+                tokens.append(Token(text=token_text, logprob=logprob, top_logprobs=top_logprobs_dict))
                 sequence_logprob += logprob
             completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
             completions.append(completion)
