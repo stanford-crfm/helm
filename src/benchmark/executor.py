@@ -1,6 +1,7 @@
 from typing import Optional
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, replace
+
 from tqdm import tqdm
 
 from common.general import format_tags, format_text
@@ -9,6 +10,7 @@ from common.request import RequestResult
 from common.authentication import Authentication
 from proxy.remote_service import RemoteService
 from .adapter import RequestState, ScenarioState
+from .scenario import Instance
 
 
 @dataclass(frozen=True)
@@ -43,7 +45,13 @@ class Executor:
             return scenario_state
 
         def render_request_state(state: RequestState) -> str:
-            instance = state.instance
+            def format_instance(instance: Instance) -> str:
+                # TODO: remove tags_str when we get rid of tags from Instance
+                tags_str: str = format_tags(instance.tags)
+                metadata_str: str = f"[split={instance.split}, sub_split={instance.sub_split}]"
+                return f"{tags_str} {metadata_str} {format_text(instance.input[:100])}"
+
+            instance: Instance = state.instance
             gold_output: Optional[str] = None
             if instance.first_correct_reference is not None:
                 gold_output = instance.first_correct_reference.output
@@ -55,13 +63,12 @@ class Executor:
             if state.output_mapping is not None and pred_output is not None:
                 pred_output = state.output_mapping.get(pred_output.strip())
 
-            tags_str = format_tags(instance.tags)
             correct_str = "CORRECT" if gold_output == pred_output else "WRONG"
             # Truncate pred_output for a better visualization
             if pred_output is not None:
                 pred_output = pred_output[:100]
             return (
-                f"{tags_str} {format_text(instance.input[:100])} => {format_text(gold_output)}, "
+                f"{format_instance(instance)} => {format_text(gold_output)}, "
                 + f"predicted {format_text(pred_output)} [{correct_str}]"
             )
 

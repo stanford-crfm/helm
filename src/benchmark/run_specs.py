@@ -80,8 +80,8 @@ def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
 
-def get_toxicity_metrics(group_tags: List[str]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={"group_tags": group_tags})]
+def get_toxicity_metrics() -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
 
 
 def get_lpm_metrics() -> List[MetricSpec]:
@@ -256,8 +256,6 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
 
 
 def get_real_toxicity_prompts_spec() -> RunSpec:
-    from .real_toxicity_prompts_scenario import TOXIC_TAG, NONTOXIC_TAG
-
     scenario = ScenarioSpec(class_name="benchmark.real_toxicity_prompts_scenario.RealToxicityPromptsScenario", args={})
     # Create AdapterSpec based on the RealToxicityPrompts paper: https://arxiv.org/pdf/2009.11462.pdf
     adapter_spec = AdapterSpec(
@@ -273,10 +271,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         num_outputs=25,  # "...the expected maximum toxicity over k = 25 generations..."
     )
     return RunSpec(
-        name="real_toxicity_prompts",
-        scenario=scenario,
-        adapter_spec=adapter_spec,
-        metrics=get_toxicity_metrics([TOXIC_TAG, NONTOXIC_TAG]),
+        name="real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics(),
     )
 
 
