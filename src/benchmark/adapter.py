@@ -8,9 +8,8 @@ from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from .scenario import Instance, Scenario, TRAIN_TAG, VALID_TAG, TEST_TAG
-from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
-from proxy.tokenizer.openai_token_counter import OpenAITokenCounter
+from proxy.tokenizer.auto_tokenizer import AutoTokenizer
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"
@@ -455,7 +454,7 @@ class Adapter:
 
         Since some tokens are removed, we also need to recompute num_conditioning_tokens.
         """
-        raw_prompt = tokenizer.decode(conditioning_tokens + pred_tokens, clean_up_tokenization_spaces=False)
+        raw_prompt = tokenizer.decode(conditioning_tokens + pred_tokens)
         num_leading_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
         num_trailing_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
         prompt = raw_prompt.strip("\ufffd")
@@ -476,18 +475,16 @@ class Adapter:
         """
         request_states: List[RequestState] = []
 
-        if self.adapter_spec.model.startswith("openai/"):
-            token_counter = AutoTokenCounter().get_token_counter("openai")
-            assert isinstance(token_counter, OpenAITokenCounter)
-            tokenizer = token_counter.tokenizer
-            max_seq_len = 2048
-            prefix_token = OPENAI_END_OF_TEXT_TOKEN
-        else:
-            raise Exception(f"Unsupported model: {self.adapter_spec.model}")
+        # TODO: Support other models and tokenizers
+        assert self.adapter_spec.model.startswith("openai/")
+
+        tokenizer = AutoTokenizer().get_tokenizer(self.adapter_spec.model)
+        max_seq_len = tokenizer.MAX_SEQ_LEN
+        prefix_token = tokenizer.END_OF_TEXT_TOKEN
 
         for instance in instances:
             tokens = tokenizer.encode(instance.input)
-            assert tokenizer.decode(tokens, clean_up_tokenization_spaces=False) == instance.input
+            assert tokenizer.decode(tokens) == instance.input
 
             num_predicted_tokens = 0
 
@@ -500,9 +497,7 @@ class Adapter:
             # Note: There are trailing byte tokens in the raw sequence because some subwords/symbols might translate to
             # multiple tokens (e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]) and we chunk documents by token, not by word.
             first_seq_len = min(max_seq_len, len(tokens))
-            prompt = tokenizer.decode(
-                tokenizer.encode(prefix_token) + tokens[:first_seq_len], clean_up_tokenization_spaces=False
-            ).rstrip("\ufffd")
+            prompt = tokenizer.decode(tokenizer.encode(prefix_token) + tokens[:first_seq_len]).rstrip("\ufffd")
             request = Request(
                 model=self.adapter_spec.model,
                 prompt=prompt,
