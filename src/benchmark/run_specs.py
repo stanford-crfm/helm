@@ -3,6 +3,8 @@ from typing import List, Dict, Optional, Any
 from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from common.object_spec import ObjectSpec
 
+from .augmentations.data_augmenter import DataAugmenterSpec
+from .augmentations.perturbation import PerturbationSpec
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
@@ -40,6 +42,33 @@ def get_adapter_spec1() -> AdapterSpec:
         model="simple/model1",
         temperature=1,
         stop_sequences=["."],
+    )
+
+def get_adapter_spec1_with_data_augmentation() -> AdapterSpec:
+    data_augmenter_spec = DataAugmenterSpec(
+        perturbation_specs=[
+            PerturbationSpec(
+                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", args={"num_spaces": 5}
+            )
+        ],
+        should_perturb_references=False,
+        should_augment_train_instances=False,
+        should_include_original_train=False,
+        should_augment_eval_instances=True,
+        should_include_original_eval=True,
+    )
+
+    return AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Please solve the following problem.",
+        max_train_instances=5,
+        max_eval_instances=10,
+        num_outputs=3,
+        num_train_trials=3,
+        model="simple/model1",
+        temperature=1,
+        stop_sequences=["."],
+        data_augmenter_spec=data_augmenter_spec,
     )
 
 
@@ -334,6 +363,7 @@ def get_babi_qa_spec(task: str) -> RunSpec:
         model="ai21/j1-large",
         max_eval_instances=50,  # TODO: Change to None
         num_outputs=1,
+        # Task 19's answers consist of two words (in contrast to all other tasks that feature a single-word answers.)
         max_tokens=2 if task == "19" else 1,
     )
     return RunSpec(
