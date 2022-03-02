@@ -233,6 +233,7 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r lpm:difficulty=easy
     venv/bin/benchmark-run -r twitter_aae:demographic=aa
     venv/bin/benchmark-run -r copyright:pilot_study=true
+    venv/bin/benchmark-run -r raft:subset=ade_corpus_v2
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
@@ -260,14 +261,14 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 ## Final benchmarking (Infrastructure team only)
 
 1. Running all the `RunSpec`s can take a long time, so use SCDT: `ssh scdt`.
-1. Create a screen session: `screen -S benchmarking`.   
+1. Create a screen session: `screen -S benchmarking`.
 1. Go to the source code directory: `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
    We have 700 GB of disk space total on `/u/scr/nlp/crfm`.
 1. Pull the latest changes: `git pull`.
 1. Run `venv/bin/benchmark-present -s /u/apache/htdocs/crfm/benchmarking/status.txt`.
 1. Exit the screen session: `ctrl+ad`.
 
-Once all the runs complete, visit the 
+Once all the runs complete, visit the
 [Benchmarking project status page](https://nlp.stanford.edu/crfm/benchmarking/status.txt).
 
 # Contributing
