@@ -15,17 +15,27 @@ class LSATScenario(Scenario):
         https://github.com/facebookarchive/bAbI-tasks
 
     This is a multi-choice QA dataset containing question that test analytical reasoning,
-    from the Law School Admission Test (LSAT).
+    from the Law School Admission Test (LSAT). The questions explore cases of constraint
+    satisfactin, where there is a set of elements that need to be assigned while complying
+    with given conditions, for instance: making 1-1 assignments of talks to dates ("assignment"), 
+    grouping students to teams ("grouping") or ordering classes in a schedule ("ordering").
 
+    We can either evalute all questions together ("all") or a subset of the questions:
+        grouping: in_out_grouping, distribution_grouping
+        ordering: simple ordering, relative_ordering, complex ordering
+        assignment: determined assignment, undetermined assignment
+        miscellaneous
+        
     We prompt models using the following format:
-        Passage: <passage>
-        Question: <question>
-        A. ...
-        B. ...
-        C. ...
+        Input:
+            Passage: <passage>
+            Question: <question>
+            A. ...
+            B. ...
+            C. ...
 
-        Target completion:
-            <answer>
+        Output (Target completion):
+            B
 
     Using an example from the training dataset, we have
             Passage: Of the eight students - George, Helen, Irving, Kyle, Lenore, Nina, Olivia, and Robert -
