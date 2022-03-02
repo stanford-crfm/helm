@@ -3,7 +3,7 @@ import json
 from typing import List
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
 class LSATScenario(Scenario):
@@ -17,7 +17,7 @@ class LSATScenario(Scenario):
     This is a multi-choice QA dataset containing question that test analytical reasoning,
     from the Law School Admission Test (LSAT). The questions explore cases of constraint
     satisfactin, where there is a set of elements that need to be assigned while complying
-    with given conditions, for instance: making 1-1 assignments of talks to dates ("assignment"), 
+    with given conditions, for instance: making 1-1 assignments of talks to dates ("assignment"),
     grouping students to teams ("grouping") or ordering classes in a schedule ("ordering").
 
     We can either evalute all questions together ("all") or a subset of the questions:
@@ -25,7 +25,7 @@ class LSATScenario(Scenario):
         ordering: simple ordering, relative_ordering, complex ordering
         assignment: determined assignment, undetermined assignment
         miscellaneous
-        
+
     We prompt models using the following format:
         Input:
             Passage: <passage>
@@ -72,7 +72,7 @@ class LSATScenario(Scenario):
             "assignment": ["determined assignment", "undetermined assignment"],
             "miscellaneous": [],
         }
-        
+
         self.subtype2type = {}
         for qtype, subtypes in question_types.items():
             for subtype in subtypes:
@@ -87,13 +87,11 @@ class LSATScenario(Scenario):
         ensure_directory_exists(data_path)
 
         instances: List[Instance] = []
-        splits = {"train": ("Training", TRAIN_TAG), "valid": ("Development", VALID_TAG), "test": ("Test", TEST_TAG)}
+        splits = {"Training": TRAIN_SPLIT, "Development": VALID_SPLIT, "Test": TEST_SPLIT}
 
-        train_num: int = 1000
         for split in splits:
-            split_name = splits[split][0]
-            url = f"https://raw.githubusercontent.com/zhongwanjun/AR-LSAT/main/data/AR_{split_name}Data.json"
-            target_path = f"{data_path}/AR_{split_name}Data.json"
+            url = f"https://raw.githubusercontent.com/zhongwanjun/AR-LSAT/main/data/AR_{split}Data.json"
+            target_path = f"{data_path}/AR_{split}Data.json"
             ensure_file_downloaded(source_url=url, target_path=target_path)
 
             with open(target_path, "r") as f:
@@ -107,14 +105,13 @@ class LSATScenario(Scenario):
                             options = q["options"]
                             answer = ord(q["answer"]) - ord("A")
                             context = f"Passage: {passage}\nQuestion: {question}"
-                            
+
                             references: List[Reference] = []
                             for index, option in enumerate(options):
                                 tags = [CORRECT_TAG] if index == answer else []
                                 references.append(Reference(output=option, tags=tags))
 
-                            tags = [TRAIN_TAG, VALID_TAG, TEST_TAG]
-                            instance: Instance = Instance(input=context, references=references, tags=tags)
+                            instance: Instance = Instance(input=context, references=references, split=splits[split])
                             instances.append(instance)
 
         return instances

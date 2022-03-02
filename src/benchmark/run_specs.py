@@ -44,6 +44,7 @@ def get_adapter_spec1() -> AdapterSpec:
         stop_sequences=["."],
     )
 
+
 def get_adapter_spec1_with_data_augmentation() -> AdapterSpec:
     data_augmenter_spec = DataAugmenterSpec(
         perturbation_specs=[
