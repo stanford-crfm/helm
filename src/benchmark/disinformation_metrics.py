@@ -5,17 +5,20 @@ from typing import List
 from sacrebleu.metrics import BLEU
 
 from common.request import RequestResult
+from common.request import Sequence
 from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_service import MetricService
 
 
-def _self_bleu(completions: List[str], **unused_kwargs) -> float:
+def _self_bleu(completions: List[Sequence], **unused_kwargs) -> float:
     """Self-BLEU.
 
     Average over all scores, where each score is the BLEU of one generation compared against all other generations.
     """
+    completions = [completion.text.strip() for completion in completions]
+
     scores = []
     for i in range(len(completions)):
         hypothesis = completions[i]
@@ -27,11 +30,13 @@ def _self_bleu(completions: List[str], **unused_kwargs) -> float:
     return sum(scores) / len(scores)
 
 
-def _mauve(completions: List[str], references: List[str], **unused_kwargs) -> float:
-    pass
+def _monte_carlo_entropy(completions: List[Sequence], **unused_kwargs) -> float:
+    """Monte Carlo estimate of model entropy in nats."""
+    mlogps = [-sum(token.logprob for token in completion.tokens) for completion in completions]
+    return sum(mlogps) / len(mlogps)
 
 
-metric_fns = {"self_bleu": _self_bleu, "mauve": _mauve}
+metric_fns = {"self_bleu": _self_bleu, "monte_carlo_entropy": _monte_carlo_entropy}
 
 
 class DisinformationMetric(Metric):
@@ -45,7 +50,8 @@ class DisinformationMetric(Metric):
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
         request_result: RequestResult = request_state.result
-        completions = [completion.text.strip() for completion in request_result.completions]
-        references = [reference.output.strip() for reference in request_state.instance.references]
-        result = self._metric_fn(completions=completions, references=references)
-        return [Stat(f"{self._name}").add(result)]
+        result = self._metric_fn(
+            completions=request_result.completions,
+            references=request_state.instance.references
+        )
+        return [Stat(self._name).add(result)]

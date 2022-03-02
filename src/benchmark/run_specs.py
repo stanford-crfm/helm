@@ -103,7 +103,7 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
     ]
 
 
-def get_disinformation_metrics(args: Optional[Dict] = None ) -> List[MetricSpec]:
+def get_disinformation_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
     if args is None:
         args = dict()
     return [
@@ -111,12 +111,10 @@ def get_disinformation_metrics(args: Optional[Dict] = None ) -> List[MetricSpec]
             class_name="benchmark.disinformation_metrics.DisinformationMetric",
             args={**args, "name": "self_bleu"},
         ),
-        # TODO: mauve.
-        # MetricSpec(
-        #     class_name="benchmark.disinformation_metrics.DisinformationMetric",
-        #     args={**args, "name": "mauve"},
-        # ),
-        # TODO: entropy!
+        MetricSpec(
+            class_name="benchmark.disinformation_metrics.DisinformationMetric",
+            args={**args, "name": "monte_carlo_entropy"},
+        ),
     ]
 
 
@@ -435,10 +433,9 @@ def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
             temperature=0.7,
             max_eval_instances=100,
             num_outputs=5,
-            # model="openai/text-davinci-001",
-            model="simple/model1",
+            model="openai/text-davinci-001",
             max_tokens=60,
-            stop_sequences=["\n", "."],
+            stop_sequences=['.'],
         )
         metrics = get_disinformation_metrics()
     elif capability == "wedging":
