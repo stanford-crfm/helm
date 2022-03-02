@@ -13,7 +13,28 @@ class BabiQAScenario(Scenario):
     Original repository can be found at:
         https://github.com/facebookarchive/bAbI-tasks
 
-    bAbi is a QA dataset containing 20 reasoning tasks,
+    bAbi is a QA dataset containing 20 reasoning tasks:
+    1. Single supporting fact
+    2. Two supporting facts
+    3. Three supporting facts 12%
+    4. Binary relations (the office is north of the kitchen)
+    5. Ternary relations (Mary gave the cake to Bill)
+    6. Yes/No Questions
+    7. Counting
+    8. Lists/Sets (what items is he holding?)
+    9. Negation
+    10. Indefinite Knowledge (maybe, could be)
+    11. Basic Coreference (he, she)
+    12. Conjunction (and)
+    13. Compound Coreference (they)
+    14. Temporal reasoning (before, after)
+    15. Deduction (transitive reasoning)
+    16. Induction
+    17. Spatial Reasoning (right, left, on top)
+    18. Size Reasoning (smaller, larger)
+    19. Path finding
+    20. Motivation (Why did he go to the kitchen?)
+    
     each sample contains a passage (an ordered list of facts), a question and
     an answer that are generated in an unconstrained/unprompted setting.
 
@@ -47,9 +68,9 @@ class BabiQAScenario(Scenario):
 
     def __init__(self, task):
         self.task = int(task)
-        pass
 
     def process_path(self, path: str) -> str:
+        """Turn a path string (task 19) from the original format 's,w' to a verbal model-friendly format 'south west'"""
         steps: List[str] = path.split(",")
         directions = {"s": "south", "n": "north", "e": "east", "w": "west"}
         path = " ".join([directions[step] for step in steps])
@@ -62,7 +83,7 @@ class BabiQAScenario(Scenario):
         instances: List[Instance] = []
         splits = {"train": TRAIN_TAG, "valid": VALID_TAG, "test": TEST_TAG}
 
-        url = "http://www.thespermwhale.com/jaseweston/babi/tasks_1-20_v1-2.tar.gz"
+        url: str = "http://www.thespermwhale.com/jaseweston/babi/tasks_1-20_v1-2.tar.gz"
         target_path = f"{data_path}/tasks_1-20_v1-2.tar.gz"
         ensure_file_downloaded(source_url=url, target_path=target_path, unpack=True)
 
@@ -79,8 +100,10 @@ class BabiQAScenario(Scenario):
                     fact = " ".join(fact.split(" ")[1:])
                     is_question = "?" in fact
                     if is_question:
-                        question, asnwer = fact.split("\t")[:2]
-                        question, answer = question.strip(), asnwer.strip()
+                        question, answer = fact.split("\t")[:2]
+                        question, answer = question.strip(), answer.strip()
+                        # All tasks except task 19 have a verbal single-word answer (e.g. "kitchen", "apple", "yes").
+                        # Task 19 (path finding) has a non verbal answer format (
                         if self.task == 19:
                             answer = self.process_path(answer)
                         context = f"{''.join(story)}{question}"
