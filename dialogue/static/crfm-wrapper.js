@@ -42,18 +42,28 @@ const ChatBox = {
       questions: questions,
       //utterances: [],
       utterances: [
-        {speaker: "user", text: "hi"},
+        /*{speaker: "user", text: "hi"},
         {speaker: "bot", text: "hi"},
         {speaker: "user", text: "what are you up to?"},
-        {speaker: "bot", text: "nothing, just watching tv"},
+        {speaker: "bot", text: "nothing, just watching tv"},*/
 
       ],
       newUtterance: '',
       //isConversationOver: true,
       isConversationOver: false,
       currentQuestionIdx: -1,
+      error: false,
+      success: false,
     }
   },
+  /*watch: {
+    'currentQuestion.notaUtterance'(newValue){
+      if (newValue){
+        currentQuestion.selectedUtterances = [];
+      }
+    }
+
+  },*/
   computed:{
     isInterviewOver: function(){
       return this.currentQuestionIdx == this.questions.length-1;
@@ -108,6 +118,9 @@ const ChatBox = {
       if(this.isConversationOver && this.currentQuestionIdx>-1 && this.currentQuestion.type=='turnSelection'){
         //if(!'selectedUtterances' in this.currentQuestion) {this.currentQuestion.selectedUtterances=[]}
         this.currentQuestion.selectedUtterances = _.xor(this.currentQuestion.selectedUtterances, [idx])
+        if(this.currentQuestion.selectedUtterances.length > 0){
+          this.currentQuestion.notaUtterance = false;
+        }
       }
     },
     endConversation: function(){
@@ -115,18 +128,54 @@ const ChatBox = {
       this.currentQuestionIdx = 0;
     },
     submitAnswers: function(){
+      var that=this;
+      if(this.validate()){
+        axios.post('/submit-interview', {
+          payload: this.payload,
+          session_uuid: this.session_uuid,
+          user_uuid: this.user_uuid,
+          user_utterance: this.newUtterance,
+          utterances : this.utterances,
+          questions : this.questions,
+        })
+          .then(function (response) {
+            that.success = true;
+            that.error = false;
+            console.log("success");
+          })
+          .catch(function (error) {
+            console.log(error);
+            that.error = error;
+            that.success = false;
+          }); 
+      }
       //TODO: AJAX request to server
     },
     nextQuestion: function(){
-      this.currentQuestionIdx+=1
+      if(this.validate()){
+        this.error = false;
+        this.currentQuestionIdx+=1;
+      }
     },
     prevQuestion: function(){
-      this.currentQuestionIdx-=1
+      this.currentQuestionIdx-=1;
     },
-    saveCurrentAnswer: function(){
-      this.answers[this.currentQuestionIdx]
+    validate: function(){
+      if(this.currentQuestion.type=='likert'){
+        if(! ([1, 2, 3, 4, 5].includes(this.currentQuestion.rating))){
+          this.error = 'Pick an integer between 1 & 5';
+          return false;
+        }
+        return true
+      }
+      else if(this.currentQuestion.type=='turnSelection'){
+        if (this.currentQuestion.selectedUtterances.length==0 && !this.currentQuestion.notaUtterance){
+          this.error = 'Either select one or more utterances or check "None of the utterances"';
+          return false;
+        }
+        return true;
+      }
     }
-
   }
 }
 function realign_transcript() {

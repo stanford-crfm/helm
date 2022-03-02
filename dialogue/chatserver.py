@@ -1,6 +1,6 @@
 import re
 
-from flask import render_template
+from flask import render_template, url_for
 from flask import Flask, request
 import uuid
 import json
@@ -69,7 +69,9 @@ params = {
 
 @app.route('/interface')
 def projects():
-    return render_template("interface.html", title = 'Chat Interface')
+    return app.send_static_file('interface.html')
+    #return url_for('static/interface.html')
+    #return render_template("interface.html", title = 'Chat Interface')
 
 @app.route('/conversation', methods=['POST'])
 def conversational_turn():
@@ -104,6 +106,10 @@ def conversational_turn():
 @app.route('/submit-interview', methods=['POST'])
 def submit_interview():
     json_args = request.get_json(force=True)
+    session_uuid = str(json_args.get('session_uuid'))
+    with open(session_uuid+'.answers.json', 'w') as f:
+        json.dump(json_args, f)
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
 
 # Make a request
