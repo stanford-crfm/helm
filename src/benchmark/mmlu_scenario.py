@@ -1,9 +1,9 @@
 import csv
 import os
-from typing import List
+from typing import Dict, List
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
 class MMLUScenario(Scenario):
@@ -23,11 +23,11 @@ class MMLUScenario(Scenario):
     tags = ["knowledge", "multiple_choice"]
 
     def __init__(self, subject: str):
-        self.subject = subject
+        self.subject: str = subject
 
     def get_instances(self) -> List[Instance]:
         # Download the raw data
-        data_path = os.path.join(self.output_path, "data")
+        data_path: str = os.path.join(self.output_path, "data")
         ensure_file_downloaded(
             source_url="https://people.eecs.berkeley.edu/~hendrycks/data.tar",
             target_path=data_path,
@@ -36,15 +36,15 @@ class MMLUScenario(Scenario):
         )
 
         # Read all the instances
-        instances = []
-        splits = {
-            "auxiliary_train": TRAIN_TAG,
-            "dev": TRAIN_TAG,
-            "val": VALID_TAG,
-            "test": TEST_TAG,
+        instances: List[Instance] = []
+        splits: Dict[str, str] = {
+            "auxiliary_train": TRAIN_SPLIT,
+            "dev": TRAIN_SPLIT,
+            "val": VALID_SPLIT,
+            "test": TEST_SPLIT,
         }
         for split in splits:
-            csv_path = os.path.join(data_path, split, f"{self.subject}_{split}.csv")
+            csv_path: str = os.path.join(data_path, split, f"{self.subject}_{split}.csv")
             if not os.path.exists(csv_path):
                 hlog(f"{csv_path} doesn't exist, skipping")
                 continue
@@ -62,7 +62,7 @@ class MMLUScenario(Scenario):
                         return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
 
                     instance = Instance(
-                        input=question, references=list(map(answer_to_reference, answers)), tags=[splits[split]],
+                        input=question, references=list(map(answer_to_reference, answers)), split=splits[split],
                     )
                     instances.append(instance)
 

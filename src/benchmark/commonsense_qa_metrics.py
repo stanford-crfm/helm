@@ -1,10 +1,10 @@
 from typing import List, Dict
+
 from common.request import Token
 from common.statistic import Stat, merge_stat
 from .adapter import AdapterSpec, ScenarioState, RequestState
 from .metric_service import MetricService
 from .metric import Metric
-from .scenario import VALID_TAG, TEST_TAG
 from .commonsense_qa_scenario import CLM_CORRECT_TAG
 
 
@@ -31,12 +31,11 @@ class CommonSenseQAMetric(Metric):
                 instance_stats = self.evaluate_references(adapter_spec, request_states, metric_service)
 
                 for stat in instance_stats:
-                    tags = list(set(tuple(request_state.instance.tags) for request_state in request_states))
-                    assert len(tags) == 1
-                    if VALID_TAG in tags:
-                        stat = Stat(name=VALID_TAG + "." + stat.name).merge(stat)
-                    elif TEST_TAG in tags:
-                        stat = Stat(name=TEST_TAG + "." + stat.name).merge(stat)
+                    # All of the request states should be for the same split
+                    splits = list(set(request_state.instance.split for request_state in request_states))
+                    assert len(splits) == 1
+
+                    stat = Stat(name=f"{splits[0]}.{stat.name}").merge(stat)
                     merge_stat(trial_stats, stat)
 
             # We only take the mean value for each trial
