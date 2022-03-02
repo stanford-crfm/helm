@@ -34,7 +34,7 @@ class BabiQAScenario(Scenario):
     18. Size Reasoning (smaller, larger)
     19. Path finding
     20. Motivation (Why did he go to the kitchen?)
-    
+
     each sample contains a passage (an ordered list of facts), a question and
     an answer that are generated in an unconstrained/unprompted setting.
 
