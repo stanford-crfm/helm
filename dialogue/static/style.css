@@ -66,6 +66,14 @@ body {
     background: hsl(352, 52%, 95%);
     border-radius: 20px 10px 10px 0px;
 }
+.bot.bot.turnlevel > .speech-bubble {
+    background: lightgray;
+    /*background-color: 2px solid lightgray;*/
+}
+.bot.bot.turnlevel.selected > .speech-bubble {
+    background: hsl(355, 77%, 86%);
+    /*background-color: 2px solid lightgray;*/
+}
 .next-utterance-input{
     display: flex;
     flex-direction: row;
@@ -130,4 +138,10 @@ body {
     width: 2.5rem;
     height: 2.5rem;
     fill:  #8C1515;
+}
+#interview-questions {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
 }
