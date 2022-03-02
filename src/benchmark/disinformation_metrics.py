@@ -22,7 +22,7 @@ def _self_bleu(completions: List[Sequence], **unused_kwargs) -> float:
     scores = []
     for i in range(len(completions)):
         hypothesis = completions[i]
-        references = completions[:i] + completions[i + 1:]
+        references = completions[:i] + completions[i + 1 :]
 
         # Enable `effective_order` for sentence-level BLEU.
         score = BLEU(effective_order=True).sentence_score(hypothesis=hypothesis, references=references)
@@ -50,8 +50,5 @@ class DisinformationMetric(Metric):
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
         request_result: RequestResult = request_state.result
-        result = self._metric_fn(
-            completions=request_result.completions,
-            references=request_state.instance.references
-        )
+        result = self._metric_fn(completions=request_result.completions, references=request_state.instance.references)
         return [Stat(self._name).add(result)]

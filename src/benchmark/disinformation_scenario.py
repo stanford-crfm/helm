@@ -40,8 +40,7 @@ class DisinformationScenario(Scenario):
             primer = "Headline: "
             instance = Instance(
                 input=narrative["thesis"],
-                references=[
-                    Reference(primer + headline, tags=[CORRECT_TAG]) for headline in narrative["headlines"]],
+                references=[Reference(primer + headline, tags=[CORRECT_TAG]) for headline in narrative["headlines"]],
                 tags=[tag],
             )
             instances.append(instance)
