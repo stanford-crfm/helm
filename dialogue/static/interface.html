@@ -1,37 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Title</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
-<link href="https://fonts.googleapis.com/css2?family=Abel&family=Cairo&family=Cantarell&family=Jost&family=Noto+Sans&family=Nunito+Sans&family=Quattrocento+Sans&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Abel&family=Cairo&family=Cantarell&family=Jost&family=Noto+Sans&family=Nunito+Sans&family=Quattrocento+Sans&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/vue@next"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
 </head>
+
 <body>
-<div class="container">
-    <div class='chat-box' id="app">
-        <div class="transcript">
-            <div class="speech-bubble-container" v-bind:class="[utterance.speaker]" v-for="utterance in utterances">
-                <div class='speech-bubble'> {{utterance.text}} </div>
+    <div class="container">
+        <div class='chat-box' id="app">
+            <div class="transcript">
+                <div class="speech-bubble-container" @click="toggleSelectedUtterance(index);"
+                    :class="[utterance.speaker, {selected: this.currentQuestion.selectedUtterances.includes(index), turnlevel: currentQuestion.type=='turnSelection'}, ]"
+                    v-for="(utterance, index) in utterances">
+                    <div class='speech-bubble'> {{utterance.text}}</div>
+                </div>
+            </div>
+            <form v-if="!isConversationOver" @submit.prevent="submit" class="next-utterance-input" autocomplete="off"
+                name="newUtteranceForm">
+                <input type="text" name="newUtterance" class="new-utterance" required v-model="newUtterance" />
+                <!--<textarea type="text" name="newUtterance" class="new-utterance" required v-model="newUtterance" oninput="this.style.height = '';this.style.height = (this.scrollHeight) + 'px'"></textarea>-->
+                <button type="submit" class="submit" value="Send">
+                    <svg class="send-icon" viewBox="0 0 24 24" aria-labelledby="title">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                        <path d="M0 0h24v24H0z" fill="none" />
+                        </use>
+                    </svg>
+                </button>
+            </form>
+
+            <div id="interview-questions" class="bottom-form">
+                <button @click="endConversation()" v-if="!isConversationOver" type="button">End Conversation</button>
+                <template v-else>
+                    Question {{currentQuestionIdx}} of {{questions.length}} <br>
+                    <div class="form-row">
+                        <label for="{{currentQuestion.tag}}"> {{currentQuestion.text}}</label>
+                    </div>
+                    <div class="form-row">
+                        <input v-if="currentQuestion.type=='likert'" type="number" v-model="currentQuestion.rating" id="{{currentQuestion.tag}}"
+                            name="{{currentQuestion.tag}}" min="1" max="5">
+                        <input v-else-if="currentQuestion.type=='turnSelection'" type="checkbox" v-model="currentQuestion.notaUtterance" id="{{currentQuestion.tag}}"
+                            name="{{currentQuestion.tag}}" min="1" max="5">
+                        <label for="{{currentQuestion.tag}}">None of the utterances</label>
+                    </div>
+                    <div id='bottom-buttons' class="form-row">
+                        <button @click="prevQuestion()" :disabled="currentQuestionIdx<=0" type="button">Prev</button>
+                        <button @click="submitAnswers()" v-if="isInterviewOver" type="button">Submit</button>
+                        <button v-else @click="nextQuestion()" type="button">Next</button>
+                    </div>
+                </template>
             </div>
         </div>
-        <form @submit.prevent="submit" class="next-utterance-input" autocomplete="off" name="newUtteranceForm">
-            <input type="text" name="newUtterance" class="new-utterance" required v-model="newUtterance"/>
-            <!--<textarea type="text" name="newUtterance" class="new-utterance" required v-model="newUtterance" oninput="this.style.height = '';this.style.height = (this.scrollHeight) + 'px'"></textarea>-->
-            <button type="submit" class="submit" value="Send">
-                <svg class="send-icon" viewBox="0 0 24 24" aria-labelledby="title">
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/><path d="M0 0h24v24H0z" fill="none"/>
-                    </use>
-                </svg>
-            </button>
-        </form>
-
     </div>
-</div>
-<script src="crfm-wrapper.js"></script>
+    <script src="crfm-wrapper.js"></script>
 </body>
+
 </html>

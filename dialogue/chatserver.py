@@ -101,6 +101,11 @@ def conversational_turn():
         json.dump(json_response, f)
     return json_response
 
+@app.route('/submit-interview', methods=['POST'])
+def submit_interview():
+    json_args = request.get_json(force=True)
+
+
 # Make a request
 
 if __name__ == '__main__':
