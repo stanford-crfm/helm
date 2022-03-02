@@ -233,6 +233,7 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r lpm:difficulty=easy
     venv/bin/benchmark-run -r twitter_aae:demographic=aa
     venv/bin/benchmark-run -r copyright:pilot_study=true
+    venv/bin/benchmark-run -r disinformation:capability=reiteration
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).

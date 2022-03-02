@@ -103,6 +103,23 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
     ]
 
 
+def get_disinformation_metrics(args: Optional[Dict] = None ) -> List[MetricSpec]:
+    if args is None:
+        args = dict()
+    return [
+        MetricSpec(
+            class_name="benchmark.disinformation_metrics.DisinformationMetric",
+            args={**args, "name": "self_bleu"},
+        ),
+        # TODO: mauve.
+        # MetricSpec(
+        #     class_name="benchmark.disinformation_metrics.DisinformationMetric",
+        #     args={**args, "name": "mauve"},
+        # ),
+        # TODO: entropy!
+    ]
+
+
 ############################################################
 
 
@@ -180,7 +197,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.commonsense_qa_scenario.CommonSenseQAScenario",
-        args={"dataset": dataset, "method": method,},
+        args={"dataset": dataset, "method": method, },
     )
 
     if method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
@@ -204,7 +221,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             metrics=get_basic_metrics({"names": ["exact_match"]}),
         )
     elif method == CAUSAL_LANGUAGE_MODELING_METHOD:
-        n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
+        n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3, }[dataset]
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             conditioning_prefix="",
@@ -418,10 +435,12 @@ def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
             temperature=0.7,
             max_eval_instances=100,
             num_outputs=5,
-            model="openai/text-davinci-001",
+            # model="openai/text-davinci-001",
+            model="simple/model1",
             max_tokens=60,
             stop_sequences=["\n", "."],
         )
+        metrics = get_disinformation_metrics()
     elif capability == "wedging":
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
@@ -437,10 +456,10 @@ def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
             max_tokens=60,
             stop_sequences=["\n", "."],
         )
+        metrics = []
     else:
         raise ValueError(
             f"Unsupported evaluation for disinformation capability '{capability}'. "
             f"Please choose one of 'reiteration' or 'wedging'."
         )
-
-    return RunSpec(name=f"disinfo:type={capability}", scenario=scenario, adapter_spec=adapter_spec, metrics=[])
+    return RunSpec(name=f"disinfo:type={capability}", scenario=scenario, adapter_spec=adapter_spec, metrics=metrics)
