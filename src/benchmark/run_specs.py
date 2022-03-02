@@ -15,6 +15,7 @@ from .metric import MetricSpec
 from .runner import RunSpec
 from .scenario import ScenarioSpec
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
+from .raft_scenario import get_raft_instructions
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -134,6 +135,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_run_spec1()]
     if name == "twitter_aae":
         return [get_twitter_aae_spec(**args)]
+    if name == "raft":
+        return [get_raft_spec(**args)]
 
     raise ValueError(f"Unknown run spec: {spec}")
 
@@ -298,6 +301,31 @@ def get_lpm_spec(difficulty: str) -> RunSpec:
 
     return RunSpec(
         name=f"lpm:difficulty={difficulty}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_lpm_metrics()
+    )
+
+
+def get_raft_spec(subset: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.raft_scenario.RAFTScenario", args={"subset": subset},)
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions=get_raft_instructions(subset),
+        input_prefix="",
+        output_prefix="\nLabel:",
+        max_train_instances=5,
+        max_eval_instances=50,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0.2,
+        stop_sequences=["\n"],
+        max_tokens=20,
+    )
+
+    return RunSpec(
+        name=f"raft:subset={subset}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
 
