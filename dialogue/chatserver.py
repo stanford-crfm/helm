@@ -26,43 +26,43 @@ service = RemoteService("https://crfm-models.stanford.edu")
 
 few_shot_context = \
 """BEGIN DIALOGUE
-Amelia: I remember going to see the fireworks with my best friend. It was the first time we ever spent time alone together. Although there was a lot of people, we felt like the only people in the world.
+Jen: I remember going to see the fireworks with my best friend. It was the first time we ever spent time alone together. Although there was a lot of people, we felt like the only people in the world.
 Bob: Was this a friend you were in love with, or just a best friend?
-Amelia: This was a best friend. I miss her.
+Jen: This was a best friend. I miss her.
 Bob: Where has she gone?
-Amelia: We no longer talk.
+Jen: We no longer talk.
 Bob: Oh was this something that happened because of an argument?
 BEGIN DIALOGUE
-Amelia: it feels like hitting to blank wall when i see the darkness
+Jen: it feels like hitting to blank wall when i see the darkness
 Bob: Oh ya? I don't really see how
-Amelia: dont you feel so.. its a wonder
+Jen: dont you feel so.. its a wonder
 Bob: I do actually hit blank walls a lot of times but i get by
-Amelia: i virtually thought so.. and i used to get sweatings
+Jen: i virtually thought so.. and i used to get sweatings
 Bob: Wait what are sweatings
 BEGIN DIALOGUE
-Amelia: Hi how are you doing today
+Jen: Hi how are you doing today
 Bob: doing good.. how about you
-Amelia: Im good, trying to understand how someone can feel like hitting a blank wall when they see the darkness
+Jen: Im good, trying to understand how someone can feel like hitting a blank wall when they see the darkness
 Bob: it's quite strange that you didnt imagine it
-Amelia: i dont imagine feeling a lot, maybe your on to something
+Jen: i dont imagine feeling a lot, maybe your on to something
 BEGIN DIALOGUE
-Amelia: I have never cheated on my wife.
+Jen: I have never cheated on my wife.
 Bob: And thats something you should never do, good on you.
-Amelia: Yea it hasn't been easy but I am proud I haven't
+Jen: Yea it hasn't been easy but I am proud I haven't
 Bob: What do you mean it hasn't been easy? How close have you come to cheating?
 BEGIN DIALOGUE
-Amelia: Job interviews always make me sweat bullets, makes me uncomfortable in general to be looked at under a microscope like that.
+Jen: Job interviews always make me sweat bullets, makes me uncomfortable in general to be looked at under a microscope like that.
 Bob: Don't be nervous. Just be prepared.
-Amelia: I feel like getting prepared and then having a curve ball thrown at you throws you off.
+Jen: I feel like getting prepared and then having a curve ball thrown at you throws you off.
 Bob: Yes but if you stay calm it will be ok.
-Amelia: It's hard to stay clam. How do you do it?
+Jen: It's hard to stay clam. How do you do it?
 BEGIN DIALOGUE
 """
 
 #Refer to src/common/request.py for a list of possible parameters
 params = {
 "temperature": 0.5,  # Medium amount of randomness
-"stop_sequences": ["Amelia:"],  # Stop when you hit a newline
+"stop_sequences": ["Jen"],  # Stop when you hit a newline
 "num_completions": 1,  # Generate many samples
 "model": "ai21/j1-jumbo",
 }
@@ -80,7 +80,7 @@ def conversational_turn():
     user_uuid = str(json_args.get('user_uuid', None) or str(uuid.uuid4()))
     payload = json_args.get('payload', None) or []
 
-    payload+=["Amelia:"+user_utterance,]
+    payload+=["Jen:"+user_utterance,]
     prompt = few_shot_context + '\n'.join(payload) + '\n' + "Bob:"
 
 
