@@ -12,7 +12,7 @@ from .metric import Metric
 from .metric_service import MetricService
 
 
-def estimator(n: int, c: int, k: int) -> float:
+def pass_at_k_estimator(n: int, c: int, k: int) -> float:
     """Calculates 1 - comb(n - c, k) / comb(n, k)."""
     if n - c < k:
         return 1.0
@@ -105,8 +105,8 @@ class BasicMetric(Metric):
             if name == "pass":
                 results = [score_func(gold, pred) for gold in golds for pred in preds]
                 _len, _sum = len(results), int(sum(results))  # Cast to int to make type match.
-                score_1 = estimator(_len, _sum, 1)
-                score_k = estimator(_len, _sum, adapter_spec.num_outputs)
+                score_1 = pass_at_k_estimator(_len, _sum, 1)
+                score_k = pass_at_k_estimator(_len, _sum, adapter_spec.num_outputs)
 
             group: str = format_tags([tag]) if tag else ""
             # TODO: clean this up once we have MetricNames
