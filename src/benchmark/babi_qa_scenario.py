@@ -2,7 +2,7 @@ import os
 from typing import List
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
 class BabiQAScenario(Scenario):
@@ -39,11 +39,12 @@ class BabiQAScenario(Scenario):
     an answer that are generated in an unconstrained/unprompted setting.
 
     We prompt models using the following format:
-        <passage>
-        question: <question>
-        answer:
+        Input sequence:
+            passage: <passage>
+            question: <question>
+            answer:
 
-        Target completion:
+        Output Sequence (Target completion):
             <answer>
 
     Using an example from the training dataset, we have
@@ -81,7 +82,7 @@ class BabiQAScenario(Scenario):
         ensure_directory_exists(data_path)
 
         instances: List[Instance] = []
-        splits = {"train": TRAIN_TAG, "valid": VALID_TAG, "test": TEST_TAG}
+        splits = {"train": TRAIN_SPLIT, "valid": VALID_SPLIT, "test": TEST_SPLIT}
 
         url: str = "http://www.thespermwhale.com/jaseweston/babi/tasks_1-20_v1-2.tar.gz"
         target_path = f"{data_path}/tasks_1-20_v1-2.tar.gz"
@@ -106,11 +107,11 @@ class BabiQAScenario(Scenario):
                         # Task 19 (path finding) has a non verbal answer format (
                         if self.task == 19:
                             answer = self.process_path(answer)
-                        context = f"{''.join(story)}{question}"
+                        context = f"passage: {''.join(story)}question: {question}"
                         instance: Instance = Instance(
                             input=context,
                             references=[Reference(output=answer, tags=[CORRECT_TAG])],
-                            tags=[splits[split]],
+                            split=splits[split],
                         )
                         instances.append(instance)
                     else:
