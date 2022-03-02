@@ -3,7 +3,7 @@ import dataclasses
 from copy import copy
 from typing import List, Dict, Literal, Tuple
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 from dataclasses import dataclass
 
 """Language Pattern Matching Scenario.
@@ -338,7 +338,7 @@ class LPMScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         # Read all the instances
-        instances = []
+        instances: List[Instance] = []
 
         for sample_idx in range(self.num_train_instances + self.num_val_instances + self.num_test_instances):
             rules, test_fact, test_rules_used, target_fact = self.generate_problem()
@@ -353,13 +353,13 @@ class LPMScenario(Scenario):
             print(question)
 
             if sample_idx < self.num_train_instances:
-                cur_tag = TRAIN_TAG
+                split = TRAIN_SPLIT
             elif sample_idx < self.num_train_instances + self.num_val_instances:
-                cur_tag = VALID_TAG
+                split = VALID_SPLIT
             else:
-                cur_tag = TEST_TAG
+                split = TEST_SPLIT
             instance = Instance(
-                input=question, references=[Reference(output=str(target_fact), tags=[CORRECT_TAG])], tags=[cur_tag],
+                input=question, references=[Reference(output=str(target_fact), tags=[CORRECT_TAG])], split=split,
             )
             instances.append(instance)
 

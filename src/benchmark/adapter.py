@@ -3,10 +3,11 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Optional
 
+from .augmentations.data_augmenter import create_data_augmenter, DataAugmenterSpec, DataAugmenter
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
-from .scenario import Instance, Scenario, TRAIN_TAG, VALID_TAG, TEST_TAG
+from .scenario import Instance, Scenario, TRAIN_SPLIT, EVAL_SPLITS
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 
 
@@ -71,6 +72,9 @@ class AdapterSpec:
 
     # When to stop
     stop_sequences: List[str] = field(default_factory=list)
+
+    # Data augmenter. The default DataAugmenterSpec does nothing.
+    data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec()
 
 
 @dataclass(frozen=True)
@@ -142,7 +146,6 @@ class ScenarioState:
     def __post_init__(self):
         # Create derived indices based on `request_states` so it's easier for
         # the `Metric` later to access them.  Two things are produced:
-        self.instances = []
         self.request_state_map: Dict[Tuple[int, Instance, Optional[int]], List[RequestState]] = defaultdict(list)
 
         instances_set = set()
@@ -150,7 +153,7 @@ class ScenarioState:
             instances_set.add(request_state.instance)
             key = (request_state.train_trial_index, request_state.instance, request_state.reference_index)
             self.request_state_map[key].append(request_state)
-        self.instances = list(instances_set)
+        self.instances: List[Instance] = list(instances_set)
 
     def get_request_states(
         self, train_trial_index: int, instance: Instance, reference_index: Optional[int]
@@ -247,20 +250,37 @@ class Adapter:
         with htrack_block("scenario.get_instances"):
             instances = scenario.get_instances()
 
+        # Create a DataAugmenter to augment the set of instances
+        data_augmenter_spec: DataAugmenterSpec = self.adapter_spec.data_augmenter_spec
+        data_augmenter: DataAugmenter = create_data_augmenter(data_augmenter_spec)
+
         # Pick out training instances
-        all_train_instances = [instance for instance in instances if TRAIN_TAG in instance.tags]
+        all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
         if len(all_train_instances) < self.adapter_spec.max_train_instances:
             hlog(
                 f"WARNING: only {len(all_train_instances)} training instances, "
                 f"wanted {self.adapter_spec.max_train_instances}"
             )
 
+        # Applies data augmentation to generate more train instances
+        if data_augmenter_spec.should_augment_train_instances:
+            all_train_instances = data_augmenter.generate(
+                all_train_instances, include_original=data_augmenter_spec.should_include_original_train
+            )
+
         # Pick out evaluation instances.  This includes both valid and test
         # (and any other splits).  We can slice and dice later in defining the
         # metrics.
-        eval_instances = [instance for instance in instances if VALID_TAG in instance.tags or TEST_TAG in instance.tags]
+        eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
         if self.adapter_spec.max_eval_instances is not None:
             eval_instances = eval_instances[: self.adapter_spec.max_eval_instances]
+
+        # Applies data augmentation to generate more eval instances
+        if data_augmenter_spec.should_augment_eval_instances:
+            eval_instances = data_augmenter.generate(
+                eval_instances, include_original=data_augmenter_spec.should_include_original_eval
+            )
+
         hlog(
             f"{len(instances)} instances, "
             f"choosing {self.adapter_spec.max_train_instances}/{len(all_train_instances)} train instances, "

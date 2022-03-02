@@ -98,6 +98,11 @@ def format_tags(tags: List[str]) -> str:
     return f"[{','.join(tags)}]"
 
 
+def format_split(split: str) -> str:
+    """Format split"""
+    return f"|{split}|"
+
+
 def serialize(obj: dataclass) -> List[str]:
     """Takes in a dataclass and outputs all of its fields and values in a list."""
     return [f"{key}: {json.dumps(value)}" for key, value in asdict(obj).items()]

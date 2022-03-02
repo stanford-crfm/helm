@@ -1,7 +1,8 @@
 from typing import List, Callable, Optional, Dict, Tuple
-
 import numpy as np
 
+
+from common.general import format_tags
 from common.statistic import Stat
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from proxy.tokenizer.token_counter import TokenCounter
@@ -55,7 +56,7 @@ def exact_set_match(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
 
 def code_eval(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
     """Evaluate Code Correctness on test examples"""
-    ###### Warning: will execute machine generated code; need to sandbox before executing thisgithub
+    # Warning: will execute machine generated code; need to sandbox before executing thisgithub
     # gold[1]["canonical_solution"]
     assert gold[1] is not None
     return float(code_metrics_helper.check_correctness(gold[1], pred, 3.0)["passed"])  # type: ignore
@@ -70,8 +71,9 @@ class BasicMetric(Metric):
     `names` is a list of optional metrics to be specified by the user. Currently only `exact_match` is supported.
     """
 
-    def __init__(self, names: List[str]):
-        self.names = names
+    def __init__(self, names: List[str], group_tags: Optional[List[str]] = None):
+        self.names: List[str] = names
+        self.group_tags: List[str] = group_tags if group_tags else []
         self.token_counter: TokenCounter = AutoTokenCounter()
 
     def compute_reference_metrics(
@@ -94,6 +96,7 @@ class BasicMetric(Metric):
             score_func: Callable[[Tuple[str, Optional[Dict]], str], float],
             golds: List[Tuple[str, Optional[Dict]]],
             preds: List[str],
+            tag: Optional[str] = None,
         ) -> List[Stat]:
             score_1 = max(score_func(gold, preds[0]) for gold in golds)
             score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
@@ -105,9 +108,12 @@ class BasicMetric(Metric):
                 score_1 = estimator(_len, _sum, 1)
                 score_k = estimator(_len, _sum, adapter_spec.num_outputs)
 
+            group: str = format_tags([tag]) if tag else ""
+            # TODO: clean this up once we have MetricNames
+            #       https://github.com/stanford-crfm/benchmarking/issues/125
             return [
-                Stat(f"{name}@1").add(score_1),
-                Stat(f"{name}@{adapter_spec.num_outputs}").add(score_k),
+                Stat(f"{group + '_' if group else ''}{name}").add(score_1),
+                Stat(f"{group + '_' if group else ''}{name}@{adapter_spec.num_outputs}").add(score_k),
             ]
 
         # maps each string metric name to its associated function
@@ -139,9 +145,16 @@ class BasicMetric(Metric):
                 # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
                 if request_state.output_mapping is not None:
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
+
                 reference_metrics.extend(
                     compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], golds, preds)
                 )
+
+                for group_tag in self.group_tags:
+                    if group_tag in request_state.instance.tags:
+                        reference_metrics.extend(
+                            compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], golds, preds, group_tag)
+                        )
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics

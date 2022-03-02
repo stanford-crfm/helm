@@ -13,7 +13,7 @@ from typing import List, Dict, Iterable
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .code_scenario_helper import run as run_reindent
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
 # === HumanEval ===
@@ -24,18 +24,18 @@ def _read_and_preprocess_human_eval(
     instances = []
     for sample_idx, task_id in enumerate(problems):
         if sample_idx < num_train_instances:
-            tag = TRAIN_TAG
+            split = TRAIN_SPLIT
         elif sample_idx < num_train_instances + num_val_instances:
-            tag = VALID_TAG
+            split = VALID_SPLIT
         else:
-            tag = TEST_TAG
+            split = TEST_SPLIT
 
         instance = Instance(
             input=problems[task_id]["prompt"],
             references=[
                 Reference(output=problems[task_id]["canonical_solution"], data=problems[task_id], tags=[CORRECT_TAG],),
             ],
-            tags=[tag],
+            split=split,
         )
         instances.append(instance)
     return instances
@@ -70,7 +70,7 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
     SINGLE_STR_LIMIT = 150000  # From original codebase.
 
     instances = []
-    for split, tag in zip(("train", "test"), (TRAIN_TAG, TEST_TAG)):
+    for split, split_tag in zip(("train", "test"), (TRAIN_SPLIT, TEST_SPLIT)):
         split_dir = os.path.join(target_path, split)
 
         num_problems = 0
@@ -147,7 +147,7 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
             instance = Instance(
                 input=prompt,
                 references=[Reference(output=solution, tags=[CORRECT_TAG]) for solution in solutions],
-                tags=[tag],
+                split=split_tag,
                 data=data,
             )
             instances.append(instance)
