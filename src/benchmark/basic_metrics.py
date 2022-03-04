@@ -15,8 +15,6 @@ from .metric_service import MetricService
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from proxy.tokenizer.token_counter import TokenCounter
 
-from nltk.metrics.scores import f_measure
-
 
 try:
     nltk.data.find("tokenizers/punkt")
