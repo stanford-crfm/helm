@@ -10,6 +10,8 @@ from . import lpm_scenario  # noqa
 from . import copyright_scenario  # noqa
 from . import boolq_scenario  # noqa
 from . import lsat_qa_scenario  # noqa
+from . import babi_qa_scenario  # noqa
+from . import narrativeqa_scenario  # noqa
 from . import raft_scenario  # noqa
 
 from . import basic_metrics  # noqa

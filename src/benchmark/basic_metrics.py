@@ -1,4 +1,9 @@
 from typing import List, Callable, Optional
+import rouge
+import nltk
+from nltk.metrics.scores import f_measure
+from nltk.tokenize import word_tokenize
+from nltk.translate.bleu_score import sentence_bleu
 
 from benchmark.augmentations.perturbation_description import PerturbationDescription
 from common.statistic import Stat
@@ -9,8 +14,34 @@ from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from proxy.tokenizer.token_counter import TokenCounter
 
 
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")  # Required for rouge
+
+
 def exact_match(gold: str, pred: str) -> float:
     return 1 if gold == pred else 0
+
+
+def f1_score(gold: str, pred: str) -> float:
+    return f_measure(set(gold.split()), set(pred.split()))
+
+
+def rouge_l(gold: str, pred: str) -> float:
+    rouge_l_evaluator = rouge.Rouge(
+        metrics=["rouge-l"], weight_factor=1.2,  # Original Rouge Paper uses 1.2, https://aclanthology.org/W04-1013.pdf
+    )
+    score: dict = rouge_l_evaluator.get_scores(pred, gold)
+    return score["rouge-l"]["f"]
+
+
+def bleu_1(gold: str, pred: str) -> float:
+    return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(1, 0, 0, 0))
+
+
+def bleu_4(gold: str, pred: str) -> float:
+    return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(0, 0, 0, 1))
 
 
 def get_num_bytes(text: str) -> int:
@@ -88,6 +119,10 @@ class BasicMetric(Metric):
             "exact_match": exact_match,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
+            "f1_score": f1_score,
+            "rouge-l": rouge_l,
+            "bleu_1": bleu_1,
+            "bleu_4": bleu_4,
         }
 
         reference_metrics = []
