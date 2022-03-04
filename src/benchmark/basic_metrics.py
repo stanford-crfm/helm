@@ -1,4 +1,9 @@
 from typing import List, Callable, Optional
+import rouge
+import nltk
+from nltk.metrics.scores import f_measure
+from nltk.tokenize import word_tokenize
+from nltk.translate.bleu_score import sentence_bleu
 
 from benchmark.augmentations.perturbation_description import PerturbationDescription
 from common.statistic import Stat
@@ -7,11 +12,7 @@ from .metric import Metric
 from .metric_service import MetricService
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from proxy.tokenizer.token_counter import TokenCounter
-import nltk
-from nltk.metrics.scores import f_measure
-from nltk.tokenize import word_tokenize
-from nltk.translate.bleu_score import sentence_bleu
-import rouge
+
 
 try:
     nltk.data.find("tokenizers/punkt")
@@ -31,7 +32,7 @@ def rouge_l(gold: str, pred: str) -> float:
     rouge_l_evaluator = rouge.Rouge(
         metrics=["rouge-l"], weight_factor=1.2,  # Original Rouge Paper uses 1.2, https://aclanthology.org/W04-1013.pdf
     )
-    score = rouge_l_evaluator.get_scores(pred, gold)
+    score: dict = rouge_l_evaluator.get_scores(pred, gold)
     return score["rouge-l"]["f"]
 
 
