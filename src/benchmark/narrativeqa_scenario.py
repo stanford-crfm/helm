@@ -95,17 +95,16 @@ class NarrativeQAScenario(Scenario):
                 answer2: str = row["answer2"]
                 context: str = self.get_context(summary, question)
 
-                # There are two potential answers. We are adding each of them as different instances.
-                # TODO: Make sure that this strategy is fine.
-                instance1: Instance = Instance(
-                    input=context, references=[Reference(output=answer1, tags=[CORRECT_TAG])], split=split
+                instance: Instance = Instance(
+                    input=context,
+                    references=[
+                        Reference(output=answer1, tags=[CORRECT_TAG]),
+                        Reference(output=answer2, tags=[CORRECT_TAG]),
+                    ],
+                    split=split,
                 )
-                split_instances.append(instance1)
+                split_instances.append(instance)
 
-                instance2: Instance = Instance(
-                    input=context, references=[Reference(output=answer2, tags=[CORRECT_TAG])], split=split
-                )
-                split_instances.append(instance2)
         return split_instances
 
     def get_instances(self) -> List[Instance]:

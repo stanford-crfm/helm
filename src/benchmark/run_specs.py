@@ -418,5 +418,5 @@ def get_narrativeqa_spec() -> RunSpec:
         name="narrativeqa",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["f1_score"]}),
+        metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
     )
