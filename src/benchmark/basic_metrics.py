@@ -1,8 +1,13 @@
 import re
 import string
 from typing import List, Callable, Optional
+import rouge
+import nltk
+from nltk.metrics.scores import f_measure
+from nltk.tokenize import word_tokenize
+from nltk.translate.bleu_score import sentence_bleu
 
-from common.general import format_tags
+from benchmark.augmentations.perturbation_description import PerturbationDescription
 from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
@@ -11,6 +16,12 @@ from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from proxy.tokenizer.token_counter import TokenCounter
 
 from nltk.metrics.scores import f_measure
+
+
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")  # Required for rouge
 
 
 def exact_match(gold: str, pred: str) -> float:
@@ -45,6 +56,22 @@ def f1_score(gold: str, pred: str) -> float:
         return 0.0
 
     return ret
+
+
+def rouge_l(gold: str, pred: str) -> float:
+    rouge_l_evaluator = rouge.Rouge(
+        metrics=["rouge-l"], weight_factor=1.2,  # Original Rouge Paper uses 1.2, https://aclanthology.org/W04-1013.pdf
+    )
+    score: dict = rouge_l_evaluator.get_scores(pred, gold)
+    return score["rouge-l"]["f"]
+
+
+def bleu_1(gold: str, pred: str) -> float:
+    return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(1, 0, 0, 0))
+
+
+def bleu_4(gold: str, pred: str) -> float:
+    return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(0, 0, 0, 1))
 
 
 def get_num_bytes(text: str) -> int:
@@ -85,9 +112,8 @@ class BasicMetric(Metric):
     `names` is a list of optional metrics to be specified by the user. Currently only `exact_match` is supported.
     """
 
-    def __init__(self, names: List[str], group_tags: Optional[List[str]] = None):
+    def __init__(self, names: List[str]):
         self.names: List[str] = names
-        self.group_tags: List[str] = group_tags if group_tags else []
         self.token_counter: TokenCounter = AutoTokenCounter()
 
     def compute_reference_metrics(
@@ -106,12 +132,11 @@ class BasicMetric(Metric):
         """
 
         def compute_metrics_helper(
-            name: str, score_func: Callable[[str, str], float], tag: Optional[str] = None
+            name: str, score_func: Callable[[str, str], float], group: Optional[str] = None
         ) -> List[Stat]:
             score_1 = max(score_func(gold, preds[0]) for gold in golds)
             score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
 
-            group: str = format_tags([tag]) if tag else ""
             # TODO: clean this up once we have MetricNames
             #       https://github.com/stanford-crfm/benchmarking/issues/125
             return [
@@ -125,6 +150,9 @@ class BasicMetric(Metric):
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
             "f1_score": f1_score,
+            "rouge-l": rouge_l,
+            "bleu_1": bleu_1,
+            "bleu_4": bleu_4,
         }
 
         reference_metrics = []
@@ -145,11 +173,11 @@ class BasicMetric(Metric):
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
                 reference_metrics.extend(compute_metrics_helper(metric_name, metric_fn_mapping[metric_name]))
 
-                for group_tag in self.group_tags:
-                    if group_tag in request_state.instance.tags:
-                        reference_metrics.extend(
-                            compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], group_tag)
-                        )
+                perturbation: Optional[PerturbationDescription] = request_state.instance.perturbation
+                if perturbation:
+                    reference_metrics.extend(
+                        compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], group=str(perturbation))
+                    )
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics
