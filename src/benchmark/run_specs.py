@@ -127,6 +127,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_lpm_spec(**args)]
     if name == "mmlu":
         return [get_mmlu_spec(**args)]
+    if name == "narrativeqa":
+        return [get_narrativeqa_spec()]
     if name == "commonsense_qa":
         return [get_commonsense_qa_spec(**args)]
     if name == "babi_qa":
@@ -344,7 +346,7 @@ def get_boolq_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Remove this once deployed
+        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
         num_outputs=1,
         max_tokens=1,
     )
@@ -368,7 +370,7 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Remove this once deployed
+        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
         num_outputs=1,
         max_tokens=1,
     )
@@ -445,4 +447,29 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),
+    )
+
+
+def get_narrativeqa_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.narrativeqa_scenario.NarrativeQAScenario", args=dict())
+
+    # TODO: Similar problem to the BoolQ scenario.
+    # Prompts are too long in the few-shot setting (>2048 tokens)
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=2,
+        model="ai21/j1-large",
+        max_eval_instances=450,  # TODO : Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=5,
+        temperature=0.0,
+    )
+    return RunSpec(
+        name="narrativeqa",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
     )
