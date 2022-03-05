@@ -5,7 +5,7 @@ from .auto_tokenizer import AutoTokenizer
 
 class TestAutoTokenizer:
     """
-    Use the openai tokenzier as an example to test AutoTokenizer.
+    Use the OpenAITokenzier as an example to test AutoTokenizer.
     """
 
     MODEL: str = "openai/davinci"

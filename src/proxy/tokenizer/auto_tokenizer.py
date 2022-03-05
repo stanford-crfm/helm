@@ -5,7 +5,7 @@ from .tokenizer import Tokenizer
 
 
 class AutoTokenizer:
-    """Automatically tokenizes inpupts based on the organization."""
+    """Automatically tokenizes inputs based on the organization."""
 
     def __init__(self):
         self.tokenizers: Dict[str, Tokenizer] = {}
