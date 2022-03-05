@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 
 
 class Tokenizer(ABC):
@@ -7,7 +7,7 @@ class Tokenizer(ABC):
     # The max length of the model input, not the max length of a request.
     MAX_SEQUENCE_LENGTH: int
 
-    END_OF_TEXT_TOKEN: str
+    END_OF_TEXT_TOKEN: Optional[str]
 
     @abstractmethod
     def encode(self, text: str) -> List[int]:
