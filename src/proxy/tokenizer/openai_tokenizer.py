@@ -7,7 +7,7 @@ from .tokenizer import Tokenizer
 class OpenAITokenizer(Tokenizer):
 
     # The max length of the model input, not the max length of a request (2049).
-    MAX_SEQ_LEN = 2048
+    MAX_SEQUENCE_LENGTH = 2048
 
     END_OF_TEXT_TOKEN = "<|endoftext|>"
 

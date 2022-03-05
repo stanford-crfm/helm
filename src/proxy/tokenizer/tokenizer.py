@@ -5,7 +5,7 @@ from typing import List
 class Tokenizer(ABC):
 
     # The max length of the model input, not the max length of a request.
-    MAX_SEQ_LEN: int
+    MAX_SEQUENCE_LENGTH: int
 
     END_OF_TEXT_TOKEN: str
 

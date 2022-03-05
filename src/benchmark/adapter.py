@@ -479,7 +479,7 @@ class Adapter:
         assert self.adapter_spec.model.startswith("openai/")
 
         tokenizer = AutoTokenizer().get_tokenizer(self.adapter_spec.model)
-        max_seq_len = tokenizer.MAX_SEQ_LEN
+        max_seq_len = tokenizer.MAX_SEQUENCE_LENGTH
         prefix_token = tokenizer.END_OF_TEXT_TOKEN
 
         for instance in instances:
