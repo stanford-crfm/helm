@@ -11,6 +11,18 @@ class WIKIScenario(Scenario):
     """
     Fact Completion task using knowledge from WikiData.
     Data constructed using the dump at https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
+
+    We prompt models using the following format:
+        Input sequence:
+            <subject> <predicate>
+        Output Sequence (Target completion):
+            <object>
+    Using an example from the training dataset, we have
+        Doug Eckerty is an instance of human
+        Chegerd, Khash is an instance of village
+        S. George Ellsworth is an instance of
+        Target completion:
+            human
     """
 
     name = "wiki"
@@ -133,7 +145,7 @@ class WIKIScenario(Scenario):
                 question, answers = raw_data["template"], flatten_list(raw_data["result_names"])
 
                 def answer_to_reference(answer):
-                    return Reference(output=" " + answer.strip(), tags=[CORRECT_TAG])
+                    return Reference(output=answer.strip(), tags=[CORRECT_TAG])
 
                 instance = Instance(
                     input=question, references=list(map(answer_to_reference, answers)), split=splits[split],

@@ -103,8 +103,8 @@ class BasicMetric(Metric):
                 assert request_state.result is not None
                 # TODO: Sort the predictions, or take them from the top tokens of the first completion
                 #       https://github.com/stanford-crfm/benchmarking/issues/42
-                preds = [completion.text for completion in request_state.result.completions]
-                # import pdb; pdb.set_trace()
+                preds = [completion.text.strip() for completion in request_state.result.completions]
+
                 # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
                 if request_state.output_mapping is not None:
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
