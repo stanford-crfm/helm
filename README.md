@@ -235,6 +235,7 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r copyright:pilot_study=true
     venv/bin/benchmark-run -r wiki:k=2,subject=P31
     venv/bin/benchmark-run -r raft:subset=ade_corpus_v2
+    venv/bin/benchmark-run -r quac
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).

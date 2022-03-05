@@ -161,7 +161,7 @@ class QuACScenario(Scenario):
 
         instances: List[Instance] = []
         splits = {"train": TRAIN_SPLIT, "val": VALID_SPLIT}
-        random.seed(0)
+        random.seed(0)  # we pick a random dialogue point to query the model
         for split, split_tag in splits.items():
             source_url: str = f"{base_url}/{split}_v0.2.json"
             split_path: str = os.path.join(data_path, f"{split}.json")

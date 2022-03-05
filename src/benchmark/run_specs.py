@@ -276,10 +276,11 @@ def get_quac_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=5,  # TODO : Remove this once deployed
+        max_eval_instances=50,  # TODO : Remove this once deployed
         num_outputs=1,
         max_tokens=100,  # answers are at most 30 words
         temperature=0.0,
+        stop_sequences=["\n"],
     )
     return RunSpec(
         name="quac", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": ["f1_score"]}),
