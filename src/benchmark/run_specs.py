@@ -133,6 +133,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_commonsense_qa_spec(**args)]
     if name == "quac":
         return [get_quac_spec()]
+    if name == "wiki":
+        return [get_wiki_spec(**args)]
     if name == "babi_qa":
         return [get_babi_qa_spec(**args)]
     if name == "real_toxicity_prompts":
@@ -179,6 +181,31 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 
     return RunSpec(
         name=f"mmlu:subject={subject}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_wiki_spec(k: str, subject: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.wiki_scenario.WIKIScenario", args={"subject": subject},)
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=5,
+        max_eval_instances=1000,
+        num_outputs=int(k),
+        model="openai/davinci",
+        temperature=1.0,
+        max_tokens=8,
+        stop_sequences=["\n"],
+    )
+
+    return RunSpec(
+        name=f"wiki_subject={subject}_top{k}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
