@@ -1,4 +1,4 @@
-from typing import List, Callable, Optional, Dict, Tuple, Union, cast
+from typing import List, Callable, Optional, Dict, Tuple, cast
 
 import nltk
 from nltk.metrics.scores import f_measure
@@ -15,7 +15,6 @@ from . import code_metrics_helper
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_service import MetricService
-from .run_specs import HUMAN_EVAL_METRIC_NAMES
 
 try:
     nltk.data.find("tokenizers/punkt")
@@ -124,25 +123,17 @@ class BasicMetric(Metric):
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
 
-        def compute_metrics_helper(
-            name: str,
-            score_func: Union[
-                Callable[[str, str], float], Callable[[Tuple[str, Optional[Dict]], str], float],
-            ],  # Second callable type only useful HumanEval from CodeScenario.
-            group: Optional[str] = None,
-        ) -> List[Stat]:
+        def compute_metrics_helper(name: str, score_func: Callable, group: Optional[str] = None,) -> List[Stat]:
             if name == "pass":  # Calculate pass@k for HumanEval from CodeScenario.
-                # Make mypy happy.
-                score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)
-                # TODO: Fix gold type!
+                score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
                 results = [score_func(gold, pred) for gold in golds for pred in preds]
                 _len, _sum = len(results), int(sum(results))  # Cast to int to make type match.
                 score_1 = pass_at_k_estimator(_len, _sum, 1)
                 score_k = pass_at_k_estimator(_len, _sum, adapter_spec.num_outputs)
             else:
-                score_func = cast(Callable[[str, str], float], score_func)
-                score_1 = max(score_func(gold, preds[0]) for gold in golds)
-                score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
+                score_func = cast(Callable[[str, str], float], score_func)  # Make mypy happy.
+                score_1 = max(score_func(gold[0], preds[0]) for gold in golds)
+                score_k = max(score_func(gold[0], pred) for gold in golds for pred in preds)
 
             # TODO: clean this up once we have MetricNames
             #       https://github.com/stanford-crfm/benchmarking/issues/125
@@ -152,7 +143,7 @@ class BasicMetric(Metric):
             ]
 
         # maps each string metric name to its associated function
-        metric_fn_mapping = {
+        metric_fn_mapping: Dict[str, Callable] = {
             "exact_match": exact_match,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
@@ -168,13 +159,11 @@ class BasicMetric(Metric):
         for metric_name in self.names:
             if metric_name in metric_fn_mapping:
                 # Gold outputs
-                golds = []
-                for reference in request_state.instance.references:
-                    if not reference.is_correct:
-                        if metric_name in HUMAN_EVAL_METRIC_NAMES:
-                            golds.append((reference.output, reference.data))
-                        else:
-                            golds.append(reference.output)
+                golds = [
+                    (reference.output, reference.data)
+                    for reference in request_state.instance.references
+                    if reference.is_correct
+                ]
                 assert len(golds) > 0
 
                 # Predicted outputs
