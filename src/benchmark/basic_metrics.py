@@ -126,14 +126,14 @@ class BasicMetric(Metric):
         def compute_metrics_helper(name: str, score_func: Callable, group: Optional[str] = None,) -> List[Stat]:
             if name == "pass":  # Calculate pass@k for HumanEval from CodeScenario.
                 score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
-                results = [score_func(gold, pred) for gold in golds for pred in preds]
+                results = [score_func((gold.output, gold.data), pred) for gold in golds for pred in preds]
                 _len, _sum = len(results), int(sum(results))  # Cast to int to make type match.
                 score_1 = pass_at_k_estimator(_len, _sum, 1)
                 score_k = pass_at_k_estimator(_len, _sum, adapter_spec.num_outputs)
             else:
                 score_func = cast(Callable[[str, str], float], score_func)  # Make mypy happy.
-                score_1 = max(score_func(gold[0], preds[0]) for gold in golds)
-                score_k = max(score_func(gold[0], pred) for gold in golds for pred in preds)
+                score_1 = max(score_func(gold.output, preds[0]) for gold in golds)
+                score_k = max(score_func(gold.output, pred) for gold in golds for pred in preds)
 
             # TODO: clean this up once we have MetricNames
             #       https://github.com/stanford-crfm/benchmarking/issues/125
@@ -159,11 +159,7 @@ class BasicMetric(Metric):
         for metric_name in self.names:
             if metric_name in metric_fn_mapping:
                 # Gold outputs
-                golds = [
-                    (reference.output, reference.data)
-                    for reference in request_state.instance.references
-                    if reference.is_correct
-                ]
+                golds = [reference for reference in request_state.instance.references if reference.is_correct]
                 assert len(golds) > 0
 
                 # Predicted outputs
