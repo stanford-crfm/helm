@@ -10,7 +10,7 @@ class Tokenizer(ABC):
     END_OF_TEXT_TOKEN: Optional[str]
 
     @abstractmethod
-    def encode(self, text: str) -> List[int]:
+    def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> List[int]:
         """
         Encodes the input text to tokens.
         """

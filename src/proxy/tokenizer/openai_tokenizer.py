@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from transformers import GPT2TokenizerFast
 
 from .tokenizer import Tokenizer
@@ -16,11 +16,11 @@ class OpenAITokenizer(Tokenizer):
         # Weights are cached at ~/.cache/huggingface/transformers.
         self._tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
 
-    def encode(self, text: str) -> List[int]:
+    def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> List[int]:
         """
         Encodes the input text to tokens.
         """
-        return self._tokenizer.encode(text)
+        return self._tokenizer.encode(text, truncation=truncation, max_length=max_length)
 
     def decode(self, tokens: List[int]) -> str:
         """
