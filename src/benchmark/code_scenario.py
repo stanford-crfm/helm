@@ -111,8 +111,8 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
     SINGLE_STR_LIMIT = 150000  # From original codebase.
 
     instances = []
-    for split, split_tag in zip(("train", "test"), (TRAIN_SPLIT, TEST_SPLIT)):
-        split_dir = os.path.join(target_path, split)
+    for split_tag in (TRAIN_SPLIT, TEST_SPLIT):
+        split_dir = os.path.join(target_path, split_tag)
 
         num_problems = 0
         skipped_problems = []
@@ -129,12 +129,12 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
                 continue
             else:
                 # Train instances must have solution code.
-                if split in ("train",):
+                if split_tag in ("train",):
                     if not os.path.isfile(sols_fname):
                         skipped_problems.append(problem_name)
                         continue
                 # Test instances can ignore solution code, but must have test cases.
-                elif split in ("test",):
+                elif split_tag in ("test",):
                     if not os.path.exists(tests_fname) or not os.path.isfile(tests_fname):
                         skipped_problems.append(problem_name)
                         continue
@@ -195,7 +195,8 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
             num_problems += 1
         # Should not skip any cases; just defensive.
         hlog(
-            f"Split {split}, skipped {len(skipped_problems)}/{num_problems} problems with no description or solution. "
+            f"Split {split_tag}, "
+            f"skipped {len(skipped_problems)}/{num_problems} problems with no description or solution. "
             f"Their ids are: {skipped_problems}"
         )
     return instances
