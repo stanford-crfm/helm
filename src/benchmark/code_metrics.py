@@ -10,7 +10,7 @@ from .metric import Metric
 from .metric_service import MetricService
 
 
-def _convert_scores(scores: Sequence[Union[int, bool]]):
+def _convert_scores(scores: Sequence[Union[int, bool]]) -> List[float]:
     """Convert boolean scores to int."""
     # `scores` is returned by `run_test`, and is a list of bools/ints.
     return [1.0 if isinstance(score, bool) and score else 0.0 for score in scores]

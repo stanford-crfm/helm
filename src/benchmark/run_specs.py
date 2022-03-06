@@ -513,7 +513,7 @@ def get_code_spec(dataset: str) -> RunSpec:
         name=f"code:dataset={dataset}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_code_metrics(dataset)
     )
 
-  
+
 def get_narrativeqa_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.narrativeqa_scenario.NarrativeQAScenario", args=dict())
 

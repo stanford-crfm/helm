@@ -28,7 +28,7 @@ def pass_at_k_estimator(n: int, c: int, k: int) -> float:
         return 1.0
     return 1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))
 
-    
+
 def exact_match(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
     return 1 if gold[0] == pred else 0
 
