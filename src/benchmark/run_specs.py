@@ -13,12 +13,15 @@ from .adapter import (
     ADAPT_MULTIPLE_CHOICE,
     ADAPT_GENERATION,
 )
-from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .metric import MetricSpec
 from .runner import RunSpec
 from .scenario import ScenarioSpec
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .raft_scenario import get_raft_instructions
+
+
+HUMAN_EVAL_METRIC_NAMES = ("code_eval_acc", "pass")
+APPS_METRIC_NAMES = ("test_avg", "strict_acc")
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -110,10 +113,10 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
 
 def get_code_metrics(dataset: str) -> List[MetricSpec]:
     if dataset == "HumanEval":
-        metric_names = {"names": ["code_eval_acc", "pass"]}
+        metric_names = {"names": HUMAN_EVAL_METRIC_NAMES}
         return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
     else:  # APPS.
-        metric_names = {"names": ["test_avg", "strict_acc"]}
+        metric_names = {"names": APPS_METRIC_NAMES}
         return [MetricSpec(class_name="benchmark.code_metrics.APPSMetric", args=metric_names)]
 
 

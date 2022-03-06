@@ -1,10 +1,11 @@
-from typing import List, Callable, Optional, Dict, Tuple
-import numpy as np
-import rouge
+from typing import List, Callable, Optional, Dict, Tuple, Union, cast
+
 import nltk
 from nltk.metrics.scores import f_measure
 from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
+import numpy as np
+import rouge
 
 from benchmark.augmentations.perturbation_description import PerturbationDescription
 from common.statistic import Stat
@@ -14,7 +15,7 @@ from . import code_metrics_helper
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_service import MetricService
-
+from .run_specs import HUMAN_EVAL_METRIC_NAMES
 
 try:
     nltk.data.find("tokenizers/punkt")
@@ -23,7 +24,11 @@ except LookupError:
 
 
 def pass_at_k_estimator(n: int, c: int, k: int) -> float:
-    """Calculates 1 - comb(n - c, k) / comb(n, k)."""
+    """Calculates 1 - comb(n - c, k) / comb(n, k).
+
+    Numerically stable version defined in
+        https://arxiv.org/pdf/2107.03374.pdf
+    """
     if n - c < k:
         return 1.0
     return 1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))
@@ -85,17 +90,16 @@ def exact_set_match(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
 
 
 def code_eval(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
-    """Evaluate Code Correctness on test examples"""
-    # Warning: will execute machine generated code; need to sandbox before executing thisgithub
-    # gold[1]["canonical_solution"]
-    assert gold[1] is not None
+    """Evaluate Code Correctness on test examples."""
+    assert gold[1] is not None  # gold[1]["canonical_solution"]
+    # Warning: will execute machine generated code; need to sandbox before executing
     return float(code_metrics_helper.check_correctness(gold[1], pred, 3.0)["passed"])  # type: ignore
 
 
 class BasicMetric(Metric):
     """
     Defines basic metrics which don't require domain knowledge.  This should be
-    fairly comprehensive already and we should try to use this as much as possible.
+    fairly comprehensive already, and we should try to use this as much as possible.
     If we need a different variant, try to generalize this or factor things out.
     It's possible we don't need to subclass this.
     `names` is a list of optional metrics to be specified by the user. Currently only `exact_match` is supported.
@@ -122,22 +126,24 @@ class BasicMetric(Metric):
 
         def compute_metrics_helper(
             name: str,
-            score_func: Callable[[Tuple[str, Optional[Dict]], str], float],
-            golds: List[Tuple[str, Optional[Dict]]],
-            preds: List[str],
-            tag: Optional[str] = None,
+            score_func: Union[
+                Callable[[str, str], float], Callable[[Tuple[str, Optional[Dict]], str], float],
+            ],  # Second callable type only useful HumanEval from CodeScenario.
+            group: Optional[str] = None,
         ) -> List[Stat]:
-            score_1 = max(score_func(gold, preds[0]) for gold in golds)
-            score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
-
-            # Calculate pass@k.
-            if name == "pass":
+            if name == "pass":  # Calculate pass@k for HumanEval from CodeScenario.
+                # Make mypy happy.
+                score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)
+                # TODO: Fix gold type!
                 results = [score_func(gold, pred) for gold in golds for pred in preds]
                 _len, _sum = len(results), int(sum(results))  # Cast to int to make type match.
                 score_1 = pass_at_k_estimator(_len, _sum, 1)
                 score_k = pass_at_k_estimator(_len, _sum, adapter_spec.num_outputs)
+            else:
+                score_func = cast(Callable[[str, str], float], score_func)
+                score_1 = max(score_func(gold, preds[0]) for gold in golds)
+                score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
 
-            group: str = format_tags([tag]) if tag else ""
             # TODO: clean this up once we have MetricNames
             #       https://github.com/stanford-crfm/benchmarking/issues/125
             return [
@@ -162,11 +168,13 @@ class BasicMetric(Metric):
         for metric_name in self.names:
             if metric_name in metric_fn_mapping:
                 # Gold outputs
-                golds = [
-                    (reference.output, reference.data)
-                    for reference in request_state.instance.references
-                    if reference.is_correct
-                ]
+                golds = []
+                for reference in request_state.instance.references:
+                    if not reference.is_correct:
+                        if metric_name in HUMAN_EVAL_METRIC_NAMES:
+                            golds.append((reference.output, reference.data))
+                        else:
+                            golds.append(reference.output)
                 assert len(golds) > 0
 
                 # Predicted outputs
@@ -178,16 +186,7 @@ class BasicMetric(Metric):
                 # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
                 if request_state.output_mapping is not None:
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
-
-                reference_metrics.extend(
-                    compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], golds, preds)
-                )
-
-                for group_tag in self.group_tags:
-                    if group_tag in request_state.instance.tags:
-                        reference_metrics.extend(
-                            compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], golds, preds, group_tag)
-                        )
+                reference_metrics.extend(compute_metrics_helper(metric_name, metric_fn_mapping[metric_name]))
 
                 perturbation: Optional[PerturbationDescription] = request_state.instance.perturbation
                 if perturbation:

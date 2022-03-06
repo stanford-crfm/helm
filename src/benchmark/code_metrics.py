@@ -1,6 +1,6 @@
 """Evaluating source code generation."""
 
-from typing import List, Union, Sequence
+from typing import List, Union, Sequence, cast
 
 from common.request import RequestResult
 from common.statistic import Stat
@@ -46,7 +46,8 @@ class APPSMetric(Metric):
     ) -> List[Stat]:
         instance = request_state.instance
         request_result: RequestResult = request_state.result
-        root = instance.data.get("root")
+        # Type cast Optional[Dict] to Dict; we know for sure it's not None for this scenario.
+        root = cast(dict, instance.data).get("root")
 
         metrics = []
         for name in self.names:
