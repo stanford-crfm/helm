@@ -18,6 +18,14 @@ def singleton(items: List):
     return items[0]
 
 
+def flatten_list(ll: list):
+    """
+    Input: Nested lists
+    Output: Flattened input
+    """
+    return sum(map(flatten_list, ll), []) if isinstance(ll, list) else [ll]
+
+
 def ensure_directory_exists(path: str):
     """Create `path` if it doesn't exist."""
     os.makedirs(path, exist_ok=True)

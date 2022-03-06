@@ -20,3 +20,5 @@ typed-ast<1.5.0,>=1.4.0
 
 # For specific scenarios
 nltk>=3.6.7
+datasets>=1.18.3
+py-rouge==1.1

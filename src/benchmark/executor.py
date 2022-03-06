@@ -4,7 +4,7 @@ from dataclasses import dataclass, replace
 
 from tqdm import tqdm
 
-from common.general import format_tags, format_text
+from common.general import format_text
 from common.hierarchical_logger import htrack, hlog
 from common.request import RequestResult
 from common.authentication import Authentication
@@ -46,10 +46,11 @@ class Executor:
 
         def render_request_state(state: RequestState) -> str:
             def format_instance(instance: Instance) -> str:
-                # TODO: remove tags_str when we get rid of tags from Instance
-                tags_str: str = format_tags(instance.tags)
-                metadata_str: str = f"[split={instance.split}, sub_split={instance.sub_split}]"
-                return f"{tags_str} {metadata_str} {format_text(instance.input[:100])}"
+                metadata_str: str = (
+                    f"[split={instance.split}, sub_split={instance.sub_split}, "
+                    f"id={instance.id}, perturbation={instance.perturbation}]"
+                )
+                return f"{metadata_str} {format_text(instance.input[:100])}"
 
             instance: Instance = state.instance
             gold_output: Optional[str] = None

@@ -480,7 +480,7 @@ class Adapter:
 
         tokenizer = AutoTokenizer().get_tokenizer(self.adapter_spec.model)
         max_seq_len = tokenizer.MAX_SEQUENCE_LENGTH
-        prefix_token = tokenizer.END_OF_TEXT_TOKEN
+        prefix_token = tokenizer.END_OF_TEXT_TOKEN if tokenizer.END_OF_TEXT_TOKEN is not None else ""
 
         for instance in instances:
             tokens = tokenizer.encode(instance.input)
