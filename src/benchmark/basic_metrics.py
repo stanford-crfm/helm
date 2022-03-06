@@ -1,8 +1,12 @@
 from typing import List, Callable, Optional, Dict, Tuple
 import numpy as np
+import rouge
+import nltk
+from nltk.metrics.scores import f_measure
+from nltk.tokenize import word_tokenize
+from nltk.translate.bleu_score import sentence_bleu
 
-
-from common.general import format_tags
+from benchmark.augmentations.perturbation_description import PerturbationDescription
 from common.statistic import Stat
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from proxy.tokenizer.token_counter import TokenCounter
@@ -12,15 +16,41 @@ from .metric import Metric
 from .metric_service import MetricService
 
 
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")  # Required for rouge
+
+
 def pass_at_k_estimator(n: int, c: int, k: int) -> float:
     """Calculates 1 - comb(n - c, k) / comb(n, k)."""
     if n - c < k:
         return 1.0
     return 1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))
 
-
+    
 def exact_match(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
     return 1 if gold[0] == pred else 0
+
+
+def f1_score(gold: str, pred: str) -> float:
+    return f_measure(set(gold.split()), set(pred.split()))
+
+
+def rouge_l(gold: str, pred: str) -> float:
+    rouge_l_evaluator = rouge.Rouge(
+        metrics=["rouge-l"], weight_factor=1.2,  # Original Rouge Paper uses 1.2, https://aclanthology.org/W04-1013.pdf
+    )
+    score: dict = rouge_l_evaluator.get_scores(pred, gold)
+    return score["rouge-l"]["f"]
+
+
+def bleu_1(gold: str, pred: str) -> float:
+    return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(1, 0, 0, 0))
+
+
+def bleu_4(gold: str, pred: str) -> float:
+    return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(0, 0, 0, 1))
 
 
 def get_num_bytes(text: str) -> int:
@@ -71,9 +101,8 @@ class BasicMetric(Metric):
     `names` is a list of optional metrics to be specified by the user. Currently only `exact_match` is supported.
     """
 
-    def __init__(self, names: List[str], group_tags: Optional[List[str]] = None):
+    def __init__(self, names: List[str]):
         self.names: List[str] = names
-        self.group_tags: List[str] = group_tags if group_tags else []
         self.token_counter: TokenCounter = AutoTokenCounter()
 
     def compute_reference_metrics(
@@ -123,6 +152,10 @@ class BasicMetric(Metric):
             "iou_set_match": iou_set_match,
             "code_eval_acc": code_eval,
             "pass": code_eval,
+            "f1_score": f1_score,
+            "rouge-l": rouge_l,
+            "bleu_1": bleu_1,
+            "bleu_4": bleu_4,
         }
 
         reference_metrics = []
@@ -155,6 +188,12 @@ class BasicMetric(Metric):
                         reference_metrics.extend(
                             compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], golds, preds, group_tag)
                         )
+
+                perturbation: Optional[PerturbationDescription] = request_state.instance.perturbation
+                if perturbation:
+                    reference_metrics.extend(
+                        compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], group=str(perturbation))
+                    )
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics

@@ -21,3 +21,5 @@ typed-ast<1.5.0,>=1.4.0
 nltk>=3.6.7
 numpy
 pyext
+datasets>=1.18.3
+py-rouge==1.1

@@ -28,10 +28,9 @@ class DataAugmenter:
 
         result: List[Instance] = []
         for i, instance in enumerate(instances):
-            # Tag all the perturbed instances generated from the same instance with the same ID
-            id_tag: str = f"id{i}"
             for perturbation in perturbations:
-                result.append(perturbation.apply(id_tag, instance, self.should_perturb_references))
+                # Give all the perturbed Instances generated from a single Instance the same ID
+                result.append(perturbation.apply(f"id{i}", instance, self.should_perturb_references))
         return result
 
 
@@ -59,15 +58,6 @@ class DataAugmenterSpec:
     @property
     def perturbations(self) -> List[Perturbation]:
         return [create_perturbation(spec) for spec in self.perturbation_specs]
-
-    # TODO: Get rid of this after we add the new instance fields:
-    #       https://github.com/stanford-crfm/benchmarking/issues/124
-    @property
-    def tags(self) -> List[str]:
-        tags: List[str] = [perturbation.tag for perturbation in self.perturbations]
-        if self.should_include_original_eval:
-            tags.append(IdentityPerturbation.IDENTITY_TAG)
-        return tags
 
 
 def create_data_augmenter(data_augmenter_spec: DataAugmenterSpec) -> DataAugmenter:

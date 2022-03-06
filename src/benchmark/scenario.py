@@ -4,6 +4,7 @@ from typing import List, Optional, Dict
 
 from common.object_spec import ObjectSpec, create_object
 from common.general import format_text, format_split, format_tags, indent_lines
+from benchmark.augmentations.perturbation_description import PerturbationDescription
 
 # Data splits
 TRAIN_SPLIT: str = "train"
@@ -55,11 +56,6 @@ class Instance:
     # References that helps us evaluate
     references: List[Reference]
 
-    # TODO: get rid of tags and replace with the new Instance fields
-    #       https://github.com/stanford-crfm/benchmarking/issues/124
-    # Extra metadata (e.g. demographic group, etc.)
-    tags: List[str] = field(default_factory=list)
-
     # Split (e.g., train, valid, test)
     split: Optional[str] = None
 
@@ -68,6 +64,12 @@ class Instance:
 
     # Extra none-string metadata, e.g., paths.
     data: Optional[Dict] = None
+
+    # Used to group Instances that were created from a particular Instance through data augmentation
+    id: Optional[str] = None
+
+    # Description of the Perturbation that was applied when creating this Instance
+    perturbation: Optional[PerturbationDescription] = None
 
     @property
     def first_correct_reference(self) -> Optional[Reference]:
@@ -81,6 +83,10 @@ class Instance:
         info = [f"input: {format_text(self.input)}"]
         if self.sub_split:
             info.append(f"sub_split: {format_text(self.sub_split)}")
+        if self.id:
+            info.append(f"id: {format_text(self.id)}")
+        if self.perturbation:
+            info.append(f"perturbation: {self.perturbation}")
 
         for reference in self.references:
             info.extend(reference.render_lines())
