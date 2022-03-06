@@ -46,11 +46,7 @@ class APPSMetric(Metric):
     ) -> List[Stat]:
         instance = request_state.instance
         request_result: RequestResult = request_state.result
-        # Path to folder of the instance, with files like input_output.json.
-        if isinstance(instance.data, dict):
-            root = instance.data["root"]
-        else:
-            raise ValueError(f"Expected path in `instance.data`, but found instance to be {instance}.")
+        root = instance.data.get("root")
 
         metrics = []
         for name in self.names:
