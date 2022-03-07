@@ -1,6 +1,7 @@
+from typing import List, Callable, Dict, Optional
+from urllib.parse import unquote
 import re
 import string
-from typing import List, Callable, Optional
 import rouge
 import nltk
 from nltk.metrics.scores import f_measure
@@ -9,7 +10,8 @@ from nltk.translate.bleu_score import sentence_bleu
 
 from benchmark.augmentations.perturbation_description import PerturbationDescription
 from common.statistic import Stat
-from .adapter import AdapterSpec, RequestState
+from common.request import Token
+from .adapter import AdapterSpec, RequestState, ADAPT_LANGUAGE_MODELING
 from .metric import Metric
 from .metric_service import MetricService
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
@@ -24,6 +26,55 @@ except LookupError:
 
 def exact_match(gold: str, pred: str) -> float:
     return 1 if gold == pred else 0
+
+
+def get_num_bytes(tokens: List[Token]) -> int:
+    """
+    Compute the byte length of the input tokens. For a UTF-8 string token, we use byte() to convert
+    it to bytes; for byte tokens, we directly count the number of bytes in the token.
+
+    Examples: ["bytes:\x99", "Hello", ' world', "bytes:\xe2\x80"] => 1 + 5 + 6 + 2 = 14
+
+    The function is adapted from src/proxy/static/index.js: constructTokenGroups()
+    """
+    num_bytes = 0
+    for token in tokens:
+        if token.text.startswith("bytes:"):
+            num_bytes += token.text.count("\\x")
+        else:
+            num_bytes += len(bytes(token.text, encoding="utf-8"))
+    return num_bytes
+
+
+def convert_tokens_to_text(tokens: List[Token]) -> List[Dict]:
+    """
+    Convert tokens to strings. This function is especially useful when tokens include byte tokens.
+
+    Example: ["<|endoftext|>", "bytes:\\xe2\\x80", "bytes:\\x99", "Hello", " world", "bytes:\\xe2\\x80",
+        "bytes:\\x99", "<|endoftext|>"] => ["<|endoftext|>", "’", "Hello", " world", "’", "<|endoftext|>"]
+
+    The function is adapted from src/proxy/static/index.js: constructTokenGroups()
+    """
+    groups = []
+    i = 0
+    while i < len(tokens):
+        # Aggregate consecutive tokens while they're "bytes:..."
+        group: Dict = {"tokens": []}
+        if tokens[i].text.startswith("bytes:"):
+            bytestring = ""
+            while i < len(tokens) and tokens[i].text.startswith("bytes:"):
+                group["tokens"].append(tokens[i])
+                # Extract part after : (e.g., \xe2\x80)
+                bytestring += tokens[i].text.split(":")[1]
+                i += 1
+            # Convert to encoded URI (e.g., %e2%80%99) and decode
+            group["text"] = unquote(bytestring.replace("\\x", "%"))
+        else:
+            group["tokens"].append(tokens[i])
+            group["text"] = tokens[i].text
+            i += 1
+        groups.append(group)
+    return groups
 
 
 # TODO should we be normalizing everything this way? (e.g., iou_set_match)
@@ -70,11 +121,6 @@ def bleu_1(gold: str, pred: str) -> float:
 
 def bleu_4(gold: str, pred: str) -> float:
     return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(0, 0, 0, 1))
-
-
-def get_num_bytes(text: str) -> int:
-    """Compute the byte length of the input string"""
-    return len(bytes(text, encoding="utf-8"))
 
 
 def iou_set_match(gold: str, pred: str) -> float:
@@ -205,21 +251,20 @@ class BasicMetric(Metric):
         """Compute the logprob and normalization factors for the first completion"""
         assert request_state.result is not None
         sequence = request_state.result.completions[0]
-        logprob, num_tokens, num_bytes = sequence.logprob, len(sequence.tokens), get_num_bytes(sequence.text)
 
-        # Ignore the conditioning prefix
-        conditioning_prefix_length = 0
-        conditioning_prefix_tokens = []
-        for token in sequence.tokens:
-            if conditioning_prefix_length >= len(adapter_spec.conditioning_prefix):
-                break
-            conditioning_prefix_tokens.append(token)
-            conditioning_prefix_length += len(token.text)
-        assert "".join([token.text for token in conditioning_prefix_tokens]) == adapter_spec.conditioning_prefix
+        # For LM, the prompt and the response should equal
+        if adapter_spec.method == ADAPT_LANGUAGE_MODELING:
+            assert (
+                "".join([group["text"] for group in convert_tokens_to_text(sequence.tokens)])
+                == request_state.request.prompt
+            )
 
-        logprob -= sum(token.logprob for token in conditioning_prefix_tokens)
-        num_tokens -= len(conditioning_prefix_tokens)
-        num_bytes -= get_num_bytes(adapter_spec.conditioning_prefix)
+        pred_tokens = sequence.tokens[request_state.num_conditioning_tokens :]
+        logprob, num_tokens, num_bytes = (
+            sum(token.logprob for token in pred_tokens),
+            len(pred_tokens),
+            get_num_bytes(pred_tokens),
+        )
 
         return [Stat("logprob").add(logprob), Stat("num_tokens").add(num_tokens), Stat("num_bytes").add(num_bytes)]
 
