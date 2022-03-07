@@ -83,7 +83,7 @@ class Metric(ABC):
             for stat in trial_stats.values():
                 merge_stat(global_stats, stat.take_mean())
 
-        return list(global_stats.values())
+        return list(trial_stats.values())
 
     def evaluate_generation(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
