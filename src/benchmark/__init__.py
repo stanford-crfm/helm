@@ -11,6 +11,7 @@ from . import wiki_scenario  # noqa
 from . import lpm_scenario  # noqa
 from . import copyright_scenario  # noqa
 from . import boolq_scenario  # noqa
+from . import quac_scenario  # noqa
 from . import babi_qa_scenario  # noqa
 from . import narrativeqa_scenario  # noqa
 from . import raft_scenario  # noqa
