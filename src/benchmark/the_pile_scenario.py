@@ -8,8 +8,6 @@ from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from .scenario import Scenario, Instance, TEST_SPLIT
 
-csv.field_size_limit(sys.maxsize)
-
 
 class ThePileScenario(Scenario):
     """
@@ -92,6 +90,7 @@ class ThePileScenario(Scenario):
         instances = []
         hlog(f"Reading {subset_path}")
         with open(subset_path, "r") as f:
+            csv.field_size_limit(sys.maxsize)
             reader = csv.reader(f)
             for row in reader:
                 instance = Instance(input=row[0], references=[], split=TEST_SPLIT,)
