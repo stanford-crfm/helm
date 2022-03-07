@@ -17,6 +17,14 @@ def singleton(items: List):
     return items[0]
 
 
+def flatten_list(ll: list):
+    """
+    Input: Nested lists
+    Output: Flattened input
+    """
+    return sum(map(flatten_list, ll), []) if isinstance(ll, list) else [ll]
+
+
 def ensure_directory_exists(path: str):
     """Create `path` if it doesn't exist."""
     os.makedirs(path, exist_ok=True)
@@ -96,6 +104,11 @@ def format_text_lines(text: str) -> List[str]:
 def format_tags(tags: List[str]) -> str:
     """Takes a list of tags and outputs a string: tag_1,tag_2,...,tag_n"""
     return f"[{','.join(tags)}]"
+
+
+def format_split(split: str) -> str:
+    """Format split"""
+    return f"|{split}|"
 
 
 def serialize(obj: dataclass) -> List[str]:
