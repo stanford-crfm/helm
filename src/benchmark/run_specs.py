@@ -263,7 +263,7 @@ def get_lpm_spec(difficulty: str) -> RunSpec:
         max_eval_instances=100,
         num_outputs=3,
         num_train_trials=1,
-        model="openai/davinci",
+        model="huggingface/gptj_6b",
         temperature=0.2,
         stop_sequences=["\n"],
         max_tokens=20,
