@@ -1,19 +1,19 @@
 from typing import List, Dict, Optional, Any
 
-from common.object_spec import ObjectSpec
 from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
+from common.object_spec import ObjectSpec
+from .augmentations.data_augmenter import DataAugmenterSpec
+from .augmentations.perturbation import PerturbationSpec
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE,
     ADAPT_GENERATION,
 )
-from .augmentations.data_augmenter import DataAugmenterSpec
-from .augmentations.perturbation import PerturbationSpec
-from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .metric import MetricSpec
 from .runner import RunSpec
 from .scenario import ScenarioSpec
+from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .raft_scenario import get_raft_instructions
 
 
