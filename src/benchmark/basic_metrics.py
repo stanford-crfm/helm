@@ -1,17 +1,20 @@
+from dataclasses import replace
 from typing import List, Callable, Optional
+
 import rouge
 import nltk
 from nltk.metrics.scores import f_measure
 from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
 
-from benchmark.augmentations.perturbation_description import PerturbationDescription
 from common.statistic import Stat
-from .adapter import AdapterSpec, RequestState
-from .metric import Metric
-from .metric_service import MetricService
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from proxy.tokenizer.token_counter import TokenCounter
+from .augmentations.perturbation_description import PerturbationDescription
+from .adapter import AdapterSpec, RequestState
+from .metric import Metric
+from .metric_name import MetricName
+from .metric_service import MetricService
 
 
 try:
@@ -101,17 +104,12 @@ class BasicMetric(Metric):
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
 
-        def compute_metrics_helper(
-            name: str, score_func: Callable[[str, str], float], group: Optional[str] = None
-        ) -> List[Stat]:
+        def compute_metrics_helper(name: MetricName, score_func: Callable[[str, str], float]) -> List[Stat]:
             score_1 = max(score_func(gold, preds[0]) for gold in golds)
             score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
-
-            # TODO: clean this up once we have MetricNames
-            #       https://github.com/stanford-crfm/benchmarking/issues/125
             return [
-                Stat(f"{group + '_' if group else ''}{name}").add(score_1),
-                Stat(f"{group + '_' if group else ''}{name}@{adapter_spec.num_outputs}").add(score_k),
+                Stat(name).add(score_1),
+                Stat(replace(name, k=adapter_spec.num_outputs)).add(score_k),
             ]
 
         # maps each string metric name to its associated function
@@ -141,12 +139,16 @@ class BasicMetric(Metric):
                 # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
                 if request_state.output_mapping is not None:
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
-                reference_metrics.extend(compute_metrics_helper(metric_name, metric_fn_mapping[metric_name]))
+                reference_metrics.extend(
+                    compute_metrics_helper(MetricName(metric_name), metric_fn_mapping[metric_name])
+                )
 
                 perturbation: Optional[PerturbationDescription] = request_state.instance.perturbation
                 if perturbation:
                     reference_metrics.extend(
-                        compute_metrics_helper(metric_name, metric_fn_mapping[metric_name], group=str(perturbation))
+                        compute_metrics_helper(
+                            MetricName(metric_name, perturbation=perturbation), metric_fn_mapping[metric_name]
+                        )
                     )
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
@@ -169,7 +171,10 @@ class BasicMetric(Metric):
             )
             num_tokens += num_tokens_in_prompt
 
-        return [Stat("runtime").add(runtime), Stat("normalized_runtime").add(runtime / num_tokens)]
+        return [
+            Stat(MetricName("runtime")).add(runtime),
+            Stat(MetricName("normalized_runtime")).add(runtime / num_tokens),
+        ]
 
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -193,7 +198,11 @@ class BasicMetric(Metric):
         num_tokens -= len(conditioning_prefix_tokens)
         num_bytes -= get_num_bytes(adapter_spec.conditioning_prefix)
 
-        return [Stat("logprob").add(logprob), Stat("num_tokens").add(num_tokens), Stat("num_bytes").add(num_bytes)]
+        return [
+            Stat(MetricName("logprob")).add(logprob),
+            Stat(MetricName("num_tokens")).add(num_tokens),
+            Stat(MetricName("num_bytes")).add(num_bytes),
+        ]
 
     def evaluate_generation(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -207,9 +216,6 @@ class BasicMetric(Metric):
         metrics.extend(self.compute_runtime_metrics(adapter_spec, request_state, metric_service))
 
         # Future: add F1, BLEU, etc.
-        # TODO: pass in arguments to `BasicMetric`
-        #       https://github.com/stanford-crfm/benchmarking/issues/44
-
         return metrics
 
     def evaluate_references(

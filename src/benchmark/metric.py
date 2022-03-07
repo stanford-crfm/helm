@@ -1,4 +1,5 @@
 from abc import ABC
+from dataclasses import replace
 from typing import List, Dict
 from math import log
 
@@ -6,6 +7,7 @@ from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
 from .adapter import AdapterSpec, ScenarioState, RequestState
+from .metric_name import MetricName
 from .metric_service import MetricService
 from .scenario import EVAL_SPLITS
 
@@ -30,10 +32,10 @@ class Metric(ABC):
         as robustness.
         """
         adapter_spec = scenario_state.adapter_spec
-        global_stats: Dict[str, Stat] = {}  # name -> Stat
+        global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
 
         for train_trial_index in range(adapter_spec.num_train_trials):
-            trial_stats: Dict[str, Stat] = {}  # Statistics just for this trial
+            trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
             #       https://github.com/stanford-crfm/benchmarking/issues/48
             for instance in scenario_state.instances:
@@ -55,24 +57,31 @@ class Metric(ABC):
                 # TODO: we should add statistics with the individual instances too and serialize them out.
                 #       https://github.com/stanford-crfm/benchmarking/issues/49
                 for stat in instance_stats:
-                    stat = Stat(name=f"{instance.split}.{stat.name}").merge(stat)
+                    stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
 
             # Aggregate the corpus-level metrics
             for split in EVAL_SPLITS:
-                if split + "." + "logprob" in trial_stats and split + "." + "num_tokens" in trial_stats:
+                if (
+                    MetricName("logprob", split=split) in trial_stats
+                    and MetricName("num_tokens", split=split) in trial_stats
+                    and MetricName("num_bytes", split=split) in trial_stats
+                ):
                     merge_stat(
                         trial_stats,
-                        Stat(split + "." + "perplexity").add(
+                        Stat(MetricName("perplexity", split=split)).add(
                             2
-                            ** (-trial_stats[split + "." + "logprob"].sum / trial_stats[split + "." + "num_tokens"].sum)
+                            ** (
+                                -trial_stats[MetricName("logprob", split=split)].sum
+                                / trial_stats[MetricName("num_tokens", split=split)].sum
+                            )
                         ),
                     )
                     merge_stat(
                         trial_stats,
-                        Stat(split + "." + "bits_per_byte").add(
-                            -trial_stats[split + "." + "logprob"].sum
-                            / trial_stats[split + "." + "num_bytes"].sum
+                        Stat(MetricName("bits_per_byte", split=split)).add(
+                            -trial_stats[MetricName("logprob", split=split)].sum
+                            / trial_stats[MetricName("num_bytes", split=split)].sum
                             / log(2)
                         ),
                     )

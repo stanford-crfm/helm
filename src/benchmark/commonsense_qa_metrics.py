@@ -1,3 +1,4 @@
+from dataclasses import replace
 from typing import List, Dict
 
 from common.request import Token
@@ -5,6 +6,7 @@ from common.statistic import Stat, merge_stat
 from .adapter import AdapterSpec, ScenarioState, RequestState
 from .metric_service import MetricService
 from .metric import Metric
+from .metric_name import MetricName
 from .commonsense_qa_scenario import CLM_CORRECT_TAG
 
 
@@ -21,10 +23,10 @@ class CommonSenseQAMetric(Metric):
 
     def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
         adapter_spec = scenario_state.adapter_spec
-        global_stats: Dict[str, Stat] = {}  # name -> Stat
+        global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
 
         for train_trial_index in range(adapter_spec.num_train_trials):
-            trial_stats: Dict[str, Stat] = {}  # Statistics just for this trial
+            trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
             for idx in range(0, len(scenario_state.request_states), self.n_request_per_instance):
                 request_states = scenario_state.request_states[idx : idx + self.n_request_per_instance]
 
@@ -35,7 +37,7 @@ class CommonSenseQAMetric(Metric):
                     splits = list(set(request_state.instance.split for request_state in request_states))
                     assert len(splits) == 1
 
-                    stat = Stat(name=f"{splits[0]}.{stat.name}").merge(stat)
+                    stat = Stat(replace(stat.name, split=splits[0])).merge(stat)
                     merge_stat(trial_stats, stat)
 
             # We only take the mean value for each trial
@@ -69,8 +71,8 @@ class CommonSenseQAMetric(Metric):
         num_tokens = len(answer_tokens)
 
         return [
-            Stat("logprob").add(logprob),
-            Stat("num_tokens").add(num_tokens),
+            Stat(MetricName("logprob")).add(logprob),
+            Stat(MetricName("num_tokens")).add(num_tokens),
         ]
 
     def evaluate_references(
@@ -96,6 +98,6 @@ class CommonSenseQAMetric(Metric):
             stats[i][0].mean - stats[i + 1][0].mean for i in range(0, self.n_request_per_instance, 2)
         ]
         return [
-            Stat("original_acc").add(float(max(original_logprobs) == original_logprobs[answer])),
-            Stat("calibrated_acc").add(float(max(calibrated_logprobs) == calibrated_logprobs[answer])),
+            Stat(MetricName("original_acc")).add(float(max(original_logprobs) == original_logprobs[answer])),
+            Stat(MetricName("calibrated_acc")).add(float(max(calibrated_logprobs) == calibrated_logprobs[answer])),
         ]
