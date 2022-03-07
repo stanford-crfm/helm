@@ -134,7 +134,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         max_eval_instances=1000,
         num_outputs=10,
         num_train_trials=1,
-        model="openai/davinci",
+        model="huggingface/gptj_6b",
         temperature=0,
     )
 
