@@ -23,6 +23,18 @@ if __name__ == "__main__":
                 num_completions=2,
                 max_tokens=20,
                 top_k_per_token=5,
+                stop_sequences=["\n"],
+            )
+        )
+    )
+    print(
+        client.make_request(
+            Request(
+                model="huggingface/gpt2",
+                prompt="I am a computer scientist.",
+                num_completions=2,
+                max_tokens=20,
+                top_k_per_token=5,
             )
         )
     )

@@ -25,6 +25,14 @@ class HuggingFaceServer:
         raw_request["output_scores"] = True
         top_k_per_token: int = raw_request["top_k_per_token"]
         del raw_request["top_k_per_token"]
+        if len(raw_request["stop_sequences"]) > 0:
+            stop_sequence_ids = self.tokenizer(raw_request["stop_sequences"])
+            # Total number of stop words should be 1.
+            assert len(stop_sequence_ids.input_ids) == 1
+            # Total number of tokens in each stop word should be 1.
+            assert len(stop_sequence_ids.input_ids[0]) == 1
+            del raw_request["stop_sequences"]
+            raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
 
         # Use HuggingFace's `generate` method.
         output = self.model.generate(**encoded_input, **raw_request)
@@ -103,6 +111,7 @@ class HuggingFaceClient(Client):
             "top_p": request.top_p,
             "echo_prompt": request.echo_prompt,
             "top_k_per_token": request.top_k_per_token,
+            "stop_sequences": request.stop_sequences,
         }
         # Get cached model server instance if possible (to save on model and tokenizer
         # loading times).
