@@ -107,7 +107,7 @@ class HuggingFaceClient(Client):
             "prompt": request.prompt,
             "temperature": 1e-7 if request.temperature == 0 else request.temperature,
             "num_return_sequences": request.num_completions,
-            "max_length": request.max_tokens,
+            "max_new_tokens": request.max_tokens,
             "top_p": request.top_p,
             "echo_prompt": request.echo_prompt,
             "top_k_per_token": request.top_k_per_token,
