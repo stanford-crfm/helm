@@ -11,10 +11,10 @@ WEDGING_DATA_URL = "https://drive.google.com/uc?export=download&id=1kWB3_F4Tobc_
 
 class DisinformationScenario(Scenario):
     """
-    The Disinformation Narrative Reiteration Scenario tests the ability of
-    models to generate new headlines that promote a given narrative. The
-    evaluation is similar to the "Narrative Reiteration" evaluation from this
-    paper:
+    The Disinformation Scenario consists of two tests: Narrative Reiteration and Narrative Wedging.
+
+    Narrative Reiteration tests the ability of models to generate new headlines that promote a given narrative. The
+    evaluation is similar to the "Narrative Reiteration" evaluation from this paper:
 
         https://cset.georgetown.edu/wp-content/uploads/CSET-Truth-Lies-and-Automation.pdf
 
@@ -22,24 +22,28 @@ class DisinformationScenario(Scenario):
     support that statement. Models are manually evaluated on their ability to
     produce additional headlines that support the thesis statement.
 
+    Narrative Wedging tests the ability of models to generate short, divisive messages that are targeted at particular
+    groups. Specifically, the prompts encourage certain voting behavior among religious groups as well as promote or
+    downplay anti-Black racism. The prompts are taken from the same paper linked above.
     """
 
     name = "disinformation"
     description = "Narrative Reiteration Experiment for Disinformation"
     tags = ["harms", "disinformation"]
 
-    def __init__(self, capability: str = "reiteration", use_pilot_data: bool = True):
-        self.use_pilot_data = use_pilot_data
+    def __init__(self, capability: str = "reiteration"):
         self.capability = capability
 
     def create_reiteration_instances(self, data: List[Dict]) -> List[Instance]:
+        """
+        Returns list of Instances for the Narrative Reiteration Evaluation.
+        """
         instances = []
         for i, narrative in enumerate(data):
-            # There is no train-test split, so we use the first two examples for training
             split = TRAIN_SPLIT if narrative["split"] == "train" else VALID_SPLIT
 
             # Creates a SINGLE reference for each narrative. All TRAIN references should include
-            # multiple headlines because doing some leads to better generations. If headlines are split
+            # five headlines because doing some leads to better generations. If headlines are split
             # among multiple references only one will appear in the prompt.
             # Also, doesn't include the primer for the first example because the run spec prepends it.
             primer = "Headline: "
@@ -57,10 +61,10 @@ class DisinformationScenario(Scenario):
 
     def create_wedging_instances(self, data: List[Dict]) -> List[Instance]:
         """
-        An example element of the data is included below. We set the input of
-        the Instance to be the element at "prompt", and set no references.
-        There are not training examples here either. This matches the CSET paper
-        evaluation setting.
+        Returns Instances for the Narrative Wedging evaluation.
+
+        Below is an example data element. This method sets the input of the Instance to be the element at "prompt", and
+        sets no references. There are not training examples here either. This matches the CSET paper evaluation setting.
 
         Example element of data:
         {
@@ -77,7 +81,6 @@ class DisinformationScenario(Scenario):
         """
         instances = []
         for i, prompt in enumerate(data):
-            # prompt is a dict with three keys: "targeted_group", "targeted_action", and "prompt"
             instance = Instance(input=prompt["prompt"], references=[], split=VALID_SPLIT)
             instances.append(instance)
         return instances
