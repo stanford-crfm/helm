@@ -2,7 +2,7 @@ from typing import List
 
 from common.request import Request, Sequence
 from .token_counter import TokenCounter
-from transformers import GPT2TokenizerFast
+from .openai_tokenizer import OpenAITokenizer
 
 
 class OpenAITokenCounter(TokenCounter):
@@ -12,9 +12,7 @@ class OpenAITokenCounter(TokenCounter):
     MAX_CONTEXT_TOKEN_LENGTH = 2049
 
     def __init__(self):
-        # OpenAI used the same tokenizer for GPT-2 and GPT-3.
-        # Weights are cached at ~/.cache/huggingface/transformers.
-        self.tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
+        self.tokenizer = OpenAITokenizer()
 
     def count_tokens(self, request: Request, completions: List[Sequence]) -> int:
         """
