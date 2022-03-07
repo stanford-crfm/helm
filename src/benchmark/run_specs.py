@@ -493,6 +493,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         num_outputs=1,
         max_tokens=300,  # answers are at most 65 words
         temperature=0.0,
+        stop_sequences=["\n"],
     )
     return RunSpec(
         name=f"natural_qa:mode={mode}",

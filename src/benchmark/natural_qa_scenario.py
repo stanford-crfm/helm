@@ -42,13 +42,17 @@ class NaturalQAScenario(Scenario):
     the language model's context window.
 
     Concretely, we prompt models using the following format:
-        (Optional) Title: <title>
-        (Optional) Context: <context text>
+        (Optional) Title: <title_1>
+        (Optional) Context: <context text_1>
         Question: <question_1>
         Answer: <answer_1>
+        (Optional) Title: <title_2>
+        (Optional) Context: <context text_2>
         Question: <question_2>
         Answer: <answer_2>
         ...
+        Optional) Title: <title_k>
+        (Optional) Context: <context text_k>
         Question: <question_k>
         Answer:
         Target completion:
@@ -120,13 +124,12 @@ class NaturalQAScenario(Scenario):
     description = "Question answering from wikipedia."
     tags = ["question_answering"]
 
-    def __init__(self, mode: str, random_seed=0):
+    def __init__(self, mode: str):
         self.context_mode = mode
         assert self.context_mode in ["openbook-wiki", "openbook-longans", "closedbook"]
-        random.seed(random_seed)
 
     @staticmethod
-    def _clean_token(token):
+    def _clean_token(token: dict):
         """Returns token in which blanks are replaced with underscores.
         Adapted from https://github.com/google-research-datasets/natural-questions/blob/master/text_utils.py
         Args:
@@ -137,7 +140,7 @@ class NaturalQAScenario(Scenario):
         return re.sub("<([^>]*)>", "", html.unescape(re.sub(" ", "_", token["token"])))
 
     @staticmethod
-    def _clean_text(raw_text):
+    def _clean_text(raw_text: str):
         """Strips text of HTML-specific characters.
         Args:
           raw_text: String in HTML format
@@ -205,7 +208,7 @@ class NaturalQAScenario(Scenario):
         """
         instances: List[Instance] = []
 
-        all_samples: list = []
+        all_samples: List[dict] = []
 
         with gzip.open(target_file, "rb") as fp:
             raw_data = [json.loads(line) for line in fp.readlines()]
@@ -214,7 +217,7 @@ class NaturalQAScenario(Scenario):
 
         for si, sample in enumerate(all_samples):
 
-            # Randomly assign even/odd samples to the train and val splits respectively
+            # Assign even/odd samples to the train and val splits respectively
             split = "train" if si % 2 == 0 else "val"
 
             prompt, answers = self.create_prompt(sample, split)
@@ -231,9 +234,10 @@ class NaturalQAScenario(Scenario):
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
         ensure_directory_exists(data_path)
+        random.seed(0)
 
         base_url: str = "https://storage.googleapis.com/natural_questions/v1.0/dev"
-        file_list: list = ["nq-dev-%02d.jsonl.gz" % i for i in range(5)]
+        file_list: List[str] = ["nq-dev-%02d.jsonl.gz" % i for i in range(5)]
 
         instances: List[Instance] = []
         splits = {"train": TRAIN_SPLIT, "val": VALID_SPLIT}
