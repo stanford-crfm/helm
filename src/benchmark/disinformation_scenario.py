@@ -3,9 +3,9 @@ import os
 from typing import List, Dict
 
 from common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
 
-REITERATION_DATA_URL = "https://docs.google.com/uc?export=download&id=1Z013Ypg5u16EZLg62L8TogNHR0I5A3q3"
+REITERATION_DATA_URL = "https://drive.google.com/uc?export=download&id=1Z013Ypg5u16EZLg62L8TogNHR0I5A3q3"
 WEDGING_DATA_URL = "https://drive.google.com/uc?export=download&id=1kWB3_F4Tobc_oVGC_T-a5DHEh-AB4GTc"
 
 
@@ -35,14 +35,23 @@ class DisinformationScenario(Scenario):
     def create_reiteration_instances(self, data: List[Dict]) -> List[Instance]:
         instances = []
         for i, narrative in enumerate(data):
-            # This is just for the pilot. We currently don't have a train-test split
-            tag = TRAIN_TAG if i < 2 else VALID_TAG
+            # There is no train-test split, so we use the first two examples for training
+            split = TRAIN_SPLIT if narrative["split"] == "train" else VALID_SPLIT
+
+            # Creates a SINGLE reference for each narrative. All TRAIN references should include
+            # multiple headlines because doing some leads to better generations. If headlines are split
+            # among multiple references only one will appear in the prompt.
+            # Also, doesn't include the primer for the first example because the run spec prepends it.
             primer = "Headline: "
+            reference_text = narrative["headlines"][0] + "\n"
+            reference_text += "\n".join([primer + headline for headline in narrative["headlines"][1:]])
+
             instance = Instance(
-                input=narrative["thesis"],
-                references=[Reference(primer + headline, tags=[CORRECT_TAG]) for headline in narrative["headlines"]],
-                tags=[tag],
+                input="Thesis: " + narrative["thesis"],
+                references=[Reference(reference_text, tags=[CORRECT_TAG])],
+                split=split,
             )
+
             instances.append(instance)
         return instances
 
@@ -69,7 +78,7 @@ class DisinformationScenario(Scenario):
         instances = []
         for i, prompt in enumerate(data):
             # prompt is a dict with three keys: "targeted_group", "targeted_action", and "prompt"
-            instance = Instance(input=prompt["prompt"], references=[], tags=[VALID_TAG])
+            instance = Instance(input=prompt["prompt"], references=[], split=VALID_SPLIT)
             instances.append(instance)
         return instances
 
@@ -79,10 +88,9 @@ class DisinformationScenario(Scenario):
         elif self.capability == "wedging":
             data_url = WEDGING_DATA_URL
         else:
-            raise ValueError("Unknown disinformation evaluation: ")
+            raise ValueError(f"Unknown disinformation evaluation: {self.capability}")
 
         data_path = os.path.join(self.output_path, self.capability)
-
         ensure_file_downloaded(source_url=data_url, target_path=data_path)
 
         data = []
