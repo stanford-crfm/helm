@@ -131,6 +131,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_narrativeqa_spec()]
     if name == "commonsense_qa":
         return [get_commonsense_qa_spec(**args)]
+    if name == "quac":
+        return [get_quac_spec()]
     if name == "wiki":
         return [get_wiki_spec(**args)]
     if name == "babi_qa":
@@ -262,6 +264,27 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
         raise ValueError(f"Unknown commonsense QA method: {method}")
 
     return run_spec
+
+
+def get_quac_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.quac_scenario.QuACScenario", args=dict())
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Remove this once deployed
+        num_outputs=1,
+        max_tokens=100,  # answers are at most 30 words
+        temperature=0.0,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name="quac", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": ["f1_score"]}),
+    )
 
 
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
