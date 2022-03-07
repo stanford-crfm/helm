@@ -1,6 +1,5 @@
 from typing import List, Dict, Optional, Any
 
-from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from common.object_spec import ObjectSpec
 
 from .augmentations.data_augmenter import DataAugmenterSpec
@@ -131,6 +130,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_narrativeqa_spec()]
     if name == "commonsense_qa":
         return [get_commonsense_qa_spec(**args)]
+    if name == "quac":
+        return [get_quac_spec()]
     if name == "wiki":
         return [get_wiki_spec(**args)]
     if name == "babi_qa":
@@ -143,6 +144,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_twitter_aae_spec(**args)]
     if name == "natural_qa":
         return [get_natural_qa_spec(**args)]
+    if name == "the_pile":
+        return [get_the_pile_spec(**args)]
     if name == "raft":
         return [get_raft_spec(**args)]
 
@@ -167,7 +170,6 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
-        conditioning_prefix="",
         instructions=f"The following are multiple choice questions (with answers) about {format(subject)}.",
         input_prefix="",
         output_prefix="\nAnswer: ",
@@ -221,7 +223,6 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
     if method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE,
-            conditioning_prefix="",
             instructions="The following are multiple choice questions (with answers) about common sense.",
             input_prefix="",
             output_prefix="\nAnswer: ",
@@ -242,7 +243,6 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
         n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
-            conditioning_prefix="",
             instructions="",
             input_prefix="",
             output_prefix="",
@@ -266,6 +266,27 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
     return run_spec
 
 
+def get_quac_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.quac_scenario.QuACScenario", args=dict())
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Remove this once deployed
+        num_outputs=1,
+        max_tokens=100,  # answers are at most 30 words
+        temperature=0.0,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name="quac", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": ["f1_score"]}),
+    )
+
+
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
@@ -273,7 +294,6 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
-        conditioning_prefix=OPENAI_END_OF_TEXT_TOKEN,
         instructions="",
         input_prefix="",
         output_prefix="",
@@ -441,7 +461,6 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
     if pilot_study.lower() in ("t", "true"):
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
-            conditioning_prefix="",
             instructions="",
             input_prefix="",
             output_prefix="",
@@ -457,7 +476,6 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
     else:
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
-            conditioning_prefix="",
             instructions="",
             input_prefix="",
             output_prefix="",
@@ -500,6 +518,31 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),  # TODO: Add F1 score once it is merged
+    )
+
+
+def get_the_pile_spec(subset: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.the_pile_scenario.ThePileScenario", args={"subset": subset},)
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_MODELING,
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        max_eval_instances=51,  # TODO: remove this line once deployed, so we can cache everything in prod
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        max_tokens=0,
+    )
+
+    return RunSpec(
+        name="the_pile_subset={subset}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": []}),
     )
 
 
