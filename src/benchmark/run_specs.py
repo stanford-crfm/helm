@@ -489,7 +489,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=5,  # TODO : Remove this once deployed
+        max_eval_instances=50,  # TODO : Remove this once deployed
         num_outputs=1,
         max_tokens=300,  # answers are at most 65 words
         temperature=0.0,
@@ -499,7 +499,9 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         name=f"natural_qa:mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
+        metrics=get_basic_metrics({"names": ["exact_match"]}),  # TODO: Add F1 score once it is merged
+    )
+
 
 def get_narrativeqa_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.narrativeqa_scenario.NarrativeQAScenario", args=dict())

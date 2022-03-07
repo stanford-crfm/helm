@@ -140,10 +140,10 @@ class NaturalQAScenario(Scenario):
         return re.sub("<([^>]*)>", "", html.unescape(re.sub(" ", "_", token["token"])))
 
     @staticmethod
-    def _clean_text(raw_text: str):
+    def _clean_text(raw_text: bytes):
         """Strips text of HTML-specific characters.
         Args:
-          raw_text: String in HTML format
+          raw_text: Byte string
         Returns:
           String text.
         """
@@ -187,7 +187,7 @@ class NaturalQAScenario(Scenario):
         if question[-1] != "?":
             question += "?"
         prompt += f"Question: {question}\n"
-        prompt += "Answer: "
+        prompt += "Answer:"
 
         if split == "train":
             answers = short_answers[ans_idx : ans_idx + 1]
