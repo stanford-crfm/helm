@@ -121,6 +121,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_boolq_spec()]
     if name == "boolq_contrast_sets":
         return [get_boolq_contrast_sets_spec()]
+    if name == "imdb":
+        return [get_imdb_spec()]
+    if name == "imdb_contrast_sets":
+        return [get_imdb_contrast_sets_spec()]
     if name == "copyright":
         return [get_copyright_spec(**args)]
     if name == "lpm":
@@ -406,6 +410,49 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+def get_imdb_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDbScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nlabel:",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=1,
+    )
+    return RunSpec(
+        name="imdb",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
+    )
+
+
+def get_imdb_contrast_sets_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDbContrastSetScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nlabel:",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=1,
+    )
+    return RunSpec(
+        name="imdb_contrast_sets",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
     )
 
 
