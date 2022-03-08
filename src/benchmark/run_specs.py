@@ -142,6 +142,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_run_spec1()]
     if name == "twitter_aae":
         return [get_twitter_aae_spec(**args)]
+    if name == "natural_qa":
+        return [get_natural_qa_spec(**args)]
     if name == "the_pile":
         return [get_the_pile_spec(**args)]
     if name == "raft":
@@ -492,6 +494,30 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),
+    )
+
+
+def get_natural_qa_spec(mode: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.natural_qa_scenario.NaturalQAScenario", args={"mode": mode})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Remove this once deployed
+        num_outputs=1,
+        max_tokens=300,  # answers are at most 65 words
+        temperature=0.0,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name=f"natural_qa:mode={mode}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),  # TODO: Add F1 score once it is merged
     )
 
 
