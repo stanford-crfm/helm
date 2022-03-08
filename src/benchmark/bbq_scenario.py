@@ -59,6 +59,7 @@ class BBQScenario(Scenario):
         prompts_path: str = data_path
         with open(prompts_path, "r") as f:
             for line in f:
+                print(f"LINE IS: {line}")
 
                 loaded_line = json.loads(line)
                 #                prompt: Dict = loaded_line["answer_info"]
@@ -95,5 +96,7 @@ class BBQScenario(Scenario):
         # Shuffle, so we get a mix of toxic and non-toxic prompts when we're not evaluating all the prompts.
         random.seed(0)
         random.shuffle(instances)
+        
+        print(f"Instaces is of length: {len(instances)}")
 
         return instances
