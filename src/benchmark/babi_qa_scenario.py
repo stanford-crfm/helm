@@ -85,7 +85,7 @@ class BabiQAScenario(Scenario):
         splits = {"train": TRAIN_SPLIT, "valid": VALID_SPLIT, "test": TEST_SPLIT}
 
         url: str = "http://www.thespermwhale.com/jaseweston/babi/tasks_1-20_v1-2.tar.gz"
-        target_path = f"{data_path}/tasks_1-20_v1-2.tar.gz"
+        target_path: str = f"{data_path}/tasks_1-20_v1-2"
         ensure_file_downloaded(source_url=url, target_path=target_path, unpack=True)
 
         for split in splits:
