@@ -11,6 +11,7 @@ from common.authentication import Authentication
 from common.general import parse_hocon, write
 from common.hierarchical_logger import hlog, htrack
 from benchmark.run import run_benchmarking, add_run_args
+from benchmark.runner import RunSpec
 from proxy.remote_service import add_service_args, create_authentication
 from proxy.models import ALL_MODELS
 
@@ -34,8 +35,14 @@ class AllRunner:
     """Runs all RunSpecs specified in the configuration file."""
 
     def __init__(
-        self, auth: Authentication, conf_path: str, url: str, output_path: str, num_threads: int,
-        dry_run: Optional[bool], max_eval_instances: Optional[int],
+        self,
+        auth: Authentication,
+        conf_path: str,
+        url: str,
+        output_path: str,
+        num_threads: int,
+        dry_run: Optional[bool],
+        max_eval_instances: Optional[int],
     ):
         self.auth: Authentication = auth
         self.conf_path: str = conf_path
@@ -113,7 +120,10 @@ def main():
     parser = argparse.ArgumentParser()
     add_service_args(parser)
     parser.add_argument(
-        "-c", "--conf-path", help="Where to read RunSpecs to run from", default="src/benchmark/presentation/run_specs.conf"
+        "-c",
+        "--conf-path",
+        help="Where to read RunSpecs to run from",
+        default="src/benchmark/presentation/run_specs.conf",
     )
     add_run_args(parser)
     args = parser.parse_args()
