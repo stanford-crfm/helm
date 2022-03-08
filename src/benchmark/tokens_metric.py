@@ -6,6 +6,7 @@ from common.statistic import Stat, merge_stat
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from .adapter import ScenarioState
 from .metric import Metric
+from .metric_name import MetricName
 from .metric_service import MetricService
 
 
@@ -21,11 +22,11 @@ class TokensMetric(Metric):
         """
         Add up all the estimated number of tokens used for each request.
         """
-        stats: Dict[str, Stat] = {}
+        stats: Dict[MetricName, Stat] = {}
 
         for request_state in tqdm(scenario_state.request_states):
             request: Request = request_state.request
             num_tokens: int = self.token_counter.estimate_tokens(request)
-            merge_stat(stats, Stat(f"{request.model}_estimated_number_of_tokens").add(num_tokens))
+            merge_stat(stats, Stat(MetricName("estimated_number_of_tokens")).add(num_tokens))
 
         return list(stats.values())
