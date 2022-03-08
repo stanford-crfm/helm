@@ -35,7 +35,7 @@ ALL_MODELS = [
     Model(
         group="codex",
         name="openai/code-cushman-001",
-        description="Codex (for natural language to code) - 2048 max tokens.",
+        description="Codex (for natural language to code) - 2048 max tokens",
     ),
     # For debugging
     Model(group="simple", name="simple/model1", description="Copy last tokens (for debugging)"),
