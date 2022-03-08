@@ -10,13 +10,13 @@ class MetricName:
     # The name of the metric
     name: str
 
-    # For score_k
+    # K of Top K score
     k: Optional[int] = None
 
     # Split (e.g., train, valid, test)
     split: Optional[str] = None
 
-    # Sub split (e.g. toxic, non-toxic)
+    # Sub split (e.g., toxic, non-toxic)
     sub_split: Optional[str] = None
 
     # Description of the Perturbation applied to the Instances
