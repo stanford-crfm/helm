@@ -21,16 +21,16 @@ $(function () {
     const $table = $('<table>', {class: 'query-table'});
     const $header = $('<tr>')
         .append($('<td>').append($('<b>').append('Run')))
-        .append($('<td>').append($('<b>').append('Model')))
-        .append($('<td>').append($('<b>').append('Adaptation method')));
+        .append($('<td style="padding-left:30px;">').append($('<b>').append('Model')))
+        .append($('<td style="padding-left:30px;">').append($('<b>').append('Adaptation method')));
     $table.append($header);
 
     runSpecs.forEach((runSpec) => {
       const href = encodeUrlParams(Object.assign(urlParams, {runSpec: runSpec.name}));
       const $row = $('<tr>')
         .append($('<td>').append($('<a>', {href}).append(runSpec.name)))
-        .append($('<td>').append(runSpec.adapter_spec.model))
-        .append($('<td>').append(runSpec.adapter_spec.method))
+        .append($('<td style="padding-left:30px;">').append(runSpec.adapter_spec.model))
+        .append($('<td style="padding-left:30px;">').append(runSpec.adapter_spec.method))
       $table.append($row);
     });
     return $table;
