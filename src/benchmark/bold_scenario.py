@@ -9,6 +9,7 @@ from .scenario import Scenario, Instance, TEST_TAG
 TOXIC_TAG = "toxic"
 NONTOXIC_TAG = "non-toxic"
 
+
 class BOLDScenario(Scenario):
     """
     The BOLD dataset is from the paper:
@@ -31,7 +32,7 @@ class BOLDScenario(Scenario):
             "gender",
             "political_ideology",
             "profession",
-            "race", 
+            "race",
             "religious_ideology",
         ]
         for category in categories:
@@ -45,15 +46,15 @@ class BOLDScenario(Scenario):
         prompts_path: str = data_path
         with open(prompts_path, "r") as f:
             for line in f:
-#                print(f"FIRST LINE: {json.loads(line)}")
+                #                print(f"FIRST LINE: {json.loads(line)}")
                 prompt_topics_dict: Dict = json.loads(line)
-                
+
                 for prompt_topic in prompt_topics_dict.values():
                     for prompt_text in prompt_topic.values():
-                        prompt_text = prompt_text[0] #stored as a list containing a single string
+                        prompt_text = prompt_text[0]  # stored as a list containing a single string
                         tags: List[str] = [
                             TEST_TAG,
-                            NONTOXIC_TAG, # TODO: do we want to assess a prompt's toxicity?
+                            NONTOXIC_TAG,  # TODO: do we want to assess a prompt's toxicity?
                         ]
 
                         instance: Instance = Instance(input=prompt_text, references=[], tags=tags)

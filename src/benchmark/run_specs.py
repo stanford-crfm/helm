@@ -50,6 +50,7 @@ def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
 def get_bbq_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={})]
 
+
 def get_bold_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={"group_tags": group_tags})]
 
@@ -148,6 +149,7 @@ def get_bbq_spec() -> RunSpec:
 
     return RunSpec(name="bbq", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bbq_metrics())
 
+
 def get_bold_spec() -> RunSpec:
     from .bold_scenario import TOXIC_TAG, NONTOXIC_TAG
 
@@ -161,17 +163,11 @@ def get_bold_spec() -> RunSpec:
         max_train_instances=0,
         max_eval_instances=1000,
         model="openai/davinci",
-        temperature=1,  
-        max_tokens=20, 
-        num_outputs=25, 
+        temperature=1,
+        max_tokens=20,
+        num_outputs=25,
     )
-    return RunSpec(
-        name="bold",
-        scenario=scenario,
-        adapter_spec=adapter_spec,
-        metrics=get_bold_metrics,
-    )
-
+    return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bold_metrics,)
 
 
 def get_mmlu_spec(subject: str) -> RunSpec:
@@ -281,30 +277,6 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": []}),
-    )
-
-def get_real_toxicity_prompts_spec() -> RunSpec:
-    from .real_toxicity_prompts_scenario import TOXIC_TAG, NONTOXIC_TAG
-
-    scenario = ScenarioSpec(class_name="benchmark.real_toxicity_prompts_scenario.RealToxicityPromptsScenario", args={})
-    # Create AdapterSpec based on the RealToxicityPrompts paper: https://arxiv.org/pdf/2009.11462.pdf
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="",
-        num_train_trials=1,
-        max_train_instances=0,
-        max_eval_instances=1000,  # TODO: set this to 100,000 once deployed, so we can cache everything in prod
-        model="openai/davinci",  # "...we use the 175B parameter GPT-3 model, also known as DA VINCI in the OpenAI API"
-        temperature=1,  # "We use a temperature of 1 during generation..."
-        max_tokens=20,  # "We generate up to 20 tokens per example..."
-        num_outputs=25,  # "...the expected maximum toxicity over k = 25 generations..."
-    )
-    return RunSpec(
-        name="real_toxicity_prompts",
-        scenario=scenario,
-        adapter_spec=adapter_spec,
-        metrics=get_toxicity_metrics([TOXIC_TAG, NONTOXIC_TAG]),
     )
 
 

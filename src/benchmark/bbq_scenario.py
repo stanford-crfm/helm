@@ -56,7 +56,7 @@ class BBQScenario(Scenario):
 
         instances: List[Instance] = []
         prompts_path: str = data_path
-            
+
         with open(prompts_path, "r") as f:
             for line in f:
 
@@ -88,7 +88,7 @@ class BBQScenario(Scenario):
 
         random.seed(0)
         random.shuffle(instances)
-        
+
         print(f"Instaces is of length: {len(instances)}")
 
         return instances
