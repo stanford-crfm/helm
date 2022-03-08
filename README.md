@@ -275,10 +275,10 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 Once all the runs complete, visit the
 [Benchmarking project status page](https://nlp.stanford.edu/crfm/benchmarking/status.txt).
 
-### To visualize results locally
+### To visualize results at crfm-models.stanford.edu
 
-1. Run `venv/bin/benchmark-present --api-key-path  --output-path src/proxy/static/benchmark_output`
-1. Go to `http://127.0.0.1:1959/static/benchmarking.html`.
+1. Run `venv/bin/benchmark-present --output-path src/proxy/static/benchmark_output`.
+1. Visit the [benchmarking status page](https://crfm-models.stanford.edu/static/benchmarking.html).
 
 # Contributing
 
