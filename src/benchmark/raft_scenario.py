@@ -4,7 +4,7 @@ import json
 import tempfile
 import datasets
 from pathlib import Path
-from common.general import ensure_file_downloaded
+from common.general import ensure_file_downloaded, ensure_directory_exists
 from typing import List, Dict
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT
 
@@ -32,6 +32,7 @@ def get_raft_prompt_settings(subset: str, cache_dir=None):
         cache_dir = tempfile.gettempdir()
 
     prompt_construction_settings_path = os.path.join(cache_dir, "prompt_construction_settings.json")
+    ensure_directory_exists(cache_dir)
     ensure_file_downloaded(
         source_url=PROMPT_SETTINGS_URL, target_path=prompt_construction_settings_path,
     )

@@ -52,6 +52,7 @@ def add_run_args(parser: argparse.ArgumentParser):
         "-d",
         "--dry-run",
         action="store_true",
+        default=None,
         help="Skip execution, only output scenario states and estimate token usage.",
     )
     parser.add_argument(
