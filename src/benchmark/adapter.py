@@ -9,7 +9,7 @@ from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from .scenario import Instance, Scenario, TRAIN_SPLIT, EVAL_SPLITS
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
-
+from proxy.tokenizer.auto_tokenizer import AutoTokenizer
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"
@@ -28,9 +28,6 @@ class AdapterSpec:
 
     # Method of adaptation
     method: str
-
-    # Conditioning prefix whose logprob is ignored
-    conditioning_prefix: str = ""
 
     # Prompt starts with instructions
     instructions: str = ""
@@ -102,6 +99,9 @@ class RequestState:
 
     # The result of the request (filled in when the request is executed)
     result: Optional[RequestResult]
+
+    # The number of initial tokens that will be ignored when computing langauge modeling metrics
+    num_conditioning_tokens: int = 0
 
     def render_lines(self) -> List[str]:
         output = [f"train_trial_index: {self.train_trial_index}"]
@@ -246,6 +246,7 @@ class Adapter:
         instance is that we create a common set of training instances which is
         shared across all eval instances.
         """
+
         # Create instances
         with htrack_block("scenario.get_instances"):
             instances = scenario.get_instances()
@@ -290,72 +291,66 @@ class Adapter:
         # Accumulate all the request states due to adaptation
         request_states: List[RequestState] = []
 
-        for train_trial_index in range(self.adapter_spec.num_train_trials):
-            # Choose a random set of training instances
-            random.seed(train_trial_index)
-            train_instances = random.sample(
-                all_train_instances, min(len(all_train_instances), self.adapter_spec.max_train_instances)
-            )
-
-            # Create request_states
-            for eval_index, eval_instance in enumerate(eval_instances):
-                prompt: str = self.construct_prompt(train_instances, eval_instance)
-
-                # Just print one prompt (useful for debugging)
-                if train_trial_index == 0 and eval_index == 0:
-                    with htrack_block("Sample prompt"):
-                        for line in prompt.split("\n"):
-                            hlog(line)
-
-                # Define the request
-                method = self.adapter_spec.method
-                if method == ADAPT_LANGUAGE_MODELING:
-                    output_mapping = None
-                    request = Request(
-                        model=self.adapter_spec.model,
-                        prompt=prompt,
-                        num_completions=1,
-                        temperature=0,
-                        max_tokens=self.adapter_spec.max_tokens,
-                        stop_sequences=self.adapter_spec.stop_sequences,
-                        echo_prompt=True,
-                    )
-                elif method == ADAPT_MULTIPLE_CHOICE:
-                    output_mapping = dict(
-                        (self.get_reference_prefix("A", reference_index), reference.output)
-                        for reference_index, reference in enumerate(eval_instance.references)
-                    )
-                    request = Request(
-                        model=self.adapter_spec.model,
-                        prompt=prompt,
-                        num_completions=1,
-                        top_k_per_token=self.adapter_spec.num_outputs,
-                        temperature=0,
-                        max_tokens=1,
-                        stop_sequences=[],
-                    )
-                elif method == ADAPT_GENERATION:
-                    output_mapping = None
-                    request = Request(
-                        model=self.adapter_spec.model,
-                        prompt=prompt,
-                        num_completions=self.adapter_spec.num_outputs,
-                        temperature=self.adapter_spec.temperature,
-                        max_tokens=self.adapter_spec.max_tokens,
-                        stop_sequences=self.adapter_spec.stop_sequences,
-                    )
-                else:
-                    raise ValueError(f"Invalid method: {method}")
-
-                request_state = RequestState(
-                    instance=eval_instance,
-                    reference_index=None,
-                    train_trial_index=train_trial_index,
-                    output_mapping=output_mapping,
-                    request=request,
-                    result=None,
+        if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
+            # Use the LM-specific method to adapt LM scenarios
+            request_states = self.adapt_language_modeling(eval_instances)
+        else:
+            for train_trial_index in range(self.adapter_spec.num_train_trials):
+                # Choose a random set of training instances
+                random.seed(train_trial_index)
+                train_instances = random.sample(
+                    all_train_instances, min(len(all_train_instances), self.adapter_spec.max_train_instances)
                 )
-                request_states.append(request_state)
+
+                # Create request_states
+                for eval_index, eval_instance in enumerate(eval_instances):
+                    prompt: str = self.construct_prompt(train_instances, eval_instance)
+
+                    # Just print one prompt (useful for debugging)
+                    if train_trial_index == 0 and eval_index == 0:
+                        with htrack_block("Sample prompt"):
+                            for line in prompt.split("\n"):
+                                hlog(line)
+
+                    # Define the request
+                    method = self.adapter_spec.method
+
+                    if method == ADAPT_GENERATION:
+                        output_mapping = None
+                        request = Request(
+                            model=self.adapter_spec.model,
+                            prompt=prompt,
+                            num_completions=self.adapter_spec.num_outputs,
+                            temperature=self.adapter_spec.temperature,
+                            max_tokens=self.adapter_spec.max_tokens,
+                            stop_sequences=self.adapter_spec.stop_sequences,
+                        )
+                    elif method == ADAPT_MULTIPLE_CHOICE:
+                        output_mapping = dict(
+                            (self.get_reference_prefix("A", reference_index), reference.output)
+                            for reference_index, reference in enumerate(eval_instance.references)
+                        )
+                        request = Request(
+                            model=self.adapter_spec.model,
+                            prompt=prompt,
+                            num_completions=1,
+                            top_k_per_token=self.adapter_spec.num_outputs,
+                            temperature=0,
+                            max_tokens=1,
+                            stop_sequences=[],
+                        )
+                    else:
+                        raise ValueError(f"Invalid method: {method}")
+
+                    request_state = RequestState(
+                        instance=eval_instance,
+                        reference_index=None,
+                        train_trial_index=train_trial_index,
+                        output_mapping=output_mapping,
+                        request=request,
+                        result=None,
+                    )
+                    request_states.append(request_state)
 
         hlog(f"{len(request_states)} requests")
         return ScenarioState(self.adapter_spec, request_states)
@@ -384,7 +379,7 @@ class Adapter:
 
             blocks.append(self.construct_example_prompt(eval_instance, include_output=False))
 
-            return self.adapter_spec.conditioning_prefix + "\n\n".join(blocks)
+            return "\n\n".join(blocks)
 
         orig_train_instances_count: int = len(train_instances)
         prompt: str = construct_prompt_helper(train_instances)
@@ -447,3 +442,120 @@ class Adapter:
         Example: prefix = "\nA. ", i = 2, return "\nC. "
         """
         return prefix.replace("A", chr(ord("A") + i))
+
+    def construct_language_modeling_prompt(
+        self, conditioning_tokens: List[int], pred_tokens: List[int], tokenizer, max_seq_len: int
+    ) -> Tuple[str, int]:
+        """
+        Some subwords/symbols might translate to multiple tokens. e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"].
+
+        When a subword of this type happens to be the last token of a chunk, we need to strip the leading and
+        trailing bytes to ensure the prompt is a valid string.
+
+        Since some tokens are removed, we also need to recompute num_conditioning_tokens.
+        """
+        raw_prompt = tokenizer.decode(conditioning_tokens + pred_tokens)
+        num_leading_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
+        num_trailing_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
+        prompt = raw_prompt.strip("\ufffd")
+        # There are no string tokens to predict
+        if num_trailing_byte_tokens >= len(pred_tokens):
+            num_conditioning_tokens = len(tokenizer.encode(prompt))
+        # There are no conditioning string tokens
+        elif num_leading_byte_tokens >= len(conditioning_tokens):
+            num_conditioning_tokens = 1
+        else:
+            num_conditioning_tokens = len(conditioning_tokens) - num_leading_byte_tokens
+        return prompt, num_conditioning_tokens
+
+    def adapt_language_modeling(self, instances: List[Instance]) -> List[RequestState]:
+        """ Code is adapted from:
+
+        https://github.com/EleutherAI/lm_perplexity/blob/main/lm_perplexity/utils.py
+        """
+        request_states: List[RequestState] = []
+
+        # TODO: Support other models and tokenizers
+        assert self.adapter_spec.model.startswith("openai/")
+
+        tokenizer = AutoTokenizer().get_tokenizer(self.adapter_spec.model)
+        max_seq_len = tokenizer.MAX_SEQUENCE_LENGTH
+        prefix_token = tokenizer.END_OF_TEXT_TOKEN if tokenizer.END_OF_TEXT_TOKEN is not None else ""
+
+        for instance in instances:
+            tokens = tokenizer.encode(instance.input)
+            assert tokenizer.decode(tokens) == instance.input
+
+            num_predicted_tokens = 0
+
+            # Special handling for first window: predict all tokens
+            # Raw token sequence format: [<str_tok1>, <str_tok2>, ..., <byte_tok1>, ...] (total length <= max_seq_len)
+            # Convert it to: [<eot>, <str_tok1>, <str_tok2>, ...] (total length <= max_seq_len+1)
+            # Num_conditioning_tokens = 1
+            # Example: ["Hello", " world", "bytes:\xe2\x80"] => "<eot>Hello world"
+            #
+            # Note: There are trailing byte tokens in the raw sequence because some subwords/symbols might translate to
+            # multiple tokens (e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]) and we chunk documents by token, not by word.
+            first_seq_len = min(max_seq_len, len(tokens))
+            prompt = tokenizer.decode(tokenizer.encode(prefix_token) + tokens[:first_seq_len]).rstrip("\ufffd")
+            request = Request(
+                model=self.adapter_spec.model,
+                prompt=prompt,
+                num_completions=1,
+                temperature=0,
+                max_tokens=self.adapter_spec.max_tokens,  # usually this is zero
+                stop_sequences=self.adapter_spec.stop_sequences,
+                echo_prompt=True,
+            )
+            request_state = RequestState(
+                instance=instance,
+                reference_index=None,
+                train_trial_index=0,
+                output_mapping=None,
+                request=request,
+                result=None,
+                num_conditioning_tokens=1,
+            )
+            request_states.append(request_state)
+            num_predicted_tokens += first_seq_len
+
+            while num_predicted_tokens < len(tokens):
+                # Raw token sequence format:
+                # [<cond_byte1>, ..., <cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, ..., <pred_byte1>, ...]
+                # (total length <= max_seq_len+1)
+                #
+                # Convert it to: [<cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, <pred_str_tok2>. ...]
+                # (total length <= max_seq_len+1)
+                #
+                # Example: conditioning_tokens=["bytes:\x99", "Exc"], pred_tokens=["use", " me", "bytes:\xe2\x80"] =>
+                # prompt="Excuse me", num_conditioning_tokens = 1
+                window_pred_len = min(len(tokens) - num_predicted_tokens, max_seq_len)
+                window_end = num_predicted_tokens + window_pred_len
+                conditioning_tokens = tokens[window_end - max_seq_len - 1 : num_predicted_tokens]
+                pred_tokens = tokens[num_predicted_tokens:window_end]
+                prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
+                    conditioning_tokens, pred_tokens, tokenizer, max_seq_len
+                )
+
+                request = Request(
+                    model=self.adapter_spec.model,
+                    prompt=prompt,
+                    num_completions=1,
+                    temperature=0,
+                    max_tokens=self.adapter_spec.max_tokens,  # usually this is zero
+                    stop_sequences=self.adapter_spec.stop_sequences,
+                    echo_prompt=True,
+                )
+                request_state = RequestState(
+                    instance=instance,
+                    reference_index=None,
+                    train_trial_index=0,
+                    output_mapping=None,
+                    request=request,
+                    result=None,
+                    num_conditioning_tokens=num_conditioning_tokens,
+                )
+                request_states.append(request_state)
+                num_predicted_tokens += window_pred_len
+
+        return request_states

@@ -80,6 +80,8 @@ class Runner:
                 hlog(stat)
 
         # Output benchmarking information and results to files
+        write(os.path.join(runs_path, "run_spec.json"), json.dumps(asdict(run_spec), indent=2))
+
         scenario_dict = asdict(scenario)
         scenario_dict["instances"] = [asdict(instance) for instance in scenario_state.instances]
         write_lines(os.path.join(runs_path, "scenario.txt"), scenario.render_lines(scenario_state.instances))
