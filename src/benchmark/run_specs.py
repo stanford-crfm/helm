@@ -412,7 +412,7 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
         metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
-def get_imdb_spec() -> RunSpec:
+def get_imdb_spec(scenario_name) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDbScenario", args={})
 
     adapter_spec = AdapterSpec(
@@ -425,14 +425,14 @@ def get_imdb_spec() -> RunSpec:
         max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
         num_outputs=1,
         max_tokens=1,
+        stop_sequences=["\n"],
     )
     return RunSpec(
-        name="imdb",
+        name=scenario_name,
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
-
 
 def get_imdb_contrast_sets_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDbContrastSetScenario", args={})
@@ -447,6 +447,7 @@ def get_imdb_contrast_sets_spec() -> RunSpec:
         max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
         num_outputs=1,
         max_tokens=1,
+        stop_sequences=["\n"],
     )
     return RunSpec(
         name="imdb_contrast_sets",

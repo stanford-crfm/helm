@@ -13,6 +13,22 @@ class IMDbScenario(Scenario):
 
     IMDb is a text classification dataset containing 25,000 training reviews and 25,000 test reviews.
     Each sample contains a sentence with its corresponding label (0: negative, 1: positive)
+
+    We prompt models using the following format:
+        <passage>
+
+        Target completion:
+            Label:<label> (<label>:positive or negative)
+
+    Using an example from the training dataset, we have
+    Very good drama although it appeared to have a few blank areas leaving the viewers to fill in the action for themselves.
+    I can imagine life being this way for someone who can neither read nor write. This film simply smacked of the real world:
+    the wife who is suddenly the sole supporter, the live-in relatives and their quarrels, the troubled child who gets knocked up and then,
+    typically, drops out of school, a jackass husband who takes the nest egg and buys beer with it. 2 thumbs up.
+
+    Target completion:
+        Label:positive
+
     """
 
     name = "imdb"
@@ -33,7 +49,7 @@ class IMDbScenario(Scenario):
                 with open(sentence_path, "r") as f:
                     context = f.read().strip()
                     instance: Instance = Instance(
-                        input=context+'\n', references=[Reference(output=label_id, tags=[CORRECT_TAG])], split=split
+                        input=context + '\n', references=[Reference(output=label_id, tags=[CORRECT_TAG])], split=split
                     )
                     split_instances.append(instance)
         return split_instances
@@ -101,12 +117,13 @@ class IMDbContrastSetScenario(IMDbScenario):
         label_name_to_id = {"Positive": "label:positive", "Negative": "label:negative"}
 
         with open(target_path, encoding="utf-8") as f:
+            # skip the head line
             f.readline()
             for eachline in f:
                 label_name, perturbed_context = eachline.strip().split('\t')
                 perturbed_label = label_name_to_id[label_name]
                 instance: Instance = Instance(
-                    input=perturbed_context+'\n', references=[Reference(output=perturbed_label, tags=[CORRECT_TAG])],
+                    input=perturbed_context + '\n', references=[Reference(output=perturbed_label, tags=[CORRECT_TAG])],
                     split=TEST_SPLIT
                 )
                 contrast_instances.append(instance)
