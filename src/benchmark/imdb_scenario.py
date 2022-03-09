@@ -11,7 +11,7 @@ class IMDbScenario(Scenario):
     The IMDb dataset is from the paper:
         https://ai.stanford.edu/~amaas/data/sentiment/
 
-    IMDb is a text classification dataset containing 25,000 training reviews and 25,000 test reviews.
+    IMDb is a text classification dataset containing 25,0'\n'00 training reviews and 25,000 test reviews.
     Each sample contains a sentence with its corresponding label (0: negative, 1: positive)
 
     We prompt models using the following format:
@@ -49,7 +49,7 @@ class IMDbScenario(Scenario):
                 with open(sentence_path, "r") as f:
                     context = f.read().strip()
                     instance: Instance = Instance(
-                        input=context + '\n', references=[Reference(output=label_id, tags=[CORRECT_TAG])], split=split
+                        input=context + "\n", references=[Reference(output=label_id, tags=[CORRECT_TAG])], split=split
                     )
                     split_instances.append(instance)
         return split_instances
@@ -120,11 +120,12 @@ class IMDbContrastSetScenario(IMDbScenario):
             # skip the head line
             f.readline()
             for eachline in f:
-                label_name, perturbed_context = eachline.strip().split('\t')
+                label_name, perturbed_context = eachline.strip().split("\t")
                 perturbed_label = label_name_to_id[label_name]
                 instance: Instance = Instance(
-                    input=perturbed_context + '\n', references=[Reference(output=perturbed_label, tags=[CORRECT_TAG])],
-                    split=TEST_SPLIT
+                    input=perturbed_context + "\n",
+                    references = [Reference(output=perturbed_label, tags=[CORRECT_TAG])],
+                    split = TEST_SPLIT,
                 )
                 contrast_instances.append(instance)
 
