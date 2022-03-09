@@ -113,7 +113,7 @@ class IMDbContrastSetScenario(IMDbScenario):
         # Note: We use the test set of IMDb dataset to construct the contrast set
         url = "https://raw.githubusercontent.com/allenai/contrast-sets/main/IMDb/data/test_contrast.tsv"
         target_path_constrast: str = os.path.join(target_path, "test_contrast.tsv")
-        ensure_file_downloaded(source_url=url, target_path=target_path, unpack=False)
+        ensure_file_downloaded(source_url=url, target_path=target_path_constrast, unpack=False)
 
         contrast_instances: List[Instance] = []
 
