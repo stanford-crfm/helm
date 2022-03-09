@@ -11,7 +11,7 @@ class IMDbScenario(Scenario):
     The IMDb dataset is from the paper:
         https://ai.stanford.edu/~amaas/data/sentiment/
 
-    IMDb is a text classification dataset containing 25,0'\n'00 training reviews and 25,000 test reviews.
+    IMDb is a text classification dataset containing 25,000 training reviews and 25,000 test reviews.
     Each sample contains a sentence with its corresponding label (0: negative, 1: positive)
 
     We prompt models using the following format:
