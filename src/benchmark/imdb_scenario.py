@@ -80,8 +80,9 @@ class IMDbContrastSetScenario(IMDbScenario):
         https://github.com/allenai/contrast-sets
 
     An example instance of a perturbation (from the original paper):
-    Orginal instance: Hardly one to be faulted for his ambition or his vision, it is genuinely unexpected, then, to see all
-    Park’s effort add up to so very little. . . . The premise is promising, gags are copious and offbeat humour
+    Orginal instance: Hardly one to be faulted for his ambition or his vision,
+    it is genuinely unexpected, then, to see all Park’s effort add up to so very little. . . .
+    The premise is promising, gags are copious and offbeat humour
     abounds but it all fails miserably to create any meaningful connection with the audience.
     Label: negative
 
