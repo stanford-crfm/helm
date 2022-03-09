@@ -11,13 +11,13 @@ class IMDbScenario(Scenario):
         https://ai.stanford.edu/~amaas/data/sentiment/
 
     IMDb is a text classification dataset containing 25,000 training reviews and 25,000 test reviews.
-    Each sample contains a sentence with its corresponding label (0: negative, 1: positive)
+    Each sample contains a sentence with its corresponding sentiment (0: negative, 1: positive)
 
     We prompt models using the following format:
         <passage>
 
         Target completion:
-            Label:<label> (<label>:positive or negative)
+            Sentiment:<sentiment> (<sentiment>:positive or negative)
 
     Using an example from the training dataset, we have
     Very good drama although it appeared to have a few blank areas leaving the viewers
@@ -29,7 +29,7 @@ class IMDbScenario(Scenario):
     2 thumbs up.
 
     Target completion:
-        Label:positive
+        Sentiment:positive
 
     """
 
@@ -41,7 +41,7 @@ class IMDbScenario(Scenario):
         pass
 
     def get_split_instances(self, split: str, path: str) -> List[Instance]:
-        label_to_classname: Dict[str, str] = {"pos": "label:positive", "neg": "label:negative"}
+        label_to_classname: Dict[str, str] = {"pos": "Sentiment:positive", "neg": "Sentiment:negative"}
         split_instances: List[Instance] = []
         for class_name, label_id in label_to_classname.items():
             split_path_label: str = os.path.join(path, class_name)
@@ -84,12 +84,12 @@ class IMDbContrastSetScenario(IMDbScenario):
     it is genuinely unexpected, then, to see all Park’s effort add up to so very little. . . .
     The premise is promising, gags are copious and offbeat humour
     abounds but it all fails miserably to create any meaningful connection with the audience.
-    Label: negative
+    Sentiment: negative
 
     Perturbed instance: Hardly one to be faulted for his ambition or his vision, here we see all Park’s effort come to
     fruition. . . . The premise is perfect, gags are hilarious and offbeat humour abounds, and it
     creates a deep connection with the audience.
-    Label: positive
+    Sentiment: positive
     """
 
     name = "imdb-contrast-sets"
@@ -117,7 +117,7 @@ class IMDbContrastSetScenario(IMDbScenario):
 
         contrast_instances: List[Instance] = []
 
-        label_name_to_id = {"Positive": "label:positive", "Negative": "label:negative"}
+        label_name_to_id = {"Positive": "Sentiment:positive", "Negative": "Sentiment:negative"}
 
         with open(target_path_constrast, encoding="utf-8") as f:
             # skip the head line
