@@ -435,7 +435,7 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
     )
 
 
-def get_imdb_spec(scenario_name) -> RunSpec:
+def get_imdb_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDbScenario", args={})
 
     adapter_spec = AdapterSpec(

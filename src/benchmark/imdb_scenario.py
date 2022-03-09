@@ -109,14 +109,14 @@ class IMDbContrastSetScenario(IMDbScenario):
         # Ensure contrast sets are downloaded
         # Note: We use the test set of IMDb dataset to construct the contrast set
         url = "https://raw.githubusercontent.com/allenai/contrast-sets/main/IMDb/data/test_contrast.tsv"
-        target_path: str = os.path.join(target_path, "test_contrast.tsv")
+        target_path_constrast: str = os.path.join(target_path, "test_contrast.tsv")
         ensure_file_downloaded(source_url=url, target_path=target_path, unpack=False)
 
         contrast_instances: List[Instance] = []
 
         label_name_to_id = {"Positive": "label:positive", "Negative": "label:negative"}
 
-        with open(target_path, encoding="utf-8") as f:
+        with open(target_path_constrast, encoding="utf-8") as f:
             # skip the head line
             f.readline()
             for eachline in f:
