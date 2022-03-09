@@ -451,7 +451,7 @@ def get_imdb_spec() -> RunSpec:
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name=scenario_name,
+        name="imdb",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
