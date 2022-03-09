@@ -1,9 +1,8 @@
-import json
 import os
 from typing import List, Dict
 
-from common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, TEST_SPLIT
+from common.general import ensure_file_downloaded
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, CORRECT_TAG, TEST_SPLIT
 
 
 class IMDbScenario(Scenario):
@@ -21,10 +20,13 @@ class IMDbScenario(Scenario):
             Label:<label> (<label>:positive or negative)
 
     Using an example from the training dataset, we have
-    Very good drama although it appeared to have a few blank areas leaving the viewers to fill in the action for themselves.
-    I can imagine life being this way for someone who can neither read nor write. This film simply smacked of the real world:
-    the wife who is suddenly the sole supporter, the live-in relatives and their quarrels, the troubled child who gets knocked up and then,
-    typically, drops out of school, a jackass husband who takes the nest egg and buys beer with it. 2 thumbs up.
+    Very good drama although it appeared to have a few blank areas leaving the viewers
+    to fill in the action for themselves.
+    I can imagine life being this way for someone who can neither read nor write.
+    This film simply smacked of the real world: the wife who is suddenly the sole supporter,
+    the live-in relatives and their quarrels, the troubled child who gets knocked up and then,
+    typically, drops out of school, a jackass husband who takes the nest egg and buys beer with it.
+    2 thumbs up.
 
     Target completion:
         Label:positive
@@ -60,7 +62,7 @@ class IMDbScenario(Scenario):
         instances: List[Instance] = []
         split_to_filename: Dict[str, str] = {TRAIN_SPLIT: "train", TEST_SPLIT: "test"}
 
-        url: str = f"https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"
+        url: str = f'{"https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"}'
         ensure_file_downloaded(source_url=url, target_path=target_path, unpack=True)
 
         for split, filename in split_to_filename.items():
@@ -101,7 +103,7 @@ class IMDbContrastSetScenario(IMDbScenario):
 
         # Note: Contrast Sets are constructed using the test set of some selected IMDb dataset.
         # Hence, it is safe to use training examples as the in-context examples.
-        url: str = f"https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"
+        url: str = f'{"https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"}'
         ensure_file_downloaded(source_url=url, target_path=target_path, unpack=True)
         split_path: str = os.path.join(target_path, "train")
         training_instances: List[Instance] = self.get_split_instances(TRAIN_SPLIT, split_path)
