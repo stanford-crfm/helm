@@ -434,6 +434,7 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
         metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
+
 def get_imdb_spec(scenario_name) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDbScenario", args={})
 
@@ -455,6 +456,7 @@ def get_imdb_spec(scenario_name) -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
+
 
 def get_imdb_contrast_sets_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDbContrastSetScenario", args={})

@@ -124,8 +124,8 @@ class IMDbContrastSetScenario(IMDbScenario):
                 perturbed_label = label_name_to_id[label_name]
                 instance: Instance = Instance(
                     input=perturbed_context + "\n",
-                    references = [Reference(output=perturbed_label, tags=[CORRECT_TAG])],
-                    split = TEST_SPLIT,
+                    references=[Reference(output=perturbed_label, tags=[CORRECT_TAG])],
+                    split=TEST_SPLIT,
                 )
                 contrast_instances.append(instance)
 
