@@ -1,11 +1,12 @@
 from typing import List
 
 from nltk.tokenize.treebank import TreebankWordTokenizer
-from common.request import RequestResult
 
+from common.request import RequestResult
 from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
+from .metric_name import MetricName
 from .metric_service import MetricService
 
 
@@ -59,13 +60,13 @@ class BasicCopyrightMetric(Metric):
     In contrast to model-based semantic similarity evaluation.
     """
 
-    def __init__(self, name, normalize_by_prefix_length=False):
+    def __init__(self, name: str, normalize_by_prefix_length=False):
         if name not in ("longest_common_prefix_length", "edit_distance"):
             raise ValueError(
                 f"Expected name to be either `longest_common_prefix_length` or `edit_distance`, but got {name}."
             )
 
-        self.name = name
+        self.metric_name: MetricName = MetricName(name)
         self.metric_fn = metric_fns[name]
         self.normalize_by_prefix_length = normalize_by_prefix_length
         self.tokenizer = TreebankWordTokenizer()
@@ -108,4 +109,4 @@ class BasicCopyrightMetric(Metric):
             prefix_tokens = self.tokenizer.tokenize(prefix)
             result /= len(prefix_tokens)
 
-        return [Stat(f"{self.name}").add(result)]
+        return [Stat(self.metric_name).add(result)]

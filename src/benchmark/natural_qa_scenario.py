@@ -4,6 +4,7 @@ import re
 import gzip
 import html
 import random
+from common.hierarchical_logger import htrack_block, hlog
 from typing import List, Tuple
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
@@ -210,10 +211,14 @@ class NaturalQAScenario(Scenario):
 
         all_samples: List[dict] = []
 
-        with gzip.open(target_file, "rb") as fp:
-            raw_data = [json.loads(line) for line in fp.readlines()]
-            # Only keep dataset samples with at least one short answer
-            all_samples.extend([d for d in raw_data if any([len(anno["short_answers"]) for anno in d["annotations"]])])
+        with htrack_block(f"Reading {target_file}"):
+            with gzip.open(target_file, "rb") as fp:
+                for line in fp:
+                    raw = json.loads(line)
+                    # Only keep dataset samples with at least one short answer
+                    if any([len(anno["short_answers"]) for anno in raw["annotations"]]):
+                        all_samples.append(raw)
+            hlog(f"{len(all_samples)} examples")
 
         for si, sample in enumerate(all_samples):
 

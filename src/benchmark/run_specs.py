@@ -209,7 +209,7 @@ def get_wiki_spec(k: str, subject: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"wiki_subject={subject}_top{k}",
+        name=f"wiki:k={k},subject={subject}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -236,7 +236,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             temperature=0,
         )
         run_spec = RunSpec(
-            name=f"dataset={dataset},method={method}",
+            name=f"commonsense_qa:dataset={dataset},method={method}",
             scenario=scenario,
             adapter_spec=adapter_spec,
             metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -257,7 +257,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             temperature=0,
         )
         run_spec = RunSpec(
-            name=f"dataset={dataset},method={method}",
+            name=f"commonsense_qa:dataset={dataset},method={method}",
             scenario=scenario,
             adapter_spec=adapter_spec,
             metrics=get_commonsense_qa_metrics({"n_choice": n_choice}),
@@ -524,7 +524,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
 
 
 def get_the_pile_spec(subset: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.the_pile_scenario.ThePileScenario", args={"subset": subset},)
+    scenario = ScenarioSpec(class_name="benchmark.the_pile_scenario.ThePileScenario", args={"subset": subset})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
@@ -541,7 +541,7 @@ def get_the_pile_spec(subset: str) -> RunSpec:
     )
 
     return RunSpec(
-        name="the_pile_subset={subset}",
+        name=f"the_pile:subset={subset}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": []}),
