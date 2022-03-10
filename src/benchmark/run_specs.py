@@ -117,7 +117,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
 
     # Place these alphabetically
     if name == "boolq":
-        return [get_boolq_spec()]
+        return [get_boolq_spec(**args)]
     if name == "boolq_contrast_sets":
         return [get_boolq_contrast_sets_spec()]
     if name == "copyright":
@@ -382,12 +382,26 @@ def get_raft_spec(subset: str) -> RunSpec:
     )
 
 
-def get_boolq_spec() -> RunSpec:
+def get_boolq_spec(perturbation: str = None) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={})
+
+    if perturbation:
+        data_augmenter_spec = DataAugmenterSpec(
+            perturbation_specs=[
+                PerturbationSpec(class_name=f"benchmark.augmentations.perturbation.{perturbation}", args={})
+            ],
+            should_perturb_references=False,
+            should_augment_train_instances=False,
+            should_include_original_train=False,
+            should_augment_eval_instances=True,
+            should_include_original_eval=True,
+        )
+    else:
+        # Runs the vanilla boolq scenario
+        data_augmenter_spec = DataAugmenterSpec()
 
     # TODO: Choosing a large # of train instances results in exceeding maximum sequence length for models.
     # What's the best way to solve this?
-
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
@@ -398,6 +412,7 @@ def get_boolq_spec() -> RunSpec:
         max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
         num_outputs=1,
         max_tokens=1,
+        data_augmenter_spec=data_augmenter_spec,
     )
     return RunSpec(
         name="boolq",
