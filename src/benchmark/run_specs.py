@@ -582,7 +582,7 @@ def get_wikitext_103_spec() -> RunSpec:
         input_prefix="",
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=25,  # TODO: remove this line once deployed, so we can cache everything in prod
+        max_eval_instances=15,  # TODO: remove this line once deployed, so we can cache everything in prod
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
