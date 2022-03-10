@@ -1,6 +1,6 @@
 from abc import ABC
 from typing import List, Dict
-from math import log
+from math import log, e
 
 from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
@@ -67,7 +67,7 @@ class Metric(ABC):
                     merge_stat(
                         trial_stats,
                         Stat(split + "." + "perplexity").add(
-                            2
+                            e
                             ** (-trial_stats[split + "." + "logprob"].sum / trial_stats[split + "." + "num_tokens"].sum)
                         ),
                     )
@@ -128,7 +128,7 @@ class Metric(ABC):
             merge_stat(
                 trial_stats,
                 Stat(split + "." + "perplexity").add(
-                    2 ** (-trial_stats[split + "." + "logprob"].sum / trial_stats[split + "." + "num_tokens"].sum)
+                    e ** (-trial_stats[split + "." + "logprob"].sum / trial_stats[split + "." + "num_tokens"].sum)
                 ),
             )
             merge_stat(
