@@ -32,21 +32,38 @@ class Wikitext103Scenario(Scenario):
 
         test_set_path = os.path.join(data_path, "wiki.test.raw")
         # regex patterns used for document extraction
-        document_title_pattern = "^ = .+ = $"
-        paragraph_title_pattern = "^ = = .+ = = $"
+        DOCUMENT_TITLE_PATTERN = "^ = .+ = $"
+        PARAGRAPH_TITLE_PATTERN = "^ = = .+ = = $"
+        EMPTY_LINE = " " + os.linesep
 
         # Read all the instances
         instances = []
         hlog(f"Reading {test_set_path}")
-        with open(test_set_path, "r") as f:
-            # Following the raw data format, prepend a line seperator to every document
-            document_buffer = [os.linesep]
-            for line in f:
-                if re.match(document_title_pattern, line) and not re.match(paragraph_title_pattern, line):
-                    # Create an instance and append it to instances
-                    instance = Instance(input="".join(document_buffer[:-1]), references=[], split=TEST_SPLIT)
+        lines = open(test_set_path, "r").readlines()
+        document_buffer: List[str] = []
+        i = 0
+        while i < len(lines):
+            if (
+                i <= len(lines) - 3
+                and lines[i] == EMPTY_LINE
+                and lines[i + 2] == EMPTY_LINE
+                and re.match(DOCUMENT_TITLE_PATTERN, lines[i + 1])
+                and not re.match(PARAGRAPH_TITLE_PATTERN, lines[i + 1])
+            ):
+                # Create an instance and append it to instances
+                if document_buffer:
+                    instance = Instance(input="".join(document_buffer), references=[], split=TEST_SPLIT)
                     instances.append(instance)
-                    # empty the buffer
-                    document_buffer = [os.linesep]
-                document_buffer.append(line)
+                document_buffer = lines[i : i + 3]
+                i += 3
+            else:
+                document_buffer.append(lines[i])
+                i += 1
+        # Add the last instance to instances
+        if document_buffer:
+            instance = Instance(input="".join(document_buffer), references=[], split=TEST_SPLIT)
+            instances.append(instance)
+
+        # The test set of Wikitext-103 contains 60 articles
+        assert len(instances) == 60
         return instances
