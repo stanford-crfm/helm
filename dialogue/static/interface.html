@@ -13,12 +13,12 @@
     <script src="https://unpkg.com/vue@next"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 </head>
 
 <body>
-    <div class="container">
-        <div class='chat-box' id="app">
+    <div class="my-container" id="app">
+        <div class='chat-box' >
             <div class="transcript">
                 <div class="speech-bubble-container" @click="toggleSelectedUtterance(index);"
                     :class="[utterance.speaker, {selected: 'selectedUtterances' in this.currentQuestion && this.currentQuestion.selectedUtterances.includes(index), turnlevel: currentQuestion.type=='turnSelection'}, ]"
@@ -39,30 +39,38 @@
                     </svg>
                 </button>
             </form>
+        </div>
 
             <div id="interview-questions" class="bottom-form">
-                <button @click="endConversation()" v-if="!isConversationOver" type="button">End Conversation</button>
+                <button class='btn btn-warning' @click="endConversation()" v-if="!isConversationOver" type="button">End Conversation</button>
                 <template v-else>
-                    Question {{currentQuestionIdx}} of {{questions.length}} <br>
+                    Question {{currentQuestionIdx+1}} of {{questions.length}} <br>
                     <div class="form-row">
                         <label for="{{currentQuestion.tag}}"> {{currentQuestion.text}}</label>
                     </div>
                     <div class="form-row">
-                        <input v-if="currentQuestion.type=='likert'" type="number" v-model="currentQuestion.rating" id="{{currentQuestion.tag}}"
-                            name="{{currentQuestion.tag}}" min="1" max="5">
-                        <template v-else-if="currentQuestion.type=='turnSelection'">
-                        <input  type="checkbox" id="{{currentQuestion.tag}}"
-                            name="{{currentQuestion.tag}}" :checked="currentQuestion.notaUtterance" @change="event => {currentQuestion.notaUtterance = event.target.value; currentQuestion.selectedUtterances=[];}">
-                        <label for="{{currentQuestion.tag}}">None of the utterances</label>
+                        <select class="form-select" v-if="currentQuestion.type=='likert'" v-model="currentQuestion.rating" id="{{currentQuestion.tag}}"
+                            name="{{currentQuestion.tag}}">
+                            <option disabled value="">Please select one</option>
+                            <option v-for="option in currentQuestion.options">{{option}}</option>
+                        </select>
+                        <div class="form-check" v-else-if="currentQuestion.type=='turnSelection'">
+                        <input  class="form-check-input" type="checkbox" id="{{currentQuestion.tag}}"
+                            name="{{currentQuestion.tag}}" :checked="currentQuestion.notaUtterance" @change="toggleNotaUtterance">
+                        <label class="form-check-label" for="{{currentQuestion.tag}}">None of the utterances</label>
 
+                        </div>
+                        <template v-else-if="currentQuestion.type=='freeForm'">
+                            <input v-model='currentQuestion.answer' id="{currentQuestion.tag}" name="{currentQuestion.tag}" rows="5" cols="33">   </textarea>
                         </template>
+                        
                     </div>
                     <div class="error" v-if="error">Error: {{error}}</div>
                     <div class="success" v-if="success">Answers successfully submitted</div>
-                    <div id='bottom-buttons' class="form-row">
-                        <button @click="prevQuestion()" :disabled="currentQuestionIdx<=0" type="button">Prev</button>
-                        <button @click="submitAnswers()" v-if="isInterviewOver" type="button">Submit</button>
-                        <button v-else @click="nextQuestion()" type="button">Next</button>
+                    <div id='bottom-buttons' class="btn-group form-row">
+                        <button class='btn btn-outline-secondary' @click="prevQuestion()" :disabled="currentQuestionIdx<=0" type="button">Prev</button>
+                        <button class='btn btn-outline-success' @click="submitAnswers()" v-if="isInterviewOver" type="button">Submit</button>
+                        <button class='btn btn-outline-primary' v-else @click="nextQuestion()" type="button">Next</button>
                     </div>
                 </template>
             </div>

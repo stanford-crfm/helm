@@ -4,7 +4,7 @@ body {
     margin: 0px;
     background: #FBFBFB;
 }
-.container{
+.my-container{
     font-family: 'Nunito Sans', sans-serif;
     /*font-size: 20px;*/
     /*font-family: 'Noto Sans', sans-serif;
@@ -16,7 +16,7 @@ body {
     font-family: 'Quattrocento Sans', sans-serif;*/
 }
 /* Set fonts for different resolutions */
-.container, .next-utterance-input > .new-utterance {
+.my-container, .next-utterance-input > .new-utterance {
     font-family: 'Nunito Sans', sans-serif;
     /*font-size: 40px;*/
 
@@ -29,7 +29,8 @@ body {
     /*width:100%;*/
 }
 .chat-box{
-    height: 100%;
+    flex-grow: 1;
+    min-height: 10rem;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -109,7 +110,9 @@ body {
     background: hsl(69, 32%, 90%);
     border-left: 0;
 }
-.container{
+.my-container{
+    display: flex;
+    flex-direction: column;
     width: 100%;
     margin-left: auto;
     margin-right: auto;
@@ -121,7 +124,7 @@ body {
 }
 @media (min-width: 800px) {
 
-    .container{
+    .my-container{
         width: 800px;
         margin-left: auto;
         margin-right: auto;
@@ -143,5 +146,16 @@ body {
     display:flex;
     flex-direction: column;
     align-items: center;
+    padding: 20px;
     margin: 20px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+.form-row{
+    margin-bottom: 0.5rem;
+}
+.error {
+    color: darkred;
+}
+.success {
+    color: darkgreen;
 }
