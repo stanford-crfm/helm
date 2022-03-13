@@ -3,13 +3,16 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Optional
 
-from .augmentations.data_augmenter import create_data_augmenter, DataAugmenterSpec, DataAugmenter
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
-from .scenario import Instance, Scenario, TRAIN_SPLIT, EVAL_SPLITS
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from proxy.tokenizer.auto_tokenizer import AutoTokenizer
+from .augmentations.data_augmenter import create_data_augmenter, DataAugmenterSpec, DataAugmenter
+from .interaction.interaction_outcome import InteractionOutcome
+from .interaction.interaction_mode_spec import InteractionModeSpec
+from .interaction.interactions_processor import create_interaction_processor, InteractionsProcessor
+from .scenario import Instance, Scenario, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"
@@ -27,7 +30,7 @@ class AdapterSpec:
     """
 
     # Method of adaptation
-    method: str
+    method: str = ADAPT_GENERATION
 
     # Prompt starts with instructions
     instructions: str = ""
@@ -72,6 +75,9 @@ class AdapterSpec:
 
     # Data augmenter. The default DataAugmenterSpec does nothing.
     data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec()
+
+    # What to do during interaction mode. The default InteractionModeSpec does nothing.
+    interaction_mode_spec: InteractionModeSpec = InteractionModeSpec()
 
 
 @dataclass(frozen=True)
@@ -141,7 +147,10 @@ class ScenarioState:
     adapter_spec: AdapterSpec
 
     # List of `RequestState`s that were produced by adaptation (and execution)
-    request_states: List[RequestState]
+    request_states: List[RequestState] = field(default_factory=list)
+
+    # Content generated from interaction mode. We analyze this content and compute metrics.
+    interaction_outcomes: List[InteractionOutcome] = field(default_factory=list)
 
     def __post_init__(self):
         # Create derived indices based on `request_states` so it's easier for
@@ -246,6 +255,11 @@ class Adapter:
         instance is that we create a common set of training instances which is
         shared across all eval instances.
         """
+        if self.adapter_spec.interaction_mode_spec.interaction_mode:
+            interaction_processor: InteractionsProcessor = create_interaction_processor(
+                self.adapter_spec.interaction_mode_spec.interactions_processor_spec
+            )
+            return ScenarioState(self.adapter_spec, interaction_outcomes=interaction_processor.process())
 
         # Create instances
         with htrack_block("scenario.get_instances"):

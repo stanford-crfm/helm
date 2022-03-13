@@ -10,6 +10,8 @@ from .adapter import (
     ADAPT_MULTIPLE_CHOICE,
     ADAPT_GENERATION,
 )
+from .interaction.interactions_processor import InteractionsProcessorSpec
+from .interaction.interaction_mode_spec import InteractionModeSpec
 from .metric import MetricSpec
 from .runner import RunSpec
 from .scenario import ScenarioSpec
@@ -24,11 +26,15 @@ def get_scenario_spec1() -> ScenarioSpec:
     )
 
 
-def get_scenario_spec_tiny():
+def get_scenario_spec_tiny() -> ScenarioSpec:
     return ScenarioSpec(
         class_name="benchmark.simple_scenarios.Simple1Scenario",
         args={"num_input_tokens": 5, "vocab_size": 20, "num_train_instances": 2, "num_test_instances": 2},
     )
+
+
+def get_empty_scenario_spec() -> ScenarioSpec:
+    return ScenarioSpec(class_name="benchmark.empty_scenario.EmptyScenario", args={})
 
 
 def get_adapter_spec1() -> AdapterSpec:
@@ -43,6 +49,16 @@ def get_adapter_spec1() -> AdapterSpec:
         temperature=1,
         stop_sequences=["."],
     )
+
+
+def get_simple_interactions_adapter_spec() -> AdapterSpec:
+    interaction_mode_spec = InteractionModeSpec(
+        interaction_mode=True,
+        interactions_processor_spec=InteractionsProcessorSpec(
+            class_name="benchmark.interaction.simple_interactions.SimpleInteractionsProcessor", args={},
+        ),
+    )
+    return AdapterSpec(interaction_mode_spec=interaction_mode_spec)
 
 
 def get_adapter_spec1_with_data_augmentation() -> AdapterSpec:
@@ -140,6 +156,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_real_toxicity_prompts_spec()]
     if name == "simple1":
         return [get_run_spec1()]
+    if name == "simple_interactions":
+        return [get_simple_interactions_spec()]
     if name == "twitter_aae":
         return [get_twitter_aae_spec(**args)]
     if name == "natural_qa":
@@ -153,12 +171,22 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
 
 
 def get_run_spec1() -> RunSpec:
-    """An run spec for debugging."""
+    """A run spec for debugging."""
     return RunSpec(
         name="run1",
         scenario=get_scenario_spec1(),
         adapter_spec=get_adapter_spec1(),
         metrics=get_basic_metrics({"names": []}),
+    )
+
+
+def get_simple_interactions_spec() -> RunSpec:
+    """A run spec for debugging interaction mode."""
+    return RunSpec(
+        name="simple_interaction",
+        scenario=get_empty_scenario_spec(),
+        adapter_spec=get_simple_interactions_adapter_spec(),
+        metrics=[],
     )
 
 

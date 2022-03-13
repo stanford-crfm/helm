@@ -1,7 +1,13 @@
 from typing import List
 
 from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
-from .run_specs import get_scenario_spec1, get_adapter_spec1, get_adapter_spec1_with_data_augmentation
+from .run_specs import (
+    get_scenario_spec1,
+    get_empty_scenario_spec,
+    get_adapter_spec1,
+    get_adapter_spec1_with_data_augmentation,
+    get_simple_interactions_adapter_spec,
+)
 from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, Adapter, AdapterSpec
 from proxy.tokenizer.openai_token_counter import OpenAITokenCounter
 
@@ -33,6 +39,13 @@ def test_adapter1_with_data_augmentation():
             assert " " * 5 in instance.input
         else:
             assert " " * 5 not in instance.input
+
+
+def test_adapter_with_interaction_mode():
+    scenario_state = Adapter(adapter_spec=get_simple_interactions_adapter_spec()).adapt(
+        scenario=create_scenario(get_empty_scenario_spec())
+    )
+    assert scenario_state.interaction_outcomes[0].conversation == ["Hi", "Hello", "Bye", "Goodbye"]
 
 
 def test_construct_prompt():
