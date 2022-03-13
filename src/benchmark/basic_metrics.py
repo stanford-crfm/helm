@@ -236,18 +236,37 @@ class BasicMetric(Metric):
 
         runtime: float = request_state.result.request_time
 
-        # Compute total number of tokens across completions
+        # Compute total number of input and output tokens
+        num_tokens_in_prompt: int = self.token_counter.tokenize_and_count(
+            model=request_state.request.model, text=request_state.request.prompt
+        )
         num_tokens: int = sum([len(sequence.tokens) for sequence in request_state.result.completions])
-        # Account for the tokens in prompt as well if echo_prompt is False
-        if not request_state.request.echo_prompt:
-            num_tokens_in_prompt: int = self.token_counter.tokenize_and_count(
-                model=request_state.request.model, text=request_state.request.prompt
-            )
-            num_tokens += num_tokens_in_prompt
+        num_output_tokens: int = num_tokens
+        if request_state.request.echo_prompt:  # Subtract out num_tokens_in_prompt
+            num_output_tokens -= num_tokens_in_prompt * len(request_state.result.completions)
+
+        runtime_per_output_token = {
+            "openai/ada": 0.020,
+            "openai/davinci": 0.064,
+            "ai21/j1_large": 0.026,
+            "ai21/j1_jumbo": 0.056,
+        }
+        # TODO: This is just the measured runtime for 256 input tokens. Do
+        # something smarter.
+        runtime_for_all_input_tokens = {
+            "openai/ada": 0.016,
+            "openai/davinci": 0.302,
+            "ai21/j1_large": 0.040,
+            "ai21/j1_jumbo": 0.229,
+        }
+        estimated_runtime: float = runtime_for_all_input_tokens[request_state.request.model] + (
+            runtime_per_output_token[request_state.request.model] * num_output_tokens
+        )
 
         return [
             Stat(MetricName("runtime")).add(runtime),
-            Stat(MetricName("normalized_runtime")).add(runtime / num_tokens),
+            Stat(MetricName("estimated_runtime")).add(estimated_runtime),
+            Stat(MetricName("runtime_overhead")).add(runtime - estimated_runtime),
         ]
 
     def compute_language_modeling_metrics(
