@@ -22,3 +22,4 @@ from . import commonsense_qa_metrics  # noqa
 from . import toxicity_metrics  # noqa
 from . import tokens_metric  # noqa
 from . import copyright_metrics  # noqa
+from . import bbq_metrics  # noqa
