@@ -76,6 +76,7 @@ def get_adapter_spec1_with_data_augmentation() -> AdapterSpec:
 def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=args)]
 
+
 def get_bbq_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={})]
 
@@ -171,6 +172,7 @@ def get_run_spec1() -> RunSpec:
         adapter_spec=get_adapter_spec1(),
         metrics=get_basic_metrics({"names": []}),
     )
+
 
 def get_bbq_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.bbq_scenario.BBQScenario", args={})
