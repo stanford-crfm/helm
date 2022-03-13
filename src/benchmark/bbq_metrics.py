@@ -36,7 +36,7 @@ class BBQMetric(Metric):
     def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
         adapter_spec = scenario_state.adapter_spec
 
-        acc = Stat("Accuracy")
+        acc = Stat("accuracy")
 
         for train_trial_index in range(adapter_spec.num_train_trials):
 
