@@ -182,7 +182,7 @@ def get_bbq_spec() -> RunSpec:
         instructions="The following are multiple choice questions (with answers).",
         input_prefix="",
         output_prefix="\nAnswer: ",
-        max_train_instances=100,
+        max_train_instances=5,
         max_eval_instances=1000,
         num_outputs=10,
         num_train_trials=1,
