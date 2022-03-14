@@ -1,7 +1,7 @@
 import json
 import os
 import random
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 from common.general import ensure_file_downloaded
 from .scenario import (
@@ -9,7 +9,6 @@ from .scenario import (
     Instance,
     Reference,
     TRAIN_SPLIT,
-    VALID_SPLIT,
     CORRECT_TAG,
     TEST_SPLIT,
     DEFAULT_TEST_SIZE,
@@ -67,35 +66,43 @@ class BOLDScenario(Scenario):
             "race",
             "religious_ideology",
         ]
+
+        prompt_tuples: List[Tuple[Dict, str]] = []
+        instances: List[Instance] = []
+
         for category in categories:
+            category_data_path = os.path.join(data_path, "category")
+
             ensure_file_downloaded(
                 source_url=f"https://raw.githubusercontent.com/amazon-research/bold/main/prompts/{category}_prompt.json",
-                target_path=data_path,
+                target_path=category_data_path,
                 unpack=False,
             )
 
-        instances: List[Instance] = []
-        prompts_path: str = data_path
-        with open(prompts_path, "r") as f:
-            for line in f:
-                #                print(f"FIRST LINE: {json.loads(line)}")
-                prompt_topics_dict: Dict = json.loads(line)
+            with open(category_data_path, "r") as f:
+                for line in f:
+                    # since we have to instantiate all the Instances at once (to determine train-test splits), store each prompt + its associated category in a temporary List of tuples
+                    prompt_topics_dict = json.loads(line)
 
-                for prompt_topic in prompt_topics_dict.values():
-                    for prompt_text in prompt_topic.values():
-                        prompt_text = prompt_text[0]  # stored as a list containing a single string
-                        instance: Instance = Instance(input=prompt_text, references=[])
-                        instances.append(instance)
+                    # using https://raw.githubusercontent.com/amazon-research/bold/main/prompts/political_ideology_prompt.json as an example:
+                    # {"left-wing": {"left-wing_politics": }}
+                    for (prompt_category, prompt_topic) in prompt_topics_dict.items():
+                        for prompt_text in prompt_topic.values():
+                            prompt_text = prompt_text[0]  # stored as a list containing a single string
+                            prompt_tuples.append((prompt_category, prompt_text))
+
+        random.seed(0)
+        random.shuffle(prompt_tuples)
 
         split_sizes = {"train": len(instances) - DEFAULT_TEST_SIZE, "test": DEFAULT_TEST_SIZE}
 
-        random.seed(0)
-        random.shuffle(instances)
+        for (idx, prompt_tuple) in enumerate(prompt_tuples):
+            prompt_category, prompt_text = prompt_tuple
+            curr_split = TRAIN_SPLIT
 
-        for (idx, instance) in enumerate(instances):
-            if idx < split_sizes["train"]:
-                instance.references[0].tags.append(TRAIN_SPLIT)  # only 1 reference per instance
-            else:
-                instance.references[0].tags.append(TEST_SPLIT)
+            if idx >= split_sizes["train"]:
+                curr_split = TEST_SPLIT
+
+            instances.append(Instance(input=prompt_text, split=curr_split, references=[]))
 
         return instances

@@ -1,7 +1,7 @@
 import json
 import os
 import random
-from typing import List
+from typing import List, Dict
 
 from common.general import ensure_file_downloaded
 from .scenario import (
@@ -31,15 +31,15 @@ class BBQScenario(Scenario):
     that reflect a negative or harmful bias: one asks for
     the target of a harmful stereotype (e.g., "who steals
     things?"), and the other asks for the other nontargeted entity (e.g., "who never steals things?"). We refer to the first as the negative question and the second as the non-negative question.
-    
-    In order to measure when biased model outputs are likely to manifest, we asses both cases where
+
+    In order to measure when biased model outputs are likely to manifest, we assess both cases where
         - there isn't enough info in the context to answer the question ("ambiguous")
         - the correct answer is present ("disambiguated")
     , allowing us to determine when biases present in LMs override an
     otherwise valid output answer.
-    
+
     The questions are meant to assess LM biases in 11 categories: age, disability status, gender identity, nationality, physical appearance, race ethnicity, race x socioeconomic status, race x gender, religion, socioeconomic status, and sexual orientation.
-    
+
     Example (category = "age"):
         - AMBIGUOUS: At the first book club meeting, all the new members met the two organizers - one was a 78-YEAR-OLD, and the other a 22-YEAR-OLD.
         - DISAMBIGUATED: The 78-YEAR-OLD was eagerly greeting everyone, but the 22-YEAR-OLD held back because they could not remember some members' names.
@@ -79,6 +79,7 @@ class BBQScenario(Scenario):
                 unpack=False,
             )
 
+        loaded_lines: List[Dict] = []
         instances: List[Instance] = []
         prompts_path: str = data_path
 
@@ -86,34 +87,41 @@ class BBQScenario(Scenario):
             for line in f:
 
                 loaded_line = json.loads(line)
-                is_negative: bool = (loaded_line["question_polarity"] == "neg")
-                is_ambiguous: bool = (loaded_line["context_condition"] == "ambig")
-                context: str = loaded_line["context"]
-                question: str = loaded_line["question"]
-                ans0: str = loaded_line["ans0"]
-                ans1: str = loaded_line["ans1"]
-                ans2: str = loaded_line["ans2"]
-                label = loaded_line["label"]
-                answers = [ans0, ans1, ans2]
-
-                tags: List[str] = [
-                    NEGATIVE_TAG if is_negative else NON_NEGATIVE_TAG,
-                    AMBIGUOUS_TAG if is_ambiguous else NON_AMBIGUOUS_TAG,
-                ]
-
-                def answer_to_reference(answer):
-                    if answer == label:
-                        tags.append(CORRECT_TAG)
-                    return Reference(output=answer, tags=tags)
-
-                instance: Instance = Instance(
-                    input=f"{context} {question}", references=list(map(answer_to_reference, answers))
-                )
-                instances.append(instance)
+                loaded_lines.append(loaded_line)
 
         random.seed(0)
-        random.shuffle(instances)
+        random.shuffle(loaded_lines)
 
-        print(f"Instaces is of length: {len(instances)}")
+        split_sizes = {"train": len(loaded_lines) - DEFAULT_TEST_SIZE, "test": DEFAULT_TEST_SIZE}
+
+        for (idx, loaded_line) in enumerate(loaded_lines):
+            is_negative: bool = (loaded_line["question_polarity"] == "neg")
+            is_ambiguous: bool = (loaded_line["context_condition"] == "ambig")
+            context: str = loaded_line["context"]
+            question: str = loaded_line["question"]
+            ans0: str = loaded_line["ans0"]
+            ans1: str = loaded_line["ans1"]
+            ans2: str = loaded_line["ans2"]
+            label = loaded_line["label"]
+            answers = [ans0, ans1, ans2]
+
+            tags: List[str] = [
+                NEGATIVE_TAG if is_negative else NON_NEGATIVE_TAG,
+                AMBIGUOUS_TAG if is_ambiguous else NON_AMBIGUOUS_TAG,
+            ]
+
+            def answer_to_reference(answer):
+                if answer == label:
+                    tags.append(CORRECT_TAG)
+                return Reference(output=answer, tags=tags)
+
+            curr_split = TRAIN_SPLIT
+            if idx >= split_sizes["train"]:
+                curr_split = TEST_SPLIT
+
+            instance: Instance = Instance(
+                input=f"{context} {question}", references=list(map(answer_to_reference, answers)), split=curr_split,
+            )
+            instances.append(instance)
 
         return instances
