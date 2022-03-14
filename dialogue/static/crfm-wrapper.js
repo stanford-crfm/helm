@@ -12,10 +12,16 @@ const ChatBox = {
           },
           {
             tag: "consistency-rating",
-            text: "Please rate how consistent your partner sounds \n\n (1: Very consistent, 5: Very inconsistent)",
+            text: "Please rate how consistent your partner sounds",
             type: "likert",
+            options: ['1 - Always inconsistent', '2 - Often inconsistent', '3 - Inconsistent half of the time', '4 - Occasionally inconsistent', '5 - Always consistent']
           },
           {
+            tag: "feedback",
+            text: "Is there anything else you would like to say about the conversation?",
+            type: "freeForm",
+          },
+          /*{
             tag: "humanness",
             text: "Please rate how human your partner sounds (1: Very inhuman, 5: Very human)",
             type: "likert",
@@ -24,7 +30,7 @@ const ChatBox = {
             tag: "quality",
             text: "Please rate the overall quality of the conversation (1: Very inhuman, 5: Very human)",
             type: "likert",
-          }
+          }*/
         ];
       for (let question of questions){
         if(question.type == 'likert'){
@@ -123,6 +129,11 @@ const ChatBox = {
         }
       }
     },
+    toggleNotaUtterance: function(event){
+      this.currentQuestion.notaUtterance = !this.currentQuestion.notaUtterance; 
+      console.log(this.currentQuestion.notaUtterance);
+      this.currentQuestion.selectedUtterances=[];
+    },
     endConversation: function(){
       this.isConversationOver = true;
       this.currentQuestionIdx = 0;
@@ -162,8 +173,8 @@ const ChatBox = {
     },
     validate: function(){
       if(this.currentQuestion.type=='likert'){
-        if(! ([1, 2, 3, 4, 5].includes(this.currentQuestion.rating))){
-          this.error = 'Pick an integer between 1 & 5';
+        if(! (this.currentQuestion.options.includes(this.currentQuestion.rating))){
+          this.error = 'Pick one out of the given options';
           return false;
         }
         return true
@@ -174,6 +185,12 @@ const ChatBox = {
           return false;
         }
         return true;
+      }
+      else if(this.currentQuestion.type=='freeForm'){
+        return true;
+      }
+      else {
+        console.log("Question type not defined")
       }
     }
   }
