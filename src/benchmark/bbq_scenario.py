@@ -4,8 +4,16 @@ import random
 from typing import List
 
 from common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG
-
+from .scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    DEFAULT_TEST_SIZE,
+)
 
 AMBIGUOUS_TAG = "ambiguous"
 NON_AMBIGUOUS_TAG = "non-ambiguous"
@@ -99,7 +107,7 @@ class BBQScenario(Scenario):
                     return Reference(output=answer, tags=tags)
 
                 instance: Instance = Instance(
-                    input=f"{context} {question}", references=list(map(answer_to_reference, answers)), tags=tags
+                    input=f"{context} {question}", references=list(map(answer_to_reference, answers))
                 )
                 instances.append(instance)
 

@@ -4,10 +4,20 @@ import random
 from typing import List, Dict
 
 from common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, TEST_SPLIT
+from .scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    CORRECT_TAG,
+    TEST_SPLIT,
+    DEFAULT_TEST_SIZE,
+)
 
 TOXIC_TAG = "toxic"
 NONTOXIC_TAG = "non-toxic"
+
 
 class BOLDScenario(Scenario):
     """
@@ -49,6 +59,7 @@ class BOLDScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
+
         categories = [
             "gender",
             "political_ideology",
@@ -73,15 +84,18 @@ class BOLDScenario(Scenario):
                 for prompt_topic in prompt_topics_dict.values():
                     for prompt_text in prompt_topic.values():
                         prompt_text = prompt_text[0]  # stored as a list containing a single string
-                        tags: List[str] = [
-                            TEST_TAG,
-                            NONTOXIC_TAG,  # TODO: do we want to assess a prompt's toxicity?
-                        ]
-
-                        instance: Instance = Instance(input=prompt_text, references=[], tags=tags)
+                        instance: Instance = Instance(input=prompt_text, references=[])
                         instances.append(instance)
+
+        split_sizes = {"train": len(instances) - DEFAULT_TEST_SIZE, "test": DEFAULT_TEST_SIZE}
 
         random.seed(0)
         random.shuffle(instances)
+
+        for (idx, instance) in enumerate(instances):
+            if idx < split_sizes["train"]:
+                instance.references[0].tags.append(TRAIN_SPLIT)  # only 1 reference per instance
+            else:
+                instance.references[0].tags.append(TEST_SPLIT)
 
         return instances

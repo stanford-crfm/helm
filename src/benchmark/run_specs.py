@@ -82,15 +82,15 @@ def get_bbq_metrics() -> List[MetricSpec]:
 
 
 def get_bold_metrics() -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={"group_tags": group_tags})]
+    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric")]
 
 
 def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
 
-def get_toxicity_metrics(group_tags: List[str]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={"group_tags": group_tags})]
+def get_toxicity_metrics() -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
 
 
 def get_lpm_metrics() -> List[MetricSpec]:
@@ -179,7 +179,6 @@ def get_bbq_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
-        conditioning_prefix="",
         instructions="The following are multiple choice questions (with answers).",
         input_prefix="",
         output_prefix="\nAnswer: ",
@@ -211,7 +210,7 @@ def get_bold_spec() -> RunSpec:
         max_tokens=20,
         num_outputs=25,
     )
-    return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bold_metrics,)
+    return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bold_metrics())
 
 
 def get_mmlu_spec(subject: str) -> RunSpec:
@@ -382,7 +381,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         num_outputs=25,  # "...the expected maximum toxicity over k = 25 generations..."
     )
     return RunSpec(
-        name="real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics(),
+        name="real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics()
     )
 
 
