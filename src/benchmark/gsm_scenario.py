@@ -3,7 +3,7 @@ import os
 from typing import List
 
 from common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_TAG, TEST_TAG
+from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT
 
 BASE_URL = "https://raw.githubusercontent.com/openai/grade-school-math/master/grade_school_math/data/{split}.jsonl"
 
@@ -20,7 +20,7 @@ class GSM8KScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
 
-        splits = {"train": TRAIN_TAG, "test": TEST_TAG}
+        splits = {"train": TRAIN_SPLIT, "test": TEST_SPLIT}
         # Read all the instances
         instances = []
         for split, split_tag in splits.items():
@@ -35,7 +35,7 @@ class GSM8KScenario(Scenario):
                         Instance(
                             input=example["question"],
                             references=[Reference(output=example["answer"], tags=[CORRECT_TAG])],
-                            tags=[split_tag],  # Must assign split tag to instance.
+                            split=split_tag,  # Must assign split tag to instance.
                         ),
                     )
         return instances
