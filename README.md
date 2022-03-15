@@ -176,7 +176,7 @@ classes (see `benchmark`):
 
 There are three types of classes:
 
-- Specifications (e.g., `AdaptationSpec`, `ExecutionSpec`, `RunSpec`):
+- Specifications (e.g., `AdapterSpec`, `ExecutionSpec`, `RunSpec`):
   specified manually by the user.  Note that `Scenario` and `Metric` are
   subclassed, so they are constructed by `ObjectSpec`, which specifies the
   subclass name and a free-form dictionary of arguments.
@@ -184,6 +184,45 @@ There are three types of classes:
   are automatically generated and can be serialized.
 - Controllers (e.g., `Scenario`, `Adapter`, `Executor`, `Metric`, `Runner`):
   these have the bulk of the code and should not be serialized.
+
+## Data Augmentations
+
+To apply data augmentation, create a `DataAugmenterSpec` with a list of 
+`PerturbationSpec`s and pass it into `AdapterSpec`. The following is an
+example:
+
+```python
+    data_augmenter_spec = DataAugmenterSpec(
+        perturbation_specs=[
+            PerturbationSpec(
+                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", 
+                args={"num_spaces": 5},
+            )
+        ],
+        should_perturb_references=False,
+        should_augment_train_instances=False,
+        should_include_original_train=False,
+        should_augment_eval_instances=True,
+        should_include_original_eval=True,
+    )
+    adapter_spec = AdapterSpec(
+        ...
+        data_augmenter_spec=data_augmenter_spec
+    )
+```
+
+In the example above, the `Adapter` will augment the set of evaluation instances by perturbing
+the original set of instances with the `ExtraSpacePerturbation`, where spaces in the text are 
+replaced with `num_spaces` number of spaces. 
+
+We currently only support applying a single perturbation to an instance instead of chaining
+multiple perturbations and applying it onto a single instance.
+
+### Adding a new perturbation
+
+To add a new perturbation to the framework, simply create a new class in `perturbation.py` that
+extends the abstract class `Perturbation` and implement the `perturb` method which takes in
+text and outputs the perturbed text. Add a test for the new perturbation in `test_perturbation.py`.
 
 ## Running the benchmark
 
@@ -194,6 +233,11 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r lpm:difficulty=easy
     venv/bin/benchmark-run -r twitter_aae:demographic=aa
     venv/bin/benchmark-run -r copyright:pilot_study=true
+    venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles
+    venv/bin/benchmark-run -r wiki:subject=P31
+    venv/bin/benchmark-run -r raft:subset=ade_corpus_v2
+    venv/bin/benchmark-run -r natural_qa:mode=closedbook
+    venv/bin/benchmark-run -r quac
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
@@ -221,15 +265,20 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 ## Final benchmarking (Infrastructure team only)
 
 1. Running all the `RunSpec`s can take a long time, so use SCDT: `ssh scdt`.
-1. Create a screen session: `screen -S benchmarking`.   
+1. Create a screen session: `screen -S benchmarking`.
 1. Go to the source code directory: `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
    We have 700 GB of disk space total on `/u/scr/nlp/crfm`.
 1. Pull the latest changes: `git pull`.
 1. Run `venv/bin/benchmark-present -s /u/apache/htdocs/crfm/benchmarking/status.txt`.
 1. Exit the screen session: `ctrl+ad`.
 
-Once all the runs complete, visit the 
+Once all the runs complete, visit the
 [Benchmarking project status page](https://nlp.stanford.edu/crfm/benchmarking/status.txt).
+
+### To visualize results at crfm-models.stanford.edu
+
+1. Run `venv/bin/benchmark-present --output-path src/proxy/static/benchmark_output`.
+1. Visit the [benchmarking status page](https://crfm-models.stanford.edu/static/benchmarking.html).
 
 # Contributing
 
@@ -241,10 +290,14 @@ To contribute to this project, install the dependencies and git hook scripts:
 
 ## Tests
 
-To run unit tests:
+To run all unit tests:
 
     python -m pytest
 
 Append `-vv` to output the full diff and results:
 
     python -m pytest -vv
+
+To run a specific file, simply specify the path:
+
+    python -m pytest <path/to/file> -vv

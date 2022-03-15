@@ -1,8 +1,9 @@
 from typing import List, Dict, Optional, Any
 
-from proxy.openai_client import OPENAI_END_OF_TEXT_TOKEN
 from common.object_spec import ObjectSpec
 
+from .augmentations.data_augmenter import DataAugmenterSpec
+from .augmentations.perturbation import PerturbationSpec
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
@@ -13,6 +14,7 @@ from .metric import MetricSpec
 from .runner import RunSpec
 from .scenario import ScenarioSpec
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
+from .raft_scenario import get_raft_instructions
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -43,6 +45,34 @@ def get_adapter_spec1() -> AdapterSpec:
     )
 
 
+def get_adapter_spec1_with_data_augmentation() -> AdapterSpec:
+    data_augmenter_spec = DataAugmenterSpec(
+        perturbation_specs=[
+            PerturbationSpec(
+                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", args={"num_spaces": 5}
+            )
+        ],
+        should_perturb_references=False,
+        should_augment_train_instances=False,
+        should_include_original_train=False,
+        should_augment_eval_instances=True,
+        should_include_original_eval=True,
+    )
+
+    return AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Please solve the following problem.",
+        max_train_instances=5,
+        max_eval_instances=10,
+        num_outputs=3,
+        num_train_trials=3,
+        model="simple/model1",
+        temperature=1,
+        stop_sequences=["."],
+        data_augmenter_spec=data_augmenter_spec,
+    )
+
+
 def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=args)]
 
@@ -51,8 +81,8 @@ def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
 
-def get_toxicity_metrics(group_tags: List[str]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={"group_tags": group_tags})]
+def get_toxicity_metrics() -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
 
 
 def get_lpm_metrics() -> List[MetricSpec]:
@@ -96,8 +126,16 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_lpm_spec(**args)]
     if name == "mmlu":
         return [get_mmlu_spec(**args)]
+    if name == "narrativeqa":
+        return [get_narrativeqa_spec()]
     if name == "commonsense_qa":
         return [get_commonsense_qa_spec(**args)]
+    if name == "quac":
+        return [get_quac_spec()]
+    if name == "wiki":
+        return [get_wiki_spec(**args)]
+    if name == "babi_qa":
+        return [get_babi_qa_spec(**args)]
     if name == "real_toxicity_prompts":
         return [get_real_toxicity_prompts_spec()]
     if name == "simple1":
@@ -106,6 +144,12 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_twitter_aae_spec(**args)]
     if name == "gsm":
         return [get_gsm_spec()]
+    if name == "natural_qa":
+        return [get_natural_qa_spec(**args)]
+    if name == "the_pile":
+        return [get_the_pile_spec(**args)]
+    if name == "raft":
+        return [get_raft_spec(**args)]
 
     raise ValueError(f"Unknown run spec: {spec}")
 
@@ -128,7 +172,6 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
-        conditioning_prefix="",
         instructions=f"The following are multiple choice questions (with answers) about {format(subject)}.",
         input_prefix="",
         output_prefix="\nAnswer: ",
@@ -148,6 +191,31 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     )
 
 
+def get_wiki_spec(k: str, subject: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.wiki_scenario.WIKIScenario", args={"subject": subject},)
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=5,
+        max_eval_instances=1000,
+        num_outputs=int(k),
+        model="openai/davinci",
+        temperature=1.0,
+        max_tokens=8,
+        stop_sequences=["\n"],
+    )
+
+    return RunSpec(
+        name=f"wiki:k={k},subject={subject}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
 def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.commonsense_qa_scenario.CommonSenseQAScenario",
@@ -157,7 +225,6 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
     if method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE,
-            conditioning_prefix="",
             instructions="The following are multiple choice questions (with answers) about common sense.",
             input_prefix="",
             output_prefix="\nAnswer: ",
@@ -169,7 +236,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             temperature=0,
         )
         run_spec = RunSpec(
-            name=f"dataset={dataset},method={method}",
+            name=f"commonsense_qa:dataset={dataset},method={method}",
             scenario=scenario,
             adapter_spec=adapter_spec,
             metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -178,7 +245,6 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
         n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
-            conditioning_prefix="",
             instructions="",
             input_prefix="",
             output_prefix="",
@@ -191,7 +257,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             temperature=0,
         )
         run_spec = RunSpec(
-            name=f"dataset={dataset},method={method}",
+            name=f"commonsense_qa:dataset={dataset},method={method}",
             scenario=scenario,
             adapter_spec=adapter_spec,
             metrics=get_commonsense_qa_metrics({"n_choice": n_choice}),
@@ -202,6 +268,27 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
     return run_spec
 
 
+def get_quac_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.quac_scenario.QuACScenario", args=dict())
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Remove this once deployed
+        num_outputs=1,
+        max_tokens=100,  # answers are at most 30 words
+        temperature=0.0,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name="quac", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": ["f1_score"]}),
+    )
+
+
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
@@ -209,7 +296,6 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
-        conditioning_prefix=OPENAI_END_OF_TEXT_TOKEN,
         instructions="",
         input_prefix="",
         output_prefix="",
@@ -231,8 +317,6 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
 
 
 def get_real_toxicity_prompts_spec() -> RunSpec:
-    from .real_toxicity_prompts_scenario import TOXIC_TAG, NONTOXIC_TAG
-
     scenario = ScenarioSpec(class_name="benchmark.real_toxicity_prompts_scenario.RealToxicityPromptsScenario", args={})
     # Create AdapterSpec based on the RealToxicityPrompts paper: https://arxiv.org/pdf/2009.11462.pdf
     adapter_spec = AdapterSpec(
@@ -248,10 +332,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         num_outputs=25,  # "...the expected maximum toxicity over k = 25 generations..."
     )
     return RunSpec(
-        name="real_toxicity_prompts",
-        scenario=scenario,
-        adapter_spec=adapter_spec,
-        metrics=get_toxicity_metrics([TOXIC_TAG, NONTOXIC_TAG]),
+        name="real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics(),
     )
 
 
@@ -302,6 +383,31 @@ def get_lpm_spec(difficulty: str) -> RunSpec:
     )
 
 
+def get_raft_spec(subset: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.raft_scenario.RAFTScenario", args={"subset": subset},)
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions=get_raft_instructions(subset),
+        input_prefix="",
+        output_prefix="\nLabel:",
+        max_train_instances=5,
+        max_eval_instances=50,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0.2,
+        stop_sequences=["\n"],
+        max_tokens=20,
+    )
+
+    return RunSpec(
+        name=f"raft:subset={subset}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
 def get_boolq_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={})
 
@@ -315,7 +421,7 @@ def get_boolq_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Remove this once deployed
+        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
         num_outputs=1,
         max_tokens=1,
     )
@@ -339,12 +445,35 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Remove this once deployed
+        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
         num_outputs=1,
         max_tokens=1,
     )
     return RunSpec(
         name="boolq_contrast_sets",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_babi_qa_spec(task: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.babi_qa_scenario.BabiQAScenario", args={"task": task})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO: Change to None
+        num_outputs=1,
+        # Task 19's answers consist of two words (in contrast to all other tasks that feature a single-word answers.)
+        max_tokens=2 if task == "19" else 1,
+    )
+    return RunSpec(
+        name=f"babi_qa:task={task}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -358,7 +487,6 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
     if pilot_study.lower() in ("t", "true"):
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
-            conditioning_prefix="",
             instructions="",
             input_prefix="",
             output_prefix="",
@@ -374,7 +502,6 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
     else:
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
-            conditioning_prefix="",
             instructions="",
             input_prefix="",
             output_prefix="",
@@ -393,4 +520,78 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),
+    )
+
+
+def get_natural_qa_spec(mode: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.natural_qa_scenario.NaturalQAScenario", args={"mode": mode})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Remove this once deployed
+        num_outputs=1,
+        max_tokens=300,  # answers are at most 65 words
+        temperature=0.0,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name=f"natural_qa:mode={mode}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),  # TODO: Add F1 score once it is merged
+    )
+
+
+def get_the_pile_spec(subset: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.the_pile_scenario.ThePileScenario", args={"subset": subset})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_MODELING,
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        max_eval_instances=51,  # TODO: remove this line once deployed, so we can cache everything in prod
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        max_tokens=0,
+    )
+
+    return RunSpec(
+        name=f"the_pile:subset={subset}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": []}),
+    )
+
+
+def get_narrativeqa_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.narrativeqa_scenario.NarrativeQAScenario", args=dict())
+
+    # TODO: Similar problem to the BoolQ scenario.
+    # Prompts are too long in the few-shot setting (>2048 tokens)
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=2,
+        model="ai21/j1-large",
+        max_eval_instances=450,  # TODO : Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=5,
+        temperature=0.0,
+    )
+    return RunSpec(
+        name="narrativeqa",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
     )
