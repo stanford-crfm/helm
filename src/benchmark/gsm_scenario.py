@@ -7,7 +7,18 @@ from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, T
 
 
 class GSM8KScenario(Scenario):
-    """Evaluate the capacity of a model to solve grade school math problems, when prompted to include reasoning"""
+    """Task from "Training Verifiers to Solve Math Word Problems" (Cobbe et al. 2021): https://arxiv.org/abs/2110.14168
+    Evaluates the capacity of a model to solve grade school math problems, when prompted to include reasoning.
+    Encourages the model to worth through the problem in a step-by-step way
+    Example from dataset (line breaks added for readability):
+    "question":
+        "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May.
+        How many clips did Natalia sell altogether in April and May?",
+    "answer":
+        "Natalia sold 48/2 = <<48/2=24>>24 clips in May.\n
+        Natalia sold 48+24 = <<48+24=72>>72 clips altogether in April and May.\n
+        #### 72"
+    """
 
     name = "gsm"
     description = "Grade school math dataset with 8.5K examples (GSM8K)."
