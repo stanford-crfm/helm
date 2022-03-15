@@ -110,10 +110,20 @@ def f1_score(gold: str, pred: str) -> float:
     return ret
 
 
+def rouge_1(gold: str, pred: str) -> float:
+    rouge_evaluator = rouge.Rouge(metrics=["rouge-n"], max_n=1)
+    score: dict = rouge_evaluator.get_scores(pred, gold)
+    return score["rouge-1"]["f"]
+
+
+def rouge_2(gold: str, pred: str) -> float:
+    rouge_evaluator = rouge.Rouge(metrics=["rouge-n"], max_n=2)
+    score: dict = rouge_evaluator.get_scores(pred, gold)
+    return score["rouge-2"]["f"]
+
+
 def rouge_l(gold: str, pred: str) -> float:
-    rouge_l_evaluator = rouge.Rouge(
-        metrics=["rouge-l"], weight_factor=1.2,  # Original Rouge Paper uses 1.2, https://aclanthology.org/W04-1013.pdf
-    )
+    rouge_l_evaluator = rouge.Rouge(metrics=["rouge-l"])
     score: dict = rouge_l_evaluator.get_scores(pred, gold)
     return score["rouge-l"]["f"]
 
@@ -192,6 +202,8 @@ class BasicMetric(Metric):
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
             "f1_score": f1_score,
+            "rouge-1": rouge_1,
+            "rouge-2": rouge_2,
             "rouge-l": rouge_l,
             "bleu_1": bleu_1,
             "bleu_4": bleu_4,

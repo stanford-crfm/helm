@@ -140,6 +140,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_real_toxicity_prompts_spec()]
     if name == "simple1":
         return [get_run_spec1()]
+    if name == "summarization":
+        return [get_summarization_spec(**args)]
     if name == "twitter_aae":
         return [get_twitter_aae_spec(**args)]
     if name == "natural_qa":
@@ -568,4 +570,38 @@ def get_narrativeqa_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
+    )
+
+
+def get_summarization_spec(dataset_name: str) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.summarization_scenario.SummarizationScenario",
+        args={
+            "dataset_name": dataset_name,
+            "sampling_min_length": 50,
+            "sampling_max_length": 64,
+            "doc_max_length": 512,
+        },
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Summarize the given documents.",
+        input_prefix="\nDocument:\n",
+        output_prefix="\n\nSummary:\n",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/davinci",
+        max_eval_instances=10,  # TODO: Remove this once deployed
+        num_outputs=1,
+        max_tokens=60,
+        temperature=0.95,
+        stop_sequences=["\n\n"],
+    )
+
+    return RunSpec(
+        name=f"summarization:dataset_name={dataset_name}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
     )
