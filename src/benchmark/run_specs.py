@@ -132,6 +132,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_boolq_spec()]
     if name == "boolq_contrast_sets":
         return [get_boolq_contrast_sets_spec()]
+    if name == "civil_comments":
+        return [get_civil_comments_spec()]
     if name == "copyright":
         return [get_copyright_spec(**args)]
     if name == "lpm":
@@ -183,7 +185,7 @@ def get_bbq_spec() -> RunSpec:
         input_prefix="",
         output_prefix="\nAnswer: ",
         max_train_instances=5,
-        max_eval_instances=1000,
+        max_eval_instances=10,
         num_outputs=10,
         num_train_trials=1,
         model="openai/davinci",
@@ -204,7 +206,7 @@ def get_bold_spec() -> RunSpec:
         output_prefix="",
         num_train_trials=1,
         max_train_instances=0,
-        max_eval_instances=1000,
+        max_eval_instances=10,
         model="openai/davinci",
         temperature=1,
         max_tokens=20,
@@ -427,6 +429,27 @@ def get_raft_spec(subset: str) -> RunSpec:
 
     return RunSpec(
         name=f"raft:subset={subset}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+def get_civil_comments_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.CivilCommentsScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/davinci",
+        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=1,
+    )
+    return RunSpec(
+        name="boolq",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),

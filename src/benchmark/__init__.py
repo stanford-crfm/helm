@@ -18,6 +18,7 @@ from . import narrativeqa_scenario  # noqa
 from . import raft_scenario  # noqa
 from . import bold_scenario  # noqa
 from . import bbq_scenario  # noqa
+from . import civil_comments_scenario # noqa
 
 from . import basic_metrics  # noqa
 from . import commonsense_qa_metrics  # noqa
