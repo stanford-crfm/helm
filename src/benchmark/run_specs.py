@@ -105,6 +105,21 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
     ]
 
 
+def get_msmarco_metrics() -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="benchmark.msmarco_metrics.MSMARCOMetric",
+            args={
+                "name": "mean_reciprocal_rank",
+                "topk_list": [10]
+            }
+        )
+    ]
+
+
+# TODO possible metrics retrieval
+
+
 ############################################################
 
 
@@ -127,6 +142,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_lpm_spec(**args)]
     if name == "mmlu":
         return [get_mmlu_spec(**args)]
+    if name == "msmarco":
+        return [get_msmarco_spec(**args)]
     if name == "narrativeqa":
         return [get_narrativeqa_spec()]
     if name == "commonsense_qa":
@@ -182,6 +199,34 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_msmarco_spec(task: str, num_eval_queries: int = 2, topk: int = 11) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.msmarco_scenario.MSMARCOScenario", 
+        args={"task": task, "num_eval_queries": num_eval_queries, "topk": topk}
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        conditioning_prefix="",
+        instructions="",
+        input_prefix="",
+        output_prefix="\nAnswer: ",
+        max_train_instances=4,
+        max_eval_instances=500,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+    )
+
+    return RunSpec(
+        name=f"msmarco:dataset={task}&num_eval_queries={num_eval_queries}&topk={topk}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_msmarco_metrics(),
     )
 
 
@@ -500,3 +545,4 @@ def get_narrativeqa_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
     )
+
