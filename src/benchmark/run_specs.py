@@ -207,7 +207,6 @@ def get_msmarco_spec(task: str, num_eval_queries: int = 2, topk: int = 11) -> Ru
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
-        conditioning_prefix="",
         instructions="",
         input_prefix="",
         output_prefix="\nAnswer: ",
