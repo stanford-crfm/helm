@@ -85,7 +85,7 @@ def get_toxicity_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
 
 
-def get_lpm_metrics() -> List[MetricSpec]:
+def get_srn_metrics() -> List[MetricSpec]:
     metric_names = {"names": ["iou_set_match", "exact_set_match"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
@@ -122,8 +122,6 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_boolq_contrast_sets_spec()]
     if name == "copyright":
         return [get_copyright_spec(**args)]
-    if name == "lpm":
-        return [get_lpm_spec(**args)]
     if name == "mmlu":
         return [get_mmlu_spec(**args)]
     if name == "narrativeqa":
@@ -148,6 +146,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_the_pile_spec(**args)]
     if name == "raft":
         return [get_raft_spec(**args)]
+    if name == "synthetic_reasoning":
+        return [get_synthetic_reasoning_spec(**args)]
+    if name == "synthetic_reasoning_natural":
+        return [get_synthetic_reasoning_natural_spec(**args)]
 
     raise ValueError(f"Unknown run spec: {spec}")
 
@@ -334,8 +336,10 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
     )
 
 
-def get_lpm_spec(difficulty: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.lpm_scenario.LPMScenario", args={"difficulty": difficulty})
+def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.synthetic_reasoning_natural_scenario.SRNScenario", args={"difficulty": difficulty}
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -353,7 +357,10 @@ def get_lpm_spec(difficulty: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"lpm:difficulty={difficulty}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_lpm_metrics()
+        name=f"synthetic_reasoning_natural:difficulty={difficulty}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_srn_metrics(),
     )
 
 
@@ -568,4 +575,31 @@ def get_narrativeqa_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
+    )
+
+
+def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.synthetic_reasoning_scenario.SyntheticReasoningScenario", args={"mode": mode},
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Please solve the following problem.",
+        max_train_instances=3,
+        max_eval_instances=100,
+        num_outputs=3,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0.2,
+        stop_sequences=["\n"],
+        max_tokens=20,
+        input_prefix="",
+        output_prefix="| Target: ",
+    )
+    return RunSpec(
+        name=f"synthetic_reasoning:mode={mode}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
