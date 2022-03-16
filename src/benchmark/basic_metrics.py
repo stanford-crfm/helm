@@ -239,7 +239,8 @@ class BasicMetric(Metric):
         num_tokens: int = sum([len(sequence.tokens) for sequence in request_state.result.completions])
         # Account for the tokens in prompt as well if echo_prompt is False
         if not request_state.request.echo_prompt:
-            # Fetch the right `Tokenizer` depending the model defined in `AdapterSpec`
+            # Calculate the number of tokens in the prompt and add it to `num_tokens`.
+            # Fetch the right `Tokenizer` depending on the model defined in `AdapterSpec`.
             tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, metric_service)
             num_tokens_in_prompt: int = tokenizer.tokenize_and_count(request_state.request.prompt)
             num_tokens += num_tokens_in_prompt
