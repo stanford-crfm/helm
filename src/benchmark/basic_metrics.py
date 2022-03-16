@@ -228,7 +228,7 @@ class BasicMetric(Metric):
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics
 
-    def compute_runtime_metrics(
+    def compute_efficiency_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
         """Compute per-token normalized runtime"""
@@ -236,34 +236,31 @@ class BasicMetric(Metric):
 
         runtime: float = request_state.result.request_time
 
-        # Compute total number of input and output tokens
+        # Compute total number of input and output tokens (in first sequence)
         num_tokens_in_prompt: int = self.token_counter.tokenize_and_count(
             model=request_state.request.model, text=request_state.request.prompt
         )
-        num_tokens: int = sum([len(sequence.tokens) for sequence in request_state.result.completions])
-        num_output_tokens: int = num_tokens
-        if request_state.request.echo_prompt:  # Subtract out num_tokens_in_prompt
-            num_output_tokens -= num_tokens_in_prompt * len(request_state.result.completions)
+        sequence = request_state.result.completions[0]
+        num_output_tokens: int = len(sequence.tokens[request_state.num_conditioning_tokens :])
 
         runtime_per_output_token = {
-            "openai/ada": 0.020,
-            "openai/davinci": 0.064,
-            "ai21/j1_large": 0.026,
-            "ai21/j1_jumbo": 0.056,
+            "openai/ada": 0.018,
+            "openai/davinci": 0.080,
+            "ai21/j1_large": 0.024,
+            "ai21/j1_jumbo": 0.064,
         }
-        # TODO: This is just the measured runtime for 256 input tokens. Do
-        # something smarter.
         runtime_for_all_input_tokens = {
-            "openai/ada": 0.016,
-            "openai/davinci": 0.302,
-            "ai21/j1_large": 0.040,
-            "ai21/j1_jumbo": 0.229,
+            "openai/ada": 0.007,
+            "openai/davinci": 0.044,
+            "ai21/j1_large": 0.009,
+            "ai21/j1_jumbo": 0.045,
         }
         estimated_runtime: float = runtime_for_all_input_tokens[request_state.request.model] + (
             runtime_per_output_token[request_state.request.model] * num_output_tokens
         )
 
         return [
+            Stat(MetricName("num_tokens_in_prompt")).add(num_tokens_in_prompt),
             Stat(MetricName("runtime")).add(runtime),
             Stat(MetricName("estimated_runtime")).add(estimated_runtime),
             Stat(MetricName("runtime_overhead")).add(runtime - estimated_runtime),
@@ -305,7 +302,7 @@ class BasicMetric(Metric):
             metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
 
         metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
-        metrics.extend(self.compute_runtime_metrics(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
 
         # Future: add F1, BLEU, etc.
         return metrics
