@@ -90,16 +90,16 @@ class MSMARCOScenario(Scenario):
     # The filenames of the top1000 files created with the BM25 algorithm
     #   stored in the /data directory in self.input_path
     # TODO START Change the following two lines once we have the final files.
-    TOP1000_TRAIN_FILE_NAME: str = 'top750_bm25_dev.tsv'
-    TOP1000_DEV_FILE_NAME: str = 'top750_bm25_dev.tsv'
+    TOP1000_TRAIN_FILE_NAME: str = "top750_bm25_dev.tsv"
+    TOP1000_DEV_FILE_NAME: str = "top750_bm25_dev.tsv"
     # TODO END
 
     # The maximum number of evaluation queries we will have.
     #   Note that each evaluation query results in multiple instances.
     MAX_NUM_EVAL_QUERIES = 50
 
-    # Upper and lower bounds on topk, the number of top passages that we will 
-    #   consider for a given query. 
+    # Upper and lower bounds on topk, the number of top passages that we will
+    #   consider for a given query.
     MAX_TOPK: int = 50
     MIN_TOPK: int = 11
 
@@ -161,9 +161,9 @@ class MSMARCOScenario(Scenario):
             msg = f"Number of passages ranked should be between {self.MIN_TOPK} and {self.MAX_TOPK} (inclusive) to \
                   conserve tokens."
             raise ValueError(msg)
-        self.topk = topk     
+        self.topk = topk
 
-        # num_eval_queries   
+        # num_eval_queries
         if num_eval_queries > self.MAX_NUM_EVAL_QUERIES:
             msg = f"Number of evaluation queries should not be bigger than {self.MAX_NUM_EVAL_QUERIES} to \
                   conserve tokens."
@@ -281,8 +281,9 @@ class MSMARCOScenario(Scenario):
                 dictionary[int(qid)].append(int(pid))
         return dictionary
 
-    def download_file(self, source_url: str, file_name: str,
-                      unpack: bool = False, unpack_type: Optional[str] = None) -> str:
+    def download_file(
+        self, source_url: str, file_name: str, unpack: bool = False, unpack_type: Optional[str] = None
+    ) -> str:
         """Downloads a file.
         
         Writes the file in the given source_url a file with the name file_name 
@@ -292,11 +293,9 @@ class MSMARCOScenario(Scenario):
         ensure_file_downloaded(source_url=source_url, target_path=file_path, unpack=unpack, unpack_type=unpack_type)
         return file_path
 
-    def prepare_passage_dataset_dictionaries(self) -> Tuple[
-                                                            Dict[int, str],
-                                                            Dict[str, Dict[int, str]],
-                                                            Dict[str, Dict[int, List[int]]]
-                                                        ]:
+    def prepare_passage_dataset_dictionaries(
+        self,
+    ) -> Tuple[Dict[int, str], Dict[str, Dict[int, str]], Dict[str, Dict[int, List[int]]]]:
         """Downloads the Passage Retrieval datasets and reads them into dicts.
 
         Returns:
@@ -320,25 +319,26 @@ class MSMARCOScenario(Scenario):
                 }
         """
         hlog("Downloading MSMARCO Passage Retrieval datasets.")
-        
+
         # Get datasets
-        dir_path = self.download_file(f"{self.MSMARCO_URL}/collectionandqueries.tar.gz", "collectionandqueries",
-                                      unpack=True, unpack_type="untar")
+        dir_path = self.download_file(
+            f"{self.MSMARCO_URL}/collectionandqueries.tar.gz", "collectionandqueries", unpack=True, unpack_type="untar"
+        )
         hlog("Download was successful. Reading the data into dictionaries.")
-        
+
         # Collection
-        collection_dict = self.create_id_item_dictionary(os.path.join(dir_path, 'collection.tsv'))
-       
+        collection_dict = self.create_id_item_dictionary(os.path.join(dir_path, "collection.tsv"))
+
         # Queries
         queries_dicts = {
-            TRAIN_SPLIT: self.create_id_item_dictionary(os.path.join(dir_path, 'queries.train.tsv')),
-            VALID_SPLIT: self.create_id_item_dictionary(os.path.join(dir_path, 'queries.dev.small.tsv'))
+            TRAIN_SPLIT: self.create_id_item_dictionary(os.path.join(dir_path, "queries.train.tsv")),
+            VALID_SPLIT: self.create_id_item_dictionary(os.path.join(dir_path, "queries.dev.small.tsv")),
         }
 
         # Query relations
         qrels_dicts = {
-            TRAIN_SPLIT: self.create_qrels_dictionary(os.path.join(dir_path, 'qrels.train.tsv')),
-            VALID_SPLIT: self.create_qrels_dictionary(os.path.join(dir_path, 'qrels.dev.small.tsv'))
+            TRAIN_SPLIT: self.create_qrels_dictionary(os.path.join(dir_path, "qrels.train.tsv")),
+            VALID_SPLIT: self.create_qrels_dictionary(os.path.join(dir_path, "qrels.dev.small.tsv")),
         }
 
         # TODO START: Remove the following lines once we add the train files.
@@ -368,7 +368,7 @@ class MSMARCOScenario(Scenario):
         topk_dicts = {}
 
         # Set the input directory, in which we store the custom generated top1000.dev.tsv
-        input_path = self.output_path.replace('output', 'input')
+        input_path = self.output_path.replace("output", "input")
 
         # TRAIN topk
         top1000_train_fp = os.path.join(input_path, "data", self.TOP1000_TRAIN_FILE_NAME)
@@ -385,7 +385,7 @@ class MSMARCOScenario(Scenario):
         """Makes the context text given a passage and a query.
         """
         # Remove a question mark at the end of the query, if there is any
-        if query[-1] == '?':
+        if query[-1] == "?":
             query = query[:-1]
         question_statement = f"Does the passage above answer the question {query}?"
         return f"{passage}\nQuestion: {question_statement}"
@@ -395,9 +395,16 @@ class MSMARCOScenario(Scenario):
         """Creates a unique id for an instance.
         """
         return f"qid_{qid}-pid_{pid}-gold_{gold}"
-    
-    def create_instance(self, passage: str, query: str, instance_id: str, split: str,
-                        yes_tags: Optional[List] = None, no_tags: Optional[List] = None) -> Instance:
+
+    def create_instance(
+        self,
+        passage: str,
+        query: str,
+        instance_id: str,
+        split: str,
+        yes_tags: Optional[List] = None,
+        no_tags: Optional[List] = None,
+    ) -> Instance:
         """Creates an instances.
 
         Args:
@@ -422,15 +429,23 @@ class MSMARCOScenario(Scenario):
         context = self.make_context(passage, query)
         references = [
             Reference(output=yes_answer, tags=yes_tags if yes_tags else []),
-            Reference(output=no_answer, tags=no_tags if no_tags else [])
+            Reference(output=no_answer, tags=no_tags if no_tags else []),
         ]
         instance = Instance(input=context, references=references, split=split, id=instance_id)
 
         return instance
 
-    def create_split_instances(self, split: str, collection_dict: Dict[int, str], queries_dict: Dict[int, str],
-                               qrels_dict: Dict[int, List[int]], topk_dict: Dict[int, Dict[int, int]],
-                               num_queries: int, min_rank: int, max_rank: int) -> List[Instance]:
+    def create_split_instances(
+        self,
+        split: str,
+        collection_dict: Dict[int, str],
+        queries_dict: Dict[int, str],
+        qrels_dict: Dict[int, List[int]],
+        topk_dict: Dict[int, Dict[int, int]],
+        num_queries: int,
+        min_rank: int,
+        max_rank: int,
+    ) -> List[Instance]:
         """Creates instances for the specified split.
 
         Args:
@@ -456,7 +471,7 @@ class MSMARCOScenario(Scenario):
 
                 # Get query
                 query = queries_dict[qid]
-                
+
                 # Yes
                 gold_pid = gold_pids[0]
                 passage = collection_dict[gold_pid]
@@ -465,9 +480,11 @@ class MSMARCOScenario(Scenario):
                 instances.append(instance)
 
                 hlog(f"Yes instance {ind+1} =>")
-                hlog(f"\tsplit: {split}, qid: {qid}, instance_id: {instance_id}, "
-                     f"\tgold_pid: {gold_pid}, gold_pids: {gold_pids}, "
-                     f"\tCondition == ind: {ind} < num_queries: {num_queries}")
+                hlog(
+                    f"\tsplit: {split}, qid: {qid}, instance_id: {instance_id}, "
+                    f"\tgold_pid: {gold_pid}, gold_pids: {gold_pids}, "
+                    f"\tCondition == ind: {ind} < num_queries: {num_queries}"
+                )
 
                 # No
                 for ind2, (rank, pid) in enumerate(topk_dict[qid].items()):
@@ -478,9 +495,11 @@ class MSMARCOScenario(Scenario):
                         instances.append(instance)
 
                         hlog(f"No instance {ind2+1} =>")
-                        hlog(f"\tsplit: {split}, qid: {qid}, instance_id: {instance_id}, "
-                             f"\tpid: {pid}, gold_pids: {gold_pids}, "
-                             f"\tCondition == pid not in gold_pids: {pid not in gold_pids}")
+                        hlog(
+                            f"\tsplit: {split}, qid: {qid}, instance_id: {instance_id}, "
+                            f"\tpid: {pid}, gold_pids: {gold_pids}, "
+                            f"\tCondition == pid not in gold_pids: {pid not in gold_pids}"
+                        )
 
         return instances
 
@@ -537,16 +556,23 @@ class MSMARCOScenario(Scenario):
         """
         # Get dataset dictionaries
         collection_dict, queries_dicts, qrels_dicts = self.prepare_passage_dataset_dictionaries()
-        
+
         # Get topk dictionaries
         topk_dicts = self.prepare_passage_topk_dictionaries()
 
         # Create VALID_SPLIT instances
         num_queries = self.num_eval_queries
         min_rank, max_rank = 1, self.topk
-        dev_instances = self.create_split_instances(VALID_SPLIT, collection_dict, queries_dicts[VALID_SPLIT],
-                                                    qrels_dicts[VALID_SPLIT], topk_dicts[VALID_SPLIT],
-                                                    num_queries=num_queries, min_rank=min_rank, max_rank=max_rank)
+        dev_instances = self.create_split_instances(
+            VALID_SPLIT,
+            collection_dict,
+            queries_dicts[VALID_SPLIT],
+            qrels_dicts[VALID_SPLIT],
+            topk_dicts[VALID_SPLIT],
+            num_queries=num_queries,
+            min_rank=min_rank,
+            max_rank=max_rank,
+        )
 
         # Create TRAIN_SPLIT instances
 
@@ -558,13 +584,20 @@ class MSMARCOScenario(Scenario):
         #   an answer to a query.
         # We set max_rank to be self.MIN_TOPK to set the max number of
         #   no examples for the queries in the train split to 1. This allows
-        #   us to have a label balanced set. 
+        #   us to have a label balanced set.
         min_rank, max_rank = self.MIN_TOPK, self.MIN_TOPK
 
-        train_instances = self.create_split_instances(TRAIN_SPLIT, collection_dict, queries_dicts[TRAIN_SPLIT],
-                                                      qrels_dicts[TRAIN_SPLIT], topk_dicts[TRAIN_SPLIT],
-                                                      num_queries=num_queries, min_rank=min_rank, max_rank=max_rank)
-    
+        train_instances = self.create_split_instances(
+            TRAIN_SPLIT,
+            collection_dict,
+            queries_dicts[TRAIN_SPLIT],
+            qrels_dicts[TRAIN_SPLIT],
+            topk_dicts[TRAIN_SPLIT],
+            num_queries=num_queries,
+            min_rank=min_rank,
+            max_rank=max_rank,
+        )
+
         # Combine the instances
         instances = dev_instances + train_instances
 

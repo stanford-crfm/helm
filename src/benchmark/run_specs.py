@@ -109,10 +109,7 @@ def get_msmarco_metrics() -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="benchmark.msmarco_metrics.MSMARCOMetric",
-            args={
-                "name": "mean_reciprocal_rank",
-                "topk_list": [10]
-            }
+            args={"name": "mean_reciprocal_rank", "topk_list": [10]},
         )
     ]
 
@@ -204,8 +201,8 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 
 def get_msmarco_spec(task: str, num_eval_queries: int = 2, topk: int = 11) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.msmarco_scenario.MSMARCOScenario", 
-        args={"task": task, "num_eval_queries": num_eval_queries, "topk": topk}
+        class_name="benchmark.msmarco_scenario.MSMARCOScenario",
+        args={"task": task, "num_eval_queries": num_eval_queries, "topk": topk},
     )
 
     adapter_spec = AdapterSpec(
@@ -545,4 +542,3 @@ def get_narrativeqa_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
     )
-

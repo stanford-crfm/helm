@@ -36,15 +36,11 @@ class MSMARCOMetric(Metric):
 
         # Set the name of the metric
         if name not in self.METRIC_NAMES:
-            raise ValueError(
-                f"Expected name to be one of: [{', '.join(self.METRIC_NAMES)}]"
-            )
+            raise ValueError(f"Expected name to be one of: [{', '.join(self.METRIC_NAMES)}]")
         self.name = name
 
         # Helpers for calling the correct metric
-        self.METRIC_FNS = {
-            "mean_reciprocal_rank": self.reciprocal_rank
-        }
+        self.METRIC_FNS = {"mean_reciprocal_rank": self.reciprocal_rank}
         self.metric_fn = self.METRIC_FNS[name]
 
         # Topk list for the MRR metric (MRR@10, MRR@20 etc.)
@@ -65,10 +61,10 @@ class MSMARCOMetric(Metric):
             pid: passage id.
             gold: Whether the instance corresponds to a gold example.
         """
-        qid_str, pid_str, gold_str = instance_id.split('-')
-        qid = int(qid_str.split('_')[1])
-        pid = int(pid_str.split('_')[1])
-        gold = bool(gold_str.split('_')[1])
+        qid_str, pid_str, gold_str = instance_id.split("-")
+        qid = int(qid_str.split("_")[1])
+        pid = int(pid_str.split("_")[1])
+        gold = bool(gold_str.split("_")[1])
         return qid, pid, gold
 
     def get_answer(self, is_yes: bool) -> str:
@@ -84,10 +80,9 @@ class MSMARCOMetric(Metric):
             return self.YES_ANSWER
         return self.NO_ANSWER
 
-    def get_qid_dictionaries(self, request_states: List[RequestState]) -> Tuple[
-                                                                            Dict[int, int],
-                                                                            Dict[str, List[Tuple[int, int, float]]]
-                                                                          ]:
+    def get_qid_dictionaries(
+        self, request_states: List[RequestState]
+    ) -> Tuple[Dict[int, int], Dict[str, List[Tuple[int, int, float]]]]:
         """Extracts qid_to_gold_pid and qid_pid_logprob_dict dictionaries from the request_states.
 
         Args:
@@ -126,8 +121,7 @@ class MSMARCOMetric(Metric):
 
         return qid_to_gold_pid, qid_pid_logprob_dict
 
-    def get_ranked_pid_list(self, qid_pid_logprob_dict: Dict[str, List[Tuple[int, int, float]]],
-                            qid: int) -> List[int]:
+    def get_ranked_pid_list(self, qid_pid_logprob_dict: Dict[str, List[Tuple[int, int, float]]], qid: int) -> List[int]:
         """Returns the ranked pid list for a given qid.
 
         Args:
