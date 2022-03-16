@@ -49,7 +49,7 @@ class MSMARCOMetric(Metric):
         self.topk_list = topk_list
 
     @staticmethod
-    def flatten_id(instance_id: str) -> tuple[int, int, bool]:
+    def flatten_id(instance_id: str) -> Tuple[int, int, bool]:
         """Gets fields from an instance_id.
 
         Instance id is of the following form:
@@ -102,22 +102,26 @@ class MSMARCOMetric(Metric):
                     (qid, pid, logprob)
         """
         # Initialize helper dictionaries
-        qid_to_gold_pid = {}
-        qid_pid_logprob_dict = {self.YES_ANSWER: list(), self.NO_ANSWER: list()}
+        qid_to_gold_pid: Dict[int, int] = {}
+        qid_pid_logprob_dict: Dict[str, List[Tuple[int, int, float]]] = {
+            self.YES_ANSWER: list(),
+            self.NO_ANSWER: list(),
+        }
         # Iterate through the request states
         for rs in request_states:
             # Extract important information from the ID
             instance_id = rs.instance.id
-            qid, pid, is_gold = self.flatten_id(instance_id)
-            # If this is the gold example, add it to our gold list
-            if rs.result.completions:
-                # Populate the gold mapping dictionary
-                if is_gold:
-                    qid_to_gold_pid[qid] = pid
-                # Get the answer from the model
-                is_yes = (is_gold and rs.result.success) or (not is_gold and not rs.result.success)
-                answer = self.get_answer(is_yes)
-                qid_pid_logprob_dict[answer].append((qid, pid, rs.result.completions[0].logprob))
+            if instance_id:
+                qid, pid, is_gold = self.flatten_id(instance_id)
+                # If this is the gold example, add it to our gold list
+                if rs.result and rs.result.completions:
+                    # Populate the gold mapping dictionary
+                    if is_gold:
+                        qid_to_gold_pid[qid] = pid
+                    # Get the answer from the model
+                    is_yes = (is_gold and rs.result.success) or (not is_gold and not rs.result.success)
+                    answer = self.get_answer(is_yes)
+                    qid_pid_logprob_dict[answer].append((qid, pid, rs.result.completions[0].logprob))
 
         return qid_to_gold_pid, qid_pid_logprob_dict
 
@@ -196,6 +200,7 @@ class MSMARCOMetric(Metric):
                 ranked_pids = self.get_ranked_pid_list(qid_pid_logprob_dict, qid)
 
                 # Get the rank of the gold
+                rank_gold: Optional[int] = None
                 try:
                     rank_gold = ranked_pids.index(gold_pid) + 1
                 except ValueError:
@@ -203,7 +208,7 @@ class MSMARCOMetric(Metric):
 
                 # Compute MRR
                 for k, stat in topk_to_stat.items():
-                    rr = 0
+                    rr = 0.0
                     if rank_gold and rank_gold <= k:
                         rr = 1 / float(rank_gold)
                     stat.add(rr)

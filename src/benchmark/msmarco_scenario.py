@@ -18,15 +18,15 @@ class MSMARCOScenario(Scenario):
 
         https://microsoft.github.io/msmarco/
 
-    The original dataset has 1,010,916 anonymized queries and "8,841,823 
+    The original dataset has 1,010,916 anonymized queries and "8,841,823
     passages extracted from 3,563,535 web documents retrieved by Bing". There
-    are several tasks within the MS MARCO family, and each uses a variation 
+    are several tasks within the MS MARCO family, and each uses a variation
     of the aforementioned passage and query datasets.
 
-    In our implementation, we are focusing on the Passage Retrieval task, 
-    which is an information retrieval task where the goal is to find the best 
-    passage that contains the answer to a given query. Evaluation set, which 
-    has 6980 queries, released with the task do not have the reference 
+    In our implementation, we are focusing on the Passage Retrieval task,
+    which is an information retrieval task where the goal is to find the best
+    passage that contains the answer to a given query. Evaluation set, which
+    has 6980 queries, released with the task do not have the reference
     matches, so we use a subset of the development set as our evaluation set.
 
     Here are some examples of how you would run this task:
@@ -35,10 +35,10 @@ class MSMARCOScenario(Scenario):
         venv/bin/benchmark-run -r msmarco:task=passage
         venv/bin/benchmark-run -r msmarco:task=passage&num_eval_queries=10
         venv/bin/benchmark-run -r msmarco:task=passage&num_eval_queries=10&topk=20
-    
-    Below are some details on the datasets we use, which can all be retrieved 
-    at the link below, which points to a 1GB tar file. Here, "qid" stands for 
-    "Query ID" and "pid" stands for "Passage ID". FORMAT column specifies the 
+
+    Below are some details on the datasets we use, which can all be retrieved
+    at the link below, which points to a 1GB tar file. Here, "qid" stands for
+    "Query ID" and "pid" stands for "Passage ID". FORMAT column specifies the
     contents of each file, where \t is used as the delimeter character.
 
         https://msmarco.blob.core.windows.net/msmarcoranking/collectionandqueries.tar.gz
@@ -50,20 +50,20 @@ class MSMARCOScenario(Scenario):
         `queries.dev.small.tsv` | 6980      queries         | <qid> <query text>
         `queries.train.tsv`     | 808,731   queries         | <qid> <query text>
 
-    `qrels` files contain the query relations, mapping each 
+    `qrels` files contain the query relations, mapping each
     query (with the ID qid) to a ground truth passage match (with the ID pid).
     Note that there are more matches than then the number of queries: this
     happens because the `qrels` file sometimes contain 2 best passage matches
     for a query.
 
-    We also utilize two custom generated files: `top1000.dev.tsv` (133 MB) and 
-    `top1000.train.tsv` (10 GB). These files contain the top 1000 best 
-    passage id matches for a given query id. We generate these files using the 
-    following `Colab` document: 
-    
+    We also utilize two custom generated files: `top1000.dev.tsv` (133 MB) and
+    `top1000.train.tsv` (10 GB). These files contain the top 1000 best
+    passage id matches for a given query id. We generate these files using the
+    following `Colab` document:
+
         https://colab.research.google.com/drive/1BX-YRUY7H5IFHF-6iG-lH_Xc7qg46Bp1?usp=sharing
-    
-    The top 1000 files have the following format, where rank is a number 
+
+    The top 1000 files have the following format, where rank is a number
     between 1 and 1000:
 
         <qid> <pid> <rank>
@@ -71,7 +71,7 @@ class MSMARCOScenario(Scenario):
     For details on how we create the instances, refer to the docs of the
     `get_instances` method.
 
-    For details on how we evaluate our results, please refer to the 
+    For details on how we evaluate our results, please refer to the
     `MSMARCOMetric` class in `msmarco_metric.py`.
     """
 
@@ -109,7 +109,7 @@ class MSMARCOScenario(Scenario):
     def __init__(self, task: str, num_eval_queries: int = 2, topk: int = 20):
         """MSMARCOScenario class constructor.
 
-        Both outlined below, `topk` and `num_eval_queries` have a direct impact 
+        Both outlined below, `topk` and `num_eval_queries` have a direct impact
         on the number of tokens used by this scenario, given a specific `task`.
 
         For the Passage Retrieval task, you can find the total number of tokens
@@ -126,23 +126,23 @@ class MSMARCOScenario(Scenario):
 
         Args:
             task: Name of the task, should be one of self.TASK_NAMES. There are
-                several MSMARCO tasks, and we use the task parameter to specify 
+                several MSMARCO tasks, and we use the task parameter to specify
                 which task we would like performed. There is only one task that
                 is implemented for the time being: the Passage Retrieval task.
-            num_eval_queries: Number of evaluation queries that we will use to 
-                create eval instances. Must be smaller than or equal to 
-                self.MAX_NUM_EVAL_QUERIES. The total number of evaluation 
-                instances created is a function of this number: 
+            num_eval_queries: Number of evaluation queries that we will use to
+                create eval instances. Must be smaller than or equal to
+                self.MAX_NUM_EVAL_QUERIES. The total number of evaluation
+                instances created is a function of this number:
 
                     total_num_eval_instances = num_eval_queries * (1 + (topk [-1 or -2]))
-            topk: To find the best passage match for a given query, instead of 
-                going through all the passages in the collection, we only look 
-                at a select number of filtered passages, which is determined 
+            topk: To find the best passage match for a given query, instead of
+                going through all the passages in the collection, we only look
+                at a select number of filtered passages, which is determined
                 by `topk`. Must be in the range (self.MIN_TOPK, self.MAX_TOPK].
 
                 The passages we look at our filtered as follows:
-                - VALID_SPLIT: For the validation examples, we took the 
-                    official dev set and for each query we ran the BM25 
+                - VALID_SPLIT: For the validation examples, we took the
+                    official dev set and for each query we ran the BM25
                     algorithm on all the passages in the official collections
                     set to get the top 1000 passage ids for each query id.
                     This file is stored locally, and we use the `topk` passed
@@ -220,14 +220,14 @@ class MSMARCOScenario(Scenario):
         The dictionary returned would be as follows:
             {
                 11111111: {
-                    1: 12837901, 
+                    1: 12837901,
                     2: 82374921,
                     3: 28192830,
                     ...
                     1000: 28191237
                 },
                 22222222: {
-                    1: 98021301, 
+                    1: 98021301,
                     2: 21938912,
                     3: 12938010,
                     ...
@@ -239,7 +239,7 @@ class MSMARCOScenario(Scenario):
             topk_dictionary: Dictionary mapping a qid to a dictionary mapping
                 ranks to a pid.
         """
-        topk_dict = defaultdict(dict)
+        topk_dict: Dict[int, Dict[int, int]] = defaultdict(dict)
         with open(file_path, encoding="utf-8") as f:
             for qid, pid, rank in csv.reader(f, delimiter="\t"):
                 topk_dict[int(qid)][int(rank)] = int(pid)
@@ -253,7 +253,7 @@ class MSMARCOScenario(Scenario):
 
         The <qid> and <pid> co-occuring in a line means that the pid is the id
         of a gold passage for the query with the id qid. Note that some qids
-        have 2 pids matched to them as the gold pids, which is why we are 
+        have 2 pids matched to them as the gold pids, which is why we are
         returning a dictionary mapping a qid to a list of pids (instead of just
         a pid).
 
@@ -285,8 +285,8 @@ class MSMARCOScenario(Scenario):
         self, source_url: str, file_name: str, unpack: bool = False, unpack_type: Optional[str] = None
     ) -> str:
         """Downloads a file.
-        
-        Writes the file in the given source_url a file with the name file_name 
+
+        Writes the file in the given source_url a file with the name file_name
         in the /data directory in located in the self.output_path.
         """
         file_path: str = os.path.join(self.output_path, "data", file_name)
@@ -300,7 +300,7 @@ class MSMARCOScenario(Scenario):
 
         Returns:
             collection_dict: Mapping pid to passage.
-            queries_dicts: Dictionary containing query dictionaries mapping a 
+            queries_dicts: Dictionary containing query dictionaries mapping a
                 qid to a query.
 
                 {
@@ -308,8 +308,8 @@ class MSMARCOScenario(Scenario):
                     TRAIN_SPLIT: train_query_dict
                 }
 
-            qrels_dicts: Dictionary containing qrels dictionaries mapping a 
-                qid to a list of gold pids. Refer to 
+            qrels_dicts: Dictionary containing qrels dictionaries mapping a
+                qid to a list of gold pids. Refer to
                 self.create_qrels_dictionary for the exact format of the sub
                 dictionaries.
 
@@ -350,11 +350,11 @@ class MSMARCOScenario(Scenario):
 
     def prepare_passage_topk_dictionaries(self) -> Dict[str, Dict[int, Dict[int, int]]]:
         """Prepares the topk files for the MSMARCO Passage Retrieval task.
-        
+
         Returns:
-            topk_dicts: Dictionary containing topk dictionaries mapping a 
-                qid to dictionary mapping a rank to a pid. Refer to 
-                self.create_topk_dictionary for the exact format of the sub 
+            topk_dicts: Dictionary containing topk dictionaries mapping a
+                qid to dictionary mapping a rank to a pid. Refer to
+                self.create_topk_dictionary for the exact format of the sub
                 dictionaries.
 
                 {
@@ -391,7 +391,7 @@ class MSMARCOScenario(Scenario):
         return f"{passage}\nQuestion: {question_statement}"
 
     @staticmethod
-    def create_instance_id(qid: str, pid: str, gold=False):
+    def create_instance_id(qid: int, pid: int, gold=False):
         """Creates a unique id for an instance.
         """
         return f"qid_{qid}-pid_{pid}-gold_{gold}"
@@ -410,11 +410,11 @@ class MSMARCOScenario(Scenario):
         Args:
             passage: The passage text to be included.
             query: The query text to be included.
-            instance_id: ID to differentiate this instance from the other 
+            instance_id: ID to differentiate this instance from the other
                 instances.
             split: `TRAIN_SPLIT` or `VALID_SPLIT`.
             yes_tags: Tags to be assigned to the yes reference. Defaults to [].
-                Should be `[CORRECT_TAG]` if the yes answer is the correct 
+                Should be `[CORRECT_TAG]` if the yes answer is the correct
                 answer.
             no_tags: Version of `yes_tags` for the no reference.
 
@@ -455,7 +455,7 @@ class MSMARCOScenario(Scenario):
             qrels_dict: Dictionary mapping qid to list of gold pids.
             topk_dict: Dictionary mapping qid to a dictionary mapping topk rank
                 to pid.
-            num_queries: Number of queries we want to generate the instances 
+            num_queries: Number of queries we want to generate the instances
                 for.
             min_rank: Minumum rank we will include for the no examples.
             max_rank: Maximum rank we will include for the no examples.
@@ -504,43 +504,43 @@ class MSMARCOScenario(Scenario):
         return instances
 
     def get_passage_instances(self) -> List[Instance]:
-        """Gets instances for the passage task. 
+        """Gets instances for the passage task.
 
-        VALID_SPLIT instances are generated as follows: For 
+        VALID_SPLIT instances are generated as follows: For
             `self.num_eval_instances` number of queries, do the following:
 
-            - We first create a "yes" instance, where the included passage is 
+            - We first create a "yes" instance, where the included passage is
                 the gold passage for the given query.
-            - We then create `self.topk` [optionally topk-1 or topk-2] "no" 
-                instances where the included passage does not contain an answer 
-                to the given query. Sometimes the topk examples include the 
-                1 or 2 gold passages, which is why we are optionally 
+            - We then create `self.topk` [optionally topk-1 or topk-2] "no"
+                instances where the included passage does not contain an answer
+                to the given query. Sometimes the topk examples include the
+                1 or 2 gold passages, which is why we are optionally
                 subtracting them.
-        
-        TRAIN_SPLIT instances are generated as follows: For 
-            `self.num_eval_instances` * `self.NUM_CONTEXT_INSTANCES` many 
+
+        TRAIN_SPLIT instances are generated as follows: For
+            `self.num_eval_instances` * `self.NUM_CONTEXT_INSTANCES` many
             queries, do the following:
 
-            - We first create a "yes" instance, where the included passage is 
+            - We first create a "yes" instance, where the included passage is
                 the gold passage for the given query.
-            - We then create at most 1 "no" instance where the included passage 
-                does not contain an answer to the given query. We limit the 
+            - We then create at most 1 "no" instance where the included passage
+                does not contain an answer to the given query. We limit the
                 no examples to 1 to have a balanced training set.
 
         Example of a "yes" instance:
 
-            McDonald's Corporation is one of the most recognizable corporations 
-            in the world. A corporation is a company or group of people 
-            authorized to act as a single entity (legally a person) and 
-            recognized as such in law. Early incorporated entities were 
-            established by charter (i.e. by an ad hoc act granted by a monarch 
+            McDonald's Corporation is one of the most recognizable corporations
+            in the world. A corporation is a company or group of people
+            authorized to act as a single entity (legally a person) and
+            recognized as such in law. Early incorporated entities were
+            established by charter (i.e. by an ad hoc act granted by a monarch
             or passed by a parliament or legislature).
-            Question: Does the passage above answer the question. what is a 
+            Question: Does the passage above answer the question. what is a
             corporation?
             A. yes
             B. no
             Answer: A
-        
+
         Example of a "no" instance:
 
             Average physician assistant salary. Physician assistantâs
@@ -604,12 +604,12 @@ class MSMARCOScenario(Scenario):
         return instances
 
     def get_instances(self) -> List[Instance]:
-        """Gets instances for the MSMARCO class. 
+        """Gets instances for the MSMARCO class.
 
         Supported tasks and the corresponding method called to get instances:
             "passage": self.get_passage_instances()
 
-        Refer to the documentation of the methods above for details on how the 
+        Refer to the documentation of the methods above for details on how the
         instances are created.
         """
         if self.task in self.TASK_NAMES:
