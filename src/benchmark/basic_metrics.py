@@ -150,6 +150,19 @@ def exact_set_match(gold: str, pred: str) -> float:
     return float(gold_set == pred_set)
 
 
+def absolute_value_difference(gold: str, pred: str) -> float:
+    def maybe_int(text: str):
+        try:
+            val = int(text.replace(",", ""))
+        except ValueError:
+            return 0.0
+        return val
+
+    gold_val = maybe_int(gold)
+    pred_val = maybe_int(pred)
+    return abs(gold_val - pred_val)
+
+
 class BasicMetric(Metric):
     """
     Defines basic metrics which don't require domain knowledge.  This should be
@@ -195,6 +208,7 @@ class BasicMetric(Metric):
             "rouge-l": rouge_l,
             "bleu_1": bleu_1,
             "bleu_4": bleu_4,
+            "absolute_value_difference": absolute_value_difference,
         }
 
         reference_metrics = []

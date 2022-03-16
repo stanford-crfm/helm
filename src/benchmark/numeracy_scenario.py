@@ -1,4 +1,4 @@
-from itertools import combinations_with_replacement
+from itertools import combinations_with_replacement, product
 from math import comb  # type: ignore
 import numpy as np
 import random
@@ -23,6 +23,7 @@ class PolyEq:
         self.num_variables = num_variables
         self.terms = generate_terms(degree, num_variables)
         self.coeffs = np.array(coeffs)
+        print(coeffs)
 
     def eval(self, vals: List[int]):
         return np.dot(self.coeffs, np.array(list(map(lambda _: np.prod(np.array(vals).__getitem__(_)), self.terms))))
@@ -51,6 +52,7 @@ def generate_rel(
     MAX_ATTEMPTS = 100
     if seed is not None:
         random.seed(seed)
+        np.random.seed(seed)
     count = 0
     terms = generate_terms(degree, num_variables)
     while count < MAX_ATTEMPTS:
@@ -136,15 +138,16 @@ class NumeracyScenario(Scenario):
         )
 
     def get_instances(self) -> List[Instance]:
-        def generate_datapoint(rel: PolyEq) -> Tuple[List[str], str]:
-            vals = [random.randint(r[0], r[1]) for r in self.range_vals]
+        def generate_datapoint(rel: PolyEq, vals: List[int] = None) -> Tuple[List[str], str]:
+            if vals is None:
+                vals = [random.randint(r[0], r[1]) for r in self.range_vals]
             y = rel.eval(vals)
             return list(map(str, vals)), str(y)
 
         def generate_instance(tags: List[str]):
             """Generate a random instance with `tags`."""
-            vals, y = generate_datapoint(self.rel)
-            input = self.delimiter.join(vals)
+            str_vals, y = generate_datapoint(self.rel)
+            input = self.delimiter.join(str_vals)
             output = y
             references = [
                 Reference(output=output, tags=[CORRECT_TAG]),  # Correct output
@@ -154,6 +157,27 @@ class NumeracyScenario(Scenario):
         def generate_instances(num_instances: int, tags: List[str]):
             return [generate_instance(tags) for _ in range(num_instances)]
 
-        return generate_instances(self.num_train_instances, [TRAIN_TAG]) + generate_instances(
-            self.num_test_instances, [TEST_TAG]
-        )
+        # return generate_instances(self.num_train_instances, [TRAIN_TAG]) + generate_instances(
+        #     self.num_test_instances, [TEST_TAG]
+        # )
+
+        instances = []
+        all_vals = list(product(*[range(r[0], r[1] + 1) for r in self.range_vals]))
+        idxs = np.random.choice(range(len(all_vals)), self.num_train_instances + self.num_test_instances, replace=False)
+        # idxs = np.arange(len(all_vals))
+        tags = [TRAIN_TAG]
+        for idx in idxs:
+            vals = all_vals[idx]
+            str_vals, y = generate_datapoint(self.rel, vals)
+            input = self.delimiter.join(str_vals)
+            output = y
+            references = [
+                Reference(output=output, tags=[CORRECT_TAG]),  # Correct output
+            ]
+            instance = Instance(input=input, references=references, tags=tags)
+            instances.append(instance)
+            if len(instances) == self.num_train_instances:
+                # if idx >= len(all_vals)-3:
+                tags = [TEST_TAG]
+
+        return instances

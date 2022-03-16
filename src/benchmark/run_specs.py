@@ -385,7 +385,7 @@ def get_raft_spec(subset: str) -> RunSpec:
 
 
 def get_numeracy_scenario_spec(
-    seed: Optional[int] = 1, num_train_instances: int = 200, num_test_instances: int = 2
+    seed: Optional[int] = 1, num_train_instances: int = 99, num_test_instances: int = 100
 ) -> ScenarioSpec:
     return ScenarioSpec(
         class_name="benchmark.numeracy_scenario.NumeracyScenario",
@@ -411,6 +411,32 @@ def get_numeracy_scenario_spec(
             # "num_variables": 1,
             # "range_coeffs": [(1, 5), (1, 5), (1, 5)],
             # "range_vals": [(-5, 5)],
+            # ### Example 4
+            # "degree": 1,
+            # "num_variables": 1,
+            # "range_coeffs": [(-9, 9), (-9, 9)],
+            # "range_vals": [(-9, 9)],
+            # ### Example 5
+            # "degree": 1,
+            # "num_variables": 1,
+            # "range_coeffs": [(2, 2), (5, 5)],
+            # # "range_coeffs": [(2, 2), (0, 0)],
+            # "range_vals": [(-99, 99)],
+            # ### Example 6
+            # "degree": 1,
+            # "num_variables": 2,
+            # "range_coeffs": [(-9, 9), (-9, 9), (-9, 9)],
+            # "range_vals": [(-99, 99), (-99, 99)],
+            # ### Example 7
+            # "degree": 1,
+            # "num_variables": 1,
+            # "range_coeffs": [(-9, 9), (-9, 9)],
+            # "range_vals": [(-99, 99)],
+            # ### Example 8
+            "degree": 1,
+            "num_variables": 2,
+            "range_coeffs": [(-2, 2), (-2, 2), (-2, 2)],
+            "range_vals": [(-9, 9), (-9, 9)],
         },
     )
 
@@ -421,7 +447,7 @@ def get_numeracy_adapter_spec(num_in_context_samples: int = 10) -> AdapterSpec:
         # instructions="Please solve the following problem.",
         instructions="Continue the pattern.",
         max_train_instances=num_in_context_samples,
-        max_eval_instances=50,
+        max_eval_instances=10,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
@@ -446,7 +472,7 @@ def get_numeracy_run_spec(num_in_context_samples: int = 10) -> RunSpec:
         name="numeracy",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["absolute_value_difference"]}),
     )
 
 
