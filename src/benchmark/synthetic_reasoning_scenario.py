@@ -4,12 +4,12 @@ from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, T
 
 """Synthetic Reasoning Scenario.
 
-We define 3 synthetic reasoning tasks, "pattern matching", "variable substitution", "induction". 
+We define 3 synthetic reasoning tasks, "pattern matching", "variable substitution", "induction".
 All 3 tasks build on three components: a rule string, a substitution dictionary and the final result.
 As an example, we have:
 
 Rule: A + B = B + A.
-Substitution dictionary: {"A":"apple", "B":"peach"}  
+Substitution dictionary: {"A":"apple", "B":"peach"}
 Result: "apple + peach = peach + apple"
 
 The model hence is asked to do the following three tasks:
@@ -21,7 +21,7 @@ Pattern matching:
 Variable substitution:
     Input: A rule string, a substitution dictionary.
     Output: the result string.
-    
+
 Induction:
     Input: Two result string that are induced by the same rule string.
     Output: the rule string.
