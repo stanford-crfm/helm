@@ -4,6 +4,7 @@ from dataclasses import dataclass, asdict
 from typing import List
 
 from benchmark.metric_service import MetricService
+from benchmark.tokenizer_service import TokenizerService
 from common.general import ensure_directory_exists, write, write_lines
 from common.hierarchical_logger import hlog, htrack_block
 from .scenario import Scenario, ScenarioSpec, create_scenario
@@ -35,6 +36,7 @@ class Runner:
     def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_specs: List[RunSpec]):
         self.executor = Executor(execution_spec)
         self.dry_run = execution_spec.dry_run
+        self.tokenizer_service = TokenizerService(self.executor.remote_service, execution_spec.auth)
         self.metric_service = MetricService(self.executor.remote_service, execution_spec.auth)
         self.output_path = output_path
         self.run_specs = run_specs
@@ -58,7 +60,7 @@ class Runner:
         ensure_directory_exists(runs_path)
 
         # Adaptation
-        adapter = Adapter(run_spec.adapter_spec)
+        adapter = Adapter(run_spec.adapter_spec, self.tokenizer_service)
         scenario_state: ScenarioState = adapter.adapt(scenario)
 
         # Execution

@@ -1,4 +1,5 @@
 from common.request import Request, RequestResult
+from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 from .client import Client
 
 
@@ -11,3 +12,7 @@ class HuggingFaceClient(Client):
 
     def make_request(self, request: Request) -> RequestResult:
         return RequestResult(success=True, cached=False, requestTime=0, completions=[])
+
+    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        # TODO: implement after https://github.com/stanford-crfm/benchmarking/pull/132 is merged.
+        return TokenizationRequestResult(cached=False, tokens=[])

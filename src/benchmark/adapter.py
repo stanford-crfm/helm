@@ -3,13 +3,14 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Optional
 
-from .augmentations.data_augmenter import create_data_augmenter, DataAugmenterSpec, DataAugmenter
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
+from proxy.tokenizer.tokenizer import Tokenizer
+from proxy.tokenizer.tokenizer_factory import TokenizerFactory
+from .augmentations.data_augmenter import create_data_augmenter, DataAugmenterSpec, DataAugmenter
 from .scenario import Instance, Scenario, TRAIN_SPLIT, EVAL_SPLITS
-from proxy.tokenizer.auto_token_counter import AutoTokenCounter
-from proxy.tokenizer.auto_tokenizer import AutoTokenizer
+from .tokenizer_service import TokenizerService
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"
@@ -234,9 +235,9 @@ class Adapter:
     deal with references being of different lengths).
     """
 
-    def __init__(self, adapter_spec: AdapterSpec):
-        self.adapter_spec = adapter_spec
-        self.token_counter = AutoTokenCounter()
+    def __init__(self, adapter_spec: AdapterSpec, tokenizer_service: TokenizerService):
+        self.adapter_spec: AdapterSpec = adapter_spec
+        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
 
     @htrack(None)
     def adapt(self, scenario: Scenario) -> ScenarioState:
@@ -389,10 +390,8 @@ class Adapter:
         # we remove train instances one by one until it fits within the context window or
         # until we run out of train instances to remove.
         while (
-            not self.token_counter.fits_within_context_window(
-                model=self.adapter_spec.model,
-                text=prompt,
-                expected_completion_token_length=self.adapter_spec.max_tokens,
+            not self.tokenizer.fits_within_context_window(
+                text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
             )
             and len(train_instances) > 0
         ):
@@ -408,7 +407,7 @@ class Adapter:
 
         # If removing the in-context example is still not enough, we simply truncate the prompt.
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
-        return self.token_counter.truncate_from_right(self.adapter_spec.model, prompt)
+        return self.tokenizer.truncate_from_right(prompt)
 
     def construct_example_prompt(self, instance: Instance, include_output: bool) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
@@ -444,7 +443,7 @@ class Adapter:
         return prefix.replace("A", chr(ord("A") + i))
 
     def construct_language_modeling_prompt(
-        self, conditioning_tokens: List[int], pred_tokens: List[int], tokenizer, max_seq_len: int
+        self, conditioning_tokens: List[int], pred_tokens: List[int], tokenizer: Tokenizer, max_seq_len: int
     ) -> Tuple[str, int]:
         """
         Some subwords/symbols might translate to multiple tokens. e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"].
@@ -454,10 +453,11 @@ class Adapter:
 
         Since some tokens are removed, we also need to recompute num_conditioning_tokens.
         """
-        raw_prompt = tokenizer.decode(conditioning_tokens + pred_tokens)
-        num_leading_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
-        num_trailing_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
-        prompt = raw_prompt.strip("\ufffd")
+        raw_prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens)
+        prompt: str = raw_prompt.strip("\ufffd")
+        num_leading_byte_tokens: int = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
+        num_trailing_byte_tokens: int = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
+
         # There are no string tokens to predict
         if num_trailing_byte_tokens >= len(pred_tokens):
             num_conditioning_tokens = len(tokenizer.encode(prompt))
@@ -478,13 +478,12 @@ class Adapter:
         # TODO: Support other models and tokenizers
         assert self.adapter_spec.model.startswith("openai/")
 
-        tokenizer = AutoTokenizer().get_tokenizer(self.adapter_spec.model)
-        max_seq_len = tokenizer.MAX_SEQUENCE_LENGTH
-        prefix_token = tokenizer.END_OF_TEXT_TOKEN if tokenizer.END_OF_TEXT_TOKEN is not None else ""
+        max_seq_len: int = self.tokenizer.max_sequence_length
+        prefix_token: str = self.tokenizer.end_of_text_token
 
         for instance in instances:
-            tokens = tokenizer.encode(instance.input)
-            assert tokenizer.decode(tokens) == instance.input
+            tokens = self.tokenizer.encode(instance.input)
+            assert self.tokenizer.decode(tokens) == instance.input
 
             num_predicted_tokens = 0
 
@@ -497,7 +496,9 @@ class Adapter:
             # Note: There are trailing byte tokens in the raw sequence because some subwords/symbols might translate to
             # multiple tokens (e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]) and we chunk documents by token, not by word.
             first_seq_len = min(max_seq_len, len(tokens))
-            prompt = tokenizer.decode(tokenizer.encode(prefix_token) + tokens[:first_seq_len]).rstrip("\ufffd")
+            prompt = self.tokenizer.decode(self.tokenizer.encode(prefix_token) + tokens[:first_seq_len]).rstrip(
+                "\ufffd"
+            )
             request = Request(
                 model=self.adapter_spec.model,
                 prompt=prompt,
@@ -534,7 +535,7 @@ class Adapter:
                 conditioning_tokens = tokens[window_end - max_seq_len - 1 : num_predicted_tokens]
                 pred_tokens = tokens[num_predicted_tokens:window_end]
                 prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                    conditioning_tokens, pred_tokens, tokenizer, max_seq_len
+                    conditioning_tokens, pred_tokens, self.tokenizer, max_seq_len
                 )
 
                 request = Request(
