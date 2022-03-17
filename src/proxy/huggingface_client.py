@@ -113,6 +113,7 @@ class HuggingFaceClient(Client):
             "top_k_per_token": request.top_k_per_token,
             "stop_sequences": request.stop_sequences,
         }
+
         # Get cached model server instance if possible (to save on model and tokenizer
         # loading times).
         model_server_instance = self.get_model_server_instance(request.model_engine)
@@ -140,13 +141,17 @@ class HuggingFaceClient(Client):
                     tokens.append(Token(text=token_text, logprob=0.0, top_logprobs={}))
             else:
                 generated_tokens = raw_completion["tokens"]
+
+            # Compute logprob for the entire sequence.
             for token_text, logprob, top_logprobs_dict in zip(
                 generated_tokens, raw_completion["logprobs"], raw_completion["top_logprobs_dicts"]
             ):
                 tokens.append(Token(text=token_text, logprob=logprob, top_logprobs=top_logprobs_dict))
                 sequence_logprob += logprob
+
             completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
             completions.append(completion)
+
         return RequestResult(
             success=True, cached=cached, request_time=response["request_time"], completions=completions
         )
