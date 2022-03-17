@@ -2,6 +2,7 @@ from dataclasses import replace
 from typing import List, Callable, Dict, Optional
 from urllib.parse import unquote
 
+import json
 import re
 import string
 import rouge
@@ -243,21 +244,22 @@ class BasicMetric(Metric):
         sequence = request_state.result.completions[0]
         num_output_tokens: int = len(sequence.tokens[request_state.num_conditioning_tokens :])
 
-        runtime_per_output_token = {
-            "openai/ada": 0.018,
-            "openai/davinci": 0.080,
-            "ai21/j1_large": 0.024,
-            "ai21/j1_jumbo": 0.064,
-        }
-        runtime_for_all_input_tokens = {
-            "openai/ada": 0.007,
-            "openai/davinci": 0.044,
-            "ai21/j1_large": 0.009,
-            "ai21/j1_jumbo": 0.045,
-        }
-        estimated_runtime: float = runtime_for_all_input_tokens[request_state.request.model] + (
-            runtime_per_output_token[request_state.request.model] * num_output_tokens
-        )
+        with open("src/benchmark/inference_efficiency.json", "r") as f:
+            profiled_costs = json.load(f)
+
+        assert request_state.request.model in profiled_costs
+        profiled_costs = profiled_costs[request_state.request.model]
+        cost_per_output_token: float = profiled_costs["cost_per_output_token"]
+        raw_costs_for_input_tokens: Dict[str, float] = profiled_costs["cost_for_input_tokens"]
+        costs_for_input_tokens: Dict[int, float] = {int(k): v for (k, v) in raw_costs_for_input_tokens.items()}
+        cost_for_input_tokens = None
+        for num_input_tokens in sorted(costs_for_input_tokens.keys()):
+            if num_tokens_in_prompt >= num_input_tokens:
+                cost_for_input_tokens = costs_for_input_tokens[num_input_tokens]
+                break
+        assert cost_for_input_tokens is not None
+
+        estimated_runtime: float = cost_for_input_tokens + (cost_per_output_token * num_output_tokens)
 
         return [
             Stat(MetricName("num_tokens_in_prompt")).add(num_tokens_in_prompt),
