@@ -12,6 +12,12 @@ class Wikitext103Scenario(Scenario):
     Wikitext-103 dataset from this paper:
 
         https://arxiv.org/pdf/1609.07843.pdf
+
+    Gopher's authors concatenate all the articles, set context length to n/2 (n = max_seq_len),
+    and use the "closed vocabulary" variant of the dataset for evaluation.
+
+    In contrast, we evaluate the model on each article independently, use single token contexts
+    (except for the last sequence in each document), and use the raw dataset.
     """
 
     name = "wikitext_103"
