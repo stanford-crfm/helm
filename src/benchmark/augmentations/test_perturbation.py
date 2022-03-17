@@ -3,7 +3,7 @@ from typing import List
 from benchmark.scenario import Instance, Reference
 
 from .data_augmenter import DataAugmenter
-from benchmark.augmentations.perturbation import IdentityPerturbation, ExtraSpacePerturbation
+from benchmark.augmentations.perturbation import IdentityPerturbation, ExtraSpacePerturbation, Typos
 
 
 def test_identity_perturbation():
@@ -26,3 +26,18 @@ def test_extra_space_perturbation():
     assert instances[0].perturbation.num_spaces == 2
     assert instances[0].input == "Hello  my  name  is"
     assert instances[0].references[0].output == "some  name"
+
+
+def test_typo_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[Typos(prob=0.1)], should_perturb_references=True)
+    instance: Instance = Instance(
+        input="After their marriage, she started a close collaboration with Karvelas.",
+        references=[Reference(output="", tags=[])],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+    assert instances[0].id == "id0"
+    assert instances[0].perturbation.name == "typos"
+    assert instances[0].input == "After their marriage, she started a close collaboration with Karvelas."
+    assert instances[0].references[0].output == ""
