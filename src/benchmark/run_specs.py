@@ -149,7 +149,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     if name == "raft":
         return [get_raft_spec(**args)]
     if name == "newsqa":
-        return [get_newsqa_spec(**args)]
+        return [get_newsqa_spec()]
 
     raise ValueError(f"Unknown run spec: {spec}")
 

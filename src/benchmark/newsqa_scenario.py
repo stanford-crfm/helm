@@ -69,8 +69,10 @@ class NewsQAScenario(Scenario):
         prompt += f"Answer: "
         # generate set of valid answers
         answers = []
+
         # add the answer with consensus
-        if ("noAnswer" in question["consensus"].keys()) and (question["consensus"]["noAnswer"] == True):
+        # two checks below since the key "noAnswer" is not always present in the dictionary question["consensus"], and when it is present it is not always True
+        if ("noAnswer" in question["consensus"].keys()) and (question["consensus"]["noAnswer"] is True):
             answers.append("No Answer")
         else:
             start_point = question["consensus"]["s"]
@@ -108,13 +110,13 @@ class NewsQAScenario(Scenario):
                     add_question = False
                 if ("isAnswerAbsent" in question.keys()) and (question["isAnswerAbsent"] != 0.0):
                     add_question = False
-                if ("badQuestion" in question["consensus"].keys()) and (question["consensus"]["badQuestion"] == True):
+                if ("badQuestion" in question["consensus"].keys()) and (question["consensus"]["badQuestion"] is True):
                     add_question = False
-                if add_question == True:
+                if add_question is True:
                     valid_questions.append(question)
             clean = len(valid_questions) >= 1
             sample["questions"] = valid_questions
-            if clean == True:
+            if clean is True:
                 clean_samples.append(sample)
         return clean_samples
 
@@ -149,7 +151,7 @@ class NewsQAScenario(Scenario):
         # currently hardcoded a path to a directory with the file
         data_path: str = "/nlp/scr/niladri/datasets/newsqa/"
         ensure_directory_exists(data_path)
-        random.seed(0)
+        random.seed(0)  # randomness needed to pick question at random
         repo_url: str = "https://github.com/Maluuba/newsqa"
         file_path = os.path.join(data_path, "combined-newsqa-data-v1.json")
         ensure_file_downloaded(source_url=repo_url, target_path=file_path, unpack=False)
