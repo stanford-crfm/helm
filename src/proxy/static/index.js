@@ -5,13 +5,7 @@
  */
 $(function () {
   const urlParams = decodeUrlParams(window.location.search);
-  const rootUrl = '/static/index.html';
   let auth = null;
-
-  function round(x, n) {
-    const base = Math.pow(10, n);
-    return Math.round(x * base) / base;
-  }
 
   function censor(api_key) {
     // Show only the first k letters
@@ -66,14 +60,6 @@ $(function () {
 
   ////////////////////////////////////////////////////////////
   // Rendering functions
-
-  function multilineHtml(s) {
-    return s.replace(/\n/g, '<br>');
-  }
-
-  function renderError(e) {
-    return $('<div>').addClass('alert alert-danger').append(multilineHtml(e));
-  }
 
   function renderExampleQueries(updateQuery) {
     // Show links for each example query, so when you click on them, they populate the textboxes.
@@ -198,6 +184,8 @@ $(function () {
     // Note: sometimes multiple tokens correspond to one character, for example:
     // ["bytes:\xe2\x80", "bytes:\x99"] => ’
     // For these, we keep these in the buffer and collapse them, and concatenate the entries.
+    //
+    // get_num_bytes() and convert_tokens_to_text() in src/benchmark/basic_metrics.py are adapted from this function.
     const groups = [];
     for (let i = 0; i < tokens.length;) {
       // Aggregate consecutive tokens while they're "bytes:..."
