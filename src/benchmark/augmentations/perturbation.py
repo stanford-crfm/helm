@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from typing import List
-import random, itertools
-
-import ipdb
-
+import random
 from .perturbation_description import PerturbationDescription
 from benchmark.scenario import Instance, Reference
 from common.object_spec import ObjectSpec, create_object
