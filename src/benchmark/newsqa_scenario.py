@@ -16,12 +16,13 @@ class NewsQAScenario(Scenario):
     following the instructions in the repo above. These instructions are duplicated here for
     convenience.
     1. Clone the repo (https://github.com/Maluuba/newsqa)
-    2. Download the data from (https://msropendata.com/datasets/939b1042-6402-4697-9c15-7a28de7e1321). 
-        You need to create a login account to download this data.
+    2. Download the data from (https://msropendata.com/datasets/939b1042-6402-4697-9c15-7a28de7e1321).
+    You need to create a login account to download this data.
     3. Download the CNN stories tar file from "https://cs.nyu.edu/~kcho/DMQA/"
     4. Create the conda environment using the command (conda create --name newsqa python=2.7 "pandas>=0.19.2")
     5. Install the requirements (conda activate newsqa && pip install --requirement requirements.txt)
-    This should result in the creation of the file (combined-newsqa-data-v1.json) in the repo which is used in this scenario.
+    This should result in the creation of the file (combined-newsqa-data-v1.json) in the repo
+    which is used in this scenario.
     NewsQA is a QA dataset containing 12,744 stories,
     and over 119,633 question-answer pairs. There are 92549 training qa pairs,
     5166 qas in the dev set, and 5126 in the test set.
@@ -40,7 +41,7 @@ class NewsQAScenario(Scenario):
     learn in the few-shot setting, we still include these examples in the
     scenario.
     Using an example from the training dataset, we have:
-    NEW DELHI, India (CNN) -- A high court in northern India on Friday acquitted a wealthy businessman 
+    NEW DELHI, India (CNN) -- A high court in northern India on Friday acquitted a wealthy businessman
     facing the death sentence for the killing of a teen in a case dubbed 'the house of horrors.'
     Moninder Singh Pandher was sentenced to death by a lower court in February...
     Question: Who was sentenced to death in February?
@@ -66,12 +67,13 @@ class NewsQAScenario(Scenario):
         all_questions = sample["questions"]
         question = random.sample(all_questions, 1)[0]
         prompt += f"Question: {question['q']}\n"
-        prompt += f"Answer: "
+        prompt += "Answer:"
         # generate set of valid answers
         answers = []
 
         # add the answer with consensus
-        # two checks below since the key "noAnswer" is not always present in the dictionary question["consensus"], and when it is present it is not always True
+        # two checks below since the key "noAnswer" is not always present in the dictionary question["consensus"],
+        # and when it is present it is not always True
         if ("noAnswer" in question["consensus"].keys()) and (question["consensus"]["noAnswer"] is True):
             answers.append("No Answer")
         else:
