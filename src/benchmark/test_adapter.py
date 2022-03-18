@@ -7,9 +7,7 @@ from .run_specs import (
     get_scenario_spec1,
     get_adapter_spec1,
     get_adapter_spec1_with_data_augmentation,
-    get_numeracy_spec,
 )
-from .numeracy_scenario import get_numeracy_adapter_spec
 
 
 def test_adapter1():
@@ -84,75 +82,3 @@ def test_construct_language_modeling_prompt():
 
     # Ensure the number of conditioning tokens is correct
     assert num_conditioning_tokens == 1
-
-
-def test_numeracy_adapter():
-    scenario = create_scenario(get_numeracy_spec(seed=1, num_train_instances=20, num_test_instances=1))
-    adapter_spec = get_numeracy_adapter_spec()
-
-    scenario_state = Adapter(adapter_spec).adapt(scenario)
-
-    # Make sure we generated the right number of request_states:
-    # For each trial, instance and reference (+ 1 for free-form generation).
-    num_instances = len(scenario_state.instances)
-    assert num_instances * adapter_spec.num_train_trials == len(scenario_state.request_states)
-
-    # print('\n'.join(scenario_state.render_lines()))
-    def print_lines():
-        lines = scenario_state.render_lines()
-        for line in lines:
-            print(line)
-
-    result = "\n".join(scenario_state.render_lines())
-    expected = """Adapter
-method: generative_language_modeling
-instructions: Continue the pattern.
-input_prefix: 
-reference_prefix: 
-A. 
-output_prefix: , 
-block_prefix: 
-
-max_train_instances: 10
-max_eval_instances: 50
-num_outputs: 1
-num_train_trials: 1
-model: openai/davinci
-temperature: 0
-max_tokens: 20
-stop_sequences: ['\\n']
-1 request states
-
-------- Request state 1/1
-Train trial index: 0
-Instance
-Input: 78
-Reference ([correct]): 160
-
-Request
-model: openai/davinci
-prompt: Continue the pattern.
-24, 52
--93, -182
--84, -164
-66, 136
-10, 24
-15, 34
--100, -196
-26, 56
-20, 44
-94, 192
-78,
-temperature: 0
-num_completions: 1
-top_k_per_token: 1
-max_tokens: 20
-stop_sequences: ['\\n']
-echo_prompt: False
-top_p: 1
-presence_penalty: 0
-frequency_penalty: 0
-random: None
-
-"""  # noqa
-    assert result == expected
