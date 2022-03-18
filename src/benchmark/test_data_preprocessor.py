@@ -8,7 +8,7 @@ from .scenario import create_scenario, Instance, Scenario
 
 
 def test_data_preprocessor():
-    # Test that each Instance is given an unique ID
+    # Test that each Instance is given a unique ID
     data_preprocessor = DataPreprocessor(DataAugmenterSpec())
     scenario: Scenario = create_scenario(get_scenario_spec1())
     instances: List[Instance] = data_preprocessor.preprocess(scenario)

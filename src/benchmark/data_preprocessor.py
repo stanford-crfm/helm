@@ -15,7 +15,7 @@ class DataPreprocessor:
         """
         Preprocessing steps:
         1. Gets `Instance`s for a given `Scenario`.
-        2. Gives all the `Instance`s an unique ID.
+        2. Gives all the `Instance`s a unique ID.
         3. Applies data augmentation according to `DataAugmenterSpec`.
         """
 
@@ -23,7 +23,7 @@ class DataPreprocessor:
         with htrack_block("scenario.get_instances"):
             instances: List[Instance] = scenario.get_instances()
 
-        # Give the `Instance`s of the `Scenario` an unique ID
+        # Give the `Instance`s of the `Scenario` a unique ID
         instances = [replace(instance, id=f"id{i}") for i, instance in enumerate(instances)]
 
         # Create `DataAugmenter` using `DataAugmenterSpec`
