@@ -1,24 +1,15 @@
 from typing import List
 
 from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
-<<<<<<< HEAD
-<<<<<<< HEAD
-from .run_specs import get_scenario_spec1, get_adapter_spec1, get_adapter_spec1_with_data_augmentation
 from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, Adapter, AdapterSpec
 from proxy.tokenizer.openai_token_counter import OpenAITokenCounter
-=======
-from .run_specs import get_scenario_spec1, get_adapter_spec1, get_adapter_spec1_with_data_augmentation, get_numeracy_scenario_spec, get_numeracy_adapter_spec
-=======
 from .run_specs import (
     get_scenario_spec1,
     get_adapter_spec1,
     get_adapter_spec1_with_data_augmentation,
-    get_numeracy_scenario_spec,
-    get_numeracy_adapter_spec,
+    get_numeracy_spec,
 )
->>>>>>> 50e89fc (generalize numeracy scenario)
-from .adapter import ADAPT_GENERATION, Adapter, AdapterSpec
->>>>>>> 90f2e53 (use adapter)
+from .numeracy_scenario import get_numeracy_adapter_spec
 
 
 def test_adapter1():
@@ -96,8 +87,8 @@ def test_construct_language_modeling_prompt():
 
 
 def test_numeracy_adapter():
-    scenario = create_scenario(get_numeracy_scenario_spec(seed=1, num_train_instances=20, num_test_instances=1))
-    adapter_spec = get_numeracy_adapter_spec(num_in_context_samples=10)
+    scenario = create_scenario(get_numeracy_spec(seed=1, num_train_instances=20, num_test_instances=1))
+    adapter_spec = get_numeracy_adapter_spec()
 
     scenario_state = Adapter(adapter_spec).adapt(scenario)
 
@@ -165,4 +156,3 @@ random: None
 
 """  # noqa
     assert result == expected
-

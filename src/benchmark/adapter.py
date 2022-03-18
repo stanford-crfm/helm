@@ -382,7 +382,6 @@ class Adapter:
 
             blocks.append(self.construct_example_prompt(eval_instance, include_output=False))
 
-
             return self.adapter_spec.block_prefix.join(blocks)
 
         orig_train_instances_count: int = len(train_instances)

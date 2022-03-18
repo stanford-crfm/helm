@@ -15,6 +15,7 @@ from .runner import RunSpec
 from .scenario import ScenarioSpec
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .raft_scenario import get_raft_instructions
+from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO, MODE_INFO
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -90,6 +91,10 @@ def get_lpm_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
+def get_numeracy_metrics() -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.numeracy_metrics.DistanceMetric", args={})]
+
+
 def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
     if args is None:
         args = dict()
@@ -125,7 +130,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     if name == "lpm":
         return [get_lpm_spec(**args)]
     if name == "numeracy":
-        return [get_numeracy_run_spec(**args)]
+        return [get_numeracy_spec(**args)]
     if name == "mmlu":
         return [get_mmlu_spec(**args)]
     if name == "narrativeqa":
@@ -384,95 +389,34 @@ def get_raft_spec(subset: str) -> RunSpec:
     )
 
 
-def get_numeracy_scenario_spec(
-    seed: Optional[int] = 1, num_train_instances: int = 99, num_test_instances: int = 100
-) -> ScenarioSpec:
-    return ScenarioSpec(
+def get_numeracy_spec(relation_type: str = "linear", mode: str = "function", seed: int = 0) -> RunSpec:
+    scenario = ScenarioSpec(
         class_name="benchmark.numeracy_scenario.NumeracyScenario",
-        args={
-            "seed": seed,
-            "num_train_instances": num_train_instances,
-            "num_test_instances": num_test_instances,
-            # ### Example 0
-            # default settings
-            # ### Example 1
-            # "degree": 2,
-            # "num_variables": 2,
-            # "range_coeffs": [(1, 5), (1, 5), (1, 5), (-5, 5), (-5, 5), (-5, 5)],
-            # "range_vals": [(-100, 100), (-100, 100)],
-            # ### Example 2
-            # "degree": 2,
-            # "num_variables": 2,
-            # "range_coeffs": [(0, 0), (0, 0), (-1, 1), (1, 5), (1, 5), (1, 5)],
-            # # "range_coeffs": [(0, 0), (0, 0), (-1, 1), (0, 0), (1, 5), (1, 5)],  # Should fail
-            # "range_vals": [(-5, 5), (-5, 5)],
-            # ### Example 3
-            # "degree": 2,
-            # "num_variables": 1,
-            # "range_coeffs": [(1, 5), (1, 5), (1, 5)],
-            # "range_vals": [(-5, 5)],
-            # ### Example 4
-            # "degree": 1,
-            # "num_variables": 1,
-            # "range_coeffs": [(-9, 9), (-9, 9)],
-            # "range_vals": [(-9, 9)],
-            # ### Example 5
-            # "degree": 1,
-            # "num_variables": 1,
-            # "range_coeffs": [(2, 2), (5, 5)],
-            # # "range_coeffs": [(2, 2), (0, 0)],
-            # "range_vals": [(-99, 99)],
-            # ### Example 6
-            # "degree": 1,
-            # "num_variables": 2,
-            # "range_coeffs": [(-9, 9), (-9, 9), (-9, 9)],
-            # "range_vals": [(-99, 99), (-99, 99)],
-            # ### Example 7
-            # "degree": 1,
-            # "num_variables": 1,
-            # "range_coeffs": [(-9, 9), (-9, 9)],
-            # "range_vals": [(-99, 99)],
-            # ### Example 8
-            "degree": 1,
-            "num_variables": 2,
-            "range_coeffs": [(-2, 2), (-2, 2), (-2, 2)],
-            "range_vals": [(-9, 9), (-9, 9)],
-        },
+        args={"seed": seed, "relation_type": relation_type, "mode": mode,},
     )
 
-
-def get_numeracy_adapter_spec(num_in_context_samples: int = 10) -> AdapterSpec:
-    return AdapterSpec(
-        method=ADAPT_GENERATION,
-        # instructions="Please solve the following problem.",
-        instructions="Continue the pattern.",
-        max_train_instances=num_in_context_samples,
-        max_eval_instances=10,
-        num_outputs=1,
-        num_train_trials=1,
-        model="openai/davinci",
-        # model="simple/model1",
-        temperature=0,
-        stop_sequences=["\n"],
-        max_tokens=20,
-        input_prefix="",
-        output_prefix=", ",
-        block_prefix="\n",
-        # input_prefix="Input: ",
-        # output_prefix="\nOutput: ",
-    )
-
-
-def get_numeracy_run_spec(num_in_context_samples: int = 10) -> RunSpec:
-    scenario = get_numeracy_scenario_spec(num_in_context_samples)
-
-    adapter_spec = get_numeracy_adapter_spec(num_in_context_samples)
+    if mode in ["example", "standard"]:
+        adapter_args: Dict[str, Any] = {
+            "max_train_instances": MODE_INFO[mode]["num_train"],
+            "max_eval_instances": MODE_INFO[mode]["num_test"],
+            "dim": RELTYPE_INFO[relation_type].num_variables + 1,
+        }
+    elif mode == "function":
+        adapter_args = {
+            "instructions": "",
+            "max_train_instances": MODE_INFO[mode]["num_function_train"],
+            "max_eval_instances": MODE_INFO[mode]["num_function_test"],
+            "dim": RELTYPE_INFO[relation_type].num_variables + 1,
+            "block_prefix": "\n\n",
+        }
+    adapter_spec = get_numeracy_adapter_spec(**adapter_args)
 
     return RunSpec(
-        name="numeracy",
+        name=f"numeracy:relation_type={relation_type},mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["absolute_value_difference"]}),
+        # metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_numeracy_metrics(),
     )
 
 
