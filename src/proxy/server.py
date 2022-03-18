@@ -25,7 +25,9 @@ from common.request import Request
 from common.perspective_api_request import PerspectiveAPIRequest
 from proxy.accounts import Account
 from proxy.server_service import ServerService
-from .query import Query
+from proxy.dialogue_interface import conversational_turn, submit_interview
+from dialogue_config import DIALOGUE_CREDENTIALS
+from query import Query
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
@@ -174,6 +176,19 @@ def handle_shutdown():
 
     return safe_call(perform)
 
+@app.post("/api/dialogue/conversation")
+def handle_utterance():
+    def perform(args):
+        response = conversational_turn(Authentication(DIALOGUE_CREDENTIALS), args)
+        return response
+    return safe_call(perform)
+
+@app.post("/api/dialogue/submit-interview")
+def submit_dialogue():
+    def perform(args):
+        response = submit_interview(args)
+        return response
+    return safe_call(perform)
 
 def main():
     global service
@@ -200,3 +215,7 @@ def main():
 
     server.listen(port=args.port)
     tornado.ioloop.IOLoop.instance().start()
+
+# TODO: Remove before push or tag tony
+if __name__ == '__main__':
+    main()
