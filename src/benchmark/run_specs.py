@@ -140,6 +140,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_real_toxicity_prompts_spec()]
     if name == "simple1":
         return [get_run_spec1()]
+    if name == "truthful_qa":
+        return [get_truthful_qa_spec(**args)]
     if name == "twitter_aae":
         return [get_twitter_aae_spec(**args)]
     if name == "natural_qa":
@@ -284,6 +286,31 @@ def get_quac_spec() -> RunSpec:
     )
     return RunSpec(
         name="quac", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": ["f1_score"]}),
+    )
+
+
+def get_truthful_qa_spec(task: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.truthful_qa_scenario.TruthfulQAScenario", args={"task": task},)
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        instructions="",
+        input_prefix="",
+        output_prefix="\nAnswer: ",
+        max_train_instances=0,
+        max_eval_instances=1000,  # TODO
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        max_tokens=0,
+    )
+
+    return RunSpec(
+        name=f"truthful_qa:task{task}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
 

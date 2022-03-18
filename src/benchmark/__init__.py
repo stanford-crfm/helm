@@ -7,6 +7,7 @@ from . import commonsense_qa_scenario  # noqa
 from . import twitter_aae_scenario  # noqa
 from . import real_toxicity_prompts_scenario  # noqa
 from . import the_pile_scenario  # noqa
+from . import truthful_qa_scenario  # noqa
 from . import wiki_scenario  # noqa
 from . import lpm_scenario  # noqa
 from . import copyright_scenario  # noqa
