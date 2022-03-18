@@ -157,10 +157,10 @@ class CityNameReplacementPerturbation(Perturbation):
             replacers = random.sample(self.replacers, len(city_names))
         else:
             # in case there are more city names than our list
-            replacers = random.choices(list(self.replacers), k=len(city_names))
+            replacers = random.choices(self.replacers, k=len(city_names))
         # map the same city names to a single city name unlike original impl.
-        # make sure that it doesn't choose the same city name twice
-        name_mapping = dict(zip(city_names, replacers))
+        # sort city names for random seed consistency
+        name_mapping = dict(zip(sorted(city_names), replacers))
 
         last_char_idx = 0
         text_fragments = []
