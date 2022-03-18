@@ -4,7 +4,7 @@ from typing import List
 import numpy as np
 import json
 from pathlib import Path
-from ntlk.tokenize import word_tokenize
+from nltk.tokenize import word_tokenize
 from nltk.tokenize.treebank import TreebankWordDetokenizer
 
 from .perturbation_description import PerturbationDescription
@@ -100,12 +100,12 @@ class ExtraSpacePerturbation(Perturbation):
 @dataclass
 class Misspellings(Perturbation):
     """
-	Replaces words randomly with common misspellings, from a list of common misspellings.
+    Replaces words randomly with common misspellings, from a list of common misspellings.
     Perturbation example:
     Input:
-		Already, the new product is not available.
+        Already, the new product is not available.
     Output:
-		Aready, the new product is not availible.
+        Aready, the new product is not availible.
     """
 
     @dataclass(frozen=True)
@@ -115,13 +115,13 @@ class Misspellings(Perturbation):
     name: str = "misspellings"
 
     def __init__(self, prob: float):
-		'''
-		prob (float): probability between [0,1] of perturbing a word to a common misspelling (if we have a common misspelling for the word)
-		'''
+        '''
+        prob (float): probability between [0,1] of perturbing a word to a common misspelling (if we have a common misspelling for the word)
+        '''
         self.prob = prob
-		misspellings_file = Path(__file__).resolve().expanduser().parent / 'correct_to_misspelling.json'
-		with open(misspellings_file, 'r') as f:
-			self.correct_to_misspelling = json.load(f)
+        misspellings_file = Path(__file__).resolve().expanduser().parent / 'correct_to_misspelling.json'
+        with open(misspellings_file, 'r') as f:
+                self.correct_to_misspelling = json.load(f)
         self.detokenizer = TreebankWordDetokenizer()
 
     @property
@@ -134,7 +134,7 @@ class Misspellings(Perturbation):
     def perturb_word(self, word: str) -> str:
         perturbed = False
         if word in self.correct_to_misspelling and np.random.rand() < self.prob:
-            word = np.random.choice(self.correct_to_misspelling[word])
+            word = str(np.random.choice(self.correct_to_misspelling[word]))
             perturbed = True
         return word, perturbed
 
@@ -149,9 +149,10 @@ class Misspellings(Perturbation):
                 # check if the lowercase version is in dict
                 lowercase_word = word.lower()
                 word, perturbed = self.perturb_word(lowercase_word)
-                word[0] = word[0].upper()
+                word = word[0].upper() + word[1:]
             new_words.append(word)
-        return self.detokenizer.detokenize(new_words)
+        perturbed = self.detokenizer.detokenize(new_words)
+        return perturbed
 
     def perturb(self, text: str) -> str:
         return self.perturb_seed(text)
