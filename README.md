@@ -156,7 +156,11 @@ classes (see `benchmark`):
   an input (e.g., question) and a set of `Reference` outputs (e.g., multiple
   choice answers).
 
-- An `Adapter` (given by an `AdaptationSpec`) takes a `Scenario` and
+- A `DataPreprocessor` takes in a `Scenario` and produces a list of `Instance`s 
+  Each `Instance` is given a unique ID. The set of `Instance`s is augmented 
+  according to `DataAugmenterSpec`.
+
+- An `Adapter` (given by an `AdaptationSpec`) takes a list of `Instance`s and
   adapts it to a set of `Request`s to the API (e.g., the model, temperature,
   number of in-context training examples).  Formally, the output
   is a `ScenarioState` containing a set of `RequestState`s, where each
@@ -188,7 +192,7 @@ There are three types of classes:
 ## Data Augmentations
 
 To apply data augmentation, create a `DataAugmenterSpec` with a list of 
-`PerturbationSpec`s and pass it into `AdapterSpec`. The following is an
+`PerturbationSpec`s and pass it into `RunSpec`. The following is an
 example:
 
 ```python
@@ -205,13 +209,13 @@ example:
         should_augment_eval_instances=True,
         should_include_original_eval=True,
     )
-    adapter_spec = AdapterSpec(
+    run_spec = RunSpec(
         ...
         data_augmenter_spec=data_augmenter_spec
     )
 ```
 
-In the example above, the `Adapter` will augment the set of evaluation instances by perturbing
+In the example above, the `DataPreprocessor` will augment the set of evaluation instances by perturbing
 the original set of instances with the `ExtraSpacePerturbation`, where spaces in the text are 
 replaced with `num_spaces` number of spaces. 
 

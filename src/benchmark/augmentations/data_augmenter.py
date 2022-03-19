@@ -29,8 +29,7 @@ class DataAugmenter:
         result: List[Instance] = []
         for i, instance in enumerate(instances):
             for perturbation in perturbations:
-                # Give all the perturbed Instances generated from a single Instance the same ID
-                result.append(perturbation.apply(f"id{i}", instance, self.should_perturb_references))
+                result.append(perturbation.apply(instance, self.should_perturb_references))
         return result
 
 
