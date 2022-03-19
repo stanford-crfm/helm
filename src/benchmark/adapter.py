@@ -1,18 +1,20 @@
 import random
-from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Optional
+from collections import defaultdict, OrderedDict
 
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from proxy.tokenizer.auto_tokenizer import AutoTokenizer
-from .augmentations.data_augmenter import create_data_augmenter, DataAugmenterSpec, DataAugmenter
 from .interaction.interaction_outcome import InteractionOutcome
-from .interaction.interaction_mode_spec import InteractionModeSpec
-from .interaction.interactions_processor import create_interaction_processor, InteractionsProcessor
-from .scenario import Instance, Scenario, TRAIN_SPLIT, EVAL_SPLITS
+from .interaction.interactions_processor import (
+    create_interaction_processor,
+    InteractionsProcessor,
+    InteractionsProcessorSpec,
+)
+from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"
@@ -73,11 +75,8 @@ class AdapterSpec:
     # When to stop
     stop_sequences: List[str] = field(default_factory=list)
 
-    # Data augmenter. The default DataAugmenterSpec does nothing.
-    data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec()
-
-    # What to do during interaction mode. The default InteractionModeSpec does nothing.
-    interaction_mode_spec: InteractionModeSpec = InteractionModeSpec()
+    # What to do during interaction mode
+    interactions_processor_spec: Optional[InteractionsProcessorSpec] = None
 
 
 @dataclass(frozen=True)
@@ -248,26 +247,17 @@ class Adapter:
         self.token_counter = AutoTokenCounter()
 
     @htrack(None)
-    def adapt(self, scenario: Scenario) -> ScenarioState:
+    def adapt(self, instances: List[Instance]) -> ScenarioState:
         """
-        Takes a `Scenario` containing a list of instances and builds a list of
-        corresponding request_states.  The reason we don't do this per (eval)
-        instance is that we create a common set of training instances which is
-        shared across all eval instances.
+        Takes a a list of `Instance`s and builds a list of corresponding `RequestState`s.
+        The reason we don't do this per eval instance is that we create a common set of
+        training instances which is shared across all eval instances.
         """
-        if self.adapter_spec.interaction_mode_spec.interaction_mode:
+        if self.adapter_spec.interactions_processor_spec:
             interaction_processor: InteractionsProcessor = create_interaction_processor(
-                self.adapter_spec.interaction_mode_spec.interactions_processor_spec
+                self.adapter_spec.interactions_processor_spec
             )
             return ScenarioState(self.adapter_spec, interaction_outcomes=interaction_processor.process())
-
-        # Create instances
-        with htrack_block("scenario.get_instances"):
-            instances = scenario.get_instances()
-
-        # Create a DataAugmenter to augment the set of instances
-        data_augmenter_spec: DataAugmenterSpec = self.adapter_spec.data_augmenter_spec
-        data_augmenter: DataAugmenter = create_data_augmenter(data_augmenter_spec)
 
         # Pick out training instances
         all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
@@ -277,24 +267,25 @@ class Adapter:
                 f"wanted {self.adapter_spec.max_train_instances}"
             )
 
-        # Applies data augmentation to generate more train instances
-        if data_augmenter_spec.should_augment_train_instances:
-            all_train_instances = data_augmenter.generate(
-                all_train_instances, include_original=data_augmenter_spec.should_include_original_train
-            )
-
-        # Pick out evaluation instances.  This includes both valid and test
-        # (and any other splits).  We can slice and dice later in defining the
-        # metrics.
+        # Pick out evaluation instances. This includes both valid and test splits.
+        # We can slice and dice later in defining the metrics.
         eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
         if self.adapter_spec.max_eval_instances is not None:
-            eval_instances = eval_instances[: self.adapter_spec.max_eval_instances]
+            # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
+            # number of instances, so we can include all the perturbed versions of the instances
+            # we choose in the eval set.
+            id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
+            for instance in eval_instances:
+                if instance.id in id_to_instances:
+                    id_to_instances[instance.id].append(instance)
+                else:
+                    id_to_instances[instance.id] = [instance]
 
-        # Applies data augmentation to generate more eval instances
-        if data_augmenter_spec.should_augment_eval_instances:
-            eval_instances = data_augmenter.generate(
-                eval_instances, include_original=data_augmenter_spec.should_include_original_eval
-            )
+            # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
+            # include all their instances in the final set of eval instances.
+            eval_instances = []
+            for _, instances in list(id_to_instances.items())[: self.adapter_spec.max_eval_instances]:
+                eval_instances.extend(instances)
 
         hlog(
             f"{len(instances)} instances, "
