@@ -1,22 +1,22 @@
 from typing import List
 
+from .adapter_service import AdapterService
 from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
 from .run_specs import get_scenario_spec1, get_adapter_spec1
 from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, Adapter, AdapterSpec
-from .tokenizer_service import TokenizerService
 from proxy.tokenizer.openai_token_counter import OpenAITokenCounter
 from proxy.remote_service import RemoteService
 from common.authentication import Authentication
 
 
-def get_test_tokenizer_service() -> TokenizerService:
-    return TokenizerService(RemoteService("test"), Authentication("test"))
+def get_test_adapter_service() -> AdapterService:
+    return AdapterService(RemoteService("test"), Authentication("test"))
 
 
 def test_adapter1():
     scenario = create_scenario(get_scenario_spec1())
     adapter_spec = get_adapter_spec1()
-    scenario_state = Adapter(adapter_spec, get_test_tokenizer_service()).adapt(scenario.get_instances())
+    scenario_state = Adapter(adapter_spec, get_test_adapter_service()).adapt(scenario.get_instances())
 
     # Make sure we generated the right number of request_states:
     # For each trial, instance and reference (+ 1 for free-form generation).
@@ -31,7 +31,7 @@ def test_construct_prompt():
     adapter_spec = AdapterSpec(
         model="openai/davinci", method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=100
     )
-    adapter = Adapter(adapter_spec, get_test_tokenizer_service())
+    adapter = Adapter(adapter_spec, get_test_adapter_service())
     correct_reference = Reference(output="", tags=[CORRECT_TAG])
     train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(2049)]
     eval_instances = Instance(input="eval", references=[])
@@ -48,7 +48,7 @@ def test_construct_language_modeling_prompt():
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING, input_prefix="", model="openai/davinci", output_prefix="", max_tokens=0,
     )
-    adapter = Adapter(adapter_spec, get_test_tokenizer_service())
+    adapter = Adapter(adapter_spec, get_test_adapter_service())
     tokenizer = OpenAITokenCounter().tokenizer
 
     # The tokens translate to: '�Excuse me�'

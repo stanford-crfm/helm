@@ -8,7 +8,7 @@ from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from proxy.tokenizer.tokenizer import Tokenizer
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
-from .tokenizer_service import TokenizerService
+from .adapter_service import AdapterService
 from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
@@ -231,9 +231,9 @@ class Adapter:
     deal with references being of different lengths).
     """
 
-    def __init__(self, adapter_spec: AdapterSpec, tokenizer_service: TokenizerService):
+    def __init__(self, adapter_spec: AdapterSpec, adapter_service: AdapterService):
         self.adapter_spec: AdapterSpec = adapter_spec
-        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
+        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, adapter_service)
 
     @htrack(None)
     def adapt(self, instances: List[Instance]) -> ScenarioState:
