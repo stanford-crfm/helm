@@ -224,9 +224,10 @@ multiple perturbations and applying it onto a single instance.
 
 ### Adding a new perturbation
 
-To add a new perturbation to the framework, simply create a new class in `perturbation.py` that
-extends the abstract class `Perturbation` and implement the `perturb` method which takes in
-text and outputs the perturbed text. Add a test for the new perturbation in `test_perturbation.py`.
+To add a new perturbation to the framework, simply create a new class 
+(name it `<Name of the perturbation>Perturbation` e.g., `TypoPerturbation`) 
+in `perturbation.py` that extends the abstract class `Perturbation` and implement the `perturb` method which
+takes in text and outputs the perturbed text. Add a test for the new perturbation in `test_perturbation.py`.
 
 ## Running the benchmark
 
