@@ -435,7 +435,7 @@ def get_raft_spec(subset: str) -> RunSpec:
     )
 
 def get_civil_comments_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.CivilCommentsScenario", args={})
+    scenario = ScenarioSpec(class_name="benchmark.civil_comments_scenario.CivilCommentsScenario", args={})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -449,7 +449,7 @@ def get_civil_comments_spec() -> RunSpec:
         max_tokens=1,
     )
     return RunSpec(
-        name="boolq",
+        name="civil_comments",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),

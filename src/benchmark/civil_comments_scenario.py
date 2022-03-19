@@ -17,7 +17,7 @@ from .scenario import (
 
 class CivilCommentsScenario(Scenario):
     """
-    The BOLD dataset is from the following Hugging Face dataset:
+    The Civil Comments dataset is from the following Hugging Face dataset:
 
         https://huggingface.co/datasets/civil_comments
         
@@ -36,9 +36,9 @@ class CivilCommentsScenario(Scenario):
     
     """
 
-    name = "bold"
-    description = "A large-scale dataset that consists of 23,679 English text generation prompts for bias benchmarking across five domains: profession, gender, race, religion, and political ideology."
-    tags = ["harms", "bias"]
+    name = "civil_comments"
+    description = "A large-scale dataset that consists of 1804874 sentences from the Civil Comments platform, a commenting plugin for independent news sites.
+    tags = ["toxicity", "bias"]
 
     def __init__(self):
         pass
