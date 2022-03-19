@@ -237,10 +237,9 @@ class Adapter:
     @htrack(None)
     def adapt(self, instances: List[Instance]) -> ScenarioState:
         """
-        Takes a `Scenario` containing a list of instances and builds a list of
-        corresponding request_states.  The reason we don't do this per (eval)
-        instance is that we create a common set of training instances which is
-        shared across all eval instances.
+        Takes a a list of `Instance`s and builds a list of corresponding `RequestState`s.
+        The reason we don't do this per eval instance is that we create a common set of
+        training instances which is shared across all eval instances.
         """
         # Pick out training instances
         all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
@@ -250,9 +249,8 @@ class Adapter:
                 f"wanted {self.adapter_spec.max_train_instances}"
             )
 
-        # Pick out evaluation instances.  This includes both valid and test
-        # (and any other splits).  We can slice and dice later in defining the
-        # metrics.
+        # Pick out evaluation instances. This includes both valid and test splits.
+        # We can slice and dice later in defining the metrics.
         eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
         if self.adapter_spec.max_eval_instances is not None:
             # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances

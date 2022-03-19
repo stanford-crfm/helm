@@ -7,6 +7,12 @@ from .scenario import Scenario, Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 
 class DataPreprocessor:
+    """
+    Gets the `Instance`s for a given `Scenario` and preprocesses them by:
+    - Giving all the `Instance`s a unique ID.
+    - Applying data augmentation according to `DataAugmenterSpec`.
+    """
+
     def __init__(self, data_augmenter_spec: DataAugmenterSpec):
         self.data_augmenter_spec: DataAugmenterSpec = data_augmenter_spec
 
