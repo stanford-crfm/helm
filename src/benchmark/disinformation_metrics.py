@@ -39,6 +39,8 @@ def _monte_carlo_entropy(completions: List[Sequence], **unused_kwargs) -> float:
     """Monte Carlo estimate of model entropy in nats."""
     # TODO(lxuechen): This estimator is biased with non-unit temperature, since OpenAI API doesn't adjust logprob
     #  computation based on temperature.
+    #  The actual entropy under non-unit temperatures cannot be evaluated, since the Mercury API doesn't give logprobs
+    #  over the full vocabulary.
     completions = [completion for completion in completions if completion.tokens]
 
     # bnewm0609: If there are no completions with tokens, there is no support for calcualting entropy, so return nan
