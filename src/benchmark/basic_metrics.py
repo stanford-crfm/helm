@@ -32,6 +32,14 @@ def exact_match(gold: str, pred: str) -> float:
 
 
 def exact_match_indicator(gold: str, pred: str) -> float:
+    """
+    Exact match, allowing for some preceding context.
+    For example, the following two answers are considered matching:
+    - Because of x and y, the answer is ## <answer>
+    - Given reasons y and z, the answer is ## <answer>
+    While the following is considered different from the earlier two
+    - Given reasons x and a, the answer is ## <other answer>
+    """
     indicator: str = "#"
     pred = pred.split(indicator)[-1].strip()
     gold = gold.split(indicator)[-1].strip()
