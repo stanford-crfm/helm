@@ -524,10 +524,9 @@ def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
             max_train_instances=0,
             num_train_trials=1,
             temperature=0.7,
-            num_outputs=5,
+            num_outputs=10,
             model="openai/davinci",
             max_tokens=60,
-            stop_sequences=["\n", "."],
         )
         metrics = []
     else:
