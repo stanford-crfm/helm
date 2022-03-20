@@ -9,7 +9,7 @@ from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, T
 class GSM8KScenario(Scenario):
     """Task from "Training Verifiers to Solve Math Word Problems" (Cobbe et al. 2021): https://arxiv.org/abs/2110.14168
     Evaluates the capacity of a model to solve grade school math problems, when prompted to include reasoning.
-    Encourages the model to worth through the problem in a step-by-step way
+    Encourages the model to work through the problem in a step-by-step way
     Example from dataset (line breaks added for readability):
     "question":
         "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May.
@@ -25,14 +25,15 @@ class GSM8KScenario(Scenario):
     tags = ["reasoning", "math"]
 
     def __init__(self):
-        self.base_url = "https://raw.githubusercontent.com/openai/grade-school-math/master/grade_school_math/data/"
+        pass
 
     def get_instances(self) -> List[Instance]:
         splits = {"train": TRAIN_SPLIT, "test": TEST_SPLIT}
+        base_url = "https://raw.githubusercontent.com/openai/grade-school-math/master/grade_school_math/data/"
         instances: List[Instance] = []
         for split, split_tag in splits.items():  # Iterate over the splits
-            source_url: str = f"{self.base_url}/{split}.jsonl"
-            data_path: str = os.path.join(self.output_path, "data")
+            source_url: str = f"{base_url}/{split}.jsonl"
+            data_path: str = os.path.join(self.output_path, f"gsm_data_{split}")
             ensure_file_downloaded(source_url=source_url, target_path=data_path)
             with jsonlines.open(data_path) as reader:
                 for example in reader:  # Each example is a dictionary with a 'question' and 'answer' key
