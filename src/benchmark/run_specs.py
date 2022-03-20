@@ -1,7 +1,5 @@
 from typing import List, Dict, Optional, Any
 
-from benchmark.augmentations.data_augmenter import DataAugmenterSpec
-from benchmark.augmentations.perturbation import PerturbationSpec
 from common.object_spec import ObjectSpec
 from .adapter import (
     AdapterSpec,
@@ -152,25 +150,11 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         temperature=0,
     )
 
-    data_augmenter_spec = DataAugmenterSpec(
-        perturbation_specs=[
-            PerturbationSpec(
-                class_name="benchmark.augmentations.extra_space_perturbation.ExtraSpacePerturbation",
-                args={"num_spaces": 3}
-            )
-        ],
-        should_perturb_references=False,
-        should_augment_train_instances=False,
-        should_include_original_train=False,
-        should_augment_eval_instances=True,
-        should_include_original_eval=True,
-    )
     return RunSpec(
         name=f"mmlu:subject={subject}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
-        data_augmenter_spec=data_augmenter_spec,
     )
 
 
