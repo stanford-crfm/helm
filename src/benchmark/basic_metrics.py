@@ -280,15 +280,15 @@ class BasicMetric(Metric):
                 break
         assert runtime_for_input_tokens is not None
 
-        # Estimated runtime is sum of the runtime of encoding the input tokens, and the
+        # Idealized runtime is sum of the runtime of encoding the input tokens, and the
         # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1)).
-        estimated_runtime: float = runtime_for_input_tokens + (runtime_per_output_token * (num_output_tokens - 1))
+        idealized_runtime: float = runtime_for_input_tokens + (runtime_per_output_token * (num_output_tokens - 1))
 
         return [
             Stat(MetricName("num_tokens_in_prompt")).add(num_tokens_in_prompt),
             Stat(MetricName("runtime")).add(runtime),
-            Stat(MetricName("estimated_runtime")).add(estimated_runtime),
-            Stat(MetricName("runtime_overhead")).add(runtime - estimated_runtime),
+            Stat(MetricName("idealized_runtime")).add(idealized_runtime),
+            Stat(MetricName("runtime_discrepancy")).add(runtime - idealized_runtime),
         ]
 
     def compute_language_modeling_metrics(
