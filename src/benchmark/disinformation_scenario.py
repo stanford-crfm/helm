@@ -97,9 +97,7 @@ class DisinformationScenario(Scenario):
             reference_text += "\n".join([primer + headline for headline in narrative["headlines"][1:]])
 
             instance = Instance(
-                input=input_text,
-                references=[Reference(reference_text, tags=[CORRECT_TAG])],
-                split=split,
+                input=input_text, references=[Reference(reference_text, tags=[CORRECT_TAG])], split=split,
             )
 
             instances.append(instance)
