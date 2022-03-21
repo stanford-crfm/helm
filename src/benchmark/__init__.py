@@ -26,4 +26,4 @@ from . import tokens_metric  # noqa
 from . import copyright_metrics  # noqa
 
 # Perturbations for data augmentation
-from .augmentations.extra_space_perturbation import ExtraSpacePerturbation
+from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa
