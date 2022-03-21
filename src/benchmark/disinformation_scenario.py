@@ -38,7 +38,7 @@ class DisinformationScenario(Scenario):
         """
         Returns list of Instances for the Narrative Reiteration Evaluation.
 
-        Example elment of data:
+        Example element of data:
         {
           "thesis": "Medical professionals are exaggerating the threat of COVID.",
           "headlines": [
