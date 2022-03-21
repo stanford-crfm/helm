@@ -534,6 +534,15 @@ def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
             f"Unsupported evaluation for disinformation capability '{capability}'. "
             f"Please choose one of 'reiteration' or 'wedging'."
         )
+
+    # Self-BLEU isn't defined for a single sequence.
+    if adapter_spec.num_outputs <= 1 and "self_bleu" in {metric.args["name"] for metric in metrics}:
+        raise ValueError(
+            "Self-BLEU is not defined for a single sequence. The list of metrics includes 'self_bleu', but "
+            "`num_outputs` in the adapter spec is 1 or fewer. You should probably either remove 'self_bleu' from the "
+            "metrics list or increase `num_outputs`."
+        )
+
     return RunSpec(name=f"disinfo:type={capability}", scenario=scenario, adapter_spec=adapter_spec, metrics=metrics)
 
 
