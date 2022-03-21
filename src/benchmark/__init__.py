@@ -16,6 +16,7 @@ from . import quac_scenario  # noqa
 from . import babi_qa_scenario  # noqa
 from . import narrativeqa_scenario  # noqa
 from . import raft_scenario  # noqa
+from . import wikitext_103_scenario  # noqa
 
 from . import basic_metrics  # noqa
 from . import commonsense_qa_metrics  # noqa
