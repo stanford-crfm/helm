@@ -48,6 +48,22 @@ class Wikitext103Scenario(Scenario):
         lines = open(test_set_path, "r").readlines()
         document_buffer: List[str] = []
         i = 0
+        # Example (some sections are empty):
+        #
+        # = Article Title =
+        #
+        # Some introduction to the topic.
+        #
+        # = = Section 1 = =
+        #
+        #
+        # = = = Subsection 1.1 = = =
+        #
+        # Content of Subsection 1.1.
+        #
+        # = = Section 2 = =
+        #
+        #
         while i < len(lines):
             if (
                 i <= len(lines) - 3
