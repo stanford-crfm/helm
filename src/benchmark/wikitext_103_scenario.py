@@ -21,7 +21,7 @@ class Wikitext103Scenario(Scenario):
     """
 
     name = "wikitext_103"
-    description = "Wikitext-103"
+    description = "The WikiText language modeling dataset containing over 103 million words"
     tags = ["language_modeling"]
 
     def __init__(self):
