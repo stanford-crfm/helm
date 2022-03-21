@@ -1,7 +1,7 @@
 {
-  "huggingface/gptj_6b": PLACEHOLDER,
-  "openai/ada": PLACEHOLDER,
-  "openai/davinci": PLACEHOLDER,
-  "ai21/j1-large": PLACEHOLDER,
-  "ai21/j1-jumbo": PLACEHOLDER
+  "huggingface/gptj_6b": 12.5,
+  "openai/ada": 1.1,
+  "openai/davinci": 552,
+  "ai21/j1-large": 0,
+  "ai21/j1-jumbo": 0
 }

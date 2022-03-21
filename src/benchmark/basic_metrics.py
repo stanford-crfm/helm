@@ -266,7 +266,6 @@ class BasicMetric(Metric):
         # here: https://github.com/deepakn94/benchmarking_efficiency.
         with open("src/benchmark/inference_efficiency.json", "r") as f:
             profiled_runtimes = json.load(f)
-
         assert request_state.request.model in profiled_runtimes
         profiled_runtimes_for_model = profiled_runtimes[request_state.request.model]
         runtime_per_output_token: float = profiled_runtimes_for_model["runtime_per_output_token"]
@@ -275,7 +274,7 @@ class BasicMetric(Metric):
         runtime_for_input_tokens = None
         # Find the smallest num_input_tokens larger than the number of tokens in the given prompt.
         for num_input_tokens in sorted(runtimes_for_input_tokens.keys()):
-            if num_tokens_in_prompt >= num_input_tokens:
+            if num_tokens_in_prompt <= num_input_tokens:
                 runtime_for_input_tokens = runtimes_for_input_tokens[num_input_tokens]
                 break
         assert runtime_for_input_tokens is not None
@@ -284,11 +283,21 @@ class BasicMetric(Metric):
         # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1)).
         idealized_runtime: float = runtime_for_input_tokens + (runtime_per_output_token * (num_output_tokens - 1))
 
+        # We use estimated emitted CO2 during training (in tons of CO2) as a proxy metric
+        # for training efficiency. We use reported metrics where applicable, otherwise
+        # we estimate them from runtime information, type and number of hardware accelerators
+        # used, region, etc.
+        with open("src/benchmark/training_efficiency.json", "r") as f:
+            training_co2_costs = json.load(f)
+        assert request_state.request.model in training_co2_costs
+        training_co2_cost = training_co2_costs[request_state.request.model]
+
         return [
             Stat(MetricName("num_tokens_in_prompt")).add(num_tokens_in_prompt),
             Stat(MetricName("runtime")).add(runtime),
             Stat(MetricName("idealized_runtime")).add(idealized_runtime),
             Stat(MetricName("runtime_discrepancy")).add(runtime - idealized_runtime),
+            Stat(MetricName("training_co2_cost")).add(training_co2_cost),
         ]
 
     def compute_language_modeling_metrics(
