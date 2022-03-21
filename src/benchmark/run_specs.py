@@ -118,6 +118,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_the_pile_spec(**args)]
     if name == "raft":
         return [get_raft_spec(**args)]
+    if name == "wikitext_103":
+        return [get_wikitext_103_spec()]
     if name == "blimp":
         return [get_blimp_spec(**args)]
 
@@ -540,6 +542,28 @@ def get_narrativeqa_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
+    )
+
+
+def get_wikitext_103_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.wikitext_103_scenario.Wikitext103Scenario", args=dict())
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_MODELING,
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        max_eval_instances=None,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        max_tokens=0,
+    )
+
+    return RunSpec(
+        name="wikitext_103", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": []}),
     )
 
 

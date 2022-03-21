@@ -1,7 +1,7 @@
 from abc import ABC
 from dataclasses import replace
 from typing import List, Dict
-from math import log
+from math import log, e
 from collections import defaultdict
 
 from common.statistic import Stat, merge_stat
@@ -83,7 +83,7 @@ class Metric(ABC):
                     merge_stat(
                         trial_stats,
                         Stat(MetricName("perplexity", split=split)).add(
-                            2
+                            e
                             ** (
                                 -trial_stats[MetricName("logprob", split=split)].sum
                                 / trial_stats[MetricName("num_tokens", split=split)].sum
@@ -148,7 +148,7 @@ class Metric(ABC):
             merge_stat(
                 trial_stats,
                 Stat(MetricName("perplexity", split=split)).add(
-                    2
+                    e
                     ** (
                         -trial_stats[MetricName("logprob", split=split)].sum
                         / trial_stats[MetricName("num_tokens", split=split)].sum
