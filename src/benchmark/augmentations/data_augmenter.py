@@ -5,9 +5,9 @@ from benchmark.augmentations.perturbation import (
     Perturbation,
     PerturbationSpec,
     create_perturbation,
-    IdentityPerturbation,
 )
 from benchmark.scenario import Instance
+from .identity_perturbation import IdentityPerturbation
 
 
 @dataclass(frozen=True)

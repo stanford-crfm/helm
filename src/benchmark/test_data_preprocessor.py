@@ -20,7 +20,8 @@ def test_data_preprocessor_with_data_augmentation():
     data_augmenter_spec = DataAugmenterSpec(
         perturbation_specs=[
             PerturbationSpec(
-                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", args={"num_spaces": 5}
+                class_name="benchmark.augmentations.extra_space_perturbation.ExtraSpacePerturbation",
+                args={"num_spaces": 5},
             )
         ],
         should_perturb_references=False,
