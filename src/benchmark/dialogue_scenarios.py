@@ -111,23 +111,24 @@ class EmpatheticDialoguesScenario(Scenario):
     def __init__(self, *args):
         pass
 
-    def prepare_instances(self):
-        """Downloads the train, valid, test dataset and saves homogenized instances in self.instances"""
-
+    def download_data(self):
         # Download the raw data
-        data_path: str = os.path.join(self.output_path, "data")
+        self.data_path: str = os.path.join(self.output_path, "data")
         ensure_file_downloaded(
             source_url="https://dl.fbaipublicfiles.com/parlai/empatheticdialogues/empatheticdialogues.tar.gz",
-            target_path=data_path,
+            target_path=self.data_path,
             unpack=True,
         )
+
+    def read_instances(self):
+        """Downloads the train, valid, test dataset and saves homogenized instances in self.instances"""
 
         instances: List[Instance] = []
         splits: Dict[str, str] = {"train": TRAIN_SPLIT}  # , "valid": VALID_SPLIT, "test": TEST_SPLIT}
 
         # Read the three splits
         for split in splits:
-            csv_path: str = os.path.join(data_path, f"{split}.csv")
+            csv_path: str = os.path.join(self.data_path, f"{split}.csv")
             if not os.path.exists(csv_path):
                 hlog(f"{csv_path} doesn't exist, skipping")
                 continue
@@ -152,7 +153,7 @@ class EmpatheticDialoguesScenario(Scenario):
                 references = []
                 for conv_cols, conv_df in grouped_prompt_df:
                     if len(conv_df) < 2:
-                        continue  # Filter conversations with only one row
+                        continue  # Filter conversations without 2 speaker utterances
                     grouped_df = conv_df.sort_values("utterance_idx")
                     initiator = Speaker(id=grouped_df.iloc[0]["speaker_idx"], initiator=True)
                     listener = Speaker(id=grouped_df.iloc[1]["speaker_idx"], initiator=False)
@@ -188,8 +189,8 @@ class EmpatheticDialoguesScenario(Scenario):
         return instances
 
     def get_instances(self) -> List[Instance]:
-        return self.filter_instances(self.prepare_instances())
-        return self.instances
+        self.download_data()
+        return self.filter_instances(self.read_instances())
 
 
 if __name__ == "__main__":
