@@ -243,6 +243,7 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r raft:subset=ade_corpus_v2
     venv/bin/benchmark-run -r natural_qa:mode=closedbook
     venv/bin/benchmark-run -r quac
+    venv/bin/benchmark-run -r blimp:phenomenon=irregular_forms
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
