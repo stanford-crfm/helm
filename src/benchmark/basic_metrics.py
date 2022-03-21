@@ -27,6 +27,9 @@ try:
 except LookupError:
     nltk.download("punkt")  # Required for rouge
 
+INFERENCE_EFFICIENCY_JSON_FILEPATH = "src/benchmark/static/inference_efficiency.json"
+TRAINING_EFFICIENCY_JSON_FILEPATH = "src/benchmark/static/training_efficiency.json"
+
 
 def exact_match(gold: str, pred: str) -> float:
     return 1 if gold == pred else 0
@@ -265,7 +268,7 @@ class BasicMetric(Metric):
         # one token is the runtime_per_input_tokens for the corresponding num_input_tokens
         # value). Profiling code and logs, and code to fit the regression model is available
         # here: https://github.com/deepakn94/benchmarking_efficiency.
-        with open("src/benchmark/inference_efficiency.json", "r") as f:
+        with open(INFERENCE_EFFICIENCY_JSON_FILEPATH, "r") as f:
             inference_efficiency_dict = json.load(f)
         assert request_state.request.model in inference_efficiency_dict
         inference_efficiency_dict_for_model = inference_efficiency_dict[request_state.request.model]
@@ -292,7 +295,7 @@ class BasicMetric(Metric):
         # for training efficiency. We use reported metrics where applicable, otherwise
         # we estimate them from runtime information, type and number of hardware accelerators
         # used, region, etc.
-        with open("src/benchmark/training_efficiency.json", "r") as f:
+        with open(TRAINING_EFFICIENCY_JSON_FILEPATH, "r") as f:
             training_efficiency_dict = json.load(f)
         assert request_state.request.model in training_efficiency_dict
         training_co2_cost: float = training_efficiency_dict[request_state.request.model]
