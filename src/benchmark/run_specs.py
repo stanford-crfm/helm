@@ -573,7 +573,7 @@ def get_narrativeqa_spec() -> RunSpec:
     )
 
 def get_empatheticdialogues_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.empatheticdialogues_scenario.EmpatheticDialoguesScenario", args={})
+    scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.EmpatheticDialoguesScenario", args={})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,

@@ -22,4 +22,4 @@ from . import commonsense_qa_metrics  # noqa
 from . import toxicity_metrics  # noqa
 from . import tokens_metric  # noqa
 from . import copyright_metrics  # noqa
-from . import empatheticdialogues_scenario
+from . import dialogue_scenarios # empatheticdialogues, etc.
