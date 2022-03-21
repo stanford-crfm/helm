@@ -148,6 +148,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_the_pile_spec(**args)]
     if name == "raft":
         return [get_raft_spec(**args)]
+    if name == "empatheticdialogues":
+        return [get_empatheticdialogues_spec(**args)]
 
     raise ValueError(f"Unknown run spec: {spec}")
 
@@ -568,4 +570,27 @@ def get_narrativeqa_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
+    )
+
+def get_empatheticdialogues_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.empatheticdialogues_scenario.EmpatheticDialoguesScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=2,
+        model="ai21/j1-large",
+        max_eval_instances=450,  # TODO : Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=5,
+        temperature=0.0,
+    )
+
+    return RunSpec(
+        name=f"empatheticdialogues",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
