@@ -24,7 +24,7 @@ from . import synthetic_reasoning_scenario  # noqa
 from . import newsqa_scenario  # noqa
 from . import wikitext_103_scenario  # noqa
 from . import imdb_scenario  # noqa
-from . import empatheticdialogues_scenario
+from . import dialogue_scenarios  # empatheticdialogues, etc.
 
 # Metrics
 from . import basic_metrics  # noqa

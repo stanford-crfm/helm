@@ -860,7 +860,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
     return run_specs
 =======
 def get_empatheticdialogues_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.empatheticdialogues_scenario.EmpatheticDialoguesScenario", args={})
+    scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.EmpatheticDialoguesScenario", args={})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -881,4 +881,7 @@ def get_empatheticdialogues_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
+<<<<<<< HEAD
 >>>>>>> 9946a7b (Working commit of empathetic dialogues scenario)
+=======
+>>>>>>> c6582be (Updating to dialogue_scenarios)
