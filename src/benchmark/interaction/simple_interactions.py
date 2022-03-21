@@ -23,6 +23,6 @@ class SimpleInteractionsProcessor(InteractionsProcessor):
 
     def process(self) -> List[InteractionOutcome]:
         return [
-            SimpleConversationOutcome(id=f"conversation0", conversation=["Hi", "Hello", "Bye", "Goodbye"]),
-            SimpleConversationOutcome(id=f"conversation1", conversation=["Thank you", "No problem"]),
+            SimpleConversationOutcome(id="conversation0", conversation=["Hi", "Hello", "Bye", "Goodbye"]),
+            SimpleConversationOutcome(id="conversation1", conversation=["Thank you", "No problem"]),
         ]
