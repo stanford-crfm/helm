@@ -119,23 +119,23 @@ class BLiMPScenario(Scenario):
 
         # Read all the instances
         instances: List[Instance] = []
-        id = 0
         for paradigm in self.phenomenon_to_paradigms[self.phenomenon]:
             jsonl_path: str = os.path.join(data_path, f"{paradigm}.jsonl")
             hlog(f"Reading {jsonl_path}")
             with open(jsonl_path) as f:
                 for line in f:
-                    # Example: {"sentence_good": "Who should Derek hug after shocking Richard?", "sentence_bad": "Who should Derek hug Richard after shocking?",
-                    # "field": "syntax", "linguistics_term": "island_effects", "UID": "adjunct_island", "simple_LM_method": true, "one_prefix_method": false,
-                    # "two_prefix_method": false, "lexically_identical": true, "pairID": "0"}
+                    # Example: {"sentence_good": "Who should Derek hug after shocking Richard?",
+                    # "sentence_bad": "Who should Derek hug Richard after shocking?",
+                    # "field": "syntax", "linguistics_term": "island_effects", "UID": "adjunct_island",
+                    # "simple_LM_method": true, "one_prefix_method": false, "two_prefix_method": false,
+                    # "lexically_identical": true, "pairID": "0"}
                     example = json.loads(line)
                     instance_good = Instance(
-                        input=example["sentence_good"], references=[], split=TEST_SPLIT, sub_split="good", id=str(id)
+                        input=example["sentence_good"], references=[], split=TEST_SPLIT, sub_split="good"
                     )
                     instances.append(instance_good)
                     instance_bad = Instance(
-                        input=example["sentence_bad"], references=[], split=TEST_SPLIT, sub_split="bad", id=str(id)
+                        input=example["sentence_bad"], references=[], split=TEST_SPLIT, sub_split="bad"
                     )
                     instances.append(instance_bad)
-                    id += 1
         return instances

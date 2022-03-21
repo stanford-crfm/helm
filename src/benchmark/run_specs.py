@@ -6,6 +6,7 @@ from .adapter import (
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE,
     ADAPT_GENERATION,
+    ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
 )
 from .metric import MetricSpec
 from .runner import RunSpec
@@ -546,12 +547,12 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon})
 
     adapter_spec = AdapterSpec(
-        method=ADAPT_LANGUAGE_MODELING,
+        method=ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
         instructions="",
         input_prefix="",
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=50,  # TODO: remove this before push
+        max_eval_instances=None,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",

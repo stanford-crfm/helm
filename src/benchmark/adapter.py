@@ -14,6 +14,7 @@ from proxy.tokenizer.auto_tokenizer import AutoTokenizer
 ADAPT_LANGUAGE_MODELING = "language_modeling"
 ADAPT_MULTIPLE_CHOICE = "multiple_choice"
 ADAPT_GENERATION = "generation"
+ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS = "language_modeling_minimal_pairs"
 
 
 @dataclass(frozen=True)
@@ -278,7 +279,10 @@ class Adapter:
         # Accumulate all the request states due to adaptation
         request_states: List[RequestState] = []
 
-        if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
+        if (
+            self.adapter_spec.method == ADAPT_LANGUAGE_MODELING
+            or self.adapter_spec.method == ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS
+        ):
             # Use the LM-specific method to adapt LM scenarios
             request_states = self.adapt_language_modeling(eval_instances)
         else:
