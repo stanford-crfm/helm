@@ -235,6 +235,7 @@ class BasicMetric(Metric):
         """Compute per-token normalized runtime"""
         assert request_state.result is not None
 
+        # Compute efficiency metrics for inference.
         runtime: float = request_state.result.request_time
 
         # Compute total number of input and output tokens (in first sequence)
@@ -265,11 +266,13 @@ class BasicMetric(Metric):
         # value). Profiling code and logs, and code to fit the regression model is available
         # here: https://github.com/deepakn94/benchmarking_efficiency.
         with open("src/benchmark/inference_efficiency.json", "r") as f:
-            profiled_runtimes = json.load(f)
-        assert request_state.request.model in profiled_runtimes
-        profiled_runtimes_for_model = profiled_runtimes[request_state.request.model]
-        runtime_per_output_token: float = profiled_runtimes_for_model["runtime_per_output_token"]
-        raw_runtimes_for_input_tokens: Dict[str, float] = profiled_runtimes_for_model["runtime_for_input_tokens"]
+            inference_efficiency_dict = json.load(f)
+        assert request_state.request.model in inference_efficiency_dict
+        inference_efficiency_dict_for_model = inference_efficiency_dict[request_state.request.model]
+        runtime_per_output_token: float = inference_efficiency_dict_for_model["runtime_per_output_token"]
+        raw_runtimes_for_input_tokens: Dict[str, float] = inference_efficiency_dict_for_model[
+            "runtime_for_input_tokens"
+        ]
         runtimes_for_input_tokens: Dict[int, float] = {int(k): v for (k, v) in raw_runtimes_for_input_tokens.items()}
         runtime_for_input_tokens = None
         # Find the smallest num_input_tokens larger than the number of tokens in the given prompt.
@@ -283,20 +286,22 @@ class BasicMetric(Metric):
         # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1)).
         idealized_runtime: float = runtime_for_input_tokens + (runtime_per_output_token * (num_output_tokens - 1))
 
+        # Compute efficiency metrics for training.
+
         # We use estimated emitted CO2 during training (in tons of CO2) as a proxy metric
         # for training efficiency. We use reported metrics where applicable, otherwise
         # we estimate them from runtime information, type and number of hardware accelerators
         # used, region, etc.
         with open("src/benchmark/training_efficiency.json", "r") as f:
-            training_co2_costs = json.load(f)
-        assert request_state.request.model in training_co2_costs
-        training_co2_cost = training_co2_costs[request_state.request.model]
+            training_efficiency_dict = json.load(f)
+        assert request_state.request.model in training_efficiency_dict
+        training_co2_cost: float = training_efficiency_dict[request_state.request.model]
 
         return [
             Stat(MetricName("num_tokens_in_prompt")).add(num_tokens_in_prompt),
-            Stat(MetricName("runtime")).add(runtime),
-            Stat(MetricName("idealized_runtime")).add(idealized_runtime),
-            Stat(MetricName("runtime_discrepancy")).add(runtime - idealized_runtime),
+            Stat(MetricName("inference_runtime")).add(runtime),
+            Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
+            Stat(MetricName("inference_runtime_discrepancy")).add(runtime - idealized_runtime),
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
         ]
 
