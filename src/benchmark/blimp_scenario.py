@@ -12,11 +12,15 @@ class BLiMPScenario(Scenario):
 
         https://aclanthology.org/2020.tacl-1.25.pdf
 
-    # TODO(Yian): write more
+    Every example is a minimal pair that includes a good sentence and a bad sentence. The model is considered
+    correct if it assigns a higher probability to the good sentence instead of the bad one. The dataset
+    covers 12 linguistic phenomena and 67 paradigms. There are 1000 examples for each paradigm.
+
+    e.g. Good: Katherine can’t help herself. Bad: Katherine can’t help himself.
     """
 
     name = "blimp"
-    description = "The Benchmark of Linguistic Minimal Pairs for English"  # TODO(Yian): write more
+    description = "The Benchmark of Linguistic Minimal Pairs for English"
     tags = ["linguistic_knowledge", "language_modeling", "minimal_pairs"]
     phenomenon_to_paradigms = {
         "island_effects": [
