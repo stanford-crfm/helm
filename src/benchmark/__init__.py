@@ -26,6 +26,7 @@ from . import newsqa_scenario  # noqa
 from . import wikitext_103_scenario  # noqa
 from . import blimp_scenario  # noqa
 from . import imdb_scenario  # noqa
+from . import empatheticdialogues_scenario
 
 # Metrics
 from . import basic_metrics  # noqa

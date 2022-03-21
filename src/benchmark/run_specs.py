@@ -92,7 +92,58 @@ def get_code_metrics(dataset: str) -> List[MetricSpec]:
 ############################################################
 
 
+<<<<<<< HEAD
 def get_simple1_spec() -> RunSpec:
+=======
+def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
+    """
+    Takes a specification (name, args) and returns a list of `RunSpec`s.
+    """
+    # Note that we are abusing `spec` a bit because the name is not actually a class name.
+    name = spec.class_name
+    args = spec.args
+
+    # Place these alphabetically
+    if name == "boolq":
+        return [get_boolq_spec()]
+    if name == "boolq_contrast_sets":
+        return [get_boolq_contrast_sets_spec()]
+    if name == "copyright":
+        return [get_copyright_spec(**args)]
+    if name == "lpm":
+        return [get_lpm_spec(**args)]
+    if name == "mmlu":
+        return [get_mmlu_spec(**args)]
+    if name == "narrativeqa":
+        return [get_narrativeqa_spec()]
+    if name == "commonsense_qa":
+        return [get_commonsense_qa_spec(**args)]
+    if name == "quac":
+        return [get_quac_spec()]
+    if name == "wiki":
+        return [get_wiki_spec(**args)]
+    if name == "babi_qa":
+        return [get_babi_qa_spec(**args)]
+    if name == "real_toxicity_prompts":
+        return [get_real_toxicity_prompts_spec()]
+    if name == "simple1":
+        return [get_run_spec1()]
+    if name == "twitter_aae":
+        return [get_twitter_aae_spec(**args)]
+    if name == "natural_qa":
+        return [get_natural_qa_spec(**args)]
+    if name == "the_pile":
+        return [get_the_pile_spec(**args)]
+    if name == "raft":
+        return [get_raft_spec(**args)]
+    if name == "empatheticdialogues":
+        return [get_empatheticdialogues_spec(**args)]
+
+    raise ValueError(f"Unknown run spec: {spec}")
+
+
+def get_run_spec1() -> RunSpec:
+>>>>>>> 9946a7b (Working commit of empathetic dialogues scenario)
     """An run spec for debugging."""
     return RunSpec(
         name="simple1",
@@ -679,6 +730,7 @@ def get_narrativeqa_spec() -> RunSpec:
         metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
     )
 
+<<<<<<< HEAD
 
 def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     scenario = ScenarioSpec(
@@ -871,3 +923,27 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         ]
 
     return run_specs
+=======
+def get_empatheticdialogues_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.empatheticdialogues_scenario.EmpatheticDialoguesScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=2,
+        model="ai21/j1-large",
+        max_eval_instances=450,  # TODO : Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=5,
+        temperature=0.0,
+    )
+
+    return RunSpec(
+        name=f"empatheticdialogues",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+>>>>>>> 9946a7b (Working commit of empathetic dialogues scenario)
