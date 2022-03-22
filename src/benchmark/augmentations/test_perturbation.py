@@ -3,13 +3,18 @@ from typing import List
 from benchmark.scenario import Instance, Reference
 
 from .data_augmenter import DataAugmenter
+<<<<<<< HEAD
 from benchmark.augmentations.perturbation import IdentityPerturbation, ExtraSpacePerturbation, Contraction
+=======
+from .extra_space_perturbation import ExtraSpacePerturbation
+from .identity_perturbation import IdentityPerturbation
+>>>>>>> master
 
 
 def test_identity_perturbation():
-    instance: Instance = Instance(input="Hello my name is", references=[])
+    instance: Instance = Instance(id="id0", input="Hello my name is", references=[])
     perturbation = IdentityPerturbation()
-    clean_instance: Instance = perturbation.apply("id0", instance)
+    clean_instance: Instance = perturbation.apply(instance)
 
     assert clean_instance.id == "id0"
     assert clean_instance.perturbation.name == "identity"
@@ -17,7 +22,9 @@ def test_identity_perturbation():
 
 def test_extra_space_perturbation():
     data_augmenter = DataAugmenter(perturbations=[ExtraSpacePerturbation(num_spaces=2)], should_perturb_references=True)
-    instance: Instance = Instance(input="Hello my name is", references=[Reference(output="some name", tags=[])])
+    instance: Instance = Instance(
+        id="id0", input="Hello my name is", references=[Reference(output="some name", tags=[])]
+    )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2

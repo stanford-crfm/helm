@@ -1,9 +1,6 @@
 from typing import List, Dict, Optional, Any
 
 from common.object_spec import ObjectSpec
-
-from .augmentations.data_augmenter import DataAugmenterSpec
-from .augmentations.perturbation import PerturbationSpec
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
@@ -42,34 +39,6 @@ def get_adapter_spec1() -> AdapterSpec:
         model="simple/model1",
         temperature=1,
         stop_sequences=["."],
-    )
-
-
-def get_adapter_spec1_with_data_augmentation() -> AdapterSpec:
-    data_augmenter_spec = DataAugmenterSpec(
-        perturbation_specs=[
-            PerturbationSpec(
-                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", args={"num_spaces": 5}
-            )
-        ],
-        should_perturb_references=False,
-        should_augment_train_instances=False,
-        should_include_original_train=False,
-        should_augment_eval_instances=True,
-        should_include_original_eval=True,
-    )
-
-    return AdapterSpec(
-        method=ADAPT_GENERATION,
-        instructions="Please solve the following problem.",
-        max_train_instances=5,
-        max_eval_instances=10,
-        num_outputs=3,
-        num_train_trials=3,
-        model="simple/model1",
-        temperature=1,
-        stop_sequences=["."],
-        data_augmenter_spec=data_augmenter_spec,
     )
 
 
@@ -148,6 +117,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_the_pile_spec(**args)]
     if name == "raft":
         return [get_raft_spec(**args)]
+    if name == "wikitext_103":
+        return [get_wikitext_103_spec()]
 
     raise ValueError(f"Unknown run spec: {spec}")
 
@@ -583,4 +554,26 @@ def get_narrativeqa_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
+    )
+
+
+def get_wikitext_103_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.wikitext_103_scenario.Wikitext103Scenario", args=dict())
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_MODELING,
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        max_eval_instances=None,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        max_tokens=0,
+    )
+
+    return RunSpec(
+        name="wikitext_103", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": []}),
     )
