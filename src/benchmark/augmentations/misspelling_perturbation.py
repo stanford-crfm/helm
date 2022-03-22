@@ -58,8 +58,8 @@ class MisspellingPerturbation(Perturbation):
         for word in words:
             word = self.perturb_word(word)
             new_words.append(word)
-        new_words = self.detokenizer.detokenize(new_words)
-        return new_words
+        perturbed_str = self.detokenizer.detokenize(new_words)
+        return perturbed_str
 
     def perturb(self, text: str) -> str:
         return self.perturb_seed(text)
