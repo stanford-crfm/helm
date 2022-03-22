@@ -99,7 +99,8 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
             args={**args, "name": "longest_common_prefix_length"},
         ),
         MetricSpec(
-            class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_distance"},
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric",
+            args={**args, "name": "edit_distance"},
         ),
     ]
 
@@ -192,7 +193,10 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 
 
 def get_wiki_spec(k: str, subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.wiki_scenario.WIKIScenario", args={"subject": subject},)
+    scenario = ScenarioSpec(
+        class_name="benchmark.wiki_scenario.WIKIScenario",
+        args={"subject": subject},
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -219,7 +223,10 @@ def get_wiki_spec(k: str, subject: str) -> RunSpec:
 def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.commonsense_qa_scenario.CommonSenseQAScenario",
-        args={"dataset": dataset, "method": method,},
+        args={
+            "dataset": dataset,
+            "method": method,
+        },
     )
 
     if method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
@@ -242,7 +249,13 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             metrics=get_basic_metrics({"names": ["exact_match"]}),
         )
     elif method == CAUSAL_LANGUAGE_MODELING_METHOD:
-        n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
+        n_choice = {
+            "hellaswag": 4,
+            "openbookqa": 4,
+            "commonsenseqa": 5,
+            "piqa": 2,
+            "siqa": 3,
+        }[dataset]
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             instructions="",
@@ -285,13 +298,17 @@ def get_quac_spec() -> RunSpec:
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name="quac", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": ["f1_score"]}),
+        name="quac",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["f1_score"]}),
     )
 
 
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
+        class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario",
+        args={"demographic": demographic},
     )
 
     adapter_spec = AdapterSpec(
@@ -332,7 +349,10 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         num_outputs=25,  # "...the expected maximum toxicity over k = 25 generations..."
     )
     return RunSpec(
-        name="real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics(),
+        name="real_toxicity_prompts",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_toxicity_metrics(),
     )
 
 
@@ -360,7 +380,10 @@ def get_lpm_spec(difficulty: str) -> RunSpec:
 
 
 def get_raft_spec(subset: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.raft_scenario.RAFTScenario", args={"subset": subset},)
+    scenario = ScenarioSpec(
+        class_name="benchmark.raft_scenario.RAFTScenario",
+        args={"subset": subset},
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -571,6 +594,7 @@ def get_narrativeqa_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
     )
+
 
 def get_empatheticdialogues_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.EmpatheticDialoguesScenario", args={})
