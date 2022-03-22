@@ -1,5 +1,5 @@
-from dataclasses import dataclass, replace
-from typing import List, Dict
+from dataclasses import dataclass
+from typing import Dict
 import re
 
 from .perturbation import Perturbation
@@ -92,7 +92,7 @@ CONTRACTION_MAP: Dict[str, str] = {
 @dataclass
 class ContractionPerturbation(Perturbation):
     """
-    Contractions. 
+    Contractions.
     Replaces each expansion with its contracted version.
 
     Perturbation example:
@@ -114,7 +114,7 @@ class ContractionPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return Contraction.Description(self.name)
+        return ContractionPerturbation.Description(self.name)
 
     def contract(self, sentence: str) -> str:
         reverse_contraction_pattern = re.compile(
@@ -140,7 +140,7 @@ class ContractionPerturbation(Perturbation):
 @dataclass
 class ExpansionPerturbation(Perturbation):
     """
-    Expansions. 
+    Expansions.
     Replaces each contraction with its expanded version.
 
     Perturbation example:
@@ -161,7 +161,7 @@ class ExpansionPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return Contraction.Description(self.name)
+        return ExpansionPerturbation.Description(self.name)
 
     def expand_contractions(self, sentence):
         contraction_pattern = re.compile(
