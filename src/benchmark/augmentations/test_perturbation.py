@@ -3,7 +3,8 @@ from typing import List
 from benchmark.scenario import Instance, Reference
 
 from .data_augmenter import DataAugmenter
-from benchmark.augmentations.perturbation import IdentityPerturbation, ExtraSpacePerturbation
+from .extra_space_perturbation import ExtraSpacePerturbation
+from .identity_perturbation import IdentityPerturbation
 
 
 def test_identity_perturbation():
