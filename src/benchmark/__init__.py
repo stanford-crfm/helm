@@ -16,9 +16,14 @@ from . import quac_scenario  # noqa
 from . import babi_qa_scenario  # noqa
 from . import narrativeqa_scenario  # noqa
 from . import raft_scenario  # noqa
+from . import wikitext_103_scenario  # noqa
 
+# Metrics
 from . import basic_metrics  # noqa
 from . import commonsense_qa_metrics  # noqa
 from . import toxicity_metrics  # noqa
 from . import tokens_metric  # noqa
 from . import copyright_metrics  # noqa
+
+# Perturbations for data augmentation
+from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa
