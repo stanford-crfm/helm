@@ -1,11 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import List
-import numpy as np
-import json
-from pathlib import Path
-from nltk.tokenize import word_tokenize
-from nltk.tokenize.treebank import TreebankWordDetokenizer
 
 from .perturbation_description import PerturbationDescription
 from benchmark.scenario import Instance, Reference

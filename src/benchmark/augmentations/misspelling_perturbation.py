@@ -31,7 +31,8 @@ class MisspellingPerturbation(Perturbation):
 
     def __init__(self, prob: float):
         """
-        prob (float): probability between [0,1] of perturbing a word to a common misspelling (if we have a common misspelling for the word)
+        prob (float): probability between [0,1] of perturbing a word to a
+            common misspelling (if we have a common misspelling for the word)
         """
         self.prob = prob
         misspellings_file = Path(__file__).resolve().expanduser().parent / "correct_to_misspelling.json"
