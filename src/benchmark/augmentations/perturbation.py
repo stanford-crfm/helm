@@ -98,7 +98,7 @@ class ExtraSpacePerturbation(Perturbation):
 # The implementation below is based on the following list of common misspellings:
 # https://en.wikipedia.org/wiki/Wikipedia:Lists_of_common_misspellings/For_machines
 @dataclass
-class Misspellings(Perturbation):
+class MisspellingPerturbation(Perturbation):
     """
     Replaces words randomly with common misspellings, from a list of common misspellings.
     Perturbation example:
@@ -126,7 +126,7 @@ class Misspellings(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return Misspellings.Description(self.name)
+        return MisspellingPerturbation.Description(self.name)
 
     def count_upper(self, word: str) -> int:
         return sum(c.isupper() for c in word)
