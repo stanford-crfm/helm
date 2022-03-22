@@ -35,7 +35,7 @@ def test_extra_space_perturbation():
 def test_contraction_perturbation():
     data_augmenter = DataAugmenter(perturbations=[ContractionPerturbation()], should_perturb_references=True)
     instance: Instance = Instance(
-        input="She is a doctor, and I am a student", references=[Reference(output="he is a teacher", tags=[])]
+        id="id0", input="She is a doctor, and I am a student", references=[Reference(output="he is a teacher", tags=[])]
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
@@ -49,12 +49,12 @@ def test_contraction_perturbation():
 def test_expansion_perturbation():
     data_augmenter = DataAugmenter(perturbations=[ExpansionPerturbation()], should_perturb_references=True)
     instance: Instance = Instance(
-        input="She's a doctor, and I'm a student", references=[Reference(output="he's a teacher", tags=[])]
+        id="id0", input="She's a doctor, and I'm a student", references=[Reference(output="he's a teacher", tags=[])]
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
     assert instances[0].id == "id0"
-    assert instances[0].perturbation.name == "contraction"
+    assert instances[0].perturbation.name == "expansion"
     assert instances[0].input == "She is a doctor, and I am a student"
     assert instances[0].references[0].output == "he is a teacher"
