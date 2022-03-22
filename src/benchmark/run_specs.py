@@ -15,7 +15,7 @@ from .runner import RunSpec
 from .scenario import ScenarioSpec
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .raft_scenario import get_raft_instructions
-from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO, MODE_INFO
+from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -91,8 +91,16 @@ def get_lpm_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
-def get_numeracy_metrics() -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.numeracy_metrics.DistanceMetric", args={})]
+def get_numeracy_metrics(relation_type: str) -> List[MetricSpec]:
+    metric_names = {"names": ["match_upto_whitespace", "absolute_value_difference"]}
+    metrics = [
+        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names),
+    ]
+    if relation_type not in ["parabola", "paraboloid"]:
+        metrics += [
+            MetricSpec(class_name="benchmark.numeracy_metrics.DistanceMetric", args={}),
+        ]
+    return metrics
 
 
 def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
@@ -389,23 +397,24 @@ def get_raft_spec(subset: str) -> RunSpec:
     )
 
 
-def get_numeracy_spec(relation_type: str = "linear", mode: str = "function", seed: int = 0) -> RunSpec:
+def get_numeracy_spec(relation_type: str = "linear", mode: str = "function", seed: str = "0") -> RunSpec:
+    random_seed = int(seed)
     scenario = ScenarioSpec(
         class_name="benchmark.numeracy_scenario.NumeracyScenario",
-        args={"seed": seed, "relation_type": relation_type, "mode": mode,},
+        args={"seed": random_seed, "relation_type": relation_type, "mode": mode,},
     )
 
     if mode in ["example", "standard"]:
         adapter_args: Dict[str, Any] = {
-            "max_train_instances": MODE_INFO[mode]["num_train"],
-            "max_eval_instances": MODE_INFO[mode]["num_test"],
+            "max_train_instances": 10,
+            "max_eval_instances": 1,
             "dim": RELTYPE_INFO[relation_type].num_variables + 1,
         }
     elif mode == "function":
         adapter_args = {
             "instructions": "",
-            "max_train_instances": MODE_INFO[mode]["num_function_train"],
-            "max_eval_instances": MODE_INFO[mode]["num_function_test"],
+            "max_train_instances": 0,
+            "max_eval_instances": 1000,
             "dim": RELTYPE_INFO[relation_type].num_variables + 1,
             "block_prefix": "\n\n",
         }
@@ -415,8 +424,7 @@ def get_numeracy_spec(relation_type: str = "linear", mode: str = "function", see
         name=f"numeracy:relation_type={relation_type},mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        # metrics=get_basic_metrics({"names": ["exact_match"]}),
-        metrics=get_numeracy_metrics(),
+        metrics=get_numeracy_metrics(relation_type),
     )
 
 

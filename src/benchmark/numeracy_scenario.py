@@ -78,9 +78,9 @@ class Polynomial:  # TODO convert to dataclass
             if coeff == 0:
                 return None
             if coeff == 1:
-                return term
+                return term or str(coeff)
             if coeff == -1:
-                return f"-{term}"
+                return f"-{term}" if term else "-1"
             return f"{coeff}{term}"
 
         monomials = [stringify_monomial(c, x) for c, x in zip(self.coeffs, stringify_terms(self.terms))]
@@ -131,6 +131,8 @@ def generate_polynomial(
     while count < MAX_ATTEMPTS:
         done = True
         coeffs = [random.randint(r[0], r[1]) for r in range_coeffs]
+        if strict_constant and coeffs[-1] == 0:
+            done = False
         if strict_degree and not sum(coeffs[: comb(degree + num_variables - 1, num_variables - 1)]):
             done = False
         if strict_variables:
@@ -181,11 +183,24 @@ def generate_plane(range_coeffs: Range) -> Polynomial:
         range_coeffs=range_coeffs,
         strict_degree=True,
         strict_variables=True,
-        strict_constant=False,
+        strict_constant=True,
     )
 
 
 def generate_paraboloid(range_coeffs: Range) -> Polynomial:
+    return generate_polynomial(
+        degree=2,
+        num_variables=2,
+        range_coeffs=range_coeffs,
+        strict_degree=True,
+        strict_variables=True,
+        strict_constant=True,
+    )
+
+
+def generate_rotated_translated_paraboloid(range_coeffs: Range) -> Polynomial:
+    """Unused.
+    """
     do_sample = True
     while do_sample:
         coeffs_0 = generate_plane(range_coeffs).coeffs
@@ -223,16 +238,23 @@ def distance_parabola(point: List[int], rel_str: str):
     Returns the minimum distance from the given point to the relation given by `rel_str` which has the form:
     y = A x^2 + B x + C
     """
+    rel_str = rel_str.split(" = ")[-1]
     expr = sympy.parse_expr(rel_str.replace("^", "**"), transformations=SYMPY_TRANSFORMATIONS)
     poly = sympy.Poly(expr, list(expr.free_symbols))
     x = list(expr.free_symbols)[0]
     x0, y0 = point
     dist = (x - x0) ** 2 + (poly - y0) ** 2
     deriv = sympy.diff(dist, x)
-    sols = sympy.solve(deriv, x)
+    try:
+        sols = sympy.solve(deriv, x)
+    except ZeroDivisionError:
+        return float(0.0)  # TODO!
     dist_vals = list(map(lambda _: sympy.N(dist.eval(_)), sols))
-    dist_val = min(filter(lambda _: _.is_real, dist_vals))
-    return dist_val
+    try:
+        dist_val = min(filter(lambda _: _.is_real and _ >= 0, dist_vals))
+    except ValueError:
+        return float(0.0)  # TODO! empty list
+    return float(dist_val)
 
 
 def distance_plane(point: List[int], rel_str: str):
@@ -260,6 +282,7 @@ def distance_paraboloid(point: List[int], rel_str: str):
     z = A x^2 + B x y + C y^2 + D x + E y + F
     Uses method of Lagrange multipliers.
     """
+    rel_str = rel_str.split(" = ")[-1]
     expr = sympy.parse_expr(rel_str.replace("^", "**"), transformations=SYMPY_TRANSFORMATIONS)
     x, y = list(expr.free_symbols)
     z = Symbol("z")
@@ -270,14 +293,22 @@ def distance_paraboloid(point: List[int], rel_str: str):
     eq_x = diff(f, x) - λ * diff(g, x)
     eq_y = diff(f, y) - λ * diff(g, y)
     eq_z = diff(f, z) - λ * diff(g, z)
-    sols = sympy.solve([eq_x, eq_y, eq_z, g], [x, y, z, λ])
+    try:
+        sols = sympy.solve([eq_x, eq_y, eq_z, g], [x, y, z, λ])
+    except ZeroDivisionError:
+        return float(0.0)  # TODO!
     poly_f = sympy.Poly(f, [x, y, z])
     dist_vals = list(map(lambda _: sympy.N(poly_f.eval(_[:3])), sols))
-    dist_val = min(filter(lambda _: _.is_real, dist_vals))
-    return dist_val
+    try:
+        dist_val = min(filter(lambda _: _.is_real and _ >= 0, dist_vals))
+    except ValueError:
+        return float(0.0)  # TODO! empty list
+    return float(dist_val)
 
 
-def select_ranges(num_train: int, num_test: int, dim: int) -> Tuple[Range, Range]:
+def select_ranges(
+    num_train: int, num_test: int, dim: int, overlap: bool = True, nonnegative_only: bool = False
+) -> Tuple[Range, Range]:
     """
     Choose disjoint intervals from which to sample points, where
     the test points lie within a region bounded by the region
@@ -289,11 +320,20 @@ def select_ranges(num_train: int, num_test: int, dim: int) -> Tuple[Range, Range
         return list((lst - val) >= 0).index(True)
 
     def construct_range(index: int, dim: int) -> List[Tuple[int, int]]:
+        if nonnegative_only:
+            return [(0, choices[index]) for _ in range(dim)]
         return [(-choices[index], choices[index]) for _ in range(dim)]
 
-    num_points = (2 * choices + 1) ** dim  # list of ints
-    test_index = select_index(num_points, num_test)
-    train_index = select_index(num_points - num_points[test_index], num_train)
+    if nonnegative_only:
+        num_points = (choices + 1) ** dim  # list of ints
+    else:
+        num_points = (2 * choices + 1) ** dim  # list of ints
+
+    if overlap:
+        train_index = test_index = select_index(num_points, num_train + num_test)
+    else:
+        test_index = select_index(num_points, num_test)
+        train_index = select_index(num_points - num_points[test_index], num_train)
 
     test_range = construct_range(test_index, dim)
     train_range = construct_range(train_index, dim)
@@ -311,18 +351,27 @@ class RelationTypeInfo:
 
 RELTYPE_INFO: Dict[str, RelationTypeInfo] = {
     "linear": RelationTypeInfo(
-        name="linear", degree=1, num_variables=1, range=[(-9, 9), (-9, 9)], example_coeffs=[2, 5]
+        name="linear", degree=1, num_variables=1, range=[(1, 5), (1, 5)], example_coeffs=[2, 5]
     ),  # 2x + 5
     "parabola": RelationTypeInfo(
-        name="parabola", degree=2, num_variables=1, range=[(-9, 9), (-9, 9), (-9, 9)], example_coeffs=[1, 2, 5]
-    ),  # x^2 + 2x + 5
+        # parabolas with axis of symmetry to the left of the origin
+        name="parabola",
+        degree=2,
+        num_variables=1,
+        range=[(1, 2), (0, 2), (1, 5)],
+        example_coeffs=[1, 0, 2],
+    ),  # x^2 + 2
     "plane": RelationTypeInfo(
-        name="parabola", degree=1, num_variables=2, range=[(-9, 9), (-9, 9), (-9, 9)], example_coeffs=[2, 1, 5]
+        name="plane", degree=1, num_variables=2, range=[(1, 5), (1, 5), (1, 5)], example_coeffs=[2, 1, 5]
     ),  # 2x + y + 5
     "paraboloid": RelationTypeInfo(
-        name="parabola", degree=2, num_variables=2, range=[(-9, 9), (-9, 9), (-9, 9)], example_coeffs=[1, 0, 1, 2, 0, 5]
-    ),  # x^2 + y^2 + 2x + 5
-    # ellipsoid paraboloids only, ie. of the form z = x^2 + y^2 under a suitable transformation of the xy-axes
+        # axis-aligned ellipsoid paraboloids only, ie. of the form z = A x^2 + B y^2 + C
+        name="paraboloid",
+        degree=2,
+        num_variables=2,
+        range=[(1, 2), (0, 1), (1, 2), (0, 0), (0, 0), (1, 5)],
+        example_coeffs=[1, 0, 1, 0, 0, 2],
+    ),  # x^2 + y^2 + 2
 }
 
 
@@ -334,12 +383,12 @@ RELTYPE_INFO: Dict[str, RelationTypeInfo] = {
 
 
 MODE_INFO = {
-    "example": {"num_function_train": 1, "num_function_test": 1, "num_train": 10, "num_test": 1,},
+    "example": {"num_function_train": 1, "num_function_test": 1, "num_train": 10, "num_test": 10,},
     "standard": {"num_function_train": 1, "num_function_test": 1, "num_train": 100, "num_test": 100,},
     "function": {
-        "num_function_train": 10,
-        "num_function_test": 10,  # don't bother excluding from train set
-        "num_train": 10,
+        "num_function_train": 1000,
+        "num_function_test": 1000,  # don't bother excluding from train set
+        "num_train": 100,
         "num_test": 1,
     },
 }
@@ -349,26 +398,35 @@ def get_var(dim: int, variable_names=list("xyz")):
     return variable_names[dim - 1]
 
 
-def get_dataset_header(dim: int, variable_names=list("xyz")):
-    return ",".join(variable_names[:dim])
+def get_dataset_header(
+    dim: int, variable_names: List[str] = list("xyz"), delimeter: str = ", ", output_prefix: str = ", "
+):
+    return delimeter.join(variable_names[: dim - 1]) + output_prefix + variable_names[dim - 1]
 
 
-def get_numeracy_adapter_spec(max_train_instances: int, max_eval_instances: int, dim: int, **kwargs) -> AdapterSpec:
+def get_numeracy_adapter_spec(
+    max_train_instances: int, max_eval_instances: int, dim: int, delimeter: str = ", ", **kwargs
+) -> AdapterSpec:
     return AdapterSpec(
         **{
             **{
                 "method": ADAPT_GENERATION,
-                "instructions": get_dataset_header(dim),
+                "instructions": get_dataset_header(dim, delimeter=delimeter, output_prefix=", "),
                 "max_train_instances": max_train_instances,
                 "max_eval_instances": max_eval_instances,
                 "num_outputs": 1,
                 "num_train_trials": 1,
+                # "model": "ai21/j1-jumbo",
+                # "model": "ai21/j1-large",
                 "model": "openai/davinci",
+                # "model": "openai/curie",
+                # "model": "openai/babbage",
+                # "model": "openai/ada",
                 "temperature": 0,
                 "stop_sequences": ["\n"],
                 "max_tokens": 20,
                 "input_prefix": "",
-                "output_prefix": ",",
+                "output_prefix": ", ",
                 "block_prefix": "\n",
             },
             **kwargs,
@@ -389,16 +447,31 @@ class NumeracyScenario(Scenario):
     - plane                     (1 degree,  2 variables)
     - (ellipsoid) paraboloid    (2 degrees, 2 variables)
 
-    and independently 2 modes:
+        with coefficients drawn from restricted ranges
+        (see dict `RELTYPE_INFO`), and
+        where {parabola, paraboloid} have nonnegative domains,
+        ie. the right ray of the x-axis or upper-right
+        quadrant of the plane resp. so that the model cannot
+        rely on symmetry.
+
+    and independently 2 + 1 modes:
     - standard
         - A single dataset corresponding to the same polynomial
     - function
         - Multiple datasets, where each dataset instance corresponds to
         an independently sampled polynomial belonging to the same class.
+    and
+    - example
+        - A single dataset corresponding to the same fixed representative for each class.
 
-    Train datapoints are drawn from a rectilinear border region while
-    test datapoints are drawn from a disjoint rectilinear interior region,
-    centered at the origin (see function `select_ranges`).
+    If `overlap` is `True`:
+        Train and test datapoints are drawn from the same rectilinear region
+        centered at the origin (see function `select_ranges`),
+        making sure to exclude the training set from the test set.
+    Otherwise:
+        Train datapoints are drawn from a rectilinear border region while
+        test datapoints are drawn from a disjoint rectilinear interior region,
+        centered at the origin (see function `select_ranges`).
 
     Example prompt for `relation_type=parabola,mode=function` with `num_function_train=num_function_test=num_train=2`:
         x,y
@@ -422,9 +495,16 @@ class NumeracyScenario(Scenario):
     tags: List[str] = []
     RELTYPES: List[str] = ["linear", "parabola", "plane", "paraboloid"]
     MODES: List[str] = ["example", "standard", "function"]
-    delimiter: str = ","
+    delimiter: str = ", "
 
-    def __init__(self, relation_type: str = "linear", mode: str = "function", seed: Optional[int] = None):
+    def __init__(
+        self,
+        relation_type: str = "linear",
+        mode: str = "function",
+        seed: Optional[int] = None,
+        overlap: bool = True,  # whether the in-context and eval points are drawn from the same region
+        sort_vals: bool = False,  # whether to sort the in-context examples
+    ):
         assert relation_type in NumeracyScenario.RELTYPES
         assert mode in NumeracyScenario.MODES
         if seed is not None:
@@ -433,6 +513,8 @@ class NumeracyScenario(Scenario):
 
         self.relation_type = relation_type
         self.mode = mode
+        self.overlap = overlap
+        self.sort_vals = sort_vals
 
         self.degree: int = RELTYPE_INFO[relation_type].degree
         self.num_variables: int = RELTYPE_INFO[relation_type].num_variables
@@ -445,12 +527,36 @@ class NumeracyScenario(Scenario):
         self.num_test = MODE_INFO[mode]["num_test"]
 
     def get_instances(self) -> List[Instance]:
-        train_range, test_range = select_ranges(
-            num_train=self.num_train, num_test=self.num_test, dim=self.num_variables
-        )  # not a typo
+        if self.relation_type in ["parabola", "paraboloid"]:
+            train_range, test_range = select_ranges(
+                num_train=50,
+                num_test=50,
+                dim=self.num_variables,  # not a typo
+                overlap=self.overlap,
+                nonnegative_only=True,
+            )
+        else:
+            train_range, test_range = select_ranges(
+                num_train=100,
+                num_test=100,
+                dim=self.num_variables,  # not a typo
+                overlap=self.overlap,
+                nonnegative_only=False,
+            )
+        #               train_range = test_range:
+        #               -------------------------
+        # linear:       [(-100, 100)]
+        # parabola:     [(0, 100)]
+        # plane:        [(-10, 10), (-10, 10)]
+        # paraboloid:   [(0, 10), (0, 10)]
 
         test_vals = list(product(*[range(r[0], r[1] + 1) for r in test_range]))
-        train_vals = list(set(product(*[range(r[0], r[1] + 1) for r in train_range])) - set(test_vals))
+        if self.overlap:
+            train_vals = test_vals
+        else:
+            train_vals = list(set(product(*[range(r[0], r[1] + 1) for r in train_range])) - set(test_vals))
+        if self.sort_vals:
+            train_vals = list(sorted(train_vals))
 
         def generate_datapoint(rel: Polynomial, vals: List[int]) -> Tuple[List[str], str]:
             y = rel.eval(vals)
@@ -475,8 +581,14 @@ class NumeracyScenario(Scenario):
             return instances
 
         def generate_datapoint_instances(rel: Polynomial):
-            test_idxs = np.random.choice(range(len(test_vals)), self.num_test, replace=False)
-            train_idxs = np.random.choice(range(len(train_vals)), self.num_train, replace=False)
+            train_idxs = list(np.random.choice(range(len(train_vals)), self.num_train, replace=False))
+            if self.sort_vals:
+                train_idxs = list(sorted(train_idxs))
+            if self.overlap:
+                all_test_idxs = list(set(range(len(test_vals))) - set(train_idxs))
+            else:
+                all_test_idxs = list(range(len(test_vals)))
+            test_idxs = np.random.choice(all_test_idxs, self.num_test, replace=False)
 
             train_instances = generate_datapoint_instances_for_split(rel, train_idxs, train_vals, TRAIN_SPLIT)
             test_instances = generate_datapoint_instances_for_split(rel, test_idxs, test_vals, TEST_SPLIT)
@@ -490,10 +602,10 @@ class NumeracyScenario(Scenario):
             return instances
 
         def generate_datasets(num_instances: int, split: str):
-            spec = get_numeracy_adapter_spec(self.num_train, self.num_test, self.dim)
+            spec = get_numeracy_adapter_spec(self.num_train, self.num_test, self.dim, self.delimiter)
             adapter = Adapter(spec)
             outer_spec = get_numeracy_adapter_spec(
-                self.num_train, self.num_test, self.dim, instructions="", block_prefix="\n\n"
+                self.num_train, self.num_test, self.dim, instructions="", block_prefix="\n\n", delimeter=self.delimiter,
             )
             outer_adapter = Adapter(outer_spec)
             instances = []
@@ -505,13 +617,13 @@ class NumeracyScenario(Scenario):
                 for idx in range(self.num_test):
                     eval_instance = eval_instances[idx]
                     input = adapter.construct_prompt(train_instances, eval_instance)
-                    input = input[: -len(spec.output_prefix)]  # strip output_prefix
+                    input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
                     references = eval_instance.references
                     dataset_instance = Instance(input=input, references=references, split=split)  # split doesn't matter
                     dataset_instances.append(dataset_instance)
 
                 input = outer_adapter.construct_prompt(dataset_instances[:-1], dataset_instances[-1])
-                input = input[: -len(spec.output_prefix)]  # strip output_prefix
+                input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
                 references = dataset_instances[-1].references
                 instance = Instance(input=input, references=references, split=split)
                 instances.append(instance)

@@ -31,6 +31,14 @@ def exact_match(gold: str, pred: str) -> float:
     return 1 if gold == pred else 0
 
 
+def match_upto_whitespace(gold: str, pred: str) -> float:
+    """Exact match, ignoring trailing whitespace on either side.
+    """
+    gold = gold.lstrip().rstrip()
+    pred = pred.lstrip().rstrip()
+    return 1 if gold == pred else 0
+
+
 def get_num_bytes(tokens: List[Token]) -> int:
     """
     Compute the byte length of the input tokens. For a UTF-8 string token, we use byte() to convert
@@ -202,6 +210,7 @@ class BasicMetric(Metric):
         # maps each string metric name to its associated function
         metric_fn_mapping = {
             "exact_match": exact_match,
+            "match_upto_whitespace": match_upto_whitespace,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
             "f1_score": f1_score,
