@@ -345,7 +345,7 @@ def get_gsm_spec() -> RunSpec:
         output_prefix="",
         num_train_trials=1,
         max_train_instances=3,
-        max_eval_instances=100, # TODO: Remove when deployed
+        max_eval_instances=100,  # TODO: Remove when deployed
         model="ai21/j1-large",
         temperature=0.7,
         stop_sequences=["\n\n"],
