@@ -5,6 +5,7 @@ from benchmark.scenario import Instance, Reference
 from .data_augmenter import DataAugmenter
 from .extra_space_perturbation import ExtraSpacePerturbation
 from .identity_perturbation import IdentityPerturbation
+from .contraction_expansion_perturbation import ContractionPerturbation, ExpansionPerturbation
 
 
 def test_identity_perturbation():
@@ -32,7 +33,7 @@ def test_extra_space_perturbation():
 
 
 def test_contraction_perturbation():
-    data_augmenter = DataAugmenter(perturbations=[Contraction()], should_perturb_references=True)
+    data_augmenter = DataAugmenter(perturbations=[ContractionPerturbation()], should_perturb_references=True)
     instance: Instance = Instance(
         input="She is a doctor, and I am a student", references=[Reference(output="he is a teacher", tags=[])]
     )
@@ -43,3 +44,17 @@ def test_contraction_perturbation():
     assert instances[0].perturbation.name == "contraction"
     assert instances[0].input == "She's a doctor, and I'm a student"
     assert instances[0].references[0].output == "he's a teacher"
+
+
+def test_expansion_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[ExpansionPerturbation()], should_perturb_references=True)
+    instance: Instance = Instance(
+        input="She's a doctor, and I'm a student", references=[Reference(output="he's a teacher", tags=[])]
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+    assert instances[0].id == "id0"
+    assert instances[0].perturbation.name == "contraction"
+    assert instances[0].input == "She is a doctor, and I am a student"
+    assert instances[0].references[0].output == "he is a teacher"
