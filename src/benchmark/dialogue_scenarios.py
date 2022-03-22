@@ -41,58 +41,6 @@ class DialogueReference(Reference):
         return [f"reference {format_tags(self.tags)}: {format_text(self.output)}"]
 
 
-@dataclass(frozen=True)
-class DialogueInstance(Instance):
-    """
-    A dialogue instance is uniquely identified by the `input` which stores the
-    "prompt"/"content"/"situation" provided as part of the dialogue dataset.
-    Multiple human conversations collected with the same `input` are stored in `references`
-    as a list of `DialogueReference`
-    """
-
-    # The input text
-    input: str
-
-    # References that helps us evaluate
-    references: List[DialogueReference]
-
-    # Split (e.g., train, valid, test)
-    split: Optional[str] = None
-
-    # Sub split (e.g. toxic, non-toxic)
-    sub_split: Optional[str] = None
-
-    # Used to group Instances that were created from a particular Instance through data augmentation
-    id: Optional[str] = None
-
-    # Description of the Perturbation that was applied when creating this Instance
-    perturbation: Optional[PerturbationDescription] = None
-
-    # metadata about the dialogue instance (scenario specific)
-    metadata: Optional[Dict] = None
-
-    @property
-    def first_correct_reference(self) -> Optional[Reference]:
-        """Return the first correct reference."""
-        for reference in self.references:
-            if reference.is_correct:
-                return reference
-        return None
-
-    def render_lines(self) -> List[str]:
-        info = [f"input: {format_text(self.input)}"]
-        if self.sub_split:
-            info.append(f"sub_split: {format_text(self.sub_split)}")
-        if self.id:
-            info.append(f"id: {format_text(self.id)}")
-        if self.perturbation:
-            info.append(f"perturbation: {self.perturbation}")
-
-        for reference in self.references:
-            info.extend(reference.render_lines())
-        return info
-
-
 class EmpatheticDialoguesScenario(Scenario):
     """
     The Empathetic Dialogues dataset from this paper:
@@ -171,11 +119,11 @@ class EmpatheticDialoguesScenario(Scenario):
                 # Create an instance from multiple references
 
                 instances.append(
-                    DialogueInstance(
+                    Instance(
                         input=prompt_cols[0],
                         references=references,
                         split=splits[split],
-                        metadata={"emotion": prompt_cols[1]},
+                        sub_split=prompt_cols[1],
                     )
                 )
         return instances
