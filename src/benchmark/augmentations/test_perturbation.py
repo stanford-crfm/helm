@@ -35,7 +35,7 @@ def test_extra_space_perturbation():
 def test_misspelling_perturbation():
     data_augmenter = DataAugmenter(perturbations=[MisspellingPerturbation(prob=1.0)], should_perturb_references=True)
     instance: Instance = Instance(
-        input="Already, the new product is not available.", references=[],
+        id="id0", input="Already, the new product is not available.", references=[],
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 

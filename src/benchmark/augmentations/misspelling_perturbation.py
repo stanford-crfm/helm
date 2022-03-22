@@ -1,4 +1,10 @@
 from dataclasses import dataclass
+from pathlib import Path
+import json
+import numpy as np
+
+from nltk.tokenize import word_tokenize
+from nltk.tokenize.treebank import TreebankWordDetokenizer
 
 from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
@@ -41,27 +47,19 @@ class MisspellingPerturbation(Perturbation):
         return sum(c.isupper() for c in word)
 
     def perturb_word(self, word: str) -> str:
-        perturbed = False
+        # check if word is in dictionary and perturb with probability self.prob
         if word in self.correct_to_misspelling and np.random.rand() < self.prob:
             word = str(np.random.choice(self.correct_to_misspelling[word]))
-            perturbed = True
-        return word, perturbed
+        return word
 
     def perturb_seed(self, text: str, seed: int=0) -> str:
         words = word_tokenize(text)
         new_words = []
         for word in words:
-            # check if word in original form is in dictionary
-            word, perturbed = self.perturb_word(word)
-            if not perturbed and self.count_upper(word) == 1 and word[0].isupper():
-                # if only the first letter is upper case
-                # check if the lowercase version is in dict
-                lowercase_word = word.lower()
-                word, perturbed = self.perturb_word(lowercase_word)
-                word = word[0].upper() + word[1:]
+            word = self.perturb_word(word)
             new_words.append(word)
-        perturbed = self.detokenizer.detokenize(new_words)
-        return perturbed
+        new_words = self.detokenizer.detokenize(new_words)
+        return new_words
 
     def perturb(self, text: str) -> str:
         return self.perturb_seed(text)
