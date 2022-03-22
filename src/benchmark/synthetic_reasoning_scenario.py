@@ -15,7 +15,7 @@ Result: "apple + peach = peach + apple"
 The model hence is asked to do the following three tasks:
 
 Pattern matching:
-    Input: Several rule strings, and a result string.
+    Input: 4 rule strings, and a result string.
     Output: the matched rule string.
 
 Variable substitution:
@@ -90,7 +90,6 @@ def gen_subst(rule_symbols: List[str], tokens: List[str]) -> Tuple[Dict[str, str
     """
     For each of the rule symbol, we sample a random substitution string composed of randomly sampled tokens.
 
-
     :param rule_symbols: A list of rule symbols.
     :param tokens: Tokens used to construct the substitution.
     :return: We return a substitution dictionary, and its string representation.
@@ -114,6 +113,9 @@ def gen_subst(rule_symbols: List[str], tokens: List[str]) -> Tuple[Dict[str, str
 def gen_pattern(math_symbols: List[str], rule_symbols: List[str]) -> List[str]:
     """
     Generate a pattern string
+
+    Example Input: math_symbols: ["+", "-", "*"], rule_symbols: ["Y", "Y", "Z"]
+    Example Output: ["Y", "Y", "+", "Z", "="]
     """
     num_math_symbols = random.choice(range(2, 4))
     pattern = rule_symbols + random.choices(math_symbols, k=num_math_symbols)
@@ -137,12 +139,14 @@ class SyntheticReasoningScenario(Scenario):
         self.n_valid_samples = 50
         self.n_test_samples = 50
         self.mode = mode
-        assert self.mode in ["variable_substitution", "pattern_match", "induction"]
+        assert self.mode in ["variable_substitution", "pattern_match", "induction"], f"Unsupported mode: {self.mode}"
+        # We fix the seed for data generation to ensure reproducibility.
         random.seed(random_seed)
 
     def get_instances(self) -> List[Instance]:
         # Read all the instances
-        instances = []
+        instances: List[Instance] = []
+
         rule_symbols = RULE_SYMBOLS
         tokens = ANIMALS + FRUITS
         math_symbols = MATH_SYMBOLS
@@ -164,23 +168,24 @@ class SyntheticReasoningScenario(Scenario):
             substitute_dict_2, _ = gen_subst(sampled_rule_symbols_set, tokens)
             result_2 = pattern_subst(pattern, sampled_rule_symbols_set, substitute_dict_2)
 
+            result_string = " ".join(result)
+            pattern_string = " ".join(pattern)
+
             if self.mode == "induction":
-                src = "Two results:" + " ".join([str(c) for c in result + ["|"] + result_2])
-                tgt = "Rule:" + " ".join([str(c) for c in pattern])
+                result_string_2 = " ".join(result_2)
+                src = f"Two results: {result_string} | {result_string_2} "
+                tgt = f"Rule: {pattern_string}"
             elif self.mode == "variable_substitution":
-                src = " ".join(
-                    [str(c) for c in ["Rule:"] + pattern + ["|"] + ["Substitution:"] + [substitute_dict_str]]
-                )
-                tgt = " ".join([str(c) for c in result])
+                src = f"Rules: {pattern_string} | Substitutions: {substitute_dict_str} "
+                tgt = " ".join(result)
             elif self.mode == "pattern_match":
+                # we sample 3 other rule strings as negatives for patterns matching.
                 other_patterns = [" ".join(gen_pattern(math_symbols, sampled_rule_symbols_set)) for _ in range(3)]
-                all_patterns = other_patterns + [" ".join(pattern)]
+                all_patterns = other_patterns + [pattern_string]
                 random.shuffle(all_patterns)
-                pattern_string = " | ".join(all_patterns)
-                src = "Rules: " + pattern_string + " | Result: " + " ".join([str(c) for c in result])
-                tgt = " ".join([str(c) for c in pattern])
-            else:
-                raise ValueError("Mode {} not found".format(self.mode))
+                all_pattern_string = " | ".join(all_patterns)
+                src = f"Rules: {all_pattern_string} | Result: {result_string} "
+                tgt = pattern_string
 
             if sample_idx < self.n_train_samples:
                 split = TRAIN_SPLIT
