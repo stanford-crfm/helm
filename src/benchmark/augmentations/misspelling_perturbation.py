@@ -30,13 +30,13 @@ class MisspellingPerturbation(Perturbation):
     name: str = "misspellings"
 
     def __init__(self, prob: float):
-        '''
+        """
         prob (float): probability between [0,1] of perturbing a word to a common misspelling (if we have a common misspelling for the word)
-        '''
+        """
         self.prob = prob
-        misspellings_file = Path(__file__).resolve().expanduser().parent / 'correct_to_misspelling.json'
-        with open(misspellings_file, 'r') as f:
-                self.correct_to_misspelling = json.load(f)
+        misspellings_file = Path(__file__).resolve().expanduser().parent / "correct_to_misspelling.json"
+        with open(misspellings_file, "r") as f:
+            self.correct_to_misspelling = json.load(f)
         self.detokenizer = TreebankWordDetokenizer()
 
     @property
@@ -52,7 +52,7 @@ class MisspellingPerturbation(Perturbation):
             word = str(np.random.choice(self.correct_to_misspelling[word]))
         return word
 
-    def perturb_seed(self, text: str, seed: int=0) -> str:
+    def perturb_seed(self, text: str, seed: int = 0) -> str:
         words = word_tokenize(text)
         new_words = []
         for word in words:
