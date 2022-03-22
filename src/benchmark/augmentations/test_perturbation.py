@@ -40,5 +40,4 @@ def test_typos_perturbation():
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
-    assert instances[0].id == "id0"
-    assert instances[0].perturbation.name == "typos"
+    assert instances[0].perturbation.name == "TyposPerturbation"
