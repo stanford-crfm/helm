@@ -463,8 +463,8 @@ def get_imdb_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="\nSentiment:",
+        input_prefix="Review: ",
+        output_prefix="Sentiment:",
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
@@ -486,8 +486,8 @@ def get_imdb_contrast_sets_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="\nSentiment:",
+        input_prefix="Review: ",
+        output_prefix="Sentiment:",
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",

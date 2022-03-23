@@ -14,10 +14,11 @@ class IMDbScenario(Scenario):
     Each sample contains a sentence with its corresponding sentiment (0: negative, 1: positive)
 
     We prompt models using the following format:
-        <passage>
+        Review: <passage>
+        Sentiment:
 
         Target completion:
-            Sentiment:<sentiment> (<sentiment>:positive or negative)
+            <sentiment> (<sentiment>:positive or negative)
 
     Using an example from the training dataset, we have
     Very good drama although it appeared to have a few blank areas leaving the viewers
@@ -27,10 +28,10 @@ class IMDbScenario(Scenario):
     the live-in relatives and their quarrels, the troubled child who gets knocked up and then,
     typically, drops out of school, a jackass husband who takes the nest egg and buys beer with it.
     2 thumbs up.
+    Sentiment:
 
     Target completion:
-        Sentiment:positive
-
+        positive
     """
 
     name = "imdb"
@@ -41,7 +42,7 @@ class IMDbScenario(Scenario):
         pass
 
     def get_split_instances(self, split: str, path: str) -> List[Instance]:
-        label_to_classname: Dict[str, str] = {"pos": "Sentiment:positive", "neg": "Sentiment:negative"}
+        label_to_classname: Dict[str, str] = {"pos": "positive", "neg": "negative"}
         split_instances: List[Instance] = []
         for class_name, label_id in label_to_classname.items():
             split_path_label: str = os.path.join(path, class_name)
@@ -50,8 +51,9 @@ class IMDbScenario(Scenario):
                 sentence_path = os.path.join(split_path_label, each_filename)
                 with open(sentence_path, "r") as f:
                     context = f.read().strip()
+                    prompt = context + "\n"
                     instance: Instance = Instance(
-                        input=context + "\n", references=[Reference(output=label_id, tags=[CORRECT_TAG])], split=split
+                        input=prompt, references=[Reference(output=label_id, tags=[CORRECT_TAG])], split=split
                     )
                     split_instances.append(instance)
         return split_instances
@@ -117,7 +119,7 @@ class IMDbContrastSetScenario(IMDbScenario):
 
         contrast_instances: List[Instance] = []
 
-        label_name_to_id = {"Positive": "Sentiment:positive", "Negative": "Sentiment:negative"}
+        label_name_to_id = {"Positive": "positive", "Negative": "negative"}
 
         with open(target_path_constrast, encoding="utf-8") as f:
             # skip the head line
@@ -125,10 +127,9 @@ class IMDbContrastSetScenario(IMDbScenario):
             for eachline in f:
                 label_name, perturbed_context = eachline.strip().split("\t")
                 perturbed_label = label_name_to_id[label_name]
+                prompt = perturbed_context + "\n"
                 instance: Instance = Instance(
-                    input=perturbed_context + "\n",
-                    references=[Reference(output=perturbed_label, tags=[CORRECT_TAG])],
-                    split=TEST_SPLIT,
+                    input=prompt, references=[Reference(output=perturbed_label, tags=[CORRECT_TAG])], split=TEST_SPLIT,
                 )
                 contrast_instances.append(instance)
 
