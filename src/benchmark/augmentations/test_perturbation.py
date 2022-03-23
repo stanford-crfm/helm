@@ -35,9 +35,10 @@ def test_extra_space_perturbation():
 def test_typos_perturbation():
     data_augmenter = DataAugmenter(perturbations=[TyposPerturbation(prob=0.1)], should_perturb_references=True)
     instance: Instance = Instance(
-        input="After their marriage, she started a close collaboration with Karvelas.", references=[],
+        id="id0", input="After their marriage, she started a close collaboration with Karvelas.", references=[],
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
     assert instances[0].perturbation.name == "TyposPerturbation"
+    assert instances[0].input == "After their macriage, she started a close cillaboration with Karvelss."

@@ -27,3 +27,4 @@ from . import copyright_metrics  # noqa
 
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa
+from .augmentations.typos_perturbation import TyposPerturbation  # noqa
