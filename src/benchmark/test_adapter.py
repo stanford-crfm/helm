@@ -1,7 +1,7 @@
 from typing import List
 
 from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
-from .run_specs import get_scenario_spec1, get_adapter_spec1, get_adapter_spec1_with_data_augmentation
+from .run_specs import get_scenario_spec1, get_adapter_spec1
 from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, Adapter, AdapterSpec
 from proxy.tokenizer.openai_token_counter import OpenAITokenCounter
 
@@ -10,7 +10,7 @@ def test_adapter1():
     scenario = create_scenario(get_scenario_spec1())
     adapter_spec = get_adapter_spec1()
 
-    scenario_state = Adapter(adapter_spec).adapt(scenario)
+    scenario_state = Adapter(adapter_spec).adapt(scenario.get_instances())
 
     # Make sure we generated the right number of request_states:
     # For each trial, instance and reference (+ 1 for free-form generation).
@@ -19,20 +19,6 @@ def test_adapter1():
 
     # TODO: write tests to check the contents of the actual prompt
     #       https://github.com/stanford-crfm/benchmarking/issues/50
-
-
-def test_adapter1_with_data_augmentation():
-    scenario = create_scenario(get_scenario_spec1())
-    adapter_spec = get_adapter_spec1_with_data_augmentation()
-
-    # After adaptation, check that the data augmentation has been applied
-    # by verifying that the instances with the perturbation tag are perturbed
-    scenario_state = Adapter(adapter_spec).adapt(scenario)
-    for instance in scenario_state.instances:
-        if instance.perturbation.name == "extra_space":
-            assert " " * 5 in instance.input
-        else:
-            assert " " * 5 not in instance.input
 
 
 def test_construct_prompt():
