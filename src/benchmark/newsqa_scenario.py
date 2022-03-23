@@ -2,7 +2,6 @@ import os
 import json
 import random
 from typing import List, Tuple
-from common.general import ensure_file_downloaded, ensure_directory_exists
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
 
 
@@ -152,12 +151,9 @@ class NewsQAScenario(Scenario):
         # TODO how to deal with NewsQA file. The dataset cannot be directly downloaded
         # currently hardcoded a path to a directory with the file
         data_path: str = "/nlp/scr/niladri/datasets/newsqa/"
-        ensure_directory_exists(data_path)
-        random.seed(0)  # randomness needed to pick question at random
-        repo_url: str = "https://github.com/Maluuba/newsqa"
         file_path = os.path.join(data_path, "combined-newsqa-data-v1.json")
-        ensure_file_downloaded(source_url=repo_url, target_path=file_path, unpack=False)
-        instances: List[Instance] = []
+        assert os.path.exists(file_path)
         splits = {"train": TRAIN_SPLIT, "valid": VALID_SPLIT}
-        instances.extend(self.get_file_instances(target_file=file_path, splits=splits))
+        random.seed(0)  # randomness needed to pick question at random
+        instances: List[Instance] = self.get_file_instances(target_file=file_path, splits=splits)
         return instances

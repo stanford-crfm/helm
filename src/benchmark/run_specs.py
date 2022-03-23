@@ -119,8 +119,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_the_pile_spec(**args)]
     if name == "raft":
         return [get_raft_spec(**args)]
-    if name == "newsqa":
-        return [get_newsqa_spec()]
+    if name == "news_qa":
+        return [get_news_qa_spec()]
     if name == "wikitext_103":
         return [get_wikitext_103_spec()]
 
@@ -262,7 +262,7 @@ def get_quac_spec() -> RunSpec:
     )
 
 
-def get_newsqa_spec() -> RunSpec:
+def get_news_qa_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.newsqa_scenario.NewsQAScenario", args=dict())
 
     adapter_spec = AdapterSpec(
@@ -279,7 +279,10 @@ def get_newsqa_spec() -> RunSpec:
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name="newsqa", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": ["f1_score"]}),
+        name="news_qa",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["f1_score"]}),
     )
 
 
