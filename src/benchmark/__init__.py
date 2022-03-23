@@ -31,3 +31,5 @@ from . import copyright_metrics  # noqa
 
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa
+from .augmentations.contraction_expansion_perturbation import ContractionPerturbation  # noqa
+from .augmentations.contraction_expansion_perturbation import ExpansionPerturbation  # noqa
