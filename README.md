@@ -247,6 +247,9 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r natural_qa:mode=closedbook
     venv/bin/benchmark-run -r quac
     venv/bin/benchmark-run -r wikitext_103
+    venv/bin/benchmark-run -r news_qa
+    venv/bin/benchmark-run -r imdb
+    venv/bin/benchmark-run -r imdb_contrast_sets
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).

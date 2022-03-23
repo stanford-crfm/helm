@@ -12,13 +12,14 @@ from nltk.translate.bleu_score import sentence_bleu
 
 from common.request import Token
 from common.statistic import Stat
-from proxy.tokenizer.auto_token_counter import AutoTokenCounter
-from proxy.tokenizer.token_counter import TokenCounter
+from proxy.tokenizer.tokenizer import Tokenizer
+from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from .augmentations.perturbation_description import PerturbationDescription
 from .adapter import AdapterSpec, RequestState, ADAPT_LANGUAGE_MODELING
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
+from .tokenizer_service import TokenizerService
 
 
 try:
@@ -29,6 +30,21 @@ except LookupError:
 
 def exact_match(gold: str, pred: str) -> float:
     return 1 if gold == pred else 0
+
+
+def exact_match_indicator(gold: str, pred: str) -> float:
+    """
+    Exact match, allowing for some preceding context.
+    For example, the following two answers are considered matching:
+    - Because of x and y, the answer is ## <answer>
+    - Given reasons y and z, the answer is ## <answer>
+    While the following is considered different from the earlier two
+    - Given reasons x and a, the answer is ## <other answer>
+    """
+    indicator: str = "#"
+    pred = pred.split(indicator)[-1].strip()
+    gold = gold.split(indicator)[-1].strip()
+    return exact_match(gold, pred)
 
 
 def get_num_bytes(tokens: List[Token]) -> int:
@@ -161,7 +177,6 @@ class BasicMetric(Metric):
 
     def __init__(self, names: List[str]):
         self.names: List[str] = names
-        self.token_counter: TokenCounter = AutoTokenCounter()
 
     def compute_reference_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -189,6 +204,7 @@ class BasicMetric(Metric):
         # maps each string metric name to its associated function
         metric_fn_mapping = {
             "exact_match": exact_match,
+            "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
             "f1_score": f1_score,
@@ -240,9 +256,11 @@ class BasicMetric(Metric):
         num_tokens: int = sum([len(sequence.tokens) for sequence in request_state.result.completions])
         # Account for the tokens in prompt as well if echo_prompt is False
         if not request_state.request.echo_prompt:
-            num_tokens_in_prompt: int = self.token_counter.tokenize_and_count(
-                model=request_state.request.model, text=request_state.request.prompt
-            )
+            # Calculate the number of tokens in the prompt and add it to `num_tokens`.
+            # Fetch the right `Tokenizer` depending on the model defined in `AdapterSpec`.
+            tokenizer_service: TokenizerService = metric_service
+            tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
+            num_tokens_in_prompt: int = tokenizer.tokenize_and_count(request_state.request.prompt)
             num_tokens += num_tokens_in_prompt
 
         return [
