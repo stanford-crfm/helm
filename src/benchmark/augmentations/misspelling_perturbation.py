@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from pathlib import Path
 import json
-import numpy as np
+from pathlib import Path
+from typing import Dict, List
 
 from nltk.tokenize import word_tokenize
 from nltk.tokenize.treebank import TreebankWordDetokenizer
+import numpy as np
 
 from benchmark.scenario import Instance
 from .perturbation import Perturbation
@@ -35,18 +36,15 @@ class MisspellingPerturbation(Perturbation):
         prob (float): probability between [0,1] of perturbing a word to a
             common misspelling (if we have a common misspelling for the word)
         """
-        self.prob = prob
+        self.prob: float = prob
         misspellings_file = Path(__file__).resolve().expanduser().parent / "correct_to_misspelling.json"
         with open(misspellings_file, "r") as f:
-            self.correct_to_misspelling = json.load(f)
+            self.correct_to_misspelling: Dict[str, List[str]] = json.load(f)
         self.detokenizer = TreebankWordDetokenizer()
 
     @property
     def description(self) -> PerturbationDescription:
         return MisspellingPerturbation.Description(self.name)
-
-    def count_upper(self, word: str) -> int:
-        return sum(c.isupper() for c in word)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         assert instance.id is not None
