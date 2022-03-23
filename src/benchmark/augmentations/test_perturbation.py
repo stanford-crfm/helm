@@ -42,3 +42,4 @@ def test_misspelling_perturbation():
     assert len(instances) == 2
     assert instances[0].id == "id0"
     assert instances[0].perturbation.name == "misspellings"
+    assert instances[0].input == "Alreayd, teh new product is nto availaible."

@@ -6,6 +6,7 @@ import numpy as np
 from nltk.tokenize import word_tokenize
 from nltk.tokenize.treebank import TreebankWordDetokenizer
 
+from benchmark.scenario import Instance
 from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
 
@@ -47,13 +48,18 @@ class MisspellingPerturbation(Perturbation):
     def count_upper(self, word: str) -> int:
         return sum(c.isupper() for c in word)
 
+    def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
+        assert instance.id is not None
+        np.random.seed(int(instance.id[2:]))  # set seed based on instance ID
+        return super().apply(instance, should_perturb_references)
+
     def perturb_word(self, word: str) -> str:
         # check if word is in dictionary and perturb with probability self.prob
         if word in self.correct_to_misspelling and np.random.rand() < self.prob:
             word = str(np.random.choice(self.correct_to_misspelling[word]))
         return word
 
-    def perturb_seed(self, text: str, seed: int = 0) -> str:
+    def perturb(self, text: str) -> str:
         words = word_tokenize(text)
         new_words = []
         for word in words:
@@ -61,6 +67,3 @@ class MisspellingPerturbation(Perturbation):
             new_words.append(word)
         perturbed_str = str(self.detokenizer.detokenize(new_words))
         return perturbed_str
-
-    def perturb(self, text: str) -> str:
-        return self.perturb_seed(text)
