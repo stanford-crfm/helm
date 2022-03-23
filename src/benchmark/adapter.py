@@ -9,6 +9,7 @@ from common.request import Request, RequestResult
 from proxy.tokenizer.tokenizer import Tokenizer
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from .adapter_service import AdapterService
+from .tokenizer_service import TokenizerService
 from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
@@ -97,7 +98,7 @@ class RequestState:
     # The result of the request (filled in when the request is executed)
     result: Optional[RequestResult]
 
-    # The number of initial tokens that will be ignored when computing langauge modeling metrics
+    # The number of initial tokens that will be ignored when computing language modeling metrics
     num_conditioning_tokens: int = 0
 
     def render_lines(self) -> List[str]:
@@ -233,7 +234,8 @@ class Adapter:
 
     def __init__(self, adapter_spec: AdapterSpec, adapter_service: AdapterService):
         self.adapter_spec: AdapterSpec = adapter_spec
-        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, adapter_service)
+        tokenizer_service: TokenizerService = adapter_service
+        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
 
     @htrack(None)
     def adapt(self, instances: List[Instance]) -> ScenarioState:

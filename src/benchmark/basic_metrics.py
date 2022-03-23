@@ -19,6 +19,7 @@ from .adapter import AdapterSpec, RequestState, ADAPT_LANGUAGE_MODELING
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
+from .tokenizer_service import TokenizerService
 
 
 try:
@@ -257,7 +258,8 @@ class BasicMetric(Metric):
         if not request_state.request.echo_prompt:
             # Calculate the number of tokens in the prompt and add it to `num_tokens`.
             # Fetch the right `Tokenizer` depending on the model defined in `AdapterSpec`.
-            tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, metric_service)
+            tokenizer_service: TokenizerService = metric_service
+            tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
             num_tokens_in_prompt: int = tokenizer.tokenize_and_count(request_state.request.prompt)
             num_tokens += num_tokens_in_prompt
 

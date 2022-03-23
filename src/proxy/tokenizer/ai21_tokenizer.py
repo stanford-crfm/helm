@@ -2,10 +2,11 @@ from typing import List, Optional
 
 from benchmark.tokenizer_service import TokenizerService
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken, TextRange
-from proxy.tokenizer.tokenizer import Tokenizer
+from .tokenizer import Tokenizer
 
 
 class AI21Tokenizer(Tokenizer):
+    """Tokenizes by making a request to the proxy server with REST endpoint: `/api/tokenize`."""
 
     # The max token length of the model input
     # The max sequence length is the same as the max request length for AI21.

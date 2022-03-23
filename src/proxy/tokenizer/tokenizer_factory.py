@@ -16,6 +16,6 @@ class TokenizerFactory:
         elif organization == "ai21":
             tokenizer = AI21Tokenizer(model=model, service=service)
         else:
-            raise Exception(f"Unsupported model: {model}")
+            raise ValueError(f"Unsupported model: {model}")
 
         return tokenizer
