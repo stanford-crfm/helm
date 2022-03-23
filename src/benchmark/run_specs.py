@@ -314,7 +314,29 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         class_name="benchmark.synthetic_reasoning_natural_scenario.SRNScenario", args={"difficulty": difficulty}
     )
 
-    
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Please solve the following problem.",
+        max_train_instances=3,
+        max_eval_instances=100,
+        num_outputs=3,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=1.0,
+        stop_sequences=["\n"],
+        max_tokens=20,
+        input_prefix="Rules:\n",
+        output_prefix="",
+    )
+
+    return RunSpec(
+        name=f"synthetic_reasoning_natural:difficulty={difficulty}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_srn_metrics(),
+    )
+
+
 def get_gsm_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.gsm_scenario.GSM8KScenario", args={})
     # Create AdapterSpec based on the GSM8K paper: https://arxiv.org/pdf/2110.14168.pdf
@@ -577,8 +599,9 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
 
-      
+
 def get_wikitext_103_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.wikitext_103_scenario.Wikitext103Scenario", args=dict())
 
