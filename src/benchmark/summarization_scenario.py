@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from datasets import load_dataset
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
@@ -6,10 +6,23 @@ from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, T
 
 class SummarizationScenario(Scenario):
     """
-        Scnario for single document text summarization.
+        Scenario for single document text summarization.
         Currently supports the following datasets:
             1. XSum (https://arxiv.org/pdf/1808.08745.pdf)
             2. CNN/DailyMail non-anonymized (https://arxiv.org/pdf/1704.04368.pdf)
+
+        Task prompt structure:
+            Summarize the given document.
+            Document: {tok_1 ... tok_n}
+            Summary: {tok_1 ... tok_m}
+
+        Example from XSum dataset:
+            Document: {Part of the Broad Road was closed to traffic on Sunday at about 18:00 GMT.
+                       The three adults and three children have been taken to Altnagelvin Hospital
+                       with non life-threatening injuries. The Fire Service, Northern Ireland Ambulance Service
+                       and police attended the crash. The Broad Road has since been reopened.}
+            Summary: {Three adults and three children have been taken to hospital following a crash involving
+                      a tractor and a campervan in Limavady, County Londonderry}
     """
 
     name = "summarization"
@@ -19,17 +32,38 @@ class SummarizationScenario(Scenario):
     def __init__(
         self,
         dataset_name: str,
-        sampling_min_length: int = 0,
-        sampling_max_length: int = 50000,
-        doc_max_length: int = 50000,
+        sampling_min_length: Optional[int] = None,
+        sampling_max_length: Optional[int] = None,
+        doc_max_length: Optional[int] = None,
     ):
-        assert dataset_name in ["xsum", "cnn-dm"]
+        """
+            Initializes summarization scenario.
+            Args:
+                dataset_name: String identifier for dataset. Currently
+                              supported options ["Xsum", "cnn-dm"].
+                sampling_min_length: Int indicating minimum length for training
+                                     documents. Training examples smaller than
+                                     sampling_min_length will be filtered out.
+                                     Useful for preventing the adapter from sampling
+                                     really small documents.
+                sampling_max_length: Int indicating maximum length for training
+                                     documents. Training examples larger than
+                                     sampling_max_length will be filtered out.
+                                     Useful for preventing the adapter from
+                                     sampling really large documents.
+                doc_max_length: Int indicating the maximum length to truncate
+                                documents. Documents in all splits will be
+                                truncated to doc_max_length tokens.
+                                NOTE: Currently uses whitespace tokenization.
+        """
+        if dataset_name not in ["xsum", "cnn-dm"]:
+            raise Exception(f"Uknown dataset_name: {dataset_name}")
         self.dataset_name = dataset_name
         self.sampling_min_length = sampling_min_length
         self.sampling_max_length = sampling_max_length
         self.doc_max_length = doc_max_length
 
-    def _clean_and_truncate(self, text: str, max_length: int = None):
+    def _clean_and_truncate(self, text: str, max_length: Optional[int] = None):
         text = text.replace("\n", " ")
         return " ".join(text.split()[:max_length])
 
@@ -61,11 +95,17 @@ class SummarizationScenario(Scenario):
 
                 if split_name == "train":
                     art_len = len(article.split())
-                    if art_len > self.sampling_max_length or art_len < self.sampling_min_length:
+                    if self.sampling_max_length and art_len > self.sampling_max_length:
+                        continue
+                    if self.sampling_min_length and art_len < self.sampling_min_length:
                         continue
 
                 instances.append(
-                    Instance(input=article, references=[Reference(output=summary, tags=[CORRECT_TAG])], split=split)
+                    Instance(
+                        input=f"{{{article}}}",
+                        references=[Reference(output=f"{summary}}}", tags=[CORRECT_TAG])],
+                        split=split,
+                    )
                 )
 
         return instances

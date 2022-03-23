@@ -1,14 +1,15 @@
 from dataclasses import replace
 from typing import List, Callable, Dict, Optional
 from urllib.parse import unquote
+from functools import partial
 
 import re
 import string
-import rouge
 import nltk
 from nltk.metrics.scores import f_measure
 from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
+from rouge_score import rouge_scorer
 
 from common.request import Token
 from common.statistic import Stat
@@ -110,22 +111,14 @@ def f1_score(gold: str, pred: str) -> float:
     return ret
 
 
-def rouge_1(gold: str, pred: str) -> float:
-    rouge_evaluator = rouge.Rouge(metrics=["rouge-n"], max_n=1)
-    score: dict = rouge_evaluator.get_scores(pred, gold)
-    return score["rouge-1"]["f"]
+def rouge_score(gold: str, pred: str, rouge_type: str, scorer: rouge_scorer.RougeScorer) -> float:
+    scores = scorer.score(gold, pred)
+    return scores[rouge_type].fmeasure
 
 
-def rouge_2(gold: str, pred: str) -> float:
-    rouge_evaluator = rouge.Rouge(metrics=["rouge-n"], max_n=2)
-    score: dict = rouge_evaluator.get_scores(pred, gold)
-    return score["rouge-2"]["f"]
-
-
-def rouge_l(gold: str, pred: str) -> float:
-    rouge_l_evaluator = rouge.Rouge(metrics=["rouge-l"])
-    score: dict = rouge_l_evaluator.get_scores(pred, gold)
-    return score["rouge-l"]["f"]
+def get_rouge_function(rouge_type: str) -> Callable[[str, str], float]:
+    scorer = rouge_scorer.RougeScorer([rouge_type], use_stemmer=True)
+    return partial(rouge_score, scorer=scorer, rouge_type=rouge_type)
 
 
 def bleu_1(gold: str, pred: str) -> float:
@@ -202,9 +195,9 @@ class BasicMetric(Metric):
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
             "f1_score": f1_score,
-            "rouge-1": rouge_1,
-            "rouge-2": rouge_2,
-            "rouge-l": rouge_l,
+            "rouge-1": get_rouge_function("rouge1"),
+            "rouge-2": get_rouge_function("rouge2"),
+            "rouge-l": get_rouge_function("rougeL"),
             "bleu_1": bleu_1,
             "bleu_4": bleu_4,
         }
