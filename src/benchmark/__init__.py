@@ -8,7 +8,7 @@ from . import twitter_aae_scenario  # noqa
 from . import real_toxicity_prompts_scenario  # noqa
 from . import the_pile_scenario  # noqa
 from . import wiki_scenario  # noqa
-from . import lpm_scenario  # noqa
+from . import synthetic_reasoning_natural_scenario  # noqa
 from . import copyright_scenario  # noqa
 from . import boolq_scenario  # noqa
 from . import gsm_scenario  # noqa
@@ -17,6 +17,7 @@ from . import quac_scenario  # noqa
 from . import babi_qa_scenario  # noqa
 from . import narrativeqa_scenario  # noqa
 from . import raft_scenario  # noqa
+from . import synthetic_reasoning_scenario  # noqa
 from . import newsqa_scenario  # noqa
 from . import wikitext_103_scenario  # noqa
 
