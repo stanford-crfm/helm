@@ -297,7 +297,7 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
         instructions="",
         input_prefix="",
         output_prefix="\nAnswer: ",
-        max_train_instances=1,
+        max_train_instances=5,
         max_eval_instances=654,
         num_outputs=1,
         num_train_trials=1,
