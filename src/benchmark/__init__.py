@@ -20,6 +20,7 @@ from . import raft_scenario  # noqa
 from . import synthetic_reasoning_scenario  # noqa
 from . import newsqa_scenario  # noqa
 from . import wikitext_103_scenario  # noqa
+from . import imdb_scenario  # noqa
 
 # Metrics
 from . import basic_metrics  # noqa
