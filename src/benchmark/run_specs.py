@@ -119,6 +119,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_the_pile_spec(**args)]
     if name == "raft":
         return [get_raft_spec(**args)]
+    if name == "news_qa":
+        return [get_news_qa_spec()]
     if name == "wikitext_103":
         return [get_wikitext_103_spec()]
 
@@ -257,6 +259,30 @@ def get_quac_spec() -> RunSpec:
     )
     return RunSpec(
         name="quac", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": ["f1_score"]}),
+    )
+
+
+def get_news_qa_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.newsqa_scenario.NewsQAScenario", args=dict())
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Remove this once deployed
+        num_outputs=1,
+        max_tokens=50,  # answers are at most 13 words
+        temperature=0.0,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name="news_qa",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["f1_score"]}),
     )
 
 
