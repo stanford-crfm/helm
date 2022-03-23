@@ -1,9 +1,6 @@
 from typing import List, Dict, Optional, Any
 
 from common.object_spec import ObjectSpec
-
-from .augmentations.data_augmenter import DataAugmenterSpec
-from .augmentations.perturbation import PerturbationSpec
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
@@ -42,34 +39,6 @@ def get_adapter_spec1() -> AdapterSpec:
         model="simple/model1",
         temperature=1,
         stop_sequences=["."],
-    )
-
-
-def get_adapter_spec1_with_data_augmentation() -> AdapterSpec:
-    data_augmenter_spec = DataAugmenterSpec(
-        perturbation_specs=[
-            PerturbationSpec(
-                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", args={"num_spaces": 5}
-            )
-        ],
-        should_perturb_references=False,
-        should_augment_train_instances=False,
-        should_include_original_train=False,
-        should_augment_eval_instances=True,
-        should_include_original_eval=True,
-    )
-
-    return AdapterSpec(
-        method=ADAPT_GENERATION,
-        instructions="Please solve the following problem.",
-        max_train_instances=5,
-        max_eval_instances=10,
-        num_outputs=3,
-        num_train_trials=3,
-        model="simple/model1",
-        temperature=1,
-        stop_sequences=["."],
-        data_augmenter_spec=data_augmenter_spec,
     )
 
 
@@ -146,12 +115,18 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_run_spec1()]
     if name == "twitter_aae":
         return [get_twitter_aae_spec(**args)]
+    if name == "gsm":
+        return [get_gsm_spec()]
     if name == "natural_qa":
         return [get_natural_qa_spec(**args)]
     if name == "the_pile":
         return [get_the_pile_spec(**args)]
     if name == "raft":
         return [get_raft_spec(**args)]
+    if name == "news_qa":
+        return [get_news_qa_spec()]
+    if name == "wikitext_103":
+        return [get_wikitext_103_spec()]
 
     raise ValueError(f"Unknown run spec: {spec}")
 
@@ -291,6 +266,30 @@ def get_quac_spec() -> RunSpec:
     )
 
 
+def get_news_qa_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.newsqa_scenario.NewsQAScenario", args=dict())
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Remove this once deployed
+        num_outputs=1,
+        max_tokens=50,  # answers are at most 13 words
+        temperature=0.0,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name="news_qa",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["f1_score"]}),
+    )
+
+
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
@@ -335,6 +334,30 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
     )
     return RunSpec(
         name="real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics(),
+    )
+
+
+def get_gsm_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.gsm_scenario.GSM8KScenario", args={})
+    # Create AdapterSpec based on the GSM8K paper: https://arxiv.org/pdf/2110.14168.pdf
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=3,
+        max_eval_instances=100,  # TODO: Remove when deployed
+        model="ai21/j1-large",
+        temperature=0.7,
+        stop_sequences=["\n\n"],
+        max_tokens=400,  # The paper uses 400 tokens as the max sample length
+        num_outputs=1,
+    )
+    return RunSpec(
+        name="gsm",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match_indicator"]}),
     )
 
 
@@ -618,4 +641,26 @@ def get_narrativeqa_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
+    )
+
+
+def get_wikitext_103_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.wikitext_103_scenario.Wikitext103Scenario", args=dict())
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_MODELING,
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        max_eval_instances=None,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        max_tokens=0,
+    )
+
+    return RunSpec(
+        name="wikitext_103", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": []}),
     )
