@@ -9,6 +9,7 @@ sqlitedict==1.7.0
 transformers==4.13.0
 tornado==6.1
 zstandard==0.17.0
+jsonlines==3.0.0
 
 # For development
 black==19.10b0

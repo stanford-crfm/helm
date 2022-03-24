@@ -5,8 +5,8 @@ import subprocess
 import time
 
 from common.authentication import Authentication
-
-from common.request import Request
+from common.request import Request, RequestResult
+from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 from .remote_service import RemoteService
 
 
@@ -82,13 +82,18 @@ class TestRemoteServerService:
 
     def test_make_request(self):
         request = Request(prompt="1 2 3", model="simple/model1")
-        response = self.service.make_request(self.auth, request)
+        response: RequestResult = self.service.make_request(self.auth, request)
         assert response.success
+
+    def tokenize(self):
+        request = TokenizationRequest(text="1 2 3", model="simple/model1")
+        response: TokenizationRequestResult = self.service.tokenize(self.auth, request)
+        assert response.tokens == ["1", "2", "3"]
 
     def test_make_request_plus_sign(self):
         # Ensure + in prompt doesn't get replaced by a blank space
         request = Request(prompt="+", model="simple/model1")
-        response = self.service.make_request(self.auth, request)
+        response: RequestResult = self.service.make_request(self.auth, request)
         assert response.completions[0].text == "+"
         assert response.success
 
