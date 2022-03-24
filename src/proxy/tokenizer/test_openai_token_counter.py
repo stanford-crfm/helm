@@ -76,26 +76,3 @@ class TestOpenAITokenCounter:
 
         # Prompt + Prompt (echoed) = 51 + 51
         assert self.token_counter.estimate_tokens(request) == 51 + 51
-
-    def test_tokenize_and_count(self):
-        assert self.token_counter.tokenize_and_count("openai/davinci", TestOpenAITokenCounter.TEST_PROMPT) == 51
-
-    def test_fits_within_context_window(self):
-        # Should fit in the context window since we subtracted the number of tokens of the test prompt
-        # from the max context window
-        assert self.token_counter.fits_within_context_window(
-            "openai/davinci", TestOpenAITokenCounter.TEST_PROMPT, 2049 - 51
-        )
-        # Should not fit in the context window because we're expecting one more extra token in the completion
-        assert not self.token_counter.fits_within_context_window(
-            "openai/davinci", TestOpenAITokenCounter.TEST_PROMPT, 2049 - 51 + 1
-        )
-
-    def test_truncate_from_right(self):
-        # Create a prompt that exceed max context length: 51 * 41 = 2091 tokens
-        long_prompt: str = TestOpenAITokenCounter.TEST_PROMPT * 41
-        assert not self.token_counter.fits_within_context_window("openai/davinci", long_prompt)
-
-        # Truncate and ensure it fits within the context window
-        truncated_long_prompt: str = self.token_counter.truncate_from_right("openai/davinci", long_prompt)
-        assert self.token_counter.fits_within_context_window("openai/davinci", truncated_long_prompt)
