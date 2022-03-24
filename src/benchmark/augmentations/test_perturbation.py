@@ -5,6 +5,7 @@ from benchmark.scenario import Instance, Reference
 from .data_augmenter import DataAugmenter
 from .extra_space_perturbation import ExtraSpacePerturbation
 from .identity_perturbation import IdentityPerturbation
+from .misspelling_perturbation import MisspellingPerturbation
 from .contraction_expansion_perturbation import ContractionPerturbation, ExpansionPerturbation
 
 
@@ -30,6 +31,19 @@ def test_extra_space_perturbation():
     assert instances[0].perturbation.num_spaces == 2
     assert instances[0].input == "Hello  my  name  is"
     assert instances[0].references[0].output == "some  name"
+
+
+def test_misspelling_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[MisspellingPerturbation(prob=1.0)], should_perturb_references=True)
+    instance: Instance = Instance(
+        id="id0", input="Already, the new product is not available.", references=[],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+    assert instances[0].id == "id0"
+    assert instances[0].perturbation.name == "misspellings"
+    assert instances[0].input == "Alreayd, teh new product is nto availaible."
 
 
 def test_contraction_perturbation():
