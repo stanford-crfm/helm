@@ -483,6 +483,10 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
 
     return RunSpec(
         name=f"lsat_qa:task={task}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
 
 
 def get_imdb_spec() -> RunSpec:
@@ -529,7 +533,6 @@ def get_imdb_contrast_sets_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
     )
-
 
 
 def get_babi_qa_spec(task: str) -> RunSpec:
