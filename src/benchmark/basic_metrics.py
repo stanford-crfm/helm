@@ -263,7 +263,7 @@ class BasicMetric(Metric):
         # Compute efficiency metrics for inference.
         runtime: float = request_state.result.request_time
 
-        # Compute total number of input and output tokens (in first sequence)
+        # Compute total number of input and output tokens (in first sequence).
         # Fetch the right `Tokenizer` depending on the model defined in `AdapterSpec`
         # and calculate the number of tokens in the prompt.
         tokenizer_service: TokenizerService = metric_service
