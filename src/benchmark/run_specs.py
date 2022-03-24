@@ -1,9 +1,6 @@
 from typing import List, Dict, Optional, Any
 
 from common.object_spec import ObjectSpec
-
-from .augmentations.data_augmenter import DataAugmenterSpec
-from .augmentations.perturbation import PerturbationSpec
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
@@ -45,34 +42,6 @@ def get_adapter_spec1() -> AdapterSpec:
     )
 
 
-def get_adapter_spec1_with_data_augmentation() -> AdapterSpec:
-    data_augmenter_spec = DataAugmenterSpec(
-        perturbation_specs=[
-            PerturbationSpec(
-                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", args={"num_spaces": 5}
-            )
-        ],
-        should_perturb_references=False,
-        should_augment_train_instances=False,
-        should_include_original_train=False,
-        should_augment_eval_instances=True,
-        should_include_original_eval=True,
-    )
-
-    return AdapterSpec(
-        method=ADAPT_GENERATION,
-        instructions="Please solve the following problem.",
-        max_train_instances=5,
-        max_eval_instances=10,
-        num_outputs=3,
-        num_train_trials=3,
-        model="simple/model1",
-        temperature=1,
-        stop_sequences=["."],
-        data_augmenter_spec=data_augmenter_spec,
-    )
-
-
 def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=args)]
 
@@ -85,7 +54,7 @@ def get_toxicity_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
 
 
-def get_lpm_metrics() -> List[MetricSpec]:
+def get_srn_metrics() -> List[MetricSpec]:
     metric_names = {"names": ["iou_set_match", "exact_set_match"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
@@ -120,10 +89,12 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_boolq_spec()]
     if name == "boolq_contrast_sets":
         return [get_boolq_contrast_sets_spec()]
+    if name == "imdb":
+        return [get_imdb_spec()]
+    if name == "imdb_contrast_sets":
+        return [get_imdb_contrast_sets_spec()]
     if name == "copyright":
         return [get_copyright_spec(**args)]
-    if name == "lpm":
-        return [get_lpm_spec(**args)]
     if name == "mmlu":
         return [get_mmlu_spec(**args)]
     if name == "narrativeqa":
@@ -144,12 +115,22 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_run_spec1()]
     if name == "twitter_aae":
         return [get_twitter_aae_spec(**args)]
+    if name == "gsm":
+        return [get_gsm_spec()]
     if name == "natural_qa":
         return [get_natural_qa_spec(**args)]
     if name == "the_pile":
         return [get_the_pile_spec(**args)]
     if name == "raft":
         return [get_raft_spec(**args)]
+    if name == "synthetic_reasoning":
+        return [get_synthetic_reasoning_spec(**args)]
+    if name == "synthetic_reasoning_natural":
+        return [get_synthetic_reasoning_natural_spec(**args)]
+    if name == "news_qa":
+        return [get_news_qa_spec()]
+    if name == "wikitext_103":
+        return [get_wikitext_103_spec()]
 
     raise ValueError(f"Unknown run spec: {spec}")
 
@@ -289,6 +270,30 @@ def get_quac_spec() -> RunSpec:
     )
 
 
+def get_news_qa_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.newsqa_scenario.NewsQAScenario", args=dict())
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Remove this once deployed
+        num_outputs=1,
+        max_tokens=50,  # answers are at most 13 words
+        temperature=0.0,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name="news_qa",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["f1_score"]}),
+    )
+
+
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
@@ -336,8 +341,10 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
     )
 
 
-def get_lpm_spec(difficulty: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.lpm_scenario.LPMScenario", args={"difficulty": difficulty})
+def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.synthetic_reasoning_natural_scenario.SRNScenario", args={"difficulty": difficulty}
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -347,7 +354,7 @@ def get_lpm_spec(difficulty: str) -> RunSpec:
         num_outputs=3,
         num_train_trials=1,
         model="openai/davinci",
-        temperature=0.2,
+        temperature=1.0,
         stop_sequences=["\n"],
         max_tokens=20,
         input_prefix="Rules:\n",
@@ -355,7 +362,34 @@ def get_lpm_spec(difficulty: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"lpm:difficulty={difficulty}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_lpm_metrics()
+        name=f"synthetic_reasoning_natural:difficulty={difficulty}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_srn_metrics(),
+    )
+
+
+def get_gsm_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.gsm_scenario.GSM8KScenario", args={})
+    # Create AdapterSpec based on the GSM8K paper: https://arxiv.org/pdf/2110.14168.pdf
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        num_train_trials=1,
+        max_train_instances=3,
+        max_eval_instances=100,  # TODO: Remove when deployed
+        model="ai21/j1-large",
+        temperature=0.7,
+        stop_sequences=["\n\n"],
+        max_tokens=400,  # The paper uses 400 tokens as the max sample length
+        num_outputs=1,
+    )
+    return RunSpec(
+        name="gsm",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match_indicator"]}),
     )
 
 
@@ -433,6 +467,7 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
     )
 
 
+
 def get_lsat_qa_spec(task: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.lsat_qa_scenario.LSATScenario", args={"task": task})
 
@@ -450,10 +485,53 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
 
     return RunSpec(
         name=f"lsat_qa:task={task}",
+
+
+def get_imdb_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDbScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="Review: ",
+        output_prefix="Sentiment:",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=1,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name="imdb",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
+
+
+def get_imdb_contrast_sets_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDbContrastSetScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="Review: ",
+        output_prefix="Sentiment:",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=1,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name="imdb_contrast_sets",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
+    )
+
 
 
 def get_babi_qa_spec(task: str) -> RunSpec:
@@ -593,4 +671,53 @@ def get_narrativeqa_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
+    )
+
+
+def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.synthetic_reasoning_scenario.SyntheticReasoningScenario", args={"mode": mode},
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Please solve the following problem.",
+        max_train_instances=3,
+        max_eval_instances=100,
+        num_outputs=3,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=1.0,
+        stop_sequences=["\n"],
+        max_tokens=20,
+        input_prefix="",
+        output_prefix="| Target: ",
+    )
+    return RunSpec(
+        name=f"synthetic_reasoning:mode={mode}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_wikitext_103_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.wikitext_103_scenario.Wikitext103Scenario", args=dict())
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_MODELING,
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        max_eval_instances=None,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        max_tokens=0,
+    )
+
+    return RunSpec(
+        name="wikitext_103", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": []}),
     )
