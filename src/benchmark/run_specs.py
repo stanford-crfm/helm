@@ -702,9 +702,9 @@ def get_wikitext_103_spec() -> RunSpec:
     return RunSpec(
         name="wikitext_103", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": []}),
     )
-  
 
- def get_xsum_summarization_spec() -> RunSpec:
+
+def get_xsum_summarization_spec() -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512,},
