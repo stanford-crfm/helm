@@ -101,6 +101,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_narrativeqa_spec()]
     if name == "commonsense_qa":
         return [get_commonsense_qa_spec(**args)]
+    if name == "lsat_qa":
+        return [get_lsat_qa_spec(**args)]
     if name == "quac":
         return [get_quac_spec()]
     if name == "wiki":
@@ -463,6 +465,28 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
     )
     return RunSpec(
         name="boolq_contrast_sets",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_lsat_qa_spec(task: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.lsat_qa_scenario.LSATScenario", args={"task": task})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        instructions="The following are multiple choice questions (with answers).",
+        input_prefix="",
+        output_prefix="\nAnswer: ",
+        max_train_instances=2,
+        model="ai21/j1-large",
+        max_eval_instances=50,  # TODO: Change to None
+        num_outputs=1,
+    )
+
+    return RunSpec(
+        name=f"lsat_qa:task={task}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
