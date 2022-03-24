@@ -111,6 +111,10 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_real_toxicity_prompts_spec()]
     if name == "simple1":
         return [get_run_spec1()]
+    if name == "summarization_xsum":
+        return [get_xsum_summarization_spec()]
+    if name == "summarization_cnndm":
+        return [get_cnndm_summarization_spec()]
     if name == "twitter_aae":
         return [get_twitter_aae_spec(**args)]
     if name == "gsm":
@@ -697,4 +701,62 @@ def get_wikitext_103_spec() -> RunSpec:
 
     return RunSpec(
         name="wikitext_103", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": []}),
+    )
+
+
+def get_xsum_summarization_spec() -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.summarization_scenario.SummarizationScenario",
+        args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512,},
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Summarize the given documents.",
+        input_prefix="Document: ",
+        output_prefix="\nSummary: {",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/davinci",
+        max_eval_instances=10,  # TODO: Remove this once deployed
+        num_outputs=1,
+        # max_tokens=60,  # From Lewis et al. 2019 (https://arxiv.org/pdf/1910.13461.pdf)
+        temperature=0,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
+        stop_sequences=["}"],
+    )
+
+    return RunSpec(
+        name="summarization_xsum",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
+    )
+
+
+def get_cnndm_summarization_spec() -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.summarization_scenario.SummarizationScenario",
+        args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512,},
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Summarize the given documents.",
+        input_prefix="Document: ",
+        output_prefix="\nSummary: {",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/davinci",
+        max_eval_instances=10,  # TODO: Remove this once deployed
+        num_outputs=1,
+        # max_tokens=128,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
+        temperature=0,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
+        stop_sequences=["}"],
+    )
+
+    return RunSpec(
+        name="summarization_cnndm",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
     )
