@@ -73,6 +73,8 @@ jobs:
         env:
           TEST: ${{ matrix.test }}
           VERSION: ${{ github.head_ref || 'master' }}
+      - name: Run entire pipeline quickly without any data
+        run: venv/bin/benchmark-present --skip-instances
 
   ci:
     name: All CI tasks complete
