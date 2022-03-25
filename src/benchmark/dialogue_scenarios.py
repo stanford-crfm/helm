@@ -21,6 +21,10 @@ class Utterance:
     speaker: Speaker
     text: str
 
+    def __str__(self):
+        assert self.speaker.name is not None, "Speaker name needs to be set for generating utterance string"
+        return f"{self.speaker.name}: {self.text}" + "\n"
+
 
 class DialogueReference(Reference):
     """
@@ -38,7 +42,7 @@ class DialogueReference(Reference):
         return True
 
     def render_lines(self) -> List[str]:
-        return [f"reference {format_tags(self.tags)}: {format_text(self.output)}"]
+        return "\n".join([str(utt) for utt in self.output]) + "\n"
 
 
 class EmpatheticDialoguesScenario(Scenario):
@@ -72,7 +76,7 @@ class EmpatheticDialoguesScenario(Scenario):
         """Downloads the train, valid, test dataset and saves homogenized instances in self.instances"""
 
         instances: List[Instance] = []
-        splits: Dict[str, str] = {"train": TRAIN_SPLIT}  # , "valid": VALID_SPLIT, "test": TEST_SPLIT}
+        splits: Dict[str, str] = {"train": TRAIN_SPLIT, "valid": VALID_SPLIT, "test": TEST_SPLIT}
 
         # Read the three splits
         for split in splits:
@@ -131,6 +135,17 @@ class EmpatheticDialoguesScenario(Scenario):
     def filter_instances(self, instances):
         """Applies following filters to select instances from self.instances"""
 
+        # TODO: Write code to only keep the better instances for few shot prompting
+        # The given prompt is too short
+        # def short_prompt(instance: Instance): return len(instance.input)<20
+
+        # The conversation has less than 6 utterances (6 is max)
+        # def short_convo(reference: DialogueReference): return len(reference.output)<6
+
+        # The conversation has less than 6 utterances (6 is max)
+        # def short_convo(instance: Instance): return len(instance.references)<6
+
+        # instances = filter()
         # reference conversation length filter
         # instances = [i for i in instances if i.references]
 
@@ -143,6 +158,6 @@ class EmpatheticDialoguesScenario(Scenario):
 
 if __name__ == "__main__":
     scenario = EmpatheticDialoguesScenario()
-    scenario.output_path = "../benchmark_output/scenarios/empatheticdialogues"
+    scenario.output_path = "./benchmark_output/scenarios/empatheticdialogues"
     instances = scenario.get_instances()
     print(instances[100])
