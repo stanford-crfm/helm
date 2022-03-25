@@ -184,7 +184,6 @@ class BasicMetric(Metric):
 
     def __init__(self, names: List[str]):
         self.names: List[str] = names
-        self.tokenizer_factory: TokenizerFactory = TokenizerFactory()
 
     def compute_reference_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
