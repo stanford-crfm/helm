@@ -44,6 +44,7 @@ class AllRunner:
         output_path: str,
         num_threads: int,
         dry_run: Optional[bool],
+        very_dry_run: Optional[bool],
         max_eval_instances: Optional[int],
     ):
         self.auth: Authentication = auth
@@ -51,14 +52,20 @@ class AllRunner:
         self.url: str = url
         self.output_path: str = output_path
         self.num_threads: int = num_threads
-        self.dry_run = dry_run
-        self.max_eval_instances = max_eval_instances
+        self.dry_run: bool = dry_run
+        self.very_dry_run: bool = very_dry_run
+        self.max_eval_instances: Optional[int] = max_eval_instances
 
     @htrack(None)
     def run(self):
         hlog("Reading RunSpecs from run_specs.conf...")
         with open(self.conf_path) as f:
             conf = parse_hocon(f.read())
+
+        if self.very_dry_run:
+            hlog("Verifying the run spec descriptions...")
+            self.check_run_spec_descriptions(conf.keys())
+            return
 
         # Keep track of the output of READY and WIP RunSpecs separately
         ready_content: List[str] = ["##### Ready Run Specs ######\n"]
@@ -117,13 +124,9 @@ class AllRunner:
         all_models = [dataclasses.asdict(model) for model in ALL_MODELS]
         write(os.path.join(self.output_path, "models.json"), json.dumps(all_models, indent=2))
 
-    def very_dry_run(self):
+    def check_run_spec_descriptions(self, run_spec_descriptions: List[str]):
         """Skips downloading datasets and execution and just ensure run spec descriptions are parsed correctly."""
-        hlog("Reading RunSpecs from run_specs.conf...")
-        with open(self.conf_path) as f:
-            conf = parse_hocon(f.read())
-
-        for run_spec_description in tqdm(conf.keys()):
+        for run_spec_description in run_spec_descriptions:
             # We placed double quotes around the descriptions since they can have colons or equal signs.
             # There is a bug with pyhocon. pyhocon keeps the double quote when there is a ".", ":" or "=" in the string:
             # https://github.com/chimpler/pyhocon/issues/267
@@ -148,18 +151,17 @@ def main():
     )
     add_run_args(parser)
     args = parser.parse_args()
-
     runner = AllRunner(
-        auth=create_authentication(args),
+        # The benchmarking framework will not make any requests to the proxy server when
+        # `dry_run` or `very_dry_run` is set. In that case, just pass in a dummy API key.
+        auth=Authentication("test") if args.dry_run or args.very_dry_run else create_authentication(args),
         conf_path=args.conf_path,
         url=args.server_url,
         output_path=args.output_path,
         num_threads=args.num_threads,
         dry_run=args.dry_run,
+        very_dry_run=args.very_dry_run,
         max_eval_instances=args.max_eval_instances,
     )
-    if args.very_dry_run:
-        runner.very_dry_run()
-    else:
-        runner.run()
+    runner.run()
     hlog("Done.")
