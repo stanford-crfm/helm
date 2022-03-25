@@ -67,9 +67,14 @@ jobs:
             pip-
       - run: ./pre-commit.sh
       - name: Run tests
+        # Tests:
+        # 1. Starts a temporary benchmarking proxy server.
+        # 2. Runs all Python unit tests.
+        # 3. Checks if the run spec descriptions in benchmark/presentation/run_specs.conf are valid.
         run: |
           nohup venv/bin/proxy-server -p ${TEST_PORT} --base-path test_env > server.logs &
           venv/bin/pytest
+          venv/bin/benchmark-present --very-dry-run
         env:
           TEST: ${{ matrix.test }}
           VERSION: ${{ github.head_ref || 'master' }}

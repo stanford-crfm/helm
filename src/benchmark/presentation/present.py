@@ -10,6 +10,8 @@ import json
 from common.authentication import Authentication
 from common.general import parse_hocon, write
 from common.hierarchical_logger import hlog, htrack
+from common.object_spec import parse_object_spec
+from benchmark.run_specs import construct_run_specs
 from benchmark.run import run_benchmarking, add_run_args
 from benchmark.runner import RunSpec
 from proxy.remote_service import add_service_args, create_authentication
@@ -115,6 +117,20 @@ class AllRunner:
         all_models = [dataclasses.asdict(model) for model in ALL_MODELS]
         write(os.path.join(self.output_path, "models.json"), json.dumps(all_models, indent=2))
 
+    def very_dry_run(self):
+        """Skips downloading datasets and execution and just ensure run spec descriptions are parsed correctly."""
+        hlog("Reading RunSpecs from run_specs.conf...")
+        with open(self.conf_path) as f:
+            conf = parse_hocon(f.read())
+
+        for run_spec_description in tqdm(conf.keys()):
+            # We placed double quotes around the descriptions since they can have colons or equal signs.
+            # There is a bug with pyhocon. pyhocon keeps the double quote when there is a ".", ":" or "=" in the string:
+            # https://github.com/chimpler/pyhocon/issues/267
+            # Therefore, we have to manually remove the double quotes from the descriptions.
+            run_spec_description = run_spec_description.replace('"', "")
+            construct_run_specs(parse_object_spec(run_spec_description))
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -124,6 +140,11 @@ def main():
         "--conf-path",
         help="Where to read RunSpecs to run from",
         default="src/benchmark/presentation/run_specs.conf",
+    )
+    parser.add_argument(
+        "--very-dry-run",
+        action="store_true",
+        help="Skips downloading datasets and execution and just ensure run spec descriptions are parsed correctly.",
     )
     add_run_args(parser)
     args = parser.parse_args()
@@ -137,5 +158,8 @@ def main():
         dry_run=args.dry_run,
         max_eval_instances=args.max_eval_instances,
     )
-    runner.run()
+    if args.very_dry_run:
+        runner.very_dry_run()
+    else:
+        runner.run()
     hlog("Done.")
