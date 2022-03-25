@@ -1,6 +1,6 @@
 import shutil
 import os
-from common.general import ensure_file_downloaded, format_tags
+from common.general import ensure_file_downloaded, format_tags, flatten_list, format_split
 
 
 def test_ensure_file_downloaded():
@@ -16,3 +16,12 @@ def test_ensure_file_downloaded():
 def test_format_tags():
     tags = ["tag_1", "tag_2", "tag_3"]
     assert format_tags(tags) == "[tag_1,tag_2,tag_3]"
+
+
+def test_flatten_list():
+    nested_lists = [[1, 2], [3], [4, [5, 6]]]
+    assert flatten_list(nested_lists) == [1, 2, 3, 4, 5, 6]
+
+
+def test_format_split():
+    assert format_split("split") == "|split|"

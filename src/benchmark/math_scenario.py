@@ -2,7 +2,7 @@ import collections
 import re
 import typing
 from typing import List
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, TEST_TAG, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 from datasets import load_dataset, DatasetDict
 
@@ -55,17 +55,17 @@ class MATHScenario(Scenario):
             return dataset_per_key
 
         instances = []
-        for tag, tag_name in zip([TRAIN_TAG, TEST_TAG], ["train", "test"]):
-            data_split = [ex for ex in data[tag_name]]
-            dataset[tag] = group_by_key(data_split, "type")
-            dataset[tag] = dataset[tag][MATHScenario.types_mapping[self.type]]
-            dataset[tag] = group_by_key(data_split, "level")
-            dataset[tag] = dataset[tag][f"Level {self.level}"]
+        for split, split_name in zip([TRAIN_SPLIT, TEST_SPLIT], ["train", "test"]):
+            data_split = [ex for ex in data[split_name]]
+            dataset[split] = group_by_key(data_split, "type")
+            dataset[split] = dataset[split][MATHScenario.types_mapping[self.type]]
+            dataset[split] = group_by_key(data_split, "level")
+            dataset[split] = dataset[split][f"Level {self.level}"]
 
-            for ex in dataset[tag]:
+            for ex in dataset[split]:
                 ex["answer"] = get_answer(ex["solution"])
                 instance = Instance(
-                    input=ex["problem"], references=[Reference(output=ex["answer"], tags=[CORRECT_TAG])], tags=[tag],
+                    input=ex["problem"], references=[Reference(output=ex["answer"], tags=[CORRECT_TAG])], split=split,
                 )
                 instances.append(instance)
 

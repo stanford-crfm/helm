@@ -33,7 +33,19 @@ def parse_object_spec(description: str) -> ObjectSpec:
     """
 
     def parse_arg(arg: str) -> Tuple[str, Any]:
+        if "=" not in arg:
+            raise ValueError(f"Expected <key>=<value>, got '{arg}'")
         key, value = arg.split("=", 1)
+
+        # Try to convert to number
+        try:
+            value = int(value)
+        except ValueError:
+            try:
+                value = float(value)
+            except ValueError:
+                pass
+
         return (key, value)
 
     if ":" in description:

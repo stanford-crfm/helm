@@ -3,12 +3,12 @@ import dataclasses
 from copy import copy
 from typing import List, Dict, Literal, Tuple
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 from dataclasses import dataclass
 
-"""Language Pattern Matching Scenario.
+"""Synthetic Reasoning Natural Language Scenario.
 
-We define a set of reasoning tasks related to pattern matching in language. In essence, each problem is composed
+We define a set of reasoning tasks related to pattern matching in natural language. In essence, each problem is composed
 of some combination of
 - Rules, a list of conditional statements such as "If a person is red and kind, then the person is cold."
 - Fact, a single case from which something may or may not be deduced given the rules.
@@ -138,7 +138,7 @@ class LanguageFact(LanguageLogicalStatement):
 
 
 def get_vocab() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
-    """All potential subjects for the facts and rules for LPM as well as their categories.
+    """All potential subjects for the facts and rules for sythetic_reasoning_natural as well as their categories.
     Subjects is a dictionary of subject categories like "person" and "animal" which correspond to
     a list of potential subjects.
 
@@ -300,13 +300,13 @@ def generate_test(
     return test_fact, test_rules_used, target_fact
 
 
-class LPMScenario(Scenario):
+class SRNScenario(Scenario):
     """
-    Language Pattern Matching benchmark inspired by "Transformers as Soft Reasoners over Language"
+    Synthetic Reasoning Natural Language benchmark inspired by "Transformers as Soft Reasoners over Language"
         https://arxiv.org/abs/2002.05867
     """
 
-    name = "lpm"
+    name = "sythetic_reasoning_natural"
     description = "Language Pattern Matching"
     tags = ["reasoning", "language", "pattern_matching"]
 
@@ -338,7 +338,7 @@ class LPMScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         # Read all the instances
-        instances = []
+        instances: List[Instance] = []
 
         for sample_idx in range(self.num_train_instances + self.num_val_instances + self.num_test_instances):
             rules, test_fact, test_rules_used, target_fact = self.generate_problem()
@@ -353,13 +353,13 @@ class LPMScenario(Scenario):
             print(question)
 
             if sample_idx < self.num_train_instances:
-                cur_tag = TRAIN_TAG
+                split = TRAIN_SPLIT
             elif sample_idx < self.num_train_instances + self.num_val_instances:
-                cur_tag = VALID_TAG
+                split = VALID_SPLIT
             else:
-                cur_tag = TEST_TAG
+                split = TEST_SPLIT
             instance = Instance(
-                input=question, references=[Reference(output=str(target_fact), tags=[CORRECT_TAG])], tags=[cur_tag],
+                input=question, references=[Reference(output=str(target_fact), tags=[CORRECT_TAG])], split=split,
             )
             instances.append(instance)
 

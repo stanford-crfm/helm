@@ -1,12 +1,13 @@
 import os
 from typing import Dict
 
+from common.request import Request, RequestResult
+from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 from .client import Client
 from .ai21_client import AI21Client
 from .huggingface_client import HuggingFaceClient
 from .openai_client import OpenAIClient
 from .simple_client import SimpleClient
-from common.request import Request, RequestResult
 
 
 class AutoClient(Client):
@@ -36,7 +37,13 @@ class AutoClient(Client):
         return client
 
     def make_request(self, request: Request) -> RequestResult:
-        # Dispatch based on the organization (e.g., openai/davinci)
-        organization = request.model_organization
-        client = self.get_client(organization)
+        """Dispatch based on the organization in the name of the model (e.g., openai/davinci)."""
+        organization: str = request.model_organization
+        client: Client = self.get_client(organization)
         return client.make_request(request)
+
+    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        """Tokenizes based on the organization in the name of the model (e.g., ai21/j1-jumbo)."""
+        organization: str = request.model_organization
+        client: Client = self.get_client(organization)
+        return client.tokenize(request)
