@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Callable
 
 from common.object_spec import ObjectSpec
 from .adapter import (
@@ -12,6 +12,7 @@ from .runner import RunSpec
 from .scenario import ScenarioSpec
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .raft_scenario import get_raft_instructions
+from .run_expander import RUN_EXPANDERS
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -76,73 +77,10 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
 ############################################################
 
 
-def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
-    """
-    Takes a specification (name, args) and returns a list of `RunSpec`s.
-    """
-    # Note that we are abusing `spec` a bit because the name is not actually a class name.
-    name = spec.class_name
-    args = spec.args
-
-    # Place these alphabetically
-    if name == "boolq":
-        return [get_boolq_spec()]
-    if name == "boolq_contrast_sets":
-        return [get_boolq_contrast_sets_spec()]
-    if name == "imdb":
-        return [get_imdb_spec()]
-    if name == "imdb_contrast_sets":
-        return [get_imdb_contrast_sets_spec()]
-    if name == "copyright":
-        return [get_copyright_spec(**args)]
-    if name == "mmlu":
-        return [get_mmlu_spec(**args)]
-    if name == "narrativeqa":
-        return [get_narrativeqa_spec()]
-    if name == "commonsense_qa":
-        return [get_commonsense_qa_spec(**args)]
-    if name == "lsat_qa":
-        return [get_lsat_qa_spec(**args)]
-    if name == "quac":
-        return [get_quac_spec()]
-    if name == "wiki":
-        return [get_wiki_spec(**args)]
-    if name == "babi_qa":
-        return [get_babi_qa_spec(**args)]
-    if name == "real_toxicity_prompts":
-        return [get_real_toxicity_prompts_spec()]
-    if name == "simple1":
-        return [get_run_spec1()]
-    if name == "summarization_xsum":
-        return [get_xsum_summarization_spec()]
-    if name == "summarization_cnndm":
-        return [get_cnndm_summarization_spec()]
-    if name == "twitter_aae":
-        return [get_twitter_aae_spec(**args)]
-    if name == "gsm":
-        return [get_gsm_spec()]
-    if name == "natural_qa":
-        return [get_natural_qa_spec(**args)]
-    if name == "the_pile":
-        return [get_the_pile_spec(**args)]
-    if name == "raft":
-        return [get_raft_spec(**args)]
-    if name == "synthetic_reasoning":
-        return [get_synthetic_reasoning_spec(**args)]
-    if name == "synthetic_reasoning_natural":
-        return [get_synthetic_reasoning_natural_spec(**args)]
-    if name == "news_qa":
-        return [get_news_qa_spec()]
-    if name == "wikitext_103":
-        return [get_wikitext_103_spec()]
-
-    raise ValueError(f"Unknown run spec: {spec}")
-
-
-def get_run_spec1() -> RunSpec:
+def get_simple1_spec() -> RunSpec:
     """An run spec for debugging."""
     return RunSpec(
-        name="run1",
+        name="simple1",
         scenario=get_scenario_spec1(),
         adapter_spec=get_adapter_spec1(),
         metrics=get_basic_metrics({"names": []}),
@@ -784,3 +722,61 @@ def get_cnndm_summarization_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
     )
+
+
+############################################################
+
+CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
+    "simple1": get_simple1_spec,
+    "boolq": get_boolq_spec,
+    "boolq_contrast_sets": get_boolq_contrast_sets_spec,
+    "imdb": get_imdb_spec,
+    "imdb_contrast_sets": get_imdb_contrast_sets_spec,
+    "copyright": get_copyright_spec,
+    "mmlu": get_mmlu_spec,
+    "narrativeqa": get_narrativeqa_spec,
+    "commonsense_qa": get_commonsense_qa_spec,
+    "lsat_qa": get_lsat_qa_spec,
+    "quac": get_quac_spec,
+    "wiki": get_wiki_spec,
+    "babi_qa": get_babi_qa_spec,
+    "real_toxicity_prompts": get_real_toxicity_prompts_spec,
+    "summarization_xsum": get_xsum_summarization_spec,
+    "summarization_cnndm": get_cnndm_summarization_spec,
+    "twitter_aae": get_twitter_aae_spec,
+    "gsm": get_gsm_spec,
+    "natural_qa": get_natural_qa_spec,
+    "the_pile": get_the_pile_spec,
+    "raft": get_raft_spec,
+    "synthetic_reasoning": get_synthetic_reasoning_spec,
+    "synthetic_reasoning_natural": get_synthetic_reasoning_natural_spec,
+    "news_qa": get_news_qa_spec,
+    "wikitext_103": get_wikitext_103_spec,
+}
+
+
+def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
+    """
+    Takes a specification (name, args) and returns a list of `RunSpec`s.
+    """
+    # Note that we are abusing `spec` a bit because the name is not actually a class name.
+    name = spec.class_name
+    args = spec.args
+
+    if name not in CANONICAL_RUN_SPEC_FUNCS:
+        raise ValueError(f"Unknown run spec name: {name}")
+
+    # Peel off the run expanders (e.g., model)
+    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]
+    args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
+
+    # Get the canonical run specs
+    run_specs = [CANONICAL_RUN_SPEC_FUNCS[name](**args)]
+
+    # Apply expanders
+    for expander in expanders:
+        run_specs = [
+            child_run_spec for parent_run_spec in run_specs for child_run_spec in expander.expand(parent_run_spec)
+        ]
+
+    return run_specs
