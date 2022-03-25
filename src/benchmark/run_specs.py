@@ -236,6 +236,31 @@ def get_news_qa_spec() -> RunSpec:
     )
 
 
+def get_truthful_qa_spec(task: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.truthful_qa_scenario.TruthfulQAScenario", args={"task": task},)
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        instructions="",
+        input_prefix="",
+        output_prefix="\nAnswer: ",
+        max_train_instances=5,
+        max_eval_instances=654,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        max_tokens=0,
+    )
+
+    return RunSpec(
+        name=f"truthful_qa:task{task}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
@@ -743,6 +768,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "real_toxicity_prompts": get_real_toxicity_prompts_spec,
     "summarization_xsum": get_xsum_summarization_spec,
     "summarization_cnndm": get_cnndm_summarization_spec,
+    "truthful_qa": get_truthful_qa_spec,
     "twitter_aae": get_twitter_aae_spec,
     "gsm": get_gsm_spec,
     "natural_qa": get_natural_qa_spec,
