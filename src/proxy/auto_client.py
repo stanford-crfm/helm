@@ -59,7 +59,7 @@ class AutoClient(Client):
         except RetryError as e:
             last_attempt: Attempt = e.last_attempt
             retry_error: str = (
-                f"Failed to make request to {organization} after retrying {last_attempt.attempt_number} times."
+                f"Failed to make request to {organization} after retrying {last_attempt.attempt_number} times"
             )
             hlog(retry_error)
 
