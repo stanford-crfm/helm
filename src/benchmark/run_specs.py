@@ -318,7 +318,7 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"truthful_qa:task{task}",
+        name=f"truthful_qa:task={task}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
