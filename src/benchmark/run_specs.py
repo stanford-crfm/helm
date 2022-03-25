@@ -117,6 +117,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_xsum_summarization_spec()]
     if name == "summarization_cnndm":
         return [get_cnndm_summarization_spec()]
+    if name == "truthful_qa":
+        return [get_truthful_qa_spec(**args)]
     if name == "twitter_aae":
         return [get_twitter_aae_spec(**args)]
     if name == "gsm":
@@ -295,6 +297,31 @@ def get_news_qa_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["f1_score"]}),
+    )
+
+
+def get_truthful_qa_spec(task: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.truthful_qa_scenario.TruthfulQAScenario", args={"task": task},)
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        instructions="",
+        input_prefix="",
+        output_prefix="\nAnswer: ",
+        max_train_instances=5,
+        max_eval_instances=654,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        max_tokens=0,
+    )
+
+    return RunSpec(
+        name=f"truthful_qa:task{task}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
 
