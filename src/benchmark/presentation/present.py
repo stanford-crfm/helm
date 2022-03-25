@@ -20,7 +20,7 @@ Runs all the RunSpecs in run_specs.conf and outputs a status page.
 
 Usage:
 
-    venv/bin/benchmark-present -s <Where to output the status page>
+    venv/bin/benchmark-present
 
 """
 
@@ -42,6 +42,7 @@ class AllRunner:
         output_path: str,
         num_threads: int,
         dry_run: Optional[bool],
+        skip_instances: bool,
         max_eval_instances: Optional[int],
     ):
         self.auth: Authentication = auth
@@ -50,6 +51,7 @@ class AllRunner:
         self.output_path: str = output_path
         self.num_threads: int = num_threads
         self.dry_run = dry_run
+        self.skip_instances = skip_instances
         self.max_eval_instances = max_eval_instances
 
     @htrack(None)
@@ -92,6 +94,7 @@ class AllRunner:
                 num_threads=self.num_threads,
                 output_path=self.output_path,
                 dry_run=dry_run,
+                skip_instances=self.skip_instances,
                 max_eval_instances=self.max_eval_instances,
             )
 
@@ -135,6 +138,7 @@ def main():
         output_path=args.output_path,
         num_threads=args.num_threads,
         dry_run=args.dry_run,
+        skip_instances=args.skip_instances,
         max_eval_instances=args.max_eval_instances,
     )
     runner.run()

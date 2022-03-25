@@ -267,7 +267,7 @@ class BasicMetric(Metric):
         # Fetch the right `Tokenizer` depending on the model defined in `AdapterSpec`
         # and calculate the number of tokens in the prompt.
         tokenizer_service: TokenizerService = metric_service
-        tokenizer: Tokenizer = self.tokenizer_factory.get_tokenizer(adapter_spec.model, tokenizer_service)
+        tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
         num_tokens_in_prompt: int = tokenizer.tokenize_and_count(request_state.request.prompt)
 
         sequence = request_state.result.completions[0]
