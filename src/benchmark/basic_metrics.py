@@ -44,6 +44,7 @@ def match_upto_whitespace(gold: str, pred: str) -> float:
     pred = pred.lstrip().rstrip()
     return 1 if gold == pred else 0
 
+
 def exact_match_indicator(gold: str, pred: str) -> float:
     """
     Exact match, allowing for some preceding context.
@@ -57,6 +58,7 @@ def exact_match_indicator(gold: str, pred: str) -> float:
     pred = pred.split(indicator)[-1].strip()
     gold = gold.split(indicator)[-1].strip()
     return exact_match(gold, pred)
+
 
 def get_num_bytes(tokens: List[Token]) -> int:
     """

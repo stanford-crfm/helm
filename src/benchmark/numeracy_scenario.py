@@ -12,7 +12,14 @@ from sympy.parsing.sympy_parser import standard_transformations, implicit_multip
 from typing import List, Optional, Tuple, Dict
 
 from .adapter import AdapterSpec, Adapter, ADAPT_GENERATION
+from .adapter_service import AdapterService
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
+from proxy.remote_service import RemoteService
+from common.authentication import Authentication
+
+
+def get_test_adapter_service() -> AdapterService:
+    return AdapterService(RemoteService("test"), Authentication("test"))
 
 
 SOLUTION_TAG: str = "solution"
@@ -603,11 +610,12 @@ class NumeracyScenario(Scenario):
 
         def generate_datasets(num_instances: int, split: str):
             spec = get_numeracy_adapter_spec(self.num_train, self.num_test, self.dim, self.delimiter)
-            adapter = Adapter(spec)
+            service = get_test_adapter_service()
+            adapter = Adapter(spec, service)
             outer_spec = get_numeracy_adapter_spec(
                 self.num_train, self.num_test, self.dim, instructions="", block_prefix="\n\n", delimeter=self.delimiter,
             )
-            outer_adapter = Adapter(outer_spec)
+            outer_adapter = Adapter(outer_spec, service)
             instances = []
             for idx in range(num_instances):
                 datapoint_instances = generate_dataset()
