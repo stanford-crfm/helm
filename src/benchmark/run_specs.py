@@ -78,58 +78,7 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
 ############################################################
 
 
-<<<<<<< HEAD
 def get_simple1_spec() -> RunSpec:
-=======
-def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
-    """
-    Takes a specification (name, args) and returns a list of `RunSpec`s.
-    """
-    # Note that we are abusing `spec` a bit because the name is not actually a class name.
-    name = spec.class_name
-    args = spec.args
-
-    # Place these alphabetically
-    if name == "boolq":
-        return [get_boolq_spec()]
-    if name == "boolq_contrast_sets":
-        return [get_boolq_contrast_sets_spec()]
-    if name == "copyright":
-        return [get_copyright_spec(**args)]
-    if name == "lpm":
-        return [get_lpm_spec(**args)]
-    if name == "mmlu":
-        return [get_mmlu_spec(**args)]
-    if name == "narrativeqa":
-        return [get_narrativeqa_spec()]
-    if name == "commonsense_qa":
-        return [get_commonsense_qa_spec(**args)]
-    if name == "quac":
-        return [get_quac_spec()]
-    if name == "wiki":
-        return [get_wiki_spec(**args)]
-    if name == "babi_qa":
-        return [get_babi_qa_spec(**args)]
-    if name == "real_toxicity_prompts":
-        return [get_real_toxicity_prompts_spec()]
-    if name == "simple1":
-        return [get_run_spec1()]
-    if name == "twitter_aae":
-        return [get_twitter_aae_spec(**args)]
-    if name == "natural_qa":
-        return [get_natural_qa_spec(**args)]
-    if name == "the_pile":
-        return [get_the_pile_spec(**args)]
-    if name == "raft":
-        return [get_raft_spec(**args)]
-    if name == "empatheticdialogues":
-        return [get_empatheticdialogues_spec(**args)]
-
-    raise ValueError(f"Unknown run spec: {spec}")
-
-
-def get_run_spec1() -> RunSpec:
->>>>>>> 9946a7b (Working commit of empathetic dialogues scenario)
     """An run spec for debugging."""
     return RunSpec(
         name="simple1",
@@ -304,7 +253,10 @@ def get_news_qa_spec() -> RunSpec:
 
 
 def get_truthful_qa_spec(task: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.truthful_qa_scenario.TruthfulQAScenario", args={"task": task},)
+    scenario = ScenarioSpec(
+        class_name="benchmark.truthful_qa_scenario.TruthfulQAScenario",
+        args={"task": task},
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
@@ -715,12 +667,11 @@ def get_narrativeqa_spec() -> RunSpec:
         metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
     )
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 
 def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.synthetic_reasoning_scenario.SyntheticReasoningScenario", args={"mode": mode},
+        class_name="benchmark.synthetic_reasoning_scenario.SyntheticReasoningScenario",
+        args={"mode": mode},
     )
 
     adapter_spec = AdapterSpec(
@@ -763,14 +714,22 @@ def get_wikitext_103_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name="wikitext_103", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": []}),
+        name="wikitext_103",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": []}),
     )
 
 
 def get_xsum_summarization_spec() -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
-        args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512,},
+        args={
+            "dataset_name": "xsum",
+            "sampling_min_length": 50,
+            "sampling_max_length": 64,
+            "doc_max_length": 512,
+        },
     )
 
     adapter_spec = AdapterSpec(
@@ -799,7 +758,12 @@ def get_xsum_summarization_spec() -> RunSpec:
 def get_cnndm_summarization_spec() -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
-        args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512,},
+        args={
+            "dataset_name": "cnn-dm",
+            "sampling_min_length": 50,
+            "sampling_max_length": 64,
+            "doc_max_length": 512,
+        },
     )
 
     adapter_spec = AdapterSpec(
@@ -822,6 +786,30 @@ def get_cnndm_summarization_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
+    )
+
+
+def get_empatheticdialogues_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.EmpatheticDialoguesScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nBEGIN DIALOGUE\n",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=100,  # TODO : Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=50,
+        temperature=0.9,
+    )
+
+    return RunSpec(
+        name=f"empatheticdialogues",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
 
@@ -854,6 +842,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "synthetic_reasoning_natural": get_synthetic_reasoning_natural_spec,
     "news_qa": get_news_qa_spec,
     "wikitext_103": get_wikitext_103_spec,
+    "empatheticdialogues": get_empatheticdialogues_spec,
 }
 
 
@@ -882,33 +871,3 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         ]
 
     return run_specs
-=======
-=======
-
->>>>>>> e12637c (Removed DialogueInstance dataclass, used Instance in its place)
-def get_empatheticdialogues_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.EmpatheticDialoguesScenario", args={})
-
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="\nanswer:",
-        num_train_trials=1,
-        max_train_instances=2,
-        model="ai21/j1-large",
-        max_eval_instances=450,  # TODO : Find the number of samples to evaluate.
-        num_outputs=1,
-        max_tokens=5,
-        temperature=0.0,
-    )
-
-    return RunSpec(
-        name=f"empatheticdialogues",
-        scenario=scenario,
-        adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
-    )
-<<<<<<< HEAD
->>>>>>> 9946a7b (Working commit of empathetic dialogues scenario)
-=======
->>>>>>> c6582be (Updating to dialogue_scenarios)
