@@ -24,6 +24,11 @@ Usage:
 
     venv/bin/benchmark-present -s <Where to output the status page>
 
+Additional arguments:
+
+--dry-run: Downloads the datasets, creates `Instance`s `Request`s and estimates how many tokens will be used.
+--very-dry-run: Simply checks if the RunSpec descriptions in then conf file get parsed correctly.
+
 """
 
 # For READY RunSpecs, evaluate and generate metrics.
@@ -125,7 +130,7 @@ class AllRunner:
         write(os.path.join(self.output_path, "models.json"), json.dumps(all_models, indent=2))
 
     def check_run_spec_descriptions(self, run_spec_descriptions: List[str]):
-        """Skips downloading datasets and execution and just ensure run spec descriptions are parsed correctly."""
+        """Checks run spec descriptions are parsed correctly."""
         for run_spec_description in run_spec_descriptions:
             # We placed double quotes around the descriptions since they can have colons or equal signs.
             # There is a bug with pyhocon. pyhocon keeps the double quote when there is a ".", ":" or "=" in the string:
@@ -147,7 +152,7 @@ def main():
     parser.add_argument(
         "--very-dry-run",
         action="store_true",
-        help="Skips downloading datasets and execution and just ensure run spec descriptions are parsed correctly.",
+        help="Simply checks if run spec descriptions in the conf file at `conf_path` are parsed correctly.",
     )
     add_run_args(parser)
     args = parser.parse_args()
