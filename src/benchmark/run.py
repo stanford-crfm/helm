@@ -19,6 +19,7 @@ def run_benchmarking(
     num_threads: int,
     output_path: str,
     dry_run: bool,
+    skip_instances: bool,
     max_eval_instances: Optional[int],
 ):
     """Runs RunSpecs given a list of RunSpec descriptions."""
@@ -41,13 +42,19 @@ def run_benchmarking(
         for run_spec in run_specs:
             hlog(run_spec.scenario)
 
-    runner = Runner(execution_spec, output_path, run_specs)
+    runner = Runner(execution_spec, output_path, run_specs, skip_instances)
     runner.run_all()
 
 
 def add_run_args(parser: argparse.ArgumentParser):
     parser.add_argument("-o", "--output-path", help="Where to save all the output", default="benchmark_output")
     parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads to make requests", default=5)
+    parser.add_argument(
+        "--skip-instances",
+        action="store_true",
+        default=None,
+        help="Skip creation of instances (basically do nothing but just parse everything).",
+    )
     parser.add_argument(
         "-d",
         "--dry-run",
@@ -82,5 +89,6 @@ def main():
         num_threads=args.num_threads,
         output_path=args.output_path,
         dry_run=args.dry_run,
+        skip_instances=args.skip_instances,
         max_eval_instances=args.max_eval_instances,
     )

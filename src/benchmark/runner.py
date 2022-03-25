@@ -46,13 +46,14 @@ class Runner:
     dispatches to other classes.
     """
 
-    def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_specs: List[RunSpec]):
+    def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_specs: List[RunSpec], skip_instances: bool):
         self.executor = Executor(execution_spec)
         self.dry_run = execution_spec.dry_run
         self.adapter_service = AdapterService(self.executor.remote_service, execution_spec.auth)
         self.metric_service = MetricService(self.executor.remote_service, execution_spec.auth)
         self.output_path = output_path
         self.run_specs = run_specs
+        self.skip_instances = skip_instances
         ensure_directory_exists(self.output_path)
 
     def run_all(self):
@@ -73,7 +74,10 @@ class Runner:
         ensure_directory_exists(runs_path)
 
         # Data preprocessing
-        instances: List[Instance] = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(scenario)
+        if not self.skip_instances:
+            instances: List[Instance] = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(scenario)
+        else:
+            instances = []
 
         # Adaptation
         adapter = Adapter(run_spec.adapter_spec, self.adapter_service)

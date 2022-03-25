@@ -235,7 +235,7 @@ class Adapter:
     def __init__(self, adapter_spec: AdapterSpec, adapter_service: AdapterService):
         self.adapter_spec: AdapterSpec = adapter_spec
         tokenizer_service: TokenizerService = adapter_service
-        self.tokenizer: Tokenizer = TokenizerFactory.create_tokenizer(adapter_spec.model, tokenizer_service)
+        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
 
     @htrack(None)
     def adapt(self, instances: List[Instance]) -> ScenarioState:
