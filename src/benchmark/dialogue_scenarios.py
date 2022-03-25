@@ -9,14 +9,14 @@ from benchmark.augmentations.perturbation_description import PerturbationDescrip
 import pandas as pd
 
 
-@dataclass
+@dataclass(frozen=True)
 class Speaker:
     id: int
     initiator: bool
     name: Optional[str] = None
 
 
-@dataclass
+@dataclass(frozen=True)
 class Utterance:
     speaker: Speaker
     text: str
@@ -24,25 +24,6 @@ class Utterance:
     def __str__(self):
         assert self.speaker.name is not None, "Speaker name needs to be set for generating utterance string"
         return f"{self.speaker.name}: {self.text}" + "\n"
-
-
-class DialogueReference(Reference):
-    """
-    A reference here specifies
-    """
-
-    # The output text
-    output: List[Utterance]
-
-    # Extra metadata (e.g., whether it's correct/factual/toxic)
-    tags: List[str]
-
-    @property
-    def is_correct(self) -> bool:
-        return True
-
-    def render_lines(self) -> List[str]:
-        return "\n".join([str(utt) for utt in self.output]) + "\n"
 
 
 class EmpatheticDialoguesScenario(Scenario):
@@ -107,18 +88,24 @@ class EmpatheticDialoguesScenario(Scenario):
                     if len(conv_df) < 2:
                         continue  # Filter conversations without 2 speaker utterances
                     grouped_df = conv_df.sort_values("utterance_idx")
-                    initiator = Speaker(id=grouped_df.iloc[0]["speaker_idx"], initiator=True)
-                    listener = Speaker(id=grouped_df.iloc[1]["speaker_idx"], initiator=False)
+                    initiator = Speaker(id=grouped_df.iloc[0]["speaker_idx"], initiator=True, name="Bob")
+                    listener = Speaker(id=grouped_df.iloc[1]["speaker_idx"], initiator=False, name="Jen")
                     speakers = {initiator.id: initiator, listener.id: listener}
 
                     # Create a list of utterances
                     utterances = [
-                        Utterance(speaker=speakers[row["speaker_idx"]], text=row["utterance"])
+                        Utterance(speaker=speakers[row["speaker_idx"]], text=row["utterance"].strip())
                         for idx, row in grouped_df.iterrows()
                     ]
 
+                    output = "".join([str(utt) for utt in utterances])
                     # Create a reference out of utterances
-                    references.append(DialogueReference(output=utterances, tags=[]))
+                    references.append(
+                        Reference(
+                            output=output,
+                            tags=[CORRECT_TAG],
+                        )
+                    )
 
                 # Create an instance from multiple references
 
