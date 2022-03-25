@@ -58,7 +58,8 @@ class Runner:
 
     def run_all(self):
         for run_spec in self.run_specs:
-            self.run_one(run_spec)
+            with htrack_block(f"Running {run_spec.name}"):
+                self.run_one(run_spec)
 
     def run_one(self, run_spec: RunSpec):
         # Load the scenario

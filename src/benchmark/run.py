@@ -40,7 +40,7 @@ def run_benchmarking(
     ]
     with htrack_block("run_specs"):
         for run_spec in run_specs:
-            hlog(run_spec.scenario)
+            hlog(run_spec.name)
 
     runner = Runner(execution_spec, output_path, run_specs, skip_instances)
     runner.run_all()
