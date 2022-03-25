@@ -100,21 +100,13 @@ class EmpatheticDialoguesScenario(Scenario):
 
                     output = "".join([str(utt) for utt in utterances])
                     # Create a reference out of utterances
-                    references.append(
-                        Reference(
-                            output=output,
-                            tags=[CORRECT_TAG],
-                        )
-                    )
+                    references.append(Reference(output=output, tags=[CORRECT_TAG],))
 
                 # Create an instance from multiple references
 
                 instances.append(
                     Instance(
-                        input=prompt_cols[0],
-                        references=references,
-                        split=splits[split],
-                        sub_split=prompt_cols[1],
+                        input=prompt_cols[0], references=references, split=splits[split], sub_split=prompt_cols[1],
                     )
                 )
         return instances
