@@ -49,7 +49,9 @@ class APPSMetric(Metric):
         instance = cast(CodeInstance, instance)
         request_result: RequestResult = request_state.result
         # Type cast Optional[Dict] to Dict; we know for sure it's not None for this scenario.
-        root = cast(dict, instance.metadata).get("root")
+        metadata = instance.metadata
+        assert metadata is not None
+        root = metadata.get("root")
 
         metrics = []
         for name in self.names:
