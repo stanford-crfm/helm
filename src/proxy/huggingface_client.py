@@ -1,5 +1,5 @@
 from common.cache import Cache
-from common.hierarchical_logger import htrack_block
+from common.hierarchical_logger import htrack_block, hlog
 from common.request import Request, RequestResult, Sequence, Token
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 
@@ -12,7 +12,11 @@ from typing import Any, Dict, List
 
 class HuggingFaceServer:
     def __init__(self, model_name: str):
-        self.device: str = "cuda:0" if torch.cuda.is_available() else "cpu"
+        if torch.cuda.is_available():
+            hlog("CUDA is available, initializing with a GPU...")
+            self.device: str = "cuda:0"
+        else:
+            self.device = "cpu"
 
         with htrack_block("Loading model"):
             self.model = AutoModelForCausalLM.from_pretrained(model_name).to(self.device)
@@ -68,6 +72,7 @@ class HuggingFaceServer:
         # Remove prompt from the start of each sequence if echo_prompt is False.
         if not raw_request["echo_prompt"]:
             sequences = [sequence[len(encoded_input.input_ids[0]) :] for sequence in sequences]
+
         # TODO: Get rid of the extra tokenization?
         all_tokens = [self.tokenizer.convert_ids_to_tokens(sequence) for sequence in sequences]
         all_decoded_text = self.tokenizer.batch_decode(sequences)
@@ -93,7 +98,7 @@ class HuggingFaceClient(Client):
         self.cache = Cache(cache_path)
         self.model_server_instances: Dict[str, HuggingFaceServer] = {}
 
-    def get_model_server_instance(self, model_engine):
+    def get_model_server_instance(self, model_engine) -> HuggingFaceServer:
         if model_engine not in self.model_server_instances:
             if model_engine == "gptj_6b":
                 self.model_server_instances[model_engine] = HuggingFaceServer("EleutherAI/gpt-j-6B")
@@ -118,7 +123,7 @@ class HuggingFaceClient(Client):
 
         # Get cached model server instance if possible (to save on model and tokenizer
         # loading times).
-        model_server_instance = self.get_model_server_instance(request.model_engine)
+        model_server_instance: HuggingFaceServer = self.get_model_server_instance(request.model_engine)
 
         try:
 
@@ -133,7 +138,7 @@ class HuggingFaceClient(Client):
 
         completions = []
         for raw_completion in response["completions"]:
-            sequence_logprob = 0
+            sequence_logprob: float = 0
             tokens: List[Token] = []
 
             if request.echo_prompt:
