@@ -37,3 +37,4 @@ from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # no
 from .augmentations.misspelling_perturbation import MisspellingPerturbation  # noqa
 from .augmentations.contraction_expansion_perturbation import ContractionPerturbation  # noqa
 from .augmentations.contraction_expansion_perturbation import ExpansionPerturbation  # noqa
+from .augmentations.typos_perturbation import TyposPerturbation  # noqa

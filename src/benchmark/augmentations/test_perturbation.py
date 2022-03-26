@@ -7,6 +7,7 @@ from .extra_space_perturbation import ExtraSpacePerturbation
 from .identity_perturbation import IdentityPerturbation
 from .misspelling_perturbation import MisspellingPerturbation
 from .contraction_expansion_perturbation import ContractionPerturbation, ExpansionPerturbation
+from .typos_perturbation import TyposPerturbation
 
 
 def test_identity_perturbation():
@@ -43,6 +44,7 @@ def test_misspelling_perturbation():
     assert len(instances) == 2
     assert instances[0].id == "id0"
     assert instances[0].perturbation.name == "misspellings"
+    assert instances[0].perturbation.prob == 1.0
     assert instances[0].input == "Alreayd, teh new product is nto availaible."
 
 
@@ -72,3 +74,16 @@ def test_expansion_perturbation():
     assert instances[0].perturbation.name == "expansion"
     assert instances[0].input == "She is a doctor, and I am a student"
     assert instances[0].references[0].output == "he is a teacher"
+
+
+def test_typos_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[TyposPerturbation(prob=0.1)], should_perturb_references=True)
+    instance: Instance = Instance(
+        id="id0", input="After their marriage, she started a close collaboration with Karvelas.", references=[],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+    assert instances[0].perturbation.name == "TyposPerturbation"
+    assert instances[0].perturbation.prob == 0.1
+    assert instances[0].input == "After their macriage, she started a close cillaboration with Karvelss."
