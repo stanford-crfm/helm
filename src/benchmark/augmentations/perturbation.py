@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
-from typing import List
+from typing import Sequence
 
 from .perturbation_description import PerturbationDescription
 from benchmark.scenario import Instance, Reference
@@ -22,7 +22,7 @@ class Perturbation(ABC):
         Generates a new Instance by perturbing the input, tagging the Instance and perturbing the References,
         if should_perturb_references is true.
         """
-        references: List[Reference] = instance.references
+        references: Sequence[Reference] = instance.references
         if should_perturb_references:
             references = [self.perturb_reference(reference) for reference in references]
 

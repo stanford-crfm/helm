@@ -8,6 +8,7 @@ from . import code_metrics_helper
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_service import MetricService
+from .code_scenario import CodeInstance
 
 
 def _convert_scores(scores: Sequence[Union[int, bool]]) -> List[float]:
@@ -45,9 +46,10 @@ class APPSMetric(Metric):
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
         instance = request_state.instance
+        instance = cast(CodeInstance, instance)
         request_result: RequestResult = request_state.result
         # Type cast Optional[Dict] to Dict; we know for sure it's not None for this scenario.
-        root = cast(dict, instance.data).get("root")
+        root = cast(dict, instance.metadata).get("root")
 
         metrics = []
         for name in self.names:

@@ -49,7 +49,7 @@ import gzip
 import io
 import json
 import os
-from typing import List, Dict, Iterable
+from typing import List, Dict, Iterable, Optional, Sequence
 
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
@@ -57,10 +57,30 @@ from .code_scenario_helper import run as run_reindent
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
+class CodeReference(Reference):
+    # Extra none-string metadata, e.g., paths.
+    test_cases: Optional[Dict] = None
+
+    def __init__(self, test_cases=None, **kw):
+        self.test_cases = test_cases
+        super(CodeReference, self).__init__(**kw)
+
+
+class CodeInstance(Instance):
+    reference: CodeReference
+
+    # Extra none-string metadata, e.g., paths.
+    metadata: Optional[Dict] = None
+
+    def __init__(self, metadata=None, **kw):
+        self.metadata = metadata
+        super(CodeInstance, self).__init__(**kw)
+
+
 # === HumanEval ===
 def _read_and_preprocess_human_eval(
     target_path: str, num_train_instances: int, num_val_instances: int, num_test_instances: int
-) -> List[Instance]:
+) -> List[CodeInstance]:
     problems = _read_human_eval(target_path)
     instances = []
     for sample_idx, task_id in enumerate(problems):
@@ -71,10 +91,12 @@ def _read_and_preprocess_human_eval(
         else:
             split = TEST_SPLIT
 
-        instance = Instance(
+        instance = CodeInstance(
             input=problems[task_id]["prompt"],
             references=[
-                Reference(output=problems[task_id]["canonical_solution"], data=problems[task_id], tags=[CORRECT_TAG],),
+                CodeReference(
+                    output=problems[task_id]["canonical_solution"], test_cases=problems[task_id], tags=[CORRECT_TAG],
+                ),
             ],
             split=split,
         )
@@ -102,7 +124,7 @@ def _stream_jsonl(filename: str) -> Iterable[Dict]:
 
 
 # === APPS ===
-def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
+def _read_and_preprocess_apps(target_path: str) -> List[CodeInstance]:
     """Read APPS dataset.
 
     Adapted from
@@ -185,11 +207,11 @@ def _read_and_preprocess_apps(target_path: str) -> List[Instance]:
 
             # Create overall prompt.
             prompt = _make_input_for_apps(question=question, starter_code=starter_code, answer_type=answer_type,)
-            instance = Instance(
+            instance = CodeInstance(
                 input=prompt,
-                references=[Reference(output=solution, tags=[CORRECT_TAG]) for solution in solutions],
+                references=[CodeReference(output=solution, tags=[CORRECT_TAG]) for solution in solutions],
                 split=split_tag,
-                data=data,
+                metadata=data,
             )
             instances.append(instance)
             num_problems += 1
@@ -239,7 +261,7 @@ class CodeScenario(Scenario):
 
         self.human_eval_hparams = dict(num_train_instances=0, num_val_instances=0, num_test_instances=164)
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self) -> Sequence[CodeInstance]:
         # By construction, self.output_path == 'benchmark_output/scenarios/code'.
         if self.dataset == "HumanEval":
             target_path = os.path.join(self.output_path, "HumanEval.jsonl.gz")

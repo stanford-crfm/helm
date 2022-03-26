@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List, Optional, Dict
+from typing import List, Optional, Sequence
 
 from common.object_spec import ObjectSpec, create_object
 from common.general import format_text, format_split, format_tags, indent_lines
@@ -31,9 +31,6 @@ class Reference:
     # Extra metadata (e.g., whether it's correct/factual/toxic)
     tags: List[str]
 
-    # Extra Info for testing (e.g., code test cases)
-    data: Optional[Dict] = None
-
     @property
     def is_correct(self) -> bool:
         return CORRECT_TAG in self.tags
@@ -54,16 +51,13 @@ class Instance:
     input: str
 
     # References that helps us evaluate
-    references: List[Reference]
+    references: Sequence[Reference]
 
     # Split (e.g., train, valid, test)
     split: Optional[str] = None
 
     # Sub split (e.g. toxic, non-toxic)
     sub_split: Optional[str] = None
-
-    # Extra none-string metadata, e.g., paths.
-    data: Optional[Dict] = None
 
     # Used to group Instances that were created from a particular Instance through data augmentation
     id: Optional[str] = None
@@ -117,7 +111,7 @@ class Scenario(ABC):
     output_path: str
 
     @abstractmethod
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self) -> Sequence[Instance]:
         """
         Does the main work in the `Scenario` (e.g., download datasets, convert
         it into a list of instances).

@@ -15,6 +15,7 @@ from . import code_metrics_helper
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_service import MetricService
+from .code_scenario import CodeReference
 
 try:
     nltk.data.find("tokenizers/punkt")
@@ -62,10 +63,10 @@ def get_num_bytes(text: str) -> int:
     return len(bytes(text, encoding="utf-8"))
 
 
-def iou_set_match(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
+def iou_set_match(gold: str, pred: str) -> float:
     """Compute the intersection over union of the gold and pred sets"""
     pred = pred.split("\n")[0]
-    gold_text = gold[0]
+    gold_text = gold
     if gold_text == "Nothing.":
         return float(pred == "Nothing.")
     pred = pred.replace(".", "")
@@ -75,10 +76,10 @@ def iou_set_match(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
     return len(gold_set.intersection(pred_set)) / len(gold_set.union(pred_set))
 
 
-def exact_set_match(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
+def exact_set_match(gold: str, pred: str) -> float:
     """Compute whether the sets generated exactly match"""
     pred = pred.split("\n")[0]
-    gold_text = gold[0]
+    gold_text = gold
     if gold_text == "Nothing.":
         return float(pred == "Nothing.")
     pred = pred.replace(".", "")
@@ -126,10 +127,16 @@ class BasicMetric(Metric):
         def compute_metrics_helper(name: str, score_func: Callable, group: Optional[str] = None,) -> List[Stat]:
             if name == "pass":  # Calculate pass@k for HumanEval from CodeScenario.
                 score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
-                results = [score_func((gold.output, gold.data), pred) for gold in golds for pred in preds]
+                code_golds = cast(List[CodeReference], golds)
+                results = [score_func((gold.output, gold.test_cases), pred) for gold in code_golds for pred in preds]
                 _len, _sum = len(results), int(sum(results))  # Cast to int to make type match.
                 score_1 = pass_at_k_estimator(_len, _sum, 1)
                 score_k = pass_at_k_estimator(_len, _sum, adapter_spec.num_outputs)
+            elif name == "code_eval_acc":
+                score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
+                code_golds = cast(List[CodeReference], golds)
+                score_1 = max(score_func((gold.output, gold.test_cases), preds[0]) for gold in code_golds)
+                score_k = max(score_func((gold.output, gold.test_cases), pred) for gold in code_golds for pred in preds)
             else:
                 score_func = cast(Callable[[str, str], float], score_func)  # Make mypy happy.
                 score_1 = max(score_func(gold.output, preds[0]) for gold in golds)
