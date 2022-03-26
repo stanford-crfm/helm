@@ -18,6 +18,7 @@ from proxy.tokenizer.tokenizer import Tokenizer
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from .augmentations.perturbation_description import PerturbationDescription
 from .adapter import AdapterSpec, RequestState, ADAPT_LANGUAGE_MODELING
+from .math_scenario import is_equiv
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -173,26 +174,6 @@ def exact_set_match(gold: str, pred: str) -> float:
     return float(gold_set == pred_set)
 
 
-def regex_comparison(inner_metric_fn: Callable[[str, str], float], regex: str,) -> Callable[[str, str], float]:
-    """Evaluates only on first matching occurrence."""
-
-    def metric_fn(gold: str, pred: str) -> float:
-        def get_answer(text):
-            """Extracts out the first matching substring from the text for comparison."""
-            match = re.search(regex, text)
-            if match is not None:
-                return match.group()
-            else:
-                return ""
-
-        pred = get_answer(pred).replace(" ", "")
-        gold = get_answer(gold).replace(" ", "")
-
-        return inner_metric_fn(gold, pred)
-
-    return metric_fn
-
-
 class BasicMetric(Metric):
     """
     Defines basic metrics which don't require domain knowledge.  This should be
@@ -234,7 +215,7 @@ class BasicMetric(Metric):
             "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
-            "exact_boxed_match": regex_comparison(inner_metric_fn=exact_match, regex=r"boxed\{.+\}"),
+            "math_equiv": is_equiv,
             "f1_score": f1_score,
             "rouge-1": get_rouge_function("rouge1"),
             "rouge-2": get_rouge_function("rouge2"),

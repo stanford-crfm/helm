@@ -61,7 +61,7 @@ def get_srn_metrics() -> List[MetricSpec]:
 
 
 def get_math_metrics() -> List[MetricSpec]:
-    metric_names = {"names": ["exact_boxed_match"]}
+    metric_names = {"names": ["math_equiv"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
@@ -390,24 +390,51 @@ def get_raft_spec(subset: str) -> RunSpec:
     )
 
 
-def get_math_spec(type: str, level: str) -> RunSpec:
+def get_math_spec(type: str, level: str, use_official_prompt: bool = True) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.math_scenario.MATHScenario", args={"type": type, "level": level})
+
+    train_prompt = "Given a mathematics problem, determine the answer. Simplify your answer as much as possible."
+    if use_official_prompt:
+        train_prompt += """
+Problem: What is $\left(\frac{7}{8}\right)^3 \cdot \left(\frac{7}{8}\right)^{-3}$?
+Answer: $1$
+###
+Problem: In how many ways can 4 books be selected from a shelf of 6 books if the order in which the books are selected does not matter?
+Answer: $15$
+###
+Problem: Find the distance between the points $(2,1,-4)$ and $(5,8,-3).$
+Answer: $\sqrt{59}$
+###
+Problem: The faces of an octahedral die are labeled with digits $1$ through $8$. What is the probability, expressed as a common fraction, of rolling a sum of $15$ with a pair of such octahedral dice?
+Answer: $\frac{1}{32}$
+###
+Problem: The first three terms of an arithmetic sequence are 1, 10 and 19, respectively. What is the value of the 21st term?
+Answer: $181$
+###
+Problem: Calculate $6 \cdot 8\frac{1}{3}
+Answer: $50$
+###
+Problem: When the binary number $100101110010_2$ is divided by 4, what is the remainder (give your answer in base 10)?
+Answer: $2$
+###
+Problem: How many zeros are at the end of the product 25 $\times$ 240?
+Answer: $3$
+###"""  # noqa
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Please solve the following problem.",
-        max_train_instances=8,
-        max_eval_instances=100,
+        instructions=train_prompt,
+        max_train_instances=0 if use_official_prompt else 8,
+        max_eval_instances=7500,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
-        temperature=0.2,
-        stop_sequences=["\n"],
-        max_tokens=20,  # TODO
-        # input_prefix="Problem: ",
-        # output_prefix="\nSolution: ",
-        input_prefix="",
-        output_prefix="\nFINAL ANSWER:\n",
+        temperature=0,
+        stop_sequences=["$", "###", "\n"],
+        max_tokens=20,
+        input_prefix="\nProblem: ",
+        output_prefix="\nAnswer: $",
+        block_prefix="$\n###",
     )
 
     return RunSpec(
@@ -801,6 +828,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "truthful_qa": get_truthful_qa_spec,
     "twitter_aae": get_twitter_aae_spec,
     "gsm": get_gsm_spec,
+    "math": get_math_spec,
     "natural_qa": get_natural_qa_spec,
     "the_pile": get_the_pile_spec,
     "raft": get_raft_spec,
