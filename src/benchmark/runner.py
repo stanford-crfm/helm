@@ -3,8 +3,10 @@ import os
 from dataclasses import dataclass, asdict
 from typing import List
 
+
 from common.general import ensure_directory_exists, write, write_lines
 from common.hierarchical_logger import hlog, htrack_block
+from .adapter_service import AdapterService
 from .augmentations.data_augmenter import DataAugmenterSpec
 from .metric_service import MetricService
 from .scenario import Scenario, ScenarioSpec, create_scenario, Instance
@@ -44,17 +46,20 @@ class Runner:
     dispatches to other classes.
     """
 
-    def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_specs: List[RunSpec]):
+    def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_specs: List[RunSpec], skip_instances: bool):
         self.executor = Executor(execution_spec)
         self.dry_run = execution_spec.dry_run
+        self.adapter_service = AdapterService(self.executor.remote_service, execution_spec.auth)
         self.metric_service = MetricService(self.executor.remote_service, execution_spec.auth)
         self.output_path = output_path
         self.run_specs = run_specs
+        self.skip_instances = skip_instances
         ensure_directory_exists(self.output_path)
 
     def run_all(self):
         for run_spec in self.run_specs:
-            self.run_one(run_spec)
+            with htrack_block(f"Running {run_spec.name}"):
+                self.run_one(run_spec)
 
     def run_one(self, run_spec: RunSpec):
         # Load the scenario
@@ -70,10 +75,13 @@ class Runner:
         ensure_directory_exists(runs_path)
 
         # Data preprocessing
-        instances: List[Instance] = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(scenario)
+        if not self.skip_instances:
+            instances: List[Instance] = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(scenario)
+        else:
+            instances = []
 
         # Adaptation
-        adapter = Adapter(run_spec.adapter_spec)
+        adapter = Adapter(run_spec.adapter_spec, self.adapter_service)
         scenario_state: ScenarioState = adapter.adapt(instances)
 
         # Execution
