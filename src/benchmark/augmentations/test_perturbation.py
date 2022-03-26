@@ -1,19 +1,20 @@
 import random
 from typing import List
 
-from benchmark.augmentations.perturbation import (
-    IdentityPerturbation,
-    ExtraSpacePerturbation,
-    CityNameReplacementPerturbation,
-)
 from benchmark.scenario import Instance, Reference
+from .city_name_replacement_perturbation import CityNameReplacementPerturbation
+from .contraction_expansion_perturbation import ContractionPerturbation, ExpansionPerturbation
 from .data_augmenter import DataAugmenter
+from .extra_space_perturbation import ExtraSpacePerturbation
+from .identity_perturbation import IdentityPerturbation
+from .misspelling_perturbation import MisspellingPerturbation
+from .typos_perturbation import TyposPerturbation
 
 
 def test_identity_perturbation():
-    instance: Instance = Instance(input="Hello my name is", references=[])
+    instance: Instance = Instance(id="id0", input="Hello my name is", references=[])
     perturbation = IdentityPerturbation()
-    clean_instance: Instance = perturbation.apply("id0", instance)
+    clean_instance: Instance = perturbation.apply(instance)
 
     assert clean_instance.id == "id0"
     assert clean_instance.perturbation.name == "identity"
@@ -21,7 +22,9 @@ def test_identity_perturbation():
 
 def test_extra_space_perturbation():
     data_augmenter = DataAugmenter(perturbations=[ExtraSpacePerturbation(num_spaces=2)], should_perturb_references=True)
-    instance: Instance = Instance(input="Hello my name is", references=[Reference(output="some name", tags=[])])
+    instance: Instance = Instance(
+        id="id0", input="Hello my name is", references=[Reference(output="some name", tags=[])]
+    )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
@@ -34,10 +37,10 @@ def test_extra_space_perturbation():
 
 def test_city_name_replacement_perturbation():
     def _perturb(text) -> str:
-        instance = Instance(input=text, references=[])
+        instance = Instance(id="id0", input=text, references=[])
         random.seed(123)
         perturbation = CityNameReplacementPerturbation()
-        output: Instance = perturbation.apply("id0", instance)
+        output: Instance = perturbation.apply(instance)
         assert output.id == "id0"
         assert output.perturbation.name == "city_name_replacement"  # type: ignore
         return output.input
@@ -63,3 +66,58 @@ def test_city_name_replacement_perturbation():
         "San Jose is a nice city near San Francisco. It is one hour drive from San Jose to San Francisco."
     )
     assert output == "Forest Park is a nice city near Bell. It is one hour drive from Forest Park to Bell."
+
+
+def test_misspelling_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[MisspellingPerturbation(prob=1.0)], should_perturb_references=True)
+    instance: Instance = Instance(
+        id="id0", input="Already, the new product is not available.", references=[],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+    assert instances[0].id == "id0"
+    assert instances[0].perturbation.name == "misspellings"
+    assert instances[0].perturbation.prob == 1.0
+    assert instances[0].input == "Alreayd, teh new product is nto availaible."
+
+
+def test_contraction_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[ContractionPerturbation()], should_perturb_references=True)
+    instance: Instance = Instance(
+        id="id0", input="She is a doctor, and I am a student", references=[Reference(output="he is a teacher", tags=[])]
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+    assert instances[0].id == "id0"
+    assert instances[0].perturbation.name == "contraction"
+    assert instances[0].input == "She's a doctor, and I'm a student"
+    assert instances[0].references[0].output == "he's a teacher"
+
+
+def test_expansion_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[ExpansionPerturbation()], should_perturb_references=True)
+    instance: Instance = Instance(
+        id="id0", input="She's a doctor, and I'm a student", references=[Reference(output="he's a teacher", tags=[])]
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+    assert instances[0].id == "id0"
+    assert instances[0].perturbation.name == "expansion"
+    assert instances[0].input == "She is a doctor, and I am a student"
+    assert instances[0].references[0].output == "he is a teacher"
+
+
+def test_typos_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[TyposPerturbation(prob=0.1)], should_perturb_references=True)
+    instance: Instance = Instance(
+        id="id0", input="After their marriage, she started a close collaboration with Karvelas.", references=[],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+    assert instances[0].perturbation.name == "TyposPerturbation"
+    assert instances[0].perturbation.prob == 0.1
+    assert instances[0].input == "After their macriage, she started a close cillaboration with Karvelss."

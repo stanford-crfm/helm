@@ -156,7 +156,11 @@ classes (see `benchmark`):
   an input (e.g., question) and a set of `Reference` outputs (e.g., multiple
   choice answers).
 
-- An `Adapter` (given by an `AdaptationSpec`) takes a `Scenario` and
+- A `DataPreprocessor` takes in a `Scenario` and produces a list of `Instance`s 
+  Each `Instance` is given a unique ID. The set of `Instance`s is augmented 
+  according to `DataAugmenterSpec`.
+
+- An `Adapter` (given by an `AdaptationSpec`) takes a list of `Instance`s and
   adapts it to a set of `Request`s to the API (e.g., the model, temperature,
   number of in-context training examples).  Formally, the output
   is a `ScenarioState` containing a set of `RequestState`s, where each
@@ -188,7 +192,7 @@ There are three types of classes:
 ## Data Augmentations
 
 To apply data augmentation, create a `DataAugmenterSpec` with a list of 
-`PerturbationSpec`s and pass it into `AdapterSpec`. The following is an
+`PerturbationSpec`s and pass it into `RunSpec`. The following is an
 example:
 
 ```python
@@ -205,13 +209,13 @@ example:
         should_augment_eval_instances=True,
         should_include_original_eval=True,
     )
-    adapter_spec = AdapterSpec(
+    run_spec = RunSpec(
         ...
         data_augmenter_spec=data_augmenter_spec
     )
 ```
 
-In the example above, the `Adapter` will augment the set of evaluation instances by perturbing
+In the example above, the `DataPreprocessor` will augment the set of evaluation instances by perturbing
 the original set of instances with the `ExtraSpacePerturbation`, where spaces in the text are 
 replaced with `num_spaces` number of spaces. 
 
@@ -220,9 +224,13 @@ multiple perturbations and applying it onto a single instance.
 
 ### Adding a new perturbation
 
-To add a new perturbation to the framework, simply create a new class in `perturbation.py` that
-extends the abstract class `Perturbation` and implement the `perturb` method which takes in
-text and outputs the perturbed text. Add a test for the new perturbation in `test_perturbation.py`.
+To add a new perturbation to the framework, create a new file at `src/benchmark/augmentations` with the name
+`<Name of perturbation>_perturbation.py` e.g., `typo_perturbation.py`. Inside the file, create a new class 
+(name it `<Name of the perturbation>Perturbation` e.g., `TypoPerturbation`) 
+that extends the abstract class `Perturbation` and implement the `perturb` method which
+takes in text and outputs the perturbed text.
+Add your new perturbation to `src/benchmark/__init__.py`.
+Add a test for the new perturbation in `test_perturbation.py`.
 
 ## Running the benchmark
 
@@ -230,14 +238,19 @@ Examples of running the benchmark:
 
     venv/bin/benchmark-run
     venv/bin/benchmark-run -r mmlu:subject=philosophy
-    venv/bin/benchmark-run -r lpm:difficulty=easy
+    venv/bin/benchmark-run -r synthetic_reasoning_natural:difficulty=easy
     venv/bin/benchmark-run -r twitter_aae:demographic=aa
     venv/bin/benchmark-run -r copyright:pilot_study=true
+    venv/bin/benchmark-run -r code:dataset=APPS
     venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles
     venv/bin/benchmark-run -r wiki:subject=P31
     venv/bin/benchmark-run -r raft:subset=ade_corpus_v2
     venv/bin/benchmark-run -r natural_qa:mode=closedbook
     venv/bin/benchmark-run -r quac
+    venv/bin/benchmark-run -r wikitext_103
+    venv/bin/benchmark-run -r news_qa
+    venv/bin/benchmark-run -r imdb
+    venv/bin/benchmark-run -r imdb_contrast_sets
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
