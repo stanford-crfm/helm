@@ -79,13 +79,14 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
 class DataAugmentationRunExpander(RunExpander):
     """
-    Applies a data augmentation.
+    Applies a list of data augmentations.
     Usage:
-        data_augmentation=typos,extra_space
+        data_augmentation=<list of names of perturbations (e.g., typos,extra_space)>
     """
 
     name = "data_augmentation"
 
+    # Mapping from short name of perturbation to the perturbation
     perturbation_specs_dict = {
         # TODO: check whether these settings are sane
         "extra_space": PerturbationSpec(
@@ -97,7 +98,7 @@ class DataAugmentationRunExpander(RunExpander):
     }
 
     def __init__(self, value):
-        """`value` is a comma-separated list of augmentations."""
+        """`value` is a comma-separated list of perturbations."""
         self.value = value
         self.perturbation_specs = []
         # Get the perturbations
@@ -110,6 +111,7 @@ class DataAugmentationRunExpander(RunExpander):
                 self.perturbation_specs.append(DataAugmentationRunExpander.perturbation_specs_dict[name])
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        """Add all the perturbations to the `run_spec`."""
         data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
             perturbation_specs=self.perturbation_specs,
             should_perturb_references=False,
