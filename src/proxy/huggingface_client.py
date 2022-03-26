@@ -1,6 +1,8 @@
 from common.cache import Cache
 from common.hierarchical_logger import htrack_block
 from common.request import Request, RequestResult, Sequence, Token
+from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
+
 from .client import Client, wrap_request_time
 
 import torch
@@ -155,3 +157,7 @@ class HuggingFaceClient(Client):
         return RequestResult(
             success=True, cached=cached, request_time=response["request_time"], completions=completions
         )
+
+    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        # TODO: implement -Tony
+        pass
