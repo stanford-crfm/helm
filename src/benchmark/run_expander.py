@@ -4,6 +4,8 @@ from typing import List
 
 from proxy.models import ALL_MODELS
 from .runner import RunSpec
+from .augmentations.perturbation import PerturbationSpec
+from .augmentations.data_augmenter import DataAugmenterSpec
 
 
 class RunExpander(ABC):
@@ -11,13 +13,14 @@ class RunExpander(ABC):
     A `RunExpander` takes a `RunSpec` and returns a list of `RunSpec`s.
     For example, it might fill out the `model` field with a variety of different models.
     """
+    name: str
 
     @abstractmethod
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         pass
 
 
-class ReplaceValueRunExpander(ABC):
+class ReplaceValueRunExpander(RunExpander):
     """
     Replace a single field (e.g., max_train_instances) with a list of values (e.g., 0, 1, 2).
     """
@@ -74,7 +77,63 @@ class ModelRunExpander(ReplaceValueRunExpander):
     }
 
 
+class DataAugmentationRunExpander(RunExpander):
+    """
+    Applies a data augmentation.
+    Usage:
+        data_augmentation=typos,extra_space
+    """
+
+    name = "data_augmentation"
+
+    perturbation_specs_dict = {
+        # TODO: check whether these settings are sane
+        "extra_space": PerturbationSpec(
+            class_name="benchmark.augmentations.extra_space_perturbation.ExtraSpacePerturbation", args={"num_spaces": 2}
+        ),
+        "misspelling": PerturbationSpec(
+            class_name="benchmark.augmentations.misspelling_perturbation.MisspellingPerturbation", args={"prob": 0.5}
+        ),
+    }
+
+    def __init__(self, value):
+        """`value` is a comma-separated list of augmentations."""
+        self.value = value
+        self.perturbation_specs = []
+        # Get the perturbations
+        for name in value.split(","):
+            if name == "all":
+                self.perturbation_specs.extend(DataAugmentationRunExpander.perturbation_specs_dict.values())
+            else:
+                if name not in DataAugmentationRunExpander.perturbation_specs_dict:
+                    raise ValueError(f"Unknown perturbation: {name}")
+                self.perturbation_specs.append(DataAugmentationRunExpander.perturbation_specs_dict[name])
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
+            perturbation_specs=self.perturbation_specs,
+            should_perturb_references=False,
+            # TODO: are these sane defaults?
+            should_augment_train_instances=True,
+            should_include_original_train=True,
+            should_augment_eval_instances=True,
+            should_include_original_eval=True,
+        )
+        return [
+            replace(
+                run_spec,
+                name=f"{run_spec.name},{DataAugmentationRunExpander.name}={self.value}",
+                data_augmenter_spec=data_augmenter_spec,
+            )
+        ]
+
+
 RUN_EXPANDERS = dict(
     (expander.name, expander)
-    for expander in [MaxTrainTrialsRunExpander, MaxTrainInstancesRunExpander, ModelRunExpander,]
+    for expander in [
+        MaxTrainTrialsRunExpander,
+        MaxTrainInstancesRunExpander,
+        ModelRunExpander,
+        DataAugmentationRunExpander,
+    ]
 )
