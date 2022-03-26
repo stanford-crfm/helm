@@ -13,6 +13,7 @@ class TyposPerturbation(Perturbation):
     Typos. For implementation details, see
     https://github.com/GEM-benchmark/NL-Augmenter/tree/main/transformations/butter_fingers_perturbation
     Replaces each random letters with nearby keys on a querty keyboard.
+
     Perturbation example:
     Input:
         After their marriage, she started a close collaboration with Karvelas.
@@ -23,6 +24,7 @@ class TyposPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         name: str
+        prob: float
 
     name: str = "TyposPerturbation"
 
@@ -31,7 +33,7 @@ class TyposPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return TyposPerturbation.Description(self.name)
+        return TyposPerturbation.Description(self.name, self.prob)
 
     def butter_finger(self, text):
         key_approx = {}
