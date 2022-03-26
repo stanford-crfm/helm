@@ -44,6 +44,7 @@ def test_misspelling_perturbation():
     assert len(instances) == 2
     assert instances[0].id == "id0"
     assert instances[0].perturbation.name == "misspellings"
+    assert instances[0].perturbation.prob == 1.0
     assert instances[0].input == "Alreayd, teh new product is nto availaible."
 
 
@@ -84,4 +85,5 @@ def test_typos_perturbation():
 
     assert len(instances) == 2
     assert instances[0].perturbation.name == "TyposPerturbation"
+    assert instances[0].perturbation.prob == 0.1
     assert instances[0].input == "After their macriage, she started a close cillaboration with Karvelss."
