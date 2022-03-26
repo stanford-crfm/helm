@@ -1,6 +1,7 @@
 from typing import List, Dict, Optional, Any, Callable
 
 from common.object_spec import ObjectSpec
+
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
@@ -13,6 +14,10 @@ from .scenario import ScenarioSpec
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .raft_scenario import get_raft_instructions
 from .run_expander import RUN_EXPANDERS
+
+
+HUMAN_EVAL_METRIC_NAMES = ("code_eval_acc", "pass")
+APPS_METRIC_NAMES = ("test_avg", "strict_acc")
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -72,6 +77,15 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
             class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_distance"},
         ),
     ]
+
+
+def get_code_metrics(dataset: str) -> List[MetricSpec]:
+    if dataset == "HumanEval":
+        metric_names = {"names": HUMAN_EVAL_METRIC_NAMES}
+        return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
+    else:  # APPS.
+        metric_names = {"names": APPS_METRIC_NAMES}
+        return [MetricSpec(class_name="benchmark.code_metrics.APPSMetric", args=metric_names)]
 
 
 ############################################################
@@ -568,6 +582,29 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
     )
 
 
+def get_code_spec(dataset: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.code_scenario.CodeScenario", args={"dataset": dataset})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="",
+        max_train_instances=0,
+        max_eval_instances=10000,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/code-davinci-001",
+        temperature=0.2,
+        stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],
+        max_tokens=600,
+        input_prefix="",
+        output_prefix="",
+    )
+
+    return RunSpec(
+        name=f"code:dataset={dataset}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_code_metrics(dataset)
+    )
+
+
 def get_natural_qa_spec(mode: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.natural_qa_scenario.NaturalQAScenario", args={"mode": mode})
 
@@ -778,6 +815,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "synthetic_reasoning_natural": get_synthetic_reasoning_natural_spec,
     "news_qa": get_news_qa_spec,
     "wikitext_103": get_wikitext_103_spec,
+    "code": get_code_spec,
 }
 
 

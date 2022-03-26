@@ -238,9 +238,10 @@ Examples of running the benchmark:
 
     venv/bin/benchmark-run
     venv/bin/benchmark-run -r mmlu:subject=philosophy
-    venv/bin/benchmark-run -r lpm:difficulty=easy
+    venv/bin/benchmark-run -r synthetic_reasoning_natural:difficulty=easy
     venv/bin/benchmark-run -r twitter_aae:demographic=aa
     venv/bin/benchmark-run -r copyright:pilot_study=true
+    venv/bin/benchmark-run -r code:dataset=APPS
     venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles
     venv/bin/benchmark-run -r wiki:subject=P31
     venv/bin/benchmark-run -r raft:subset=ade_corpus_v2

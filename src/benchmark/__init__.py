@@ -12,6 +12,7 @@ from . import wiki_scenario  # noqa
 from . import synthetic_reasoning_natural_scenario  # noqa
 from . import copyright_scenario  # noqa
 from . import boolq_scenario  # noqa
+from . import code_scenario  # noqa
 from . import lsat_qa_scenario  # noqa
 from . import gsm_scenario  # noqa
 from . import natural_qa_scenario  # noqa
@@ -31,6 +32,7 @@ from . import commonsense_qa_metrics  # noqa
 from . import toxicity_metrics  # noqa
 from . import tokens_metric  # noqa
 from . import copyright_metrics  # noqa
+from . import code_metrics  # noqa
 
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa
