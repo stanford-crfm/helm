@@ -28,7 +28,7 @@ class TestHuggingFaceClient:
             )
         )
         assert len(result.completions) == 3
-        assert len(result.completions[0].text)
+        assert result.completions[0].text.startswith(prompt), "echo_prompt was set to true"
 
     @pytest.mark.skip(reason="GPT-J 6B is 22 GB and extremely slow without a GPU.")
     def test_gptj_6b(self):
