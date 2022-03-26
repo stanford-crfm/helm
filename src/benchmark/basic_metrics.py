@@ -270,7 +270,11 @@ class BasicMetric(Metric):
         num_tokens_in_prompt: int = tokenizer.tokenize_and_count(request_state.request.prompt)
 
         sequence = request_state.result.completions[0]
-        num_output_tokens: int = len(sequence.tokens[request_state.num_conditioning_tokens :])
+        num_output_tokens: int = len(sequence.tokens)
+        # Don't include prompt in number of generated tokens (e.g., for language modeling).
+        if request_state.request.echo_prompt:
+            num_output_tokens -= num_tokens_in_prompt
+        assert num_output_tokens >= 0
 
         # The `inference_efficiency.json` file contains a `runtime_per_output_token` value
         # (the estimated runtime of generating one output token) and a
@@ -291,7 +295,7 @@ class BasicMetric(Metric):
         # runtimes (slope is the runtime_per_output_token, processing time for generating
         # one token is the runtime_per_input_tokens for the corresponding num_input_tokens
         # value). Profiling code and logs, and code to fit the regression model is available
-        # here: https://github.com/deepakn94/benchmarking_efficiency.
+        # here: https://github.com/stanford-crfm/benchmarking_efficiency.
         with open(INFERENCE_EFFICIENCY_JSON_FILEPATH, "r") as f:
             inference_efficiency_dict = json.load(f)
         assert request_state.request.model in inference_efficiency_dict
@@ -310,8 +314,11 @@ class BasicMetric(Metric):
         assert runtime_for_input_tokens is not None
 
         # Idealized runtime is sum of the runtime of encoding the input tokens, and the
-        # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1)).
-        idealized_runtime: float = runtime_for_input_tokens + (runtime_per_output_token * (num_output_tokens - 1))
+        # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
+        # if number of output tokens is greater than 0, otherwise just `runtime_for_input_tokens`.
+        idealized_runtime: float = runtime_for_input_tokens
+        if num_output_tokens > 0:
+            idealized_runtime += runtime_per_output_token * (num_output_tokens - 1)
 
         # Compute efficiency metrics for training.
 
