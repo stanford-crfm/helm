@@ -13,6 +13,7 @@ class RunExpander(ABC):
     A `RunExpander` takes a `RunSpec` and returns a list of `RunSpec`s.
     For example, it might fill out the `model` field with a variety of different models.
     """
+
     name: str
 
     @abstractmethod
