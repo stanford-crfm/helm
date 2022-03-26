@@ -1,0 +1,7 @@
+{
+  "huggingface/gptj_6b": 12.5,
+  "openai/ada": 1.1,
+  "openai/davinci": 552,
+  "ai21/j1-large": 0,
+  "ai21/j1-jumbo": 0
+}

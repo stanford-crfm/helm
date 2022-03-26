@@ -3,6 +3,7 @@ import getpass
 from src.common.authentication import Authentication
 from src.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from src.common.request import Request, RequestResult
+from src.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 from src.proxy.accounts import Account
 from proxy.remote_service import RemoteService
 
@@ -25,6 +26,11 @@ print(request_result.completions[0].text)
 request = Request(prompt="Life is like a box of", random="1")
 request_result: RequestResult = service.make_request(auth, request)
 print(request_result.completions[0].text)
+
+# Tokenize
+request = TokenizationRequest(model="ai21/j1-jumbo", text="Tokenize me please.")
+request_result: TokenizationRequestResult = service.tokenize(auth, request)
+print(f"Number of tokens: {len(request_result.tokens)}")
 
 # Calculate toxicity scores
 text = "you suck."
