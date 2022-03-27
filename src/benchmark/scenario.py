@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
 from common.object_spec import ObjectSpec, create_object
 from common.general import format_text, format_split, format_tags, indent_lines
@@ -51,7 +51,7 @@ class Instance:
     input: str
 
     # References that helps us evaluate
-    references: List[Reference]
+    references: Sequence[Reference]
 
     # Split (e.g., train, valid, test)
     split: Optional[str] = None
@@ -111,7 +111,7 @@ class Scenario(ABC):
     output_path: str
 
     @abstractmethod
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self) -> Sequence[Instance]:
         """
         Does the main work in the `Scenario` (e.g., download datasets, convert
         it into a list of instances).

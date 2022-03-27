@@ -238,15 +238,17 @@ Examples of running the benchmark:
 
     venv/bin/benchmark-run
     venv/bin/benchmark-run -r mmlu:subject=philosophy
-    venv/bin/benchmark-run -r lpm:difficulty=easy
+    venv/bin/benchmark-run -r synthetic_reasoning_natural:difficulty=easy
     venv/bin/benchmark-run -r twitter_aae:demographic=aa
     venv/bin/benchmark-run -r copyright:pilot_study=true
+    venv/bin/benchmark-run -r code:dataset=APPS
     venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles
     venv/bin/benchmark-run -r wiki:subject=P31
     venv/bin/benchmark-run -r raft:subset=ade_corpus_v2
     venv/bin/benchmark-run -r natural_qa:mode=closedbook
     venv/bin/benchmark-run -r quac
     venv/bin/benchmark-run -r wikitext_103
+    venv/bin/benchmark-run -r blimp:phenomenon=irregular_forms
     venv/bin/benchmark-run -r news_qa
     venv/bin/benchmark-run -r imdb
     venv/bin/benchmark-run -r imdb_contrast_sets

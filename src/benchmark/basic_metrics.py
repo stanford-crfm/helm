@@ -1,5 +1,5 @@
 from dataclasses import replace
-from typing import List, Callable, Dict, Optional
+from typing import List, Callable, Optional, Dict, Tuple, cast
 from urllib.parse import unquote
 from functools import partial
 
@@ -10,10 +10,12 @@ import nltk
 from nltk.metrics.scores import f_measure
 from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
+import numpy as np
 from rouge_score import rouge_scorer
 
 from common.request import Token
 from common.statistic import Stat
+from . import code_metrics_helper
 from proxy.tokenizer.tokenizer import Tokenizer
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from .augmentations.perturbation_description import PerturbationDescription
@@ -21,6 +23,7 @@ from .adapter import AdapterSpec, RequestState, ADAPT_LANGUAGE_MODELING
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
+from .code_scenario import CodeReference
 from .tokenizer_service import TokenizerService
 
 
@@ -31,6 +34,17 @@ except LookupError:
 
 INFERENCE_EFFICIENCY_JSON_FILEPATH = "src/benchmark/static/inference_efficiency.json"
 TRAINING_EFFICIENCY_JSON_FILEPATH = "src/benchmark/static/training_efficiency.json"
+
+
+def pass_at_k_estimator(n: int, c: int, k: int) -> float:
+    """Calculates 1 - comb(n - c, k) / comb(n, k).
+
+    Numerically stable version defined in
+        https://arxiv.org/pdf/2107.03374.pdf
+    """
+    if n - c < k:
+        return 1.0
+    return 1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))
 
 
 def exact_match(gold: str, pred: str) -> float:
@@ -160,11 +174,12 @@ def bleu_4(gold: str, pred: str) -> float:
 def iou_set_match(gold: str, pred: str) -> float:
     """Compute the intersection over union of the gold and pred sets"""
     pred = pred.split("\n")[0]
-    if gold == "Nothing.":
+    gold_text = gold
+    if gold_text == "Nothing.":
         return float(pred == "Nothing.")
     pred = pred.replace(".", "")
-    gold = gold.replace(".", "")
-    gold_set = set(gold.split(" is ")[-1].split(" and "))
+    gold_text = gold_text.replace(".", "")
+    gold_set = set(gold_text.split(" is ")[-1].split(" and "))
     pred_set = set(pred.split(" is ")[-1].split(" and "))
     return len(gold_set.intersection(pred_set)) / len(gold_set.union(pred_set))
 
@@ -172,11 +187,12 @@ def iou_set_match(gold: str, pred: str) -> float:
 def exact_set_match(gold: str, pred: str) -> float:
     """Compute whether the sets generated exactly match"""
     pred = pred.split("\n")[0]
-    if gold == "Nothing.":
+    gold_text = gold
+    if gold_text == "Nothing.":
         return float(pred == "Nothing.")
     pred = pred.replace(".", "")
-    gold = gold.replace(".", "")
-    gold_set = set(gold.split(" is ")[-1].split(" and "))
+    gold_text = gold_text.replace(".", "")
+    gold_set = set(gold_text.split(" is ")[-1].split(" and "))
     pred_set = set(pred.split(" is ")[-1].split(" and "))
     return float(gold_set == pred_set)
 
@@ -194,10 +210,17 @@ def absolute_value_difference(gold: str, pred: str) -> float:
     return abs(gold_val - pred_val)
 
 
+def code_eval(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
+    """Evaluate Code Correctness on test examples."""
+    assert gold[1] is not None  # gold[1]["canonical_solution"]
+    # Warning: will execute machine generated code; need to sandbox before executing
+    return float(code_metrics_helper.check_correctness(gold[1], pred, 3.0)["passed"])  # type: ignore
+
+
 class BasicMetric(Metric):
     """
     Defines basic metrics which don't require domain knowledge.  This should be
-    fairly comprehensive already and we should try to use this as much as possible.
+    fairly comprehensive already, and we should try to use this as much as possible.
     If we need a different variant, try to generalize this or factor things out.
     It's possible we don't need to subclass this.
     `names` is a list of optional metrics to be specified by the user. Currently only `exact_match` is supported.
@@ -221,21 +244,38 @@ class BasicMetric(Metric):
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
 
-        def compute_metrics_helper(name: MetricName, score_func: Callable[[str, str], float]) -> List[Stat]:
-            score_1 = max(score_func(gold, preds[0]) for gold in golds)
-            score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
+        def compute_metrics_helper(name: MetricName, score_func: Callable, group: Optional[str] = None,) -> List[Stat]:
+            if name.name == "pass":  # Calculate pass@k for HumanEval from CodeScenario.
+                score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
+                code_golds = cast(List[CodeReference], golds)
+                results = [score_func((gold.output, gold.test_cases), pred) for gold in code_golds for pred in preds]
+                _len, _sum = len(results), int(sum(results))  # Cast to int to make type match.
+                score_1 = pass_at_k_estimator(_len, _sum, 1)
+                score_k = pass_at_k_estimator(_len, _sum, adapter_spec.num_outputs)
+            elif name.name == "code_eval_acc":
+                score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
+                code_golds = cast(List[CodeReference], golds)
+                score_1 = max(score_func((gold.output, gold.test_cases), preds[0]) for gold in code_golds)
+                score_k = max(score_func((gold.output, gold.test_cases), pred) for gold in code_golds for pred in preds)
+            else:
+                score_func = cast(Callable[[str, str], float], score_func)  # Make mypy happy.
+                score_1 = max(score_func(gold.output, preds[0]) for gold in golds)
+                score_k = max(score_func(gold.output, pred) for gold in golds for pred in preds)
+
             return [
                 Stat(name).add(score_1),
                 Stat(replace(name, k=adapter_spec.num_outputs)).add(score_k),
             ]
 
         # maps each string metric name to its associated function
-        metric_fn_mapping = {
+        metric_fn_mapping: Dict[str, Callable] = {
             "exact_match": exact_match,
             "match_upto_whitespace": match_upto_whitespace,
             "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
+            "code_eval_acc": code_eval,
+            "pass": code_eval,
             "f1_score": f1_score,
             "rouge-1": get_rouge_function("rouge1"),
             "rouge-2": get_rouge_function("rouge2"),
@@ -249,7 +289,7 @@ class BasicMetric(Metric):
         for metric_name in self.names:
             if metric_name in metric_fn_mapping:
                 # Gold outputs
-                golds = [reference.output for reference in request_state.instance.references if reference.is_correct]
+                golds = [reference for reference in request_state.instance.references if reference.is_correct]
                 assert len(golds) > 0
 
                 # Predicted outputs
@@ -279,9 +319,14 @@ class BasicMetric(Metric):
     def compute_efficiency_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
-        """Compute per-token normalized runtime"""
+        """Compute efficiency metrics for both inference and training.
+        For inference, we record both the actual runtime and an estimated idealized runtime
+        for the given request with an optimized software implementation run on an A100 GPU,
+        taking into account both the number of tokens in the prompt of the request, and the
+        number of generated output tokens.
+        For training, we report the estimated total metric tons of CO2 emitted to train the
+        model. This is the same for each request."""
         assert request_state.result is not None
-
         # Compute efficiency metrics for inference.
         runtime: float = request_state.result.request_time
 
