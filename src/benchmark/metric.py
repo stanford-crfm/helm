@@ -178,6 +178,18 @@ class Metric(ABC):
     def evaluate_language_modeling_minimal_pairs(
         self, scenario_state: ScenarioState, metric_service: MetricService
     ) -> List[Stat]:
+        """
+        This function computes the log probability of both sentences in each minimal pair
+        and compares them. If the model assigns a higher log probability to the "good" sentence,
+        it is considered correct.
+
+        After evaluating the model on all the minimal pairs in the scenario, the function
+        returns an accuracy score.
+
+        This implementation is based on the important assumption that the adaptation process does not
+        change the order of the instances and the instance ids are assigned based on the sequential
+        order of the instances.
+        """
         global_stats: Dict[MetricName, Stat] = {}
         # The first and only trial
         trial_stats: Dict[MetricName, Stat] = {}
@@ -190,7 +202,6 @@ class Metric(ABC):
 
         for request_state in scenario_state.request_states:
             assert request_state.instance.id is not None and request_state.instance.sub_split is not None
-            # Important Assumption: The adaptation process does not change the order of the instances.
             pair_id: int = int(request_state.instance.id.lstrip("id")) // 2
             sub_split: str = request_state.instance.sub_split
             request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
