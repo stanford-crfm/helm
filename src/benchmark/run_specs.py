@@ -151,7 +151,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             instructions="The following are multiple choice questions (with answers) about common sense.",
             input_prefix="",
             output_prefix="\nAnswer: ",
-            max_train_instances=0,
+            max_train_instances=0, # TODO: Justify; @michi
             max_eval_instances=10,
             num_outputs=10,
             num_train_trials=1,
@@ -171,7 +171,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             instructions="",
             input_prefix="",
             output_prefix="",
-            max_train_instances=0,
+            max_train_instances=0, # TODO: Justify; @michi
             max_eval_instances=10 * n_choice * 2,
             num_outputs=10,
             max_tokens=0,
@@ -316,7 +316,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
-        max_train_instances=3,
+        max_train_instances=3, # TODO: Justify; @tony w.
         max_eval_instances=100,
         num_outputs=3,
         num_train_trials=1,
@@ -344,7 +344,7 @@ def get_gsm_spec() -> RunSpec:
         input_prefix="",
         output_prefix="",
         num_train_trials=1,
-        max_train_instances=3,
+        max_train_instances=3, # TODO: Justify; @eric
         max_eval_instances=100,  # TODO: Remove when deployed
         model="ai21/j1-large",
         temperature=0.7,
@@ -442,7 +442,7 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
         instructions="The following are multiple choice questions (with answers).",
         input_prefix="",
         output_prefix="\nAnswer: ",
-        max_train_instances=2,
+        max_train_instances=2, # TODO: Justify; @dor
         model="ai21/j1-large",
         max_eval_instances=50,  # TODO: Change to None
         num_outputs=1,
@@ -627,7 +627,7 @@ def get_narrativeqa_spec() -> RunSpec:
         input_prefix="",
         output_prefix="\nanswer:",
         num_train_trials=1,
-        max_train_instances=2,
+        max_train_instances=2, # TODO: Justify; @mert
         model="ai21/j1-large",
         max_eval_instances=450,  # TODO : Find the number of samples to evaluate.
         num_outputs=1,
@@ -650,7 +650,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
-        max_train_instances=3,
+        max_train_instances=3, # TODO: Justify; @tony w.
         max_eval_instances=100,
         num_outputs=3,
         num_train_trials=1,
