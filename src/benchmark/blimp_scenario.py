@@ -16,7 +16,7 @@ class BLiMPScenario(Scenario):
     correct if it assigns a higher probability to the good sentence instead of the bad one. The dataset
     covers 12 linguistic phenomena and 67 paradigms. There are 1000 examples for each paradigm.
 
-    e.g. Good: Katherine can’t help herself. Bad: Katherine can’t help himself.
+    e.g. Good: Craig explored that grocery store. Bad: Craig explored that grocery stores.
     """
 
     name = "blimp"
