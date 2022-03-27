@@ -1,4 +1,4 @@
-from typing import List
+from typing import Sequence, List
 from dataclasses import replace
 
 from common.hierarchical_logger import htrack, htrack_block
@@ -27,9 +27,10 @@ class DataPreprocessor:
 
         # Create the `Instance`s of a `Scenario`
         with htrack_block("scenario.get_instances"):
-            instances: List[Instance] = scenario.get_instances()
+            instances: Sequence[Instance] = scenario.get_instances()
 
         # Give the `Instance`s of the `Scenario` a unique ID
+        # Warning: Changing the id assignment logic might affect LM minimal pair evaluation (e.g. BLiMP.)
         instances = [replace(instance, id=f"id{i}") for i, instance in enumerate(instances)]
 
         # Create `DataAugmenter` using `DataAugmenterSpec`
