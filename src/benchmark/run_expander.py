@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
-from typing import List
+from typing import List, Dict
 
 from proxy.models import ALL_MODELS
 from .runner import RunSpec
@@ -78,56 +78,83 @@ class ModelRunExpander(ReplaceValueRunExpander):
     }
 
 
+############################################################
+
+# Helper functions to instantiate `PerturbationSpec`s.
+def extra_space(num_spaces: int) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.extra_space_perturbation.ExtraSpacePerturbation",
+        args={"num_spaces": num_spaces},
+    )
+
+
+def misspelling(prob: float) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.misspelling_perturbation.MisspellingPerturbation", args={"prob": prob}
+    )
+
+
+# Specifies the data augmentations that we're interested in trying out.
+# Concretely, this is a mapping from the name (which is specified in a conf
+# file or the CLI) to a list of options to try, where each option is a list of perturbations.
+# Each option generates a RunSpec.
+# For example, suppose:
+# - We specify data_augmentation=foo
+# - foo maps to {r1: [a, b], r2: [c, d, e]}
+# Then we will create two RunSpecs:
+# - r1: with perturbations [a, b]
+# - r2: with perturbations [c, d, e]
+PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
+    "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
+    "misspelling": {"misspelling0.1": [misspelling(prob=0.1)]},
+    "misspelling_sweep": {f"misspelling{prob}": [misspelling(prob=prob)] for prob in [0, 0.1, 0.2, 0.3]},
+    "all": {"all": [extra_space(num_spaces=2), misspelling(prob=0.1)]},
+}
+
+
 class DataAugmentationRunExpander(RunExpander):
     """
     Applies a list of data augmentations.
-    Usage:
-        data_augmentation=<list of names of perturbations (e.g., typos,extra_space)>
+    The list of data augmentations is given by a name (see the keys to `perturbation_specs_dict` below).
+    For example:
+
+        data_augmentation=extra_space2
     """
 
     name = "data_augmentation"
 
-    # Mapping from short name of perturbation to the perturbation
-    perturbation_specs_dict = {
-        # TODO: check whether these settings are sane
-        "extra_space": PerturbationSpec(
-            class_name="benchmark.augmentations.extra_space_perturbation.ExtraSpacePerturbation", args={"num_spaces": 2}
-        ),
-        "misspelling": PerturbationSpec(
-            class_name="benchmark.augmentations.misspelling_perturbation.MisspellingPerturbation", args={"prob": 0.5}
-        ),
-    }
-
     def __init__(self, value):
         """`value` is a comma-separated list of perturbations."""
         self.value = value
-        self.perturbation_specs = []
-        # Get the perturbations
-        for name in value.split(","):
-            if name == "all":
-                self.perturbation_specs.extend(DataAugmentationRunExpander.perturbation_specs_dict.values())
-            else:
-                if name not in DataAugmentationRunExpander.perturbation_specs_dict:
-                    raise ValueError(f"Unknown perturbation: {name}")
-                self.perturbation_specs.append(DataAugmentationRunExpander.perturbation_specs_dict[name])
+
+        if self.value not in PERTURBATION_SPECS_DICT:
+            raise ValueError(
+                f"Unknown data_augmentation: {self.value}; possible choices: {PERTURBATION_SPECS_DICT.keys()}"
+            )
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        """Add all the perturbations to the `run_spec`."""
-        data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
-            perturbation_specs=self.perturbation_specs,
-            should_perturb_references=False,
-            # TODO: are these sane defaults?
-            should_augment_train_instances=True,
-            should_include_original_train=True,
-            should_augment_eval_instances=True,
-            should_include_original_eval=True,
-        )
-        return [
-            replace(
+        """Return `run_spec` with data augmentations."""
+
+        def create_run_spec(run_name: str, perturbation_specs: List[PerturbationSpec]) -> RunSpec:
+            data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
+                perturbation_specs=perturbation_specs,
+                should_perturb_references=False,
+                # Always include original and perturbed instances together so that
+                # we can compute the normal and robustness metrics in the same run.
+                should_augment_train_instances=True,
+                should_include_original_train=True,
+                should_augment_eval_instances=True,
+                should_include_original_eval=True,
+            )
+            return replace(
                 run_spec,
-                name=f"{run_spec.name},{DataAugmentationRunExpander.name}={self.value}",
+                name=f"{run_name},{DataAugmentationRunExpander.name}={self.value}",
                 data_augmenter_spec=data_augmenter_spec,
             )
+
+        return [
+            create_run_spec(run_name, perturbation_specs)
+            for run_name, perturbation_specs in PERTURBATION_SPECS_DICT[self.value].items()
         ]
 
 
