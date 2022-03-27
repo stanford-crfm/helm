@@ -114,11 +114,15 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
 
 class DataAugmentationRunExpander(RunExpander):
     """
-    Applies a list of data augmentations.
-    The list of data augmentations is given by a name (see the keys to `perturbation_specs_dict` below).
+    Applies a list of data augmentations, where the list of data augmentations
+    is given by a name (see the keys to `PERTURBATION_SPECS_DICT` above).
     For example:
 
-        data_augmentation=extra_space2
+        data_augmentation=all
+
+    Note that some names map to a single data augmentation with multiple
+    perturbations (e.g., all), and others map to a list of data augmentations
+    each with one perturbation (e.g., misspelling_sweep).
     """
 
     name = "data_augmentation"
