@@ -1,10 +1,10 @@
-from .openai_tokenizer import OpenAITokenizer
+from .gptj_tokenizer import GPTJTokenizer
 from .test_gpt2_tokenizer import TEST_TOKENS, TEST_PROMPT, TEST_TOKEN_IDS
 
 
-class TestOpenAITokenizer:
+class TestGPTJTokenizer:
     def setup_method(self):
-        self.tokenizer = OpenAITokenizer()
+        self.tokenizer = GPTJTokenizer()
 
     def test_encode(self):
         assert self.tokenizer.encode(TEST_PROMPT) == TEST_TOKEN_IDS
@@ -17,10 +17,10 @@ class TestOpenAITokenizer:
 
     def test_fits_within_context_window(self):
         # Should fit in the context window since we subtracted the number of tokens of the test prompt
-        # from the max request length of 2049
-        assert self.tokenizer.fits_within_context_window(TEST_PROMPT, 2049 - 51)
-        # Should not fit within the max request length because we're expecting one more extra token in the completion
-        assert not self.tokenizer.fits_within_context_window(TEST_PROMPT, 2049 - 51 + 1)
+        # from the max context window
+        assert self.tokenizer.fits_within_context_window(TEST_PROMPT, 2048 - 51)
+        # Should not fit in the context window because we're expecting one more extra token in the completion
+        assert not self.tokenizer.fits_within_context_window(TEST_PROMPT, 2048 - 51 + 1)
 
     def test_truncate_from_right(self):
         # Create a prompt that exceed max context length: 51 * 41 = 2091 tokens
@@ -29,7 +29,7 @@ class TestOpenAITokenizer:
 
         # Truncate and ensure it fits within the context window
         truncated_long_prompt: str = self.tokenizer.truncate_from_right(long_prompt)
-        assert self.tokenizer.tokenize_and_count(truncated_long_prompt) == 2049
+        assert self.tokenizer.tokenize_and_count(truncated_long_prompt) == 2048
         assert self.tokenizer.fits_within_context_window(truncated_long_prompt)
 
     def test_tokenize_and_count(self):
