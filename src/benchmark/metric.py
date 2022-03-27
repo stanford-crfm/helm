@@ -214,9 +214,7 @@ class Metric(ABC):
                     else:
                         raise Exception(f"Unknown sub_split {sub_split}")
                     continue
-        accuracy = sum(1 if good_logprobs[pair_id] > bad_logprobs[pair_id] else 0 for pair_id in good_logprobs) / len(
-            good_logprobs
-        )
+        accuracy = sum(good_logprobs[pair_id] > bad_logprobs[pair_id] for pair_id in good_logprobs) / len(good_logprobs)
         merge_stat(trial_stats, Stat(MetricName("accuracy", split=split)).add(accuracy))
 
         for stat in trial_stats.values():
