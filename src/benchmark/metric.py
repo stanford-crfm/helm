@@ -2,12 +2,19 @@ from abc import ABC
 from dataclasses import replace
 from typing import List, Dict
 from math import log, e
+from collections import defaultdict
 
 from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
 
-from .adapter import AdapterSpec, ScenarioState, RequestState, ADAPT_LANGUAGE_MODELING
+from .adapter import (
+    AdapterSpec,
+    ScenarioState,
+    RequestState,
+    ADAPT_LANGUAGE_MODELING,
+    ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
+)
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .scenario import EVAL_SPLITS, TEST_SPLIT
@@ -34,6 +41,8 @@ class Metric(ABC):
         """
         if scenario_state.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
             return self.evaluate_language_modeling(scenario_state, metric_service)
+        elif scenario_state.adapter_spec.method == ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS:
+            return self.evaluate_language_modeling_minimal_pairs(scenario_state, metric_service)
 
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
@@ -161,6 +170,52 @@ class Metric(ABC):
                     / trial_stats[MetricName("num_bytes", split=split)].sum
                 ),
             )
+
+        for stat in trial_stats.values():
+            merge_stat(global_stats, stat.take_mean())
+        return list(global_stats.values())
+
+    def evaluate_language_modeling_minimal_pairs(
+        self, scenario_state: ScenarioState, metric_service: MetricService
+    ) -> List[Stat]:
+        """
+        This function computes the log probability of both sentences in each minimal pair
+        and compares them. If the model assigns a higher log probability to the "good" sentence,
+        it is considered correct.
+
+        After evaluating the model on all the minimal pairs in the scenario, the function
+        returns an accuracy score.
+
+        This implementation is based on the important assumption that the adaptation process does not
+        change the order of the instances and the instance ids are assigned based on the sequential
+        order of the instances.
+        """
+        global_stats: Dict[MetricName, Stat] = {}
+        # The first and only trial
+        trial_stats: Dict[MetricName, Stat] = {}
+        # Assume models are only evaluated on the test set
+        split: str = TEST_SPLIT
+
+        # The logprobs of good and bad sentences in the dataset
+        good_logprobs: defaultdict = defaultdict(float)
+        bad_logprobs: defaultdict = defaultdict(float)
+
+        for request_state in scenario_state.request_states:
+            assert request_state.instance.id is not None and request_state.instance.sub_split is not None
+            pair_id: int = int(request_state.instance.id.lstrip("id")) // 2
+            sub_split: str = request_state.instance.sub_split
+            request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
+            for stat in request_stats:
+                if stat.name == MetricName("logprob"):
+                    if sub_split == "good":
+                        good_logprobs[pair_id] += stat.sum
+                    elif sub_split == "bad":
+                        bad_logprobs[pair_id] += stat.sum
+                    else:
+                        raise Exception(f"Unknown sub_split {sub_split}")
+                    continue
+        accuracy = sum(good_logprobs[pair_id] > bad_logprobs[pair_id] for pair_id in good_logprobs) / len(good_logprobs)
+        merge_stat(trial_stats, Stat(MetricName("accuracy", split=split)).add(accuracy))
 
         for stat in trial_stats.values():
             merge_stat(global_stats, stat.take_mean())

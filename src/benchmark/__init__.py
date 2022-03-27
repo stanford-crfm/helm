@@ -24,6 +24,7 @@ from . import summarization_scenario  # noqa
 from . import synthetic_reasoning_scenario  # noqa
 from . import newsqa_scenario  # noqa
 from . import wikitext_103_scenario  # noqa
+from . import blimp_scenario  # noqa
 from . import imdb_scenario  # noqa
 
 # Metrics
