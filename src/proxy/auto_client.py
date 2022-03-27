@@ -1,12 +1,18 @@
 import os
+from dataclasses import replace
 from typing import Dict
 
+from retrying import RetryError, Attempt
+
+from common.hierarchical_logger import hlog
+from common.request import Request, RequestResult
+from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 from .client import Client
 from .ai21_client import AI21Client
 from .huggingface_client import HuggingFaceClient
 from .openai_client import OpenAIClient
 from .simple_client import SimpleClient
-from common.request import Request, RequestResult
+from .retry import retry_request
 
 
 class AutoClient(Client):
@@ -27,16 +33,41 @@ class AutoClient(Client):
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
             elif organization == "huggingface":
-                client = HuggingFaceClient()
+                client = HuggingFaceClient(cache_path=client_cache_path)
             elif organization == "simple":
                 client = SimpleClient()
             else:
-                raise Exception(f"Unknown organization: {organization}")
+                raise ValueError(f"Unknown organization: {organization}")
             self.clients[organization] = client
         return client
 
     def make_request(self, request: Request) -> RequestResult:
-        # Dispatch based on the organization (e.g., openai/davinci)
-        organization = request.model_organization
-        client = self.get_client(organization)
-        return client.make_request(request)
+        """
+        Dispatch based on the organization in the name of the model (e.g., openai/davinci).
+        Retries if request fails.
+        """
+
+        @retry_request
+        def make_request_with_retry(client: Client, request: Request) -> RequestResult:
+            return client.make_request(request)
+
+        organization: str = request.model_organization
+        client: Client = self.get_client(organization)
+
+        try:
+            return make_request_with_retry(client=client, request=request)
+        except RetryError as e:
+            last_attempt: Attempt = e.last_attempt
+            retry_error: str = (
+                f"Failed to make request to {organization} after retrying {last_attempt.attempt_number} times"
+            )
+            hlog(retry_error)
+
+            # Notify our user that we failed to make the request even after retrying.
+            return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
+
+    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        """Tokenizes based on the organization in the name of the model (e.g., ai21/j1-jumbo)."""
+        organization: str = request.model_organization
+        client: Client = self.get_client(organization)
+        return client.tokenize(request)

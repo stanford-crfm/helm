@@ -2,12 +2,14 @@ from typing import Dict, List
 from dataclasses import dataclass, field
 import random
 
+from benchmark.metric_name import MetricName
+
 
 @dataclass
 class Stat:
     """A mutable class that allows us to aggregate values and report mean/stddev."""
 
-    name: str
+    name: MetricName
     count: int
     min: float
     max: float
@@ -15,7 +17,7 @@ class Stat:
     mean: float
     values: List[float] = field(default_factory=list)
 
-    def __init__(self, name: str, values_buffer_size: int = 300):
+    def __init__(self, name: MetricName, values_buffer_size: int = 300):
         self.name = name
         self.values_buffer_size = values_buffer_size
         self.count = 0
@@ -78,7 +80,7 @@ class Stat:
         return Stat(self.name).add(self.mean)
 
 
-def merge_stat(stats: Dict[str, Stat], stat: Stat):
+def merge_stat(stats: Dict[MetricName, Stat], stat: Stat):
     """Mutate the appropriate part of `stats`."""
     if stat.name not in stats:
         stats[stat.name] = stat

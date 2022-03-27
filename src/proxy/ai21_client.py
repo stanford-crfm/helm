@@ -1,8 +1,11 @@
+from typing import Dict, List
 import requests
-from typing import Dict
+
+from dacite import from_dict
 
 from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
+from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken, TextRange
 from .client import Client, wrap_request_time
 
 
@@ -84,3 +87,32 @@ class AI21Client(Client):
         return RequestResult(
             success=True, cached=cached, request_time=response["request_time"], completions=completions
         )
+
+    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        """
+        Tokenizes the text by using the AI21 endpoint: https://api.ai21.com/studio/v1/tokenize.
+        """
+        raw_request: Dict[str, str] = {"text": request.text}
+
+        def do_it():
+            response = requests.post(
+                "https://api.ai21.com/studio/v1/tokenize",
+                headers={"Authorization": f"Bearer {self.api_key}"},
+                json=raw_request,
+            ).json()
+
+            if "tokens" not in response and "detail" in response:
+                raise AI21RequestError(f"AI21 error when tokenizing: {response['detail']}")
+
+            return response
+
+        response, cached = self.cache.get(raw_request, do_it)
+
+        # Each token is represented like this in the response:
+        # {'token': '▁Hello', 'textRange': {'start': 0, 'end': 5}}
+        tokens: List[TokenizationToken] = []
+        for token_dict in response["tokens"]:
+            tokens.append(
+                TokenizationToken(text=token_dict["token"], text_range=from_dict(TextRange, token_dict["textRange"]))
+            )
+        return TokenizationRequestResult(cached=cached, tokens=tokens)
