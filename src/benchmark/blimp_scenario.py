@@ -12,9 +12,11 @@ class BLiMPScenario(Scenario):
 
         https://aclanthology.org/2020.tacl-1.25.pdf
 
-    Every example is a minimal pair that includes a good sentence and a bad sentence. The model is considered
-    correct if it assigns a higher probability to the good sentence instead of the bad one. The dataset
-    covers 12 linguistic phenomena and 67 paradigms. There are 1000 examples for each paradigm.
+    BLiMP evaluates the linguistic knowledge of language models in terms of syntax, morphology,
+    and semantics. The dataset covers 12 linguistic phenomena and 67 paradigms. There are 1000
+    examples for each paradigm. Every example is a minimal pair that includes a good sentence
+    and a bad sentence. The model is considered correct if it assigns a higher probability to
+    the good sentence instead of the bad one.
 
     e.g. Good: Craig explored that grocery store. Bad: Craig explored that grocery stores.
     """
