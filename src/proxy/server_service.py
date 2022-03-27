@@ -5,6 +5,7 @@ from typing import List
 from common.authentication import Authentication
 from common.general import ensure_directory_exists, parse_hocon
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
+from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 from common.request import Request, RequestResult
 from common.hierarchical_logger import hlog
 from proxy.accounts import Accounts, Account
@@ -89,6 +90,11 @@ class ServerService(Service):
             self.accounts.use(auth.api_key, model_group, count)
 
         return request_result
+
+    def tokenize(self, auth: Authentication, request: TokenizationRequest) -> TokenizationRequestResult:
+        """Tokenize via an API."""
+        self.accounts.authenticate(auth)
+        return self.client.tokenize(request)
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         self.accounts.authenticate(auth)

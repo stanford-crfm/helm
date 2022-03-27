@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, replace
-from typing import List
+from dataclasses import replace
+from typing import Sequence
+
 
 from .perturbation_description import PerturbationDescription
 from benchmark.scenario import Instance, Reference
@@ -22,7 +23,7 @@ class Perturbation(ABC):
         Generates a new Instance by perturbing the input, tagging the Instance and perturbing the References,
         if should_perturb_references is true.
         """
-        references: List[Reference] = instance.references
+        references: Sequence[Reference] = instance.references
         if should_perturb_references:
             references = [self.perturb_reference(reference) for reference in references]
 
@@ -51,38 +52,3 @@ class PerturbationSpec(ObjectSpec):
 def create_perturbation(perturbation_spec: PerturbationSpec) -> Perturbation:
     """Creates Perturbation from PerturbationSpec."""
     return create_object(perturbation_spec)
-
-
-@dataclass
-class IdentityPerturbation(Perturbation):
-    """Doesn't apply any perturbations."""
-
-    name: str = "identity"
-
-    def perturb(self, text: str) -> str:
-        return text
-
-
-@dataclass
-class ExtraSpacePerturbation(Perturbation):
-    """
-    A toy perturbation that replaces existing spaces in the text with
-    `num_spaces` number of spaces.
-    """
-
-    @dataclass(frozen=True)
-    class Description(PerturbationDescription):
-        name: str
-        num_spaces: int
-
-    name: str = "extra_space"
-
-    def __init__(self, num_spaces: int):
-        self.num_spaces = num_spaces
-
-    @property
-    def description(self) -> PerturbationDescription:
-        return ExtraSpacePerturbation.Description(self.name, self.num_spaces)
-
-    def perturb(self, text: str) -> str:
-        return text.replace(" ", " " * self.num_spaces)

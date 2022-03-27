@@ -224,10 +224,13 @@ multiple perturbations and applying it onto a single instance.
 
 ### Adding a new perturbation
 
-To add a new perturbation to the framework, simply create a new class 
+To add a new perturbation to the framework, create a new file at `src/benchmark/augmentations` with the name
+`<Name of perturbation>_perturbation.py` e.g., `typo_perturbation.py`. Inside the file, create a new class 
 (name it `<Name of the perturbation>Perturbation` e.g., `TypoPerturbation`) 
-in `perturbation.py` that extends the abstract class `Perturbation` and implement the `perturb` method which
-takes in text and outputs the perturbed text. Add a test for the new perturbation in `test_perturbation.py`.
+that extends the abstract class `Perturbation` and implement the `perturb` method which
+takes in text and outputs the perturbed text.
+Add your new perturbation to `src/benchmark/__init__.py`.
+Add a test for the new perturbation in `test_perturbation.py`.
 
 ## Running the benchmark
 
@@ -235,9 +238,10 @@ Examples of running the benchmark:
 
     venv/bin/benchmark-run
     venv/bin/benchmark-run -r mmlu:subject=philosophy
-    venv/bin/benchmark-run -r lpm:difficulty=easy
+    venv/bin/benchmark-run -r synthetic_reasoning_natural:difficulty=easy
     venv/bin/benchmark-run -r twitter_aae:demographic=aa
     venv/bin/benchmark-run -r copyright:pilot_study=true
+    venv/bin/benchmark-run -r code:dataset=APPS
     venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles
     venv/bin/benchmark-run -r wiki:subject=P31
     venv/bin/benchmark-run -r raft:subset=ade_corpus_v2
@@ -245,6 +249,9 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r quac
     venv/bin/benchmark-run -r wikitext_103
     venv/bin/benchmark-run -r blimp:phenomenon=irregular_forms
+    venv/bin/benchmark-run -r news_qa
+    venv/bin/benchmark-run -r imdb
+    venv/bin/benchmark-run -r imdb_contrast_sets
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
