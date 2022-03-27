@@ -7,6 +7,7 @@ from .adapter import (
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE,
     ADAPT_GENERATION,
+    ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
 )
 from .metric import MetricSpec
 from .runner import RunSpec
@@ -728,6 +729,31 @@ def get_wikitext_103_spec() -> RunSpec:
     )
 
 
+def get_blimp_spec(phenomenon: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        max_eval_instances=None,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        max_tokens=0,
+    )
+
+    return RunSpec(
+        name=f"blimp:phenomenon={phenomenon}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": []}),
+    )
+
+
 def get_xsum_summarization_spec() -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
@@ -815,6 +841,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "synthetic_reasoning_natural": get_synthetic_reasoning_natural_spec,
     "news_qa": get_news_qa_spec,
     "wikitext_103": get_wikitext_103_spec,
+    "blimp": get_blimp_spec,
     "code": get_code_spec,
 }
 
