@@ -296,7 +296,13 @@ class BasicMetric(Metric):
     def compute_efficiency_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
-        """Compute per-token normalized runtime"""
+        """Compute efficiency metrics for both inference and training.
+        For inference, we record both the actual runtime and an estimated idealized runtime
+        for the given request with an optimized software implementation run on an A100 GPU,
+        taking into account both the number of tokens in the prompt of the request, and the
+        number of generated output tokens.
+        For training, we report the estimated total metric tons of CO2 emitted to train the
+        model. This is the same for each request."""
         assert request_state.result is not None
         # Compute efficiency metrics for inference.
         runtime: float = request_state.result.request_time
