@@ -3,11 +3,15 @@ import os
 from dataclasses import dataclass, asdict
 from typing import List
 
-from benchmark.metric_service import MetricService
+
 from common.general import ensure_directory_exists, write, write_lines
 from common.hierarchical_logger import hlog, htrack_block
-from .scenario import Scenario, ScenarioSpec, create_scenario
+from .adapter_service import AdapterService
+from .augmentations.data_augmenter import DataAugmenterSpec
+from .metric_service import MetricService
+from .scenario import Scenario, ScenarioSpec, create_scenario, Instance
 from .adapter import AdapterSpec, Adapter, ScenarioState
+from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
 from .metric import Metric, MetricSpec, create_metric, Stat
 from .tokens_metric import TokensMetric
@@ -20,10 +24,20 @@ class RunSpec:
     computes a list of metrics.
     """
 
-    name: str  # Unique identifier of the RunSpec
-    scenario: ScenarioSpec  # Which scenario
-    adapter_spec: AdapterSpec  # Specifies how to adapt an instance into a set of requests
-    metrics: List[MetricSpec]  # What to evaluate on
+    # Unique identifier of the RunSpec
+    name: str
+
+    # Which scenario
+    scenario: ScenarioSpec
+
+    # Specifies how to adapt an instance into a set of requests
+    adapter_spec: AdapterSpec
+
+    # What to evaluate on
+    metrics: List[MetricSpec]
+
+    # Data augmenter. The default `DataAugmenterSpec` does nothing.
+    data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec()
 
 
 class Runner:
@@ -35,6 +49,7 @@ class Runner:
     def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_specs: List[RunSpec]):
         self.executor = Executor(execution_spec)
         self.dry_run = execution_spec.dry_run
+        self.adapter_service = AdapterService(self.executor.remote_service, execution_spec.auth)
         self.metric_service = MetricService(self.executor.remote_service, execution_spec.auth)
         self.output_path = output_path
         self.run_specs = run_specs
@@ -57,9 +72,12 @@ class Runner:
         runs_path = os.path.join(self.output_path, "runs", run_spec.name)
         ensure_directory_exists(runs_path)
 
+        # Data preprocessing
+        instances: List[Instance] = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(scenario)
+
         # Adaptation
-        adapter = Adapter(run_spec.adapter_spec)
-        scenario_state: ScenarioState = adapter.adapt(scenario)
+        adapter = Adapter(run_spec.adapter_spec, self.adapter_service)
+        scenario_state: ScenarioState = adapter.adapt(instances)
 
         # Execution
         scenario_state = self.executor.execute(scenario_state)
@@ -80,6 +98,8 @@ class Runner:
                 hlog(stat)
 
         # Output benchmarking information and results to files
+        write(os.path.join(runs_path, "run_spec.json"), json.dumps(asdict(run_spec), indent=2))
+
         scenario_dict = asdict(scenario)
         scenario_dict["instances"] = [asdict(instance) for instance in scenario_state.instances]
         write_lines(os.path.join(runs_path, "scenario.txt"), scenario.render_lines(scenario_state.instances))
