@@ -1,10 +1,10 @@
-from .gptj_tokenizer import GPTJTokenizer
+from .tokenizer_factory import TokenizerFactory
 from .test_gpt2_tokenizer import TEST_TOKENS, TEST_PROMPT, TEST_TOKEN_IDS
 
 
 class TestGPTJTokenizer:
     def setup_method(self):
-        self.tokenizer = GPTJTokenizer()
+        self.tokenizer = TokenizerFactory.get_tokenizer("huggingface/gptj_6b")
 
     def test_encode(self):
         assert self.tokenizer.encode(TEST_PROMPT) == TEST_TOKEN_IDS

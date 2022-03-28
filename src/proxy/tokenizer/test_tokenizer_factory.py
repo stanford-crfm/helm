@@ -7,8 +7,8 @@ class TestTokenizerFactory:
         tokenizer = TokenizerFactory.get_tokenizer(model="huggingface/gpt2")
         assert tokenizer.max_sequence_length == 1024
 
-        # Check the tokenizer is cached
-        assert "huggingface/gpt2" in TokenizerFactory.cached_tokenizers
+        # Check the underlying tokenizer is cached
+        assert TokenizerFactory.gpt2_tokenizer_fast is not None
 
     def test_no_tokenizer_service_for_ai21(self):
         # Verify that not passing a `TokenizerService` for AI21 throws an error

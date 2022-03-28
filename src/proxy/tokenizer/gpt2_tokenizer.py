@@ -11,9 +11,8 @@ class GPT2Tokenizer(Tokenizer):
     # The end of text token
     END_OF_TEXT_TOKEN: str = "<|endoftext|>"
 
-    def __init__(self):
-        # Weights are cached at ~/.cache/huggingface/transformers.
-        self._tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
+    def __init__(self, tokenizer: GPT2TokenizerFast):
+        self._tokenizer = tokenizer
 
     @property
     def max_sequence_length(self) -> int:
@@ -49,7 +48,7 @@ class GPT2Tokenizer(Tokenizer):
 
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
         """
-        Checks if the given text fits within the context window  given by `max_sequence_length
+        Checks if the given text fits within the context window given by `max_sequence_length
         taking to account the expected completion length (defaults to 0).
         """
         return self.tokenize_and_count(text) + expected_completion_token_length <= self.max_sequence_length

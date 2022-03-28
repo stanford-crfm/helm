@@ -1,6 +1,6 @@
 from typing import List
 
-from .gpt2_tokenizer import GPT2Tokenizer
+from .tokenizer_factory import TokenizerFactory
 
 TEST_PROMPT: str = (
     "The Center for Research on Foundation Models (CRFM) is "
@@ -121,7 +121,7 @@ TEST_TOKENS: List[str] = [
 
 class TestGPT2Tokenizer:
     def setup_method(self):
-        self.tokenizer = GPT2Tokenizer()
+        self.tokenizer = TokenizerFactory.get_tokenizer("huggingface/gpt2")
 
     def test_encode(self):
         assert self.tokenizer.encode(TEST_PROMPT) == TEST_TOKEN_IDS

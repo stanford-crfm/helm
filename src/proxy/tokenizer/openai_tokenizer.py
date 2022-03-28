@@ -1,3 +1,5 @@
+from transformers import GPT2TokenizerFast
+
 from .gpt2_tokenizer import GPT2Tokenizer
 
 
@@ -11,9 +13,9 @@ class OpenAITokenizer(GPT2Tokenizer):
     # which is different from the max request length of 2049.
     MAX_SEQUENCE_LENGTH: int = 2048
 
-    def __init__(self):
+    def __init__(self, tokenizer: GPT2TokenizerFast):
         # OpenAI uses the same tokenizer for GPT-2 and GPT-3.
-        super().__init__()
+        super().__init__(tokenizer)
 
     @property
     def max_sequence_length(self) -> int:

@@ -1,10 +1,10 @@
-from .openai_tokenizer import OpenAITokenizer
 from .test_gpt2_tokenizer import TEST_TOKENS, TEST_PROMPT, TEST_TOKEN_IDS
+from .tokenizer_factory import TokenizerFactory
 
 
 class TestOpenAITokenizer:
     def setup_method(self):
-        self.tokenizer = OpenAITokenizer()
+        self.tokenizer = TokenizerFactory.get_tokenizer("openai")
 
     def test_encode(self):
         assert self.tokenizer.encode(TEST_PROMPT) == TEST_TOKEN_IDS
