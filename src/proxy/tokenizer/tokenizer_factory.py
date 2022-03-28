@@ -13,7 +13,7 @@ from .tokenizer import Tokenizer
 
 class TokenizerFactory:
     # The underlying HuggingFace tokenizer
-    gpt2_tokenizer_fast: Optional[Tokenizer] = None
+    gpt2_tokenizer_fast: Optional[GPT2TokenizerFast] = None
 
     @staticmethod
     def get_tokenizer(model: str, service: Optional[TokenizerService] = None) -> Tokenizer:
@@ -42,9 +42,9 @@ class TokenizerFactory:
         return tokenizer
 
     @staticmethod
-    def get_gpt2_tokenizer_fast():
+    def get_gpt2_tokenizer_fast() -> GPT2TokenizerFast:
         """
-        Checks if the underlying GPT-2 tokenizer is cached. Creates the tokenize if it's not cached.
+        Checks if the underlying GPT-2 tokenizer is cached. Creates the tokenizer if it's not cached.
         Returns the tokenizer.
         """
         if TokenizerFactory.gpt2_tokenizer_fast is None:
