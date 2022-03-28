@@ -3,12 +3,12 @@ from typing import Optional
 from transformers import GPT2TokenizerFast
 
 from common.hierarchical_logger import htrack_block
-from benchmark.tokenizer_service import TokenizerService
 from .ai21_tokenizer import AI21Tokenizer
 from .openai_tokenizer import OpenAITokenizer
 from .gpt2_tokenizer import GPT2Tokenizer
 from .gptj_tokenizer import GPTJTokenizer
 from .tokenizer import Tokenizer
+from .tokenizer_service import TokenizerService
 
 
 class TokenizerFactory:
