@@ -299,6 +299,10 @@ class Adapter:
                 # Create request_states
                 for eval_index, eval_instance in enumerate(eval_instances):
                     prompt: str = self.construct_prompt(train_instances, eval_instance)
+                    hlog(
+                        f"trial {train_trial_index}: construct_prompt {eval_index} (total {len(eval_instances)}): "
+                        f"len(prompt) = {len(prompt)}"
+                    )
 
                     # Just print one prompt (useful for debugging)
                     if train_trial_index == 0 and eval_index == 0:
