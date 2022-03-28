@@ -1,8 +1,8 @@
 from typing import List, Optional
 
-from benchmark.tokenizer_service import TokenizerService
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken, TextRange
 from .tokenizer import Tokenizer
+from .tokenizer_service import TokenizerService
 
 
 class AI21Tokenizer(Tokenizer):

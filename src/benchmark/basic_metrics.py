@@ -18,13 +18,13 @@ from common.statistic import Stat
 from . import code_metrics_helper
 from proxy.tokenizer.tokenizer import Tokenizer
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
+from proxy.tokenizer.tokenizer_service import TokenizerService
 from .augmentations.perturbation_description import PerturbationDescription
 from .adapter import AdapterSpec, RequestState, ADAPT_LANGUAGE_MODELING
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .code_scenario import CodeReference
-from .tokenizer_service import TokenizerService
 
 
 try:

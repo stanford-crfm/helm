@@ -1,6 +1,6 @@
 from common.authentication import Authentication
 from proxy.service import Service
-from .tokenizer_service import TokenizerService
+from proxy.tokenizer.tokenizer_service import TokenizerService
 
 
 class AdapterService(TokenizerService):

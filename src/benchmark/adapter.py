@@ -8,8 +8,8 @@ from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from proxy.tokenizer.tokenizer import Tokenizer
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
+from proxy.tokenizer.tokenizer_service import TokenizerService
 from .adapter_service import AdapterService
-from .tokenizer_service import TokenizerService
 from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
