@@ -49,6 +49,7 @@ class Metric(ABC):
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
+            per_instance_stats: Dict[MetricName, Stat] = {}  # Statistics for per-instance worst-case metric
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
             #       https://github.com/stanford-crfm/benchmarking/issues/48
             for instance in scenario_state.instances:
@@ -72,6 +73,13 @@ class Metric(ABC):
                 for stat in instance_stats:
                     stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
+
+                    stat = Stat(replace(stat.name, instance_id=instance.id, perturbation="worst")).merge(stat)
+                    merge_stat(per_instance_stats, stat)
+
+            for name, stat in per_instance_stats.items():
+                worst_stat = Stat(replace(stat.name, instance_id=None)).add(stat.min)
+                merge_stat(trial_stats, worst_stat)
 
             # Aggregate the corpus-level metrics
             for split in EVAL_SPLITS:

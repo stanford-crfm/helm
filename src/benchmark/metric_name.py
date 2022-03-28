@@ -21,3 +21,6 @@ class MetricName:
 
     # Description of the Perturbation applied to the Instances
     perturbation: Optional[PerturbationDescription] = None
+
+    # Instance ID, useful for computing worst-perturbation metrics
+    instance_id: Optional[str] = None
