@@ -812,6 +812,30 @@ def get_cnndm_summarization_spec() -> RunSpec:
     )
 
 
+def get_empatheticdialogues_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.EmpatheticDialoguesScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nBEGIN DIALOGUE\n",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=100,  # TODO : Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=50,
+        temperature=0.9,
+    )
+
+    return RunSpec(
+        name="empatheticdialogues",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
 ############################################################
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
@@ -843,6 +867,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "wikitext_103": get_wikitext_103_spec,
     "blimp": get_blimp_spec,
     "code": get_code_spec,
+    "empatheticdialogues": get_empatheticdialogues_spec,
 }
 
 
