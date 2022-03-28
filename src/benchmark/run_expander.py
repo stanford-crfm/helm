@@ -157,8 +157,8 @@ class DataAugmentationRunExpander(RunExpander):
             )
 
         return [
-            create_run_spec(run_name, perturbation_specs)
-            for run_name, perturbation_specs in PERTURBATION_SPECS_DICT[self.value].items()
+            create_run_spec(f"{run_spec.name}:{aug_name}", perturbation_specs)
+            for aug_name, perturbation_specs in PERTURBATION_SPECS_DICT[self.value].items()
         ]
 
 
