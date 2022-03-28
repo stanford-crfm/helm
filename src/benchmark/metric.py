@@ -4,6 +4,7 @@ from typing import List, Dict
 from math import log, e
 from collections import defaultdict
 
+from common.hierarchical_logger import hlog
 from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
@@ -51,8 +52,9 @@ class Metric(ABC):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
             #       https://github.com/stanford-crfm/benchmarking/issues/48
-            for instance in scenario_state.instances:
+            for instance_index, instance in enumerate(scenario_state.instances):
                 instance_stats = []
+                hlog(f"trial {train_trial_index}: evaluate {instance_index} (total {len(scenario_state.instances)})")
 
                 # Evaluate generated request_state
                 request_state = singleton(scenario_state.get_request_states(train_trial_index, instance, None))
