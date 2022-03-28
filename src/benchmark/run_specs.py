@@ -865,12 +865,9 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "synthetic_reasoning_natural": get_synthetic_reasoning_natural_spec,
     "news_qa": get_news_qa_spec,
     "wikitext_103": get_wikitext_103_spec,
-<<<<<<< HEAD
     "blimp": get_blimp_spec,
     "code": get_code_spec,
-=======
     "empatheticdialogues": get_empatheticdialogues_spec,
->>>>>>> c39a072 (Fixed the munging from bad merging)
 }
 
 
