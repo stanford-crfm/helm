@@ -1,9 +1,11 @@
 import json
 import os
+import pickle as pkl
 import shlex
 import subprocess
 import zstandard
 from typing import List, Optional
+
 
 import pyhocon
 from dataclasses import asdict, dataclass
@@ -124,6 +126,20 @@ def write(file_path: str, content: str):
     hlog(f"Writing {len(content)} characters to {file_path}")
     with open(file_path, "w") as f:
         f.write(content)
+
+
+def pickle(file_path: str, obj):
+    """Write content out to a pickle file at path file_path."""
+    hlog(f"Pickling {repr(obj)} to {file_path}")
+    with open(file_path, "wb") as f:
+        pkl.dump(obj, f)
+
+
+def unpickle(file_path: str):
+    """Read content from a pickle file at path file_path."""
+    hlog(f"Unpickling from {file_path}")
+    with open(file_path, "rb") as f:
+        return pkl.load(f)
 
 
 def write_lines(file_path: str, lines: List[str]):

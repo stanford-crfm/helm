@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import replace
-from typing import List, Dict
+from typing import List, Dict, Union
 from math import log, e
 from collections import defaultdict
 
@@ -10,6 +10,7 @@ from common.general import singleton
 
 from .adapter import (
     AdapterSpec,
+    InteractionTrace,
     ScenarioState,
     RequestState,
     ADAPT_LANGUAGE_MODELING,
@@ -113,7 +114,10 @@ class Metric(ABC):
         return list(global_stats.values())
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: Union[RequestState, InteractionTrace],
+        metric_service: MetricService,
     ) -> List[Stat]:
         """Evaluate free-form generation.  Override me!"""
         return []

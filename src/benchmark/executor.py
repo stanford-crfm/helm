@@ -28,6 +28,36 @@ class ExecutionSpec:
     dry_run: bool = False
 
 
+def render_request_state(state: RequestState) -> str:
+    def format_instance(instance: Instance) -> str:
+        metadata_str: str = (
+            f"[split={instance.split}, sub_split={instance.sub_split}, "
+            f"id={instance.id}, perturbation={instance.perturbation}]"
+        )
+        return f"{metadata_str} {format_text(instance.input[:100])}"
+
+    instance: Instance = state.instance
+    gold_output: Optional[str] = None
+    if instance.first_correct_reference is not None:
+        gold_output = instance.first_correct_reference.output
+
+    pred_output: Optional[str] = None
+    if state.result is not None:
+        pred_output = state.result.completions[0].text
+
+    if state.output_mapping is not None and pred_output is not None:
+        pred_output = state.output_mapping.get(pred_output.strip())
+
+    correct_str = "CORRECT" if gold_output == pred_output else "WRONG"
+    # Truncate pred_output for a better visualization
+    if pred_output is not None:
+        pred_output = pred_output[:100]
+    return (
+        f"{format_instance(instance)} => {format_text(gold_output)}, "
+        + f"predicted {format_text(pred_output)} [{correct_str}]"
+    )
+
+
 class Executor:
     """
     An `Executor` takes a `ScenarioState` which has a bunch of requests.
@@ -43,35 +73,6 @@ class Executor:
         if self.execution_spec.dry_run:
             hlog("Skipped execution.")
             return scenario_state
-
-        def render_request_state(state: RequestState) -> str:
-            def format_instance(instance: Instance) -> str:
-                metadata_str: str = (
-                    f"[split={instance.split}, sub_split={instance.sub_split}, "
-                    f"id={instance.id}, perturbation={instance.perturbation}]"
-                )
-                return f"{metadata_str} {format_text(instance.input[:100])}"
-
-            instance: Instance = state.instance
-            gold_output: Optional[str] = None
-            if instance.first_correct_reference is not None:
-                gold_output = instance.first_correct_reference.output
-
-            pred_output: Optional[str] = None
-            if state.result is not None:
-                pred_output = state.result.completions[0].text
-
-            if state.output_mapping is not None and pred_output is not None:
-                pred_output = state.output_mapping.get(pred_output.strip())
-
-            correct_str = "CORRECT" if gold_output == pred_output else "WRONG"
-            # Truncate pred_output for a better visualization
-            if pred_output is not None:
-                pred_output = pred_output[:100]
-            return (
-                f"{format_instance(instance)} => {format_text(gold_output)}, "
-                + f"predicted {format_text(pred_output)} [{correct_str}]"
-            )
 
         def process(state: RequestState) -> RequestState:
             result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, state.request)

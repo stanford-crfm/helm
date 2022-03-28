@@ -1,18 +1,33 @@
 import json
 import os
-from dataclasses import dataclass, asdict
-from typing import List
+from dataclasses import dataclass, asdict, replace
+import pickle as pkl
+from typing import List, Optional
+
+from tqdm import tqdm
 
 
-from common.general import ensure_directory_exists, write, write_lines
+from common.general import ensure_directory_exists, write, write_lines, pickle, unpickle
 from common.hierarchical_logger import hlog, htrack_block
+from common.request import Request, RequestResult
+from proxy.remote_service import RemoteService
 from .adapter_service import AdapterService
 from .augmentations.data_augmenter import DataAugmenterSpec
 from .metric_service import MetricService
 from .scenario import Scenario, ScenarioSpec, create_scenario, Instance
-from .adapter import AdapterSpec, Adapter, ScenarioState
+from .adapter import (
+    AdapterSpec,
+    Adapter,
+    InteractionTrace,
+    InteractiveAdapter,
+    InteractiveAdapterSpec,
+    RequestState,
+    ScenarioState,
+    UserInput,
+    create_interactive_adapter,
+)
 from .data_preprocessor import DataPreprocessor
-from .executor import ExecutionSpec, Executor
+from .executor import ExecutionSpec, Executor, render_request_state
 from .metric import Metric, MetricSpec, create_metric, Stat
 from .tokens_metric import TokensMetric
 
@@ -39,6 +54,9 @@ class RunSpec:
     # Data augmenter. The default `DataAugmenterSpec` does nothing.
     data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec()
 
+    # Adapter for interactive scenarios
+    interactive_adapter: Optional[InteractiveAdapterSpec] = None
+
 
 class Runner:
     """
@@ -46,7 +64,15 @@ class Runner:
     dispatches to other classes.
     """
 
-    def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_specs: List[RunSpec], skip_instances: bool):
+    def __init__(
+        self,
+        execution_spec: ExecutionSpec,
+        output_path: str,
+        run_specs: List[RunSpec],
+        skip_instances: bool,
+        pre_interaction: bool,
+        post_interaction: bool,
+    ):
         self.executor = Executor(execution_spec)
         self.dry_run = execution_spec.dry_run
         self.adapter_service = AdapterService(self.executor.remote_service, execution_spec.auth)
@@ -54,14 +80,30 @@ class Runner:
         self.output_path = output_path
         self.run_specs = run_specs
         self.skip_instances = skip_instances
+        self.pre_interaction = pre_interaction
+        self.post_interaction = post_interaction
+        assert not (
+            self.pre_interaction and self.post_interaction
+        ), "Both pre- and- post interaction cannot be simultaneously set"
         ensure_directory_exists(self.output_path)
 
     def run_all(self):
         for run_spec in self.run_specs:
             with htrack_block(f"Running {run_spec.name}"):
-                self.run_one(run_spec)
+                if run_spec.adapter_spec.interactive:
+                    assert (
+                        self.pre_interaction or self.post_interaction
+                    ), "For interactive scenarios, either pre- or post- interaction needs to be set"
+                    if self.pre_interaction:
+                        self.pre_execute(run_spec, write_state=True)
+                    else:
+                        runs_path = os.path.join(self.output_path, "runs", run_spec.name)
+                        ensure_directory_exists(runs_path)
+                        self.post_execute(run_spec, runs_path)  # Scenario state is read from the path
+                else:
+                    self.run_one(run_spec)
 
-    def run_one(self, run_spec: RunSpec):
+    def pre_execute(self, run_spec: RunSpec, write_state=False):
         # Load the scenario
         scenario: Scenario = create_scenario(run_spec.scenario)
 
@@ -84,8 +126,32 @@ class Runner:
         adapter = Adapter(run_spec.adapter_spec, self.adapter_service)
         scenario_state: ScenarioState = adapter.adapt(instances)
 
+        # Output benchmarking information and results to files
+        write(os.path.join(runs_path, "run_spec.json"), json.dumps(asdict(run_spec), indent=2))
+
+        scenario_dict = asdict(scenario)
+        scenario_dict["instances"] = [asdict(instance) for instance in scenario_state.instances]
+        write_lines(os.path.join(runs_path, "scenario.txt"), scenario.render_lines(scenario_state.instances))
+        write(os.path.join(runs_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
+
+        if write_state:
+            write_lines(os.path.join(runs_path, "scenario_state.txt"), scenario_state.render_lines())
+            write(os.path.join(runs_path, "scenario_state.json"), json.dumps(asdict(scenario_state), indent=2))
+            pickle(os.path.join(runs_path, "scenario_state.pkl"), scenario_state)
+
+        return scenario, runs_path, scenario_state
+
+    def execute_one(self, runs_path: str, scenario_state: ScenarioSpec):
         # Execution
         scenario_state = self.executor.execute(scenario_state)
+
+        write_lines(os.path.join(runs_path, "scenario_state.txt"), scenario_state.render_lines())
+        write(os.path.join(runs_path, "scenario_state.json"), json.dumps(asdict(scenario_state), indent=2))
+        pickle(os.path.join(runs_path, "scenario_state.pkl"), scenario_state)
+
+    def post_execute(self, run_spec: RunSpec, runs_path: str, scenario_state: Optional[ScenarioState] = None):
+        if scenario_state is None:
+            scenario_state = unpickle(os.path.join(runs_path, "scenario_state.pkl"))
 
         # Apply the metrics
         # When performing a dry run, just estimate the number of tokens instead of calculating the metrics
@@ -102,16 +168,93 @@ class Runner:
             for stat in stats:
                 hlog(stat)
 
-        # Output benchmarking information and results to files
-        write(os.path.join(runs_path, "run_spec.json"), json.dumps(asdict(run_spec), indent=2))
-
-        scenario_dict = asdict(scenario)
-        scenario_dict["instances"] = [asdict(instance) for instance in scenario_state.instances]
-        write_lines(os.path.join(runs_path, "scenario.txt"), scenario.render_lines(scenario_state.instances))
-        write(os.path.join(runs_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
-
-        write_lines(os.path.join(runs_path, "scenario_state.txt"), scenario_state.render_lines())
-        write(os.path.join(runs_path, "scenario_state.json"), json.dumps(asdict(scenario_state), indent=2))
-
         write_lines(os.path.join(runs_path, "metrics.txt"), [str(stat) for stat in stats])
         write(os.path.join(runs_path, "metrics.json"), json.dumps([asdict(stat) for stat in stats], indent=2))
+
+    def run_one(self, run_spec: RunSpec):
+        # Load scenario, create directories, adapt and write run_spec, scenario, scenario_state
+        scenario, runs_path, scenario_state = self.pre_execute(run_spec)
+
+        # Execution
+        scenario_state = self.execute_one(runs_path, scenario_state)
+
+        # Run metrics and write
+        self.post_execute(run_spec, runs_path, scenario_state)
+
+
+class InteractiveRunner:
+    """
+    The `InteractiveRunner` operates on a persisted `ScenarioState` which has a bunch of incomplete interaction traces.
+    In the event of a user interaction, it reads the current state for that instance, creates and executes a request to the lm,
+    updates the interaction state on the disk and responds to the user.
+
+    It assumes that two threads/processes do not attempt to process the same instance concurrently, as it could lead to data loss.
+    """
+
+    def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_spec: RunSpec):
+        self.execution_spec = execution_spec
+        self.remote_service = RemoteService(self.execution_spec.url)
+        # self.executor: Executor = Executor(execution_spec)
+        # self.adapter_service = AdapterService(self.executor.remote_service, execution_spec.auth)
+        self.output_path = output_path
+        ensure_directory_exists(self.output_path)
+        self.run_spec = run_spec
+        self.runs_path = os.path.join(self.output_path, "runs", run_spec.name)
+        ensure_directory_exists(self.runs_path)
+        assert self.run_spec.interactive_adapter is not None, "Need an InteractiveAdapterSpec for InteractiveRunner"
+        self.interactive_adapter: InteractiveAdapter = create_interactive_adapter(
+            interactive_adapter_spec=self.run_spec.interactive_adapter
+        )
+
+    def process(self, state: RequestState) -> RequestState:
+        result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, state.request)
+        state = replace(state, result=result)
+        tqdm.write(render_request_state(state))
+        return state
+
+    def handle_user_input(
+        self, user_input: UserInput, train_trial_index: int, instance: Instance, reference_index: Optional[int] = None
+    ) -> RequestResult:
+        """Handle user input, get LM response, save and return it"""
+        scenario_state: ScenarioState = unpickle(os.path.join(self.runs_path, "scenario_state.pkl"))
+        interaction_traces: List[InteractionTrace] = scenario_state.request_state_map[
+            (train_trial_index, instance, reference_index)
+        ]
+
+        # TODO: Why is the return type fore request_state_map a List? Figure it out, change the type & code, and remove the following assertion
+        assert len(interaction_traces) == 1, "Can only handle user input for a unique interaction trace"
+        interaction_trace = interaction_traces[0]
+
+        new_request_state: RequestState = self.interactive_adapter.adapt_user_input(interaction_trace, user_input)
+        new_request_state = self.process(new_request_state)
+        interaction_trace.trace.append((user_input, new_request_state))
+
+        # Read the scenario state again
+        # Because if there was a delay in executing lm request and traces for other interactions were updated meanwhile
+        # we want to preserve them and only update this interaction state
+        # TODO: A danger with this is that it is not an atomic read & write
+        with open(os.path.join(self.runs_path, "scenario_state.pkl"), "rb") as f:
+            latest_scenario_state = pickle.load(f)
+
+        latest_scenario_state.request_state_map[(train_trial_index, instance, reference_index)] = [interaction_trace]
+        with open(os.path.join(self.runs_path, "scenario_state.pkl"), "wb") as f:
+            pickle.dump(latest_scenario_state, f)
+
+        return new_request_state.result
+
+    def handle_survey(self, survey, train_trial_index: int, instance: Instance, reference_index: Optional[int] = None):
+        """Store the result of a survey after an interaction"""
+
+        # TODO: A danger with this is that it is not an atomic read & write
+        with open(os.path.join(self.runs_path, "scenario_state.pkl"), "rb") as f:
+            latest_scenario_state = pickle.load(f)
+
+        interaction_traces = latest_scenario_state.request_state_map[(train_trial_index, instance, reference_index)]
+        # TODO: Why is the return type fore request_state_map a List? Figure it out, change the type & code, and remove the following assertion
+        assert len(interaction_traces) == 1, "Can only handle user input for a unique interaction trace"
+        interaction_trace: InteractionTrace = interaction_traces[0]
+        interaction_trace.survey = survey
+
+        latest_scenario_state.request_state_map[(train_trial_index, instance, reference_index)] = [interaction_trace]
+        with open(os.path.join(self.runs_path, "scenario_state.pkl"), "wb") as f:
+            pickle.dump(latest_scenario_state, f)

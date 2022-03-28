@@ -19,6 +19,8 @@ def run_benchmarking(
     num_threads: int,
     output_path: str,
     dry_run: bool,
+    pre_interaction: bool,
+    post_interaction: bool,
     skip_instances: bool,
     max_eval_instances: Optional[int],
 ):
@@ -42,7 +44,7 @@ def run_benchmarking(
         for run_spec in run_specs:
             hlog(run_spec.name)
 
-    runner = Runner(execution_spec, output_path, run_specs, skip_instances)
+    runner = Runner(execution_spec, output_path, run_specs, skip_instances, pre_interaction, post_interaction)
     runner.run_all()
 
 
@@ -61,6 +63,16 @@ def add_run_args(parser: argparse.ArgumentParser):
         action="store_true",
         default=None,
         help="Skip execution, only output scenario states and estimate token usage.",
+    )
+    interaction_flags = parser.add_mutually_exclusive_group()
+    interaction_flags.add_argument(
+        "--pre-interaction", action="store_true", default=None, help="Store ScenarioState to be used for interaction"
+    )
+    interaction_flags.add_argument(
+        "--post-interaction",
+        action="store_true",
+        default=None,
+        help="After interaction, Load ScenarioState that include interaction traces and compute metrics",
     )
     parser.add_argument(
         "-m",
@@ -89,6 +101,8 @@ def main():
         num_threads=args.num_threads,
         output_path=args.output_path,
         dry_run=args.dry_run,
+        pre_interaction=args.pre_interaction,
+        post_interaction=args.post_interaction,
         skip_instances=args.skip_instances,
         max_eval_instances=args.max_eval_instances,
     )

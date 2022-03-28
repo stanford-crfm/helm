@@ -1,10 +1,14 @@
+from abc import ABC, abstractmethod
 import random
 from dataclasses import dataclass, field
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Union
 from collections import defaultdict, OrderedDict
+
+from aiohttp import request
 
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
+from common.object_spec import ObjectSpec, create_object
 from common.request import Request, RequestResult
 from proxy.tokenizer.tokenizer import Tokenizer
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
@@ -72,6 +76,9 @@ class AdapterSpec:
     # When to stop
     stop_sequences: List[str] = field(default_factory=list)
 
+    # Is this adapter used for interactive scenarios
+    interactive: bool = False
+
 
 @dataclass(frozen=True)
 class RequestState:
@@ -129,6 +136,75 @@ class RequestState:
 
 
 @dataclass
+class UserInput:
+    """Subclassed by interaction scenarios"""
+
+    input: str
+
+
+@dataclass
+class InteractionTrace:
+    """
+    A class that represents an interaction trace for an `Instance` of an interactive scenario.
+    As the user interacts, multiple requests with varying prompts are made to the LM as captured by
+    a sequence of `RequestState`s represented as the interaction `trace`.
+    """
+
+    # Which instance we're evaluating
+    instance: Instance
+
+    # Which reference of the instance we're evaluating (if any)
+    reference_index: Optional[int]
+
+    # Which training set this request is for
+    train_trial_index: int
+
+    # A sequence of requests made to the LM that captures the interaction trace
+    trace: List[Tuple[UserInput, RequestState]]
+
+    # Freeform field to store responses used to compute metrics
+    survey = None
+
+    def render_lines(self) -> List[str]:
+        output = [f"train_trial_index: {self.train_trial_index}"]
+        if self.reference_index:
+            output.append(f"reference_index: {self.reference_index}")
+
+        output.append("instance {")
+        output.extend(indent_lines(self.instance.render_lines()))
+        output.append("}")
+
+        # Part of request but render multiline
+        output.append("trace {")
+        for user_input, request_state in self.trace:
+            output.append(f"user_input: {user_input}")
+            output.append("request.prompt {")
+            output.extend(indent_lines(format_text_lines(request_state.request.prompt), count=4))
+            output.append("}")
+
+            output.append("request {")
+            output.extend(indent_lines(serialize(request_state.request), count=4))
+            output.append("}")
+
+            if request_state.result:
+                output.append("result {")
+                output.extend(indent_lines(request_state.result.render_lines(), count=4))
+                output.append("}")
+        output.append("}")
+
+        return output
+
+    @classmethod
+    def from_requeststate(cls, request_state: RequestState):
+        return cls(
+            instance=request_state.instance,
+            reference_index=request_state.reference_index,
+            train_trial_index=request_state.train_trial_index,
+            trace=[(UserInput(""), request_state)],
+        )
+
+
+@dataclass
 class ScenarioState:
     """
     A `ScenarioState` represents the output of adaptation.  Contains a set of
@@ -140,12 +216,14 @@ class ScenarioState:
     adapter_spec: AdapterSpec
 
     # List of `RequestState`s that were produced by adaptation (and execution)
-    request_states: List[RequestState]
+    request_states: Union[List[RequestState], List[InteractionTrace]]
 
     def __post_init__(self):
         # Create derived indices based on `request_states` so it's easier for
         # the `Metric` later to access them.  Two things are produced:
-        self.request_state_map: Dict[Tuple[int, Instance, Optional[int]], List[RequestState]] = defaultdict(list)
+        self.request_state_map: Dict[
+            Tuple[int, Instance, Optional[int]], Union[List[InteractionTrace], List[RequestState]]
+        ] = defaultdict(list)
 
         instances_set = set()
         for request_state in self.request_states:
@@ -156,7 +234,7 @@ class ScenarioState:
 
     def get_request_states(
         self, train_trial_index: int, instance: Instance, reference_index: Optional[int]
-    ) -> List[RequestState]:
+    ) -> Union[List[RequestState], List[InteractionTrace]]:
         return self.request_state_map.get((train_trial_index, instance, reference_index), [])
 
     def render_lines(self) -> List[str]:
@@ -347,7 +425,10 @@ class Adapter:
                     request_states.append(request_state)
 
         hlog(f"{len(request_states)} requests")
-        return ScenarioState(self.adapter_spec, request_states)
+        if self.adapter_spec.interactive:
+            return ScenarioState(self.adapter_spec, [InteractionTrace.from_requeststate(r) for r in request_states])
+        else:
+            return ScenarioState(self.adapter_spec, request_states)
 
     def construct_prompt(self, train_instances: List[Instance], eval_instance: Instance) -> str:
         """
@@ -462,7 +543,7 @@ class Adapter:
         return prompt, num_conditioning_tokens
 
     def adapt_language_modeling(self, instances: List[Instance]) -> List[RequestState]:
-        """ Code is adapted from:
+        """Code is adapted from:
 
         https://github.com/EleutherAI/lm_perplexity/blob/main/lm_perplexity/utils.py
         """
@@ -553,3 +634,18 @@ class Adapter:
                 num_predicted_tokens += window_pred_len
 
         return request_states
+
+
+class InteractiveAdapter(ABC):
+    @abstractmethod
+    def adapt_user_input(self, interaction_trace: InteractionTrace, user_input: UserInput) -> RequestState:
+        """Returns an updated InteractionTrace with the user input and a new request to the lm"""
+        raise NotImplementedError
+
+
+class InteractiveAdapterSpec(ObjectSpec):
+    pass
+
+
+def create_interactive_adapter(interactive_adapter_spec: InteractiveAdapterSpec) -> InteractiveAdapter:
+    return create_object(interactive_adapter_spec)
