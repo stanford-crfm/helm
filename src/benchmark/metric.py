@@ -202,21 +202,28 @@ class Metric(ABC):
         good_logprobs: defaultdict = defaultdict(float)
         bad_logprobs: defaultdict = defaultdict(float)
 
-        for request_state in scenario_state.request_states:
-            assert request_state.instance.id is not None and request_state.instance.sub_split is not None
-            pair_id: int = int(request_state.instance.id.lstrip("id")) // 2
-            sub_split: str = request_state.instance.sub_split
-            request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
-            for stat in request_stats:
-                if stat.name == MetricName("logprob"):
-                    if sub_split == "good":
-                        good_logprobs[pair_id] += stat.sum
-                    elif sub_split == "bad":
-                        bad_logprobs[pair_id] += stat.sum
-                    else:
-                        raise Exception(f"Unknown sub_split {sub_split}")
-                    continue
-        accuracy = sum(good_logprobs[pair_id] > bad_logprobs[pair_id] for pair_id in good_logprobs) / len(good_logprobs)
+        if scenario_state.request_states:
+            for request_state in scenario_state.request_states:
+                assert request_state.instance.id is not None and request_state.instance.sub_split is not None
+                pair_id: int = int(request_state.instance.id.lstrip("id")) // 2
+                sub_split: str = request_state.instance.sub_split
+                request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
+                for stat in request_stats:
+                    if stat.name == MetricName("logprob"):
+                        if sub_split == "good":
+                            good_logprobs[pair_id] += stat.sum
+                        elif sub_split == "bad":
+                            bad_logprobs[pair_id] += stat.sum
+                        else:
+                            raise Exception(f"Unknown sub_split {sub_split}")
+                        continue
+
+            accuracy = sum(good_logprobs[pair_id] > bad_logprobs[pair_id] for pair_id in good_logprobs) / len(
+                good_logprobs
+            )
+        else:
+            accuracy = 0
+
         merge_stat(trial_stats, Stat(MetricName("accuracy", split=split)).add(accuracy))
 
         for stat in trial_stats.values():
