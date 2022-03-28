@@ -5,7 +5,6 @@ from typing import Dict, List, Optional
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
-from benchmark.augmentations.perturbation_description import PerturbationDescription
 import pandas as pd
 
 

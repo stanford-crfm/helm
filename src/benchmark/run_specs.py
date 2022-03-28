@@ -829,7 +829,7 @@ def get_empatheticdialogues_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name=f"empatheticdialogues",
+        name="empatheticdialogues",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
