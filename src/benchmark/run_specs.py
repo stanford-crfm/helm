@@ -19,6 +19,7 @@ from .run_expander import RUN_EXPANDERS
 
 HUMAN_EVAL_METRIC_NAMES = ("code_eval_acc", "pass")
 APPS_METRIC_NAMES = ("test_avg", "strict_acc")
+SIMPLE_METRIC_MAX_EVAL_INSTANCES = 1000  # default for scenarios that only use simple metrics (e.g., accuracy, f1)
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -216,7 +217,7 @@ def get_quac_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Remove this once deployed
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # We have a total of 1000 eval instances
         num_outputs=1,
         max_tokens=100,  # answers are at most 30 words
         temperature=0.0,
@@ -237,7 +238,7 @@ def get_news_qa_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Remove this once deployed
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full test set is 1262 eval instances
         num_outputs=1,
         max_tokens=50,  # answers are at most 13 words
         temperature=0.0,
@@ -384,7 +385,7 @@ def get_raft_spec(subset: str) -> RunSpec:
         input_prefix="",
         output_prefix="\nLabel:",
         max_train_instances=5,
-        max_eval_instances=50,
+        max_eval_instances=None,  # We only have <50 instances per subset
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.2,
@@ -403,9 +404,6 @@ def get_raft_spec(subset: str) -> RunSpec:
 def get_boolq_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={})
 
-    # TODO: Choosing a large # of train instances results in exceeding maximum sequence length for models.
-    # What's the best way to solve this?
-
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
@@ -413,7 +411,7 @@ def get_boolq_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 6.5k questions
         num_outputs=1,
         max_tokens=1,
     )
@@ -427,8 +425,6 @@ def get_boolq_spec() -> RunSpec:
 
 def get_boolq_contrast_sets_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQContrastSetScenario", args={})
-    # TODO: Choosing a large # of train instances results in exceeding maximum sequence length for models.
-    # What's the best way to solve this?
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -437,7 +433,7 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
+        max_eval_instances=None,  # We have only 340 perturbed questions for 70 passages
         num_outputs=1,
         max_tokens=1,
     )
@@ -481,7 +477,7 @@ def get_imdb_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 25k test inputs
         num_outputs=1,
         max_tokens=1,
         stop_sequences=["\n"],
@@ -504,7 +500,7 @@ def get_imdb_contrast_sets_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
+        max_eval_instances=None,  # there are only 488 contrast pairs
         num_outputs=1,
         max_tokens=1,
         stop_sequences=["\n"],
@@ -513,7 +509,7 @@ def get_imdb_contrast_sets_spec() -> RunSpec:
         name="imdb_contrast_sets",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
 
@@ -616,7 +612,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Remove this once deployed
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # We should have half of the dev set (3915) test instances
         num_outputs=1,
         max_tokens=300,  # answers are at most 65 words
         temperature=0.0,
@@ -626,7 +622,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         name=f"natural_qa:mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),  # TODO: Add F1 score once it is merged
+        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
     )
 
 
@@ -658,8 +654,6 @@ def get_the_pile_spec(subset: str) -> RunSpec:
 def get_narrativeqa_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.narrativeqa_scenario.NarrativeQAScenario", args=dict())
 
-    # TODO: Similar problem to the BoolQ scenario.
-    # Prompts are too long in the few-shot setting (>2048 tokens)
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
@@ -667,10 +661,11 @@ def get_narrativeqa_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=2,
         model="ai21/j1-large",
-        max_eval_instances=450,  # TODO : Find the number of samples to evaluate.
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full test set is 14018 instances
         num_outputs=1,
         max_tokens=5,
         temperature=0.0,
+        stop_sequences=["\n"],
     )
     return RunSpec(
         name="narrativeqa",
