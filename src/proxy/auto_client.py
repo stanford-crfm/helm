@@ -33,7 +33,7 @@ class AutoClient(Client):
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
             elif organization == "huggingface":
-                client = HuggingFaceClient()
+                client = HuggingFaceClient(cache_path=client_cache_path)
             elif organization == "simple":
                 client = SimpleClient()
             else:
