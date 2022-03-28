@@ -13,6 +13,7 @@ from nltk.translate.bleu_score import sentence_bleu
 import numpy as np
 from rouge_score import rouge_scorer
 
+from common.hierarchical_logger import hlog
 from common.request import Token
 from common.statistic import Stat
 from . import code_metrics_helper
@@ -343,27 +344,37 @@ class BasicMetric(Metric):
         # here: https://github.com/stanford-crfm/benchmarking_efficiency.
         with open(INFERENCE_EFFICIENCY_JSON_FILEPATH, "r") as f:
             inference_efficiency_dict = json.load(f)
-        assert request_state.request.model in inference_efficiency_dict
-        inference_efficiency_dict_for_model = inference_efficiency_dict[request_state.request.model]
-        runtime_per_output_token: float = inference_efficiency_dict_for_model["runtime_per_output_token"]
-        raw_runtimes_for_input_tokens: Dict[str, float] = inference_efficiency_dict_for_model[
-            "runtime_for_input_tokens"
-        ]
-        runtimes_for_input_tokens: Dict[int, float] = {int(k): v for (k, v) in raw_runtimes_for_input_tokens.items()}
-        runtime_for_input_tokens = None
-        # Find the smallest num_input_tokens larger than the number of tokens in the given prompt.
-        for num_input_tokens in sorted(runtimes_for_input_tokens.keys()):
-            if num_tokens_in_prompt <= num_input_tokens:
-                runtime_for_input_tokens = runtimes_for_input_tokens[num_input_tokens]
-                break
-        assert runtime_for_input_tokens is not None
 
-        # Idealized runtime is sum of the runtime of encoding the input tokens, and the
-        # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
-        # if number of output tokens is greater than 0, otherwise just `runtime_for_input_tokens`.
-        idealized_runtime: float = runtime_for_input_tokens
-        if num_output_tokens > 0:
-            idealized_runtime += runtime_per_output_token * (num_output_tokens - 1)
+        idealized_runtime: float
+        if request_state.request.model in inference_efficiency_dict:
+            inference_efficiency_dict_for_model = inference_efficiency_dict[request_state.request.model]
+            runtime_per_output_token: float = inference_efficiency_dict_for_model["runtime_per_output_token"]
+            raw_runtimes_for_input_tokens: Dict[str, float] = inference_efficiency_dict_for_model[
+                "runtime_for_input_tokens"
+            ]
+            runtimes_for_input_tokens: Dict[int, float] = {
+                int(k): v for (k, v) in raw_runtimes_for_input_tokens.items()
+            }
+            runtime_for_input_tokens = None
+            # Find the smallest num_input_tokens larger than the number of tokens in the given prompt.
+            for num_input_tokens in sorted(runtimes_for_input_tokens.keys()):
+                if num_tokens_in_prompt <= num_input_tokens:
+                    runtime_for_input_tokens = runtimes_for_input_tokens[num_input_tokens]
+                    break
+            assert runtime_for_input_tokens is not None
+
+            # Idealized runtime is sum of the runtime of encoding the input tokens, and the
+            # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
+            # if number of output tokens is greater than 0, otherwise just `runtime_for_input_tokens`.
+            idealized_runtime = runtime_for_input_tokens
+            if num_output_tokens > 0:
+                idealized_runtime += runtime_per_output_token * (num_output_tokens - 1)
+        else:
+            hlog(
+                f"WARNING: tried to estimate idealized inference time for model {request_state.request.model} "
+                "that is not in inference_efficiency_dict"
+            )
+            idealized_runtime = 0
 
         # Compute efficiency metrics for training.
 
@@ -373,8 +384,16 @@ class BasicMetric(Metric):
         # used, region, etc.
         with open(TRAINING_EFFICIENCY_JSON_FILEPATH, "r") as f:
             training_efficiency_dict = json.load(f)
-        assert request_state.request.model in training_efficiency_dict
-        training_co2_cost: float = training_efficiency_dict[request_state.request.model]
+
+        training_co2_cost: float
+        if request_state.request.model in training_efficiency_dict:
+            training_co2_cost = training_efficiency_dict[request_state.request.model]
+        else:
+            hlog(
+                f"WARNING: tried to estimate training CO2 emissions for model {request_state.request.model} "
+                "that is not in training_efficiency_dict"
+            )
+            training_co2_cost = 0
 
         return [
             Stat(MetricName("num_tokens_in_prompt")).add(num_tokens_in_prompt),
