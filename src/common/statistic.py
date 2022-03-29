@@ -94,6 +94,7 @@ class Stat:
             return self
         return Stat(self.name).add(self.mean)
 
+
 def merge_stat(stats: Dict[MetricName, Stat], stat: Stat):
     """Mutate the appropriate part of `stats`."""
     if stat.name not in stats:

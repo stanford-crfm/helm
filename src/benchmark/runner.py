@@ -91,9 +91,9 @@ class Runner:
         # Apply the metrics
         # When performing a dry run, only estimate the number of tokens instead
         # of calculating the metrics.
-        metrics: List[Metric] = (
-            [] if self.dry_run else [create_metric(metric) for metric in run_spec.metrics]
-        ) + [TokensMetric()]
+        metrics: List[Metric] = ([] if self.dry_run else [create_metric(metric) for metric in run_spec.metrics]) + [
+            TokensMetric()
+        ]
         stats: List[Stat] = []
         with htrack_block(f"{len(metrics)} metrics"):
             for metric in metrics:
