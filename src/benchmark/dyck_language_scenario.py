@@ -3,7 +3,7 @@ import random
 from copy import copy
 from typing import List
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_TAG, VALID_TAG, TEST_TAG, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
 class DyckLanguageScenario(Scenario):
@@ -166,7 +166,12 @@ class DyckLanguageScenario(Scenario):
         return stack
 
     def create_input_output(self, min_length:int, max_length:int) -> (str,str):
-        """ Creates an input-output pair. """
+        """ Creates an input-output pair. 
+        
+            Note: The generate_dyck_sequence function generates a Dyck sequence; however, we cannot randomly split it into an input-output pair, 
+            because such a random split might cause the output element to include some opening parentheses as well, but remember that we are only 
+            interested in predicting the closing parentheses of a Dyck prefix.
+        """
         while True:
             sequence = self.generate_dyck_sequence(current_recursive_depth=0, max_length=max_length)
             if len(sequence) >= min_length:
@@ -176,7 +181,7 @@ class DyckLanguageScenario(Scenario):
                     output = self.get_output(input)
                     return " ".join(input), " ".join(output)
 
-    def create_corpus(self, corpus_size:int, min_length:int=1, max_length:int=100, not_allowed:List[str]=[], tag=TEST_TAG) -> (List[str], List[str]):
+    def create_corpus(self, corpus_size:int, min_length:int=1, max_length:int=100, not_allowed:List[str]=[], split=TEST_SPLIT) -> (List[str], List[str]):
         """ Creates a corpus of Dyck-n sequences. """
         inputs = []
         i = 0
@@ -188,7 +193,7 @@ class DyckLanguageScenario(Scenario):
                 inputs.append(input)
                 i += 1
                 instance = Instance(
-                    input=input, references=[Reference(output=output, tags=[CORRECT_TAG])], tags=[TEST_TAG],
+                    input=input, references=[Reference(output=output, tags=[CORRECT_TAG])], split=split,
                 )
                 instances.append(instance)
         return inputs, instances
@@ -198,13 +203,13 @@ class DyckLanguageScenario(Scenario):
             min_length=self.min_seq_train_length,
             max_length=self.max_seq_train_length,
             corpus_size=self.num_train_instances,
-            tag=TRAIN_TAG,
+            split=TRAIN_SPLIT,
         )
         test_inputs, test_instances = self.create_corpus(
             min_length=self.min_seq_test_length,
             max_length=self.max_seq_test_length,
             corpus_size=self.num_test_instances,
             not_allowed=train_inputs,
-            tag=TEST_TAG,
+            split=TEST_SPLIT,
         )
         return train_instances + test_instances
