@@ -34,3 +34,9 @@ adapter:
 metrics:
 - name: exact_match
   description: Whether the predicted output matches one of the correct references.
+- name: logprob
+  description: Log-probability of the predicted output (for language modeling, the input too).
+- name: num_tokens
+  description: Number of tokens in the output (for language modeling, the input too).
+- name: num_bytes
+  description: Number of bytes in the output (for language modeling, the input too).
