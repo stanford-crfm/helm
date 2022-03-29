@@ -8,8 +8,8 @@ from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from proxy.tokenizer.tokenizer import Tokenizer
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
+from proxy.tokenizer.tokenizer_service import TokenizerService
 from .adapter_service import AdapterService
-from .tokenizer_service import TokenizerService
 from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
@@ -299,6 +299,10 @@ class Adapter:
                 # Create request_states
                 for eval_index, eval_instance in enumerate(eval_instances):
                     prompt: str = self.construct_prompt(train_instances, eval_instance)
+                    hlog(
+                        f"trial {train_trial_index}: construct_prompt {eval_index} (total {len(eval_instances)}): "
+                        f"len(prompt) = {len(prompt)}"
+                    )
 
                     # Just print one prompt (useful for debugging)
                     if train_trial_index == 0 and eval_index == 0:

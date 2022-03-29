@@ -37,6 +37,9 @@ class Stat:
                 self.values[index_to_remove] = x
 
     def add(self, x) -> "Stat":
+        # Skip Nones for statistic aggregation.
+        if x is None:
+            return self
         if isinstance(x, bool):
             x = 1 if x is True else 0
         self.count += 1

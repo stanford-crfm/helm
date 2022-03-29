@@ -87,7 +87,7 @@ class AllRunner:
             # Use `dry_run` flag if set, else use what's in the file.
             dry_run = self.dry_run if self.dry_run is not None else status == WIP_STATUS
 
-            run_benchmarking(
+            new_run_specs = run_benchmarking(
                 run_spec_descriptions=[run_spec_description],
                 auth=self.auth,
                 url=self.url,
@@ -97,23 +97,24 @@ class AllRunner:
                 skip_instances=self.skip_instances,
                 max_eval_instances=self.max_eval_instances,
             )
+            run_specs.extend(new_run_specs)
 
-            with open(os.path.join(runs_dir, run_spec_description, "run_spec.json")) as f:
-                run_spec = json.load(f)
-                run_specs.append(run_spec)
-
-            # Get the metric output, so we can display it on the status page
-            metrics_text: str = Path(os.path.join(runs_dir, run_spec_description, "metrics.txt")).read_text()
-            if status == READY_STATUS:
-                ready_content.append(f"{run_spec} - \n{metrics_text}\n")
-            else:
-                wip_content.append(f"{run_spec} - {metrics_text}")
+            for run_spec in new_run_specs:
+                # Get the metric output, so we can display it on the status page
+                metrics_text: str = Path(os.path.join(runs_dir, run_spec.name, "metrics.txt")).read_text()
+                if status == READY_STATUS:
+                    ready_content.append(f"{run_spec} - \n{metrics_text}\n")
+                else:
+                    wip_content.append(f"{run_spec} - {metrics_text}")
 
         # Write out the status page with the WIP RunSpecs first
         status = "\n".join(wip_content + ["", "-" * 150, ""] + ready_content)
         write(os.path.join(self.output_path, "status.txt"), status)
 
-        write(os.path.join(self.output_path, "run_specs.json"), json.dumps(run_specs, indent=2))
+        write(
+            os.path.join(self.output_path, "run_specs.json"),
+            json.dumps(list(map(dataclasses.asdict, run_specs)), indent=2),
+        )
 
         all_models = [dataclasses.asdict(model) for model in ALL_MODELS]
         write(os.path.join(self.output_path, "models.json"), json.dumps(all_models, indent=2))
