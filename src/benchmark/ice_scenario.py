@@ -4,10 +4,17 @@ import sys  # noqa
 import requests  # noqa
 from typing import List
 from common.general import ensure_file_downloaded
-from common.hierarchical_logger import hlog, htrack
+from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, TEST_SPLIT
+from enum import Enum
 
 TAGS = False
+
+
+class HeaderFormat(Enum):
+    HDR = 0
+    XLS = 1
+    MDB = 2
 
 
 class ICEScenario(Scenario):
@@ -21,12 +28,31 @@ class ICEScenario(Scenario):
     description = "International Corpus of English (ICE)"
     tags = ["harms", "fairness", "language_modeling"]
 
-    def __init__(self, subset: str, gender: str = None):
-        self.ice_subsets = {"CAN", "GB", "JA", "HK", "EA", "IND", "SIN", "PHI", "USA", "IRL", "NZ", "SL", "NIG"}
-        assert subset in self.ice_subsets
+    def __init__(self, subset: str, split: str = "all", gender: str = None):
+        ice_subsets = {"CAN", "JA", "HK", "IND", "SIN", "PHI", "USA"}
+        unsupported_subsets = {"GB", "EA", "IRL", "NZ", "SL", "NG"}  # noqa
+        assert subset in ice_subsets
         self.subset = subset
 
-        subset_to_directory = {"IND": "ICE India"}
+        assert split in {"all", "written", "spoken"}
+        self.split = split
+
+        gender_hdr = {"IND", "USA"}
+
+        if gender:
+            assert subset in gender_hdr
+            self.gender = gender
+            self.gender_mode = HeaderFormat.HDR
+
+        subset_to_directory = {
+            "IND": "ICE India",
+            "CAN": "ICE-CAN",
+            "HK": "ICE-HK",
+            "JA": "ICE-JA",
+            "PHI": "ICE Philippines",
+            "SIN": "ICE SINGAPORE",
+            "USA": "ICE-USA",
+        }
         self.directory = subset_to_directory[self.subset]
 
     def preprocess_text(self, text: str, tags: bool = False):
@@ -74,7 +100,7 @@ class ICEScenario(Scenario):
             "\?",
             "sp",
         ]
-        remove = ["O", "-", "&", ".", "fnr", "marginalia", "del", "w", "*"]
+        remove = ["O", "-", "&", ".", "fnr", "marginalia", "del", "w"]
         replace = {"mention": '"', "\*": "\*", "\*\/": "\*"}
 
         text = text.strip()
@@ -112,13 +138,47 @@ class ICEScenario(Scenario):
         text = text.strip()
         return text
 
-    @htrack(None)
-    def read_in(self):
-        pass
+    def validate_file(self, filename: str) -> bool:
+        if self.split == "all":
+            return True
+
+        if self.split == "written":
+            return filename.startswith(("W", "w"))
+
+        return filename.startswith(("S", "s"))
+
+    def validate_gender(self, filename: str) -> bool:
+        if not self.gender:
+            return True
+
+        if self.gender_mode == HeaderFormat.HDR:
+            header_path = os.path.join(self.output_path, self.directory, "Headers", filename[:-4] + ".hdr")
+
+            if not os.path.exists(header_path):
+                hlog(str(f"File {filename} skipped (no header found)."))
+                return False
+
+            gender_annotations = {"M": {"M", "m", "Male", "male"}, "F": {"F", "f", "Female", "female"}}
+
+            with open(header_path, "r") as f:
+                try:
+                    text = self.preprocess_text(f.read(), TAGS)
+                except UnicodeDecodeError:
+                    hlog(str(f"File {filename} skipped (unsupported header encoding)."))
+                    return False
+
+            for g in re.findall("(?<=<gender>)\w+(?=<\/gender>)", text):
+                if g not in gender_annotations[self.gender]:
+                    return False
+
+        return True
 
     def get_instances(self) -> List[Instance]:
-        # Download the raw data
         data_path = os.path.join(self.output_path, self.directory)
+
+        # Currently there is no infrastructure in place to unzip files with passwords
+        # (the HTTP requests for the data itself also requires some authorization);
+        # therefore we can only assume data is already downloaded and extracted
         ensure_file_downloaded(
             source_url=None, target_path=data_path, unpack=True,
         )
@@ -134,11 +194,17 @@ class ICEScenario(Scenario):
         instances = []
 
         for filename in os.listdir(corpus_path):
+            if not self.validate_file(filename):
+                continue
+
+            if not self.validate_gender(filename):
+                continue
+
             with open(os.path.join(corpus_path, filename), "r") as f:
                 try:
                     text = self.preprocess_text(f.read(), TAGS)
                 except UnicodeDecodeError:
-                    hlog(str(f"File {filename} skipped."))
+                    hlog(str(f"File {filename} skipped (unsupported encoding)."))
                     continue
 
                 instances.append(Instance(input=text, references=[], split=TEST_SPLIT))
