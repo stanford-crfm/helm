@@ -299,9 +299,9 @@ class Adapter:
 
                 # Create request_states
                 for eval_index, eval_instance in enumerate(eval_instances):
-                    now: float = time.time()
+                    start_time: float = time.time()
                     prompt: str = self.construct_prompt(train_instances, eval_instance)
-                    construct_prompt_elapsed_time: float = time.time() - now
+                    construct_prompt_elapsed_time: float = time.time() - start_time
 
                     hlog(
                         f"trial {train_trial_index}: construct_prompt {eval_index} (total {len(eval_instances)}): "
