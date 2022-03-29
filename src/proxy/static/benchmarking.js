@@ -54,13 +54,18 @@ $(function () {
     return result;
   }
 
-  function getJSONList(paths, callback) {
+  function getJSONList(paths, callback, defaultValue) {
     // Fetch the JSON files `paths`, and pass the list of results into `callback`.
     const responses = {};
     $.when(
       ...paths.map((path) => $.getJSON(path, {}, (response) => { responses[path] = response; })),
     ).then(() => {
-      callback(paths.map((path) => responses[path]));
+      callback(paths.map((path) => responses[path] || defaultValue));
+    }, (error) => {
+      console.error('Failed to load / parse:', paths.filter((path) => !(path in responses)));
+      console.error(error.responseText);
+      JSON.parse(error.responseText);
+      callback(paths.map((path) => responses[path] || defaultValue));
     });
   }
 
@@ -113,6 +118,20 @@ $(function () {
       return Object.entries(obj).map(([key, value]) => `${key}=${value}`).join(',');
     }
 
+    // Paths (parallel arrays corresponding to `runSpecs`)
+    const metricsPaths = runSpecs.map((runSpec) => {
+      return `benchmark_output/runs/${runSpec.name}/metrics.json`;
+    });
+    const scenarioPaths = runSpecs.map((runSpec) => {
+      return `benchmark_output/runs/${runSpec.name}/scenario.json`;
+    });
+    const scenarioStatePaths = runSpecs.map((runSpec) => {
+      return `benchmark_output/runs/${runSpec.name}/scenario_state.json`;
+    });
+    const runSpecPaths = runSpecs.map((runSpec) => {
+      return `benchmark_output/runs/${runSpec.name}/run_spec.json`;
+    });
+
     // Figure out short names for the runs based on where they differ
     const runDisplayNames = findDiff(runSpecs.map((runSpec) => runSpec.adapter_spec)).map(renderDict);
 
@@ -124,7 +143,8 @@ $(function () {
     $root.append($('<h5>').append('Adapter specification'));
     const $adapterSpec = $('<table>', {class: 'table'});
     if (runSpecs.length > 1) {
-      $adapterSpec.append($('<tr>').append($('<td>')).append(runDisplayNames.map((name) => $('<td>').append(name))));
+      $adapterSpec.append($('<tr>').append($('<td>'))
+        .append(runDisplayNames.map((name) => $('<td>').append(name))));
     }
     $root.append($adapterSpec);
 
@@ -148,32 +168,42 @@ $(function () {
       });
       $adapterSpec.append($row);
     });
+    $adapterSpec.append($('<tr>').append($('<td>'))
+      .append(runSpecPaths.map((runSpecPath) => $('<td>').append($('<a>', {href: runSpecPath}).append('JSON')))));
 
     // Render metrics
-    getJSONList(runSpecs.map((runSpec) => `benchmark_output/runs/${runSpec.name}/metrics.json`), (metricsList) => {
+    getJSONList(metricsPaths, (metricsList) => {
       console.log('metrics', metricsList);
       const displayNames = canonicalizeList(metricsList.map((metrics) => metrics.map((metric) => renderMetricName(metric.name))));
 
       displayNames.forEach((displayName) => {
         const $row = $('<tr>').append($('<td>').append(displayName));
         metricsList.forEach((metrics) => {
+          // metrics is the list of metrics for one run (column)
           const metric = metrics.find((metric) => renderMetricName(metric.name) === displayName);
           $row.append($('<td>').append(metric ? round(metric.mean, 3) : '?'));
         });
         $metrics.append($row);
       });
-    });
+      $metrics.append($('<tr>').append($('<td>'))
+        .append(metricsPaths.map((metricsPath) => $('<td>').append($('<a>', {href: metricsPath}).append('JSON')))));
+    }, []);
 
     // Render scenario instances
     const instanceToDiv = {};
-    getJSONList(runSpecs.map((runSpec) => `benchmark_output/runs/${runSpec.name}/scenario.json`), (scenarios) => {
+    getJSONList(scenarioPaths, (scenarios) => {
       console.log('scenarios', scenarios);
 
-      $scenarioInfo.append($('<h4>').append(scenarios[0].name));
-      $scenarioInfo.append($('<div>').append($('<i>').append(scenarios[0].description)));
+      const i = 0;
+      $scenarioInfo.append($('<h4>').append(scenarios[i].name));
+      $scenarioInfo.append($('<div>').append($('<i>').append(scenarios[i].description)));
+      $scenarioInfo.append($('<div>')
+        .append($('<a>', {href: scenarios[i].definition_path}).append('[code]'))
+        .append(' ').append($('<a>', {href: scenarioPaths[i]}).append('[JSON]'))
+      );
 
       scenarios.forEach((scenario) => {
-        scenario.instances.forEach((instance, i) => {
+        scenario.instances.forEach((instance, instanceIndex) => {
           const key = instanceKey(instance);
           if (key in instanceToDiv) {
             return;
@@ -182,7 +212,7 @@ $(function () {
           // Render instance
           $instances.append($('<hr>'));
           const $instance = $('<div>');
-          $instance.append($('<b>').append(`Input ${i}`));
+          $instance.append($('<b>').append(`Input ${instanceIndex}`));
           $instance.append(': ');
           $instance.append(multilineHtml(instance.input));
           const $references = $('<ul>');
@@ -197,7 +227,7 @@ $(function () {
       });
 
       // Render the model predictions
-      getJSONList(runSpecs.map((runSpec) => `benchmark_output/runs/${runSpec.name}/scenario_state.json`), (scenarioStates) => {
+      getJSONList(scenarioStatePaths, (scenarioStates) => {
         console.log('scenarioStates', scenarioStates);
         scenarioStates.forEach((scenarioState, index) => {
           scenarioState.request_states.forEach((requestState) => {
