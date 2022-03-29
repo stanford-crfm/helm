@@ -53,7 +53,7 @@ class ReplaceValueRunExpander(RunExpander):
 class MaxTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
-    name = "max_train_trials"
+    name = "num_train_trials"
     values_dict = {"default": [5]}
 
 

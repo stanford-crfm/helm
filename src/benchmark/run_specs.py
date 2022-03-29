@@ -126,7 +126,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         input_prefix="",
         output_prefix="\nAnswer: ",
         max_train_instances=5,
-        max_eval_instances=1000,
+        max_eval_instances=1000,  # TODO: Justify, @michi
         num_outputs=10,
         num_train_trials=1,
         model="openai/davinci",
@@ -178,8 +178,8 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             instructions="The following are multiple choice questions (with answers) about common sense.",
             input_prefix="",
             output_prefix="\nAnswer: ",
-            max_train_instances=0,
-            max_eval_instances=10,
+            max_train_instances=0,  # TODO: Justify; @michi
+            max_eval_instances=None,
             num_outputs=10,
             num_train_trials=1,
             model="openai/davinci",
@@ -198,8 +198,8 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             instructions="",
             input_prefix="",
             output_prefix="",
-            max_train_instances=0,
-            max_eval_instances=10 * n_choice * 2,
+            max_train_instances=0,  # TODO: Justify; @michi
+            max_eval_instances=1000 * n_choice * 2,
             num_outputs=10,
             max_tokens=0,
             num_train_trials=1,
@@ -227,7 +227,7 @@ def get_quac_spec() -> RunSpec:
         output_prefix="",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
+        model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # We have a total of 1000 eval instances
         num_outputs=1,
         max_tokens=100,  # answers are at most 30 words
@@ -248,7 +248,7 @@ def get_news_qa_spec() -> RunSpec:
         output_prefix="",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
+        model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full test set is 1262 eval instances
         num_outputs=1,
         max_tokens=50,  # answers are at most 13 words
@@ -281,7 +281,7 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"truthful_qa:task{task}",
+        name=f"truthful_qa:task={task}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -343,7 +343,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
-        max_train_instances=3,
+        max_train_instances=3,  # TODO: Justify; @tony w.
         max_eval_instances=100,
         num_outputs=3,
         num_train_trials=1,
@@ -371,9 +371,9 @@ def get_gsm_spec() -> RunSpec:
         input_prefix="",
         output_prefix="",
         num_train_trials=1,
-        max_train_instances=3,
-        max_eval_instances=100,  # TODO: Remove when deployed
-        model="ai21/j1-large",
+        max_train_instances=3,  # TODO: Justify; @eric
+        max_eval_instances=None,
+        model="openai/davinci",
         temperature=0.7,
         stop_sequences=["\n\n"],
         max_tokens=400,  # The paper uses 400 tokens as the max sample length
@@ -421,7 +421,7 @@ def get_boolq_spec() -> RunSpec:
         output_prefix="\nanswer:",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
+        model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 6.5k questions
         num_outputs=1,
         max_tokens=1,
@@ -443,7 +443,7 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
         output_prefix="\nanswer:",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
+        model="openai/davinci",
         max_eval_instances=None,  # We have only 340 perturbed questions for 70 passages
         num_outputs=1,
         max_tokens=1,
@@ -464,9 +464,9 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
         instructions="The following are multiple choice questions (with answers).",
         input_prefix="",
         output_prefix="\nAnswer: ",
-        max_train_instances=2,
-        model="ai21/j1-large",
-        max_eval_instances=50,  # TODO: Change to None
+        max_train_instances=2,  # TODO: Justify; @dor
+        model="openai/davinci",
+        max_eval_instances=None,
         num_outputs=1,
     )
 
@@ -487,7 +487,7 @@ def get_imdb_spec() -> RunSpec:
         output_prefix="Sentiment:",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
+        model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 25k test inputs
         num_outputs=1,
         max_tokens=1,
@@ -510,7 +510,7 @@ def get_imdb_contrast_sets_spec() -> RunSpec:
         output_prefix="Sentiment:",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
+        model="openai/davinci",
         max_eval_instances=None,  # there are only 488 contrast pairs
         num_outputs=1,
         max_tokens=1,
@@ -533,8 +533,8 @@ def get_babi_qa_spec(task: str) -> RunSpec:
         output_prefix="\nanswer:",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
-        max_eval_instances=50,  # TODO: Change to None
+        model="openai/davinci",
+        max_eval_instances=None,
         num_outputs=1,
         # Task 19's answers consist of two words (in contrast to all other tasks that feature a single-word answers.)
         max_tokens=2 if task == "19" else 1,
@@ -673,7 +673,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         output_prefix="",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
+        model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # We should have half of the dev set (3915) test instances
         num_outputs=1,
         max_tokens=300,  # answers are at most 65 words
@@ -697,7 +697,7 @@ def get_the_pile_spec(subset: str) -> RunSpec:
         input_prefix="",
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=51,  # TODO: remove this line once deployed, so we can cache everything in prod
+        max_eval_instances=None,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
@@ -721,8 +721,8 @@ def get_narrativeqa_spec() -> RunSpec:
         input_prefix="",
         output_prefix="\nanswer:",
         num_train_trials=1,
-        max_train_instances=2,
-        model="ai21/j1-large",
+        max_train_instances=2,  # TODO: Justify; @mert
+        model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full test set is 14018 instances
         num_outputs=1,
         max_tokens=5,
@@ -745,8 +745,8 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
-        max_train_instances=3,
-        max_eval_instances=100,
+        max_train_instances=3,  # TODO: Justify; @tony w.
+        max_eval_instances=None,
         num_outputs=3,
         num_train_trials=1,
         model="openai/davinci",
@@ -825,7 +825,7 @@ def get_xsum_summarization_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
-        max_eval_instances=10,  # TODO: Remove this once deployed
+        max_eval_instances=None,
         num_outputs=1,
         # max_tokens=60,  # From Lewis et al. 2019 (https://arxiv.org/pdf/1910.13461.pdf)
         temperature=0,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
@@ -854,7 +854,7 @@ def get_cnndm_summarization_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
-        max_eval_instances=10,  # TODO: Remove this once deployed
+        max_eval_instances=None,
         num_outputs=1,
         # max_tokens=128,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=0,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
