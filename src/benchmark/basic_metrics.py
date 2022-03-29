@@ -345,7 +345,8 @@ class BasicMetric(Metric):
         with open(INFERENCE_EFFICIENCY_JSON_FILEPATH, "r") as f:
             inference_efficiency_dict = json.load(f)
 
-        idealized_runtime: float
+        idealized_runtime: Optional[float]
+        runtime_discrepancy: Optional[float]
         if request_state.request.model in inference_efficiency_dict:
             inference_efficiency_dict_for_model = inference_efficiency_dict[request_state.request.model]
             runtime_per_output_token: float = inference_efficiency_dict_for_model["runtime_per_output_token"]
@@ -369,12 +370,15 @@ class BasicMetric(Metric):
             idealized_runtime = runtime_for_input_tokens
             if num_output_tokens > 0:
                 idealized_runtime += runtime_per_output_token * (num_output_tokens - 1)
+
+            runtime_discrepancy = runtime - idealized_runtime
         else:
             hlog(
                 f"WARNING: tried to estimate idealized inference time for model {request_state.request.model} "
                 "that is not in inference_efficiency_dict"
             )
-            idealized_runtime = 0
+            idealized_runtime = None
+            runtime_discrepancy = None
 
         # Compute efficiency metrics for training.
 
@@ -385,7 +389,7 @@ class BasicMetric(Metric):
         with open(TRAINING_EFFICIENCY_JSON_FILEPATH, "r") as f:
             training_efficiency_dict = json.load(f)
 
-        training_co2_cost: float
+        training_co2_cost: Optional[float]
         if request_state.request.model in training_efficiency_dict:
             training_co2_cost = training_efficiency_dict[request_state.request.model]
         else:
@@ -393,13 +397,13 @@ class BasicMetric(Metric):
                 f"WARNING: tried to estimate training CO2 emissions for model {request_state.request.model} "
                 "that is not in training_efficiency_dict"
             )
-            training_co2_cost = 0
+            training_co2_cost = None
 
         return [
             Stat(MetricName("num_tokens_in_prompt")).add(num_tokens_in_prompt),
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
-            Stat(MetricName("inference_runtime_discrepancy")).add(runtime - idealized_runtime),
+            Stat(MetricName("inference_runtime_discrepancy")).add(runtime_discrepancy),
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
         ]
 
