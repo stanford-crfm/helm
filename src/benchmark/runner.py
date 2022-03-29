@@ -92,10 +92,11 @@ class Runner:
         metrics: List[Metric] = (
             [TokensMetric()] if self.dry_run else [create_metric(metric) for metric in run_spec.metrics]
         )
-        hlog(f"{len(metrics)} metrics")
         stats: List[Stat] = []
-        for metric in metrics:
-            stats.extend(metric.evaluate(scenario_state, self.metric_service))
+        with htrack_block(f"{len(metrics)} metrics"):
+            for metric in metrics:
+                with htrack_block(metric):
+                    stats.extend(metric.evaluate(scenario_state, self.metric_service))
 
         # Print out stats
         with htrack_block("Stats"):

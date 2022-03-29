@@ -2,7 +2,7 @@ from typing import List
 
 from common.request import Request, Sequence
 from .token_counter import TokenCounter
-from .openai_tokenizer import OpenAITokenizer
+from .tokenizer_factory import TokenizerFactory
 
 
 class OpenAITokenCounter(TokenCounter):
@@ -12,7 +12,7 @@ class OpenAITokenCounter(TokenCounter):
     MAX_REQUEST_LENGTH = 2049
 
     def __init__(self):
-        self.tokenizer = OpenAITokenizer()
+        self.tokenizer = TokenizerFactory.get_tokenizer("openai")
 
     def count_tokens(self, request: Request, completions: List[Sequence]) -> int:
         """

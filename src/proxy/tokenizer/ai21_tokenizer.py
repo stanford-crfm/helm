@@ -1,8 +1,8 @@
 from typing import List, Optional
 
-from benchmark.tokenizer_service import TokenizerService
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken, TextRange
 from .tokenizer import Tokenizer
+from .tokenizer_service import TokenizerService
 
 
 class AI21Tokenizer(Tokenizer):
@@ -58,19 +58,20 @@ class AI21Tokenizer(Tokenizer):
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
         return self.tokenize_and_count(text) + expected_completion_token_length <= self.max_sequence_length
 
-    def truncate_from_right(self, text: str) -> str:
+    def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
         Truncates the text using the AI21 Jurassic tokenizer.
-        First tokenizes, then truncates the list of tokens to fit within the context window, then uses
-        the start of the text range of the first token and the end of the text range of the last token
-        of the truncated list of tokens to build the the truncated text.
+        First tokenizes, then truncates the list of tokens to fit within the context window minus the
+        expected completion length (defaults to 0), then uses the start of the text range of the first
+        token and the end of the text range of the last token of the truncated list of tokens to
+        build the truncated text.
         """
         response: TokenizationRequestResult = self._make_tokenization_request(text)
 
-        # Only look at the first `self.max_sequence_length` number of tokens
-        # to the fit the text within the context window.
+        # Only look at the first `self.max_sequence_length` - `expected_completion_token_length`
+        # number of tokens to the fit the text within the context window.
         # Each token is represented like this: {'text': '▁Hello', 'textRange': {'start': 0, 'end': 5}}
-        tokens: List[TokenizationToken] = response.tokens[: self.max_sequence_length]
+        tokens: List[TokenizationToken] = response.tokens[: self.max_sequence_length - expected_completion_token_length]
 
         # If there is no tokens, just return the original text
         if len(tokens) == 0:

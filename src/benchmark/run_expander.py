@@ -53,7 +53,7 @@ class ReplaceValueRunExpander(RunExpander):
 class MaxTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
-    name = "max_train_trials"
+    name = "num_train_trials"
     values_dict = {"default": [5]}
 
 
@@ -73,6 +73,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
     name = "model"
     values_dict = {
         "default": ["openai/davinci"],
+        "jurassic": ["ai21/j1-jumbo"],
         "all": [model.name for model in ALL_MODELS],
         "code": ["openai/code-davinci-001", "openai/code-cushman-001"],
     }
@@ -139,7 +140,7 @@ class DataAugmentationRunExpander(RunExpander):
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         """Return `run_spec` with data augmentations."""
 
-        def create_run_spec(run_name: str, perturbation_specs: List[PerturbationSpec]) -> RunSpec:
+        def create_run_spec(aug_name: str, perturbation_specs: List[PerturbationSpec]) -> RunSpec:
             data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
                 perturbation_specs=perturbation_specs,
                 should_perturb_references=False,
@@ -152,13 +153,13 @@ class DataAugmentationRunExpander(RunExpander):
             )
             return replace(
                 run_spec,
-                name=f"{run_name},{DataAugmentationRunExpander.name}={self.value}",
+                name=f"{run_spec.name},{DataAugmentationRunExpander.name}={aug_name}",
                 data_augmenter_spec=data_augmenter_spec,
             )
 
         return [
-            create_run_spec(run_name, perturbation_specs)
-            for run_name, perturbation_specs in PERTURBATION_SPECS_DICT[self.value].items()
+            create_run_spec(aug_name, perturbation_specs)
+            for aug_name, perturbation_specs in PERTURBATION_SPECS_DICT[self.value].items()
         ]
 
 
