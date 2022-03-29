@@ -29,10 +29,13 @@ class OpenAITokenizer(GPT2Tokenizer):
         """
         return self.tokenize_and_count(text) + expected_completion_token_length <= OpenAITokenizer.MAX_REQUEST_LENGTH
 
-    def truncate_from_right(self, text: str) -> str:
+    def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
-        Truncates text from the right to fit within the OpenAI max request length of 2049.
+        Truncates text from the right to fit within the OpenAI max request length of 2049
+        minus the expected completion length (defaults to 0).
         """
         return self._tokenizer.decode(
-            self._tokenizer.encode(text, truncation=True, max_length=OpenAITokenizer.MAX_REQUEST_LENGTH)
+            self._tokenizer.encode(
+                text, truncation=True, max_length=OpenAITokenizer.MAX_REQUEST_LENGTH - expected_completion_token_length
+            )
         )

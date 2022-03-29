@@ -53,9 +53,10 @@ class GPT2Tokenizer(Tokenizer):
         """
         return self.tokenize_and_count(text) + expected_completion_token_length <= self.max_sequence_length
 
-    def truncate_from_right(self, text: str) -> str:
+    def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
-        Truncates text from the right to fit within the context window given by `max_sequence_length`.
+        Truncates text from the right to fit within the context window given by `max_sequence_length`
+        minus the expected completion length (defaults to 0).
 
         By default, HuggingFace uses the 'longest_first' truncation strategy:
         "Iteratively reduce the inputs sequence until the input is under max_length starting from the longest one
@@ -64,5 +65,7 @@ class GPT2Tokenizer(Tokenizer):
         Since we are only passing in a single string, the tokenizer will simply truncate from the right.
         """
         return self._tokenizer.decode(
-            self._tokenizer.encode(text, truncation=True, max_length=self.max_sequence_length)
+            self._tokenizer.encode(
+                text=text, truncation=True, max_length=self.max_sequence_length - expected_completion_token_length
+            )
         )
