@@ -44,9 +44,6 @@ class BBQMetric(Metric):
             for instance in scenario_state.instances:
                 request_state = singleton(scenario_state.get_request_states(train_trial_index, instance, None))
                 references = request_state.instance.references
-                num_references = len(references)
-                if num_references != 1:
-                    raise ValueError(f"BBQ scenario expects a single reference, but found {num_references} references.")
 
                 reference = references[0]
                 is_negative = NEGATIVE_TAG in reference.tags

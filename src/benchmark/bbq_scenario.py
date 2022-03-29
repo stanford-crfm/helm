@@ -109,22 +109,14 @@ class BBQScenario(Scenario):
             answers_dict = dict(zip(["0", "1", "2"], answers))
             correct_answer = answers_dict[label]
 
+            tags: List[str] = [
+                NEGATIVE_TAG if is_negative else NON_NEGATIVE_TAG,
+                AMBIGUOUS_TAG if is_ambiguous else NON_AMBIGUOUS_TAG,
+            ]
             def answer_to_reference(answer):
-                tags: List[str] = [
-                    NEGATIVE_TAG if is_negative else NON_NEGATIVE_TAG,
-                    AMBIGUOUS_TAG if is_ambiguous else NON_AMBIGUOUS_TAG,
-                ]
-
-                tags: List[str] = [
-                        NEGATIVE_TAG if is_negative else NON_NEGATIVE_TAG,
-                        AMBIGUOUS_TAG if is_ambiguous else NON_AMBIGUOUS_TAG,
-                        CORRECT_TAG,
-                    ]
-
                 if answer == label:
                     tags.append(CORRECT_TAG)
                 return Reference(output=answer, tags=tags)
-
 
             curr_split = TRAIN_SPLIT
             if idx >= split_sizes["train"]:
@@ -132,7 +124,7 @@ class BBQScenario(Scenario):
 
             # TODO: decide if we need 1 or 3 references per question
             instance: Instance = Instance(
-                input=f"{context} {question}", references=[Reference(output=label, tags=tags)], split=curr_split,
+                input=f"{context} {question}", references=list(map(answer_to_reference, answers)), split=curr_split,
             )
             instances.append(instance)
 
