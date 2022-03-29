@@ -16,11 +16,6 @@ $(function () {
     return api_key.substring(0, k) + '*'.repeat(api_key.length - k);
   }
 
-  function helpIcon(help, link) {
-    // Show a ?
-    return $('<a>', {href: link, target: 'blank_', class: 'help-icon'}).append($('<img>', {src: 'info-icon.png', width: 15, title: help}));
-  }
-
   // Logging in and out
   function updateLogin() {
     const $loginInfo = $('#loginInfo');
