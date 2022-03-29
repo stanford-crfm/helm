@@ -43,8 +43,8 @@ class AdapterSpec:
     # What goes before the output
     output_prefix: str = "\nOutput: "
 
-    # What goes before each instance
-    block_prefix: str = "\n\n"
+    # What goes before each Instance in the constructed prompt
+    instance_prefix: str = "\n\n"
 
     # Maximum number of (in-context) training instances to put into the prompt
     max_train_instances: int = 5
@@ -376,7 +376,7 @@ class Adapter:
 
             blocks.append(self.construct_example_prompt(eval_instance, include_output=False))
 
-            return blocks[0] + self.adapter_spec.block_prefix.join(blocks[1:])
+            return self.adapter_spec.instance_prefix.join(blocks)
 
         orig_train_instances_count: int = len(train_instances)
         prompt: str = construct_prompt_helper(train_instances)
