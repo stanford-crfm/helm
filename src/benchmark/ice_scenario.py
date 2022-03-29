@@ -7,14 +7,16 @@ from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, TEST_SPLIT
 from enum import Enum
+import pandas as pd
 
 TAGS = False
 
 
 class HeaderFormat(Enum):
-    HDR = 0
-    XLS = 1
-    MDB = 2
+    NONE = 0
+    HDR = 1
+    XLS = 2
+    MDB = 3
 
 
 class ICEScenario(Scenario):
@@ -37,12 +39,8 @@ class ICEScenario(Scenario):
         assert split in {"all", "written", "spoken"}
         self.split = split
 
-        gender_hdr = {"IND", "USA"}
-
-        if gender:
-            assert subset in gender_hdr
-            self.gender = gender
-            self.gender_mode = HeaderFormat.HDR
+        metadata_hdr = {"IND", "USA"}
+        metadata_xls = {"CAN", "HK"}
 
         subset_to_directory = {
             "IND": "ICE India",
@@ -55,14 +53,23 @@ class ICEScenario(Scenario):
         }
         self.directory = subset_to_directory[self.subset]
 
+        if gender:
+            assert subset in (metadata_hdr | metadata_xls)
+            self.gender = gender
+
+            if subset in metadata_hdr:
+                self.gender_mode = HeaderFormat.HDR
+            elif subset in metadata_xls:
+                self.gender_mode = HeaderFormat.XLS
+
     def preprocess_text(self, text: str, tags: bool = False):
         """
         Pre-processes each instance text according to the following procedure:
         1. String leading/trailing whitespace. If tags are kept (tags = True), return.
-        2. Remove text tags (those with #). If speaker annotated, leave speaker in; otherwise, remove completely.
+        2. Replace the tags in "replace" according to the provided dictionary.
         3. Remove the tags + enclosed text for the tags in "remove".
-        4. Replace the tags in "replace" according to the provided dictionary.
-        5. Remove all other tags completely (keeping enclosed contents).
+        4. Remove all other tags completely (keeping enclosed contents).
+        5. Unstrip text again.
 
         Notes: Ambiguous choices are listed below.
         """
@@ -113,7 +120,6 @@ class ICEScenario(Scenario):
 
         untag_pattern = "<\/*(" + "|".join(untag) + ")>"
         text = re.sub(untag_pattern, "", text)
-        # stack = []
 
         for tag in remove:
             # only works because our tags are static
@@ -128,12 +134,6 @@ class ICEScenario(Scenario):
 
                 text = text[:start_match] + text[end_match + len(end_tag) :]
                 end_match = text.find(end_tag)
-
-            # for match in re.finditer(f"<\/*{tag}>", text):
-            #     if match[0][1] == "/":
-            #         pass
-            #     else:
-            #         stack.append(match[0].start())
 
         text = text.strip()
         return text
@@ -182,6 +182,22 @@ class ICEScenario(Scenario):
         ensure_file_downloaded(
             source_url=None, target_path=data_path, unpack=True,
         )
+
+        self.header_dir = os.path.join(data_path, "Headers")
+
+        if self.gender_mode == HeaderFormat.XLS:
+            if self.subset == "CAN":
+                files = ["Spoken ICE-CAN metadata.xls", "Written ICE-CAN metadata.xls"]
+            elif self.subset == "HK":
+                files = ["HKRecords.xls"]
+
+            self.header_df = pd.read_excel(os.path.join(self.header_dir, files[0]))
+            print(self.header_df.head)
+
+            for s in files[1:]:
+                self.header_df = self.header_df.join(os.path.join(self.header_dir, s), how="inner")
+
+            print(self.header_df.head)
 
         if "Corpus" in os.listdir(data_path):
             corpus_name = "Corpus"
