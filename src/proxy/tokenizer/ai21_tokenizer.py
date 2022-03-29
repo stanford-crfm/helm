@@ -62,7 +62,7 @@ class AI21Tokenizer(Tokenizer):
         """
         Truncates the text using the AI21 Jurassic tokenizer.
         First tokenizes, then truncates the list of tokens to fit within the context window minus the
-        expected completion length (defaults to 0), the uses the start of the text range of the first
+        expected completion length (defaults to 0), then uses the start of the text range of the first
         token and the end of the text range of the last token of the truncated list of tokens to
         build the truncated text.
         """
