@@ -285,11 +285,12 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Go to the source code directory: `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
    We have 700 GB of disk space total on `/u/scr/nlp/crfm`.
 1. Pull the latest changes: `git pull`.
-1. Run `venv/bin/benchmark-present -s /u/apache/htdocs/crfm/benchmarking/status.txt`.
+1. Activate the Conda environment: `conda activate crfm_benchmarking` 
+   1. Run `pip install -e .` if there are new dependencies to install. 
+1. Run the `benchmark-present` command e.g., 
+   `benchmark-present --max-eval-instances 10 --conf src/benchmark/presentation/run_specs.conf`.
 1. Exit the screen session: `ctrl+ad`.
-
-Once all the runs complete, visit the
-[Benchmarking project status page](https://nlp.stanford.edu/crfm/benchmarking/status.txt).
+1. To check on the screen session: `screen -r benchmarking`.
 
 ### To visualize results at crfm-models.stanford.edu
 
