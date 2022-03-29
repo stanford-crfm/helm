@@ -135,7 +135,7 @@ def main():
     runner = AllRunner(
         # The benchmarking framework will not make any requests to the proxy server when
         # `dry_run` or `skip_instances` is set. In that case, just pass in a dummy API key.
-        auth=Authentication("test") if args.dry_run or args.skip_instances else create_authentication(args),
+        auth=Authentication("test") if args.skip_instances else create_authentication(args),
         conf_path=args.conf_path,
         url=args.server_url,
         output_path=args.output_path,
