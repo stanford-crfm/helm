@@ -101,6 +101,7 @@ def get_code_metrics(dataset: str) -> List[MetricSpec]:
         metric_names = {"names": APPS_METRIC_NAMES}
         return [MetricSpec(class_name="benchmark.code_metrics.APPSMetric", args=metric_names)]
 
+
 def get_simple1_spec() -> RunSpec:
     """An run spec for debugging."""
     return RunSpec(
@@ -644,7 +645,7 @@ def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
 
     return RunSpec(name=f"disinfo:type={capability}", scenario=scenario, adapter_spec=adapter_spec, metrics=metrics)
 
-  
+
 def get_code_spec(dataset: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.code_scenario.CodeScenario", args={"dataset": dataset})
 
