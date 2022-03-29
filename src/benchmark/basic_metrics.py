@@ -356,22 +356,29 @@ class BasicMetric(Metric):
             runtimes_for_input_tokens: Dict[int, float] = {
                 int(k): v for (k, v) in raw_runtimes_for_input_tokens.items()
             }
-            runtime_for_input_tokens = None
+            runtime_for_input_tokens: Optional[float] = None
             # Find the smallest num_input_tokens larger than the number of tokens in the given prompt.
             for num_input_tokens in sorted(runtimes_for_input_tokens.keys()):
                 if num_tokens_in_prompt <= num_input_tokens:
                     runtime_for_input_tokens = runtimes_for_input_tokens[num_input_tokens]
                     break
-            assert runtime_for_input_tokens is not None
 
-            # Idealized runtime is sum of the runtime of encoding the input tokens, and the
-            # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
-            # if number of output tokens is greater than 0, otherwise just `runtime_for_input_tokens`.
-            idealized_runtime = runtime_for_input_tokens
-            if num_output_tokens > 0:
-                idealized_runtime += runtime_per_output_token * (num_output_tokens - 1)
+            if runtime_for_input_tokens is None:
+                hlog(
+                    f"WARNING: prompt with {num_tokens_in_prompt} tokens is larger than the largest prompt size "
+                    f'in inference_efficiency_dict["{request_state.request.model}"]["runtime_for_input_tokens"]'
+                )
+                idealized_runtime = None
+                runtime_discrepancy = None
+            else:
+                # Idealized runtime is sum of the runtime of encoding the input tokens, and the
+                # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
+                # if number of output tokens is greater than 0, otherwise just `runtime_for_input_tokens`.
+                idealized_runtime = runtime_for_input_tokens
+                if num_output_tokens > 0:
+                    idealized_runtime += runtime_per_output_token * (num_output_tokens - 1)
 
-            runtime_discrepancy = runtime - idealized_runtime
+                runtime_discrepancy = runtime - idealized_runtime
         else:
             hlog(
                 f"WARNING: tried to estimate idealized inference time for model {request_state.request.model} "
