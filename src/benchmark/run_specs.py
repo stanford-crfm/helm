@@ -148,6 +148,8 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         return [get_the_pile_spec(**args)]
     if name == "raft":
         return [get_raft_spec(**args)]
+    if name == "ice":
+        return [get_ice_spec(**args)]
 
     raise ValueError(f"Unknown run spec: {spec}")
 
@@ -554,6 +556,7 @@ def get_ice_spec(**kwargs) -> RunSpec:
         instructions="",
         input_prefix="",
         output_prefix="",
+        reference_prefix="",
         max_train_instances=0,
         num_outputs=1,
         num_train_trials=1,
@@ -563,7 +566,7 @@ def get_ice_spec(**kwargs) -> RunSpec:
     )
 
     return RunSpec(
-        name="ice:" + ",".join([f"{k}:{v}" for k, v in kwargs.items()]),
+        name="ice:" + ",".join(f"{k}={v}" for k, v in kwargs.items()),
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": []}),
