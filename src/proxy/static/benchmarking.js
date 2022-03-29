@@ -53,6 +53,14 @@ $(function () {
     return result;
   }
 
+  function renderFieldValue(field, value) {
+    if (!field.values) {
+      return value; 
+    }
+    const valueField = field.values.find(valueField => valueField.name === value);
+    return $('<a>', {title: valueField ? valueField.description : '(no description)'}).append(value);
+  }
+
   function metricNameEquals(name1, name2) {
     return name1.name === name2.name &&
            name1.k === name2.k &&
@@ -245,11 +253,12 @@ $(function () {
     const keys = canonicalizeList(runSpecs.map((runSpec) => Object.keys(runSpec.adapter_spec)));
     sortListWithReferenceOrder(keys, schema.adapterFieldNames);
     keys.forEach((key) => {
-      const helpText = describeField(schema.adapterField(key));
+      const field = schema.adapterField(key);
+      const helpText = describeField(field);
       const $key = $('<td>').append($('<span>').append(helpIcon(helpText)).append(' ').append(key));
       const $row = $('<tr>').append($key);
       runSpecs.forEach((runSpec) => {
-        $row.append($('<td>').append(runSpec.adapter_spec[key]));
+        $row.append($('<td>').append(renderFieldValue(field, runSpec.adapter_spec[key])));
       });
       $adapterSpec.append($row);
     });
@@ -263,13 +272,14 @@ $(function () {
 
       keys.forEach((key) => {
         // For each key (MetricName - e.g., {name: 'exact_match', ...})
-        const helpText = describeMetricName(schema.metricsField(key.name), key);
+        const field = schema.metricsField(key.name);
+        const helpText = describeMetricName(field, key);
         const $key = $('<td>').append($('<span>').append(helpIcon(helpText)).append(' ').append(renderMetricName(key)));
         const $row = $('<tr>').append($('<td>').append($key));
         metricsList.forEach((metrics) => {
           // metrics is a list of statistics corresponding to one run (column)
           const metric = metrics.find((metric) => metricNameEquals(metric.name, key));
-          $row.append($('<td>').append(metric ? round(metric.mean, 3) : '?'));
+          $row.append($('<td>').append(metric ? renderFieldValue(field, round(metric.mean, 3)) : '?'));
         });
         $metrics.append($row);
       });
