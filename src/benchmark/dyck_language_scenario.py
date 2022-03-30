@@ -75,9 +75,7 @@ class DyckLanguageScenario(Scenario):
             raise ValueError(f"It must be the case that 0 < prob_p, prob_q < 1 and 0 < prob_p + prob_q < 1.")
 
         if num_parenthesis_pairs < 0 or num_parenthesis_pairs > 4:
-            raise ValueError(
-                    f"The number of parenthesis pairs should be a number between 1 and 4 (inclusive)."
-            )
+            raise ValueError(f"The number of parenthesis pairs should be a number between 1 and 4 (inclusive).")
         parenthesis_pairs = parenthesis_pairs[:num_parenthesis_pairs]
 
         # Fixing the random seeds
@@ -102,7 +100,7 @@ class DyckLanguageScenario(Scenario):
         self.max_seq_test_length = max_seq_test_length
         self.max_output_size = max_output_size
 
-    def generate_dyck_sequence(self, current_recursive_depth:int=0, max_length:int=100) -> List[str]:
+    def generate_dyck_sequence(self, current_recursive_depth: int = 0, max_length: int = 100) -> List[str]:
         """ Generates a random Dyck-n sequence.
 
         Args:
@@ -139,7 +137,7 @@ class DyckLanguageScenario(Scenario):
             return sequence
         return []
 
-    def get_input(self, sequence:List[str], max_n:int) -> List[str]:
+    def get_input(self, sequence: List[str], max_n: int) -> List[str]:
         """ Creates an input. """
         depth_counter = np.zeros(self.num_parenthesis_pairs)
         for i in range(len(sequence) - 1, -1, -1):
@@ -154,7 +152,7 @@ class DyckLanguageScenario(Scenario):
                 return sequence[:i]
         return []
 
-    def get_output(self, input_seq:List[str])->List[str]:
+    def get_output(self, input_seq: List[str]) -> List[str]:
         """ Given an input sequence, creates the output. """
         stack = []
         for i, elt in enumerate(input_seq):
@@ -165,7 +163,7 @@ class DyckLanguageScenario(Scenario):
         stack.reverse()
         return stack
 
-    def create_input_output(self, min_length:int, max_length:int) -> (str,str):
+    def create_input_output(self, min_length: int, max_length: int) -> (str, str):
         """ Creates an input-output pair. 
         
             Note: The generate_dyck_sequence function generates a Dyck sequence; however, we cannot randomly split it into an input-output pair, 
@@ -181,7 +179,9 @@ class DyckLanguageScenario(Scenario):
                     output = self.get_output(input)
                     return " ".join(input), " ".join(output)
 
-    def create_corpus(self, split, corpus_size:int, min_length:int=1, max_length:int=100, not_allowed:List[str]=[]) -> (List[str], List[str]):
+    def create_corpus(
+        self, split, corpus_size: int, min_length: int = 1, max_length: int = 100, not_allowed: List[str] = []
+    ) -> (List[str], List[str]):
         """ Creates a corpus of Dyck-n sequences. """
         inputs = []
         i = 0
@@ -191,7 +191,7 @@ class DyckLanguageScenario(Scenario):
             input, output = self.create_input_output(min_length, max_length)
             if not (input in inputs or input in not_allowed):
                 inputs.append(input)
-                output = ' ' + output
+                output = " " + output
                 i += 1
                 instance = Instance(
                     input=input, references=[Reference(output=output, tags=[CORRECT_TAG])], split=split,
