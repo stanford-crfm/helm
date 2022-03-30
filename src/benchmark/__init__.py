@@ -27,6 +27,7 @@ from . import wikitext_103_scenario  # noqa
 from . import blimp_scenario  # noqa
 from . import imdb_scenario  # noqa
 from . import dialogue_scenarios  # noqa
+from . import dyck_language_scenario  # noqa
 
 # Metrics
 from . import basic_metrics  # noqa
