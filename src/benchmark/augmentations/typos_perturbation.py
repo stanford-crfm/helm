@@ -13,6 +13,8 @@ class TyposPerturbation(Perturbation):
     Typos. For implementation details, see
     https://github.com/GEM-benchmark/NL-Augmenter/tree/main/transformations/butter_fingers_perturbation
     Replaces each random letters with nearby keys on a querty keyboard.
+    We modified the keyboard mapping compared to the NL-augmenter augmentations so that: a) only distance-1 keys are
+    used for replacement, b) the original letter is no longer an option, c) removed special characters (e.g., commas).
 
     Perturbation example:
     Input:
@@ -38,35 +40,34 @@ class TyposPerturbation(Perturbation):
     def butter_finger(self, text):
         key_approx = {}
 
-        key_approx["q"] = "qwasedzx"
-        key_approx["w"] = "wqesadrfcx"
-        key_approx["e"] = "ewrsfdqazxcvgt"
-        key_approx["r"] = "retdgfwsxcvgt"
-        key_approx["t"] = "tryfhgedcvbnju"
-        key_approx["y"] = "ytugjhrfvbnji"
-        key_approx["u"] = "uyihkjtgbnmlo"
-        key_approx["i"] = "iuojlkyhnmlp"
-        key_approx["o"] = "oipklujm"
-        key_approx["p"] = "plo['ik"
+        key_approx["q"] = "was"
+        key_approx["w"] = "qesad"
+        key_approx["e"] = "wsdfr"
+        key_approx["r"] = "edfgt"
+        key_approx["t"] = "rfghy"
+        key_approx["y"] = "tghju"
+        key_approx["u"] = "yhjki"
+        key_approx["i"] = "ujklo"
+        key_approx["o"] = "iklp"
+        key_approx["p"] = "ol"
 
-        key_approx["a"] = "aqszwxwdce"
-        key_approx["s"] = "swxadrfv"
-        key_approx["d"] = "decsfaqgbv"
-        key_approx["f"] = "fdgrvwsxyhn"
-        key_approx["g"] = "gtbfhedcyjn"
-        key_approx["h"] = "hyngjfrvkim"
-        key_approx["j"] = "jhknugtblom"
-        key_approx["k"] = "kjlinyhn"
-        key_approx["l"] = "lokmpujn"
+        key_approx["a"] = "qwsz"
+        key_approx["s"] = "weadzx"
+        key_approx["d"] = "erfcxs"
+        key_approx["f"] = "rtgvcd"
+        key_approx["g"] = "tyhbvf"
+        key_approx["h"] = "yujnbg"
+        key_approx["j"] = "uikmnh"
+        key_approx["k"] = "iolmj"
+        key_approx["l"] = "opk"
 
-        key_approx["z"] = "zaxsvde"
-        key_approx["x"] = "xzcsdbvfrewq"
-        key_approx["c"] = "cxvdfzswergb"
-        key_approx["v"] = "vcfbgxdertyn"
-        key_approx["b"] = "bvnghcftyun"
-        key_approx["n"] = "nbmhjvgtuik"
-        key_approx["m"] = "mnkjloik"
-        key_approx[" "] = " "
+        key_approx["z"] = "asx"
+        key_approx["x"] = "sdcz"
+        key_approx["c"] = "dfvx"
+        key_approx["v"] = "fgbc"
+        key_approx["b"] = "ghnv"
+        key_approx["n"] = "hjmb"
+        key_approx["m"] = "jkn"
 
         perturbed_texts = ""
         for letter in text:
