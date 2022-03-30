@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import List, Dict
 
-from proxy.models import ALL_MODELS
+from proxy.models import get_all_code_models, get_all_models, get_all_text_models
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
@@ -53,7 +53,7 @@ class ReplaceValueRunExpander(RunExpander):
 class MaxTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
-    name = "max_train_trials"
+    name = "num_train_trials"
     values_dict = {"default": [5]}
 
 
@@ -73,9 +73,11 @@ class ModelRunExpander(ReplaceValueRunExpander):
     name = "model"
     values_dict = {
         "default": ["openai/davinci"],
-        "jurassic": ["ai21/j1-jumbo"],
-        "all": [model.name for model in ALL_MODELS],
-        "code": ["openai/code-davinci-001", "openai/code-cushman-001"],
+        "ai21/j1-jumbo": ["ai21/j1-jumbo"],
+        "openai/curie": ["openai/curie"],
+        "all": get_all_models(),
+        "text": get_all_text_models(),
+        "code": get_all_code_models(),
     }
 
 

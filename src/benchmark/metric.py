@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import replace
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from math import log, e
 from collections import defaultdict
 
@@ -50,6 +50,7 @@ class Metric(ABC):
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
+            per_instance_stats: Dict[Tuple[MetricName, str], Stat] = {}  # Statistics for per-instance worst-case metric
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
             #       https://github.com/stanford-crfm/benchmarking/issues/48
             for instance_index, instance in enumerate(scenario_state.instances):
@@ -74,6 +75,19 @@ class Metric(ABC):
                 for stat in instance_stats:
                     stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
+
+                    stat = Stat(replace(stat.name, perturbation="worst")).merge(stat)
+                    assert instance.id is not None
+                    key = (stat.name, instance.id)
+                    if key not in per_instance_stats:
+                        per_instance_stats[key] = stat
+                    else:
+                        per_instance_stats[key].merge(stat)
+
+            for (name, instance_id), stat in per_instance_stats.items():
+                if stat.count > 0:
+                    worst_stat = Stat(stat.name).add(stat.min)
+                    merge_stat(trial_stats, worst_stat)
 
             # Aggregate the corpus-level metrics
             for split in EVAL_SPLITS:
