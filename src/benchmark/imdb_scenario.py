@@ -2,7 +2,7 @@ import os
 from typing import List, Dict
 
 from common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, CORRECT_TAG, TEST_SPLIT
+from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT
 
 
 class IMDbScenario(Scenario):
@@ -12,7 +12,7 @@ class IMDbScenario(Scenario):
 
     IMDb is a text classification dataset containing 25,000 training reviews and 25,000 test reviews.
     Each sample contains a sentence with its corresponding sentiment (0: negative, 1: positive)
-
+    
     We prompt models using the following format:
         Review: <passage>
         Sentiment:
@@ -32,6 +32,10 @@ class IMDbScenario(Scenario):
 
     Target completion:
         positive
+        
+    The IMDB dataset has a contrast set, whose examples happen to be in the original train split. We thus
+    assign all examples with valid contrast sets to the validation split, in addition to those
+    from the original test set.
     """
 
     name = "imdb"
@@ -41,97 +45,85 @@ class IMDbScenario(Scenario):
     def __init__(self):
         pass
 
-    def get_split_instances(self, split: str, path: str) -> List[Instance]:
+    def get_split_instances(self, split: str, path: str, contrast_map: dict) -> List[Instance]:
+
         label_to_classname: Dict[str, str] = {"pos": "positive", "neg": "negative"}
         split_instances: List[Instance] = []
+
         for class_name, label_id in label_to_classname.items():
             split_path_label: str = os.path.join(path, class_name)
             all_file_name = os.listdir(split_path_label)
-            for each_filename in all_file_name:
+            for filename_idx, each_filename in enumerate(all_file_name):
                 sentence_path = os.path.join(split_path_label, each_filename)
                 with open(sentence_path, "r") as f:
                     context = f.read().strip()
                     prompt = context + "\n"
+
+                    instance_split = split
+                    contrast_inputs, contrast_references = None, None
+
+                    if context in contrast_map:
+
+                        contrast_inputs = [contrast_map[context]["contrast_input"] + "\n"]
+                        contrast_references = [
+                            [Reference(output=contrast_map[context]["contrast_answer"], tags=[CORRECT_TAG])]
+                        ]
+                        instance_split = VALID_SPLIT
+
                     instance: Instance = Instance(
-                        input=prompt, references=[Reference(output=label_id, tags=[CORRECT_TAG])], split=split
+                        input=prompt,
+                        references=[Reference(output=label_id, tags=[CORRECT_TAG])],
+                        split=instance_split,
+                        contrast_inputs=contrast_inputs,
+                        contrast_references=contrast_references,
                     )
                     split_instances.append(instance)
         return split_instances
+
+    def get_contrast_map(self, target_path: str, mode: str) -> dict:
+        # Download contrast sets
+        # Note: We use the test set of IMDb dataset to construct the contrast set
+        label_name_to_id = {"Positive": "positive", "Negative": "negative"}
+        orig_and_contrast_inputs: list = []
+
+        for filename in [f"{mode}_original.tsv", f"{mode}_contrast.tsv"]:
+            url = f"https://raw.githubusercontent.com/allenai/contrast-sets/main/IMDb/data/{filename}"
+            target_path_current: str = os.path.join(target_path, filename)
+            ensure_file_downloaded(source_url=url, target_path=target_path_current, unpack=False)
+            with open(target_path_current, encoding="utf-8") as f:
+                orig_and_contrast_inputs.append(f.readlines()[1:])
+
+        contrast_map = {}
+
+        for orig_line, contrast_line in zip(orig_and_contrast_inputs[0], orig_and_contrast_inputs[1]):
+
+            orig_label_name, orig_context = orig_line.strip().split("\t")
+            orig_label = label_name_to_id[orig_label_name]
+
+            contrast_label_name, contrast_context = contrast_line.strip().split("\t")
+            contrast_label = label_name_to_id[contrast_label_name]
+
+            assert orig_context not in contrast_map
+            contrast_map[orig_context] = {
+                "original_answer": orig_label,
+                "contrast_input": contrast_context,
+                "contrast_answer": contrast_label,
+            }
+        return contrast_map
 
     def get_instances(self) -> List[Instance]:
         target_path: str = os.path.join(self.output_path, "data")
 
         instances: List[Instance] = []
-        split_to_filename: Dict[str, str] = {TRAIN_SPLIT: "train", TEST_SPLIT: "test"}
 
         url: str = f'{"https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"}'
         ensure_file_downloaded(source_url=url, target_path=target_path, unpack=True)
+        contrast_map = self.get_contrast_map(target_path, "test")
+        contrast_map.update(self.get_contrast_map(target_path, "dev"))
+
+        split_to_filename: Dict[str, str] = {TRAIN_SPLIT: "train", VALID_SPLIT: "test"}
 
         for split, filename in split_to_filename.items():
             split_path: str = os.path.join(target_path, filename)
-            instances.extend(self.get_split_instances(split, split_path))
-        return instances
-
-
-class IMDbContrastSetScenario(IMDbScenario):
-    """
-    Contrast Sets for The IMDb dataset is from the paper:
-        https://arxiv.org/abs/2004.02709
-
-    Original repository can be found at:
-        https://github.com/allenai/contrast-sets
-
-    An example instance of a perturbation (from the original paper):
-    Orginal instance: Hardly one to be faulted for his ambition or his vision,
-    it is genuinely unexpected, then, to see all Park’s effort add up to so very little. . . .
-    The premise is promising, gags are copious and offbeat humour
-    abounds but it all fails miserably to create any meaningful connection with the audience.
-    Sentiment: negative
-
-    Perturbed instance: Hardly one to be faulted for his ambition or his vision, here we see all Park’s effort come to
-    fruition. . . . The premise is perfect, gags are hilarious and offbeat humour abounds, and it
-    creates a deep connection with the audience.
-    Sentiment: positive
-    """
-
-    name = "imdb-contrast-sets"
-    description = "Contrast Sets for IMDb text classification."
-    tags = ["sentiment_classification", "robustness"]
-
-    def __init__(self):
-        pass
-
-    def get_instances(self) -> List[Instance]:
-        target_path: str = os.path.join(self.output_path, "data")
-
-        # Note: Contrast Sets are constructed using the test set of some selected IMDb dataset.
-        # Hence, it is safe to use training examples as the in-context examples.
-        url: str = f'{"https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"}'
-        ensure_file_downloaded(source_url=url, target_path=target_path, unpack=True)
-        split_path: str = os.path.join(target_path, "train")
-        training_instances: List[Instance] = self.get_split_instances(TRAIN_SPLIT, split_path)
-
-        # Ensure contrast sets are downloaded
-        # Note: We use the test set of IMDb dataset to construct the contrast set
-        url = "https://raw.githubusercontent.com/allenai/contrast-sets/main/IMDb/data/test_contrast.tsv"
-        target_path_constrast: str = os.path.join(target_path, "test_contrast.tsv")
-        ensure_file_downloaded(source_url=url, target_path=target_path_constrast, unpack=False)
-
-        contrast_instances: List[Instance] = []
-
-        label_name_to_id = {"Positive": "positive", "Negative": "negative"}
-
-        with open(target_path_constrast, encoding="utf-8") as f:
-            # skip the head line
-            f.readline()
-            for eachline in f:
-                label_name, perturbed_context = eachline.strip().split("\t")
-                perturbed_label = label_name_to_id[label_name]
-                prompt = perturbed_context + "\n"
-                instance: Instance = Instance(
-                    input=prompt, references=[Reference(output=perturbed_label, tags=[CORRECT_TAG])], split=TEST_SPLIT,
-                )
-                contrast_instances.append(instance)
-
-        instances: List[Instance] = training_instances + contrast_instances
+            instances.extend(self.get_split_instances(split, split_path, contrast_map))
         return instances
