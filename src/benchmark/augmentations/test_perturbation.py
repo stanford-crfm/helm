@@ -86,4 +86,4 @@ def test_typos_perturbation():
     assert len(instances) == 2
     assert instances[0].perturbation.name == "TyposPerturbation"
     assert instances[0].perturbation.prob == 0.1
-    assert instances[0].input == "After their macriage, she started a close cillaboration with Karvelss."
+    assert instances[0].input == "After their marrjage, she started a close collaborwtion with Karvelas."
