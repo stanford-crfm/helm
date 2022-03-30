@@ -205,10 +205,9 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     )
 
 
-
 def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.dyck_language_scenario.DyckLanguageScenario", 
+        class_name="benchmark.dyck_language_scenario.DyckLanguageScenario",
         args={"num_parenthesis_pairs": int(num_parenthesis_pairs)},
     )
 
