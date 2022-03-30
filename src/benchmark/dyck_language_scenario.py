@@ -163,7 +163,7 @@ class DyckLanguageScenario(Scenario):
         stack.reverse()
         return stack
 
-    def create_input_output(self, min_length: int, max_length: int) -> (str, str):
+    def create_input_output(self, min_length: int, max_length: int) -> Tuple[str, str]:
         """ Creates an input-output pair. 
         
             Note: The generate_dyck_sequence function generates a Dyck sequence; however, we cannot randomly split it into an input-output pair, 
@@ -181,7 +181,7 @@ class DyckLanguageScenario(Scenario):
 
     def create_corpus(
         self, split, corpus_size: int, min_length: int = 1, max_length: int = 100, not_allowed: List[str] = []
-    ) -> (List[str], List[str]):
+    ) -> Tuple[List[str], List[str]]:
         """ Creates a corpus of Dyck-n sequences. """
         inputs = []
         i = 0
