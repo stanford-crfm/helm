@@ -35,7 +35,7 @@ class BoolQScenario(Scenario):
 
         Target completion:
             yes
-            
+
     We also integrate contrast sets for this dataset from the paper:
         https://arxiv.org/abs/2004.02709
 

@@ -1,6 +1,5 @@
 from dataclasses import dataclass, replace
 
-import numpy as np
 import random
 from typing import Sequence
 
@@ -19,7 +18,7 @@ class ContrastSetsPerturbation(Perturbation):
         https://github.com/allenai/contrast-sets
 
     An example instance of a perturbation for the BoolQ dataset (from the original paper):
-    
+
     The Fate of the Furious premiered in Berlin on April 4, 2017, and was theatrically released in the
     United States on April 14, 2017, playing in 3D, IMAX 3D and 4DX internationally. . . A spinoff film starring
     Johnson and Statham’s characters is scheduled for release in August 2019, while the ninth and tenth films are
@@ -30,10 +29,9 @@ class ContrastSetsPerturbation(Perturbation):
     perturbed question: is “Fate and the Furious” the first of multiple movies?
     perturbed answer: yes
     perturbation strategy: adjective change.
-    
-    
+
     An example instance of a perturbation for the IMDB dataset(from the original paper):
-    
+
     Orginal instance: Hardly one to be faulted for his ambition or his vision,
     it is genuinely unexpected, then, to see all Park’s effort add up to so very little. . . .
     The premise is promising, gags are copious and offbeat humour
@@ -68,15 +66,13 @@ class ContrastSetsPerturbation(Perturbation):
         assert should_perturb_references
         random.seed(0)
 
-        references: Sequence[Reference] = instance.references
+        perturbed_instance: str = instance.input
+        perturbed_references: Sequence[Reference] = instance.references
 
-        if instance.contrast_inputs is not None:
+        if instance.contrast_inputs is not None and instance.contrast_references is not None:
             perturb_index: int = random.choice(range(len(instance.contrast_inputs)))
-            perturbed_instance: str = instance.contrast_inputs[perturb_index]
-            perturbed_references: Sequence[Reference] = instance.contrast_references[perturb_index]
-        else:
-            perturbed_instance: str = instance.input
-            perturbed_references: Sequence[Reference] = instance.references
+            perturbed_instance = instance.contrast_inputs[perturb_index]
+            perturbed_references = instance.contrast_references[perturb_index]
 
         return replace(
             instance, input=perturbed_instance, references=perturbed_references, perturbation=self.description,

@@ -12,7 +12,7 @@ class IMDbScenario(Scenario):
 
     IMDb is a text classification dataset containing 25,000 training reviews and 25,000 test reviews.
     Each sample contains a sentence with its corresponding sentiment (0: negative, 1: positive)
-    
+
     We prompt models using the following format:
         Review: <passage>
         Sentiment:
@@ -32,7 +32,7 @@ class IMDbScenario(Scenario):
 
     Target completion:
         positive
-        
+
     The IMDB dataset has a contrast set, whose examples happen to be in the original train split. We thus
     assign all examples with valid contrast sets to the validation split, in addition to those
     from the original test set.
