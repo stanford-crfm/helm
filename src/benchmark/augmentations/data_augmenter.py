@@ -28,8 +28,15 @@ class DataAugmenter:
 
         result: List[Instance] = []
         for i, instance in enumerate(instances):
+            result_single = []
             for perturbation in perturbations:
-                result.append(perturbation.apply(instance, self.should_perturb_references))
+                perturbed = perturbation.apply(instance, self.should_perturb_references)
+                if perturbed.input != instance.input:
+                    result_single.append(perturbed)
+            if include_original:
+                result_single.append(instance)
+            if len(result_single) == len(perturbations):
+                result.extend(result_single)
         return result
 
 

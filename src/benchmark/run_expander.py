@@ -95,6 +95,12 @@ def misspelling(prob: float) -> PerturbationSpec:
     )
 
 
+def citynames() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.city_name_replacement_perturbation.CityNameReplacementPerturbation", args={}
+    )
+
+
 # Specifies the data augmentations that we're interested in trying out.
 # Concretely, this is a mapping from the name (which is specified in a conf
 # file or the CLI) to a list of options to try, where each option is a list of perturbations.
@@ -106,6 +112,7 @@ def misspelling(prob: float) -> PerturbationSpec:
 # - r1: with perturbations [a, b]
 # - r2: with perturbations [c, d, e]
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
+    "citynames": {"citenames": [citynames()]},
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
     "misspelling": {"misspelling0.1": [misspelling(prob=0.1)]},
     "misspelling_sweep": {f"misspelling{prob}": [misspelling(prob=prob)] for prob in [0, 0.1, 0.2, 0.3]},
@@ -143,11 +150,11 @@ class DataAugmentationRunExpander(RunExpander):
         def create_run_spec(aug_name: str, perturbation_specs: List[PerturbationSpec]) -> RunSpec:
             data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
                 perturbation_specs=perturbation_specs,
-                should_perturb_references=False,
+                should_perturb_references=True,
                 # Always include original and perturbed instances together so that
                 # we can compute the normal and robustness metrics in the same run.
-                should_augment_train_instances=True,
-                should_include_original_train=True,
+                should_augment_train_instances=False,
+                should_include_original_train=False,
                 should_augment_eval_instances=True,
                 should_include_original_eval=True,
             )

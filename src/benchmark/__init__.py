@@ -37,6 +37,7 @@ from . import copyright_metrics  # noqa
 from . import code_metrics  # noqa
 
 # Perturbations for data augmentation
+from .augmentations.city_name_replacement_perturbation import CityNameReplacementPerturbation  # noqa
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa
 from .augmentations.misspelling_perturbation import MisspellingPerturbation  # noqa
 from .augmentations.contraction_expansion_perturbation import ContractionPerturbation  # noqa
