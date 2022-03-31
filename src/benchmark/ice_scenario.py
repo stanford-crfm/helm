@@ -2,7 +2,7 @@ import os
 import re
 import sys  # noqa
 import requests  # noqa
-from typing import List
+from typing import List, Set
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, TEST_SPLIT
@@ -10,6 +10,7 @@ from enum import Enum
 import pandas as pd
 
 TAGS = False
+GENDER_ANNOTATIONS = {"M": {"M", "m", "Male", "male"}, "F": {"F", "f", "Female", "female"}}
 
 
 class HeaderFormat(Enum):
@@ -52,6 +53,7 @@ class ICEScenario(Scenario):
             "USA": "ICE-USA",
         }
         self.directory = subset_to_directory[self.subset]
+        self.gender = "None"
 
         if gender:
             assert subset in (metadata_hdr | metadata_xls)
@@ -106,9 +108,10 @@ class ICEScenario(Scenario):
             "\=",
             "\?",
             "sp",
+            "l",
         ]
         remove = ["O", "-", "&", ".", "fnr", "marginalia", "del", "w"]
-        replace = {"mention": '"', "\*": "\*", "\*\/": "\*"}
+        replace = {"mention": '"', "\*": "\*", "\*\/": "\*", "&eacute;": "é"}
 
         text = text.strip()
 
@@ -147,31 +150,45 @@ class ICEScenario(Scenario):
 
         return filename.startswith(("S", "s"))
 
-    def validate_gender(self, filename: str) -> bool:
-        if not self.gender:
-            return True
+    def filter_by_metadata(self, header_dir: str) -> Set[str]:
+        selected_texts = set()
 
-        if self.gender_mode == HeaderFormat.HDR:
-            header_path = os.path.join(self.output_path, self.directory, "Headers", filename[:-4] + ".hdr")
+        if self.gender_mode == HeaderFormat.XLS:
+            if self.subset == "CAN":
+                files = ["Spoken ICE-CAN metadata.xls", "Written ICE-CAN metadata.xls"]
+            elif self.subset == "HK":
+                files = ["HKRecords.xls"]
 
-            if not os.path.exists(header_path):
-                hlog(str(f"File {filename} skipped (no header found)."))
-                return False
+            for fi in files:
+                dfs = pd.read_excel(os.path.join(header_dir, fi), sheet_name=[0] if self.subset == "CAN" else None)
 
-            gender_annotations = {"M": {"M", "m", "Male", "male"}, "F": {"F", "f", "Female", "female"}}
+                for df in dfs.values():
+                    for i in range(len(df)):
+                        if not pd.isna(df.iat[i, 0]) and any(
+                            [x in GENDER_ANNOTATIONS[self.gender] for x in df.iloc[i, 1:]]
+                        ):  # currently double counts texts with multiple genders
+                            selected_texts.add(df.iat[i, 0] + ".txt")
+        elif self.gender_mode == HeaderFormat.HDR:
+            for filename in os.listdir(header_dir):
+                header_path = os.path.join(self.output_path, self.directory, "Headers", filename)
 
-            with open(header_path, "r") as f:
-                try:
-                    text = self.preprocess_text(f.read(), TAGS)
-                except UnicodeDecodeError:
-                    hlog(str(f"File {filename} skipped (unsupported header encoding)."))
-                    return False
+                if not os.path.exists(header_path):
+                    hlog(str(f"File {filename} skipped (no header found)."))
+                    continue
 
-            for g in re.findall("(?<=<gender>)\w+(?=<\/gender>)", text):
-                if g not in gender_annotations[self.gender]:
-                    return False
+                with open(header_path, "r") as f:
+                    try:
+                        text = self.preprocess_text(f.read(), TAGS)
+                    except UnicodeDecodeError:
+                        hlog(str(f"File {filename} skipped (unsupported header encoding)."))
+                        continue
 
-        return True
+                gen_ann = re.findall("(?<=<gender>)\w+(?=<\/gender>)", text)
+
+                if all([g in GENDER_ANNOTATIONS[self.gender] for g in gen_ann]):
+                    selected_texts.add(filename[:-4] + ".txt")
+
+        return selected_texts
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, self.directory)
@@ -183,22 +200,6 @@ class ICEScenario(Scenario):
             source_url=None, target_path=data_path, unpack=True,
         )
 
-        self.header_dir = os.path.join(data_path, "Headers")
-
-        if self.gender_mode == HeaderFormat.XLS:
-            if self.subset == "CAN":
-                files = ["Spoken ICE-CAN metadata.xls", "Written ICE-CAN metadata.xls"]
-            elif self.subset == "HK":
-                files = ["HKRecords.xls"]
-
-            self.header_df = pd.read_excel(os.path.join(self.header_dir, files[0]))
-            print(self.header_df.head)
-
-            for s in files[1:]:
-                self.header_df = self.header_df.join(os.path.join(self.header_dir, s), how="inner")
-
-            print(self.header_df.head)
-
         if "Corpus" in os.listdir(data_path):
             corpus_name = "Corpus"
         elif "CORPUS" in os.listdir(data_path):
@@ -207,20 +208,21 @@ class ICEScenario(Scenario):
             corpus_name = "corpus"
 
         corpus_path = os.path.join(data_path, corpus_name)
+        header_dir = os.path.join(data_path, "Headers")
+        selected_texts = self.filter_by_metadata(header_dir) if self.gender else os.listdir(corpus_path)
         instances = []
 
-        for filename in os.listdir(corpus_path):
+        for filename in selected_texts:
             if not self.validate_file(filename):
-                continue
-
-            if not self.validate_gender(filename):
                 continue
 
             with open(os.path.join(corpus_path, filename), "r") as f:
                 try:
                     text = self.preprocess_text(f.read(), TAGS)
                 except UnicodeDecodeError:
-                    hlog(str(f"File {filename} skipped (unsupported encoding)."))
+                    hlog(
+                        str(f"File {filename} skipped (unsupported encoding).")
+                    )  # ISO texts currently unsupported; only a small minority of texts affected
                     continue
 
                 instances.append(Instance(input=text, references=[], split=TEST_SPLIT))
