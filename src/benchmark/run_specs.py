@@ -82,8 +82,7 @@ def get_bbq_metrics() -> List[MetricSpec]:
 
 
 def get_bold_metrics() -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric")]
-
+    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
 
 def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
@@ -204,7 +203,6 @@ def get_bold_spec() -> RunSpec:
         method=ADAPT_GENERATION,
         input_prefix="",
         output_prefix="",
-        num_train_trials=1,
         max_train_instances=0,
         max_eval_instances=10, # TODO: Find the number of samples to evaluate.
         num_outputs=25,
