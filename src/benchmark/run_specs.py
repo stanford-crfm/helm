@@ -188,10 +188,10 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     )
 
 
-def get_msmarco_spec(task: str, num_eval_queries: int = 2, topk: int = 11) -> RunSpec:
+def get_msmarco_spec(task: str, topk: str = "11", num_eval_queries: str = "2", num_train_queries: str = "1000") -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.msmarco_scenario.MSMARCOScenario",
-        args={"task": task, "num_eval_queries": num_eval_queries, "topk": topk},
+        args={"task": task, "topk": int(topk), "num_eval_queries": int(num_eval_queries), "num_train_queries": int(num_train_queries)},
     )
 
     adapter_spec = AdapterSpec(
@@ -200,7 +200,7 @@ def get_msmarco_spec(task: str, num_eval_queries: int = 2, topk: int = 11) -> Ru
         input_prefix="",
         output_prefix="\nAnswer: ",
         max_train_instances=4,
-        max_eval_instances=500,
+        max_eval_instances=1500,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
@@ -208,7 +208,7 @@ def get_msmarco_spec(task: str, num_eval_queries: int = 2, topk: int = 11) -> Ru
     )
 
     return RunSpec(
-        name=f"msmarco:dataset={task}&num_eval_queries={num_eval_queries}&topk={topk}",
+        name=f"msmarco:task={task},topk={topk},num_eval_queries={num_eval_queries},num_train_queries={num_train_queries}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_msmarco_metrics(),

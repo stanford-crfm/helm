@@ -5,6 +5,7 @@ from common.statistic import Stat
 from .adapter import ScenarioState, RequestState
 from .metric_service import MetricService
 from .metric import Metric
+from .metric_name import MetricName
 from .scenario import VALID_SPLIT
 
 
@@ -12,7 +13,7 @@ class MSMARCOMetric(Metric):
     """Computes the metric for the MSMARCO datasets.
 
     Currently, the only supported metric is the `mean_reciprocal_rank` metric.
-    Read the documentation in the `reciprocal_rank` method for details on
+    Read the documentation in the `mean_reciprocal_rank` method for details on
     how this is computed.
     """
 
@@ -23,7 +24,7 @@ class MSMARCOMetric(Metric):
     YES_ANSWER = "yes"
     NO_ANSWER = "no"
 
-    def __init__(self, name: str, topk_list: Optional[List[int]] = None):
+    def __init__(self, name: str, topk_list: List[int] = [10]):
         """Constructor for the MSMARCOMetric.
 
         Args:
@@ -39,46 +40,14 @@ class MSMARCOMetric(Metric):
             raise ValueError(f"Expected name to be one of: [{', '.join(self.METRIC_NAMES)}]")
         self.name = name
 
-        # Helpers for calling the correct metric
-        self.METRIC_FNS = {"mean_reciprocal_rank": self.reciprocal_rank}
-        self.metric_fn = self.METRIC_FNS[name]
-
-        # Topk list for the MRR metric (MRR@10, MRR@20 etc.)
+        # Set the topk list
         if not topk_list:
-            topk_list = [10]
+            raise ValueError("Expected a non-empty topk_list.")
         self.topk_list = topk_list
 
-    @staticmethod
-    def flatten_id(instance_id: str) -> Tuple[int, int, bool]:
-        """Gets fields from an instance_id.
-
-        Instance id is of the following form:
-
-            "qid_{qid}-pid_{pid}-gold_{gold}"
-
-        Returns:
-            qid: query id.
-            pid: passage id.
-            gold: Whether the instance corresponds to a gold example.
-        """
-        qid_str, pid_str, gold_str = instance_id.split("-")
-        qid = int(qid_str.split("_")[1])
-        pid = int(pid_str.split("_")[1])
-        gold = bool(gold_str.split("_")[1])
-        return qid, pid, gold
-
-    def get_answer(self, is_yes: bool) -> str:
-        """Returns the answer text given whether it is the yes answer.
-
-        Args:
-            is_yes: Whether the answer should be a yes answer.
-
-        Returns:
-            answer: "yes" or "no" depending on is_yes.
-        """
-        if is_yes:
-            return self.YES_ANSWER
-        return self.NO_ANSWER
+        # Helpers for calling the correct metric
+        self.METRIC_FNS = {"mean_reciprocal_rank": self.mean_reciprocal_rank}
+        self.metric_fn = self.METRIC_FNS[name]
 
     def get_qid_dictionaries(
         self, request_states: List[RequestState]
@@ -110,18 +79,17 @@ class MSMARCOMetric(Metric):
         # Iterate through the request states
         for rs in request_states:
             # Extract important information from the ID
-            instance_id = rs.instance.id
-            if instance_id:
-                qid, pid, is_gold = self.flatten_id(instance_id)
-                # If this is the gold example, add it to our gold list
-                if rs.result and rs.result.completions:
-                    # Populate the gold mapping dictionary
-                    if is_gold:
-                        qid_to_gold_pid[qid] = pid
-                    # Get the answer from the model
-                    is_yes = (is_gold and rs.result.success) or (not is_gold and not rs.result.success)
-                    answer = self.get_answer(is_yes)
-                    qid_pid_logprob_dict[answer].append((qid, pid, rs.result.completions[0].logprob))
+            if rs.result and rs.result.completions:
+                # Extract instance information
+                qid, pid, gold = rs.instance.qid, rs.instance.pid, rs.instance.gold
+                # Populate the gold mapping dictionary
+                if gold:
+                    qid_to_gold_pid[qid] = pid
+                # Get the completion from the model
+                model_completion = rs.result.completions[0]
+                answer_choice = model_completion.text.strip()  # 'A' or 'B'
+                answer_text = rs.output_mapping[answer_choice]  # 'yes' or 'no'
+                qid_pid_logprob_dict[answer_text].append((qid, pid, model_completion.logprob))
 
         return qid_to_gold_pid, qid_pid_logprob_dict
 
@@ -152,7 +120,7 @@ class MSMARCOMetric(Metric):
 
         # Take the examples where the model answered yes, and sort them from the lowest to the biggest
         no_tuples = [t for t in qid_pid_logprob_dict[self.NO_ANSWER] if t[0] == qid]
-        no_tuples = sorted(no_tuples, key=lambda t: t[2], reverse=True)
+        no_tuples = sorted(no_tuples, key=lambda t: t[2])
         ranked_pids_no = [t[1] for t in no_tuples]
 
         # We combine the two lists, putting the yes answers to the front
@@ -160,7 +128,7 @@ class MSMARCOMetric(Metric):
 
         return ranked_pids
 
-    def reciprocal_rank(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+    def mean_reciprocal_rank(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
         """Computes the mean reciprocal ranks of the model's ranking of the golden passages.
 
         Note that there is only one instance where we ask the model whether a passage
@@ -187,36 +155,40 @@ class MSMARCOMetric(Metric):
                 [10, 20] the returned list will be [Stat(name="RR@10), Stat(name="RR@20)].
         """
         adapter_spec = scenario_state.adapter_spec
-        topk_to_stat = {k: Stat(name=f"RR@{k}") for k in self.topk_list}
+        topk_to_stat = {k: Stat(MetricName(f"MRR@{k}")) for k in self.topk_list}
 
         # Iterate through trials
         for train_trial_index in range(adapter_spec.num_train_trials):
-
+            # Populate the dictionaries
             validation_request_states = [rs for rs in scenario_state.request_states if rs.instance.split == VALID_SPLIT]
             qid_to_gold_pid, qid_pid_logprob_dict = self.get_qid_dictionaries(validation_request_states)
 
+            # Loop through the validation queries
+            trial_topk_to_stat = {k: Stat(MetricName(f"RR@{k}")) for k in self.topk_list}
             for qid, gold_pid in qid_to_gold_pid.items():
                 # Rank the pids for the qid
                 ranked_pids = self.get_ranked_pid_list(qid_pid_logprob_dict, qid)
 
                 # Get the rank of the gold
                 rank_gold: Optional[int] = None
-                try:
+                if gold_pid in ranked_pids:
                     rank_gold = ranked_pids.index(gold_pid) + 1
-                except ValueError:
-                    rank_gold = None
 
                 # Compute MRR
-                for k, stat in topk_to_stat.items():
+                for k, stat in trial_topk_to_stat.items():
                     rr = 0.0
                     if rank_gold and rank_gold <= k:
                         rr = 1 / float(rank_gold)
                     stat.add(rr)
 
+            # Add the means to topk_to_stat stats
+            for k, stat in trial_topk_to_stat.items():
+                topk_to_stat[k].add(stat.mean)
+
         return list(topk_to_stat.values())
 
     def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
-        """Returns stats for the MSMARCO metric.
+        """Returns the stats for the MSMARCO metric.
         """
-        rr_stats = self.metric_fn(scenario_state, metric_service)
-        return rr_stats
+        mrr_stats = self.metric_fn(scenario_state, metric_service)
+        return mrr_stats
