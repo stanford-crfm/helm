@@ -1,9 +1,7 @@
 import numpy as np
 import random
-from copy import copy
-from typing import List, Dict, Tuple, Optional
-from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from typing import List, Tuple
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
 class DyckLanguageScenario(Scenario):
