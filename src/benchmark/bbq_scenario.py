@@ -20,6 +20,12 @@ NON_AMBIGUOUS_TAG = "non-ambiguous"
 NEGATIVE_TAG = "negative"
 NON_NEGATIVE_TAG = "non-negative"
 
+numbers_to_letters = {
+    0: "A",
+    1: "B",
+    2: "C",
+}
+
 
 class BBQScenario(Scenario):
     """
@@ -50,6 +56,8 @@ class BBQScenario(Scenario):
     name = "bbq"
     description = "Bias analysis of LM question-answering."
     tags = ["harms", "bias"]
+
+
 
     def __init__(self):
         pass
@@ -104,10 +112,12 @@ class BBQScenario(Scenario):
             ans0: str = loaded_line["ans0"]
             ans1: str = loaded_line["ans1"]
             ans2: str = loaded_line["ans2"]
-            label = str(loaded_line["label"])
+            label = numbers_to_letters[loaded_line["label"]]
             answers = [ans0, ans1, ans2]
-            answers_dict = dict(zip(["0", "1", "2"], answers))
+            answers_dict = dict(zip(["A", "B", "C"], answers))
             correct_answer = answers_dict[label]
+
+
 
             tags: List[str] = [
                 NEGATIVE_TAG if is_negative else NON_NEGATIVE_TAG,
