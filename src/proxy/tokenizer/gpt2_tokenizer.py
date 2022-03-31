@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from transformers import GPT2TokenizerFast
 
 from .tokenizer import Tokenizer
@@ -24,13 +24,13 @@ class GPT2Tokenizer(Tokenizer):
         """The end of text token."""
         return GPT2Tokenizer.END_OF_TEXT_TOKEN
 
-    def encode(self, text: str) -> List[int]:
+    def encode(self, text: str) -> List:
         """
         Encodes the input text to tokens.
         """
         return self._tokenizer.encode(text)
 
-    def decode(self, tokens: List[int]) -> str:
+    def decode(self, tokens: List, original_text: Optional[str] = None) -> str:
         """
         Given a list of tokens, outputs the corresponding text.
         """

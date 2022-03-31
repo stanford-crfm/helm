@@ -30,14 +30,14 @@ class AI21Tokenizer(Tokenizer):
         # TODO: I'm not sure what their end of text token is. I don't think it's documented.
         return " "
 
-    def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> List[int]:
+    def encode(self, text: str) -> List:
         """
         Encodes the input text to tokens.
         Note: AI21 only gave API access to their tokenizer, so this method is not supported.
         """
         raise NotImplementedError(AI21Tokenizer.NOT_IMPLEMENTED_ERROR_MESSAGE)
 
-    def decode(self, tokens: List[int]) -> str:
+    def decode(self, tokens: List, original_text: Optional[str] = None) -> str:
         """
         Given a list of tokens, outputs the corresponding text.
         Note: AI21 only gave API access to their tokenizer, so this method is not supported.
