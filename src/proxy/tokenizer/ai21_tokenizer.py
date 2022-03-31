@@ -33,16 +33,24 @@ class AI21Tokenizer(Tokenizer):
     def encode(self, text: str) -> List:
         """
         Encodes the input text to tokens.
-        Note: AI21 only gave API access to their tokenizer, so this method is not supported.
         """
-        raise NotImplementedError(AI21Tokenizer.NOT_IMPLEMENTED_ERROR_MESSAGE)
+        response: TokenizationRequestResult = self._make_tokenization_request(text)
+        return response.tokens
 
     def decode(self, tokens: List, original_text: Optional[str] = None) -> str:
         """
         Given a list of tokens, outputs the corresponding text.
-        Note: AI21 only gave API access to their tokenizer, so this method is not supported.
         """
-        raise NotImplementedError(AI21Tokenizer.NOT_IMPLEMENTED_ERROR_MESSAGE)
+        if not tokens:
+            return ""
+        # The original text is necessary for decoding AI21 tokens.
+        assert original_text
+        # The tokens must be a consecutive subset of the original text.
+        for i in range(len(tokens) - 1):
+            assert tokens[i].text_range.end == tokens[i + 1].text_range.start
+        start: int = tokens[0].text_range.start
+        end: int = tokens[-1].text_range.end
+        return original_text[start:end]
 
     def tokenize(self, text: str) -> List[str]:
         """
