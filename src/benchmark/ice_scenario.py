@@ -209,7 +209,7 @@ class ICEScenario(Scenario):
 
         corpus_path = os.path.join(data_path, corpus_name)
         header_dir = os.path.join(data_path, "Headers")
-        selected_texts = self.filter_by_metadata(header_dir) if self.gender else os.listdir(corpus_path)
+        selected_texts = self.filter_by_metadata(header_dir) if self.gender != "None" else os.listdir(corpus_path)
         instances = []
 
         for filename in selected_texts:
