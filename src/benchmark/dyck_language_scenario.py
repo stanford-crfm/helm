@@ -181,7 +181,7 @@ class DyckLanguageScenario(Scenario):
 
     def create_corpus(
         self, split, corpus_size: int, min_length: int = 1, max_length: int = 100, not_allowed: List[str] = []
-    ) -> Tuple[List[str], List[str]]:
+    ) -> Tuple[List[str], List[Instance]]:
         """ Creates a corpus of Dyck-n sequences. """
         inputs = []
         i = 0
