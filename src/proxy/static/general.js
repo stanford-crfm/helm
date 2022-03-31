@@ -117,3 +117,8 @@ function multilineHtml(s) {
 function renderError(e) {
   return $('<div>').addClass('alert alert-danger').append(multilineHtml(e));
 }
+
+function helpIcon(help, link) {
+  // Show a ?
+  return $('<a>', {href: link, target: 'blank_', class: 'help-icon'}).append($('<img>', {src: 'info-icon.png', width: 15, title: help}));
+}

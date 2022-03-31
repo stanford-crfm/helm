@@ -6,12 +6,15 @@ Mako==1.1.5
 pyhocon==0.3.58
 pyOpenSSL==21.0.0
 sqlitedict==1.7.0
-transformers==4.13.0
+torch==1.10.2
 tornado==6.1
+transformers==4.13.0
 zstandard==0.17.0
 jsonlines==3.0.0
+retrying==1.3.3
 
 # For development
+click==8.0.3
 black==19.10b0
 flake8==3.8.3
 mypy==0.782
@@ -21,5 +24,8 @@ typed-ast<1.5.0,>=1.4.0
 
 # For specific scenarios
 nltk>=3.6.7
+sacrebleu
+numpy
+pyext
 datasets>=1.18.3
 rouge-score==0.0.4

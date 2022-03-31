@@ -46,18 +46,20 @@ class Runner:
     dispatches to other classes.
     """
 
-    def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_specs: List[RunSpec]):
+    def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_specs: List[RunSpec], skip_instances: bool):
         self.executor = Executor(execution_spec)
         self.dry_run = execution_spec.dry_run
         self.adapter_service = AdapterService(self.executor.remote_service, execution_spec.auth)
         self.metric_service = MetricService(self.executor.remote_service, execution_spec.auth)
         self.output_path = output_path
         self.run_specs = run_specs
+        self.skip_instances = skip_instances
         ensure_directory_exists(self.output_path)
 
     def run_all(self):
         for run_spec in self.run_specs:
-            self.run_one(run_spec)
+            with htrack_block(f"Running {run_spec.name}"):
+                self.run_one(run_spec)
 
     def run_one(self, run_spec: RunSpec):
         # Load the scenario
@@ -68,12 +70,16 @@ class Runner:
         scenarios_path = os.path.join(self.output_path, "scenarios")
         ensure_directory_exists(scenarios_path)
         scenario.output_path = os.path.join(scenarios_path, scenario.name)
+        scenario.definition_path = scenario.get_definition_path()
         ensure_directory_exists(scenario.output_path)
         runs_path = os.path.join(self.output_path, "runs", run_spec.name)
         ensure_directory_exists(runs_path)
 
         # Data preprocessing
-        instances: List[Instance] = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(scenario)
+        if not self.skip_instances:
+            instances: List[Instance] = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(scenario)
+        else:
+            instances = []
 
         # Adaptation
         adapter = Adapter(run_spec.adapter_spec, self.adapter_service)
@@ -83,14 +89,16 @@ class Runner:
         scenario_state = self.executor.execute(scenario_state)
 
         # Apply the metrics
-        # When performing a dry run, just estimate the number of tokens instead of calculating the metrics
-        metrics: List[Metric] = (
-            [TokensMetric()] if self.dry_run else [create_metric(metric) for metric in run_spec.metrics]
-        )
-        hlog(f"{len(metrics)} metrics")
+        # When performing a dry run, only estimate the number of tokens instead
+        # of calculating the metrics.
+        metrics: List[Metric] = ([] if self.dry_run else [create_metric(metric) for metric in run_spec.metrics]) + [
+            TokensMetric()
+        ]
         stats: List[Stat] = []
-        for metric in metrics:
-            stats.extend(metric.evaluate(scenario_state, self.metric_service))
+        with htrack_block(f"{len(metrics)} metrics"):
+            for metric in metrics:
+                with htrack_block(metric):
+                    stats.extend(metric.evaluate(scenario_state, self.metric_service))
 
         # Print out stats
         with htrack_block("Stats"):
