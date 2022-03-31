@@ -79,8 +79,9 @@ class MSMARCOMetric(Metric):
         # Iterate through the request states
         for rs in request_states:
             # Extract important information from the ID
-            if rs.result and rs.result.completions:
+            if rs.result and rs.result.completions and rs.output_mapping:
                 # Extract instance information
+
                 qid, pid, gold = rs.instance.qid, rs.instance.pid, rs.instance.gold
                 # Populate the gold mapping dictionary
                 if gold:

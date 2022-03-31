@@ -188,10 +188,17 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     )
 
 
-def get_msmarco_spec(task: str, topk: str = "11", num_eval_queries: str = "2", num_train_queries: str = "1000") -> RunSpec:
+def get_msmarco_spec(
+    task: str, topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
+) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.msmarco_scenario.MSMARCOScenario",
-        args={"task": task, "topk": int(topk), "num_eval_queries": int(num_eval_queries), "num_train_queries": int(num_train_queries)},
+        args={
+            "task": task,
+            "topk": int(topk),
+            "num_eval_queries": int(num_eval_queries),
+            "num_train_queries": int(num_train_queries),
+        },
     )
 
     adapter_spec = AdapterSpec(

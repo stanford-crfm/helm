@@ -230,7 +230,7 @@ class MSMARCOScenario(Scenario):
             - NUM_CONTEXT_EXAMPLES corresponds to the number of training
                 examples we add to the context of each request.
             - AVG_TOKEN_LENGTH is the average token length of one instance, which
-                is about TODO.
+                is about 535 tokens on average.
 
         Args:
             task: Name of the task, should be one of self.TASK_NAMES. There are
@@ -281,10 +281,22 @@ class MSMARCOScenario(Scenario):
         self.num_queries = {VALID_SPLIT: num_eval_queries, TRAIN_SPLIT: num_train_queries}
 
         # Initialize the data dictionaries that will be populated once the MSMARCO scenario is run
-        self.collection_dict = None
-        self.queries_dicts = None
-        self.qrels_dicts = None
-        self.topk_dicts = None
+        self.collection_dict: Dict[int, str] = {}
+        self.queries_dicts: Dict[str, Dict[int, str]] = {}
+        self.qrels_dicts: Dict[str, Dict[int, List[int]]] = {}
+        self.topk_dicts: Dict[str, Dict[int, Dict[int, int]]] = {}
+
+    def download_file(
+        self, source_url: str, file_name: str, unpack: bool = False, unpack_type: Optional[str] = None
+    ) -> str:
+        """Downloads a file.
+
+        Writes the file in the given source_url a file with the name file_name
+        in the /data directory in located in the self.output_path.
+        """
+        file_path: str = os.path.join(self.output_path, "data", file_name)
+        ensure_file_downloaded(source_url=source_url, target_path=file_path, unpack=unpack, unpack_type=unpack_type)
+        return file_path
 
     @staticmethod
     def create_id_item_dictionary(file_path: str) -> Dict[int, str]:
@@ -313,6 +325,42 @@ class MSMARCOScenario(Scenario):
             for _id, content in csv.reader(f, delimiter="\t"):
                 id_to_item_dict[int(_id)] = content
         return id_to_item_dict
+
+    @staticmethod
+    def create_qrels_dictionary(file_path: str) -> Dict[int, List[int]]:
+        """Reads .tsv files in the following format into a Python dictionary:
+
+            <qid>\t0\t<pid>\t1
+
+        The <qid> and <pid> co-occuring in a line means that the pid is the id
+        of a gold passage for the query with the id qid. Note that some qids
+        have 2 pids matched to them as the gold pids, which is why we are
+        returning a dictionary mapping a qid to a list of pids (instead of just
+        a pid).
+
+        For example, if the file contents look like:
+
+            11111111   0    12837901     1
+            11111111   0    82374921     1
+            22222222   0    28192830     1
+            ...
+
+
+        The dictionary returned would be as follows:
+            {
+                11111111: [12837901, 82374921],
+                22222222: [28192830]
+            }
+
+        Returns:
+            qrels_dict: Dictionary mapping a qid to a list containing the gold
+                pids.
+        """
+        dictionary = defaultdict(list)
+        with open(file_path, encoding="utf-8") as f:
+            for qid, a, pid, b in csv.reader(f, delimiter="\t"):
+                dictionary[int(qid)].append(int(pid))
+        return dictionary
 
     @staticmethod
     def create_topk_dictionary(file_path: str) -> Dict[int, Dict[int, int]]:
@@ -360,54 +408,6 @@ class MSMARCOScenario(Scenario):
             for qid, pid, rank in csv.reader(f, delimiter="\t"):
                 topk_dict[int(qid)][int(rank)] = int(pid)
         return topk_dict
-
-    @staticmethod
-    def create_qrels_dictionary(file_path: str) -> Dict[int, List[int]]:
-        """Reads .tsv files in the following format into a Python dictionary:
-
-            <qid>\t0\t<pid>\t1
-
-        The <qid> and <pid> co-occuring in a line means that the pid is the id
-        of a gold passage for the query with the id qid. Note that some qids
-        have 2 pids matched to them as the gold pids, which is why we are
-        returning a dictionary mapping a qid to a list of pids (instead of just
-        a pid).
-
-        For example, if the file contents look like:
-
-            11111111   0    12837901     1
-            11111111   0    82374921     1
-            22222222   0    28192830     1
-            ...
-
-
-        The dictionary returned would be as follows:
-            {
-                11111111: [12837901, 82374921],
-                22222222: [28192830]
-            }
-
-        Returns:
-            qrels_dict: Dictionary mapping a qid to a list containing the gold
-                pids.
-        """
-        dictionary = defaultdict(list)
-        with open(file_path, encoding="utf-8") as f:
-            for qid, a, pid, b in csv.reader(f, delimiter="\t"):
-                dictionary[int(qid)].append(int(pid))
-        return dictionary
-
-    def download_file(
-        self, source_url: str, file_name: str, unpack: bool = False, unpack_type: Optional[str] = None
-    ) -> str:
-        """Downloads a file.
-
-        Writes the file in the given source_url a file with the name file_name
-        in the /data directory in located in the self.output_path.
-        """
-        file_path: str = os.path.join(self.output_path, "data", file_name)
-        ensure_file_downloaded(source_url=source_url, target_path=file_path, unpack=unpack, unpack_type=unpack_type)
-        return file_path
 
     def prepare_passage_dictionaries(self):
         """Downloads the Passage Retrieval datasets and reads them into dictionaries.
@@ -475,7 +475,7 @@ class MSMARCOScenario(Scenario):
         topk_train_fp = self.download_file(self.CODALAB_TRAIN_URL, self.TOPK_TRAIN_FILE_NAME)
         self.topk_dicts = {
             VALID_SPLIT: self.create_topk_dictionary(topk_dev_fp),
-            TRAIN_SPLIT: self.create_topk_dictionary(topk_train_fp)
+            TRAIN_SPLIT: self.create_topk_dictionary(topk_train_fp),
         }
 
     @staticmethod
@@ -488,13 +488,7 @@ class MSMARCOScenario(Scenario):
         question_statement = f"Does the passage above answer the question {query}?"
         return f"{passage}\nQuestion: {question_statement}"
 
-    def create_instance(
-        self,
-        qid: int,
-        pid: int,
-        split: str,
-        gold: bool = False,
-    ) -> Instance:
+    def get_instance(self, qid: int, pid: int, split: str, gold: bool = False,) -> Instance:
         """Creates an instance.
 
         Args:
@@ -516,7 +510,7 @@ class MSMARCOScenario(Scenario):
         instance = MSMARCOInstance(input=context, references=references, split=split, qid=qid, pid=pid, gold=gold)
         return instance
 
-    def create_passage_split_instances(self, split) -> List[Instance]:
+    def get_passage_split_instances(self, split) -> List[Instance]:
         """Creates instances for the specified split.
 
         For the number of queries specified for each split, we loop through the
@@ -541,7 +535,7 @@ class MSMARCOScenario(Scenario):
             instances: List of instances created.
         """
         # Only use the first num_queries queries, specified in the constructor
-        qrels_keys = list(self.qrels_dicts[split].keys())[:self.num_queries[split]]
+        qrels_keys = list(self.qrels_dicts[split].keys())[: self.num_queries[split]]
         qrels_dict = {k: self.qrels_dicts[split][k] for k in qrels_keys}
 
         # List of ranks we will consider for the no instances.
@@ -557,12 +551,12 @@ class MSMARCOScenario(Scenario):
 
             # Generate the yes instance
             gold_pid = gold_pids[0]
-            yes_instance = self.create_instance(qid, gold_pid, split, gold=True)
+            yes_instance = self.get_instance(qid, gold_pid, split, gold=True)
 
             # Generate the no instances
             rank_dict = self.topk_dicts[split][qid]
             pids = [rank_dict[rank] for rank in no_instance_ranks if rank_dict[rank] not in gold_pids]
-            no_instances = [self.create_instance(qid, pid, split) for pid in pids]
+            no_instances = [self.get_instance(qid, pid, split) for pid in pids]
 
             # Limit the no_instances to 1 for the train split to ensure that we have a balanced train set.
             # Otherwise, there will be many more no instances in the train split than the yes instances.
@@ -582,8 +576,8 @@ class MSMARCOScenario(Scenario):
         self.prepare_topk_dictionaries()
 
         # Create instances
-        valid_instances = self.create_passage_split_instances(VALID_SPLIT)
-        train_instances = self.create_passage_split_instances(TRAIN_SPLIT)
+        valid_instances = self.get_passage_split_instances(VALID_SPLIT)
+        train_instances = self.get_passage_split_instances(TRAIN_SPLIT)
         instances = valid_instances + train_instances
 
         return instances
