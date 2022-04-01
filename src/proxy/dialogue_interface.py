@@ -1,13 +1,7 @@
 import re
 
-from flask import render_template, url_for
-from flask import Flask, request
 import uuid
 import json
-
-app = Flask(__name__)
-#from flask_cors import CORS
-#CORS(app, origins='*')
 
 import getpass
 
@@ -16,7 +10,6 @@ sys.path = sys.path + ['../../']
 
 from src.common.authentication import Authentication
 from src.common.request import Request, RequestResult
-from src.proxy.accounts import Account
 from proxy.remote_service import RemoteService
 
 # An example of how to use the request API.
@@ -62,21 +55,40 @@ Jen: It's hard to stay clam. How do you do it?
 BEGIN DIALOGUE
 """
 
-#Refer to src/common/request.py for a list of possible parameters
+# Refer to src/common/request.py for a list of possible parameters
+# TODO: replace with equivalent Adapter spec that the script for HIT creation will spit out
 params = {
-"temperature": 0.5,  # Medium amount of randomness
-"stop_sequences": ["Jen"],  # Stop when you hit a newline
-"num_completions": 1,  # Generate many samples
-"model": "ai21/j1-jumbo",
+    "temperature": 0.5,  # Medium amount of randomness
+    "stop_sequences": ["Jen"],  # Stop when you hit a newline
+    "num_completions": 1,  # Generate many samples
+    "model": "ai21/j1-jumbo",
 }
 
-def conversational_turn(auth, json_args):
-    #TODO: Error handling?
+def conversational_turn(auth: Authentication, json_args: json) -> json:
+    """ 
+    Call CRFM API to get the next turn of conversation
+
+    Args:
+        auth (Authentication): CRFM API authentication 
+        json_args: args to query CRFM API with including
+        - user_utterance: user utterance 
+        - payload: conversational history + five-shot training examples
+        - session_uuid: unique session id
+        - user_uuid: unique user id
+    
+    Returns: 
+        json_response: json response containing
+        - bot_utterance: the bot's response to the user's utterance
+        - payload: training examples + updated conv history
+        - session_uuid: unique session id
+        - user_uuid: unique user id
+    """
     user_utterance = str(json_args.get('user_utterance', None) or '')
     session_uuid = str(json_args.get('session_uuid', None) or str(uuid.uuid4()))
     user_uuid = str(json_args.get('user_uuid', None) or str(uuid.uuid4()))
     payload = json_args.get('payload', None) or []
     
+    # TODO: Define the names of the two participants in one place as a constant
     payload+=["Jen:"+user_utterance,]
     prompt = few_shot_context + '\n'.join(payload) + '\n' + "Bob:"
 
@@ -94,18 +106,13 @@ def conversational_turn(auth, json_args):
         'bot_utterance': response,
         'payload': payload
     }
+    # TODO: Write this in a directory that's passed in from somewhere
     with open(session_uuid+'.json', 'w') as f:
         json.dump(json_response, f)
     return json_response # Outputs
 
-def submit_interview(json_args):
+def submit_interview(json_args: json) -> None:
     session_uuid = str(json_args.get('session_uuid'))
     with open(session_uuid+'.answers.json', 'w') as f:
         json.dump(json_args, f)
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'} # Outputs
-
-
-# Make a request
-
-if __name__ == '__main__':
-    app.run(host="127.0.0.1", port=1959)

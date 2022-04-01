@@ -183,7 +183,7 @@ def handle_utterance():
         return response
     return safe_call(perform)
 
-@app.post("/api/dialogue/submit-interview")
+@app.post("/api/dialogue/interview")
 def submit_dialogue():
     def perform(args):
         response = submit_interview(args)
