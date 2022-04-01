@@ -15,6 +15,11 @@ class Tokenizer(ABC):
         """The end of text token."""
         pass
 
+    @property
+    def prefix_token(self) -> str:
+        """The prefix token"""
+        pass
+
     @abstractmethod
     def encode(self, text: str) -> List:
         """Encodes the input text to tokens given the model"""

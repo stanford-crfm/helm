@@ -24,6 +24,11 @@ class GPT2Tokenizer(Tokenizer):
         """The end of text token."""
         return GPT2Tokenizer.END_OF_TEXT_TOKEN
 
+    @property
+    def prefix_token(self) -> str:
+        """The prefix token for OPENAI models is the end of text token."""
+        return self.end_of_text_token
+
     def encode(self, text: str) -> List:
         """
         Encodes the input text to tokens.

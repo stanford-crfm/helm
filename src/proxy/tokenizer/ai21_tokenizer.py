@@ -30,6 +30,11 @@ class AI21Tokenizer(Tokenizer):
         # TODO: I'm not sure what their end of text token is. I don't think it's documented.
         return " "
 
+    @property
+    def prefix_token(self) -> str:
+        """AI21 tokenizers do no have a prefix token"""
+        return ""
+
     def encode(self, text: str) -> List:
         """
         Encodes the input text to tokens.
