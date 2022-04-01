@@ -3,7 +3,6 @@ import re
 import sys  # noqa
 import requests  # noqa
 from typing import List, Set
-from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, TEST_SPLIT
 from enum import Enum
@@ -196,13 +195,16 @@ class ICEScenario(Scenario):
         # Currently there is no infrastructure in place to unzip files with passwords
         # (the HTTP requests for the data itself also requires some authorization);
         # therefore we can only assume data is already downloaded and extracted
-        ensure_file_downloaded(
-            source_url=None, target_path=data_path, unpack=True,
-        )
+        if not os.path.exists(data_path):
+            raise FileNotFoundError(
+                f"Data does not exist at the required location. Please extract the relevant subset into {data_path}."
+            )
 
-        if "Corpus" in os.listdir(data_path):
+        corpus_contents = os.listdir(data_path)
+
+        if "Corpus" in corpus_contents:
             corpus_name = "Corpus"
-        elif "CORPUS" in os.listdir(data_path):
+        elif "CORPUS" in corpus_contents:
             corpus_name = "CORPUS"
         else:
             corpus_name = "corpus"
@@ -216,15 +218,13 @@ class ICEScenario(Scenario):
             if not self.validate_file(filename):
                 continue
 
-            with open(os.path.join(corpus_path, filename), "r") as f:
-                try:
+            try:
+                with open(os.path.join(corpus_path, filename), "r") as f:
                     text = self.preprocess_text(f.read(), TAGS)
-                except UnicodeDecodeError:
-                    hlog(
-                        str(f"File {filename} skipped (unsupported encoding).")
-                    )  # ISO texts currently unsupported; only a small minority of texts affected
-                    continue
+            except UnicodeDecodeError:
+                with open(os.path.join(corpus_path, filename), "r", encoding="iso-8859-1") as f:
+                    text = self.preprocess_text(f.read(), TAGS)
 
-                instances.append(Instance(input=text, references=[], split=TEST_SPLIT))
+            instances.append(Instance(input=text, references=[], split=TEST_SPLIT))
 
         return instances
