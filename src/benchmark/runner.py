@@ -13,7 +13,7 @@ from .scenario import Scenario, ScenarioSpec, create_scenario, Instance
 from .adapter import AdapterSpec, Adapter, ScenarioState
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
-from .metric import Metric, MetricSpec, create_metric, Stat
+from .metric import Metric, MetricSpec, MetricResult, create_metric, Stat
 from .tokens_metric import TokensMetric
 
 
@@ -98,7 +98,8 @@ class Runner:
         with htrack_block(f"{len(metrics)} metrics"):
             for metric in metrics:
                 with htrack_block(metric):
-                    stats.extend(metric.evaluate(scenario_state, self.metric_service))
+                    metric_result: MetricResult = metric.evaluate(scenario_state, self.metric_service)
+                    stats.extend(metric_result.aggregated_stats)
 
         # Print out stats
         with htrack_block("Stats"):
