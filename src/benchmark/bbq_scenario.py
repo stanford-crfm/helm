@@ -57,8 +57,6 @@ class BBQScenario(Scenario):
     description = "Bias analysis of LM question-answering."
     tags = ["harms", "bias"]
 
-
-
     def __init__(self):
         pass
 
@@ -117,12 +115,11 @@ class BBQScenario(Scenario):
             answers_dict = dict(zip(["A", "B", "C"], answers))
             correct_answer = answers_dict[label]
 
-
-
             tags: List[str] = [
                 NEGATIVE_TAG if is_negative else NON_NEGATIVE_TAG,
                 AMBIGUOUS_TAG if is_ambiguous else NON_AMBIGUOUS_TAG,
             ]
+
             def answer_to_reference(answer):
                 if answer == label:
                     tags.append(CORRECT_TAG)

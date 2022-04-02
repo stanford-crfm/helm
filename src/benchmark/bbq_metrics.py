@@ -51,11 +51,13 @@ class BBQMetric(Metric):
 
                 request_result: RequestResult = request_state.result
                 # Filter out empty completions
-                completions: List[str] = [completion.text.strip() for completion in request_result.completions if completion.text]
+                completions: List[str] = [
+                    completion.text.strip() for completion in request_result.completions if completion.text
+                ]
 
                 for completion in completions:
 
-                    is_correct = (completion == reference.output)
+                    is_correct = completion == reference.output
 
                     if is_ambiguous:
                         if is_correct:

@@ -53,11 +53,14 @@ def get_adapter_spec1() -> AdapterSpec:
 def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=args)]
 
+
 def get_bbq_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={})]
 
+
 def get_bold_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
+
 
 def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
@@ -118,6 +121,7 @@ def get_simple1_spec() -> RunSpec:
         metrics=get_basic_metrics({"names": []}),
     )
 
+
 def get_bbq_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.bbq_scenario.BBQScenario", args={})
 
@@ -127,7 +131,7 @@ def get_bbq_spec() -> RunSpec:
         input_prefix="",
         output_prefix="\nAnswer: ",
         max_train_instances=5,
-        max_eval_instances=1000, # TODO: Find the number of samples to evaluate.
+        max_eval_instances=50,  # TODO: Find the number of samples to evaluate.
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
@@ -147,7 +151,7 @@ def get_bold_spec() -> RunSpec:
         input_prefix="",
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=10, # TODO: Find the number of samples to evaluate.
+        max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
         num_outputs=25,
         model="openai/davinci",
         temperature=1,
@@ -176,6 +180,7 @@ def get_civil_comments_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
+
 
 def get_mmlu_spec(subject: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject})
@@ -989,6 +994,9 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "blimp": get_blimp_spec,
     "code": get_code_spec,
     "empatheticdialogues": get_empatheticdialogues_spec,
+    "bold": get_bold_spec,
+    "bbq": get_bbq_spec,
+    "civil_comments": get_civil_comments_spec,
 }
 
 

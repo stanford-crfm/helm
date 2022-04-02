@@ -2,7 +2,6 @@ import json
 import os
 import random
 import datasets
-import pudb
 from typing import List
 from pathlib import Path
 from tqdm import tqdm
@@ -22,6 +21,7 @@ bool_to_response = {
     False: "False",
     True: "True",
 }
+
 
 class CivilCommentsScenario(Scenario):
     """
@@ -54,14 +54,14 @@ class CivilCommentsScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         cache_dir = str(Path(self.output_path) / "data")
-        
+
         # Download raw data
         # TODO: Only using labeled instances now.
         all_usable_dataset = datasets.load_dataset("civil_comments", cache_dir=cache_dir, split="train")
         assert isinstance(all_usable_dataset, datasets.Dataset)
         dataset = all_usable_dataset.train_test_split(test_size=0.2, seed=self.random_seed)
         train_dataset, test_dataset = dataset["train"], dataset["test"]
-        
+
         dataset_splits: Dict[str, datasets.Dataset] = {
             TRAIN_SPLIT: train_dataset,
             TEST_SPLIT: test_dataset,
@@ -76,7 +76,7 @@ class CivilCommentsScenario(Scenario):
                 prompt = x["text"]
                 instance = Instance(
                     input=prompt,
-                    references=[Reference(output=(bool_to_response[x["toxicity"] >= 0.5)], tags=[CORRECT_TAG])],
+                    references=[Reference(output=bool_to_response[x["toxicity"] >= 0.5], tags=[CORRECT_TAG])],
                     split=split,
                 )
                 instances.append(instance)
