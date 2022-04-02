@@ -53,6 +53,11 @@ def get_adapter_spec1() -> AdapterSpec:
 def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=args)]
 
+def get_bbq_metrics() -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={})]
+
+def get_bold_metrics() -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
 
 def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
@@ -113,6 +118,64 @@ def get_simple1_spec() -> RunSpec:
         metrics=get_basic_metrics({"names": []}),
     )
 
+def get_bbq_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.bbq_scenario.BBQScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        instructions="The following are multiple choice questions (with answers).",
+        input_prefix="",
+        output_prefix="\nAnswer: ",
+        max_train_instances=5,
+        max_eval_instances=1000, # TODO: Find the number of samples to evaluate.
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+    )
+
+    return RunSpec(name="bbq", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bbq_metrics())
+
+
+def get_bold_spec() -> RunSpec:
+    from .bold_scenario import TOXIC_TAG, NONTOXIC_TAG
+
+    scenario = ScenarioSpec(class_name="benchmark.bold_scenario.BOLDScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        max_eval_instances=10, # TODO: Find the number of samples to evaluate.
+        num_outputs=25,
+        model="openai/davinci",
+        temperature=1,
+        max_tokens=20,
+    )
+    return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bold_metrics())
+
+
+def get_civil_comments_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.civil_comments_scenario.CivilCommentsScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/davinci",
+        max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=1,
+    )
+    return RunSpec(
+        name="civil_comments",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
 
 def get_mmlu_spec(subject: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject})
