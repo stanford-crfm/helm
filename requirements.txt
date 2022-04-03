@@ -12,6 +12,7 @@ transformers==4.13.0
 zstandard==0.17.0
 jsonlines==3.0.0
 retrying==1.3.3
+websocket-client==1.3.2
 
 # For development
 click==8.0.3

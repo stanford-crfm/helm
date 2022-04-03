@@ -72,6 +72,14 @@ ALL_MODELS = [
     # HuggingFace
     Model(group="huggingface", name="huggingface/gptj_6b", description="GPT-J (6B parameters)", tags=[TEXT_MODEL_TAG]),
     Model(group="huggingface", name="huggingface/gpt2", description="GPT-2 (1.5B parameters)", tags=[TEXT_MODEL_TAG]),
+    # Anthropic
+    # TODO: update with the official name and description
+    Model(
+        group="anthropic",
+        name="anthropic/stanford-online-helpful-v4-s3",
+        description="Anthropic model (52B parameters)",
+        tags=["anthropic"],  # The Anthropic model has limited functionality so give it its own tag
+    ),
     # For debugging
     Model(group="simple", name="simple/model1", description="Copy last tokens (for debugging)"),
 ]

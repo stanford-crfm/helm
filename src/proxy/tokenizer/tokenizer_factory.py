@@ -26,7 +26,8 @@ class TokenizerFactory:
         tokenizer: Tokenizer
         if organization == "openai" or organization == "simple":
             tokenizer = OpenAITokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
-        elif model == "huggingface/gpt2":
+        # TODO: separate tokenizer for Anthropic? -Tony
+        elif model == "huggingface/gpt2" or organization == "anthropic":
             tokenizer = GPT2Tokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
         elif model == "huggingface/gptj_6b":
             tokenizer = GPTJTokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
