@@ -18,30 +18,60 @@ class AnthropicRequestError(Exception):
 
 
 class AnthropicClient(Client):
-    """Anthropic models. Documentation and paper coming soon."""
+    """
+    Anthropic models. Documentation and paper coming soon. They use their own version of the GPT-2 tokenizer.
+
+    The Anthropic API currently does not support:
+    - Top k per token
+    - Multiple completions
+    - Echo prompt
+    - Log probabilities
+    """
+
+    # Note: we can currently only request for a maximum of 700 tokens in the completion.
+    # TODO: increase this later when Anthropic supports it.
+    MAX_COMPLETION_LENGTH: int = 700
 
     def __init__(self, api_key: str, cache_path: str):
         self.api_key = api_key
         self.cache = Cache(cache_path)
+        # Anthropic is using a modified version of the GPT-2 tokenizer.
         self.tokenizer = TokenizerFactory.get_tokenizer("anthropic")
 
     def make_request(self, request: Request) -> RequestResult:
-        model: str = request.model
-        if model != "anthropic/stanford-online-helpful-v4-s3":
-            raise ValueError(f"Invalid model: {model}")
+        # Validate the fields of `Request`
+        if request.model != "anthropic/stanford-online-helpful-v4-s3":
+            raise ValueError(f"Invalid model: {request.model}")
+        # `Request` field values that Anthropic currently does not support
+        if request.echo_prompt:
+            raise ValueError("Echoing the original prompt is not supported.")
+        if request.num_completions > 1:
+            raise ValueError("num_completions > 1 is not supported. Only a single completion is supported.")
+        if request.top_k_per_token > 1:
+            raise ValueError(
+                "top_k_per_token > 1 is not supported. The Anthropic API only gives a single token at a time."
+            )
+        expected_completion_length: int = request.max_tokens - self.tokenizer.tokenize_and_count(request.prompt)
+        if expected_completion_length > AnthropicClient.MAX_COMPLETION_LENGTH:
+            raise ValueError(
+                f"Expected to get back {expected_completion_length} number of tokens in the completion, which "
+                f"exceeds the currently supported max completion length of {AnthropicClient.MAX_COMPLETION_LENGTH}."
+            )
 
         raw_request = {
             "q": request.prompt,  # Prompt
-            "t": request.temperature,  # temperature
-            "k": 0,  # TODO: I don't think k is the same as top_k_per_token. Hardcoded to 0 for now.
-            "p": request.top_p,  # top p
-            "n": request.max_tokens,  # max tokens
+            "t": request.temperature,  # Temperature
+            "k": 0,  # TODO: Recommended to hardcode this to 0 for now.
+            "p": request.top_p,  # Top p
+            "n": request.max_tokens,  # Max tokens
             "stop": request.stop_sequences,  # Stop sequences
             # Anthropic-specific arguments - keep these default values for now.
             "max_simultaneous_queries": 20,  # should be ~20
             "meta": True,  # Skip sampling meta tokens. Default to True.
             "is_replicated": True,  # Always set to True
-            # Always set to True or it will break for multiple requests with different hyperparameters
+            # Setting `use_sample_v1` to false enables batching to increase throughput.
+            # However, if false, the API will break when users send multiple requests with different hyperparameters.
+            # Therefore, default to True for now.
             "use_sample_v1": True,
         }
 
@@ -68,11 +98,14 @@ class AnthropicClient(Client):
 
                     # Tokens are streamed one at a time. Receive in a loop
                     while True:
-                        # 0.4s/tok is pretty standard for Anthropic at the moment for this model size
+                        # 0.4s/tok is pretty standard for Anthropic at the moment for this model size.
+                        # If the connection dropped, this throws a `websocket.WebSocketException`.
                         raw_response = ws.recv()
 
                         if not raw_response:
-                            hlog(f"uh-oh...{len(tokens)} tokens in, we are getting an empty response. Trying again...")
+                            # At this point, if we are getting back an empty response, it's most likely
+                            # the connection dropped. We will try again.
+                            hlog(f"{len(tokens)} tokens in, but received an empty response. Trying again...")
                             continue
 
                         response: Dict = json.loads(raw_response)
@@ -115,20 +148,17 @@ class AnthropicClient(Client):
         sequence_logprob: float = 0
         tokens: List[Token] = []
 
-        # TODO: handle echo_prompt
         for token_text in token_texts:
-            # TODO: Anthropic currently doesn't support logprob
+            # TODO: Anthropic currently doesn't support logprob. Just set logprob to 0 for now.
             token_logprob: float = 0
             sequence_logprob += token_logprob
             tokens.append(Token(text=token_text, logprob=token_logprob, top_logprobs={}))
-        # TODO: Anthropic currently supports a single completion
+        # TODO: Anthropic currently only supports a single completion at a time
         sequence = Sequence(text=last_response["completion"], logprob=sequence_logprob, tokens=tokens)
-
         return RequestResult(success=True, cached=cached, request_time=response["request_time"], completions=[sequence])
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        # TODO: add a comment stating that they used a modified version of the GPT-2 tokenizer
-        """Tokenizes the text using the GPT-2 tokenizer."""
+        """Tokenizes the text using the underlying tokenizer."""
         return TokenizationRequestResult(
             cached=False, tokens=[TokenizationToken(raw_text) for raw_text in self.tokenizer.tokenize(request.text)]
         )
