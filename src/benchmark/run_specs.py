@@ -908,7 +908,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         max_train_instances=3,
-        max_eval_instances=250,  # TODO: Ideally, this number should be at least 1000.
+        max_eval_instances=1000,  # TODO: Ideally, this number should be at least 1000.
         stop_sequences=["\n"],
         max_tokens=5,
         num_outputs=1,
