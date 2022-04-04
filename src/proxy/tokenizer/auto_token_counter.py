@@ -17,8 +17,6 @@ class AutoTokenCounter(TokenCounter):
         """Return a token counter based on the organization."""
         token_counter = self.token_counters.get(organization)
         if token_counter is None:
-            # TODO: implement token counter for HuggingFace
-            #       https://github.com/stanford-crfm/benchmarking/issues/6
             if organization == "openai":
                 token_counter = OpenAITokenCounter()
             elif organization == "ai21":

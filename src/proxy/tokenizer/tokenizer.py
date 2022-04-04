@@ -44,8 +44,9 @@ class Tokenizer(ABC):
         pass
 
     @abstractmethod
-    def truncate_from_right(self, text: str) -> str:
+    def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
-        Truncates text from the right to fit within the given model's context window.
+        Truncates text from the right to fit within the given model's context window
+        minus the expected completion length (defaults to 0).
         """
         pass

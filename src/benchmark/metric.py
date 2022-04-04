@@ -1,9 +1,10 @@
 from abc import ABC
 from dataclasses import replace
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from math import log, e
 from collections import defaultdict
 
+from common.hierarchical_logger import hlog
 from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
@@ -49,10 +50,12 @@ class Metric(ABC):
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
+            per_instance_stats: Dict[Tuple[MetricName, str], Stat] = {}  # Statistics for per-instance worst-case metric
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
             #       https://github.com/stanford-crfm/benchmarking/issues/48
-            for instance in scenario_state.instances:
+            for instance_index, instance in enumerate(scenario_state.instances):
                 instance_stats = []
+                hlog(f"trial {train_trial_index}: evaluate {instance_index} (total {len(scenario_state.instances)})")
 
                 # Evaluate generated request_state
                 request_state = singleton(scenario_state.get_request_states(train_trial_index, instance, None))
@@ -72,6 +75,19 @@ class Metric(ABC):
                 for stat in instance_stats:
                     stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
+
+                    stat = Stat(replace(stat.name, perturbation="worst")).merge(stat)
+                    assert instance.id is not None
+                    key = (stat.name, instance.id)
+                    if key not in per_instance_stats:
+                        per_instance_stats[key] = stat
+                    else:
+                        per_instance_stats[key].merge(stat)
+
+            for (name, instance_id), stat in per_instance_stats.items():
+                if stat.count > 0:
+                    worst_stat = Stat(stat.name).add(stat.min)
+                    merge_stat(trial_stats, worst_stat)
 
             # Aggregate the corpus-level metrics
             for split in EVAL_SPLITS:
@@ -200,21 +216,28 @@ class Metric(ABC):
         good_logprobs: defaultdict = defaultdict(float)
         bad_logprobs: defaultdict = defaultdict(float)
 
-        for request_state in scenario_state.request_states:
-            assert request_state.instance.id is not None and request_state.instance.sub_split is not None
-            pair_id: int = int(request_state.instance.id.lstrip("id")) // 2
-            sub_split: str = request_state.instance.sub_split
-            request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
-            for stat in request_stats:
-                if stat.name == MetricName("logprob"):
-                    if sub_split == "good":
-                        good_logprobs[pair_id] += stat.sum
-                    elif sub_split == "bad":
-                        bad_logprobs[pair_id] += stat.sum
-                    else:
-                        raise Exception(f"Unknown sub_split {sub_split}")
-                    continue
-        accuracy = sum(good_logprobs[pair_id] > bad_logprobs[pair_id] for pair_id in good_logprobs) / len(good_logprobs)
+        if scenario_state.request_states:
+            for request_state in scenario_state.request_states:
+                assert request_state.instance.id is not None and request_state.instance.sub_split is not None
+                pair_id: int = int(request_state.instance.id.lstrip("id")) // 2
+                sub_split: str = request_state.instance.sub_split
+                request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
+                for stat in request_stats:
+                    if stat.name == MetricName("logprob"):
+                        if sub_split == "good":
+                            good_logprobs[pair_id] += stat.sum
+                        elif sub_split == "bad":
+                            bad_logprobs[pair_id] += stat.sum
+                        else:
+                            raise Exception(f"Unknown sub_split {sub_split}")
+                        continue
+
+            accuracy = sum(good_logprobs[pair_id] > bad_logprobs[pair_id] for pair_id in good_logprobs) / len(
+                good_logprobs
+            )
+        else:
+            accuracy = 0
+
         merge_stat(trial_stats, Stat(MetricName("accuracy", split=split)).add(accuracy))
 
         for stat in trial_stats.values():

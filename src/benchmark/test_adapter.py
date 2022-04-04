@@ -4,8 +4,8 @@ from .adapter_service import AdapterService
 from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
 from .run_specs import get_scenario_spec1, get_adapter_spec1
 from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, Adapter, AdapterSpec
-from proxy.tokenizer.openai_token_counter import OpenAITokenCounter
 from proxy.remote_service import RemoteService
+from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from common.authentication import Authentication
 
 
@@ -44,12 +44,31 @@ def test_construct_prompt():
     assert prompt.endswith("eval")
 
 
-def test_construct_language_modeling_prompt():
+def test_construct_prompt_with_truncation():
     adapter_spec = AdapterSpec(
-        method=ADAPT_LANGUAGE_MODELING, input_prefix="", model="openai/davinci", output_prefix="", max_tokens=0,
+        model="openai/davinci", method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=100
     )
     adapter = Adapter(adapter_spec, get_test_adapter_service())
-    tokenizer = OpenAITokenCounter().tokenizer
+    correct_reference = Reference(output="", tags=[CORRECT_TAG])
+    train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(100)]
+    eval_instances = Instance(input="eval" * 2049, references=[])
+    prompt: str = adapter.construct_prompt(train_instances, eval_instances)
+
+    # Ensure the prompt fits within the context window
+    assert adapter.tokenizer.fits_within_context_window(prompt)
+
+    # Ensure that all the in-context examples were completely removed and we had to truncate the eval Instance input
+    assert "train" not in prompt
+    assert prompt.count("eval") == 1948
+
+
+def test_construct_language_modeling_prompt():
+    model: str = "openai/davinci"
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_MODELING, input_prefix="", model=model, output_prefix="", max_tokens=0,
+    )
+    adapter = Adapter(adapter_spec, get_test_adapter_service())
+    tokenizer = TokenizerFactory.get_tokenizer(model)
 
     # The tokens translate to: '�Excuse me�'
     conditioning_tokens, pred_tokens = [110, 40127], [1904, 502, 447]

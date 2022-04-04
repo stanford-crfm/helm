@@ -126,7 +126,7 @@ class BLiMPScenario(Scenario):
         # Read all the instances
         instances: List[Instance] = []
         for paradigm in self.phenomenon_to_paradigms[self.phenomenon]:
-            jsonl_path: str = os.path.join(data_path, f"{paradigm}.jsonl")
+            jsonl_path: str = os.path.join(data_path, "data", f"{paradigm}.jsonl")
             hlog(f"Reading {jsonl_path}")
             with open(jsonl_path) as f:
                 for line in f:
