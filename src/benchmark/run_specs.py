@@ -892,6 +892,7 @@ def get_empatheticdialogues_spec() -> RunSpec:
         metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
+
 def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.dyck_language_scenario.DyckLanguageScenario",
