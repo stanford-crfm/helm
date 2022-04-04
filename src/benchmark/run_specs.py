@@ -892,6 +892,33 @@ def get_empatheticdialogues_spec() -> RunSpec:
         metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
+def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.dyck_language_scenario.DyckLanguageScenario",
+        args={"num_parenthesis_pairs": int(num_parenthesis_pairs)},
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions=f"Please complete the rest of the following Dyck sequence, making sure that the parentheses are closed properly. ",
+        input_prefix="Input: ",
+        output_prefix="",
+        model="openai/davinci",
+        temperature=0.0,
+        max_train_instances=3,
+        max_eval_instances=250,  # TODO: Ideally, this number should be at least 1000.
+        stop_sequences=["\n"],
+        max_tokens=5,
+        num_outputs=1,
+    )
+
+    return RunSpec(
+        name=f"dyck_language_np={int(num_parenthesis_pairs)}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match_indicator"]}),
+    )
+
 
 ############################################################
 
@@ -926,6 +953,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "blimp": get_blimp_spec,
     "code": get_code_spec,
     "empatheticdialogues": get_empatheticdialogues_spec,
+    "dyck_language": get_dyck_language_spec,
 }
 
 
