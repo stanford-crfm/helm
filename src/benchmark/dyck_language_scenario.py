@@ -8,14 +8,14 @@ class DyckLanguageScenario(Scenario):
     """
         "Memory-Augmented Recurrent Neural Networks Can Learn Generalized Dyck Languages" (Suzgun et al., 2019)
             (https://arxiv.org/abs/1911.03329)
-        
+
         Disclaimer:
             A similar version of this generation was used in the generation of the following BigBench task:
             https://github.com/google/BIG-bench/tree/main/bigbench/benchmark_tasks/dyck_languages.
 
-            The `dyck_languages` task in BigBench is formulated as a multiple choice task and contains 1K distinct 
-            Dyck-4 sequences, whose lengths are bounded to [4, 100]. In this version of the task, however, we are 
-            allowing the user to specify the sizes and lengths of the training and test sets, as well as the 
+            The `dyck_languages` task in BigBench is formulated as a multiple choice task and contains 1K distinct
+            Dyck-4 sequences, whose lengths are bounded to [4, 100]. In this version of the task, however, we are
+            allowing the user to specify the sizes and lengths of the training and test sets, as well as the
             types/numbers of parenthesis-pairs used.
 
         Task:
@@ -25,17 +25,17 @@ class DyckLanguageScenario(Scenario):
             seed: Numpy random seed.
             num_parenthesis_pairs: Total number of parenthesis pairs.
             parenthesis_pairs: List of parenthesis pairs (if it is None, it is automatically generated).
-            
+
             prob_p: The "p" value used in the PCFG for Dyck-n (see below).
             prob_q: The "q" value used in the PCFG for Dyck-n (see below).
-            
+
             max_recursive_depth: Maximum recursive depth that can be reached while genereating a sequence.
-            
+
             min_seq_train_length: Minimum length that a sequence in the training set can have.
             max_seq_train_length: Maximum length that a sequence in the training set can have.
             min_seq_test_length: Minimum length that a sequence in the test set can have.
             max_seq_test_length: Maximum length that a sequence in the test set can have.
-            
+
             max_output_size: Maximum allowed length of the output.
 
         I/O examples:
@@ -70,10 +70,10 @@ class DyckLanguageScenario(Scenario):
         seed: int = 42,
     ):
         if not (prob_p > 0 and prob_q > 0 and (prob_p + prob_q) < 1):
-            raise ValueError(f"It must be the case that 0 < prob_p, prob_q < 1 and 0 < prob_p + prob_q < 1.")
+            raise ValueError("It must be the case that 0 < prob_p, prob_q < 1 and 0 < prob_p + prob_q < 1.")
 
         if num_parenthesis_pairs < 0 or num_parenthesis_pairs > 4:
-            raise ValueError(f"The number of parenthesis pairs should be a number between 1 and 4 (inclusive).")
+            raise ValueError("The number of parenthesis pairs should be a number between 1 and 4 (inclusive).")
         parenthesis_pairs = parenthesis_pairs[:num_parenthesis_pairs]
 
         # Fixing the random seeds
@@ -99,10 +99,12 @@ class DyckLanguageScenario(Scenario):
         self.max_output_size = max_output_size
 
     def generate_dyck_sequence(self, current_recursive_depth: int = 0, max_length: int = 100) -> List[str]:
-        """ Generates a random Dyck-n sequence.
+        """
+        Generates a random Dyck-n sequence.
 
         Args:
-            current_recursive_depth: Current recursive depth, used to limit the recursion depth and avoid infinite recursions.
+            current_recursive_depth: Current recursive depth, used to limit the recursion depth and
+                                     avoid infinite recursions.
 
         Probabilistic Context Free Grammar (PCFG) for the Dyck-n language:
             S --> (_i S )_i with probability p/n
@@ -111,7 +113,7 @@ class DyckLanguageScenario(Scenario):
         where 0 < p, q < 1 and 0 < p + q < 1
 
         Returns:
-            List of symbols in a genearted Dyck-n sequence.
+            List of symbols in a generated Dyck-n sequence.
         """
         if current_recursive_depth > self.max_recursive_depth:
             return []
@@ -162,11 +164,13 @@ class DyckLanguageScenario(Scenario):
         return stack
 
     def create_input_output(self, min_length: int, max_length: int) -> Tuple[str, str]:
-        """ Creates an input-output pair. 
-        
-            Note: The generate_dyck_sequence function generates a Dyck sequence; however, we cannot randomly split it into an input-output pair, 
-            because such a random split might cause the output element to include some opening parentheses as well, but remember that we are only 
-            interested in predicting the closing parentheses of a Dyck prefix.
+        """
+        Creates an input-output pair.
+
+        Note: The generate_dyck_sequence function generates a Dyck sequence; however, we cannot randomly split it into
+              an input-output pair, because such a random split might cause the output element to include some opening
+              parentheses as well, but remember that we are only interested in predicting the closing parentheses of
+              a Dyck prefix.
         """
         while True:
             sequence = self.generate_dyck_sequence(current_recursive_depth=0, max_length=max_length)

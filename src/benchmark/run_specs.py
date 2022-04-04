@@ -901,7 +901,8 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Please complete the rest of the following Dyck sequence, making sure that the parentheses are closed properly. ",
+        instructions="Please complete the rest of the following Dyck sequence, "
+        "making sure that the parentheses are closed properly. ",
         input_prefix="Input: ",
         output_prefix="",
         model="openai/davinci",
