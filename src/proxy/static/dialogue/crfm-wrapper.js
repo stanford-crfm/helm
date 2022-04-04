@@ -44,6 +44,7 @@ const ChatBox = {
       user_uuid: null,
       payload: null,
       questions: questions,
+      prompt: "",
       //utterances: [],
       utterances: [
         /*{speaker: "user", text: "hi"},
@@ -199,3 +200,12 @@ function realign_transcript() {
 window.addEventListener("resize", realign_transcript);
 const app = Vue.createApp(ChatBox);
 const vm = app.mount("#app");
+axios.post("/api/dialogue/start", {
+})
+  .then(function (response) {
+    vm.prompt = response.data.prompt;
+    console.log(vm.prompt);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
