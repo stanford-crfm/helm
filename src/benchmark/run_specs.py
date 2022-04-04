@@ -418,8 +418,10 @@ def get_raft_spec(subset: str) -> RunSpec:
     )
 
 
-def get_math_spec(type: str, level: str, use_official_prompt: bool = True) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.math_scenario.MATHScenario", args={"type": type, "level": level})
+def get_math_spec(subject: str, level: str, use_official_prompt: bool = True) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.math_scenario.MATHScenario", args={"subject": subject, "level": level}
+    )
 
     instructions = OFFICIAL_MATH_INSTRUCTIONS
     if use_official_prompt:
@@ -442,7 +444,10 @@ def get_math_spec(type: str, level: str, use_official_prompt: bool = True) -> Ru
     )
 
     return RunSpec(
-        name=f"math:type={type},level={level}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_math_metrics()
+        name=f"math:subject={subject},level={level}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_math_metrics(),
     )
 
 
@@ -976,7 +981,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         raise ValueError(f"Unknown run spec name: {name}")
 
     # Peel off the run expanders (e.g., model)
-    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]
+    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # noqa
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
 
     # Get the canonical run specs

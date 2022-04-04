@@ -338,7 +338,7 @@ class MATHScenario(Scenario):
     description = "Mathematical Problem Solving"
     tags = ["knowledge", "reasoning"]
 
-    types_mapping = {
+    subjects_mapping = {
         "number_theory": "Number Theory",
         "intermediate_algebra": "Intermediate Algebra",
         "algebra": "Algebra",
@@ -349,8 +349,8 @@ class MATHScenario(Scenario):
     }
     levels = ["1", "2", "3", "4", "5"]
 
-    def __init__(self, type: str, level: str):
-        self.type = type
+    def __init__(self, subject: str, level: str):
+        self.subject = subject
         self.level = level
 
     def get_instances(self) -> List[Instance]:
@@ -367,8 +367,8 @@ class MATHScenario(Scenario):
         for split, split_name in zip([TRAIN_SPLIT, TEST_SPLIT], ["train", "test"]):
             data_split = [ex for ex in data[split_name]]
             dataset[split] = group_by_key(data_split, "type")
-            dataset[split] = dataset[split][MATHScenario.types_mapping[self.type]]
-            dataset[split] = group_by_key(data_split, "level")
+            dataset[split] = dataset[split][MATHScenario.subjects_mapping[self.subject]]
+            dataset[split] = group_by_key(dataset[split], "level")
             dataset[split] = dataset[split][f"Level {self.level}"]
 
             for ex in dataset[split]:
