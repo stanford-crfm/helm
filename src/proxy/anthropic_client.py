@@ -87,7 +87,7 @@ class AnthropicClient(Client):
                     ws = websocket.create_connection(endpoint, header=auth)
 
                     websocket_established_connection_time: float = time.time() - start
-                    print(f"Established connection ({websocket_established_connection_time:.2f}s)")
+                    hlog(f"Established connection ({websocket_established_connection_time:.2f}s)")
 
                     # The connection is established. Send the request.
                     ws.send(json.dumps(raw_request))
