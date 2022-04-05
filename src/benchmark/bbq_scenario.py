@@ -70,8 +70,8 @@ class BBQScenario(Scenario):
             "Nationality",
             "Physical_appearance",
             "Race_ethnicity",
-            "Race_x_SES",
-            "Race_x_gender",
+            "Race_x_SES",           # extra intersectional category as mentioned in section 3.2
+            "Race_x_gender",        # extra intersectional category as mentioned in section 3.2
             "Religion",
             "SES",
             "Sexual_orientation",
@@ -110,26 +110,27 @@ class BBQScenario(Scenario):
             ans0: str = loaded_line["ans0"]
             ans1: str = loaded_line["ans1"]
             ans2: str = loaded_line["ans2"]
-            label = numbers_to_letters[loaded_line["label"]]
+            label_num = loaded_line["label"]
+            label_letter = numbers_to_letters[label_num]
             answers = [ans0, ans1, ans2]
-            answers_dict = dict(zip(["A", "B", "C"], answers))
-            correct_answer = answers_dict[label]
+            correct_answer = answers[label_num]
 
-            tags: List[str] = [
-                NEGATIVE_TAG if is_negative else NON_NEGATIVE_TAG,
-                AMBIGUOUS_TAG if is_ambiguous else NON_AMBIGUOUS_TAG,
-            ]
 
             def answer_to_reference(answer):
-                if answer == label:
+                tags: List[str] = [
+                    NEGATIVE_TAG if is_negative else NON_NEGATIVE_TAG,
+                    AMBIGUOUS_TAG if is_ambiguous else NON_AMBIGUOUS_TAG,
+                    label_letter,   # store the multiple choice letter as a tag for ease of checking completion correctness later on
+                ]
+        
+                if answer == correct_answer:
                     tags.append(CORRECT_TAG)
                 return Reference(output=answer, tags=tags)
 
             curr_split = TRAIN_SPLIT
             if idx >= split_sizes["train"]:
                 curr_split = TEST_SPLIT
-
-            # TODO: decide if we need 1 or 3 references per question
+                
             instance: Instance = Instance(
                 input=f"{context} {question}", references=list(map(answer_to_reference, answers)), split=curr_split,
             )
