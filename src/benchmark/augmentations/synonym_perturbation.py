@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import re
 import numpy as np
 import spacy
+from nltk import download
 from nltk.corpus import wordnet
 
 from benchmark.scenario import Instance
@@ -26,20 +27,6 @@ class SynonymPerturbation(Perturbation):
         Albany Theatre is a historic theater in Albany, Georgia.
     Output:
         Albany Theatre is a historic dramaturgy in Albany, Georgia.
-
-    Dependencies required to run this perturbation:
-    This perturbation required WordNet and the Spacy model en_core_web_sm. Instructions to download both
-    these models are specified below.
-
-    1. Download WordNet by running the command
-
-        python -m nltk.downloader wordnet omw-1.4
-
-    2. Install the required spacy model by running the command
-
-        pip install -U spacy
-        python -m spacy download en_core_web_sm
-
     """
 
     @dataclass(frozen=True)
@@ -92,7 +79,12 @@ class SynonymPerturbation(Perturbation):
             if wn_pos is None:
                 result.append(word)
             else:
-                syns = wordnet.synsets(word, pos=wn_pos)
+                try:
+                    syns = wordnet.synsets(word, pos=wn_pos)
+                except OSError:
+                    download("wordnet")
+                    download("omw-1.4")
+                    syns = wordnet.synsets(word, pos=wn_pos)
                 syns = [syn.name().split(".")[0] for syn in syns]
                 syns = [syn for syn in syns if syn.lower() != word.lower()]
                 if len(syns) > 0 and np.random.random() < self.prob:
