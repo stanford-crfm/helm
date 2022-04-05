@@ -444,7 +444,12 @@ class Adapter:
         return prefix.replace("A", chr(ord("A") + i))
 
     def construct_language_modeling_prompt(
-        self, conditioning_tokens: List[int], pred_tokens: List[int], tokenizer: Tokenizer, max_seq_len: int
+        self,
+        conditioning_tokens: List[int],
+        pred_tokens: List[int],
+        tokenizer: Tokenizer,
+        max_req_len: int,
+        instance_input: str,
     ) -> Tuple[str, int]:
         """
         Some subwords/symbols might translate to multiple tokens. e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"].
@@ -454,19 +459,23 @@ class Adapter:
 
         Since some tokens are removed, we also need to recompute num_conditioning_tokens.
         """
-        raw_prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens)
+        raw_prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens, instance_input)
         prompt: str = raw_prompt.strip("\ufffd")
-        num_leading_byte_tokens: int = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
-        num_trailing_byte_tokens: int = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
-
-        # There are no string tokens to predict
-        if num_trailing_byte_tokens >= len(pred_tokens):
-            num_conditioning_tokens = len(tokenizer.encode(prompt))
-        # There are no conditioning string tokens
-        elif num_leading_byte_tokens >= len(conditioning_tokens):
-            num_conditioning_tokens = 1
+        # If there are no byte tokens, avoid API calls
+        if len(prompt) == len(raw_prompt):
+            num_conditioning_tokens = len(conditioning_tokens)
         else:
-            num_conditioning_tokens = len(conditioning_tokens) - num_leading_byte_tokens
+            num_leading_byte_tokens: int = max_req_len - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
+            num_trailing_byte_tokens: int = max_req_len - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
+
+            # There are no string tokens to predict
+            if num_trailing_byte_tokens >= len(pred_tokens):
+                num_conditioning_tokens = len(tokenizer.encode(prompt))
+            # There are no conditioning string tokens
+            elif num_leading_byte_tokens >= len(conditioning_tokens):
+                num_conditioning_tokens = 1
+            else:
+                num_conditioning_tokens = len(conditioning_tokens) - num_leading_byte_tokens
         return prompt, num_conditioning_tokens
 
     def adapt_language_modeling(self, instances: List[Instance]) -> List[RequestState]:
@@ -476,19 +485,18 @@ class Adapter:
         """
         request_states: List[RequestState] = []
 
-        # TODO: Support other models and tokenizers
-        assert self.adapter_spec.model.startswith("openai/")
-
         max_seq_len: int = self.tokenizer.max_sequence_length
-        prefix_token: str = self.tokenizer.end_of_text_token
+        max_req_len: int = self.tokenizer.max_request_length
+        prefix_token: str = self.tokenizer.prefix_token
 
         for instance in instances:
             tokens = self.tokenizer.encode(instance.input)
-            assert self.tokenizer.decode(tokens) == instance.input
+            assert self.tokenizer.decode(tokens, instance.input) == instance.input
 
             num_predicted_tokens = 0
 
             # Special handling for first window: predict all tokens
+            # Example for GPT-3:
             # Raw token sequence format: [<str_tok1>, <str_tok2>, ..., <byte_tok1>, ...] (total length <= max_seq_len)
             # Convert it to: [<eot>, <str_tok1>, <str_tok2>, ...] (total length <= max_seq_len+1)
             # Num_conditioning_tokens = 1
@@ -497,9 +505,9 @@ class Adapter:
             # Note: There are trailing byte tokens in the raw sequence because some subwords/symbols might translate to
             # multiple tokens (e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]) and we chunk documents by token, not by word.
             first_seq_len = min(max_seq_len, len(tokens))
-            prompt = self.tokenizer.decode(self.tokenizer.encode(prefix_token) + tokens[:first_seq_len]).rstrip(
-                "\ufffd"
-            )
+            prompt = self.tokenizer.decode(
+                self.tokenizer.encode(prefix_token) + tokens[:first_seq_len], instance.input
+            ).rstrip("\ufffd")
             request = Request(
                 model=self.adapter_spec.model,
                 prompt=prompt,
@@ -516,12 +524,13 @@ class Adapter:
                 output_mapping=None,
                 request=request,
                 result=None,
-                num_conditioning_tokens=1,
+                num_conditioning_tokens=int(len(prefix_token) > 0),
             )
             request_states.append(request_state)
             num_predicted_tokens += first_seq_len
 
             while num_predicted_tokens < len(tokens):
+                # Example for GPT-3:
                 # Raw token sequence format:
                 # [<cond_byte1>, ..., <cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, ..., <pred_byte1>, ...]
                 # (total length <= max_seq_len+1)
@@ -531,12 +540,12 @@ class Adapter:
                 #
                 # Example: conditioning_tokens=["bytes:\x99", "Exc"], pred_tokens=["use", " me", "bytes:\xe2\x80"] =>
                 # prompt="Excuse me", num_conditioning_tokens = 1
-                window_pred_len = min(len(tokens) - num_predicted_tokens, max_seq_len)
+                window_pred_len = min(len(tokens) - num_predicted_tokens, max_req_len - 1)
                 window_end = num_predicted_tokens + window_pred_len
-                conditioning_tokens = tokens[window_end - max_seq_len - 1 : num_predicted_tokens]
+                conditioning_tokens = tokens[window_end - max_req_len : num_predicted_tokens]
                 pred_tokens = tokens[num_predicted_tokens:window_end]
                 prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                    conditioning_tokens, pred_tokens, self.tokenizer, max_seq_len
+                    conditioning_tokens, pred_tokens, self.tokenizer, max_req_len, instance.input
                 )
 
                 request = Request(

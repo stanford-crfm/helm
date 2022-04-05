@@ -5,6 +5,10 @@ from .tokenizer import Tokenizer
 
 
 class GPT2Tokenizer(Tokenizer):
+
+    # The max request length of GPT2 is MAX_SEQUENCE_LENGTH + 1.
+    MAX_REQUEST_LENGTH: int = 1025
+
     # The max length of the model input. The max sequence length for GPT-2 is 1024.
     MAX_SEQUENCE_LENGTH: int = 1024
 
@@ -18,6 +22,11 @@ class GPT2Tokenizer(Tokenizer):
     def max_sequence_length(self) -> int:
         """Return the max sequence length of this tokenizer."""
         return GPT2Tokenizer.MAX_SEQUENCE_LENGTH
+
+    @property
+    def max_request_length(self) -> int:
+        """Return the max request length of the OpenAI models."""
+        return GPT2Tokenizer.MAX_REQUEST_LENGTH
 
     @property
     def end_of_text_token(self) -> str:

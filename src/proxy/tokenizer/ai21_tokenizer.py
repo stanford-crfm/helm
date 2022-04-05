@@ -1,3 +1,4 @@
+from tokenize import Token
 from typing import List, Optional
 
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken, TextRange
@@ -26,6 +27,11 @@ class AI21Tokenizer(Tokenizer):
         return AI21Tokenizer.MAX_SEQUENCE_LENGTH
 
     @property
+    def max_request_length(self) -> int:
+        # The max sequence length is the same as the max request length for AI21.
+        return AI21Tokenizer.MAX_SEQUENCE_LENGTH
+
+    @property
     def end_of_text_token(self) -> str:
         # TODO: I'm not sure what their end of text token is. I don't think it's documented.
         return " "
@@ -39,6 +45,9 @@ class AI21Tokenizer(Tokenizer):
         """
         Encodes the input text to tokens.
         """
+        # If text is empty, skips the API call and returns an empty list.
+        if not text:
+            return []
         response: TokenizationRequestResult = self._make_tokenization_request(text)
         return response.tokens
 
@@ -53,8 +62,22 @@ class AI21Tokenizer(Tokenizer):
         # The tokens must be a consecutive subset of the original text.
         for i in range(len(tokens) - 1):
             assert tokens[i].text_range.end == tokens[i + 1].text_range.start
-        start: int = tokens[0].text_range.start
-        end: int = tokens[-1].text_range.end
+        start_token_index: int = 0
+        # Remove the empty leading tokens to make sure decoding after encoding does not generate
+        # extra tokens. e.g. "burying him" -> ["_burying"(0,7), "_him"(7,11)];
+        # " burying him" -> ["_"(0,0), "_burying"(0,8), "_him"(8,12)]
+        while tokens[start_token_index].text_range.start == tokens[start_token_index].text_range.end:
+            start_token_index += 1
+            if start_token_index == len(tokens):
+                return ""
+        start_token: TokenizationToken = tokens[start_token_index]
+        end_token: TokenizationToken = tokens[-1]
+        # Note that ▁ is not _
+        skipped_positions: int = start_token.text_range.end - start_token.text_range.start - len(
+            start_token.text.lstrip("▁")
+        )
+        start: int = start_token.text_range.start + skipped_positions
+        end: int = end_token.text_range.end
         return original_text[start:end]
 
     def tokenize(self, text: str) -> List[str]:

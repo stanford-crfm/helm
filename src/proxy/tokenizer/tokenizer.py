@@ -11,6 +11,12 @@ class Tokenizer(ABC):
 
     @property
     @abstractmethod
+    def max_request_length(self) -> int:
+        """ The max reqeust length of the model."""
+        pass
+
+    @property
+    @abstractmethod
     def end_of_text_token(self) -> str:
         """The end of text token."""
         pass
