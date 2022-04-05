@@ -178,7 +178,7 @@ def handle_shutdown():
 
 
 @app.post("/api/dialogue/start")
-def handle_utterance():
+def start_dialogue():
     def perform(args):
         response = start_conversation(Authentication(DIALOGUE_CREDENTIALS), args)
         return response
