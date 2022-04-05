@@ -69,8 +69,11 @@ class SynonymPerturbation(Perturbation):
         return step6.strip()
 
     def synonyms_substitute(self, text):
-
-        spacy_model = spacy.load("en_core_web_sm")
+        try:
+            spacy_model = spacy.load("en_core_web_sm")
+        except OSError:
+            spacy.cli.download("en_core_web_sm")
+            spacy_model = spacy.load("en_core_web_sm")
 
         upos_wn_dict = {
             "VERB": "v",
