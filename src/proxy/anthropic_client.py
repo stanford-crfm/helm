@@ -61,13 +61,15 @@ class AnthropicClient(Client):
         raw_request = {
             "q": request.prompt,  # Prompt
             "t": request.temperature,  # Temperature
-            "k": 0,  # TODO: Recommended to hardcode this to 0 for now.
+            # TODO: Recommended to hardcode this to -1 for now
+            "k": -1,  # k: ony the top k possibilities
             "p": request.top_p,  # Top p
             "n": request.max_tokens,  # Max tokens
             "stop": request.stop_sequences,  # Stop sequences
             # Anthropic-specific arguments - keep these default values for now.
             "max_simultaneous_queries": 20,  # should be ~20
-            "meta": True,  # Skip sampling meta tokens. Default to True.
+            # Meta tokens are non-text tokens Anthropic sometimes injects into the text to identify the dataset
+            "meta": True,  # meta=True skips sampling meta tokens. Keep it true.
             "is_replicated": True,  # Always set to True
             # Setting `use_sample_v1` to false enables batching to increase throughput.
             # However, if false, the API will break when users send multiple requests with different hyperparameters.
@@ -131,7 +133,7 @@ class AnthropicClient(Client):
                 # Instead of caching all the responses, just cache what we need
                 return {
                     "tokens": tokens,
-                    "last_response": raw_response,
+                    "raw_response": raw_response,
                 }
 
         try:
@@ -143,7 +145,7 @@ class AnthropicClient(Client):
             return RequestResult(success=False, cached=False, error=str(e), completions=[])
 
         token_texts: List[str] = response["tokens"]
-        last_response: Dict = json.loads(response["last_response"])
+        raw_response: Dict = json.loads(response["raw_response"])
 
         sequence_logprob: float = 0
         tokens: List[Token] = []
@@ -153,8 +155,8 @@ class AnthropicClient(Client):
             token_logprob: float = 0
             sequence_logprob += token_logprob
             tokens.append(Token(text=token_text, logprob=token_logprob, top_logprobs={}))
-        # TODO: Anthropic currently only supports a single completion at a time
-        sequence = Sequence(text=last_response["completion"], logprob=sequence_logprob, tokens=tokens)
+        # TODO: Anthropic currently only supports a single completion per request
+        sequence = Sequence(text=raw_response["completion"], logprob=sequence_logprob, tokens=tokens)
         return RequestResult(success=True, cached=cached, request_time=response["request_time"], completions=[sequence])
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:

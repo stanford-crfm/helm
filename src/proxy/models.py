@@ -73,7 +73,7 @@ ALL_MODELS = [
     Model(group="huggingface", name="huggingface/gptj_6b", description="GPT-J (6B parameters)", tags=[TEXT_MODEL_TAG]),
     Model(group="huggingface", name="huggingface/gpt2", description="GPT-2 (1.5B parameters)", tags=[TEXT_MODEL_TAG]),
     # Anthropic
-    # TODO: update with the official name and description
+    # TODO: The API for the Anthropic LM is not production-ready. Update with the official name and description.
     Model(
         group="anthropic",
         name="anthropic/stanford-online-helpful-v4-s3",
