@@ -171,3 +171,6 @@ body {
     font-size:small;
     color:rgba(0, 0, 0, 0.40);
 }
+#endConversation:disabled{
+    opacity: 25%;
+}

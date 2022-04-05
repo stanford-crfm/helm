@@ -83,8 +83,8 @@
 
         <div id="interview-questions" class="bottom-form">
             <div class="form-row">
-                <button class='btn btn-warning' :disabled=" utterances.length < 20" @click="endConversation()"
-                    v-if="!isConversationOver" type="button">End Conversation</button>
+                <button id="endConversation" class='btn btn-warning' :disabled=" utterances.length < 20"
+                    @click="endConversation()" v-if="!isConversationOver" type="button">End Conversation</button>
                 <template v-else>
                     Question {{currentQuestionIdx+1}} of {{questions.length}} <br>
                     <div class="form-row">
