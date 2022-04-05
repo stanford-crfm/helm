@@ -4,8 +4,7 @@ from dataclasses import dataclass
 import re
 import numpy as np
 import spacy
-from nltk import download
-from nltk.corpus import wordnet
+import nltk
 
 from benchmark.scenario import Instance
 from .perturbation_description import PerturbationDescription
@@ -80,11 +79,11 @@ class SynonymPerturbation(Perturbation):
                 result.append(word)
             else:
                 try:
-                    syns = wordnet.synsets(word, pos=wn_pos)
+                    syns = nltk.corpus.wordnet.synsets(word, pos=wn_pos)
                 except OSError:
-                    download("wordnet")
-                    download("omw-1.4")
-                    syns = wordnet.synsets(word, pos=wn_pos)
+                    nltk.download("wordnet")
+                    nltk.download("omw-1.4")
+                    syns = nltk.corpus.wordnet.synsets(word, pos=wn_pos)
                 syns = [syn.name().split(".")[0] for syn in syns]
                 syns = [syn for syn in syns if syn.lower() != word.lower()]
                 if len(syns) > 0 and np.random.random() < self.prob:
