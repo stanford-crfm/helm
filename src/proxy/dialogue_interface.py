@@ -71,7 +71,7 @@ params = {
 }
 
 
-def start_conversation(auth: Authentication, json_args: json):
+def start_conversation(auth: Authentication, json_args: dict):
     """
     This is a stub method to get a text prompt.
     TODO: Replace this with an integration with interactive runer
@@ -81,7 +81,7 @@ def start_conversation(auth: Authentication, json_args: json):
     }
 
 
-def conversational_turn(auth: Authentication, json_args: json) -> json:
+def conversational_turn(auth: Authentication, json_args: dict) -> dict:
     """
     Call CRFM API to get the next turn of conversation
 
@@ -131,8 +131,8 @@ def conversational_turn(auth: Authentication, json_args: json) -> json:
     return json_response  # Outputs
 
 
-def submit_interview(json_args: json) -> None:
+def submit_interview(json_args: dict) -> dict:
     session_uuid = str(json_args.get("session_uuid"))
     with open(session_uuid + ".answers.json", "w") as f:
         json.dump(json_args, f)
-    return json.dumps({"success": True}), 200, {"ContentType": "application/json"}  # Outputs
+    return {"success": True}  # Outputs
