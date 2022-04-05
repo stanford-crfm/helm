@@ -28,4 +28,5 @@ sacrebleu
 numpy
 pyext
 datasets>=1.18.3
+spacy==3.2.3
 rouge-score==0.0.4
