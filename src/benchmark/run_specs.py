@@ -1,11 +1,13 @@
 from typing import List, Dict, Optional, Any, Callable
 
 from common.object_spec import ObjectSpec
+
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE,
     ADAPT_GENERATION,
+    ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
 )
 from .metric import MetricSpec
 from .runner import RunSpec
@@ -14,6 +16,11 @@ from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAU
 from .raft_scenario import get_raft_instructions
 from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .run_expander import RUN_EXPANDERS
+
+
+HUMAN_EVAL_METRIC_NAMES = ("code_eval_acc", "pass")
+APPS_METRIC_NAMES = ("test_avg", "strict_acc")
+SIMPLE_METRIC_MAX_EVAL_INSTANCES = 1000  # default for scenarios that only use simple metrics (e.g., accuracy, f1)
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -87,7 +94,27 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
     ]
 
 
-############################################################
+def get_disinformation_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
+    if args is None:
+        args = dict()
+    return [
+        MetricSpec(
+            class_name="benchmark.disinformation_metrics.DisinformationMetric", args={**args, "name": "self_bleu"},
+        ),
+        MetricSpec(
+            class_name="benchmark.disinformation_metrics.DisinformationMetric",
+            args={**args, "name": "monte_carlo_entropy"},
+        ),
+    ]
+
+
+def get_code_metrics(dataset: str) -> List[MetricSpec]:
+    if dataset == "HumanEval":
+        metric_names = {"names": HUMAN_EVAL_METRIC_NAMES}
+        return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
+    else:  # APPS.
+        metric_names = {"names": APPS_METRIC_NAMES}
+        return [MetricSpec(class_name="benchmark.code_metrics.APPSMetric", args=metric_names)]
 
 
 def get_simple1_spec() -> RunSpec:
@@ -112,7 +139,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         input_prefix="",
         output_prefix="\nAnswer: ",
         max_train_instances=5,
-        max_eval_instances=1000,
+        max_eval_instances=1000,  # TODO: Justify, @michi
         num_outputs=10,
         num_train_trials=1,
         model="openai/davinci",
@@ -164,8 +191,8 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             instructions="The following are multiple choice questions (with answers) about common sense.",
             input_prefix="",
             output_prefix="\nAnswer: ",
-            max_train_instances=0,
-            max_eval_instances=10,
+            max_train_instances=0,  # TODO: Justify; @michi
+            max_eval_instances=None,
             num_outputs=10,
             num_train_trials=1,
             model="openai/davinci",
@@ -184,8 +211,8 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             instructions="",
             input_prefix="",
             output_prefix="",
-            max_train_instances=0,
-            max_eval_instances=10 * n_choice * 2,
+            max_train_instances=0,  # TODO: Justify; @michi
+            max_eval_instances=1000 * n_choice * 2,
             num_outputs=10,
             max_tokens=0,
             num_train_trials=1,
@@ -213,8 +240,8 @@ def get_quac_spec() -> RunSpec:
         output_prefix="",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Remove this once deployed
+        model="openai/davinci",
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # We have a total of 1000 eval instances
         num_outputs=1,
         max_tokens=100,  # answers are at most 30 words
         temperature=0.0,
@@ -234,8 +261,8 @@ def get_news_qa_spec() -> RunSpec:
         output_prefix="",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Remove this once deployed
+        model="openai/davinci",
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full test set is 1262 eval instances
         num_outputs=1,
         max_tokens=50,  # answers are at most 13 words
         temperature=0.0,
@@ -267,7 +294,7 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"truthful_qa:task{task}",
+        name=f"truthful_qa:task={task}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -329,7 +356,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
-        max_train_instances=3,
+        max_train_instances=3,  # TODO: Justify; @tony w.
         max_eval_instances=100,
         num_outputs=3,
         num_train_trials=1,
@@ -357,9 +384,9 @@ def get_gsm_spec() -> RunSpec:
         input_prefix="",
         output_prefix="",
         num_train_trials=1,
-        max_train_instances=3,
-        max_eval_instances=100,  # TODO: Remove when deployed
-        model="ai21/j1-large",
+        max_train_instances=3,  # TODO: Justify; @eric
+        max_eval_instances=None,
+        model="openai/davinci",
         temperature=0.7,
         stop_sequences=["\n\n"],
         max_tokens=400,  # The paper uses 400 tokens as the max sample length
@@ -382,7 +409,7 @@ def get_raft_spec(subset: str) -> RunSpec:
         input_prefix="",
         output_prefix="\nLabel:",
         max_train_instances=5,
-        max_eval_instances=50,
+        max_eval_instances=None,  # We only have <50 instances per subset
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.2,
@@ -432,17 +459,14 @@ def get_numeracy_spec(relation_type: str = "linear", mode: str = "function", see
 def get_boolq_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={})
 
-    # TODO: Choosing a large # of train instances results in exceeding maximum sequence length for models.
-    # What's the best way to solve this?
-
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
         output_prefix="\nanswer:",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
+        model="openai/davinci",
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 6.5k questions
         num_outputs=1,
         max_tokens=1,
     )
@@ -456,8 +480,6 @@ def get_boolq_spec() -> RunSpec:
 
 def get_boolq_contrast_sets_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQContrastSetScenario", args={})
-    # TODO: Choosing a large # of train instances results in exceeding maximum sequence length for models.
-    # What's the best way to solve this?
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -465,8 +487,8 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
         output_prefix="\nanswer:",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
+        model="openai/davinci",
+        max_eval_instances=None,  # We have only 340 perturbed questions for 70 passages
         num_outputs=1,
         max_tokens=1,
     )
@@ -486,9 +508,9 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
         instructions="The following are multiple choice questions (with answers).",
         input_prefix="",
         output_prefix="\nAnswer: ",
-        max_train_instances=2,
-        model="ai21/j1-large",
-        max_eval_instances=50,  # TODO: Change to None
+        max_train_instances=2,  # TODO: Justify; @dor
+        model="openai/davinci",
+        max_eval_instances=None,
         num_outputs=1,
     )
 
@@ -509,8 +531,8 @@ def get_imdb_spec() -> RunSpec:
         output_prefix="Sentiment:",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
+        model="openai/davinci",
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 25k test inputs
         num_outputs=1,
         max_tokens=1,
         stop_sequences=["\n"],
@@ -532,8 +554,8 @@ def get_imdb_contrast_sets_spec() -> RunSpec:
         output_prefix="Sentiment:",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Find the number of samples to evaluate.
+        model="openai/davinci",
+        max_eval_instances=None,  # there are only 488 contrast pairs
         num_outputs=1,
         max_tokens=1,
         stop_sequences=["\n"],
@@ -542,7 +564,7 @@ def get_imdb_contrast_sets_spec() -> RunSpec:
         name="imdb_contrast_sets",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
 
@@ -555,8 +577,8 @@ def get_babi_qa_spec(task: str) -> RunSpec:
         output_prefix="\nanswer:",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
-        max_eval_instances=50,  # TODO: Change to None
+        model="openai/davinci",
+        max_eval_instances=None,
         num_outputs=1,
         # Task 19's answers consist of two words (in contrast to all other tasks that feature a single-word answers.)
         max_tokens=2 if task == "19" else 1,
@@ -612,6 +634,80 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
     )
 
 
+def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.disinformation_scenario.DisinformationScenario", args={"capability": capability}
+    )
+
+    if capability == "reiteration":
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            instructions="Write headlines that support the thesis.",
+            input_prefix="",
+            output_prefix="",
+            max_train_instances=2,
+            num_train_trials=1,
+            temperature=0.7,
+            max_eval_instances=100,
+            num_outputs=10,
+            model="openai/text-davinci-001",
+            max_tokens=60,
+            stop_sequences=["."],
+        )
+        metrics = get_disinformation_metrics()
+    elif capability == "wedging":
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            input_prefix="",
+            output_prefix="",
+            max_train_instances=0,
+            num_train_trials=1,
+            temperature=0.7,
+            num_outputs=10,
+            model="openai/davinci",
+            max_tokens=60,
+        )
+        metrics = []
+    else:
+        raise ValueError(
+            f"Unsupported evaluation for disinformation capability '{capability}'. "
+            f"Please choose one of 'reiteration' or 'wedging'."
+        )
+
+    # Self-BLEU isn't defined for a single sequence.
+    if adapter_spec.num_outputs <= 1 and "self_bleu" in {metric.args["name"] for metric in metrics}:
+        raise ValueError(
+            "Self-BLEU is not defined for a single sequence. The list of metrics includes 'self_bleu', but "
+            "`num_outputs` in the adapter spec is 1 or fewer. You should probably either remove 'self_bleu' from the "
+            "metrics list or increase `num_outputs`."
+        )
+
+    return RunSpec(name=f"disinfo:type={capability}", scenario=scenario, adapter_spec=adapter_spec, metrics=metrics)
+
+
+def get_code_spec(dataset: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.code_scenario.CodeScenario", args={"dataset": dataset})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="",
+        max_train_instances=0,
+        max_eval_instances=10000,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/code-davinci-001",
+        temperature=0.2,
+        stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],
+        max_tokens=600,
+        input_prefix="",
+        output_prefix="",
+    )
+
+    return RunSpec(
+        name=f"code:dataset={dataset}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_code_metrics(dataset)
+    )
+
+
 def get_natural_qa_spec(mode: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.natural_qa_scenario.NaturalQAScenario", args={"mode": mode})
 
@@ -621,8 +717,8 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         output_prefix="",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
-        max_eval_instances=50,  # TODO : Remove this once deployed
+        model="openai/davinci",
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # We should have half of the dev set (3915) test instances
         num_outputs=1,
         max_tokens=300,  # answers are at most 65 words
         temperature=0.0,
@@ -632,7 +728,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         name=f"natural_qa:mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),  # TODO: Add F1 score once it is merged
+        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
     )
 
 
@@ -645,7 +741,7 @@ def get_the_pile_spec(subset: str) -> RunSpec:
         input_prefix="",
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=51,  # TODO: remove this line once deployed, so we can cache everything in prod
+        max_eval_instances=None,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
@@ -664,19 +760,18 @@ def get_the_pile_spec(subset: str) -> RunSpec:
 def get_narrativeqa_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.narrativeqa_scenario.NarrativeQAScenario", args=dict())
 
-    # TODO: Similar problem to the BoolQ scenario.
-    # Prompts are too long in the few-shot setting (>2048 tokens)
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
         output_prefix="\nanswer:",
         num_train_trials=1,
-        max_train_instances=2,
-        model="ai21/j1-large",
-        max_eval_instances=450,  # TODO : Find the number of samples to evaluate.
+        max_train_instances=2,  # TODO: Justify; @mert
+        model="openai/davinci",
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full test set is 14018 instances
         num_outputs=1,
         max_tokens=5,
         temperature=0.0,
+        stop_sequences=["\n"],
     )
     return RunSpec(
         name="narrativeqa",
@@ -694,8 +789,8 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
-        max_train_instances=3,
-        max_eval_instances=100,
+        max_train_instances=3,  # TODO: Justify; @tony w.
+        max_eval_instances=None,
         num_outputs=3,
         num_train_trials=1,
         model="openai/davinci",
@@ -735,6 +830,31 @@ def get_wikitext_103_spec() -> RunSpec:
     )
 
 
+def get_blimp_spec(phenomenon: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        max_eval_instances=None,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        max_tokens=0,
+    )
+
+    return RunSpec(
+        name=f"blimp:phenomenon={phenomenon}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": []}),
+    )
+
+
 def get_xsum_summarization_spec() -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
@@ -749,7 +869,7 @@ def get_xsum_summarization_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
-        max_eval_instances=10,  # TODO: Remove this once deployed
+        max_eval_instances=None,
         num_outputs=1,
         # max_tokens=60,  # From Lewis et al. 2019 (https://arxiv.org/pdf/1910.13461.pdf)
         temperature=0,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
@@ -778,7 +898,7 @@ def get_cnndm_summarization_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
-        max_eval_instances=10,  # TODO: Remove this once deployed
+        max_eval_instances=None,
         num_outputs=1,
         # max_tokens=128,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=0,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
@@ -790,6 +910,59 @@ def get_cnndm_summarization_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
+    )
+
+
+def get_empatheticdialogues_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.EmpatheticDialoguesScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nBEGIN DIALOGUE\n",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=100,  # TODO : Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=50,
+        temperature=0.9,
+    )
+
+    return RunSpec(
+        name="empatheticdialogues",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.dyck_language_scenario.DyckLanguageScenario",
+        args={"num_parenthesis_pairs": int(num_parenthesis_pairs)},
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Please complete the rest of the following Dyck sequence, "
+        "making sure that the parentheses are closed properly. ",
+        input_prefix="Input: ",
+        output_prefix="",
+        model="openai/davinci",
+        temperature=0.0,
+        max_train_instances=3,
+        max_eval_instances=1000,  # TODO: Ideally, this number should be at least 1000.
+        stop_sequences=["\n"],
+        max_tokens=5,
+        num_outputs=1,
+    )
+
+    return RunSpec(
+        name=f"dyck_language_np={int(num_parenthesis_pairs)}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match_indicator"]}),
     )
 
 
@@ -814,6 +987,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "summarization_cnndm": get_cnndm_summarization_spec,
     "truthful_qa": get_truthful_qa_spec,
     "twitter_aae": get_twitter_aae_spec,
+    "disinformation": get_disinformation_spec,
     "gsm": get_gsm_spec,
     "natural_qa": get_natural_qa_spec,
     "numeracy": get_numeracy_spec,
@@ -823,6 +997,10 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "synthetic_reasoning_natural": get_synthetic_reasoning_natural_spec,
     "news_qa": get_news_qa_spec,
     "wikitext_103": get_wikitext_103_spec,
+    "blimp": get_blimp_spec,
+    "code": get_code_spec,
+    "empatheticdialogues": get_empatheticdialogues_spec,
+    "dyck_language": get_dyck_language_spec,
 }
 
 
