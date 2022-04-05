@@ -8,6 +8,7 @@ from .identity_perturbation import IdentityPerturbation
 from .misspelling_perturbation import MisspellingPerturbation
 from .contraction_expansion_perturbation import ContractionPerturbation, ExpansionPerturbation
 from .typos_perturbation import TyposPerturbation
+from .synonym_perturbation import SynonymPerturbation
 
 
 def test_identity_perturbation():
@@ -87,3 +88,16 @@ def test_typos_perturbation():
     assert instances[0].perturbation.name == "TyposPerturbation"
     assert instances[0].perturbation.prob == 0.1
     assert instances[0].input == "After their marrjage, she started a close collaborwtion with Karvelas."
+
+
+def test_synonym_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[SynonymPerturbation(prob=0.5)], should_perturb_references=True)
+    instance: Instance = Instance(
+        id="id0", input="Albany Theatre is a historic theater in Albany, Georgia.", references=[],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+    assert instances[0].perturbation.name == "SynonymPerturbation"
+    assert instances[0].perturbation.prob == 0.5
+    assert instances[0].input == "Albany Theatre is a historic theater in Albany, Georgia."

@@ -97,6 +97,12 @@ def misspelling(prob: float) -> PerturbationSpec:
     )
 
 
+def synonym(prob: float) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.synonym_perturbation.SynonymPerturbation", args={"prob": prob}
+    )
+
+
 # Specifies the data augmentations that we're interested in trying out.
 # Concretely, this is a mapping from the name (which is specified in a conf
 # file or the CLI) to a list of options to try, where each option is a list of perturbations.
@@ -112,6 +118,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "misspelling": {"misspelling0.1": [misspelling(prob=0.1)]},
     "misspelling_sweep": {f"misspelling{prob}": [misspelling(prob=prob)] for prob in [0, 0.1, 0.2, 0.3]},
     "all": {"all": [extra_space(num_spaces=2), misspelling(prob=0.1)]},
+    "synonym": {"synonym0.5": [synonym(prob=0.5)]},
 }
 
 
