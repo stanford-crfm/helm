@@ -45,6 +45,7 @@ const ChatBox = {
       payload: null,
       questions: questions,
       prompt: "",
+      optedout: false,
       //utterances: [],
       utterances: [
         /*{speaker: "user", text: "hi"},
@@ -103,7 +104,8 @@ const ChatBox = {
         payload: this.payload,
         session_uuid: this.session_uuid,
         user_uuid: this.user_uuid,
-        user_utterance: this.newUtterance
+        user_utterance: this.newUtterance,
+        optedout: this.optedout,
       })
         .then(function (response) {
           var data = response.data;
@@ -138,7 +140,7 @@ const ChatBox = {
     },
     submitAnswers: function () {
       var that = this;
-      if (this.validate()) {
+      if (this.validate() || this.optedout) {
         axios.post("/api/dialogue/interview", {
           payload: this.payload,
           session_uuid: this.session_uuid,
@@ -146,6 +148,7 @@ const ChatBox = {
           user_utterance: this.newUtterance,
           utterances: this.utterances,
           questions: this.questions,
+          optedout: this.optedout,
         })
           .then(function (response) {
             that.success = true;
@@ -190,6 +193,11 @@ const ChatBox = {
       else {
         console.log("Question type not defined")
       }
+    },
+    optout: function () {
+      this.optedout = true;
+      if (!this.isConversationOver) { this.endConversation(); }
+      this.submitAnswers();
     }
   }
 }
@@ -209,3 +217,6 @@ axios.post("/api/dialogue/start", {
   .catch(function (error) {
     console.log(error);
   });
+$(window).on('load', function () {
+  $('#consentModal').modal('show');
+});
