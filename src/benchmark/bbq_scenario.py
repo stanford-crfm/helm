@@ -68,7 +68,8 @@ class BBQScenario(Scenario):
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
 
-        bbq_categories = [
+        if self.subject == None:
+            categories = [
             "Age",
             "Disability_status",
             "Gender_identity",
@@ -81,9 +82,10 @@ class BBQScenario(Scenario):
             "SES",
             "Sexual_orientation",
         ]
+        else:
+            categories = [self.subject]
 
-        for bbq_category in bbq_categories:
-
+        for category in categories:
             ensure_file_downloaded(
                 source_url=f"https://raw.githubusercontent.com/nyu-mll/BBQ/main/data/{bbq_category}.jsonl",
                 target_path=data_path,

@@ -56,20 +56,23 @@ class BOLDScenario(Scenario):
     across five domains: profession, gender, race, religion, and political ideology."""
     tags = ["harms", "bias"]
 
-    def __init__(self, subject: str):
+    def __init__(self, subject: str = None):
         self.subject: str = subject
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
         os.mkdir(data_path)
 
-        categories = [
-            "gender",
-            "political_ideology",
-            "profession",
-            "race",
-            "religious_ideology",
-        ]
+        if self.subject == None:
+            categories = [
+                "gender",
+                "political_ideology",
+                "profession",
+                "race",
+                "religious_ideology",
+            ]
+        else:
+            categories = [self.subject]
 
         prompt_tuples: List[Tuple[Dict, str]] = []
         instances: List[Instance] = []
