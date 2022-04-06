@@ -6,6 +6,13 @@ import numpy as np
 import spacy
 import nltk
 
+try:
+    from nltk.corpus import wordnet
+except OSError:
+    nltk.download("wordnet")
+    nltk.download("omw-1.4")
+    from nltk.corpus import wordnet
+
 from benchmark.scenario import Instance
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
@@ -78,12 +85,7 @@ class SynonymPerturbation(Perturbation):
             if wn_pos is None:
                 result.append(word)
             else:
-                try:
-                    syns = nltk.corpus.wordnet.synsets(word, pos=wn_pos)
-                except OSError:
-                    nltk.download("wordnet")
-                    nltk.download("omw-1.4")
-                    syns = nltk.corpus.wordnet.synsets(word, pos=wn_pos)
+                syns = wordnet.synsets(word, pos=wn_pos)
                 syns = [syn.name().split(".")[0] for syn in syns]
                 syns = [syn for syn in syns if syn.lower() != word.lower()]
                 if len(syns) > 0 and np.random.random() < self.prob:
