@@ -70,18 +70,18 @@ class BBQScenario(Scenario):
 
         if self.subject == None:
             categories = [
-            "Age",
-            "Disability_status",
-            "Gender_identity",
-            "Nationality",
-            "Physical_appearance",
-            "Race_ethnicity",
-            "Race_x_SES",  # extra intersectional category as mentioned in section 3.2
-            "Race_x_gender",  # extra intersectional category as mentioned in section 3.2
-            "Religion",
-            "SES",
-            "Sexual_orientation",
-        ]
+                "Age",
+                "Disability_status",
+                "Gender_identity",
+                "Nationality",
+                "Physical_appearance",
+                "Race_ethnicity",
+                "Race_x_SES",  # extra intersectional category as mentioned in section 3.2
+                "Race_x_gender",  # extra intersectional category as mentioned in section 3.2
+                "Religion",
+                "SES",
+                "Sexual_orientation",
+            ]
         else:
             categories = [self.subject]
 
