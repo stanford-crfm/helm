@@ -10,8 +10,10 @@ class AI21Tokenizer(Tokenizer):
     """Tokenizes by making a request to the proxy server with REST endpoint: `/api/tokenize`."""
 
     # The max token length of the model input
-    # The max sequence length is the same as the max request length for AI21.
     MAX_SEQUENCE_LENGTH: int = 2048
+
+    # The max sequence length is the same as the max request length for AI21.
+    MAX_REQUEST_LENGTH: int = 2048
 
     NOT_IMPLEMENTED_ERROR_MESSAGE: str = (
         "AI21 only gave API access to their tokenizer, so this method is not supported."
@@ -28,8 +30,12 @@ class AI21Tokenizer(Tokenizer):
 
     @property
     def max_request_length(self) -> int:
-        # The max sequence length is the same as the max request length for AI21.
-        return AI21Tokenizer.MAX_SEQUENCE_LENGTH
+        # Sometimes splitting a long string to multiple shorter ones introduce new tokens,
+        # so we adopt a smaller value here for stability.
+        # e.g. "burying him" -> ["_burying"(0,7), "_him"(7,11)];
+        # " burying him" -> ["_"(0,0), "_burying"(0,8), "_him"(8,12)];
+        # "'s your camera" -> ["▁"(0,0), "'s"(0,2), "▁your▁camera"(2,14)]
+        return AI21Tokenizer.MAX_REQUEST_LENGTH - 3
 
     @property
     def end_of_text_token(self) -> str:
@@ -64,22 +70,7 @@ class AI21Tokenizer(Tokenizer):
             assert tokens[i].text_range.end == tokens[i + 1].text_range.start
         start_token: TokenizationToken = tokens[0]
         end_token: TokenizationToken = tokens[-1]
-        skipped_positions: int = 0
-        if start_token.text_range.start != 0:
-            start_token_index: int = 0
-            # Remove the empty leading tokens to make sure decoding after encoding does not generate
-            # extra tokens. e.g. "burying him" -> ["_burying"(0,7), "_him"(7,11)];
-            # " burying him" -> ["_"(0,0), "_burying"(0,8), "_him"(8,12)]
-            while tokens[start_token_index].text_range.start == tokens[start_token_index].text_range.end:
-                start_token_index += 1
-                if start_token_index == len(tokens):
-                    return ""
-            start_token = tokens[start_token_index]
-            # Note that ▁ is not _
-            skipped_positions = (
-                start_token.text_range.end - start_token.text_range.start - len(start_token.text.lstrip("▁"))
-            )
-        start: int = start_token.text_range.start + skipped_positions
+        start: int = start_token.text_range.start
         end: int = end_token.text_range.end
         return original_text[start:end]
 
