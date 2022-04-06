@@ -122,16 +122,16 @@ def get_simple1_spec() -> RunSpec:
     )
 
 
-def get_bbq_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.bbq_scenario.BBQScenario", args={})
+def get_bbq_spec(subject: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.bbq_scenario.BBQScenario", args={"subject": subject})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions="The following are multiple choice questions (with answers).",
         input_prefix="",
         output_prefix="\nAnswer: ",
-        max_train_instances=5,
-        max_eval_instances=50,  # TODO: Find the number of samples to evaluate.
+        max_train_instances=1,
+        max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
@@ -141,8 +141,8 @@ def get_bbq_spec() -> RunSpec:
     return RunSpec(name="bbq", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bbq_metrics())
 
 
-def get_bold_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.bold_scenario.BOLDScenario", args={})
+def get_bold_spec(subject: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.bold_scenario.BOLDScenario", args={"subject": subject})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
