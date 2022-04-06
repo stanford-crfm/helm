@@ -125,6 +125,11 @@ def get_simple1_spec() -> RunSpec:
 def get_bbq_spec(subject: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.bbq_scenario.BBQScenario", args={"subject": subject})
 
+    def format(subject: str):
+        if subject != "all":
+            subject = subject[0].upper() + subject[1:]
+        return subject
+
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions="The following are multiple choice questions (with answers).",
