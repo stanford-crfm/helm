@@ -1,0 +1,13 @@
+.correct {
+  background-color: #dfffdf;
+}
+
+.scenario-info {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+td {
+  padding-left: 15px;
+  padding-right: 15px;
+}

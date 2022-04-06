@@ -1,20 +1,23 @@
 import random
-from collections import defaultdict
+import time
 from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Optional
+from collections import defaultdict, OrderedDict
 
-from .augmentations.data_augmenter import create_data_augmenter, DataAugmenterSpec, DataAugmenter
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
-from .scenario import Instance, Scenario, TRAIN_SPLIT, EVAL_SPLITS
-from proxy.tokenizer.auto_token_counter import AutoTokenCounter
-from proxy.tokenizer.auto_tokenizer import AutoTokenizer
+from proxy.tokenizer.tokenizer import Tokenizer
+from proxy.tokenizer.tokenizer_factory import TokenizerFactory
+from proxy.tokenizer.tokenizer_service import TokenizerService
+from .adapter_service import AdapterService
+from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"
 ADAPT_MULTIPLE_CHOICE = "multiple_choice"
 ADAPT_GENERATION = "generation"
+ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS = "language_modeling_minimal_pairs"
 
 
 @dataclass(frozen=True)
@@ -70,9 +73,6 @@ class AdapterSpec:
     # When to stop
     stop_sequences: List[str] = field(default_factory=list)
 
-    # Data augmenter. The default DataAugmenterSpec does nothing.
-    data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec()
-
 
 @dataclass(frozen=True)
 class RequestState:
@@ -100,7 +100,7 @@ class RequestState:
     # The result of the request (filled in when the request is executed)
     result: Optional[RequestResult]
 
-    # The number of initial tokens that will be ignored when computing langauge modeling metrics
+    # The number of initial tokens that will be ignored when computing language modeling metrics
     num_conditioning_tokens: int = 0
 
     def render_lines(self) -> List[str]:
@@ -234,27 +234,18 @@ class Adapter:
     deal with references being of different lengths).
     """
 
-    def __init__(self, adapter_spec: AdapterSpec):
-        self.adapter_spec = adapter_spec
-        self.token_counter = AutoTokenCounter()
+    def __init__(self, adapter_spec: AdapterSpec, adapter_service: AdapterService):
+        self.adapter_spec: AdapterSpec = adapter_spec
+        tokenizer_service: TokenizerService = adapter_service
+        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
 
     @htrack(None)
-    def adapt(self, scenario: Scenario) -> ScenarioState:
+    def adapt(self, instances: List[Instance]) -> ScenarioState:
         """
-        Takes a `Scenario` containing a list of instances and builds a list of
-        corresponding request_states.  The reason we don't do this per (eval)
-        instance is that we create a common set of training instances which is
-        shared across all eval instances.
+        Takes a a list of `Instance`s and builds a list of corresponding `RequestState`s.
+        The reason we don't do this per eval instance is that we create a common set of
+        training instances which is shared across all eval instances.
         """
-
-        # Create instances
-        with htrack_block("scenario.get_instances"):
-            instances = scenario.get_instances()
-
-        # Create a DataAugmenter to augment the set of instances
-        data_augmenter_spec: DataAugmenterSpec = self.adapter_spec.data_augmenter_spec
-        data_augmenter: DataAugmenter = create_data_augmenter(data_augmenter_spec)
-
         # Pick out training instances
         all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
         if len(all_train_instances) < self.adapter_spec.max_train_instances:
@@ -263,24 +254,25 @@ class Adapter:
                 f"wanted {self.adapter_spec.max_train_instances}"
             )
 
-        # Applies data augmentation to generate more train instances
-        if data_augmenter_spec.should_augment_train_instances:
-            all_train_instances = data_augmenter.generate(
-                all_train_instances, include_original=data_augmenter_spec.should_include_original_train
-            )
-
-        # Pick out evaluation instances.  This includes both valid and test
-        # (and any other splits).  We can slice and dice later in defining the
-        # metrics.
+        # Pick out evaluation instances. This includes both valid and test splits.
+        # We can slice and dice later in defining the metrics.
         eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
         if self.adapter_spec.max_eval_instances is not None:
-            eval_instances = eval_instances[: self.adapter_spec.max_eval_instances]
+            # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
+            # number of instances, so we can include all the perturbed versions of the instances
+            # we choose in the eval set.
+            id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
+            for instance in eval_instances:
+                if instance.id in id_to_instances:
+                    id_to_instances[instance.id].append(instance)
+                else:
+                    id_to_instances[instance.id] = [instance]
 
-        # Applies data augmentation to generate more eval instances
-        if data_augmenter_spec.should_augment_eval_instances:
-            eval_instances = data_augmenter.generate(
-                eval_instances, include_original=data_augmenter_spec.should_include_original_eval
-            )
+            # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
+            # include all their instances in the final set of eval instances.
+            eval_instances = []
+            for _, instances in list(id_to_instances.items())[: self.adapter_spec.max_eval_instances]:
+                eval_instances.extend(instances)
 
         hlog(
             f"{len(instances)} instances, "
@@ -291,7 +283,10 @@ class Adapter:
         # Accumulate all the request states due to adaptation
         request_states: List[RequestState] = []
 
-        if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
+        if (
+            self.adapter_spec.method == ADAPT_LANGUAGE_MODELING
+            or self.adapter_spec.method == ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS
+        ):
             # Use the LM-specific method to adapt LM scenarios
             request_states = self.adapt_language_modeling(eval_instances)
         else:
@@ -304,7 +299,14 @@ class Adapter:
 
                 # Create request_states
                 for eval_index, eval_instance in enumerate(eval_instances):
+                    start_time: float = time.time()
                     prompt: str = self.construct_prompt(train_instances, eval_instance)
+                    construct_prompt_elapsed_time: float = time.time() - start_time
+
+                    hlog(
+                        f"trial {train_trial_index}: construct_prompt {eval_index} (total {len(eval_instances)}): "
+                        f"len(prompt) = {len(prompt)} ({construct_prompt_elapsed_time:.2f}s)"
+                    )
 
                     # Just print one prompt (useful for debugging)
                     if train_trial_index == 0 and eval_index == 0:
@@ -388,14 +390,12 @@ class Adapter:
         # exceed the max context length (https://github.com/hendrycks/test/blob/master/evaluate.py#L58),
         # we remove train instances one by one until it fits within the context window or
         # until we run out of train instances to remove.
-        while (
-            not self.token_counter.fits_within_context_window(
-                model=self.adapter_spec.model,
-                text=prompt,
-                expected_completion_token_length=self.adapter_spec.max_tokens,
-            )
-            and len(train_instances) > 0
-        ):
+        while len(train_instances) > 0:
+            if self.tokenizer.fits_within_context_window(
+                text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
+            ):
+                return prompt
+
             train_instances = train_instances[:-1]
             prompt = construct_prompt_helper(train_instances)
 
@@ -408,7 +408,7 @@ class Adapter:
 
         # If removing the in-context example is still not enough, we simply truncate the prompt.
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
-        return self.token_counter.truncate_from_right(self.adapter_spec.model, prompt)
+        return self.tokenizer.truncate_from_right(prompt, self.adapter_spec.max_tokens)
 
     def construct_example_prompt(self, instance: Instance, include_output: bool) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
@@ -444,7 +444,7 @@ class Adapter:
         return prefix.replace("A", chr(ord("A") + i))
 
     def construct_language_modeling_prompt(
-        self, conditioning_tokens: List[int], pred_tokens: List[int], tokenizer, max_seq_len: int
+        self, conditioning_tokens: List[int], pred_tokens: List[int], tokenizer: Tokenizer, max_seq_len: int
     ) -> Tuple[str, int]:
         """
         Some subwords/symbols might translate to multiple tokens. e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"].
@@ -454,10 +454,11 @@ class Adapter:
 
         Since some tokens are removed, we also need to recompute num_conditioning_tokens.
         """
-        raw_prompt = tokenizer.decode(conditioning_tokens + pred_tokens)
-        num_leading_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
-        num_trailing_byte_tokens = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
-        prompt = raw_prompt.strip("\ufffd")
+        raw_prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens)
+        prompt: str = raw_prompt.strip("\ufffd")
+        num_leading_byte_tokens: int = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
+        num_trailing_byte_tokens: int = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
+
         # There are no string tokens to predict
         if num_trailing_byte_tokens >= len(pred_tokens):
             num_conditioning_tokens = len(tokenizer.encode(prompt))
@@ -478,13 +479,12 @@ class Adapter:
         # TODO: Support other models and tokenizers
         assert self.adapter_spec.model.startswith("openai/")
 
-        tokenizer = AutoTokenizer().get_tokenizer(self.adapter_spec.model)
-        max_seq_len = tokenizer.MAX_SEQUENCE_LENGTH
-        prefix_token = tokenizer.END_OF_TEXT_TOKEN if tokenizer.END_OF_TEXT_TOKEN is not None else ""
+        max_seq_len: int = self.tokenizer.max_sequence_length
+        prefix_token: str = self.tokenizer.end_of_text_token
 
         for instance in instances:
-            tokens = tokenizer.encode(instance.input)
-            assert tokenizer.decode(tokens) == instance.input
+            tokens = self.tokenizer.encode(instance.input)
+            assert self.tokenizer.decode(tokens) == instance.input
 
             num_predicted_tokens = 0
 
@@ -497,7 +497,9 @@ class Adapter:
             # Note: There are trailing byte tokens in the raw sequence because some subwords/symbols might translate to
             # multiple tokens (e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]) and we chunk documents by token, not by word.
             first_seq_len = min(max_seq_len, len(tokens))
-            prompt = tokenizer.decode(tokenizer.encode(prefix_token) + tokens[:first_seq_len]).rstrip("\ufffd")
+            prompt = self.tokenizer.decode(self.tokenizer.encode(prefix_token) + tokens[:first_seq_len]).rstrip(
+                "\ufffd"
+            )
             request = Request(
                 model=self.adapter_spec.model,
                 prompt=prompt,
@@ -534,7 +536,7 @@ class Adapter:
                 conditioning_tokens = tokens[window_end - max_seq_len - 1 : num_predicted_tokens]
                 pred_tokens = tokens[num_predicted_tokens:window_end]
                 prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                    conditioning_tokens, pred_tokens, tokenizer, max_seq_len
+                    conditioning_tokens, pred_tokens, self.tokenizer, max_seq_len
                 )
 
                 request = Request(

@@ -2,17 +2,17 @@ from typing import List
 
 from common.request import Request, Sequence
 from .token_counter import TokenCounter
-from .openai_tokenizer import OpenAITokenizer
+from .tokenizer_factory import TokenizerFactory
 
 
 class OpenAITokenCounter(TokenCounter):
 
     # From https://help.openai.com/en/articles/5072518-controlling-the-length-of-completions,
     # "these requests can use up to 2,049 tokens, shared between prompt and completion."
-    MAX_CONTEXT_TOKEN_LENGTH = 2049
+    MAX_REQUEST_LENGTH = 2049
 
     def __init__(self):
-        self.tokenizer = OpenAITokenizer()
+        self.tokenizer = TokenizerFactory.get_tokenizer("openai")
 
     def count_tokens(self, request: Request, completions: List[Sequence]) -> int:
         """
@@ -22,7 +22,7 @@ class OpenAITokenCounter(TokenCounter):
         TODO: OpenAI will support counting the number of tokens for us. Adapt this method accordingly.
               https://github.com/stanford-crfm/benchmarking/issues/59
         """
-        n_tokens: int = self.tokenize_and_count(request.model, request.prompt)
+        n_tokens: int = self.tokenizer.tokenize_and_count(request.prompt)
         for sequence in completions:
             n_tokens += len(sequence.tokens)
         return n_tokens
@@ -36,7 +36,7 @@ class OpenAITokenCounter(TokenCounter):
 
         Add num_tokens(prompt) if Request.echo_prompt is True.
         """
-        num_tokens_in_prompt: int = self.tokenize_and_count(request.model, request.prompt)
+        num_tokens_in_prompt: int = self.tokenizer.tokenize_and_count(request.prompt)
         total_estimated_tokens: int = num_tokens_in_prompt + request.num_completions * request.max_tokens
 
         # We should add the number of tokens in the prompt twice when echo_prompt is True because OpenAI counts
@@ -44,31 +44,3 @@ class OpenAITokenCounter(TokenCounter):
         if request.echo_prompt:
             total_estimated_tokens += num_tokens_in_prompt
         return total_estimated_tokens
-
-    def tokenize_and_count(self, model: str, text: str) -> int:
-        """Count the number of tokens for a given text using the GPT-2 tokenizer."""
-        return len(self.tokenizer.encode(text))
-
-    def fits_within_context_window(self, model: str, text: str, expected_completion_token_length: int = 0) -> bool:
-        """
-        Checks if the given text fits within the GPT-3 context window taking to account
-        the expected completion length (defaults to 0).
-        """
-        return (
-            self.tokenize_and_count(model, text) + expected_completion_token_length
-            <= OpenAITokenCounter.MAX_CONTEXT_TOKEN_LENGTH
-        )
-
-    def truncate_from_right(self, model: str, text: str) -> str:
-        """
-        Truncates text from the right to fit within the GPT-3 context window.
-
-        By default, HuggingFace uses the 'longest_first' truncation strategy:
-        "Iteratively reduce the inputs sequence until the input is under max_length starting from the longest one
-        at each token (when there is a pair of input sequences)."
-
-        Since we are only passing in a single string, the tokenizer will simply truncate from the right.
-        """
-        return self.tokenizer.decode(
-            self.tokenizer.encode(text, truncation=True, max_length=OpenAITokenCounter.MAX_CONTEXT_TOKEN_LENGTH)
-        )
