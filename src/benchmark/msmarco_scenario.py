@@ -9,10 +9,8 @@ from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
 
 
-@dataclass(frozen=True, eq=False)
 class MSMARCOInstance(Instance):
-    """Instance for the MSMARCO class.
-    """
+    """ Instance for the MSMARCO class. """
 
     # The query ID of the query included in the input.
     qid: Optional[int] = None
@@ -21,7 +19,13 @@ class MSMARCOInstance(Instance):
     pid: Optional[int] = None
 
     # Whether the query and the passage included in the input are gold matches
-    gold: Optional[bool] = None
+    gold: bool = False
+
+    def __init__(self, qid=None, pid=None, gold=False, **kwargs):
+        self.qid = qid
+        self.pid = pid
+        self.gold = gold
+        super(MSMARCOInstance, self).__init__(**kwargs)
 
 
 class MSMARCOScenario(Scenario):
@@ -181,7 +185,7 @@ class MSMARCOScenario(Scenario):
     CODALAB_DEV_URL: str = CODALAB_URL.format(bundle=CODALAB_DEV_BUNDLE)
 
     # Codalab train url
-    CODALAB_TRAIN_BUNDLE: str = "0xbc341d760fb44450a7d97d3ba364ce40"
+    CODALAB_TRAIN_BUNDLE: str = "0x499c07699f3f4881a787b6a5249f4466"
     CODALAB_TRAIN_URL: str = CODALAB_URL.format(bundle=CODALAB_TRAIN_BUNDLE)
 
     # The maximum number of queries that we can run the scenario for.

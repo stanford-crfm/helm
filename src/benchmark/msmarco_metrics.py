@@ -1,5 +1,4 @@
-from typing import List, Dict, Tuple, Optional
-
+from typing import List, Dict, Tuple, Optional, cast
 
 from common.statistic import Stat
 from .adapter import ScenarioState, RequestState
@@ -7,6 +6,7 @@ from .metric_service import MetricService
 from .metric import Metric
 from .metric_name import MetricName
 from .scenario import VALID_SPLIT
+from .msmarco_scenario import MSMARCOInstance
 
 
 class MSMARCOMetric(Metric):
@@ -81,8 +81,8 @@ class MSMARCOMetric(Metric):
             # Extract important information from the ID
             if rs.result and rs.result.completions and rs.output_mapping:
                 # Extract instance information
-
-                qid, pid, gold = rs.instance.qid, rs.instance.pid, rs.instance.gold
+                instance = cast(MSMARCOInstance, rs.instance)
+                qid, pid, gold = instance.qid, instance.pid, instance.gold
                 # Populate the gold mapping dictionary
                 if gold:
                     qid_to_gold_pid[qid] = pid
