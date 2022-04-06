@@ -4,11 +4,52 @@ const ChatBox = {
     var questions =
       [
         {
-          tag: "consistency-utterances",
-          text: "Select the utterances where your partner sounds inconsistent",
+          tag: "preference-utterances",
+          text: "Which responses made you not want to talk with the chatbot again?",
           type: "turnSelection",
         },
         {
+          tag: "humanness-utterances",
+          text: "Which responses sounded human?",
+          type: "turnSelection",
+        },
+        {
+          tag: "interestingness-utterances",
+          text: "If you had to say that each response is either interesting or boring, which responses were interesting?",
+          type: "turnSelection",
+        },
+        {
+          tag: "boringness-utterances",
+          text: "If you had to say that each response is either interesting or boring, which responses were boring?",
+          type: "turnSelection",
+        },
+        {
+          tag: "consistency-utterances",
+          text: "Which responses contradicted previous dialogue?",
+          type: "turnSelection",
+        },
+        {
+          tag: "understanding-utterances",
+          text: "Please select any responses where the chatbot was not listening to your previous response",
+          type: "turnSelection"
+        },
+        {
+          tag: "positive-feedback-utterances",
+          text: "If you gave the bot feedback (e.g. by making a correction or clarification), mark turns where it improved based on that feedback",
+          type: "turnSelection"
+        },
+        {
+          tag: "negative-feedback-utterances",
+          text: "If you gave the bot feedback (e.g. by making a correction or clarification), mark turns where it did not improve based on that feedback",
+          type: "turnSelection"
+        },
+        {
+          tag: "overall-quality",
+          text: "Would you like to talk with this chatbot again?",
+          type: "likert",
+          options: ["1 - No", "2 - Probably not", "3 - Maybe", "4 - Probably yes", "5 - yes"]
+        }
+        /*{
           tag: "consistency-rating",
           text: "Please rate how consistent your partner sounds",
           type: "likert",
@@ -19,7 +60,7 @@ const ChatBox = {
           text: "Is there anything else you would like to say about the conversation?",
           type: "freeForm",
         },
-        /*{
+        {
           tag: "humanness",
           text: "Please rate how human your partner sounds (1: Very inhuman, 5: Very human)",
           type: "likert",
