@@ -62,8 +62,11 @@ class BBQScenario(Scenario):
     description = "Bias analysis of LM question-answering."
     tags = ["harms", "bias"]
 
-    def __init__(self, subject: str):
-        self.subject: str = subject
+    def __init__(self, subject: str = None):
+        if subject:
+            self.subject = subject
+        else:
+            self.subject = None
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")

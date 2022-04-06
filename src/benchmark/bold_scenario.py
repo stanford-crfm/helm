@@ -57,7 +57,10 @@ class BOLDScenario(Scenario):
     tags = ["harms", "bias"]
 
     def __init__(self, subject: str = None):
-        self.subject: str = subject
+        if subject:
+            self.subject = subject
+        else:
+            self.subject = None
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
