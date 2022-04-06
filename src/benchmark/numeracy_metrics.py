@@ -19,7 +19,17 @@ from .numeracy_scenario import (  # noqa
 
 
 class DistanceMetric(Metric):
-    """
+    """Returns the minimum geometric distance between the point represented by the completion
+       and the curve or surface specified by `rel_str`.
+
+       Expects `references.outputs` to be a list containing the following:
+        - val_GT (str): the last coordinate of the point lying on the given curve / surface
+            with first coordinates as given in the input
+        - rel_str (str): the relation
+        - relation_type (str): one of {'linear', 'parabola', 'plane', 'paraboloid'}
+
+        Returns:
+            The minimum geometric distance from the point to the curve / surface (float).
     """
 
     def evaluate_generation(

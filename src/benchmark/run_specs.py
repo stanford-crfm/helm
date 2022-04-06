@@ -68,12 +68,12 @@ def get_srn_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
-def get_numeracy_metrics(relation_type: str) -> List[MetricSpec]:
+def get_numeracy_metrics(relation_type: str, run_solver: bool = True) -> List[MetricSpec]:
     metric_names = {"names": ["match_upto_whitespace", "absolute_value_difference"]}
     metrics = [
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names),
     ]
-    if relation_type not in ["parabola", "paraboloid"]:
+    if relation_type not in ["parabola", "paraboloid"] or run_solver:
         metrics += [
             MetricSpec(class_name="benchmark.numeracy_metrics.DistanceMetric", args={}),
         ]
@@ -425,7 +425,9 @@ def get_raft_spec(subset: str) -> RunSpec:
     )
 
 
-def get_numeracy_spec(relation_type: str = "linear", mode: str = "function", seed: str = "0") -> RunSpec:
+def get_numeracy_spec(
+    relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: bool = True
+) -> RunSpec:
     random_seed = int(seed)
     scenario = ScenarioSpec(
         class_name="benchmark.numeracy_scenario.NumeracyScenario",
@@ -434,8 +436,9 @@ def get_numeracy_spec(relation_type: str = "linear", mode: str = "function", see
 
     if mode in ["example", "standard"]:
         adapter_args: Dict[str, Any] = {
-            "max_train_instances": 10,
-            "max_eval_instances": 1,
+            "max_train_instances": 100,
+            "max_eval_instances": 100,
+            # "num_train_trials": 20,
             "dim": RELTYPE_INFO[relation_type].num_variables + 1,
         }
     elif mode == "function":
@@ -452,7 +455,7 @@ def get_numeracy_spec(relation_type: str = "linear", mode: str = "function", see
         name=f"numeracy:relation_type={relation_type},mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_numeracy_metrics(relation_type),
+        metrics=get_numeracy_metrics(relation_type, run_solver=run_solver),
     )
 
 

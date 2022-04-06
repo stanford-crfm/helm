@@ -18,6 +18,9 @@ from proxy.remote_service import RemoteService
 from common.authentication import Authentication
 
 
+import pdb
+
+
 def get_test_adapter_service() -> AdapterService:
     return AdapterService(RemoteService("test"), Authentication("test"))
 
@@ -68,7 +71,7 @@ def stringify_terms(terms: List[List[int]], variable_names: List[str] = list("xy
 
 
 @dataclass
-class Polynomial:  # TODO convert to dataclass
+class Polynomial:
     """A simple polynomial class over the integers that supports evaluation and pretty-printing.
     """
 
@@ -244,8 +247,8 @@ def distance_linear(point: List[int], rel_str: str):
     return float(abs((A * x + B * y + C)) / (math.sqrt(A ** 2 + B ** 2)))
 
 
-def distance_parabola(point: List[int], rel_str: str):
-    """TODO hand implementation..
+def distance_parabola(point: List[int], rel_str: str, TOL: float = 1e-10):
+    """
     Returns the minimum distance from the given point to the relation given by `rel_str` which has the form:
     y = A x^2 + B x + C
     """
@@ -259,12 +262,19 @@ def distance_parabola(point: List[int], rel_str: str):
     try:
         sols = sympy.solve(deriv, x)
     except ZeroDivisionError:
-        return float(0.0)  # TODO!
+        # This shouldn't happen, but has happened for a prior implementation of
+        # `distance_paraboloid`, so catch it conservatively:
+        print("Failed to compute minimum distance.")
+        # import pdb, pdb.set_trace()
+        return float(0.0)
     dist_vals = list(map(lambda _: sympy.N(dist.eval(_)), sols))
     try:
-        dist_val = min(filter(lambda _: _.is_real and _ >= 0, dist_vals))
+        dist_val = min([sympy.re(_) for _ in dist_vals if abs(sympy.im(_)) < TOL and sympy.re(_) >= 0])
     except ValueError:
-        return float(0.0)  # TODO! empty list
+        # A real solution should exist, but if not (eg. numerical error exceeds TOL):
+        print("Failed to compute minimum distance.")
+        # import pdb, pdb.set_trace()
+        return float(0.0)
     return float(dist_val)
 
 
@@ -287,8 +297,8 @@ def distance_plane(point: List[int], rel_str: str):
     return float(d / e)
 
 
-def distance_paraboloid(point: List[int], rel_str: str):
-    """TODO hand implementation..
+def distance_paraboloid(point: List[int], rel_str: str, TOL: float = 1e-10):
+    """
     Returns the minimum distance from the given point to the relation given by `rel_str` which has the form:
     z = A x^2 + B x y + C y^2 + D x + E y + F
     Uses method of Lagrange multipliers.
@@ -296,24 +306,67 @@ def distance_paraboloid(point: List[int], rel_str: str):
     rel_str = rel_str.split(" = ")[-1]
     expr = sympy.parse_expr(rel_str.replace("^", "**"), transformations=SYMPY_TRANSFORMATIONS)
     x, y = list(expr.free_symbols)
+    if x.name == "y":
+        x, y = y, x
     z = Symbol("z")
     x0, y0, z0 = point
     f = (x - x0) ** 2 + (y - y0) ** 2 + (z - z0) ** 2
     g = z - expr
+    if abs(g.subs([(x, x0), (y, y0), (z, z0)])) < TOL:
+        return float(0.0)
     λ = Symbol("λ")
+    # The code below is meant to be equivalent to
+    # `sols = sympy.solve([eq_x, eq_y, eq_z, g], [x, y, z, λ])`
+    # but sympy.solve was failing to find any solution on many inputs,
+    # so this breaks it down for the special case of `f - λ g` which is at most quadratic.
     eq_x = diff(f, x) - λ * diff(g, x)
     eq_y = diff(f, y) - λ * diff(g, y)
     eq_z = diff(f, z) - λ * diff(g, z)
+    sols_x = sympy.solve([eq_x], [x, λ])
+    sols_y = sympy.solve([eq_y], [y, λ])
+    sols_z = sympy.solve([eq_z], [z, λ])
     try:
-        sols = sympy.solve([eq_x, eq_y, eq_z, g], [x, y, z, λ])
+        sols_xyz = [
+            [lst[sym]] if isinstance(lst, dict) else [_[0] for _ in lst]
+            for sym, lst in zip([x, y, z], [sols_x, sols_y, sols_z])
+        ]
+        sols_λλλ = [
+            [λ] if isinstance(lst, dict) else [_[1] for _ in lst]
+            for sym, lst in zip([x, y, z], [sols_x, sols_y, sols_z])
+        ]
+        sols_λ = list(product(*sols_xyz))
+        vals_λλλ = list(product(*sols_λλλ))
+        sols = []
+        for sol_xyz, val_λ in zip(sols_λ, vals_λλλ):
+            sol_x, sol_y, sol_z = sol_xyz
+            sol_λ1, sol_λ2, sol_λ3 = val_λ
+            sol_x = sol_x.subs(λ, sol_λ1).subs(λ, sol_λ2).subs(λ, sol_λ3)
+            sol_y = sol_y.subs(λ, sol_λ1).subs(λ, sol_λ2).subs(λ, sol_λ3)
+            sol_z = sol_z.subs(λ, sol_λ1).subs(λ, sol_λ2).subs(λ, sol_λ3)
+            g_λ = g.subs([(x, sol_x), (y, sol_y), (z, sol_z)]).subs(λ, sol_λ1).subs(λ, sol_λ2).subs(λ, sol_λ3)
+            # TODO
+            sym = list(g_λ.free_symbols)[0]
+            vals = [sympy.N(_) for _ in sympy.solveset(g_λ, sym)]
+            sols.extend([(sol_x.subs(sym, _), sol_y.subs(sym, _), sol_z.subs(sym, _)) for _ in vals])
     except ZeroDivisionError:
-        return float(0.0)  # TODO!
+        # This shouldn't happen, but has happened for a prior implementation of
+        # `distance_paraboloid`, so catch it conservatively:
+        print("Failed to compute minimum distance.")
+        pdb.set_trace()
+        return float(0.0)
     poly_f = sympy.Poly(f, [x, y, z])
-    dist_vals = list(map(lambda _: sympy.N(poly_f.eval(_[:3])), sols))
     try:
-        dist_val = min(filter(lambda _: _.is_real and _ >= 0, dist_vals))
+        dist_vals = list(map(lambda _: sympy.N(poly_f.eval(_)), sols))
+    except sympy.polys.polyerrors.UnificationFailed:
+        pdb.set_trace()
+    try:
+        dist_val = min([sympy.re(_) for _ in dist_vals if abs(sympy.im(_)) < TOL and sympy.re(_) >= 0])
     except ValueError:
-        return float(0.0)  # TODO! empty list
+        # A real solution should exist, but if not (eg. numerical error exceeds TOL):
+        print([eq_x, eq_y, eq_z, g])
+        print(sols)
+        pdb.set_trace()
+        return float(0.0)
     return float(dist_val)
 
 
@@ -381,8 +434,8 @@ RELTYPE_INFO: Dict[str, RelationTypeInfo] = {
         degree=2,
         num_variables=2,
         range=[(1, 2), (0, 1), (1, 2), (0, 0), (0, 0), (1, 5)],
-        example_coeffs=[1, 0, 1, 0, 0, 2],
-    ),  # x^2 + y^2 + 2
+        example_coeffs=[2, 0, 1, 0, 0, 2],
+    ),  # 2x^2 + y^2 + 2
 }
 
 
@@ -394,7 +447,7 @@ RELTYPE_INFO: Dict[str, RelationTypeInfo] = {
 
 
 MODE_INFO = {
-    "example": {"num_function_train": 1, "num_function_test": 1, "num_train": 10, "num_test": 10,},
+    "example": {"num_function_train": 1, "num_function_test": 1, "num_train": 100, "num_test": 100,},
     "standard": {"num_function_train": 1, "num_function_test": 1, "num_train": 100, "num_test": 100,},
     "function": {
         "num_function_train": 1000,
@@ -506,12 +559,12 @@ class NumeracyScenario(Scenario):
     tags: List[str] = []
     RELTYPES: List[str] = ["linear", "parabola", "plane", "paraboloid"]
     MODES: List[str] = ["example", "standard", "function"]
-    delimiter: str = ", "
 
     def __init__(
         self,
         relation_type: str = "linear",
         mode: str = "function",
+        delimiter: str = ", ",
         seed: Optional[int] = None,
         overlap: bool = True,  # whether the in-context and eval points are drawn from the same region
         sort_vals: bool = False,  # whether to sort the in-context examples
@@ -524,6 +577,8 @@ class NumeracyScenario(Scenario):
 
         self.relation_type = relation_type
         self.mode = mode
+        self.delimiter = delimiter
+        self.seed = seed
         self.overlap = overlap
         self.sort_vals = sort_vals
 
@@ -538,28 +593,19 @@ class NumeracyScenario(Scenario):
         self.num_test = MODE_INFO[mode]["num_test"]
 
     def get_instances(self) -> List[Instance]:
-        if self.relation_type in ["parabola", "paraboloid"]:
-            train_range, test_range = select_ranges(
-                num_train=50,
-                num_test=50,
-                dim=self.num_variables,  # not a typo
-                overlap=self.overlap,
-                nonnegative_only=True,
-            )
-        else:
-            train_range, test_range = select_ranges(
-                num_train=100,
-                num_test=100,
-                dim=self.num_variables,  # not a typo
-                overlap=self.overlap,
-                nonnegative_only=False,
-            )
+        train_range, test_range = select_ranges(
+            num_train=100,
+            num_test=100,
+            dim=self.num_variables,  # not a typo
+            overlap=self.overlap,
+            nonnegative_only=self.relation_type in ["parabola", "paraboloid"],
+        )
         #               train_range = test_range:
         #               -------------------------
         # linear:       [(-100, 100)]
-        # parabola:     [(0, 100)]
+        # parabola:     [(0, 200)]
         # plane:        [(-10, 10), (-10, 10)]
-        # paraboloid:   [(0, 10), (0, 10)]
+        # paraboloid:   [(0, 20), (0, 20)]
 
         test_vals = list(product(*[range(r[0], r[1] + 1) for r in test_range]))
         if self.overlap:
@@ -568,6 +614,9 @@ class NumeracyScenario(Scenario):
             train_vals = list(set(product(*[range(r[0], r[1] + 1) for r in train_range])) - set(test_vals))
         if self.sort_vals:
             train_vals = list(sorted(train_vals))
+        if self.num_variables == 2:
+            test_vals = list(filter(lambda _: _[0] <= _[1], test_vals))
+            train_vals = list(filter(lambda _: _[0] <= _[1], train_vals))
 
         def generate_datapoint(rel: Polynomial, vals: List[int]) -> Tuple[List[str], str]:
             y = rel.eval(vals)
