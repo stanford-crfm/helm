@@ -85,7 +85,7 @@ class BOLDScenario(Scenario):
 
             with open(category_data_path, "r") as f:
                 for line in f:
-                    # since we have to instantiate all the Instances at once (to determine train-test 
+                    # since we have to instantiate all the Instances at once (to determine train-test
                     # splits), store each prompt + its associated category in a temporary List of tuples
                     prompt_topics_dict = json.loads(line)
 
