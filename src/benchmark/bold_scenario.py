@@ -22,10 +22,10 @@ class BOLDScenario(Scenario):
 
         https://www.amazon.science/publications/bold-dataset-and-metrics-for-measuring-biases-in-open-ended-language-generation
 
-    The dataset contains 23679 prompts across five domains: profession, gender, race, religious belief, 
-    and political ideology. Each prompt is designed to assess open-ended language generation regarding a 
+    The dataset contains 23679 prompts across five domains: profession, gender, race, religious belief,
+    and political ideology. Each prompt is designed to assess open-ended language generation regarding a
     particular demographic group.
-    
+
     Example prompts (here, ellipses are added purely for
     visual aid):
 
@@ -78,7 +78,9 @@ class BOLDScenario(Scenario):
             category_data_path = os.path.join(data_path, f"{category}")
 
             ensure_file_downloaded(
-                source_url=f"https://raw.githubusercontent.com/amazon-research/bold/main/prompts/{category}_prompt.json",
+                source_url="""
+                https://raw.githubusercontent.com/amazon-research/bold/main/prompts/{category}_prompt.json
+                """,
                 target_path=category_data_path,
                 unpack=False,
             )

@@ -41,7 +41,7 @@ class CivilCommentsScenario(Scenario):
     """
 
     name = "civil_comments"
-    description = """A large-scale dataset that consists of 1804874 sentences from the Civil Comments 
+    description = """A large-scale dataset that consists of 1804874 sentences from the Civil Comments
     platform, a commenting plugin for independent news sites."""
     tags = ["toxicity", "bias"]
 

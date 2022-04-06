@@ -9,7 +9,6 @@ from .scenario import (
     Instance,
     Reference,
     TRAIN_SPLIT,
-    VALID_SPLIT,
     TEST_SPLIT,
     CORRECT_TAG,
     DEFAULT_TEST_SIZE,
