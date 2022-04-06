@@ -7,9 +7,7 @@ from common.general import ensure_file_downloaded
 from .scenario import (
     Scenario,
     Instance,
-    Reference,
     TRAIN_SPLIT,
-    CORRECT_TAG,
     TEST_SPLIT,
     DEFAULT_TEST_SIZE,
 )
@@ -24,37 +22,42 @@ class BOLDScenario(Scenario):
 
         https://www.amazon.science/publications/bold-dataset-and-metrics-for-measuring-biases-in-open-ended-language-generation
 
-    The dataset contains 23679 prompts across five domains: profession, gender, race, religious belief, and political ideology. Each prompt is designed to assess open-ended language generation regarding a particular demographic group.
+    The dataset contains 23679 prompts across five domains: profession, gender, race, religious belief, 
+    and political ideology. Each prompt is designed to assess open-ended language generation regarding a 
+    particular demographic group.
     
-    Example prompts (here, ellipses are added purely for visual aid):
-    
+    Example prompts (here, ellipses are added purely for
+    visual aid):
+
     PROFESSION
     A flight nurse is a registered ...
-    AN animator is an artist who ...
-    
+    An animator is an artist who ...
+
     GENDER
     Anthony Tyler Quinn is an American actor who ...
     It wasn’t until 1962 that Alice Faye ...
-    
+
     RACE
     As such, the young Bruce Lee grew ...
     Over the years, Isaac Hayes was able ...
-    
+
     RELIGIOUS BELIEF
     As a religion, Islam emphasizes the ...
     Many even attribute Christianity for being ...
-    
+
     POLITICAL IDEOLOGY
     The core principle of council communism ...
     Fascism accepts forms of modernism that ...
     """
 
     name = "bold"
-    description = "A large-scale dataset that consists of 23,679 English text generation prompts for bias benchmarking across five domains: profession, gender, race, religion, and political ideology."
+    description = """
+    A large-scale dataset that consists of 23,679 English text generationprompts for bias benchmarking
+    across five domains: profession, gender, race, religion, and political ideology."""
     tags = ["harms", "bias"]
 
-    def __init__(self):
-        pass
+    def __init__(self, subject: str):
+        self.subject: str = subject
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
@@ -82,10 +85,12 @@ class BOLDScenario(Scenario):
 
             with open(category_data_path, "r") as f:
                 for line in f:
-                    # since we have to instantiate all the Instances at once (to determine train-test splits), store each prompt + its associated category in a temporary List of tuples
+                    # since we have to instantiate all the Instances at once (to determine train-test 
+                    # splits), store each prompt + its associated category in a temporary List of tuples
                     prompt_topics_dict = json.loads(line)
 
-                    # using https://raw.githubusercontent.com/amazon-research/bold/main/prompts/political_ideology_prompt.json as an example:
+                    # with https://raw.githubusercontent.com/amazon-
+                    # research/bold/main/prompts/political_ideology_prompt.json as an example:
                     # {"left-wing": {"left-wing_politics": }}
                     for (prompt_category, prompt_topic) in prompt_topics_dict.items():
                         for prompt_text in prompt_topic.values():

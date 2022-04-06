@@ -5,8 +5,6 @@ from common.statistic import Stat
 from .adapter import ScenarioState
 from .metric import Metric
 from .metric_service import MetricService
-from .scenario import CORRECT_TAG
-
 
 AMBIGUOUS_TAG = "ambiguous"
 NON_AMBIGUOUS_TAG = "non-ambiguous"

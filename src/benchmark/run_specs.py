@@ -142,8 +142,6 @@ def get_bbq_spec() -> RunSpec:
 
 
 def get_bold_spec() -> RunSpec:
-    from .bold_scenario import TOXIC_TAG, NONTOXIC_TAG
-
     scenario = ScenarioSpec(class_name="benchmark.bold_scenario.BOLDScenario", args={})
 
     adapter_spec = AdapterSpec(
