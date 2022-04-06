@@ -62,20 +62,23 @@ class AI21Tokenizer(Tokenizer):
         # The tokens must be a consecutive subset of the original text.
         for i in range(len(tokens) - 1):
             assert tokens[i].text_range.end == tokens[i + 1].text_range.start
-        start_token_index: int = 0
-        # Remove the empty leading tokens to make sure decoding after encoding does not generate
-        # extra tokens. e.g. "burying him" -> ["_burying"(0,7), "_him"(7,11)];
-        # " burying him" -> ["_"(0,0), "_burying"(0,8), "_him"(8,12)]
-        while tokens[start_token_index].text_range.start == tokens[start_token_index].text_range.end:
-            start_token_index += 1
-            if start_token_index == len(tokens):
-                return ""
-        start_token: TokenizationToken = tokens[start_token_index]
+        start_token: TokenizationToken = tokens[0]
         end_token: TokenizationToken = tokens[-1]
-        # Note that ▁ is not _
-        skipped_positions: int = start_token.text_range.end - start_token.text_range.start - len(
-            start_token.text.lstrip("▁")
-        )
+        skipped_positions: int = 0
+        if start_token.text_range.start != 0:
+            start_token_index: int = 0
+            # Remove the empty leading tokens to make sure decoding after encoding does not generate
+            # extra tokens. e.g. "burying him" -> ["_burying"(0,7), "_him"(7,11)];
+            # " burying him" -> ["_"(0,0), "_burying"(0,8), "_him"(8,12)]
+            while tokens[start_token_index].text_range.start == tokens[start_token_index].text_range.end:
+                start_token_index += 1
+                if start_token_index == len(tokens):
+                    return ""
+            start_token = tokens[start_token_index]
+            # Note that ▁ is not _
+            skipped_positions = (
+                start_token.text_range.end - start_token.text_range.start - len(start_token.text.lstrip("▁"))
+            )
         start: int = start_token.text_range.start + skipped_positions
         end: int = end_token.text_range.end
         return original_text[start:end]
