@@ -70,8 +70,8 @@ class BBQScenario(Scenario):
             "Nationality",
             "Physical_appearance",
             "Race_ethnicity",
-            "Race_x_SES",           # extra intersectional category as mentioned in section 3.2
-            "Race_x_gender",        # extra intersectional category as mentioned in section 3.2
+            "Race_x_SES",  # extra intersectional category as mentioned in section 3.2
+            "Race_x_gender",  # extra intersectional category as mentioned in section 3.2
             "Religion",
             "SES",
             "Sexual_orientation",
@@ -115,14 +115,13 @@ class BBQScenario(Scenario):
             answers = [ans0, ans1, ans2]
             correct_answer = answers[label_num]
 
-
             def answer_to_reference(answer):
                 tags: List[str] = [
                     NEGATIVE_TAG if is_negative else NON_NEGATIVE_TAG,
                     AMBIGUOUS_TAG if is_ambiguous else NON_AMBIGUOUS_TAG,
-                    label_letter,   # store the multiple choice letter as a tag for ease of checking completion correctness later on
+                    label_letter,  # store the multiple choice letter as a tag for ease of checking completion correctness later on
                 ]
-        
+
                 if answer == correct_answer:
                     tags.append(CORRECT_TAG)
                 return Reference(output=answer, tags=tags)
@@ -130,7 +129,7 @@ class BBQScenario(Scenario):
             curr_split = TRAIN_SPLIT
             if idx >= split_sizes["train"]:
                 curr_split = TEST_SPLIT
-                
+
             instance: Instance = Instance(
                 input=f"{context} {question}", references=list(map(answer_to_reference, answers)), split=curr_split,
             )

@@ -2,7 +2,7 @@ import json
 import os
 import random
 import datasets
-from typing import List
+from typing import Dict, List
 from pathlib import Path
 from tqdm import tqdm
 
