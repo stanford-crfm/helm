@@ -56,17 +56,14 @@ class BOLDScenario(Scenario):
     across five domains: profession, gender, race, religion, and political ideology."""
     tags = ["harms", "bias"]
 
-    def __init__(self, subject: str = None):
-        if subject:
-            self.subject = subject
-        else:
-            self.subject = None
+    def __init__(self, subject: str = "all"):
+        self.subject = subject
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
         os.mkdir(data_path)
 
-        if self.subject == None:
+        if self.subject == "all":
             categories = [
                 "gender",
                 "political_ideology",
