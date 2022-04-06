@@ -31,6 +31,7 @@ from . import dialogue_scenarios  # noqa
 from . import bbq_scenario  # noqa
 from . import bold_scenario  # noqa
 from . import civil_comments_scenario  # noqa
+from . import dyck_language_scenario  # noqa
 
 # Metrics
 from . import basic_metrics  # noqa
