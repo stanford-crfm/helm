@@ -87,7 +87,7 @@ class BBQScenario(Scenario):
 
         for category in categories:
             ensure_file_downloaded(
-                source_url=f"https://raw.githubusercontent.com/nyu-mll/BBQ/main/data/{bbq_category}.jsonl",
+                source_url=f"https://raw.githubusercontent.com/nyu-mll/BBQ/main/data/{category}.jsonl",
                 target_path=data_path,
                 unpack=False,
             )
