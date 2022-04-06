@@ -55,8 +55,8 @@ def exact_match(gold: str, pred: str) -> float:
 def match_upto_whitespace(gold: str, pred: str) -> float:
     """Exact match, ignoring trailing whitespace on either side.
     """
-    gold = gold.lstrip().rstrip()
-    pred = pred.lstrip().rstrip()
+    gold = gold.strip()
+    pred = pred.strip()
     return 1 if gold == pred else 0
 
 
@@ -198,7 +198,12 @@ def exact_set_match(gold: str, pred: str) -> float:
 
 
 def absolute_value_difference(gold: str, pred: str) -> float:
+    """Compute the absolute value of the difference between two numbers (provided as strings),
+    or 0.0 if invalid input.
+    """
+
     def maybe_int(text: str):
+        """Parse int, ignoring commas in numbers."""
         try:
             val = int(text.replace(",", ""))
         except ValueError:

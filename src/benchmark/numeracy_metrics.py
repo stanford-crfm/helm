@@ -35,15 +35,20 @@ class DistanceMetric(Metric):
 
         distance_func = globals()[f"distance_{relation_type}"]
         result = 0.0
+        num_valid = 0
         request_result: RequestResult = request_state.result
         for completion in request_result.completions:
             completion = completion.text.strip()
             try:
                 pred = int(completion)
             except Exception:
-                result += 999  # TODO how to handle invalid completions?
                 continue
             point = val + [pred]
             result += distance_func(point, rel_str)
+            num_valid += 1
+        percent_valid = 1.0 * num_valid / len(request_result.completions)
 
-        return [Stat(MetricName("distance")).add(result)]
+        return [
+            Stat(MetricName("distance")).add(result),
+            Stat(MetricName("percent_valid")).add(percent_valid),
+        ]

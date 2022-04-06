@@ -1016,7 +1016,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         raise ValueError(f"Unknown run spec name: {name}")
 
     # Peel off the run expanders (e.g., model)
-    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]
+    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
 
     # Get the canonical run specs

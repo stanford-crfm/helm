@@ -1,5 +1,5 @@
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, InitVar, field
 from itertools import combinations_with_replacement, product
 import math
 from math import comb  # type: ignore
@@ -9,7 +9,7 @@ import random
 import sympy
 from sympy import Symbol, Poly, diff
 from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
-from typing import List, Optional, Tuple, Dict
+from typing import List, Optional, Tuple, Dict, Union
 
 from .adapter import AdapterSpec, Adapter, ADAPT_GENERATION
 from .adapter_service import AdapterService
@@ -67,14 +67,18 @@ def stringify_terms(terms: List[List[int]], variable_names: List[str] = list("xy
     return list(map(lambda _: "".join([stringify_power(*el) for el in _]), powers))
 
 
+@dataclass
 class Polynomial:  # TODO convert to dataclass
     """A simple polynomial class over the integers that supports evaluation and pretty-printing.
     """
 
-    def __init__(self, degree: int, num_variables: int, coeffs: List[int]):
-        self.degree = degree
-        self.num_variables = num_variables
-        self.terms = generate_terms(degree, num_variables)
+    degree: int
+    num_variables: int
+    coeffs: InitVar[Union[List[int], npt.NDArray[np.int64]]] = None
+    terms: List[List[int]] = field(init=False)
+
+    def __post_init__(self, coeffs: List[int]):
+        self.terms = generate_terms(self.degree, self.num_variables)
         self.coeffs = np.array(coeffs)
 
     def eval(self, vals: List[int]):

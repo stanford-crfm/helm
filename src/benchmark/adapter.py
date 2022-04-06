@@ -44,7 +44,7 @@ class AdapterSpec:
     # What goes before the output
     output_prefix: str = "\nOutput: "
 
-    # What goes before each instance
+    # What goes between each instance
     block_prefix: str = "\n\n"
 
     # Maximum number of (in-context) training instances to put into the prompt
