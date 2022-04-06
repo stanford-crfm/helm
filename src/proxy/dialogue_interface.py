@@ -1,18 +1,15 @@
-import re
-
 import uuid
 import json
-
-import getpass
 
 import sys
 
 sys.path = sys.path + ["../../"]
 
-from src.common.authentication import Authentication
-from src.common.request import Request, RequestResult
-from proxy.remote_service import RemoteService
+from src.common.authentication import Authentication  # noqa: E402
+from src.common.request import Request, RequestResult  # noqa: E402
+from proxy.remote_service import RemoteService  # noqa: E402
 
+# flake8: noqa
 # An example of how to use the request API.
 """
 api_key = getpass.getpass(prompt="Enter a valid API key: ")
