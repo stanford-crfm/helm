@@ -1,35 +1,41 @@
-from typing import List, Optional
 from transformers import GPT2TokenizerFast
 
-from .tokenizer import Tokenizer
+from .gpt2_tokenizer import GPT2Tokenizer
 
 
-class OpenAITokenizer(Tokenizer):
+class OpenAITokenizer(GPT2Tokenizer):
 
-    # The max length of the model input, not the max length of a request (2049).
-    MAX_SEQUENCE_LENGTH = 2048
+    # From https://help.openai.com/en/articles/5072518-controlling-the-length-of-completions,
+    # "these requests can use up to 2049 tokens, shared between prompt and completion."
+    MAX_REQUEST_LENGTH: int = 2049
 
-    END_OF_TEXT_TOKEN = "<|endoftext|>"
+    # The max length of the model input. The max sequence length for OpenAI is 2048,
+    # which is different from the max request length of 2049.
+    MAX_SEQUENCE_LENGTH: int = 2048
 
-    def __init__(self):
+    def __init__(self, tokenizer: GPT2TokenizerFast):
         # OpenAI uses the same tokenizer for GPT-2 and GPT-3.
-        # Weights are cached at ~/.cache/huggingface/transformers.
-        self._tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
+        super().__init__(tokenizer)
 
-    def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> List[int]:
-        """
-        Encodes the input text to tokens.
-        """
-        return self._tokenizer.encode(text, truncation=truncation, max_length=max_length)
+    @property
+    def max_sequence_length(self) -> int:
+        """Return the max sequence length of the OpenAI models."""
+        return OpenAITokenizer.MAX_SEQUENCE_LENGTH
 
-    def decode(self, tokens: List[int]) -> str:
+    def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
         """
-        Given a list of tokens, outputs the corresponding text.
+        Checks if the given text fits within the OpenAI max request length of 2049 taking to account
+        the expected completion length (defaults to 0).
         """
-        return self._tokenizer.decode(tokens, clean_up_tokenization_spaces=False)
+        return self.tokenize_and_count(text) + expected_completion_token_length <= OpenAITokenizer.MAX_REQUEST_LENGTH
 
-    def tokenize(self, text: str) -> List[str]:
+    def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
-        Tokenizes the text.
+        Truncates text from the right to fit within the OpenAI max request length of 2049
+        minus the expected completion length (defaults to 0).
         """
-        return self._tokenizer.tokenize(text)
+        return self._tokenizer.decode(
+            self._tokenizer.encode(
+                text, truncation=True, max_length=OpenAITokenizer.MAX_REQUEST_LENGTH - expected_completion_token_length
+            )
+        )

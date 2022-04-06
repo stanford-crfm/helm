@@ -23,11 +23,12 @@ from common.authentication import Authentication
 from common.hierarchical_logger import hlog
 from common.request import Request
 from common.perspective_api_request import PerspectiveAPIRequest
-from proxy.accounts import Account
-from proxy.server_service import ServerService
-from proxy.dialogue_interface import start_conversation, conversational_turn, submit_interview
+from common.tokenization_request import TokenizationRequest
+from .accounts import Account
+from .server_service import ServerService
+from .dialogue_interface import start_conversation, conversational_turn, submit_interview
 from dialogue_config import DIALOGUE_CREDENTIALS
-from query import Query
+from .query import Query
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
@@ -154,6 +155,16 @@ def handle_request():
         auth = Authentication(**json.loads(args["auth"]))
         request = Request(**json.loads(args["request"]))
         return dataclasses.asdict(service.make_request(auth, request))
+
+    return safe_call(perform)
+
+
+@app.get("/api/tokenize")
+def handle_tokenization():
+    def perform(args):
+        auth = Authentication(**json.loads(args["auth"]))
+        request = TokenizationRequest(**json.loads(args["request"]))
+        return dataclasses.asdict(service.tokenize(auth, request))
 
     return safe_call(perform)
 
