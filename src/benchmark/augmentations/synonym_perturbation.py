@@ -8,7 +8,7 @@ import nltk
 
 try:
     from nltk.corpus import wordnet
-except OSError:
+except LookupError:
     nltk.download("wordnet")
     nltk.download("omw-1.4")
     from nltk.corpus import wordnet
