@@ -1,7 +1,6 @@
 import json
 import os
 from dataclasses import dataclass, asdict, replace
-import pickle as pkl
 from typing import List, Optional
 
 from tqdm import tqdm
@@ -9,7 +8,7 @@ from tqdm import tqdm
 
 from common.general import ensure_directory_exists, write, write_lines, pickle, unpickle
 from common.hierarchical_logger import hlog, htrack_block
-from common.request import Request, RequestResult
+from common.request import RequestResult
 from proxy.remote_service import RemoteService
 from .adapter_service import AdapterService
 from .augmentations.data_augmenter import DataAugmenterSpec
@@ -18,6 +17,7 @@ from .scenario import Scenario, ScenarioSpec, create_scenario, Instance
 from .adapter import (
     AdapterSpec,
     Adapter,
+    InteractionRound,
     InteractionTrace,
     InteractiveAdapter,
     InteractiveAdapterSpec,
@@ -185,10 +185,11 @@ class Runner:
 class InteractiveRunner:
     """
     The `InteractiveRunner` operates on a persisted `ScenarioState` which has a bunch of incomplete interaction traces.
-    In the event of a user interaction, it reads the current state for that instance, creates and executes a request to the lm,
-    updates the interaction state on the disk and responds to the user.
+    In the event of a user interaction, it reads the current state for that instance,
+    creates and executes a request to the lm, updates the interaction state on the disk and responds to the user.
 
-    It assumes that two threads/processes do not attempt to process the same instance concurrently, as it could lead to data loss.
+    It assumes that two threads/processes do not attempt to process the same instance concurrently,
+    as it could lead to data loss.
     """
 
     def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_spec: RunSpec):
@@ -217,17 +218,18 @@ class InteractiveRunner:
     ) -> RequestResult:
         """Handle user input, get LM response, save and return it"""
         scenario_state: ScenarioState = unpickle(os.path.join(self.runs_path, "scenario_state.pkl"))
-        interaction_traces: List[InteractionTrace] = scenario_state.request_state_map[
+        interaction_traces: List[InteractionTrace] = scenario_state.interaction_trace_map[
             (train_trial_index, instance, reference_index)
         ]
 
-        # TODO: Why is the return type fore request_state_map a List? Figure it out, change the type & code, and remove the following assertion
+        # Why is the return type fore interaction_trace_map a List?
+        # TODO: Figure it out, change the type & code, and remove the following assertion
         assert len(interaction_traces) == 1, "Can only handle user input for a unique interaction trace"
         interaction_trace = interaction_traces[0]
 
         new_request_state: RequestState = self.interactive_adapter.adapt_user_input(interaction_trace, user_input)
         new_request_state = self.process(new_request_state)
-        interaction_trace.trace.append((user_input, new_request_state))
+        interaction_trace.trace.append(InteractionRound(user_input=user_input, request_state=new_request_state))
 
         # Read the scenario state again
         # Because if there was a delay in executing lm request and traces for other interactions were updated meanwhile
@@ -236,7 +238,9 @@ class InteractiveRunner:
         with open(os.path.join(self.runs_path, "scenario_state.pkl"), "rb") as f:
             latest_scenario_state = pickle.load(f)
 
-        latest_scenario_state.request_state_map[(train_trial_index, instance, reference_index)] = [interaction_trace]
+        latest_scenario_state.interaction_trace_map[(train_trial_index, instance, reference_index)] = [
+            interaction_trace
+        ]
         with open(os.path.join(self.runs_path, "scenario_state.pkl"), "wb") as f:
             pickle.dump(latest_scenario_state, f)
 
@@ -249,12 +253,15 @@ class InteractiveRunner:
         with open(os.path.join(self.runs_path, "scenario_state.pkl"), "rb") as f:
             latest_scenario_state = pickle.load(f)
 
-        interaction_traces = latest_scenario_state.request_state_map[(train_trial_index, instance, reference_index)]
-        # TODO: Why is the return type fore request_state_map a List? Figure it out, change the type & code, and remove the following assertion
+        interaction_traces = latest_scenario_state.interaction_trace_map[(train_trial_index, instance, reference_index)]
+        # Why is the return type fore request_state_map a List?
+        # TODO: Figure it out, change the type & code, and remove the following assertion
         assert len(interaction_traces) == 1, "Can only handle user input for a unique interaction trace"
         interaction_trace: InteractionTrace = interaction_traces[0]
         interaction_trace.survey = survey
 
-        latest_scenario_state.request_state_map[(train_trial_index, instance, reference_index)] = [interaction_trace]
+        latest_scenario_state.interaction_trace_map[(train_trial_index, instance, reference_index)] = [
+            interaction_trace
+        ]
         with open(os.path.join(self.runs_path, "scenario_state.pkl"), "wb") as f:
             pickle.dump(latest_scenario_state, f)

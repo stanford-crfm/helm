@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import replace
-from typing import List, Dict, Union
+from typing import List, Dict
 from math import log, e
 from collections import defaultdict
 
@@ -55,17 +55,26 @@ class Metric(ABC):
             for instance in scenario_state.instances:
                 instance_stats = []
 
-                # Evaluate generated request_state
                 request_state = singleton(scenario_state.get_request_states(train_trial_index, instance, None))
                 instance_stats.extend(self.evaluate_generation(adapter_spec, request_state, metric_service))
 
-                # Evaluate the references
-                request_states = []
-                for reference_index in range(len(instance.references)):
-                    request_states.extend(
-                        scenario_state.get_request_states(train_trial_index, instance, reference_index)
+                if not adapter_spec.interactive:
+                    # Evaluate generated request_state
+                    request_state = singleton(scenario_state.get_request_states(train_trial_index, instance, None))
+                    instance_stats.extend(self.evaluate_generation(adapter_spec, request_state, metric_service))
+
+                    # Evaluate the references
+                    request_states = []
+                    for reference_index in range(len(instance.references)):
+                        request_states.extend(
+                            scenario_state.get_request_states(train_trial_index, instance, reference_index)
+                        )
+                    instance_stats.extend(self.evaluate_references(adapter_spec, request_states, metric_service))
+                else:
+                    interactionTrace = singleton(
+                        scenario_state.get_interaction_traces(train_trial_index, instance, None)
                     )
-                instance_stats.extend(self.evaluate_references(adapter_spec, request_states, metric_service))
+                    instance_stats.extend(self.evaluate_interaction(adapter_spec, interactionTrace, metric_service))
 
                 # Merge these statistics back.
                 # TODO: we should add statistics with the individual instances too and serialize them out.
@@ -113,11 +122,14 @@ class Metric(ABC):
 
         return list(global_stats.values())
 
+    def evaluate_interaction(
+        self, adapter_spec: AdapterSpec, interaction_trace: InteractionTrace, metric_service: MetricService,
+    ) -> List[Stat]:
+        """Evaluate interaction scenarios using the interaction trace.  Override me!"""
+        return []
+
     def evaluate_generation(
-        self,
-        adapter_spec: AdapterSpec,
-        request_state: Union[RequestState, InteractionTrace],
-        metric_service: MetricService,
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService,
     ) -> List[Stat]:
         """Evaluate free-form generation.  Override me!"""
         return []
@@ -135,13 +147,14 @@ class Metric(ABC):
         # Assume models are only evaluated on the test set
         split: str = TEST_SPLIT
 
-        for request_state in scenario_state.request_states:
-            # Evaluate request_state
-            request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
+        if scenario_state.request_states is not None:
+            for request_state in scenario_state.request_states:
+                # Evaluate request_state
+                request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
 
-            for stat in request_stats:
-                stat = Stat(replace(stat.name, split=split)).merge(stat)
-                merge_stat(trial_stats, stat)
+                for stat in request_stats:
+                    stat = Stat(replace(stat.name, split=split)).merge(stat)
+                    merge_stat(trial_stats, stat)
 
         # Aggregate the corpus-level metrics
         if (
@@ -204,20 +217,21 @@ class Metric(ABC):
         good_logprobs: defaultdict = defaultdict(float)
         bad_logprobs: defaultdict = defaultdict(float)
 
-        for request_state in scenario_state.request_states:
-            assert request_state.instance.id is not None and request_state.instance.sub_split is not None
-            pair_id: int = int(request_state.instance.id.lstrip("id")) // 2
-            sub_split: str = request_state.instance.sub_split
-            request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
-            for stat in request_stats:
-                if stat.name == MetricName("logprob"):
-                    if sub_split == "good":
-                        good_logprobs[pair_id] += stat.sum
-                    elif sub_split == "bad":
-                        bad_logprobs[pair_id] += stat.sum
-                    else:
-                        raise Exception(f"Unknown sub_split {sub_split}")
-                    continue
+        if scenario_state.request_states is not None:
+            for request_state in scenario_state.request_states:
+                assert request_state.instance.id is not None and request_state.instance.sub_split is not None
+                pair_id: int = int(request_state.instance.id.lstrip("id")) // 2
+                sub_split: str = request_state.instance.sub_split
+                request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
+                for stat in request_stats:
+                    if stat.name == MetricName("logprob"):
+                        if sub_split == "good":
+                            good_logprobs[pair_id] += stat.sum
+                        elif sub_split == "bad":
+                            bad_logprobs[pair_id] += stat.sum
+                        else:
+                            raise Exception(f"Unknown sub_split {sub_split}")
+                        continue
         accuracy = sum(good_logprobs[pair_id] > bad_logprobs[pair_id] for pair_id in good_logprobs) / len(good_logprobs)
         merge_stat(trial_stats, Stat(MetricName("accuracy", split=split)).add(accuracy))
 

@@ -80,6 +80,7 @@ class Executor:
             tqdm.write(render_request_state(state))
             return state
 
+        assert scenario_state.request_states is not None  # AFAIK: The typecheker doesn't support Rust like "unwrap"
         with ThreadPoolExecutor(max_workers=self.execution_spec.parallelism) as executor:
             # Run `process` on each request state
             request_states = list(

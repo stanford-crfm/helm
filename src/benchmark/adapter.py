@@ -1,10 +1,8 @@
 from abc import ABC, abstractmethod
 import random
 from dataclasses import dataclass, field
-from typing import List, Dict, Tuple, Optional, Union
+from typing import List, Dict, Tuple, Optional
 from collections import defaultdict, OrderedDict
-
-from aiohttp import request
 
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
@@ -135,11 +133,24 @@ class RequestState:
         return output
 
 
-@dataclass
+@dataclass(frozen=True)
 class UserInput:
-    """Subclassed by interaction scenarios"""
+    """
+    For interactive scenarios, this dataclass represents user input.
+    It can be subclassed by each interaction scenario to capture scenario specific user inputs.
+    """
 
     input: str
+
+
+@dataclass
+class InteractionRound:
+    """
+    Represents a round of interaction between a user and the model (LM)
+    """
+
+    user_input: UserInput
+    request_state: RequestState
 
 
 @dataclass
@@ -160,7 +171,7 @@ class InteractionTrace:
     train_trial_index: int
 
     # A sequence of requests made to the LM that captures the interaction trace
-    trace: List[Tuple[UserInput, RequestState]]
+    trace: List[InteractionRound]
 
     # Freeform field to store responses used to compute metrics
     survey = None
@@ -176,7 +187,9 @@ class InteractionTrace:
 
         # Part of request but render multiline
         output.append("trace {")
-        for user_input, request_state in self.trace:
+        for interaction_round in self.trace:
+            user_input = interaction_round.user_input
+            request_state = interaction_round.request_state
             output.append(f"user_input: {user_input}")
             output.append("request.prompt {")
             output.extend(indent_lines(format_text_lines(request_state.request.prompt), count=4))
@@ -200,7 +213,7 @@ class InteractionTrace:
             instance=request_state.instance,
             reference_index=request_state.reference_index,
             train_trial_index=request_state.train_trial_index,
-            trace=[(UserInput(""), request_state)],
+            trace=[InteractionRound(UserInput(""), request_state)],
         )
 
 
@@ -216,36 +229,71 @@ class ScenarioState:
     adapter_spec: AdapterSpec
 
     # List of `RequestState`s that were produced by adaptation (and execution)
-    request_states: Union[List[RequestState], List[InteractionTrace]]
+    request_states: Optional[List[RequestState]] = None
+
+    # List of `InteractionState`s that were produced for interactive scenarios
+    # (instead of request states).
+    interaction_traces: Optional[List[InteractionTrace]] = None
 
     def __post_init__(self):
         # Create derived indices based on `request_states` so it's easier for
         # the `Metric` later to access them.  Two things are produced:
-        self.request_state_map: Dict[
-            Tuple[int, Instance, Optional[int]], Union[List[InteractionTrace], List[RequestState]]
-        ] = defaultdict(list)
+        self.request_state_map: Dict[Tuple[int, Instance, Optional[int]], List[RequestState]] = defaultdict(list)
+
+        self.interaction_trace_map: Dict[Tuple[int, Instance, Optional[int]], List[InteractionTrace]] = defaultdict(
+            list
+        )
+
+        assert (
+            self.request_states is not None ^ self.interaction_traces is not None
+        ), "Only and exactly one of `interaction_traces` or `request_states` should be populated"
 
         instances_set = set()
-        for request_state in self.request_states:
-            instances_set.add(request_state.instance)
-            key = (request_state.train_trial_index, request_state.instance, request_state.reference_index)
-            self.request_state_map[key].append(request_state)
+
+        if self.request_states is not None:
+            for request_state in self.request_states:
+                instances_set.add(request_state.instance)
+                key = (request_state.train_trial_index, request_state.instance, request_state.reference_index)
+                self.request_state_map[key].append(request_state)
+        elif self.interaction_traces is not None:
+            for interaction_trace in self.interaction_traces:
+                instances_set.add(interaction_trace.instance)
+                key = (
+                    interaction_trace.train_trial_index,
+                    interaction_trace.instance,
+                    interaction_trace.reference_index,
+                )
+                self.interaction_trace_map[key].append(interaction_trace)
+        else:
+            raise NotImplementedError  # If the code reaches here, something is wrong above as this case is undefined
+
         self.instances: List[Instance] = list(instances_set)
 
     def get_request_states(
         self, train_trial_index: int, instance: Instance, reference_index: Optional[int]
-    ) -> Union[List[RequestState], List[InteractionTrace]]:
+    ) -> List[RequestState]:
         return self.request_state_map.get((train_trial_index, instance, reference_index), [])
 
+    def get_interaction_traces(
+        self, train_trial_index: int, instance: Instance, reference_index: Optional[int]
+    ) -> List[InteractionTrace]:
+        return self.interaction_trace_map.get((train_trial_index, instance, reference_index), [])
+
     def render_lines(self) -> List[str]:
-        total: int = len(self.request_states)
+        if self.request_states is not None:
+            instance_responses = self.request_states
+        elif self.interaction_traces is not None:
+            instance_responses = self.interaction_traces
+        else:
+            raise NotImplementedError
+        total: int = len(instance_responses)
         result = ["adapter_spec {"]
         result.extend(indent_lines(serialize(self.adapter_spec)))
         result.append("}")
 
-        for i, request_state in enumerate(self.request_states):
+        for i, request_state in enumerate(instance_responses):
             result.append(f"request_state {i} ({total} total) {{")
-            result.extend(indent_lines(request_state.render_lines()))
+            result.extend(indent_lines(request_state.render_lines()))  # type: ignore
             result.append("}")
 
         return result
@@ -426,9 +474,11 @@ class Adapter:
 
         hlog(f"{len(request_states)} requests")
         if self.adapter_spec.interactive:
-            return ScenarioState(self.adapter_spec, [InteractionTrace.from_requeststate(r) for r in request_states])
+            return ScenarioState(
+                self.adapter_spec, interaction_traces=[InteractionTrace.from_requeststate(r) for r in request_states]
+            )
         else:
-            return ScenarioState(self.adapter_spec, request_states)
+            return ScenarioState(self.adapter_spec, request_states=request_states)
 
     def construct_prompt(self, train_instances: List[Instance], eval_instance: Instance) -> str:
         """
@@ -639,7 +689,7 @@ class Adapter:
 class InteractiveAdapter(ABC):
     @abstractmethod
     def adapt_user_input(self, interaction_trace: InteractionTrace, user_input: UserInput) -> RequestState:
-        """Returns an updated InteractionTrace with the user input and a new request to the lm"""
+        """Returns an updated InteractionTrace with the user input and a new request to the model/LM"""
         raise NotImplementedError
 
 
