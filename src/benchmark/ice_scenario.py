@@ -23,7 +23,74 @@ class ICEScenario(Scenario):
     """
     The International Corpus of English (ICE).
 
-    Documentation: https://www.ice-corpora.uzh.ch/en.html
+    NOTE: This text cannot be downloaded
+    automatically. You must extract each subset zip file into /benchmark_output/scenarios/ice.
+    The archives should extract into folders named according to the dictionary subset_to_directory
+    below.
+
+    The ICE corpus gathers written and spoken texts from variants of English across 13
+    regional subsets:
+    Canada, East Africa (Kenya & Tanzania), Great Britain, Hong Kong, India, Ireland,
+    Jamaica, Nigeria, New Zealand, the Philippines, Singapore, Sri Lanka, and the United States.
+    We evaluate on per-text perplexity (by default, all texts from all regions, but
+    can be filtered using scenario parameters).
+
+    Initially, we are only able to evaluate the Canada (CAN), Hong Kong (HK), India (IND), Jamaica (JA),
+    Philippines (PHI), Singapore (SIN) and United States (USA) subsets, as these are the
+    only subsets which standardize the organization of their data/metadata. Evaluation
+    can be restricted to one of these subsets by passing the corresponding code (parenthesized above)
+    into the subset parameter.
+
+    Spoken texts are transcripts of conversations, speeches or radio/television programs,
+    while written texts range over essays, emails, news reports and other professional
+    written material. The corpus is marked up with XML-style annotations which we have
+    chosen to eliminate (save for the speaker annotations in the spoken texts).
+
+    Here is a spoken text example (from ICE India):
+    <|endoftext|><$A>
+
+    He says one minute
+
+
+    About that uh mm letter sir
+
+
+    About uh that letter
+
+
+    Board of studies letter
+
+    <$B>
+
+    I gave it you no
+    ...
+
+    Here is a written text example (from ICE-USA):
+    <|endoftext|>The U.S. Mint:
+
+
+
+      United States coins are made at four Mint facilities:
+
+    Philadelphia, Denver, San Francisco, and West Point, NY.
+     One easy way to start your collection is with the circulating coins
+
+    you use daily - pennies, nickels, dimes, quarters and dollars.
+     In addition, the U.S. Mint also issues annual proof and uncirculated
+    ...
+
+    Each subset contains exactly 500 texts and maintains a standardized distribution across categories.
+    One notable exception to this distribution is the USA subset, for which the spoken texts
+    are not present. Evaluation can be restricted to written or spoken texts by passing
+    "written" or "spoken" respectively to the split parameter.
+
+    Some subsets record metadata of the author(s)/speaker(s) of each text. Currently,
+    CAN, HK, IND, USA support filtering texts by gender (gender=M for male, F for female).
+    Where there are multiple authors/speakers, a text is only included if all the authors/speakers
+    are identified with a single gender. We plan to add support for metadata filtering in PHI,
+    as well as filtering by speaker age groups.
+
+    Further documentation is provided at https://www.ice-corpora.uzh.ch/en.html
     """
 
     name = "ice"
