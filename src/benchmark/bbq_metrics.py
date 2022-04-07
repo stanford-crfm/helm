@@ -38,7 +38,9 @@ class BBQMetric(Metric):
         acc = Stat("accuracy")
 
         for instance in scenario_state.instances:
-            request_state = singleton(scenario_state.get_request_states(1, instance, None)) # TODO: figure out what should take the place of `1` in train_trial_index
+            request_state = singleton(
+                scenario_state.get_request_states(1, instance, None)
+            )  # TODO: figure out what should take the place of `1` in train_trial_index
             references = request_state.instance.references
 
             reference = references[0]
