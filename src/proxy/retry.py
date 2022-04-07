@@ -26,7 +26,7 @@ _NUM_RETRIES: int = 5
 _WAIT_EXPONENTIAL_MULTIPLIER_SECONDS: int = 3
 
 
-def get_retry_decorator(stop_max_attempt_number: str, wait_exponential_multiplier_seconds: int) -> Callable:
+def get_retry_decorator(stop_max_attempt_number: int, wait_exponential_multiplier_seconds: int) -> Callable:
     """
     Create a decorator that will retry with exponential backoff.
     """
