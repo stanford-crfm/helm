@@ -16,7 +16,7 @@ class HeaderFormat(Enum):
     MDB = 3
 
 
-TAGS = False
+KEEP_TAGS = False
 GENDER_ANNOTATIONS = {"M": {"M", "m", "Male", "male"}, "F": {"F", "f", "Female", "female"}}
 ICE_SUBSETS = {"CAN", "JA", "HK", "IND", "SIN", "PHI", "USA"}
 UNSUPPORTED_SUBSETS = {"GB", "EA", "IRL", "NZ", "SL", "NG"}  # noqa
@@ -129,7 +129,7 @@ class ICEScenario(Scenario):
 
             self.gender = gender
 
-    def preprocess_text(self, text: str, tags: bool = TAGS) -> str:
+    def preprocess_text(self, text: str, keep_tags: bool = False) -> str:
         """
         Reads in the fulltext string of a corpus text and returns a preprocessed
         version (also string) according to the following procedure:
@@ -174,18 +174,17 @@ class ICEScenario(Scenario):
             "\=",
             "\?",
             "sp",
-            "l",
         ]
         remove = ["O", "-", "&", ".", "fnr", "marginalia", "del", "w"]
-        replace = {"mention": '"', "\*": "\*", "\*\/": "\*", "&eacute;": "é"}
+        replace = {"<\/*mention>": '"', "<\/*\*>": "<\/*\*>", "<\/*\*\/>": "\*", "&eacute;": "é", " <l> ": ""}
 
         text = text.strip()
 
-        if tags:
+        if keep_tags:
             return text
 
         for k, v in replace.items():
-            text = re.sub(str(f"<\/*{k}>"), v, text)
+            text = re.sub(k, v, text)
 
         untag_pattern = "<\/*(" + "|".join(untag) + ")>"
         text = re.sub(untag_pattern, "", text)
@@ -256,7 +255,7 @@ class ICEScenario(Scenario):
 
                 with open(header_path, "r") as f:
                     try:
-                        text = self.preprocess_text(f.read(), TAGS)
+                        text = f.read()
                     except UnicodeDecodeError:
                         hlog(str(f"File {filename} skipped (unsupported header encoding)."))
                         continue
@@ -304,10 +303,10 @@ class ICEScenario(Scenario):
 
                 try:
                     with open(os.path.join(corpus_path, filename), "r") as f:
-                        text = self.preprocess_text(f.read(), TAGS)
+                        text = self.preprocess_text(f.read(), KEEP_TAGS)
                 except UnicodeDecodeError:
                     with open(os.path.join(corpus_path, filename), "r", encoding="iso-8859-1") as f:
-                        text = self.preprocess_text(f.read(), TAGS)
+                        text = self.preprocess_text(f.read(), KEEP_TAGS)
 
                 instances.append(Instance(input=text, references=[], split=TEST_SPLIT))
 
