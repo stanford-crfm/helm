@@ -1,17 +1,11 @@
 from dataclasses import dataclass
 
-
+import os
 import re
+import nltk
+from nltk.corpus import wordnet
 import numpy as np
 import spacy
-import nltk
-
-try:
-    from nltk.corpus import wordnet
-except LookupError:
-    nltk.download("wordnet")
-    nltk.download("omw-1.4")
-    from nltk.corpus import wordnet
 
 from benchmark.scenario import Instance
 from .perturbation_description import PerturbationDescription
@@ -45,13 +39,23 @@ class SynonymPerturbation(Perturbation):
     def __init__(self, prob: float):
         self.prob: float = prob
 
+        try:
+            _ = wordnet.synsets("test")
+        except LookupError:
+            # TODO get directory from broader output_path
+            out_dir = "nltk_data"
+            nltk.data.path.append(out_dir)
+            if not os.path.exists(os.path.join(out_dir, "corpora/wordnet")):
+                nltk.download("wordnet", download_dir=out_dir)
+            if not os.path.exists(os.path.join(out_dir, "corpora/omw-1.4")):
+                nltk.download("omw-1.4", download_dir=out_dir)
+
     @property
     def description(self) -> PerturbationDescription:
         return SynonymPerturbation.Description(self.name, self.prob)
 
     @staticmethod
     def untokenize(words):
-
         text = " ".join(words)
         step1 = text.replace("`` ", '"').replace(" ''", '"').replace(". . .", "...")
         step2 = step1.replace(" ( ", " (").replace(" ) ", ") ")
@@ -94,7 +98,7 @@ class SynonymPerturbation(Perturbation):
                     result.append(word)
 
         # detokenize sentences
-        result = untokenize(result)  # noqa
+        result = self.untokenize(result)
 
         return result
 
