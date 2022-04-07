@@ -177,7 +177,7 @@ def get_vocab() -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
         "young": ["young"],
         "soft": ["soft"],
         "sad": ["sad"],
-        "scray": ["scary"],
+        "scary": ["scary"],
         "cold": ["cold", "chill", "cool"],
         "hot": ["hot", "warm"],
         "smart": ["smart", "clever", "wise", "intelligent"],
