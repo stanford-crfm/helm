@@ -1,24 +1,31 @@
 from dataclasses import replace
-from typing import List, Callable, Dict, Optional
+from typing import List, Callable, Optional, Dict, Tuple, cast
 from urllib.parse import unquote
+from functools import partial
 
+import json
 import re
 import string
-import rouge
 import nltk
 from nltk.metrics.scores import f_measure
 from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
+import numpy as np
+from rouge_score import rouge_scorer
 
+from common.hierarchical_logger import hlog
 from common.request import Token
 from common.statistic import Stat
-from proxy.tokenizer.auto_token_counter import AutoTokenCounter
-from proxy.tokenizer.token_counter import TokenCounter
+from . import code_metrics_helper
+from proxy.tokenizer.tokenizer import Tokenizer
+from proxy.tokenizer.tokenizer_factory import TokenizerFactory
+from proxy.tokenizer.tokenizer_service import TokenizerService
 from .augmentations.perturbation_description import PerturbationDescription
 from .adapter import AdapterSpec, RequestState, ADAPT_LANGUAGE_MODELING
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
+from .code_scenario import CodeReference
 
 
 try:
@@ -26,9 +33,37 @@ try:
 except LookupError:
     nltk.download("punkt")  # Required for rouge
 
+INFERENCE_EFFICIENCY_JSON_FILEPATH = "src/benchmark/static/inference_efficiency.json"
+TRAINING_EFFICIENCY_JSON_FILEPATH = "src/benchmark/static/training_efficiency.json"
+
+
+def pass_at_k_estimator(n: int, c: int, k: int) -> float:
+    """Calculates 1 - comb(n - c, k) / comb(n, k).
+
+    Numerically stable version defined in
+        https://arxiv.org/pdf/2107.03374.pdf
+    """
+    if n - c < k:
+        return 1.0
+    return 1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))
+
 
 def exact_match(gold: str, pred: str) -> float:
     return 1 if gold == pred else 0
+
+
+def exact_match_indicator(gold: str, pred: str, indicator: str = "#") -> float:
+    """
+    Exact match, allowing for some preceding context.
+    For example, the following two answers are considered matching:
+    - Because of x and y, the answer is ## <answer>
+    - Given reasons y and z, the answer is ## <answer>
+    While the following is considered different from the earlier two
+    - Given reasons x and a, the answer is ## <other answer>
+    """
+    pred = pred.split(indicator)[-1].strip()
+    gold = gold.split(indicator)[-1].strip()
+    return exact_match(gold, pred)
 
 
 def get_num_bytes(tokens: List[Token]) -> int:
@@ -110,12 +145,14 @@ def f1_score(gold: str, pred: str) -> float:
     return ret
 
 
-def rouge_l(gold: str, pred: str) -> float:
-    rouge_l_evaluator = rouge.Rouge(
-        metrics=["rouge-l"], weight_factor=1.2,  # Original Rouge Paper uses 1.2, https://aclanthology.org/W04-1013.pdf
-    )
-    score: dict = rouge_l_evaluator.get_scores(pred, gold)
-    return score["rouge-l"]["f"]
+def rouge_score(gold: str, pred: str, rouge_type: str, scorer: rouge_scorer.RougeScorer) -> float:
+    scores = scorer.score(gold, pred)
+    return scores[rouge_type].fmeasure
+
+
+def get_rouge_function(rouge_type: str) -> Callable[[str, str], float]:
+    scorer = rouge_scorer.RougeScorer([rouge_type], use_stemmer=True)
+    return partial(rouge_score, scorer=scorer, rouge_type=rouge_type)
 
 
 def bleu_1(gold: str, pred: str) -> float:
@@ -129,11 +166,12 @@ def bleu_4(gold: str, pred: str) -> float:
 def iou_set_match(gold: str, pred: str) -> float:
     """Compute the intersection over union of the gold and pred sets"""
     pred = pred.split("\n")[0]
-    if gold == "Nothing.":
+    gold_text = gold
+    if gold_text == "Nothing.":
         return float(pred == "Nothing.")
     pred = pred.replace(".", "")
-    gold = gold.replace(".", "")
-    gold_set = set(gold.split(" is ")[-1].split(" and "))
+    gold_text = gold_text.replace(".", "")
+    gold_set = set(gold_text.split(" is ")[-1].split(" and "))
     pred_set = set(pred.split(" is ")[-1].split(" and "))
     return len(gold_set.intersection(pred_set)) / len(gold_set.union(pred_set))
 
@@ -141,19 +179,27 @@ def iou_set_match(gold: str, pred: str) -> float:
 def exact_set_match(gold: str, pred: str) -> float:
     """Compute whether the sets generated exactly match"""
     pred = pred.split("\n")[0]
-    if gold == "Nothing.":
+    gold_text = gold
+    if gold_text == "Nothing.":
         return float(pred == "Nothing.")
     pred = pred.replace(".", "")
-    gold = gold.replace(".", "")
-    gold_set = set(gold.split(" is ")[-1].split(" and "))
+    gold_text = gold_text.replace(".", "")
+    gold_set = set(gold_text.split(" is ")[-1].split(" and "))
     pred_set = set(pred.split(" is ")[-1].split(" and "))
     return float(gold_set == pred_set)
+
+
+def code_eval(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
+    """Evaluate Code Correctness on test examples."""
+    assert gold[1] is not None  # gold[1]["canonical_solution"]
+    # Warning: will execute machine generated code; need to sandbox before executing
+    return float(code_metrics_helper.check_correctness(gold[1], pred, 3.0)["passed"])  # type: ignore
 
 
 class BasicMetric(Metric):
     """
     Defines basic metrics which don't require domain knowledge.  This should be
-    fairly comprehensive already and we should try to use this as much as possible.
+    fairly comprehensive already, and we should try to use this as much as possible.
     If we need a different variant, try to generalize this or factor things out.
     It's possible we don't need to subclass this.
     `names` is a list of optional metrics to be specified by the user. Currently only `exact_match` is supported.
@@ -161,7 +207,6 @@ class BasicMetric(Metric):
 
     def __init__(self, names: List[str]):
         self.names: List[str] = names
-        self.token_counter: TokenCounter = AutoTokenCounter()
 
     def compute_reference_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -178,21 +223,41 @@ class BasicMetric(Metric):
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
 
-        def compute_metrics_helper(name: MetricName, score_func: Callable[[str, str], float]) -> List[Stat]:
-            score_1 = max(score_func(gold, preds[0]) for gold in golds)
-            score_k = max(score_func(gold, pred) for gold in golds for pred in preds)
+        def compute_metrics_helper(name: MetricName, score_func: Callable, group: Optional[str] = None,) -> List[Stat]:
+            if name.name == "pass":  # Calculate pass@k for HumanEval from CodeScenario.
+                score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
+                code_golds = cast(List[CodeReference], golds)
+                results = [score_func((gold.output, gold.test_cases), pred) for gold in code_golds for pred in preds]
+                _len, _sum = len(results), int(sum(results))  # Cast to int to make type match.
+                score_1 = pass_at_k_estimator(_len, _sum, 1)
+                score_k = pass_at_k_estimator(_len, _sum, adapter_spec.num_outputs)
+            elif name.name == "code_eval_acc":
+                score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
+                code_golds = cast(List[CodeReference], golds)
+                score_1 = max(score_func((gold.output, gold.test_cases), preds[0]) for gold in code_golds)
+                score_k = max(score_func((gold.output, gold.test_cases), pred) for gold in code_golds for pred in preds)
+            else:
+                score_func = cast(Callable[[str, str], float], score_func)  # Make mypy happy.
+                score_1 = max(score_func(gold.output, preds[0]) for gold in golds)
+                score_k = max(score_func(gold.output, pred) for gold in golds for pred in preds)
+
             return [
                 Stat(name).add(score_1),
                 Stat(replace(name, k=adapter_spec.num_outputs)).add(score_k),
             ]
 
         # maps each string metric name to its associated function
-        metric_fn_mapping = {
+        metric_fn_mapping: Dict[str, Callable] = {
             "exact_match": exact_match,
+            "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
+            "code_eval_acc": code_eval,
+            "pass": code_eval,
             "f1_score": f1_score,
-            "rouge-l": rouge_l,
+            "rouge-1": get_rouge_function("rouge1"),
+            "rouge-2": get_rouge_function("rouge2"),
+            "rouge-l": get_rouge_function("rougeL"),
             "bleu_1": bleu_1,
             "bleu_4": bleu_4,
         }
@@ -201,7 +266,7 @@ class BasicMetric(Metric):
         for metric_name in self.names:
             if metric_name in metric_fn_mapping:
                 # Gold outputs
-                golds = [reference.output for reference in request_state.instance.references if reference.is_correct]
+                golds = [reference for reference in request_state.instance.references if reference.is_correct]
                 assert len(golds) > 0
 
                 # Predicted outputs
@@ -228,26 +293,124 @@ class BasicMetric(Metric):
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics
 
-    def compute_runtime_metrics(
+    def compute_efficiency_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
-        """Compute per-token normalized runtime"""
+        """Compute efficiency metrics for both inference and training.
+        For inference, we record both the actual runtime and an estimated idealized runtime
+        for the given request with an optimized software implementation run on an A100 GPU,
+        taking into account both the number of tokens in the prompt of the request, and the
+        number of generated output tokens.
+        For training, we report the estimated total metric tons of CO2 emitted to train the
+        model. This is the same for each request."""
         assert request_state.result is not None
-
+        # Compute efficiency metrics for inference.
         runtime: float = request_state.result.request_time
 
-        # Compute total number of tokens across completions
-        num_tokens: int = sum([len(sequence.tokens) for sequence in request_state.result.completions])
-        # Account for the tokens in prompt as well if echo_prompt is False
-        if not request_state.request.echo_prompt:
-            num_tokens_in_prompt: int = self.token_counter.tokenize_and_count(
-                model=request_state.request.model, text=request_state.request.prompt
+        # Compute total number of input and output tokens (in first sequence).
+        # Fetch the right `Tokenizer` depending on the model defined in `AdapterSpec`
+        # and calculate the number of tokens in the prompt.
+        tokenizer_service: TokenizerService = metric_service
+        tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
+        num_tokens_in_prompt: int = tokenizer.tokenize_and_count(request_state.request.prompt)
+
+        sequence = request_state.result.completions[0]
+        num_output_tokens: int = len(sequence.tokens)
+        # Don't include prompt in number of generated tokens (e.g., for language modeling).
+        if request_state.request.echo_prompt:
+            num_output_tokens -= num_tokens_in_prompt
+        assert num_output_tokens >= 0
+
+        # The `inference_efficiency.json` file contains a `runtime_per_output_token` value
+        # (the estimated runtime of generating one output token) and a
+        # `runtime_for_input_tokens` dict (a mapping from various num_input_token values to
+        # the estimated runtime of processing that many input tokens).
+        # For example:
+        # "openai/davinci": {
+        #   "runtime_per_output_token": 0.08002311153903935,
+        #   "runtime_for_input_tokens": {
+        #     "1": 0.01592031502388136,
+        #     "16": 0.01764758775115406,
+        #     "32": 0.020374860478426838,
+        #     ...
+        #
+        # These runtimes are generated by initializing Megatron with a model of the right
+        # size, obtaining end-to-end generation times for different numbers of input
+        # and output tokens, and then fitting a linear regression model to the
+        # runtimes (slope is the runtime_per_output_token, processing time for generating
+        # one token is the runtime_per_input_tokens for the corresponding num_input_tokens
+        # value). Profiling code and logs, and code to fit the regression model is available
+        # here: https://github.com/stanford-crfm/benchmarking_efficiency.
+        with open(INFERENCE_EFFICIENCY_JSON_FILEPATH, "r") as f:
+            inference_efficiency_dict = json.load(f)
+
+        idealized_runtime: Optional[float]
+        runtime_discrepancy: Optional[float]
+        if request_state.request.model in inference_efficiency_dict:
+            inference_efficiency_dict_for_model = inference_efficiency_dict[request_state.request.model]
+            runtime_per_output_token: float = inference_efficiency_dict_for_model["runtime_per_output_token"]
+            raw_runtimes_for_input_tokens: Dict[str, float] = inference_efficiency_dict_for_model[
+                "runtime_for_input_tokens"
+            ]
+            runtimes_for_input_tokens: Dict[int, float] = {
+                int(k): v for (k, v) in raw_runtimes_for_input_tokens.items()
+            }
+            runtime_for_input_tokens: Optional[float] = None
+            # Find the smallest num_input_tokens larger than the number of tokens in the given prompt.
+            for num_input_tokens in sorted(runtimes_for_input_tokens.keys()):
+                if num_tokens_in_prompt <= num_input_tokens:
+                    runtime_for_input_tokens = runtimes_for_input_tokens[num_input_tokens]
+                    break
+
+            if runtime_for_input_tokens is None:
+                hlog(
+                    f"WARNING: prompt with {num_tokens_in_prompt} tokens is larger than the largest prompt size "
+                    f'in inference_efficiency_dict["{request_state.request.model}"]["runtime_for_input_tokens"]'
+                )
+                idealized_runtime = None
+                runtime_discrepancy = None
+            else:
+                # Idealized runtime is sum of the runtime of encoding the input tokens, and the
+                # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
+                # if number of output tokens is greater than 0, otherwise just `runtime_for_input_tokens`.
+                idealized_runtime = runtime_for_input_tokens
+                if num_output_tokens > 0:
+                    idealized_runtime += runtime_per_output_token * (num_output_tokens - 1)
+
+                runtime_discrepancy = runtime - idealized_runtime
+        else:
+            hlog(
+                f"WARNING: tried to estimate idealized inference time for model {request_state.request.model} "
+                "that is not in inference_efficiency_dict"
             )
-            num_tokens += num_tokens_in_prompt
+            idealized_runtime = None
+            runtime_discrepancy = None
+
+        # Compute efficiency metrics for training.
+
+        # We use estimated emitted CO2 during training (in tons of CO2) as a proxy metric
+        # for training efficiency. We use reported metrics where applicable, otherwise
+        # we estimate them from runtime information, type and number of hardware accelerators
+        # used, region, etc.
+        with open(TRAINING_EFFICIENCY_JSON_FILEPATH, "r") as f:
+            training_efficiency_dict = json.load(f)
+
+        training_co2_cost: Optional[float]
+        if request_state.request.model in training_efficiency_dict:
+            training_co2_cost = training_efficiency_dict[request_state.request.model]
+        else:
+            hlog(
+                f"WARNING: tried to estimate training CO2 emissions for model {request_state.request.model} "
+                "that is not in training_efficiency_dict"
+            )
+            training_co2_cost = None
 
         return [
-            Stat(MetricName("runtime")).add(runtime),
-            Stat(MetricName("normalized_runtime")).add(runtime / num_tokens),
+            Stat(MetricName("num_tokens_in_prompt")).add(num_tokens_in_prompt),
+            Stat(MetricName("inference_runtime")).add(runtime),
+            Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
+            Stat(MetricName("inference_runtime_discrepancy")).add(runtime_discrepancy),
+            Stat(MetricName("training_co2_cost")).add(training_co2_cost),
         ]
 
     def compute_language_modeling_metrics(
@@ -286,7 +449,7 @@ class BasicMetric(Metric):
             metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
 
         metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
-        metrics.extend(self.compute_runtime_metrics(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
 
         # Future: add F1, BLEU, etc.
         return metrics
