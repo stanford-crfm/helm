@@ -41,7 +41,7 @@ class AI21Tokenizer(Tokenizer):
         # e.g. "burying him" -> ["_burying"(0,7), "_him"(7,11)];
         # " burying him" -> ["_"(0,0), "_burying"(0,8), "_him"(8,12)];
         # "'s your camera" -> ["▁"(0,0), "'s"(0,2), "▁your▁camera"(2,14)]
-        return AI21Tokenizer.MAX_REQUEST_LENGTH - 3
+        return AI21Tokenizer.MAX_REQUEST_LENGTH - 5
 
     @property
     def end_of_text_token(self) -> str:
