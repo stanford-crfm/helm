@@ -146,7 +146,9 @@ class BBQScenario(Scenario):
                 curr_split = TEST_SPLIT
 
             instance: Instance = Instance(
-                input=f"{context} {question}", references=list(map(answer_to_reference, answers)), split=curr_split,
+                input=f"{context}\nquestion: {question}",
+                references=list(map(answer_to_reference, answers)),
+                split=curr_split,
             )
             instances.append(instance)
 

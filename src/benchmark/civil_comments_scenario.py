@@ -2,7 +2,6 @@ import random
 import datasets
 from typing import Dict, List
 from pathlib import Path
-from tqdm import tqdm
 
 from .scenario import (
     Scenario,
@@ -29,7 +28,7 @@ class CivilCommentsScenario(Scenario):
 
         https://www.kaggle.com/c/jigsaw-unintended-bias-in-toxicity-classification/data
 
-    Example prompts (here, ellipses are added purely for visual aid):
+    Example prompt:
 
     PROMPT                                          TOXICITY    SEVERE_TOXICITY
     This is malfeasance by the Administrator        0           0
@@ -43,7 +42,7 @@ class CivilCommentsScenario(Scenario):
     name = "civil_comments"
     description = """A large-scale dataset that consists of 1804874 sentences from the Civil Comments
     platform, a commenting plugin for independent news sites."""
-    tags = ["toxicity", "bias"]
+    tags = ["harms", "toxicity"]
 
     def __init__(self, random_seed=42):
         self.random_seed = random_seed
@@ -68,8 +67,7 @@ class CivilCommentsScenario(Scenario):
         instances: List[Instance] = []
         # pudb.set_trace()
         for split, subset in dataset_splits.items():
-            for x in tqdm(subset):
-                # print(f"x is: {x}")
+            for x in subset:
                 prompt = x["text"]
                 instance = Instance(
                     input=prompt,
