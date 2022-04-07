@@ -981,6 +981,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "code": get_code_spec,
     "empatheticdialogues": get_empatheticdialogues_spec,
     "dyck_language": get_dyck_language_spec,
+    "ice": get_ice_spec,
 }
 
 
@@ -996,7 +997,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         raise ValueError(f"Unknown run spec name: {name}")
 
     # Peel off the run expanders (e.g., model)
-    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]
+    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
 
     # Get the canonical run specs

@@ -123,9 +123,9 @@ class ICEScenario(Scenario):
 
         if gender:
             if subset:
-                self.subset = set(METADATA_FORMAT.keys())
-            else:
                 assert subset in METADATA_FORMAT.keys()
+            else:
+                self.subset = set(METADATA_FORMAT.keys())
 
             self.gender = gender
 
@@ -232,13 +232,13 @@ class ICEScenario(Scenario):
         selected_texts = set()
 
         if METADATA_FORMAT[subset] == HeaderFormat.XLS:
-            if self.subset == "CAN":
+            if subset == "CAN":
                 files = ["Spoken ICE-CAN metadata.xls", "Written ICE-CAN metadata.xls"]
-            elif self.subset == "HK":
+            elif subset == "HK":
                 files = ["HKRecords.xls"]
 
             for fi in files:
-                dfs = pd.read_excel(os.path.join(header_dir, fi), sheet_name=[0] if self.subset == "CAN" else None)
+                dfs = pd.read_excel(os.path.join(header_dir, fi), sheet_name=[0] if subset == "CAN" else None)
 
                 for df in dfs.values():
                     for i in range(len(df)):
