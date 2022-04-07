@@ -8,9 +8,6 @@ from .scenario import Scenario, Instance, TEST_SPLIT
 from enum import Enum
 import pandas as pd
 
-TAGS = False
-GENDER_ANNOTATIONS = {"M": {"M", "m", "Male", "male"}, "F": {"F", "f", "Female", "female"}}
-
 
 class HeaderFormat(Enum):
     NONE = 0
@@ -19,13 +16,29 @@ class HeaderFormat(Enum):
     MDB = 3
 
 
+TAGS = False
+GENDER_ANNOTATIONS = {"M": {"M", "m", "Male", "male"}, "F": {"F", "f", "Female", "female"}}
+ICE_SUBSETS = {"CAN", "JA", "HK", "IND", "SIN", "PHI", "USA"}
+UNSUPPORTED_SUBSETS = {"GB", "EA", "IRL", "NZ", "SL", "NG"}  # noqa
+METADATA_FORMAT = {"CAN": HeaderFormat.XLS, "HK": HeaderFormat.XLS, "IND": HeaderFormat.HDR, "USA": HeaderFormat.HDR}
+SUBSET_TO_DIRECTORY = {
+    "IND": "ICE India",
+    "CAN": "ICE-CAN",
+    "HK": "ICE-HK",
+    "JA": "ICE-JA",
+    "PHI": "ICE Philippines",
+    "SIN": "ICE SINGAPORE",
+    "USA": "ICE-USA",
+}
+
+
 class ICEScenario(Scenario):
     """
     The International Corpus of English (ICE).
 
     NOTE: This text cannot be downloaded
     automatically. You must extract each subset zip file into /benchmark_output/scenarios/ice.
-    The archives should extract into folders named according to the dictionary subset_to_directory
+    The archives should extract into folders named according to the dictionary SUBSET_TO_DIRECTORY
     below.
 
     The ICE corpus gathers written and spoken texts from variants of English across 13
@@ -95,44 +108,31 @@ class ICEScenario(Scenario):
 
     name = "ice"
     description = "International Corpus of English (ICE)"
-    tags = ["harms", "fairness", "language_modeling"]
+    tags = ["language_modeling", "harms", "fairness"]
 
-    def __init__(self, subset: str, split: str = "all", gender: str = None):
-        ice_subsets = {"CAN", "JA", "HK", "IND", "SIN", "PHI", "USA"}
-        unsupported_subsets = {"GB", "EA", "IRL", "NZ", "SL", "NG"}  # noqa
-        assert subset in ice_subsets
-        self.subset = subset
+    def __init__(self, subset: str = None, split: str = "all", gender: str = None):
+        if subset:
+            assert subset in ICE_SUBSETS
+            self.subset = {subset}
+        else:
+            self.subset = ICE_SUBSETS
 
         assert split in {"all", "written", "spoken"}
         self.split = split
-
-        metadata_hdr = {"IND", "USA"}
-        metadata_xls = {"CAN", "HK"}
-
-        subset_to_directory = {
-            "IND": "ICE India",
-            "CAN": "ICE-CAN",
-            "HK": "ICE-HK",
-            "JA": "ICE-JA",
-            "PHI": "ICE Philippines",
-            "SIN": "ICE SINGAPORE",
-            "USA": "ICE-USA",
-        }
-        self.directory = subset_to_directory[self.subset]
         self.gender = "None"
 
         if gender:
-            assert subset in (metadata_hdr | metadata_xls)
+            if subset:
+                self.subset = set(METADATA_FORMAT.keys())
+            else:
+                assert subset in METADATA_FORMAT.keys()
+
             self.gender = gender
 
-            if subset in metadata_hdr:
-                self.gender_mode = HeaderFormat.HDR
-            elif subset in metadata_xls:
-                self.gender_mode = HeaderFormat.XLS
-
-    def preprocess_text(self, text: str, tags: bool = False):
+    def preprocess_text(self, text: str, tags: bool = TAGS) -> str:
         """
-        Pre-processes each instance text according to the following procedure:
+        Reads in the fulltext string of a corpus text and returns a preprocessed
+        version (also string) according to the following procedure:
         1. String leading/trailing whitespace. If tags are kept (tags = True), return.
         2. Replace the tags in "replace" according to the provided dictionary.
         3. Remove the tags + enclosed text for the tags in "remove".
@@ -207,7 +207,12 @@ class ICEScenario(Scenario):
         text = text.strip()
         return text
 
-    def validate_file(self, filename: str) -> bool:
+    def validate_split(self, filename: str) -> bool:
+        """
+        Returns true if the text specified by @param filename belongs to the
+        split specified in the scenario parameters. In standard ICE formatting,
+        text names begin with W if written and S if spoken.
+        """
         if self.split == "all":
             return True
 
@@ -216,10 +221,17 @@ class ICEScenario(Scenario):
 
         return filename.startswith(("S", "s"))
 
-    def filter_by_metadata(self, header_dir: str) -> Set[str]:
+    def filter_by_metadata(self, subset: str, header_dir: str) -> Set[str]:
+        """
+        Reads through metadata in a folder specified by @param header_dir
+        and returns a set of corresponding text filenames (in the Corpus folder)
+        which satisfy the constraints specified by the scenario parameters.
+        E.g. if gender == "M", the output set will only contain filenames for
+        texts with only male authors.
+        """
         selected_texts = set()
 
-        if self.gender_mode == HeaderFormat.XLS:
+        if METADATA_FORMAT[subset] == HeaderFormat.XLS:
             if self.subset == "CAN":
                 files = ["Spoken ICE-CAN metadata.xls", "Written ICE-CAN metadata.xls"]
             elif self.subset == "HK":
@@ -234,9 +246,9 @@ class ICEScenario(Scenario):
                             [x in GENDER_ANNOTATIONS[self.gender] for x in df.iloc[i, 1:]]
                         ):  # currently double counts texts with multiple genders
                             selected_texts.add(df.iat[i, 0] + ".txt")
-        elif self.gender_mode == HeaderFormat.HDR:
+        elif METADATA_FORMAT[subset] == HeaderFormat.HDR:
             for filename in os.listdir(header_dir):
-                header_path = os.path.join(self.output_path, self.directory, "Headers", filename)
+                header_path = os.path.join(self.output_path, SUBSET_TO_DIRECTORY[subset], "Headers", filename)
 
                 if not os.path.exists(header_path):
                     hlog(str(f"File {filename} skipped (no header found)."))
@@ -257,41 +269,46 @@ class ICEScenario(Scenario):
         return selected_texts
 
     def get_instances(self) -> List[Instance]:
-        data_path = os.path.join(self.output_path, self.directory)
-
-        # Currently there is no infrastructure in place to unzip files with passwords
-        # (the HTTP requests for the data itself also requires some authorization);
-        # therefore we can only assume data is already downloaded and extracted
-        if not os.path.exists(data_path):
-            raise FileNotFoundError(
-                f"Data does not exist at the required location. Please extract the relevant subset into {data_path}."
-            )
-
-        corpus_contents = os.listdir(data_path)
-
-        if "Corpus" in corpus_contents:
-            corpus_name = "Corpus"
-        elif "CORPUS" in corpus_contents:
-            corpus_name = "CORPUS"
-        else:
-            corpus_name = "corpus"
-
-        corpus_path = os.path.join(data_path, corpus_name)
-        header_dir = os.path.join(data_path, "Headers")
-        selected_texts = self.filter_by_metadata(header_dir) if self.gender != "None" else os.listdir(corpus_path)
         instances = []
 
-        for filename in selected_texts:
-            if not self.validate_file(filename):
-                continue
+        for subset in self.subset:
+            data_path = os.path.join(self.output_path, SUBSET_TO_DIRECTORY[subset])
 
-            try:
-                with open(os.path.join(corpus_path, filename), "r") as f:
-                    text = self.preprocess_text(f.read(), TAGS)
-            except UnicodeDecodeError:
-                with open(os.path.join(corpus_path, filename), "r", encoding="iso-8859-1") as f:
-                    text = self.preprocess_text(f.read(), TAGS)
+            # Currently there is no infrastructure in place to unzip files with passwords
+            # (the HTTP requests for the data itself also requires some authorization);
+            # therefore we can only assume data is already downloaded and extracted
+            if not os.path.exists(data_path):
+                raise FileNotFoundError(
+                    f"Data does not exist at the required location. \
+                        Please extract the relevant subset into {data_path}."
+                )
 
-            instances.append(Instance(input=text, references=[], split=TEST_SPLIT))
+            corpus_contents = os.listdir(data_path)
+
+            if "Corpus" in corpus_contents:
+                corpus_name = "Corpus"
+            elif "CORPUS" in corpus_contents:
+                corpus_name = "CORPUS"
+            else:
+                corpus_name = "corpus"
+
+            corpus_path = os.path.join(data_path, corpus_name)
+            header_dir = os.path.join(data_path, "Headers")
+            selected_texts = (
+                self.filter_by_metadata(subset, header_dir) if self.gender != "None" else os.listdir(corpus_path)
+            )
+
+            for filename in selected_texts:
+                if not self.validate_split(filename):
+                    continue
+
+                try:
+                    with open(os.path.join(corpus_path, filename), "r") as f:
+                        text = self.preprocess_text(f.read(), TAGS)
+                except UnicodeDecodeError:
+                    with open(os.path.join(corpus_path, filename), "r", encoding="iso-8859-1") as f:
+                        text = self.preprocess_text(f.read(), TAGS)
+
+                instances.append(Instance(input=text, references=[], split=TEST_SPLIT))
 
         return instances

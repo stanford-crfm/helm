@@ -566,7 +566,7 @@ def get_ice_spec(**kwargs) -> RunSpec:
     )
 
     return RunSpec(
-        name="ice:" + ",".join(f"{k}={v}" for k, v in kwargs.items()),
+        name="ice" + (":" if len(kwargs) > 0 else "") + ",".join(f"{k}={v}" for k, v in kwargs.items()),
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": []}),
