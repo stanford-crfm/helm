@@ -204,12 +204,16 @@ def _read_and_preprocess_apps(target_path: str) -> List[CodeInstance]:
             question = question[:SINGLE_STR_LIMIT]
             starter_code = starter_code[:SINGLE_STR_LIMIT]
             solutions = [sol[:SINGLE_STR_LIMIT] for sol in solutions]
+            if len(solutions) == 0:
+                solutions = [""]
 
             # Create overall prompt.
             prompt = _make_input_for_apps(question=question, starter_code=starter_code, answer_type=answer_type,)
             instance = CodeInstance(
                 input=prompt,
-                references=[CodeReference(output=solution, tags=[CORRECT_TAG]) for solution in solutions],
+                references=[
+                    CodeReference(output=solution, tags=[CORRECT_TAG], test_cases=data) for solution in solutions
+                ],
                 split=split_tag,
                 metadata=data,
             )

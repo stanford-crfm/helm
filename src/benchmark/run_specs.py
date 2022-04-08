@@ -589,7 +589,7 @@ def get_code_spec(dataset: str) -> RunSpec:
         method=ADAPT_GENERATION,
         instructions="",
         max_train_instances=0,
-        max_eval_instances=10000,
+        max_eval_instances=10,
         num_outputs=1,
         num_train_trials=1,
         model="openai/code-davinci-001",
