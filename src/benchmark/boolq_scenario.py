@@ -50,7 +50,7 @@ class BoolQScenario(Scenario):
         For more details, see Figure G.29: Formatted dataset example for BoolQ.
         """
         question = question.rstrip()
-        assert question[-1] != '?'
+        assert question[-1] != "?"
         return f"{passage}\nQuestion: {question}?"
 
     def get_split_instances(self, split: str, path: str) -> List[Instance]:

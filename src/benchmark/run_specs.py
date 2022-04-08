@@ -224,7 +224,7 @@ def get_quac_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
-        output_prefix="", # make sure it works with the scenario
+        output_prefix="\nAnswer: ",  # make sure this matches the rest of the dialogue
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
