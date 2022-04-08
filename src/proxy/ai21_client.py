@@ -66,8 +66,11 @@ class AI21Client(Client):
             return x
 
         def parse_token(raw: Dict, first: bool) -> Token:
+            # Computes the actual length of the token text.
+            text_length: int = raw["textRange"]["end"] - raw["textRange"]["start"]
             return Token(
-                text=fix_text(raw["generatedToken"]["token"], first),
+                # text should not be longer than text_length
+                text=fix_text(raw["generatedToken"]["token"], first)[-text_length:] if text_length else "",
                 logprob=raw["generatedToken"]["logprob"],
                 top_logprobs=dict((fix_text(x["token"], first), x["logprob"]) for x in raw["topTokens"]),
             )
