@@ -49,7 +49,7 @@ def pass_at_k_estimator(n: int, c: int, k: int) -> float:
 
 
 def exact_match(gold: str, pred: str) -> float:
-    return 1 if gold == pred else 0
+    return 1 if gold.strip() == pred.strip() else 0
 
 
 def exact_match_indicator(gold: str, pred: str) -> float:

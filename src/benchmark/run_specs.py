@@ -224,7 +224,7 @@ def get_quac_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
-        output_prefix="",
+        output_prefix="", # make sure it works with the scenario
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
@@ -399,7 +399,7 @@ def get_raft_spec(subset: str) -> RunSpec:
         max_eval_instances=None,  # We only have <50 instances per subset
         num_train_trials=1,
         model="openai/davinci",
-        temperature=0.2,
+        temperature=0.0,
         stop_sequences=["\n"],
         max_tokens=20,
     )
@@ -417,11 +417,13 @@ def get_boolq_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="\nanswer:",
+        input_prefix="Context: ",
+        output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
+        temperature=0.0,
+        stop_sequences=["\n"],
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 6.5k questions
         num_outputs=1,
         max_tokens=1,
@@ -439,11 +441,13 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="\nanswer:",
+        input_prefix="Context: ",
+        output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
+        temperature=0.0,
+        stop_sequences=["\n"],
         max_eval_instances=None,  # We have only 340 perturbed questions for 70 passages
         num_outputs=1,
         max_tokens=1,
