@@ -20,6 +20,7 @@ import tornado.ioloop
 from dacite import from_dict
 
 from common.authentication import Authentication
+from common.general import ensure_directory_exists
 from common.hierarchical_logger import hlog
 from common.request import Request
 from common.perspective_api_request import PerspectiveAPIRequest
@@ -33,6 +34,8 @@ from .query import Query
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
 app = bottle.default_app()
+
+file_globals = []
 
 
 def safe_call(func, to_json=True):
@@ -191,7 +194,8 @@ def handle_shutdown():
 @app.post("/api/dialogue/start")
 def start_dialogue():
     def perform(args):
-        response = start_conversation(Authentication(DIALOGUE_CREDENTIALS), args)
+        args["output_path"] = file_globals["output_path"]
+        response = start_conversation(args)
         return response
 
     return safe_call(perform)
@@ -200,7 +204,8 @@ def start_dialogue():
 @app.post("/api/dialogue/conversation")
 def handle_utterance():
     def perform(args):
-        response = conversational_turn(Authentication(DIALOGUE_CREDENTIALS), args)
+        args["output_path"] = file_globals["output_path"]
+        response = conversational_turn(args)
         return response
 
     return safe_call(perform)
@@ -209,6 +214,7 @@ def handle_utterance():
 @app.post("/api/dialogue/interview")
 def submit_dialogue():
     def perform(args):
+        args["output_path"] = file_globals["output_path"]
         response = submit_interview(args)
         return response
 
@@ -223,9 +229,16 @@ def main():
     parser.add_argument("--ssl-cert-file", type=str, help="Path to SSL cert file")
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
     parser.add_argument(
+        "-o", "--output-path", help="What directory stores interactive scenarios", default="benchmark_output"
+    )
+    parser.add_argument(
         "-r", "--read-only", action="store_true", help="To start a read-only service (for testing and debugging)."
     )
     args = parser.parse_args()
+
+    args = parser.parse_args()
+    ensure_directory_exists(args.output_path)
+    file_globals["output_path"] = args.output_path
 
     service = ServerService(base_path=args.base_path, read_only=args.read_only)
 

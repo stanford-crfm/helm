@@ -3,6 +3,7 @@ import random
 from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Optional
 from collections import defaultdict, OrderedDict
+import uuid
 
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
@@ -175,6 +176,9 @@ class InteractionTrace:
 
     # Freeform field to store responses used to compute metrics
     survey = None
+
+    # Unique string corresponding to the interaction trace
+    _id: uuid.UUID = field(default_factory=uuid.uuid4)
 
     def render_lines(self) -> List[str]:
         output = [f"train_trial_index: {self.train_trial_index}"]

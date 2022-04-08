@@ -2,9 +2,10 @@ import json
 import os
 from dataclasses import dataclass, asdict, replace
 from typing import List, Optional
+import uuid
 
 from tqdm import tqdm
-
+from sqlitedict import SqliteDict
 
 from common.general import ensure_directory_exists, write, write_lines, pickle, unpickle
 from common.hierarchical_logger import hlog, htrack_block
@@ -138,6 +139,12 @@ class Runner:
             write_lines(os.path.join(runs_path, "scenario_state.txt"), scenario_state.render_lines())
             write(os.path.join(runs_path, "scenario_state.json"), json.dumps(asdict(scenario_state), indent=2))
             pickle(os.path.join(runs_path, "scenario_state.pkl"), scenario_state)
+            with SqliteDict(
+                os.path.join(runs_path, "interaction_traces.sqlite"), tablename="interaction_traces"
+            ) as trace_db:
+                for interaction_trace in scenario_state.interaction_traces:
+                    trace_db[interaction_trace._id] = interaction_trace
+                trace_db.commit()
 
         return scenario, runs_path, scenario_state
 
@@ -152,6 +159,15 @@ class Runner:
     def post_execute(self, run_spec: RunSpec, runs_path: str, scenario_state: Optional[ScenarioState] = None):
         if scenario_state is None:
             scenario_state = unpickle(os.path.join(runs_path, "scenario_state.pkl"))
+
+            # Load interaction traces from the sqlite database
+            with SqliteDict(
+                os.path.join(runs_path, "interaction_traces.sqlite"), tablename="interaction_traces"
+            ) as trace_db:
+                scenario_state.interaction_traces = [
+                    trace_db[interaction_trace._id] for interaction_trace in scenario_state.interaction_traces
+                ]
+                scenario_state.__post_init__()
 
         # Apply the metrics
         # When performing a dry run, just estimate the number of tokens instead of calculating the metrics
@@ -213,55 +229,34 @@ class InteractiveRunner:
         tqdm.write(render_request_state(state))
         return state
 
-    def handle_user_input(
-        self, user_input: UserInput, train_trial_index: int, instance: Instance, reference_index: Optional[int] = None
-    ) -> RequestResult:
-        """Handle user input, get LM response, save and return it"""
-        scenario_state: ScenarioState = unpickle(os.path.join(self.runs_path, "scenario_state.pkl"))
-        interaction_traces: List[InteractionTrace] = scenario_state.interaction_trace_map[
-            (train_trial_index, instance, reference_index)
-        ]
+    def load_interaction_trace(self, interaction_trace_id: uuid.uuid4) -> InteractionTrace:
+        with SqliteDict(
+            os.path.join(self.runs_path, "interaction_traces.sqlite"), tablename="interaction_traces"
+        ) as trace_db:
+            interaction_trace = trace_db[interaction_trace_id]
 
-        # Why is the return type fore interaction_trace_map a List?
-        # TODO: Figure it out, change the type & code, and remove the following assertion
-        assert len(interaction_traces) == 1, "Can only handle user input for a unique interaction trace"
-        interaction_trace = interaction_traces[0]
+    def save_interaction_trace(self, interaction_trace_id: uuid.uuid4, interaction_trace: InteractionTrace) -> None:
+        with SqliteDict(
+            os.path.join(self.runs_path, "interaction_traces.sqlite"), tablename="interaction_traces"
+        ) as trace_db:
+            trace_db[interaction_trace_id] = interaction_trace
+            trace_db.commit()
+
+    def handle_user_input(self, interaction_trace_id: uuid.uuid4, user_input: UserInput) -> RequestResult:
+        """Handle user input, get LM response, save and return it"""
+        interaction_trace = self.load_interaction_trace(interaction_trace_id=interaction_trace_id)
 
         new_request_state: RequestState = self.interactive_adapter.adapt_user_input(interaction_trace, user_input)
         new_request_state = self.process(new_request_state)
         interaction_trace.trace.append(InteractionRound(user_input=user_input, request_state=new_request_state))
 
-        # Read the scenario state again
-        # Because if there was a delay in executing lm request and traces for other interactions were updated meanwhile
-        # we want to preserve them and only update this interaction state
-        # TODO: A danger with this is that it is not an atomic read & write
-        with open(os.path.join(self.runs_path, "scenario_state.pkl"), "rb") as f:
-            latest_scenario_state = pickle.load(f)
-
-        latest_scenario_state.interaction_trace_map[(train_trial_index, instance, reference_index)] = [
-            interaction_trace
-        ]
-        with open(os.path.join(self.runs_path, "scenario_state.pkl"), "wb") as f:
-            pickle.dump(latest_scenario_state, f)
+        self.save_interaction_trace(interaction_trace_id=interaction_trace_id, interaction_trace=interaction_trace)
 
         return new_request_state.result
 
-    def handle_survey(self, survey, train_trial_index: int, instance: Instance, reference_index: Optional[int] = None):
+    def handle_survey(self, interaction_trace_id: uuid.uuid4, survey):
         """Store the result of a survey after an interaction"""
 
-        # TODO: A danger with this is that it is not an atomic read & write
-        with open(os.path.join(self.runs_path, "scenario_state.pkl"), "rb") as f:
-            latest_scenario_state = pickle.load(f)
-
-        interaction_traces = latest_scenario_state.interaction_trace_map[(train_trial_index, instance, reference_index)]
-        # Why is the return type fore request_state_map a List?
-        # TODO: Figure it out, change the type & code, and remove the following assertion
-        assert len(interaction_traces) == 1, "Can only handle user input for a unique interaction trace"
-        interaction_trace: InteractionTrace = interaction_traces[0]
+        interaction_trace = self.load_interaction_trace(interaction_trace_id=interaction_trace_id)
         interaction_trace.survey = survey
-
-        latest_scenario_state.interaction_trace_map[(train_trial_index, instance, reference_index)] = [
-            interaction_trace
-        ]
-        with open(os.path.join(self.runs_path, "scenario_state.pkl"), "wb") as f:
-            pickle.dump(latest_scenario_state, f)
+        self.save_interaction_trace(interaction_trace_id=interaction_trace_id, interaction_trace=interaction_trace)
