@@ -23,7 +23,7 @@ def run_benchmarking(
     post_interaction: bool,
     skip_instances: bool,
     max_eval_instances: Optional[int],
-):
+) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
     execution_spec = ExecutionSpec(auth=auth, url=url, parallelism=num_threads, dry_run=dry_run)
 
@@ -46,6 +46,7 @@ def run_benchmarking(
 
     runner = Runner(execution_spec, output_path, run_specs, skip_instances, pre_interaction, post_interaction)
     runner.run_all()
+    return run_specs
 
 
 def add_run_args(parser: argparse.ArgumentParser):
