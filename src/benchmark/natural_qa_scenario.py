@@ -187,8 +187,7 @@ class NaturalQAScenario(Scenario):
         question = sample["question_text"].capitalize()
         if question[-1] != "?":
             question += "?"
-        prompt += f"Question: {question}\n"
-        prompt += "Answer:"
+        prompt += f"Question: {question}"
 
         if split == "train":
             answers = short_answers[ans_idx : ans_idx + 1]
