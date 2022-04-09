@@ -8,6 +8,7 @@ from .identity_perturbation import IdentityPerturbation
 from .misspelling_perturbation import MisspellingPerturbation
 from .contraction_expansion_perturbation import ContractionPerturbation, ExpansionPerturbation
 from .typos_perturbation import TyposPerturbation
+from .filler_words_perturbation import FillerWordsPerturbation
 
 
 def test_identity_perturbation():
@@ -46,6 +47,23 @@ def test_misspelling_perturbation():
     assert instances[0].perturbation.name == "misspellings"
     assert instances[0].perturbation.prob == 1.0
     assert instances[0].input == "Alreayd, teh new product is nto availaible."
+
+
+def test_filler_words_perturbation():
+    data_augmenter = DataAugmenter(
+        perturbations=[FillerWordsPerturbation(insert_prob=0.333, speaker_ph=False)], should_perturb_references=True
+    )
+    instance: Instance = Instance(
+        id="id0",
+        input="The quick brown fox jumps over the lazy dog.",
+        references=[Reference(output="The quick brown fox jumps over the lazy dog.", tags=[])],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+    assert instances[0].id == "id0"
+    assert instances[0].perturbation.name == "filler_words"
+    assert instances[0].input == "The quick brown fox jumps over probably the lazy dog."
 
 
 def test_contraction_perturbation():
