@@ -65,7 +65,7 @@ class MisspellingPerturbation(Perturbation):
         return word
 
     def perturb(self, text: str) -> str:
-        lines = text.split('\n')
+        lines = text.split("\n")
         new_lines = []
         for line in lines:
             words = self.tokenizer.tokenize(line)
@@ -75,5 +75,5 @@ class MisspellingPerturbation(Perturbation):
                 new_words.append(word)
             perturbed_str = str(self.detokenizer.detokenize(new_words))
             new_lines.append(perturbed_str)
-        perturbed_str = '\n'.join(new_lines)
+        perturbed_str = "\n".join(new_lines)
         return perturbed_str

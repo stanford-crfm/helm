@@ -110,8 +110,10 @@ def misspelling(prob: float) -> PerturbationSpec:
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
     "misspelling": {"misspelling0.1": [misspelling(prob=0.1)]},
-    "misspelling_sweep": {f"misspelling{prob}": [misspelling(prob=prob)]
-        for prob in [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]},
+    "misspelling_sweep": {
+        f"misspelling{prob}": [misspelling(prob=prob)]
+        for prob in [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    },
     "misspelling_easy": {"misspelling0.05": [misspelling(prob=0.05)]},
     "misspelling_medium": {"misspelling0.2": [misspelling(prob=0.2)]},
     "misspelling_hard": {"misspelling0.5": [misspelling(prob=0.5)]},
