@@ -9,6 +9,7 @@ from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 from .client import Client
 from .ai21_client import AI21Client
+from .anthropic_client import AnthropicClient
 from .huggingface_client import HuggingFaceClient
 from .openai_client import OpenAIClient
 from .simple_client import SimpleClient
@@ -34,6 +35,8 @@ class AutoClient(Client):
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
             elif organization == "huggingface":
                 client = HuggingFaceClient(cache_path=client_cache_path)
+            elif organization == "anthropic":
+                client = AnthropicClient(api_key=self.credentials["anthropicApiKey"], cache_path=client_cache_path)
             elif organization == "simple":
                 client = SimpleClient()
             else:
