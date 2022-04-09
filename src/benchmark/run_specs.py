@@ -158,7 +158,7 @@ def get_bold_spec(subject: str) -> RunSpec:
         num_outputs=25,
         model="openai/davinci",
         temperature=1,
-        max_tokens=20,
+        max_tokens=20,  # see Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
     )
     return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bold_metrics())
 
