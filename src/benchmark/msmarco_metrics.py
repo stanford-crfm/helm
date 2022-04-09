@@ -83,14 +83,17 @@ class MSMARCOMetric(Metric):
                 # Extract instance information
                 instance = cast(MSMARCOInstance, rs.instance)
                 qid, pid, gold = instance.qid, instance.pid, instance.gold
-                # Populate the gold mapping dictionary
-                if gold:
-                    qid_to_gold_pid[qid] = pid
-                # Get the completion from the model
-                model_completion = rs.result.completions[0]
-                answer_choice = model_completion.text.strip()  # 'A' or 'B'
-                answer_text = rs.output_mapping[answer_choice]  # 'yes' or 'no'
-                qid_pid_logprob_dict[answer_text].append((qid, pid, model_completion.logprob))
+                # We need to check that the values of the qid, pid, and gold
+                # are not None otherwise the code fails static typeckecking
+                if qid and pid and gold:
+                    # Populate the gold mapping dictionary
+                    if gold:
+                        qid_to_gold_pid[qid] = pid
+                    # Get the completion from the model
+                    model_completion = rs.result.completions[0]
+                    answer_choice = model_completion.text.strip()  # 'A' or 'B'
+                    answer_text = rs.output_mapping[answer_choice]  # 'yes' or 'no'
+                    qid_pid_logprob_dict[answer_text].append((qid, pid, model_completion.logprob))
 
         return qid_to_gold_pid, qid_pid_logprob_dict
 

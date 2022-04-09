@@ -9,8 +9,10 @@ from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
 
 
+@dataclass(frozen=True, eq=False)
 class MSMARCOInstance(Instance):
-    """ Instance for the MSMARCO class. """
+    """Instance for the MSMARCO class.
+    """
 
     # The query ID of the query included in the input.
     qid: Optional[int] = None
@@ -19,13 +21,7 @@ class MSMARCOInstance(Instance):
     pid: Optional[int] = None
 
     # Whether the query and the passage included in the input are gold matches
-    gold: bool = False
-
-    def __init__(self, qid=None, pid=None, gold=False, **kwargs):
-        self.qid = qid
-        self.pid = pid
-        self.gold = gold
-        super(MSMARCOInstance, self).__init__(**kwargs)
+    gold: Optional[bool] = None
 
 
 class MSMARCOScenario(Scenario):
@@ -143,13 +139,17 @@ class MSMARCOScenario(Scenario):
     happens because the `qrels` file sometimes contain 2 best passage matches
     for a query.
 
-    We also utilize a custom generated file: `top1000_bm25_dev.tsv` (133 MB).
-    This file contains the top 1000 best passage id matches for a given dev query id.
-    We generated this file using the following `Colab` document:
+    We also utilize two custom generated files, `top1000_bm25_dev.tsv` (133 MB)
+    and `top20_bm25_train.tsv`. These files contain the top 1000 and 20 best
+    passage id matches for a given query in the dev or train set, respectively.
+    We have generated these files using the BM25 algorithm. Both of these files
+    as well as the notebook including our file generation code can be found at
+    the following Codalab link:
 
-        https://colab.research.google.com/drive/1BX-YRUY7H5IFHF-6iG-lH_Xc7qg46Bp1?usp=sharing
+        https://worksheets.codalab.org/worksheets/0xf451c0dec2a6414aae0b68e8e325426c
 
-    The file has the following format, where rank is a number between 1 and 1000:
+    The topk files have the following format, where rank is a number between
+    1 and 1000:
 
         <qid> <pid> <rank>
 
