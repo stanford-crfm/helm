@@ -2,7 +2,6 @@ from dataclasses import dataclass
 import json
 from pathlib import Path
 from typing import Dict, List
-import re
 
 from nltk.tokenize.treebank import TreebankWordDetokenizer, TreebankWordTokenizer
 import numpy as np
