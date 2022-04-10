@@ -1,7 +1,7 @@
 import os
 from typing import List
 from common.hierarchical_logger import hlog
-from common.general import ensure_file_downloaded, ensure_directory_exists
+from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 import json
 
@@ -9,16 +9,16 @@ import json
 class LegalSupportScenario(Scenario):
     """
     This dataset is the result of ongoing/yet-to-be-released work. For more questions
-    on its construction, contact Neel Guha (nguha@stanford.edu). 
+    on its construction, contact Neel Guha (nguha@stanford.edu).
 
     The LegalSupport dataset tests a model's ability to determine which of two case parentheticals
-    better support a specific legal assertion. Each sample contains: 
+    better support a specific legal assertion. Each sample contains:
 
-        - a short passage, ranging between 1-3 sentences. 
+        - a short passage, ranging between 1-3 sentences.
         - a first parenthetical, describing or quoting a particular case ("case_a")
         - a second parenthetical, describing or quoting a different case ("case_b")
-        - a label ("a" or "b") corresponding to whether the first or second parenthetical better supports the 
-        assertions made in the passage. 
+        - a label ("a" or "b") corresponding to whether the first or second parenthetical better supports the
+        assertions made in the passage.
 
     We prompt models using the following format:
         <passage>
@@ -30,15 +30,16 @@ class LegalSupportScenario(Scenario):
             <answer>
 
     Using an example from the test dataset, we have
-        passage: Rather, we hold the uniform rule is ... that of 'good moral character". Courts have also endorsed using federal, 
-        instead of state, standards to interpret federal laws regulating immigration.
-        
-        a. Interpreting "adultery” for the purpose of eligibility for voluntary departure, 
+        passage: Rather, we hold the uniform rule is ... that of 'good moral character". Courts have also endorsed
+        using federal, instead of state, standards to interpret federal laws regulating immigration.
+
+        a. Interpreting "adultery” for the purpose of eligibility for voluntary departure,
         and holding that "the appropriate approach is the application of a uniform federal standard."
-        
-        b. Using state law to define "adultery” in the absence of a federal definition, and suggesting that 
-        arguably, Congress intended to defer to the state in which an alien chooses to live for the precise 
-        definition ... for it is that particular community which has the greatest interest in its residents moral character.
+
+        b. Using state law to define "adultery” in the absence of a federal definition, and suggesting that
+        arguably, Congress intended to defer to the state in which an alien chooses to live for the precise
+        definition ... for it is that particular community which has the greatest interest in its residents moral
+        character.
 
         Answer:
             a
