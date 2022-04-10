@@ -5,7 +5,7 @@ from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, CORRECT_TAG, TEST_SPLIT
 
 
-class IMDbScenario(Scenario):
+class IMDBScenario(Scenario):
     """
     The IMDb dataset is from the paper:
         https://ai.stanford.edu/~amaas/data/sentiment/
@@ -51,7 +51,7 @@ class IMDbScenario(Scenario):
                 sentence_path = os.path.join(split_path_label, each_filename)
                 with open(sentence_path, "r") as f:
                     context = f.read().strip()
-                    prompt = context + "\n"
+                    prompt = context
                     instance: Instance = Instance(
                         input=prompt, references=[Reference(output=label_id, tags=[CORRECT_TAG])], split=split
                     )
@@ -73,7 +73,7 @@ class IMDbScenario(Scenario):
         return instances
 
 
-class IMDbContrastSetScenario(IMDbScenario):
+class IMDBContrastSetScenario(IMDBScenario):
     """
     Contrast Sets for The IMDb dataset is from the paper:
         https://arxiv.org/abs/2004.02709

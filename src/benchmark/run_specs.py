@@ -530,18 +530,19 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
 
 
 def get_imdb_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDbScenario", args={})
+    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDBScenario", args={})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="Review: ",
-        output_prefix="Sentiment:",
+        output_prefix="\nSentiment: ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 25k test inputs
         num_outputs=1,
-        max_tokens=1,
+        max_tokens=5,  # should be one token but just in case
+        temperature=0.0,
         stop_sequences=["\n"],
     )
     return RunSpec(
@@ -553,7 +554,7 @@ def get_imdb_spec() -> RunSpec:
 
 
 def get_imdb_contrast_sets_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDbContrastSetScenario", args={})
+    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDBContrastSetScenario", args={})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -776,7 +777,7 @@ def get_narrativeqa_spec() -> RunSpec:
         model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full test set is 14018 instances
         num_outputs=1,
-        max_tokens=100, # max answer is 30 words
+        max_tokens=100,  # max answer is 30 words
         temperature=0.0,
         stop_sequences=["\n"],
     )
