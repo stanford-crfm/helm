@@ -13,6 +13,7 @@ from .metric import MetricSpec
 from .runner import RunSpec
 from .scenario import ScenarioSpec
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
+from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
 from .raft_scenario import get_raft_instructions
 from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .run_expander import RUN_EXPANDERS
@@ -59,6 +60,15 @@ def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
 
+def get_msmarco_metrics() -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="benchmark.msmarco_metrics.MSMARCOMetric",
+            args={"name": "mean_reciprocal_rank", "topk_list": [10]},
+        )
+    ]
+
+
 def get_toxicity_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
 
@@ -80,6 +90,11 @@ def get_numeracy_metrics(relation_type: str, run_solver: bool = True) -> List[Me
             MetricSpec(class_name="benchmark.numeracy_metrics.DistanceMetric", args={}),
         ]
     return metrics
+
+
+def get_math_metrics() -> List[MetricSpec]:
+    metric_names = {"names": ["math_equiv"]}
+    return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
 def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
@@ -126,6 +141,41 @@ def get_simple1_spec() -> RunSpec:
         scenario=get_scenario_spec1(),
         adapter_spec=get_adapter_spec1(),
         metrics=get_basic_metrics({"names": []}),
+    )
+
+
+def get_msmarco_spec(
+    task: str, topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
+) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.msmarco_scenario.MSMARCOScenario",
+        args={
+            "task": task,
+            "topk": int(topk),
+            "num_eval_queries": int(num_eval_queries),
+            "num_train_queries": int(num_train_queries),
+        },
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        instructions="",
+        input_prefix="",
+        output_prefix="\nAnswer: ",
+        max_train_instances=4,
+        max_eval_instances=1500,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+    )
+
+    return RunSpec(
+        name=f"msmarco:task={task},topk={topk},num_eval_queries={num_eval_queries},"
+        f"num_train_queries={num_train_queries}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_msmarco_metrics(),
     )
 
 
@@ -457,7 +507,7 @@ def get_numeracy_spec(
             # the class - eg. the degree of the relation - would help.)
             "max_eval_instances": 1000,
             "dim": RELTYPE_INFO[relation_type].num_variables + 1,
-            "block_prefix": "\n\n",
+            "instance_prefix": "\n\n",
         }
     adapter_spec = get_numeracy_adapter_spec(**adapter_args)
 
@@ -466,6 +516,38 @@ def get_numeracy_spec(
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_numeracy_metrics(relation_type, run_solver=run_solver),
+
+
+def get_math_spec(subject: str, level: str, use_official_prompt: bool = True) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.math_scenario.MATHScenario", args={"subject": subject, "level": level}
+    )
+
+    instructions = OFFICIAL_MATH_INSTRUCTIONS
+    if use_official_prompt:
+        instructions = OFFICIAL_MATH_PROMPT
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions=instructions,
+        max_train_instances=0 if use_official_prompt else 8,
+        max_eval_instances=7500,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        stop_sequences=["$", "###", "\n"],
+        max_tokens=20,
+        input_prefix="\nProblem: ",
+        output_prefix="\nAnswer: $",
+        instance_prefix="$\n###",
+    )
+
+    return RunSpec(
+        name=f"math:subject={subject},level={level}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_math_metrics(),
     )
 
 
@@ -989,6 +1071,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "imdb_contrast_sets": get_imdb_contrast_sets_spec,
     "copyright": get_copyright_spec,
     "mmlu": get_mmlu_spec,
+    "msmarco": get_msmarco_spec,
     "narrativeqa": get_narrativeqa_spec,
     "commonsense_qa": get_commonsense_qa_spec,
     "lsat_qa": get_lsat_qa_spec,
@@ -1002,6 +1085,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "twitter_aae": get_twitter_aae_spec,
     "disinformation": get_disinformation_spec,
     "gsm": get_gsm_spec,
+    "math": get_math_spec,
     "natural_qa": get_natural_qa_spec,
     "numeracy": get_numeracy_spec,
     "the_pile": get_the_pile_spec,
