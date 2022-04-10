@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional, Sequence
+import re
+import inspect
 
 from common.object_spec import ObjectSpec, create_object
 from common.general import format_text, format_split, format_tags, indent_lines
@@ -107,8 +109,19 @@ class Scenario(ABC):
     # Extra metadata (e.g., whether this is a question answering or commonsense task)
     tags: List[str]
 
-    # To be set by the `Runner` (for caching data)
+    # Where downloaded data is cached (to be set by the `Runner`)
     output_path: str
+
+    # File where the class exists so we can link to it on GitHub (to be set by the `Runner`)
+    definition_path: str
+
+    def get_definition_path(self) -> str:
+        """Return where the scenario subclass for `self` is defined."""
+        # Assume `/.../src/benchmark/...`
+        path = inspect.getfile(type(self))
+        # Strip out prefix in absolute path and replace with GitHub link.
+        path = re.sub(r"^.*\/src/", "https://github.com/stanford-crfm/benchmarking/blob/master/src/", path)
+        return path
 
     @abstractmethod
     def get_instances(self) -> Sequence[Instance]:
