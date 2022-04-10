@@ -441,14 +441,14 @@ def get_raft_spec(subset: str) -> RunSpec:
         method=ADAPT_GENERATION,
         instructions=get_raft_instructions(subset),
         input_prefix="",
-        output_prefix="\nLabel:",
+        output_prefix="\nLabel: ",
         max_train_instances=5,
         max_eval_instances=None,  # We only have <50 instances per subset
         num_train_trials=1,
         model="openai/davinci",
-        temperature=0.2,
+        temperature=0.0,
         stop_sequences=["\n"],
-        max_tokens=20,
+        max_tokens=30,  # at most ~50 characters per label
     )
 
     return RunSpec(
