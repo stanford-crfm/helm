@@ -59,6 +59,15 @@ def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
 
+def get_msmarco_metrics() -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="benchmark.msmarco_metrics.MSMARCOMetric",
+            args={"name": "mean_reciprocal_rank", "topk_list": [10]},
+        )
+    ]
+
+
 def get_toxicity_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
 
@@ -117,6 +126,41 @@ def get_simple1_spec() -> RunSpec:
         scenario=get_scenario_spec1(),
         adapter_spec=get_adapter_spec1(),
         metrics=get_basic_metrics({"names": []}),
+    )
+
+
+def get_msmarco_spec(
+    task: str, topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
+) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.msmarco_scenario.MSMARCOScenario",
+        args={
+            "task": task,
+            "topk": int(topk),
+            "num_eval_queries": int(num_eval_queries),
+            "num_train_queries": int(num_train_queries),
+        },
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        instructions="",
+        input_prefix="",
+        output_prefix="\nAnswer: ",
+        max_train_instances=4,
+        max_eval_instances=1500,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+    )
+
+    return RunSpec(
+        name=f"msmarco:task={task},topk={topk},num_eval_queries={num_eval_queries},"
+        f"num_train_queries={num_train_queries}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_msmarco_metrics(),
     )
 
 
@@ -932,6 +976,35 @@ def get_empatheticdialogues_spec() -> RunSpec:
     )
 
 
+def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.dyck_language_scenario.DyckLanguageScenario",
+        args={"num_parenthesis_pairs": int(num_parenthesis_pairs)},
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Please complete the rest of the following Dyck sequence, "
+        "making sure that the parentheses are closed properly. ",
+        input_prefix="Input: ",
+        output_prefix="",
+        model="openai/davinci",
+        temperature=0.0,
+        max_train_instances=3,
+        max_eval_instances=1000,  # TODO: Ideally, this number should be at least 1000.
+        stop_sequences=["\n"],
+        max_tokens=5,
+        num_outputs=1,
+    )
+
+    return RunSpec(
+        name=f"dyck_language_np={int(num_parenthesis_pairs)}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match_indicator"]}),
+    )
+
+
 ############################################################
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
@@ -942,6 +1015,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "imdb_contrast_sets": get_imdb_contrast_sets_spec,
     "copyright": get_copyright_spec,
     "mmlu": get_mmlu_spec,
+    "msmarco": get_msmarco_spec,
     "narrativeqa": get_narrativeqa_spec,
     "commonsense_qa": get_commonsense_qa_spec,
     "lsat_qa": get_lsat_qa_spec,
@@ -966,6 +1040,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "blimp": get_blimp_spec,
     "code": get_code_spec,
     "empatheticdialogues": get_empatheticdialogues_spec,
+    "dyck_language": get_dyck_language_spec,
 }
 
 
@@ -981,7 +1056,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         raise ValueError(f"Unknown run spec name: {name}")
 
     # Peel off the run expanders (e.g., model)
-    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # noqa
+    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
 
     # Get the canonical run specs

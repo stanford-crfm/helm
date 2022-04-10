@@ -85,8 +85,9 @@ class Metric(ABC):
                         per_instance_stats[key].merge(stat)
 
             for (name, instance_id), stat in per_instance_stats.items():
-                worst_stat = Stat(stat.name).add(stat.min)
-                merge_stat(trial_stats, worst_stat)
+                if stat.count > 0:
+                    worst_stat = Stat(stat.name).add(stat.min)
+                    merge_stat(trial_stats, worst_stat)
 
             # Aggregate the corpus-level metrics
             for split in EVAL_SPLITS:

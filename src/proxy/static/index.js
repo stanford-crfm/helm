@@ -16,11 +16,6 @@ $(function () {
     return api_key.substring(0, k) + '*'.repeat(api_key.length - k);
   }
 
-  function helpIcon(help, link) {
-    // Show a ?
-    return $('<a>', {href: link, target: 'blank_', class: 'help-icon'}).append($('<img>', {src: 'info-icon.png', width: 15, title: help}));
-  }
-
   // Logging in and out
   function updateLogin() {
     const $loginInfo = $('#loginInfo');
@@ -343,13 +338,15 @@ $(function () {
     const $header = $('<tr>')
       .append($('<td>').append('group'))
       .append($('<td>').append('name'))
-      .append($('<td>').append('description'));
+      .append($('<td>').append('description'))
+      .append($('<td>').append('tags'));
     $table.append($header);
     generalInfo.all_models.forEach((model) => {
       const $row = $('<tr>')
         .append($('<td>').append($('<tt>').append(model.group)))
         .append($('<td>').append($('<tt>').append(model.name)))
-        .append($('<td>').append(model.description));
+        .append($('<td>').append(model.description))
+        .append($('<td>').append(model.tags));
       $table.append($row);
     });
     return $table;
