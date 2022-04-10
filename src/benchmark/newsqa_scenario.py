@@ -62,11 +62,10 @@ class NewsQAScenario(Scenario):
         correct references.
         """
         prompt: str = ""
-        prompt += f"Article: {sample['text']}\n\n"
+        prompt += f"{sample['text']}\n\n"
         all_questions = sample["questions"]
         question = random.sample(all_questions, 1)[0]
-        prompt += f"Question: {question['q']}\n"
-        prompt += "Answer:"
+        prompt += f"Question: {question['q']}"
         # generate set of valid answers
         answers = []
 

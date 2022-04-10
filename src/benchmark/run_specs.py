@@ -279,7 +279,10 @@ def get_quac_spec() -> RunSpec:
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name="quac", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": ["f1_score"]}),
+        name="quac",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
     )
 
 
@@ -288,8 +291,8 @@ def get_news_qa_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="",
+        input_prefix="Article: ",
+        output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
@@ -303,7 +306,7 @@ def get_news_qa_spec() -> RunSpec:
         name="news_qa",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["f1_score"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
     )
 
 
