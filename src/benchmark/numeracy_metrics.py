@@ -50,7 +50,7 @@ class DistanceMetric(Metric):
         for completion in request_result.completions:
             completion = completion.text.strip()
             try:
-                pred = int(completion)
+                pred = int(completion.replace(",", ""))  # ignore commas in numbers
             except Exception:
                 continue
             point = val + [pred]

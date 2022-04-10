@@ -73,7 +73,9 @@ def get_numeracy_metrics(relation_type: str, run_solver: bool = True) -> List[Me
     metrics = [
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names),
     ]
-    if relation_type not in ["parabola", "paraboloid"] or run_solver:
+    if (
+        relation_type not in ["parabola", "paraboloid"] or run_solver
+    ):  # the solvers are slow to run so make them skippable
         metrics += [
             MetricSpec(class_name="benchmark.numeracy_metrics.DistanceMetric", args={}),
         ]

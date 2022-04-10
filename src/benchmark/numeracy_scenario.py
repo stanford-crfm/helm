@@ -398,7 +398,7 @@ def distance_paraboloid(point: List[int], rel_str: str, TOL: float = 1e-10):
     try:
         dist_vals = list(map(lambda _: sympy.N(poly_f.eval(_)), sols))
     except sympy.polys.polyerrors.UnificationFailed:
-        # Forgot to substitute all variables in some expression
+        # Forgot to substitute all variables in some expression.
         # This shouldn't happen, but has happened for a prior implementation of
         # `distance_paraboloid`, so catch it conservatively:
         print("sympy error: Unification failed.")
@@ -480,7 +480,7 @@ RELTYPE_INFO: Dict[str, RelationTypeInfo] = {
         name="paraboloid",
         degree=2,
         num_variables=2,
-        range=[(1, 2), (0, 0), (1, 2), (0, 0), (0, 0), (1, 5)],
+        range=[(1, 2), (0, 1), (1, 2), (0, 0), (0, 0), (1, 5)],
         example_coeffs=[2, 0, 1, 0, 0, 2],
     ),  # 2x^2 + y^2 + 2
 }
