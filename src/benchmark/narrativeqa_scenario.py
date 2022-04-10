@@ -27,7 +27,7 @@ class NarrativeQAScenario(Scenario):
 
 
     More concretely, we prompt models using the following format:
-        Summary: <story summary>
+        <story summary>
         Question: <question>
         Answer:
 

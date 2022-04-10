@@ -18,7 +18,7 @@ class BoolQScenario(Scenario):
     Each sample contains a passage, a question and an answer that are generated in an unconstrained/unprompted setting.
 
     We prompt models using the following format:
-        Context: <passage>
+        <passage>
         Question: <question>
         Answer:
 
@@ -106,7 +106,7 @@ class BoolQContrastSetScenario(BoolQScenario):
     For more details, see the original paper, Appendix B.9.
 
     We prompt models using the same format as BoolQ:
-        Context: <passage>
+        <passage>
         Question: <question>
         Answer:
 

@@ -464,7 +464,7 @@ def get_boolq_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="Context: ",
+        input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
@@ -488,7 +488,7 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="Context: ",
+        input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,

@@ -14,7 +14,7 @@ class IMDBScenario(Scenario):
     Each sample contains a sentence with its corresponding sentiment (0: negative, 1: positive)
 
     We prompt models using the following format:
-        Review: <passage>
+        <passage>
         Sentiment:
 
         Target completion:

@@ -30,7 +30,7 @@ class NewsQAScenario(Scenario):
     All of the questions and answers are written by crowd sourced human annotators.
     For more details, see https://arxiv.org/abs/1611.09830.
     More concretely, we prompt models using the following format:
-        Article: <news article>
+        <news article>
         Question: <question>
         Answer:
         Target completion:
