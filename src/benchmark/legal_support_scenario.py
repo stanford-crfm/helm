@@ -76,14 +76,18 @@ class LegalSupportScenario(Scenario):
             for line in all_raw_data:
                 raw_data = json.loads(line)
                 passage = raw_data["context"]
-                case_a = raw_data["citation_a"]["parenthetical"]
-                case_b = raw_data["citation_b"]["parenthetical"]
-                label = raw_data["label"]
-                context = f"passage: {passage}\na. {case_a}\nb. {case_b}"
+                answers = [raw_data["citation_a"]["parenthetical"], raw_data["citation_b"]["parenthetical"]]
+                correct_choice = raw_data["label"]
+                answers_dict = dict(zip(["a", "b"], answers))
+                correct_answer = answers_dict[correct_choice]
+
+                def answer_to_reference(answer):
+                    return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
 
                 instance = Instance(
-                    input=context, references=[Reference(output=label, tags=[CORRECT_TAG])], split=splits[split],
+                    input=passage, references=list(map(answer_to_reference, answers)), split=splits[split],
                 )
+
                 instances.append(instance)
 
         return instances

@@ -921,6 +921,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         metrics=get_basic_metrics({"names": ["exact_match_indicator"]}),
     )
 
+
 def get_legal_support_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.legal_support_scenario.LegalSupportScenario", args={},)
 
@@ -943,6 +944,7 @@ def get_legal_support_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
+
 
 ############################################################
 
