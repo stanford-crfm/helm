@@ -18,7 +18,7 @@ from proxy.remote_service import RemoteService
 from common.authentication import Authentication
 
 
-import pdb
+# import pdb
 
 
 def get_test_adapter_service() -> AdapterService:
@@ -104,7 +104,7 @@ class Polynomial:
     @classmethod
     def from_string(cls, expr_str: str, degree: int, num_variables: int):
         expr = sympy.parse_expr(expr_str.replace("^", "**"), transformations=SYMPY_TRANSFORMATIONS)
-        poly = Poly(expr, list(expr.free_symbols))
+        poly = Poly(expr, list(sorted(expr.free_symbols, key=lambda _: _.name)))
         return sympy_poly_to_poly(poly, degree, num_variables)
 
 
@@ -265,7 +265,7 @@ def distance_parabola(point: List[int], rel_str: str, TOL: float = 1e-10):
         # This shouldn't happen, but has happened for a prior implementation of
         # `distance_paraboloid`, so catch it conservatively:
         print("Failed to compute minimum distance.")
-        # import pdb, pdb.set_trace()
+        # pdb.set_trace()
         return float(0.0)
     dist_vals = list(map(lambda _: sympy.N(dist.eval(_)), sols))
     try:
@@ -273,9 +273,9 @@ def distance_parabola(point: List[int], rel_str: str, TOL: float = 1e-10):
     except ValueError:
         # A real solution should exist, but if not (eg. numerical error exceeds TOL):
         print("Failed to compute minimum distance.")
-        # import pdb, pdb.set_trace()
+        # pdb.set_trace()
         return float(0.0)
-    return float(dist_val)
+    return np.sqrt(float(dist_val))
 
 
 def distance_plane(point: List[int], rel_str: str):
@@ -317,57 +317,104 @@ def distance_paraboloid(point: List[int], rel_str: str, TOL: float = 1e-10):
     λ = Symbol("λ")
     # The code below is meant to be equivalent to
     # `sols = sympy.solve([eq_x, eq_y, eq_z, g], [x, y, z, λ])`
-    # but sympy.solve was failing to find any solution on many inputs,
+    # but sympy.solve was failing to find any solution on many inputs
+    # as well as not finding some solutions
     # so this breaks it down for the special case of `f - λ g` which is at most quadratic.
+
+    # Set up the equations from method of Lagrange multipliers
     eq_x = diff(f, x) - λ * diff(g, x)
     eq_y = diff(f, y) - λ * diff(g, y)
     eq_z = diff(f, z) - λ * diff(g, z)
-    sols_x = sympy.solve([eq_x], [x, λ])
-    sols_y = sympy.solve([eq_y], [y, λ])
-    sols_z = sympy.solve([eq_z], [z, λ])
+    # Solve for each variable individually
+    has_xy = y in eq_x.free_symbols  # has xy term
+    if has_xy:
+        sols_x = sympy.solve(eq_x, [x, y, λ])
+        sols_y = sympy.solve(eq_y, [x, y, λ])
+        sols_z = sympy.solve(eq_z, [z, λ])
+    else:
+        sols_x = sympy.solve(eq_x, [x, λ])
+        sols_y = sympy.solve(eq_y, [y, λ])
+        sols_z = sympy.solve(eq_z, [z, λ])
     try:
-        sols_xyz = [
-            [lst[sym]] if isinstance(lst, dict) else [_[0] for _ in lst]
-            for sym, lst in zip([x, y, z], [sols_x, sols_y, sols_z])
-        ]
-        sols_λλλ = [
-            [λ] if isinstance(lst, dict) else [_[1] for _ in lst]
-            for sym, lst in zip([x, y, z], [sols_x, sols_y, sols_z])
-        ]
-        sols_λ = list(product(*sols_xyz))
-        vals_λλλ = list(product(*sols_λλλ))
+        # Put the solutions together
+
+        # Extract x,y,z resp. from tuples
+        sols_lst_xyz = [[_[0] for _ in lst] for lst in [sols_x, sols_y, sols_z]]
+
+        # Extract solutions for λ from tuples
+        sols_lst_λλλ = [[_[-1] for _ in lst] for lst in [sols_x, sols_y, sols_z]]
+
+        # Get list of possible solution tuples and corresponding solutions for λ
+        sols_xyz = list(product(*sols_lst_xyz))
+        vals_λ = list(product(*sols_lst_λλλ))
+
         sols = []
-        for sol_xyz, val_λ in zip(sols_λ, vals_λλλ):
+        # Try each possible combined solution for x, y, z, λ
+        for sol_xyz, val_λs in zip(sols_xyz, vals_λ):
+            val_λs = list(set(filter(lambda _: not _.is_symbol, val_λs)))  # get distinct values for λ if there are any
+            if len(val_λs) > 1:  # there can be at most one distinct value for λ
+                continue
+            val_λ = val_λs[0] if val_λs else λ
             sol_x, sol_y, sol_z = sol_xyz
-            sol_λ1, sol_λ2, sol_λ3 = val_λ
-            sol_x = sol_x.subs(λ, sol_λ1).subs(λ, sol_λ2).subs(λ, sol_λ3)
-            sol_y = sol_y.subs(λ, sol_λ1).subs(λ, sol_λ2).subs(λ, sol_λ3)
-            sol_z = sol_z.subs(λ, sol_λ1).subs(λ, sol_λ2).subs(λ, sol_λ3)
-            g_λ = g.subs([(x, sol_x), (y, sol_y), (z, sol_z)]).subs(λ, sol_λ1).subs(λ, sol_λ2).subs(λ, sol_λ3)
-            # TODO
-            sym = list(g_λ.free_symbols)[0]
-            vals = [sympy.N(_) for _ in sympy.solveset(g_λ, sym)]
-            sols.extend([(sol_x.subs(sym, _), sol_y.subs(sym, _), sol_z.subs(sym, _)) for _ in vals])
+            if not val_λ.is_symbol:
+                # Substitute in values of λ
+                sol_x = sol_x.subs(λ, val_λ)
+                sol_y = sol_y.subs(λ, val_λ)
+                sol_z = sol_z.subs(λ, val_λ)
+                g_λ = g.subs(λ, val_λ)
+            else:
+                g_λ = g
+
+            # Substitute in solutions for x, y, z
+            if has_xy:
+                g_λ = g_λ.subs([(x, sol_x), (z, sol_z)])
+                sol_ys = sympy.solve(sol_x - sol_y, y)
+                for sol_y in sol_ys:
+                    g_λy = g_λ.subs(y, sol_y)
+                    sol_xy = sol_x.subs(y, sol_y)
+                    syms = list(g_λy.free_symbols)
+                    if len(syms) > 1:  # underdetermined system
+                        continue
+                    sym = syms[0]
+                    vals = [sympy.N(_) for _ in sympy.solveset(g_λy, sym)]
+                    sols.extend([(sol_xy.subs(sym, _), sol_y.subs(sym, _), sol_z.subs(sym, _)) for _ in vals])
+            else:
+                g_λ = g_λ.subs([(x, sol_x), (y, sol_y), (z, sol_z)])
+                syms = list(g_λ.free_symbols)
+                if len(syms) > 1:  # underdetermined system
+                    continue
+                # Solve for remaining variable
+                sym = syms[0]
+                vals = [sympy.N(_) for _ in sympy.solveset(g_λ, sym)]
+                sols.extend([(sol_x.subs(sym, _), sol_y.subs(sym, _), sol_z.subs(sym, _)) for _ in vals])
     except ZeroDivisionError:
         # This shouldn't happen, but has happened for a prior implementation of
         # `distance_paraboloid`, so catch it conservatively:
         print("Failed to compute minimum distance.")
-        pdb.set_trace()
+        # pdb.set_trace()
         return float(0.0)
     poly_f = sympy.Poly(f, [x, y, z])
+    # Evaluate f on found solutions
     try:
         dist_vals = list(map(lambda _: sympy.N(poly_f.eval(_)), sols))
     except sympy.polys.polyerrors.UnificationFailed:
-        pdb.set_trace()
+        # Forgot to substitute all variables in some expression
+        # This shouldn't happen, but has happened for a prior implementation of
+        # `distance_paraboloid`, so catch it conservatively:
+        print("sympy error: Unification failed.")
+        # pdb.set_trace()
+        return float(0.0)
+    # Get the minimum nonnegative real value
     try:
         dist_val = min([sympy.re(_) for _ in dist_vals if abs(sympy.im(_)) < TOL and sympy.re(_) >= 0])
     except ValueError:
         # A real solution should exist, but if not (eg. numerical error exceeds TOL):
+        print("Failed to compute minimum distance.")
         print([eq_x, eq_y, eq_z, g])
         print(sols)
-        pdb.set_trace()
+        # pdb.set_trace()
         return float(0.0)
-    return float(dist_val)
+    return np.sqrt(float(dist_val))
 
 
 def select_ranges(
@@ -429,11 +476,11 @@ RELTYPE_INFO: Dict[str, RelationTypeInfo] = {
         name="plane", degree=1, num_variables=2, range=[(1, 5), (1, 5), (1, 5)], example_coeffs=[2, 1, 5]
     ),  # 2x + y + 5
     "paraboloid": RelationTypeInfo(
-        # axis-aligned ellipsoid paraboloids only, ie. of the form z = A x^2 + B y^2 + C
+        # axis-aligned elliptic paraboloids only, ie. of the form z = A x^2 + B y^2 + C
         name="paraboloid",
         degree=2,
         num_variables=2,
-        range=[(1, 2), (0, 1), (1, 2), (0, 0), (0, 0), (1, 5)],
+        range=[(1, 2), (0, 0), (1, 2), (0, 0), (0, 0), (1, 5)],
         example_coeffs=[2, 0, 1, 0, 0, 2],
     ),  # 2x^2 + y^2 + 2
 }
@@ -509,7 +556,7 @@ class NumeracyScenario(Scenario):
     - linear                    (1 degree,  1 variable)
     - parabola                  (2 degrees, 2 variables)
     - plane                     (1 degree,  2 variables)
-    - (ellipsoid) paraboloid    (2 degrees, 2 variables)
+    - (elliptic) paraboloid    (2 degrees, 2 variables)
 
         with coefficients drawn from restricted ranges
         (see dict `RELTYPE_INFO`), and
@@ -520,10 +567,12 @@ class NumeracyScenario(Scenario):
 
     and independently 2 + 1 modes:
     - standard
-        - A single dataset corresponding to the same polynomial
+        - A single dataset corresponding to the same polynomial.
+        Evaluate on different points.
     - function
         - Multiple datasets, where each dataset instance corresponds to
         an independently sampled polynomial belonging to the same class.
+        Evaluate on different (dataset, point) pairs.
     and
     - example
         - A single dataset corresponding to the same fixed representative for each class.
@@ -559,12 +608,12 @@ class NumeracyScenario(Scenario):
     tags: List[str] = []
     RELTYPES: List[str] = ["linear", "parabola", "plane", "paraboloid"]
     MODES: List[str] = ["example", "standard", "function"]
+    delimiter: str = ", "
 
     def __init__(
         self,
         relation_type: str = "linear",
         mode: str = "function",
-        delimiter: str = ", ",
         seed: Optional[int] = None,
         overlap: bool = True,  # whether the in-context and eval points are drawn from the same region
         sort_vals: bool = False,  # whether to sort the in-context examples
@@ -577,7 +626,7 @@ class NumeracyScenario(Scenario):
 
         self.relation_type = relation_type
         self.mode = mode
-        self.delimiter = delimiter
+        self.delimiter = NumeracyScenario.delimiter
         self.seed = seed
         self.overlap = overlap
         self.sort_vals = sort_vals
