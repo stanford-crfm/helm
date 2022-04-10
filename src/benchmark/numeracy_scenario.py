@@ -538,7 +538,7 @@ def get_numeracy_adapter_spec(
                 "max_tokens": 20,
                 "input_prefix": "",
                 "output_prefix": ", ",
-                "block_prefix": "\n",
+                "instance_prefix": "\n",
             },
             **kwargs,
         }
@@ -715,7 +715,12 @@ class NumeracyScenario(Scenario):
             service = get_test_adapter_service()
             adapter = Adapter(spec, service)
             outer_spec = get_numeracy_adapter_spec(
-                self.num_train, self.num_test, self.dim, instructions="", block_prefix="\n\n", delimeter=self.delimiter,
+                self.num_train,
+                self.num_test,
+                self.dim,
+                instructions="",
+                instance_prefix="\n\n",
+                delimeter=self.delimiter,
             )
             outer_adapter = Adapter(outer_spec, service)
             instances = []

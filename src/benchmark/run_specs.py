@@ -516,6 +516,7 @@ def get_numeracy_spec(
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_numeracy_metrics(relation_type, run_solver=run_solver),
+    )
 
 
 def get_math_spec(subject: str, level: str, use_official_prompt: bool = True) -> RunSpec:
