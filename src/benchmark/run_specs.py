@@ -921,6 +921,28 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         metrics=get_basic_metrics({"names": ["exact_match_indicator"]}),
     )
 
+def get_legal_support_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.legal_support_scenario.LegalSupportScenario", args={},)
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        instructions="",
+        input_prefix="",
+        output_prefix="\nAnswer",
+        model="openai/davinci",
+        temperature=0.0,
+        max_train_instances=3,
+        max_eval_instances=None,
+        max_tokens=2,
+        num_outputs=1,
+    )
+
+    return RunSpec(
+        name="legal_support",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
 
 ############################################################
 
@@ -956,6 +978,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "code": get_code_spec,
     "empatheticdialogues": get_empatheticdialogues_spec,
     "dyck_language": get_dyck_language_spec,
+    "legal_support": get_legal_support_spec,
 }
 
 

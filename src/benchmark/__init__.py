@@ -29,6 +29,7 @@ from . import blimp_scenario  # noqa
 from . import imdb_scenario  # noqa
 from . import dialogue_scenarios  # noqa
 from . import dyck_language_scenario  # noqa
+from . import legal_support_scenario
 
 
 # Metrics
