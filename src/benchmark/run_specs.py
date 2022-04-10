@@ -718,7 +718,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
-        output_prefix="",
+        output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
