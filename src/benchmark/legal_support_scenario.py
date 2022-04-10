@@ -11,32 +11,32 @@ class LegalSupportScenario(Scenario):
     This dataset is the result of ongoing/yet-to-be-released work. For more questions
     on its construction, contact Neel Guha (nguha@stanford.edu).
 
-    The LegalSupport dataset tests a model's ability to determine which of two case parentheticals
-    better support a specific legal assertion. Each sample contains:
-
-        - a short passage, ranging between 1-3 sentences.
-        - a first parenthetical, describing or quoting a particular case ("case_a")
-        - a second parenthetical, describing or quoting a different case ("case_b")
-        - a label ("a" or "b") corresponding to whether the first or second parenthetical better supports the
-        assertions made in the passage.
+    The LegalSupport dataset tests a model's ability to determine which case summary best
+    supports a given legal passage. The task is structured as multiple choice questions.
+    There are two choices per question.
 
     We prompt models using the following format:
+        Which statement best supports the passage?
         <passage>
-        a. <case_a>
-        b. <case_b>
-        answer:
+        a <case summary>
+        b <case summary>
+        Answer:
 
-        Multiple choice:
-            <answer>
+    Per convention:
+        - The string "Which statement best supports the passage?" is included as an Adaptor
+        instruction (see run_specs.py).
+        - The passage is prefixed with "Passage:",
+        - Each choice is represented as a Reference. We use lower case letters to enumerate
+        the choices.
 
     Using an example from the test dataset, we have
-        passage: Rather, we hold the uniform rule is ... that of 'good moral character". Courts have also endorsed
+        Passage: Rather, we hold the uniform rule is ... that of 'good moral character". Courts have also endorsed
         using federal, instead of state, standards to interpret federal laws regulating immigration.
 
-        a. Interpreting "adultery” for the purpose of eligibility for voluntary departure,
+        a Interpreting "adultery” for the purpose of eligibility for voluntary departure,
         and holding that "the appropriate approach is the application of a uniform federal standard."
 
-        b. Using state law to define "adultery” in the absence of a federal definition, and suggesting that
+        b Using state law to define "adultery” in the absence of a federal definition, and suggesting that
         arguably, Congress intended to defer to the state in which an alien chooses to live for the precise
         definition ... for it is that particular community which has the greatest interest in its residents moral
         character.
@@ -86,7 +86,9 @@ class LegalSupportScenario(Scenario):
                     return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
 
                 instance = Instance(
-                    input=passage, references=list(map(answer_to_reference, answers)), split=splits[split],
+                    input=f"Passage: {passage}",
+                    references=list(map(answer_to_reference, answers)),
+                    split=splits[split],
                 )
 
                 instances.append(instance)

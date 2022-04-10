@@ -927,15 +927,14 @@ def get_legal_support_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
-        instructions="",
+        instructions="Which statement best supports the passage?",
         input_prefix="",
-        output_prefix="\nAnswer",
+        output_prefix="\nAnswer: ",
         model="openai/davinci",
         temperature=0.0,
         max_train_instances=3,
         max_eval_instances=None,
-        max_tokens=2,
-        num_outputs=1,
+        num_outputs=10,
     )
 
     return RunSpec(
