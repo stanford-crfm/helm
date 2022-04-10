@@ -150,7 +150,8 @@ def get_msmarco_spec(
     )
 
     return RunSpec(
-        name=f"msmarco:task={task},topk={topk},num_eval_queries={num_eval_queries},num_train_queries={num_train_queries}",
+        name=f"msmarco:task={task},topk={topk},num_eval_queries={num_eval_queries},"
+        f"num_train_queries={num_train_queries}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_msmarco_metrics(),
@@ -1015,7 +1016,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         raise ValueError(f"Unknown run spec name: {name}")
 
     # Peel off the run expanders (e.g., model)
-    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]
+    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
 
     # Get the canonical run specs
