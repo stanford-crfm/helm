@@ -253,6 +253,7 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r wikitext_103
     venv/bin/benchmark-run -r blimp:phenomenon=irregular_forms
     venv/bin/benchmark-run -r news_qa
+    venv/bin/benchmark-run -r narrative_qa
     venv/bin/benchmark-run -r imdb
     venv/bin/benchmark-run -r imdb_contrast_sets
 
