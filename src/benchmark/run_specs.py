@@ -435,6 +435,7 @@ def get_numeracy_spec(
     )
 
     if mode in ["example", "standard"]:
+        # Test a model's ability to impute datapoints for a given (example or randomly sampled) relation.
         adapter_args: Dict[str, Any] = {
             "max_train_instances": 100,
             "max_eval_instances": 100,
@@ -442,9 +443,16 @@ def get_numeracy_spec(
             "dim": RELTYPE_INFO[relation_type].num_variables + 1,
         }
     elif mode == "function":
+        # Test a model's ability to impute datapoints for randomly sampled relations
+        # (resampled for each evaluation point).
         adapter_args = {
             "instructions": "",
-            "max_train_instances": 0,
+            "max_train_instances": 0,  # Turn off general version of `function` mode because it doesn't cleanly
+            # capture a higher-order version of this task / is a little convoluted
+            # for models, currently.
+            # (In the general version, the model sees other relations of the same class,
+            # and needs to impute a datapoint for the last one. Presumably, inferring
+            # the class - eg. the degree of the relation - would help.)
             "max_eval_instances": 1000,
             "dim": RELTYPE_INFO[relation_type].num_variables + 1,
             "block_prefix": "\n\n",
