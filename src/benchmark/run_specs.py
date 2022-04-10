@@ -769,22 +769,22 @@ def get_narrativeqa_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="\nanswer:",
+        input_prefix="Summary: ",
+        output_prefix="\nAnswer: ",
         num_train_trials=1,
-        max_train_instances=2,  # TODO: Justify; @mert
+        max_train_instances=5,
         model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full test set is 14018 instances
         num_outputs=1,
-        max_tokens=5,
+        max_tokens=100, # max answer is 30 words
         temperature=0.0,
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name="narrativeqa",
+        name="narrative_qa",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
     )
 
 
@@ -984,7 +984,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "copyright": get_copyright_spec,
     "mmlu": get_mmlu_spec,
     "msmarco": get_msmarco_spec,
-    "narrativeqa": get_narrativeqa_spec,
+    "narrative_qa": get_narrativeqa_spec,
     "commonsense_qa": get_commonsense_qa_spec,
     "lsat_qa": get_lsat_qa_spec,
     "quac": get_quac_spec,
