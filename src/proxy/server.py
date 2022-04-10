@@ -28,14 +28,13 @@ from common.tokenization_request import TokenizationRequest
 from .accounts import Account
 from .server_service import ServerService
 from .dialogue_interface import start_conversation, conversational_turn, submit_interview
-from dialogue_config import DIALOGUE_CREDENTIALS
 from .query import Query
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
 app = bottle.default_app()
 
-file_globals = []
+file_globals: dict = {}
 
 
 def safe_call(func, to_json=True):

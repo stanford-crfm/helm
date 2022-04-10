@@ -4,15 +4,16 @@ import json
 
 import sys
 
-from black import out
+from benchmark.adapter import UserInput
 from benchmark.executor import ExecutionSpec
 from benchmark.runner import InteractiveRunner, RunSpec
 
 sys.path = sys.path + ["../../"]
 
 from src.common.authentication import Authentication  # noqa: E402
-from src.common.request import Request, RequestResult  # noqa: E402
+from src.common.request import RequestResult  # noqa: E402
 from proxy.remote_service import RemoteService  # noqa: E402
+from .dialogue_config import DIALOGUE_CREDENTIALS
 
 # flake8: noqa
 # An example of how to use the request API.
@@ -74,9 +75,6 @@ params = {
 auth = Authentication(DIALOGUE_CREDENTIALS)
 url = "https://crfm-models.stanford.edu"
 execution_spec = ExecutionSpec(auth=auth, url=url, parallelism=1, dry_run=False)
-# Globally in this module
-# TODO: Setup authentication
-# TODO: Setup Execution Service
 
 
 def load_run_spec(output_path, run_name):
@@ -101,11 +99,15 @@ def start_conversation(json_args: dict):
 
     # If the interaction_trace_id isn't found, this will throw an error
     # the frontend needs to handle it and display an appropriate error message
-    runner = get_runner(json_args)
+    runner: InteractiveRunner = get_runner(json_args)
     interaction_trace_id = json_args["interaction_trace_id"]
-    interaction_trace = runner.load_interaction_trace(interaction_trace_id)
+    interaction_trace = runner.initialize_interaction_trace(interaction_trace_id=interaction_trace_id)
     prompt = interaction_trace.instance.input
-    return {"prompt": prompt}
+    bot_utterance = None
+    if interaction_trace.trace[-1].request_state.result:
+        bot_utterance = interaction_trace.trace[-1].request_state.result.completions[0].text.strip()
+    # TODO: Handle the case when the interaction_trace has an LM response in the first element
+    return {"prompt": prompt, "bot_utterance": bot_utterance}
 
 
 def conversational_turn(json_args: dict) -> dict:
@@ -135,7 +137,7 @@ def conversational_turn(json_args: dict) -> dict:
     interaction_trace_id = json_args["interaction_trace_id"]
 
     runner = get_runner(json_args)
-    response: RequestResult = runner.handle_user_input(interaction_trace_id, user_utterance)
+    response: RequestResult = runner.handle_user_input(interaction_trace_id, UserInput(input=user_utterance))
 
     # TODO: Define the names of the two participants in one place as a constant
     # payload += [
@@ -161,11 +163,10 @@ def conversational_turn(json_args: dict) -> dict:
     # TODO: Write this in a directory that's passed in from somewhere
     # with open(session_uuid + ".json", "w") as f:
     #    json.dump(json_response, f)
-    # return json_response  # Outputs
+    return json_response  # Outputs
 
 
 def submit_interview(json_args: dict) -> dict:
-    session_uuid = str(json_args.get("session_uuid"))
     interaction_trace_id = json_args["interaction_trace_id"]
 
     runner = get_runner(json_args)

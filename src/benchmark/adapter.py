@@ -145,14 +145,14 @@ class UserInput:
     input: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class InteractionRound:
     """
     Represents a round of interaction between a user and the model (LM)
     """
 
-    user_input: UserInput
     request_state: RequestState
+    user_input: Optional[UserInput] = None
 
 
 @dataclass
@@ -218,7 +218,7 @@ class InteractionTrace:
             instance=request_state.instance,
             reference_index=request_state.reference_index,
             train_trial_index=request_state.train_trial_index,
-            trace=[InteractionRound(UserInput(""), request_state)],
+            trace=[InteractionRound(user_input=None, request_state=request_state)],
         )
 
 
@@ -249,8 +249,8 @@ class ScenarioState:
             list
         )
 
-        assert (
-            self.request_states is not None ^ self.interaction_traces is not None
+        assert (self.request_states is not None) != (
+            self.interaction_traces is not None
         ), "Only and exactly one of `interaction_traces` or `request_states` should be populated"
 
         instances_set = set()
@@ -699,6 +699,16 @@ class Adapter:
 
 
 class InteractiveAdapter(ABC):
+    def __init__(self, user_initiated):
+        self.user_initiated = user_initiated
+
+    @abstractmethod
+    def initial_lm_request(self, initial_request_state: RequestState) -> RequestState:
+        """
+        In some scenarios, a call to the LM needs to be made before the first user input.
+        This function is subclassed to encode the adaptation into and produce a new RequestState
+        """
+
     @abstractmethod
     def adapt_user_input(self, interaction_trace: InteractionTrace, user_input: UserInput) -> RequestState:
         """Returns an updated InteractionTrace with the user input and a new request to the model/LM"""
