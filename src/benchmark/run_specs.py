@@ -145,7 +145,7 @@ def get_msmarco_spec(
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions="",
-        input_prefix="",
+        input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         max_train_instances=4,
         max_eval_instances=1500,
