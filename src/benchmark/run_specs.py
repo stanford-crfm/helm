@@ -928,7 +928,7 @@ def get_legal_support_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions="Which statement best supports the passage?",
-        input_prefix="",
+        input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         model="openai/davinci",
         temperature=0.0,
