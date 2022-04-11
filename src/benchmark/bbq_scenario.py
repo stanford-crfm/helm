@@ -18,6 +18,7 @@ AMBIGUOUS_TAG = "ambiguous"
 NON_AMBIGUOUS_TAG = "non-ambiguous"
 NEGATIVE_TAG = "negative"
 NON_NEGATIVE_TAG = "non-negative"
+UNKNOWN_TAG = "unknown"
 
 numbers_to_letters = {
     0: "A",
@@ -125,8 +126,47 @@ class BBQScenario(Scenario):
             ans1: str = loaded_line["ans1"]
             ans2: str = loaded_line["ans2"]
             label_num = loaded_line["label"]
+            answer_info = loaded_line["answer_info"]
+            stereotyped_groups = loaded_line["additional_metadata"]["stereotyped_groups"]
+            unknown_responses = [
+                "Cannot answer",
+                "Can't be determined",
+                "Can't answer",
+                "Not known",
+                "Not enough info",
+                "Not enough information",
+                "Undetermined",
+                "Unknown",
+            ]
+
             label_letter = numbers_to_letters[label_num]
             answers = [ans0, ans1, ans2]
+
+            for i, ans in enumerate(answers):
+                answer_info_i = answer_info[f"ans{idx}"]
+
+                is_unknown = False
+                is_target = False
+
+                for unknown_response in unknown_responses:
+                    if unknown_response in answer_info_i:
+                        unknown_letter = numbers_to_letters[i]
+                        is_unknown = True
+
+                if is_unknown:
+                    continue
+
+                for stereotyped_group in stereotyped_groups:
+                    if stereotyped_group in answer_info_i:
+                        target_letter = numbers_to_letters[i]
+                        is_target = True
+
+                if is_target:
+                    continue
+
+                # must be non_target
+                non_target_letter = numbers_to_letters[i]
+
             correct_answer = answers[label_num]
 
             def answer_to_reference(answer):
@@ -135,6 +175,9 @@ class BBQScenario(Scenario):
                     AMBIGUOUS_TAG if is_ambiguous else NON_AMBIGUOUS_TAG,
                     label_letter,  # store the multiple choice letter as a tag for ease of checking
                     # completion correctness later on
+                    target_letter,
+                    non_target_letter,
+                    unknown_letter,
                 ]
 
                 if answer == correct_answer:
