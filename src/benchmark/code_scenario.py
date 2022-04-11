@@ -253,7 +253,8 @@ def _reindent_code(codestr):
 def _make_input_for_apps(question: str, starter_code: str, answer_type: str) -> str:
     """Format the prompt as in the original training pipeline."""
     # Different from the original paper: We add the phrase 'in Python' to make models only generate Python code;
-    #   otherwise models can generate C++ and code in other languages.
+    #   otherwise models can generate C++ and code in other languages. The evaluation engine, mostly copied from the
+    #   original APPS codebase, runs PyExt and has no way to execute C++ code.
     # The extra phrase isn't needed when there's in-context examples of Python code.
     return "\nQUESTION:\n" + question + "\n" + starter_code + "\n" + answer_type + "\nANSWER in Python:\n"
 
