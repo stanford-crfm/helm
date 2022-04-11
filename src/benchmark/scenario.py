@@ -31,6 +31,7 @@ class Reference:
     output: str
 
     # Extra metadata (e.g., whether it's correct/factual/toxic)
+    # List is unhashable so skip when hashing
     tags: List[str] = field(compare=False)
 
     @property
