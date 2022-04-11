@@ -173,7 +173,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions=f"The following are multiple choice questions (with answers) about {format(subject)}.",
-        input_prefix="",
+        input_prefix="Question: ",
         output_prefix="\nAnswer: ",
         max_train_instances=5,
         max_eval_instances=1000,  # TODO: Justify, @michi
