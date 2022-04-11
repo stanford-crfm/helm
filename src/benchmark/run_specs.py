@@ -13,6 +13,7 @@ from .metric import MetricSpec
 from .runner import RunSpec
 from .scenario import ScenarioSpec
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
+from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
 from .raft_scenario import get_raft_instructions
 from .run_expander import RUN_EXPANDERS
 
@@ -66,12 +67,26 @@ def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
 
+def get_msmarco_metrics() -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="benchmark.msmarco_metrics.MSMARCOMetric",
+            args={"name": "mean_reciprocal_rank", "topk_list": [10]},
+        )
+    ]
+
+
 def get_toxicity_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
 
 
 def get_srn_metrics() -> List[MetricSpec]:
     metric_names = {"names": ["iou_set_match", "exact_set_match"]}
+    return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
+
+
+def get_math_metrics() -> List[MetricSpec]:
+    metric_names = {"names": ["math_equiv"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
@@ -137,13 +152,41 @@ def get_bbq_spec(subject: str) -> RunSpec:
         output_prefix="\nAnswer: ",
         max_train_instances=5,
         max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
+    return RunSpec(name="bbq", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bbq_metrics())
+
+
+def get_msmarco_spec(
+    task: str, topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
+) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.msmarco_scenario.MSMARCOScenario",
+        args={
+            "task": task,
+            "topk": int(topk),
+            "num_eval_queries": int(num_eval_queries),
+            "num_train_queries": int(num_train_queries),
+        },
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        instructions="",
+        input_prefix="",
+        output_prefix="\nAnswer: ",
+        max_train_instances=4,
+        max_eval_instances=1500,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
         temperature=0,
     )
-
-    return RunSpec(name="bbq", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bbq_metrics())
+    return RunSpec(
+        name=f"msmarco:task={task},topk={topk},num_eval_queries={num_eval_queries},"
+        f"num_train_queries={num_train_queries}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_msmarco_metrics(),
+    )
 
 
 def get_bold_spec(subject: str) -> RunSpec:
@@ -182,8 +225,6 @@ def get_civil_comments_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
-    )
-
 
 def get_mmlu_spec(subject: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject})
@@ -480,6 +521,39 @@ def get_raft_spec(subset: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_math_spec(subject: str, level: str, use_official_prompt: bool = True) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.math_scenario.MATHScenario", args={"subject": subject, "level": level}
+    )
+
+    instructions = OFFICIAL_MATH_INSTRUCTIONS
+    if use_official_prompt:
+        instructions = OFFICIAL_MATH_PROMPT
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions=instructions,
+        max_train_instances=0 if use_official_prompt else 8,
+        max_eval_instances=7500,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        stop_sequences=["$", "###", "\n"],
+        max_tokens=20,
+        input_prefix="\nProblem: ",
+        output_prefix="\nAnswer: $",
+        instance_prefix="$\n###",
+    )
+
+    return RunSpec(
+        name=f"math:subject={subject},level={level}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_math_metrics(),
     )
 
 
@@ -784,6 +858,31 @@ def get_the_pile_spec(subset: str) -> RunSpec:
     )
 
 
+def get_ice_spec(**kwargs) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.ice_scenario.ICEScenario", args=kwargs)
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_MODELING,
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        reference_prefix="",
+        max_train_instances=0,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        max_tokens=0,
+    )
+
+    return RunSpec(
+        name="ice" + (":" if len(kwargs) > 0 else "") + ",".join(f"{k}={v}" for k, v in kwargs.items()),
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": []}),
+    )
+
+
 def get_narrativeqa_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.narrativeqa_scenario.NarrativeQAScenario", args=dict())
 
@@ -1003,6 +1102,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "imdb_contrast_sets": get_imdb_contrast_sets_spec,
     "copyright": get_copyright_spec,
     "mmlu": get_mmlu_spec,
+    "msmarco": get_msmarco_spec,
     "narrativeqa": get_narrativeqa_spec,
     "commonsense_qa": get_commonsense_qa_spec,
     "lsat_qa": get_lsat_qa_spec,
@@ -1016,6 +1116,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "twitter_aae": get_twitter_aae_spec,
     "disinformation": get_disinformation_spec,
     "gsm": get_gsm_spec,
+    "math": get_math_spec,
     "natural_qa": get_natural_qa_spec,
     "the_pile": get_the_pile_spec,
     "raft": get_raft_spec,
@@ -1030,6 +1131,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "bbq": get_bbq_spec,
     "civil_comments": get_civil_comments_spec,
     "dyck_language": get_dyck_language_spec,
+    "ice": get_ice_spec,
 }
 
 
@@ -1045,7 +1147,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         raise ValueError(f"Unknown run spec name: {name}")
 
     # Peel off the run expanders (e.g., model)
-    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]
+    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
 
     # Get the canonical run specs
