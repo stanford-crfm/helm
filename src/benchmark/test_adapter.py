@@ -3,7 +3,7 @@ from typing import List
 from .adapter_service import AdapterService
 from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
 from .run_specs import get_scenario_spec1, get_adapter_spec1
-from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, Adapter, AdapterSpec
+from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, ADAPT_MULTIPLE_CHOICE, Adapter, AdapterSpec
 from proxy.remote_service import RemoteService
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from common.authentication import Authentication
@@ -81,3 +81,45 @@ def test_construct_language_modeling_prompt():
 
     # Ensure the number of conditioning tokens is correct
     assert num_conditioning_tokens == 1
+
+
+def test_sample_in_context_samples():
+    adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE, max_train_instances=2)
+    adapter = Adapter(adapter_spec, get_test_adapter_service())
+    all_train_instances = [
+        Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
+        Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+        Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+    ]
+
+    in_context_instances = adapter.sample_in_context_examples(all_train_instances, seed=0)
+    assert len(in_context_instances) == 2
+    # An instance with "say yes" should have be sampled first before "say no"
+    assert in_context_instances[0].input == "say yes"
+    assert in_context_instances[1].input == "say no"
+
+
+def test_sample_in_context_samples_greater_max_train_instances():
+    adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE, max_train_instances=10)
+    adapter = Adapter(adapter_spec, get_test_adapter_service())
+    all_train_instances = [
+        Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
+        Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+        Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+    ]
+
+    in_context_instances = adapter.sample_in_context_examples(all_train_instances, seed=0)
+    assert len(in_context_instances) == 3
+
+
+def test_sample_in_context_samples_without_references():
+    adapter_spec = AdapterSpec(method=ADAPT_LANGUAGE_MODELING, max_train_instances=1)
+    adapter = Adapter(adapter_spec, get_test_adapter_service())
+    all_train_instances = [
+        Instance("prompt1", references=[]),
+        Instance("prompt2", references=[]),
+        Instance("prompt3", references=[]),
+    ]
+
+    in_context_instances = adapter.sample_in_context_examples(all_train_instances, seed=0)
+    assert len(in_context_instances) == 1
