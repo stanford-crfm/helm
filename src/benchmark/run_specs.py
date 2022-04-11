@@ -152,6 +152,12 @@ def get_bbq_spec(subject: str) -> RunSpec:
         output_prefix="\nAnswer: ",
         max_train_instances=5,
         max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+    )
+
     return RunSpec(name="bbq", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bbq_metrics())
 
 
@@ -225,6 +231,8 @@ def get_civil_comments_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
 
 def get_mmlu_spec(subject: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject})
