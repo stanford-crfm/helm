@@ -131,10 +131,12 @@ class BBQScenario(Scenario):
             unknown_responses = [
                 "Cannot answer",
                 "Can't be determined",
+                "Cannot be determined",
                 "Can't answer",
                 "Not known",
                 "Not enough info",
                 "Not enough information",
+                "Not answerable",
                 "Undetermined",
                 "Unknown",
             ]
