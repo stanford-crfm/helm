@@ -10,8 +10,9 @@ from benchmark.runner import InteractiveRunner, RunSpec
 
 sys.path = sys.path + ["../../"]
 
-from src.common.authentication import Authentication  # noqa: E402
-from src.common.request import RequestResult  # noqa: E402
+from common.authentication import Authentication  # noqa: E402
+from common.request import RequestResult  # noqa: E402
+from common.general import unpickle  # noqa: E402
 from proxy.remote_service import RemoteService  # noqa: E402
 from .dialogue_config import DIALOGUE_CREDENTIALS
 
@@ -79,12 +80,12 @@ execution_spec = ExecutionSpec(auth=auth, url=url, parallelism=1, dry_run=False)
 
 def load_run_spec(output_path, run_name):
     runs_path = os.path.join(output_path, "runs", run_name)
-    with open(os.path.join(runs_path, "run_spec.json"), "r") as f:
-        run_spec = json.load(f)
-    return RunSpec(**run_spec)
+    run_spec = unpickle(os.path.join(runs_path, "run_spec.pkl"))
+    return run_spec
 
 
 def get_runner(json_args: dict) -> InteractiveRunner:
+    print(json_args)
     run_name = json_args["run_name"]
     output_path = json_args["output_path"]
     run_spec = load_run_spec(output_path, run_name)
@@ -93,8 +94,7 @@ def get_runner(json_args: dict) -> InteractiveRunner:
 
 def start_conversation(json_args: dict):
     """
-    This is a stub method to get a text prompt.
-    TODO: Replace this with an integration with interactive runer
+    Setup a conversation (interaction_trace) bsed on the provided id
     """
 
     # If the interaction_trace_id isn't found, this will throw an error
