@@ -635,7 +635,7 @@ def get_babi_qa_spec(task: str) -> RunSpec:
         num_outputs=1,
         # Task 19's answers consist of two words (in contrast to all other tasks that feature a single-word answers.)
         max_tokens=2 if task == "19" else 1,
-        # TODO: @Dor - I think we should change this; the above seems pretty bad in how it assumes tokenization behavior.
+        # TODO: @Dor - I think we should change this since it assumes tokenization behavior.
         # max_tokens=5,
         temperature=0.0,
         stop_sequences=["\n"],
