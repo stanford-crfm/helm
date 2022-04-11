@@ -319,7 +319,7 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions="",
-        input_prefix="",
+        input_prefix="Question: ",
         output_prefix="\nAnswer: ",
         max_train_instances=5,
         max_eval_instances=654,
