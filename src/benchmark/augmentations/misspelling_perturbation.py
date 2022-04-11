@@ -3,8 +3,7 @@ import json
 from pathlib import Path
 from typing import Dict, List
 
-from nltk.tokenize import word_tokenize
-from nltk.tokenize.treebank import TreebankWordDetokenizer
+from nltk.tokenize.treebank import TreebankWordDetokenizer, TreebankWordTokenizer
 import numpy as np
 
 from benchmark.scenario import Instance
@@ -28,6 +27,7 @@ class MisspellingPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         name: str
+        prob: float
 
     name: str = "misspellings"
 
@@ -41,10 +41,11 @@ class MisspellingPerturbation(Perturbation):
         with open(misspellings_file, "r") as f:
             self.correct_to_misspelling: Dict[str, List[str]] = json.load(f)
         self.detokenizer = TreebankWordDetokenizer()
+        self.tokenizer = TreebankWordTokenizer()
 
     @property
     def description(self) -> PerturbationDescription:
-        return MisspellingPerturbation.Description(self.name)
+        return MisspellingPerturbation.Description(self.name, self.prob)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         assert instance.id is not None
@@ -53,15 +54,25 @@ class MisspellingPerturbation(Perturbation):
 
     def perturb_word(self, word: str) -> str:
         # check if word is in dictionary and perturb with probability self.prob
+        suffix = ""
+        if word[-1] == ".":
+            suffix = "."
+            word = word[:-1]
         if word in self.correct_to_misspelling and np.random.rand() < self.prob:
             word = str(np.random.choice(self.correct_to_misspelling[word]))
+        word += suffix
         return word
 
     def perturb(self, text: str) -> str:
-        words = word_tokenize(text)
-        new_words = []
-        for word in words:
-            word = self.perturb_word(word)
-            new_words.append(word)
-        perturbed_str = str(self.detokenizer.detokenize(new_words))
+        lines = text.split("\n")
+        new_lines = []
+        for line in lines:
+            words = self.tokenizer.tokenize(line)
+            new_words = []
+            for word in words:
+                word = self.perturb_word(word)
+                new_words.append(word)
+            perturbed_str = str(self.detokenizer.detokenize(new_words))
+            new_lines.append(perturbed_str)
+        perturbed_str = "\n".join(new_lines)
         return perturbed_str

@@ -13,18 +13,20 @@ from nltk.translate.bleu_score import sentence_bleu
 import numpy as np
 from rouge_score import rouge_scorer
 
+from common.hierarchical_logger import hlog
 from common.request import Token
 from common.statistic import Stat
 from . import code_metrics_helper
 from proxy.tokenizer.tokenizer import Tokenizer
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
+from proxy.tokenizer.tokenizer_service import TokenizerService
 from .augmentations.perturbation_description import PerturbationDescription
 from .adapter import AdapterSpec, RequestState, ADAPT_LANGUAGE_MODELING
+from .math_scenario import is_equiv
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .code_scenario import CodeReference
-from .tokenizer_service import TokenizerService
 
 
 try:
@@ -51,7 +53,7 @@ def exact_match(gold: str, pred: str) -> float:
     return 1 if gold == pred else 0
 
 
-def exact_match_indicator(gold: str, pred: str) -> float:
+def exact_match_indicator(gold: str, pred: str, indicator: str = "#") -> float:
     """
     Exact match, allowing for some preceding context.
     For example, the following two answers are considered matching:
@@ -60,7 +62,6 @@ def exact_match_indicator(gold: str, pred: str) -> float:
     While the following is considered different from the earlier two
     - Given reasons x and a, the answer is ## <other answer>
     """
-    indicator: str = "#"
     pred = pred.split(indicator)[-1].strip()
     gold = gold.split(indicator)[-1].strip()
     return exact_match(gold, pred)
@@ -252,6 +253,7 @@ class BasicMetric(Metric):
             "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
+            "math_equiv": is_equiv,
             "code_eval_acc": code_eval,
             "pass": code_eval,
             "f1_score": f1_score,
@@ -296,7 +298,13 @@ class BasicMetric(Metric):
     def compute_efficiency_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
-        """Compute per-token normalized runtime"""
+        """Compute efficiency metrics for both inference and training.
+        For inference, we record both the actual runtime and an estimated idealized runtime
+        for the given request with an optimized software implementation run on an A100 GPU,
+        taking into account both the number of tokens in the prompt of the request, and the
+        number of generated output tokens.
+        For training, we report the estimated total metric tons of CO2 emitted to train the
+        model. This is the same for each request."""
         assert request_state.result is not None
         # Compute efficiency metrics for inference.
         runtime: float = request_state.result.request_time
@@ -337,27 +345,48 @@ class BasicMetric(Metric):
         # here: https://github.com/stanford-crfm/benchmarking_efficiency.
         with open(INFERENCE_EFFICIENCY_JSON_FILEPATH, "r") as f:
             inference_efficiency_dict = json.load(f)
-        assert request_state.request.model in inference_efficiency_dict
-        inference_efficiency_dict_for_model = inference_efficiency_dict[request_state.request.model]
-        runtime_per_output_token: float = inference_efficiency_dict_for_model["runtime_per_output_token"]
-        raw_runtimes_for_input_tokens: Dict[str, float] = inference_efficiency_dict_for_model[
-            "runtime_for_input_tokens"
-        ]
-        runtimes_for_input_tokens: Dict[int, float] = {int(k): v for (k, v) in raw_runtimes_for_input_tokens.items()}
-        runtime_for_input_tokens = None
-        # Find the smallest num_input_tokens larger than the number of tokens in the given prompt.
-        for num_input_tokens in sorted(runtimes_for_input_tokens.keys()):
-            if num_tokens_in_prompt <= num_input_tokens:
-                runtime_for_input_tokens = runtimes_for_input_tokens[num_input_tokens]
-                break
-        assert runtime_for_input_tokens is not None
 
-        # Idealized runtime is sum of the runtime of encoding the input tokens, and the
-        # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
-        # if number of output tokens is greater than 0, otherwise just `runtime_for_input_tokens`.
-        idealized_runtime: float = runtime_for_input_tokens
-        if num_output_tokens > 0:
-            idealized_runtime += runtime_per_output_token * (num_output_tokens - 1)
+        idealized_runtime: Optional[float]
+        runtime_discrepancy: Optional[float]
+        if request_state.request.model in inference_efficiency_dict:
+            inference_efficiency_dict_for_model = inference_efficiency_dict[request_state.request.model]
+            runtime_per_output_token: float = inference_efficiency_dict_for_model["runtime_per_output_token"]
+            raw_runtimes_for_input_tokens: Dict[str, float] = inference_efficiency_dict_for_model[
+                "runtime_for_input_tokens"
+            ]
+            runtimes_for_input_tokens: Dict[int, float] = {
+                int(k): v for (k, v) in raw_runtimes_for_input_tokens.items()
+            }
+            runtime_for_input_tokens: Optional[float] = None
+            # Find the smallest num_input_tokens larger than the number of tokens in the given prompt.
+            for num_input_tokens in sorted(runtimes_for_input_tokens.keys()):
+                if num_tokens_in_prompt <= num_input_tokens:
+                    runtime_for_input_tokens = runtimes_for_input_tokens[num_input_tokens]
+                    break
+
+            if runtime_for_input_tokens is None:
+                hlog(
+                    f"WARNING: prompt with {num_tokens_in_prompt} tokens is larger than the largest prompt size "
+                    f'in inference_efficiency_dict["{request_state.request.model}"]["runtime_for_input_tokens"]'
+                )
+                idealized_runtime = None
+                runtime_discrepancy = None
+            else:
+                # Idealized runtime is sum of the runtime of encoding the input tokens, and the
+                # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
+                # if number of output tokens is greater than 0, otherwise just `runtime_for_input_tokens`.
+                idealized_runtime = runtime_for_input_tokens
+                if num_output_tokens > 0:
+                    idealized_runtime += runtime_per_output_token * (num_output_tokens - 1)
+
+                runtime_discrepancy = runtime - idealized_runtime
+        else:
+            hlog(
+                f"WARNING: tried to estimate idealized inference time for model {request_state.request.model} "
+                "that is not in inference_efficiency_dict"
+            )
+            idealized_runtime = None
+            runtime_discrepancy = None
 
         # Compute efficiency metrics for training.
 
@@ -367,14 +396,22 @@ class BasicMetric(Metric):
         # used, region, etc.
         with open(TRAINING_EFFICIENCY_JSON_FILEPATH, "r") as f:
             training_efficiency_dict = json.load(f)
-        assert request_state.request.model in training_efficiency_dict
-        training_co2_cost: float = training_efficiency_dict[request_state.request.model]
+
+        training_co2_cost: Optional[float]
+        if request_state.request.model in training_efficiency_dict:
+            training_co2_cost = training_efficiency_dict[request_state.request.model]
+        else:
+            hlog(
+                f"WARNING: tried to estimate training CO2 emissions for model {request_state.request.model} "
+                "that is not in training_efficiency_dict"
+            )
+            training_co2_cost = None
 
         return [
             Stat(MetricName("num_tokens_in_prompt")).add(num_tokens_in_prompt),
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
-            Stat(MetricName("inference_runtime_discrepancy")).add(runtime - idealized_runtime),
+            Stat(MetricName("inference_runtime_discrepancy")).add(runtime_discrepancy),
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
         ]
 

@@ -1,4 +1,5 @@
 import random
+import time
 from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Optional
 from collections import defaultdict, OrderedDict
@@ -8,14 +9,15 @@ from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from proxy.tokenizer.tokenizer import Tokenizer
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
+from proxy.tokenizer.tokenizer_service import TokenizerService
 from .adapter_service import AdapterService
-from .tokenizer_service import TokenizerService
 from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"
 ADAPT_MULTIPLE_CHOICE = "multiple_choice"
 ADAPT_GENERATION = "generation"
+ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS = "language_modeling_minimal_pairs"
 
 
 @dataclass(frozen=True)
@@ -41,6 +43,9 @@ class AdapterSpec:
 
     # What goes before the output
     output_prefix: str = "\nOutput: "
+
+    # What goes before each Instance in the constructed prompt
+    instance_prefix: str = "\n\n"
 
     # Maximum number of (in-context) training instances to put into the prompt
     max_train_instances: int = 5
@@ -281,7 +286,10 @@ class Adapter:
         # Accumulate all the request states due to adaptation
         request_states: List[RequestState] = []
 
-        if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
+        if (
+            self.adapter_spec.method == ADAPT_LANGUAGE_MODELING
+            or self.adapter_spec.method == ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS
+        ):
             # Use the LM-specific method to adapt LM scenarios
             request_states = self.adapt_language_modeling(eval_instances)
         else:
@@ -294,7 +302,14 @@ class Adapter:
 
                 # Create request_states
                 for eval_index, eval_instance in enumerate(eval_instances):
+                    start_time: float = time.time()
                     prompt: str = self.construct_prompt(train_instances, eval_instance)
+                    construct_prompt_elapsed_time: float = time.time() - start_time
+
+                    hlog(
+                        f"trial {train_trial_index}: construct_prompt {eval_index} (total {len(eval_instances)}): "
+                        f"len(prompt) = {len(prompt)} ({construct_prompt_elapsed_time:.2f}s)"
+                    )
 
                     # Just print one prompt (useful for debugging)
                     if train_trial_index == 0 and eval_index == 0:
@@ -369,7 +384,7 @@ class Adapter:
 
             blocks.append(self.construct_example_prompt(eval_instance, include_output=False))
 
-            return "\n\n".join(blocks)
+            return self.adapter_spec.instance_prefix.join(blocks)
 
         orig_train_instances_count: int = len(train_instances)
         prompt: str = construct_prompt_helper(train_instances)
@@ -378,12 +393,12 @@ class Adapter:
         # exceed the max context length (https://github.com/hendrycks/test/blob/master/evaluate.py#L58),
         # we remove train instances one by one until it fits within the context window or
         # until we run out of train instances to remove.
-        while (
-            not self.tokenizer.fits_within_context_window(
+        while len(train_instances) > 0:
+            if self.tokenizer.fits_within_context_window(
                 text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
-            )
-            and len(train_instances) > 0
-        ):
+            ):
+                return prompt
+
             train_instances = train_instances[:-1]
             prompt = construct_prompt_helper(train_instances)
 
@@ -396,7 +411,7 @@ class Adapter:
 
         # If removing the in-context example is still not enough, we simply truncate the prompt.
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
-        return self.tokenizer.truncate_from_right(prompt)
+        return self.tokenizer.truncate_from_right(prompt, self.adapter_spec.max_tokens)
 
     def construct_example_prompt(self, instance: Instance, include_output: bool) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""

@@ -66,8 +66,8 @@ By default, Perspective API allows only 1 query per second. Fill out this
 [form](https://developers.perspectiveapi.com/s/request-quota-increase) to increase the request quota.
 
 The [current API key](https://console.cloud.google.com/apis/api/commentanalyzer.googleapis.com/overview?authuser=1&project=hai-gcp-models)
-we are using in production was created with the `hai-gcp-models` account and allows 100 queries per second.
-**The API key expires on 4/15/2022.**
+we are using in production was created with the `hai-gcp-models` account and allows 200 queries per second.
+**The API key expires on 7/15/2022.**
 
 #### SSL
 
@@ -241,6 +241,8 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r synthetic_reasoning_natural:difficulty=easy
     venv/bin/benchmark-run -r twitter_aae:demographic=aa
     venv/bin/benchmark-run -r copyright:pilot_study=true
+    venv/bin/benchmark-run -r disinformation:capability=reiteration
+    venv/bin/benchmark-run -r wiki:k=2,subject=P31
     venv/bin/benchmark-run -r code:dataset=APPS
     venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles
     venv/bin/benchmark-run -r wiki:subject=P31
@@ -248,6 +250,7 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r natural_qa:mode=closedbook
     venv/bin/benchmark-run -r quac
     venv/bin/benchmark-run -r wikitext_103
+    venv/bin/benchmark-run -r blimp:phenomenon=irregular_forms
     venv/bin/benchmark-run -r news_qa
     venv/bin/benchmark-run -r imdb
     venv/bin/benchmark-run -r imdb_contrast_sets
@@ -282,11 +285,12 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Go to the source code directory: `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
    We have 700 GB of disk space total on `/u/scr/nlp/crfm`.
 1. Pull the latest changes: `git pull`.
-1. Run `venv/bin/benchmark-present -s /u/apache/htdocs/crfm/benchmarking/status.txt`.
+1. Activate the Conda environment: `conda activate crfm_benchmarking` 
+   1. Run `pip install -e .` if there are new dependencies to install. 
+1. Run the `benchmark-present` command e.g., 
+   `benchmark-present --max-eval-instances 10 --conf src/benchmark/presentation/run_specs.conf`.
 1. Exit the screen session: `ctrl+ad`.
-
-Once all the runs complete, visit the
-[Benchmarking project status page](https://nlp.stanford.edu/crfm/benchmarking/status.txt).
+1. To check on the screen session: `screen -r benchmarking`.
 
 ### To visualize results at crfm-models.stanford.edu
 
