@@ -146,6 +146,7 @@ const ChatBox = {
       axios.post("/api/dialogue/conversation", {
 	interaction_trace_id: urlParams.get("interaction_trace_id"), 
 	run_name: urlParams.get("run_name"),
+        user_id: urlParams.get("user_id"),
         payload: this.payload,
         session_uuid: this.session_uuid,
         user_uuid: this.user_uuid,
@@ -189,6 +190,7 @@ const ChatBox = {
         axios.post("/api/dialogue/interview", {
 	  interaction_trace_id: urlParams.get("interaction_trace_id"), 
 	  run_name: urlParams.get("run_name"),
+          user_id: urlParams.get("user_id"),
           payload: this.payload,
           session_uuid: this.session_uuid,
           user_uuid: this.user_uuid,
@@ -257,11 +259,12 @@ const vm = app.mount("#app");
 axios.post("/api/dialogue/start", {
 	interaction_trace_id: urlParams.get("interaction_trace_id"), 
 	run_name: urlParams.get("run_name"),
+        user_id: urlParams.get("user_id"),
 })
   .then(function (response) {
     vm.prompt = response.data.prompt;
-    if (response.data.bot_utterace!=null){
-        vm.pushUtterance("bot", response.data.bot_utterace)  
+    if (response.data.bot_utterance!=null){
+        vm.pushUtterance("bot", response.data.bot_utterance)  
     }
 
     console.log(vm.prompt);

@@ -7,7 +7,7 @@ import uuid
 from tqdm import tqdm
 from sqlitedict import SqliteDict
 
-from common.general import ensure_directory_exists, write, write_lines, pickle, unpickle
+from common.general import ensure_directory_exists, write, write_lines, pickle, unpickle, UUIDEncoder
 from common.hierarchical_logger import hlog, htrack_block
 from common.request import RequestResult
 from proxy.remote_service import RemoteService
@@ -26,6 +26,7 @@ from .adapter import (
     ScenarioState,
     UserInput,
     create_interactive_adapter,
+    Survey,
 )
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor, render_request_state
@@ -130,6 +131,7 @@ class Runner:
 
         # Output benchmarking information and results to files
         write(os.path.join(runs_path, "run_spec.json"), json.dumps(asdict(run_spec), indent=2))
+        pickle(os.path.join(runs_path, "run_spec.pkl"), run_spec)
 
         scenario_dict = asdict(scenario)
         scenario_dict["instances"] = [asdict(instance) for instance in scenario_state.instances]
@@ -138,14 +140,18 @@ class Runner:
 
         if write_state:
             write_lines(os.path.join(runs_path, "scenario_state.txt"), scenario_state.render_lines())
-            write(os.path.join(runs_path, "scenario_state.json"), json.dumps(asdict(scenario_state), indent=2))
+            write(
+                os.path.join(runs_path, "scenario_state.json"),
+                json.dumps(asdict(scenario_state), indent=2, cls=UUIDEncoder),
+            )
             pickle(os.path.join(runs_path, "scenario_state.pkl"), scenario_state)
+            print(scenario_state)
             if scenario_state.interaction_traces:
                 with SqliteDict(
-                    os.path.join(runs_path, "interaction_traces.sqlite"), tablename="interaction_traces"
+                    os.path.join(runs_path, "interaction_traces.sqlite"), tablename="interaction_traces", flag="n"
                 ) as trace_db:
                     for interaction_trace in scenario_state.interaction_traces:
-                        trace_db[interaction_trace._id] = interaction_trace
+                        trace_db[str(interaction_trace._id)] = interaction_trace
                     trace_db.commit()
 
         return scenario, runs_path, scenario_state
@@ -168,7 +174,7 @@ class Runner:
                     os.path.join(runs_path, "interaction_traces.sqlite"), tablename="interaction_traces"
                 ) as trace_db:
                     loaded_scenario_state.interaction_traces = [
-                        trace_db[interaction_trace._id]
+                        trace_db[str(interaction_trace._id)]
                         for interaction_trace in loaded_scenario_state.interaction_traces
                     ]
                 loaded_scenario_state.__post_init__()
@@ -229,6 +235,7 @@ class InteractiveRunner:
         self.interactive_adapter: InteractiveAdapter = create_interactive_adapter(
             interactive_adapter_spec=self.run_spec.interactive_adapter
         )
+        print(self.interactive_adapter)
 
     def process(self, state: RequestState) -> RequestState:
         result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, state.request)
@@ -240,32 +247,35 @@ class InteractiveRunner:
         with SqliteDict(
             os.path.join(self.runs_path, "interaction_traces.sqlite"), tablename="interaction_traces"
         ) as trace_db:
-            interaction_trace = trace_db[interaction_trace_id]
+            interaction_trace = trace_db[str(interaction_trace_id)]
         return interaction_trace
 
-    def save_interaction_trace(self, interaction_trace_id: uuid.UUID, interaction_trace: InteractionTrace) -> None:
+    def save_interaction_trace(self, interaction_trace: InteractionTrace) -> None:
         with SqliteDict(
             os.path.join(self.runs_path, "interaction_traces.sqlite"), tablename="interaction_traces"
         ) as trace_db:
+            interaction_trace_id = str(interaction_trace._id)
             trace_db[interaction_trace_id] = interaction_trace
             trace_db.commit()
 
-    def initialize_interaction_trace(self, interaction_trace_id: uuid.UUID) -> InteractionTrace:
+    def initialize_interaction_trace(self, user_id: str, interaction_trace_id: uuid.UUID) -> InteractionTrace:
         interaction_trace = self.load_interaction_trace(interaction_trace_id=interaction_trace_id)
+        interaction_trace.user_id = user_id
         assert (
             len(interaction_trace.trace) == 1
         ), "InteractionTrace.trace should have exactly one InteractionRound at the beginning"
         first_interaction_round = interaction_trace.trace[0]
-        if not self.interactive_adapter.user_initiated:
+        if self.interactive_adapter.user_initiated is False:
             assert first_interaction_round.user_input is None
             new_request_state: RequestState = self.interactive_adapter.initial_lm_request(
                 first_interaction_round.request_state
             )
             new_request_state = self.process(new_request_state)
+            hlog(new_request_state.render_lines())
             first_interaction_round = InteractionRound(user_input=None, request_state=new_request_state)
 
-        interaction_trace.trace[0] = first_interaction_round
-        self.save_interaction_trace(interaction_trace_id=interaction_trace_id, interaction_trace=interaction_trace)
+            interaction_trace.trace[0] = first_interaction_round
+        self.save_interaction_trace(interaction_trace=interaction_trace)
         return interaction_trace
 
     def handle_user_input(self, interaction_trace_id: uuid.UUID, user_input: UserInput) -> RequestResult:
@@ -274,16 +284,19 @@ class InteractiveRunner:
 
         new_request_state: RequestState = self.interactive_adapter.adapt_user_input(interaction_trace, user_input)
         new_request_state = self.process(new_request_state)
+        print(new_request_state.render_lines())
         assert new_request_state.result
         interaction_trace.trace.append(InteractionRound(user_input=user_input, request_state=new_request_state))
+        print(interaction_trace.render_lines())
 
-        self.save_interaction_trace(interaction_trace_id=interaction_trace_id, interaction_trace=interaction_trace)
+        self.save_interaction_trace(interaction_trace=interaction_trace)
 
         return new_request_state.result
 
-    def handle_survey(self, interaction_trace_id: uuid.UUID, survey):
+    def handle_survey(self, user_id: str, interaction_trace_id: uuid.UUID, survey):
         """Store the result of a survey after an interaction"""
 
         interaction_trace = self.load_interaction_trace(interaction_trace_id=interaction_trace_id)
-        interaction_trace.survey = survey
-        self.save_interaction_trace(interaction_trace_id=interaction_trace_id, interaction_trace=interaction_trace)
+        survey = Survey(user_id=user_id, data=survey)
+        interaction_trace.surveys.append(survey)
+        self.save_interaction_trace(interaction_trace=interaction_trace)

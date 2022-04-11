@@ -5,6 +5,7 @@ import shlex
 import subprocess
 import zstandard
 from typing import List, Optional
+from uuid import UUID
 
 
 import pyhocon
@@ -154,3 +155,11 @@ def indent_lines(lines: List[str], count: int = 2) -> List[str]:
     """Add `count` spaces before each line in `lines`."""
     prefix = " " * count
     return [prefix + line if len(line) > 0 else "" for line in lines]
+
+
+class UUIDEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, UUID):
+            # if the obj is uuid, we simply return the value of uuid
+            return obj.hex
+        return json.JSONEncoder.default(self, obj)

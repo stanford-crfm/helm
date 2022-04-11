@@ -85,7 +85,6 @@ def load_run_spec(output_path, run_name):
 
 
 def get_runner(json_args: dict) -> InteractiveRunner:
-    print(json_args)
     run_name = json_args["run_name"]
     output_path = json_args["output_path"]
     run_spec = load_run_spec(output_path, run_name)
@@ -101,13 +100,14 @@ def start_conversation(json_args: dict):
     # the frontend needs to handle it and display an appropriate error message
     runner: InteractiveRunner = get_runner(json_args)
     interaction_trace_id = json_args["interaction_trace_id"]
-    interaction_trace = runner.initialize_interaction_trace(interaction_trace_id=interaction_trace_id)
+    user_id = json_args["user_id"]
+    interaction_trace = runner.initialize_interaction_trace(user_id=user_id, interaction_trace_id=interaction_trace_id)
     prompt = interaction_trace.instance.input
     bot_utterance = None
     if interaction_trace.trace[-1].request_state.result:
         bot_utterance = interaction_trace.trace[-1].request_state.result.completions[0].text.strip()
-    # TODO: Handle the case when the interaction_trace has an LM response in the first element
-    return {"prompt": prompt, "bot_utterance": bot_utterance}
+    response = {"prompt": prompt, "bot_utterance": bot_utterance}
+    return response
 
 
 def conversational_turn(json_args: dict) -> dict:
@@ -168,9 +168,10 @@ def conversational_turn(json_args: dict) -> dict:
 
 def submit_interview(json_args: dict) -> dict:
     interaction_trace_id = json_args["interaction_trace_id"]
+    user_id = json_args["user_id"]
 
     runner = get_runner(json_args)
 
     # TODO (optional): Make the survey into a typed object
-    runner.handle_survey(interaction_trace_id, json_args["questions"])
+    runner.handle_survey(user_id=user_id, interaction_trace_id=interaction_trace_id, survey=json_args["questions"])
     return {"success": True}  # Outputs

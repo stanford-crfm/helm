@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import random
 import time
 from dataclasses import dataclass, field
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Any
 from collections import defaultdict, OrderedDict
 import uuid
 
@@ -146,6 +146,14 @@ class UserInput:
 
 
 @dataclass(frozen=True)
+class Survey:
+    """ Dataclass to hold human survey results"""
+
+    user_id: str
+    data: Any
+
+
+@dataclass(frozen=True)
 class InteractionRound:
     """
     Represents a round of interaction between a user and the model (LM)
@@ -176,10 +184,12 @@ class InteractionTrace:
     trace: List[InteractionRound]
 
     # Freeform field to store responses used to compute metrics
-    survey = None
+    surveys: List[Survey] = field(default_factory=list)
 
     # Unique string corresponding to the interaction trace
     _id: uuid.UUID = field(default_factory=uuid.uuid4)
+
+    user_id: Optional[str] = None
 
     def render_lines(self) -> List[str]:
         output = [f"train_trial_index: {self.train_trial_index}"]
@@ -568,7 +578,8 @@ class Adapter:
         if include_output:
             result += self.adapter_spec.output_prefix + output
         else:
-            result += self.adapter_spec.output_prefix.rstrip()
+            # COMMENT: It seemed an arbitrary decision to rstrip output_prefix here
+            result += self.adapter_spec.output_prefix
 
         return result
 
@@ -708,6 +719,8 @@ class InteractiveAdapter(ABC):
         In some scenarios, a call to the LM needs to be made before the first user input.
         This function is subclassed to encode the adaptation into and produce a new RequestState
         """
+        print("oho")
+        raise NotImplementedError
 
     @abstractmethod
     def adapt_user_input(self, interaction_trace: InteractionTrace, user_input: UserInput) -> RequestState:

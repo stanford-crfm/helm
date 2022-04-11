@@ -870,20 +870,24 @@ def get_cnndm_summarization_spec() -> RunSpec:
     )
 
 
-def get_empatheticdialogues_spec(user_initiatied: bool) -> RunSpec:
+def get_empatheticdialogues_spec(user_initiated: bool) -> RunSpec:
+    if type(user_initiated) == str:
+        user_initiated = user_initiated == "True"
     scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.EmpatheticDialoguesScenario", args={})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
+        input_prefix="Prompt: ",
         output_prefix="\nBEGIN DIALOGUE\n",
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
         max_eval_instances=100,  # TODO : Find the number of samples to evaluate.
+        stop_sequences=["\n", "Bob", "Jen"],
         num_outputs=1,
         max_tokens=50,
-        temperature=0.9,
+        temperature=0.8,
+        interactive=True,
     )
 
     return RunSpec(
@@ -892,8 +896,8 @@ def get_empatheticdialogues_spec(user_initiatied: bool) -> RunSpec:
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
         interactive_adapter=InteractiveAdapterSpec(
-            class_name="benchmark.dialogue_interactive_adapters.EmpatheticAdapter",
-            args={"user_initiatied": user_initiatied, "user_name": "Jen", "agent_name": "Bob"},
+            class_name="benchmark.dialogue_interactive_adapters.DialogueAdapter",
+            args={"user_initiated": user_initiated, "user_name": "Jen", "agent_name": "Bob"},
         ),
     )
 
