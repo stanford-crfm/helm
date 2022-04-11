@@ -142,8 +142,12 @@ class BBQScenario(Scenario):
             label_letter = numbers_to_letters[label_num]
             answers = [ans0, ans1, ans2]
 
+            unknown_letter = None
+            target_letter = None
+            non_target_letter = None
+
             for i, ans in enumerate(answers):
-                answer_info_i = answer_info[f"ans{idx}"]
+                answer_info_i = answer_info[f"ans{i}"]
 
                 is_unknown = False
                 is_target = False
