@@ -274,9 +274,11 @@ class Adapter:
             # include all their instances in the final set of eval instances.
             # The random sampling includes instances monotonically.
             np.random.seed(0)
-            ids_to_include = np.random.choice(
-                list(id_to_instances.keys()), self.adapter_spec.max_eval_instances, replace=False
-            )
+            ids_to_include = list(id_to_instances.keys())
+            if len(ids_to_include) > self.adapter_spec.max_eval_instances:
+                ids_to_include = list(
+                    np.random.choice(ids_to_include, self.adapter_spec.max_eval_instances, replace=False)
+                )
             eval_instances = []
             for id_ in ids_to_include:
                 eval_instances.extend(id_to_instances[id_])
