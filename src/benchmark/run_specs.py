@@ -691,7 +691,6 @@ def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
             num_outputs=10,
             model="openai/text-davinci-001",
             max_tokens=60,
-            stop_sequences=["."],
         )
         metrics = get_disinformation_metrics()
     elif capability == "wedging":
