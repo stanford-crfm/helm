@@ -1,20 +1,18 @@
 from typing import List, Dict, Optional, Any, Callable
 
 from common.object_spec import ObjectSpec
-
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE,
     ADAPT_GENERATION,
 )
-from .metric import MetricSpec
-from .runner import RunSpec
-from .scenario import ScenarioSpec
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
+from .metric import MetricSpec
 from .raft_scenario import get_raft_instructions
 from .run_expander import RUN_EXPANDERS
-
+from .runner import RunSpec
+from .scenario import ScenarioSpec
 
 HUMAN_EVAL_METRIC_NAMES = ("code_eval_acc", "pass")
 APPS_METRIC_NAMES = ("test_avg", "strict_acc")
@@ -129,7 +127,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 
 
 def get_wiki_spec(k: str, subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.wiki_scenario.WIKIScenario", args={"subject": subject},)
+    scenario = ScenarioSpec(class_name="benchmark.wiki_scenario.WIKIScenario", args={"subject": subject}, )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -156,7 +154,7 @@ def get_wiki_spec(k: str, subject: str) -> RunSpec:
 def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.commonsense_qa_scenario.CommonSenseQAScenario",
-        args={"dataset": dataset, "method": method,},
+        args={"dataset": dataset, "method": method, },
     )
 
     if method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
@@ -179,7 +177,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             metrics=get_basic_metrics({"names": ["exact_match"]}),
         )
     elif method == CAUSAL_LANGUAGE_MODELING_METHOD:
-        n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
+        n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3, }[dataset]
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             instructions="",
@@ -251,7 +249,7 @@ def get_news_qa_spec() -> RunSpec:
 
 
 def get_truthful_qa_spec(task: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.truthful_qa_scenario.TruthfulQAScenario", args={"task": task},)
+    scenario = ScenarioSpec(class_name="benchmark.truthful_qa_scenario.TruthfulQAScenario", args={"task": task}, )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
@@ -375,7 +373,7 @@ def get_gsm_spec() -> RunSpec:
 
 
 def get_raft_spec(subset: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.raft_scenario.RAFTScenario", args={"subset": subset},)
+    scenario = ScenarioSpec(class_name="benchmark.raft_scenario.RAFTScenario", args={"subset": subset}, )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -585,20 +583,37 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
 def get_code_spec(dataset: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.code_scenario.CodeScenario", args={"dataset": dataset})
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        instructions="",
-        max_train_instances=0,
-        max_eval_instances=10000,
-        num_outputs=1,
-        num_train_trials=1,
-        model="openai/code-davinci-001",
-        temperature=0.2,
-        stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],
-        max_tokens=600,
-        input_prefix="",
-        output_prefix="",
-    )
+    if dataset == "HumanEval":
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            instructions="",
+            max_train_instances=0,
+            max_eval_instances=10000,
+            num_outputs=1,
+            num_train_trials=1,
+            model="openai/code-davinci-001",
+            temperature=0.2,
+            stop_sequences=["\nclass", "\ndef", "\nif", "\nprint", ],
+            max_tokens=600,
+            input_prefix="",
+            output_prefix="",
+        )
+    else:  # APPS.
+        # Different in `stop_sequences`.
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            instructions="",
+            max_train_instances=0,
+            max_eval_instances=10000,
+            num_outputs=1,
+            num_train_trials=1,
+            model="openai/code-davinci-001",
+            temperature=0.2,
+            stop_sequences=["'''", "---", '"""', '\n\n\n'],
+            max_tokens=600,
+            input_prefix="",
+            output_prefix="",
+        )
 
     return RunSpec(
         name=f"code:dataset={dataset}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_code_metrics(dataset)
@@ -731,7 +746,7 @@ def get_wikitext_103_spec() -> RunSpec:
 def get_xsum_summarization_spec() -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
-        args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512,},
+        args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512, },
     )
 
     adapter_spec = AdapterSpec(
@@ -760,7 +775,7 @@ def get_xsum_summarization_spec() -> RunSpec:
 def get_cnndm_summarization_spec() -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
-        args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512,},
+        args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512, },
     )
 
     adapter_spec = AdapterSpec(

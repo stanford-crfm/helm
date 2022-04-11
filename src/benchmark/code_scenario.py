@@ -256,7 +256,7 @@ def _make_input_for_apps(question: str, starter_code: str, answer_type: str) -> 
     #   otherwise models can generate C++ and code in other languages. The evaluation engine, mostly copied from the
     #   original APPS codebase, runs PyExt and has no way to execute C++ code.
     # The extra phrase isn't needed when there's in-context examples of Python code.
-    return "\nQUESTION:\n" + question + "\n" + starter_code + "\n" + answer_type + "\nANSWER in Python:\n"
+    return "\nQUESTION:\n" + question + "\n" + starter_code + "\n" + answer_type + "\nANSWER in Python code:\n"
 
     # Below is what's used in the original paper for reference and comparison.
     # return "\nQUESTION:\n" + question + "\n" + starter_code + "\n" + answer_type + "\nANSWER:\n"
