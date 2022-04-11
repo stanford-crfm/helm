@@ -451,8 +451,7 @@ class BasicMetric(Metric):
             metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
 
         metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
-        if request_state.request.model != "openai/code-davinci-001":
-            metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
 
         # Future: add F1, BLEU, etc.
         return metrics
