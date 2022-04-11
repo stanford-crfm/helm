@@ -208,7 +208,7 @@ def _read_and_preprocess_apps(target_path: str) -> List[CodeInstance]:
                 solutions = [""]
 
             # Create overall prompt.
-            prompt = _make_input_for_apps(question=question, starter_code=starter_code, answer_type=answer_type,)
+            prompt = _make_input_for_apps(question=question, starter_code=starter_code, answer_type=answer_type, )
             instance = CodeInstance(
                 input=prompt,
                 references=[
@@ -252,7 +252,13 @@ def _reindent_code(codestr):
 
 def _make_input_for_apps(question: str, starter_code: str, answer_type: str) -> str:
     """Format the prompt as in the original training pipeline."""
-    return "\nQUESTION:\n" + question + "\n" + starter_code + "\n" + answer_type + "\nANSWER:\n"
+    # Different from the original paper: We add the phrase 'in Python' to make models only generate Python code;
+    #   otherwise models can generate C++ and code in other languages.
+    # The extra phrase isn't needed when there's in-context examples of Python code.
+    return "\nQUESTION:\n" + question + "\n" + starter_code + "\n" + answer_type + "\nANSWER in Python:\n"
+
+    # Below is what's used in the original paper for reference and comparison.
+    # return "\nQUESTION:\n" + question + "\n" + starter_code + "\n" + answer_type + "\nANSWER:\n"
 
 
 class CodeScenario(Scenario):
