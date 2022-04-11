@@ -208,7 +208,7 @@ def _read_and_preprocess_apps(target_path: str) -> List[CodeInstance]:
                 solutions = [""]
 
             # Create overall prompt.
-            prompt = _make_input_for_apps(question=question, starter_code=starter_code, answer_type=answer_type, )
+            prompt = _make_input_for_apps(question=question, starter_code=starter_code, answer_type=answer_type,)
             instance = CodeInstance(
                 input=prompt,
                 references=[
