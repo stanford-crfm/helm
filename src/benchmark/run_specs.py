@@ -545,7 +545,7 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions="The following are multiple choice questions (with answers).",
-        input_prefix="",
+        input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         max_train_instances=2,  # TODO: Justify; @dor
         model="openai/davinci",
