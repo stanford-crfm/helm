@@ -30,6 +30,7 @@ SUBSET_TO_DIRECTORY = {
     "SIN": "ICE SINGAPORE",
     "USA": "ICE-USA",
 }
+AGE_RANGES = [0, 10, 20, 30, 40, 50, 200]
 
 
 class ICEScenario(Scenario):
@@ -110,7 +111,7 @@ class ICEScenario(Scenario):
     description = "International Corpus of English (ICE)"
     tags = ["language_modeling", "harms", "fairness"]
 
-    def __init__(self, subset: str = None, split: str = "all", gender: str = None):
+    def __init__(self, subset: str = None, split: str = "all", gender: str = None, age_range: int = 0):
         if subset:
             assert subset in ICE_SUBSETS
             self.subset = {subset}
@@ -119,15 +120,28 @@ class ICEScenario(Scenario):
 
         assert split in {"all", "written", "spoken"}
         self.split = split
+
         self.gender = "None"
 
         if gender:
+            assert gender in {"M", "F"}
+
             if subset:
                 assert subset in METADATA_FORMAT.keys()
             else:
-                self.subset = set(METADATA_FORMAT.keys())
+                self.subset &= set(METADATA_FORMAT.keys())
 
             self.gender = gender
+
+        assert 0 <= age_range and age_range <= 6
+        self.age_range = None if age_range == 0 else [AGE_RANGES[age_range - 1], AGE_RANGES[age_range]]
+        hdr_subsets = [k for k, v in METADATA_FORMAT.items() if v == HeaderFormat.HDR]
+
+        if self.age_range:
+            if subset:
+                assert subset in hdr_subsets
+            else:
+                self.subset &= set(hdr_subsets)
 
     def preprocess_text(self, text: str, keep_tags: bool = False) -> str:
         """
@@ -244,7 +258,7 @@ class ICEScenario(Scenario):
                         if not pd.isna(df.iat[i, 0]) and any(
                             [x in GENDER_ANNOTATIONS[self.gender] for x in df.iloc[i, 1:]]
                         ):  # currently double counts texts with multiple genders
-                            selected_texts.add(df.iat[i, 0] + ".txt")
+                            selected_texts.add(df.iat[i, 0].upper())
         elif METADATA_FORMAT[subset] == HeaderFormat.HDR:
             for filename in os.listdir(header_dir):
                 header_path = os.path.join(self.output_path, SUBSET_TO_DIRECTORY[subset], "Headers", filename)
@@ -260,10 +274,39 @@ class ICEScenario(Scenario):
                         hlog(str(f"File {filename} skipped (unsupported header encoding)."))
                         continue
 
-                gen_ann = re.findall("(?<=<gender>)\w+(?=<\/gender>)", text)
+                if self.gender != "None":
+                    gen_ann = re.findall("(?<=<gender>)\w+(?=<\/gender>)", text)
 
-                if all([g in GENDER_ANNOTATIONS[self.gender] for g in gen_ann]):
-                    selected_texts.add(filename[:-4] + ".txt")
+                    if any([g not in GENDER_ANNOTATIONS[self.gender] for g in gen_ann]):
+                        continue
+
+                if self.age_range:
+                    age_ann = re.findall("(?<=<age>)[\d\-\+]*(?=<\/age>)", text)
+
+                    if len(age_ann) == 0:
+                        continue
+
+                    age_good = True
+
+                    for a in age_ann:
+                        if a == "" or "+" in a:
+                            age_good = False
+                            break
+
+                        if "-" in a:
+                            rng = a.split("-")
+                            age = (int(rng[1]) + int(rng[0])) / 2
+                        else:
+                            age = int(a)
+
+                        if self.age_range[0] >= age or age > self.age_range[1]:
+                            age_good = False
+                            break
+
+                    if not age_good:
+                        continue
+
+                selected_texts.add(filename[:-4].upper())
 
         return selected_texts
 
@@ -293,9 +336,11 @@ class ICEScenario(Scenario):
 
             corpus_path = os.path.join(data_path, corpus_name)
             header_dir = os.path.join(data_path, "Headers")
-            selected_texts = (
-                self.filter_by_metadata(subset, header_dir) if self.gender != "None" else os.listdir(corpus_path)
-            )
+            selected_texts = os.listdir(corpus_path)
+
+            if self.gender != "None" or self.age_range:
+                valid_textcodes = self.filter_by_metadata(subset, header_dir)
+                selected_texts = list(filter(lambda e: e[:-4].upper() in valid_textcodes, selected_texts))
 
             for filename in selected_texts:
                 if not self.validate_split(filename):
