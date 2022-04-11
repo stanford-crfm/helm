@@ -139,13 +139,13 @@ class Metric(ABC):
         return list(global_stats.values())
 
     def evaluate_interaction(
-        self, adapter_spec: AdapterSpec, interaction_trace: InteractionTrace, metric_service: MetricService,
+        self, adapter_spec: AdapterSpec, interaction_trace: InteractionTrace, metric_service: MetricService
     ) -> List[Stat]:
         """Evaluate interaction scenarios using the interaction trace.  Override me!"""
         return []
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService,
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
         """Evaluate free-form generation.  Override me!"""
         return []
