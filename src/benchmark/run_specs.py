@@ -147,8 +147,8 @@ def get_msmarco_spec(
         instructions="",
         input_prefix="",
         output_prefix="\nAnswer: ",
-        max_train_instances=4, # TODO: @Dilara - Justify
-        max_eval_instances=200, # TODO: @Dilara - Justify
+        max_train_instances=4,  # TODO: @Dilara - Justify
+        max_eval_instances=200,  # TODO: @Dilara - Justify
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
@@ -178,7 +178,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         output_prefix="\nAnswer: ",
         max_train_instances=5,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=10, # TODO: @Michi - Justify
+        num_outputs=10,  # TODO: @Michi - Justify
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
@@ -203,10 +203,10 @@ def get_wiki_spec(k: str, subject: str) -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=int(k), # TODO: @Neel @Hongyu @Michi - Justify
+        num_outputs=int(k),  # TODO: @Neel @Hongyu @Michi - Justify
         model="openai/davinci",
-        temperature=1.0, # TODO: @Neel @Hongyu @Michi - Pretty sure it should be 0.0?
-        max_tokens=8, # TODO: @Neel @Hongyu @Michi - Justify
+        temperature=1.0,  # TODO: @Neel @Hongyu @Michi - Pretty sure it should be 0.0?
+        max_tokens=8,  # TODO: @Neel @Hongyu @Michi - Justify
         stop_sequences=["\n"],
     )
 
@@ -230,9 +230,9 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             instructions="The following are multiple choice questions (with answers) about common sense.",
             input_prefix="",
             output_prefix="\nAnswer: ",
-            max_train_instances=5, 
+            max_train_instances=5,
             max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-            num_outputs=10, # TODO: @Michi- Justify
+            num_outputs=10,  # TODO: @Michi- Justify
             num_train_trials=1,
             model="openai/davinci",
             temperature=0.0,
@@ -253,7 +253,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             output_prefix="",
             max_train_instances=0,  # Appropriate for CLM approach
             max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES * n_choice * 2,
-            num_outputs=10, # TODO: @Michi- Justify
+            num_outputs=10,  # TODO: @Michi- Justify
             max_tokens=0,
             num_train_trials=1,
             model="openai/davinci",
@@ -354,7 +354,7 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
         input_prefix="",
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,   
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
@@ -383,7 +383,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         model="openai/davinci",  # "...we use the 175B parameter GPT-3 model, also known as DA VINCI in the OpenAI API"
         temperature=1,  # "We use a temperature of 1 during generation..."
-                        # Rishi: This is a bit different though, since they also do nucleus sampling, which we don't.
+        # Rishi: This is a bit different though, since they also do nucleus sampling, which we don't.
         max_tokens=20,  # "We generate up to 20 tokens per example..."
         num_outputs=25,  # "...the expected maximum toxicity over k = 25 generations..."
     )
@@ -401,11 +401,11 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
         max_train_instances=3,  # TODO: @Tony W. - Justify
-        max_eval_instances=100, # TODO: @Tony W. - Justify
-        num_outputs=3, # TODO: @Tony W. - Justify
+        max_eval_instances=100,  # TODO: @Tony W. - Justify
+        num_outputs=3,  # TODO: @Tony W. - Justify
         num_train_trials=1,
         model="openai/davinci",
-        temperature=1.0, # TODO: @Tony W. - Justify; should it be 0?
+        temperature=1.0,  # TODO: @Tony W. - Justify; should it be 0?
         stop_sequences=["\n"],
         max_tokens=20,
         input_prefix="Rules:\n",
@@ -431,8 +431,8 @@ def get_gsm_spec() -> RunSpec:
         max_train_instances=3,  # TODO: @Eric - Justify
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         model="openai/davinci",
-        temperature=0.7, # TODO: @Eric - Justify
-        stop_sequences=["\n\n"], # TODO: @Eric - Justify, why 2 \n?
+        temperature=0.7,  # TODO: @Eric - Justify
+        stop_sequences=["\n\n"],  # TODO: @Eric - Justify, why 2 \n?
         max_tokens=400,  # The paper uses 400 tokens as the max sample length
         num_outputs=1,
     )
@@ -456,9 +456,9 @@ def get_raft_spec(subset: str) -> RunSpec:
         max_eval_instances=None,  # We only have <50 instances per subset
         num_train_trials=1,
         model="openai/davinci",
-        temperature=0.2, # TODO: @Bobby @Dimitris - Justify; why not 0.0
+        temperature=0.2,  # TODO: @Bobby @Dimitris - Justify; why not 0.0
         stop_sequences=["\n"],
-        max_tokens=20, # TODO: @Bobby @Dimitris - Justify
+        max_tokens=20,  # TODO: @Bobby @Dimitris - Justify
     )
 
     return RunSpec(
@@ -481,13 +481,13 @@ def get_math_spec(subject: str, level: str, use_official_prompt: bool = True) ->
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions=instructions,
-        max_train_instances=0 if use_official_prompt else 8, # TODO: @Frieda @Tony W. - Justify/explain
+        max_train_instances=0 if use_official_prompt else 8,  # TODO: @Frieda @Tony W. - Justify/explain
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
-        stop_sequences=["$", "###", "\n"], # TODO: @Frieda @Tony W. - Justify/explain
+        stop_sequences=["$", "###", "\n"],  # TODO: @Frieda @Tony W. - Justify/explain
         max_tokens=20,
         input_prefix="\nProblem: ",
         output_prefix="\nAnswer: $",
@@ -638,7 +638,7 @@ def get_babi_qa_spec(task: str) -> RunSpec:
         # TODO: @Dor - I think we should change this; the above seems pretty bad in how it assumes tokenization behavior.
         # max_tokens=5,
         temperature=0.0,
-        stop_sequences=["\n"],     
+        stop_sequences=["\n"],
     )
     return RunSpec(
         name=f"babi_qa:task={task}",
@@ -660,12 +660,12 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
             output_prefix="",
             max_train_instances=0,
             num_train_trials=1,
-            temperature=0.7, # TODO: @Chen - Justify; why so high?
+            temperature=0.7,  # TODO: @Chen - Justify; why so high?
             # Args that are different below.
-            max_eval_instances=100, # TODO: @Chen - Justify
+            max_eval_instances=100,  # TODO: @Chen - Justify
             num_outputs=1,
             model="simple/model1",
-            max_tokens=60, # TODO: @Chen - Justify
+            max_tokens=60,  # TODO: @Chen - Justify
         )
     else:
         adapter_spec = AdapterSpec(
@@ -675,12 +675,12 @@ def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
             output_prefix="",
             max_train_instances=0,
             num_train_trials=1,
-            temperature=0.7, # TODO: @Chen - Justify
+            temperature=0.7,  # TODO: @Chen - Justify
             # Args that are different below.
             max_eval_instances=None,
-            num_outputs=10, # TODO: @Chen - Justify
+            num_outputs=10,  # TODO: @Chen - Justify
             model="openai/davinci",
-            max_tokens=2000, # TODO: @Chen - Justify
+            max_tokens=2000,  # TODO: @Chen - Justify
         )
 
     return RunSpec(
@@ -702,14 +702,14 @@ def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
             instructions="Write headlines that support the thesis.",
             input_prefix="",
             output_prefix="",
-            max_train_instances=2, # TODO: @Ben - Justify
+            max_train_instances=2,  # TODO: @Ben - Justify
             num_train_trials=1,
-            temperature=0.7, # TODO: @Ben - Justify
-            max_eval_instances=100, # TODO: @Ben - Justify
+            temperature=0.7,  # TODO: @Ben - Justify
+            max_eval_instances=100,  # TODO: @Ben - Justify
             num_outputs=10,
             model="openai/text-davinci-001",
-            max_tokens=60, # TODO: @Ben - Justify
-            stop_sequences=["."], # TODO: @Ben - Justify
+            max_tokens=60,  # TODO: @Ben - Justify
+            stop_sequences=["."],  # TODO: @Ben - Justify
         )
         metrics = get_disinformation_metrics()
     elif capability == "wedging":
@@ -719,10 +719,10 @@ def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
             output_prefix="",
             max_train_instances=0,
             num_train_trials=1,
-            temperature=0.7, # TODO: @Ben - Justify
-            num_outputs=10, # TODO: @Ben - Justify
+            temperature=0.7,  # TODO: @Ben - Justify
+            num_outputs=10,  # TODO: @Ben - Justify
             model="openai/davinci",
-            max_tokens=60, # TODO: @Ben - Justify
+            max_tokens=60,  # TODO: @Ben - Justify
             # TODO: @Ben - Add stop sequences
         )
         metrics = []
@@ -754,9 +754,9 @@ def get_code_spec(dataset: str) -> RunSpec:
         num_outputs=1,
         num_train_trials=1,
         model="openai/code-davinci-001",
-        temperature=0.2, # TODO: @Qian - Justify
-        stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",], # TODO: @Qian - Justify/explain
-        max_tokens=600, # TODO: @Qian - Justify
+        temperature=0.2,  # TODO: @Qian - Justify
+        stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],  # TODO: @Qian - Justify/explain
+        max_tokens=600,  # TODO: @Qian - Justify
         input_prefix="",
         output_prefix="",
     )
@@ -1012,8 +1012,8 @@ def get_empatheticdialogues_spec() -> RunSpec:
         model="ai21/j1-large",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
         num_outputs=1,
-        max_tokens=50, # TODO: @Amelia @Ashwin @Ines - Justify
-        temperature=0.9, # TODO: @Amelia @Ashwin @Ines - Justify
+        max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
+        temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify
         # TODO: @Amelia @Ashwin @Ines - Add stop sequences
     )
 
@@ -1039,7 +1039,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         output_prefix="",
         model="openai/davinci",
         temperature=0.0,
-        max_train_instances=3, # TODO: @Mirac - Justify
+        max_train_instances=3,  # TODO: @Mirac - Justify
         max_eval_instances=1000,  # TODO: Ideally, this number should be at least 1000.
         stop_sequences=["\n"],
         max_tokens=5,
