@@ -85,7 +85,7 @@ class MSMARCOMetric(Metric):
                 qid, pid, gold = instance.qid, instance.pid, instance.gold
                 # We need to check that the values of the qid, pid, and gold
                 # are not None otherwise the code fails static typeckecking
-                if qid and pid and gold:
+                if qid and pid and gold is not None:
                     # Populate the gold mapping dictionary
                     if gold:
                         qid_to_gold_pid[qid] = pid
