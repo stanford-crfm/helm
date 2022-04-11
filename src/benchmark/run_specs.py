@@ -13,6 +13,7 @@ from .metric import MetricSpec
 from .runner import RunSpec
 from .scenario import ScenarioSpec
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
+from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
 from .raft_scenario import get_raft_instructions
 from .run_expander import RUN_EXPANDERS
 
@@ -73,6 +74,11 @@ def get_toxicity_metrics() -> List[MetricSpec]:
 
 def get_srn_metrics() -> List[MetricSpec]:
     metric_names = {"names": ["iou_set_match", "exact_set_match"]}
+    return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
+
+
+def get_math_metrics() -> List[MetricSpec]:
+    metric_names = {"names": ["math_equiv"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
@@ -453,6 +459,39 @@ def get_raft_spec(subset: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_math_spec(subject: str, level: str, use_official_prompt: bool = True) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.math_scenario.MATHScenario", args={"subject": subject, "level": level}
+    )
+
+    instructions = OFFICIAL_MATH_INSTRUCTIONS
+    if use_official_prompt:
+        instructions = OFFICIAL_MATH_PROMPT
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions=instructions,
+        max_train_instances=0 if use_official_prompt else 8,
+        max_eval_instances=7500,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        stop_sequences=["$", "###", "\n"],
+        max_tokens=20,
+        input_prefix="\nProblem: ",
+        output_prefix="\nAnswer: $",
+        instance_prefix="$\n###",
+    )
+
+    return RunSpec(
+        name=f"math:subject={subject},level={level}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_math_metrics(),
     )
 
 
@@ -990,6 +1029,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "twitter_aae": get_twitter_aae_spec,
     "disinformation": get_disinformation_spec,
     "gsm": get_gsm_spec,
+    "math": get_math_spec,
     "natural_qa": get_natural_qa_spec,
     "the_pile": get_the_pile_spec,
     "raft": get_raft_spec,
