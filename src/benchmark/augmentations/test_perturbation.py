@@ -8,6 +8,8 @@ from .identity_perturbation import IdentityPerturbation
 from .misspelling_perturbation import MisspellingPerturbation
 from .contraction_expansion_perturbation import ContractionPerturbation, ExpansionPerturbation
 from .typos_perturbation import TyposPerturbation
+from .lowercase_perturbation import LowerCasePerturbation
+from .space_perturbation import SpacePerturbation
 
 
 def test_identity_perturbation():
@@ -87,3 +89,27 @@ def test_typos_perturbation():
     assert instances[0].perturbation.name == "TyposPerturbation"
     assert instances[0].perturbation.prob == 0.1
     assert instances[0].input == "After their marrjage, she started a close collaborwtion with Karvelas."
+
+
+def test_lowercase_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[LowerCasePerturbation()], should_perturb_references=True)
+    instance: Instance = Instance(
+        id="id0", input="Hello World!\nQuite a day, huh?", references=[Reference(output="Yes!", tags=[])],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+    assert instances[0].perturbation.name == "lowercase"
+    assert instances[0].input == "hello world!\nquite a day, huh?"
+    assert instances[0].references[0].output == "yes!"
+
+
+def test_space_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[SpacePerturbation(max_spaces=3)], should_perturb_references=False)
+    instance: Instance = Instance(id="id0", input="Hello World!\nQuite a day, huh?", references=[])
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    print(instances)
+    assert len(instances) == 2
+    assert instances[0].perturbation.name == "space"
+    assert instances[0].input == "Hello   World!\nQuite   aday,  huh?"
