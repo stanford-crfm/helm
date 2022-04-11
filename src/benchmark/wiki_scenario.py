@@ -142,7 +142,8 @@ class WIKIScenario(Scenario):
                 raw_data = json.loads(line)
                 if raw_data["property"] != self.subject:
                     continue
-                question, answers = raw_data["template"], flatten_list(raw_data["result_names"])
+                question = raw_data["template"] + ' '
+                answers = flatten_list(raw_data["result_names"])
 
                 def answer_to_reference(answer):
                     return Reference(output=answer.strip(), tags=[CORRECT_TAG])

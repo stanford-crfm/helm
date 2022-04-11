@@ -226,7 +226,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE,
             instructions="The following are multiple choice questions (with answers) about common sense.",
-            input_prefix="",
+            input_prefix="Question: ",
             output_prefix="\nAnswer: ",
             max_train_instances=0,  # TODO: Justify; @michi
             max_eval_instances=None,
