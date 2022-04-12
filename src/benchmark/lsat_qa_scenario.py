@@ -44,7 +44,6 @@ class LSATScenario(Scenario):
             the afternoon - according to the following conditions: Tuesday is the only day on which George can
             give a report. Neither Olivia nor Robert can give an afternoon report. If Nina gives a report, then
             on the next day Helen and Irving must both give reports, unless Nina's report is given on Wednesday.
-
             Question: Which one of the following could be the schedule of the students' reports?
             A. Mon. morning: Helen; Mon. afternoon: Robert Tues. morning: Olivia; Tues. afternoon: Irving Wed.
                morning: Lenore; Wed. afternoon: Kyle
@@ -104,7 +103,7 @@ class LSATScenario(Scenario):
                             question = q["question"]
                             options = q["options"]
                             answer = ord(q["answer"]) - ord("A")
-                            context = f"Passage: {passage}\nQuestion: {question}"
+                            context = f"{passage}\nQuestion: {question}"
 
                             references: List[Reference] = []
                             for index, option in enumerate(options):

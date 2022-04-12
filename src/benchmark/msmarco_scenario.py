@@ -4,7 +4,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from common.general import ensure_file_downloaded
+from common.general import ensure_file_downloaded, ensure_directory_exists
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
 
@@ -52,26 +52,26 @@ class MSMARCOScenario(Scenario):
     options. Shared below is an example of how a query with 4 context examples
     may look like.
 
-        To access Data Import: 1  Sign in to Google Analytics. 2  Select the
+        Passage: To access Data Import: 1  Sign in to Google Analytics. 2  Select the
         Admin tab and navigate to the property to which you want to upload the
         data. 3  Click Data Import. 4  This displays the Data Sets page.
         Question: Does the passage above answer the question effects of hydrogen
         combustion?
-        A. yes
-        B. no
+        A. Yes
+        B. No
         Answer: B
 
-        Sarcoidosis (sar-koy-DO-sis) is a disease of unknown cause that leads to
+        Passage: Sarcoidosis (sar-koy-DO-sis) is a disease of unknown cause that leads to
         inflammation. This disease affects your bodyâs organs. Normally, your
         immune system defends your body against foreign or harmful substances. For
         example, it sends special cells to protect organs that are in danger.
         Question: Does the passage above answer the question what causes sarcoidosis
         of the lungs?
-        A. yes
-        B. no
+        A. Yes
+        B. No
         Answer: A
 
-        Carbonic acid is a weak acid that is produced when carbon dioxide is dissolved
+        Passage: Carbonic acid is a weak acid that is produced when carbon dioxide is dissolved
         in water. As you probably know, our atmosphere has a lot of carbon dioxide in
         it.It is also thoroughly saturated with water.From this, we might deduce that
         we live in a rather acidic environment â and we do.arbonic acid is a weak
@@ -80,40 +80,40 @@ class MSMARCOScenario(Scenario):
         saturated with water. From this, we might deduce that we live in a rather acidic
         environment â and we do.
         Question: Does the passage above answer the question what is a affidavit of support?
-        A. yes
-        B. no
+        A. Yes
+        B. No
         Answer: B
 
-        One of the FHAâs primary criteria is whether or not youâve owned a home.
+        Passage: One of the FHAâs primary criteria is whether or not youâve owned a home.
         If youâve never owned a home, youâre considered a first-time homebuyer.
         But you are allowed to be a previous homeowner and still qualify as a first-time
         homebuyer. According to the FHA, you can do so if you have not been an owner in a
         primary residence for at least three years leading up to your purchase.
         Question: Does the passage above answer the question what is considered first
         time home buyer?
-        A. yes
-        B. no
+        A. Yes
+        B. No
         Answer: A
 
-        http://en.wikipedia.org/wiki/William_Bradford_(Plymouth_Colony_governor) William
+        Passage: http://en.wikipedia.org/wiki/William_Bradford_(Plymouth_Colony_governor) William
         Bradford (c.1590 â 1657) was an English Separatist leader in Leiden, Holland
         and in Plymouth Colony was a signatory to the Mayflower Compact. He served as
         Plymouth Colony Governor five times covering about thirty years between 1621 and 1657.
         Question: Does the passage above answer the question how many years did william
         bradford serve as governor of plymouth colony?
-        A. yes
-        B. no
+        A. Yes
+        B. No
         Answer:
 
     For each query, we assign a ranking to each passage that we queried the model with
     as follows:
-        - We get the model's answer, "yes" or "no", and the logprob of the answer
+        - We get the model's answer, "Yes" or "No", and the logprob of the answer
             for each passage.
         - We rank the answers we got using the following scheme:
-            High => "yes", high logprob
-                 => "yes", low  logprob
-                 => "no",  low  logprob
-            Low  => "no",  high logprob
+            High => "Yes", high logprob
+                 => "Yes", low  logprob
+                 => "No",  low  logprob
+            Low  => "No",  high logprob
 
     Once we have a ranked list of passages for a query, we compute MRR@10,
     which is the mean reciprocal rank of the gold passage when we only
@@ -214,8 +214,8 @@ class MSMARCOScenario(Scenario):
     TRAIN_MIN_NO_INSTANCE_RANK: int = 11
 
     # Yes and no answer strings
-    YES_ANSWER = "yes"
-    NO_ANSWER = "no"
+    YES_ANSWER = "Yes"
+    NO_ANSWER = "No"
 
     def __init__(self, task: str, topk: int = 30, num_eval_queries: int = 100, num_train_queries: int = 1000):
         """MSMARCOScenario class constructor.
@@ -298,7 +298,9 @@ class MSMARCOScenario(Scenario):
         Writes the file in the given source_url a file with the name file_name
         in the /data directory in located in the self.output_path.
         """
-        file_path: str = os.path.join(self.output_path, "data", file_name)
+        data_path: str = os.path.join(self.output_path, "data")
+        ensure_directory_exists(data_path)
+        file_path: str = os.path.join(data_path, file_name)
         ensure_file_downloaded(source_url=source_url, target_path=file_path, unpack=unpack, unpack_type=unpack_type)
         return file_path
 
