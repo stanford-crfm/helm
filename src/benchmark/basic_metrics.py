@@ -1,5 +1,5 @@
 from dataclasses import replace
-from typing import List, Callable, Optional, Dict, Tuple, cast
+from typing import List, Callable, Optional, Dict, Tuple, Set, cast
 from urllib.parse import unquote
 from functools import partial
 
@@ -172,29 +172,33 @@ def bleu_4(gold: str, pred: str) -> float:
     return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(0, 0, 0, 1))
 
 
+def extract_set_from_text(set_str: str) -> Set[str]:
+    """Given a string, extract the set of strings implied by that string"""
+    set_str = set_str.replace(".", "")
+    extracted_set = set(set_str.split(" is ")[-1].split(" and "))
+    return extracted_set
+
+
+def extract_gold_pred_sets(gold: str, pred: str) -> Tuple[Set[str], Set[str]]:
+    """Extract the set of strings implied by the gold and pred strings"""
+    gold_set = extract_set_from_text(gold)
+    pred_set = extract_set_from_text(pred.split("\n")[0])
+    return gold_set, pred_set
+
+
 def iou_set_match(gold: str, pred: str) -> float:
     """Compute the intersection over union of the gold and pred sets"""
-    pred = pred.split("\n")[0]
-    gold_text = gold
-    if gold_text == "Nothing.":
+    if gold == "Nothing.":
         return float(pred == "Nothing.")
-    pred = pred.replace(".", "")
-    gold_text = gold_text.replace(".", "")
-    gold_set = set(gold_text.split(" is ")[-1].split(" and "))
-    pred_set = set(pred.split(" is ")[-1].split(" and "))
+    gold_set, pred_set = extract_gold_pred_sets(gold, pred)
     return len(gold_set.intersection(pred_set)) / len(gold_set.union(pred_set))
 
 
 def f1_set_match(gold: str, pred: str) -> float:
     """Compute the F1 score of the gold and pred sets"""
-    pred = pred.split("\n")[0]
-    gold_text = gold
-    if gold_text == "Nothing.":
+    if gold == "Nothing.":
         return float(pred == "Nothing.")
-    pred = pred.replace(".", "")
-    gold_text = gold_text.replace(".", "")
-    gold_set = set(gold_text.split(" is ")[-1].split(" and "))
-    pred_set = set(pred.split(" is ")[-1].split(" and "))
+    gold_set, pred_set = extract_gold_pred_sets(gold, pred)
     true_positives = gold_set.intersection(pred_set)
 
     return 2 * len(true_positives) / (len(gold_set) + len(pred_set))
@@ -202,14 +206,9 @@ def f1_set_match(gold: str, pred: str) -> float:
 
 def exact_set_match(gold: str, pred: str) -> float:
     """Compute whether the sets generated exactly match"""
-    pred = pred.split("\n")[0]
-    gold_text = gold
-    if gold_text == "Nothing.":
+    if gold == "Nothing.":
         return float(pred == "Nothing.")
-    pred = pred.replace(".", "")
-    gold_text = gold_text.replace(".", "")
-    gold_set = set(gold_text.split(" is ")[-1].split(" and "))
-    pred_set = set(pred.split(" is ")[-1].split(" and "))
+    gold_set, pred_set = extract_gold_pred_sets(gold, pred)
     return float(gold_set == pred_set)
 
 
