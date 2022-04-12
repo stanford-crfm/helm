@@ -15,6 +15,7 @@ from .scenario import ScenarioSpec
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
 from .raft_scenario import get_raft_instructions
+from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .run_expander import RUN_EXPANDERS
 
 
@@ -75,6 +76,20 @@ def get_toxicity_metrics() -> List[MetricSpec]:
 def get_srn_metrics() -> List[MetricSpec]:
     metric_names = {"names": ["iou_set_match", "exact_set_match"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
+
+
+def get_numeracy_metrics(relation_type: str, run_solver: bool = True) -> List[MetricSpec]:
+    metric_names = {"names": ["match_upto_whitespace", "absolute_value_difference"]}
+    metrics = [
+        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names),
+    ]
+    if (
+        relation_type not in ["parabola", "paraboloid"] or run_solver
+    ):  # the solvers are slow to run so make them skippable
+        metrics += [
+            MetricSpec(class_name="benchmark.numeracy_metrics.DistanceMetric", args={}),
+        ]
+    return metrics
 
 
 def get_math_metrics() -> List[MetricSpec]:
@@ -459,6 +474,48 @@ def get_raft_spec(subset: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_numeracy_spec(
+    relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: bool = True
+) -> RunSpec:
+    random_seed = int(seed)
+    scenario = ScenarioSpec(
+        class_name="benchmark.numeracy_scenario.NumeracyScenario",
+        args={"seed": random_seed, "relation_type": relation_type, "mode": mode,},
+    )
+
+    if mode in ["example", "standard"]:
+        # Test a model's ability to impute datapoints for a given (example or randomly sampled) relation.
+        adapter_args: Dict[str, Any] = {
+            "max_train_instances": 100,
+            "max_eval_instances": 100,
+            # "num_train_trials": 20,
+            "dim": RELTYPE_INFO[relation_type].num_variables + 1,
+        }
+    elif mode == "function":
+        # Test a model's ability to impute datapoints for randomly sampled relations
+        # (resampled for each evaluation point).
+        adapter_args = {
+            "instructions": "",
+            "max_train_instances": 0,  # Turn off general version of `function` mode because it doesn't cleanly
+            # capture a higher-order version of this task / is a little convoluted
+            # for models, currently.
+            # (In the general version, the model sees other relations of the same class,
+            # and needs to impute a datapoint for the last one. Presumably, inferring
+            # the class - eg. the degree of the relation - would help.)
+            "max_eval_instances": 1000,
+            "dim": RELTYPE_INFO[relation_type].num_variables + 1,
+            "instance_prefix": "\n\n",
+        }
+    adapter_spec = get_numeracy_adapter_spec(**adapter_args)
+
+    return RunSpec(
+        name=f"numeracy:relation_type={relation_type},mode={mode}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_numeracy_metrics(relation_type, run_solver=run_solver),
     )
 
 
@@ -1056,6 +1113,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "gsm": get_gsm_spec,
     "math": get_math_spec,
     "natural_qa": get_natural_qa_spec,
+    "numeracy": get_numeracy_spec,
     "the_pile": get_the_pile_spec,
     "raft": get_raft_spec,
     "synthetic_reasoning": get_synthetic_reasoning_spec,

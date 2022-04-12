@@ -23,6 +23,7 @@ from . import quac_scenario  # noqa
 from . import babi_qa_scenario  # noqa
 from . import narrativeqa_scenario  # noqa
 from . import raft_scenario  # noqa
+from . import numeracy_scenario  # noqa
 from . import ice_scenario  # noqa
 from . import summarization_scenario  # noqa
 from . import synthetic_reasoning_scenario  # noqa
@@ -41,6 +42,7 @@ from . import msmarco_metrics  # noqa
 from . import toxicity_metrics  # noqa
 from . import tokens_metric  # noqa
 from . import copyright_metrics  # noqa
+from . import numeracy_metrics  # noqa
 from . import disinformation_metrics  # noqa
 from . import code_metrics  # noqa
 
