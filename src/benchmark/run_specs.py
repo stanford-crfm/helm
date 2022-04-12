@@ -1,7 +1,6 @@
 from typing import List, Dict, Optional, Any, Callable
 
 from common.object_spec import ObjectSpec
-
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
@@ -9,15 +8,14 @@ from .adapter import (
     ADAPT_GENERATION,
     ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
 )
-from .metric import MetricSpec
-from .runner import RunSpec
-from .scenario import ScenarioSpec
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
+from .metric import MetricSpec
 from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
 from .raft_scenario import get_raft_instructions
 from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .run_expander import RUN_EXPANDERS
-
+from .runner import RunSpec
+from .scenario import ScenarioSpec
 
 HUMAN_EVAL_METRIC_NAMES = ("code_eval_acc", "pass")
 APPS_METRIC_NAMES = ("test_avg", "strict_acc")
@@ -784,20 +782,37 @@ def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
 def get_code_spec(dataset: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.code_scenario.CodeScenario", args={"dataset": dataset})
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        instructions="",
-        max_train_instances=0,
-        max_eval_instances=10000,
-        num_outputs=1,
-        num_train_trials=1,
-        model="openai/code-davinci-001",
-        temperature=0.2,
-        stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],
-        max_tokens=600,
-        input_prefix="",
-        output_prefix="",
-    )
+    if dataset == "HumanEval":
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            instructions="",
+            max_train_instances=0,
+            max_eval_instances=10000,
+            num_outputs=1,
+            num_train_trials=1,
+            model="openai/code-davinci-001",
+            temperature=0.2,
+            stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],
+            max_tokens=600,
+            input_prefix="",
+            output_prefix="",
+        )
+    else:  # APPS.
+        # Different in `stop_sequences`.
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            instructions="",
+            max_train_instances=0,
+            max_eval_instances=10000,
+            num_outputs=1,
+            num_train_trials=1,
+            model="openai/code-davinci-001",
+            temperature=0.2,
+            stop_sequences=["'''", "---", '"""', "\n\n\n"],
+            max_tokens=600,
+            input_prefix="",
+            output_prefix="",
+        )
 
     return RunSpec(
         name=f"code:dataset={dataset}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_code_metrics(dataset)
