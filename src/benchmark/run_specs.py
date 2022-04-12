@@ -212,7 +212,7 @@ def get_bold_spec(subject: str) -> RunSpec:
     return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bold_metrics())
 
 
-def get_civil_comments_spec() -> RunSpec:
+def get_civil_comments_spec(subject: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.civil_comments_scenario.CivilCommentsScenario", args={})
 
     adapter_spec = AdapterSpec(

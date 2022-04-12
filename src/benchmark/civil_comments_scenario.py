@@ -1,7 +1,9 @@
 import random
-import datasets
-from typing import Dict, List
-from pathlib import Path
+import numpy as np
+import pandas as pd
+import os
+from sklearn.model_selection import train_test_split
+from typing import List
 
 from .scenario import (
     Scenario,
@@ -44,35 +46,69 @@ class CivilCommentsScenario(Scenario):
     platform, a commenting plugin for independent news sites."""
     tags = ["harms", "toxicity"]
 
-    def __init__(self, random_seed=42):
+    def __init__(self, subject: str = "all", random_seed=42):
+        self.subject = subject
         self.random_seed = random_seed
         random.seed(random_seed)
 
     def get_instances(self) -> List[Instance]:
-        cache_dir = str(Path(self.output_path) / "data")
 
-        # Download raw data
+        data_path: str = "/u/scr/nlp/crfm/benchmarking/civil_comments/"
+        file_path = os.path.join(data_path, "civil_comments.csv")
+        assert os.path.exists(file_path)
+
+        df = pd.read_csv(file_path)
+
+        if self.subject != "all":
+            categories = [
+                "asian",
+                "atheist",
+                "bisexual",
+                "black",
+                "buddhist",
+                "christian",
+                "female",
+                "heterosexual",
+                "hindu",
+                "homosexual_gay_or_lesbian",
+                "intellectual_or_learning_disability",
+                "jewish",
+                "latino",
+                "male",
+                "muslim",
+                "other_disability",
+                "other_gender",
+                "other_race_or_ethnicity",
+                "other_religion",
+                "other_sexual_orientation",
+                "physical_disability",
+                "psychiatric_or_mental_illness",
+                "transgender",
+                "white",
+            ]
+            assert self.subject in categories
+            df = df[df[self.subject].notnull()]
+            df = df[df[self.subject] != 0]
+
         # TODO: Only using labeled instances now.
-        all_usable_dataset = datasets.load_dataset("civil_comments", cache_dir=cache_dir, split="train")
-        assert isinstance(all_usable_dataset, datasets.Dataset)
-        dataset = all_usable_dataset.train_test_split(test_size=0.2, seed=self.random_seed)
-        train_dataset, test_dataset = dataset["train"], dataset["test"]
+        data = np.stack(df["comment_text"].tolist())
+        train_x, train_y, test_x, test_y = train_test_split(
+            data, df["severe_toxicity"], test_size=0.2, seed=self.random_seed
+        )
 
-        dataset_splits: Dict[str, datasets.Dataset] = {
-            TRAIN_SPLIT: train_dataset,
-            TEST_SPLIT: test_dataset,
+        dataset_splits = {
+            TRAIN_SPLIT: (train_x, train_y),
+            TEST_SPLIT: (test_x, test_y),
         }
 
         # Read all instances
         instances: List[Instance] = []
         # pudb.set_trace()
         for split, subset in dataset_splits.items():
-            for x in subset:
-                prompt = x["text"]
+            data_x, data_x = subset
+            for (x, y) in zip(data_x, data_x):
                 instance = Instance(
-                    input=prompt,
-                    references=[Reference(output=bool_to_response[x["toxicity"] >= 0.5], tags=[CORRECT_TAG])],
-                    split=split,
+                    input=x, references=[Reference(output=bool_to_response[y >= 0.5], tags=[CORRECT_TAG])], split=split,
                 )
                 instances.append(instance)
 
