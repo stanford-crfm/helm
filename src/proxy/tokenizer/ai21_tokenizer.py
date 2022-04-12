@@ -1,4 +1,3 @@
-from tokenize import Token
 from typing import List, Optional
 from transformers import GPT2TokenizerFast
 
@@ -38,8 +37,8 @@ class AI21Tokenizer(Tokenizer):
     def max_request_length(self) -> int:
         # Sometimes splitting a long string to multiple shorter ones introduce new tokens,
         # so we adopt a smaller value here for stability.
-        # e.g. "burying him" -> ["_burying"(0,7), "_him"(7,11)];
-        # " burying him" -> ["_"(0,0), "_burying"(0,8), "_him"(8,12)];
+        # e.g. "burying him" -> ["▁burying"(0,7), "▁him"(7,11)];
+        # " burying him" -> ["▁"(0,0), "▁burying"(0,8), "▁him"(8,12)];
         # "'s your camera" -> ["▁"(0,0), "'s"(0,2), "▁your▁camera"(2,14)]
         return AI21Tokenizer.MAX_REQUEST_LENGTH - 5
 
@@ -154,7 +153,19 @@ class AI21Tokenizer(Tokenizer):
                     token_chunk = open_ai_tokens[num_processed_tokens : num_processed_tokens + token_chunk_size]
                     text_chunk = self.openai_tokenizer.decode(token_chunk)
                 chunk_tokens = self.service.tokenize(TokenizationRequest(text=text_chunk, model=self.model)).tokens
-                # Shift the start and end index of each token
+                # Removes the empty tokens introduced by the split.
+                if num_processed_tokens != 0 and chunk_tokens[0].text_range.start == chunk_tokens[0].text_range.end:
+                    chunk_tokens = chunk_tokens[1:]
+                else:
+                    chunk_tokens = chunk_tokens[:]
+                # Minor assert. Can be deleted.
+                for token in chunk_tokens:
+                    assert token.text_range.start != token.text_range.end, (
+                        text_chunk,
+                        [[token.text, token.text_range.start, token.text_range.end] for token in chunk_tokens],
+                    )
+
+                # Shifts the start and end index of each token
                 shifted_tokens: List[TokenizationToken] = [
                     TokenizationToken(
                         text=token.text,
