@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
 import os
-import re
 import nltk
 from nltk.corpus import wordnet
+from nltk.tokenize.treebank import TreebankWordDetokenizer
 import numpy as np
 import spacy
 
@@ -38,6 +38,7 @@ class SynonymPerturbation(Perturbation):
 
     def __init__(self, prob: float):
         self.prob: float = prob
+        self.detokenizer = TreebankWordDetokenizer()
 
         try:
             _ = wordnet.synsets("test")
@@ -53,17 +54,6 @@ class SynonymPerturbation(Perturbation):
     @property
     def description(self) -> PerturbationDescription:
         return SynonymPerturbation.Description(self.name, self.prob)
-
-    @staticmethod
-    def untokenize(words):
-        text = " ".join(words)
-        step1 = text.replace("`` ", '"').replace(" ''", '"').replace(". . .", "...")
-        step2 = step1.replace(" ( ", " (").replace(" ) ", ") ")
-        step3 = re.sub(r' ([.,:;?!%]+)([ \'"`])', r"\1\2", step2)
-        step4 = re.sub(r" ([.,:;?!%]+)$", r"\1", step3)
-        step5 = step4.replace(" '", "'").replace(" n't", "n't").replace("can not", "cannot")
-        step6 = step5.replace(" ` ", " '")
-        return step6.strip()
 
     def synonyms_substitute(self, text):
         try:
@@ -98,7 +88,8 @@ class SynonymPerturbation(Perturbation):
                     result.append(word)
 
         # detokenize sentences
-        result = self.untokenize(result)
+        result = self.detokenizer.detokenize(result)
+        result = result.replace(" .", ".")
 
         return result
 
