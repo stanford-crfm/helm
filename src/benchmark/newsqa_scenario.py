@@ -150,7 +150,7 @@ class NewsQAScenario(Scenario):
     def get_instances(self) -> List[Instance]:
         # TODO how to deal with NewsQA file. The dataset cannot be directly downloaded
         # currently hardcoded a path to a directory with the file
-        data_path: str = "/nlp/scr/niladri/datasets/newsqa/"
+        data_path: str = "/u/scr/nlp/crfm/benchmarking/newsqa/"
         file_path = os.path.join(data_path, "combined-newsqa-data-v1.json")
         assert os.path.exists(file_path)
         splits = {"train": TRAIN_SPLIT, "valid": VALID_SPLIT}

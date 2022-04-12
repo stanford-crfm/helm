@@ -22,6 +22,7 @@ from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from proxy.tokenizer.tokenizer_service import TokenizerService
 from .augmentations.perturbation_description import PerturbationDescription
 from .adapter import AdapterSpec, RequestState, ADAPT_LANGUAGE_MODELING
+from .math_scenario import is_equiv
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -52,7 +53,7 @@ def exact_match(gold: str, pred: str) -> float:
     return 1 if gold == pred else 0
 
 
-def exact_match_indicator(gold: str, pred: str) -> float:
+def exact_match_indicator(gold: str, pred: str, indicator: str = "#") -> float:
     """
     Exact match, allowing for some preceding context.
     For example, the following two answers are considered matching:
@@ -61,7 +62,6 @@ def exact_match_indicator(gold: str, pred: str) -> float:
     While the following is considered different from the earlier two
     - Given reasons x and a, the answer is ## <other answer>
     """
-    indicator: str = "#"
     pred = pred.split(indicator)[-1].strip()
     gold = gold.split(indicator)[-1].strip()
     return exact_match(gold, pred)
@@ -253,6 +253,7 @@ class BasicMetric(Metric):
             "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
+            "math_equiv": is_equiv,
             "code_eval_acc": code_eval,
             "pass": code_eval,
             "f1_score": f1_score,

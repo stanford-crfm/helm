@@ -115,9 +115,9 @@ def synonym(prob: float) -> PerturbationSpec:
 # - r2: with perturbations [c, d, e]
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
-    "misspelling": {"misspelling0.1": [misspelling(prob=0.1)]},
-    "misspelling_sweep": {f"misspelling{prob}": [misspelling(prob=prob)] for prob in [0, 0.1, 0.2, 0.3]},
-    "all": {"all": [extra_space(num_spaces=2), misspelling(prob=0.1)]},
+    "misspelling": {"misspelling0.05": [misspelling(prob=0.05)]},
+    "misspelling_sweep": {f"misspelling{prob}": [misspelling(prob=prob)] for prob in [0, 0.05, 0.2, 0.5]},
+    "all": {"all": [extra_space(num_spaces=2), misspelling(prob=0.05)]},
     "synonym": {"synonym0.5": [synonym(prob=0.5)]},
 }
 

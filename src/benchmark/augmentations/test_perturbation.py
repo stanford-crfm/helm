@@ -100,4 +100,4 @@ def test_synonym_perturbation():
     assert len(instances) == 2
     assert instances[0].perturbation.name == "SynonymPerturbation"
     assert instances[0].perturbation.prob == 1.0
-    # assert instances[0].input == "Albany Theatre is a historic theater in Albany, Georgia."
+    assert instances[0].input == "This was a dependable movie, would determine again."
