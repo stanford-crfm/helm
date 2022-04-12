@@ -380,9 +380,6 @@ class Adapter:
 
         Returns a new list of randomly sampled train instances.
         """
-        if len(all_train_instances) == 0:
-            return []
-
         # Fix the random seed for reproducibility
         random.seed(seed)
         num_instances_to_sample: int = min(len(all_train_instances), self.adapter_spec.max_train_instances)
