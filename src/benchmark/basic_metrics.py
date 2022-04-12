@@ -179,6 +179,7 @@ def extract_set_from_text(
     Given a string, extract the set of strings implied by that string.
     set_start_str denotes the start of the set
     set_separator denotes the string separating set elements
+    empty_set_str is the string which denotes the empty set
     """
     if set_str == empty_set_str:
         return set()
