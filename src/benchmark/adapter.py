@@ -393,7 +393,7 @@ class Adapter:
             else:
                 unlabeled_instances.append(instance)
 
-        # Sort the correct references by the number of Instances that belong to the class
+        # Sort the labels by the number of Instances that belong to them
         sorted_labels: List[str] = [
             key for key, _ in sorted(label_to_instances.items(), key=lambda x: len(x[1]), reverse=True)
         ]
