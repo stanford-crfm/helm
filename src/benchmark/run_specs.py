@@ -287,7 +287,7 @@ def get_quac_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
-        output_prefix="",
+        output_prefix="\nAnswer: ",  # make sure this matches the rest of the dialogue
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
@@ -298,7 +298,10 @@ def get_quac_spec() -> RunSpec:
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name="quac", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": ["f1_score"]}),
+        name="quac",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
     )
 
 
@@ -307,8 +310,8 @@ def get_news_qa_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="",
+        input_prefix="Passage: ",
+        output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
@@ -322,7 +325,7 @@ def get_news_qa_spec() -> RunSpec:
         name="news_qa",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["f1_score"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
     )
 
 
@@ -457,14 +460,14 @@ def get_raft_spec(subset: str) -> RunSpec:
         method=ADAPT_GENERATION,
         instructions=get_raft_instructions(subset),
         input_prefix="",
-        output_prefix="\nLabel:",
+        output_prefix="\nLabel: ",
         max_train_instances=5,
         max_eval_instances=None,  # We only have <50 instances per subset
         num_train_trials=1,
         model="openai/davinci",
-        temperature=0.2,
+        temperature=0.0,
         stop_sequences=["\n"],
-        max_tokens=20,
+        max_tokens=30,  # at most ~50 characters per label
     )
 
     return RunSpec(
@@ -555,11 +558,13 @@ def get_boolq_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="\nanswer:",
+        input_prefix="Passage: ",
+        output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
+        temperature=0.0,
+        stop_sequences=["\n"],
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 6.5k questions
         num_outputs=1,
         max_tokens=1,
@@ -577,11 +582,13 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="\nanswer:",
+        input_prefix="Passage: ",
+        output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
+        temperature=0.0,
+        stop_sequences=["\n"],
         max_eval_instances=None,  # We have only 340 perturbed questions for 70 passages
         num_outputs=1,
         max_tokens=1,
@@ -617,18 +624,19 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
 
 
 def get_imdb_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDbScenario", args={})
+    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDBScenario", args={})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="Review: ",
-        output_prefix="Sentiment:",
+        input_prefix="Passage: ",
+        output_prefix="\nSentiment: ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 25k test inputs
         num_outputs=1,
-        max_tokens=1,
+        max_tokens=5,  # should be one token but just in case
+        temperature=0.0,
         stop_sequences=["\n"],
     )
     return RunSpec(
@@ -640,11 +648,11 @@ def get_imdb_spec() -> RunSpec:
 
 
 def get_imdb_contrast_sets_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDbContrastSetScenario", args={})
+    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDBContrastSetScenario", args={})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="Review: ",
+        input_prefix="Passage: ",
         output_prefix="Sentiment:",
         num_train_trials=1,
         max_train_instances=5,
@@ -824,7 +832,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
-        output_prefix="",
+        output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
@@ -897,22 +905,22 @@ def get_narrativeqa_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="\nanswer:",
+        input_prefix="Passage: ",
+        output_prefix="\nAnswer: ",
         num_train_trials=1,
-        max_train_instances=2,  # TODO: Justify; @mert
+        max_train_instances=5,
         model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full test set is 14018 instances
         num_outputs=1,
-        max_tokens=5,
+        max_tokens=100,  # max answer is 30 words
         temperature=0.0,
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name="narrativeqa",
+        name="narrative_qa",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
     )
 
 
@@ -1135,7 +1143,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "copyright": get_copyright_spec,
     "mmlu": get_mmlu_spec,
     "msmarco": get_msmarco_spec,
-    "narrativeqa": get_narrativeqa_spec,
+    "narrative_qa": get_narrativeqa_spec,
     "commonsense_qa": get_commonsense_qa_spec,
     "lsat_qa": get_lsat_qa_spec,
     "quac": get_quac_spec,
