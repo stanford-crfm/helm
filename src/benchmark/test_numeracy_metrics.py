@@ -75,12 +75,10 @@ def test_distance_paraboloid():
         TestCase("z = x^2 + y^2 + 2", [0, 0, 2], 0.0),
         TestCase(
             "z = 2x^2 + y^2 + 2", [0, 11, 151], 1.2055445093982982
-        ),  # https://www.wolframalpha.com/input?i=minimize+x%5E2+%2B+%28y+-+11%29%5E2+%2B+%28%282x%5E2+%2B+y%5E2+
-        # %2B+2%29+-+151%29%5E2
+        ),  # https://www.wolframalpha.com/input?i=minimize+x%5E2+%2B+%28y+-+11%29%5E2+%2B+%28%282x%5E2+%2B+y%5E2+%2B+2%29+-+151%29%5E2  # noqa
         TestCase(
             "z = 2x^2 + 2y^2 + 2", [0, 0, 6], 1.3919410907075054
-        ),  # https://www.wolframalpha.com/input?i=minimize+x%5E2+%2By%5E2+%2B+%28%282x%5E2+%2B+2y%5E2+%2B+2%29+-+
-        # 6%29%5E2
+        ),  # https://www.wolframalpha.com/input?i=minimize+x%5E2+%2By%5E2+%2B+%28%282x%5E2+%2B+2y%5E2+%2B+2%29+-+6%29%5E2  # noqa
         TestCase(
             "z = x^2 + y^2 + 2", [0, 0, 20], 4.2130748865881795
         ),  # https://www.wolframalpha.com/input?i=x%5E2+%2B+y%5E2+%2B+%28%28x%5E2+%2B+y%5E2+%2B+2%29+-+20%29%5E2
