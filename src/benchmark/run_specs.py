@@ -291,7 +291,7 @@ def get_news_qa_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="Article: ",
+        input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
@@ -534,7 +534,7 @@ def get_imdb_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="Review: ",
+        input_prefix="Passage: ",
         output_prefix="\nSentiment: ",
         num_train_trials=1,
         max_train_instances=5,
@@ -558,7 +558,7 @@ def get_imdb_contrast_sets_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="Review: ",
+        input_prefix="Passage: ",
         output_prefix="Sentiment:",
         num_train_trials=1,
         max_train_instances=5,
@@ -770,7 +770,7 @@ def get_narrativeqa_spec() -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="Summary: ",
+        input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
