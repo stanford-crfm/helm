@@ -22,6 +22,7 @@ from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from proxy.tokenizer.tokenizer_service import TokenizerService
 from .augmentations.perturbation_description import PerturbationDescription
 from .adapter import AdapterSpec, RequestState, ADAPT_LANGUAGE_MODELING
+from .math_scenario import is_equiv
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -49,6 +50,14 @@ def pass_at_k_estimator(n: int, c: int, k: int) -> float:
 
 
 def exact_match(gold: str, pred: str) -> float:
+    return 1 if gold == pred else 0
+
+
+def match_upto_whitespace(gold: str, pred: str) -> float:
+    """Exact match, ignoring trailing whitespace on either side.
+    """
+    gold = gold.strip()
+    pred = pred.strip()
     return 1 if gold == pred else 0
 
 
@@ -204,6 +213,24 @@ def exact_set_match(gold: str, pred: str) -> float:
     return float(gold_set == pred_set)
 
 
+def absolute_value_difference(gold: str, pred: str) -> float:
+    """Compute the absolute value of the difference between two numbers (provided as strings),
+    or 0.0 if invalid input.
+    """
+
+    def maybe_int(text: str):
+        """Parse int, ignoring commas in numbers."""
+        try:
+            val = int(text.replace(",", ""))
+        except ValueError:
+            return 0.0
+        return val
+
+    gold_val = maybe_int(gold)
+    pred_val = maybe_int(pred)
+    return abs(gold_val - pred_val)
+
+
 def code_eval(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
     """Evaluate Code Correctness on test examples."""
     assert gold[1] is not None  # gold[1]["canonical_solution"]
@@ -264,10 +291,12 @@ class BasicMetric(Metric):
         # maps each string metric name to its associated function
         metric_fn_mapping: Dict[str, Callable] = {
             "exact_match": exact_match,
+            "match_upto_whitespace": match_upto_whitespace,
             "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
             "f1_set_match": f1_set_match,
+            "math_equiv": is_equiv,
             "code_eval_acc": code_eval,
             "pass": code_eval,
             "f1_score": f1_score,
@@ -276,6 +305,7 @@ class BasicMetric(Metric):
             "rouge-l": get_rouge_function("rougeL"),
             "bleu_1": bleu_1,
             "bleu_4": bleu_4,
+            "absolute_value_difference": absolute_value_difference,
         }
 
         reference_metrics = []

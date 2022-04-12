@@ -1,7 +1,6 @@
 from typing import List, Dict, Optional, Any, Callable
 
 from common.object_spec import ObjectSpec
-
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
@@ -9,13 +8,14 @@ from .adapter import (
     ADAPT_GENERATION,
     ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
 )
+from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .metric import MetricSpec
+from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
+from .raft_scenario import get_raft_instructions
+from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
+from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenario import ScenarioSpec
-from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
-from .raft_scenario import get_raft_instructions
-from .run_expander import RUN_EXPANDERS
-
 
 HUMAN_EVAL_METRIC_NAMES = ("code_eval_acc", "pass")
 APPS_METRIC_NAMES = ("test_avg", "strict_acc")
@@ -58,12 +58,40 @@ def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
 
+def get_msmarco_metrics() -> List[MetricSpec]:
+    return [
+        MetricSpec(
+            class_name="benchmark.msmarco_metrics.MSMARCOMetric",
+            args={"name": "mean_reciprocal_rank", "topk_list": [10]},
+        )
+    ]
+
+
 def get_toxicity_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
 
 
 def get_srn_metrics() -> List[MetricSpec]:
     metric_names = {"names": ["f1_set_match", "iou_set_match", "exact_set_match"]}
+    return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
+
+
+def get_numeracy_metrics(relation_type: str, run_solver: bool = True) -> List[MetricSpec]:
+    metric_names = {"names": ["match_upto_whitespace", "absolute_value_difference"]}
+    metrics = [
+        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names),
+    ]
+    if (
+        relation_type not in ["parabola", "paraboloid"] or run_solver
+    ):  # the solvers are slow to run so make them skippable
+        metrics += [
+            MetricSpec(class_name="benchmark.numeracy_metrics.DistanceMetric", args={}),
+        ]
+    return metrics
+
+
+def get_math_metrics() -> List[MetricSpec]:
+    metric_names = {"names": ["math_equiv"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
@@ -111,6 +139,41 @@ def get_simple1_spec() -> RunSpec:
         scenario=get_scenario_spec1(),
         adapter_spec=get_adapter_spec1(),
         metrics=get_basic_metrics({"names": []}),
+    )
+
+
+def get_msmarco_spec(
+    task: str, topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
+) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.msmarco_scenario.MSMARCOScenario",
+        args={
+            "task": task,
+            "topk": int(topk),
+            "num_eval_queries": int(num_eval_queries),
+            "num_train_queries": int(num_train_queries),
+        },
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        instructions="",
+        input_prefix="",
+        output_prefix="\nAnswer: ",
+        max_train_instances=4,
+        max_eval_instances=1500,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+    )
+
+    return RunSpec(
+        name=f"msmarco:task={task},topk={topk},num_eval_queries={num_eval_queries},"
+        f"num_train_queries={num_train_queries}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_msmarco_metrics(),
     )
 
 
@@ -412,6 +475,81 @@ def get_raft_spec(subset: str) -> RunSpec:
     )
 
 
+def get_numeracy_spec(
+    relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: bool = True
+) -> RunSpec:
+    random_seed = int(seed)
+    scenario = ScenarioSpec(
+        class_name="benchmark.numeracy_scenario.NumeracyScenario",
+        args={"seed": random_seed, "relation_type": relation_type, "mode": mode,},
+    )
+
+    if mode in ["example", "standard"]:
+        # Test a model's ability to impute datapoints for a given (example or randomly sampled) relation.
+        adapter_args: Dict[str, Any] = {
+            "max_train_instances": 100,
+            "max_eval_instances": 100,
+            # "num_train_trials": 20,
+            "dim": RELTYPE_INFO[relation_type].num_variables + 1,
+        }
+    elif mode == "function":
+        # Test a model's ability to impute datapoints for randomly sampled relations
+        # (resampled for each evaluation point).
+        adapter_args = {
+            "instructions": "",
+            "max_train_instances": 0,  # Turn off general version of `function` mode because it doesn't cleanly
+            # capture a higher-order version of this task / is a little convoluted
+            # for models, currently.
+            # (In the general version, the model sees other relations of the same class,
+            # and needs to impute a datapoint for the last one. Presumably, inferring
+            # the class - eg. the degree of the relation - would help.)
+            "max_eval_instances": 1000,
+            "dim": RELTYPE_INFO[relation_type].num_variables + 1,
+            "instance_prefix": "\n\n",
+        }
+    adapter_spec = get_numeracy_adapter_spec(**adapter_args)
+
+    return RunSpec(
+        name=f"numeracy:relation_type={relation_type},mode={mode}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_numeracy_metrics(relation_type, run_solver=run_solver),
+    )
+
+
+def get_math_spec(subject: str, level: str, use_official_prompt: bool = True) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.math_scenario.MATHScenario", args={"subject": subject, "level": level}
+    )
+
+    instructions = OFFICIAL_MATH_INSTRUCTIONS
+    if use_official_prompt:
+        instructions = OFFICIAL_MATH_PROMPT
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions=instructions,
+        max_train_instances=0 if use_official_prompt else 8,
+        max_eval_instances=7500,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        stop_sequences=["$", "###", "\n"],
+        max_tokens=20,
+        input_prefix="\nProblem: ",
+        output_prefix="\nAnswer: $",
+        instance_prefix="$\n###",
+    )
+
+    return RunSpec(
+        name=f"math:subject={subject},level={level}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_math_metrics(),
+    )
+
+
 def get_boolq_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={})
 
@@ -644,20 +782,37 @@ def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
 def get_code_spec(dataset: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.code_scenario.CodeScenario", args={"dataset": dataset})
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        instructions="",
-        max_train_instances=0,
-        max_eval_instances=10000,
-        num_outputs=1,
-        num_train_trials=1,
-        model="openai/code-davinci-001",
-        temperature=0.2,
-        stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],
-        max_tokens=600,
-        input_prefix="",
-        output_prefix="",
-    )
+    if dataset == "HumanEval":
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            instructions="",
+            max_train_instances=0,
+            max_eval_instances=10000,
+            num_outputs=1,
+            num_train_trials=1,
+            model="openai/code-davinci-001",
+            temperature=0.2,
+            stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],
+            max_tokens=600,
+            input_prefix="",
+            output_prefix="",
+        )
+    else:  # APPS.
+        # Different in `stop_sequences`.
+        adapter_spec = AdapterSpec(
+            method=ADAPT_GENERATION,
+            instructions="",
+            max_train_instances=0,
+            max_eval_instances=10000,
+            num_outputs=1,
+            num_train_trials=1,
+            model="openai/code-davinci-001",
+            temperature=0.2,
+            stop_sequences=["'''", "---", '"""', "\n\n\n"],
+            max_tokens=600,
+            input_prefix="",
+            output_prefix="",
+        )
 
     return RunSpec(
         name=f"code:dataset={dataset}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_code_metrics(dataset)
@@ -707,6 +862,31 @@ def get_the_pile_spec(subset: str) -> RunSpec:
 
     return RunSpec(
         name=f"the_pile:subset={subset}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": []}),
+    )
+
+
+def get_ice_spec(**kwargs) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.ice_scenario.ICEScenario", args=kwargs)
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_LANGUAGE_MODELING,
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        reference_prefix="",
+        max_train_instances=0,
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+        max_tokens=0,
+    )
+
+    return RunSpec(
+        name="ice" + (":" if len(kwargs) > 0 else "") + ",".join(f"{k}={v}" for k, v in kwargs.items()),
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": []}),
@@ -922,6 +1102,29 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
     )
 
 
+def get_legal_support_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.legal_support_scenario.LegalSupportScenario", args={},)
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        instructions="Which statement best supports the passage?",
+        input_prefix="Passage: ",
+        output_prefix="\nAnswer: ",
+        model="openai/davinci",
+        temperature=0.0,
+        max_train_instances=3,
+        max_eval_instances=None,
+        num_outputs=10,
+    )
+
+    return RunSpec(
+        name="legal_support",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
 ############################################################
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
@@ -932,6 +1135,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "imdb_contrast_sets": get_imdb_contrast_sets_spec,
     "copyright": get_copyright_spec,
     "mmlu": get_mmlu_spec,
+    "msmarco": get_msmarco_spec,
     "narrativeqa": get_narrativeqa_spec,
     "commonsense_qa": get_commonsense_qa_spec,
     "lsat_qa": get_lsat_qa_spec,
@@ -945,7 +1149,9 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "twitter_aae": get_twitter_aae_spec,
     "disinformation": get_disinformation_spec,
     "gsm": get_gsm_spec,
+    "math": get_math_spec,
     "natural_qa": get_natural_qa_spec,
+    "numeracy": get_numeracy_spec,
     "the_pile": get_the_pile_spec,
     "raft": get_raft_spec,
     "synthetic_reasoning": get_synthetic_reasoning_spec,
@@ -956,6 +1162,8 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "code": get_code_spec,
     "empatheticdialogues": get_empatheticdialogues_spec,
     "dyck_language": get_dyck_language_spec,
+    "legal_support": get_legal_support_spec,
+    "ice": get_ice_spec,
 }
 
 
@@ -971,7 +1179,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         raise ValueError(f"Unknown run spec name: {name}")
 
     # Peel off the run expanders (e.g., model)
-    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]
+    expanders = [RUN_EXPANDERS[key](value) for key, value in args.items() if key in RUN_EXPANDERS]  # type: ignore
     args = dict((key, value) for key, value in args.items() if key not in RUN_EXPANDERS)
 
     # Get the canonical run specs

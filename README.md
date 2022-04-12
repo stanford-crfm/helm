@@ -66,8 +66,8 @@ By default, Perspective API allows only 1 query per second. Fill out this
 [form](https://developers.perspectiveapi.com/s/request-quota-increase) to increase the request quota.
 
 The [current API key](https://console.cloud.google.com/apis/api/commentanalyzer.googleapis.com/overview?authuser=1&project=hai-gcp-models)
-we are using in production was created with the `hai-gcp-models` account and allows 100 queries per second.
-**The API key expires on 4/15/2022.**
+we are using in production was created with the `hai-gcp-models` account and allows 200 queries per second.
+**The API key expires on 7/15/2022.**
 
 #### SSL
 
