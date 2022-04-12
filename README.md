@@ -248,9 +248,11 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r wiki:subject=P31
     venv/bin/benchmark-run -r raft:subset=ade_corpus_v2
     venv/bin/benchmark-run -r natural_qa:mode=closedbook
+    venv/bin/benchmark-run -r natural_qa:mode=openbook-longans
     venv/bin/benchmark-run -r quac
     venv/bin/benchmark-run -r wikitext_103
     venv/bin/benchmark-run -r blimp:phenomenon=irregular_forms
+    venv/bin/benchmark-run -r narrative_qa
     venv/bin/benchmark-run -r news_qa
     venv/bin/benchmark-run -r imdb
     venv/bin/benchmark-run -r imdb_contrast_sets
