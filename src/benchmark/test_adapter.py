@@ -84,19 +84,24 @@ def test_construct_language_modeling_prompt():
 
 
 def test_sample_examples():
-    adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE, max_train_instances=2)
+    adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE, max_train_instances=4)
     adapter = Adapter(adapter_spec, get_test_adapter_service())
     all_train_instances = [
         Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
-        Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
-        Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+        Instance("say yes1", references=[Reference("yes", tags=[CORRECT_TAG])]),
+        Instance("say yes2", references=[Reference("yes", tags=[CORRECT_TAG])]),
+        Instance("say yes3", references=[Reference("yes", tags=[CORRECT_TAG])]),
+        Instance("say yes4", references=[Reference("yes", tags=[CORRECT_TAG])]),
     ]
 
     examples = adapter.sample_examples(all_train_instances, seed=0)
-    assert len(examples) == 2
+    assert len(examples) == 4
+
     # An instance with "say yes" should have be sampled first before "say no"
-    assert examples[0].input == "say yes"
+    assert examples[0].input == "say yes4"
     assert examples[1].input == "say no"
+    assert examples[2].input == "say yes1"
+    assert examples[3].input == "say yes3"
 
 
 def test_sample_examples_no_train_instances():
