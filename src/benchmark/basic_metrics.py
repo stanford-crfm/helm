@@ -174,6 +174,8 @@ def bleu_4(gold: str, pred: str) -> float:
 
 def extract_set_from_text(set_str: str) -> Set[str]:
     """Given a string, extract the set of strings implied by that string"""
+    if set_str == "Nothing.":
+        return set()
     set_str = set_str.replace(".", "")
     extracted_set = set(set_str.split(" is ")[-1].split(" and "))
     return extracted_set
@@ -188,26 +190,23 @@ def extract_gold_pred_sets(gold: str, pred: str) -> Tuple[Set[str], Set[str]]:
 
 def iou_set_match(gold: str, pred: str) -> float:
     """Compute the intersection over union of the gold and pred sets"""
-    if gold == "Nothing.":
-        return float(pred == "Nothing.")
     gold_set, pred_set = extract_gold_pred_sets(gold, pred)
+    if len(gold_set) == 0:
+        return float(gold_set == pred_set)
     return len(gold_set.intersection(pred_set)) / len(gold_set.union(pred_set))
 
 
 def f1_set_match(gold: str, pred: str) -> float:
     """Compute the F1 score of the gold and pred sets"""
-    if gold == "Nothing.":
-        return float(pred == "Nothing.")
     gold_set, pred_set = extract_gold_pred_sets(gold, pred)
+    if len(gold_set) == 0:
+        return float(gold_set == pred_set)
     true_positives = gold_set.intersection(pred_set)
-
     return 2 * len(true_positives) / (len(gold_set) + len(pred_set))
 
 
 def exact_set_match(gold: str, pred: str) -> float:
     """Compute whether the sets generated exactly match"""
-    if gold == "Nothing.":
-        return float(pred == "Nothing.")
     gold_set, pred_set = extract_gold_pred_sets(gold, pred)
     return float(gold_set == pred_set)
 
