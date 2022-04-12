@@ -1,5 +1,6 @@
 import csv
 import os
+import random
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, List, Optional
@@ -540,8 +541,9 @@ class MSMARCOScenario(Scenario):
         Returns:
             instances: List of instances created.
         """
-        # Only use the first num_queries queries, specified in the constructor
-        qrels_keys = list(self.qrels_dicts[split].keys())[: self.num_queries[split]]
+        # Sample num_queries queries, specified in the constructor
+        qrels_keys = list(self.qrels_dicts[split].keys())
+        qrels_keys = random.sample(qrels_keys, self.num_queries[split])
         qrels_dict = {k: self.qrels_dicts[split][k] for k in qrels_keys}
 
         # List of ranks we will consider for the no instances.
@@ -556,7 +558,7 @@ class MSMARCOScenario(Scenario):
         for qid, gold_pids in qrels_dict.items():
 
             # Generate the yes instance
-            gold_pid = gold_pids[0]
+            gold_pid = random.choice(gold_pids)
             yes_instance = self.get_instance(qid, gold_pid, split, gold=True)
 
             # Generate the no instances
@@ -567,7 +569,7 @@ class MSMARCOScenario(Scenario):
             # Limit the no_instances to 1 for the train split to ensure that we have a balanced train set.
             # Otherwise, there will be many more no instances in the train split than the yes instances.
             if split == TRAIN_SPLIT and no_instances:
-                no_instances = [no_instances[0]]
+                no_instances = random.sample(no_instances, 1)
 
             # Extend the instances
             instances += [yes_instance] + no_instances
@@ -580,6 +582,9 @@ class MSMARCOScenario(Scenario):
         # Get dataset and topk dictionaries
         self.prepare_passage_dictionaries()
         self.prepare_topk_dictionaries()
+
+        # Set random seed
+        random.seed(1885)
 
         # Create instances
         valid_instances = self.get_passage_split_instances(VALID_SPLIT)
