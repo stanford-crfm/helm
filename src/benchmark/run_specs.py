@@ -570,13 +570,11 @@ def get_boolq_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
-        temperature=0.0,
         stop_sequences=["\n"],
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 6.5k questions
         num_outputs=1,
         max_tokens=1,
         temperature=0.0,
-        stop_sequences=["\n"],
     )
     return RunSpec(
         name="boolq",
@@ -601,8 +599,6 @@ def get_boolq_contrast_sets_spec() -> RunSpec:
         max_eval_instances=None,  # We have only 340 perturbed questions for 70 passages
         num_outputs=1,
         max_tokens=1,
-        temperature=0.0,
-        stop_sequences=["\n"],
     )
     return RunSpec(
         name="boolq_contrast_sets",
