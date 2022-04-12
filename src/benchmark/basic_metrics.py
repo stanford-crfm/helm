@@ -176,6 +176,21 @@ def iou_set_match(gold: str, pred: str) -> float:
     return len(gold_set.intersection(pred_set)) / len(gold_set.union(pred_set))
 
 
+def f1_set_match(gold: str, pred: str) -> float:
+    """Compute the F1 score of the gold and pred sets"""
+    pred = pred.split("\n")[0]
+    gold_text = gold
+    if gold_text == "Nothing.":
+        return float(pred == "Nothing.")
+    pred = pred.replace(".", "")
+    gold_text = gold_text.replace(".", "")
+    gold_set = set(gold_text.split(" is ")[-1].split(" and "))
+    pred_set = set(pred.split(" is ")[-1].split(" and "))
+    true_positives = gold_set.intersection(pred_set)
+
+    return 2 * len(true_positives) / (len(gold_set) + len(pred_set))
+
+
 def exact_set_match(gold: str, pred: str) -> float:
     """Compute whether the sets generated exactly match"""
     pred = pred.split("\n")[0]
@@ -252,6 +267,7 @@ class BasicMetric(Metric):
             "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
+            "f1_set_match": f1_set_match,
             "code_eval_acc": code_eval,
             "pass": code_eval,
             "f1_score": f1_score,

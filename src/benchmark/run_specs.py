@@ -63,7 +63,7 @@ def get_toxicity_metrics() -> List[MetricSpec]:
 
 
 def get_srn_metrics() -> List[MetricSpec]:
-    metric_names = {"names": ["iou_set_match", "exact_set_match"]}
+    metric_names = {"names": ["f1_set_match", "iou_set_match", "exact_set_match"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
@@ -344,10 +344,10 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
         max_train_instances=3,  # TODO: Justify; @tony w.
-        max_eval_instances=100,
+        max_eval_instances=10,
         num_outputs=3,
         num_train_trials=1,
-        model="openai/davinci",
+        model="ai21/j1-large",
         temperature=1.0,
         stop_sequences=["\n"],
         max_tokens=20,
@@ -533,8 +533,8 @@ def get_babi_qa_spec(task: str) -> RunSpec:
         output_prefix="\nanswer:",
         num_train_trials=1,
         max_train_instances=5,
-        model="openai/davinci",
-        max_eval_instances=None,
+        model="huggingface/gptj_6b",
+        max_eval_instances=300,
         num_outputs=1,
         # Task 19's answers consist of two words (in contrast to all other tasks that feature a single-word answers.)
         max_tokens=2 if task == "19" else 1,
