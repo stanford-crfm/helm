@@ -5,6 +5,8 @@ from itertools import cycle
 from typing import List, Dict, Tuple, Optional
 from collections import defaultdict, OrderedDict
 
+import numpy as np
+
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
@@ -274,9 +276,16 @@ class Adapter:
 
             # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
             # include all their instances in the final set of eval instances.
+            # The random sampling includes instances monotonically.
+            np.random.seed(0)
+            ids_to_include = list(id_to_instances.keys())
+            if len(ids_to_include) > self.adapter_spec.max_eval_instances:
+                ids_to_include = list(
+                    np.random.choice(ids_to_include, self.adapter_spec.max_eval_instances, replace=False)
+                )
             eval_instances = []
-            for _, instances in list(id_to_instances.items())[: self.adapter_spec.max_eval_instances]:
-                eval_instances.extend(instances)
+            for id_ in ids_to_include:
+                eval_instances.extend(id_to_instances[id_])
 
         hlog(
             f"{len(instances)} instances, "
