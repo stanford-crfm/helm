@@ -72,7 +72,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
     name = "model"
     values_dict = {
-        "default": ["openai/davinci", "ai21/j1-jumbo", "huggingface/gptj_6b"],
+        "default": ["openai/davinci", "ai21/j1-jumbo", "huggingface/gpt2"],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
         "all": get_all_models(),
