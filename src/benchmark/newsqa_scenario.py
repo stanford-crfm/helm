@@ -30,7 +30,7 @@ class NewsQAScenario(Scenario):
     All of the questions and answers are written by crowd sourced human annotators.
     For more details, see https://arxiv.org/abs/1611.09830.
     More concretely, we prompt models using the following format:
-        Article: <news article>
+        <news article>
         Question: <question>
         Answer:
         Target completion:
@@ -62,11 +62,10 @@ class NewsQAScenario(Scenario):
         correct references.
         """
         prompt: str = ""
-        prompt += f"Article: {sample['text']}\n\n"
+        prompt += f"{sample['text']}\n\n"
         all_questions = sample["questions"]
         question = random.sample(all_questions, 1)[0]
-        prompt += f"Question: {question['q']}\n"
-        prompt += "Answer:"
+        prompt += f"Question: {question['q']}"
         # generate set of valid answers
         answers = []
 

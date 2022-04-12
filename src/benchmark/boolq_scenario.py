@@ -19,19 +19,19 @@ class BoolQScenario(Scenario):
 
     We prompt models using the following format:
         <passage>
-        question: <question>
-        answer:
+        Question: <question>
+        Answer:
 
         Target completion:
             <answer>
 
     Using an example from the training dataset, we have
-        Epsom railway station serves the town of Epsom in Surrey. It is located off Waterloo Road and is
+        Context: Epsom railway station serves the town of Epsom in Surrey. It is located off Waterloo Road and is
         less than two minutes' walk from the High Street.
         It is not in the London Oyster card zone unlike Epsom Downs or Tattenham Corner stations.
         The station building was replaced in 2012/2013 with a new building with apartments above the station.
-        question: can you use oyster card at epsom station
-        answer:
+        Question: can you use oyster card at epsom station?
+        Answer:
 
         Target completion:
             yes
@@ -49,7 +49,9 @@ class BoolQScenario(Scenario):
         We follow the format from https://arxiv.org/abs/2005.14165.
         For more details, see Figure G.29: Formatted dataset example for BoolQ.
         """
-        return f"{passage}\nquestion: {question}"
+        question = question.strip()
+        assert question[-1] != "?"
+        return f"{passage}\nQuestion: {question}?"
 
     def get_split_instances(self, split: str, path: str) -> List[Instance]:
         split_instances: List[Instance] = []
@@ -105,19 +107,19 @@ class BoolQContrastSetScenario(BoolQScenario):
 
     We prompt models using the same format as BoolQ:
         <passage>
-        question: <question>
-        answer:
+        Question: <question>
+        Answer:
 
         Target completion:
             <answer>
 
-    An example instance of a perturbation (from the original paper):
+    Context: An example instance of a perturbation (from the original paper):
     The Fate of the Furious premiered in Berlin on April 4, 2017, and was theatrically released in the
     United States on April 14, 2017, playing in 3D, IMAX 3D and 4DX internationally. . . A spinoff film starring
     Johnson and Statham’s characters is scheduled for release in August 2019, while the ninth and tenth films are
     scheduled for releases on the years 2020 and 2021.
-    question: is “Fate and the Furious” the last movie?
-    answer: no
+    Question: is “Fate and the Furious” the last movie?
+    Answer: no
 
     perturbed question: is “Fate and the Furious” the first of multiple movies?
     perturbed answer: yes
