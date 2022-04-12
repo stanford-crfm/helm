@@ -172,7 +172,7 @@ def bleu_4(gold: str, pred: str) -> float:
     return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(0, 0, 0, 1))
 
 
-def extract_set_from_text(set_str: str, set_start_str: str=" is ", set_separator: str=" and ") -> Set[str]:
+def extract_set_from_text(set_str: str, set_start_str: str = " is ", set_separator: str = " and ") -> Set[str]:
     """
     Given a string, extract the set of strings implied by that string. 
     set_start_str denotes the start of the set
