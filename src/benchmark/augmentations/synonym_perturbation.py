@@ -24,9 +24,9 @@ class SynonymPerturbation(Perturbation):
 
     Perturbation example:
     Input:
-        Albany Theatre is a historic theater in Albany, Georgia.
+        This was a good movie, would watch again.
     Output:
-        Albany Theatre is a historic dramaturgy in Albany, Georgia.
+        This was a dependable movie, would determine again.
     """
 
     @dataclass(frozen=True)
