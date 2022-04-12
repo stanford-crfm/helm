@@ -113,7 +113,7 @@ def typo(prob: float) -> PerturbationSpec:
     )
 
 
-def contract_and_expand() -> PerturbationSpec:
+def contract_and_expand() -> List[PerturbationSpec]:
     return [
         PerturbationSpec(
             class_name=f"benchmark.augmentations.contraction_expansion_perturbation.{mode}Perturbation", args={}
