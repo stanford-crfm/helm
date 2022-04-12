@@ -399,7 +399,7 @@ class Adapter:
         ]
         labels_iterable = cycle(sorted_labels)
 
-        in_context_instances: List[Instance] = []
+        examples: List[Instance] = []
         while num_instances_to_sample > 0:
             next_label: Optional[str] = next(labels_iterable, None)
             if not next_label:
@@ -410,12 +410,12 @@ class Adapter:
             if len(instances) == 0:
                 continue
 
-            in_context_instances.append(instances.pop(random.randrange(len(instances))))
+            examples.append(instances.pop(random.randrange(len(instances))))
             num_instances_to_sample -= 1
 
         # If we ran out of Instances with References, sample the rest from the pool of Instances without References
-        in_context_instances += random.sample(unlabeled_instances, num_instances_to_sample)
-        return in_context_instances
+        examples += random.sample(unlabeled_instances, num_instances_to_sample)
+        return examples
 
     def construct_prompt(self, train_instances: List[Instance], eval_instance: Instance) -> str:
         """
