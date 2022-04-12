@@ -410,10 +410,12 @@ class Adapter:
             if len(instances) == 0:
                 continue
 
+            # Randomly sample without replacement
             examples.append(instances.pop(random.randrange(len(instances))))
             num_instances_to_sample -= 1
 
-        # If we ran out of Instances with References, sample the rest from the pool of Instances without References
+        # If we ran out of Instances with correct References, sample the rest from
+        # the pool of Instances without any References
         examples += random.sample(unlabeled_instances, num_instances_to_sample)
         return examples
 
