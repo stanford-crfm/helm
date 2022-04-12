@@ -407,10 +407,10 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
         max_train_instances=3,  # TODO: Justify; @tony w.
-        max_eval_instances=10,
+        max_eval_instances=100,
         num_outputs=3,
         num_train_trials=1,
-        model="ai21/j1-large",
+        model="openai/davinci",
         temperature=1.0,
         stop_sequences=["\n"],
         max_tokens=20,
@@ -671,8 +671,8 @@ def get_babi_qa_spec(task: str) -> RunSpec:
         output_prefix="\nanswer:",
         num_train_trials=1,
         max_train_instances=5,
-        model="huggingface/gptj_6b",
-        max_eval_instances=300,
+        model="openai/davinci",
+        max_eval_instances=None,
         num_outputs=1,
         # Task 19's answers consist of two words (in contrast to all other tasks that feature a single-word answers.)
         max_tokens=2 if task == "19" else 1,
