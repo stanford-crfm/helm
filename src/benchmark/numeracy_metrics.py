@@ -35,7 +35,9 @@ class DistanceMetric(Metric):
     def evaluate_generation(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
-        """
+        """For given request, compute the following two metrics:
+        1. geometric distance metric in range [0, ∞), calling the appropriate distance method, if possible, and
+        2. percent valid metric in range [0., 1.] of completions that are a valid number, ignoring commas.
         """
         references = request_state.instance.references
         _, rel_str, relation_type = map(lambda _: _.output, references)
