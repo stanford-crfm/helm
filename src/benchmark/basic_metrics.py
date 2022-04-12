@@ -172,13 +172,15 @@ def bleu_4(gold: str, pred: str) -> float:
     return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(0, 0, 0, 1))
 
 
-def extract_set_from_text(set_str: str, set_start_str: str = " is ", set_separator: str = " and ") -> Set[str]:
+def extract_set_from_text(
+    set_str: str, set_start_str: str = " is ", set_separator: str = " and ", empty_set_str: str = "Nothing.",
+) -> Set[str]:
     """
     Given a string, extract the set of strings implied by that string.
     set_start_str denotes the start of the set
-    set_separtor denotes the string separating set elements
+    set_separator denotes the string separating set elements
     """
-    if set_str == "Nothing.":
+    if set_str == empty_set_str:
         return set()
     set_str = set_str.replace(".", "")
     extracted_set = set(set_str.split(set_start_str)[-1].split(set_separator))
@@ -195,7 +197,7 @@ def extract_gold_pred_sets(gold: str, pred: str) -> Tuple[Set[str], Set[str]]:
 def iou_set_match(gold: str, pred: str) -> float:
     """Compute the intersection over union of the gold and pred sets"""
     gold_set, pred_set = extract_gold_pred_sets(gold, pred)
-    if len(gold_set) == 0:
+    if len(gold_set) == 0:  # If gold is empty, just check if the pred set is also empty
         return float(gold_set == pred_set)
     return len(gold_set.intersection(pred_set)) / len(gold_set.union(pred_set))
 
@@ -203,7 +205,7 @@ def iou_set_match(gold: str, pred: str) -> float:
 def f1_set_match(gold: str, pred: str) -> float:
     """Compute the F1 score of the gold and pred sets"""
     gold_set, pred_set = extract_gold_pred_sets(gold, pred)
-    if len(gold_set) == 0:
+    if len(gold_set) == 0:  # If gold is empty, just check if the pred set is also empty
         return float(gold_set == pred_set)
     true_positives = gold_set.intersection(pred_set)
     return 2 * len(true_positives) / (len(gold_set) + len(pred_set))
