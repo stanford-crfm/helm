@@ -4,7 +4,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from common.general import ensure_file_downloaded
+from common.general import ensure_file_downloaded, ensure_directory_exists
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
 
@@ -298,7 +298,9 @@ class MSMARCOScenario(Scenario):
         Writes the file in the given source_url a file with the name file_name
         in the /data directory in located in the self.output_path.
         """
-        file_path: str = os.path.join(self.output_path, "data", file_name)
+        data_path: str = os.path.join(self.output_path, "data")
+        ensure_directory_exists(data_path)
+        file_path: str = os.path.join(data_path, file_name)
         ensure_file_downloaded(source_url=source_url, target_path=file_path, unpack=unpack, unpack_type=unpack_type)
         return file_path
 
