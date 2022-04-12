@@ -40,9 +40,9 @@ class BabiQAScenario(Scenario):
 
     We prompt models using the following format:
         Input sequence:
-            passage: <passage>
-            question: <question>
-            answer:
+            Passage: <passage>
+            Question: <question>
+            Answer:
 
         Output Sequence (Target completion):
             <answer>
@@ -107,7 +107,7 @@ class BabiQAScenario(Scenario):
                         # Task 19 (path finding) has a non verbal answer format (
                         if self.task == 19:
                             answer = self.process_path(answer)
-                        context = f"passage: {''.join(story)}question: {question}"
+                        context = f"{''.join(story)}Question: {question}"
                         instance: Instance = Instance(
                             input=context,
                             references=[Reference(output=answer, tags=[CORRECT_TAG])],

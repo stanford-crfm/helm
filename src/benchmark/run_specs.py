@@ -158,7 +158,7 @@ def get_msmarco_spec(
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions="",
-        input_prefix="",
+        input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         max_train_instances=4,
         max_eval_instances=1500,
@@ -186,7 +186,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions=f"The following are multiple choice questions (with answers) about {format(subject)}.",
-        input_prefix="",
+        input_prefix="Question: ",
         output_prefix="\nAnswer: ",
         max_train_instances=5,
         max_eval_instances=1000,  # TODO: Justify, @michi
@@ -239,7 +239,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
         adapter_spec = AdapterSpec(
             method=ADAPT_MULTIPLE_CHOICE,
             instructions="The following are multiple choice questions (with answers) about common sense.",
-            input_prefix="",
+            input_prefix="Question: ",
             output_prefix="\nAnswer: ",
             max_train_instances=0,  # TODO: Justify; @michi
             max_eval_instances=None,
@@ -335,7 +335,7 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions="",
-        input_prefix="",
+        input_prefix="Question: ",
         output_prefix="\nAnswer: ",
         max_train_instances=5,
         max_eval_instances=654,
@@ -607,7 +607,7 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions="The following are multiple choice questions (with answers).",
-        input_prefix="",
+        input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         max_train_instances=2,  # TODO: Justify; @dor
         model="openai/davinci",
@@ -675,8 +675,8 @@ def get_babi_qa_spec(task: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="\nanswer:",
+        input_prefix="Passage: ",
+        output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
@@ -1088,7 +1088,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Please complete the rest of the following Dyck sequence, "
+        instructions="Please complete the rest of the following Dyck sequences, "
         "making sure that the parentheses are closed properly. ",
         input_prefix="Input: ",
         output_prefix="",
