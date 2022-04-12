@@ -816,9 +816,9 @@ def get_code_spec(dataset: str) -> RunSpec:
             num_outputs=1,
             num_train_trials=1,
             model="openai/code-davinci-001",
-            temperature=0.2, # TODO: @Qian - Justify
-            stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",], # TODO: @Qian - Justify/explain
-            max_tokens=600, # TODO: @Qian - Justify
+            temperature=0.2,
+            stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],
+            max_tokens=600,
             input_prefix="",
             output_prefix="",
         )
@@ -832,9 +832,9 @@ def get_code_spec(dataset: str) -> RunSpec:
             num_outputs=1,
             num_train_trials=1,
             model="openai/code-davinci-001",
-            temperature=0.2, # TODO: @Qian - Justify
-            stop_sequences=["'''", "---", '"""', "\n\n\n"], # TODO: @Qian - Justify/explain
-            max_tokens=600, # TODO: @Qian - Justify
+            temperature=0.2,
+            stop_sequences=["'''", "---", '"""', "\n\n\n"],
+            max_tokens=600,
             input_prefix="",
             output_prefix="",
         )
