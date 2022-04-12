@@ -24,6 +24,7 @@ from . import babi_qa_scenario  # noqa
 from . import narrativeqa_scenario  # noqa
 from . import raft_scenario  # noqa
 from . import numeracy_scenario  # noqa
+from . import ice_scenario  # noqa
 from . import summarization_scenario  # noqa
 from . import synthetic_reasoning_scenario  # noqa
 from . import newsqa_scenario  # noqa
@@ -51,3 +52,5 @@ from .augmentations.misspelling_perturbation import MisspellingPerturbation  # n
 from .augmentations.contraction_expansion_perturbation import ContractionPerturbation  # noqa
 from .augmentations.contraction_expansion_perturbation import ExpansionPerturbation  # noqa
 from .augmentations.typos_perturbation import TyposPerturbation  # noqa
+from .augmentations.lowercase_perturbation import LowerCasePerturbation  # noqa
+from .augmentations.space_perturbation import SpacePerturbation  # noqa
