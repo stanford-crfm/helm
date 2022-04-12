@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Optional, Sequence
 import re
 import inspect
@@ -18,7 +18,7 @@ EVAL_SPLITS: List[str] = [VALID_SPLIT, TEST_SPLIT]
 CORRECT_TAG: str = "correct"
 
 
-@dataclass(frozen=True, unsafe_hash=True)
+@dataclass(frozen=True)
 class Reference:
     """
     A `Reference` specifies a possible output and how good/bad it is.  This
@@ -31,8 +31,7 @@ class Reference:
     output: str
 
     # Extra metadata (e.g., whether it's correct/factual/toxic)
-    # List is unhashable so skip when hashing
-    tags: List[str] = field(compare=False)
+    tags: List[str]
 
     @property
     def is_correct(self) -> bool:

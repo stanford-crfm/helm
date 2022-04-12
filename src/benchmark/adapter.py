@@ -12,7 +12,7 @@ from proxy.tokenizer.tokenizer import Tokenizer
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from proxy.tokenizer.tokenizer_service import TokenizerService
 from .adapter_service import AdapterService
-from .scenario import Instance, Reference, TRAIN_SPLIT, EVAL_SPLITS
+from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"
@@ -295,9 +295,7 @@ class Adapter:
             request_states = self.adapt_language_modeling(eval_instances)
         else:
             for train_trial_index in range(self.adapter_spec.num_train_trials):
-                train_instances: List[Instance] = self.sample_in_context_examples(
-                    all_train_instances, seed=train_trial_index
-                )
+                train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
 
                 # Create request_states
                 for eval_index, eval_instance in enumerate(eval_instances):
@@ -359,15 +357,26 @@ class Adapter:
         hlog(f"{len(request_states)} requests")
         return ScenarioState(self.adapter_spec, request_states)
 
-    def sample_in_context_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
+    def sample_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
         """
-        Sample a random set of train instances to use as in-context examples by following the steps below:
-        1. Sort the classes (correct References) by the number of Instances that belong to the class.
+        Sample a random set of train instances to use as examples by following the steps below:
+        1. Sort the class labels (correct References) by the number of Instances that belong to the class.
         2. Keep sampling one train Instance from each class in the order established in step 1, until
-           there are k in-context examples.
+           there are k examples.
+        3. If we run out of examples to sample, sample the rest from the Instances that do not have
+           class labels.
 
-        If a correct Reference is not available in the `Instance`s, sample directly from the pool of
-        train instances.
+        Example:
+
+            If we had to sample 2 instances from these train instances:
+                Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+
+            The following instances would be selected:
+
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])])
+                Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])])
 
         Returns a new list of randomly sampled train instances.
         """
@@ -378,33 +387,37 @@ class Adapter:
         random.seed(seed)
         num_instances_to_sample: int = min(len(all_train_instances), self.adapter_spec.max_train_instances)
 
-        # If the train instances do not have a correct `Reference`, then just sample from the entire pool
-        example_train_instance: Instance = all_train_instances[0]
-        if not example_train_instance.first_correct_reference:
-            return random.sample(all_train_instances, num_instances_to_sample)
+        unlabeled_instances: List[Instance] = []
+        label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
 
-        correct_reference_to_instances: Dict[Reference, List[Instance]] = defaultdict(list)
         for instance in all_train_instances:
             if instance.first_correct_reference:
-                correct_reference_to_instances[instance.first_correct_reference].append(instance)
+                label_to_instances[instance.first_correct_reference.output].append(instance)
+            else:
+                unlabeled_instances.append(instance)
 
         # Sort the correct references by the number of Instances that belong to the class
-        sorted_references: List[Reference] = [
-            key for key, _ in sorted(correct_reference_to_instances.items(), key=lambda x: len(x[1]), reverse=True)
+        sorted_labels: List[str] = [
+            key for key, _ in sorted(label_to_instances.items(), key=lambda x: len(x[1]), reverse=True)
         ]
-        correct_references = cycle(sorted_references)
+        labels_iterable = cycle(sorted_labels)
 
         in_context_instances: List[Instance] = []
         while num_instances_to_sample > 0:
-            next_reference: Reference = next(correct_references)
-            instances: List[Instance] = correct_reference_to_instances[next_reference]
-            # If there are no Instances to sample for this particular class, skip it.
+            next_label: Optional[str] = next(labels_iterable, None)
+            if not next_label:
+                break
+
+            instances: List[Instance] = label_to_instances[next_label]
+            # If there are no Instances to sample for this particular label, skip it.
             if len(instances) == 0:
                 continue
 
             in_context_instances.append(instances.pop(random.randrange(len(instances))))
             num_instances_to_sample -= 1
 
+        # If we ran out of Instances with References, sample the rest from the pool of Instances without References
+        in_context_instances += random.sample(unlabeled_instances, num_instances_to_sample)
         return in_context_instances
 
     def construct_prompt(self, train_instances: List[Instance], eval_instance: Instance) -> str:
