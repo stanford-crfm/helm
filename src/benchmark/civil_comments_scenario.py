@@ -103,7 +103,6 @@ class CivilCommentsScenario(Scenario):
 
         # Read all instances
         instances: List[Instance] = []
-        # pudb.set_trace()
         for split, subset in dataset_splits.items():
             data_x, data_x = subset
             for (x, y) in zip(data_x, data_x):
