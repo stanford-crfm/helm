@@ -87,6 +87,10 @@ class AllRunner:
             # Use `dry_run` flag if set, else use what's in the file.
             dry_run = self.dry_run if self.dry_run is not None else status == WIP_STATUS
 
+            # TODO:What should pre_ and post_interaction flags be in present.py?
+            # Ashwin's guess: post_interaction=True because if this file is run
+            # before presenting metrics, for the interaction tasks, the traces
+            # should have already been collected beforehand
             new_run_specs = run_benchmarking(
                 run_spec_descriptions=[run_spec_description],
                 auth=self.auth,
@@ -94,6 +98,8 @@ class AllRunner:
                 num_threads=self.num_threads,
                 output_path=self.output_path,
                 dry_run=dry_run,
+                pre_interaction=False,
+                post_interaction=False,
                 skip_instances=self.skip_instances,
                 max_eval_instances=self.max_eval_instances,
             )
