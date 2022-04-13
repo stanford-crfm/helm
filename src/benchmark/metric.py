@@ -233,7 +233,7 @@ class Metric(ABC):
         good_logprobs: defaultdict = defaultdict(float)
         bad_logprobs: defaultdict = defaultdict(float)
 
-        if scenario_state.request_states is not None:
+        if scenario_state.request_states:
             for request_state in scenario_state.request_states:
                 assert request_state.instance.id is not None and request_state.instance.sub_split is not None
                 pair_id: int = int(request_state.instance.id.lstrip("id")) // 2
