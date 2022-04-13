@@ -10,16 +10,12 @@ sys.path = sys.path + ["../../"]
 
 from common.authentication import Authentication  # noqa: E402
 from common.request import RequestResult  # noqa: E402
-from common.general import unpickle  # noqa: E402
-from .dialogue_config import DIALOGUE_CREDENTIALS
+from common.general import unpickle, parse_hocon  # noqa: E402
 
 # flake8: noqa
 # An example of how to use the request API.
 
 # TODO: replace with equivalent Adapter spec that the script for HIT creation will spit out
-auth = Authentication(DIALOGUE_CREDENTIALS)
-url = "https://crfm-models.stanford.edu"
-execution_spec = ExecutionSpec(auth=auth, url=url, parallelism=1, dry_run=False)
 
 
 def load_run_spec(output_path, run_name):
@@ -29,8 +25,21 @@ def load_run_spec(output_path, run_name):
 
 
 def get_runner(args: dict) -> InteractiveRunner:
+    base_path = args["base_path"]
     run_name = args["run_name"]
     output_path = args["output_path"]
+
+    credentials_path = os.path.join(base_path, "dialogue_credentials.conf")
+
+    if os.path.exists(credentials_path):
+        with open(credentials_path) as f:
+            credentials = parse_hocon(f.read())
+    else:
+        credentials = {}
+    print(credentials)
+    auth = Authentication(credentials["DIALOGUE_CREDENTIALS"])
+    url = "https://crfm-models.stanford.edu"
+    execution_spec = ExecutionSpec(auth=auth, url=url, parallelism=1, dry_run=False)
     run_spec = load_run_spec(output_path, run_name)
     return InteractiveRunner(execution_spec, output_path, run_spec)
 

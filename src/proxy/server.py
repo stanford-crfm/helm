@@ -194,6 +194,7 @@ def handle_shutdown():
 def start_dialogue():
     def perform(args):
         args["output_path"] = file_globals["output_path"]
+        args["base_path"] = file_globals["base_path"]
         response = start_conversation(args)
         return response
 
@@ -204,6 +205,7 @@ def start_dialogue():
 def handle_utterance():
     def perform(args):
         args["output_path"] = file_globals["output_path"]
+        args["base_path"] = file_globals["base_path"]
         response = conversational_turn(args)
         return response
 
@@ -214,6 +216,7 @@ def handle_utterance():
 def submit_dialogue():
     def perform(args):
         args["output_path"] = file_globals["output_path"]
+        args["base_path"] = file_globals["base_path"]
         response = submit_interview(args)
         return response
 
@@ -235,9 +238,9 @@ def main():
     )
     args = parser.parse_args()
 
-    args = parser.parse_args()
     ensure_directory_exists(args.output_path)
     file_globals["output_path"] = args.output_path
+    file_globals["base_path"] = args.base_path
 
     service = ServerService(base_path=args.base_path, read_only=args.read_only)
 
