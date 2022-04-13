@@ -56,7 +56,6 @@ class CivilCommentsScenario(Scenario):
         data_path: str = "/u/scr/nlp/crfm/benchmarking/civil_comments/"
         file_path = os.path.join(data_path, "civil_comments.csv")
         assert os.path.exists(file_path)
-
         df = pd.read_csv(file_path)
 
         if self.subject != "all":
@@ -92,8 +91,8 @@ class CivilCommentsScenario(Scenario):
 
         # TODO: Only using labeled instances now.
         data = np.stack(df["comment_text"].tolist())
-        train_x, train_y, test_x, test_y = train_test_split(
-            data, df["severe_toxicity"], test_size=0.2, seed=self.random_seed
+        train_x, test_x, train_y, test_y = train_test_split(
+            data, df["severe_toxicity"], test_size=0.2, random_state=self.random_seed
         )
 
         dataset_splits = {
@@ -104,8 +103,8 @@ class CivilCommentsScenario(Scenario):
         # Read all instances
         instances: List[Instance] = []
         for split, subset in dataset_splits.items():
-            data_x, data_x = subset
-            for (x, y) in zip(data_x, data_x):
+            data_x, data_y = subset
+            for (x, y) in zip(data_x, data_y):
                 instance = Instance(
                     input=x, references=[Reference(output=bool_to_response[y >= 0.5], tags=[CORRECT_TAG])], split=split,
                 )
