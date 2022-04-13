@@ -20,13 +20,10 @@ class DialogueAdapter(InteractiveAdapter):
         return agent_prompt
 
     def initial_lm_request(self, initial_request_state: RequestState) -> RequestState:
-        print("aha")
         initial_prompt = initial_request_state.request.prompt
         new_prompt = initial_prompt + self.agent_prompt()
-        print(new_prompt)
         new_request = replace(initial_request_state.request, prompt=new_prompt)
         new_request_state = replace(initial_request_state, request=new_request)
-        print(new_request_state)
         return new_request_state
 
     def adapt_user_input(self, interaction_trace: InteractionTrace, user_input: UserInput) -> RequestState:
