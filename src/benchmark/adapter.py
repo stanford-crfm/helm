@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import random
 import time
 from dataclasses import dataclass, field
-from typing import List, Dict, Tuple, Optional, Any
+from typing import List, Dict, Tuple, Optional, Any, Union, Sequence
 from collections import defaultdict, OrderedDict
 import uuid
 
@@ -298,6 +298,7 @@ class ScenarioState:
         return self.interaction_trace_map.get((train_trial_index, instance, reference_index), [])
 
     def render_lines(self) -> List[str]:
+        instance_responses: Union[Sequence[RequestState], Sequence[InteractionTrace]] = []
         if self.request_states is not None:
             instance_responses = self.request_states
         elif self.interaction_traces is not None:

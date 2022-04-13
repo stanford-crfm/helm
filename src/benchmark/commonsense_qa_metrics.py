@@ -27,18 +27,19 @@ class CommonSenseQAMetric(Metric):
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
-            for idx in range(0, len(scenario_state.request_states), self.n_request_per_instance):
-                request_states = scenario_state.request_states[idx : idx + self.n_request_per_instance]
+            if scenario_state.request_states is not None:
+                for idx in range(0, len(scenario_state.request_states), self.n_request_per_instance):
+                    request_states = scenario_state.request_states[idx : idx + self.n_request_per_instance]
 
-                instance_stats = self.evaluate_references(adapter_spec, request_states, metric_service)
+                    instance_stats = self.evaluate_references(adapter_spec, request_states, metric_service)
 
-                for stat in instance_stats:
-                    # All of the request states should be for the same split
-                    splits = list(set(request_state.instance.split for request_state in request_states))
-                    assert len(splits) == 1
+                    for stat in instance_stats:
+                        # All of the request states should be for the same split
+                        splits = list(set(request_state.instance.split for request_state in request_states))
+                        assert len(splits) == 1
 
-                    stat = Stat(replace(stat.name, split=splits[0])).merge(stat)
-                    merge_stat(trial_stats, stat)
+                        stat = Stat(replace(stat.name, split=splits[0])).merge(stat)
+                        merge_stat(trial_stats, stat)
 
             # We only take the mean value for each trial
             for stat in trial_stats.values():

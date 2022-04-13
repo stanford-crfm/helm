@@ -164,30 +164,33 @@ class MSMARCOMetric(Metric):
         # Iterate through trials
         for train_trial_index in range(adapter_spec.num_train_trials):
             # Populate the dictionaries
-            validation_request_states = [rs for rs in scenario_state.request_states if rs.instance.split == VALID_SPLIT]
-            qid_to_gold_pid, qid_pid_logprob_dict = self.get_qid_dictionaries(validation_request_states)
+            if scenario_state.request_states is not None:
+                validation_request_states = [
+                    rs for rs in scenario_state.request_states if rs.instance.split == VALID_SPLIT
+                ]
+                qid_to_gold_pid, qid_pid_logprob_dict = self.get_qid_dictionaries(validation_request_states)
 
-            # Loop through the validation queries
-            trial_topk_to_stat = {k: Stat(MetricName(f"RR@{k}")) for k in self.topk_list}
-            for qid, gold_pid in qid_to_gold_pid.items():
-                # Rank the pids for the qid
-                ranked_pids = self.get_ranked_pid_list(qid_pid_logprob_dict, qid)
+                # Loop through the validation queries
+                trial_topk_to_stat = {k: Stat(MetricName(f"RR@{k}")) for k in self.topk_list}
+                for qid, gold_pid in qid_to_gold_pid.items():
+                    # Rank the pids for the qid
+                    ranked_pids = self.get_ranked_pid_list(qid_pid_logprob_dict, qid)
 
-                # Get the rank of the gold
-                rank_gold: Optional[int] = None
-                if gold_pid in ranked_pids:
-                    rank_gold = ranked_pids.index(gold_pid) + 1
+                    # Get the rank of the gold
+                    rank_gold: Optional[int] = None
+                    if gold_pid in ranked_pids:
+                        rank_gold = ranked_pids.index(gold_pid) + 1
 
-                # Compute MRR
+                    # Compute MRR
+                    for k, stat in trial_topk_to_stat.items():
+                        rr = 0.0
+                        if rank_gold and rank_gold <= k:
+                            rr = 1 / float(rank_gold)
+                        stat.add(rr)
+
+                # Add the means to topk_to_stat stats
                 for k, stat in trial_topk_to_stat.items():
-                    rr = 0.0
-                    if rank_gold and rank_gold <= k:
-                        rr = 1 / float(rank_gold)
-                    stat.add(rr)
-
-            # Add the means to topk_to_stat stats
-            for k, stat in trial_topk_to_stat.items():
-                topk_to_stat[k].add(stat.mean)
+                    topk_to_stat[k].add(stat.mean)
 
         return list(topk_to_stat.values())
 
