@@ -21,8 +21,8 @@ class MSMARCOMetric(Metric):
     METRIC_NAMES = ["mean_reciprocal_rank"]
 
     # Constants for the answer texts
-    YES_ANSWER = "yes"
-    NO_ANSWER = "no"
+    YES_ANSWER = "Yes"
+    NO_ANSWER = "No"
 
     def __init__(self, name: str, topk_list: List[int] = [10]):
         """Constructor for the MSMARCOMetric.
@@ -85,14 +85,14 @@ class MSMARCOMetric(Metric):
                 qid, pid, gold = instance.qid, instance.pid, instance.gold
                 # We need to check that the values of the qid, pid, and gold
                 # are not None otherwise the code fails static typeckecking
-                if qid and pid and gold:
+                if qid and pid and gold is not None:
                     # Populate the gold mapping dictionary
                     if gold:
                         qid_to_gold_pid[qid] = pid
                     # Get the completion from the model
                     model_completion = rs.result.completions[0]
                     answer_choice = model_completion.text.strip()  # 'A' or 'B'
-                    answer_text = rs.output_mapping[answer_choice]  # 'yes' or 'no'
+                    answer_text = rs.output_mapping[answer_choice]  # 'Yes' or 'No'
                     qid_pid_logprob_dict[answer_text].append((qid, pid, model_completion.logprob))
 
         return qid_to_gold_pid, qid_pid_logprob_dict
@@ -138,13 +138,13 @@ class MSMARCOMetric(Metric):
         Note that there is only one instance where we ask the model whether a passage
         with the ID pid contains the query with the ID qid. For each qid, we
         assign a ranking to each pid that we queried the model with as follows:
-        - We get the model's answer, "yes" or "no", and the logprob of the answer
+        - We get the model's answer, "Yes" or "No", and the logprob of the answer
             for each pid.
         - We rank the answers we got using the following scheme:
-            High => "yes", high logprob
-                 => "yes", low  logprob
-                 => "no",  low  logprob
-            Low  => "no",  high logprob
+            High => "Yes", high logprob
+                 => "Yes", low  logprob
+                 => "No",  low  logprob
+            Low  => "No",  high logprob
         - For each k in self.topk_list:
             * We check whether the pid that corresponds to the golden passage for
                 a given query with qid is ranked at most k.

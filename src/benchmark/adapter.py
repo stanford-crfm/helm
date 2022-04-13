@@ -2,9 +2,12 @@ from abc import ABC, abstractmethod
 import random
 import time
 from dataclasses import dataclass, field
+from itertools import cycle
 from typing import List, Dict, Tuple, Optional, Any, Union, Sequence
 from collections import defaultdict, OrderedDict
 import uuid
+
+import numpy as np
 
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
@@ -414,9 +417,16 @@ class Adapter:
 
             # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
             # include all their instances in the final set of eval instances.
+            # The random sampling includes instances monotonically.
+            np.random.seed(0)
+            ids_to_include = list(id_to_instances.keys())
+            if len(ids_to_include) > self.adapter_spec.max_eval_instances:
+                ids_to_include = list(
+                    np.random.choice(ids_to_include, self.adapter_spec.max_eval_instances, replace=False)
+                )
             eval_instances = []
-            for _, instances in list(id_to_instances.items())[: self.adapter_spec.max_eval_instances]:
-                eval_instances.extend(instances)
+            for id_ in ids_to_include:
+                eval_instances.extend(id_to_instances[id_])
 
         hlog(
             f"{len(instances)} instances, "
@@ -435,11 +445,7 @@ class Adapter:
             request_states = self.adapt_language_modeling(eval_instances)
         else:
             for train_trial_index in range(self.adapter_spec.num_train_trials):
-                # Choose a random set of training instances
-                random.seed(train_trial_index)
-                train_instances = random.sample(
-                    all_train_instances, min(len(all_train_instances), self.adapter_spec.max_train_instances)
-                )
+                train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
 
                 # Create request_states
                 for eval_index, eval_instance in enumerate(eval_instances):
@@ -505,6 +511,68 @@ class Adapter:
             )
         else:
             return ScenarioState(self.adapter_spec, request_states=request_states)
+
+    def sample_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
+        """
+        Sample a random set of train instances to use as examples by following the steps below:
+        1. Sort the class labels (correct References) by the number of Instances that belong to the class.
+        2. Keep sampling one train Instance from each class in the order established in step 1, until
+           there are k examples.
+        3. If we run out of examples to sample, sample the rest from the Instances that do not have
+           class labels.
+
+        Example:
+
+            If we had to sample 2 instances from these train instances:
+                Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+
+            The following instances would be selected:
+
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])])
+                Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])])
+
+        Returns a new list of randomly sampled train instances.
+        """
+        # Fix the random seed for reproducibility
+        random.seed(seed)
+        num_instances_to_sample: int = min(len(all_train_instances), self.adapter_spec.max_train_instances)
+
+        unlabeled_instances: List[Instance] = []
+        label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
+
+        for instance in all_train_instances:
+            if instance.first_correct_reference:
+                label_to_instances[instance.first_correct_reference.output].append(instance)
+            else:
+                unlabeled_instances.append(instance)
+
+        # Sort the labels by the number of Instances that belong to them
+        sorted_labels: List[str] = [
+            key for key, _ in sorted(label_to_instances.items(), key=lambda x: len(x[1]), reverse=True)
+        ]
+        labels_iterable = cycle(sorted_labels)
+
+        examples: List[Instance] = []
+        while num_instances_to_sample > 0:
+            next_label: Optional[str] = next(labels_iterable, None)
+            if not next_label:
+                break
+
+            instances: List[Instance] = label_to_instances[next_label]
+            # If there are no Instances to sample for this particular label, skip it.
+            if len(instances) == 0:
+                continue
+
+            # Randomly sample without replacement
+            examples.append(instances.pop(random.randrange(len(instances))))
+            num_instances_to_sample -= 1
+
+        # If we ran out of Instances with correct References, sample the rest from
+        # the pool of Instances without any References
+        examples += random.sample(unlabeled_instances, num_instances_to_sample)
+        return examples
 
     def construct_prompt(self, train_instances: List[Instance], eval_instance: Instance) -> str:
         """

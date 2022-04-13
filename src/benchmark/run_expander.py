@@ -91,10 +91,35 @@ def extra_space(num_spaces: int) -> PerturbationSpec:
     )
 
 
+def space(max_spaces: int) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.space_perturbation.SpacePerturbation", args={"max_spaces": max_spaces},
+    )
+
+
+def lower() -> PerturbationSpec:
+    return PerturbationSpec(class_name="benchmark.augmentations.lowercase_perturbation.LowerCasePerturbation", args={})
+
+
 def misspelling(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
         class_name="benchmark.augmentations.misspelling_perturbation.MisspellingPerturbation", args={"prob": prob}
     )
+
+
+def typo(prob: float) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.typos_perturbation.TyposPerturbation", args={"prob": prob}
+    )
+
+
+def contract_and_expand() -> List[PerturbationSpec]:
+    return [
+        PerturbationSpec(
+            class_name=f"benchmark.augmentations.contraction_expansion_perturbation.{mode}Perturbation", args={}
+        )
+        for mode in ["Contraction", "Expansion"]
+    ]
 
 
 # Specifies the data augmentations that we're interested in trying out.
@@ -109,9 +134,15 @@ def misspelling(prob: float) -> PerturbationSpec:
 # - r2: with perturbations [c, d, e]
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
-    "misspelling": {"misspelling0.05": [misspelling(prob=0.05)]},
+    "space": {"space3": [space(max_spaces=3)]},
+    "lower": {"lower": [lower()]},
+    "contract": {"contract": contract_and_expand()},
+    "misspelling_mild": {"misspelling0.05": [misspelling(prob=0.05)]},
+    "misspelling_medium": {"misspelling0.20": [misspelling(prob=0.20)]},
+    "misspelling_hard": {"misspelling0.5": [misspelling(prob=0.5)]},
     "misspelling_sweep": {f"misspelling{prob}": [misspelling(prob=prob)] for prob in [0, 0.05, 0.2, 0.5]},
-    "all": {"all": [extra_space(num_spaces=2), misspelling(prob=0.05)]},
+    "typo_medium": {"typo0.1": [typo(prob=0.10)]},
+    "all": {"all": [misspelling(prob=0.20), space(max_spaces=3), lower(), *contract_and_expand(), typo(prob=0.1)]},
 }
 
 
@@ -148,7 +179,7 @@ class DataAugmentationRunExpander(RunExpander):
                 should_perturb_references=False,
                 # Always include original and perturbed instances together so that
                 # we can compute the normal and robustness metrics in the same run.
-                should_augment_train_instances=True,
+                should_augment_train_instances=False,
                 should_include_original_train=True,
                 should_augment_eval_instances=True,
                 should_include_original_eval=True,
