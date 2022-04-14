@@ -1,5 +1,8 @@
+import re
+
 from typing import List, Optional
 from transformers import GPT2TokenizerFast
+from urllib.parse import unquote
 
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken, TextRange
 from .tokenizer import Tokenizer
@@ -40,6 +43,9 @@ class AI21Tokenizer(Tokenizer):
         # e.g. "burying him" -> ["▁burying"(0,7), "▁him"(7,11)];
         # " burying him" -> ["▁"(0,0), "▁burying"(0,8), "▁him"(8,12)];
         # "'s your camera" -> ["▁"(0,0), "'s"(0,2), "▁your▁camera"(2,14)]
+        #
+        # Also, sometimes a character/word is split into multiple bytes.
+        # e.g. ['<0xE8>', '<0x89>', '<0x99>'] -> '艙'
         return AI21Tokenizer.MAX_REQUEST_LENGTH - 5
 
     @property
@@ -60,6 +66,7 @@ class AI21Tokenizer(Tokenizer):
         if not text:
             return []
         tokens: List[TokenizationToken] = self._make_long_tokenization_request(text)
+        assert tokens[-1].text_range.end == len(text)
         return tokens
 
     def decode(self, tokens: List, original_text: Optional[str] = None) -> str:
@@ -72,7 +79,10 @@ class AI21Tokenizer(Tokenizer):
         assert original_text
         # The tokens must be a consecutive subset of the original text.
         for i in range(len(tokens) - 1):
-            assert tokens[i].text_range.end == tokens[i + 1].text_range.start
+            assert tokens[i].text_range.end == tokens[i + 1].text_range.start, (
+                tokens[i].text_range,
+                tokens[i + 1].text_range,
+            )
         start_token: TokenizationToken = tokens[0]
         end_token: TokenizationToken = tokens[-1]
         start: int = start_token.text_range.start
@@ -122,7 +132,58 @@ class AI21Tokenizer(Tokenizer):
 
     def _make_tokenization_request(self, text: str) -> TokenizationRequestResult:
         """Sends a request to the server to tokenize the text via the `TokenizerService`."""
-        return self.service.tokenize(TokenizationRequest(text=text, model=self.model))
+        return self._postprocess_tokenization_result(
+            self.service.tokenize(TokenizationRequest(text=text, model=self.model))
+        )
+        # return self.service.tokenize(TokenizationRequest(text=text, model=self.model))
+
+    def _postprocess_tokenization_result(self, result: TokenizationRequestResult) -> TokenizationRequestResult:
+        # Yian TODO: docstring and test
+        raw_tokens: List[TokenizationToken] = result.tokens
+        processed_tokens: List[TokenizationToken] = []
+        byte_pattern = "<0x[0-9A-F]{2}>"
+        # The number of positions that have been processed so far.
+        num_processed_positions: int = 0
+        i: int = 0
+        while i < len(raw_tokens):
+            # Aggregate consecutive tokens while they're "<0x..>"
+            if re.match(byte_pattern, raw_tokens[i].text):
+                bytestring = ""
+                while i < len(raw_tokens) and re.match(byte_pattern, raw_tokens[i].text):
+                    # e.g. <0xE8> -> \xE8
+                    bytestring += "\\" + raw_tokens[i].text[2:-1]
+                    i += 1
+                # Convert to encoded URI (e.g., %e2%80%99) and decode
+                text = unquote(bytestring.replace("\\x", "%"))
+                for char in text:
+                    processed_tokens.append(
+                        TokenizationToken(
+                            text=char,
+                            text_range=TextRange(
+                                start=num_processed_positions,
+                                # character tokens have length 1
+                                end=num_processed_positions + 1,
+                            ),
+                        )
+                    )
+                    num_processed_positions += 1
+            else:
+                token: TokenizationToken = raw_tokens[i]
+                token_length: int = token.text_range.end - token.text_range.start
+                processed_tokens.append(
+                    TokenizationToken(
+                        text=token.text,
+                        text_range=TextRange(
+                            start=num_processed_positions,
+                            # re-compute the text_range for each token
+                            end=num_processed_positions + token_length,
+                        ),
+                    )
+                )
+                num_processed_positions += token_length
+                i += 1
+        print("b", num_processed_positions)
+        return TokenizationRequestResult(cached=result.cached, tokens=processed_tokens)
 
     def _make_long_tokenization_request(self, text: str) -> List[TokenizationToken]:
         """If the text is too long, the AI21 server will close the connection. Therefore,
@@ -133,7 +194,7 @@ class AI21Tokenizer(Tokenizer):
 
         # If the text is short, just makes one request and returns the result.
         if len(open_ai_tokens) < AI21Tokenizer.MAX_TOKENIZATION_REQUEST_LENGTH:
-            return self.service.tokenize(TokenizationRequest(text=text, model=self.model)).tokens
+            return self._make_tokenization_request(text).tokens
         # Otherwise, splits the text to chunks, tokenizes each chunk, and re-assembles them.
         else:
             all_tokens: List[TokenizationToken] = []
@@ -152,18 +213,19 @@ class AI21Tokenizer(Tokenizer):
                     token_chunk_size -= 1
                     token_chunk = open_ai_tokens[num_processed_tokens : num_processed_tokens + token_chunk_size]
                     text_chunk = self.openai_tokenizer.decode(token_chunk)
-                chunk_tokens = self.service.tokenize(TokenizationRequest(text=text_chunk, model=self.model)).tokens
+                chunk_tokens = self._make_tokenization_request(text_chunk).tokens
                 # Removes the empty tokens introduced by the split.
                 if num_processed_tokens != 0 and chunk_tokens[0].text_range.start == chunk_tokens[0].text_range.end:
                     chunk_tokens = chunk_tokens[1:]
                 else:
                     chunk_tokens = chunk_tokens[:]
                 # Minor assert. Can be deleted.
-                for token in chunk_tokens:
-                    assert token.text_range.start != token.text_range.end, (
-                        text_chunk,
-                        [[token.text, token.text_range.start, token.text_range.end] for token in chunk_tokens],
-                    )
+                # for token in chunk_tokens:
+                #     assert token.text_range.start != token.text_range.end, (
+                #         # text_chunk,
+                #         # [[token.text, token.text_range.start, token.text_range.end] for token in chunk_tokens],
+                #         token
+                #     )
 
                 # Shifts the start and end index of each token
                 shifted_tokens: List[TokenizationToken] = [
@@ -179,4 +241,10 @@ class AI21Tokenizer(Tokenizer):
                 all_tokens.extend(shifted_tokens)
                 num_processed_tokens += token_chunk_size
                 num_processed_chars += len(text_chunk)
+
+            for i in range(len(all_tokens) - 1):
+                assert all_tokens[i].text_range.end == all_tokens[i + 1].text_range.start, (
+                    all_tokens[i],
+                    all_tokens[i + 1],
+                )
             return all_tokens
