@@ -128,9 +128,10 @@ class AI21Client(Client):
 
         # Each token is represented like this in the response:
         # {'token': '▁Hello', 'textRange': {'start': 0, 'end': 5}}
+        text: str = response["text"]
         tokens: List[TokenizationToken] = []
         for token_dict in response["tokens"]:
             tokens.append(
                 TokenizationToken(text=token_dict["token"], text_range=from_dict(TextRange, token_dict["textRange"]))
             )
-        return TokenizationRequestResult(cached=cached, tokens=tokens)
+        return TokenizationRequestResult(cached=cached, tokens=tokens, text=text)
