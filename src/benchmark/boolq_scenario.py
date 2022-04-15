@@ -131,7 +131,7 @@ class BoolQScenario(Scenario):
         contrast_path: str = os.path.join(data_path, "boolq_perturbed.jsonl")
         ensure_file_downloaded(source_url=contrast_url, target_path=contrast_path, unpack=False)
 
-        with open(target_path, encoding="utf-8") as f:
+        with open(contrast_path, encoding="utf-8") as f:
             all_questions = json.load(f)
 
         contrast_map: dict = {}
