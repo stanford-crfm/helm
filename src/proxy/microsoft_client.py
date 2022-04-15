@@ -96,9 +96,12 @@ class MicrosoftClient(Client):
             #   "logprobs": null,
             #   "text": "So I was takin' a walk the other day"
             # }
-            sequence_logprob: float = 0
-            tokens: List[Token] = []
-            completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
+            # Since the log probs and tokens are not available to us just tokenize the completion using the tokenizer
+            completion_text: str = raw_completion["text"]
+            tokens: List[Token] = [
+                Token(text=text, logprob=0, top_logprobs={}) for text in self.tokenizer.tokenize(completion_text)
+            ]
+            completion = Sequence(text=completion_text, logprob=0, tokens=tokens)
             completions.append(completion)
         return RequestResult(
             success=True, cached=cached, request_time=response["request_time"], completions=completions
