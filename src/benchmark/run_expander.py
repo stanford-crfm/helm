@@ -2,7 +2,13 @@ from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import List, Dict
 
-from proxy.models import get_all_code_models, get_all_models, get_all_text_models
+from proxy.models import (
+    get_all_code_models,
+    get_all_models,
+    get_all_text_models,
+    get_model_names_with_tag,
+    LIMITED_FUNCTIONALITY_MODEL_TAG,
+)
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
@@ -72,12 +78,13 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
     name = "model"
     values_dict = {
-        "default": ["openai/davinci"],
+        "default": ["openai/davinci", "ai21/j1-jumbo", "huggingface/gpt2"],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
         "all": get_all_models(),
         "text": get_all_text_models(),
         "code": get_all_code_models(),
+        "limited_functionality": get_model_names_with_tag(LIMITED_FUNCTIONALITY_MODEL_TAG),
     }
 
 
