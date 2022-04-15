@@ -199,7 +199,7 @@ class DataAugmentationRunExpander(RunExpander):
         def create_run_spec(aug_name: str, perturbation_specs: List[PerturbationSpec]) -> RunSpec:
             data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
                 perturbation_specs=perturbation_specs,
-                should_perturb_references=True if "contrast" in aug_name else False,
+                should_perturb_references=aug_name == "contrast_sets",
                 # Always include original and perturbed instances together so that
                 # we can compute the normal and robustness metrics in the same run.
                 should_augment_train_instances=False,
