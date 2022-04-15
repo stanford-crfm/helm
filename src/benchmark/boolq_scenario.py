@@ -19,7 +19,7 @@ class BoolQScenario(Scenario):
 
     We prompt models using the following format:
         <passage>
-        Question: <question>
+        Question: <question>?
         Answer:
 
         Target completion:
@@ -95,8 +95,7 @@ class BoolQScenario(Scenario):
                 if question in contrast_map:
                     assert correct_answer == contrast_map[question]["original_answer"]
                     contrast_inputs = [
-                        self.get_context(passage, question)
-                        for question in contrast_map[question]["perturbed_questions"]
+                        self.get_context(passage, q) for q in contrast_map[question]["perturbed_questions"]
                     ]
                     contrast_references = [
                         [Reference(output=perturbed_answer, tags=[CORRECT_TAG])]
@@ -150,9 +149,14 @@ class BoolQScenario(Scenario):
 
             for perturbed_item in item["perturbed_questions"]:
                 perturbed_question: str = perturbed_item["perturbed_q"]
+                if not perturbed_question:
+                    continue
                 perturbed_answer: str = "yes" if perturbed_item["answer"] == "TRUE" else "no"
                 contrast_map[original_question]["perturbed_questions"].append(perturbed_question)
                 contrast_map[original_question]["perturbed_answers"].append(perturbed_answer)
+
+            if len(contrast_map[original_question]["perturbed_questions"]) == 0:
+                del contrast_map[original_question]
 
         for split, filename in split_to_filename.items():
             split_path: str = os.path.join(data_path, filename)
