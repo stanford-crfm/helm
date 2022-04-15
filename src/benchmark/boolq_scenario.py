@@ -19,19 +19,19 @@ class BoolQScenario(Scenario):
 
     We prompt models using the following format:
         <passage>
-        question: <question>
-        answer:
+        Question: <question>
+        Answer:
 
         Target completion:
             <answer>
 
     Using an example from the training dataset, we have
-        Epsom railway station serves the town of Epsom in Surrey. It is located off Waterloo Road and is
+        Context: Epsom railway station serves the town of Epsom in Surrey. It is located off Waterloo Road and is
         less than two minutes' walk from the High Street.
         It is not in the London Oyster card zone unlike Epsom Downs or Tattenham Corner stations.
         The station building was replaced in 2012/2013 with a new building with apartments above the station.
-        question: can you use oyster card at epsom station
-        answer:
+        Question: can you use oyster card at epsom station?
+        Answer:
 
         Target completion:
             yes
@@ -69,16 +69,14 @@ class BoolQScenario(Scenario):
     def __init__(self):
         pass
 
-    def format_question(self, question: str) -> str:
-        question = question.capitalize() + "?"
-        return question
-
     def get_context(self, passage: str, question: str) -> str:
         """
         We follow the format from https://arxiv.org/abs/2005.14165.
         For more details, see Figure G.29: Formatted dataset example for BoolQ.
         """
-        return f"{passage}\nquestion: {self.format_question(question)}"
+        question = question.strip()
+        assert question[-1] != "?"
+        return f"{passage}\nQuestion: {question}?"
 
     def get_split_instances(self, split: str, path: str, contrast_map: dict) -> List[Instance]:
         split_instances: List[Instance] = []

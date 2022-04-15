@@ -66,8 +66,26 @@ class AI21Client(Client):
             return x
 
         def parse_token(raw: Dict, first: bool) -> Token:
+            """
+            Parses a raw response token to a Token object.
+
+            Sometimes a "▁" with length 0 is added to the beginning of a sequence
+            or token by the AI21 tokenizer probably to mark the start of a new sequence.
+            e.g. " burying him" -> ["▁"(0,0), "▁burying"(0,8), "▁him"(8,12)];
+            "df\n---" -> '[▁df'(0,2), '\n'(2, 3), '▁---'(3, 6)]
+
+            By computing the actual length of a token and truncating it from the right,
+            We can remove those "▁"s so that the tokenization result aligns with the
+            input prompt.
+            """
+
+            # Compute the actual length of the token text
+            # e.g. "▁burying"(0,8) -> 8 - 0 = 8; "▁burying"(0,7) -> 7 - 0 = 7
+            text_length: int = raw["textRange"]["end"] - raw["textRange"]["start"]
             return Token(
-                text=fix_text(raw["generatedToken"]["token"], first),
+                # Text should not be longer than text_length. Since "▁" is always inserted
+                # in the beginning, we truncate the text from the right.
+                text=fix_text(raw["generatedToken"]["token"], first)[-text_length:] if text_length else "",
                 logprob=raw["generatedToken"]["logprob"],
                 top_logprobs=dict((fix_text(x["token"], first), x["logprob"]) for x in raw["topTokens"]),
             )

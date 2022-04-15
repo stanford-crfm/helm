@@ -5,7 +5,7 @@ from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT
 
 
-class IMDbScenario(Scenario):
+class IMDBScenario(Scenario):
     """
     The IMDb dataset is from the paper:
         https://ai.stanford.edu/~amaas/data/sentiment/
@@ -14,7 +14,7 @@ class IMDbScenario(Scenario):
     Each sample contains a sentence with its corresponding sentiment (0: negative, 1: positive)
 
     We prompt models using the following format:
-        Review: <passage>
+        <passage>
         Sentiment:
 
         Target completion:
@@ -57,7 +57,7 @@ class IMDbScenario(Scenario):
                 sentence_path = os.path.join(split_path_label, each_filename)
                 with open(sentence_path, "r") as f:
                     context = f.read().strip()
-                    prompt = context + "\n"
+                    prompt = context
 
                     instance_split = split
                     contrast_inputs, contrast_references = None, None
