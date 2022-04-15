@@ -1,0 +1,111 @@
+from typing import List, Optional
+
+from openai.api_resources.abstract import engine_api_resource
+import openai as turing
+
+from common.cache import Cache
+from common.request import Request, RequestResult, Sequence, Token
+from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
+from .client import Client, wrap_request_time
+from .tokenizer.tokenizer import Tokenizer
+from .tokenizer.tokenizer_factory import TokenizerFactory
+
+
+class MicrosoftClient(Client):
+    """
+    Client for the Microsoft's Megatron-Turing NLG models (https://arxiv.org/abs/2201.11990).
+
+    According to the documentation: https://github.com/microsoft/turing-academic-TNLG,
+    "the model will generate roughly 3 tokens per second. The response will be returned once
+    all tokens have been generated."
+    """
+
+    def __init__(self, api_key: str, cache_path: str):
+        # Adapted from their internal documentation: https://github.com/microsoft/turing-academic-TNLG
+        class EngineAPIResource(engine_api_resource.EngineAPIResource):
+            @classmethod
+            def class_url(
+                cls, engine: Optional[str] = None, api_type: Optional[str] = None, api_version: Optional[str] = None
+            ) -> str:
+                return f"/{engine}/inference"
+
+        prev_bases = turing.api_resources.completion.Completion.__bases__
+        turing.api_resources.completion.Completion.__bases__ = (EngineAPIResource,) + prev_bases[1:]
+        turing.api_base = "https://turingnlg-turingnlg-mstap-v2.turingase.p.azurewebsites.net"
+        turing.api_key = api_key
+
+        self.cache = Cache(cache_path)
+        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer("microsoft")
+
+    def make_request(self, request: Request) -> RequestResult:
+        """
+        Make a request for the Microsoft MT-NLG models.
+
+        They mimicked the OpenAI completions API, but not all the parameters are supported.
+
+        Supported parameters:
+            engine
+            prompt
+            temperature
+            max_tokens
+            stop ("Only a single "stop" value (str) is currently supported.")
+            top_p
+            echo
+
+        Not supported parameters:
+            n (to get multiple completions)
+            best_of
+            logprobs
+            presence_penalty
+            frequency_penalty
+
+        Log probabilities is also currently not supported.
+        """
+        # Only a single "stop" value (str) or None is currently supported.
+        stop_sequence: Optional[str] = None
+        if len(request.stop_sequences) > 1:
+            stop_sequence = request.stop_sequences[0]
+
+        raw_request = {
+            "engine": request.model_engine,
+            "prompt": request.prompt,
+            "temperature": request.temperature,
+            "max_tokens": request.max_tokens,
+            "stop": stop_sequence,
+            "top_p": request.top_p,
+            "echo": request.echo_prompt,
+        }
+
+        try:
+
+            def do_it():
+                return turing.Completion.create(**raw_request)
+
+            cache_key = Client.make_cache_key(raw_request, request)
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except turing.error.OpenAIError as e:
+            error: str = f"OpenAI (Turing API) error: {e}"
+            return RequestResult(success=False, cached=False, error=error, completions=[])
+
+        completions: List[Sequence] = []
+        for raw_completion in response["choices"]:
+            # TODO: handle logprobs when it's supported (currently always null). Current example response:
+            # {
+            #   "finish_reason": "stop",
+            #   "index": 0,
+            #   "logprobs": null,
+            #   "text": "So I was takin' a walk the other day"
+            # }
+            sequence_logprob: float = 0
+            tokens: List[Token] = []
+            completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
+            completions.append(completion)
+        return RequestResult(
+            success=True, cached=cached, request_time=response["request_time"], completions=completions
+        )
+
+    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        """Tokenizes the text using the GPT-2 tokenizer created in `MTNLGTokenizer`."""
+        return TokenizationRequestResult(
+            cached=False, tokens=[TokenizationToken(raw_text) for raw_text in self.tokenizer.tokenize(request.text)]
+        )

@@ -82,19 +82,18 @@ ALL_MODELS = [
         tags=[LIMITED_FUNCTIONALITY_MODEL_TAG],  # The Anthropic model has limited functionality so give it its own tag
     ),
     # Microsoft
-    # TODO update with tag -Tony
     Model(
         group="microsoft",
         name="microsoft/TNLGv2_530B",
         description="Megatron-Turing NLG (530B parameters)",
-        tags=[],  # The TNLGv2 models have limited functionality
+        tags=[LIMITED_FUNCTIONALITY_MODEL_TAG],  # The TNLGv2 models have limited functionality
     ),
     # TODO: The TNLGv2_7B model is unavailable to us at the moment, but simply uncomment the following when it's ready.
     # Model(
     #     group="microsoft",
     #     name="microsoft/TNLGv2_7B",
     #     description="Megatron-Turing NLG (7B parameters)",
-    #     tags=[],  # The TNLGv2 models have limited functionality
+    #     tags = [LIMITED_FUNCTIONALITY_MODEL_TAG],  # The TNLGv2 models have limited functionality
     # ),
     # For debugging
     Model(group="simple", name="simple/model1", description="Copy last tokens (for debugging)"),
