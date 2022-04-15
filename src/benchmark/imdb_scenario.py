@@ -53,7 +53,7 @@ class IMDBScenario(Scenario):
         for class_name, label_id in label_to_classname.items():
             split_path_label: str = os.path.join(path, class_name)
             all_file_name = os.listdir(split_path_label)
-            for filename_idx, each_filename in enumerate(all_file_name):
+            for each_filename in all_file_name:
                 sentence_path = os.path.join(split_path_label, each_filename)
                 with open(sentence_path, "r") as f:
                     context = f.read().strip()
@@ -64,11 +64,11 @@ class IMDBScenario(Scenario):
 
                     if context in contrast_map:
 
-                        contrast_inputs = [contrast_map[context]["contrast_input"] + "\n"]
+                        contrast_inputs = [contrast_map[context]["contrast_input"]]
                         contrast_references = [
                             [Reference(output=contrast_map[context]["contrast_answer"], tags=[CORRECT_TAG])]
                         ]
-                        instance_split = VALID_SPLIT
+                        instance_split = VALID_SPLIT  # we want to evaluate on contrast sets
 
                     instance: Instance = Instance(
                         input=prompt,
@@ -82,7 +82,6 @@ class IMDBScenario(Scenario):
 
     def get_contrast_map(self, target_path: str, mode: str) -> dict:
         # Download contrast sets
-        # Note: We use the test set of IMDb dataset to construct the contrast set
         label_name_to_id = {"Positive": "positive", "Negative": "negative"}
         orig_and_contrast_inputs: list = []
 
