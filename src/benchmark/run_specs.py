@@ -584,30 +584,6 @@ def get_boolq_spec() -> RunSpec:
     )
 
 
-def get_boolq_contrast_sets_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQContrastSetScenario", args={})
-
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        input_prefix="Passage: ",
-        output_prefix="\nAnswer: ",
-        num_train_trials=1,
-        max_train_instances=5,
-        model="openai/davinci",
-        temperature=0.0,
-        stop_sequences=["\n"],
-        max_eval_instances=None,  # We have only 340 perturbed questions for 70 passages
-        num_outputs=1,
-        max_tokens=1,
-    )
-    return RunSpec(
-        name="boolq_contrast_sets",
-        scenario=scenario,
-        adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
-    )
-
-
 def get_lsat_qa_spec(task: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.lsat_qa_scenario.LSATScenario", args={"task": task})
 
@@ -649,30 +625,6 @@ def get_imdb_spec() -> RunSpec:
     )
     return RunSpec(
         name="imdb",
-        scenario=scenario,
-        adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
-    )
-
-
-def get_imdb_contrast_sets_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDBContrastSetScenario", args={})
-
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        input_prefix="Passage: ",
-        output_prefix="Sentiment:",
-        num_train_trials=1,
-        max_train_instances=5,
-        model="openai/davinci",
-        max_eval_instances=None,  # there are only 488 contrast pairs
-        num_outputs=1,
-        max_tokens=10,
-        temperature=0.0,
-        stop_sequences=["\n"],
-    )
-    return RunSpec(
-        name="imdb_contrast_sets",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -1156,9 +1108,7 @@ def get_legal_support_spec() -> RunSpec:
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "simple1": get_simple1_spec,
     "boolq": get_boolq_spec,
-    "boolq_contrast_sets": get_boolq_contrast_sets_spec,
     "imdb": get_imdb_spec,
-    "imdb_contrast_sets": get_imdb_contrast_sets_spec,
     "copyright": get_copyright_spec,
     "mmlu": get_mmlu_spec,
     "msmarco": get_msmarco_spec,
