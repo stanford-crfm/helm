@@ -59,7 +59,7 @@ class MicrosoftClient(Client):
             presence_penalty
             frequency_penalty
 
-        Log probabilities is also currently not supported.
+        Log probabilities are also currently not supported.
         """
         # Only a single "stop" value (str) or None is currently supported.
         stop_sequence: Optional[str] = None
