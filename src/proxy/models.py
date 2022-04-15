@@ -4,6 +4,7 @@ from typing import List
 
 TEXT_MODEL_TAG: str = "text"
 CODE_MODEL_TAG: str = "code"
+LIMITED_FUNCTIONALITY_MODEL_TAG: str = "limited_functionality"
 
 
 @dataclass
@@ -78,7 +79,7 @@ ALL_MODELS = [
         group="anthropic",
         name="anthropic/stanford-online-helpful-v4-s3",
         description="Anthropic model (52B parameters)",
-        tags=["anthropic"],  # The Anthropic model has limited functionality so give it its own tag
+        tags=[LIMITED_FUNCTIONALITY_MODEL_TAG],  # The Anthropic model has limited functionality so give it its own tag
     ),
     # Microsoft
     # TODO update with tag -Tony
