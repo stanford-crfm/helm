@@ -55,7 +55,7 @@ class SynonymPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return SynonymPerturbation.Description(self.name, self.prob)
 
-    def synonyms_substitute(self, text):
+    def synonyms_substitute(self, text: str) -> str:
         try:
             spacy_model = spacy.load("en_core_web_sm")
         except OSError:
@@ -88,10 +88,9 @@ class SynonymPerturbation(Perturbation):
                     result.append(word)
 
         # detokenize sentences
-        result = self.detokenizer.detokenize(result)
-        result = result.replace(" .", ".")
+        perturbed_text = self.detokenizer.detokenize(result).replace(" .", ".")
 
-        return result
+        return perturbed_text
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         assert instance.id is not None
