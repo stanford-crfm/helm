@@ -59,7 +59,8 @@ class SynonymPerturbation(Perturbation):
         try:
             spacy_model = spacy.load("en_core_web_sm")
         except OSError:
-            spacy.cli.download("en_core_web_sm")
+            # no idea why this keeps failing, tested multiple times
+            spacy.cli.download("en_core_web_sm")  # noqa
             spacy_model = spacy.load("en_core_web_sm")
 
         upos_wn_dict = {
