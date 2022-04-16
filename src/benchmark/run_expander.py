@@ -114,6 +114,12 @@ def misspelling(prob: float) -> PerturbationSpec:
     )
 
 
+def synonym(prob: float) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.synonym_perturbation.SynonymPerturbation", args={"prob": prob}
+    )
+
+
 def contrast_sets() -> PerturbationSpec:
     return PerturbationSpec(
         class_name="benchmark.augmentations.contrast_sets_perturbation.ContrastSetsPerturbation", args={}
@@ -155,6 +161,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "misspelling_medium": {"misspelling0.20": [misspelling(prob=0.20)]},
     "misspelling_hard": {"misspelling0.5": [misspelling(prob=0.5)]},
     "misspelling_sweep": {f"misspelling{prob}": [misspelling(prob=prob)] for prob in [0, 0.05, 0.2, 0.5]},
+    "synonym": {"synonym0.5": [synonym(prob=0.5)]},
     "typo_medium": {"typo0.1": [typo(prob=0.10)]},
     "all": {
         "all": [
@@ -164,6 +171,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             *contract_and_expand(),
             typo(prob=0.1),
             contrast_sets(),
+            synonym(prob=0.5),
         ]
     },
 }
