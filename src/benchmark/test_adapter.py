@@ -3,7 +3,7 @@ from typing import List
 from .adapter_service import AdapterService
 from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
 from .run_specs import get_scenario_spec1, get_adapter_spec1
-from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, Adapter, AdapterSpec
+from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, ADAPT_MULTIPLE_CHOICE, Adapter, AdapterSpec
 from proxy.remote_service import RemoteService
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from common.authentication import Authentication
@@ -81,3 +81,57 @@ def test_construct_language_modeling_prompt():
 
     # Ensure the number of conditioning tokens is correct
     assert num_conditioning_tokens == 1
+
+
+def test_sample_examples():
+    adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE, max_train_instances=4)
+    adapter = Adapter(adapter_spec, get_test_adapter_service())
+    all_train_instances = [
+        Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
+        Instance("say yes1", references=[Reference("yes", tags=[CORRECT_TAG])]),
+        Instance("say yes2", references=[Reference("yes", tags=[CORRECT_TAG])]),
+        Instance("say yes3", references=[Reference("yes", tags=[CORRECT_TAG])]),
+        Instance("say yes4", references=[Reference("yes", tags=[CORRECT_TAG])]),
+    ]
+
+    examples = adapter.sample_examples(all_train_instances, seed=0)
+    assert len(examples) == 4
+
+    # An instance with "say yes" should have be sampled first before "say no"
+    assert examples[0].input == "say yes4"
+    assert examples[1].input == "say no"
+    assert examples[2].input == "say yes1"
+    assert examples[3].input == "say yes3"
+
+
+def test_sample_examples_no_train_instances():
+    adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE, max_train_instances=2)
+    adapter = Adapter(adapter_spec, get_test_adapter_service())
+    examples = adapter.sample_examples(all_train_instances=[], seed=0)
+    assert len(examples) == 0
+
+
+def test_sample_examples_greater_max_train_instances():
+    adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE, max_train_instances=10)
+    adapter = Adapter(adapter_spec, get_test_adapter_service())
+    all_train_instances = [
+        Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
+        Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+        Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+    ]
+
+    examples = adapter.sample_examples(all_train_instances, seed=0)
+    assert len(examples) == 3
+
+
+def test_sample_examples_without_references():
+    adapter_spec = AdapterSpec(method=ADAPT_LANGUAGE_MODELING, max_train_instances=1)
+    adapter = Adapter(adapter_spec, get_test_adapter_service())
+    all_train_instances = [
+        Instance("prompt1", references=[]),
+        Instance("prompt2", references=[]),
+        Instance("prompt3", references=[]),
+    ]
+
+    examples = adapter.sample_examples(all_train_instances, seed=0)
+    assert len(examples) == 1

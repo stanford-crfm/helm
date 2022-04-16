@@ -30,6 +30,7 @@ numpy
 pyext
 datasets>=1.18.3
 spacy==3.2.3
+sympy==1.10
 py-rouge==1.1
 xlrd==2.0.1
 rouge-score==0.0.4

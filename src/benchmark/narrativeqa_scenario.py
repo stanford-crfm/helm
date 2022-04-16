@@ -28,18 +28,18 @@ class NarrativeQAScenario(Scenario):
 
     More concretely, we prompt models using the following format:
         <story summary>
-        question: <question>
-        answer:
+        Question: <question>
+        Answer:
 
         Target completion:
             <answer>
 
     Using an example from the training dataset, we have
-    Mark Hunter (Slater), a high school student in a sleepy suburb of Phoenix, Arizona,
+    Summary: Mark Hunter (Slater), a high school student in a sleepy suburb of Phoenix, Arizona,
     starts an FM pirate radio station that broadcasts from the basement of his parents' house.
     Mark is a loner, an outsider, whose only outlet for his teenage angst and aggression is his ...
-    question: Who is Mark Hunter?
-    answer:
+    Question: Who is Mark Hunter?
+    Answer:
 
         Target completion:
             A loner and outsider student with a radio station.
@@ -59,7 +59,9 @@ class NarrativeQAScenario(Scenario):
         We follow the format from https://arxiv.org/abs/2005.14165.
         For more details, see the examples in Appendix G.
         """
-        return f"{summary}\nquestion: {question}"
+        if question[-1] != "?":
+            question = question + "?"
+        return f"{summary}\nQuestion: {question}"
 
     def get_split_instances(self, summaries_file: str, qaps_file: str, split_name: str, split: str) -> List[Instance]:
         """
@@ -93,7 +95,7 @@ class NarrativeQAScenario(Scenario):
                 question: str = row["question"]
                 answer1: str = row["answer1"]
                 answer2: str = row["answer2"]
-                context: str = self.get_context(summary, question)
+                context: str = self.get_context(summary.strip(), question.strip())
 
                 instance: Instance = Instance(
                     input=context,
