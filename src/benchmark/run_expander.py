@@ -114,6 +114,18 @@ def misspelling(prob: float) -> PerturbationSpec:
     )
 
 
+def synonym(prob: float) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.synonym_perturbation.SynonymPerturbation", args={"prob": prob}
+    )
+
+
+def contrast_sets() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.contrast_sets_perturbation.ContrastSetsPerturbation", args={}
+    )
+
+
 def typo(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
         class_name="benchmark.augmentations.typos_perturbation.TyposPerturbation", args={"prob": prob}
@@ -141,6 +153,7 @@ def contract_and_expand() -> List[PerturbationSpec]:
 # - r2: with perturbations [c, d, e]
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
+    "contrast_sets": {"contrast_sets": [contrast_sets()]},
     "space": {"space3": [space(max_spaces=3)]},
     "lower": {"lower": [lower()]},
     "contract": {"contract": contract_and_expand()},
@@ -148,8 +161,19 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "misspelling_medium": {"misspelling0.20": [misspelling(prob=0.20)]},
     "misspelling_hard": {"misspelling0.5": [misspelling(prob=0.5)]},
     "misspelling_sweep": {f"misspelling{prob}": [misspelling(prob=prob)] for prob in [0, 0.05, 0.2, 0.5]},
+    "synonym": {"synonym0.5": [synonym(prob=0.5)]},
     "typo_medium": {"typo0.1": [typo(prob=0.10)]},
-    "all": {"all": [misspelling(prob=0.20), space(max_spaces=3), lower(), *contract_and_expand(), typo(prob=0.1)]},
+    "all": {
+        "all": [
+            misspelling(prob=0.20),
+            space(max_spaces=3),
+            lower(),
+            *contract_and_expand(),
+            typo(prob=0.1),
+            contrast_sets(),
+            synonym(prob=0.5),
+        ]
+    },
 }
 
 
@@ -183,7 +207,7 @@ class DataAugmentationRunExpander(RunExpander):
         def create_run_spec(aug_name: str, perturbation_specs: List[PerturbationSpec]) -> RunSpec:
             data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
                 perturbation_specs=perturbation_specs,
-                should_perturb_references=False,
+                should_perturb_references=aug_name == "contrast_sets",
                 # Always include original and perturbed instances together so that
                 # we can compute the normal and robustness metrics in the same run.
                 should_augment_train_instances=False,
