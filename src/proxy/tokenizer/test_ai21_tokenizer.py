@@ -103,7 +103,7 @@ class TestAI21Tokenizer:
         self.tokenizer = TokenizerFactory.get_tokenizer("ai21/j1-jumbo", service)
 
     def test_encode(self):
-        assert self.tokenizer.encode(TEST_PROMPT) == TEST_TOKEN_REPRESENTATIONS
+        assert self.tokenizer.encode(TEST_PROMPT)[0] == TEST_TOKEN_REPRESENTATIONS
 
     def test_decode(self):
         assert self.tokenizer.decode(TEST_TOKEN_REPRESENTATIONS, TEST_PROMPT) == TEST_PROMPT

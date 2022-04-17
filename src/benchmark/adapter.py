@@ -444,12 +444,7 @@ class Adapter:
         return prefix.replace("A", chr(ord("A") + i))
 
     def construct_language_modeling_prompt(
-        self,
-        conditioning_tokens: List[int],
-        pred_tokens: List[int],
-        tokenizer: Tokenizer,
-        max_req_len: int,
-        instance_input: str,
+        self, conditioning_tokens: List[int], pred_tokens: List[int], tokenizer: Tokenizer, max_req_len: int, text: str,
     ) -> Tuple[str, int]:
         """
         Some subwords/symbols might translate to multiple tokens. e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"].
@@ -458,19 +453,21 @@ class Adapter:
         trailing bytes to ensure the prompt is a valid string.
 
         Since some tokens are removed, we also need to recompute num_conditioning_tokens.
+
+        AI21 tokenizer represents bytes as strings, so it does not have this issue.
         """
-        raw_prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens, instance_input)
+        raw_prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens, text)
         prompt: str = raw_prompt.strip("\ufffd")
         # If there are no byte tokens, avoid API calls
         if len(prompt) == len(raw_prompt):
             num_conditioning_tokens = len(conditioning_tokens)
         else:
-            num_leading_byte_tokens: int = max_req_len - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
-            num_trailing_byte_tokens: int = max_req_len - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
+            num_leading_byte_tokens: int = max_req_len - len(tokenizer.encode(raw_prompt.lstrip("\ufffd"))[0])
+            num_trailing_byte_tokens: int = max_req_len - len(tokenizer.encode(raw_prompt.rstrip("\ufffd"))[0])
 
             # There are no string tokens to predict
             if num_trailing_byte_tokens >= len(pred_tokens):
-                num_conditioning_tokens = len(tokenizer.encode(prompt))
+                num_conditioning_tokens = len(tokenizer.encode(prompt)[0])
             # There are no conditioning string tokens
             elif num_leading_byte_tokens >= len(conditioning_tokens):
                 num_conditioning_tokens = 1
@@ -490,8 +487,7 @@ class Adapter:
         prefix_token: str = self.tokenizer.prefix_token
 
         for instance in instances:
-            tokens = self.tokenizer.encode(instance.input)
-            assert self.tokenizer.decode(tokens, instance.input) == instance.input
+            tokens, text = self.tokenizer.encode(instance.input)
 
             num_predicted_tokens = 0
 
@@ -506,7 +502,7 @@ class Adapter:
             # multiple tokens (e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]) and we chunk documents by token, not by word.
             first_seq_len = min(max_seq_len, len(tokens))
             prompt = self.tokenizer.decode(
-                self.tokenizer.encode(prefix_token) + tokens[:first_seq_len], instance.input
+                self.tokenizer.encode(prefix_token)[0] + tokens[:first_seq_len], text
             ).rstrip("\ufffd")
             request = Request(
                 model=self.adapter_spec.model,
@@ -545,7 +541,7 @@ class Adapter:
                 conditioning_tokens = tokens[window_end - max_req_len : num_predicted_tokens]
                 pred_tokens = tokens[num_predicted_tokens:window_end]
                 prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                    conditioning_tokens, pred_tokens, self.tokenizer, max_req_len, instance.input
+                    conditioning_tokens, pred_tokens, self.tokenizer, max_req_len, text
                 )
 
                 request = Request(

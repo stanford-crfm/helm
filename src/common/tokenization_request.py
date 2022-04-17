@@ -47,5 +47,9 @@ class TokenizationRequestResult:
     # Whether the request was cached
     cached: bool
 
+    # The input text transformed by the tokenizer for tokenization.
+    # e.g. The AI21 tokenizer replaces "½" with "1/2" before tokenization.
+    text: str
+
     # The list of tokens
     tokens: List[TokenizationToken]
