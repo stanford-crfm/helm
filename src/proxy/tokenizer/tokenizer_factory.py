@@ -6,6 +6,7 @@ from common.hierarchical_logger import htrack_block
 from .ai21_tokenizer import AI21Tokenizer
 from .anthropic_tokenizer import AnthropicTokenizer
 from .openai_tokenizer import OpenAITokenizer
+from .mt_nlg_tokenizer import MTNLGTokenizer
 from .gpt2_tokenizer import GPT2Tokenizer
 from .gptj_tokenizer import GPTJTokenizer
 from .tokenizer import Tokenizer
@@ -27,6 +28,8 @@ class TokenizerFactory:
         tokenizer: Tokenizer
         if organization == "openai" or organization == "simple":
             tokenizer = OpenAITokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
+        elif organization == "microsoft":
+            tokenizer = MTNLGTokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
         elif organization == "anthropic":
             tokenizer = AnthropicTokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
         elif model == "huggingface/gpt2":
