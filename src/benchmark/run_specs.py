@@ -1070,7 +1070,7 @@ def get_xsum_summarization_spec() -> RunSpec:
 def get_cnndm_summarization_spec() -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
-        args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512,},
+        args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
     )
 
     adapter_spec = AdapterSpec(
