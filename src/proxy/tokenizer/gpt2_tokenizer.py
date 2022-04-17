@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from transformers import GPT2TokenizerFast
 
 from .tokenizer import Tokenizer
@@ -38,13 +38,13 @@ class GPT2Tokenizer(Tokenizer):
         """The prefix token for OPENAI models is the end of text token."""
         return self.end_of_text_token
 
-    def encode(self, text: str) -> List:
+    def encode(self, text: str) -> Tuple[List, str]:
         """
         Encodes the input text to tokens.
         """
-        return self._tokenizer.encode(text)
+        return self._tokenizer.encode(text), text
 
-    def decode(self, tokens: List, original_text: Optional[str] = None) -> str:
+    def decode(self, tokens: List, text: Optional[str] = None) -> str:
         """
         Given a list of tokens, outputs the corresponding text.
         """

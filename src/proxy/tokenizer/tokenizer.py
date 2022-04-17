@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 
 class Tokenizer(ABC):
@@ -27,12 +27,12 @@ class Tokenizer(ABC):
         pass
 
     @abstractmethod
-    def encode(self, text: str) -> List:
+    def encode(self, text: str) -> Tuple[List, str]:
         """Encodes the input text to tokens given the model"""
         pass
 
     @abstractmethod
-    def decode(self, tokens: List, original_text: Optional[str] = None) -> str:
+    def decode(self, tokens: List, text: Optional[str] = None) -> str:
         """Given the model and a list of tokens, outputs the corresponding text."""
         pass
 
