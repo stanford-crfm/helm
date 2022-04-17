@@ -72,7 +72,7 @@ def get_toxicity_metrics() -> List[MetricSpec]:
 
 
 def get_srn_metrics() -> List[MetricSpec]:
-    metric_names = {"names": ["iou_set_match", "exact_set_match"]}
+    metric_names = {"names": ["f1_set_match", "iou_set_match", "exact_set_match"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
