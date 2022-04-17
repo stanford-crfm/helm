@@ -46,7 +46,7 @@ class AI21Tokenizer(Tokenizer):
         #
         # Also, sometimes a character/word is split into multiple bytes.
         # e.g. '艙' -> ['<0xE8>', '<0x89>', '<0x99>']
-        return AI21Tokenizer.MAX_REQUEST_LENGTH - 5
+        return AI21Tokenizer.MAX_REQUEST_LENGTH - 10
 
     @property
     def end_of_text_token(self) -> str:
