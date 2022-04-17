@@ -15,13 +15,13 @@ class MicrosoftClient(Client):
     """
     Client for the Microsoft's Megatron-Turing NLG models (https://arxiv.org/abs/2201.11990).
 
-    According to the documentation: https://github.com/microsoft/turing-academic-TNLG,
+    According to the internal documentation: https://github.com/microsoft/turing-academic-TNLG,
     "the model will generate roughly 3 tokens per second. The response will be returned once
     all tokens have been generated."
     """
 
     def __init__(self, api_key: str, cache_path: str):
-        # Adapted from their internal documentation: https://github.com/microsoft/turing-academic-TNLG
+        # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
         class EngineAPIResource(engine_api_resource.EngineAPIResource):
             @classmethod
             def class_url(
@@ -62,9 +62,13 @@ class MicrosoftClient(Client):
         Log probabilities are also currently not supported.
         """
         # Only a single "stop" value (str) or None is currently supported.
-        stop_sequence: Optional[str] = None
-        if len(request.stop_sequences) > 1:
+        stop_sequence: Optional[str]
+        if len(request.stop_sequences) == 0:
+            stop_sequence = None
+        elif len(request.stop_sequences) == 1:
             stop_sequence = request.stop_sequences[0]
+        else:
+            raise ValueError("More than one stop sequence is not supported.")
 
         raw_request = {
             "engine": request.model_engine,
