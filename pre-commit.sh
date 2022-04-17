@@ -12,7 +12,7 @@ venv/bin/pip install -e .
 venv/bin/pip check
 
 # Python style checks and linting
-venv/bin/black --check --diff src || (
+venv/bin/black --check --diff src script || (
   echo ""
   echo "The code formatting check failed. To fix the formatting, run:"
   echo ""
@@ -23,7 +23,7 @@ venv/bin/black --check --diff src || (
   exit 1
 )
 
-venv/bin/mypy src
-venv/bin/flake8 src
+venv/bin/mypy src script
+venv/bin/flake8 src script
 
 echo "Done."
