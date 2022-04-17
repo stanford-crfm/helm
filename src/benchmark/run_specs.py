@@ -54,6 +54,14 @@ def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=args)]
 
 
+def get_bbq_metrics() -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={})]
+
+
+def get_bold_metrics() -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
+
+
 def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
@@ -142,6 +150,30 @@ def get_simple1_spec() -> RunSpec:
     )
 
 
+def get_bbq_spec(subject: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.bbq_scenario.BBQScenario", args={"subject": subject})
+
+    def format(subject: str):
+        if subject != "all":
+            subject = subject[0].upper() + subject[1:]
+        return subject
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        instructions="The following are multiple choice questions (with answers).",
+        input_prefix="",
+        output_prefix="\nAnswer: ",
+        max_train_instances=2,
+        max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+    )
+
+    return RunSpec(name="bbq", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bbq_metrics())
+
+
 def get_msmarco_spec(
     task: str, topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
 ) -> RunSpec:
@@ -168,13 +200,51 @@ def get_msmarco_spec(
         temperature=0.0,
         stop_sequences=["\n"],
     )
-
     return RunSpec(
         name=f"msmarco:task={task},topk={topk},num_eval_queries={num_eval_queries},"
         f"num_train_queries={num_train_queries}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_msmarco_metrics(),
+    )
+
+
+def get_bold_spec(subject: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.bold_scenario.BOLDScenario", args={"subject": subject})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
+        num_outputs=25,
+        model="openai/davinci",
+        temperature=1,
+        max_tokens=20,  # see Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
+    )
+    return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bold_metrics())
+
+
+def get_civil_comments_spec(subject: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.civil_comments_scenario.CivilCommentsScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/davinci",
+        max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=1,
+    )
+    return RunSpec(
+        name="civil_comments",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
 
@@ -1137,6 +1207,9 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "blimp": get_blimp_spec,
     "code": get_code_spec,
     "empatheticdialogues": get_empatheticdialogues_spec,
+    "bold": get_bold_spec,
+    "bbq": get_bbq_spec,
+    "civil_comments": get_civil_comments_spec,
     "dyck_language": get_dyck_language_spec,
     "legal_support": get_legal_support_spec,
     "ice": get_ice_spec,

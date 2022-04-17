@@ -32,9 +32,11 @@ from . import wikitext_103_scenario  # noqa
 from . import blimp_scenario  # noqa
 from . import imdb_scenario  # noqa
 from . import dialogue_scenarios  # noqa
+from . import bbq_scenario  # noqa
+from . import bold_scenario  # noqa
+from . import civil_comments_scenario  # noqa
 from . import dyck_language_scenario  # noqa
 from . import legal_support_scenario  # noqa
-
 
 # Metrics
 from . import basic_metrics  # noqa
@@ -46,6 +48,7 @@ from . import copyright_metrics  # noqa
 from . import numeracy_metrics  # noqa
 from . import disinformation_metrics  # noqa
 from . import code_metrics  # noqa
+from . import bbq_metrics  # noqa
 
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa

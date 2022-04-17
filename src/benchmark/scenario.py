@@ -14,6 +14,10 @@ VALID_SPLIT: str = "valid"
 TEST_SPLIT: str = "test"
 EVAL_SPLITS: List[str] = [VALID_SPLIT, TEST_SPLIT]
 
+# We mainly care about having enough test examples to ensure statistical significance;
+# the remaining N-1000 instances become training examples.
+DEFAULT_TEST_SIZE: int = 1000
+
 # Tags for references
 CORRECT_TAG: str = "correct"
 
