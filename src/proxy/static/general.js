@@ -104,3 +104,21 @@ function getRandomString() {
     text += vocab.charAt(Math.floor(Math.random() * vocab.length));
   return text;
 }
+
+function round(x, n) {
+  const base = Math.pow(10, n);
+  return Math.round(x * base) / base;
+}
+
+function multilineHtml(s) {
+  return s.replace(/\n/g, '<br>');
+}
+
+function renderError(e) {
+  return $('<div>').addClass('alert alert-danger').append(multilineHtml(e));
+}
+
+function helpIcon(help, link) {
+  // Show a ?
+  return $('<a>', {href: link, target: 'blank_', class: 'help-icon'}).append($('<img>', {src: 'info-icon.png', width: 15, title: help}));
+}

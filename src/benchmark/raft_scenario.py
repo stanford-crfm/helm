@@ -4,7 +4,7 @@ import json
 import tempfile
 import datasets
 from pathlib import Path
-from common.general import ensure_file_downloaded
+from common.general import ensure_file_downloaded, ensure_directory_exists
 from typing import List, Dict
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT
 
@@ -32,6 +32,7 @@ def get_raft_prompt_settings(subset: str, cache_dir=None):
         cache_dir = tempfile.gettempdir()
 
     prompt_construction_settings_path = os.path.join(cache_dir, "prompt_construction_settings.json")
+    ensure_directory_exists(cache_dir)
     ensure_file_downloaded(
         source_url=PROMPT_SETTINGS_URL, target_path=prompt_construction_settings_path,
     )
@@ -71,6 +72,14 @@ class RAFTScenario(Scenario):
         terms_of_service
         tweet_eval_hate
         twitter_complaints
+
+    Prompt format:
+    Sentence: <sentence>
+    Label: <label>
+
+    Examples from ADE corpus (adverse drug effect):
+    Sentence: No regional side effects were noted.
+    Label: not ADE-related
     """
 
     name = "raft"
@@ -95,7 +104,7 @@ class RAFTScenario(Scenario):
         # TODO: Only using labeled instances now. Check if we can get the hidden test set labels.
         all_usable_dataset = datasets.load_dataset("ought/raft", self.subset, cache_dir=cache_dir, split="train")
         assert isinstance(all_usable_dataset, datasets.Dataset)
-        dataset = all_usable_dataset.train_test_split(test_size=0.2, seed=self.random_seed)
+        dataset = all_usable_dataset.train_test_split(test_size=0.8, seed=self.random_seed)
         train_dataset, test_dataset = dataset["train"], dataset["test"]
         class_label_to_string = train_dataset.features["Label"].int2str
 

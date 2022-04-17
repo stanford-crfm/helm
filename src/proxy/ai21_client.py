@@ -1,8 +1,11 @@
+from typing import Dict, List
 import requests
-from typing import Dict
+
+from dacite import from_dict
 
 from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
+from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken, TextRange
 from .client import Client, wrap_request_time
 
 
@@ -63,8 +66,26 @@ class AI21Client(Client):
             return x
 
         def parse_token(raw: Dict, first: bool) -> Token:
+            """
+            Parses a raw response token to a Token object.
+
+            Sometimes a "▁" with length 0 is added to the beginning of a sequence
+            or token by the AI21 tokenizer probably to mark the start of a new sequence.
+            e.g. " burying him" -> ["▁"(0,0), "▁burying"(0,8), "▁him"(8,12)];
+            "df\n---" -> '[▁df'(0,2), '\n'(2, 3), '▁---'(3, 6)]
+
+            By computing the actual length of a token and truncating it from the right,
+            We can remove those "▁"s so that the tokenization result aligns with the
+            input prompt.
+            """
+
+            # Compute the actual length of the token text
+            # e.g. "▁burying"(0,8) -> 8 - 0 = 8; "▁burying"(0,7) -> 7 - 0 = 7
+            text_length: int = raw["textRange"]["end"] - raw["textRange"]["start"]
             return Token(
-                text=fix_text(raw["generatedToken"]["token"], first),
+                # Text should not be longer than text_length. Since "▁" is always inserted
+                # in the beginning, we truncate the text from the right.
+                text=fix_text(raw["generatedToken"]["token"], first)[-text_length:] if text_length else "",
                 logprob=raw["generatedToken"]["logprob"],
                 top_logprobs=dict((fix_text(x["token"], first), x["logprob"]) for x in raw["topTokens"]),
             )
@@ -84,3 +105,33 @@ class AI21Client(Client):
         return RequestResult(
             success=True, cached=cached, request_time=response["request_time"], completions=completions
         )
+
+    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        """
+        Tokenizes the text by using the AI21 endpoint: https://api.ai21.com/studio/v1/tokenize.
+        """
+        raw_request: Dict[str, str] = {"text": request.text}
+
+        def do_it():
+            response = requests.post(
+                "https://api.ai21.com/studio/v1/tokenize",
+                headers={"Authorization": f"Bearer {self.api_key}"},
+                json=raw_request,
+            ).json()
+
+            if "tokens" not in response and "detail" in response:
+                raise AI21RequestError(f"AI21 error when tokenizing: {response['detail']}")
+
+            return response
+
+        response, cached = self.cache.get(raw_request, do_it)
+
+        # Each token is represented like this in the response:
+        # {'token': '▁Hello', 'textRange': {'start': 0, 'end': 5}}
+        tokens: List[TokenizationToken] = []
+        for token_dict in response["tokens"]:
+            tokens.append(
+                TokenizationToken(text=token_dict["token"], text_range=from_dict(TextRange, token_dict["textRange"]))
+            )
+        text: str = response["text"]
+        return TokenizationRequestResult(cached=cached, tokens=tokens, text=text)

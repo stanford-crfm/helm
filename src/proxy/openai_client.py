@@ -1,17 +1,22 @@
-import openai
 from typing import List
+
+import openai
 
 from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
+from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
 from .client import Client, wrap_request_time
+from .tokenizer.tokenizer_factory import TokenizerFactory
 
-OPENAI_END_OF_TEXT_TOKEN = "<|endoftext|>"
+
+OPENAI_END_OF_TEXT_TOKEN: str = "<|endoftext|>"
 
 
 class OpenAIClient(Client):
     def __init__(self, api_key: str, cache_path: str):
         openai.api_key = api_key
         self.cache = Cache(cache_path)
+        self.tokenizer = TokenizerFactory.get_tokenizer("openai")
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = {
@@ -70,4 +75,12 @@ class OpenAIClient(Client):
             completions.append(completion)
         return RequestResult(
             success=True, cached=cached, request_time=response["request_time"], completions=completions
+        )
+
+    def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        """Tokenizes the text using the GPT-2 tokenizer created in `OpenAITokenizer`."""
+        return TokenizationRequestResult(
+            cached=False,
+            tokens=[TokenizationToken(raw_text) for raw_text in self.tokenizer.tokenize(request.text)],
+            text=request.text,
         )
