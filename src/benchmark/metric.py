@@ -23,7 +23,13 @@ from .scenario import Instance, EVAL_SPLITS, TEST_SPLIT
 
 @dataclass
 class MetricResult:
+    """
+    `MetricResult` is a wrapper around aggregated statistics (averaged instances and trial index),
+    and per-(instance, trial index) statistics.
+    """
+
     aggregated_stats: List[Stat]
+    # Key for per-instance statistics is (instance, trial index), value is list of statistics.
     per_instance_stats: Dict[Tuple[Instance, int], List[Stat]]
 
 

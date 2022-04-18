@@ -25,7 +25,7 @@ class CommonSenseQAMetric(Metric):
     def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
-        all_per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = {}
+        all_per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = {}  # (Instance, Trial index) -> List[Stat]
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
