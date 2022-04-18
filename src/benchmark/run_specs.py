@@ -54,6 +54,14 @@ def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=args)]
 
 
+def get_bbq_metrics() -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={})]
+
+
+def get_bold_metrics() -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
+
+
 def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
@@ -72,7 +80,7 @@ def get_toxicity_metrics() -> List[MetricSpec]:
 
 
 def get_srn_metrics() -> List[MetricSpec]:
-    metric_names = {"names": ["iou_set_match", "exact_set_match"]}
+    metric_names = {"names": ["f1_set_match", "iou_set_match", "exact_set_match"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
@@ -142,6 +150,30 @@ def get_simple1_spec() -> RunSpec:
     )
 
 
+def get_bbq_spec(subject: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.bbq_scenario.BBQScenario", args={"subject": subject})
+
+    def format(subject: str):
+        if subject != "all":
+            subject = subject[0].upper() + subject[1:]
+        return subject
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE,
+        instructions="The following are multiple choice questions (with answers).",
+        input_prefix="",
+        output_prefix="\nAnswer: ",
+        max_train_instances=2,
+        max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
+        num_outputs=1,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0,
+    )
+
+    return RunSpec(name="bbq", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bbq_metrics())
+
+
 def get_msmarco_spec(
     task: str, topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
 ) -> RunSpec:
@@ -168,13 +200,51 @@ def get_msmarco_spec(
         temperature=0.0,
         stop_sequences=["\n"],
     )
-
     return RunSpec(
         name=f"msmarco:task={task},topk={topk},num_eval_queries={num_eval_queries},"
         f"num_train_queries={num_train_queries}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_msmarco_metrics(),
+    )
+
+
+def get_bold_spec(subject: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.bold_scenario.BOLDScenario", args={"subject": subject})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
+        num_outputs=25,
+        model="openai/davinci",
+        temperature=1,
+        max_tokens=20,  # see Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
+    )
+    return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bold_metrics())
+
+
+def get_civil_comments_spec(subject: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.civil_comments_scenario.CivilCommentsScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        output_prefix="\nanswer:",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/davinci",
+        max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
+        num_outputs=1,
+        max_tokens=1,
+    )
+    return RunSpec(
+        name="civil_comments",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
     )
 
 
@@ -271,7 +341,6 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             num_train_trials=1,
             model="openai/davinci",
             temperature=0.0,
-            stop_sequences=["\n"],
         )
         run_spec = RunSpec(
             name=f"commonsense_qa:dataset={dataset},method={method}",
@@ -375,7 +444,6 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
-        stop_sequences=["\n"],
         max_tokens=0,
     )
 
@@ -584,30 +652,6 @@ def get_boolq_spec() -> RunSpec:
     )
 
 
-def get_boolq_contrast_sets_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQContrastSetScenario", args={})
-
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        input_prefix="Passage: ",
-        output_prefix="\nAnswer: ",
-        num_train_trials=1,
-        max_train_instances=5,
-        model="openai/davinci",
-        temperature=0.0,
-        stop_sequences=["\n"],
-        max_eval_instances=None,  # We have only 340 perturbed questions for 70 passages
-        num_outputs=1,
-        max_tokens=1,
-    )
-    return RunSpec(
-        name="boolq_contrast_sets",
-        scenario=scenario,
-        adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
-    )
-
-
 def get_lsat_qa_spec(task: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.lsat_qa_scenario.LSATScenario", args={"task": task})
 
@@ -649,30 +693,6 @@ def get_imdb_spec() -> RunSpec:
     )
     return RunSpec(
         name="imdb",
-        scenario=scenario,
-        adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
-    )
-
-
-def get_imdb_contrast_sets_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDBContrastSetScenario", args={})
-
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        input_prefix="Passage: ",
-        output_prefix="Sentiment:",
-        num_train_trials=1,
-        max_train_instances=5,
-        model="openai/davinci",
-        max_eval_instances=None,  # there are only 488 contrast pairs
-        num_outputs=1,
-        max_tokens=10,
-        temperature=0.0,
-        stop_sequences=["\n"],
-    )
-    return RunSpec(
-        name="imdb_contrast_sets",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -879,7 +899,6 @@ def get_the_pile_spec(subset: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         max_tokens=0,
-        stop_sequences=["\n"],
     )
 
     return RunSpec(
@@ -905,7 +924,6 @@ def get_ice_spec(**kwargs) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         max_tokens=0,
-        stop_sequences=["\n"],
     )
 
     return RunSpec(
@@ -982,7 +1000,6 @@ def get_wikitext_103_spec() -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         max_tokens=0,
-        stop_sequences=["\n"],
     )
 
     return RunSpec(
@@ -1005,7 +1022,6 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         max_tokens=0,
-        stop_sequences=["\n"],
     )
 
     return RunSpec(
@@ -1048,7 +1064,7 @@ def get_xsum_summarization_spec() -> RunSpec:
 def get_cnndm_summarization_spec() -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
-        args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512,},
+        args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
     )
 
     adapter_spec = AdapterSpec(
@@ -1156,9 +1172,7 @@ def get_legal_support_spec() -> RunSpec:
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "simple1": get_simple1_spec,
     "boolq": get_boolq_spec,
-    "boolq_contrast_sets": get_boolq_contrast_sets_spec,
     "imdb": get_imdb_spec,
-    "imdb_contrast_sets": get_imdb_contrast_sets_spec,
     "copyright": get_copyright_spec,
     "mmlu": get_mmlu_spec,
     "msmarco": get_msmarco_spec,
@@ -1187,6 +1201,9 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "blimp": get_blimp_spec,
     "code": get_code_spec,
     "empatheticdialogues": get_empatheticdialogues_spec,
+    "bold": get_bold_spec,
+    "bbq": get_bbq_spec,
+    "civil_comments": get_civil_comments_spec,
     "dyck_language": get_dyck_language_spec,
     "legal_support": get_legal_support_spec,
     "ice": get_ice_spec,

@@ -2,7 +2,13 @@ from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import List, Dict
 
-from proxy.models import get_all_code_models, get_all_models, get_all_text_models
+from proxy.models import (
+    get_all_code_models,
+    get_all_models,
+    get_all_text_models,
+    get_model_names_with_tag,
+    LIMITED_FUNCTIONALITY_MODEL_TAG,
+)
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
@@ -72,12 +78,13 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
     name = "model"
     values_dict = {
-        "default": ["openai/davinci"],
+        "default": ["openai/davinci", "ai21/j1-jumbo", "huggingface/gpt2"],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
         "all": get_all_models(),
         "text": get_all_text_models(),
         "code": get_all_code_models(),
+        "limited_functionality": get_model_names_with_tag(LIMITED_FUNCTIONALITY_MODEL_TAG),
     }
 
 
@@ -104,6 +111,18 @@ def lower() -> PerturbationSpec:
 def misspelling(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
         class_name="benchmark.augmentations.misspelling_perturbation.MisspellingPerturbation", args={"prob": prob}
+    )
+
+
+def synonym(prob: float) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.synonym_perturbation.SynonymPerturbation", args={"prob": prob}
+    )
+
+
+def contrast_sets() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.contrast_sets_perturbation.ContrastSetsPerturbation", args={}
     )
 
 
@@ -134,6 +153,7 @@ def contract_and_expand() -> List[PerturbationSpec]:
 # - r2: with perturbations [c, d, e]
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
+    "contrast_sets": {"contrast_sets": [contrast_sets()]},
     "space": {"space3": [space(max_spaces=3)]},
     "lower": {"lower": [lower()]},
     "contract": {"contract": contract_and_expand()},
@@ -144,7 +164,18 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "typo_easy": {"typo0.1": [typo(prob=0.10)]},
     "typo_medium": {"typo0.3": [typo(prob=0.30)]},
     "typo_hard": {"typo0.5": [typo(prob=0.50)]},
-    "all": {"all": [misspelling(prob=0.20), space(max_spaces=3), lower(), *contract_and_expand(), typo(prob=0.1)]},
+    "synonym": {"synonym0.5": [synonym(prob=0.5)]},
+    "all": {
+        "all": [
+            misspelling(prob=0.20),
+            space(max_spaces=3),
+            lower(),
+            *contract_and_expand(),
+            typo(prob=0.1),
+            contrast_sets(),
+            synonym(prob=0.5),
+        ]
+    },
 }
 
 
@@ -178,7 +209,7 @@ class DataAugmentationRunExpander(RunExpander):
         def create_run_spec(aug_name: str, perturbation_specs: List[PerturbationSpec]) -> RunSpec:
             data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
                 perturbation_specs=perturbation_specs,
-                should_perturb_references=False,
+                should_perturb_references=aug_name == "contrast_sets",
                 # Always include original and perturbed instances together so that
                 # we can compute the normal and robustness metrics in the same run.
                 should_augment_train_instances=False,

@@ -73,7 +73,7 @@ class SummarizationScenario(Scenario):
             article_key = "document"
             summary_key = "summary"
         elif dataset_name == "cnn-dm":
-            dataset = load_dataset("cnn_dailymail", "3.0.0")
+            dataset = load_dataset("ccdv/cnn_dailymail", "3.0.0")
             article_key = "article"
             summary_key = "highlights"
         else:
