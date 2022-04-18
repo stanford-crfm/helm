@@ -72,6 +72,14 @@ class RAFTScenario(Scenario):
         terms_of_service
         tweet_eval_hate
         twitter_complaints
+
+    Prompt format:
+    Sentence: <sentence>
+    Label: <label>
+
+    Examples from ADE corpus (adverse drug effect):
+    Sentence: No regional side effects were noted.
+    Label: not ADE-related
     """
 
     name = "raft"

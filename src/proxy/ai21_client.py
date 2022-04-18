@@ -133,4 +133,5 @@ class AI21Client(Client):
             tokens.append(
                 TokenizationToken(text=token_dict["token"], text_range=from_dict(TextRange, token_dict["textRange"]))
             )
-        return TokenizationRequestResult(cached=cached, tokens=tokens)
+        text: str = response["text"]
+        return TokenizationRequestResult(cached=cached, tokens=tokens, text=text)

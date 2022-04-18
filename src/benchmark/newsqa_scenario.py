@@ -30,7 +30,7 @@ class NewsQAScenario(Scenario):
     All of the questions and answers are written by crowd sourced human annotators.
     For more details, see https://arxiv.org/abs/1611.09830.
     More concretely, we prompt models using the following format:
-        Article: <news article>
+        <news article>
         Question: <question>
         Answer:
         Target completion:
@@ -62,11 +62,10 @@ class NewsQAScenario(Scenario):
         correct references.
         """
         prompt: str = ""
-        prompt += f"Article: {sample['text']}\n\n"
+        prompt += f"{sample['text']}\n\n"
         all_questions = sample["questions"]
         question = random.sample(all_questions, 1)[0]
-        prompt += f"Question: {question['q']}\n"
-        prompt += "Answer:"
+        prompt += f"Question: {question['q']}"
         # generate set of valid answers
         answers = []
 
@@ -150,7 +149,7 @@ class NewsQAScenario(Scenario):
     def get_instances(self) -> List[Instance]:
         # TODO how to deal with NewsQA file. The dataset cannot be directly downloaded
         # currently hardcoded a path to a directory with the file
-        data_path: str = "/nlp/scr/niladri/datasets/newsqa/"
+        data_path: str = "/u/scr/nlp/crfm/benchmarking/newsqa/"
         file_path = os.path.join(data_path, "combined-newsqa-data-v1.json")
         assert os.path.exists(file_path)
         splits = {"train": TRAIN_SPLIT, "valid": VALID_SPLIT}

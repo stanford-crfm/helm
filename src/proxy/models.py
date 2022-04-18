@@ -4,6 +4,7 @@ from typing import List
 
 TEXT_MODEL_TAG: str = "text"
 CODE_MODEL_TAG: str = "code"
+LIMITED_FUNCTIONALITY_MODEL_TAG: str = "limited_functionality"
 
 
 @dataclass
@@ -78,8 +79,22 @@ ALL_MODELS = [
         group="anthropic",
         name="anthropic/stanford-online-helpful-v4-s3",
         description="Anthropic model (52B parameters)",
-        tags=["anthropic"],  # The Anthropic model has limited functionality so give it its own tag
+        tags=[LIMITED_FUNCTIONALITY_MODEL_TAG],  # The Anthropic model has limited functionality so give it its own tag
     ),
+    # Microsoft
+    Model(
+        group="microsoft",
+        name="microsoft/TNLGv2_530B",
+        description="Megatron-Turing NLG (530B parameters)",
+        tags=[LIMITED_FUNCTIONALITY_MODEL_TAG],  # The TNLGv2 models have limited functionality
+    ),
+    # TODO: The TNLGv2_7B model is unavailable to us at the moment, but simply uncomment the following when it's ready.
+    # Model(
+    #     group="microsoft",
+    #     name="microsoft/TNLGv2_7B",
+    #     description="Megatron-Turing NLG (7B parameters)",
+    #     tags = [LIMITED_FUNCTIONALITY_MODEL_TAG],  # The TNLGv2 models have limited functionality
+    # ),
     # For debugging
     Model(group="simple", name="simple/model1", description="Copy last tokens (for debugging)"),
 ]

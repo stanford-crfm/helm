@@ -9,6 +9,7 @@ from common.request import Sequence
 from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
+from .metric_name import MetricName
 from .metric_service import MetricService
 
 
@@ -66,7 +67,7 @@ class DisinformationMetric(Metric):
     ) -> List[Stat]:
         request_result: RequestResult = request_state.result
         result = self._metric_fn(completions=request_result.completions, references=request_state.instance.references)
-        return [Stat(self._name).add(result)]
+        return [Stat(MetricName(self._name)).add(result)]
 
 
 if __name__ == "__main__":
