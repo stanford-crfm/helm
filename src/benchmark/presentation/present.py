@@ -107,7 +107,7 @@ class AllRunner:
                 else:
                     wip_content.append(f"{run_spec} - {metrics_text}")
 
-            # Update the status page after processing every RunSpec description
+            # Update the status page after processing every `RunSpec` description
             self._update_status_page(wip_content, ready_content)
 
         # Write out all the `RunSpec`s and models to json files
