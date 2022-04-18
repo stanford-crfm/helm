@@ -9,8 +9,10 @@ from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 from .client import Client
 from .ai21_client import AI21Client
+from .anthropic_client import AnthropicClient
 from .huggingface_client import HuggingFaceClient
 from .openai_client import OpenAIClient
+from .microsoft_client import MicrosoftClient
 from .simple_client import SimpleClient
 from .retry import retry_request
 
@@ -27,13 +29,17 @@ class AutoClient(Client):
         """Return a client based on `organization`, creating it if necessary."""
         client = self.clients.get(organization)
         if client is None:
-            client_cache_path = os.path.join(self.cache_path, f"{organization}.sqlite")
+            client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
             if organization == "openai":
                 client = OpenAIClient(api_key=self.credentials["openaiApiKey"], cache_path=client_cache_path)
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
             elif organization == "huggingface":
                 client = HuggingFaceClient(cache_path=client_cache_path)
+            elif organization == "anthropic":
+                client = AnthropicClient(api_key=self.credentials["anthropicApiKey"], cache_path=client_cache_path)
+            elif organization == "microsoft":
+                client = MicrosoftClient(api_key=self.credentials["microsoftApiKey"], cache_path=client_cache_path)
             elif organization == "simple":
                 client = SimpleClient()
             else:

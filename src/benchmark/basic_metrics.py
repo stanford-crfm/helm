@@ -1,5 +1,5 @@
 from dataclasses import replace
-from typing import List, Callable, Optional, Dict, Tuple, cast
+from typing import List, Callable, Optional, Dict, Tuple, Set, cast
 from urllib.parse import unquote
 from functools import partial
 
@@ -22,6 +22,7 @@ from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from proxy.tokenizer.tokenizer_service import TokenizerService
 from .augmentations.perturbation_description import PerturbationDescription
 from .adapter import AdapterSpec, RequestState, ADAPT_LANGUAGE_MODELING
+from .math_scenario import is_equiv
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -49,10 +50,18 @@ def pass_at_k_estimator(n: int, c: int, k: int) -> float:
 
 
 def exact_match(gold: str, pred: str) -> float:
+    return 1 if gold.strip() == pred.strip() else 0
+
+
+def match_upto_whitespace(gold: str, pred: str) -> float:
+    """Exact match, ignoring trailing whitespace on either side.
+    """
+    gold = gold.strip()
+    pred = pred.strip()
     return 1 if gold == pred else 0
 
 
-def exact_match_indicator(gold: str, pred: str) -> float:
+def exact_match_indicator(gold: str, pred: str, indicator: str = "#") -> float:
     """
     Exact match, allowing for some preceding context.
     For example, the following two answers are considered matching:
@@ -61,7 +70,6 @@ def exact_match_indicator(gold: str, pred: str) -> float:
     While the following is considered different from the earlier two
     - Given reasons x and a, the answer is ## <other answer>
     """
-    indicator: str = "#"
     pred = pred.split(indicator)[-1].strip()
     gold = gold.split(indicator)[-1].strip()
     return exact_match(gold, pred)
@@ -164,30 +172,68 @@ def bleu_4(gold: str, pred: str) -> float:
     return sentence_bleu([word_tokenize(gold)], word_tokenize(pred), weights=(0, 0, 0, 1))
 
 
+def extract_set_from_text(
+    set_str: str, set_start_str: str = " is ", set_separator: str = " and ", empty_set_str: str = "Nothing.",
+) -> Set[str]:
+    """
+    Given a string, extract the set of strings implied by that string.
+    set_start_str denotes the start of the set
+    set_separator denotes the string separating set elements
+    empty_set_str is the string which denotes the empty set
+    """
+    if set_str == empty_set_str:
+        return set()
+    set_str = set_str.replace(".", "")
+    extracted_set = set(set_str.split(set_start_str)[-1].split(set_separator))
+    return extracted_set
+
+
+def extract_gold_pred_sets(gold: str, pred: str) -> Tuple[Set[str], Set[str]]:
+    """Extract the set of strings implied by the gold and pred strings"""
+    gold_set = extract_set_from_text(gold)
+    pred_set = extract_set_from_text(pred.split("\n")[0])
+    return gold_set, pred_set
+
+
 def iou_set_match(gold: str, pred: str) -> float:
     """Compute the intersection over union of the gold and pred sets"""
-    pred = pred.split("\n")[0]
-    gold_text = gold
-    if gold_text == "Nothing.":
-        return float(pred == "Nothing.")
-    pred = pred.replace(".", "")
-    gold_text = gold_text.replace(".", "")
-    gold_set = set(gold_text.split(" is ")[-1].split(" and "))
-    pred_set = set(pred.split(" is ")[-1].split(" and "))
+    gold_set, pred_set = extract_gold_pred_sets(gold, pred)
+    if len(gold_set) == 0:  # If gold is empty, just check if the pred set is also empty
+        return float(gold_set == pred_set)
     return len(gold_set.intersection(pred_set)) / len(gold_set.union(pred_set))
+
+
+def f1_set_match(gold: str, pred: str) -> float:
+    """Compute the F1 score of the gold and pred sets"""
+    gold_set, pred_set = extract_gold_pred_sets(gold, pred)
+    if len(gold_set) == 0:  # If gold is empty, just check if the pred set is also empty
+        return float(gold_set == pred_set)
+    true_positives = gold_set.intersection(pred_set)
+    return 2 * len(true_positives) / (len(gold_set) + len(pred_set))
 
 
 def exact_set_match(gold: str, pred: str) -> float:
     """Compute whether the sets generated exactly match"""
-    pred = pred.split("\n")[0]
-    gold_text = gold
-    if gold_text == "Nothing.":
-        return float(pred == "Nothing.")
-    pred = pred.replace(".", "")
-    gold_text = gold_text.replace(".", "")
-    gold_set = set(gold_text.split(" is ")[-1].split(" and "))
-    pred_set = set(pred.split(" is ")[-1].split(" and "))
+    gold_set, pred_set = extract_gold_pred_sets(gold, pred)
     return float(gold_set == pred_set)
+
+
+def absolute_value_difference(gold: str, pred: str) -> float:
+    """Compute the absolute value of the difference between two numbers (provided as strings),
+    or 0.0 if invalid input.
+    """
+
+    def maybe_int(text: str):
+        """Parse int, ignoring commas in numbers."""
+        try:
+            val = int(text.replace(",", ""))
+        except ValueError:
+            return 0.0
+        return val
+
+    gold_val = maybe_int(gold)
+    pred_val = maybe_int(pred)
+    return abs(gold_val - pred_val)
 
 
 def code_eval(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
@@ -250,9 +296,12 @@ class BasicMetric(Metric):
         # maps each string metric name to its associated function
         metric_fn_mapping: Dict[str, Callable] = {
             "exact_match": exact_match,
+            "match_upto_whitespace": match_upto_whitespace,
             "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
+            "f1_set_match": f1_set_match,
+            "math_equiv": is_equiv,
             "code_eval_acc": code_eval,
             "pass": code_eval,
             "f1_score": f1_score,
@@ -261,6 +310,7 @@ class BasicMetric(Metric):
             "rouge-l": get_rouge_function("rougeL"),
             "bleu_1": bleu_1,
             "bleu_4": bleu_4,
+            "absolute_value_difference": absolute_value_difference,
         }
 
         reference_metrics = []
