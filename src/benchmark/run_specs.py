@@ -341,7 +341,6 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             num_train_trials=1,
             model="openai/davinci",
             temperature=0.0,
-            stop_sequences=["\n"],
         )
         run_spec = RunSpec(
             name=f"commonsense_qa:dataset={dataset},method={method}",
@@ -445,7 +444,6 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
-        stop_sequences=["\n"],
         max_tokens=0,
     )
 
@@ -901,7 +899,6 @@ def get_the_pile_spec(subset: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         max_tokens=0,
-        stop_sequences=["\n"],
     )
 
     return RunSpec(
@@ -927,7 +924,6 @@ def get_ice_spec(**kwargs) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         max_tokens=0,
-        stop_sequences=["\n"],
     )
 
     return RunSpec(
@@ -1004,7 +1000,6 @@ def get_wikitext_103_spec() -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         max_tokens=0,
-        stop_sequences=["\n"],
     )
 
     return RunSpec(
@@ -1027,7 +1022,6 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         max_tokens=0,
-        stop_sequences=["\n"],
     )
 
     return RunSpec(
