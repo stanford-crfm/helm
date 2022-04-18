@@ -55,6 +55,7 @@ class CivilCommentsScenario(Scenario):
 
         data_path: str = "/u/scr/nlp/crfm/benchmarking/civil_comments/"
         file_path = os.path.join(data_path, "civil_comments.csv")
+
         assert os.path.exists(file_path)
         df = pd.read_csv(file_path)
 
