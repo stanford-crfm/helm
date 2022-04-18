@@ -56,6 +56,7 @@ from .augmentations.misspelling_perturbation import MisspellingPerturbation  # n
 from .augmentations.contraction_expansion_perturbation import ContractionPerturbation  # noqa
 from .augmentations.contraction_expansion_perturbation import ExpansionPerturbation  # noqa
 from .augmentations.typos_perturbation import TyposPerturbation  # noqa
+from .augmentations.filler_words_perturbation import FillerWordsPerturbation  # noqa
 from .augmentations.synonym_perturbation import SynonymPerturbation  # noqa
 from .augmentations.contrast_sets_perturbation import ContrastSetsPerturbation  # noqa
 from .augmentations.lowercase_perturbation import LowerCasePerturbation  # noqa

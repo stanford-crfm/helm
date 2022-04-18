@@ -132,6 +132,13 @@ def typo(prob: float) -> PerturbationSpec:
     )
 
 
+def filler(prob: float) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.filler_words_perturbation.FillerWordsPerturbation",
+        args={"insert_prob": prob, "speaker_ph": False},
+    )
+
+
 def contract_and_expand() -> List[PerturbationSpec]:
     return [
         PerturbationSpec(
@@ -157,6 +164,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "space": {"space3": [space(max_spaces=3)]},
     "lower": {"lower": [lower()]},
     "contract": {"contract": contract_and_expand()},
+    "filler": {"filler0.3": [filler(0.3)]},
     "misspelling_mild": {"misspelling0.05": [misspelling(prob=0.05)]},
     "misspelling_medium": {"misspelling0.20": [misspelling(prob=0.20)]},
     "misspelling_hard": {"misspelling0.5": [misspelling(prob=0.5)]},
