@@ -289,7 +289,7 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Activate the Conda environment: `conda activate crfm_benchmarking` 
    1. Run `pip install -e .` if there are new dependencies to install. 
 1. Run the `benchmark-present` command e.g., 
-   `benchmark-present --max-eval-instances 200 --conf src/benchmark/presentation/run_specs.conf &> run.log`.
+   `benchmark-present --max-eval-instances 200 --conf src/benchmark/presentation/run_specs.conf`.
 1. Exit the screen session: `ctrl+ad`.
 1. To check on the screen session: `screen -r benchmarking`.
 
