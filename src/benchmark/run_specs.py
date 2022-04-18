@@ -628,8 +628,8 @@ def get_math_spec(subject: str, level: str, use_official_prompt: bool = True) ->
     )
 
 
-def get_boolq_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={})
+def get_boolq_spec(only_contrast=False) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={"only_contrast": only_contrast})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -645,7 +645,7 @@ def get_boolq_spec() -> RunSpec:
         temperature=0.0,
     )
     return RunSpec(
-        name="boolq",
+        name="boolq" + (":only_contrast=True" if only_contrast else ""),
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -675,8 +675,8 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
     )
 
 
-def get_imdb_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDBScenario", args={})
+def get_imdb_spec(only_contrast=False) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDBScenario", args={"only_contrast": only_contrast})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -692,7 +692,7 @@ def get_imdb_spec() -> RunSpec:
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name="imdb",
+        name="imdb" + (":only_contrast=True" if only_contrast else ""),
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),

@@ -42,7 +42,9 @@ class IMDBScenario(Scenario):
     description = "Sentiment analysis dataset."
     tags = ["sentiment_classification"]
 
-    def __init__(self):
+    def __init__(self, only_contrast=False):
+        "only_constast: Produce only inputs that have a contrast version."
+        self.only_contrast = only_contrast
         pass
 
     def get_split_instances(self, split: str, path: str, contrast_map: dict) -> List[Instance]:
@@ -69,6 +71,8 @@ class IMDBScenario(Scenario):
                             [Reference(output=contrast_map[context]["contrast_answer"], tags=[CORRECT_TAG])]
                         ]
                         instance_split = VALID_SPLIT  # we want to evaluate on contrast sets
+                    elif self.only_contrast and split == VALID_SPLIT:
+                        continue
 
                     instance: Instance = Instance(
                         input=prompt,
