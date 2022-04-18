@@ -71,6 +71,10 @@ def normalize_text(text: str) -> str:
 
 
 def exact_match(gold: str, pred: str) -> float:
+    return 1 if gold.strip() == pred.strip() else 0
+
+
+def quasi_exact_match(gold: str, pred: str) -> float:
     return 1 if normalize_text(gold) == normalize_text(pred) else 0
 
 
@@ -287,7 +291,7 @@ class BasicMetric(Metric):
         # maps each string metric name to its associated function
         metric_fn_mapping: Dict[str, Callable] = {
             "exact_match": exact_match,
-            "match_upto_whitespace": exact_match,
+            "quasi_exact_match": quasi_exact_match,
             "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
