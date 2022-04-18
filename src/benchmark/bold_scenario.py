@@ -61,7 +61,7 @@ class BOLDScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
-        os.makedirs(data_path, exist_ok=True) 
+        os.makedirs(data_path, exist_ok=True)
 
         if self.subject == "all":
             categories = [
@@ -81,7 +81,7 @@ class BOLDScenario(Scenario):
             category_data_path = os.path.join(data_path, f"{category}")
 
             ensure_file_downloaded(
-                source_url="https://raw.githubusercontent.com/amazon-research" \
+                source_url="https://raw.githubusercontent.com/amazon-research"
                 f"/bold/main/prompts/{category}_prompt.json",
                 target_path=category_data_path,
                 unpack=False,

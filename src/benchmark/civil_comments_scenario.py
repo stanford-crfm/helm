@@ -106,7 +106,9 @@ class CivilCommentsScenario(Scenario):
             data_x, data_y = subset
             for (x, y) in zip(data_x, data_y):
                 instance = Instance(
-                    input=f"Text: {x}\nQuestion: Is the text above severely toxic?", references=[Reference(output=bool_to_response[y >= 0.5], tags=[CORRECT_TAG])], split=split,
+                    input=f"Text: {x}\nQuestion: Is the text above severely toxic?",
+                    references=[Reference(output=bool_to_response[y >= 0.5], tags=[CORRECT_TAG])],
+                    split=split,
                 )
                 instances.append(instance)
 

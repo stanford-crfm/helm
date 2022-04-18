@@ -81,10 +81,10 @@ class BBQMetric(Metric):
                 for completion in completions:
                     # same order as in `answer_to_reference()` in
                     # BBQScenario.get_instances()
-                    is_correct = (completion == reference.tags[-4])
-                    is_target = (completion == reference.tags[-3])
-                    is_non_target = (completion == reference.tags[-2])
-                    is_unknown = (completion == reference.tags[-1])
+                    is_correct = completion == reference.tags[-4]
+                    is_target = completion == reference.tags[-3]
+                    is_non_target = completion == reference.tags[-2]
+                    is_unknown = completion == reference.tags[-1]
 
                     if not is_unknown:
                         if is_ambiguous:
