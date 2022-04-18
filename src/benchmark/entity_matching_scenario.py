@@ -1,6 +1,6 @@
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from common.hierarchical_logger import hlog
 from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
@@ -26,19 +26,19 @@ class EntityMatchingScenario(Scenario):
     We will construct this task as a generation task. A negative and positive example from the
     Amazon-Google EM benchmark are:
 
-    Do the two rows refer to the same entity?
-    [A] title: adobe creative suite cs3 design premium upsell [ mac ]
-        manufacturer: adobe price: 1599.0
-    [B] title: 19600061dm adobe creative suite 3 production premium media tlp download mac world
-        manufacturer: nan price: 20.97
-    ? NO
+    Are Row A and Row B the same? YES or NO?
+    Row A: title: adobe creative suite cs3 design premium upsell [ mac ]
+        | manufacturer: adobe price: 1599.0
+    Row B: title: 19600061dm adobe creative suite 3 production premium media tlp download mac world
+        | manufacturer: nan price: 20.97
+    NO
 
-    Do the two rows refer to the same entity?
-    [A] title: adobe creative suite cs3 web premium upgrade [ mac ]
-        manufacturer: adobe price: 499.0
-    [B] title: adobe cs3 web premium upgrade
-        manufacturer: nan price: 517.99
-    ? YES
+    Are Row A and Row B the same? YES or NO?
+    Row A: title: adobe creative suite cs3 web premium upgrade [ mac ]
+        | manufacturer: adobe price: 499.0
+    Row B: title: adobe cs3 web premium upgrade
+        | manufacturer: nan price: 517.99
+    YES
 
     The above example highlights the model will need to reason over semantic dissimilarities (e.g.,
     premium upsell being in [A] but not [B] in the first example) as well as notions of price
@@ -68,13 +68,15 @@ class EntityMatchingScenario(Scenario):
         assert dataset in self.em_datasets_paths
         self.dataset = dataset
 
-    def read_tables(self, data_path: Path):
+    def read_tables(self, data_path: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """Read in relations A and B."""
         tableA = pd.read_csv(data_path / "tableA.csv")
         tableB = pd.read_csv(data_path / "tableB.csv")
         return tableA, tableB
 
-    def read_blocked_pairs(self, data_path: Path, split: str, tableA: pd.DataFrame, tableB: pd.DataFrame):
+    def read_blocked_pairs(
+        self, data_path: Path, split: str, tableA: pd.DataFrame, tableB: pd.DataFrame
+    ) -> pd.DataFrame:
         """Read in pre-blocked pairs with T/F match labels."""
         labels = pd.read_csv(data_path / f"{split}.csv")
 
@@ -90,7 +92,7 @@ class EntityMatchingScenario(Scenario):
             num_neg_classes = sum(merged["label"] == 0)
         return merged
 
-    def serialize_row(self, row: pd.core.series.Series, column_map: Dict[str, str]):
+    def serialize_row(self, row: pd.core.series.Series, column_map: Dict[str, str]) -> str:
         """Turn structured row into string."""
         res = []
         for c_og, c_map in column_map.items():
