@@ -16,11 +16,11 @@ class LSATScenario(Scenario):
 
     This is a multi-choice QA dataset containing question that test analytical reasoning,
     from the Law School Admission Test (LSAT). The questions explore cases of constraint
-    satisfactin, where there is a set of elements that need to be assigned while complying
+    satisfaction, where there is a set of elements that need to be assigned while complying
     with given conditions, for instance: making 1-1 assignments of talks to dates ("assignment"),
     grouping students to teams ("grouping") or ordering classes in a schedule ("ordering").
 
-    We can either evalute all questions together ("all") or a subset of the questions:
+    We can either evaluate all questions together ("all") or a subset of the questions:
         grouping: in_out_grouping, distribution_grouping
         ordering: simple ordering, relative_ordering, complex ordering
         assignment: determined assignment, undetermined assignment
@@ -64,13 +64,16 @@ class LSATScenario(Scenario):
     tags = ["question_answering"]
 
     def __init__(self, task):
-        self.task = task
         question_types = {
             "grouping": ["in/out grouping", "distribution grouping"],
             "ordering": ["simple ordering", "relative ordering", "complex ordering"],
             "assignment": ["determined assignment", "undetermined assignment"],
             "miscellaneous": [],
         }
+
+        # Validate that task is one of the keys in `question_types` or "all"
+        assert task in question_types or task == "all", f"Invalid task: {task}"
+        self.task = task
 
         self.subtype2type = {}
         for qtype, subtypes in question_types.items():
