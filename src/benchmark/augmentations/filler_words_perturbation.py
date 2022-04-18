@@ -51,7 +51,7 @@ class FillerWordsPerturbation(Perturbation):
 
     name: str = "filler_words"
 
-    def __init__(self, insert_prob=0.333, max_num_insert=1, speaker_ph=True, uncertain_ph=True, fill_ph=True):
+    def __init__(self, insert_prob=0.333, max_num_insert=None, speaker_ph=True, uncertain_ph=True, fill_ph=True):
         self.insert_prob = insert_prob
         self.max_num_insert = max_num_insert
         self.speaker_ph = speaker_ph
@@ -79,19 +79,19 @@ class FillerWordsPerturbation(Perturbation):
         if fill_ph:
             all_fillers.extend(FILL_PHRASE)
 
-        # List of space-separated strings for the perturbed text (output)
-        perturbed_text_list = []
         insert_count = 0
+        perturbed_lines = []
+        for line in text.split("\n"):
+            perturbed_words = []
+            for word in line.split():
+                if (max_num_insert is None or insert_count < max_num_insert) and random.random() <= insert_prob:
+                    random_filler = random.choice(all_fillers)
+                    perturbed_words.append(random_filler)
+                    insert_count += 1
+                perturbed_words.append(word)
+            perturbed_lines.append(" ".join(perturbed_words))
 
-        for word in text.split():
-            if insert_count < max_num_insert and random.random() <= insert_prob:
-                random_filler = random.choice(all_fillers)
-                perturbed_text_list.append(random_filler)
-                insert_count += 1
-            perturbed_text_list.append(word)
-
-        # Join space-separated words into a single string of perturbed text
-        perturbed_text = " ".join(perturbed_text_list)
+        perturbed_text = "\n".join(perturbed_lines)
 
         return perturbed_text
 

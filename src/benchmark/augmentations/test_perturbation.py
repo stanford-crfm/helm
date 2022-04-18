@@ -54,7 +54,7 @@ def test_misspelling_perturbation():
 
 def test_filler_words_perturbation():
     data_augmenter = DataAugmenter(
-        perturbations=[FillerWordsPerturbation(insert_prob=0.333, speaker_ph=False)], should_perturb_references=True
+        perturbations=[FillerWordsPerturbation(insert_prob=0.3, speaker_ph=False)], should_perturb_references=True
     )
     instance: Instance = Instance(
         id="id0",
@@ -66,7 +66,7 @@ def test_filler_words_perturbation():
     assert len(instances) == 2
     assert instances[0].id == "id0"
     assert instances[0].perturbation.name == "filler_words"
-    assert instances[0].input == "The quick brown fox jumps over probably the lazy dog."
+    assert instances[0].input == "The probably quick like brown like fox err jumps over the lazy dog."
 
 
 def test_contraction_perturbation():
