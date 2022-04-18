@@ -34,6 +34,8 @@ from . import imdb_scenario  # noqa
 from . import dialogue_scenarios  # noqa
 from . import dyck_language_scenario  # noqa
 from . import legal_support_scenario  # noqa
+from . import entity_matching_scenario  # noqa
+from . import entity_data_imputation_scenario  # noqa
 
 
 # Metrics
