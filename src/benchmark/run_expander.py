@@ -161,8 +161,10 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "misspelling_medium": {"misspelling0.20": [misspelling(prob=0.20)]},
     "misspelling_hard": {"misspelling0.5": [misspelling(prob=0.5)]},
     "misspelling_sweep": {f"misspelling{prob}": [misspelling(prob=prob)] for prob in [0, 0.05, 0.2, 0.5]},
+    "typo_easy": {"typo0.1": [typo(prob=0.10)]},
+    "typo_medium": {"typo0.3": [typo(prob=0.30)]},
+    "typo_hard": {"typo0.5": [typo(prob=0.50)]},
     "synonym": {"synonym0.5": [synonym(prob=0.5)]},
-    "typo_medium": {"typo0.1": [typo(prob=0.10)]},
     "all": {
         "all": [
             misspelling(prob=0.20),
