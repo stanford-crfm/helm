@@ -17,8 +17,11 @@ from proxy.models import ALL_MODELS
 
 """
 Runs all the RunSpecs in run_specs.conf and outputs a status page.
+
 Usage:
+
     venv/bin/benchmark-present
+
 """
 
 # For READY RunSpecs, evaluate and generate metrics.
