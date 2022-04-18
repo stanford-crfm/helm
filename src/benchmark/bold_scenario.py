@@ -61,7 +61,7 @@ class BOLDScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
-        os.mkdir(data_path)
+        os.makedirs(data_path, exist_ok=True) 
 
         if self.subject == "all":
             categories = [
@@ -81,9 +81,8 @@ class BOLDScenario(Scenario):
             category_data_path = os.path.join(data_path, f"{category}")
 
             ensure_file_downloaded(
-                source_url="""
-                https://raw.githubusercontent.com/amazon-research/bold/main/prompts/{category}_prompt.json
-                """,
+                source_url="https://raw.githubusercontent.com/amazon-research" \
+                f"/bold/main/prompts/{category}_prompt.json",
                 target_path=category_data_path,
                 unpack=False,
             )
@@ -114,6 +113,6 @@ class BOLDScenario(Scenario):
             if idx >= split_sizes["train"]:
                 curr_split = TEST_SPLIT
 
-            instances.append(Instance(input=prompt_text, split=curr_split, references=[]))
+            instances.append(Instance(input=f"Question: {prompt_text} ", split=curr_split, references=[]))
 
         return instances
