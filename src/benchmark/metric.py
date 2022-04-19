@@ -24,7 +24,7 @@ from .scenario import Instance, EVAL_SPLITS, TEST_SPLIT
 @dataclass
 class MetricResult:
     """
-    `MetricResult` is a wrapper around aggregated statistics (averaged instances and trial index),
+    `MetricResult` is a wrapper around aggregated statistics (averaged over instances and trial index),
     and per-(instance, trial index) statistics.
     """
 

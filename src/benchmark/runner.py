@@ -1,5 +1,6 @@
 import json
 import os
+from collections import defaultdict
 from dataclasses import dataclass, asdict
 from typing import Dict, List, Tuple
 
@@ -95,27 +96,19 @@ class Runner:
             TokensMetric()
         ]
         stats: List[Stat] = []
-        per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = {}
+        per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = defaultdict(list)
         with htrack_block(f"{len(metrics)} metrics"):
             for metric in metrics:
                 with htrack_block(metric):
                     metric_result: MetricResult = metric.evaluate(scenario_state, self.metric_service)
                     stats.extend(metric_result.aggregated_stats)
                     for key in metric_result.per_instance_stats:
-                        if key not in per_instance_stats:
-                            per_instance_stats[key] = metric_result.per_instance_stats[key]
-                        else:
-                            per_instance_stats[key].extend(metric_result.per_instance_stats[key])
+                        per_instance_stats[key].extend(metric_result.per_instance_stats[key])
 
         # Print out stats
         with htrack_block("Stats"):
             for stat in stats:
                 hlog(stat)
-
-        # Print out per-instance stats
-        with htrack_block("Per-instance Stats"):
-            for x in per_instance_stats.values():
-                hlog(x)
 
         # Output benchmarking information and results to files
         write(os.path.join(runs_path, "run_spec.json"), json.dumps(asdict(run_spec), indent=2))
@@ -132,5 +125,7 @@ class Runner:
         write(os.path.join(runs_path, "metrics.json"), json.dumps([asdict(stat) for stat in stats], indent=2))
         write(
             os.path.join(runs_path, "per_instance_metrics.json"),
-            json.dumps([[asdict(stat) for stat in x] for x in per_instance_stats.values()], indent=2),
+            json.dumps(
+                {str(key): [asdict(stat) for stat in value] for (key, value) in per_instance_stats.items()}, indent=2
+            ),
         )
