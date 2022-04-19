@@ -222,7 +222,7 @@ def get_bold_spec(subject: str) -> RunSpec:
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,  # TODO: Rishi - setting for 1 to monitor token use; @Ryan please follow-up on this
         model="openai/davinci",
-        temperature=0.9,  # TODO: Setting based on conversation with John Hewitt; @Ryan please find more robust justification
+        temperature=0.9,  # TODO: Setting based on conversation with John Hewitt; @Ryan please better justify
         max_tokens=20,  # See Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
     )
     return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bold_metrics())
