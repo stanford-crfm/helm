@@ -45,7 +45,7 @@ class EmpatheticDialoguesScenario(Scenario):
 
     def download_data(self):
         # Download the raw data
-        self.data_path: str = os.path.join(self.output_path, "data")
+        self.data_path: str = os.path.join(self.output_path, "data/empatheticdialogues/") #TODO: Ask Ashwin
         ensure_file_downloaded(
             source_url="https://dl.fbaipublicfiles.com/parlai/empatheticdialogues/empatheticdialogues.tar.gz",
             target_path=self.data_path,
@@ -139,3 +139,4 @@ if __name__ == "__main__":
     scenario.output_path = "./benchmark_output/scenarios/empatheticdialogues"
     instances = scenario.get_instances()
     print(instances[100])
+    
