@@ -150,10 +150,13 @@ class MSMARCOScenario(Scenario):
     description = "Microsoft Machine Reading Comprehension"
     tags = ["information_retrieval"]
 
-    #                             CLASS VARIABLES                        #
-    """ Names of the tasks we support """
-    TASK_NAMES: List[str] = ["passage"]
-    TRACK_NAMES: List[str] = ["regular"]
+    # CLASS VARIABLES
+    """ Names of the tasks and tracks that we support """
+    PASSAGE_TASK = "passage"
+    REGULAR_TRACK = "regular"
+    TREC_TRACK = "trec"
+    TASK_NAMES: List[str] = [PASSAGE_TASK]
+    TRACK_NAMES: List[str] = [REGULAR_TRACK, TREC_TRACK]
 
     """ The filename of the top1000 file created with the BM25 algorithm """
     TOPK_DEV_FILE_NAME: str = "top1000_bm25.dev.tsv"
@@ -179,8 +182,34 @@ class MSMARCOScenario(Scenario):
     Note that each eval query results in multiple instances. Train queries
     capped at 808731 as that's the size of the train set.
     """
-    MAX_NUM_EVAL_QUERIES = 6980
+    MAX_NUM_EVAL_QUERIES = {
+        REGULAR_TRACK: 6980,
+        TREC_TRACK: 200,
+    }
     MAX_NUM_TRAIN_QUERIES = 808731
+
+    """ The max number of extra best gold evaluation instances we want to include.
+
+    The information retrieval metric used with this scenario provides bounds for the best case
+    by ensuring that all the gold instances are included in the rankings, in addition to scoring
+    the topk without this intervention.
+    """
+    MAX_NUM_EXTRA_GOLD_INSTANCES = {
+        REGULAR_TRACK: 2,
+        TREC_TRACK: 5,  # TODO look at the distribution
+    }
+
+    """ The relation values that we consider to be gold for a given track.
+
+    This is the value that is read from the qrels file for a given track. Depending on
+    the track, we interpret these values differently: For example, for the regular track,
+    qrel value of 1 means that the match is a gold match. For TREC, however, value of
+    1 means a match that's not great, and values of 2 and 3 denotes good matches.
+    """
+    GOLD_RELATIONS = {
+        REGULAR_TRACK: [1],
+        TREC_TRACK: [2, 3],  # TODO look at the values
+    }
 
     """ Upper and lower bounds on topk, the number of top passages for a given query.
 
@@ -209,7 +238,7 @@ class MSMARCOScenario(Scenario):
     NO_ANSWER = "No"
 
     def __init__(
-        self, task: str, track: str, topk: int = 30, num_eval_queries: int = 100, num_train_queries: int = 1000
+        self, task: str, track: str, num_eval_queries: int = 100, topk: int = 30, num_train_queries: int = 1000
     ):
         """MSMARCOScenario class constructor.
 
@@ -237,19 +266,19 @@ class MSMARCOScenario(Scenario):
                 which can be called by passing "passage" for the task value.
             track: Name of the track. There is only one track implemented for
                 now, which is the "regular" track.
+            num_eval_queries: Number of evaluation queries that are used to
+                create eval instances. Must be smaller than or equal to
+                self.MAX_NUM_EVAL_QUERIES for the given track. The total
+                number of evaluation instances created is a function of this number:
+
+                    num_no_examples_per_query = topk - m, where m is the number of top gold instances
+                                                in topk.
+                    total_num_eval_instances = num_eval_queries * (1 + num_no_examples_per_query)
             topk: To find the best passage match for a given validation query,
                 instead of going through all the passages in the collection, we
                 only look at a select number of filtered passages, which is
                 determined by `topk`. Must be in the range
                 (self.MIN_TOPK, self.MAX_TOPK].
-            num_eval_queries: Number of evaluation queries that are used to
-                create eval instances. Must be smaller than or equal to
-                self.MAX_NUM_EVAL_QUERIES. The total number of evaluation
-                instances created is a function of this number:
-
-                    num_no_examples_per_query = topk - m, where m is the number of top gold instances
-                                                in topk.
-                    total_num_eval_instances = num_eval_queries * (1 + num_no_examples_per_query)
             num_train_queries: Number of train queries that are used to crete
                 the train instances. Must be smaller than or equal to
                 self.MAX_NUM_TRAIN_QUERIES. The total number of training instances
@@ -266,25 +295,25 @@ class MSMARCOScenario(Scenario):
         self.track: str = track
         assert self.track in self.TRACK_NAMES
 
-        # The max number of extra best gold evaluation instances we want to include.
-        #   The information retrieval metric used with this scenario provides bounds
-        #   for the best case by ensuring that all the gold instances are included in
-        #   the rankings, in addition to scoring the topk without this intervention.
-        self.max_num_extra_gold_instances = 2
+        # The max number of extra best gold evaluation instances we want to include given the track.
+        self.max_num_extra_gold_instances = self.MAX_NUM_EXTRA_GOLD_INSTANCES[self.track]
 
-        # The relation values we consider to be gold, changes based on the task.
-        self.gold_relations = [1]
+        # The relation values we consider to be gold, changes based on the track.
+        self.gold_relations = self.GOLD_RELATIONS[self.track]
+
+        # num_eval_queries
+        if num_eval_queries > self.MAX_NUM_EVAL_QUERIES[self.track]:
+            msg = f"""
+                Number of evaluation queries for the {self.track} track should not be bigger than
+                {self.MAX_NUM_EVAL_QUERIES[self.track]}.
+            """
+            raise ValueError(msg)
 
         # TopK
         if topk < self.MIN_TOPK or topk > self.MAX_TOPK:
             msg = f"Number of passages ranked should be between {self.MIN_TOPK} and {self.MAX_TOPK} (both inclusive)."
             raise ValueError(msg)
         self.topk = topk
-
-        # num_eval_queries
-        if num_eval_queries > self.MAX_NUM_EVAL_QUERIES:
-            msg = f"Number of evaluation queries should not be bigger than {self.MAX_NUM_EVAL_QUERIES}."
-            raise ValueError(msg)
 
         # num_train_queries
         if num_train_queries > self.MAX_NUM_TRAIN_QUERIES:
