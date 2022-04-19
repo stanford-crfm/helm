@@ -1,4 +1,3 @@
-import getpass
 from typing import List
 
 from common.authentication import Authentication
@@ -7,7 +6,9 @@ from proxy.remote_service import RemoteService
 from benchmark.adapter_service import AdapterService
 from .tokenizer_factory import TokenizerFactory
 
-api_key = getpass.getpass(prompt="Enter a valid API key: ")
+# A public API key.
+# TODO: Add certain restrictions to this key or delete it before the repo is made public.
+api_key = "wU2KVQHGvfkxIbjXY6X6vcRXwZXKjMbr"
 auth = Authentication(api_key=api_key)
 service = AdapterService(RemoteService("https://crfm-models.stanford.edu"), auth)
 

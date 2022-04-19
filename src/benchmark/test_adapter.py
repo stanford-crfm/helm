@@ -73,7 +73,7 @@ def test_construct_language_modeling_prompt():
     # The tokens translate to: '�Excuse me�'
     conditioning_tokens, pred_tokens = [110, 40127], [1904, 502, 447]
     prompt, num_conditioning_tokens = adapter.construct_language_modeling_prompt(
-        conditioning_tokens, pred_tokens, tokenizer, 5
+        conditioning_tokens, pred_tokens, tokenizer, 5, ""
     )
 
     # Ensure the prompt is correct
