@@ -9,15 +9,15 @@ from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TEST_SPLIT
 
 datatag2hash = {
     # Very small; 10 examples.
-    "pilot": "https://drive.google.com/file/d/1NwzDx19uzIwBuw7Lq5CSytG7jIth2wJ-/view?usp=sharing",
+    "pilot": "https://docs.google.com/uc?export=download&id=1NwzDx19uzIwBuw7Lq5CSytG7jIth2wJ-",
     # 1k examples.
-    "n_books_1000-extractions_per_book_1-prefix_length_5": "https://drive.google.com/file/d/1_B8xfXQTklaAXgOfeSCuL3FvXvoXGBPq/view?usp=sharing",
-    "n_books_1000-extractions_per_book_1-prefix_length_25": "https://drive.google.com/file/d/1i-v-KACEUnKOljJxfe5u_qcrA-uTBCky/view?usp=sharing",
-    "n_books_1000-extractions_per_book_1-prefix_length_125": "https://drive.google.com/file/d/1TRbkha807PiDKoegA6Kqf9SgqBUOlM1Y/view?usp=sharing",
+    "n_books_1000-extractions_per_book_1-prefix_length_5": "https://docs.google.com/uc?export=download&id=1_B8xfXQTklaAXgOfeSCuL3FvXvoXGBPq",
+    "n_books_1000-extractions_per_book_1-prefix_length_25": "https://docs.google.com/uc?export=download&id=1i-v-KACEUnKOljJxfe5u_qcrA-uTBCky",
+    "n_books_1000-extractions_per_book_1-prefix_length_125": "https://docs.google.com/uc?export=download&id=1TRbkha807PiDKoegA6Kqf9SgqBUOlM1Y",
     # 3k examples from 1k books.
-    "n_books_1000-extractions_per_book_3-prefix_length_5": "https://drive.google.com/file/d/1tXfhaAZrwkA4C7TnqU7SV4gj2RxIIT4x/view?usp=sharing",
-    "n_books_1000-extractions_per_book_3-prefix_length_25": "https://drive.google.com/file/d/1ciKUFfCh1MKQ1m6KFEHdzX4AWy_ec0R9/view?usp=sharing",
-    "n_books_1000-extractions_per_book_3-prefix_length_125": "https://drive.google.com/file/d/1MZyMoCSgA6-_hu4gQe4G9IfeyVqgwfUb/view?usp=sharing",
+    "n_books_1000-extractions_per_book_3-prefix_length_5": "https://docs.google.com/uc?export=download&id=1tXfhaAZrwkA4C7TnqU7SV4gj2RxIIT4x",
+    "n_books_1000-extractions_per_book_3-prefix_length_25": "https://docs.google.com/uc?export=download&id=1ciKUFfCh1MKQ1m6KFEHdzX4AWy_ec0R9",
+    "n_books_1000-extractions_per_book_3-prefix_length_125": "https://docs.google.com/uc?export=download&id=1MZyMoCSgA6-_hu4gQe4G9IfeyVqgwfUb",
 }
 
 
