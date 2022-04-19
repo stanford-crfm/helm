@@ -261,7 +261,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         output_prefix="\nAnswer: ",
         max_train_instances=5,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=10,  # TODO: @Michi - Justify
+        num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
@@ -276,8 +276,8 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     )
 
 
-def get_wiki_spec(k: str, subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.wiki_scenario.WIKIScenario", args={"subject": subject},)
+def get_wikifact_spec(k: str, subject: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.wikifact_scenario.WIKIFactScenario", args={"subject": subject},)
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -286,15 +286,15 @@ def get_wiki_spec(k: str, subject: str) -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=int(k),  # TODO: @Neel @Hongyu @Michi - Justify
+        num_outputs=int(k),  #We will measure accuracy@k
         model="openai/davinci",
-        temperature=1.0,  # TODO: @Neel @Hongyu @Michi - Pretty sure it should be 0.0?
-        max_tokens=8,  # TODO: @Neel @Hongyu @Michi - Justify
+        temperature=1.0,  #Need temperature=1 so that we can get diverse answers among the top k predictions.
+        max_tokens=8,  #Number of tokens for the longest answer in the dataset
         stop_sequences=["\n"],
     )
 
     return RunSpec(
-        name=f"wiki:k={k},subject={subject}",
+        name=f"wikifact:k={k},subject={subject}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -315,7 +315,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             output_prefix="\nAnswer: ",
             max_train_instances=5,
             max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-            num_outputs=10,  # TODO: @Michi- Justify
+            num_outputs=1,
             num_train_trials=1,
             model="openai/davinci",
             temperature=0.0,
@@ -336,7 +336,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             output_prefix="",
             max_train_instances=0,  # Appropriate for CLM approach
             max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES * n_choice * 2,
-            num_outputs=10,  # TODO: @Michi- Justify
+            num_outputs=1,
             max_tokens=0,
             num_train_trials=1,
             model="openai/davinci",
@@ -1180,7 +1180,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "commonsense_qa": get_commonsense_qa_spec,
     "lsat_qa": get_lsat_qa_spec,
     "quac": get_quac_spec,
-    "wiki": get_wiki_spec,
+    "wikifact": get_wikifact_spec,
     "babi_qa": get_babi_qa_spec,
     "real_toxicity_prompts": get_real_toxicity_prompts_spec,
     "summarization_xsum": get_xsum_summarization_spec,
