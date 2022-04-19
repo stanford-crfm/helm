@@ -33,4 +33,4 @@ class TokensMetric(Metric):
             merge_stat(stats, stat)
             per_instance_stats[(request_state.instance, 0)] = [stat]
 
-        return MetricResult(list(stats.values()), per_instance_stats)
+        return MetricResult([stat.take_mean() for stat in stats.values()], per_instance_stats)
