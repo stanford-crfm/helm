@@ -6,7 +6,7 @@ from benchmark.adapter import UserInput
 from benchmark.executor import ExecutionSpec
 from benchmark.runner import InteractiveRunner
 
-sys.path = sys.path + ["../../"]
+sys.path = sys.path + ["../"]
 
 from common.authentication import Authentication  # noqa: E402
 from common.request import RequestResult  # noqa: E402
@@ -36,7 +36,6 @@ def get_runner(args: dict) -> InteractiveRunner:
             credentials = parse_hocon(f.read())
     else:
         credentials = {}
-    print(credentials)
     auth = Authentication(credentials["DIALOGUE_CREDENTIALS"])
     url = "https://crfm-models.stanford.edu"
     execution_spec = ExecutionSpec(auth=auth, url=url, parallelism=1, dry_run=False)
@@ -46,9 +45,8 @@ def get_runner(args: dict) -> InteractiveRunner:
 
 def start_conversation(args: dict):
     """
-    Setup a conversation (interaction_trace) bsed on the provided id
+    Setup a conversation (interaction_trace) based on the provided id
     """
-
     # If the interaction_trace_id isn't found, this will throw an error
     # the frontend needs to handle it and display an appropriate error message
     runner: InteractiveRunner = get_runner(args)
