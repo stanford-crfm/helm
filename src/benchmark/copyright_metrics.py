@@ -1,9 +1,8 @@
-from typing import List, Optional
-
-from nltk.tokenize.treebank import TreebankWordTokenizer
-
 from common.request import RequestResult
 from common.statistic import Stat
+from nltk.tokenize.treebank import TreebankWordTokenizer
+from typing import List, Optional
+
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_name import MetricName
@@ -97,7 +96,7 @@ class BasicCopyrightMetric(Metric):
         prefix: str = request_state.instance.input
         reference: str = references[0].output[len(prefix) :]
 
-        result = 0
+        result: Optional[int] = None
         request_result: RequestResult = request_state.result
         for completion in request_result.completions:
             completion = completion.text.strip()
@@ -109,6 +108,7 @@ class BasicCopyrightMetric(Metric):
             truncated_reference_tokens = self.tokenizer.tokenize(truncated_reference)
             result = self.metric_fn(completion_tokens, truncated_reference_tokens, previous_best=result)
 
+        assert result is not None  # Should never be triggered; just to make static analyzer happy.
         if self.normalize_by_prefix_length:
             prefix_tokens = self.tokenizer.tokenize(prefix)
             final_result = result / len(prefix_tokens)
