@@ -5,8 +5,7 @@ from .adapter import ScenarioState, RequestState
 from .metric_service import MetricService
 from .metric import Metric
 from .metric_name import MetricName
-from .scenario import VALID_SPLIT
-from .msmarco_scenario import MSMARCOInstance
+from .scenario import VALID_SPLIT, InformationRetrievalInstance
 
 
 class MSMARCOMetric(Metric):
@@ -34,6 +33,8 @@ class MSMARCOMetric(Metric):
                 compute two stats, one considering the top 5 ranking, while the
                 other ones considers the top 10 rankings.
         """
+        # Gold relations based on the task
+        self.gold_relations = [1]
 
         # Set the name of the metric
         if name not in self.METRIC_NAMES:
@@ -81,13 +82,13 @@ class MSMARCOMetric(Metric):
             # Extract important information from the ID
             if rs.result and rs.result.completions and rs.output_mapping:
                 # Extract instance information
-                instance = cast(MSMARCOInstance, rs.instance)
-                qid, pid, gold = instance.qid, instance.pid, instance.gold
+                instance = cast(InformationRetrievalInstance, rs.instance)
+                qid, pid, rel = instance.qid, instance.oid, instance.qrel
                 # We need to check that the values of the qid, pid, and gold
                 # are not None otherwise the code fails static typeckecking
-                if qid and pid and gold is not None:
+                if qid and pid:
                     # Populate the gold mapping dictionary
-                    if gold:
+                    if rel and rel in self.gold_relations:
                         qid_to_gold_pid[qid] = pid
                     # Get the completion from the model
                     model_completion = rs.result.completions[0]
