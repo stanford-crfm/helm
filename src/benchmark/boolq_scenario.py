@@ -67,7 +67,7 @@ class BoolQScenario(Scenario):
     tags = ["question_answering"]
 
     def __init__(self, only_contrast=False):
-        "only_constast: Produce only inputs that have a contrast version."
+        """only_contrast: Produce only inputs that have a contrast version."""
         self.only_contrast = only_contrast
         pass
 
