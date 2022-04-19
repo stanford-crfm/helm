@@ -7,8 +7,18 @@ import tqdm
 from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TEST_SPLIT
 
-PILOT_DATA_URL = "https://docs.google.com/uc?export=download&id=1NwzDx19uzIwBuw7Lq5CSytG7jIth2wJ-"
-FULL_DATA_URL = "https://docs.google.com/uc?export=download&id=1lJS5LQmaj3R5WVwzbNQdl8I4U1tf266t"  # Size ~ 3gigs.
+datatag2hash = {
+    # Very small; 10 examples.
+    "pilot": "https://drive.google.com/file/d/1NwzDx19uzIwBuw7Lq5CSytG7jIth2wJ-/view?usp=sharing",
+    # 1k examples.
+    "n_books_1000-extractions_per_book_1-prefix_length_5": "https://drive.google.com/file/d/1_B8xfXQTklaAXgOfeSCuL3FvXvoXGBPq/view?usp=sharing",
+    "n_books_1000-extractions_per_book_1-prefix_length_25": "https://drive.google.com/file/d/1i-v-KACEUnKOljJxfe5u_qcrA-uTBCky/view?usp=sharing",
+    "n_books_1000-extractions_per_book_1-prefix_length_125": "https://drive.google.com/file/d/1TRbkha807PiDKoegA6Kqf9SgqBUOlM1Y/view?usp=sharing",
+    # 3k examples from 1k books.
+    "n_books_1000-extractions_per_book_3-prefix_length_5": "https://drive.google.com/file/d/1tXfhaAZrwkA4C7TnqU7SV4gj2RxIIT4x/view?usp=sharing",
+    "n_books_1000-extractions_per_book_3-prefix_length_25": "https://drive.google.com/file/d/1ciKUFfCh1MKQ1m6KFEHdzX4AWy_ec0R9/view?usp=sharing",
+    "n_books_1000-extractions_per_book_3-prefix_length_125": "https://drive.google.com/file/d/1MZyMoCSgA6-_hu4gQe4G9IfeyVqgwfUb/view?usp=sharing",
+}
 
 
 class CopyrightScenario(Scenario):
@@ -28,17 +38,14 @@ class CopyrightScenario(Scenario):
     description = "Data extraction attacks based on the BookCorpus."
     tags = ["harms", "copyright"]
 
-    def __init__(self, use_pilot_data=True):
-        self.use_pilot_data = use_pilot_data
+    def __init__(self, datatag="pilot"):
+        self.datatag = datatag
+        self.source_url = datatag2hash[datatag]
 
     def get_instances(self) -> List[Instance]:
-        if self.use_pilot_data:
-            source_url = PILOT_DATA_URL
-        else:
-            source_url = FULL_DATA_URL
         data_path = os.path.join(self.output_path, "data")
         ensure_file_downloaded(
-            source_url=source_url, target_path=data_path,
+            source_url=self.source_url, target_path=data_path,
         )
         with open(data_path, "r") as f:
             # Processed data with the format {"data": {prefix: prefix_to_end}, "metadata":...}.

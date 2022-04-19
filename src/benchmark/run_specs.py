@@ -9,10 +9,10 @@ from .adapter import (
     ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
 )
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
-from .metric import MetricSpec
 from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
-from .raft_scenario import get_raft_instructions
+from .metric import MetricSpec
 from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
+from .raft_scenario import get_raft_instructions
 from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenario import ScenarioSpec
@@ -726,43 +726,25 @@ def get_babi_qa_spec(task: str) -> RunSpec:
     )
 
 
-def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
+def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.copyright_scenario.CopyrightScenario", args=dict())
 
-    # TODO(lxuechen): Loop over models and other hyperparameter combos in the future.
-    if pilot_study.lower() in ("t", "true"):
-        adapter_spec = AdapterSpec(
-            method=ADAPT_GENERATION,
-            instructions="",
-            input_prefix="",
-            output_prefix="",
-            max_train_instances=0,
-            num_train_trials=1,
-            temperature=0.7,  # TODO: @Chen - Justify; why so high?
-            # Args that are different below.
-            max_eval_instances=100,  # TODO: @Chen - Justify
-            num_outputs=1,
-            model="simple/model1",
-            max_tokens=60,  # TODO: @Chen - Justify
-        )
-    else:
-        adapter_spec = AdapterSpec(
-            method=ADAPT_GENERATION,
-            instructions="",
-            input_prefix="",
-            output_prefix="",
-            max_train_instances=0,
-            num_train_trials=1,
-            temperature=0.7,  # TODO: @Chen - Justify
-            # Args that are different below.
-            max_eval_instances=None,
-            num_outputs=10,  # TODO: @Chen - Justify
-            model="openai/davinci",
-            max_tokens=2000,  # TODO: @Chen - Justify
-        )
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        num_train_trials=1,
+        temperature=0.2,
+        max_eval_instances=None,
+        num_outputs=1,  # TODO: More is better; but we're subject to compute constraints.
+        model="openai/davinci",
+        max_tokens=1000,  # TODO: Can be anything up to context window size; but we're subject to compute constraints.
+    )
 
     return RunSpec(
-        name=f"copyright:pilot_study={pilot_study}",
+        name=f"copyright:datatag={datatag}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),
