@@ -1,7 +1,7 @@
 import json
 import os
 from dataclasses import dataclass, asdict
-from typing import List
+from typing import Dict, List, Tuple
 
 
 from common.general import ensure_directory_exists, write, write_lines

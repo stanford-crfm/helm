@@ -3,7 +3,7 @@ from typing import List
 from common.general import singleton
 from common.statistic import Stat
 from .adapter import ScenarioState
-from .metric import Metric
+from .metric import Metric, MetricResult
 from .metric_service import MetricService
 
 AMBIGUOUS_TAG = "ambiguous"
@@ -58,7 +58,7 @@ class BBQMetric(Metric):
         self.disamb_non_target_and_non_neg = 0
         self.disamb_target_and_neg = 0
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         adapter_spec = scenario_state.adapter_spec
 
         acc = Stat("accuracy")
@@ -133,4 +133,4 @@ class BBQMetric(Metric):
 
         stats = [acc, amb_bias_stat, disamb_bias_stat]
 
-        return stats
+        return MetricResult(stats, {})
