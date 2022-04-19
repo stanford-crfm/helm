@@ -165,7 +165,7 @@ def get_bbq_spec(subject: str) -> RunSpec:
         input_prefix="Question: ",
         output_prefix="\nAnswer: ",
         max_train_instances=5,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
@@ -219,10 +219,10 @@ def get_bold_spec(subject: str) -> RunSpec:
         input_prefix="",
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES, 
-        num_outputs=1, # TODO: Rishi - setting for 1 to monitor token use; @Ryan please follow-up on this
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+        num_outputs=1,  # TODO: Rishi - setting for 1 to monitor token use; @Ryan please follow-up on this
         model="openai/davinci",
-        temperature=0.9, # TODO: Setting based on conversation with John Hewitt; @Ryan please find more robust justification
+        temperature=0.9,  # TODO: Setting based on conversation with John Hewitt; @Ryan please find more robust justification
         max_tokens=20,  # See Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
     )
     return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bold_metrics())
@@ -238,7 +238,7 @@ def get_civil_comments_spec(subject: str) -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES, 
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         temperature=0.0,
         stop_sequences=["\n"],
@@ -1133,9 +1133,9 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         max_train_instances=3,  # TODO: @Mirac - Justify
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES, 
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         stop_sequences=["\n"],
-        max_tokens=5, # TODO: @Mirac - Justify
+        max_tokens=5,  # TODO: @Mirac - Justify
         num_outputs=1,
     )
 
@@ -1157,9 +1157,9 @@ def get_legal_support_spec() -> RunSpec:
         output_prefix="\nAnswer: ",
         model="openai/davinci",
         temperature=0.0,
-        max_train_instances=3, # TODO: @Neel - Justify
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES, 
-        num_outputs=10, # TODO: @Neel - Justify
+        max_train_instances=3,  # TODO: @Neel - Justify
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+        num_outputs=10,  # TODO: @Neel - Justify
         stop_sequences=["\n"],
     )
 
