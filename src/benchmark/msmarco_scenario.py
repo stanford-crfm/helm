@@ -287,6 +287,9 @@ class MSMARCOScenario(Scenario):
                     num_no_examples_per_query = 1
                     total_num_train_instances = num_train_queries * (1 + num_no_examples_per_query)
         """
+        # Random generator for our scenario
+        self.random = random.Random(1885)
+
         # Task
         self.task: str = task
         assert self.task in self.TASK_NAMES
@@ -614,14 +617,14 @@ class MSMARCOScenario(Scenario):
         # Helper function for getting the top gold pids.
         def get_gold_pids_sorted(rel_dict):
             gold_pairs = [(pid, rel) for pid, rel in rel_dict.items() if rel in self.gold_relations]
-            random.shuffle(gold_pairs)
+            self.random.shuffle(gold_pairs)
             gold_pids_sorted = [pair[0] for pair in sorted(gold_pairs, key=lambda p: p[1], reverse=True)]
             return gold_pids_sorted
 
         # Sample num_queries queries, specified in the constructor. We first shuffle then select our queries to
         #   ensure that we make use of the server side caching as the num_queries parameter is increased.
         qrels_keys = list(self.qrels_dicts[split].keys())
-        random.shuffle(qrels_keys)
+        self.random.shuffle(qrels_keys)
         qrels_keys = qrels_keys[: self.num_queries[split]]
         qrels_dict = {k: self.qrels_dicts[split][k] for k in qrels_keys}
 
@@ -644,7 +647,7 @@ class MSMARCOScenario(Scenario):
                 if gold_pids_sorted:
                     split_pids.add(gold_pids_sorted[0])
                 if no_pids_topk:
-                    split_pids.add(random.choice(no_pids_topk))
+                    split_pids.add(self.random.choice(no_pids_topk))
             elif split == VALID_SPLIT:
                 # For VALID split, we use all the pids after capping the number of gold pids included so that
                 #   we only have the best top gold pids.
@@ -653,6 +656,8 @@ class MSMARCOScenario(Scenario):
                 split_pids.update(gold_pids_sorted + yes_pids_topk + no_pids_topk)
 
             # Once we have the pid values, we can create the instances
+            split_pids = list(split_pids)
+            self.random.shuffle(split_pids)
             for pid in split_pids:
                 rank = pid_to_rank[pid] if pid in pid_to_rank else None
                 rel = rel_dict[pid] if pid in rel_dict else None
@@ -665,9 +670,6 @@ class MSMARCOScenario(Scenario):
         # Get dataset and topk dictionaries
         self.prepare_passage_dictionaries(track)
         self.prepare_topk_dictionaries()
-
-        # Set random seed
-        random.seed(1885)
 
         # Create instances
         valid_instances = self.get_passage_split_instances(VALID_SPLIT)
