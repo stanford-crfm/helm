@@ -104,7 +104,7 @@ class InformationRetrievalInstance(Instance):
     Listed below are the possible values and their meanings:
         None: Indicates that the relevance of the object for the query is unknown.
         Int: Indicates that the object is relevant for the query. Higher values indicates
-            higher relevance. 
+            higher relevance.
     """
     qrel: Optional[int] = None
 

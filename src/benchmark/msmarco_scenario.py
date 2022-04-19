@@ -150,8 +150,7 @@ class MSMARCOScenario(Scenario):
     description = "Microsoft Machine Reading Comprehension"
     tags = ["information_retrieval"]
 
-
-    ##################           CLASS VARIABLES            ###############
+    #                             CLASS VARIABLES                        #
     """ Names of the tasks we support """
     TASK_NAMES: List[str] = ["passage"]
     TRACK_NAMES: List[str] = ["regular"]
@@ -175,7 +174,7 @@ class MSMARCOScenario(Scenario):
     CODALAB_TRAIN_URL: str = CODALAB_URL.format(bundle=CODALAB_TRAIN_BUNDLE)
 
     """ The maximum number of queries that we can run the scenario for.
-    
+
     Eval queries capped at 6980 since that is the size of the dev set we use.
     Note that each eval query results in multiple instances. Train queries
     capped at 808731 as that's the size of the train set.
@@ -184,10 +183,10 @@ class MSMARCOScenario(Scenario):
     MAX_NUM_TRAIN_QUERIES = 808731
 
     """ Upper and lower bounds on topk, the number of top passages for a given query.
-    
+
     Capped at 1000 because our pre-generated topk file (TOP1000_DEV_FILE_NAME) only
     contains the top 1000 passage ids per dev query.
-    
+
     Topk should at least be 11 as our default metric is MRR@10. We have 1 gold
     instance for each query where we have the matching passage. We must have 9
     non-matching instances to ensure that there are 10 total instances. There can be
@@ -198,7 +197,7 @@ class MSMARCOScenario(Scenario):
     MIN_TOPK: int = 11
 
     """ The minumum rank we will accept for the no instances.
-    
+
     This is to ensure that when creating the no instances, we do not consider the
     First several ranks in our train topk list, which may contain passages similar
     to the gold passages.
@@ -209,7 +208,9 @@ class MSMARCOScenario(Scenario):
     YES_ANSWER = "Yes"
     NO_ANSWER = "No"
 
-    def __init__(self, task: str, track: str, topk: int = 30, num_eval_queries: int = 100, num_train_queries: int = 1000):
+    def __init__(
+        self, task: str, track: str, topk: int = 30, num_eval_queries: int = 100, num_train_queries: int = 1000
+    ):
         """MSMARCOScenario class constructor.
 
         Both outlined below, `topk` and `num_eval_queries` have a direct impact
@@ -305,7 +306,7 @@ class MSMARCOScenario(Scenario):
         # Initialize the data dictionaries that will be populated once the MSMARCO scenario is run
         self.collection_dict: Dict[int, str] = {}
         self.queries_dicts: Dict[str, Dict[int, str]] = {}
-        self.qrels_dicts: Dict[str, Dict[int, Dict[int, List[int]]]] = {}
+        self.qrels_dicts: Dict[str, Dict[int, Dict[int, int]]] = {}
         self.topk_dicts: Dict[str, Dict[int, Dict[int, int]]] = {}
 
     def download_file(
@@ -396,7 +397,7 @@ class MSMARCOScenario(Scenario):
             qrels_dict: Dictionary mapping a qid to a dictionary mapping a
                 pid to relevance.
         """
-        dictionary = defaultdict(dict)
+        dictionary: Dict[int, Dict[int, int]] = defaultdict(dict)
         with open(file_path, encoding="utf-8") as f:
             for qid, _, pid, qrel in csv.reader(f, delimiter="\t"):
                 dictionary[int(qid)][int(pid)] = int(qrel)
@@ -527,7 +528,9 @@ class MSMARCOScenario(Scenario):
         question_statement = f"Does the passage above answer the question {query}?"
         return f"{passage}\nQuestion: {question_statement}"
 
-    def get_instance(self, qid: int, pid: int, split: str, qrel: Optional[int] = None, rank: Optional[int] = None) -> InformationRetrievalInstance:
+    def get_instance(
+        self, qid: int, pid: int, split: str, qrel: Optional[int] = None, rank: Optional[int] = None
+    ) -> InformationRetrievalInstance:
         """ Creates an instance.
 
         Args:
@@ -550,7 +553,9 @@ class MSMARCOScenario(Scenario):
             Reference(output=self.YES_ANSWER, tags=[CORRECT_TAG] if is_relevant else []),
             Reference(output=self.NO_ANSWER, tags=[] if is_relevant else [CORRECT_TAG]),
         ]
-        instance = InformationRetrievalInstance(input=context, references=references, split=split, qid=qid, oid=pid, qrel=qrel, rank=rank)
+        instance = InformationRetrievalInstance(
+            input=context, references=references, split=split, qid=qid, oid=pid, qrel=qrel, rank=rank
+        )
         return instance
 
     def get_passage_split_instances(self, split) -> List[InformationRetrievalInstance]:
@@ -588,7 +593,7 @@ class MSMARCOScenario(Scenario):
         #   ensure that we make use of the server side caching as the num_queries parameter is increased.
         qrels_keys = list(self.qrels_dicts[split].keys())
         random.shuffle(qrels_keys)
-        qrels_keys = qrels_keys[:self.num_queries[split]]
+        qrels_keys = qrels_keys[: self.num_queries[split]]
         qrels_dict = {k: self.qrels_dicts[split][k] for k in qrels_keys}
 
         instances = []
@@ -615,7 +620,7 @@ class MSMARCOScenario(Scenario):
                 # For VALID split, we use all the pids after capping the number of gold pids included so that
                 #   we only have the best top gold pids.
                 if len(gold_pids_sorted) > self.max_num_extra_gold_instances:
-                    gold_pids_sorted = gold_pids_sorted[:self.max_num_extra_gold_instances]
+                    gold_pids_sorted = gold_pids_sorted[: self.max_num_extra_gold_instances]
                 split_pids.update(gold_pids_sorted + yes_pids_topk + no_pids_topk)
 
             # Once we have the pid values, we can create the instances
