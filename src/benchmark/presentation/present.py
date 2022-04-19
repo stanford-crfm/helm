@@ -107,17 +107,23 @@ class AllRunner:
                 else:
                     wip_content.append(f"{run_spec} - {metrics_text}")
 
-        # Write out the status page with the WIP RunSpecs first
-        status = "\n".join(wip_content + ["", "-" * 150, ""] + ready_content)
-        write(os.path.join(self.output_path, "status.txt"), status)
+            # Update the status page after processing every `RunSpec` description
+            self._update_status_page(wip_content, ready_content)
 
+        # Write out all the `RunSpec`s and models to json files
         write(
             os.path.join(self.output_path, "run_specs.json"),
             json.dumps(list(map(dataclasses.asdict, run_specs)), indent=2),
         )
-
         all_models = [dataclasses.asdict(model) for model in ALL_MODELS]
         write(os.path.join(self.output_path, "models.json"), json.dumps(all_models, indent=2))
+
+    def _update_status_page(self, wip_content: List[str], ready_content: List[str]):
+        """
+        Updates the status page with the WIP and READY `RunSpec`s results.
+        """
+        status: str = "\n".join(wip_content + ["", "-" * 150, ""] + ready_content)
+        write(os.path.join(self.output_path, "status.txt"), status)
 
 
 def main():
