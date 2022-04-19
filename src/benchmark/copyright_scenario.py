@@ -1,23 +1,22 @@
+from common.general import ensure_file_downloaded
 import json
 import os
+import tqdm
 from typing import List
 
-import tqdm
-
-from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TEST_SPLIT
 
 datatag2hash = {
     # Very small; 10 examples.
-    "pilot": "https://docs.google.com/uc?export=download&id=1NwzDx19uzIwBuw7Lq5CSytG7jIth2wJ-",
+    "pilot": "1NwzDx19uzIwBuw7Lq5CSytG7jIth2wJ-",
     # 1k examples.
-    "n_books_1000-extractions_per_book_1-prefix_length_5": "https://docs.google.com/uc?export=download&id=1_B8xfXQTklaAXgOfeSCuL3FvXvoXGBPq",
-    "n_books_1000-extractions_per_book_1-prefix_length_25": "https://docs.google.com/uc?export=download&id=1i-v-KACEUnKOljJxfe5u_qcrA-uTBCky",
-    "n_books_1000-extractions_per_book_1-prefix_length_125": "https://docs.google.com/uc?export=download&id=1TRbkha807PiDKoegA6Kqf9SgqBUOlM1Y",
+    "n_books_1000-extractions_per_book_1-prefix_length_5": "1_B8xfXQTklaAXgOfeSCuL3FvXvoXGBPq",
+    "n_books_1000-extractions_per_book_1-prefix_length_25": "1i-v-KACEUnKOljJxfe5u_qcrA-uTBCky",
+    "n_books_1000-extractions_per_book_1-prefix_length_125": "1TRbkha807PiDKoegA6Kqf9SgqBUOlM1Y",
     # 3k examples from 1k books.
-    "n_books_1000-extractions_per_book_3-prefix_length_5": "https://docs.google.com/uc?export=download&id=1tXfhaAZrwkA4C7TnqU7SV4gj2RxIIT4x",
-    "n_books_1000-extractions_per_book_3-prefix_length_25": "https://docs.google.com/uc?export=download&id=1ciKUFfCh1MKQ1m6KFEHdzX4AWy_ec0R9",
-    "n_books_1000-extractions_per_book_3-prefix_length_125": "https://docs.google.com/uc?export=download&id=1MZyMoCSgA6-_hu4gQe4G9IfeyVqgwfUb",
+    "n_books_1000-extractions_per_book_3-prefix_length_5": "1tXfhaAZrwkA4C7TnqU7SV4gj2RxIIT4x",
+    "n_books_1000-extractions_per_book_3-prefix_length_25": "1ciKUFfCh1MKQ1m6KFEHdzX4AWy_ec0R9",
+    "n_books_1000-extractions_per_book_3-prefix_length_125": "1MZyMoCSgA6-_hu4gQe4G9IfeyVqgwfUb",
 }
 
 
@@ -40,14 +39,14 @@ class CopyrightScenario(Scenario):
 
     def __init__(self, datatag="pilot"):
         self.datatag = datatag
-        self.source_url = datatag2hash[datatag]
+        self.source_url = f"https://drive.google.com/uc?id={datatag2hash[datatag]}"
 
     def get_instances(self) -> List[Instance]:
-        data_path = os.path.join(self.output_path, "data")
-        ensure_file_downloaded(
-            source_url=self.source_url, target_path=data_path,
-        )
-        with open(data_path, "r") as f:
+        target_path = os.path.join(self.output_path, f"{self.datatag}.json")
+        # `ensure_file_downloaded` in src.common doesn't work.
+        # The main problem is that naive wget cannot bypass the gdrive large file virus scan warning.
+        os.system(f"gdown {self.source_url} -O {target_path}")
+        with open(target_path, "r") as f:
             # Processed data with the format {"data": {prefix: prefix_to_end}, "metadata":...}.
             data = json.load(f)
 

@@ -727,7 +727,7 @@ def get_babi_qa_spec(task: str) -> RunSpec:
 
 
 def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.copyright_scenario.CopyrightScenario", args=dict())
+    scenario = ScenarioSpec(class_name="benchmark.copyright_scenario.CopyrightScenario", args=dict(datatag=datatag))
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -736,7 +736,7 @@ def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
         output_prefix="",
         max_train_instances=0,
         num_train_trials=1,
-        temperature=0.1,
+        temperature=0.5,
         max_eval_instances=None,  # TODO: Modify this as necessary.
         num_outputs=1,  # TODO: More is better; but we're subject to compute constraints.
         model="openai/davinci",
