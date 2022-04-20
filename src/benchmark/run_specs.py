@@ -215,7 +215,7 @@ def get_bold_spec(subject: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
-        output_prefix="\nAnswer: ",
+        output_prefix="",
         max_train_instances=0,
         max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
         num_outputs=25,
