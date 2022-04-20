@@ -288,7 +288,7 @@ class MSMARCOScenario(Scenario):
                     total_num_train_instances = num_train_queries * (1 + num_no_examples_per_query)
         """
         # Random generator for our scenario
-        self.random : random.Random = random.Random(1885)
+        self.random: random.Random = random.Random(1885)
 
         # Task
         self.task: str = task
@@ -537,13 +537,13 @@ class MSMARCOScenario(Scenario):
 
         self.queries_dicts = {
             TRAIN_SPLIT: self.create_id_item_dictionary(os.path.join(cq_path, "queries.train.tsv")),
-            VALID_SPLIT: valid_queries_dict
+            VALID_SPLIT: valid_queries_dict,
         }
 
         # Query relations
         self.qrels_dicts = {
             TRAIN_SPLIT: self.create_qrels_dictionary(os.path.join(cq_path, "qrels.train.tsv")),
-            VALID_SPLIT: valid_qrels_dict
+            VALID_SPLIT: valid_qrels_dict,
         }
 
     def prepare_topk_dictionaries(self):
@@ -571,7 +571,7 @@ class MSMARCOScenario(Scenario):
         topk_train_fp = self.download_file(self.CODALAB_TRAIN_URL, self.TOPK_TRAIN_FILE_NAME)
         self.topk_dicts = {
             TRAIN_SPLIT: self.create_topk_dictionary(topk_train_fp),
-            VALID_SPLIT: self.create_topk_dictionary(topk_dev_fp)
+            VALID_SPLIT: self.create_topk_dictionary(topk_dev_fp),
         }
 
     @staticmethod
@@ -679,8 +679,8 @@ class MSMARCOScenario(Scenario):
                 split_pids.update(gold_pids_sorted + yes_pids_topk + no_pids_topk)
 
             # Once we have the pid values, we can create the instances
-            split_pids = list(split_pids)
-            self.random.shuffle(split_pids)
+            pids = list(split_pids)
+            self.random.shuffle(pids)
             for pid in split_pids:
                 rank = pid_to_rank[pid] if pid in pid_to_rank else None
                 rel = rel_dict[pid] if pid in rel_dict else None
