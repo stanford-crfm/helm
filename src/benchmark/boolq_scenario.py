@@ -30,7 +30,7 @@ class BoolQScenario(Scenario):
         less than two minutes' walk from the High Street.
         It is not in the London Oyster card zone unlike Epsom Downs or Tattenham Corner stations.
         The station building was replaced in 2012/2013 with a new building with apartments above the station.
-        Question: can you use oyster card at epsom station?
+        Question: Can you use oyster card at epsom station?
         Answer:
 
         Target completion:
@@ -74,7 +74,7 @@ class BoolQScenario(Scenario):
         We follow the format from https://arxiv.org/abs/2005.14165.
         For more details, see Figure G.29: Formatted dataset example for BoolQ.
         """
-        question = question.strip()
+        question = question.strip().capitalize()
         assert question[-1] != "?"
         return f"{passage}\nQuestion: {question}?"
 
