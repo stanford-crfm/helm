@@ -43,9 +43,8 @@ class IMDBScenario(Scenario):
     tags = ["sentiment_classification"]
 
     def __init__(self, only_contrast=False):
-        "only_constast: Produce only inputs that have a contrast version."
+        """only_contrast: Produce only inputs that have a contrast version."""
         self.only_contrast = only_contrast
-        pass
 
     def get_split_instances(self, split: str, path: str, contrast_map: dict) -> List[Instance]:
 
