@@ -4,7 +4,7 @@ import random
 from collections import defaultdict
 from typing import Dict, List, Optional
 
-from common.general import ensure_file_downloaded, ensure_directory_exists
+from common.general import shell, ensure_file_downloaded, ensure_directory_exists
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, InformationRetrievalInstance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
 
@@ -288,7 +288,7 @@ class MSMARCOScenario(Scenario):
                     total_num_train_instances = num_train_queries * (1 + num_no_examples_per_query)
         """
         # Random generator for our scenario
-        self.random = random.Random(1885)
+        self.random : random.Random = random.Random(1885)
 
         # Task
         self.task: str = task
@@ -349,7 +349,7 @@ class MSMARCOScenario(Scenario):
         Writes the file in the given source_url a file with the name file_name
         in the /data directory in located in the self.output_path.
         """
-        data_path: str = os.path.join(self.output_path, "data")
+        data_path = os.path.join(self.output_path, "data")
         ensure_directory_exists(data_path)
         file_path: str = os.path.join(data_path, file_name)
         ensure_file_downloaded(source_url=source_url, target_path=file_path, unpack=unpack, unpack_type=unpack_type)
@@ -384,7 +384,7 @@ class MSMARCOScenario(Scenario):
         return id_to_item_dict
 
     @staticmethod
-    def create_qrels_dictionary(file_path: str) -> Dict[int, Dict[int, int]]:
+    def create_qrels_dictionary(file_path: str, delimiter="\t") -> Dict[int, Dict[int, int]]:
         """ Reads .tsv files in the following format into a Python dictionary:
 
             <qid>   0   <pid>   1
@@ -431,7 +431,7 @@ class MSMARCOScenario(Scenario):
         """
         dictionary: Dict[int, Dict[int, int]] = defaultdict(dict)
         with open(file_path, encoding="utf-8") as f:
-            for qid, _, pid, qrel in csv.reader(f, delimiter="\t"):
+            for qid, _, pid, qrel in csv.reader(f, delimiter=delimiter):
                 dictionary[int(qid)][int(pid)] = int(qrel)
         return dictionary
 
@@ -485,6 +485,10 @@ class MSMARCOScenario(Scenario):
     def prepare_passage_dictionaries(self, track: str):
         """ Downloads the Passage Retrieval datasets and reads them into dictionaries.
 
+        Args:
+            track: The track we are going to be using, which affects the query and qrels
+                   files we use.
+
         Sets the following:
             self.collection_dict: Mapping pid to passage.
             self.queries_dicts: Dictionary containing query dictionaries mapping a
@@ -504,31 +508,50 @@ class MSMARCOScenario(Scenario):
                     TRAIN_SPLIT: train_qrels_dict
                 }
         """
-        hlog("Downloading MSMARCO Passage Retrieval datasets.")
 
         # Get datasets
-        dir_path = self.download_file(
+        hlog("Downloading MSMARCO collection and queries.")
+        cq_path = self.download_file(
             f"{self.MSMARCO_URL}/collectionandqueries.tar.gz", "collectionandqueries", unpack=True, unpack_type="untar"
         )
-        hlog("Download was successful. Reading the data into dictionaries.")
 
         # Collection
-        self.collection_dict = self.create_id_item_dictionary(os.path.join(dir_path, "collection.tsv"))
+        self.collection_dict = self.create_id_item_dictionary(os.path.join(cq_path, "collection.tsv"))
 
-        # Queries
+        # Queries and Qrels
+        if self.track == self.REGULAR_TRACK:
+            valid_queries_dict = self.create_id_item_dictionary(os.path.join(cq_path, "queries.dev.small.tsv"))
+            valid_qrels_dict = self.create_qrels_dictionary(os.path.join(cq_path, "qrels.dev.small.tsv"))
+        elif self.track == self.TREC_TRACK:
+            # Get queries
+            tsv_file_name = "msmarco-test2019-queries.tsv"
+            q_path = self.download_file(f"{self.MSMARCO_URL}/{tsv_file_name}.gz", f"{tsv_file_name}.gz")
+            shell(["gzip", "-d", q_path])
+            valid_queries_dict = self.create_id_item_dictionary(os.path.join(self.output_path, "data", tsv_file_name))
+            # Get qrels
+            qrel_path = self.download_file("https://trec.nist.gov/data/deep/2019qrels-pass.txt", "2019qrels-pass.txt")
+            valid_qrels_dict = self.create_qrels_dictionary(qrel_path, delimiter=" ")
+        else:
+            msg = f"Track name {self.track} is not a valid track in {self.TRACK_NAMES}."
+            raise ValueError(msg)
+
         self.queries_dicts = {
-            TRAIN_SPLIT: self.create_id_item_dictionary(os.path.join(dir_path, "queries.train.tsv")),
-            VALID_SPLIT: self.create_id_item_dictionary(os.path.join(dir_path, "queries.dev.small.tsv")),
+            TRAIN_SPLIT: self.create_id_item_dictionary(os.path.join(cq_path, "queries.train.tsv")),
+            VALID_SPLIT: valid_queries_dict
         }
 
         # Query relations
         self.qrels_dicts = {
-            TRAIN_SPLIT: self.create_qrels_dictionary(os.path.join(dir_path, "qrels.train.tsv")),
-            VALID_SPLIT: self.create_qrels_dictionary(os.path.join(dir_path, "qrels.dev.small.tsv")),
+            TRAIN_SPLIT: self.create_qrels_dictionary(os.path.join(cq_path, "qrels.train.tsv")),
+            VALID_SPLIT: valid_qrels_dict
         }
 
     def prepare_topk_dictionaries(self):
         """ Downloads the topk files and reads them into dictionaries.
+
+        Args:
+            track: The track we are going to be using, which affects the query and qrels
+                   files we use.
 
         Sets the following field:
             self.topk_dicts: Dictionary containing topk dictionaries mapping a
@@ -547,8 +570,8 @@ class MSMARCOScenario(Scenario):
         topk_dev_fp = self.download_file(self.CODALAB_DEV_URL, self.TOPK_DEV_FILE_NAME)
         topk_train_fp = self.download_file(self.CODALAB_TRAIN_URL, self.TOPK_TRAIN_FILE_NAME)
         self.topk_dicts = {
-            VALID_SPLIT: self.create_topk_dictionary(topk_dev_fp),
             TRAIN_SPLIT: self.create_topk_dictionary(topk_train_fp),
+            VALID_SPLIT: self.create_topk_dictionary(topk_dev_fp)
         }
 
     @staticmethod
