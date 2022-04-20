@@ -23,7 +23,9 @@ class SimpleClient(Client):
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         if request.model == "simple/model1":
             raw_tokens: List[str] = SimpleClient.tokenize_by_space(request.text)
-            return TokenizationRequestResult(cached=False, tokens=[TokenizationToken(text) for text in raw_tokens],)
+            return TokenizationRequestResult(
+                cached=False, tokens=[TokenizationToken(text) for text in raw_tokens], text=request.text
+            )
         else:
             raise ValueError("Unknown model")
 

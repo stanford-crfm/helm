@@ -14,6 +14,10 @@ VALID_SPLIT: str = "valid"
 TEST_SPLIT: str = "test"
 EVAL_SPLITS: List[str] = [VALID_SPLIT, TEST_SPLIT]
 
+# We mainly care about having enough test examples to ensure statistical significance;
+# the remaining N-1000 instances become training examples.
+DEFAULT_TEST_SIZE: int = 1000
+
 # Tags for references
 CORRECT_TAG: str = "correct"
 
@@ -67,6 +71,12 @@ class Instance:
     # Description of the Perturbation that was applied when creating this Instance
     perturbation: Optional[PerturbationDescription] = None
 
+    # Perturbed input as defined by contrast sets (if available)
+    contrast_inputs: Optional[List[str]] = None
+
+    # References for the perturbed input above (if available)
+    contrast_references: Optional[List[List[Reference]]] = None
+
     @property
     def first_correct_reference(self) -> Optional[Reference]:
         """Return the first correct reference."""
@@ -86,6 +96,7 @@ class Instance:
 
         for reference in self.references:
             info.extend(reference.render_lines())
+
         return info
 
 

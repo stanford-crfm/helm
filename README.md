@@ -255,7 +255,6 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r narrative_qa
     venv/bin/benchmark-run -r news_qa
     venv/bin/benchmark-run -r imdb
-    venv/bin/benchmark-run -r imdb_contrast_sets
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
@@ -290,7 +289,7 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Activate the Conda environment: `conda activate crfm_benchmarking` 
    1. Run `pip install -e .` if there are new dependencies to install. 
 1. Run the `benchmark-present` command e.g., 
-   `benchmark-present --max-eval-instances 10 --conf src/benchmark/presentation/run_specs.conf`.
+   `benchmark-present --max-eval-instances 200 --conf src/benchmark/presentation/run_specs.conf &> run.log`.
 1. Exit the screen session: `ctrl+ad`.
 1. To check on the screen session: `screen -r benchmarking`.
 

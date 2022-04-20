@@ -8,6 +8,8 @@ from .identity_perturbation import IdentityPerturbation
 from .misspelling_perturbation import MisspellingPerturbation
 from .contraction_expansion_perturbation import ContractionPerturbation, ExpansionPerturbation
 from .typos_perturbation import TyposPerturbation
+from .filler_words_perturbation import FillerWordsPerturbation
+from .synonym_perturbation import SynonymPerturbation
 from .lowercase_perturbation import LowerCasePerturbation
 from .space_perturbation import SpacePerturbation
 
@@ -50,6 +52,23 @@ def test_misspelling_perturbation():
     assert instances[0].input == "Alreayd, teh new product is nto availaible."
 
 
+def test_filler_words_perturbation():
+    data_augmenter = DataAugmenter(
+        perturbations=[FillerWordsPerturbation(insert_prob=0.3, speaker_ph=False)], should_perturb_references=True
+    )
+    instance: Instance = Instance(
+        id="id0",
+        input="The quick brown fox jumps over the lazy dog.",
+        references=[Reference(output="The quick brown fox jumps over the lazy dog.", tags=[])],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+    assert instances[0].id == "id0"
+    assert instances[0].perturbation.name == "filler_words"
+    assert instances[0].input == "The probably quick like brown like fox err jumps over the lazy dog."
+
+
 def test_contraction_perturbation():
     data_augmenter = DataAugmenter(perturbations=[ContractionPerturbation()], should_perturb_references=True)
     instance: Instance = Instance(
@@ -89,6 +108,19 @@ def test_typos_perturbation():
     assert instances[0].perturbation.name == "TyposPerturbation"
     assert instances[0].perturbation.prob == 0.1
     assert instances[0].input == "After their marrjage, she started a close collaborwtion with Karvelas."
+
+
+def test_synonym_perturbation():
+    data_augmenter = DataAugmenter(perturbations=[SynonymPerturbation(prob=1.0)], should_perturb_references=True)
+    instance: Instance = Instance(
+        id="id0", input="This was a good movie, would watch again.", references=[],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    assert len(instances) == 2
+    assert instances[0].perturbation.name == "SynonymPerturbation"
+    assert instances[0].perturbation.prob == 1.0
+    assert instances[0].input == "This was a dependable movie, would determine again."
 
 
 def test_lowercase_perturbation():
