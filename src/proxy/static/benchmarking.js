@@ -80,7 +80,13 @@ $(function () {
       result += ' on ' + name.split + (name.sub_split ? '/' + name.sub_split : '');
     }
     if (name.perturbation) {
-      result += ' with ' + name.perturbation;
+      // The perturbation field must have the "name" subfield
+      fields_str = Object.keys(name.perturbation)
+                         .filter(key => key !== 'name')
+                         .map(key => `${key}=${name.perturbation[key]}`)
+                         .join(', ');
+      if (fields_str) { fields_str = " where " + fields_str }
+      result += ' with ' + name.perturbation.name + fields_str;
     }
     return result;
   }
