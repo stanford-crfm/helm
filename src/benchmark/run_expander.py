@@ -78,6 +78,9 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
     name = "model"
     values_dict = {
+        # TODO: Replace "huggingface/gpt2" with GPT-J
+        # TODO: Add GPT-NeoX-20B
+        #       https://github.com/stanford-crfm/benchmarking/issues/310
         "default": ["openai/davinci", "ai21/j1-jumbo", "huggingface/gpt2"],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],

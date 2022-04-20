@@ -34,8 +34,10 @@ try:
 except LookupError:
     nltk.download("punkt")  # Required for rouge
 
-INFERENCE_EFFICIENCY_JSON_FILEPATH = "src/benchmark/static/inference_efficiency.json"
-TRAINING_EFFICIENCY_JSON_FILEPATH = "src/benchmark/static/training_efficiency.json"
+INFERENCE_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/static/inference_efficiency.json"
+TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/static/training_efficiency.json"
+
+NONE_OF_THE_ABOVE: str = "None of the above."
 
 
 def pass_at_k_estimator(n: int, c: int, k: int) -> float:
@@ -327,8 +329,11 @@ class BasicMetric(Metric):
                 preds = [completion.text.strip() for completion in request_state.result.completions]
 
                 # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
+                # If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
+                # predict a random letter like 'M'. In that case, just default to "None of the above".
                 if request_state.output_mapping is not None:
-                    preds = [request_state.output_mapping.get(pred) for pred in preds]
+                    preds = [request_state.output_mapping.get(pred, NONE_OF_THE_ABOVE) for pred in preds]
+
                 reference_metrics.extend(
                     compute_metrics_helper(MetricName(metric_name), metric_fn_mapping[metric_name])
                 )
