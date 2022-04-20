@@ -301,6 +301,7 @@ $(function () {
       );
 
       scenarios.forEach((scenario) => {
+        scenario.instances.sort((a, b) => a.id.localeCompare(b.id));
         scenario.instances.forEach((instance, instanceIndex) => {
           const key = instanceKey(instance);
           if (key in instanceToDiv) {
