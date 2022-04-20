@@ -1,12 +1,13 @@
 from dataclasses import replace
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 from common.request import Token
 from common.statistic import Stat, merge_stat
 from .adapter import AdapterSpec, ScenarioState, RequestState
 from .metric_service import MetricService
-from .metric import Metric
+from .metric import Metric, MetricResult
 from .metric_name import MetricName
+from .scenario import Instance
 from .commonsense_qa_scenario import CLM_CORRECT_TAG
 
 
@@ -21,9 +22,10 @@ class CommonSenseQAMetric(Metric):
         self.n_choice = n_choice
         self.n_request_per_instance = self.n_choice * 2  # each choice w/ context or w/o context
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
+        all_per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = {}  # (Instance, Trial index) -> List[Stat]
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
@@ -31,6 +33,8 @@ class CommonSenseQAMetric(Metric):
                 request_states = scenario_state.request_states[idx : idx + self.n_request_per_instance]
 
                 instance_stats = self.evaluate_references(adapter_spec, request_states, metric_service)
+                instance: Instance = scenario_state.instances[idx // self.n_request_per_instance]
+                all_per_instance_stats[(instance, train_trial_index)] = instance_stats
 
                 for stat in instance_stats:
                     # All of the request states should be for the same split
@@ -44,7 +48,7 @@ class CommonSenseQAMetric(Metric):
             for stat in trial_stats.values():
                 merge_stat(global_stats, stat.take_mean())
 
-        return list(global_stats.values())
+        return MetricResult(list(global_stats.values()), all_per_instance_stats)
 
     def evaluate_generation(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService

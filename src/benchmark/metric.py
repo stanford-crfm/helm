@@ -1,5 +1,5 @@
 from abc import ABC
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from typing import List, Dict, Tuple
 from math import log, e
 from collections import defaultdict
@@ -18,7 +18,21 @@ from .adapter import (
 )
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenario import EVAL_SPLITS, TEST_SPLIT
+from .scenario import Instance, EVAL_SPLITS, TEST_SPLIT
+
+
+@dataclass
+class MetricResult:
+    """
+    `MetricResult` is a wrapper around aggregated statistics (averaged over instances and trial index),
+    and per-(instance, trial index) statistics.
+    """
+
+    aggregated_stats: List[Stat]
+
+    # Key for per-instance statistics is (instance, trial index), value is list of statistics.
+    # TODO: Consider making the key a dataclass instead.
+    per_instance_stats: Dict[Tuple[Instance, int], List[Stat]]
 
 
 class Metric(ABC):
@@ -31,7 +45,7 @@ class Metric(ABC):
     might move to a world where there is one (or very few metrics that are domain-independent).
     """
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         """
         Main entry point for a `Metric`.  This function groups the single
         list of `RequestState` by training trial and instance, and invokes
@@ -47,6 +61,7 @@ class Metric(ABC):
 
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
+        all_per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = {}
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
@@ -68,6 +83,7 @@ class Metric(ABC):
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
                 instance_stats.extend(self.evaluate_references(adapter_spec, request_states, metric_service))
+                all_per_instance_stats[(instance, train_trial_index)] = instance_stats
 
                 # Merge these statistics back.
                 # TODO: we should add statistics with the individual instances too and serialize them out.
@@ -126,7 +142,8 @@ class Metric(ABC):
             for stat in trial_stats.values():
                 merge_stat(global_stats, stat.take_mean())
 
-        return list(global_stats.values())
+        # Wrap aggregated and per-instance stats in a MetricResult.
+        return MetricResult(list(global_stats.values()), all_per_instance_stats)
 
     def evaluate_generation(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -140,16 +157,20 @@ class Metric(ABC):
         """Evaluate the references.  Override me!"""
         return []
 
-    def evaluate_language_modeling(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+    def evaluate_language_modeling(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         global_stats: Dict[MetricName, Stat] = {}
         # The first and only trial
         trial_stats: Dict[MetricName, Stat] = {}
+        # Per-instance stats
+        all_per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = {}
         # Assume models are only evaluated on the test set
         split: str = TEST_SPLIT
 
         for request_state in scenario_state.request_states:
             # Evaluate request_state
             request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
+            # Use trial index of 0 here since we run only one trial for LM
+            all_per_instance_stats[(request_state.instance, 0)] = request_stats
 
             for stat in request_stats:
                 stat = Stat(replace(stat.name, split=split)).merge(stat)
@@ -189,11 +210,11 @@ class Metric(ABC):
 
         for stat in trial_stats.values():
             merge_stat(global_stats, stat.take_mean())
-        return list(global_stats.values())
+        return MetricResult(list(global_stats.values()), all_per_instance_stats)
 
     def evaluate_language_modeling_minimal_pairs(
         self, scenario_state: ScenarioState, metric_service: MetricService
-    ) -> List[Stat]:
+    ) -> MetricResult:
         """
         This function computes the log probability of both sentences in each minimal pair
         and compares them. If the model assigns a higher log probability to the "good" sentence,
@@ -209,6 +230,8 @@ class Metric(ABC):
         global_stats: Dict[MetricName, Stat] = {}
         # The first and only trial
         trial_stats: Dict[MetricName, Stat] = {}
+        # Per-instance stats
+        all_per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = {}
         # Assume models are only evaluated on the test set
         split: str = TEST_SPLIT
 
@@ -231,6 +254,7 @@ class Metric(ABC):
                         else:
                             raise Exception(f"Unknown sub_split {sub_split}")
                         continue
+                all_per_instance_stats[(request_state.instance, 0)] = request_stats
 
             accuracy = sum(good_logprobs[pair_id] > bad_logprobs[pair_id] for pair_id in good_logprobs) / len(
                 good_logprobs
@@ -242,7 +266,7 @@ class Metric(ABC):
 
         for stat in trial_stats.values():
             merge_stat(global_stats, stat.take_mean())
-        return list(global_stats.values())
+        return MetricResult(list(global_stats.values()), all_per_instance_stats)
 
 
 class MetricSpec(ObjectSpec):

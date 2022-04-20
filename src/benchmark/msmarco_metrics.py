@@ -3,7 +3,7 @@ from typing import List, Dict, Tuple, Optional, cast
 from common.statistic import Stat
 from .adapter import ScenarioState, RequestState
 from .metric_service import MetricService
-from .metric import Metric
+from .metric import Metric, MetricResult
 from .metric_name import MetricName
 from .scenario import VALID_SPLIT, InformationRetrievalInstance
 
@@ -135,7 +135,7 @@ class MSMARCOMetric(Metric):
 
         return ranked_pids
 
-    def mean_reciprocal_rank(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+    def mean_reciprocal_rank(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         """Computes the mean reciprocal ranks of the model's ranking of the golden passages.
 
         Note that there is only one instance where we ask the model whether a passage
@@ -192,9 +192,9 @@ class MSMARCOMetric(Metric):
             for k, stat in trial_topk_to_stat.items():
                 topk_to_stat[k].add(stat.mean)
 
-        return list(topk_to_stat.values())
+        return MetricResult(list(topk_to_stat.values()), {})
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         """Returns the stats for the MSMARCO metric.
         """
         mrr_stats = self.metric_fn(scenario_state, metric_service)
