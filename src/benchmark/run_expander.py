@@ -56,7 +56,7 @@ class ReplaceValueRunExpander(RunExpander):
         ]
 
 
-class MaxTrainTrialsRunExpander(ReplaceValueRunExpander):
+class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
     name = "num_train_trials"
@@ -68,6 +68,13 @@ class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
 
     name = "max_train_instances"
     values_dict = {"all": [0, 1, 2, 4, 8, 16]}
+
+
+class NumOutputsRunExpander(ReplaceValueRunExpander):
+    """For overriding num_outputs."""
+
+    name = "num_outputs"
+    values_dict = {"default": [5]}
 
 
 class ModelRunExpander(ReplaceValueRunExpander):
@@ -240,8 +247,9 @@ class DataAugmentationRunExpander(RunExpander):
 RUN_EXPANDERS = dict(
     (expander.name, expander)
     for expander in [
-        MaxTrainTrialsRunExpander,
+        NumTrainTrialsRunExpander,
         MaxTrainInstancesRunExpander,
+        NumOutputsRunExpander,
         ModelRunExpander,
         DataAugmentationRunExpander,
     ]

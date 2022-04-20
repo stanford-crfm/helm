@@ -10,11 +10,14 @@ from .tokenizer.tokenizer_factory import TokenizerFactory
 
 
 OPENAI_END_OF_TEXT_TOKEN: str = "<|endoftext|>"
+ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__bases__
 
 
 class OpenAIClient(Client):
     def __init__(self, api_key: str, cache_path: str):
-        openai.api_key = api_key
+        self.api_key: str = api_key
+        self.api_base: str = "https://api.openai.com"
+
         self.cache = Cache(cache_path)
         self.tokenizer = TokenizerFactory.get_tokenizer("openai")
 
@@ -42,6 +45,9 @@ class OpenAIClient(Client):
         try:
 
             def do_it():
+                openai.api_key = self.api_key
+                openai.api_base = self.api_base
+                openai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
                 return openai.Completion.create(**raw_request)
 
             cache_key = Client.make_cache_key(raw_request, request)
