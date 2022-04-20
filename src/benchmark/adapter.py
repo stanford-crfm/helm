@@ -154,12 +154,13 @@ class ScenarioState:
         # the `Metric` later to access them.  Two things are produced:
         self.request_state_map: Dict[Tuple[int, Instance, Optional[int]], List[RequestState]] = defaultdict(list)
 
-        instances_set = set()
+        # Python doesn't support an ordered set, so use an OrderedDict instead to maintain insertion order
+        instances_set: Dict[Instance, None] = OrderedDict()
         for request_state in self.request_states:
-            instances_set.add(request_state.instance)
+            instances_set[request_state.instance] = None
             key = (request_state.train_trial_index, request_state.instance, request_state.reference_index)
             self.request_state_map[key].append(request_state)
-        self.instances: List[Instance] = list(instances_set)
+        self.instances: List[Instance] = list(instances_set.keys())
 
     def get_request_states(
         self, train_trial_index: int, instance: Instance, reference_index: Optional[int]
