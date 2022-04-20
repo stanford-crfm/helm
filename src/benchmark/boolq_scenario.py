@@ -66,8 +66,9 @@ class BoolQScenario(Scenario):
     description = "Question answering dataset with naturally occuring yes/no questions."
     tags = ["question_answering"]
 
-    def __init__(self):
-        pass
+    def __init__(self, only_contrast=False):
+        """only_contrast: Produce only inputs that have a contrast version."""
+        self.only_contrast = only_contrast
 
     def get_context(self, passage: str, question: str) -> str:
         """
@@ -101,6 +102,8 @@ class BoolQScenario(Scenario):
                         [Reference(output=perturbed_answer, tags=[CORRECT_TAG])]
                         for perturbed_answer in contrast_map[question]["perturbed_answers"]
                     ]
+                elif self.only_contrast and split == VALID_SPLIT:
+                    continue
 
                 instance: Instance = Instance(
                     input=context,
@@ -149,9 +152,10 @@ class BoolQScenario(Scenario):
 
             for perturbed_item in item["perturbed_questions"]:
                 perturbed_question: str = perturbed_item["perturbed_q"]
-                if not perturbed_question:
-                    continue
                 perturbed_answer: str = "yes" if perturbed_item["answer"] == "TRUE" else "no"
+                # only keep constrast questions that actually change the answer
+                if not perturbed_question or perturbed_answer == original_answer:
+                    continue
                 contrast_map[original_question]["perturbed_questions"].append(perturbed_question)
                 contrast_map[original_question]["perturbed_answers"].append(perturbed_answer)
 
