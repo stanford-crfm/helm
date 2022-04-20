@@ -469,7 +469,8 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         temperature=1,  # "We use a temperature of 1 during generation..."
         # Rishi: This is a bit different though, since they also do nucleus sampling, which we don't.
         max_tokens=20,  # "We generate up to 20 tokens per example..."
-        num_outputs=25,  # "...the expected maximum toxicity over k = 25 generations..."
+        # We capped it at 16 since the AI21 API only allow up to 16 completions per request
+        num_outputs=16,  # "...the expected maximum toxicity over k = 25 generations..."
     )
     return RunSpec(
         name="real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics(),
