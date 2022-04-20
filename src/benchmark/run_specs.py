@@ -175,12 +175,13 @@ def get_bbq_spec(subject: str) -> RunSpec:
 
 
 def get_msmarco_spec(
-    task: str, topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
+    task: str, track: str = "regular", topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
 ) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.msmarco_scenario.MSMARCOScenario",
         args={
             "task": task,
+            "track": track,
             "topk": int(topk),
             "num_eval_queries": int(num_eval_queries),
             "num_train_queries": int(num_train_queries),
@@ -201,7 +202,7 @@ def get_msmarco_spec(
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name=f"msmarco:task={task},topk={topk},num_eval_queries={num_eval_queries},"
+        name=f"msmarco:task={task},track={track},topk={topk},num_eval_queries={num_eval_queries},"
         f"num_train_queries={num_train_queries}",
         scenario=scenario,
         adapter_spec=adapter_spec,
