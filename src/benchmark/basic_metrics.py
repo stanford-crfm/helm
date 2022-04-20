@@ -51,16 +51,41 @@ def pass_at_k_estimator(n: int, c: int, k: int) -> float:
     return 1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))
 
 
+def normalize_text(text: str) -> str:
+    """Lower text and remove punctuation, articles and extra whitespace.
+     Copied from the [QuAC](http://quac.ai/) evaluation script found at
+     https://s3.amazonaws.com/my89public/quac/scorer.py"""
+
+    def remove_articles(text: str) -> str:
+        return re.sub(r"\b(a|an|the)\b", " ", text)
+
+    def white_space_fix(text: str) -> str:
+        return " ".join(text.split())
+
+    def remove_punc(text: str) -> str:
+        exclude = set(string.punctuation)
+        return "".join(ch for ch in text if ch not in exclude)
+
+    def lower(text: str) -> str:
+        return text.lower()
+
+    return white_space_fix(remove_articles(remove_punc(lower(text))))
+
+
 def exact_match(gold: str, pred: str) -> float:
     return 1 if gold.strip() == pred.strip() else 0
 
 
-def match_upto_whitespace(gold: str, pred: str) -> float:
-    """Exact match, ignoring trailing whitespace on either side.
-    """
-    gold = gold.strip()
-    pred = pred.strip()
-    return 1 if gold == pred else 0
+def quasi_exact_match(gold: str, pred: str) -> float:
+    return 1 if normalize_text(gold) == normalize_text(pred) else 0
+
+
+def f1_score(gold: str, pred: str) -> float:
+    ret = f_measure(set(normalize_text(gold).split()), set(normalize_text(pred).split()))
+    if ret is None:  # answer is the empty string after normalizing
+        return 0.0
+
+    return ret
 
 
 def exact_match_indicator(gold: str, pred: str, indicator: str = "#") -> float:
@@ -124,36 +149,6 @@ def convert_tokens_to_text(tokens: List[Token]) -> List[Dict]:
             i += 1
         groups.append(group)
     return groups
-
-
-# TODO should we be normalizing everything this way? (e.g., iou_set_match)
-def normalize_text(text: str) -> str:
-    """Lower text and remove punctuation, articles and extra whitespace.
-     Copied from the [QuAC](http://quac.ai/) evaluation script found at
-     https://s3.amazonaws.com/my89public/quac/scorer.py"""
-
-    def remove_articles(text: str) -> str:
-        return re.sub(r"\b(a|an|the)\b", " ", text)
-
-    def white_space_fix(text: str) -> str:
-        return " ".join(text.split())
-
-    def remove_punc(text: str) -> str:
-        exclude = set(string.punctuation)
-        return "".join(ch for ch in text if ch not in exclude)
-
-    def lower(text: str) -> str:
-        return text.lower()
-
-    return white_space_fix(remove_articles(remove_punc(lower(text))))
-
-
-def f1_score(gold: str, pred: str) -> float:
-    ret = f_measure(set(normalize_text(gold).split()), set(normalize_text(pred).split()))
-    if ret is None:  # answer is the empty string after normalizing
-        return 0.0
-
-    return ret
 
 
 def rouge_score(gold: str, pred: str, rouge_type: str, scorer: rouge_scorer.RougeScorer) -> float:
@@ -298,7 +293,7 @@ class BasicMetric(Metric):
         # maps each string metric name to its associated function
         metric_fn_mapping: Dict[str, Callable] = {
             "exact_match": exact_match,
-            "match_upto_whitespace": match_upto_whitespace,
+            "quasi_exact_match": quasi_exact_match,
             "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
@@ -412,28 +407,28 @@ class BasicMetric(Metric):
                 int(k): v for (k, v) in raw_runtimes_for_input_tokens.items()
             }
             runtime_for_input_tokens: Optional[float] = None
+            largest_num_tokens_in_efficiency_dict: int = max(runtimes_for_input_tokens.keys())
             # Find the smallest num_input_tokens larger than the number of tokens in the given prompt.
             for num_input_tokens in sorted(runtimes_for_input_tokens.keys()):
                 if num_tokens_in_prompt <= num_input_tokens:
                     runtime_for_input_tokens = runtimes_for_input_tokens[num_input_tokens]
                     break
 
+            # If number of tokens in the prompt exceeds the largest key in the efficiency dict, then
+            # estimate the prompt encoding time by linearly scaling up the runtime for the largest
+            # key (this is reasonably accurate under certain simplifying assumptions).
             if runtime_for_input_tokens is None:
-                hlog(
-                    f"WARNING: prompt with {num_tokens_in_prompt} tokens is larger than the largest prompt size "
-                    f'in inference_efficiency_dict["{request_state.request.model}"]["runtime_for_input_tokens"]'
+                runtime_for_input_tokens = runtimes_for_input_tokens[largest_num_tokens_in_efficiency_dict] * (
+                    num_tokens_in_prompt / largest_num_tokens_in_efficiency_dict
                 )
-                idealized_runtime = None
-                runtime_discrepancy = None
-            else:
-                # Idealized runtime is sum of the runtime of encoding the input tokens, and the
-                # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
-                # if number of output tokens is greater than 0, otherwise just `runtime_for_input_tokens`.
-                idealized_runtime = runtime_for_input_tokens
-                if num_output_tokens > 0:
-                    idealized_runtime += runtime_per_output_token * (num_output_tokens - 1)
 
-                runtime_discrepancy = runtime - idealized_runtime
+            # Idealized runtime is sum of the runtime of encoding the input tokens, and the
+            # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
+            # if number of output tokens is greater than 0, otherwise just `runtime_for_input_tokens`.
+            idealized_runtime = runtime_for_input_tokens
+            if num_output_tokens > 0:
+                idealized_runtime += runtime_per_output_token * (num_output_tokens - 1)
+            runtime_discrepancy = runtime - idealized_runtime
         else:
             hlog(
                 f"WARNING: tried to estimate idealized inference time for model {request_state.request.model} "

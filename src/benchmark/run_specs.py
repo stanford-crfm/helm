@@ -85,7 +85,7 @@ def get_srn_metrics() -> List[MetricSpec]:
 
 
 def get_numeracy_metrics(relation_type: str, run_solver: bool = True) -> List[MetricSpec]:
-    metric_names = {"names": ["match_upto_whitespace", "absolute_value_difference"]}
+    metric_names = {"names": ["exact_match", "quasi_exact_match", "absolute_value_difference"]}
     metrics = [
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names),
     ]
@@ -244,7 +244,7 @@ def get_civil_comments_spec(subject: str) -> RunSpec:
         name="civil_comments",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -297,7 +297,7 @@ def get_wiki_spec(k: str, subject: str) -> RunSpec:
         name=f"wiki:k={k},subject={subject}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -374,7 +374,7 @@ def get_quac_spec() -> RunSpec:
         name="quac",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
     )
 
 
@@ -398,7 +398,7 @@ def get_news_qa_spec() -> RunSpec:
         name="news_qa",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
     )
 
 
@@ -424,7 +424,7 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
         name=f"truthful_qa:task={task}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -469,7 +469,8 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         temperature=1,  # "We use a temperature of 1 during generation..."
         # Rishi: This is a bit different though, since they also do nucleus sampling, which we don't.
         max_tokens=20,  # "We generate up to 20 tokens per example..."
-        num_outputs=25,  # "...the expected maximum toxicity over k = 25 generations..."
+        # We capped it at 16 since the AI21 API only allow up to 16 completions per request
+        num_outputs=16,  # "...the expected maximum toxicity over k = 25 generations..."
     )
     return RunSpec(
         name="real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics(),
@@ -549,7 +550,7 @@ def get_raft_spec(subset: str) -> RunSpec:
         name=f"raft:subset={subset}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -648,7 +649,7 @@ def get_boolq_spec() -> RunSpec:
         name="boolq",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -695,7 +696,7 @@ def get_imdb_spec() -> RunSpec:
         name="imdb",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -722,7 +723,7 @@ def get_babi_qa_spec(task: str) -> RunSpec:
         name=f"babi_qa:task={task}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -880,7 +881,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         name=f"natural_qa:mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
     )
 
 
@@ -954,7 +955,9 @@ def get_narrativeqa_spec() -> RunSpec:
         name="narrative_qa",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
+        metrics=get_basic_metrics(
+            {"names": ["exact_match", "quasi_exact_match", "f1_score", "rouge-l", "bleu_1", "bleu_4"]}
+        ),
     )
 
 
@@ -981,7 +984,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         name=f"synthetic_reasoning:mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -1111,7 +1114,7 @@ def get_empatheticdialogues_spec() -> RunSpec:
         name="empatheticdialogues",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
