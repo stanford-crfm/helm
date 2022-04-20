@@ -803,7 +803,9 @@ def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
             # https://github.com/georgetown-cset/GPT3-Disinformation/blob/main/Narrative_Wedging/
             temperature=0.7,
             model="openai/davinci",
-            stop_sequences=["\n"],
+            stop_sequences=["\nTweet", "\nReason"],
+            # Justification: The maximum number of tokens in the training prompts is 87
+            max_tokens=90,
         )
         metrics = get_toxicity_metrics()
     else:
