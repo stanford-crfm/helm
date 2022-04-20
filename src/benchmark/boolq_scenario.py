@@ -14,7 +14,7 @@ class BoolQScenario(Scenario):
     Original repository can be found at:
         https://github.com/google-research-datasets/boolean-questions
 
-    BoolQ is a QA dataset containing 15942 (9427 training, 3270 dev, 3245 test) boolean (yes/no) questions.
+    BoolQ is a QA dataset containing 15942 (9427 training, 3270 dev, 3245 test) boolean (Yes/No) questions.
     Each sample contains a passage, a question and an answer that are generated in an unconstrained/unprompted setting.
 
     We prompt models using the following format:
@@ -34,7 +34,7 @@ class BoolQScenario(Scenario):
         Answer:
 
         Target completion:
-            yes
+            Yes
 
     We also integrate contrast sets for this dataset from the paper:
         https://arxiv.org/abs/2004.02709
@@ -58,12 +58,12 @@ class BoolQScenario(Scenario):
     answer: no
 
     perturbed question: is “Fate and the Furious” the first of multiple movies?
-    perturbed answer: yes
+    perturbed answer: Yes
     perturbation strategy: adjective change.
     """
 
     name = "boolq"
-    description = "Question answering dataset with naturally occuring yes/no questions."
+    description = "Question answering dataset with naturally occuring Yes/No questions."
     tags = ["question_answering"]
 
     def __init__(self):
@@ -88,7 +88,7 @@ class BoolQScenario(Scenario):
                 question: str = triplet["question"]
                 answer: bool = triplet["answer"]
 
-                correct_answer: str = "yes" if answer else "no"
+                correct_answer: str = "Yes" if answer else "No"
                 context: str = self.get_context(passage, question)
 
                 contrast_inputs, contrast_references = None, None
@@ -137,7 +137,7 @@ class BoolQScenario(Scenario):
 
         for item in all_questions["data"][1:]:
             original_question: str = item["question"]
-            original_answer: str = "yes" if item["answer"] == "TRUE" else "no"
+            original_answer: str = "Yes" if item["answer"] == "TRUE" else "No"
 
             assert original_question not in contrast_map
 
@@ -151,7 +151,7 @@ class BoolQScenario(Scenario):
                 perturbed_question: str = perturbed_item["perturbed_q"]
                 if not perturbed_question:
                     continue
-                perturbed_answer: str = "yes" if perturbed_item["answer"] == "TRUE" else "no"
+                perturbed_answer: str = "Yes" if perturbed_item["answer"] == "TRUE" else "No"
                 contrast_map[original_question]["perturbed_questions"].append(perturbed_question)
                 contrast_map[original_question]["perturbed_answers"].append(perturbed_answer)
 
