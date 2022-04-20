@@ -29,7 +29,9 @@ class MetricResult:
     """
 
     aggregated_stats: List[Stat]
+
     # Key for per-instance statistics is (instance, trial index), value is list of statistics.
+    # TODO: Consider making the key a dataclass instead.
     per_instance_stats: Dict[Tuple[Instance, int], List[Stat]]
 
 
@@ -167,6 +169,7 @@ class Metric(ABC):
         for request_state in scenario_state.request_states:
             # Evaluate request_state
             request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
+            # Use trial index of 0 here since we run only one trial for LM
             all_per_instance_stats[(request_state.instance, 0)] = request_stats
 
             for stat in request_stats:
