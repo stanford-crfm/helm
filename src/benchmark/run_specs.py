@@ -286,10 +286,10 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=int(k),  #We will measure accuracy@k
+        num_outputs=int(k),  # We will measure accuracy@k
         model="openai/davinci",
-        temperature=1.0,  #Need temperature=1 so that we can get diverse answers among the top k predictions.
-        max_tokens=8,  #Number of tokens for the longest answer in the dataset
+        temperature=1.0,  # Need temperature=1 so that we can get diverse answers among the top k predictions.
+        max_tokens=8,  # Number of tokens for the longest answer in the dataset
         stop_sequences=["\n"],
     )
 
