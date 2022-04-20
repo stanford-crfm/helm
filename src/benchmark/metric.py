@@ -9,6 +9,8 @@ from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
 
+from augmentations.perturbation_description import PerturbationDescription
+
 from .adapter import (
     AdapterSpec,
     ScenarioState,
@@ -92,7 +94,7 @@ class Metric(ABC):
                     stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
 
-                    stat = Stat(replace(stat.name, perturbation="worst")).merge(stat)
+                    stat = Stat(replace(stat.name, perturbation=PerturbationDescription(name="worst"))).merge(stat)
                     assert instance.id is not None
                     key = (stat.name, instance.id)
                     if key not in per_instance_stats:
