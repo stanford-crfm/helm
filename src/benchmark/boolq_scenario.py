@@ -14,7 +14,7 @@ class BoolQScenario(Scenario):
     Original repository can be found at:
         https://github.com/google-research-datasets/boolean-questions
 
-    BoolQ is a QA dataset containing 15942 (9427 training, 3270 dev, 3245 test) boolean (yes/no) questions.
+    BoolQ is a QA dataset containing 15942 (9427 training, 3270 dev, 3245 test) boolean (Yes/No) questions.
     Each sample contains a passage, a question and an answer that are generated in an unconstrained/unprompted setting.
 
     We prompt models using the following format:
@@ -30,11 +30,11 @@ class BoolQScenario(Scenario):
         less than two minutes' walk from the High Street.
         It is not in the London Oyster card zone unlike Epsom Downs or Tattenham Corner stations.
         The station building was replaced in 2012/2013 with a new building with apartments above the station.
-        Question: can you use oyster card at epsom station?
+        Question: Can you use oyster card at epsom station?
         Answer:
 
         Target completion:
-            yes
+            Yes
 
     We also integrate contrast sets for this dataset from the paper:
         https://arxiv.org/abs/2004.02709
@@ -58,12 +58,12 @@ class BoolQScenario(Scenario):
     answer: no
 
     perturbed question: is “Fate and the Furious” the first of multiple movies?
-    perturbed answer: yes
+    perturbed answer: Yes
     perturbation strategy: adjective change.
     """
 
     name = "boolq"
-    description = "Question answering dataset with naturally occuring yes/no questions."
+    description = "Question answering dataset with naturally occuring Yes/No questions."
     tags = ["question_answering"]
 
     def __init__(self, only_contrast=False):
@@ -75,7 +75,7 @@ class BoolQScenario(Scenario):
         We follow the format from https://arxiv.org/abs/2005.14165.
         For more details, see Figure G.29: Formatted dataset example for BoolQ.
         """
-        question = question.strip()
+        question = question.strip().capitalize()
         assert question[-1] != "?"
         return f"{passage}\nQuestion: {question}?"
 
@@ -89,7 +89,7 @@ class BoolQScenario(Scenario):
                 question: str = triplet["question"]
                 answer: bool = triplet["answer"]
 
-                correct_answer: str = "yes" if answer else "no"
+                correct_answer: str = "Yes" if answer else "No"
                 context: str = self.get_context(passage, question)
 
                 contrast_inputs, contrast_references = None, None
@@ -140,7 +140,7 @@ class BoolQScenario(Scenario):
 
         for item in all_questions["data"][1:]:
             original_question: str = item["question"]
-            original_answer: str = "yes" if item["answer"] == "TRUE" else "no"
+            original_answer: str = "Yes" if item["answer"] == "TRUE" else "No"
 
             assert original_question not in contrast_map
 
@@ -152,8 +152,8 @@ class BoolQScenario(Scenario):
 
             for perturbed_item in item["perturbed_questions"]:
                 perturbed_question: str = perturbed_item["perturbed_q"]
-                perturbed_answer: str = "yes" if perturbed_item["answer"] == "TRUE" else "no"
-                # only keep constrast questions that actually change the answer
+                perturbed_answer: str = "Yes" if perturbed_item["answer"] == "TRUE" else "No"
+                # only keep contrast questions that actually change the answer
                 if not perturbed_question or perturbed_answer == original_answer:
                     continue
                 contrast_map[original_question]["perturbed_questions"].append(perturbed_question)
