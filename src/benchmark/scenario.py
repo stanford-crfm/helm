@@ -100,6 +100,29 @@ class Instance:
         return info
 
 
+@dataclass(frozen=True, eq=False)
+class InformationRetrievalInstance(Instance):
+    """ Instance for the MSMARCO class. """
+
+    """ Query ID: The ID of the query. """
+    qid: Optional[int] = None
+
+    """ Object ID: The ID of the object (passage, document, file etc.) """
+    oid: Optional[int] = None
+
+    """ Query Relevance: Relevance of the object with the ID oid for the query with the qid.
+
+    Listed below are the possible values and their meanings:
+        None: Indicates that the relevance of the object for the query is unknown.
+        Int: Indicates that the object is relevant for the query. Higher values indicates
+            higher relevance.
+    """
+    qrel: Optional[int] = None
+
+    """ Rank in the topk file. """
+    rank: Optional[int] = None
+
+
 @dataclass  # type: ignore
 class Scenario(ABC):
     """

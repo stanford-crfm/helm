@@ -7,7 +7,7 @@ from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
-class WIKIScenario(Scenario):
+class WIKIFactScenario(Scenario):
     """
     Fact Completion task using knowledge from WikiData.
     Data constructed using the dump at https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
@@ -25,7 +25,7 @@ class WIKIScenario(Scenario):
             human
     """
 
-    name = "wiki"
+    name = "wikifact"
     description = "Fact Completion in WikiData"
     tags = ["knowledge", "generation"]
 
@@ -119,7 +119,7 @@ class WIKIScenario(Scenario):
         # Download the raw data
         data_path = os.path.join(self.output_path, "data")
         ensure_file_downloaded(
-            source_url="https://snap.stanford.edu/betae/fact_completion_data.zip",
+            source_url="https://nlp.stanford.edu/crfm/benchmarking/data/wikifact_data.zip",
             target_path=data_path,
             unpack=True,
             unpack_type="unzip",

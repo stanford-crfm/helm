@@ -68,6 +68,7 @@ class BBQScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
+        os.makedirs(data_path, exist_ok=True)
 
         if self.subject == "all":
             categories = [
@@ -176,18 +177,21 @@ class BBQScenario(Scenario):
             correct_answer = answers[label_num]
 
             def answer_to_reference(answer):
-                tags: List[str] = [
-                    NEGATIVE_TAG if is_negative else NON_NEGATIVE_TAG,
-                    AMBIGUOUS_TAG if is_ambiguous else NON_AMBIGUOUS_TAG,
-                    label_letter,  # store the multiple choice letter as a tag for ease of checking
-                    # completion correctness later on
-                    target_letter,
-                    non_target_letter,
-                    unknown_letter,
-                ]
-
+                tags: List[str] = []
                 if answer == correct_answer:
                     tags.append(CORRECT_TAG)
+                tags.extend(
+                    [
+                        NEGATIVE_TAG if is_negative else NON_NEGATIVE_TAG,
+                        AMBIGUOUS_TAG if is_ambiguous else NON_AMBIGUOUS_TAG,
+                        label_letter,  # store the multiple choice letter as a tag for ease of checking
+                        # completion correctness later on
+                        target_letter,
+                        non_target_letter,
+                        unknown_letter,
+                    ]
+                )
+
                 return Reference(output=answer, tags=tags)
 
             curr_split = TRAIN_SPLIT
@@ -195,7 +199,7 @@ class BBQScenario(Scenario):
                 curr_split = TEST_SPLIT
 
             instance: Instance = Instance(
-                input=f"{context}\nquestion: {question}",
+                input=f"{context}\nQuestion: {question}",
                 references=list(map(answer_to_reference, answers)),
                 split=curr_split,
             )
