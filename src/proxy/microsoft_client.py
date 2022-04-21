@@ -7,6 +7,7 @@ from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
 from .client import Client, wrap_request_time
+from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 from .tokenizer.tokenizer import Tokenizer
 from .tokenizer.tokenizer_factory import TokenizerFactory
 
@@ -29,10 +30,9 @@ class MicrosoftClient(Client):
             ) -> str:
                 return f"/{engine}/inference"
 
-        prev_bases = turing.api_resources.completion.Completion.__bases__
-        turing.api_resources.completion.Completion.__bases__ = (EngineAPIResource,) + prev_bases[1:]
-        turing.api_base = "https://turingnlg-turingnlg-mstap-v2.turingase.p.azurewebsites.net"
-        turing.api_key = api_key
+        self.api_key: str = api_key
+        self.api_base: str = "https://turingnlg-turingnlg-mstap-v2.turingase.p.azurewebsites.net"
+        self.completion_attributes = (EngineAPIResource,) + ORIGINAL_COMPLETION_ATTRIBUTES[1:]
 
         self.cache = Cache(cache_path)
         self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer("microsoft")
@@ -83,6 +83,9 @@ class MicrosoftClient(Client):
         try:
 
             def do_it():
+                turing.api_key = self.api_key
+                turing.api_base = self.api_base
+                turing.api_resources.completion.Completion.__bases__ = self.completion_attributes
                 return turing.Completion.create(**raw_request)
 
             cache_key = Client.make_cache_key(raw_request, request)
