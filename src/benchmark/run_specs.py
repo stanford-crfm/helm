@@ -516,11 +516,11 @@ def get_gsm_spec() -> RunSpec:
         input_prefix="",
         output_prefix="",
         num_train_trials=1,
-        max_train_instances=3,  # TODO: @Eric - Justify
+        max_train_instances=3,  # Due to limited context and long example length
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         model="openai/davinci",
-        temperature=0.7,  # TODO: @Eric - Justify
-        stop_sequences=["\n\n"],  # TODO: @Eric - Justify, why 2 \n?
+        temperature=0.0,
+        stop_sequences=["\n\n"],  # Since answer may contain newlines, we use two as SEP
         max_tokens=400,  # The paper uses 400 tokens as the max sample length
         num_outputs=1,
     )
