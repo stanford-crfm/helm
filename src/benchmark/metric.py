@@ -9,7 +9,7 @@ from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
 
-from augmentations.perturbation_description import PerturbationDescription
+from .augmentations.perturbation_description import PerturbationDescription
 
 from .adapter import (
     AdapterSpec,
