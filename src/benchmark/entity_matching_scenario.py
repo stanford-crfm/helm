@@ -126,7 +126,7 @@ class EntityMatchingScenario(Scenario):
             for _, pair in example_df.iterrows():
                 resA = self.serialize_row(pair, column_mapA)
                 resB = self.serialize_row(pair, column_mapB)
-                input = f"Row A: {resA}\nRow B: {resB}"
+                input = f"Row A: {resA} ; Row B: {resB} ?"
                 label = "Yes" if pair["label"] else "No"
 
                 instance = Instance(input=input, references=[Reference(output=label, tags=[CORRECT_TAG])], split=split,)

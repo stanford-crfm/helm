@@ -105,7 +105,7 @@ class EntityDataImputationScenario(Scenario):
         """Turn structured row into string."""
         res = []
         for c in columns:
-            res.append(f"{c}: {row[c]}.strip()")
+            res.append(f"{c}: {row[c]}".strip())
         return " | ".join(res)
 
     def get_instances(self) -> List[Instance]:
