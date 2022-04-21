@@ -20,7 +20,7 @@ TEST_PROMPT: str = (
     "and deployment of foundation models."
 )
 
-TEST_TOKEN_REPRESENTATIONS: List = [
+TEST_TOKEN_REPRESENTATIONS: List[TokenizationToken] = [
     TokenizationToken(text="▁The▁Center▁for", text_range=TextRange(start=0, end=14)),
     TokenizationToken(text="▁Research▁on", text_range=TextRange(start=14, end=26)),
     TokenizationToken(text="▁Foundation", text_range=TextRange(start=26, end=37)),
@@ -104,7 +104,7 @@ class TestAI21Tokenizer:
         self.tokenizer = TokenizerFactory.get_tokenizer("ai21/j1-jumbo", service)
 
     def test_encode(self):
-        assert self.tokenizer.encode(TEST_PROMPT)[0] == TEST_TOKEN_REPRESENTATIONS
+        assert self.tokenizer.encode(TEST_PROMPT).tokens == TEST_TOKEN_REPRESENTATIONS
 
     def test_decode(self):
         assert self.tokenizer.decode(TEST_TOKEN_REPRESENTATIONS, TEST_PROMPT) == TEST_PROMPT

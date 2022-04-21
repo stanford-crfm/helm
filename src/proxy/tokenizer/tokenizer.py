@@ -1,5 +1,20 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple
+from typing import List, Optional
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class EncodeResult:
+    """Result returned by the encode() method."""
+
+    # The input text transformed by the tokenizer for tokenization.
+    # e.g. The AI21 tokenizer replaces "½" with "1/2" before tokenization.
+    text: str
+
+    # The list of tokens. The tokens can be of any datatype as long as
+    # they can be used for the decode() method. e.g. int for GPT-3 and
+    # TokenizationToken for AI21.
+    tokens: List
 
 
 class Tokenizer(ABC):
@@ -27,7 +42,7 @@ class Tokenizer(ABC):
         pass
 
     @abstractmethod
-    def encode(self, text: str) -> Tuple[List, str]:
+    def encode(self, text: str) -> EncodeResult:
         """Encodes the input text to tokens given the model"""
         pass
 

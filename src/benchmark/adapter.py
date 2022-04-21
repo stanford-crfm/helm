@@ -10,7 +10,7 @@ import numpy as np
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
-from proxy.tokenizer.tokenizer import Tokenizer
+from proxy.tokenizer.tokenizer import Tokenizer, EncodeResult
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from proxy.tokenizer.tokenizer_service import TokenizerService
 from .adapter_service import AdapterService
@@ -533,12 +533,12 @@ class Adapter:
         if len(prompt) == len(raw_prompt):
             num_conditioning_tokens = len(conditioning_tokens)
         else:
-            num_leading_byte_tokens: int = max_req_len - len(tokenizer.encode(raw_prompt.lstrip("\ufffd"))[0])
-            num_trailing_byte_tokens: int = max_req_len - len(tokenizer.encode(raw_prompt.rstrip("\ufffd"))[0])
+            num_leading_byte_tokens: int = max_req_len - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")).tokens)
+            num_trailing_byte_tokens: int = max_req_len - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")).tokens)
 
             # There are no string tokens to predict
             if num_trailing_byte_tokens >= len(pred_tokens):
-                num_conditioning_tokens = len(tokenizer.encode(prompt)[0])
+                num_conditioning_tokens = len(tokenizer.encode(prompt).tokens)
             # There are no conditioning string tokens
             elif num_leading_byte_tokens >= len(conditioning_tokens):
                 num_conditioning_tokens = 1
@@ -558,7 +558,8 @@ class Adapter:
         prefix_token: str = self.tokenizer.prefix_token
 
         for instance in instances:
-            tokens, text = self.tokenizer.encode(instance.input)
+            encode_result: EncodeResult = self.tokenizer.encode(instance.input)
+            tokens, text = encode_result.tokens, encode_result.text
 
             num_predicted_tokens = 0
 
@@ -573,7 +574,7 @@ class Adapter:
             # multiple tokens (e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]) and we chunk documents by token, not by word.
             first_seq_len = min(max_seq_len, len(tokens))
             prompt = self.tokenizer.decode(
-                self.tokenizer.encode(prefix_token)[0] + tokens[:first_seq_len], text
+                self.tokenizer.encode(prefix_token).tokens + tokens[:first_seq_len], text
             ).rstrip("\ufffd")
             request = Request(
                 model=self.adapter_spec.model,

@@ -5,7 +5,7 @@ from transformers import GPT2TokenizerFast
 from urllib.parse import unquote
 
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken, TextRange
-from .tokenizer import Tokenizer
+from .tokenizer import Tokenizer, EncodeResult
 from .tokenizer_service import TokenizerService
 from .openai_tokenizer import OpenAITokenizer
 
@@ -59,19 +59,19 @@ class AI21Tokenizer(Tokenizer):
         """AI21 tokenizers do no have a prefix token"""
         return ""
 
-    def encode(self, text: str) -> Tuple[List, str]:
+    def encode(self, text: str) -> EncodeResult:
         """
         Encodes the input text to tokens.
         """
         # If text is empty, skips the API call and returns an empty list.
         if not text:
-            return [], text
+            return EncodeResult(text=text, tokens=[])
         tokens: List[TokenizationToken]
         normalized_text: str
         tokens, normalized_text = self._make_long_tokenization_request(text)
         # The end position of the last token should be the end of the text.
         assert tokens[-1].text_range.end == len(normalized_text)
-        return tokens, normalized_text
+        return EncodeResult(text=normalized_text, tokens=tokens)
 
     def decode(self, tokens: List, text: Optional[str] = None) -> str:
         """
@@ -160,7 +160,7 @@ class AI21Tokenizer(Tokenizer):
         the tokenization results."""
         # Uses the number of OpenAI tokens as a measure of text length.
         open_ai_tokens: List[int]
-        open_ai_tokens, _ = self.openai_tokenizer.encode(text)
+        open_ai_tokens = self.openai_tokenizer.encode(text).tokens
 
         # If the text is short, just makes one request and returns the result.
         if len(open_ai_tokens) < AI21Tokenizer.MAX_TOKENIZATION_REQUEST_LENGTH:
