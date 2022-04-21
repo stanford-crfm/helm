@@ -333,7 +333,9 @@ class MSMARCOScenario(Scenario):
         #   to ensure we don't include passages that are good potentials for the gold matches.
         self.no_ranks = {
             VALID_SPLIT: list(range(1, self.topk + 1)),
-            TRAIN_SPLIT: list(range(self.TRAIN_MIN_NO_INSTANCE_RANK, min(self.topk + 1, self.TRAIN_MAX_NO_INSTANCE_RANK))),
+            TRAIN_SPLIT: list(
+                range(self.TRAIN_MIN_NO_INSTANCE_RANK, min(self.topk + 1, self.TRAIN_MAX_NO_INSTANCE_RANK))
+            ),
         }
 
         # Initialize the data dictionaries that will be populated once the MSMARCO scenario is run
