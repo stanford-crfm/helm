@@ -74,7 +74,7 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
     """For overriding num_outputs."""
 
     name = "num_outputs"
-    values_dict = {"default": [5]}
+    values_dict = {"default": [1]}
 
 
 class ModelRunExpander(ReplaceValueRunExpander):
