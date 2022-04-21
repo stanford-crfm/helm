@@ -180,7 +180,6 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             lower(),
             *contract_and_expand(),
             typo(prob=0.1),
-            contrast_sets(),
             synonym(prob=0.5),
         ]
     },

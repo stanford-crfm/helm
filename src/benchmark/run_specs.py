@@ -175,12 +175,13 @@ def get_bbq_spec(subject: str) -> RunSpec:
 
 
 def get_msmarco_spec(
-    task: str, topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
+    task: str, track: str = "regular", topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
 ) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.msmarco_scenario.MSMARCOScenario",
         args={
             "task": task,
+            "track": track,
             "topk": int(topk),
             "num_eval_queries": int(num_eval_queries),
             "num_train_queries": int(num_train_queries),
@@ -201,7 +202,7 @@ def get_msmarco_spec(
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name=f"msmarco:task={task},topk={topk},num_eval_queries={num_eval_queries},"
+        name=f"msmarco:task={task},track={track},topk={topk},num_eval_queries={num_eval_queries},"
         f"num_train_queries={num_train_queries}",
         scenario=scenario,
         adapter_spec=adapter_spec,
@@ -629,8 +630,8 @@ def get_math_spec(subject: str, level: str, use_official_prompt: bool = True) ->
     )
 
 
-def get_boolq_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={})
+def get_boolq_spec(only_contrast=False) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={"only_contrast": only_contrast})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -646,7 +647,7 @@ def get_boolq_spec() -> RunSpec:
         temperature=0.0,
     )
     return RunSpec(
-        name="boolq",
+        name="boolq" + (":only_contrast=True" if only_contrast else ""),
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
@@ -676,8 +677,8 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
     )
 
 
-def get_imdb_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDBScenario", args={})
+def get_imdb_spec(only_contrast=False) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDBScenario", args={"only_contrast": only_contrast})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -688,12 +689,12 @@ def get_imdb_spec() -> RunSpec:
         model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 25k test inputs
         num_outputs=1,
-        max_tokens=5,  # should be one token but just in case
+        max_tokens=5,  # should be one or two tokens but just in case
         temperature=0.0,
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name="imdb",
+        name="imdb" + (":only_contrast=True" if only_contrast else ""),
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
