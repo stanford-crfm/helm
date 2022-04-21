@@ -19,7 +19,8 @@ class AI21Tokenizer(Tokenizer):
     # The max sequence length is the same as the max request length for AI21.
     MAX_REQUEST_LENGTH: int = 2048
 
-    # The estimated safe upper bound of tokenization request length in terms of OPENAI token.
+    # Empirically, if the OpenAI's tokenizer tokenizes a sequence to <= 11000 tokens,
+    # then it is most likely safe to assume that AI21's tokenization API will process this request.
     MAX_TOKENIZATION_REQUEST_LENGTH: int = 11000
 
     NOT_IMPLEMENTED_ERROR_MESSAGE: str = (
