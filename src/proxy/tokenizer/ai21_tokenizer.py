@@ -39,14 +39,14 @@ class AI21Tokenizer(Tokenizer):
 
     @property
     def max_request_length(self) -> int:
-        # Sometimes splitting a long string to multiple shorter ones introduce new tokens,
-        # so we adopt a smaller value here for stability.
-        # e.g. "burying him" -> ["▁burying"(0,7), "▁him"(7,11)];
-        # " burying him" -> ["▁"(0,0), "▁burying"(0,8), "▁him"(8,12)];
-        # "'s your camera" -> ["▁"(0,0), "'s"(0,2), "▁your▁camera"(2,14)]
+        # The results of tokenizing the original text and tokenizing the normalized text
+        # are different. In some cases, tokenizing the normalized text yields more tokens
+        # (not because of the byte tokens). This happens especially frequently
+        # when the document contains a lot of spaces because some spaces tokenize to
+        # multiple tokens and the others tokenize to a single token. However, the AI21
+        # tokenizer seems to normalize all spaces to a same space character.
         #
-        # Also, sometimes a character/word is split into multiple bytes.
-        # e.g. '艙' -> ['<0xE8>', '<0x89>', '<0x99>']
+        # Empirically, tokenizing the normalized text will not generate > 10 extra tokens.
         return AI21Tokenizer.MAX_REQUEST_LENGTH - 10
 
     @property
