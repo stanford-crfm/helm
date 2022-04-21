@@ -525,7 +525,7 @@ class Adapter:
 
         Since some tokens are removed, we also need to recompute num_conditioning_tokens.
 
-        text is the normalized text fed to the decode() method. Some tokenizers (e.g. AI21) needs this field for decoding.
+        text is the normalized text fed to decode(). Some tokenizers (e.g. AI21) need this field for decoding.
         """
         raw_prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens, text)
         prompt: str = raw_prompt.strip("\ufffd")
@@ -591,7 +591,7 @@ class Adapter:
                 output_mapping=None,
                 request=request,
                 result=None,
-                num_conditioning_tokens=int(len(prefix_token) > 0),
+                num_conditioning_tokens=1 if len(prefix_token) > 0 else 0,
             )
             request_states.append(request_state)
             num_predicted_tokens += first_seq_len
