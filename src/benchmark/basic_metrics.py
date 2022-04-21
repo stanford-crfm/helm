@@ -78,6 +78,9 @@ def exact_match(gold: str, pred: str) -> float:
 
 
 def quasi_exact_match(gold: str, pred: str) -> float:
+    if not pred:
+        return 0
+    
     return 1 if normalize_text(gold) == normalize_text(pred) else 0
 
 
