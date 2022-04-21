@@ -87,22 +87,23 @@ class BBQScenario(Scenario):
         else:
             categories = [self.subject]
 
+        loaded_lines: List[Dict] = []
+        instances: List[Instance] = []
+
         for category in categories:
+            category_data_path = os.path.join(data_path, f"{category}")
+
             ensure_file_downloaded(
                 source_url=f"https://raw.githubusercontent.com/nyu-mll/BBQ/main/data/{category}.jsonl",
-                target_path=data_path,
+                target_path=category_data_path,
                 unpack=False,
             )
 
-        loaded_lines: List[Dict] = []
-        instances: List[Instance] = []
-        prompts_path: str = data_path
+            with open(category_data_path, "r") as f:
+                for line in f:
 
-        with open(prompts_path, "r") as f:
-            for line in f:
-
-                loaded_line = json.loads(line)
-                loaded_lines.append(loaded_line)
+                    loaded_line = json.loads(line)
+                    loaded_lines.append(loaded_line)
 
         random.seed(0)
         random.shuffle(loaded_lines)
