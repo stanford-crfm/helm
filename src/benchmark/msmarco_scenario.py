@@ -231,6 +231,7 @@ class MSMARCOScenario(Scenario):
     First several ranks in our train topk list, which may contain passages similar
     to the gold passages.
     """
+    TRAIN_MAX_NO_INSTANCE_RANK: int = 20
     TRAIN_MIN_NO_INSTANCE_RANK: int = 11
 
     """ Yes and no answer strings """
@@ -332,7 +333,7 @@ class MSMARCOScenario(Scenario):
         #   to ensure we don't include passages that are good potentials for the gold matches.
         self.no_ranks = {
             VALID_SPLIT: list(range(1, self.topk + 1)),
-            TRAIN_SPLIT: list(range(self.TRAIN_MIN_NO_INSTANCE_RANK, self.topk + 1)),
+            TRAIN_SPLIT: list(range(self.TRAIN_MIN_NO_INSTANCE_RANK, min(self.topk + 1, self.TRAIN_MAX_NO_INSTANCE_RANK))),
         }
 
         # Initialize the data dictionaries that will be populated once the MSMARCO scenario is run
@@ -660,8 +661,14 @@ class MSMARCOScenario(Scenario):
 
             # Create pid lists.
             gold_pids_sorted = get_gold_pids_sorted(rel_dict)
-            yes_pids_topk = [rank_to_pid[r] for r in self.no_ranks[split] if rank_to_pid[r] in gold_pids_sorted]
-            no_pids_topk = [rank_to_pid[r] for r in self.no_ranks[split] if rank_to_pid[r] not in gold_pids_sorted]
+            yes_pids_topk, no_pids_topk = [], []
+            for r in self.no_ranks[split]:
+                if r not in rank_to_pid:
+                    hlog(f"{split}: For qid {qid}, pid with rank {r} is not known.")
+                elif rank_to_pid[r] in gold_pids_sorted:
+                    yes_pids_topk.append(rank_to_pid[r])
+                else:
+                    no_pids_topk.append(rank_to_pid[r])
 
             # Create instances for splits.
             split_pids = set()
