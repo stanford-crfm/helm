@@ -1110,7 +1110,7 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Are Row A and Row B the same? YES or NO?",
+        instructions="Are Row A and Row B the same? Yes or No?",
         input_prefix="",
         output_prefix="\n ",
         num_train_trials=1,

@@ -23,22 +23,19 @@ class EntityMatchingScenario(Scenario):
     To make benchmarking performance easier, standard EM benchmarks come pre-blocked. Therefore,
     the goal is to simply determine which pairs are matches or not.
 
-    We will construct this task as a generation task. A negative and positive example from the
-    Amazon-Google EM benchmark are:
+    A negative and positive example are below. Note that there are no newlines for a single row. We
+    only add new lines between each row.
 
-    Are Row A and Row B the same? YES or NO?
-    Row A: title: adobe creative suite cs3 design premium upsell [ mac ]
-        | manufacturer: adobe price: 1599.0
-    Row B: title: 19600061dm adobe creative suite 3 production premium media tlp download mac world
-        | manufacturer: nan price: 20.97
-    NO
+    Input: Row A: title: adobe creative suite cs3 design premium upsell [ mac ] | manufacturer: adobe price: 1599.0
+           Row B: title: 19600061dm adobe creative suite 3 production premium media tlp download mac world
+           | manufacturer: nan price: 20.97
 
-    Are Row A and Row B the same? YES or NO?
-    Row A: title: adobe creative suite cs3 web premium upgrade [ mac ]
-        | manufacturer: adobe price: 499.0
-    Row B: title: adobe cs3 web premium upgrade
-        | manufacturer: nan price: 517.99
-    YES
+    Reference [CORRECT]: No
+
+    Input: Row A: title: adobe creative suite cs3 web premium upgrade [ mac ] | manufacturer: adobe price: 499.0
+           Row B: title: adobe cs3 web premium upgrade | manufacturer: nan price: 517.99
+
+    Reference [CORRECT]: Yes
 
     The above example highlights the model will need to reason over semantic dissimilarities (e.g.,
     premium upsell being in [A] but not [B] in the first example) as well as notions of price
@@ -96,7 +93,7 @@ class EntityMatchingScenario(Scenario):
         """Turn structured row into string."""
         res = []
         for c_og, c_map in column_map.items():
-            res.append(f"{c_map}: {row[c_og]}")
+            res.append(f"{c_map}: {row[c_og]}".strip())
         return " | ".join(res)
 
     def get_instances(self) -> List[Instance]:
@@ -130,7 +127,7 @@ class EntityMatchingScenario(Scenario):
                 resA = self.serialize_row(pair, column_mapA)
                 resB = self.serialize_row(pair, column_mapB)
                 input = f"Row A: {resA}\nRow B: {resB}"
-                label = "YES" if pair["label"] else "NO"
+                label = "Yes" if pair["label"] else "No"
 
                 instance = Instance(input=input, references=[Reference(output=label, tags=[CORRECT_TAG])], split=split,)
 
