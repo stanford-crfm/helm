@@ -156,8 +156,8 @@ classes (see `benchmark`):
   an input (e.g., question) and a set of `Reference` outputs (e.g., multiple
   choice answers).
 
-- A `DataPreprocessor` takes in a `Scenario` and produces a list of `Instance`s 
-  Each `Instance` is given a unique ID. The set of `Instance`s is augmented 
+- A `DataPreprocessor` takes in a `Scenario` and produces a list of `Instance`s
+  Each `Instance` is given a unique ID. The set of `Instance`s is augmented
   according to `DataAugmenterSpec`.
 
 - An `Adapter` (given by an `AdaptationSpec`) takes a list of `Instance`s and
@@ -191,7 +191,7 @@ There are three types of classes:
 
 ## Data Augmentations
 
-To apply data augmentation, create a `DataAugmenterSpec` with a list of 
+To apply data augmentation, create a `DataAugmenterSpec` with a list of
 `PerturbationSpec`s and pass it into `RunSpec`. The following is an
 example:
 
@@ -199,7 +199,7 @@ example:
     data_augmenter_spec = DataAugmenterSpec(
         perturbation_specs=[
             PerturbationSpec(
-                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", 
+                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation",
                 args={"num_spaces": 5},
             )
         ],
@@ -216,8 +216,8 @@ example:
 ```
 
 In the example above, the `DataPreprocessor` will augment the set of evaluation instances by perturbing
-the original set of instances with the `ExtraSpacePerturbation`, where spaces in the text are 
-replaced with `num_spaces` number of spaces. 
+the original set of instances with the `ExtraSpacePerturbation`, where spaces in the text are
+replaced with `num_spaces` number of spaces.
 
 We currently only support applying a single perturbation to an instance instead of chaining
 multiple perturbations and applying it onto a single instance.
@@ -225,8 +225,8 @@ multiple perturbations and applying it onto a single instance.
 ### Adding a new perturbation
 
 To add a new perturbation to the framework, create a new file at `src/benchmark/augmentations` with the name
-`<Name of perturbation>_perturbation.py` e.g., `typo_perturbation.py`. Inside the file, create a new class 
-(name it `<Name of the perturbation>Perturbation` e.g., `TypoPerturbation`) 
+`<Name of perturbation>_perturbation.py` e.g., `typo_perturbation.py`. Inside the file, create a new class
+(name it `<Name of the perturbation>Perturbation` e.g., `TypoPerturbation`)
 that extends the abstract class `Perturbation` and implement the `perturb` method which
 takes in text and outputs the perturbed text.
 Add your new perturbation to `src/benchmark/__init__.py`.
@@ -242,10 +242,10 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r twitter_aae:demographic=aa
     venv/bin/benchmark-run -r copyright:pilot_study=true
     venv/bin/benchmark-run -r disinformation:capability=reiteration
-    venv/bin/benchmark-run -r wiki:k=2,subject=P31
+    venv/bin/benchmark-run -r wikifact:k=2,subject=P31
     venv/bin/benchmark-run -r code:dataset=APPS
     venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles
-    venv/bin/benchmark-run -r wiki:subject=P31
+    venv/bin/benchmark-run -r wikifact:subject=P31
     venv/bin/benchmark-run -r raft:subset=ade_corpus_v2
     venv/bin/benchmark-run -r natural_qa:mode=closedbook
     venv/bin/benchmark-run -r natural_qa:mode=openbook-longans
@@ -286,9 +286,9 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Go to the source code directory: `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
    We have 700 GB of disk space total on `/u/scr/nlp/crfm`.
 1. Pull the latest changes: `git pull`.
-1. Activate the Conda environment: `conda activate crfm_benchmarking` 
-   1. Run `pip install -e .` if there are new dependencies to install. 
-1. Run the `benchmark-present` command e.g., 
+1. Activate the Conda environment: `conda activate crfm_benchmarking`
+   1. Run `pip install -e .` if there are new dependencies to install.
+1. Run the `benchmark-present` command e.g.,
    `benchmark-present --max-eval-instances 200 --conf src/benchmark/presentation/run_specs.conf &> run.log`.
 1. Exit the screen session: `ctrl+ad`.
 1. To check on the screen session: `screen -r benchmarking`.
