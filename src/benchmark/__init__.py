@@ -10,7 +10,7 @@ from . import real_toxicity_prompts_scenario  # noqa
 from . import math_scenario  # noqa
 from . import the_pile_scenario  # noqa
 from . import truthful_qa_scenario  # noqa
-from . import wiki_scenario  # noqa
+from . import wikifact_scenario  # noqa
 from . import synthetic_reasoning_natural_scenario  # noqa
 from . import copyright_scenario  # noqa
 from . import disinformation_scenario  # noqa

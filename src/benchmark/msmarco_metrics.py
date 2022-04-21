@@ -3,10 +3,9 @@ from typing import List, Dict, Tuple, Optional, cast
 from common.statistic import Stat
 from .adapter import ScenarioState, RequestState
 from .metric_service import MetricService
-from .metric import Metric
+from .metric import Metric, MetricResult
 from .metric_name import MetricName
-from .scenario import VALID_SPLIT
-from .msmarco_scenario import MSMARCOInstance
+from .scenario import VALID_SPLIT, InformationRetrievalInstance
 
 
 class MSMARCOMetric(Metric):
@@ -34,6 +33,10 @@ class MSMARCOMetric(Metric):
                 compute two stats, one considering the top 5 ranking, while the
                 other ones considers the top 10 rankings.
         """
+        # The gold_relations list specifies when should we consider an instance
+        # to be a gold example, meaning that the passage in the instance is one
+        # of the gold matches for the query.
+        self.gold_relations = [1]
 
         # Set the name of the metric
         if name not in self.METRIC_NAMES:
@@ -81,13 +84,13 @@ class MSMARCOMetric(Metric):
             # Extract important information from the ID
             if rs.result and rs.result.completions and rs.output_mapping:
                 # Extract instance information
-                instance = cast(MSMARCOInstance, rs.instance)
-                qid, pid, gold = instance.qid, instance.pid, instance.gold
+                instance = cast(InformationRetrievalInstance, rs.instance)
+                qid, pid, rel = instance.qid, instance.oid, instance.qrel
                 # We need to check that the values of the qid, pid, and gold
                 # are not None otherwise the code fails static typeckecking
-                if qid and pid and gold is not None:
+                if qid and pid:
                     # Populate the gold mapping dictionary
-                    if gold:
+                    if rel in self.gold_relations:
                         qid_to_gold_pid[qid] = pid
                     # Get the completion from the model
                     model_completion = rs.result.completions[0]
@@ -132,7 +135,7 @@ class MSMARCOMetric(Metric):
 
         return ranked_pids
 
-    def mean_reciprocal_rank(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+    def mean_reciprocal_rank(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         """Computes the mean reciprocal ranks of the model's ranking of the golden passages.
 
         Note that there is only one instance where we ask the model whether a passage
@@ -189,9 +192,9 @@ class MSMARCOMetric(Metric):
             for k, stat in trial_topk_to_stat.items():
                 topk_to_stat[k].add(stat.mean)
 
-        return list(topk_to_stat.values())
+        return MetricResult(list(topk_to_stat.values()), {})
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         """Returns the stats for the MSMARCO metric.
         """
         mrr_stats = self.metric_fn(scenario_state, metric_service)
