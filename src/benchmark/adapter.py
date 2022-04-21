@@ -524,8 +524,7 @@ class Adapter:
         trailing bytes to ensure the prompt is a valid string.
 
         Since some tokens are removed, we also need to recompute num_conditioning_tokens.
-
-        AI21 tokenizer represents bytes as strings, so it does not have this issue.
+        
         """
         raw_prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens, text)
         prompt: str = raw_prompt.strip("\ufffd")
