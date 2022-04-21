@@ -161,7 +161,7 @@ def get_bbq_spec(subject: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions="The following are multiple choice questions (with answers).",
-        input_prefix="",
+        input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         max_train_instances=2,
         max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
@@ -228,12 +228,14 @@ def get_bold_spec(subject: str) -> RunSpec:
 
 
 def get_civil_comments_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.civil_comments_scenario.CivilCommentsScenario", args={})
+    scenario = ScenarioSpec(
+        class_name="benchmark.civil_comments_scenario.CivilCommentsScenario", args={"subject": subject}
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="\nanswer:",
+        input_prefix="Passage: ",
+        output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
