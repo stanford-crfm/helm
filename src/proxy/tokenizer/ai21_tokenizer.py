@@ -39,12 +39,17 @@ class AI21Tokenizer(Tokenizer):
 
     @property
     def max_request_length(self) -> int:
-        # The results of tokenizing the original text and tokenizing the normalized text
-        # are different. In some cases, tokenizing the normalized text yields more tokens
-        # (not because of the byte tokens). This happens especially frequently
-        # when the document contains a lot of spaces because some spaces tokenize to
-        # multiple tokens and the others tokenize to a single token. However, the AI21
-        # tokenizer seems to normalize all spaces to a same space character.
+        # With a list of tokens, we can only reconstruct the normalized text and use it
+        # as the prompt for inference, not the original text. However, the tokenization
+        # results of the original text and the normalized text are different.
+        # In other words, if we put together a prompt from k tokens and make an inference
+        # request and receive a p-token response, p may unequal k. If p > MAX_REQUEST_LENGTH,
+        # then an error will be raised. Therefore, we should set a lower upper bound for k.
+        #
+        # This happens especially frequently when a document contains a lot of spaces
+        # because some spaces tokenize to multiple tokens and the others tokenize to
+        # a single token. However, the AI21 tokenizer seems to normalize all spaces to
+        # a same space character.
         #
         # Empirically, tokenizing the normalized text will not generate > 10 extra tokens.
         return AI21Tokenizer.MAX_REQUEST_LENGTH - 10
