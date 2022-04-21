@@ -1053,8 +1053,8 @@ def get_xsum_summarization_spec() -> RunSpec:
         max_eval_instances=None,
         num_outputs=1,
         max_tokens=60,  # From Lewis et al. 2019 (https://arxiv.org/pdf/1910.13461.pdf)
-        temperature=0,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
-        stop_sequences=["}"],
+        temperature=0.3,  # Temporary change for testing.
+        stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
     )
 
     return RunSpec(
@@ -1083,7 +1083,7 @@ def get_cnndm_summarization_spec() -> RunSpec:
         num_outputs=1,
         max_tokens=128,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=0,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
-        stop_sequences=["}"],
+        stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
     )
 
     return RunSpec(
