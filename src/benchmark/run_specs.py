@@ -689,7 +689,7 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
         model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 25k test inputs
         num_outputs=1,
-        max_tokens=5,  # should be one token but just in case
+        max_tokens=5,  # should be one or two tokens but just in case
         temperature=0.0,
         stop_sequences=["\n"],
     )
