@@ -1106,6 +1106,37 @@ def get_empatheticdialogues_spec(user_initiated: bool) -> RunSpec:
         ),
     )
 
+def get_wizardofwikipedia_spec(user_initiated: bool) -> RunSpec:
+    if type(user_initiated) == str:
+        user_initiated = user_initiated == "True"
+    scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.WizardOfWikipediaScenario", args={})
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="Prompt: ",
+        output_prefix="\nBEGIN DIALOGUE\n",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="ai21/j1-large",
+        max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
+        stop_sequences=["\n", "Bob", "Jen"],
+        num_outputs=1,
+        max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
+        temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify
+        interactive=True
+    )
+
+    return RunSpec(
+        name="wizardofwikipedia",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        interactive_adapter=InteractiveAdapterSpec(
+            class_name="benchmark.dialogue_interactive_adapters.DialogueAdapter",
+            args={"user_initiated": user_initiated, "user_name": "Jen", "agent_name": "Bob"},
+        ),
+    )
+
 
 def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
     scenario = ScenarioSpec(
@@ -1195,6 +1226,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "blimp": get_blimp_spec,
     "code": get_code_spec,
     "empatheticdialogues": get_empatheticdialogues_spec,
+    "wizardofwikipedia": get_wizardofwikipedia_spec,
     "dyck_language": get_dyck_language_spec,
     "legal_support": get_legal_support_spec,
     "ice": get_ice_spec,
