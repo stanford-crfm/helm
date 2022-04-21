@@ -161,7 +161,7 @@ def get_bbq_spec(subject: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions="The following are multiple choice questions (with answers).",
-        input_prefix="",
+        input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         max_train_instances=2,
         max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
@@ -233,7 +233,7 @@ def get_civil_comments_spec(subject: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
+        input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
