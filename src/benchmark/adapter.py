@@ -524,7 +524,8 @@ class Adapter:
         trailing bytes to ensure the prompt is a valid string.
 
         Since some tokens are removed, we also need to recompute num_conditioning_tokens.
-        
+
+        text is the normalized text fed to the decode() method. Some tokenizers (e.g. AI21) needs this field for decoding.
         """
         raw_prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens, text)
         prompt: str = raw_prompt.strip("\ufffd")
