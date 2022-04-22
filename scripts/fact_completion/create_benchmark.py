@@ -16,16 +16,13 @@ from utils import jsonl_generator, load_seed_relations, save_jsonl
 def get_arg_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--benchmark_folder", 
-        type=str, 
-        default="./benchmark",
-        help="Directory to write benchmark data to."
+        "--benchmark_folder", type=str, default="./benchmark", help="Directory to write benchmark data to."
     )
     parser.add_argument(
-        "--relations_folder", 
-        type=str, 
+        "--relations_folder",
+        type=str,
         default="./wikidata_relations",
-        help="Folder containing tsv files for seed relations."
+        help="Folder containing tsv files for seed relations.",
     )
     return parser
 
@@ -51,7 +48,7 @@ def main():
     args = get_arg_parser().parse_args()
 
     relations_folder = Path(args.relations_folder)
-    benchmark_folder = Path(args.benchmark_folder)    
+    benchmark_folder = Path(args.benchmark_folder)
 
     # load templates containing relations + sentences
     seed_relations_df = load_seed_relations(relations_folder)
@@ -70,10 +67,10 @@ def main():
     filtered_triples_file = benchmark_folder / "filtered_triples.jsonl"
     prop_map = defaultdict(lambda: defaultdict(list))
     for item in jsonl_generator(filtered_triples_file):
-            head = item["qid"]
-            property = item["property_id"]
-            tail = item["value"]
-            prop_map[property][head].append(tail)
+        head = item["qid"]
+        property = item["property_id"]
+        tail = item["value"]
+        prop_map[property][head].append(tail)
     print(f"Loaded prop map for {len(prop_map)} items.")
 
     # Select head QIDS to include in dataset
@@ -92,7 +89,7 @@ def main():
 
     # Load QID names
     qid_names = defaultdict(list)
-    aliases_file = benchmark_folder /  "aliases.jsonl"
+    aliases_file = benchmark_folder / "aliases.jsonl"
     for item in jsonl_generator(aliases_file):
         qid, alias = item["qid"], item["alias"]
         qid_names[qid].append(alias)
@@ -157,7 +154,7 @@ def main():
     datasets = [train, dev, test]
     names = ["train", "dev", "test"]
     for split, name in zip(datasets, names):
-        fpath = benchmark_folder /  f"{name}.jsonl"
+        fpath = benchmark_folder / f"{name}.jsonl"
         samples = [item for items in split.values() for item in items]
         save_jsonl(fpath, samples)
 
@@ -166,9 +163,8 @@ def main():
     save_jsonl(fpath, dataset)
 
     # Save stats
-    fpath = benchmark_folder /  "stats.json"
+    fpath = benchmark_folder / "stats.json"
     save_jsonl(fpath, [dict(prop_counts)])
-
 
 
 if __name__ == "__main__":

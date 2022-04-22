@@ -3,12 +3,8 @@ This script filters the wikidata dump to only triples corresponding to identifie
 
     1) triples.tsv: containing triples corresponding to the seed relations.
     2) names.tsv: aliases for each QID found in triples.tsv.
-
-To run: python3 scripts/fact_completion/filter_mercury_triples.py --processed_wikidata ../simple-wikidata-db/data/processed
-
-""" 
+"""
 import argparse
-from functools import partial
 from tqdm import tqdm
 from typing import Set, List, Dict
 from pathlib import Path
@@ -18,45 +14,25 @@ from utils import get_batch_files, jsonl_generator, load_seed_relations, save_js
 def get_arg_parser() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--processed_wikidata", 
-        type=str, 
-        help="Path to processed wikidata dump (see simple-wikidata-db)."
+        "--processed_wikidata", type=str, help="Path to processed wikidata dump (see simple-wikidata-db)."
+    )
+    parser.add_argument("--num_procs", type=int, default=10, help="Number of processes.")
+    parser.add_argument(
+        "--benchmark_folder", type=str, default="./benchmark", help="Directory to write benchmark data to."
     )
     parser.add_argument(
-        "--num_procs", 
-        type=int, 
-        default=10, 
-        help="Number of processes."
-    )
-    parser.add_argument(
-        "--benchmark_folder", 
-        type=str, 
-        default="./benchmark",
-        help="Directory to write benchmark data to."
-    )
-    parser.add_argument(
-        "--relations_folder", 
-        type=str, 
+        "--relations_folder",
+        type=str,
         default="./wikidata_relations",
-        help="Folder containing tsv files for seed relations."
+        help="Folder containing tsv files for seed relations.",
     )
     parser.add_argument(
-        "--entity_rels_folder", 
-        type=str, 
-        default="entity_rels",
-        help="Folder containing entity relations table."
+        "--entity_rels_folder", type=str, default="entity_rels", help="Folder containing entity relations table."
     )
     parser.add_argument(
-        "--entity_values_folder", 
-        type=str, 
-        default="entity_values",
-        help="Folder containing entity values table."
+        "--entity_values_folder", type=str, default="entity_values", help="Folder containing entity values table."
     )
-    parser.add_argument(
-        "--aliases_folder", 
-        type=str, 
-        default="aliases",
-        help="Folder containing entity aliases table.")
+    parser.add_argument("--aliases_folder", type=str, default="aliases", help="Folder containing entity aliases table.")
     return parser
 
 

@@ -47,11 +47,3 @@ Finally, we sample triples to include as part of the benchmark:
 ```console
 > python3 create_benchmark.py
 ```
-
-This folder contains code to generate the Wikidata fact completition dataset. 
-
-Scripts:
-
-- `fetch_mercury_relations.py`: collects triples corresponding to relations included in the benchmark. Also collects aliases for all QIDS which participate in these relations.
-- `filter_mercury_triples.py`: filters triples to exclude those which (1) do not have a wikipedia page, and (2) are "bad" entities (e.g. list pages, stubs, disambiguation pages, etc.)
-- `create_mercury_dataset.py`: samples triples to include in benchmark, and creates template prompts.

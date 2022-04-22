@@ -15,21 +15,13 @@ from utils import get_batch_files, jsonl_generator, save_jsonl
 def get_arg_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--processed_wikidata", 
-        type=str, 
-        help="Path to processed wikidata dump (see simple-wikidata-db)."
+        "--processed_wikidata", type=str, help="Path to processed wikidata dump (see simple-wikidata-db)."
     )
     parser.add_argument(
-        "--benchmark_folder", 
-        type=str, 
-        default="./benchmark",
-        help="Directory to write benchmark data to."
+        "--benchmark_folder", type=str, default="./benchmark", help="Directory to write benchmark data to."
     )
     parser.add_argument(
-        "--wikipedia_links_folder", 
-        type=str, 
-        default="wikipedia_links",
-        help="Folder containing Wikipedia links table."
+        "--wikipedia_links_folder", type=str, default="wikipedia_links", help="Folder containing Wikipedia links table."
     )
     return parser
 
@@ -78,8 +70,8 @@ def main() -> None:
     print(f"Built alias map for {len(qid2alias)} qids.")
 
     # Set of QIDs with Wikipedia pages
-    print(f"Loading Wikipedia table.")
-    wikipedia_qids = set()  
+    print("Loading Wikipedia table.")
+    wikipedia_qids = set()
     table_files = get_batch_files(processed_folder / args.wikipedia_links_folder)
     for f in tqdm(table_files):
         with open(f) as in_file:
@@ -89,7 +81,6 @@ def main() -> None:
     print(f"Found {len(wikipedia_qids)} QIDs with Wikpedia pages.")
 
     # load triples with seed relations
-    # TODO: just consolidate the code below -- iterate as we go through it 
     triples_file = benchmark_folder / "triples.jsonl"
     print(f"Loading triples from {triples_file}. Filtering based on alias quality...")
     filtered_triples = []
@@ -98,18 +89,19 @@ def main() -> None:
         q2 = triple["value"]
         if bad_alias(qid2alias[q1]) or bad_alias(qid2alias[q2]):
             continue
-        if not q1 in wikipedia_qids:
+        if q1 not in wikipedia_qids:
             continue
-        if not q2 in wikipedia_qids:
+        if q2 not in wikipedia_qids:
             continue
         filtered_triples.append(triple)
 
     print(f"{len(filtered_triples)} triples after filtering.")
 
     # save to file
-    filtered_triples_file = benchmark_folder /  "filtered_triples.jsonl"
+    filtered_triples_file = benchmark_folder / "filtered_triples.jsonl"
     save_jsonl(filtered_triples_file, filtered_triples)
     print(f"Saved filtered triples to {filtered_triples_file}.")
+
 
 if __name__ == "__main__":
     main()

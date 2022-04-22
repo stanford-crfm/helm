@@ -83,7 +83,7 @@ def load_seed_relations(fdir: Path) -> pd.DataFrame:
         domain = domain.replace(".csv", "")
         domain = domain.replace("wikidata relations - ", "")
         df = pd.read_csv(filepath, sep=",")
-        df["domain"] = len(df)*[domain]
+        df["domain"] = len(df) * [domain]
         df_list.append(df)
     return pd.concat(df_list)
 
