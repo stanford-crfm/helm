@@ -37,6 +37,8 @@ from . import bold_scenario  # noqa
 from . import civil_comments_scenario  # noqa
 from . import dyck_language_scenario  # noqa
 from . import legal_support_scenario  # noqa
+from . import entity_matching_scenario  # noqa
+from . import entity_data_imputation_scenario  # noqa
 
 # Metrics
 from . import basic_metrics  # noqa

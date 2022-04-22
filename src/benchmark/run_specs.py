@@ -516,11 +516,11 @@ def get_gsm_spec() -> RunSpec:
         input_prefix="",
         output_prefix="",
         num_train_trials=1,
-        max_train_instances=3,  # TODO: @Eric - Justify
+        max_train_instances=3,  # Due to limited context and long example length
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         model="openai/davinci",
-        temperature=0.7,  # TODO: @Eric - Justify
-        stop_sequences=["\n\n"],  # TODO: @Eric - Justify, why 2 \n?
+        temperature=0.0,
+        stop_sequences=["\n\n"],  # Since answer may contain newlines, we use two as SEP
         max_tokens=400,  # The paper uses 400 tokens as the max sample length
         num_outputs=1,
     )
@@ -1179,6 +1179,60 @@ def get_legal_support_spec() -> RunSpec:
     )
 
 
+def get_entity_matching_spec(dataset: str) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.entity_matching_scenario.EntityMatchingScenario", args={"dataset": dataset}
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Are Row A and Row B the same? Yes or No?",
+        input_prefix="",
+        output_prefix="\n ",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/davinci",
+        max_eval_instances=None,
+        num_outputs=1,
+        max_tokens=5,
+        temperature=0.0,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name="entity_matching",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.entity_data_imputation_scenario.EntityDataImputationScenario", args={"dataset": dataset}
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Generate the missing value in the row.",
+        input_prefix="",
+        output_prefix="\n ",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/davinci",
+        max_eval_instances=None,
+        num_outputs=1,
+        max_tokens=5,
+        temperature=0.0,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name="entity_data_imputation",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
 ############################################################
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
@@ -1218,6 +1272,8 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "civil_comments": get_civil_comments_spec,
     "dyck_language": get_dyck_language_spec,
     "legal_support": get_legal_support_spec,
+    "entity_matching": get_entity_matching_spec,
+    "entity_data_imputation": get_entity_data_imputation_spec,
     "ice": get_ice_spec,
 }
 
