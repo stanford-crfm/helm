@@ -14,16 +14,39 @@ CSV files listing the seed relations can be downloaded from the [CRFM website](h
 
 ### Wikidata processing
 
-Given the size of Wikidata, we use [simple-wikidata-db](https://github.com/neelguha/simple-wikidata-db) to preprocess the raw dump and extract triples. We used the Wikidata dump from January 2022.
+Given the size of Wikidata, we use [simple-wikidata-db](https://github.com/neelguha/simple-wikidata-db) to preprocess the raw dump and extract triples. We used the Wikidata dump from January 2022. Roughly, the simple-wikidata-db library creates tables to store different types of triples, where a table consists of a directory with JSONL files (where a line of a single file corresponds to a triple, with keys for the head, relation, and tail). Saving the data in this structure has two advantages: 
+
+1. If we know we want triples containing a certain type of information, we only have to load the tables which contain those triples. 
+2. Distributing the contents of a table across multiple files within a directory allows us to easily process files in parallel. 
+
+The simple-wikidata-db repository contains information on the full set of tables it creates. For our purposes, we care about the following tables: 
+
+- `entity_rels`: which holds triples where both the head and tail are Wikidata entities.
+- `entity_vals`: which holds triples where the head is an entity, but the tail is a value (e.g. a string, float, integer, etc.).
+- `aliases`: which holds alias information for each entity, i.e. the set of names/aliases an entity is associated with.
 
 ### Generating samples
 
 First, run `fetch_triples_and_aliases.py` to (1) extract all triples corresponding to the seed relations, and (2) the aliases associated with QIDs found in these triples.
 
 ```console
-> python3 fetch_triples_and_aliases.py --processed_wikidata $path_to_folder_with_processed_wikidata_dump
+> python3 scripts/fact_completion/fetch_triples_and_aliases.py --processed_wikidata $path_to_folder_with_processed_wikidata_dump
 ```
 
+Next, we filter the triples. In particular we remove triples where: 
+
+- Either the head or tail entity do not have a Wikipedia page. 
+- The entity corresponds to a category, template, stub, disamibguation, or list page.
+
+```console
+> python3 scripts/completition/filter_triples.py --processed_wikidata $path_to_folder_with_processed_wikidata_dump
+```
+
+Finally, we sample triples to include as part of the benchmark:
+
+```console
+> python3 create_benchmark.py
+```
 
 This folder contains code to generate the Wikidata fact completition dataset. 
 

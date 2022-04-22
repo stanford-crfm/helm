@@ -1,7 +1,7 @@
 """Assortment of useful utility functions. """
 
 import os
-import ujson as json
+import json
 from typing import Iterator, Dict, List
 import pandas as pd
 from pathlib import Path
@@ -76,8 +76,26 @@ def load_seed_relations(fdir: Path) -> pd.DataFrame:
     Returns:
         pd.DataFrame: dataframe for data in tsv files.
     """
-    filepaths = fdir.glob("*.tsv")
-    df = pd.DataFrame()
+    filepaths = fdir.glob("*.csv")
+    df_list = []
     for filepath in filepaths:
-        df = df.append(pd.read_csv(filepath, sep="\t"))
-    return df
+        domain = filepath.name
+        domain = domain.replace(".csv", "")
+        domain = domain.replace("wikidata relations - ", "")
+        df = pd.read_csv(filepath, sep=",")
+        df["domain"] = len(df)*[domain]
+        df_list.append(df)
+    return pd.concat(df_list)
+
+
+def save_jsonl(fpath: Path, data: List[Dict[str, str]]) -> None:
+    """Saves data to file in JSONL format.
+
+    Args:
+        fpath (Path): path to file.
+        data (List[Dict[str, str]]): data to save. Must be list of dictionaries.
+    """
+
+    with open(fpath, "w") as out_file:
+        for x in data:
+            out_file.write(json.dumps(x) + "\n")

@@ -1,5 +1,5 @@
 """
-This script creates the dataset for the mercury relations.
+This script samples triples to use and constructs sentences from templates.
 
 1. Subsample 1k triples per relation.
 2. Get names of QIDs for each and construct sentences.
@@ -7,26 +7,26 @@ This script creates the dataset for the mercury relations.
 """
 import argparse
 from collections import defaultdict
-import glob
-import json
 import numpy as np
-import os
 from tqdm import tqdm
-
-from utils import jsonl_generator
+from pathlib import Path
+from utils import jsonl_generator, load_seed_relations, save_jsonl
 
 
 def get_arg_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--processed_wikidata", type=str, help="path to processed wikidata dump (see simple-wikidata-db)."
+        "--benchmark_folder", 
+        type=str, 
+        default="./benchmark",
+        help="Directory to write benchmark data to."
     )
-    parser.add_argument("--num_procs", type=int, default=10, help="Number of processes")
     parser.add_argument(
-        "--test", action="store_true", help="Runs on only a subset of the data (used to test pipeline)."
+        "--relations_folder", 
+        type=str, 
+        default="./wikidata_relations",
+        help="Folder containing tsv files for seed relations."
     )
-    parser.add_argument("--relations_folder", type=str, help="path to folder with benchmark relations CSVs.")
-    parser.add_argument("--benchmark_folder", type=str, help="directory to write data to")
     return parser
 
 
@@ -50,32 +50,30 @@ def load_relations(fpath):
 def main():
     args = get_arg_parser().parse_args()
 
+    relations_folder = Path(args.relations_folder)
+    benchmark_folder = Path(args.benchmark_folder)    
+
     # load templates containing relations + sentences
-    fpaths = glob.glob(os.path.join(args.relations_folder, "*.csv"))
+    seed_relations_df = load_seed_relations(relations_folder)
     relation_to_domain_map = {}
     templates = {}
-    for fpath in fpaths:
-        domain = fpath.split("/")[-1]
-        domain = domain.replace(".csv", "")
-        domain = domain.replace("wikidata relations - ", "")
-        with open(fpath) as in_file:
-            for line in in_file:
-                items = line.strip().split(",")
-                relation = items[0]
-                template = items[1]
-                templates[relation] = template
-                relation_to_domain_map[relation] = domain
-
+    for i in range(len(seed_relations_df)):
+        domain = seed_relations_df.iloc[i]["domain"]
+        relation = seed_relations_df.iloc[i]["relation"]
+        template = seed_relations_df.iloc[i]["template"]
+        templates[relation] = template
+        relation_to_domain_map[relation] = domain
     print(f"Loaded {len(templates)} templates.")
 
     # load all triples in the form of a prop_map, which maps
     # property -> head_qid -> tail_qid
-    filtered_triples_file = os.path.join(args.benchmark_folder, "filtered_triples.tsv")
+    filtered_triples_file = benchmark_folder / "filtered_triples.jsonl"
     prop_map = defaultdict(lambda: defaultdict(list))
-    with open(filtered_triples_file, "r") as in_file:
-        for line in tqdm(in_file, total=182056518):
-            q1, p, q2 = line.strip().split("\t")
-            prop_map[p][q1].append(q2)
+    for item in jsonl_generator(filtered_triples_file):
+            head = item["qid"]
+            property = item["property_id"]
+            tail = item["value"]
+            prop_map[property][head].append(tail)
     print(f"Loaded prop map for {len(prop_map)} items.")
 
     # Select head QIDS to include in dataset
@@ -94,12 +92,10 @@ def main():
 
     # Load QID names
     qid_names = defaultdict(list)
-    names_file = os.path.join(args.benchmark_folder, "names.tsv")
-    with open(names_file, "w") as in_file:
-        for line in in_file:
-            item = json.loads(line)
-            qid, alias = item["qid"], item["alias"]
-            qid_names[qid].append(alias)
+    aliases_file = benchmark_folder /  "aliases.jsonl"
+    for item in jsonl_generator(aliases_file):
+        qid, alias = item["qid"], item["alias"]
+        qid_names[qid].append(alias)
 
     # Create dataset with templates
     dataset = []
@@ -161,22 +157,18 @@ def main():
     datasets = [train, dev, test]
     names = ["train", "dev", "test"]
     for split, name in zip(datasets, names):
-        fpath = os.path.join(args.benchmark_folder, f"{name}.jsonl")
-        with open(fpath, "w") as out_file:
-            for items in split.values():
-                for item in items:
-                    out_file.write(json.dumps(item) + "\n")
+        fpath = benchmark_folder /  f"{name}.jsonl"
+        samples = [item for items in split.values() for item in items]
+        save_jsonl(fpath, samples)
 
     # save all data
-    fpath = os.path.join(args.benchmark_folder, "all_data.jsonl")
-    with open(fpath, "w") as out_file:
-        for item in dataset:
-            out_file.write(json.dumps(item) + "\n")
+    fpath = benchmark_folder / "all_data.jsonl"
+    save_jsonl(fpath, dataset)
 
     # Save stats
-    fpath = os.path.join(args.benchmark_folder, "stats.json")
-    with open(fpath, "w") as out_file:
-        out_file.write(json.dumps(dict(prop_counts)))
+    fpath = benchmark_folder /  "stats.json"
+    save_jsonl(fpath, [dict(prop_counts)])
+
 
 
 if __name__ == "__main__":

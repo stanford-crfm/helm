@@ -3,26 +3,60 @@ This script filters the wikidata dump to only triples corresponding to identifie
 
     1) triples.tsv: containing triples corresponding to the seed relations.
     2) names.tsv: aliases for each QID found in triples.tsv.
-"""
+
+To run: python3 scripts/fact_completion/filter_mercury_triples.py --processed_wikidata ../simple-wikidata-db/data/processed
+
+""" 
 import argparse
 from functools import partial
-import glob
-from multiprocessing import Pool
-import os
 from tqdm import tqdm
 from typing import Set, List, Dict
 from pathlib import Path
-from utils import get_batch_files, jsonl_generator, load_seed_relations
+from utils import get_batch_files, jsonl_generator, load_seed_relations, save_jsonl
 
 
 def get_arg_parser() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--processed_wikidata", type=str, help="Path to processed wikidata dump (see simple-wikidata-db)."
+        "--processed_wikidata", 
+        type=str, 
+        help="Path to processed wikidata dump (see simple-wikidata-db)."
     )
-    parser.add_argument("--num_procs", type=int, default=10, help="Number of processes.")
-    parser.add_argument("--benchmark_folder", type=str, help="Directory to write benchmark data to.")
-    parser.add_argument("--relations_folder", type=str, help="Folder containing tsv files for seed relations.")
+    parser.add_argument(
+        "--num_procs", 
+        type=int, 
+        default=10, 
+        help="Number of processes."
+    )
+    parser.add_argument(
+        "--benchmark_folder", 
+        type=str, 
+        default="./benchmark",
+        help="Directory to write benchmark data to."
+    )
+    parser.add_argument(
+        "--relations_folder", 
+        type=str, 
+        default="./wikidata_relations",
+        help="Folder containing tsv files for seed relations."
+    )
+    parser.add_argument(
+        "--entity_rels_folder", 
+        type=str, 
+        default="entity_rels",
+        help="Folder containing entity relations table."
+    )
+    parser.add_argument(
+        "--entity_values_folder", 
+        type=str, 
+        default="entity_values",
+        help="Folder containing entity values table."
+    )
+    parser.add_argument(
+        "--aliases_folder", 
+        type=str, 
+        default="aliases",
+        help="Folder containing entity aliases table.")
     return parser
 
 
@@ -56,57 +90,44 @@ def main() -> None:
 
     relations_folder = Path(args.relations_folder)
     processed_folder = Path(args.processed_wikidata)
+    benchmark_folder = Path(args.benchmark_folder)
+    benchmark_folder.mkdir(exist_ok=True)
 
     # Load seed relations
     seed_df = load_seed_relations(relations_folder)
     seed_relations = set(seed_df["relation"])
+    print(f"Loaded {len(seed_relations)} seed relations.")
 
     # Load processed wikidata files corresponding to entity relations and entity values.
     # Here, we assume the data dump is structured as in https://github.com/neelguha/simple-wikidata-db
-    table_files = get_batch_files(processed_folder / "entity_rels")
-    table_files.extend(get_batch_files(processed_folder / "entity_values"))
+    table_files = get_batch_files(processed_folder / args.entity_rels_folder)
+    table_files.extend(get_batch_files(processed_folder / args.entity_values_folder))
 
-    # Extract triples containing a seed relation
-    pool = Pool(processes=args.num_procs)
-    filtered = []
-    for output in tqdm(
-        pool.imap_unordered(partial(rel_filtering_func, seed_relations), table_files, chunksize=1),
-        total=len(table_files),
-    ):
-        filtered.extend(output)
+    filtered_triples = []
+    for filepath in tqdm(table_files):
+        filtered_triples.extend(rel_filtering_func(seed_relations, filepath))
+    print(f"Extracted {len(filtered_triples)} triples for seed relations.")
 
-    print(f"Extracted {len(filtered)} triples for seed relations.")
+    triples_file = benchmark_folder / "triples.jsonl"
+    save_jsonl(triples_file, filtered_triples)
+    print(f"Written triples to {triples_file}.")
 
-    # Save triples to file.
-    # TODO: this should probably be in JSONL format?
-    triples_file = os.path.join(args.benchmark_folder, "triples.tsv")
-    with open(triples_file, "w") as out_file:
-        for item in tqdm(filtered):
-            qid, property_id, val = item["qid"], item["property_id"], item["value"]
-            out_file.write(f"{qid}\t{property_id}\t{val}\n")
-
-    # Identity list of QIDs mentioned in extracted triples.
+    # Extract and filter aliases for QIDs mentioned in the above triples.
     qids = set()
-    for item in filtered:
+    for item in filtered_triples:
         qids.add(item["qid"])
         qids.add(item["value"])
 
-    # Load tables corresponding to aliases
-    table_files = get_batch_files(processed_folder / "aliases")
-    pool = Pool(processes=args.num_procs)
-    filtered = []
-    for output in tqdm(
-        pool.imap_unordered(partial(alias_filtering_func, qids), table_files, chunksize=1), total=len(table_files)
-    ):
-        filtered.extend(output)
-    print(f"Extracted {len(filtered)} aliases.")
+    table_files = get_batch_files(processed_folder / args.aliases_folder)
+    filtered_aliases = []
+    for filepath in tqdm(table_files):
+        filtered_aliases.extend(alias_filtering_func(qids, filepath))
+    print(f"Extracted {len(filtered_aliases)} aliases.")
 
-    # Save to file.
-    names_file = os.path.join(args.benchmark_folder, "names.tsv")
-    with open(names_file, "w") as out_file:
-        for item in tqdm(filtered):
-            qid, alias = item["qid"], item["alias"]
-            out_file.write(f"{qid}\t{alias}\n")
+    # Save aliases to file.
+    aliases_file = benchmark_folder / "aliases.jsonl"
+    save_jsonl(aliases_file, filtered_aliases)
+    print(f"Written aliases to {aliases_file}.")
 
 
 if __name__ == "__main__":
