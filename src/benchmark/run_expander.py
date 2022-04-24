@@ -93,7 +93,8 @@ class ModelRunExpander(ReplaceValueRunExpander):
             "openai/text-davinci-001",
             "openai/text-curie-001",
             "ai21/j1-jumbo",
-            "ai21/j1-large",
+            # TODO: increase quota in AI21 account
+            # "ai21/j1-large",
         ],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
