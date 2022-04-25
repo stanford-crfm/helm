@@ -1075,7 +1075,10 @@ def get_cnndm_summarization_spec() -> RunSpec:
     )
 
 
-def get_empatheticdialogues_spec(user_initiated: bool) -> RunSpec:
+def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str) -> RunSpec:
+    """
+    annotation_stage: Specifies the type of annotation being conducted in this run (for e.g. annotator filtering, inter-annotator agreement, final)
+    """
     if type(user_initiated) == str:
         user_initiated = user_initiated == "True"
     scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.EmpatheticDialoguesScenario", args={})
@@ -1086,7 +1089,7 @@ def get_empatheticdialogues_spec(user_initiated: bool) -> RunSpec:
         output_prefix="\nBEGIN DIALOGUE\n",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
+        model="openai/davinci",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
         stop_sequences= ["}"],
         num_outputs=1,
@@ -1096,7 +1099,7 @@ def get_empatheticdialogues_spec(user_initiated: bool) -> RunSpec:
     )
 
     return RunSpec(
-        name="empatheticdialogues",
+        name=f"empatheticdialogues:annotation_stage={annotation_stage},user_initiated={user_initiated}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -1105,6 +1108,7 @@ def get_empatheticdialogues_spec(user_initiated: bool) -> RunSpec:
             args={"user_initiated": user_initiated, "user_name": "Jen", "agent_name": "Bob"},
         ),
     )
+
 
 def get_wizardofwikipedia_spec(user_initiated: bool) -> RunSpec:
     if type(user_initiated) == str:
@@ -1123,7 +1127,7 @@ def get_wizardofwikipedia_spec(user_initiated: bool) -> RunSpec:
         num_outputs=1,
         max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
         temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify
-        interactive=True
+        interactive=True,
     )
 
     return RunSpec(

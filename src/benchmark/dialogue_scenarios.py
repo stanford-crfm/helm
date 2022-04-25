@@ -45,7 +45,8 @@ class EmpatheticDialoguesScenario(Scenario):
 
     def download_data(self):
         # Download the raw data
-        self.data_path: str = os.path.join(self.output_path, "data/empatheticdialogues/") #TODO: Ask Ashwin
+        self.data_path: str = os.path.join(self.output_path, "data")  # TODO: Ask Ashwin
+        # self.data_path: str = os.path.join(self.output_path, "data/empatheticdialogues/") #TODO: Ask Ashwin
         ensure_file_downloaded(
             source_url="https://dl.fbaipublicfiles.com/parlai/empatheticdialogues/empatheticdialogues.tar.gz",
             target_path=self.data_path,
@@ -133,6 +134,7 @@ class EmpatheticDialoguesScenario(Scenario):
         self.download_data()
         return self.filter_instances(self.read_instances())
 
+
 class WizardOfWikipediaScenario(Scenario):
     """
     The Wizard of Wikipedia dataset from this paper:
@@ -150,7 +152,9 @@ class WizardOfWikipediaScenario(Scenario):
 
     def download_data(self):
         # Download the raw data
-        self.data_path: str = os.path.join(self.output_path, "data/train_cleaned.json") # benchmark_output/scenarios/wizardofwikipedia/
+        self.data_path: str = os.path.join(
+            self.output_path, "data/train_cleaned.json"
+        )  # benchmark_output/scenarios/wizardofwikipedia/
         ensure_file_downloaded(
             source_url="https://dialogue-benchmark-wow.s3.amazonaws.com/train_pared.json",
             target_path=self.data_path,
@@ -165,7 +169,7 @@ class WizardOfWikipediaScenario(Scenario):
         hlog(f"Reading {self.data_path}")
 
         data_df = pd.read_json(self.data_path)
-        n_train = int(len(data_df)*0.8)
+        n_train = int(len(data_df) * 0.8)
 
         # Initialize references
         references = []
@@ -191,29 +195,29 @@ class WizardOfWikipediaScenario(Scenario):
                 apprentice_lis = Speaker(id=1, initiator=False, name="Bob")
                 wizard_sp = Speaker(id=2, initiator=True, name="Jen")
                 wizard_lis = Speaker(id=3, initiator=False, name="Jen")
-                speakers = {"0_Apprentice": apprentice_sp, "1_Wizard": wizard_lis,
-                            "0_Wizard": wizard_sp, "1_Apprentice": apprentice_lis}
-                
+                speakers = {
+                    "0_Apprentice": apprentice_sp,
+                    "1_Wizard": wizard_lis,
+                    "0_Wizard": wizard_sp,
+                    "1_Apprentice": apprentice_lis,
+                }
+
                 # Iterate through dialogue
-                utterances = [] 
+                utterances = []
                 dialog = row["dialog"]
                 for utterance in dialog:
                     # Create Utterance object
                     utterances.append(Utterance(speaker=speakers[utterance["speaker"]], text=utterance["text"]))
-                    
+
                 # Join utterances into an output
                 output = "".join([str(utt) for utt in utterances])
 
                 # Create a reference from the output
                 references = [Reference(output=output, tags=[CORRECT_TAG])]
 
-                # Create an instance from reference (in our case, each instance should 
+                # Create an instance from reference (in our case, each instance should
                 # have a single reference which corresponds to a "prompt")
-                instances.append(
-                        Instance(
-                            input=topic, references=references, split=split
-                        )
-                    )
+                instances.append(Instance(input=topic, references=references, split=split))
         return instances
 
     def filter_instances(self, instances):
@@ -238,6 +242,7 @@ class WizardOfWikipediaScenario(Scenario):
     def get_instances(self) -> List[Instance]:
         self.download_data()
         return self.filter_instances(self.read_instances())
+
 
 if __name__ == "__main__":
     # Test EmpatheticDialoguesScenario
