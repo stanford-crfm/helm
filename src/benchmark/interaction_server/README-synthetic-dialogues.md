@@ -1,4 +1,5 @@
-To inject synthetic dialogues
+To inject synthetic dialogues:
+
 1 - Create a file with a few dialouges. Look at sample_synthetic_dialogue.yaml for an example. 
 
 2 - Create a new run for the scenario with `annotation_stage=filtering` or `annotation_stage=agreement`, with the same number of instances
@@ -8,7 +9,8 @@ To inject synthetic dialogues
 3 - Run `convert_synthetic_dialogues_to_interaction_traces.py` with the synthetic dialogues yaml file as the first paramater and the run_path as the second parameter
 
 	For e.g. `python src/benchmark/interaction_server/convert_synthetic_dialogues_to_interaction_traces.py src/benchmark/interaction_server/sample_synthetic_dialogue.yaml benchmark_output/runs/empatheticdialogues:annotation_stage=filtering,user_initiated=True``
-3 - Start the interaction server and in the url, set the run_name to the above. Take care to url encode the equals signs. 
+
+4 - Start the interaction server and in the url, set the run_name to the above. Take care to url encode the equals signs. 
 
 	For e.g. a sample url for the above will be http://<ip>/static/dialogue/interface.html?run_name=empatheticdialogues:annotation_stage%3Dfiltering,user_initiated%3DTrue&interaction_trace_id=<actual_interaction_trace_id>&user_id=1234
 
