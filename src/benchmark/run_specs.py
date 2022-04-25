@@ -1088,7 +1088,7 @@ def get_empatheticdialogues_spec(user_initiated: bool) -> RunSpec:
         max_train_instances=5,
         model="ai21/j1-large",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
-        stop_sequences=["\n", "Bob", "Jen"],
+        stop_sequences= ["}"],
         num_outputs=1,
         max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
         temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify
@@ -1119,7 +1119,7 @@ def get_wizardofwikipedia_spec(user_initiated: bool) -> RunSpec:
         max_train_instances=5,
         model="ai21/j1-large",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
-        stop_sequences=["\n", "Bob", "Jen"],
+        stop_sequences=["}"],
         num_outputs=1,
         max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
         temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify
