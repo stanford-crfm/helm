@@ -171,7 +171,9 @@ def get_bbq_spec(subject: str) -> RunSpec:
         temperature=0,
     )
 
-    return RunSpec(name="bbq", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bbq_metrics())
+    return RunSpec(
+        name=f"bbq:subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bbq_metrics()
+    )
 
 
 def get_msmarco_spec(
@@ -247,7 +249,7 @@ def get_civil_comments_spec(subject: str) -> RunSpec:
         max_tokens=1,
     )
     return RunSpec(
-        name="civil_comments",
+        name=f"civil_comments:subject={subject}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
