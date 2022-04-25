@@ -6,42 +6,43 @@ body {
 }
 .my-container{
     font-family: 'Nunito Sans', sans-serif;
-    /*font-size: 20px;*/
-    /*font-family: 'Noto Sans', sans-serif;
-    font-family: 'Abel', sans-serif;
-    font-family: 'Cairo', sans-serif;
-    font-family: 'Cantarell', sans-serif;
-    font-family: 'Jost', sans-serif;
-    font-family: 'Nunito Sans', sans-serif;
-    font-family: 'Quattrocento Sans', sans-serif;*/
 }
 /* Set fonts for different resolutions */
 .my-container, .next-utterance-input > .new-utterance {
     font-family: 'Nunito Sans', sans-serif;
-    /*font-size: 40px;*/
 
 
 }
 .transcript {
+    width: 840px;
     overflow: scroll;
-}
-.chat-box > * {
-    /*width:100%;*/
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    flex-grow: 1;
+    justify-content: flex-start;
 }
 .chat-box{
-    flex-grow: 1;
     min-height: 10rem;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    /*padding: 0px 10px 0px 10px;*/
 }
 
 .speech-bubble-container{
     display: flex;
     flex-direction: row;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    width: 400px;
+    align-self: flex-end;
+}
+.speech-bubble-gutter {
+    width: 140px;
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 20px;
+    align-items: center;
 }
 .user{
     justify-content: flex-end;
@@ -50,26 +51,25 @@ body {
     justify-content: flex-start;
 }
 .speech-bubble{
-    /*border: lightcoral 1px solid;*/
-    padding: 10px;
-    max-width: 70%;
+    padding: 5px 10px;
+    max-width: 168px;
 
-    margin: 0px 20px 0px 20px;
+    margin: 0px 20px 0px 00px;
     box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
-    /*box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);*/
 }
 .prompt{
     justify-content:center;
+    width: 400px;
 }
 .prompt > .speech-bubble {
     border-radius: 10px 10px 10px 10px;
     background:rgba(0, 0, 0, 0.16);
+    max-width: 400px;
 
 }
 .user > .speech-bubble {
     border-radius: 10px 20px 0px 10px;
     background: hsl(69, 32%, 92%);
-    /*background: hsl(200, 54%, 95%);*/
 }
 .bot > .speech-bubble {
     background: hsl(352, 52%, 95%);
@@ -77,11 +77,15 @@ body {
 }
 .bot.bot.turnlevel > .speech-bubble {
     background: lightgray;
-    /*background-color: 2px solid lightgray;*/
 }
 .bot.bot.turnlevel.selected > .speech-bubble {
     background: hsl(355, 77%, 86%);
-    /*background-color: 2px solid lightgray;*/
+}
+.bot.bot.turnlevel.positive > .speech-bubble {
+    background: hsl(355, 77%, 86%);
+}
+.bot.bot.turnlevel.negative > .speech-bubble {
+    background: hsl(355, 77%, 86%);
 }
 .next-utterance-input{
     display: flex;
@@ -90,11 +94,12 @@ body {
     margin: 0px 10px 20px 10px;
     border: hsl(69, 32%, 80%) solid 2px;
     box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    align-self: flex-end;
+    width: 400px;
 }
 .next-utterance-input > .new-utterance{
-    padding: 10px;
+    padding: 5px;
     flex-grow: 1;
-    font-size: 20px;
 
     border-radius: 20px 0px 0px 20px;
     /*#border: hsl(69, 32%, 80%) solid 2px;*/
@@ -120,29 +125,20 @@ body {
 }
 .my-container{
     display: flex;
-    flex-direction: column;
-    width: 100%;
+    flex-direction: row;
+    justify-content: center;
     margin-left: auto;
     margin-right: auto;
     background: white;
     height:100%;
-    font-size: 20px;
+    font-size: 12px;
     box-shadow: rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
-    /*box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);*/
 }
 @media (min-width: 800px) {
 
     .my-container{
-        width: 800px;
         margin-left: auto;
         margin-right: auto;
-        /*border-right:  #F4795B 1px solid;
-        border-left: #F4795B 1px solid;*/
-    }
-}
-@media (min-width: 800px) {
-    .next-utterance-input > .new-utterance {
-        font-size: 20px;
     }
 }
 .send-icon{
@@ -151,6 +147,7 @@ body {
     fill:  #8C1515;
 }
 #interview-questions {
+    width: 400px;
     display:flex;
     flex-direction: column;
     align-items: center;
@@ -173,4 +170,21 @@ body {
 }
 #endConversation:disabled{
     opacity: 25%;
+}
+.ternary-btn-group {
+    display: inline !important;
+}
+.ternary-btn-group .btn-secondary, .btn-danger, .btn-success {
+    color: white;
+}	
+.btn {
+    font-size: inherit !important;
+}
+#bottom-buttons,.ternary-options {
+    width: 100%;
+    display: flex;
+    justify-content:center;
+}
+.instruction {
+    font-size: 1rem;
 }
