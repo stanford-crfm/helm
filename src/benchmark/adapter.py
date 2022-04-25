@@ -197,6 +197,8 @@ class InteractionTrace:
 
     user_id: Optional[str] = None
 
+    trace_completed: bool = False
+
     def render_lines(self) -> List[str]:
         output = [f"train_trial_index: {self.train_trial_index}"]
         if self.reference_index:
@@ -791,7 +793,6 @@ class InteractiveAdapter(ABC):
         In some scenarios, a call to the LM needs to be made before the first user input.
         This function is subclassed to encode the adaptation into and produce a new RequestState
         """
-        print("oho")
         raise NotImplementedError
 
     @abstractmethod
