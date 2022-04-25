@@ -225,7 +225,9 @@ def get_bold_spec(subject: str) -> RunSpec:
         temperature=1,
         max_tokens=20,  # see Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
     )
-    return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bold_metrics())
+    return RunSpec(
+        name=f"bold:subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bold_metrics()
+    )
 
 
 def get_civil_comments_spec(subject: str) -> RunSpec:
