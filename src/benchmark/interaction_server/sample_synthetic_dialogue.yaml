@@ -1,0 +1,14 @@
+- prompt: Jacob went to a party and slipped on a banana peel
+  dialogue:
+    - user: I was on my way to this party and oh god
+    - bot: What happened?
+    - user: I slipped on a banana peel, can you imagine?
+    - bot: Are you okay? Were you hurt?
+- prompt: Sarika went to a hospital to get a vaccine shot. She was afraid but she overcame her fears
+  dialogue: 
+    - user: I am really afraid of vaccines, or at least I was.
+    - bot: What changed your mind? 
+    - user: It was simple actually, I just got vaccinated. 
+    - bot: Good for you, how are you now? Are you feeling any side-effects?
+
+
