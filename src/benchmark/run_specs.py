@@ -219,7 +219,8 @@ def get_bold_spec(subject: str) -> RunSpec:
         output_prefix="",
         max_train_instances=0,
         max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
-        num_outputs=25,
+        # We capped it at 16 since the AI21 API only allow up to 16 completions per request
+        num_outputs=16,
         model="openai/davinci",
         temperature=1,
         max_tokens=20,  # see Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
