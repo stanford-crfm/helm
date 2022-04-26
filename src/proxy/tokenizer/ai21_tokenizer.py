@@ -47,14 +47,14 @@ class AI21Tokenizer(Tokenizer):
         # then an error will be raised. Therefore, we should set a lower upper bound for k.
         #
         # This happens especially frequently when a document contains different types of
-        # space characters because some spaces tokenize to multiple tokens and the others
-        # tokenize to a single token. However, the AI21 tokenizer seems to normalize all types
-        # of spaces to the same space character.
+        # whitespace characters because some whitespaces are tokenized to multiple tokens and the others
+        # are tokenized to a single token. However, the AI21 tokenizer seems to normalize all types
+        # of whitespaces to the same whitespace character.
         #
-        # e.g. original text: ",  (", which tokenizes to:
+        # e.g. original text: ",  (", which is tokenized to:
         # [('▁', 0, 0), (',', 0, 1), ('▁▁', 1, 3), ('(', 3, 4)]
         #
-        # normalized test: ",  (", which tokenizes to:
+        # normalized test: ",  (", which is tokenized to:
         # [('▁', 0, 0), (',', 0, 1), ('▁', 1, 2), ('▁', 2, 3), ('(', 3, 4)]
         #
         # Empirically, tokenizing the normalized text will not generate > 10 extra tokens.
