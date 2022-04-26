@@ -25,7 +25,7 @@ class GPT2Tokenizer(Tokenizer):
 
     @property
     def max_request_length(self) -> int:
-        """Return the max request length of the OpenAI models."""
+        """Return the max request length of GPT-2."""
         return GPT2Tokenizer.MAX_REQUEST_LENGTH
 
     @property
