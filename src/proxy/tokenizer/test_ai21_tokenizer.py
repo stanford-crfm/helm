@@ -10,9 +10,8 @@ from benchmark.adapter_service import AdapterService
 from .tokenizer_factory import TokenizerFactory
 
 # We use mocking for tokenization calls so no valid api_keys are required.
-api_key = ""
-auth = Authentication(api_key=api_key)
-service = AdapterService(RemoteService("https://crfm-models.stanford.edu"), auth)
+auth = Authentication(api_key="DUMMY_API_KEY")
+service = AdapterService(RemoteService("DUMMY_URL"), auth)
 
 TEST_PROMPT: str = (
     "The Center for Research on Foundation Models (CRFM) is "
