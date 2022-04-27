@@ -140,9 +140,9 @@
 						</div>
 						<div class="error" v-if="error">Error: {{error}}</div>
 						<div class="success" v-if="success && !optedout">Answers successfully submitted. Survey completion
-							code: {{session_uuid}}</div>
+							code: {{code}}</div>
 						<div class="success" v-if="success && optedout">You have successfully opted out. Survey completion
-							code: {{session_uuid}}</div>
+							code: {{code}}</div>
 						<div id='bottom-buttons'>
 							<div class="btn-group form-row">
 								<button class='btn btn-outline-secondary' @click="prevQuestion()"

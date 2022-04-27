@@ -12,6 +12,9 @@ from common.authentication import Authentication  # noqa: E402
 from common.request import RequestResult  # noqa: E402
 from common.general import unpickle, parse_hocon  # noqa: E402
 
+import random
+from completion_codes import COMPLETION_CODES
+
 # flake8: noqa
 # An example of how to use the request API.
 
@@ -111,8 +114,8 @@ def end_dialogue(args: dict) -> dict:
 def submit_interview(args: dict) -> dict:
     interaction_trace_id = args["interaction_trace_id"]
     user_id = args["user_id"]
-
+    code = random.choice(COMPLETION_CODES)
     runner = get_runner(args)
 
     runner.handle_survey(user_id=user_id, interaction_trace_id=interaction_trace_id, survey=args["questions"])
-    return {"success": True}  # Outputs
+    return {"success": True, "code": code}  # Outputs

@@ -237,11 +237,12 @@ const ChatBox = {
 					user_utterance: this.newUtterance,
 					utterances: this.utterances,
 					questions: this.questions,
-					optedout: this.optedout,
+					optedout: this.optedout, 
 				})
 					.then(function (response) {
 						that.success = true;
 						that.error = false;
+						that.code = response.data.code;
 						console.log("success");
 					})
 					.catch(function (error) {
