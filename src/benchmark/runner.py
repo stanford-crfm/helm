@@ -260,10 +260,20 @@ class InteractiveRunner:
         interaction_trace = self.load_interaction_trace(interaction_trace_id=interaction_trace_id)
         interaction_trace.user_id = user_id
         assert (
-            len(interaction_trace.trace) == 1
-        ), "InteractionTrace.trace should have exactly one InteractionRound at the beginning"
-        first_interaction_round = interaction_trace.trace[0]
+            len(interaction_trace.trace) > 0
+        ), "InteractionTrace.trace should have at least pre-filled InteractionRound"
+
+        if (
+            len(interaction_trace.trace) > 1
+            or interaction_trace.trace[0].user_input is not None
+            or interaction_trace.trace_completed
+        ):
+            # The interaction_trace already has user_input
+            # Do not overwrite
+            return interaction_trace
+
         if self.interactive_adapter.user_initiated is False:
+            first_interaction_round = interaction_trace.trace[0]
             assert first_interaction_round.user_input is None
             new_request_state: RequestState = self.interactive_adapter.initial_lm_request(
                 first_interaction_round.request_state
@@ -273,12 +283,13 @@ class InteractiveRunner:
             first_interaction_round = InteractionRound(user_input=None, request_state=new_request_state)
 
             interaction_trace.trace[0] = first_interaction_round
-        self.save_interaction_trace(interaction_trace=interaction_trace)
+            self.save_interaction_trace(interaction_trace=interaction_trace)
         return interaction_trace
 
     def handle_user_input(self, interaction_trace_id: uuid.UUID, user_input: UserInput) -> RequestResult:
         """Handle user input, get LM response, save and return it"""
         interaction_trace = self.load_interaction_trace(interaction_trace_id=interaction_trace_id)
+        assert not interaction_trace.trace_completed, "Cannot add new user inputs to a completed trace"
 
         new_request_state: RequestState = self.interactive_adapter.adapt_user_input(interaction_trace, user_input)
         new_request_state = self.process(new_request_state)
@@ -291,10 +302,18 @@ class InteractiveRunner:
 
         return new_request_state.result
 
+    def terminate_interaction_trace(self, interaction_trace_id: uuid.UUID):
+        interaction_trace = self.load_interaction_trace(interaction_trace_id=interaction_trace_id)
+        interaction_trace.trace_completed = True
+        self.save_interaction_trace(interaction_trace=interaction_trace)
+
     def handle_survey(self, user_id: str, interaction_trace_id: uuid.UUID, survey):
         """Store the result of a survey after an interaction"""
 
         interaction_trace = self.load_interaction_trace(interaction_trace_id=interaction_trace_id)
+        assert all(
+            s.user_id != user_id for s in interaction_trace.surveys
+        ), "Survey exists for the given used_id, cannot overwrite"
         survey = Survey(user_id=user_id, data=survey)
         interaction_trace.surveys.append(survey)
         self.save_interaction_trace(interaction_trace=interaction_trace)

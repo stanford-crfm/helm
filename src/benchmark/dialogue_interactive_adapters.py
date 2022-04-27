@@ -12,11 +12,11 @@ class DialogueAdapter(InteractiveAdapter):
     def adapt_user_input_string(self, inp: str) -> str:
         """Adapts user input string by prepending user_name"""
         inp = inp.strip()
-        adapted_utterance = self.user_name + ": " + inp + "\n"
+        adapted_utterance = self.user_name + ": {" + inp + "}\n"
         return adapted_utterance
 
     def agent_prompt(self) -> str:
-        agent_prompt = self.agent_name + ": "
+        agent_prompt = self.agent_name + ": {"
         return agent_prompt
 
     def initial_lm_request(self, initial_request_state: RequestState) -> RequestState:
@@ -34,7 +34,7 @@ class DialogueAdapter(InteractiveAdapter):
         last_response = ""
         if last_request_state.result and len(last_request_state.result.completions) > 0:
             last_response = last_request_state.result.completions[0].text
-        new_prompt = last_prompt + last_response + adapted_user_input + self.agent_prompt()
+        new_prompt = last_prompt + last_response + "}" + adapted_user_input + self.agent_prompt()
         new_request = replace(last_request_state.request, prompt=new_prompt)
         new_request_state = replace(last_request_state, request=new_request)
         return new_request_state

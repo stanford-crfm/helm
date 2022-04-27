@@ -12,6 +12,9 @@ from common.authentication import Authentication  # noqa: E402
 from common.request import RequestResult  # noqa: E402
 from common.general import unpickle, parse_hocon  # noqa: E402
 
+import random
+from completion_codes import COMPLETION_CODES
+
 # flake8: noqa
 # An example of how to use the request API.
 
@@ -44,7 +47,7 @@ def get_runner(args: dict) -> InteractiveRunner:
     return InteractiveRunner(execution_spec, output_path, run_spec)
 
 
-def start_conversation(args: dict):
+def start_dialogue(args: dict):
     """
     Setup a conversation (interaction_trace) based on the provided id
     """
@@ -57,14 +60,28 @@ def start_conversation(args: dict):
     # If it is bot_initiated it also queries the LM and returns the result
     interaction_trace = runner.initialize_interaction_trace(user_id=user_id, interaction_trace_id=interaction_trace_id)
     prompt = interaction_trace.instance.input
-    bot_utterance = None
-    if interaction_trace.trace[-1].request_state.result:
-        bot_utterance = interaction_trace.trace[-1].request_state.result.completions[0].text.strip()
-    response = {"prompt": prompt, "bot_utterance": bot_utterance}
+    utterances = []
+    for round in interaction_trace.trace:
+        if round.user_input is not None:
+            utterances.append({"speaker": "user", "text": round.user_input.input})
+        if round.request_state.result is not None:
+            bot_utterance = round.request_state.result.completions[0].text.strip()
+            utterances.append({"speaker": "bot", "text": bot_utterance})
+    filled_surveys = [s for s in interaction_trace.surveys if s.user_id == user_id]
+    survey = None
+    if len(filled_surveys) > 0:
+        survey = filled_surveys[0].data
+
+    response = {
+        "prompt": prompt,
+        "utterances": utterances,
+        "isConversationOver": interaction_trace.trace_completed,
+        "survey": survey,
+    }
     return response
 
 
-def conversational_turn(args: dict) -> dict:
+def dialogue_turn(args: dict) -> dict:
     """
     Query LM with a user utterance. Dialogue context is obtained from the interaction_trace_id
     Returns:
@@ -87,11 +104,19 @@ def conversational_turn(args: dict) -> dict:
     return json_response  # Outputs
 
 
+def end_dialogue(args: dict) -> dict:
+    """ Set trace_completed to True """
+    interaction_trace_id = args["interaction_trace_id"]
+    runner = get_runner(args)
+    runner.terminate_interaction_trace(interaction_trace_id)
+    return {"success": True}  # Outputs
+
+
 def submit_interview(args: dict) -> dict:
     interaction_trace_id = args["interaction_trace_id"]
     user_id = args["user_id"]
-
+    code = random.choice(COMPLETION_CODES)
     runner = get_runner(args)
 
     runner.handle_survey(user_id=user_id, interaction_trace_id=interaction_trace_id, survey=args["questions"])
-    return {"success": True}  # Outputs
+    return {"success": True, "code": code}  # Outputs
