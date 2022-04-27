@@ -1,7 +1,7 @@
 import json
 import os
 import random
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 from common.general import ensure_file_downloaded
 from .scenario import (
@@ -87,22 +87,22 @@ class BBQScenario(Scenario):
         else:
             categories = [self.subject]
 
+        loaded_lines: List[Tuple[Dict, str]] = []
+        instances: List[Instance] = []
+
         for category in categories:
+            category_data_path: str = os.path.join(data_path, category)
+
             ensure_file_downloaded(
                 source_url=f"https://raw.githubusercontent.com/nyu-mll/BBQ/main/data/{category}.jsonl",
-                target_path=data_path,
+                target_path=category_data_path,
                 unpack=False,
             )
 
-        loaded_lines: List[Dict] = []
-        instances: List[Instance] = []
-        prompts_path: str = data_path
-
-        with open(prompts_path, "r") as f:
-            for line in f:
-
-                loaded_line = json.loads(line)
-                loaded_lines.append(loaded_line)
+            with open(category_data_path, "r") as f:
+                for line in f:
+                    loaded_line = json.loads(line)
+                    loaded_lines.append((loaded_line, category))
 
         random.seed(0)
         random.shuffle(loaded_lines)
@@ -118,7 +118,7 @@ class BBQScenario(Scenario):
         # trying to book a cab on Uber.", "question": "Who was not comfortable using the phone?", "ans0":
         # "The grandfather", "ans1": "The grandson", "ans2": "Can't be determined", "label": 2}
 
-        for (idx, loaded_line) in enumerate(loaded_lines):
+        for (idx, (loaded_line, category)) in enumerate(loaded_lines):
             is_negative: bool = (loaded_line["question_polarity"] == "neg")
             is_ambiguous: bool = (loaded_line["context_condition"] == "ambig")
             context: str = loaded_line["context"]
@@ -145,9 +145,9 @@ class BBQScenario(Scenario):
             label_letter = numbers_to_letters[label_num]
             answers = [ans0, ans1, ans2]
 
-            unknown_letter = None
-            target_letter = None
-            non_target_letter = None
+            unknown_letter = ""
+            target_letter = ""
+            non_target_letter = ""
 
             for i, ans in enumerate(answers):
                 answer_info_i = answer_info[f"ans{i}"]
@@ -163,8 +163,39 @@ class BBQScenario(Scenario):
                 if is_unknown:
                     continue
 
-                for stereotyped_group in stereotyped_groups:
-                    if stereotyped_group in answer_info_i:
+                for group in stereotyped_groups:
+                    # handle instances where individual answers'
+                    # target groups ("M-Black" or "low SES") don't match with
+                    # target groups listed in metadata ("Black")
+                    # (source: id 4928 of https://raw.githubusercontent.com/nyu-mll/BBQ/main/data/
+                    # Race_ethnicity.jsonl)
+                    #
+                    if (
+                        (group in answer_info_i)
+                        or (
+                            category == "Race_ethnicity"
+                            and group == "Black"
+                            and any("Black" in e for e in answer_info_i)
+                        )
+                        or (
+                            category == "Race_ethnicity"
+                            and group == "African American"
+                            and any("African American" in e for e in answer_info_i)
+                        )
+                        or (
+                            category == "Race_ethnicity"
+                            and group == "Latino"
+                            and any("Latino" in e for e in answer_info_i)
+                        )
+                        or (category == "SES" and group == "low SES" and any("lowSES" in e for e in answer_info_i))
+                        or (
+                            category == "Race_x_SES"
+                            and (any(f"lowSES-{group}" in e for e in answer_info_i))
+                            or (any(f"lowSES-M-{group}" in e for e in answer_info_i))
+                            or (any(f"lowSES-F-{group}" in e for e in answer_info_i))
+                        )
+                    ):
+                        # see Race_x_SES ID 2800
                         target_letter = numbers_to_letters[i]
                         is_target = True
 
@@ -191,7 +222,6 @@ class BBQScenario(Scenario):
                         unknown_letter,
                     ]
                 )
-
                 return Reference(output=answer, tags=tags)
 
             curr_split = TRAIN_SPLIT
@@ -203,6 +233,7 @@ class BBQScenario(Scenario):
                 references=list(map(answer_to_reference, answers)),
                 split=curr_split,
             )
+
             instances.append(instance)
 
         return instances
