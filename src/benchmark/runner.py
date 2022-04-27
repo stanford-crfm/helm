@@ -145,7 +145,6 @@ class Runner:
                 json.dumps(asdict(scenario_state), indent=2, cls=UUIDEncoder),
             )
             pickle(os.path.join(runs_path, "scenario_state.pkl"), scenario_state)
-            print(scenario_state)
             if scenario_state.interaction_traces:
                 with SqliteDict(
                     os.path.join(runs_path, "interaction_traces.sqlite"), tablename="interaction_traces", flag="n"
@@ -235,7 +234,6 @@ class InteractiveRunner:
         self.interactive_adapter: InteractiveAdapter = create_interactive_adapter(
             interactive_adapter_spec=self.run_spec.interactive_adapter
         )
-        print(self.interactive_adapter)
 
     def process(self, state: RequestState) -> RequestState:
         result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, state.request)

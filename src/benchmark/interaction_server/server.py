@@ -16,7 +16,7 @@ from flask import Flask, request
 sys.path = sys.path + ['../']
 
 from common.general import ensure_directory_exists
-from dialogue_interface import start_conversation, conversational_turn, submit_interview
+from .dialogue_interface import start_conversation, conversational_turn, submit_interview
 
 app = Flask(__name__)
 
@@ -49,10 +49,10 @@ def submit_dialogue():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=5001)
-    parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="interaction_env")
+    parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=80)
+    parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="src/benchmark/interaction_server/interaction_env")
     parser.add_argument(
-        "-o", "--output-path", help="What directory stores interactive scenarios", default="../../../benchmark_output"
+        "-o", "--output-path", help="What directory stores interactive scenarios", default="benchmark_output"
     )
     parser.add_argument(
         "-r", "--read-only", action="store_true", help="To start a read-only service (for testing and debugging)."
@@ -63,7 +63,7 @@ def main():
     file_globals["base_path"] = args.base_path
     
    # app.static_url_path = "../../proxy/static/dialogue/#"
-    app.run(host="127.0.0.1", port=args.port)
+    app.run(host="0.0.0.0", port=args.port)
 
 if __name__ == "__main__":
     main()
