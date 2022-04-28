@@ -94,6 +94,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
             "openai/text-curie-001",
             "ai21/j1-jumbo",
             # TODO: increase quota in AI21 account
+            #       https://github.com/stanford-crfm/benchmarking/issues/353
             # "ai21/j1-large",
         ],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
