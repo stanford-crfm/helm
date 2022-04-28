@@ -12,6 +12,9 @@ from common.authentication import Authentication  # noqa: E402
 from common.request import RequestResult  # noqa: E402
 from common.general import unpickle, parse_hocon  # noqa: E402
 
+import random
+from completion_codes import COMPLETION_CODES
+
 # flake8: noqa
 # An example of how to use the request API.
 
@@ -56,6 +59,11 @@ def start_dialogue(args: dict):
     # If it is bot_initiated it also queries the LM and returns the result
     interaction_trace = runner.initialize_interaction_trace(user_id=user_id, interaction_trace_id=interaction_trace_id)
     prompt = interaction_trace.instance.input
+    display_prompt = ""
+    if runner.run_spec.scenario.class_name == "benchmark.dialogue_scenarios.WizardOfWikipediaScenario":
+        display_prompt = "Your topic: "+prompt
+    else:
+        display_prompt = "Your scenario: "+prompt
     utterances = []
     for round in interaction_trace.trace:
         if round.user_input is not None:
@@ -70,8 +78,10 @@ def start_dialogue(args: dict):
 
     response = {
         "prompt": prompt,
+        "display_prompt": display_prompt,
         "utterances": utterances,
         "isConversationOver": interaction_trace.trace_completed,
+        "scenario": runner.run_spec.scenario.class_name,
         "survey": survey,
     }
     return response
@@ -105,14 +115,14 @@ def end_dialogue(args: dict) -> dict:
     interaction_trace_id = args["interaction_trace_id"]
     runner = get_runner(args)
     runner.terminate_interaction_trace(interaction_trace_id)
-    return {"success": True}  # Outputs
+    return {"success": True, "scenario": runner.run_spec.scenario}  # Outputs
 
 
 def submit_interview(args: dict) -> dict:
     interaction_trace_id = args["interaction_trace_id"]
     user_id = args["user_id"]
-
+    code = random.choice(COMPLETION_CODES)
     runner = get_runner(args)
 
     runner.handle_survey(user_id=user_id, interaction_trace_id=interaction_trace_id, survey=args["questions"])
-    return {"success": True}  # Outputs
+    return {"success": True, "code": code}  # Outputs

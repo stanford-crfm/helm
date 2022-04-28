@@ -20,7 +20,7 @@ const ChatBox = {
 					tag: "humanness-utterances",
 					text: "Which responses sounded human?",
 					type: "turn-binary",
-				},
+				} /*,
 				{
 					tag: "consistency-utterances",
 					text: "Which responses contradicted previous dialogue?",
@@ -179,7 +179,8 @@ const ChatBox = {
 				});
 			}
 		},
-		prepSurvey: function () {
+		prepSurvey: function (response) {
+			this.addDatasetQuestion(response);
 			this.initSurveyResponses();
 			this.isConversationOver = true;
 			this.currentQuestionIdx = 0;
@@ -195,7 +196,7 @@ const ChatBox = {
 				user_uuid: this.user_uuid,
 			})
 				.then(function (response) {
-					that.prepSurvey()
+					that.prepSurvey(response)
 					that.success = true;
 					that.error = false;
 					console.log("success");
@@ -224,6 +225,22 @@ const ChatBox = {
 				}
 			}
 		},
+		addDatasetQuestion: function(response){
+			dataset_questions = {
+				"benchmark.dialogue_scenarios.EmpatheticDialoguesScenario": 
+				"Which responses did you feel an emotional connection to?",
+				"benchmark.dialogue_scenarios.WizardOfWikipediaScenario": 
+				"Which responses were informative?",
+				"benchmark.dialogue_scenarios.CommonSenseScenario": 
+				"Which responses made you feel the chatbot understood social contexts and situations?"
+			};
+			question = {
+				tag: "dataset-specific",
+				text: dataset_questions[response.data.scenario],
+				type: "turn-binary",
+			};
+			this.questions.splice(-1, 0, question);
+		},
 		submitAnswers: function () {
 			var that = this;
 			if (this.validate() || this.optedout) {
@@ -237,11 +254,12 @@ const ChatBox = {
 					user_utterance: this.newUtterance,
 					utterances: this.utterances,
 					questions: this.questions,
-					optedout: this.optedout,
+					optedout: this.optedout, 
 				})
 					.then(function (response) {
 						that.success = true;
 						that.error = false;
+						that.code = response.data.code;
 						console.log("success");
 					})
 					.catch(function (error) {
@@ -314,12 +332,12 @@ axios.post("/api/dialogue/start", {
 })
 	.then(function (response) {
 		console.log(response.data);
-		vm.prompt = response.data.prompt;
+		vm.prompt = response.data.display_prompt;
 		for (let utt of response.data.utterances){
 			vm.pushUtterance(utt.speaker, utt.text);
 		}
 		if(response.data.isConversationOver){
-			vm.prepSurvey()
+			vm.prepSurvey(response)
 		}
 		if(response.data.survey){
 			console.log(response.data.survey);
