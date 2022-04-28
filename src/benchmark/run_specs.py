@@ -58,6 +58,7 @@ def get_bbq_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={})]
 
 
+# @Ryan - why is this needed; this is the same as the toxicity one?
 def get_bold_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
 
@@ -163,12 +164,13 @@ def get_bbq_spec(subject: str) -> RunSpec:
         instructions="The following are multiple choice questions (with answers).",
         input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
-        max_train_instances=2,
-        max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
+        max_train_instances=5,
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
         temperature=0,
+        stop_sequences=["\n"],
     )
 
     return RunSpec(name="bbq", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bbq_metrics())
@@ -218,11 +220,11 @@ def get_bold_spec(subject: str) -> RunSpec:
         input_prefix="",
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
-        num_outputs=25,
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+        num_outputs=1,  # TODO: Rishi - setting for 1 to monitor token use; @Ryan please follow-up on this
         model="openai/davinci",
-        temperature=1,
-        max_tokens=20,  # see Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
+        temperature=0.9,  # TODO: Setting based on conversation with John Hewitt; @Ryan please better justify
+        max_tokens=20,  # See Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
     )
     return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bold_metrics())
 
@@ -239,9 +241,10 @@ def get_civil_comments_spec(subject: str) -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
-        max_eval_instances=10,  # TODO: Find the number of samples to evaluate.
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
-        max_tokens=1,
+        temperature=0.0,
+        stop_sequences=["\n"],
     )
     return RunSpec(
         name="civil_comments",
@@ -469,7 +472,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         max_train_instances=0,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         model="openai/davinci",  # "...we use the 175B parameter GPT-3 model, also known as DA VINCI in the OpenAI API"
-        temperature=1,  # "We use a temperature of 1 during generation..."
+        temperature=0.9,  # "We use a temperature of 1 during generation..."
         # Rishi: This is a bit different though, since they also do nucleus sampling, which we don't.
         max_tokens=20,  # "We generate up to 20 tokens per example..."
         # We capped it at 16 since the AI21 API only allow up to 16 completions per request
@@ -1124,9 +1127,9 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         max_train_instances=3,  # TODO: @Mirac - Justify
-        max_eval_instances=1000,  # TODO: Ideally, this number should be at least 1000.
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         stop_sequences=["\n"],
-        max_tokens=5,
+        max_tokens=5,  # TODO: @Mirac - Justify
         num_outputs=1,
     )
 
@@ -1148,9 +1151,10 @@ def get_legal_support_spec() -> RunSpec:
         output_prefix="\nAnswer: ",
         model="openai/davinci",
         temperature=0.0,
-        max_train_instances=3,
-        max_eval_instances=None,
-        num_outputs=10,
+        max_train_instances=3,  # TODO: @Neel - Justify
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+        num_outputs=10,  # TODO: @Neel - Justify
+        stop_sequences=["\n"],
     )
 
     return RunSpec(
