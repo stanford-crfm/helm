@@ -323,7 +323,7 @@ class SRNScenario(Scenario):
         self.num_train_instances: int = 5
         self.num_val_instances: int = 50
         self.num_test_instances: int = 50
-        random.seed(random_seed)
+        self.random_seed = random_seed
 
     def generate_problem(self) -> Tuple[List[LanguageRule], LanguageFact, List[LanguageRule], LanguageFact]:
         subject_category = random.choice(list(self.subjects.keys()))
@@ -339,6 +339,7 @@ class SRNScenario(Scenario):
     def get_instances(self) -> List[Instance]:
         # Read all the instances
         instances: List[Instance] = []
+        random.seed(self.random_seed)
 
         for sample_idx in range(self.num_train_instances + self.num_val_instances + self.num_test_instances):
             rules, test_fact, test_rules_used, target_fact = self.generate_problem()

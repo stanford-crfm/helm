@@ -2,27 +2,11 @@ import csv
 import os
 import random
 from collections import defaultdict
-from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from common.general import ensure_file_downloaded, ensure_directory_exists
+from common.general import shell, ensure_file_downloaded, ensure_directory_exists
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
-
-
-@dataclass(frozen=True, eq=False)
-class MSMARCOInstance(Instance):
-    """Instance for the MSMARCO class.
-    """
-
-    # The query ID of the query included in the input.
-    qid: Optional[int] = None
-
-    # The passage ID of the passage included in the input.
-    pid: Optional[int] = None
-
-    # Whether the query and the passage included in the input are gold matches
-    gold: Optional[bool] = None
+from .scenario import Scenario, InformationRetrievalInstance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
 
 
 class MSMARCOScenario(Scenario):
@@ -166,59 +150,97 @@ class MSMARCOScenario(Scenario):
     description = "Microsoft Machine Reading Comprehension"
     tags = ["information_retrieval"]
 
-    """ Class variables """
-    # Names of the tasks we support
-    TASK_NAMES: List[str] = ["passage"]
+    # CLASS VARIABLES
+    """ Names of the tasks and tracks that we support """
+    PASSAGE_TASK = "passage"
+    REGULAR_TRACK = "regular"
+    TREC_TRACK = "trec"
+    TASK_NAMES: List[str] = [PASSAGE_TASK]
+    TRACK_NAMES: List[str] = [REGULAR_TRACK, TREC_TRACK]
 
-    # The filename of the top1000 file created with the BM25 algorithm
+    """ The filename of the top1000 file created with the BM25 algorithm """
     TOPK_DEV_FILE_NAME: str = "top1000_bm25.dev.tsv"
     TOPK_TRAIN_FILE_NAME: str = "top20_bm25.train.tsv"
 
-    # The base URL for the MSMARCO datasets
+    """ The base URL for the MSMARCO datasets """
     MSMARCO_URL: str = "https://msmarco.blob.core.windows.net/msmarcoranking"
 
-    # Codalab retrieval information
-    # Codalab URL format
+    """ Codalab URL format """
     CODALAB_URL: str = "https://worksheets.codalab.org/rest/bundles/{bundle}/contents/blob/"
 
-    # Codalab dev url
+    """" Codalab dev url """
     CODALAB_DEV_BUNDLE: str = "0x004852a9a16d4a99851b6151a1972d36"
     CODALAB_DEV_URL: str = CODALAB_URL.format(bundle=CODALAB_DEV_BUNDLE)
 
-    # Codalab train url
+    """ Codalab train url """
     CODALAB_TRAIN_BUNDLE: str = "0x499c07699f3f4881a787b6a5249f4466"
     CODALAB_TRAIN_URL: str = CODALAB_URL.format(bundle=CODALAB_TRAIN_BUNDLE)
 
-    # The maximum number of queries that we can run the scenario for.
-    #   Eval queries capped at 6980 since that is the size of the dev set we use.
-    #   Note that each eval query results in multiple instances.
-    #   Train queries capped at 808731 as that's the size of the train set.
-    MAX_NUM_EVAL_QUERIES = 6980
+    """ The maximum number of queries that we can run the scenario for.
+
+    Eval queries capped at 6980 since that is the size of the dev set we use.
+    Note that each eval query results in multiple instances. Train queries
+    capped at 808731 as that's the size of the train set.
+    """
+    MAX_NUM_EVAL_QUERIES = {
+        REGULAR_TRACK: 6980,
+        TREC_TRACK: 200,
+    }
     MAX_NUM_TRAIN_QUERIES = 808731
 
-    # Upper and lower bounds on topk, the number of top passages that we will
-    #   consider for a given query.
-    #   - Capped at 1000 because our pre-generated topk file (TOP1000_DEV_FILE_NAME)
-    #       only contains the top 1000 passage ids per dev query.
-    #   - Topk should at least be 11 as our default metric is MRR@10.
-    #       We have 1 gold instance for each query where we have the matching passage.
-    #       We must have 9 non-matching instances to ensure that there are 10 total instances.
-    #       There can be up to 2 gold queries in the top 11 passage list for a given query.
-    #       This means that we can get at least 9 non-matching instances from the top 11 list.
+    """ The max number of extra best gold evaluation instances we want to include.
+
+    The information retrieval metric used with this scenario provides bounds for the best case
+    by ensuring that all the gold instances are included in the rankings, in addition to scoring
+    the topk without this intervention.
+    """
+    MAX_NUM_EXTRA_GOLD_INSTANCES = {
+        REGULAR_TRACK: 2,
+        TREC_TRACK: 5,  # TODO look at the distribution
+    }
+
+    """ The relation values that we consider to be gold for a given track.
+
+    This is the value that is read from the qrels file for a given track. Depending on
+    the track, we interpret these values differently: For example, for the regular track,
+    qrel value of 1 means that the match is a gold match. For TREC, however, value of
+    1 means a match that's not great, and values of 2 and 3 denotes good matches.
+    """
+    GOLD_RELATIONS = {
+        REGULAR_TRACK: [1],
+        TREC_TRACK: [2, 3],  # TODO look at the values
+    }
+
+    """ Upper and lower bounds on topk, the number of top passages for a given query.
+
+    Capped at 1000 because our pre-generated topk file (TOP1000_DEV_FILE_NAME) only
+    contains the top 1000 passage ids per dev query.
+
+    Topk should at least be 11 as our default metric is MRR@10. We have 1 gold
+    instance for each query where we have the matching passage. We must have 9
+    non-matching instances to ensure that there are 10 total instances. There can be
+    up to 2 gold queries in the top 11 passage list for a given query. This means
+    that we can get at least 9 non-matching instances from the top 11 list.
+    """
     MAX_TOPK: int = 1000
     MIN_TOPK: int = 11
 
-    # The minumum rank we will accept for the no instances.
-    #   This is to ensure that when creating the no instances, we do not consider the
-    #   First several ranks in our train topk list, which may contain passages similar
-    #   to the gold passages.
+    """ The minumum rank we will accept for the no instances.
+
+    This is to ensure that when creating the no instances, we do not consider the
+    First several ranks in our train topk list, which may contain passages similar
+    to the gold passages.
+    """
+    TRAIN_MAX_NO_INSTANCE_RANK: int = 20
     TRAIN_MIN_NO_INSTANCE_RANK: int = 11
 
-    # Yes and no answer strings
+    """ Yes and no answer strings """
     YES_ANSWER = "Yes"
     NO_ANSWER = "No"
 
-    def __init__(self, task: str, topk: int = 30, num_eval_queries: int = 100, num_train_queries: int = 1000):
+    def __init__(
+        self, task: str, track: str, num_eval_queries: int = 100, topk: int = 30, num_train_queries: int = 1000
+    ):
         """MSMARCOScenario class constructor.
 
         Both outlined below, `topk` and `num_eval_queries` have a direct impact
@@ -241,20 +263,24 @@ class MSMARCOScenario(Scenario):
             task: Name of the task, should be one of self.TASK_NAMES. There are
                 several MSMARCO tasks, and we use the task parameter to specify
                 which task we would like performed. There is only one task that
-                is implemented for the time being: the Passage Retrieval task.
+                is implemented for the time being: the Passage Retrieval task,
+                which can be called by passing "passage" for the task value.
+            track: Name of the track. There is only one track implemented for
+                now, which is the "regular" track.
+            num_eval_queries: Number of evaluation queries that are used to
+                create eval instances. Must be smaller than or equal to
+                self.MAX_NUM_EVAL_QUERIES for the given track. The total
+                number of evaluation instances created is a function of this number:
+
+                    num_no_examples_per_query = topk - m, where m is the number of top gold instances
+                                                in topk.
+                    total_num_eval_instances = num_eval_queries * (1 + num_no_examples_per_query)
             topk: To find the best passage match for a given validation query,
                 instead of going through all the passages in the collection, we
                 only look at a select number of filtered passages, which is
                 determined by `topk`. Must be in the range
                 (self.MIN_TOPK, self.MAX_TOPK].
-            num_eval_queries: Number of evaluation queries that is used to
-                create eval instances. Must be smaller than or equal to
-                self.MAX_NUM_EVAL_QUERIES. The total number of evaluation
-                instances created is a function of this number:
-
-                    num_no_examples_per_query = topk, or topk - 1, or topk - 2
-                    total_num_eval_instances = num_eval_queries * (1 + num_no_examples_per_query)
-            num_train_queries: Number of train queries that is used to crete
+            num_train_queries: Number of train queries that are used to crete
                 the train instances. Must be smaller than or equal to
                 self.MAX_NUM_TRAIN_QUERIES. The total number of training instances
                 created is a function of this number:
@@ -262,20 +288,36 @@ class MSMARCOScenario(Scenario):
                     num_no_examples_per_query = 1
                     total_num_train_instances = num_train_queries * (1 + num_no_examples_per_query)
         """
+        # Random generator for our scenario
+        self.random: random.Random = random.Random(1885)
+
         # Task
         self.task: str = task
         assert self.task in self.TASK_NAMES
+
+        # Track
+        self.track: str = track
+        assert self.track in self.TRACK_NAMES
+
+        # The max number of extra best gold evaluation instances we want to include given the track.
+        self.max_num_extra_gold_instances = self.MAX_NUM_EXTRA_GOLD_INSTANCES[self.track]
+
+        # The relation values we consider to be gold, changes based on the track.
+        self.gold_relations = self.GOLD_RELATIONS[self.track]
+
+        # num_eval_queries
+        if num_eval_queries > self.MAX_NUM_EVAL_QUERIES[self.track]:
+            msg = f"""
+                Number of evaluation queries for the {self.track} track should not be bigger than
+                {self.MAX_NUM_EVAL_QUERIES[self.track]}.
+            """
+            raise ValueError(msg)
 
         # TopK
         if topk < self.MIN_TOPK or topk > self.MAX_TOPK:
             msg = f"Number of passages ranked should be between {self.MIN_TOPK} and {self.MAX_TOPK} (both inclusive)."
             raise ValueError(msg)
         self.topk = topk
-
-        # num_eval_queries
-        if num_eval_queries > self.MAX_NUM_EVAL_QUERIES:
-            msg = f"Number of evaluation queries should not be bigger than {self.MAX_NUM_EVAL_QUERIES}."
-            raise ValueError(msg)
 
         # num_train_queries
         if num_train_queries > self.MAX_NUM_TRAIN_QUERIES:
@@ -285,21 +327,32 @@ class MSMARCOScenario(Scenario):
         # Set num queries
         self.num_queries = {VALID_SPLIT: num_eval_queries, TRAIN_SPLIT: num_train_queries}
 
+        # List of ranks we will consider for the no instances.
+        #   By default, we consider all the ranks up to and including self.topk
+        # For the train set, we start the no instance ranks at self.TRAIN_MIN_NO_INSTANCE_RANK
+        #   to ensure we don't include passages that are good potentials for the gold matches.
+        self.no_ranks = {
+            VALID_SPLIT: list(range(1, self.topk + 1)),
+            TRAIN_SPLIT: list(
+                range(self.TRAIN_MIN_NO_INSTANCE_RANK, min(self.topk + 1, self.TRAIN_MAX_NO_INSTANCE_RANK))
+            ),
+        }
+
         # Initialize the data dictionaries that will be populated once the MSMARCO scenario is run
         self.collection_dict: Dict[int, str] = {}
         self.queries_dicts: Dict[str, Dict[int, str]] = {}
-        self.qrels_dicts: Dict[str, Dict[int, List[int]]] = {}
+        self.qrels_dicts: Dict[str, Dict[int, Dict[int, int]]] = {}
         self.topk_dicts: Dict[str, Dict[int, Dict[int, int]]] = {}
 
     def download_file(
         self, source_url: str, file_name: str, unpack: bool = False, unpack_type: Optional[str] = None
     ) -> str:
-        """Downloads a file.
+        """ Downloads a file.
 
         Writes the file in the given source_url a file with the name file_name
         in the /data directory in located in the self.output_path.
         """
-        data_path: str = os.path.join(self.output_path, "data")
+        data_path = os.path.join(self.output_path, "data")
         ensure_directory_exists(data_path)
         file_path: str = os.path.join(data_path, file_name)
         ensure_file_downloaded(source_url=source_url, target_path=file_path, unpack=unpack, unpack_type=unpack_type)
@@ -307,9 +360,9 @@ class MSMARCOScenario(Scenario):
 
     @staticmethod
     def create_id_item_dictionary(file_path: str) -> Dict[int, str]:
-        """Reads .tsv files in the following format into Python dictionaries:
+        """ Reads .tsv files in the following format into Python dictionaries:
 
-            <id>\t<text>
+            <id>    <text>
 
         For example, if the file contents look like:
 
@@ -334,44 +387,60 @@ class MSMARCOScenario(Scenario):
         return id_to_item_dict
 
     @staticmethod
-    def create_qrels_dictionary(file_path: str) -> Dict[int, List[int]]:
-        """Reads .tsv files in the following format into a Python dictionary:
+    def create_qrels_dictionary(file_path: str, delimiter="\t") -> Dict[int, Dict[int, int]]:
+        """ Reads .tsv files in the following format into a Python dictionary:
 
-            <qid>\t0\t<pid>\t1
+            <qid>   0   <pid>   1
+            <qid>   0   <pid>   2
+            <qid>   0   <pid>   0
 
-        The <qid> and <pid> co-occuring in a line means that the pid is the id
-        of a gold passage for the query with the id qid. Note that some qids
-        have 2 pids matched to them as the gold pids, which is why we are
-        returning a dictionary mapping a qid to a list of pids (instead of just
-        a pid).
+        The last number in each row indicates the relationship of the query with
+        the ID qid and passage with the ID pid. O indicates that the passage
+        is not relevant for the query. A number >= 1 indicates that the passage
+        is relevant, where higher numbers indicates higher relevance.
+
+        The qrels files shared with common MSMARCO tasks are not exhaustive.
+        For example, all the relevance values in the main MSMARCO passage
+        retrieval qrel file are 1: The file only contains the matching qids
+        with no indication of how good each match is. The qrel file for the
+        TREC passage retrieval task would have relevance values that are 0,
+        but only for a few pids for a given qid. It is also possible for a qid
+        to have multiple pid matches with the same relevance score.
 
         For example, if the file contents look like:
 
             11111111   0    12837901     1
-            11111111   0    82374921     1
+            11111111   0    82374921     2
+            11111111   0    23028102     1
             22222222   0    28192830     1
             ...
 
 
         The dictionary returned would be as follows:
             {
-                11111111: [12837901, 82374921],
-                22222222: [28192830]
+                11111111: {
+                    12837901: 1,
+                    82374921: 2,
+                    23028102: 1,
+                },
+                22222222: {
+                    28192830: 1
+                },
             }
 
         Returns:
-            qrels_dict: Dictionary mapping a qid to a list containing the gold
-                pids.
+            qrels_dict: Dictionary mapping a qid to a dictionary mapping a
+                pid to relevance.
         """
-        dictionary = defaultdict(list)
+        dictionary: Dict[int, Dict[int, int]] = defaultdict(dict)
         with open(file_path, encoding="utf-8") as f:
-            for qid, a, pid, b in csv.reader(f, delimiter="\t"):
-                dictionary[int(qid)].append(int(pid))
+            for qid, _, pid, qrel in csv.reader(f, delimiter=delimiter):
+                dictionary[int(qid)][int(pid)] = int(qrel)
         return dictionary
 
     @staticmethod
     def create_topk_dictionary(file_path: str) -> Dict[int, Dict[int, int]]:
-        """Reads .tsv files in the following format into a Python dictionary:
+        """ Reads .tsv files in the following format into a Python dictionary:
 
             <qid>\t<pid>\t<rank>
 
@@ -416,8 +485,12 @@ class MSMARCOScenario(Scenario):
                 topk_dict[int(qid)][int(rank)] = int(pid)
         return topk_dict
 
-    def prepare_passage_dictionaries(self):
-        """Downloads the Passage Retrieval datasets and reads them into dictionaries.
+    def prepare_passage_dictionaries(self, track: str):
+        """ Downloads the Passage Retrieval datasets and reads them into dictionaries.
+
+        Args:
+            track: The track we are going to be using, which affects the query and qrels
+                   files we use.
 
         Sets the following:
             self.collection_dict: Mapping pid to passage.
@@ -438,31 +511,50 @@ class MSMARCOScenario(Scenario):
                     TRAIN_SPLIT: train_qrels_dict
                 }
         """
-        hlog("Downloading MSMARCO Passage Retrieval datasets.")
 
         # Get datasets
-        dir_path = self.download_file(
+        hlog("Downloading MSMARCO collection and queries.")
+        cq_path = self.download_file(
             f"{self.MSMARCO_URL}/collectionandqueries.tar.gz", "collectionandqueries", unpack=True, unpack_type="untar"
         )
-        hlog("Download was successful. Reading the data into dictionaries.")
 
         # Collection
-        self.collection_dict = self.create_id_item_dictionary(os.path.join(dir_path, "collection.tsv"))
+        self.collection_dict = self.create_id_item_dictionary(os.path.join(cq_path, "collection.tsv"))
 
-        # Queries
+        # Queries and Qrels
+        if self.track == self.REGULAR_TRACK:
+            valid_queries_dict = self.create_id_item_dictionary(os.path.join(cq_path, "queries.dev.small.tsv"))
+            valid_qrels_dict = self.create_qrels_dictionary(os.path.join(cq_path, "qrels.dev.small.tsv"))
+        elif self.track == self.TREC_TRACK:
+            # Get queries
+            tsv_file_name = "msmarco-test2019-queries.tsv"
+            q_path = self.download_file(f"{self.MSMARCO_URL}/{tsv_file_name}.gz", f"{tsv_file_name}.gz")
+            shell(["gzip", "-d", q_path])
+            valid_queries_dict = self.create_id_item_dictionary(os.path.join(self.output_path, "data", tsv_file_name))
+            # Get qrels
+            qrel_path = self.download_file("https://trec.nist.gov/data/deep/2019qrels-pass.txt", "2019qrels-pass.txt")
+            valid_qrels_dict = self.create_qrels_dictionary(qrel_path, delimiter=" ")
+        else:
+            msg = f"Track name {self.track} is not a valid track in {self.TRACK_NAMES}."
+            raise ValueError(msg)
+
         self.queries_dicts = {
-            TRAIN_SPLIT: self.create_id_item_dictionary(os.path.join(dir_path, "queries.train.tsv")),
-            VALID_SPLIT: self.create_id_item_dictionary(os.path.join(dir_path, "queries.dev.small.tsv")),
+            TRAIN_SPLIT: self.create_id_item_dictionary(os.path.join(cq_path, "queries.train.tsv")),
+            VALID_SPLIT: valid_queries_dict,
         }
 
         # Query relations
         self.qrels_dicts = {
-            TRAIN_SPLIT: self.create_qrels_dictionary(os.path.join(dir_path, "qrels.train.tsv")),
-            VALID_SPLIT: self.create_qrels_dictionary(os.path.join(dir_path, "qrels.dev.small.tsv")),
+            TRAIN_SPLIT: self.create_qrels_dictionary(os.path.join(cq_path, "qrels.train.tsv")),
+            VALID_SPLIT: valid_qrels_dict,
         }
 
     def prepare_topk_dictionaries(self):
-        """Downloads the topk files and reads them into dictionaries.
+        """ Downloads the topk files and reads them into dictionaries.
+
+        Args:
+            track: The track we are going to be using, which affects the query and qrels
+                   files we use.
 
         Sets the following field:
             self.topk_dicts: Dictionary containing topk dictionaries mapping a
@@ -481,28 +573,32 @@ class MSMARCOScenario(Scenario):
         topk_dev_fp = self.download_file(self.CODALAB_DEV_URL, self.TOPK_DEV_FILE_NAME)
         topk_train_fp = self.download_file(self.CODALAB_TRAIN_URL, self.TOPK_TRAIN_FILE_NAME)
         self.topk_dicts = {
-            VALID_SPLIT: self.create_topk_dictionary(topk_dev_fp),
             TRAIN_SPLIT: self.create_topk_dictionary(topk_train_fp),
+            VALID_SPLIT: self.create_topk_dictionary(topk_dev_fp),
         }
 
     @staticmethod
     def make_context(passage: str, query: str) -> str:
-        """Makes the context text given a passage and a query.
-        """
+        """ Makes the context text given a passage and a query. """
         # Remove a question mark at the end of the query, if there is any
         if query[-1] == "?":
             query = query[:-1]
         question_statement = f"Does the passage above answer the question {query}?"
         return f"{passage}\nQuestion: {question_statement}"
 
-    def get_instance(self, qid: int, pid: int, split: str, gold: bool = False,) -> Instance:
-        """Creates an instance.
+    def get_instance(
+        self, qid: int, pid: int, split: str, qrel: Optional[int] = None, rank: Optional[int] = None
+    ) -> InformationRetrievalInstance:
+        """ Creates an instance.
 
         Args:
             qid: Query id.
             pid: Passage id.
             split: TRAIN_SPLIT or VALID_SPLIT.
-            gold: Whether the instance to be created contains the gold pid.
+            qrel: Relevance of the passage for the query. None if the relevance
+                is unknown. 0 indicates no relation. The higher the number,
+                higher the relevance.
+            rank: Rank of passage for the query.
 
         Returns:
             instance: Created instances.
@@ -510,18 +606,21 @@ class MSMARCOScenario(Scenario):
         query = self.queries_dicts[split][qid]
         passage = self.collection_dict[pid]
         context = self.make_context(passage, query)
+        is_relevant = qrel in self.gold_relations
         references = [
-            Reference(output=self.YES_ANSWER, tags=[CORRECT_TAG] if gold else []),
-            Reference(output=self.NO_ANSWER, tags=[] if gold else [CORRECT_TAG]),
+            Reference(output=self.YES_ANSWER, tags=[CORRECT_TAG] if is_relevant else []),
+            Reference(output=self.NO_ANSWER, tags=[] if is_relevant else [CORRECT_TAG]),
         ]
-        instance = MSMARCOInstance(input=context, references=references, split=split, qid=qid, pid=pid, gold=gold)
+        instance = InformationRetrievalInstance(
+            input=context, references=references, split=split, qid=qid, oid=pid, qrel=qrel, rank=rank
+        )
         return instance
 
-    def get_passage_split_instances(self, split) -> List[Instance]:
-        """Creates instances for the specified split.
+    def get_passage_split_instances(self, split) -> List[InformationRetrievalInstance]:
+        """ Creates instances for the specified split.
 
         For the number of queries specified for each split, we loop through the
-            query list. For each query:
+        query list. For each query:
             - We create a "yes" instance, where the included passage is the gold
                 passage for the given query.
             - We then create a set of "no" instances by going through the topk
@@ -541,50 +640,68 @@ class MSMARCOScenario(Scenario):
         Returns:
             instances: List of instances created.
         """
-        # Sample num_queries queries, specified in the constructor
+        # Helper function for getting the top gold pids.
+        def get_gold_pids_sorted(rel_dict):
+            gold_pairs = [(pid, rel) for pid, rel in rel_dict.items() if rel in self.gold_relations]
+            self.random.shuffle(gold_pairs)
+            gold_pids_sorted = [pair[0] for pair in sorted(gold_pairs, key=lambda p: p[1], reverse=True)]
+            return gold_pids_sorted
+
+        # Sample num_queries queries, specified in the constructor. We first shuffle then select our queries to
+        #   ensure that we make use of the server side caching as the num_queries parameter is increased.
         qrels_keys = list(self.qrels_dicts[split].keys())
-        qrels_keys = random.sample(qrels_keys, self.num_queries[split])
+        self.random.shuffle(qrels_keys)
+        qrels_keys = qrels_keys[: self.num_queries[split]]
         qrels_dict = {k: self.qrels_dicts[split][k] for k in qrels_keys}
 
-        # List of ranks we will consider for the no instances.
-        #   By default, we consider all the ranks up to and including self.topk
-        # For the train set, we start the no instance ranks at self.TRAIN_MIN_NO_INSTANCE_RANK
-        #   to ensure we don't include passages that are good potentials for the gold matches.
-        no_instance_ranks = list(range(1, self.topk + 1))
-        if split == TRAIN_SPLIT:
-            no_instance_ranks = list(range(self.TRAIN_MIN_NO_INSTANCE_RANK, self.topk + 1))
-
         instances = []
-        for qid, gold_pids in qrels_dict.items():
+        for qid, rel_dict in qrels_dict.items():
 
-            # Generate the yes instance
-            gold_pid = random.choice(gold_pids)
-            yes_instance = self.get_instance(qid, gold_pid, split, gold=True)
+            # Get the data structures we will use.
+            rank_to_pid = self.topk_dicts[split][qid]
+            pid_to_rank = {p: r for r, p in rank_to_pid.items()}
 
-            # Generate the no instances
-            rank_dict = self.topk_dicts[split][qid]
-            pids = [rank_dict[rank] for rank in no_instance_ranks if rank_dict[rank] not in gold_pids]
-            no_instances = [self.get_instance(qid, pid, split) for pid in pids]
+            # Create pid lists.
+            gold_pids_sorted = get_gold_pids_sorted(rel_dict)
+            yes_pids_topk, no_pids_topk = [], []
+            for r in self.no_ranks[split]:
+                if r not in rank_to_pid:
+                    hlog(f"{split}: For qid {qid}, pid with rank {r} is not known.")
+                elif rank_to_pid[r] in gold_pids_sorted:
+                    yes_pids_topk.append(rank_to_pid[r])
+                else:
+                    no_pids_topk.append(rank_to_pid[r])
 
-            # Limit the no_instances to 1 for the train split to ensure that we have a balanced train set.
-            # Otherwise, there will be many more no instances in the train split than the yes instances.
-            if split == TRAIN_SPLIT and no_instances:
-                no_instances = random.sample(no_instances, 1)
+            # Create instances for splits.
+            split_pids = set()
+            # For TRAIN split, we pick the best gold pid as well as 1 random no pid.
+            if split == TRAIN_SPLIT:
+                if gold_pids_sorted:
+                    split_pids.add(gold_pids_sorted[0])
+                if no_pids_topk:
+                    split_pids.add(self.random.choice(no_pids_topk))
+            elif split == VALID_SPLIT:
+                # For VALID split, we use all the pids after capping the number of gold pids included so that
+                #   we only have the best top gold pids.
+                if len(gold_pids_sorted) > self.max_num_extra_gold_instances:
+                    gold_pids_sorted = gold_pids_sorted[: self.max_num_extra_gold_instances]
+                split_pids.update(gold_pids_sorted + yes_pids_topk + no_pids_topk)
 
-            # Extend the instances
-            instances += [yes_instance] + no_instances
+            # Once we have the pid values, we can create the instances
+            pids = list(split_pids)
+            self.random.shuffle(pids)
+            for pid in split_pids:
+                rank = pid_to_rank[pid] if pid in pid_to_rank else None
+                rel = rel_dict[pid] if pid in rel_dict else None
+                instances.append(self.get_instance(qid, pid, split, rel, rank))
 
         return instances
 
-    def get_passage_instances(self) -> List[Instance]:
-        """Gets instances for the passage task.
-        """
+    def get_passage_instances(self, track: str = "regular") -> List[InformationRetrievalInstance]:
+        """ Gets instances for the passage task. """
         # Get dataset and topk dictionaries
-        self.prepare_passage_dictionaries()
+        self.prepare_passage_dictionaries(track)
         self.prepare_topk_dictionaries()
-
-        # Set random seed
-        random.seed(1885)
 
         # Create instances
         valid_instances = self.get_passage_split_instances(VALID_SPLIT)
@@ -593,8 +710,8 @@ class MSMARCOScenario(Scenario):
 
         return instances
 
-    def get_instances(self) -> List[Instance]:
-        """Gets instances for the MSMARCO class.
+    def get_instances(self) -> List[InformationRetrievalInstance]:
+        """ Gets instances for the MSMARCO class.
 
         Supported tasks and the corresponding method called to get instances:
             "passage": self.get_passage_instances()
@@ -602,6 +719,6 @@ class MSMARCOScenario(Scenario):
         Refer to the documentation of the methods above for details on how the
         instances are created.
         """
-        if self.task in self.TASK_NAMES:
-            return self.get_passage_instances()
+        if self.task == "passage":
+            return self.get_passage_instances(self.track)
         raise ValueError(f"Task must be one of {', '.join(self.TASK_NAMES)}")

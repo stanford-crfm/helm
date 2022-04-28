@@ -1,7 +1,8 @@
 import json
 import os
+from collections import defaultdict
 from dataclasses import dataclass, asdict
-from typing import List
+from typing import Dict, List, Tuple
 
 
 from common.general import ensure_directory_exists, write, write_lines
@@ -13,7 +14,7 @@ from .scenario import Scenario, ScenarioSpec, create_scenario, Instance
 from .adapter import AdapterSpec, Adapter, ScenarioState
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
-from .metric import Metric, MetricSpec, create_metric, Stat
+from .metric import Metric, MetricSpec, MetricResult, create_metric, Stat
 from .tokens_metric import TokensMetric
 
 
@@ -95,10 +96,14 @@ class Runner:
             TokensMetric()
         ]
         stats: List[Stat] = []
+        per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = defaultdict(list)
         with htrack_block(f"{len(metrics)} metrics"):
             for metric in metrics:
                 with htrack_block(metric):
-                    stats.extend(metric.evaluate(scenario_state, self.metric_service))
+                    metric_result: MetricResult = metric.evaluate(scenario_state, self.metric_service)
+                    stats.extend(metric_result.aggregated_stats)
+                    for key in metric_result.per_instance_stats:
+                        per_instance_stats[key].extend(metric_result.per_instance_stats[key])
 
         # Print out stats
         with htrack_block("Stats"):
@@ -118,3 +123,9 @@ class Runner:
 
         write_lines(os.path.join(runs_path, "metrics.txt"), [str(stat) for stat in stats])
         write(os.path.join(runs_path, "metrics.json"), json.dumps([asdict(stat) for stat in stats], indent=2))
+        write(
+            os.path.join(runs_path, "per_instance_metrics.json"),
+            json.dumps(
+                {str(key): [asdict(stat) for stat in value] for (key, value) in per_instance_stats.items()}, indent=2
+            ),
+        )

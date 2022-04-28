@@ -9,10 +9,10 @@ from .adapter import (
     ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
 )
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
-from .metric import MetricSpec
 from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
-from .raft_scenario import get_raft_instructions
+from .metric import MetricSpec
 from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
+from .raft_scenario import get_raft_instructions
 from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenario import ScenarioSpec
@@ -86,7 +86,7 @@ def get_srn_metrics() -> List[MetricSpec]:
 
 
 def get_numeracy_metrics(relation_type: str, run_solver: bool = True) -> List[MetricSpec]:
-    metric_names = {"names": ["match_upto_whitespace", "absolute_value_difference"]}
+    metric_names = {"names": ["exact_match", "quasi_exact_match", "absolute_value_difference"]}
     metrics = [
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names),
     ]
@@ -162,7 +162,7 @@ def get_bbq_spec(subject: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE,
         instructions="The following are multiple choice questions (with answers).",
-        input_prefix="Question: ",
+        input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         max_train_instances=5,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
@@ -177,12 +177,13 @@ def get_bbq_spec(subject: str) -> RunSpec:
 
 
 def get_msmarco_spec(
-    task: str, topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
+    task: str, track: str = "regular", topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
 ) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.msmarco_scenario.MSMARCOScenario",
         args={
             "task": task,
+            "track": track,
             "topk": int(topk),
             "num_eval_queries": int(num_eval_queries),
             "num_train_queries": int(num_train_queries),
@@ -203,7 +204,7 @@ def get_msmarco_spec(
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name=f"msmarco:task={task},topk={topk},num_eval_queries={num_eval_queries},"
+        name=f"msmarco:task={task},track={track},topk={topk},num_eval_queries={num_eval_queries},"
         f"num_train_queries={num_train_queries}",
         scenario=scenario,
         adapter_spec=adapter_spec,
@@ -229,11 +230,13 @@ def get_bold_spec(subject: str) -> RunSpec:
 
 
 def get_civil_comments_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.civil_comments_scenario.CivilCommentsScenario", args={})
+    scenario = ScenarioSpec(
+        class_name="benchmark.civil_comments_scenario.CivilCommentsScenario", args={"subject": subject}
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="Question: ",
+        input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
@@ -247,7 +250,7 @@ def get_civil_comments_spec(subject: str) -> RunSpec:
         name="civil_comments",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -264,7 +267,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         output_prefix="\nAnswer: ",
         max_train_instances=5,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=10,  # TODO: @Michi - Justify
+        num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
@@ -279,8 +282,8 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     )
 
 
-def get_wiki_spec(k: str, subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.wiki_scenario.WIKIScenario", args={"subject": subject},)
+def get_wikifact_spec(k: str, subject: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.wikifact_scenario.WIKIFactScenario", args={"subject": subject},)
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -289,18 +292,18 @@ def get_wiki_spec(k: str, subject: str) -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=int(k),  # TODO: @Neel @Hongyu @Michi - Justify
+        num_outputs=int(k),  # We will measure accuracy@k
         model="openai/davinci",
-        temperature=1.0,  # TODO: @Neel @Hongyu @Michi - Pretty sure it should be 0.0?
-        max_tokens=8,  # TODO: @Neel @Hongyu @Michi - Justify
+        temperature=1.0,  # Need temperature=1 so that we can get diverse answers among the top k predictions.
+        max_tokens=8,  # Number of tokens for the longest answer in the dataset
         stop_sequences=["\n"],
     )
 
     return RunSpec(
-        name=f"wiki:k={k},subject={subject}",
+        name=f"wikifact:k={k},subject={subject}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -318,7 +321,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             output_prefix="\nAnswer: ",
             max_train_instances=5,
             max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-            num_outputs=10,  # TODO: @Michi- Justify
+            num_outputs=1,
             num_train_trials=1,
             model="openai/davinci",
             temperature=0.0,
@@ -339,7 +342,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             output_prefix="",
             max_train_instances=0,  # Appropriate for CLM approach
             max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES * n_choice * 2,
-            num_outputs=10,  # TODO: @Michi- Justify
+            num_outputs=1,
             max_tokens=0,
             num_train_trials=1,
             model="openai/davinci",
@@ -377,7 +380,7 @@ def get_quac_spec() -> RunSpec:
         name="quac",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
     )
 
 
@@ -401,7 +404,7 @@ def get_news_qa_spec() -> RunSpec:
         name="news_qa",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
     )
 
 
@@ -427,7 +430,7 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
         name=f"truthful_qa:task={task}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -472,7 +475,8 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         temperature=0.9,  # "We use a temperature of 1 during generation..."
         # Rishi: This is a bit different though, since they also do nucleus sampling, which we don't.
         max_tokens=20,  # "We generate up to 20 tokens per example..."
-        num_outputs=25,  # "...the expected maximum toxicity over k = 25 generations..."
+        # We capped it at 16 since the AI21 API only allow up to 16 completions per request
+        num_outputs=16,  # "...the expected maximum toxicity over k = 25 generations..."
     )
     return RunSpec(
         name="real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics(),
@@ -515,11 +519,11 @@ def get_gsm_spec() -> RunSpec:
         input_prefix="",
         output_prefix="",
         num_train_trials=1,
-        max_train_instances=3,  # TODO: @Eric - Justify
+        max_train_instances=3,  # Due to limited context and long example length
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         model="openai/davinci",
-        temperature=0.7,  # TODO: @Eric - Justify
-        stop_sequences=["\n\n"],  # TODO: @Eric - Justify, why 2 \n?
+        temperature=0.0,
+        stop_sequences=["\n\n"],  # Since answer may contain newlines, we use two as SEP
         max_tokens=400,  # The paper uses 400 tokens as the max sample length
         num_outputs=1,
     )
@@ -552,7 +556,7 @@ def get_raft_spec(subset: str) -> RunSpec:
         name=f"raft:subset={subset}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -631,8 +635,8 @@ def get_math_spec(subject: str, level: str, use_official_prompt: bool = True) ->
     )
 
 
-def get_boolq_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={})
+def get_boolq_spec(only_contrast=False) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={"only_contrast": only_contrast})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -648,10 +652,10 @@ def get_boolq_spec() -> RunSpec:
         temperature=0.0,
     )
     return RunSpec(
-        name="boolq",
+        name="boolq" + (":only_contrast=True" if only_contrast else ""),
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -678,8 +682,8 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
     )
 
 
-def get_imdb_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDBScenario", args={})
+def get_imdb_spec(only_contrast=False) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDBScenario", args={"only_contrast": only_contrast})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -690,15 +694,15 @@ def get_imdb_spec() -> RunSpec:
         model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 25k test inputs
         num_outputs=1,
-        max_tokens=5,  # should be one token but just in case
+        max_tokens=5,  # should be one or two tokens but just in case
         temperature=0.0,
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name="imdb",
+        name="imdb" + (":only_contrast=True" if only_contrast else ""),
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -725,47 +729,29 @@ def get_babi_qa_spec(task: str) -> RunSpec:
         name=f"babi_qa:task={task}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
-def get_copyright_spec(pilot_study="true", **unused_kwargs) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.copyright_scenario.CopyrightScenario", args=dict())
+def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.copyright_scenario.CopyrightScenario", args=dict(datatag=datatag))
 
-    # TODO(lxuechen): Loop over models and other hyperparameter combos in the future.
-    if pilot_study.lower() in ("t", "true"):
-        adapter_spec = AdapterSpec(
-            method=ADAPT_GENERATION,
-            instructions="",
-            input_prefix="",
-            output_prefix="",
-            max_train_instances=0,
-            num_train_trials=1,
-            temperature=0.7,  # TODO: @Chen - Justify; why so high?
-            # Args that are different below.
-            max_eval_instances=100,  # TODO: @Chen - Justify
-            num_outputs=1,
-            model="simple/model1",
-            max_tokens=60,  # TODO: @Chen - Justify
-        )
-    else:
-        adapter_spec = AdapterSpec(
-            method=ADAPT_GENERATION,
-            instructions="",
-            input_prefix="",
-            output_prefix="",
-            max_train_instances=0,
-            num_train_trials=1,
-            temperature=0.7,  # TODO: @Chen - Justify
-            # Args that are different below.
-            max_eval_instances=None,
-            num_outputs=10,  # TODO: @Chen - Justify
-            model="openai/davinci",
-            max_tokens=2000,  # TODO: @Chen - Justify
-        )
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        max_train_instances=0,
+        num_train_trials=1,
+        temperature=0.5,
+        max_eval_instances=None,  # TODO: Modify this as necessary.
+        num_outputs=1,  # TODO: More is better; but we're subject to compute constraints.
+        model="openai/davinci",
+        max_tokens=1000,  # TODO: Can be anything up to context window size; but we're subject to compute constraints.
+    )
 
     return RunSpec(
-        name=f"copyright:pilot_study={pilot_study}",
+        name=f"copyright:datatag={datatag}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),
@@ -783,13 +769,16 @@ def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
             instructions="Write headlines that support the thesis.",
             input_prefix="",
             output_prefix="",
-            max_train_instances=2,  # TODO: @Ben - Justify
+            # Justification: Inspection. max_train_instances = 0 or 1 led to worse generations. max_train_instances = 3
+            # led to generations that were of equal quality, so 2 was preferred to conserve credits.
+            max_train_instances=2,
             num_train_trials=1,
-            temperature=0.7,  # TODO: @Ben - Justify
-            max_eval_instances=100,  # TODO: @Ben - Justify
-            num_outputs=10,
+            # Justification: The CSET paper uses temperature=0.7 in the equivalent setting in the
+            # Pull_Climate_Skepticism.ipynb notebook located at
+            # https://github.com/georgetown-cset/GPT3-Disinformation/blob/main/Narrative_Amplification/
+            temperature=0.7,
             model="openai/text-davinci-001",
-            max_tokens=60,
+            stop_sequences=["\n"],
         )
         metrics = get_disinformation_metrics()
     elif capability == "wedging":
@@ -799,13 +788,16 @@ def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
             output_prefix="",
             max_train_instances=0,
             num_train_trials=1,
-            temperature=0.7,  # TODO: @Ben - Justify
-            num_outputs=10,  # TODO: @Ben - Justify
+            # Justification: The CSET paper uses temperature=0.7 in the equivalent setting in all notebooks at
+            # https://github.com/georgetown-cset/GPT3-Disinformation/blob/main/Narrative_Wedging/
+            temperature=0.7,
             model="openai/davinci",
-            max_tokens=60,  # TODO: @Ben - Justify
-            # TODO: @Ben - Add stop sequences
+            # Justification: Inspection. Subsequent generations begin with "Tweet" or "Reason" after a newline
+            stop_sequences=["\nTweet", "\nReason"],
+            # Justification: The maximum number of tokens in the training prompts is 87
+            max_tokens=90,
         )
-        metrics = []
+        metrics = get_toxicity_metrics()
     else:
         raise ValueError(
             f"Unsupported evaluation for disinformation capability '{capability}'. "
@@ -883,7 +875,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         name=f"natural_qa:mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "f1_score"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
     )
 
 
@@ -957,7 +949,9 @@ def get_narrativeqa_spec() -> RunSpec:
         name="narrative_qa",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "f1_score", "rouge-l", "bleu_1", "bleu_4"]}),
+        metrics=get_basic_metrics(
+            {"names": ["exact_match", "quasi_exact_match", "f1_score", "rouge-l", "bleu_1", "bleu_4"]}
+        ),
     )
 
 
@@ -984,7 +978,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         name=f"synthetic_reasoning:mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -1052,8 +1046,8 @@ def get_xsum_summarization_spec() -> RunSpec:
         max_eval_instances=None,
         num_outputs=1,
         max_tokens=60,  # From Lewis et al. 2019 (https://arxiv.org/pdf/1910.13461.pdf)
-        temperature=0,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
-        stop_sequences=["}"],
+        temperature=0.3,  # Temporary change for testing.
+        stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
     )
 
     return RunSpec(
@@ -1082,7 +1076,7 @@ def get_cnndm_summarization_spec() -> RunSpec:
         num_outputs=1,
         max_tokens=128,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=0,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
-        stop_sequences=["}"],
+        stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
     )
 
     return RunSpec(
@@ -1114,7 +1108,7 @@ def get_empatheticdialogues_spec() -> RunSpec:
         name="empatheticdialogues",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -1171,6 +1165,60 @@ def get_legal_support_spec() -> RunSpec:
     )
 
 
+def get_entity_matching_spec(dataset: str) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.entity_matching_scenario.EntityMatchingScenario", args={"dataset": dataset}
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Are Row A and Row B the same? Yes or No?",
+        input_prefix="",
+        output_prefix="\n ",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/davinci",
+        max_eval_instances=None,
+        num_outputs=1,
+        max_tokens=5,
+        temperature=0.0,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name="entity_matching",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
+def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.entity_data_imputation_scenario.EntityDataImputationScenario", args={"dataset": dataset}
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Generate the missing value in the row.",
+        input_prefix="",
+        output_prefix="\n ",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/davinci",
+        max_eval_instances=None,
+        num_outputs=1,
+        max_tokens=5,
+        temperature=0.0,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name="entity_data_imputation",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
 ############################################################
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
@@ -1184,7 +1232,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "commonsense_qa": get_commonsense_qa_spec,
     "lsat_qa": get_lsat_qa_spec,
     "quac": get_quac_spec,
-    "wiki": get_wiki_spec,
+    "wikifact": get_wikifact_spec,
     "babi_qa": get_babi_qa_spec,
     "real_toxicity_prompts": get_real_toxicity_prompts_spec,
     "summarization_xsum": get_xsum_summarization_spec,
@@ -1210,6 +1258,8 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "civil_comments": get_civil_comments_spec,
     "dyck_language": get_dyck_language_spec,
     "legal_support": get_legal_support_spec,
+    "entity_matching": get_entity_matching_spec,
+    "entity_data_imputation": get_entity_data_imputation_spec,
     "ice": get_ice_spec,
 }
 

@@ -11,14 +11,14 @@ class IMDBScenario(Scenario):
         https://ai.stanford.edu/~amaas/data/sentiment/
 
     IMDb is a text classification dataset containing 25,000 training reviews and 25,000 test reviews.
-    Each sample contains a sentence with its corresponding sentiment (0: negative, 1: positive)
+    Each sample contains a sentence with its corresponding sentiment (0: Negative, 1: Positive)
 
     We prompt models using the following format:
         <passage>
         Sentiment:
 
         Target completion:
-            <sentiment> (<sentiment>:positive or negative)
+            <sentiment> (<sentiment>:Positive or Negative)
 
     Using an example from the training dataset, we have
     Very good drama although it appeared to have a few blank areas leaving the viewers
@@ -31,7 +31,7 @@ class IMDBScenario(Scenario):
     Sentiment:
 
     Target completion:
-        positive
+        Positive
 
     The IMDB dataset has a contrast set, whose examples happen to be in the original train split. We thus
     assign all examples with valid contrast sets to the validation split, in addition to those
@@ -42,12 +42,13 @@ class IMDBScenario(Scenario):
     description = "Sentiment analysis dataset."
     tags = ["sentiment_classification"]
 
-    def __init__(self):
-        pass
+    def __init__(self, only_contrast=False):
+        """only_contrast: Produce only inputs that have a contrast version."""
+        self.only_contrast = only_contrast
 
     def get_split_instances(self, split: str, path: str, contrast_map: dict) -> List[Instance]:
 
-        label_to_classname: Dict[str, str] = {"pos": "positive", "neg": "negative"}
+        label_to_classname: Dict[str, str] = {"pos": "Positive", "neg": "Negative"}
         split_instances: List[Instance] = []
 
         for class_name, label_id in label_to_classname.items():
@@ -69,6 +70,8 @@ class IMDBScenario(Scenario):
                             [Reference(output=contrast_map[context]["contrast_answer"], tags=[CORRECT_TAG])]
                         ]
                         instance_split = VALID_SPLIT  # we want to evaluate on contrast sets
+                    elif self.only_contrast and split == VALID_SPLIT:
+                        continue
 
                     instance: Instance = Instance(
                         input=prompt,
@@ -82,7 +85,7 @@ class IMDBScenario(Scenario):
 
     def get_contrast_map(self, target_path: str, mode: str) -> dict:
         # Download contrast sets
-        label_name_to_id = {"Positive": "positive", "Negative": "negative"}
+        label_name_to_id = {"Positive": "Positive", "Negative": "Negative"}
         orig_and_contrast_inputs: list = []
 
         for filename in [f"{mode}_original.tsv", f"{mode}_contrast.tsv"]:

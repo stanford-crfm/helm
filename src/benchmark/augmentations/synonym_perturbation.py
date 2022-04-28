@@ -40,6 +40,14 @@ class SynonymPerturbation(Perturbation):
         self.prob: float = prob
         self.detokenizer = TreebankWordDetokenizer()
 
+        # Initialize the model with spaCy: https://spacy.io/models/en
+        try:
+            self.spacy_model = spacy.load("en_core_web_sm")
+        except OSError:
+            # no idea why this keeps failing, tested multiple times
+            spacy.cli.download("en_core_web_sm")  # type: ignore
+            self.spacy_model = spacy.load("en_core_web_sm")
+
         try:
             _ = wordnet.synsets("test")
         except LookupError:
@@ -56,13 +64,6 @@ class SynonymPerturbation(Perturbation):
         return SynonymPerturbation.Description(self.name, self.prob)
 
     def synonyms_substitute(self, text: str) -> str:
-        try:
-            spacy_model = spacy.load("en_core_web_sm")
-        except OSError:
-            # no idea why this keeps failing, tested multiple times
-            spacy.cli.download("en_core_web_sm")  # type: ignore
-            spacy_model = spacy.load("en_core_web_sm")
-
         upos_wn_dict = {
             "VERB": "v",
             "NOUN": "n",
@@ -70,7 +71,7 @@ class SynonymPerturbation(Perturbation):
             "ADJ": "s",
         }
 
-        doc = spacy_model(text)
+        doc = self.spacy_model(text)
 
         result = []
 

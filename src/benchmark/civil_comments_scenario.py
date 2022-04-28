@@ -49,12 +49,13 @@ class CivilCommentsScenario(Scenario):
     def __init__(self, subject: str = "all", random_seed=42):
         self.subject = subject
         self.random_seed = random_seed
-        random.seed(random_seed)
 
     def get_instances(self) -> List[Instance]:
+        random.seed(self.random_seed)
 
         data_path: str = "/u/scr/nlp/crfm/benchmarking/civil_comments/"
         file_path = os.path.join(data_path, "civil_comments.csv")
+
         assert os.path.exists(file_path)
         df = pd.read_csv(file_path)
 
@@ -106,7 +107,9 @@ class CivilCommentsScenario(Scenario):
             data_x, data_y = subset
             for (x, y) in zip(data_x, data_y):
                 instance = Instance(
-                    input=x, references=[Reference(output=bool_to_response[y >= 0.5], tags=[CORRECT_TAG])], split=split,
+                    input=f"{x}\nQuestion: Is the passage above severely toxic?",
+                    references=[Reference(output=bool_to_response[y >= 0.5], tags=[CORRECT_TAG])],
+                    split=split,
                 )
                 instances.append(instance)
 

@@ -90,7 +90,6 @@ class RAFTScenario(Scenario):
         assert subset in SUBSETS, "Unknown subset: {}".format(subset)
         self.subset = subset
         self.random_seed = random_seed
-        random.seed(random_seed)
 
     def load_prompt_construction_settings(self):
         # Load from prompt construction settings
@@ -114,6 +113,7 @@ class RAFTScenario(Scenario):
         }
 
         # Read all instances
+        random.seed(self.random_seed)
         instances: List[Instance] = []
         for split, subset in dataset_splits.items():
             for x in subset:
