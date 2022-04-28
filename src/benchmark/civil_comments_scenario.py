@@ -51,7 +51,7 @@ class CivilCommentsScenario(Scenario):
         self.random_seed = random_seed
 
     def get_instances(self) -> List[Instance]:
-        random.seed(random_seed)
+        random.seed(self.random_seed)
 
         data_path: str = "/u/scr/nlp/crfm/benchmarking/civil_comments/"
         file_path = os.path.join(data_path, "civil_comments.csv")
