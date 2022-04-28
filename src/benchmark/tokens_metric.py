@@ -1,4 +1,3 @@
-from tqdm import tqdm
 from typing import List, Dict, Tuple
 
 from common.request import Request
@@ -26,11 +25,13 @@ class TokensMetric(Metric):
         per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = {}
         stats: Dict[MetricName, Stat] = {}
 
-        for request_state in tqdm(scenario_state.request_states):
+        for request_state in scenario_state.request_states:
             request: Request = request_state.request
             num_tokens: int = self.token_counter.estimate_tokens(request)
             stat = Stat(MetricName("estimated_number_of_tokens")).add(num_tokens)
             merge_stat(stats, stat)
-            per_instance_stats[(request_state.instance, 0)] = [stat]
+            # Call take_mean to make a copy of the stat above so that merge_stat updates do
+            # not change what is in per_instance_stats.
+            per_instance_stats[(request_state.instance, 0)] = [stat.take_mean()]
 
         return MetricResult([stat.take_mean() for stat in stats.values()], per_instance_stats)
