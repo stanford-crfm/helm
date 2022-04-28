@@ -1,23 +1,22 @@
+import sys
+import argparse
+from flask import Flask, request
+
+from common.general import ensure_directory_exists
+import dialogue_interface
+
 """
 Server running on GCP for interaction-benchmarking teams, which calls
 CRFM API on proxy server and stores experiment results in SQLite DB
 """
 
 """
-TODO: 
+TODO:
 1. set up config
 2. fix args in function calls
 """
-import os
-import sys
-import argparse
-from flask import Flask, request
 
 sys.path = sys.path + ["../"]
-
-from common.general import ensure_directory_exists
-import dialogue_interface
-
 app = Flask(__name__)
 
 file_globals: dict = {}
@@ -62,7 +61,12 @@ def submit_interview():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=5001)
-    parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="src/benchmark/interaction_server/interaction_env")
+    parser.add_argument(
+        "-b",
+        "--base-path",
+        help="What directory has credentials, etc.",
+        default="src/benchmark/interaction_server/interaction_env",
+    )
     parser.add_argument(
         "-o", "--output-path", help="What directory stores interactive scenarios", default="benchmark_output"
     )
