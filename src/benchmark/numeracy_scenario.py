@@ -620,9 +620,7 @@ class NumeracyScenario(Scenario):
     ):
         assert relation_type in NumeracyScenario.RELTYPES
         assert mode in NumeracyScenario.MODES
-        if seed is not None:
-            random.seed(seed)
-            np.random.seed(seed)
+        self.random_seed = seed
 
         self.relation_type = relation_type
         self.mode = mode
@@ -642,6 +640,10 @@ class NumeracyScenario(Scenario):
         self.num_test = MODE_INFO[mode]["num_test"]
 
     def get_instances(self) -> List[Instance]:
+        assert self.random_seed is not None
+        random.seed(self.random_seed)
+        np.random.seed(self.random_seed)
+
         train_range, test_range = select_ranges(
             num_train=100,
             num_test=100,
