@@ -1,0 +1,34 @@
+- prompt: Jan lost all of Kendall's money at the casino and they were already really low on money for rent.
+  dialogue:
+    - user: Vegas was very fun!
+    - bot: Good for you, where did you go?
+    - user: I went to a lot of casinos
+    - bot: Oh did you stay for the whole weekend?
+    - user: yes, I did! I gambled a lot
+    - bot: Better be careful or you won't be gambling anymore ;)
+    - user: I already gambled all my husband's savings :(
+    - bot: That is a lot of money! Take that money and buy some lottery tickets, you might win.
+    - user: lol, is that a better idea?
+    - bot: Some people will throw away hundreds of dollars on the roulette table, but don't gamble for fun.
+    - user: what should I do for fun instead?
+    - bot: Go to the beach. SPECIAL USDI PURSE ITEM.
+- prompt: Feeling a bit bored and tired, Kai watched anything
+  dialogue: 
+    - user: I was so bored last night and had nothing to do, so I just ended up watching a movie.
+    - bot: Which movie did you watch?
+    - user: Free Guy
+    - bot: That's a really good movie, I'd watch that one again.
+    - user: Yeah? What did you like about it?
+    - bot: I like all of the action I'd say. The guy just kept getting into trouble.
+    - user: What was your favorite part?
+    - bot: When he really got into trouble, the fight scene and chase was really cool.
+    - user: What part is that exactly?
+    - bot: I think it's when the character is in the sewer?
+    - user: I don't remember a sewer. Are we talking about the same movie?
+    - bot: Yeah definitely, there was an awesome chase in the sewer.
+    - user: I must have dozed off or something because I don't remember any sewer chase scene.
+    - bot: You are not going crazy, it was fantastic.
+    - user: I'll have to go back and rewatch the movie it seems ..
+    - bot: Anyway, same movie I'm sure.
+    - user: Nice chat!
+    - bot: You too!
