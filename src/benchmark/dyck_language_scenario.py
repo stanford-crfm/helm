@@ -76,9 +76,8 @@ class DyckLanguageScenario(Scenario):
             raise ValueError("The number of parenthesis pairs should be a number between 1 and 4 (inclusive).")
         parenthesis_pairs = parenthesis_pairs[:num_parenthesis_pairs]
 
-        # Fixing the random seeds
-        np.random.seed(seed)
-        random.seed(seed)
+        # Storing the random seeds
+        self.random_seed = seed
 
         # Training and test size sizes
         self.num_train_instances = num_train_instances
@@ -202,6 +201,9 @@ class DyckLanguageScenario(Scenario):
         return inputs, instances
 
     def get_instances(self) -> List[Instance]:
+        np.random.seed(self.random_seed)
+        random.seed(self.random_seed)
+
         train_inputs, train_instances = self.create_corpus(
             split=TRAIN_SPLIT,
             min_length=self.min_seq_train_length,

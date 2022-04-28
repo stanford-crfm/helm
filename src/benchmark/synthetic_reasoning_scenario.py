@@ -140,10 +140,11 @@ class SyntheticReasoningScenario(Scenario):
         self.n_test_samples = 50
         self.mode = mode
         assert self.mode in ["variable_substitution", "pattern_match", "induction"], f"Unsupported mode: {self.mode}"
-        # We fix the seed for data generation to ensure reproducibility.
-        random.seed(random_seed)
+        self.random_seed = random_seed
 
     def get_instances(self) -> List[Instance]:
+        # We fix the seed for data generation to ensure reproducibility.
+        random.seed(self.random_seed)
         # Read all the instances
         instances: List[Instance] = []
 
