@@ -1,4 +1,5 @@
 from typing import List, Optional
+import threading
 
 from openai.api_resources.abstract import engine_api_resource
 import openai as turing
@@ -36,6 +37,7 @@ class MicrosoftClient(Client):
 
         self.cache = Cache(cache_path)
         self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer("microsoft")
+        self.lock = threading.RLock()
 
     def make_request(self, request: Request) -> RequestResult:
         """
@@ -83,10 +85,13 @@ class MicrosoftClient(Client):
         try:
 
             def do_it():
-                turing.api_key = self.api_key
-                turing.api_base = self.api_base
-                turing.api_resources.completion.Completion.__bases__ = self.completion_attributes
-                return turing.Completion.create(**raw_request)
+                # Handle only one request at a time otherwise, their server throws an error
+                # TODO: follow up on this
+                with self.lock:
+                    turing.api_key = self.api_key
+                    turing.api_base = self.api_base
+                    turing.api_resources.completion.Completion.__bases__ = self.completion_attributes
+                    return turing.Completion.create(**raw_request)
 
             cache_key = Client.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
