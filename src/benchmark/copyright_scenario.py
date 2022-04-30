@@ -44,7 +44,8 @@ class CopyrightScenario(Scenario):
         target_path = os.path.join(self.output_path, f"{self.datatag}.json")
         # `ensure_file_downloaded` in src.common doesn't work.
         # The main problem is that naive wget cannot bypass the gdrive large file virus scan warning.
-        os.system(f"gdown {self.source_url} -O {target_path}")
+        if not os.path.exists(target_path):
+            os.system(f"gdown {self.source_url} -O {target_path}")
         with open(target_path, "r") as f:
             # Processed data with the format {"data": {prefix: prefix_to_end}, "metadata":...}.
             data = json.load(f)
