@@ -4,7 +4,12 @@ const urlParams = new URLSearchParams(queryString);
 const ChatBox = {
 	data() {
 		var questions =
-			[
+			[	
+				{
+					tag: "workerID",
+					text: "Please enter your Mechanical Turk WorkerID for payment processing",
+					type: "freeForm",
+				},
 				{
 					tag: "interestingness-utterances",
 					text: "Mark the responses that were particularly interesting or boring",
@@ -18,52 +23,63 @@ const ChatBox = {
 				},
 				{
 					tag: "humanness-utterances",
-					text: "Which responses sounded human?",
-					type: "turn-binary",
-				} /*,
-				{
-					tag: "consistency-utterances",
-					text: "Which responses contradicted previous dialogue?",
+					text: "Which responses did not sound human?",
 					type: "turn-binary",
 				},
 				{
-					tag: "understanding-utterances",
-					text: "Please select any responses where the chatbot was not listening to your previous response",
+					tag: "positive-feedback-utterances",
+					text: "If you gave the chatbot feedback (e.g. by making a correction or clarification), mark turns where it improved based on that feedback",
+					type: "turn-binary",
+
+				},
+				{
+					tag: "negative-feedback-utterances",
+					text: "If you gave the chatbot feedback (e.g. by making a correction or clarification), mark turns where it did not improve based on that feedback",
+					type: "turn-binary",
+				},
+				{
+					tag: "making-up-utterances",
+					text: "Mark responses where you felt that the chatbot was making things up",
 					type: "turn-binary"
 				},
 				{
-					tag: "feedback-utterances",
-					text: "For the turns where you gave the bot feedback (e.g. by making a correction or clarification), mark turns where it improved based on that feedback",
-					type: "turn-ternary",
-					options: {positive: "improved" , neutral: "no-feedback", negative: "not improved"}
+					tag: "nonsensical-utterances",
+					text: "Mark responses where the chatbot did not make sense",
+					type: "turn-binary",
 				},
 				{
-					tag: "overall-quality",
-					text: "Would you like to talk with this chatbot again?",
+					tag: "consistency-utterances",
+					text: "Which responses contradicted previous dialogue?",
+					type: "turn-binary"
+				},
+				{
+					tag: "tangents-utterances",
+					text: "Mark responses where the chatbot went on a tangent",
+					type: "turn-binary"
+				},
+				{
+					tag: "contribution-utterances",
+					text: "Mark the responses where the chatbot seemed particularly active or passive in the conversation",
+					type: "turn-ternary",
+					options: {positive: "active" , neutral: "normal", negative: "passive"}
+				},
+				{
+					tag: "contribution-overall",
+					text: "How much did the chatbot contribute to the conversation's direction?",
 					type: "likert",
-					options: ["1 - No", "2 - Probably not", "3 - Maybe", "4 - Probably yes", "5 - yes"]
-				}
-				/*{
-					tag: "consistency-rating",
-					text: "Please rate how consistent your partner sounds",
+					options: ["1 - Not enough", "2 - The right amount", "3 - Too much"]
+				},
+				{
+					tag: "quality-overall",
+					text: "Would you want to talk to this chatbot again?",
 					type: "likert",
-					options: ["1 - Always inconsistent", "2 - Often inconsistent", "3 - Inconsistent half of the time", "4 - Occasionally inconsistent", "5 - Always consistent"]
+					options: ["1 - No", "2 - Probably not", "3 - Maybe", "4 - Probably yes", "5 - Yes"]
 				},
 				{
 					tag: "feedback",
 					text: "Is there anything else you would like to say about the conversation?",
 					type: "freeForm",
-				},
-				{
-					tag: "humanness",
-					text: "Please rate how human your partner sounds (1: Very inhuman, 5: Very human)",
-					type: "likert",
-				},
-				{
-					tag: "quality",
-					text: "Please rate the overall quality of the conversation (1: Very inhuman, 5: Very human)",
-					type: "likert",
-				}*/
+				}
 			];
 		for (let question of questions) {
 			if (question.type === "likert") {
@@ -239,7 +255,7 @@ const ChatBox = {
 				text: dataset_questions[response.data.scenario],
 				type: "turn-binary",
 			};
-			this.questions.splice(-1, 0, question);
+			this.questions.splice(-2, 0, question);
 		},
 		submitAnswers: function () {
 			var that = this;
