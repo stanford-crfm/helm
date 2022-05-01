@@ -33,13 +33,15 @@ class Cache(object):
         # According to https://github.com/RaRe-Technologies/sqlitedict/issues/145:
         # The code inside the context manager (the with block = one SqliteDict database connection)
         # is thread-safe within a single process.
-        with SqliteDict(self.cache_path) as cache:
-            response = cache.get(key)
-            if response:
-                cached = True
-            else:
-                # Commit the request and response to SQLite
-                cache[key] = response = compute()
-                cache.commit()
-                cached = False
-        return response, cached
+        # Place the following under a lock just in case.
+        with self._lock:
+            with SqliteDict(self.cache_path) as cache:
+                response = cache.get(key)
+                if response:
+                    cached = True
+                else:
+                    # Commit the request and response to SQLite
+                    cache[key] = response = compute()
+                    cache.commit()
+                    cached = False
+            return response, cached

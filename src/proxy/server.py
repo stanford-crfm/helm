@@ -194,6 +194,7 @@ class ServerAdapter(bottle.ServerAdapter):
     def run(self, handler):
         class ThreadAdapter(ThreadingMixIn, WSGIServer):
             """To handle each request in a new thread. See `ThreadingMixIn` for more information."""
+
             pass
 
         server = make_server(host=self.host, port=self.port, app=handler, server_class=ThreadAdapter, **self.options)
