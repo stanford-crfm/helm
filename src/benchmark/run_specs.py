@@ -1143,7 +1143,7 @@ def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str) -> R
     )
 
 
-def get_commonsense_dialogues_spec(user_initiated: bool) -> RunSpec:
+def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str) -> RunSpec:
     if type(user_initiated) == str:
         user_initiated = user_initiated == "True"
     scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.CommonSenseScenario", args={})
@@ -1164,7 +1164,7 @@ def get_commonsense_dialogues_spec(user_initiated: bool) -> RunSpec:
     )
 
     return RunSpec(
-        name="commonsense_dialogues",
+        name=f"commonsense_dialogues:annotation_stage={annotation_stage},user_initiated={user_initiated}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
