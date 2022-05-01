@@ -1,5 +1,4 @@
 from typing import List, Optional
-import threading
 
 from openai.api_resources.abstract import engine_api_resource
 import openai as turing

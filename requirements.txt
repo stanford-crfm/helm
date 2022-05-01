@@ -7,7 +7,6 @@ pyhocon==0.3.58
 pyOpenSSL==21.0.0
 sqlitedict==1.7.0
 torch==1.10.2
-tornado==6.1
 transformers==4.13.0
 zstandard==0.17.0
 jsonlines==3.0.0
