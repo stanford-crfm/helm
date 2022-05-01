@@ -5,6 +5,7 @@ from typing import List
 TEXT_MODEL_TAG: str = "text"
 CODE_MODEL_TAG: str = "code"
 LIMITED_FUNCTIONALITY_MODEL_TAG: str = "limited_functionality"
+WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"
 
 
 @dataclass
@@ -26,14 +27,31 @@ ALL_MODELS = [
     Model(
         group="jurassic", name="ai21/j1-jumbo", description="Jurassic J1-Jumbo (178B parameters)", tags=[TEXT_MODEL_TAG]
     ),
+    # From AI21: "the new model is a mid-point in terms of size, cost and performance between Jumbo and Large.
+    # We also implemented a few tweaks to its training process. Internal benchmarks suggest it can really
+    # help the unit economics on your end compared to Jumbo, without compromising too much on quality."
+    Model(
+        group="jurassic",
+        name="ai21/j1-grande",
+        description="Jurassic J1-Large (17B parameters with a few tweaks to its training process)",
+        tags=[TEXT_MODEL_TAG],
+    ),
     Model(
         group="jurassic", name="ai21/j1-large", description="Jurassic J1-Large (7.5B parameters)", tags=[TEXT_MODEL_TAG]
     ),
-    # OpenAI
+    # OpenAI: https://beta.openai.com/docs/engines/gpt-3
     Model(group="gpt3", name="openai/davinci", description="GPT-3 (175B parameters)", tags=[TEXT_MODEL_TAG]),
     Model(group="gpt3", name="openai/curie", description="GPT-3 (6.7B parameters)", tags=[TEXT_MODEL_TAG]),
     Model(group="gpt3", name="openai/babbage", description="GPT-3 (1.3B parameters)", tags=[TEXT_MODEL_TAG]),
     Model(group="gpt3", name="openai/ada", description="GPT-3 (350M parameters)", tags=[TEXT_MODEL_TAG]),
+    # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
+    #       https://github.com/stanford-crfm/benchmarking/issues/359
+    Model(
+        group="gpt3",
+        name="openai/text-davinci-002",
+        description="GPT-3 from Instruct series 2nd generation (175B parameters) - 4000 max tokens",
+        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG],
+    ),
     Model(
         group="gpt3",
         name="openai/text-davinci-001",
@@ -60,8 +78,14 @@ ALL_MODELS = [
     ),
     Model(
         group="codex",
+        name="openai/code-davinci-002",
+        description="Codex 2nd Generation (for natural language to code) - 4000 max tokens",
+        tags=[CODE_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG],
+    ),
+    Model(
+        group="codex",
         name="openai/code-davinci-001",
-        description="Codex (for natural language to code) - 4096 max tokens",
+        description="Codex (for natural language to code) - 2048 max tokens",
         tags=[CODE_MODEL_TAG],
     ),
     Model(

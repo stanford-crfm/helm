@@ -3,9 +3,11 @@ from typing import Optional
 from transformers import GPT2TokenizerFast
 
 from common.hierarchical_logger import htrack_block
+from proxy.models import get_model_names_with_tag, WIDER_CONTEXT_WINDOW_TAG
 from .ai21_tokenizer import AI21Tokenizer
 from .anthropic_tokenizer import AnthropicTokenizer
 from .openai_tokenizer import OpenAITokenizer
+from .wider_context_window_openai_tokenizer import WiderContextWindowOpenAITokenizer
 from .mt_nlg_tokenizer import MTNLGTokenizer
 from .gpt2_tokenizer import GPT2Tokenizer
 from .gptj_tokenizer import GPTJTokenizer
@@ -26,7 +28,9 @@ class TokenizerFactory:
         organization: str = model.split("/")[0]
 
         tokenizer: Tokenizer
-        if organization == "openai" or organization == "simple":
+        if model in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
+            tokenizer = WiderContextWindowOpenAITokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
+        elif organization == "openai" or organization == "simple":
             tokenizer = OpenAITokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
         elif organization == "microsoft":
             tokenizer = MTNLGTokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
