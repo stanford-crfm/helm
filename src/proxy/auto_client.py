@@ -1,6 +1,6 @@
 import os
 from dataclasses import replace
-from typing import Dict
+from typing import Dict, Optional
 
 from retrying import RetryError, Attempt
 
@@ -27,7 +27,7 @@ class AutoClient(Client):
 
     def get_client(self, organization: str) -> Client:
         """Return a client based on `organization`, creating it if necessary."""
-        client: Client = self.clients.get(organization)
+        client: Optional[Client] = self.clients.get(organization)
 
         if client is None:
             client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
