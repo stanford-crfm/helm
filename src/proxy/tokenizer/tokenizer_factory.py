@@ -3,9 +3,11 @@ from typing import Optional
 from transformers import GPT2TokenizerFast
 
 from common.hierarchical_logger import htrack_block
+from proxy.models import get_model, get_model_names_with_tag, Model, WIDER_CONTEXT_WINDOW_TAG
 from .ai21_tokenizer import AI21Tokenizer
 from .anthropic_tokenizer import AnthropicTokenizer
 from .openai_tokenizer import OpenAITokenizer
+from .wider_context_window_openai_tokenizer import WiderContextWindowOpenAITokenizer
 from .mt_nlg_tokenizer import MTNLGTokenizer
 from .gpt2_tokenizer import GPT2Tokenizer
 from .gptj_tokenizer import GPTJTokenizer
@@ -18,32 +20,43 @@ class TokenizerFactory:
     gpt2_tokenizer_fast: Optional[GPT2TokenizerFast] = None
 
     @staticmethod
-    def get_tokenizer(model: str, service: Optional[TokenizerService] = None) -> Tokenizer:
+    def get_tokenizer(model_name_or_organization: str, service: Optional[TokenizerService] = None) -> Tokenizer:
         """
-        Returns a `Tokenizer` given the `model`,
+        Returns a `Tokenizer` given the model name or organization,
+        Can pass in "openai" or "openai/davinci" for `model_name_or_organization`.
         Make sure this function returns instantaneously on repeated calls.
         """
-        organization: str = model.split("/")[0]
+        model_name: str = ""
+        organization: str
+        try:
+            model: Model = get_model(model_name_or_organization)
+            model_name = model.name
+            organization = model.organization
+        except ValueError:
+            # At this point, an organization was passed in
+            organization = model_name_or_organization
 
         tokenizer: Tokenizer
-        if organization == "openai" or organization == "simple":
+        if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
+            tokenizer = WiderContextWindowOpenAITokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
+        elif organization == "openai" or organization == "simple":
             tokenizer = OpenAITokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
         elif organization == "microsoft":
             tokenizer = MTNLGTokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
         elif organization == "anthropic":
             tokenizer = AnthropicTokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
-        elif model == "huggingface/gpt2":
+        elif model_name == "huggingface/gpt2":
             tokenizer = GPT2Tokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
-        elif model == "huggingface/gptj_6b":
+        elif model_name == "huggingface/gptj_6b":
             tokenizer = GPTJTokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
         elif organization == "ai21":
             if not service:
                 raise ValueError("Need to pass in a TokenizerService to get the tokenizer for the AI21 models.")
 
             # Don't need to cache since AI21Tokenizer is just a wrapper.
-            tokenizer = AI21Tokenizer(model=model, service=service)
+            tokenizer = AI21Tokenizer(model=model_name, service=service)
         else:
-            raise ValueError(f"Unsupported model: {model}")
+            raise ValueError(f"Invalid model name or organization: {model_name_or_organization}")
 
         return tokenizer
 
