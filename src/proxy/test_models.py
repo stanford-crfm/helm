@@ -1,4 +1,18 @@
-from .models import get_model_group, get_all_code_models
+from .models import get_model, get_model_group, get_all_code_models, Model
+
+
+def test_get_model():
+    model: Model = get_model("ai21/j1-jumbo")
+    assert model.organization == "ai21"
+    assert model.engine == "j1-jumbo"
+
+
+def test_get_model_with_invalid_model_name():
+    try:
+        get_model("invalid/model")
+        assert False, "Expected to throw ValueError"
+    except ValueError:
+        pass
 
 
 def test_get_model_group():
@@ -6,4 +20,4 @@ def test_get_model_group():
 
 
 def test_all_code_models():
-    assert get_all_code_models() == ["openai/code-davinci-001", "openai/code-cushman-001"]
+    assert get_all_code_models() == ["openai/code-davinci-002", "openai/code-davinci-001", "openai/code-cushman-001"]

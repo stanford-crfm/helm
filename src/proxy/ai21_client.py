@@ -24,10 +24,6 @@ class AI21Client(Client):
         self.cache = Cache(cache_path)
 
     def make_request(self, request: Request) -> RequestResult:
-        model: str = request.model
-        if model not in ["ai21/j1-large", "ai21/j1-jumbo", "ai21/j1-grande"]:
-            raise ValueError(f"Invalid model: {model}")
-
         raw_request = {
             "prompt": request.prompt,
             "temperature": request.temperature,
