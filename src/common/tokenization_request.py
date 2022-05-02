@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
+from proxy.models import Model, get_model
+
 
 @dataclass(frozen=True)
 class TokenizationRequest:
@@ -15,7 +17,8 @@ class TokenizationRequest:
     @property
     def model_organization(self):
         """Example: 'ai21/j1-jumbo' => 'ai21'"""
-        return self.model.split("/")[0]
+        model: Model = get_model(self.model)
+        return model.organization
 
 
 @dataclass(frozen=True)
