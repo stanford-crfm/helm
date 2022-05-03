@@ -1,9 +1,10 @@
 import random
 import numpy as np
 import pandas as pd
+import json
 import os
 from sklearn.model_selection import train_test_split
-from typing import List
+from typing import List, Dict
 
 from .scenario import (
     Scenario,
@@ -52,14 +53,46 @@ class CivilCommentsScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         random.seed(self.random_seed)
-
         data_path: str = "/u/scr/nlp/crfm/benchmarking/civil_comments/"
-        file_path = os.path.join(data_path, "civil_comments.csv")
+        instances: List[Instance] = []
 
-        assert os.path.exists(file_path)
-        df = pd.read_csv(file_path)
+        if self.subject == "all":
+            file_path = os.path.join(data_path, "civil_comments.json")
 
-        if self.subject != "all":
+            assert os.path.exists(file_path)
+
+            loaded_lines: List[Dict] = []
+
+            with open(file_path, "r") as f:
+                for line in f:
+                    loaded_line = json.loads(line)
+                    loaded_lines.append(loaded_line)
+
+                random.seed(0)
+                random.shuffle(loaded_lines)
+
+                split = TRAIN_SPLIT
+                for index, loaded_line in enumerate(loaded_lines):
+                    x = loaded_line["comment_text"]
+                    y = loaded_line["severe_toxicity"]
+
+                    if index == int(len(loaded_lines) * 0.8):
+                        split = TEST_SPLIT
+                    instance = Instance(
+                        input=f"{x}\nQuestion: Is the passage above severely toxic?",
+                        references=[Reference(output=bool_to_response[y >= 0.5], tags=[CORRECT_TAG])],
+                        split=split,
+                    )
+                    instances.append(instance)
+
+                return instances
+
+        else:
+            file_path = os.path.join(data_path, "civil_comments.csv")
+
+            assert os.path.exists(file_path)
+            df = pd.read_csv(file_path)
+
             categories = [
                 "asian",
                 "atheist",
@@ -90,27 +123,26 @@ class CivilCommentsScenario(Scenario):
             df = df[df[self.subject].notnull()]
             df = df[df[self.subject] != 0]
 
-        # TODO: Only using labeled instances now.
-        data = np.stack(df["comment_text"].tolist())
-        train_x, test_x, train_y, test_y = train_test_split(
-            data, df["severe_toxicity"], test_size=0.2, random_state=self.random_seed
-        )
+            # TODO: Only using labeled instances for now.
+            data = np.stack(df["comment_text"].tolist())
+            train_x, test_x, train_y, test_y = train_test_split(
+                data, df["severe_toxicity"], test_size=0.2, random_state=self.random_seed
+            )
 
-        dataset_splits = {
-            TRAIN_SPLIT: (train_x, train_y),
-            TEST_SPLIT: (test_x, test_y),
-        }
+            dataset_splits = {
+                TRAIN_SPLIT: (train_x, train_y),
+                TEST_SPLIT: (test_x, test_y),
+            }
 
-        # Read all instances
-        instances: List[Instance] = []
-        for split, subset in dataset_splits.items():
-            data_x, data_y = subset
-            for (x, y) in zip(data_x, data_y):
-                instance = Instance(
-                    input=f"{x}\nQuestion: Is the passage above severely toxic?",
-                    references=[Reference(output=bool_to_response[y >= 0.5], tags=[CORRECT_TAG])],
-                    split=split,
-                )
-                instances.append(instance)
+            # Read all instances
+            for split, subset in dataset_splits.items():
+                data_x, data_y = subset
+                for (x, y) in zip(data_x, data_y):
+                    instance = Instance(
+                        input=f"{x}\nQuestion: Is the passage above severely toxic?",
+                        references=[Reference(output=bool_to_response[y >= 0.5], tags=[CORRECT_TAG])],
+                        split=split,
+                    )
+                    instances.append(instance)
 
-        return instances
+            return instances
