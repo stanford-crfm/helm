@@ -9,13 +9,13 @@ datatag2hash = {
     # Very small; 10 examples.
     "pilot": "1NwzDx19uzIwBuw7Lq5CSytG7jIth2wJ-",
     # 1k examples.
-    "n_books_1000-extractions_per_book_1-prefix_length_5": "1_B8xfXQTklaAXgOfeSCuL3FvXvoXGBPq",
-    "n_books_1000-extractions_per_book_1-prefix_length_25": "1i-v-KACEUnKOljJxfe5u_qcrA-uTBCky",
-    "n_books_1000-extractions_per_book_1-prefix_length_125": "1TRbkha807PiDKoegA6Kqf9SgqBUOlM1Y",
+    "n_books_1000-extractions_per_book_1-prefix_length_5": "16nQD8Nq3ma4K2EZLXHcahG9fcBDxS-zB",
+    "n_books_1000-extractions_per_book_1-prefix_length_25": "108sZcMjzY7mvyy1p5Rw62_A8A1I2zM2S",
+    "n_books_1000-extractions_per_book_1-prefix_length_125": "10uC4jM6tgI1pgtq--07FFHQ2Te7-SXGA",
     # 3k examples from 1k books.
-    "n_books_1000-extractions_per_book_3-prefix_length_5": "1tXfhaAZrwkA4C7TnqU7SV4gj2RxIIT4x",
-    "n_books_1000-extractions_per_book_3-prefix_length_25": "1ciKUFfCh1MKQ1m6KFEHdzX4AWy_ec0R9",
-    "n_books_1000-extractions_per_book_3-prefix_length_125": "1MZyMoCSgA6-_hu4gQe4G9IfeyVqgwfUb",
+    "n_books_1000-extractions_per_book_3-prefix_length_5": "1byrafXv2iULcZArxguJZp2LyFxswX7fN",
+    "n_books_1000-extractions_per_book_3-prefix_length_25": "13QOKOd5Fpu5cVu1HRBYxzRcQzwhcPhjD",
+    "n_books_1000-extractions_per_book_3-prefix_length_125": "1Y6QvYStCJVanHaI67Pxep3HakWL2cIRP",
 }
 
 
