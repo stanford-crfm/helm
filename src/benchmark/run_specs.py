@@ -1030,6 +1030,7 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
 
 
 def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
+    # TODO: @Faisal remove this parameter once testing is done.
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512,},
@@ -1051,7 +1052,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
     )
 
     return RunSpec(
-        name="summarization_xsum",
+        name=f"summarization_xsum:temperature={temperature}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
@@ -1059,6 +1060,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
 
 
 def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
+    # TODO: @Faisal remove this parameter once testing is done.
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
@@ -1080,7 +1082,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
     )
 
     return RunSpec(
-        name="summarization_cnndm",
+        name=f"summarization_cnndm:temperature={temperature}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
