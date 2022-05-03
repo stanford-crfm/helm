@@ -1185,7 +1185,7 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name="entity_matching",
+        name=f"entity_matching:dataset={dataset}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -1212,7 +1212,7 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name="entity_data_imputation",
+        name=f"entity_data_imputation:dataset={dataset}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
