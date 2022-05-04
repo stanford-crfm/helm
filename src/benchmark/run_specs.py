@@ -1029,7 +1029,8 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
     )
 
 
-def get_xsum_summarization_spec() -> RunSpec:
+def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
+    # TODO: @Faisal remove this parameter once testing is done.
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512,},
@@ -1046,19 +1047,20 @@ def get_xsum_summarization_spec() -> RunSpec:
         max_eval_instances=None,
         num_outputs=1,
         max_tokens=60,  # From Lewis et al. 2019 (https://arxiv.org/pdf/1910.13461.pdf)
-        temperature=0.3,  # Temporary change for testing.
+        temperature=temperature,  # Temporary change for testing.
         stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
     )
 
     return RunSpec(
-        name="summarization_xsum",
+        name=f"summarization_xsum:temperature={temperature}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
     )
 
 
-def get_cnndm_summarization_spec() -> RunSpec:
+def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
+    # TODO: @Faisal remove this parameter once testing is done.
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
@@ -1075,12 +1077,12 @@ def get_cnndm_summarization_spec() -> RunSpec:
         max_eval_instances=None,
         num_outputs=1,
         max_tokens=128,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
-        temperature=0,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
+        temperature=temperature,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
         stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
     )
 
     return RunSpec(
-        name="summarization_cnndm",
+        name=f"summarization_cnndm:temperature={temperature}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
