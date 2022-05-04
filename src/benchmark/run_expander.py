@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from proxy.models import (
     get_all_code_models,
@@ -155,6 +155,20 @@ def contract_and_expand() -> List[PerturbationSpec]:
     ]
 
 
+def dialect(
+    prob: float, source_class: str, target_class: str, mapping_file_path: Optional[str] = None
+) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.dialect_perturbation.DialectPerturbation",
+        args={
+            "prob": prob,
+            "source_class": source_class,
+            "target_class": target_class,
+            "mapping_file_path": mapping_file_path,
+        },
+    )
+
+
 # Specifies the data augmentations that we're interested in trying out.
 # Concretely, this is a mapping from the name (which is specified in a conf
 # file or the CLI) to a list of options to try, where each option is a list of perturbations.
@@ -180,6 +194,8 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "typo_medium": {"typo0.3": [typo(prob=0.30)]},
     "typo_hard": {"typo0.5": [typo(prob=0.50)]},
     "synonym": {"synonym0.5": [synonym(prob=0.5)]},
+    "dialect": {"dialect0.5": [dialect(prob=0.5, source_class="SAE", target_class="AAVE")]},
+    "individual_fairness": {"all": [dialect(prob=0.5, source_class="SAE", target_class="AAVE"),]},
     "all": {
         "all": [
             misspelling(prob=0.20),
