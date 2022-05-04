@@ -69,9 +69,24 @@ class PersonNamePerturbation(Perturbation):
         """ Initialize the person name perturbation.
 
         If name_file_path isn't provided, we use our default name mapping
-        file. The available categories and their values are:
+        file, which can be found at:
+
+            https://worksheets.codalab.org/rest/bundles/0xa65e8f9a107c44f198eb4ad356bbda34/contents/blob/
+
+        The available categories in our default file and their values are:
+
             "race" => "white_american", "black_american",
                       "asian", "chinese", "hispanic", "russian", "white"
+
+        The first names in our default file come from Caliskan et al. (2017),
+        which derives its list from Greenwald (1998). The former removed some
+        names from the latter because the corresponding tokens infrequently
+        occured in Common Crawl, which was used as the training corpus for
+        GloVe. We include the full list from the latter in our default file.
+
+        The last names in our default file and their associated categories come
+        from Garg et. al. (2017), which derives its list from
+        Chalabi and Flowers (2014).
 
         Args:
             prob: Probability of substituting a word in the source class with
@@ -112,9 +127,7 @@ class PersonNamePerturbation(Perturbation):
                     (3) It is possible for a name to have multiple associations
                         (e.g. with more than one age, gender etc.)
 
-                We use the default file if None is provided, which can be found
-                at:
-                    https://worksheets.codalab.org/rest/bundles/0xa65e8f9a107c44f198eb4ad356bbda34/contents/blob/
+                We use the default file if None is provided.
             person_name_type: One of "first_name" or "last_name". If
                 "last_name", preseverve_gender field must be False.
             preserve_gender: If set to True, we preserve the gender when
