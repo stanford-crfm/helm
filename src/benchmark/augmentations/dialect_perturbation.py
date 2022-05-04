@@ -20,12 +20,12 @@ SAE_TO_AAVE_MAPPING_DICT = {
     "anymore": ["nomore", "nomo"],
     "brother": ["homeboy"],
     "classy": ["fly"],
-    "dude": ["n*ggah", "manee", "n*gga"],
+    "dude": ["n*ggah", "niggah", "manee", "n*gga", "nigga"],
     "huge": ["bigass"],
     "probably": ["prob", "prolly", "def", "probly", "deff"],
     "rad": ["dope"],
     "remember": ["rememba"],
-    "screaming": ["screaming", "yellin", "hollering"],
+    "screaming": ["screamin", "yellin", "hollering"],
     "sister": ["sista", "sis"],
     "these": ["dese", "dem"],
     "with": ["wit"],
@@ -35,6 +35,9 @@ SAE_TO_AAVE_MAPPING_DICT = {
 @dataclass
 class DialectPerturbation(Perturbation):
     """ Individual fairness perturbation for dialect. """
+
+    """ Short unique identifier of the perturbation (e.g., extra_space) """
+    name: str = "dialect"
 
     """ Random seed """
     SEED = 1885
@@ -49,15 +52,13 @@ class DialectPerturbation(Perturbation):
         (SAE, AAVE): SAE_TO_AAVE_MAPPING_DICT,
     }
 
-    """ Short unique identifier of the perturbation (e.g., extra_space) """
-    name: str = "dialect"
-
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         """ Description for the DialectPerturbation class. """
+
         name: str
         prob: float
-        original_class: str
+        source_class: str
         target_class: str
         mapping_file_path: Optional[str]
 
@@ -83,17 +84,23 @@ class DialectPerturbation(Perturbation):
         """
         assert 0 <= prob <= 1
         self.prob = prob
-        self.original_class: str = source_class
+        self.source_class: str = source_class
         self.target_class: str = target_class
 
         self.mapping_file_path: Optional[str] = mapping_file_path
-        if mapping_file_path:
-            with open(mapping_file_path, "r") as f:
-                self.mapping_dict: Dict[str, List[str]] = json.load(f)
+        if self.mapping_file_path:
+            with open(self.mapping_file_path, "r") as f:
+                loaded_json = json.load(f)
+                mapping_dict = {k.lower(): [e.lower() for e in l] for k, l in loaded_json.items()}
         else:
-            mapping = (source_class, target_class)
-            assert mapping in self.MAPPING_DICTS
-            self.mapping_dict = self.MAPPING_DICTS[mapping]
+            mapping = (self.source_class, self.target_class)
+            if mapping not in self.MAPPING_DICTS:
+                msg = f"""The mapping from the source class {self.source_class} to the
+                          target class {self.target_class} isn't available in {self.MAPPING_DICTS}.
+                       """
+                raise ValueError(msg)
+            mapping_dict = self.MAPPING_DICTS[mapping]
+        self.mapping_dict: Dict[str, List[str]] = mapping_dict
 
         # Initialize the tokenizers
         self.tokenizer = TreebankWordTokenizer()
@@ -106,7 +113,7 @@ class DialectPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
         return DialectPerturbation.Description(
-            self.name, self.prob, self.original_class, self.target_class, self.mapping_file_path
+            self.name, self.prob, self.source_class, self.target_class, self.mapping_file_path
         )
 
     def substitute_dialect(self, text: str) -> str:
@@ -115,10 +122,11 @@ class DialectPerturbation(Perturbation):
         for line in lines:
             words, new_words = self.tokenizer.tokenize(line), []
             for word in words:
-                if word.lower() in self.mapping_dict and self.random.uniform(0, 1) < self.prob:
+                lowered_word = word.lower()
+                if lowered_word in self.mapping_dict and self.random.uniform(0, 1) < self.prob:
                     # Sample a new word and ensure that the case of the new word matches the original
-                    new_word = self.random.choice(self.mapping_dict[word.lower()])
-                    word = match_case(word, new_word)
+                    synonym = self.random.choice(self.mapping_dict[lowered_word])
+                    word = match_case(word, synonym)
                 new_words.append(word)
             perturbed_line = str(self.detokenizer.detokenize(new_words))
             new_lines.append(perturbed_line)
