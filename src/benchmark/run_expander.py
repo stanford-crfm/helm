@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 
 from proxy.models import (
     get_all_code_models,
@@ -169,6 +169,50 @@ def dialect(
     )
 
 
+def person_name(
+    prob: float,
+    source_class: Dict[str, str],
+    target_class: Dict[str, str],
+    name_file_path: Optional[str] = None,
+    person_name_type: str = "first_name",
+    preserve_gender: bool = True,
+) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.person_name_perturbation.PersonNamePerturbation",
+        args={
+            "prob": prob,
+            "source_class": source_class,
+            "target_class": target_class,
+            "name_file_path": name_file_path,
+            "person_name_type": person_name_type,
+            "preserve_gender": preserve_gender,
+        },
+    )
+
+
+def gender(
+    mode: str,
+    prob: float,
+    source_class: str,
+    target_class: str,
+    mapping_file_path: Optional[str] = None,
+    mapping_file_genders: Tuple[str] = None,
+    bidirectional: bool = False,
+) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.gender_perturbation.GenderPerturbation",
+        args={
+            "mode": mode,
+            "prob": prob,
+            "source_class": source_class,
+            "target_class": target_class,
+            "mapping_file_path": mapping_file_path,
+            "mapping_file_genders": mapping_file_genders,
+            "bidirectional": bidirectional,
+        },
+    )
+
+
 # Specifies the data augmentations that we're interested in trying out.
 # Concretely, this is a mapping from the name (which is specified in a conf
 # file or the CLI) to a list of options to try, where each option is a list of perturbations.
@@ -195,7 +239,53 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "typo_hard": {"typo0.5": [typo(prob=0.50)]},
     "synonym": {"synonym0.5": [synonym(prob=0.5)]},
     "dialect": {"dialect0.5": [dialect(prob=0.5, source_class="SAE", target_class="AAVE")]},
-    "individual_fairness": {"all": [dialect(prob=0.5, source_class="SAE", target_class="AAVE"),]},
+    "person_name_first": {
+        "person_name0.5first": [
+            person_name(
+                prob=0.5,
+                source_class={"race": "black_american"},
+                target_class={"race": "white_american"},
+                person_name_type="first_name",
+                preserve_gender=True,
+            )
+        ]
+    },
+    "person_name_last": {
+        "person_name0.5last": [
+            person_name(
+                prob=0.5,
+                source_class={"race": "black_american"},
+                target_class={"race": "white_american"},
+                person_name_type="last_name",
+                preserve_gender=False,
+            )
+        ]
+    },
+    "gender_terms": {"gender0.5terms": [gender(mode="terms", prob=0.5, source_class="male", target_class="female")]},
+    "gender_pronouns": {
+        "gender0.5pronouns": [gender(mode="pronouns", prob=0.5, source_class="male", target_class="female")]
+    },
+    "individual_fairness": {
+        "all": [
+            dialect(prob=0.5, source_class="SAE", target_class="AAVE"),
+            person_name(
+                prob=0.5,
+                source_class={"race": "white_american"},
+                target_class={"race": "black_american"},
+                person_name_type="first_name",
+                preserve_gender=True,
+            ),
+            person_name(
+                prob=0.5,
+                source_class={"race": "white_american"},
+                target_class={"race": "black_american"},
+                person_name_type="last_name",
+                preserve_gender=False,
+            ),
+            gender(mode="terms", prob=0.5, source_class="male", target_class="female"),
+            gender(mode="pronouns", prob=0.5, source_class="male", target_class="female"),
+        ]
+    },
     "all": {
         "all": [
             misspelling(prob=0.20),
