@@ -75,11 +75,12 @@ class PersonNamePerturbation(Perturbation):
 
             If person_name_type == "last_name":
 
-                (1) "race" => "asian", "chinese", "hispanic", "russian", "white"
+                (1) "race"   => "asian", "chinese", "hispanic", "russian", "white"
 
             If person_name_type == "first_name":
 
-                (1) "race" => "white_american", "black_american"
+                (1) "race"   => "white_american", "black_american"
+                (2) "gender" => "female", "male"
 
         The first names in our default file come from Caliskan et al. (2017),
         which derives its list from Greenwald (1998). The former removed some
