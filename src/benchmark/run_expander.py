@@ -238,53 +238,67 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "typo_medium": {"typo0.3": [typo(prob=0.30)]},
     "typo_hard": {"typo0.5": [typo(prob=0.50)]},
     "synonym": {"synonym0.5": [synonym(prob=0.5)]},
-    "dialect": {"dialect0.5": [dialect(prob=0.5, source_class="SAE", target_class="AAVE")]},
+    "dialect_easy": {"dialect0.1": [dialect(prob=0.1, source_class="SAE", target_class="AAVE")]},
+    "dialect_medium": {"dialect0.3": [dialect(prob=0.3, source_class="SAE", target_class="AAVE")]},
+    "dialect_hard": {"dialect0.5": [dialect(prob=0.5, source_class="SAE", target_class="AAVE")]},
+    "dialect_deterministic": {"dialect1.0": [dialect(prob=1.0, source_class="SAE", target_class="AAVE")]},
     "person_name_first": {
-        "person_name0.5first": [
-            person_name(
-                prob=0.5,
-                source_class={"race": "black_american"},
-                target_class={"race": "white_american"},
-                person_name_type="first_name",
-                preserve_gender=True,
-            )
-        ]
-    },
-    "person_name_last": {
-        "person_name0.5last": [
-            person_name(
-                prob=0.5,
-                source_class={"race": "white"},
-                target_class={"race": "hispanic"},
-                person_name_type="last_name",
-                preserve_gender=False,
-            )
-        ]
-    },
-    "gender_terms": {"gender0.5terms": [gender(mode="terms", prob=0.5, source_class="male", target_class="female")]},
-    "gender_pronouns": {
-        "gender0.5pronouns": [gender(mode="pronouns", prob=0.5, source_class="male", target_class="female")]
-    },
-    "individual_fairness": {
-        "all": [
-            dialect(prob=0.5, source_class="SAE", target_class="AAVE"),
+        "person_name_first-prob=0.5-white-black-preserve=True": [
             person_name(
                 prob=0.5,
                 source_class={"race": "white_american"},
                 target_class={"race": "black_american"},
                 person_name_type="first_name",
                 preserve_gender=True,
-            ),
+            )
+        ],
+        "person_name_first-prob0.5-white-black-preserve=False": [
+            person_name(
+                prob=0.5,
+                source_class={"race": "white_american"},
+                target_class={"race": "black_american"},
+                person_name_type="first_name",
+                preserve_gender=False,
+            )
+        ],
+    },
+    "person_name_last": {
+        "person_name_last:prob=0.5-white-asian-preserve=True": [
             person_name(
                 prob=0.5,
                 source_class={"race": "white"},
-                target_class={"race": "hispanic"},
+                target_class={"race": "asian"},
                 person_name_type="last_name",
                 preserve_gender=False,
-            ),
-            gender(mode="terms", prob=0.5, source_class="male", target_class="female"),
-            gender(mode="pronouns", prob=0.5, source_class="male", target_class="female"),
-        ]
+            )
+        ],
+        "person_name_last:prob=0.5-white-asian-preserve=False": [
+            person_name(
+                prob=0.5,
+                source_class={"race": "white"},
+                target_class={"race": "asian"},
+                person_name_type="last_name",
+                preserve_gender=False,
+            )
+        ],
+    },
+    "gender_terms_easy": {
+        "gender_terms:prob=0.1": [gender(mode="terms", prob=0.1, source_class="male", target_class="female")]
+    },
+    "gender_terms_medium": {
+        "gender_terms:prob=0.3": [gender(mode="terms", prob=0.3, source_class="male", target_class="female")]
+    },
+    "gender_terms_hard": {
+        "gender_terms:prob=0.5": [gender(mode="terms", prob=0.5, source_class="male", target_class="female")]
+    },
+    "gender_pronouns_easy": {
+        "gender_pronouns:prob=0.1": [gender(mode="pronouns", prob=0.1, source_class="male", target_class="female")]
+    },
+    "gender_pronouns_medium": {
+        "gender_pronouns:prob=0.3": [gender(mode="pronouns", prob=0.3, source_class="male", target_class="female")]
+    },
+    "gender_pronouns_hard": {
+        "gender_pronouns:prob=0.5": [gender(mode="pronouns", prob=0.5, source_class="male", target_class="female")]
     },
     "all": {
         "all": [
