@@ -129,6 +129,7 @@ def get_disinformation_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
             class_name="benchmark.disinformation_metrics.DisinformationMetric",
             args={**args, "name": "monte_carlo_entropy"},
         ),
+        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
 
 
