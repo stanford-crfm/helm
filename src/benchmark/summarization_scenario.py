@@ -1,6 +1,8 @@
-from typing import List, Optional
+import os
+import pickle
 
-from datasets import load_dataset
+from typing import List, Optional
+from common.general import ensure_file_downloaded, ensure_directory_exists
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
@@ -67,13 +69,25 @@ class SummarizationScenario(Scenario):
         text = text.replace("\n", " ")
         return " ".join(text.split()[:max_length])
 
+    def _download_dataset(self, url, tag):
+        data_dir = os.path.join(self.output_path, "data")
+        ensure_directory_exists(data_dir)
+        ensure_file_downloaded(source_url=url, target_path=os.path.join(data_dir, f"{tag}.pk"))
+
+        with open(os.path.join(data_dir, f"{tag}.pk"), "rb") as fin:
+            dataset = pickle.load(fin)
+
+        return dataset
+
     def _load_dataset(self, dataset_name: str):
         if dataset_name == "xsum":
-            dataset = load_dataset("xsum")
+            url = "https://worksheets.codalab.org/rest/bundles/0xac5607f21bf945939edc56ea945496d5/contents/blob/"
+            dataset = self._download_dataset(url, "xsum")
             article_key = "document"
             summary_key = "summary"
         elif dataset_name == "cnn-dm":
-            dataset = load_dataset("ccdv/cnn_dailymail", "3.0.0")
+            url = "https://worksheets.codalab.org/rest/bundles/0x07630390bbda44879a2ad36e2125d64c/contents/blob/"
+            dataset = self._download_dataset(url, "cnndm")
             article_key = "article"
             summary_key = "highlights"
         else:

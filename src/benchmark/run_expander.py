@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
-from typing import List, Dict
+from typing import List, Dict, Optional, Tuple
 
 from proxy.models import (
     get_all_code_models,
@@ -166,6 +166,64 @@ def contract_and_expand() -> List[PerturbationSpec]:
     ]
 
 
+def dialect(
+    prob: float, source_class: str, target_class: str, mapping_file_path: Optional[str] = None
+) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.dialect_perturbation.DialectPerturbation",
+        args={
+            "prob": prob,
+            "source_class": source_class,
+            "target_class": target_class,
+            "mapping_file_path": mapping_file_path,
+        },
+    )
+
+
+def person_name(
+    prob: float,
+    source_class: Dict[str, str],
+    target_class: Dict[str, str],
+    name_file_path: Optional[str] = None,
+    person_name_type: str = "first_name",
+    preserve_gender: bool = True,
+) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.person_name_perturbation.PersonNamePerturbation",
+        args={
+            "prob": prob,
+            "source_class": source_class,
+            "target_class": target_class,
+            "name_file_path": name_file_path,
+            "person_name_type": person_name_type,
+            "preserve_gender": preserve_gender,
+        },
+    )
+
+
+def gender(
+    mode: str,
+    prob: float,
+    source_class: str,
+    target_class: str,
+    mapping_file_path: Optional[str] = None,
+    mapping_file_genders: Tuple[str] = None,
+    bidirectional: bool = False,
+) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.gender_perturbation.GenderPerturbation",
+        args={
+            "mode": mode,
+            "prob": prob,
+            "source_class": source_class,
+            "target_class": target_class,
+            "mapping_file_path": mapping_file_path,
+            "mapping_file_genders": mapping_file_genders,
+            "bidirectional": bidirectional,
+        },
+    )
+
+
 # Specifies the data augmentations that we're interested in trying out.
 # Concretely, this is a mapping from the name (which is specified in a conf
 # file or the CLI) to a list of options to try, where each option is a list of perturbations.
@@ -191,6 +249,68 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "typo_medium": {"typo0.3": [typo(prob=0.30)]},
     "typo_hard": {"typo0.5": [typo(prob=0.50)]},
     "synonym": {"synonym0.5": [synonym(prob=0.5)]},
+    "dialect_easy": {"dialect0.1": [dialect(prob=0.1, source_class="SAE", target_class="AAVE")]},
+    "dialect_medium": {"dialect0.3": [dialect(prob=0.3, source_class="SAE", target_class="AAVE")]},
+    "dialect_hard": {"dialect0.5": [dialect(prob=0.5, source_class="SAE", target_class="AAVE")]},
+    "dialect_deterministic": {"dialect1.0": [dialect(prob=1.0, source_class="SAE", target_class="AAVE")]},
+    "person_name_first": {
+        "person_name_first-prob=0.5-white-black-preserve=True": [
+            person_name(
+                prob=0.5,
+                source_class={"race": "white_american"},
+                target_class={"race": "black_american"},
+                person_name_type="first_name",
+                preserve_gender=True,
+            )
+        ],
+        "person_name_first-prob0.5-white-black-preserve=False": [
+            person_name(
+                prob=0.5,
+                source_class={"race": "white_american"},
+                target_class={"race": "black_american"},
+                person_name_type="first_name",
+                preserve_gender=False,
+            )
+        ],
+    },
+    "person_name_last": {
+        "person_name_last:prob=0.5-white-asian-preserve=True": [
+            person_name(
+                prob=0.5,
+                source_class={"race": "white"},
+                target_class={"race": "asian"},
+                person_name_type="last_name",
+                preserve_gender=False,
+            )
+        ],
+        "person_name_last:prob=0.5-white-asian-preserve=False": [
+            person_name(
+                prob=0.5,
+                source_class={"race": "white"},
+                target_class={"race": "asian"},
+                person_name_type="last_name",
+                preserve_gender=False,
+            )
+        ],
+    },
+    "gender_terms_easy": {
+        "gender_terms:prob=0.1": [gender(mode="terms", prob=0.1, source_class="male", target_class="female")]
+    },
+    "gender_terms_medium": {
+        "gender_terms:prob=0.3": [gender(mode="terms", prob=0.3, source_class="male", target_class="female")]
+    },
+    "gender_terms_hard": {
+        "gender_terms:prob=0.5": [gender(mode="terms", prob=0.5, source_class="male", target_class="female")]
+    },
+    "gender_pronouns_easy": {
+        "gender_pronouns:prob=0.1": [gender(mode="pronouns", prob=0.1, source_class="male", target_class="female")]
+    },
+    "gender_pronouns_medium": {
+        "gender_pronouns:prob=0.3": [gender(mode="pronouns", prob=0.3, source_class="male", target_class="female")]
+    },
+    "gender_pronouns_hard": {
+        "gender_pronouns:prob=0.5": [gender(mode="pronouns", prob=0.5, source_class="male", target_class="female")]
+    },
     "all": {
         "all": [
             misspelling(prob=0.20),
