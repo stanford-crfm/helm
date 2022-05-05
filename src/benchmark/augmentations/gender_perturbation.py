@@ -31,18 +31,15 @@ GENDER_TERM_MAPPINGS: List[Tuple[str, ...]] = [
     ("monarchs", "queens", "kings"),
     ("server", "waitress", "waiter"),
     ("servers", "waitresses", "waiters"),
-    # Our additions
-    ("everybody", "ladies", "guys"),
-    ("everybody", "ladies", "guys"),
-    ("salesperson", "saleswoman", "salesman"),
 ]
 
 """ Gender pronoun mappings """
 GENDER_PRONOUN_MAPPINGS: List[Tuple[str, ...]] = [
-    ("he", "she", "they"),
-    ("him", "her", "them"),
-    ("his", "her", "their"),
-    ("himself", "herself", "themselves"),
+    # List from Lauscher et. al. 2022
+    ("they", "she", "he"),
+    ("them", "her", "him"),
+    ("their", "her", "his"),
+    ("themselves", "herself", "himself"),
 ]
 
 
@@ -143,7 +140,6 @@ class GenderPerturbation(Perturbation):
                 mappings = [tuple([str(e).lower() for e in t]) for t in loaded_json]
             assert mappings
         assert self.source_class in self.genders and self.target_class in self.genders
-        # The min function is irrelevant, all we are doing is getting an element from the set
         assert all([len(m) == len(self.genders) for m in mappings])
 
         # Remove duplicates from the mappings list
