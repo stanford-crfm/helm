@@ -202,6 +202,7 @@ def main():
     gunicorn_args = {
         "workers": args.workers,
         "timeout": args.timeout,
+        "limit_request_line": 0,  # Controls the maximum size of HTTP request line in bytes. 0 = unlimited.
     }
     if args.ssl_key_file and args.ssl_cert_file:
         gunicorn_args["keyfile"] = args.ssl_key_file
