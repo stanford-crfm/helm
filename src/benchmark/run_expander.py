@@ -254,8 +254,8 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
         "person_name0.5last": [
             person_name(
                 prob=0.5,
-                source_class={"race": "black_american"},
-                target_class={"race": "white_american"},
+                source_class={"race": "white"},
+                target_class={"race": "hispanic"},
                 person_name_type="last_name",
                 preserve_gender=False,
             )
@@ -277,8 +277,8 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             ),
             person_name(
                 prob=0.5,
-                source_class={"race": "white_american"},
-                target_class={"race": "black_american"},
+                source_class={"race": "white"},
+                target_class={"race": "hispanic"},
                 person_name_type="last_name",
                 preserve_gender=False,
             ),

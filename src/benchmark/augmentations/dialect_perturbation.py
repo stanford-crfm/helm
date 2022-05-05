@@ -39,9 +39,6 @@ class DialectPerturbation(Perturbation):
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "dialect"
 
-    """ Random seed """
-    SEED = 1885
-
     """ Line seperator """
     LINE_SEP = "\n"
 
@@ -82,6 +79,9 @@ class DialectPerturbation(Perturbation):
                 self.MAPPING_DICTS for the provided source and target classes
                 will be used, if available.
         """
+        # self.random, will be set in the apply function
+        self.random: random.Random
+
         assert 0 <= prob <= 1
         self.prob = prob
         self.source_class: str = source_class
@@ -105,9 +105,6 @@ class DialectPerturbation(Perturbation):
         # Initialize the tokenizers
         self.tokenizer = TreebankWordTokenizer()
         self.detokenizer = TreebankWordDetokenizer()
-
-        # Random generator for our perturbation
-        self.random: random.Random = random.Random(self.SEED)
 
     @property
     def description(self) -> PerturbationDescription:
@@ -136,6 +133,7 @@ class DialectPerturbation(Perturbation):
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         """ Apply the perturbation to the provided instance. """
         assert instance.id is not None
+        self.random = random.Random(int(instance.id[2:]))
         return super().apply(instance, should_perturb_references)
 
     def perturb(self, text: str) -> str:

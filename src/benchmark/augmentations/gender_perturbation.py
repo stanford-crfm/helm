@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import json
 import random
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from nltk.tokenize.treebank import TreebankWordTokenizer, TreebankWordDetokenizer
 
@@ -12,7 +12,7 @@ from .perturbation import Perturbation
 
 
 """ Gender term mappings """
-GENDER_TERM_MAPPINGS = [
+GENDER_TERM_MAPPINGS: List[Tuple[str, ...]] = [
     # Inspired by Garg et al. (2018)
     ("child", "daughter", "son"),
     ("children", "daughters", "sons"),
@@ -38,7 +38,7 @@ GENDER_TERM_MAPPINGS = [
 ]
 
 """ Gender pronoun mappings """
-GENDER_PRONOUN_MAPPINGS = [
+GENDER_PRONOUN_MAPPINGS: List[Tuple[str, ...]] = [
     ("he", "she", "they"),
     ("him", "her", "them"),
     ("his", "her", "their"),
@@ -53,9 +53,6 @@ class GenderPerturbation(Perturbation):
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "gender_term"
 
-    """ Random seed """
-    SEED = 1885
-
     """ Line seperator """
     LINE_SEP = "\n"
 
@@ -63,7 +60,7 @@ class GenderPerturbation(Perturbation):
     NEUTRAL = "neutral"
     FEMALE = "female"
     MALE = "male"
-    GENDERS: List[str] = [NEUTRAL, FEMALE, MALE]
+    GENDERS = [NEUTRAL, FEMALE, MALE]
 
     """ Modes """
     GENDER_TERM = "terms"
@@ -125,6 +122,9 @@ class GenderPerturbation(Perturbation):
                 source_class words, we check if it is in the target_class words,
                 and replace it with the corresponding source_class word if so.
         """
+        # self.random, will be set in the apply function
+        self.random: random.Random
+
         assert mode in self.MODES
         self.mode = mode
         assert 0 <= prob <= 1
@@ -134,13 +134,13 @@ class GenderPerturbation(Perturbation):
         self.mapping_file_path: Optional[str] = mapping_file_path
         self.bidirectional: bool = bidirectional
 
-        mappings: List[List[str]] = [list(t) for t in self.MODE_TO_MAPPINGS[self.mode]]
+        mappings: List[Tuple[str, ...]] = self.MODE_TO_MAPPINGS[self.mode]
         self.genders = self.GENDERS
         if self.mapping_file_path and mapping_file_genders:
             self.genders = mapping_file_genders
             with open(self.mapping_file_path, "r") as f:
                 loaded_json = json.load(f)
-                mappings = [[str(e).lower() for e in t] for t in loaded_json]
+                mappings = [tuple([str(e).lower() for e in t]) for t in loaded_json]
             assert mappings
         assert self.source_class in self.genders and self.target_class in self.genders
         # The min function is irrelevant, all we are doing is getting an element from the set
@@ -157,9 +157,6 @@ class GenderPerturbation(Perturbation):
         # Initialize the tokenizers
         self.tokenizer = TreebankWordTokenizer()
         self.detokenizer = TreebankWordDetokenizer()
-
-        # Random generator for our perturbation
-        self.random: random.Random = random.Random(self.SEED)
 
     @property
     def description(self) -> PerturbationDescription:
@@ -201,6 +198,7 @@ class GenderPerturbation(Perturbation):
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         """ Apply the perturbation to the provided instance. """
         assert instance.id is not None
+        self.random = random.Random(int(instance.id[2:]))
         return super().apply(instance, should_perturb_references)
 
     def perturb(self, text: str) -> str:

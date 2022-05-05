@@ -20,9 +20,6 @@ class PersonNamePerturbation(Perturbation):
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "person_name"
 
-    """ Random seed """
-    SEED = 1885
-
     """ Line seperator """
     LINE_SEP = "\n"
 
@@ -43,7 +40,7 @@ class PersonNamePerturbation(Perturbation):
     FEMALE = "female"
     MALE = "male"
     NEUTRAL = "neutral"
-    GENDERS = {FEMALE, MALE, NEUTRAL}
+    GENDERS = [FEMALE, MALE, NEUTRAL]
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
@@ -73,10 +70,16 @@ class PersonNamePerturbation(Perturbation):
 
             https://worksheets.codalab.org/rest/bundles/0xa65e8f9a107c44f198eb4ad356bbda34/contents/blob/
 
-        The available categories in our default file and their values are:
+        The available categories in our default file and their values are as
+        follows:
 
-            "race" => "white_american", "black_american",
-                      "asian", "chinese", "hispanic", "russian", "white"
+            If person_name_type == "last_name":
+
+                (1) "race" => "asian", "chinese", "hispanic", "russian", "white"
+
+            If person_name_type == "first_name":
+
+                (1) "race" => "white_american", "black_american"
 
         The first names in our default file come from Caliskan et al. (2017),
         which derives its list from Greenwald (1998). The former removed some
@@ -120,7 +123,7 @@ class PersonNamePerturbation(Perturbation):
                     aiesha,first_name,race,black_american,gender,female
 
                 Notes:
-                    (1) For each field, the eading and trailing spaces are
+                    (1) For each field, the leading and trailing spaces are
                         ignored, but those in between words in a field are
                         kept.
                     (2) All the fields are lowered.
@@ -139,8 +142,8 @@ class PersonNamePerturbation(Perturbation):
         self.output_path: str = self.OUTPUT_PATH
         Path(self.output_path).mkdir(parents=True, exist_ok=True)
 
-        # Random generator for our perturbation
-        self.random: random.Random = random.Random(self.SEED)
+        # self.random, will be set in the apply function
+        self.random: random.Random
 
         # Initialize the tokenizers
         self.tokenizer = TreebankWordTokenizer()
@@ -269,6 +272,7 @@ class PersonNamePerturbation(Perturbation):
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         """ Apply the perturbation to the provided instance. """
         assert instance.id is not None
+        self.random = random.Random(int(instance.id[2:]))
         return super().apply(instance, should_perturb_references)
 
     def perturb(self, text: str) -> str:
