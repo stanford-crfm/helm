@@ -5,20 +5,16 @@ Starts a REST server for the frontend to interact with.
 Look at `index.js` to see how the functionality is invoked.
 """
 
+from urllib.parse import unquote_plus
 import argparse
-from typing import Optional
-
-import bottle
 import dataclasses
 import json
 import os
-import ssl
 import sys
 import time
-from urllib.parse import unquote_plus
-from wsgiref.simple_server import make_server, WSGIServer
-from socketserver import ThreadingMixIn
+
 from dacite import from_dict
+import bottle
 
 from common.authentication import Authentication
 from common.hierarchical_logger import hlog
@@ -30,6 +26,8 @@ from .server_service import ServerService
 from .query import Query
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
+
+app = bottle.default_app()
 
 
 def safe_call(func, to_json=True):
@@ -66,19 +64,19 @@ def safe_call(func, to_json=True):
         return json.dumps({"error": error_str}) if to_json else error_str
 
 
-@bottle.get("/")
+@app.get("/")
 def handle_root():
     return bottle.redirect("/static/index.html")
 
 
-@bottle.get("/static/<filename:path>")
+@app.get("/static/<filename:path>")
 def handle_static_filename(filename):
     resp = bottle.static_file(filename, root=os.path.join(os.path.dirname(__file__), "static"))
     resp.add_header("Cache-Control", "no-store, must-revalidate ")
     return resp
 
 
-@bottle.get("/api/general_info")
+@app.get("/api/general_info")
 def handle_get_general_info():
     def perform(args):
         return dataclasses.asdict(service.get_general_info())
@@ -86,7 +84,7 @@ def handle_get_general_info():
     return safe_call(perform)
 
 
-@bottle.post("/api/account")
+@app.post("/api/account")
 def handle_create_account():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
@@ -95,7 +93,7 @@ def handle_create_account():
     return safe_call(perform)
 
 
-@bottle.delete("/api/account")
+@app.delete("/api/account")
 def handle_delete_account():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
@@ -105,7 +103,7 @@ def handle_delete_account():
     return safe_call(perform)
 
 
-@bottle.get("/api/account")
+@app.get("/api/account")
 def handle_get_account():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
@@ -117,7 +115,7 @@ def handle_get_account():
     return safe_call(perform)
 
 
-@bottle.put("/api/account")
+@app.put("/api/account")
 def handle_update_account():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
@@ -127,7 +125,7 @@ def handle_update_account():
     return safe_call(perform)
 
 
-@bottle.put("/api/account/api_key")
+@app.put("/api/account/api_key")
 def handle_update_api_key():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
@@ -137,7 +135,7 @@ def handle_update_api_key():
     return safe_call(perform)
 
 
-@bottle.get("/api/query")
+@app.get("/api/query")
 def handle_query():
     def perform(args):
         query = Query(**args)
@@ -146,7 +144,7 @@ def handle_query():
     return safe_call(perform)
 
 
-@bottle.get("/api/request")
+@app.get("/api/request")
 def handle_request():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
@@ -156,7 +154,7 @@ def handle_request():
     return safe_call(perform)
 
 
-@bottle.get("/api/tokenize")
+@app.get("/api/tokenize")
 def handle_tokenization():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
@@ -166,7 +164,7 @@ def handle_tokenization():
     return safe_call(perform)
 
 
-@bottle.get("/api/toxicity")
+@app.get("/api/toxicity")
 def handle_toxicity_request():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
@@ -176,35 +174,13 @@ def handle_toxicity_request():
     return safe_call(perform)
 
 
-@bottle.get("/api/shutdown")
+@app.get("/api/shutdown")
 def handle_shutdown():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
         service.shutdown(auth)
 
     return safe_call(perform)
-
-
-class ServerAdapter(bottle.ServerAdapter):
-    def __init__(self, host: str, port: int, ssl_cert_file: Optional[str], ssl_key_file: Optional[str], **options):
-        self.ssl_cert_file: Optional[str] = ssl_cert_file
-        self.ssl_key_file: Optional[str] = ssl_key_file
-        super().__init__(host, port, **options)
-
-    def run(self, handler):
-        class ThreadAdapter(ThreadingMixIn, WSGIServer):
-            """To handle each request in a new thread. See `ThreadingMixIn` for more information."""
-
-            pass
-
-        server = make_server(host=self.host, port=self.port, app=handler, server_class=ThreadAdapter, **self.options)
-
-        if self.ssl_key_file and self.ssl_cert_file:
-            context = ssl.SSLContext()
-            context.load_cert_chain(certfile=self.ssl_cert_file, keyfile=self.ssl_key_file)
-            server.socket = context.wrap_socket(server.socket, server_side=True)
-
-        server.serve_forever()
 
 
 def main():
@@ -214,14 +190,21 @@ def main():
     parser.add_argument("--ssl-key-file", type=str, help="Path to SSL key file")
     parser.add_argument("--ssl-cert-file", type=str, help="Path to SSL cert file")
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
+    parser.add_argument("-w", "--workers", type=int, help="Number of worker processes to handle requests", default=8)
+    parser.add_argument("-t", "--timeout", type=int, help="Request timeout in seconds", default=5 * 60)
     parser.add_argument(
         "-r", "--read-only", action="store_true", help="To start a read-only service (for testing and debugging)."
     )
     args = parser.parse_args()
 
     service = ServerService(base_path=args.base_path, read_only=args.read_only)
-    bottle.run(
-        server=ServerAdapter(
-            host="0.0.0.0", port=args.port, ssl_cert_file=args.ssl_cert_file, ssl_key_file=args.ssl_key_file
-        )
-    )
+
+    gunicorn_args = {
+        "workers": args.workers,
+        "timeout": args.timeout,
+    }
+    if args.ssl_key_file and args.ssl_cert_file:
+        gunicorn_args["keyfile"] = args.ssl_key_file
+        gunicorn_args["certfile"] = args.ssl_cert_file
+
+    app.run(host="0.0.0.0", port=args.port, server="gunicorn", **gunicorn_args)
