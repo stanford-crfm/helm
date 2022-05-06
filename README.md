@@ -153,7 +153,7 @@ If everything looks okay:
     # Exit the screen session: ctrl-ad
 
 The recommended number of Gunicorn workers is twice the number of cores. 
-crfm-models.stanford.edu has 8 cores (verified with `nproc`).
+crfm-models.stanford.edu has 8 cores (verified with `nproc`) * 2 = 16 workers.
 
 Double check that the [website](https://crfm-models.stanford.edu) still works.
 The server logs can be streamed by running: `tail -f /home/benchmarking/server.log`.
