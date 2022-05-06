@@ -208,4 +208,6 @@ def main():
         gunicorn_args["keyfile"] = args.ssl_key_file
         gunicorn_args["certfile"] = args.ssl_cert_file
 
+    # Clear arguments before running gunicorn as it also uses argparse
+    sys.argv = [sys.argv[0]]
     app.run(host="0.0.0.0", port=args.port, server="gunicorn", **gunicorn_args)
