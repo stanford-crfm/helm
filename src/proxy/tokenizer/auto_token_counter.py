@@ -21,6 +21,9 @@ class AutoTokenCounter(TokenCounter):
                 token_counter = OpenAITokenCounter()
             elif organization == "ai21":
                 token_counter = AI21TokenCounter()
+            elif organization == "gooseai":
+                # TODO: implement token counter for gooseai
+                pass
             else:
                 token_counter = FreeTokenCounter()
             self.token_counters[organization] = token_counter
