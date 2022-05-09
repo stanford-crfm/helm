@@ -39,6 +39,12 @@ class Cache(object):
         # entire database file for the duration of its update. But that normally only takes a few
         # milliseconds. Other processes just wait on the writer to finish then continue about
         # their business
+        #
+        # Locking is done for us. From https://www.sqlite.org/lockingv3.html:
+        # An EXCLUSIVE lock is needed in order to write to the database file. Only one EXCLUSIVE lock
+        # is allowed on the file and no other locks of any kind are allowed to coexist with an EXCLUSIVE
+        # lock. In order to maximize concurrency, SQLite works to minimize the amount of time that EXCLUSIVE
+        # locks are held.
         with SqliteDict(self.cache_path) as cache:
             response = cache.get(key)
             if response:
