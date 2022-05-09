@@ -39,22 +39,29 @@ class CivilCommentsScenario(Scenario):
     platform, a commenting plugin for independent news sites."""
     tags = ["harms", "toxicity"]
 
-    def __init__(self, subject: str = "all", random_seed=42):
+    def __init__(
+        self, subject: str = "all", data_path: str = "/u/scr/nlp/crfm/benchmarking/civil_comments/", random_seed=42
+    ):
         self.subject = subject
         self.random_seed = random_seed
+        self.data_path = data_path
+        if data_path == "default":
+            self.data_path = "/u/scr/nlp/crfm/benchmarking/civil_comments/"
 
     def get_instances(self) -> List[Instance]:
         random.seed(self.random_seed)
 
-        data_path: str = "/u/scr/nlp/crfm/benchmarking/civil_comments/"
-
         if self.subject == "all":
-            file_path = os.path.join(data_path, "civil_comments_10pct.csv")
+            # since loading all the examples is too memory-intensive
+            # and since max_eval_instances is typically not more than
+            # 1000 examples, we work with a randomly sampled 10%
+            # subset of the dataset
+            file_path = os.path.join(self.data_path, "civil_comments_10pct.csv")
             assert os.path.exists(file_path)
             df = pd.read_csv(file_path)
 
         else:
-            file_path = os.path.join(data_path, "civil_comments.csv")
+            file_path = os.path.join(self.data_path, "civil_comments.csv")
             assert os.path.exists(file_path)
             df = pd.read_csv(file_path)
 
