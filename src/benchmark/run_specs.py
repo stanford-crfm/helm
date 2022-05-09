@@ -72,7 +72,8 @@ def get_msmarco_metrics() -> List[MetricSpec]:
         MetricSpec(
             class_name="benchmark.msmarco_metrics.MSMARCOMetric",
             args={"name": "mean_reciprocal_rank", "topk_list": [10]},
-        )
+        ),
+        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
 
 
