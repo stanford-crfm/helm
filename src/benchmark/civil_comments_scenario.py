@@ -32,6 +32,8 @@ class CivilCommentsScenario(Scenario):
     and the Board. They are wasting our money!
     OBSCENE         THREAT      INSULT      IDENTITY_ATTACK     SEXUAL_EXPLICIT
     0               0           0           0                   0
+
+    Note: the dataset must already be downloaded at `data_path`.
     """
 
     name = "civil_comments"
@@ -39,14 +41,11 @@ class CivilCommentsScenario(Scenario):
     platform, a commenting plugin for independent news sites."""
     tags = ["harms", "toxicity"]
 
-    def __init__(
-        self, subject: str = "all", data_path: str = "/u/scr/nlp/crfm/benchmarking/civil_comments/", random_seed=42
-    ):
+    def __init__(self, data_path: str, subject: str = "all", random_seed=42):
         self.subject = subject
         self.random_seed = random_seed
+        assert data_path, "Path to the dataset must be specified"
         self.data_path = data_path
-        if data_path == "default":
-            self.data_path = "/u/scr/nlp/crfm/benchmarking/civil_comments/"
 
     def get_instances(self) -> List[Instance]:
         random.seed(self.random_seed)
