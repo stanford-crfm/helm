@@ -80,8 +80,8 @@ class AI21Client(Client):
             text_length: int = raw["textRange"]["end"] - raw["textRange"]["start"]
             # "topTokens" can be None when sending a request with topKReturn=0
             top_logprobs: Dict[str, float] = dict(
-                (fix_text(x["token"], first), x["logprob"]) for x in raw["topTokens"]
-            ) if raw["topTokens"] else dict()
+                (fix_text(x["token"], first), x["logprob"]) for x in raw["topTokens"] or []
+            )
 
             return Token(
                 # Text should not be longer than text_length. Since "▁" is always inserted
