@@ -41,6 +41,7 @@ class TestRemoteServerService:
                     [
                         TestRemoteServerService._SERVER_EXECUTABLE,
                         f"--port {rest_port}",
+                        f"--workers {1}",
                         "--base-path test_env",
                         "--read-only",
                     ]
