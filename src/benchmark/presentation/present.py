@@ -5,7 +5,7 @@ from pathlib import Path
 
 import dacite
 from tqdm import tqdm
-from typing import List, Optional
+from typing import List, Optional, Tuple, Dict, Any
 import json
 
 from common.authentication import Authentication
@@ -20,7 +20,7 @@ from benchmark.runner import RunSpec
 from benchmark.metric import MetricName, MetricSpec
 from benchmark.scenario import ScenarioSpec
 from proxy.remote_service import add_service_args, create_authentication
-from proxy.models import ALL_MODELS
+from proxy.models import ALL_MODELS, Model
 
 """
 Runs all the RunSpecs in run_specs.conf and outputs a status page.
@@ -183,6 +183,7 @@ class Summarizer:
 
     def _load_runs(self) -> List[Run]:
         runs = []
+        # @TODO Ensure that all the runs in the runs folder are relevant / new
         runs_path = os.path.join(self.output_path, "runs")
         for dir_name in os.listdir(runs_path):
             # Filter out hidden directories, which start with .
@@ -195,15 +196,95 @@ class Summarizer:
                 runs.append(run)
         return runs
 
+    @staticmethod
+    def get_scenario_name(run_spec: RunSpec) -> str:
+        return run_spec.name.split(',')[0]
+
+    @staticmethod
+    def filter_runs_by_model_name(runs, model_name: str) -> List[Run]:
+        return [r for r in runs if r.run_spec.adapter_spec.model == model_name]
+
+    @staticmethod
+    def filter_runs_by_scenario_name(runs, scenario_name: str) -> List[Run]:
+        return [r for r in runs if Summarizer.get_scenario_name(r.run_spec) == scenario_name]
+
+    @staticmethod
+    def filter_out_perturbed_runs(runs) -> List[Run]:
+        return [r for r in runs if not r.run_spec.data_augmenter_spec.perturbations]
+
+    @staticmethod
+    def filter_metrics(metrics: List[MetricName], metric_name: str, k: Optional[int] = None, split: str = 'test', perturbation_name: Optional[str] = None) -> List[MetricName]:
+        # We perform filters in separate lines to observe how the metrics list change with each
+        filtered_metrics = [m for m in metrics if m.name.name == metric_name]
+        filtered_metrics = [m for m in filtered_metrics if m.name.k == k]
+        filtered_metrics = [m for m in filtered_metrics if m.name.split == split]
+        filtered_metrics = [m for m in filtered_metrics if m.name.perturbation.name == perturbation_name]
+        return filtered_metrics
+
+    @staticmethod
+    def get_scenario_metric_and_run_spec(runs: List[Run], scenario_name: str, metric_name) -> Tuple[Optional[MetricName], Optional[str]]:
+        scenario_runs = Summarizer.filter_runs_by_scenario_name(runs, scenario_name)
+        if scenario_runs:
+            # Usually scenario_runs contains only one matching run.
+            #   Currently we take the first run in the list.
+            #   @TODO Consider coming up with a better tie breaker
+            run = scenario_runs[0]
+            # We first attempt to get the metrics on the test set
+            # If we can't fund any, we default to the validation set
+            filtered_metrics = Summarizer.filter_metrics(run.metrics, metric_name, k=None, split='test')
+            if not filtered_metrics:
+                filtered_metrics = Summarizer.filter_metrics(run.metrics, metric_name, k=None, split='valid')
+            if filtered_metrics:
+                return filtered_metrics[0], run.run_spec.name
+        return None, None
+
+    @staticmethod
+    def get_model_dict(runs: List[Run], model: Model, selected_scenarios: List[str], scenario_metric_names: Dict[str, str]) -> Dict[str, Any]:
+        # Filter runs
+        filtered_runs = Summarizer.filter_out_perturbed_runs(runs)
+        filtered_runs = Summarizer.filter_runs_by_model_name(filtered_runs, model.name)
+
+        # Create model dict
+        model_dict = {}
+
+        # Populate model fields
+        model_dict['name'] = model.name
+        model_dict['organization'] = model.creator_organization
+        model_dict['description'] = model.description
+        model_dict['training_co2e'] = model.training_co2e_cost
+
+        # Add Accuracy across some subset of benchmarks
+        model_dict['benchmarks'] = {}
+        for scenario_name in selected_scenarios:
+            metric_name = scenario_metric_names[scenario_name]
+            metric, run_spec_name = Summarizer.get_scenario_metric_and_run_spec(filtered_runs, scenario_name, metric_name)
+            if metric:
+                # Serialize the metric dataclass
+                metric = dataclasses.asdict(metric)
+            model_dict['benchmarks'][scenario_name] = {'metric': metric, 'run_spec_name': run_spec_name}
+
+        # Bias
+        # @TODO Add bias related metrics
+
+        # Inference time across a subset of scenarios
+        # @TODO Add inference time metrics
+
+        return model_dict
+
     def summarize_model_stats(self):
         """ Computes scenario stats and output them to <self.output_path>/model_stats.json """
-        # @TODO Create model stats json
+        # Scenarios which will be reported
+        selected_scenarios = ['imdb', 'boolq']
+        scenario_metric_names = {'imdb': 'exact_match', 'boolq': 'exact_match'}
+
+        # Populate the model stats for each model
         model_stats = []
+        for model in ALL_MODELS:
+            model_dict = self.get_model_dict(self.runs, model, selected_scenarios, scenario_metric_names)
+            model_stats.append(model_dict)
 
         # Write the stats
-        write(
-            os.path.join(self.output_path, "model_stats.json"), json.dumps(model_stats, indent=2),
-        )
+        write(os.path.join(self.output_path, "model_stats.json"), json.dumps(model_stats, indent=2))
 
     def summarize_scenario_stats(self):
         """ Computes model stats and output them to <self.output_path>/scenario_stats.json """
