@@ -3,6 +3,7 @@ import dataclasses
 import os.path
 from pathlib import Path
 
+import dacite
 from tqdm import tqdm
 from typing import List, Optional
 import json
@@ -148,14 +149,8 @@ class Summarizer:
         run_spec_path = os.path.join(run_dir, "run_spec.json")
         with open(run_spec_path, "r") as f:
             j = json.load(f)
-            run_spec_dict = {
-                "name": j["name"],
-                "scenario": ScenarioSpec(**j["scenario"]),
-                "adapter_spec": AdapterSpec(**j["adapter_spec"]),
-                "metrics": [MetricSpec(**m) for m in j["metrics"]],
-                "data_augmenter_spec": DataAugmenterSpec(**j["data_augmenter_spec"]),
-            }
-        return RunSpec(**run_spec_dict)
+            run_spec = dacite.from_dict(RunSpec, j)
+        return run_spec
 
     @staticmethod
     def _load_metrics(run_dir: str) -> List[Stat]:
@@ -180,7 +175,7 @@ class Summarizer:
     def _load_run(self, runs_path: str, dir_name: str) -> Run:
         run_dir = os.path.join(runs_path, dir_name)
         run_dict = {
-            "directory_name": os.path.join(runs_path, dir_name),
+            "run_dir": os.path.join(runs_path, dir_name),
             "run_spec": self._load_run_spec(run_dir),
             "metrics": self._load_metrics(run_dir),
         }
@@ -194,28 +189,33 @@ class Summarizer:
             if dir_name[0] != ".":
                 # Only load a run if it has a run_spec.json
                 run_spec_path = os.path.join(runs_path, dir_name, "run_spec.json")
-                if os.path.exists(run_spec_path):
-                    run = self._load_run(runs_path, dir_name)
-                    runs.append(run)
+                if not os.path.exists(run_spec_path):
+                    continue
+                run = self._load_run(runs_path, dir_name)
+                runs.append(run)
         return runs
 
     def summarize_model_stats(self):
-        """ Computes scenario stats and output them <self.output_path>/model_stats.json """
+        """ Computes scenario stats and output them to <self.output_path>/model_stats.json """
         # @TODO Create model stats json
-        model_stats = {}
+        model_stats = []
 
         # Write the stats
-        with open(os.path.join(self.output_path, "model_stats.json"), "w") as f:
-            json.dump(model_stats, f, indent=2)
+        write(
+            os.path.join(self.output_path, "model_stats.json"),
+            json.dumps(model_stats, indent=2),
+        )
 
     def summarize_scenario_stats(self):
-        """ Computes scenario stats and output them <self.output_path>/scenario_stats.json """
+        """ Computes model stats and output them to <self.output_path>/scenario_stats.json """
         # @TODO Create scenario stats json
-        scenario_stats = {}
+        scenario_stats = []
 
         # Write the stats
-        with open(os.path.join(self.output_path, "scenario_stats.json"), "w") as f:
-            json.dump(scenario_stats, f, indent=2)
+        write(
+            os.path.join(self.output_path, "scenario_stats.json"),
+            json.dumps(scenario_stats, indent=2),
+        )
 
 
 def main():

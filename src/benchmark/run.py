@@ -18,7 +18,7 @@ class Run:
     """ Represents a run with spec and stats. """
 
     # Directory name of the run
-    directory_name: str
+    run_dir: str
 
     # Run spec for the run
     run_spec: RunSpec
