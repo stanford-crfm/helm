@@ -58,11 +58,6 @@ def get_bbq_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={})]
 
 
-# @Ryan - why is this needed; this is the same as the toxicity one?
-def get_bold_metrics() -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
-
-
 def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
@@ -228,12 +223,13 @@ def get_bold_spec(subject: str) -> RunSpec:
         temperature=0.9,  # TODO: Setting based on conversation with John Hewitt; @Ryan please better justify
         max_tokens=20,  # See Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
     )
-    return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bold_metrics())
+    return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics())
 
 
-def get_civil_comments_spec(subject: str) -> RunSpec:
+def get_civil_comments_spec(subject: str, data_path: str) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.civil_comments_scenario.CivilCommentsScenario", args={"subject": subject}
+        class_name="benchmark.civil_comments_scenario.CivilCommentsScenario",
+        args={"subject": subject, "data_path": data_path},
     )
 
     adapter_spec = AdapterSpec(
