@@ -202,8 +202,7 @@ class Summarizer:
 
         # Write the stats
         write(
-            os.path.join(self.output_path, "model_stats.json"),
-            json.dumps(model_stats, indent=2),
+            os.path.join(self.output_path, "model_stats.json"), json.dumps(model_stats, indent=2),
         )
 
     def summarize_scenario_stats(self):
@@ -213,8 +212,7 @@ class Summarizer:
 
         # Write the stats
         write(
-            os.path.join(self.output_path, "scenario_stats.json"),
-            json.dumps(scenario_stats, indent=2),
+            os.path.join(self.output_path, "scenario_stats.json"), json.dumps(scenario_stats, indent=2),
         )
 
 

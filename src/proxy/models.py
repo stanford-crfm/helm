@@ -177,7 +177,7 @@ ALL_MODELS = [
     ),
     Model(
         group="huggingface",
-        creator_organization="EleutherAI",
+        creator_organization="OpenAI",
         name="huggingface/gpt2",
         description="GPT-2 (1.5B parameters)",
         tags=[TEXT_MODEL_TAG],
