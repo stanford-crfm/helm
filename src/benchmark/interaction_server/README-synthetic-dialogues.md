@@ -6,9 +6,9 @@ To inject synthetic dialogues:
 
 	For e.g. for the sample file `venv/bin/benchmark-run -r empatheticdialogues:user_initiated=True,annotation_stage=filtering --pre-interaction -m 2`
 
-3 - Run `convert_synthetic_dialogues_to_interaction_traces.py` with the synthetic dialogues yaml file as the first paramater and the run_path as the second parameter
+3 - Run `inject_synthetic_dialogues.py` with the synthetic dialogues yaml file as the first paramater and the run_path as the second parameter
 
-	For e.g. `python src/benchmark/interaction_server/convert_synthetic_dialogues_to_interaction_traces.py src/benchmark/interaction_server/sample_synthetic_dialogue.yaml benchmark_output/runs/empatheticdialogues:annotation_stage=filtering,user_initiated=True``
+	For e.g. `python src/benchmark/interaction_server/inject_synthetic_dialogues.py src/benchmark/interaction_server/sample_synthetic_dialogue.yaml benchmark_output/runs/empatheticdialogues:annotation_stage=filtering,user_initiated=True``
 
 4 - Start the interaction server and in the url, set the run_name to the above. Take care to url encode the equals signs. 
 

@@ -6,6 +6,7 @@ from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 import pandas as pd
+import json
 
 
 @dataclass(frozen=True)
@@ -244,6 +245,111 @@ class WizardOfWikipediaScenario(Scenario):
         return self.filter_instances(self.read_instances())
 
 
+class CommonSenseScenario(Scenario):
+    """
+    CommonSense-Dialogues dataset from this paper:
+
+       https://arxiv.org/abs/2109.06427
+
+    """
+
+    name = "commonsense_dialogues"
+    description = "A dataset of 11K dialogues grounded in social contexts involving utilization of commonsense."
+    tags = ["interaction", "dialogue"]
+
+    def __init__(self, *args):
+        pass
+
+    def download_data(self):
+        self.data_path: str = os.path.join(self.output_path, "data")
+
+        if not os.path.exists(self.data_path):
+            os.makedirs(self.data_path)
+
+        # Download the raw data
+        train_path: str = os.path.join(self.data_path, "train.json")
+        ensure_file_downloaded(
+            source_url="https://raw.githubusercontent.com/alexa/Commonsense-Dialogues/main/data/train.json",
+            target_path=train_path,
+            unpack=False,
+        )
+
+        val_path: str = os.path.join(self.data_path, "valid.json")
+        ensure_file_downloaded(
+            source_url="https://raw.githubusercontent.com/alexa/Commonsense-Dialogues/main/data/valid.json",
+            target_path=val_path,
+            unpack=False,
+        )
+
+        test_path: str = os.path.join(self.data_path, "test.json")
+        ensure_file_downloaded(
+            source_url="https://raw.githubusercontent.com/alexa/Commonsense-Dialogues/main/data/test.json",
+            target_path=test_path,
+            unpack=False,
+        )
+
+    def read_instances(self):
+        """Downloads the train, valid, test dataset and saves homogenized instances in self.instances"""
+
+        instances: List[Instance] = []
+        splits: Dict[str, str] = {"train": TRAIN_SPLIT, "valid": VALID_SPLIT, "test": TEST_SPLIT}
+
+        # Read the three splits
+        for split in splits:
+            file_path: str = os.path.join(self.data_path, f"{split}.json")
+            if not os.path.exists(file_path):
+                hlog(f"{file_path} doesn't exist, skipping")
+                continue
+
+            hlog(f"Reading {file_path}")
+
+            with open(file_path) as fin:
+                samples = json.load(fin)
+
+            listener = Speaker(id=0, initiator=False, name="Bob")
+            for idx, sample in samples.items():
+                context = sample["context"]
+                initiator = Speaker(id=int(idx) + 1, initiator=True, name=sample["speaker"])
+                utterances: List[Utterance] = []
+                for i, turn in enumerate(sample["turns"]):
+                    if (i % 2) == 0:
+                        speaker = initiator
+                    else:
+                        speaker = listener
+                    utterances.append(Utterance(speaker=speaker, text=turn))
+                output = "".join([str(utt) for utt in utterances])
+                instances.append(
+                    Instance(
+                        input=context, references=[Reference(output=output, tags=[CORRECT_TAG])], split=splits[split]
+                    )
+                )
+
+        return instances
+
+    def filter_instances(self, instances):
+        """Applies following filters to select instances from self.instances"""
+
+        # TODO: Write code to only keep the better instances for few shot prompting
+        # The given prompt is too short or prompt is the number 1
+        # def short_prompt(instance: Instance): return len(instance.input)<20
+
+        # The conversation has less than 6 utterances (6 is max)
+        # def short_convo(reference: DialogueReference): return len(reference.output)<6
+
+        # The conversation has less than 6 utterances (6 is max)
+        # def short_convo(instance: Instance): return len(instance.references)<6
+
+        # instances = filter()
+        # reference conversation length filter
+        # instances = [i for i in instances if i.references]
+
+        return instances
+
+    def get_instances(self) -> List[Instance]:
+        self.download_data()
+        return self.filter_instances(self.read_instances())
+
+
 if __name__ == "__main__":
     # Test EmpatheticDialoguesScenario
     """
@@ -252,10 +358,17 @@ if __name__ == "__main__":
     instances = scenario.get_instances()
     print(len(instances))
     print(instances[100])
-    """
+
     # Test WizardOfWikipediaScenario
     scenario = WizardOfWikipediaScenario()
     scenario.output_path = "./benchmark_output/scenarios/wizardofwikipedia"
+    instances = scenario.get_instances()
+    print(len(instances))
+    print(instances[100])
+    """
+    # Test CommonSenseScenario
+    scenario = CommonSenseScenario()
+    scenario.output_path = "./benchmark_output/scenarios/commonsense_dialogues"
     instances = scenario.get_instances()
     print(len(instances))
     print(instances[100])
