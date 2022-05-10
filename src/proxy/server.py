@@ -27,10 +27,12 @@ from common.tokenization_request import TokenizationRequest
 from .accounts import Account
 from .server_service import ServerService
 from .query import Query
+
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
 app = bottle.default_app()
 file_globals: dict = {}
+
 
 def safe_call(func, to_json=True):
     try:
@@ -183,6 +185,7 @@ def handle_shutdown():
         service.shutdown(auth)
 
     return safe_call(perform)
+
 
 def main():
     global service
