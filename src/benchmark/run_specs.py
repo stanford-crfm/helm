@@ -73,7 +73,10 @@ def get_msmarco_metrics() -> List[MetricSpec]:
 
 
 def get_toxicity_metrics() -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={})]
+    return [
+        MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={}),
+        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
+    ]
 
 
 def get_srn_metrics() -> List[MetricSpec]:
@@ -111,6 +114,7 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
         MetricSpec(
             class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_distance"},
         ),
+        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
 
 
