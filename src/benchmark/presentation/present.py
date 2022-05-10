@@ -10,8 +10,14 @@ import json
 from common.authentication import Authentication
 from common.general import parse_hocon, write
 from common.hierarchical_logger import hlog, htrack
-from benchmark.run import run_benchmarking, add_run_args
+from common.statistic import Stat
+from benchmark.augmentations.data_augmenter import DataAugmenterSpec
+from benchmark.augmentations.perturbation_description import PerturbationDescription
+from benchmark.adapter import AdapterSpec
+from benchmark.run import Run, run_benchmarking, add_run_args
 from benchmark.runner import RunSpec
+from benchmark.metric import MetricName, MetricSpec
+from benchmark.scenario import ScenarioSpec
 from proxy.remote_service import add_service_args, create_authentication
 from proxy.models import ALL_MODELS
 
@@ -126,6 +132,92 @@ class AllRunner:
         write(os.path.join(self.output_path, "status.txt"), status)
 
 
+class Summarizer:
+    """ Summarizes the results. """
+
+    DATA_AUGMENTATION_STR: str = "data_augmentation="
+
+    def __init__(
+        self, output_path: str,
+    ):
+        self.output_path: str = output_path
+        self.runs: List[Run] = self._load_runs()
+
+    @staticmethod
+    def _load_run_spec(run_dir: str) -> RunSpec:
+        run_spec_path = os.path.join(run_dir, "run_spec.json")
+        with open(run_spec_path, "r") as f:
+            j = json.load(f)
+            run_spec_dict = {
+                "name": j["name"],
+                "scenario": ScenarioSpec(**j["scenario"]),
+                "adapter_spec": AdapterSpec(**j["adapter_spec"]),
+                "metrics": [MetricSpec(**m) for m in j["metrics"]],
+                "data_augmenter_spec": DataAugmenterSpec(**j["data_augmenter_spec"]),
+            }
+        return RunSpec(**run_spec_dict)
+
+    @staticmethod
+    def _load_metrics(run_dir: str) -> List[Stat]:
+        metrics: List[Stat] = []
+        with open(os.path.join(run_dir, "metrics.json"), "r") as f:
+            j = json.load(f)
+            for m in j:
+                m["name"]["perturbation"] = PerturbationDescription(m["name"]["perturbation"])
+                m["name"] = MetricName(**m["name"])
+                stat = Stat(name=m["name"])
+                # Stat constructor doesn't accept default values for the
+                # following, so we set them manually
+                stat.count = m["count"]
+                stat.sum = m["sum"]
+                stat.sum_squared = m["sum_squared"] if "sum_squared" in m else 0
+                stat.min = m["min"]
+                stat.max = m["max"]
+                stat.values = m["values"]
+                metrics.append(stat)
+        return metrics
+
+    def _load_run(self, runs_path: str, dir_name: str) -> Run:
+        run_dir = os.path.join(runs_path, dir_name)
+        run_dict = {
+            "directory_name": os.path.join(runs_path, dir_name),
+            "run_spec": self._load_run_spec(run_dir),
+            "metrics": self._load_metrics(run_dir),
+        }
+        return Run(**run_dict)
+
+    def _load_runs(self) -> List[Run]:
+        runs = []
+        runs_path = os.path.join(self.output_path, "runs")
+        for dir_name in os.listdir(runs_path):
+            # Filter out hidden directories, which start with .
+            if dir_name[0] != ".":
+                # Only load a run if it has a run_spec.json
+                run_spec_path = os.path.join(runs_path, dir_name, "run_spec.json")
+                if os.path.exists(run_spec_path):
+                    run = self._load_run(runs_path, dir_name)
+                    runs.append(run)
+        return runs
+
+    def summarize_model_stats(self):
+        """ Computes scenario stats and output them <self.output_path>/model_stats.json """
+        # @TODO Create model stats json
+        model_stats = {}
+
+        # Write the stats
+        with open(os.path.join(self.output_path, "model_stats.json"), "w") as f:
+            json.dump(model_stats, f, indent=2)
+
+    def summarize_scenario_stats(self):
+        """ Computes scenario stats and output them <self.output_path>/scenario_stats.json """
+        # @TODO Create scenario stats json
+        scenario_stats = {}
+
+        # Write the stats
+        with open(os.path.join(self.output_path, "scenario_stats.json"), "w") as f:
+            json.dump(scenario_stats, f, indent=2)
+
+
 def main():
     parser = argparse.ArgumentParser()
     add_service_args(parser)
@@ -150,5 +242,11 @@ def main():
         skip_instances=args.skip_instances,
         max_eval_instances=args.max_eval_instances,
     )
-    runner.run()
+    # Run the benchmark!
+    # @TODO Commenting out to test summarizer, remove before merging
+    # runner.run()
+    # Summarize the results for use in the UI
+    summarizer = Summarizer(output_path=args.output_path)
+    summarizer.summarize_model_stats()
+    summarizer.summarize_scenario_stats()
     hlog("Done.")
