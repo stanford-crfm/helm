@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 TEXT_MODEL_TAG: str = "text"
 CODE_MODEL_TAG: str = "code"
@@ -13,8 +13,10 @@ class Model:
 
     group: str
     name: str
+    creator_organization: str
     description: str
     tags: List[str] = field(default_factory=list)
+    training_co2_cost: Optional[int] = None
 
     @property
     def organization(self) -> str:
@@ -40,82 +42,136 @@ class Model:
 ALL_MODELS = [
     # AI21
     Model(
-        group="jurassic", name="ai21/j1-jumbo", description="Jurassic J1-Jumbo (178B parameters)", tags=[TEXT_MODEL_TAG]
+        group="jurassic",
+        creator_organization="ai21",
+        name="ai21/j1-jumbo",
+        description="Jurassic J1-Jumbo (178B parameters)",
+        tags=[TEXT_MODEL_TAG],
     ),
     # From AI21: "the new model is a mid-point in terms of size, cost and performance between Jumbo and Large.
     # We also implemented a few tweaks to its training process. Internal benchmarks suggest it can really
     # help the unit economics on your end compared to Jumbo, without compromising too much on quality."
     Model(
         group="jurassic",
+        creator_organization="ai21",
         name="ai21/j1-grande",
         description="Jurassic J1-Large (17B parameters with a few tweaks to its training process)",
         tags=[TEXT_MODEL_TAG],
     ),
     Model(
-        group="jurassic", name="ai21/j1-large", description="Jurassic J1-Large (7.5B parameters)", tags=[TEXT_MODEL_TAG]
+        group="jurassic",
+        creator_organization="ai21",
+        name="ai21/j1-large",
+        description="Jurassic J1-Large (7.5B parameters)",
+        tags=[TEXT_MODEL_TAG],
     ),
     # OpenAI: https://beta.openai.com/docs/engines/gpt-3
-    Model(group="gpt3", name="openai/davinci", description="GPT-3 (175B parameters)", tags=[TEXT_MODEL_TAG]),
-    Model(group="gpt3", name="openai/curie", description="GPT-3 (6.7B parameters)", tags=[TEXT_MODEL_TAG]),
-    Model(group="gpt3", name="openai/babbage", description="GPT-3 (1.3B parameters)", tags=[TEXT_MODEL_TAG]),
-    Model(group="gpt3", name="openai/ada", description="GPT-3 (350M parameters)", tags=[TEXT_MODEL_TAG]),
+    Model(
+        group="gpt3",
+        creator_organization="openai",
+        name="openai/davinci",
+        description="GPT-3 (175B parameters)",
+        tags=[TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="gpt3",
+        creator_organization="openai",
+        name="openai/curie",
+        description="GPT-3 (6.7B parameters)",
+        tags=[TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="gpt3",
+        creator_organization="openai",
+        name="openai/babbage",
+        description="GPT-3 (1.3B parameters)",
+        tags=[TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="gpt3",
+        creator_organization="openai",
+        name="openai/ada",
+        description="GPT-3 (350M parameters)",
+        tags=[TEXT_MODEL_TAG],
+    ),
     # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
     #       https://github.com/stanford-crfm/benchmarking/issues/359
     Model(
         group="gpt3",
+        creator_organization="openai",
         name="openai/text-davinci-002",
         description="GPT-3 from Instruct series 2nd generation (175B parameters) - 4000 max tokens",
         tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG],
     ),
     Model(
         group="gpt3",
+        creator_organization="openai",
         name="openai/text-davinci-001",
         description="GPT-3 from Instruct series (175B parameters)",
         tags=[TEXT_MODEL_TAG],
     ),
     Model(
         group="gpt3",
+        creator_organization="openai",
         name="openai/text-curie-001",
         description="GPT-3 from Instruct series (6.7B parameters)",
         tags=[TEXT_MODEL_TAG],
     ),
     Model(
         group="gpt3",
+        creator_organization="openai",
         name="openai/text-babbage-001",
         description="GPT-3 from Instruct series (1.3B parameters)",
         tags=[TEXT_MODEL_TAG],
     ),
     Model(
         group="gpt3",
+        creator_organization="openai",
         name="openai/text-ada-001",
         description="GPT-3 from Instruct series (350M parameters)",
         tags=[TEXT_MODEL_TAG],
     ),
     Model(
         group="codex",
+        creator_organization="openai",
         name="openai/code-davinci-002",
         description="Codex 2nd Generation (for natural language to code) - 4000 max tokens",
         tags=[CODE_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG],
     ),
     Model(
         group="codex",
+        creator_organization="openai",
         name="openai/code-davinci-001",
         description="Codex (for natural language to code) - 2048 max tokens",
         tags=[CODE_MODEL_TAG],
     ),
     Model(
         group="codex",
+        creator_organization="openai",
         name="openai/code-cushman-001",
         description="Codex (for natural language to code) - 2048 max tokens",
         tags=[CODE_MODEL_TAG],
     ),
     # HuggingFace
-    Model(group="huggingface", name="huggingface/gptj_6b", description="GPT-J (6B parameters)", tags=[TEXT_MODEL_TAG]),
-    Model(group="huggingface", name="huggingface/gpt2", description="GPT-2 (1.5B parameters)", tags=[TEXT_MODEL_TAG]),
+    Model(
+        group="huggingface",
+        creator_organization="eleutherai",
+        name="huggingface/gptj_6b",
+        description="GPT-J (6B parameters)",
+        tags=[TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="huggingface",
+        creator_organization="eleutherai",
+        name="huggingface/gpt2",
+        description="GPT-2 (1.5B parameters)",
+        tags=[TEXT_MODEL_TAG],
+    ),
     # Anthropic
     # TODO: The API for the Anthropic LM is not production-ready. Update with the official name and description.
     Model(
         group="anthropic",
+        creator_organization="anthropic",
         name="anthropic/stanford-online-helpful-v4-s3",
         description="Anthropic model (52B parameters)",
         tags=[LIMITED_FUNCTIONALITY_MODEL_TAG, TEXT_MODEL_TAG],  # The Anthropic model has limited functionality
@@ -123,6 +179,7 @@ ALL_MODELS = [
     # Microsoft
     Model(
         group="microsoft",
+        creator_organization="microsoft",
         name="microsoft/TNLGv2_530B",
         description="Megatron-Turing NLG (530B parameters)",
         tags=[LIMITED_FUNCTIONALITY_MODEL_TAG, TEXT_MODEL_TAG],  # The TNLGv2 models have limited functionality
@@ -135,7 +192,12 @@ ALL_MODELS = [
     #     tags = [LIMITED_FUNCTIONALITY_MODEL_TAG, TEXT_MODEL_TAG],  # The TNLGv2 models have limited functionality
     # ),
     # For debugging
-    Model(group="simple", name="simple/model1", description="Copy last tokens (for debugging)"),
+    Model(
+        group="simple",
+        creator_organization="simple",
+        name="simple/model1",
+        description="Copy last tokens (for debugging)",
+    ),
 ]
 
 
