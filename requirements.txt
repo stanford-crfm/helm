@@ -37,3 +37,4 @@ py-rouge==1.1
 xlrd==2.0.1
 rouge-score==0.0.4
 gdown==4.4.0
+pysocks==1.7.1

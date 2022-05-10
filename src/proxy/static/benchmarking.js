@@ -55,10 +55,20 @@ $(function () {
 
   function renderFieldValue(field, value) {
     if (!field.values) {
-      return value; 
+      return value;
     }
     const valueField = field.values.find(valueField => valueField.name === value);
     return $('<a>', {title: valueField ? valueField.description : '(no description)'}).append(value);
+  }
+
+  function perturbationEquals(perturbation1, perturbation2) {
+    if (perturbation1 == null) {
+      return perturbation2 == null;
+    }
+    if (perturbation2 == null) {
+      return perturbation1 == null;
+    }
+    return renderDict(perturbation1) === renderDict(perturbation2);
   }
 
   function metricNameEquals(name1, name2) {
@@ -66,7 +76,19 @@ $(function () {
            name1.k === name2.k &&
            name1.split === name2.split &&
            name1.sub_split === name2.sub_split &&
-           name1.perturbation === name2.perturbation;
+           perturbationEquals(name1.perturbation, name2.perturbation);
+  }
+
+  function renderPerturbation(perturbation) {
+    if (!perturbation) {
+      return 'original';
+    }
+    // The perturbation field must have the "name" subfield
+    const fields_str = Object.keys(perturbation)
+                       .filter(key => key !== 'name')
+                       .map(key => `${key}=${perturbation[key]}`)
+                       .join(', ');
+    return perturbation.name + (fields_str ? '(' + fields_str + ')' : '');
   }
 
   function renderMetricName(name) {
@@ -80,13 +102,7 @@ $(function () {
       result += ' on ' + name.split + (name.sub_split ? '/' + name.sub_split : '');
     }
     if (name.perturbation) {
-      // The perturbation field must have the "name" subfield
-      fields_str = Object.keys(name.perturbation)
-                         .filter(key => key !== 'name')
-                         .map(key => `${key}=${name.perturbation[key]}`)
-                         .join(', ');
-      if (fields_str) { fields_str = " where " + fields_str }
-      result += ' with ' + name.perturbation.name + fields_str;
+      result += ' with ' + renderPerturbation(name.perturbation);
     }
     return result;
   }
@@ -101,7 +117,7 @@ $(function () {
       result += `\non ${name.split}: evaluated on the subset of ${name.split} instances`;
     }
     if (name.perturbation) {
-      result += `\nwith ${name.perturbation}: applied this perturbation (worst means over all perturbations of an instance)`;
+      result += `\nwith ${renderPerturbation(name.perturbation)}: applied this perturbation (worst means over all perturbations of an instance)`;
     }
     return result;
   }
@@ -115,23 +131,57 @@ $(function () {
     return $table;
   }
 
-  function renderRunsOverview(runSpecs) {
-    const $table = $('<table>', {class: 'query-table'});
-    const $header = $('<tr>')
-        .append($('<td>').append($('<b>').append('Run')))
-        .append($('<td>').append($('<b>').append('Model')))
-        .append($('<td>').append($('<b>').append('Adaptation method')));
-    $table.append($header);
+  function getLast(l) {
+    return l[l.length - 1];
+  }
 
-    runSpecs.forEach((runSpec) => {
-      const href = encodeUrlParams(Object.assign(urlParams, {runSpec: runSpec.name}));
-      const $row = $('<tr>')
-        .append($('<td>').append($('<a>', {href}).append(runSpec.name)))
-        .append($('<td>').append(runSpec.adapter_spec.model))
-        .append($('<td>').append(runSpec.adapter_spec.method))
-      $table.append($row);
+  function renderScenarioSpec(spec) {
+    // Example: benchmark.mmlu_scenario.MMLUScenario => MMLU
+    const name = getLast(spec.class_name.split('.')).replace('Scenario', '');
+    return name + '(' + renderDict(spec.args) + ')';
+  }
+
+  function renderRunsOverview(runSpecs) {
+    let query = '';
+    const $search = $('<input>', {type: 'text', size: 40, placeholder: 'Enter regex query (enter to open all)'});
+    $search.keyup((e) => {
+      // Open up all match specs
+      if (e.keyCode === 13) {
+        const href = encodeUrlParams(Object.assign(urlParams, {runSpec: '.*' + query + '.*'}));
+        window.open(href);
+      }
+      query = $search.val();
+      renderTable();
     });
-    return $table;
+
+    const $table = $('<table>', {class: 'query-table'});
+
+    function renderTable() {
+      $table.empty();
+      const $header = $('<tr>')
+          .append($('<td>').append($('<b>').append('Run')))
+          .append($('<td>').append($('<b>').append('Scenario')))
+          .append($('<td>').append($('<b>').append('Model')))
+          .append($('<td>').append($('<b>').append('Adaptation method')));
+      $table.append($header);
+
+      runSpecs.forEach((runSpec) => {
+        if (!new RegExp(query).test(runSpec.name)) {
+          return;
+        }
+        const href = encodeUrlParams(Object.assign(urlParams, {runSpec: runSpec.name}));
+        const $row = $('<tr>')
+          .append($('<td>').append($('<a>', {href}).append(runSpec.name)))
+          .append($('<td>').append(renderScenarioSpec(runSpec.scenario)))
+          .append($('<td>').append(runSpec.adapter_spec.model))
+          .append($('<td>').append(runSpec.adapter_spec.method))
+        $table.append($row);
+      });
+    }
+
+    renderTable();
+
+    return $('<div>').append([$search, $table]);
   }
 
   function renderHeader(header, body) {
@@ -197,6 +247,10 @@ $(function () {
     });
   }
 
+  function renderDict(obj) {
+    return Object.entries(obj).map(([key, value]) => `${key}=${value}`).join(',');
+  }
+
   function renderRunsDetailed(runSpecs) {
     // Render all the `runSpecs`:
     // - Adapter specifictaion
@@ -208,10 +262,6 @@ $(function () {
     // Used to hash instances.
     function instanceKey(instance) {
       return JSON.stringify(instance);
-    }
-
-    function renderDict(obj) {
-      return Object.entries(obj).map(([key, value]) => `${key}=${value}`).join(',');
     }
 
     // Paths (parallel arrays corresponding to `runSpecs`)
@@ -298,6 +348,7 @@ $(function () {
     getJSONList(scenarioPaths, (scenarios) => {
       console.log('scenarios', scenarios);
 
+      // Only grab the first scenario
       const i = 0;
       $scenarioInfo.append($('<h3>').append(scenarios[i].name));
       $scenarioInfo.append($('<div>').append($('<i>').append(scenarios[i].description)));
@@ -316,7 +367,7 @@ $(function () {
           // Render instance
           $instances.append($('<hr>'));
           const $instance = $('<div>');
-          $instance.append($('<b>').append(`Input ${instanceIndex}`));
+          $instance.append($('<b>').append(`Input ${instanceIndex} (${instance.split} - ${instance.id} ${renderPerturbation(instance.perturbation)})`));
           $instance.append(': ');
           $instance.append(multilineHtml(instance.input));
           const $references = $('<ul>');
