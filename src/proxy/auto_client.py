@@ -42,7 +42,7 @@ class AutoClient(Client):
             elif organization == "microsoft":
                 client = MicrosoftClient(api_key=self.credentials["microsoftApiKey"], cache_path=client_cache_path)
             elif organization == "simple":
-                client = SimpleClient()
+                client = SimpleClient(cache_path=client_cache_path)
             else:
                 raise ValueError(f"Unknown organization: {organization}")
             self.clients[organization] = client

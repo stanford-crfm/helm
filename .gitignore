@@ -5,6 +5,7 @@ __pycache__
 .mypy_cache
 
 prod_env
+test_env/cache
 benchmark_output
 proxy_api_key.txt
 
