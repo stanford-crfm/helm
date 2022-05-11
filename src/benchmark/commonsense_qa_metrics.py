@@ -34,9 +34,7 @@ class CommonSenseQAMetric(Metric):
 
                 instance_stats = self.evaluate_references(adapter_spec, request_states, metric_service)
                 instance: Instance = scenario_state.instances[idx // self.n_request_per_instance]
-                all_per_instance_stats[
-                    PerInstanceStatsKey(instance.id if instance.id is not None else str(instance), train_trial_index)
-                ] = instance_stats
+                all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
 
                 for stat in instance_stats:
                     # All of the request states should be for the same split

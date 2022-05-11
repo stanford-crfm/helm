@@ -31,11 +31,6 @@ class TokensMetric(Metric):
             merge_stat(stats, stat)
             # Call take_mean to make a copy of the stat above so that merge_stat updates do
             # not change what is in per_instance_stats.
-            per_instance_stats[
-                PerInstanceStatsKey(
-                    request_state.instance.id if request_state.instance.id is not None else str(request_state.instance),
-                    0,
-                )
-            ] = [stat.take_mean()]
+            per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = [stat.take_mean()]
 
         return MetricResult([stat.take_mean() for stat in stats.values()], per_instance_stats)

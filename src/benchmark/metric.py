@@ -19,10 +19,10 @@ from .adapter import (
 )
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenario import EVAL_SPLITS, TEST_SPLIT
+from .scenario import Instance, EVAL_SPLITS, TEST_SPLIT
 
 
-@dataclass(frozen=True)
+@dataclass(unsafe_hash=True)
 class PerInstanceStatsKey:
     """
     `PerInstanceStatsKey` is a (instance, trial index) tuple.
@@ -30,6 +30,10 @@ class PerInstanceStatsKey:
 
     instance: str
     trial_index: int
+
+    def __init__(self, instance: Instance, trial_index: int):
+        self.instance = instance.id if instance.id is not None else str(instance)
+        self.trial_index = trial_index
 
 
 @dataclass
@@ -92,9 +96,7 @@ class Metric(ABC):
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
                 instance_stats.extend(self.evaluate_references(adapter_spec, request_states, metric_service))
-                all_per_instance_stats[
-                    PerInstanceStatsKey(instance.id if instance.id is not None else str(instance), train_trial_index)
-                ] = instance_stats
+                all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
 
                 # Merge these statistics back.
                 # TODO: we should add statistics with the individual instances too and serialize them out.
@@ -181,12 +183,7 @@ class Metric(ABC):
             # Evaluate request_state
             request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
             # Use trial index of 0 here since we run only one trial for LM
-            all_per_instance_stats[
-                PerInstanceStatsKey(
-                    request_state.instance.id if request_state.instance.id is not None else str(request_state.instance),
-                    0,
-                )
-            ] = request_stats
+            all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = request_stats
 
             for stat in request_stats:
                 stat = Stat(replace(stat.name, split=split)).merge(stat)
@@ -285,14 +282,7 @@ class Metric(ABC):
                     for efficiency_stat_name in efficiency_stat_names:
                         if stat.name == MetricName(efficiency_stat_name):
                             efficiency_stats[efficiency_stat_name][pair_id] += stat.sum
-                all_per_instance_stats[
-                    PerInstanceStatsKey(
-                        request_state.instance.id
-                        if request_state.instance.id is not None
-                        else str(request_state.instance),
-                        0,
-                    )
-                ] = request_stats
+                all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = request_stats
 
             accuracy = sum(good_logprobs[pair_id] > bad_logprobs[pair_id] for pair_id in good_logprobs) / len(
                 good_logprobs
