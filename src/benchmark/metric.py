@@ -19,7 +19,17 @@ from .adapter import (
 )
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenario import Instance, EVAL_SPLITS, TEST_SPLIT
+from .scenario import EVAL_SPLITS, TEST_SPLIT
+
+
+@dataclass(frozen=True)
+class PerInstanceStatsKey:
+    """
+    `PerInstanceStatsKey` is a (instance, trial index) tuple.
+    """
+
+    instance: str
+    trial_index: int
 
 
 @dataclass
@@ -32,8 +42,7 @@ class MetricResult:
     aggregated_stats: List[Stat]
 
     # Key for per-instance statistics is (instance, trial index), value is list of statistics.
-    # TODO: Consider making the key a dataclass instead.
-    per_instance_stats: Dict[Tuple[Instance, int], List[Stat]]
+    per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]]
 
 
 class Metric(ABC):
@@ -62,7 +71,7 @@ class Metric(ABC):
 
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
-        all_per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = {}
+        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
@@ -83,7 +92,9 @@ class Metric(ABC):
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
                 instance_stats.extend(self.evaluate_references(adapter_spec, request_states, metric_service))
-                all_per_instance_stats[(instance, train_trial_index)] = instance_stats
+                all_per_instance_stats[
+                    PerInstanceStatsKey(instance.id if instance.id is not None else str(instance), train_trial_index)
+                ] = instance_stats
 
                 # Merge these statistics back.
                 # TODO: we should add statistics with the individual instances too and serialize them out.
@@ -162,7 +173,7 @@ class Metric(ABC):
         # The first and only trial
         trial_stats: Dict[MetricName, Stat] = {}
         # Per-instance stats
-        all_per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = {}
+        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
         # Assume models are only evaluated on the test set
         split: str = TEST_SPLIT
 
@@ -170,7 +181,12 @@ class Metric(ABC):
             # Evaluate request_state
             request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
             # Use trial index of 0 here since we run only one trial for LM
-            all_per_instance_stats[(request_state.instance, 0)] = request_stats
+            all_per_instance_stats[
+                PerInstanceStatsKey(
+                    request_state.instance.id if request_state.instance.id is not None else str(request_state.instance),
+                    0,
+                )
+            ] = request_stats
 
             for stat in request_stats:
                 stat = Stat(replace(stat.name, split=split)).merge(stat)
@@ -231,7 +247,7 @@ class Metric(ABC):
         # The first and only trial
         trial_stats: Dict[MetricName, Stat] = {}
         # Per-instance stats
-        all_per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = {}
+        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
         # Assume models are only evaluated on the test set
         split: str = TEST_SPLIT
 
@@ -269,7 +285,14 @@ class Metric(ABC):
                     for efficiency_stat_name in efficiency_stat_names:
                         if stat.name == MetricName(efficiency_stat_name):
                             efficiency_stats[efficiency_stat_name][pair_id] += stat.sum
-                all_per_instance_stats[(request_state.instance, 0)] = request_stats
+                all_per_instance_stats[
+                    PerInstanceStatsKey(
+                        request_state.instance.id
+                        if request_state.instance.id is not None
+                        else str(request_state.instance),
+                        0,
+                    )
+                ] = request_stats
 
             accuracy = sum(good_logprobs[pair_id] > bad_logprobs[pair_id] for pair_id in good_logprobs) / len(
                 good_logprobs

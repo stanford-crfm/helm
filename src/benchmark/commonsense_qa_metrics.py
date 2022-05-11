@@ -1,11 +1,11 @@
 from dataclasses import replace
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 from common.request import Token
 from common.statistic import Stat, merge_stat
 from .adapter import AdapterSpec, ScenarioState, RequestState
 from .metric_service import MetricService
-from .metric import Metric, MetricResult
+from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
 from .scenario import Instance
 from .commonsense_qa_scenario import CLM_CORRECT_TAG
@@ -25,7 +25,7 @@ class CommonSenseQAMetric(Metric):
     def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
-        all_per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = {}  # (Instance, Trial index) -> List[Stat]
+        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}  # (Instance, Trial index) -> List[Stat]
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
@@ -34,7 +34,9 @@ class CommonSenseQAMetric(Metric):
 
                 instance_stats = self.evaluate_references(adapter_spec, request_states, metric_service)
                 instance: Instance = scenario_state.instances[idx // self.n_request_per_instance]
-                all_per_instance_stats[(instance, train_trial_index)] = instance_stats
+                all_per_instance_stats[
+                    PerInstanceStatsKey(instance.id if instance.id is not None else str(instance), train_trial_index)
+                ] = instance_stats
 
                 for stat in instance_stats:
                     # All of the request states should be for the same split
