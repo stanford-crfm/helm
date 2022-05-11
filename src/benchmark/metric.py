@@ -247,6 +247,17 @@ class Metric(ABC):
         good_logprobs: defaultdict = defaultdict(float)
         bad_logprobs: defaultdict = defaultdict(float)
 
+        # Efficiency metrics
+        efficiency_stat_names: List[str] = [
+            "inference_runtime",
+            "inference_idealized_runtime",
+            "inference_runtime_discrepancy",
+            "training_co2_cost",
+        ]
+        efficiency_stats: Dict[str, defaultdict] = {
+            efficiency_stat_name: defaultdict(float) for efficiency_stat_name in efficiency_stat_names
+        }
+
         if scenario_state.request_states:
             for request_state in scenario_state.request_states:
                 assert request_state.instance.id is not None and request_state.instance.sub_split is not None
@@ -262,11 +273,24 @@ class Metric(ABC):
                         else:
                             raise Exception(f"Unknown sub_split {sub_split}")
                         continue
+                    # Sum runtimes (real and idealized) across pair
+                    for efficiency_stat_name in efficiency_stat_names:
+                        if stat.name == MetricName(efficiency_stat_name):
+                            efficiency_stats[efficiency_stat_name][pair_id] += stat.sum
                 all_per_instance_stats[(request_state.instance, 0)] = request_stats
 
             accuracy = sum(good_logprobs[pair_id] > bad_logprobs[pair_id] for pair_id in good_logprobs) / len(
                 good_logprobs
             )
+            for efficiency_stat_name in efficiency_stat_names:
+                for pair_id in efficiency_stats[efficiency_stat_name]:
+                    efficiency_stat: float = efficiency_stats[efficiency_stat_name][pair_id]
+                    # training_co2_cost should not add across pair, so divide by 2
+                    if efficiency_stat_name == "training_co2_cost":
+                        efficiency_stat = efficiency_stat / 2
+                    merge_stat(
+                        trial_stats, Stat(MetricName(efficiency_stat_name, split=split)).add(efficiency_stat),
+                    )
         else:
             accuracy = 0
 

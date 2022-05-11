@@ -34,6 +34,8 @@ adapter:
 metrics:
 - name: exact_match
   description: Whether the predicted output matches one of the correct references.
+- name: quasi_exact_match
+  description: Whether the predicted output matches one of the correct references up to lightweight processing.
 - name: logprob
   description: Log-probability of the predicted output (for language modeling, the input too).
 - name: num_tokens

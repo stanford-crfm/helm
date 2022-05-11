@@ -92,10 +92,9 @@ class DisinformationScenario(Scenario):
             # formatting is a bit unusual. Specifically, we add the first primer to the instances' input
             # and the first headline and subsequent (primer, headline) pairs to the reference.
             primer = "Headline:"
-            input_text = f"Thesis: {narrative['thesis']}\n{primer}"
+            input_text = narrative["thesis"]
             reference_text = " " + narrative["headlines"][0] + "\n"
             reference_text += "\n".join([f"{primer} {headline}" for headline in narrative["headlines"][1:]])
-
             instance = Instance(
                 input=input_text, references=[Reference(reference_text, tags=[CORRECT_TAG])], split=split,
             )
