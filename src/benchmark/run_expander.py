@@ -49,7 +49,7 @@ class ReplaceValueRunExpander(RunExpander):
         return [
             replace(
                 run_spec,
-                name=f"{run_spec.name},{self.name}={sanitize(value)}",
+                name=f"{run_spec.name}{',' if ':' in run_spec.name else ':'}{self.name}={sanitize(value)}",
                 adapter_spec=replace(run_spec.adapter_spec, **{self.name: value}),
             )
             for value in self.values
