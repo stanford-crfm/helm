@@ -1,6 +1,7 @@
 from dataclasses import replace
+import re
 
-from benchmark.adapter import InteractionTrace, InteractiveAdapter, RequestState, UserInput
+from benchmark.adapter import InteractionTrace, InteractiveAdapter, RequestState, UserInput, AdapterSpec
 
 
 class DialogueAdapter(InteractiveAdapter):
@@ -15,12 +16,29 @@ class DialogueAdapter(InteractiveAdapter):
         adapted_utterance = self.user_name + ": {" + inp + "}\n"
         return adapted_utterance
 
+    def postprocess_initial_request(
+        self, initial_request_state: RequestState, adapter_spec: AdapterSpec
+    ) -> RequestState:
+        if self.user_initiated:
+
+            print("Before postprocessing")
+            print(initial_request_state.request.prompt)
+            new_prompt = re.sub(
+                adapter_spec.input_prefix + ".*(?=" + adapter_spec.output_prefix + ")",
+                "",
+                initial_request_state.request.prompt,
+            )
+            new_request = replace(initial_request_state.request, prompt=new_prompt)
+            initial_request_state = replace(initial_request_state, request=new_request)
+            print("After postprocessing")
+            print(initial_request_state.request.prompt)
+        return initial_request_state
+
     def agent_prompt(self) -> str:
         agent_prompt = self.agent_name + ": {"
         return agent_prompt
 
-    def initial_lm_request(self, interaction_trace: InteractionTrace) -> RequestState:
-        initial_request_state = interaction_trace.trace[0].request_state
+    def initial_lm_request(self, initial_request_state: RequestState) -> RequestState:
         initial_prompt = initial_request_state.request.prompt
         new_prompt = initial_prompt + self.agent_prompt()
         new_request = replace(initial_request_state.request, prompt=new_prompt)

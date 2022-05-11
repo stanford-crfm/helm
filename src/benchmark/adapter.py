@@ -795,6 +795,15 @@ class InteractiveAdapter(ABC):
         """
         raise NotImplementedError
 
+    def postprocess_initial_request(
+        self, initial_request_state: RequestState, adapter_spec: AdapterSpec
+    ) -> RequestState:
+        """
+        For some scenarios, the (non-interactive) adapter code is not expressive enough, but is still largely useful.
+        The following code postprocesses the initial request (using information from adapter_spec)
+        """
+        return initial_request_state
+
     @abstractmethod
     def adapt_user_input(self, interaction_trace: InteractionTrace, user_input: UserInput) -> RequestState:
         """Returns an updated InteractionTrace with the user input and a new request to the model/LM"""

@@ -57,13 +57,14 @@ def start_dialogue(args: dict):
     user_id = args["user_id"]
     # Initializes the interaction_trace (after reading it from disk)
     # If it is bot_initiated it also queries the LM and returns the result
+    # If it is user initiated it strips prompts from the request sent to the LM
     interaction_trace = runner.initialize_interaction_trace(user_id=user_id, interaction_trace_id=interaction_trace_id)
     prompt = interaction_trace.instance.input
     display_prompt = ""
     if runner.run_spec.scenario.class_name == "benchmark.dialogue_scenarios.WizardOfWikipediaScenario":
-        display_prompt = "Your topic: "+prompt
+        display_prompt = "Your topic: " + prompt
     else:
-        display_prompt = "Your scenario: "+prompt
+        display_prompt = "Your scenario: " + prompt
     utterances = []
     for round in interaction_trace.trace:
         if round.user_input is not None:

@@ -273,18 +273,22 @@ class InteractiveRunner:
             # Do not overwrite
             return interaction_trace
 
+        # Postprocess the initial request
+        first_interaction_round = interaction_trace.trace[0]
+        assert first_interaction_round.user_input is None
+        new_request_state = self.interactive_adapter.postprocess_initial_request(
+            first_interaction_round.request_state, self.run_spec.adapter_spec
+        )
+        first_interaction_round = InteractionRound(user_input=None, request_state=new_request_state)
+
         if self.interactive_adapter.user_initiated is False:
-            first_interaction_round = interaction_trace.trace[0]
-            assert first_interaction_round.user_input is None
-            new_request_state: RequestState = self.interactive_adapter.initial_lm_request(
-                first_interaction_round.request_state
-            )
+            new_request_state = self.interactive_adapter.initial_lm_request(first_interaction_round.request_state)
             new_request_state = self.process(new_request_state)
             hlog(new_request_state.render_lines())
             first_interaction_round = InteractionRound(user_input=None, request_state=new_request_state)
 
-            interaction_trace.trace[0] = first_interaction_round
-            self.save_interaction_trace(interaction_trace=interaction_trace)
+        interaction_trace.trace[0] = first_interaction_round
+        self.save_interaction_trace(interaction_trace=interaction_trace)
         return interaction_trace
 
     def handle_user_input(self, interaction_trace_id: uuid.UUID, user_input: UserInput) -> RequestResult:
