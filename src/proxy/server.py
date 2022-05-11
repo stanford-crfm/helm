@@ -193,12 +193,9 @@ def main():
     parser.add_argument("--ssl-key-file", type=str, help="Path to SSL key file")
     parser.add_argument("--ssl-cert-file", type=str, help="Path to SSL cert file")
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
-    parser.add_argument(
-        "-r", "--read-only", action="store_true", help="To start a read-only service (for testing and debugging)."
-    )
     args = parser.parse_args()
 
-    service = ServerService(base_path=args.base_path, read_only=args.read_only)
+    service = ServerService(base_path=args.base_path)
 
     wsgi_container = tornado.wsgi.WSGIContainer(app)
 

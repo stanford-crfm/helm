@@ -1,17 +1,13 @@
 import copy
 import datetime
-import json
-import os
 import random
 import string
-import threading
-import time
 from typing import Dict, Optional, Callable, List
 
 from dacite import from_dict
 from dataclasses import asdict, dataclass, field
+from sqlitedict import SqliteDict
 
-from common.hierarchical_logger import hlog
 from common.authentication import Authentication
 
 
@@ -115,81 +111,30 @@ def compute_total_period():
 class Accounts:
     """
     Contains information about accounts.
-    `path`: where the information about accounts is stored.
-    If `read_only` is set, don't write to `path`.
-
-    We are storing the accounts in a jsonl file for simplicity.
-    Any reads/writes happen in memory, and we have a separate thread that
-    writes it out to disk once in a while.
+    `path`: Path to sqlite file where the information about accounts is stored.
     """
 
-    def __init__(self, path: str, read_only: bool = False):
-        self.path = path
-        self.read_only = read_only
-        self.global_lock = threading.Lock()
-
-        self.read()
-
-        def write_loop():
-            check_period = 0.1  # How often (seconds) to check if we're done
-            while True:
-                # Write less frequently than we check for done.
-                if self.dirty:
-                    self.write()
-                for _ in range(int(5 / check_period)):
-                    if self.done:
-                        break
-                    time.sleep(check_period)
-                if self.done:
-                    break
-
-        self.done = False
-        if not self.read_only:
-            self.write_thread = threading.Thread(target=write_loop)
-            self.write_thread.start()
-
-    def finish(self):
-        """
-        Clean up threads and write out.  Important to remember to call this
-        after the `Service` is done or else it will hang.
-        """
-        self.done = True
-        if not self.read_only:
-            self.write_thread.join()
-            if self.dirty:
-                self.write()
-
-    def read(self):
-        """Read the accounts from disk."""
-        with self.global_lock:
-            # Read from a file (each line is a JSON file with an account).
-            self.accounts = []
-            if os.path.exists(self.path):
-                for line in open(self.path):
-                    account = from_dict(data_class=Account, data=json.loads(line))
-                    set_default_quotas(account)
-                    self.accounts.append(account)
-                hlog(f"Read {len(self.accounts)} accounts from {self.path}")
-            else:
-                hlog(f"0 accounts since {self.path} doesn't exist")
-
-            # Build index
-            self.api_key_to_accounts = {}
-            for account in self.accounts:
-                self.api_key_to_accounts[account.api_key] = account
-
-            # Set when we have modified self.api_key_to_accounts and need to write to disk.
-            self.dirty = False
+    def __init__(self, path: str):
+        self.path: str = path
 
     def authenticate(self, auth: Authentication):
-        """Make sure this is a valid api key.  Throw exception if not."""
-        if auth.api_key not in self.api_key_to_accounts:
+        """Make sure this is a valid api key. Throw exception if not."""
+        with SqliteDict(self.path) as cache:
+            self._authenticate_with_cache(auth, cache)
+
+    def _authenticate_with_cache(self, auth: Authentication, sqlite_cache: Dict):
+        if auth.api_key not in sqlite_cache:
             raise AuthenticationError(f"Invalid API key {auth.api_key}")
 
     def check_admin(self, auth: Authentication):
         """Make sure this is an admin account. Throw exception if not."""
-        self.authenticate(auth)
-        account: Account = self.api_key_to_accounts[auth.api_key]
+        with SqliteDict(self.path) as cache:
+            self._check_admin_with_cache(auth, cache)
+
+    def _check_admin_with_cache(self, auth: Authentication, sqlite_cache: Dict):
+        self._authenticate_with_cache(auth, sqlite_cache)
+
+        account: Account = from_dict(Account, sqlite_cache.get(auth.api_key))
         if not account.is_admin:
             raise AuthenticationError(f"API key {auth.api_key} does not have admin privileges.")
 
@@ -197,66 +142,70 @@ class Accounts:
         """
         Fetch current user's account.
         """
-        self.authenticate(auth)
-        return self.api_key_to_accounts[auth.api_key]
+        with SqliteDict(self.path) as cache:
+            self._authenticate_with_cache(auth, cache)
+            return from_dict(Account, cache.get(auth.api_key))
 
     def get_all_accounts(self, auth: Authentication) -> List[Account]:
         """
         Fetch all accounts (admin-only).
         """
-        self.check_admin(auth)
-        return self.accounts
+        with SqliteDict(self.path) as cache:
+            self._check_admin_with_cache(auth, cache)
+            return [from_dict(Account, account_dict) for account_dict in cache.values()]
 
     def create_account(self, auth: Authentication) -> Account:
         """
         Creates a new account with a random API key and returns that account (admin-only).
         """
-        self.check_admin(auth)
+        with SqliteDict(self.path) as cache:
+            self._check_admin_with_cache(auth, cache)
 
-        with self.global_lock:
             api_key: str = self._generate_nonexistent_api_key()
             account = Account(api_key=api_key)
             set_default_quotas(account)
-            self.accounts.append(account)
-            self.api_key_to_accounts[api_key] = account
-            self.dirty = True
 
-        return account
+            # Write new account to SqliteDict
+            cache[api_key] = asdict(account)
+            cache.commit()
+            return account
 
     def delete_account(self, auth: Authentication, api_key: str) -> Account:
         """
         Deletes an account (admin-only).
         """
-        self.check_admin(auth)
+        with SqliteDict(self.path) as cache:
+            self._check_admin_with_cache(auth, cache)
 
-        with self.global_lock:
-            # Check that the account we're deleting exists.
-            if api_key not in self.api_key_to_accounts:
+            account_dict = cache.get(api_key)
+            if not account_dict:
                 raise ValueError(f"Account with API key {api_key} does not exist.")
 
-            account = self.api_key_to_accounts[api_key]
-            self.accounts.remove(account)
-            del self.api_key_to_accounts[api_key]
-            self.dirty = True
+            account: Account = from_dict(Account, account_dict)
+            del cache[api_key]
+            cache.commit()
             return account
 
     def rotate_api_key(self, auth: Authentication, account: Account) -> Account:
         """
         Generate a new API key for an account (admin-only).
         """
-        self.check_admin(auth)
+        with SqliteDict(self.path) as cache:
+            self._check_admin_with_cache(auth, cache)
 
-        with self.global_lock:
             old_api_key: str = account.api_key
             new_api_key: str = self._generate_nonexistent_api_key()
 
-            account = self.api_key_to_accounts[old_api_key]
-            account.api_key = new_api_key
-            self.api_key_to_accounts[new_api_key] = account
-            del self.api_key_to_accounts[old_api_key]
-            self.dirty = True
+            account_dict = cache.get(old_api_key)
+            if not account_dict:
+                raise ValueError(f"Account with API key {old_api_key} does not exist.")
 
-        return account
+            account = from_dict(Account, account_dict)
+            account.api_key = new_api_key
+            cache[new_api_key] = asdict(account)
+            del cache[old_api_key]
+            cache.commit()
+            return account
 
     def _generate_nonexistent_api_key(self):
         def generate_api_key() -> str:
@@ -264,25 +213,27 @@ class Accounts:
                 random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(32)
             )
 
-        # The chance of generating an api key that already exists is tiny, but be extra safe.
+        # The chance of generating an api key that already exists is tiny, but be extra safe
+        # by checking the API key does not already exist in the database
         api_key: str = generate_api_key()
-        while api_key in self.api_key_to_accounts:
-            api_key = generate_api_key()
+        with SqliteDict(self.path) as cache:
+            while api_key in cache:
+                api_key = generate_api_key()
         return api_key
 
     def update_account(self, auth: Authentication, account: Account) -> Account:
         """
         Update account except `api_key`. Only an admin or the owner of the account can update.
         """
-        self.authenticate(auth)
+        with SqliteDict(self.path) as cache:
+            self._authenticate_with_cache(auth, cache)
 
-        with self.global_lock:
             # Check that the account we're updating exists.
-            if account.api_key not in self.api_key_to_accounts:
+            if account.api_key not in cache:
                 raise ValueError(f"Account with API key {account.api_key} does not exist.")
 
-            editor: Account = self.api_key_to_accounts[auth.api_key]
-            current_account: Account = self.api_key_to_accounts[account.api_key]
+            editor: Account = from_dict(Account, cache.get(auth.api_key))
+            current_account: Account = from_dict(Account, cache.get(account.api_key))
 
             if not editor.is_admin and editor.api_key != account.api_key:
                 raise AuthenticationError(
@@ -308,7 +259,8 @@ class Accounts:
                             usages[service_key][granularity_key].used = current_used
                 current_account.usages = usages
 
-            self.dirty = True
+            cache[account.api_key] = asdict(current_account)
+            cache.commit()
             return current_account
 
     def check_can_use(self, api_key: str, model_group: str):
@@ -334,8 +286,8 @@ class Accounts:
             if not usage.can_use():
                 raise InsufficientQuotaError(f"{granularity} quota ({usage.quota}) for {model_group} already used up")
 
-        with self.global_lock:
-            account = self.api_key_to_accounts[api_key]
+        with SqliteDict(self.path) as cache:
+            account: Account = from_dict(Account, cache[api_key])
             granular_check_can_use(account, model_group, "daily", compute_daily_period)
             granular_check_can_use(account, model_group, "monthly", compute_monthly_period)
             granular_check_can_use(account, model_group, "total", compute_total_period)
@@ -362,23 +314,10 @@ class Accounts:
             usage.update_period(period)
             usage.used += delta
 
-        with self.global_lock:
-            account = self.api_key_to_accounts[api_key]
+        with SqliteDict(self.path) as cache:
+            account: Account = from_dict(Account, cache[api_key])
             granular_use(account, model_group, "daily", compute_daily_period)
             granular_use(account, model_group, "monthly", compute_monthly_period)
             granular_use(account, model_group, "total", compute_total_period)
-            self.dirty = True
-
-    def write(self):
-        """Write what's in memory to disk."""
-        with self.global_lock:
-            raw_accounts = []
-            for account in self.accounts:
-                raw_accounts.append(asdict(account))
-
-            if not self.read_only:
-                hlog(f"Writing {len(self.accounts)} accounts to {self.path}")
-                with open(self.path, "w") as f:
-                    for raw_account in raw_accounts:
-                        print(json.dumps(raw_account), file=f)
-            self.dirty = False
+            cache[api_key] = asdict(account)
+            cache.commit()
