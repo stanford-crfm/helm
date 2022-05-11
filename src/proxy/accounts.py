@@ -134,7 +134,7 @@ class Accounts:
     def _check_admin_with_cache(self, auth: Authentication, sqlite_cache: Dict):
         self._authenticate_with_cache(auth, sqlite_cache)
 
-        account: Account = from_dict(Account, sqlite_cache.get(auth.api_key))
+        account: Account = from_dict(Account, sqlite_cache[auth.api_key])
         if not account.is_admin:
             raise AuthenticationError(f"API key {auth.api_key} does not have admin privileges.")
 
