@@ -110,6 +110,11 @@ class Runner:
             for stat in stats:
                 hlog(stat)
 
+        def get_key_str(key):
+            if key[0].id is not None:
+                return str((key[0].id, key[1]))
+            return str(key)
+
         # Output benchmarking information and results to files
         write(os.path.join(runs_path, "run_spec.json"), json.dumps(asdict(run_spec), indent=2))
 
@@ -126,6 +131,7 @@ class Runner:
         write(
             os.path.join(runs_path, "per_instance_metrics.json"),
             json.dumps(
-                {str(key): [asdict(stat) for stat in value] for (key, value) in per_instance_stats.items()}, indent=2
+                {get_key_str(key): [asdict(stat) for stat in value] for (key, value) in per_instance_stats.items()},
+                indent=2,
             ),
         )
