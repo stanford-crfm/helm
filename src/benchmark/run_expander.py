@@ -60,7 +60,7 @@ class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
     name = "num_train_trials"
-    values_dict = {"default": [5]}
+    values_dict = {"default": [3]}
 
 
 class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
