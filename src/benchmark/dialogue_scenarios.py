@@ -1,10 +1,10 @@
 import csv
 import os
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, EVAL_SPLITS
 import pandas as pd
 import json
 
@@ -26,6 +26,31 @@ class Utterance:
         return f"{self.speaker.name}: {self.text}" + "\n"
 
 
+def get_whitelisted_prompts(path) -> List[str]:
+    whitelist_df_raw: pd.DataFrame = pd.DataFrame(pd.read_csv(path, engine="python", index_col=0))
+
+    # At each stage, the return value can be None, that's why the following if conditions
+    # Makes it pass type checks and is generally good to do
+    if whitelist_df_raw is not None:
+        whitelist_df = whitelist_df_raw.dropna()
+    if whitelist_df is not None:
+        whitelist_df = whitelist_df.astype(dtype={"prompt": str, "sensitive": bool, "inappropriate": bool})
+    if whitelist_df is not None:
+        whitelist_df = whitelist_df.query("not inappropriate and not sensitive")
+    assert whitelist_df is not None, "No whitelisted prompts left"
+
+    return whitelist_df["prompt"].tolist()
+
+
+def long_enough_prompt(prompt: str):
+    """The prompt should be at least 20 characters"""
+    return len(prompt) > 20
+
+
+def is_whitelisted(prompt: str, whitelist: Set[str]):
+    return prompt.lower() in whitelist
+
+
 class EmpatheticDialoguesScenario(Scenario):
     """
     The Empathetic Dialogues dataset from this paper:
@@ -41,17 +66,24 @@ class EmpatheticDialoguesScenario(Scenario):
     description = "A dataset of 25k conversations grounded in emotional situations."
     tags = ["interaction", "dialogue"]
 
-    def __init__(self, *args):
-        pass
+    def __init__(self, begin: int, end: int):
+        self.begin = begin
+        self.end = end
 
     def download_data(self):
         # Download the raw data
         self.data_path: str = os.path.join(self.output_path, "data")  # TODO: Ask Ashwin
+        self.whitelist_path: str = os.path.join(self.output_path, "whitelisted_prompts.csv")
         # self.data_path: str = os.path.join(self.output_path, "data/empatheticdialogues/") #TODO: Ask Ashwin
         ensure_file_downloaded(
             source_url="https://dl.fbaipublicfiles.com/parlai/empatheticdialogues/empatheticdialogues.tar.gz",
             target_path=self.data_path,
             unpack=True,
+        )
+        ensure_file_downloaded(
+            source_url="https://raw.githubusercontent.com/AshwinParanjape/"
+            "whitelisted-dialogue-prompts/main/empatheticdialogues.csv",
+            target_path=self.whitelist_path,
         )
 
     def read_instances(self):
@@ -73,6 +105,10 @@ class EmpatheticDialoguesScenario(Scenario):
             data_df = pd.read_csv(
                 csv_path, engine="python", quoting=csv.QUOTE_NONE, header=0, names=column_names, index_col=False
             )
+            whitelisted_prompt_list = get_whitelisted_prompts(self.whitelist_path)
+            whitelisted_prompt_list = [s.replace("_comma_", ",").strip().lower() for s in whitelisted_prompt_list]
+
+            whitelisted_prompts: Set[str] = set(whitelisted_prompt_list[self.begin : self.end])
 
             # Reformat dataset idiosyncracies
             data_df["prompt"] = data_df["prompt"].str.replace("_comma_", ",").str.strip()
@@ -81,6 +117,15 @@ class EmpatheticDialoguesScenario(Scenario):
             # Group rows by prompts, each group corresponds to an instance
             grouped_data_df = data_df.groupby(by=["prompt", "context"])
             for prompt_cols, prompt_df in grouped_data_df:
+                prompt = prompt_cols[0]
+
+                # For the test set, only use manually whitelisted prompts (for sensitivity)
+                if splits[split] in EVAL_SPLITS and not is_whitelisted(prompt, whitelisted_prompts):
+                    continue
+
+                # The prompt should not be trivially short
+                if not long_enough_prompt(prompt):
+                    continue
 
                 # Group rows by conversations, each group corresponds to a reference
                 grouped_prompt_df = prompt_df.groupby(["conv_id", "selfeval"])
@@ -99,12 +144,20 @@ class EmpatheticDialoguesScenario(Scenario):
                         for idx, row in grouped_df.iterrows()
                     ]
 
+                    # For training set (examples that will be used for in-context learning)
+                    # use conversations with at least 6 turns (maximum length in the dataset)
+                    if splits[split] == TRAIN_SPLIT and len(utterances) < 6:
+                        continue
+
                     output = "".join([str(utt) for utt in utterances])
                     # Create a reference out of utterances
                     references.append(Reference(output=output, tags=[CORRECT_TAG],))
 
-                # Create an instance from multiple references
+                # Should have at least one quality reference
+                if splits[split] == TRAIN_SPLIT and len(references) == 0:
+                    continue
 
+                # Create an instance from multiple references
                 instances.append(
                     Instance(
                         input=prompt_cols[0], references=references, split=splits[split], sub_split=prompt_cols[1],
@@ -112,28 +165,9 @@ class EmpatheticDialoguesScenario(Scenario):
                 )
         return instances
 
-    def filter_instances(self, instances):
-        """Applies following filters to select instances from self.instances"""
-
-        # TODO: Write code to only keep the better instances for few shot prompting
-        # The given prompt is too short
-        # def short_prompt(instance: Instance): return len(instance.input)<20
-
-        # The conversation has less than 6 utterances (6 is max)
-        # def short_convo(reference: DialogueReference): return len(reference.output)<6
-
-        # The conversation has less than 6 utterances (6 is max)
-        # def short_convo(instance: Instance): return len(instance.references)<6
-
-        # instances = filter()
-        # reference conversation length filter
-        # instances = [i for i in instances if i.references]
-
-        return instances
-
     def get_instances(self) -> List[Instance]:
         self.download_data()
-        return self.filter_instances(self.read_instances())
+        return self.read_instances()
 
 
 class WizardOfWikipediaScenario(Scenario):
