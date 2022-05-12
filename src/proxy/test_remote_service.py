@@ -1,11 +1,15 @@
 import os
+import random
 import shutil
 import tempfile
 import requests
 import socket
 import subprocess
 import time
+from functools import partial
+from multiprocessing import Pool
 from dataclasses import asdict, dataclass
+from typing import List
 
 from sqlitedict import SqliteDict
 
@@ -15,6 +19,10 @@ from common.tokenization_request import TokenizationRequest, TokenizationRequest
 from .accounts import Account
 from .remote_service import RemoteService
 from .service import ACCOUNTS_FILE
+
+
+SERVER_EXECUTABLE: str = "venv/bin/proxy-server"
+SERVER_TIMEOUT_SECONDS: int = 60
 
 
 @dataclass(frozen=True)
@@ -62,7 +70,12 @@ class TestRemoteServerService:
         try:
             subprocess.Popen(
                 " ".join(
-                    [TestRemoteServerService._SERVER_EXECUTABLE, f"--port {rest_port}", f"--base-path {base_path}",]
+                    [
+                        TestRemoteServerService._SERVER_EXECUTABLE,
+                        f"--port {rest_port}",
+                        f"--base-path {base_path}",
+                        "--workers 16",
+                    ]
                 ),
                 shell=True,
             )
@@ -72,6 +85,14 @@ class TestRemoteServerService:
 
         # Return the URL of the newly started server
         return TempServerInfo(url, base_path)
+
+    @staticmethod
+    def query(url: str, auth: Authentication, prompt: str):
+        request = Request(prompt=prompt, model="simple/model1")
+        response: RequestResult = RemoteService(base_url=url).make_request(auth, request)
+        response_text: str = response.completions[0].text
+        # With the toy model (simple/model1), we should expect the same response as the prompt
+        assert response_text == prompt, f"Expected {prompt}, got back {response_text}"
 
     @classmethod
     def setup_class(cls):
@@ -107,10 +128,10 @@ class TestRemoteServerService:
         response: RequestResult = self.service.make_request(self.auth, request)
         assert response.success
 
-    def tokenize(self):
+    def test_tokenize(self):
         request = TokenizationRequest(text="1 2 3", model="simple/model1")
         response: TokenizationRequestResult = self.service.tokenize(self.auth, request)
-        assert response.tokens == ["1", "2", "3"]
+        assert [token.text for token in response.tokens] == ["1", "2", "3"]
 
     def test_make_request_plus_sign(self):
         # Ensure + in prompt doesn't get replaced by a blank space
@@ -136,3 +157,16 @@ class TestRemoteServerService:
         old_api_key = account.api_key
         account = self.service.rotate_api_key(self.auth, account)
         assert account.api_key != old_api_key
+
+    def test_concurrent_make_request(self):
+        # Fix seed for reproducibility
+        random.seed(0)
+
+        # Construct 10,000 requests with 1,000 unique prompts
+        # and shuffle them to simulate simultaneous cache reads/writes.
+        prompts: List[str] = [str(i) for i in range(1_000)] * 10
+        random.shuffle(prompts)
+
+        # Query in parallel with multiple processes
+        with Pool(processes=16) as p:
+            p.map(partial(TestRemoteServerService.query, self.url, self.auth), prompts)
