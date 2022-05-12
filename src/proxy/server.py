@@ -192,12 +192,9 @@ def main():
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
     parser.add_argument("-w", "--workers", type=int, help="Number of worker processes to handle requests", default=8)
     parser.add_argument("-t", "--timeout", type=int, help="Request timeout in seconds", default=5 * 60)
-    parser.add_argument(
-        "-r", "--read-only", action="store_true", help="To start a read-only service (for testing and debugging)."
-    )
     args = parser.parse_args()
 
-    service = ServerService(base_path=args.base_path, read_only=args.read_only)
+    service = ServerService(base_path=args.base_path)
 
     gunicorn_args = {
         "workers": args.workers,

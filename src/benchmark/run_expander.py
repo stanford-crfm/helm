@@ -49,7 +49,7 @@ class ReplaceValueRunExpander(RunExpander):
         return [
             replace(
                 run_spec,
-                name=f"{run_spec.name},{self.name}={sanitize(value)}",
+                name=f"{run_spec.name}{',' if ':' in run_spec.name else ':'}{self.name}={sanitize(value)}",
                 adapter_spec=replace(run_spec.adapter_spec, **{self.name: value}),
             )
             for value in self.values
@@ -60,7 +60,7 @@ class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
     name = "num_train_trials"
-    values_dict = {"default": [5]}
+    values_dict = {"default": [3]}
 
 
 class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
@@ -85,7 +85,19 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
     name = "model"
     values_dict = {
-        "default": ["openai/davinci", "ai21/j1-jumbo", "huggingface/gpt2"],
+        # TODO: Add GPT-NeoX-20B and GPT-J
+        #       https://github.com/stanford-crfm/benchmarking/issues/310
+        "default": [
+            "openai/davinci",
+            "openai/curie",
+            "openai/text-davinci-002",
+            "openai/text-davinci-001",
+            "openai/text-curie-001",
+            "ai21/j1-jumbo",
+            # TODO: increase quota in AI21 account
+            #       https://github.com/stanford-crfm/benchmarking/issues/353
+            # "ai21/j1-large",
+        ],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
         "all": get_all_models(),
