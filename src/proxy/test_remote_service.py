@@ -50,7 +50,7 @@ class TestRemoteServerService:
 
             with SqliteDict(os.path.join(path, ACCOUNTS_FILE)) as cache:
                 account: Account = Account(TestRemoteServerService._ADMIN_API_KEY, is_admin=True)
-                cache[TestRemoteServerService._ADMIN_API_KEY + "2"] = asdict(account)
+                cache[TestRemoteServerService._ADMIN_API_KEY] = asdict(account)
                 cache.commit()
             return path
 
