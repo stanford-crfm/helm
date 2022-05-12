@@ -164,7 +164,7 @@ class TestRemoteServerService:
 
         # Construct 10,000 requests with 1,000 unique prompts
         # and shuffle them to simulate simultaneous cache reads/writes.
-        prompts: List[str] = [str(i) for i in range(1000)] * 10
+        prompts: List[str] = [str(i) for i in range(1_000)] * 10
         random.shuffle(prompts)
 
         # Query in parallel with multiple processes
