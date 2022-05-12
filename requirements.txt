@@ -1,5 +1,6 @@
 openai==0.2.4
 bottle==0.12.19
+gunicorn==20.1.0
 dacite==1.6.0
 google-api-python-client==2.35.0
 Mako==1.1.5
@@ -7,7 +8,6 @@ pyhocon==0.3.58
 pyOpenSSL==21.0.0
 sqlitedict==1.7.0
 torch==1.10.2
-tornado==6.1
 transformers==4.13.0
 zstandard==0.17.0
 jsonlines==3.0.0
@@ -37,3 +37,4 @@ py-rouge==1.1
 xlrd==2.0.1
 rouge-score==0.0.4
 gdown==4.4.0
+pysocks==1.7.1
