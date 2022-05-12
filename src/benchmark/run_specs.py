@@ -1103,7 +1103,7 @@ def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str, be
 
     return RunSpec(
         name=f"empatheticdialogues:annotation_stage={annotation_stage},"
-        "user_initiated={user_initiated},begin={begin},end={end}",
+        f"user_initiated={user_initiated},begin={begin},end={end}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -1138,7 +1138,7 @@ def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str, begi
 
     return RunSpec(
         name=f"wizardofwikipedia:annotation_stage={annotation_stage},"
-        "user_initiated={user_initiated},begin={begin},end={end}",
+        f"user_initiated={user_initiated},begin={begin},end={end}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -1162,7 +1162,7 @@ def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str, 
         output_prefix="\nBEGIN DIALOGUE\n",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
+        model="openai/davinci",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
         stop_sequences=["}"],
         num_outputs=1,
@@ -1173,7 +1173,7 @@ def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str, 
 
     return RunSpec(
         name=f"commonsense_dialogues:annotation_stage={annotation_stage},"
-        "user_initiated={user_initiated},begin={begin},end={end}",
+        f"user_initiated={user_initiated},begin={begin},end={end}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),

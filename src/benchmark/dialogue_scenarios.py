@@ -92,6 +92,10 @@ class EmpatheticDialoguesScenario(Scenario):
         instances: List[Instance] = []
         splits: Dict[str, str] = {"train": TRAIN_SPLIT, "valid": VALID_SPLIT, "test": TEST_SPLIT}
 
+        whitelisted_prompt_list = get_whitelisted_prompts(self.whitelist_path)
+        whitelisted_prompt_list = [s.replace("_comma_", ",").strip().lower() for s in whitelisted_prompt_list]
+
+        whitelisted_prompts: Set[str] = set(whitelisted_prompt_list[self.begin : self.end])
         # Read the three splits
         for split in splits:
             csv_path: str = os.path.join(self.data_path, f"{split}.csv")
@@ -105,10 +109,6 @@ class EmpatheticDialoguesScenario(Scenario):
             data_df = pd.read_csv(
                 csv_path, engine="python", quoting=csv.QUOTE_NONE, header=0, names=column_names, index_col=False
             )
-            whitelisted_prompt_list = get_whitelisted_prompts(self.whitelist_path)
-            whitelisted_prompt_list = [s.replace("_comma_", ",").strip().lower() for s in whitelisted_prompt_list]
-
-            whitelisted_prompts: Set[str] = set(whitelisted_prompt_list[self.begin : self.end])
 
             # Reformat dataset idiosyncracies
             data_df["prompt"] = data_df["prompt"].str.replace("_comma_", ",").str.strip()
@@ -291,11 +291,13 @@ class CommonSenseScenario(Scenario):
     description = "A dataset of 11K dialogues grounded in social contexts involving utilization of commonsense."
     tags = ["interaction", "dialogue"]
 
-    def __init__(self, *args):
-        pass
+    def __init__(self, begin: int, end: int, *args):
+        self.begin = begin
+        self.end = end
 
     def download_data(self):
         self.data_path: str = os.path.join(self.output_path, "data")
+        self.whitelist_path: str = os.path.join(self.output_path, "whitelisted_prompts.csv")
 
         if not os.path.exists(self.data_path):
             os.makedirs(self.data_path)
@@ -321,12 +323,22 @@ class CommonSenseScenario(Scenario):
             target_path=test_path,
             unpack=False,
         )
+        ensure_file_downloaded(
+            source_url="https://raw.githubusercontent.com/AshwinParanjape/"
+            "whitelisted-dialogue-prompts/main/commonsense_dialogues.csv",
+            target_path=self.whitelist_path,
+        )
 
     def read_instances(self):
         """Downloads the train, valid, test dataset and saves homogenized instances in self.instances"""
 
         instances: List[Instance] = []
         splits: Dict[str, str] = {"train": TRAIN_SPLIT, "valid": VALID_SPLIT, "test": TEST_SPLIT}
+
+        whitelisted_prompt_list = get_whitelisted_prompts(self.whitelist_path)
+        whitelisted_prompt_list = [s.replace("_comma_", ",").strip().lower() for s in whitelisted_prompt_list]
+
+        whitelisted_prompts: Set[str] = set(whitelisted_prompt_list[self.begin : self.end])
 
         # Read the three splits
         for split in splits:
@@ -343,6 +355,10 @@ class CommonSenseScenario(Scenario):
             listener = Speaker(id=0, initiator=False, name="Bob")
             for idx, sample in samples.items():
                 context = sample["context"]
+
+                # Skip over prompts from the eval set (valid and test) that aren't whitelisted
+                if splits[split] in EVAL_SPLITS and not is_whitelisted(context, whitelisted_prompts):
+                    continue
                 initiator = Speaker(id=int(idx) + 1, initiator=True, name=sample["speaker"])
                 utterances: List[Utterance] = []
                 for i, turn in enumerate(sample["turns"]):
@@ -360,28 +376,9 @@ class CommonSenseScenario(Scenario):
 
         return instances
 
-    def filter_instances(self, instances):
-        """Applies following filters to select instances from self.instances"""
-
-        # TODO: Write code to only keep the better instances for few shot prompting
-        # The given prompt is too short or prompt is the number 1
-        # def short_prompt(instance: Instance): return len(instance.input)<20
-
-        # The conversation has less than 6 utterances (6 is max)
-        # def short_convo(reference: DialogueReference): return len(reference.output)<6
-
-        # The conversation has less than 6 utterances (6 is max)
-        # def short_convo(instance: Instance): return len(instance.references)<6
-
-        # instances = filter()
-        # reference conversation length filter
-        # instances = [i for i in instances if i.references]
-
-        return instances
-
     def get_instances(self) -> List[Instance]:
         self.download_data()
-        return self.filter_instances(self.read_instances())
+        return self.read_instances()
 
 
 if __name__ == "__main__":
@@ -401,7 +398,7 @@ if __name__ == "__main__":
     print(instances[100])
     """
     # Test CommonSenseScenario
-    scenario = CommonSenseScenario()
+    scenario = CommonSenseScenario(begin=0, end=10)
     scenario.output_path = "./benchmark_output/scenarios/commonsense_dialogues"
     instances = scenario.get_instances()
     print(len(instances))
