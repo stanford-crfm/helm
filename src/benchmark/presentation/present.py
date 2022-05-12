@@ -3,8 +3,9 @@ import dataclasses
 import os.path
 from pathlib import Path
 
+import yaml
 from tqdm import tqdm
-from typing import List, Optional
+from typing import List, Optional, Set
 import json
 
 from common.authentication import Authentication
@@ -29,6 +30,8 @@ READY_STATUS = "READY"
 
 # For WIP RunSpecs, just estimate token usage.
 WIP_STATUS = "WIP"
+
+SCHEMA_YAML_PATH: str = "src/proxy/static/schema.yaml"
 
 
 class AllRunner:
@@ -73,6 +76,8 @@ class AllRunner:
         hlog("Running all RunSpecs...")
         run_specs: List[RunSpec] = []
         runs_dir: str = os.path.join(self.output_path, "runs")
+        all_computed_metrics: Set[str] = set()
+
         for run_spec_description, run_spec_state in tqdm(conf.items()):
             # We placed double quotes around the descriptions since they can have colons or equal signs.
             # There is a bug with pyhocon. pyhocon keeps the double quote when there is a ".", ":" or "=" in the string:
@@ -107,6 +112,11 @@ class AllRunner:
                 else:
                     wip_content.append(f"{run_spec} - {metrics_text}")
 
+                # Keep track of all the names of the metrics that have been computed
+                with open(os.path.join(runs_dir, run_spec.name, "metrics.json")) as f:
+                    for metric in json.load(f):
+                        all_computed_metrics.add(metric["name"]["name"])
+
             # Update the status page after processing every `RunSpec` description
             self._update_status_page(wip_content, ready_content)
 
@@ -117,6 +127,15 @@ class AllRunner:
         )
         all_models = [dataclasses.asdict(model) for model in ALL_MODELS]
         write(os.path.join(self.output_path, "models.json"), json.dumps(all_models, indent=2))
+
+        # Print a warning that list the metrics that do not have a entry in schema.yaml
+        metrics_with_entries: Set[str] = set(
+            metric_entry["name"] for metric_entry in yaml.load(open(SCHEMA_YAML_PATH))["metrics"]
+        )
+        missing_metrics_str: str = "\n\t" + "\n\t".join(
+            [metric for metric in all_computed_metrics if metric not in metrics_with_entries]
+        )
+        hlog(f"WARNING: Missing an entry for the following metrics in {SCHEMA_YAML_PATH}: {missing_metrics_str}")
 
     def _update_status_page(self, wip_content: List[str], ready_content: List[str]):
         """
