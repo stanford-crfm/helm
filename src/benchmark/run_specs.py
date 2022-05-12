@@ -1075,14 +1075,16 @@ def get_cnndm_summarization_spec() -> RunSpec:
     )
 
 
-def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str) -> RunSpec:
+def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str, begin: int, end: int) -> RunSpec:
     """
     annotation_stage: Specifies the type of annotation being conducted in this run
                     (for e.g. annotator filtering, inter-annotator agreement, final)
     """
     if type(user_initiated) == str:
         user_initiated = user_initiated == "True"
-    scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.EmpatheticDialoguesScenario", args={})
+        scenario = ScenarioSpec(
+            class_name="benchmark.dialogue_scenarios.EmpatheticDialoguesScenario", args={"begin": begin, "end": end}
+        )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -1100,7 +1102,8 @@ def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str) ->
     )
 
     return RunSpec(
-        name=f"empatheticdialogues:annotation_stage={annotation_stage},user_initiated={user_initiated}",
+        name=f"empatheticdialogues:annotation_stage={annotation_stage},"
+        "user_initiated={user_initiated},begin={begin},end={end}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -1111,10 +1114,12 @@ def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str) ->
     )
 
 
-def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str) -> RunSpec:
+def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str, begin: int, end: int) -> RunSpec:
     if type(user_initiated) == str:
         user_initiated = user_initiated == "True"
-    scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.WizardOfWikipediaScenario", args={})
+    scenario = ScenarioSpec(
+        class_name="benchmark.dialogue_scenarios.WizardOfWikipediaScenario", args={"begin": begin, "end": end}
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -1132,7 +1137,8 @@ def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str) -> R
     )
 
     return RunSpec(
-        name=f"wizardofwikipedia:annotation_stage={annotation_stage},user_initiated={user_initiated}",
+        name=f"wizardofwikipedia:annotation_stage={annotation_stage},"
+        "user_initiated={user_initiated},begin={begin},end={end}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -1143,10 +1149,12 @@ def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str) -> R
     )
 
 
-def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str) -> RunSpec:
+def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str, begin: int, end: int) -> RunSpec:
     if type(user_initiated) == str:
         user_initiated = user_initiated == "True"
-    scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.CommonSenseScenario", args={})
+    scenario = ScenarioSpec(
+        class_name="benchmark.dialogue_scenarios.CommonSenseScenario", args={"begin": begin, "end": end}
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -1164,7 +1172,8 @@ def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str) 
     )
 
     return RunSpec(
-        name=f"commonsense_dialogues:annotation_stage={annotation_stage},user_initiated={user_initiated}",
+        name=f"commonsense_dialogues:annotation_stage={annotation_stage},"
+        "user_initiated={user_initiated},begin={begin},end={end}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
