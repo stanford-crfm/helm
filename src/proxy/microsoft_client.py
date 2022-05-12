@@ -62,7 +62,7 @@ class MicrosoftClient(Client):
         Log probabilities are also currently not supported.
         """
 
-        def fix_token_text(text: str) -> str:
+        def fix_text(text: str) -> str:
             return text.replace("Ġ", " ")
 
         # Only a single "stop" value (str) or None is currently supported.
@@ -110,7 +110,7 @@ class MicrosoftClient(Client):
             # Since the log probs and tokens are not available to us just tokenize the completion using the tokenizer
             completion_text: str = raw_completion["text"]
             tokens: List[Token] = [
-                Token(text=fix_token_text(text), logprob=0, top_logprobs={})
+                Token(text=fix_text(text), logprob=0, top_logprobs={})
                 for text in self.tokenizer.tokenize(completion_text)
             ]
             completion = Sequence(text=completion_text, logprob=0, tokens=tokens)
