@@ -174,7 +174,9 @@ def get_bbq_spec(subject: str) -> RunSpec:
         stop_sequences=["\n"],
     )
 
-    return RunSpec(name="bbq", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bbq_metrics())
+    return RunSpec(
+        name=f"bbq:subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bbq_metrics()
+    )
 
 
 def get_msmarco_spec(
@@ -227,7 +229,9 @@ def get_bold_spec(subject: str) -> RunSpec:
         temperature=0.9,  # TODO: Setting based on conversation with John Hewitt; @Ryan please better justify
         max_tokens=20,  # See Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
     )
-    return RunSpec(name="bold", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics())
+    return RunSpec(
+        name=f"bold:subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics()
+    )
 
 
 def get_civil_comments_spec(subject: str, data_path: str) -> RunSpec:
@@ -249,7 +253,7 @@ def get_civil_comments_spec(subject: str, data_path: str) -> RunSpec:
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name="civil_comments",
+        name=f"civil_comments:subject={subject}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),

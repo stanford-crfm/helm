@@ -85,7 +85,18 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
     name = "model"
     values_dict = {
-        "default": ["openai/davinci", "ai21/j1-jumbo", "huggingface/gpt2"],
+        # TODO: Add GPT-NeoX-20B and GPT-J
+        #       https://github.com/stanford-crfm/benchmarking/issues/310
+        "default": [
+            "openai/davinci",
+            "openai/curie",
+            "openai/text-davinci-001",
+            "openai/text-curie-001",
+            "ai21/j1-jumbo",
+            # TODO: increase quota in AI21 account
+            #       https://github.com/stanford-crfm/benchmarking/issues/353
+            # "ai21/j1-large",
+        ],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
         "all": get_all_models(),
