@@ -1184,9 +1184,9 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Are Row A and Row B the same? Yes or No?",
+        instructions="Are Product A and Product B the same? Yes or No?",
         input_prefix="",
-        output_prefix="\n ",
+        output_prefix=" ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
@@ -1211,9 +1211,9 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Generate the missing value in the row.",
+        instructions="What is the missing value?",
         input_prefix="",
-        output_prefix="\n ",
+        output_prefix=" ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
