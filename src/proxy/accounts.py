@@ -118,7 +118,7 @@ class Accounts:
         self.path: str = path
 
     def authenticate(self, auth: Authentication):
-        """Make sure this is a valid api key. Throw exception if not."""
+        """Make sure this is a valid API key. Throw exception if not."""
         with SqliteDict(self.path) as cache:
             self._authenticate_with_cache(auth, cache)
 
@@ -213,7 +213,7 @@ class Accounts:
                 random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(32)
             )
 
-        # The chance of generating an api key that already exists is tiny, but be extra safe
+        # The chance of generating an API key that already exists is tiny, but be extra safe
         # by checking the API key does not already exist in the database
         api_key: str = generate_api_key()
         with SqliteDict(self.path) as cache:
