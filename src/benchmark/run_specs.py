@@ -55,7 +55,10 @@ def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
 
 
 def get_bbq_metrics() -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={})]
+    return [
+        MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={}),
+        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
+    ]
 
 
 def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
