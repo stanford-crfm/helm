@@ -63,6 +63,13 @@ class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     values_dict = {"default": [5]}
 
 
+class MetricsRunExpander(ReplaceValueRunExpander):
+    """For overriding metrics."""
+
+    name = "metrics"
+    values_dict = {"bias_erasure": [get_bias_erasure_metrics()]}
+
+
 class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
     """For getting learning curves."""
 

@@ -1,4 +1,5 @@
 from typing import List, Dict, Optional, Any, Callable
+import itertools
 
 from common.object_spec import ObjectSpec
 from .adapter import (
@@ -56,6 +57,17 @@ def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
 
 def get_bbq_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={})]
+
+
+def get_bias_erasure_metrics() -> List[MetricSpec]:
+    categories = ["gender", "race"]
+    entities = ["erasure", "profession", "adjective"]
+    cross_cat_ent = itertools.product(categories, entities)
+
+    return [
+        MetricSpec(class_name="benchmark.bias_erasure_metrics.BiasErasureMetric", args={"category": cat, "entity": ent})
+        for cat, ent in cross_cat_ent
+    ]
 
 
 def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
