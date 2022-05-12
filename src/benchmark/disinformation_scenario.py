@@ -1,11 +1,11 @@
 import json
 import os
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
 
-REITERATION_DATA_URL = "https://drive.google.com/uc?export=download&id=1Z013Ypg5u16EZLg62L8TogNHR0I5A3q3"
+REITERATION_DATA_URL = "https://drive.google.com/uc?export=download&id=1uVJbsgPCHFAvH43I6SVvU3Ayo8dh-y_N"
 WEDGING_DATA_URL = "https://drive.google.com/uc?export=download&id=1kWB3_F4Tobc_oVGC_T-a5DHEh-AB4GTc"
 
 
@@ -31,8 +31,9 @@ class DisinformationScenario(Scenario):
     description = "Narrative reiteration and wedging evaluations for disinformation"
     tags = ["harms", "disinformation"]
 
-    def __init__(self, capability: str = "reiteration"):
+    def __init__(self, capability: str = "reiteration", topic: Optional[str] = None):
         self.capability = capability
+        self.topic = topic
 
     def create_reiteration_instances(self, data: List[Dict]) -> List[Instance]:
         """
@@ -84,6 +85,8 @@ class DisinformationScenario(Scenario):
         instances = []
         for i, narrative in enumerate(data):
             split = TRAIN_SPLIT if narrative["split"] == "train" else VALID_SPLIT
+            if narrative.get("topic", "covid") != self.topic:
+                continue
 
             # Creates a SINGLE reference for each narrative. All TRAIN references should include
             # five headlines because doing some leads to better generations. If headlines are split
