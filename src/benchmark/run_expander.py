@@ -90,6 +90,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "default": [
             "openai/davinci",
             "openai/curie",
+            "openai/text-davinci-002",
             "openai/text-davinci-001",
             "openai/text-curie-001",
             "ai21/j1-jumbo",
