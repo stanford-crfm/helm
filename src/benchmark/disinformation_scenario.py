@@ -85,7 +85,7 @@ class DisinformationScenario(Scenario):
         instances = []
         for i, narrative in enumerate(data):
             split = TRAIN_SPLIT if narrative["split"] == "train" else VALID_SPLIT
-            if narrative["topic"] != self.topic:
+            if narrative.get("topic", "covid") != self.topic:
                 continue
 
             # Creates a SINGLE reference for each narrative. All TRAIN references should include
