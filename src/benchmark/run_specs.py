@@ -764,9 +764,9 @@ def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
     )
 
 
-def get_disinformation_spec(capability: str = "reiteration") -> RunSpec:
+def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str] = "covid") -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.disinformation_scenario.DisinformationScenario", args={"capability": capability}
+        class_name="benchmark.disinformation_scenario.DisinformationScenario", args={"capability": capability, "topic": topic}
     )
 
     if capability == "reiteration":
