@@ -130,7 +130,7 @@ class AllRunner:
 
         # Print a warning that list the metrics that do not have a entry in schema.yaml
         metrics_with_entries: Set[str] = set(
-            metric_entry["name"] for metric_entry in yaml.load(open(SCHEMA_YAML_PATH))["metrics"]
+            metric_entry["name"] for metric_entry in yaml.safe_load(open(SCHEMA_YAML_PATH))["metrics"]
         )
         missing_metrics_str: str = "\n\t" + "\n\t".join(
             [metric for metric in all_computed_metrics if metric not in metrics_with_entries]
