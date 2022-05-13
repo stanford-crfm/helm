@@ -220,6 +220,7 @@ const ChatBox = {
 				.catch(function (error) {
 					console.log(error);
 					that.error = error;
+					that.code = "dinosaur";
 					that.success = false;
 				});
 		},
@@ -281,6 +282,7 @@ const ChatBox = {
 					.catch(function (error) {
 						console.log(error);
 						that.error = error;
+						that.code = "dinosaur";
 						that.success = false;
 					});
 			}
