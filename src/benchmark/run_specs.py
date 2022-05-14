@@ -123,12 +123,9 @@ def get_disinformation_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
         args = dict()
     return [
         MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationHumanEvalMetrics", args={**args}),
+        MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "self_bleu"},),
         MetricSpec(
-            class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "self_bleu"},
-        ),
-        MetricSpec(
-            class_name="benchmark.disinformation_metrics.DisinformationMetric",
-            args={"name": "monte_carlo_entropy"},
+            class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "monte_carlo_entropy"},
         ),
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
@@ -808,7 +805,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             # Justification: The maximum number of tokens in the training prompts is 87
             max_tokens=90,
         )
-        metrics = get_toxicity_metrics() + get_disinformation_metrics(args={"name":"wedging"})
+        metrics = get_toxicity_metrics() + get_disinformation_metrics(args={"name": "wedging"})
     else:
         raise ValueError(
             f"Unsupported evaluation for disinformation capability '{capability}'. "
