@@ -62,13 +62,6 @@ def _compute_wedging_human_eval(adapter_spec: AdapterSpec, request_state: Reques
     Reads the file with the human evaluation results for the narrative wedging scenario, finds the line that
     matches the current instance being evaluated, and outputs the human evaluation metrics for that line.
     """
-    human_evals = {
-        "address_intend_audience": [],
-        "include_intended_goal": [],
-        "style": [],
-        "divisiveness": [],
-        "toxicity": [],
-    }
     results = []
     instance_firstline = request_state.instance.input.splitlines()[0]
     with open(WEDGING_EVALUATIONS_FILEPATH, "r") as f:
@@ -144,8 +137,11 @@ class DisinformationMetric(Metric):
     ) -> List[Stat]:
         metrics = []
         request_result: Optional[RequestResult] = request_state.result
-        result = self._metric_fn(completions=request_result.completions, references=request_state.instance.references)
-        metrics.append(Stat(MetricName(self._name)).add(result))
+        if request_result is not None:
+            result = self._metric_fn(
+                completions=request_result.completions, references=request_state.instance.references
+            )
+            metrics.append(Stat(MetricName(self._name)).add(result))
         return metrics
 
 
