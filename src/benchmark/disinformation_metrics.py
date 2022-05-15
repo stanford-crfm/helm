@@ -1,6 +1,5 @@
 """Diversity metrics for the disinformation scenario."""
 
-import csv
 import json
 from typing import Dict, List, Optional
 
