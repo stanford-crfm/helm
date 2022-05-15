@@ -18,7 +18,7 @@ from .metric_service import MetricService
 
 HUMAN_EVAL_FILEPATHS: Dict[str, str] = {
     "reiteration": "src/benchmark/static/disinformation_reiteration_human_eval.json",
-    "wedging": "src/benchmark/static/disinformation_wedging_human_eval.json"
+    "wedging": "src/benchmark/static/disinformation_wedging_human_eval.json",
 }
 
 
@@ -61,12 +61,14 @@ def _monte_carlo_entropy(completions: List[Sequence], **unused_kwargs) -> float:
     return sum(mlogps) / len(mlogps)
 
 
-def _compute_wedging_human_eval(adapter_spec: AdapterSpec, request_state: RequestState, human_evaluations: Dict) -> List[Stat]:
+def _compute_wedging_human_eval(
+    adapter_spec: AdapterSpec, request_state: RequestState, human_evaluations: Dict
+) -> List[Stat]:
     """
-    Reads the file with the human evaluation results for the narrative wedging scenario, finds the line that
-    matches the current instance being evaluated, and outputs the human evaluation metrics for that line.
+    Reads the file with the human evaluation results for the narrative wedging scenario, finds the annotations
+    for the instance currently being evaluated, and outputs the human evaluation metrics for that instance.
     """
-    results = []
+    results: List[Stat] = []
     instance_firstline = request_state.instance.input.splitlines()[0]
     model_results = human_evaluations.get(adapter_spec.model)
     if not model_results:
@@ -85,27 +87,23 @@ def _compute_wedging_human_eval(adapter_spec: AdapterSpec, request_state: Reques
             Stat(MetricName("wedging_eval_include_intended_goal")).add(
                 np.mean(thesis_results.get("q2_support_goal", []))
             ),
-            Stat(MetricName("wedging_eval_style")).add(
-                np.mean(thesis_results.get("q3_style", []))
-            ),
-            Stat(MetricName("wedging_eval_divisiveness")).add(
-                np.mean(thesis_results.get("q4_divisive", []))
-            ),
-            Stat(MetricName("wedging_eval_toxicity")).add(
-                np.mean(thesis_results.get("q5_toxic", []))
-            ),
+            Stat(MetricName("wedging_eval_style")).add(np.mean(thesis_results.get("q3_style", []))),
+            Stat(MetricName("wedging_eval_divisiveness")).add(np.mean(thesis_results.get("q4_divisive", []))),
+            Stat(MetricName("wedging_eval_toxicity")).add(np.mean(thesis_results.get("q5_toxic", []))),
         ]
     )
 
     return results
 
 
-def _compute_reiteration_human_eval(adapter_spec: AdapterSpec, request_state: RequestState, human_evaluations: Dict) -> List[Stat]:
+def _compute_reiteration_human_eval(
+    adapter_spec: AdapterSpec, request_state: RequestState, human_evaluations: Dict
+) -> List[Stat]:
     """
-    Reads the file with the human evaluation results for the narrative reiteration scenario, finds the line that
-    matches the current thesis being evaluated, and outputs the human evaluation metrics for that thesis.
+    Reads the file with the human evaluation results for the narrative reiteration scenario, finds the annotations
+    for the thesis currently being evaluated, and outputs the human evaluation metrics for that thesis.
     """
-    results = []
+    results: List[Stat] = []
     model_results = human_evaluations.get(adapter_spec.model)
     if not model_results:
         # Trying to evaluate a model we don't have annotations for
@@ -115,10 +113,14 @@ def _compute_reiteration_human_eval(adapter_spec: AdapterSpec, request_state: Re
         # Trying to evaluate a thesis we don't have annotations for
         return results
 
-    results.extend([
-        Stat(MetricName("reiteration_eval_support_thesis")).add(np.mean(thesis_results.get("q2_support_thesis", []))),
-        Stat(MetricName("reiteration_eval_style")).add(np.mean(thesis_results.get("q3_style", [])))
-    ])
+    results.extend(
+        [
+            Stat(MetricName("reiteration_eval_support_thesis")).add(
+                np.mean(thesis_results.get("q2_support_thesis", []))
+            ),
+            Stat(MetricName("reiteration_eval_style")).add(np.mean(thesis_results.get("q3_style", []))),
+        ]
+    )
 
     return results
 
