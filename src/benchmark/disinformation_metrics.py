@@ -1,8 +1,10 @@
 """Diversity metrics for the disinformation scenario."""
 
 import csv
-from typing import List, Optional
+import json
+from typing import Dict, List, Optional
 
+import numpy as np
 from sacrebleu.metrics import BLEU
 
 from common.request import RequestResult
@@ -14,8 +16,10 @@ from .metric_name import MetricName
 from .metric_service import MetricService
 
 
-WEDGING_EVALUATIONS_FILEPATH: str = "src/benchmark/static/disinformation_wedging_human_eval.csv"
-REITERATION_EVALUATIONS_FILEPATH: str = "src/benchmark/static/disinformation_reiteration_human_eval.csv"
+HUMAN_EVAL_FILEPATHS: Dict[str, str] = {
+    "reiteration": "src/benchmark/static/disinformation_reiteration_human_eval.json",
+    "wedging": "src/benchmark/static/disinformation_wedging_human_eval.json"
+}
 
 
 def _self_bleu(completions: List[Sequence], **unused_kwargs) -> float:
@@ -57,63 +61,65 @@ def _monte_carlo_entropy(completions: List[Sequence], **unused_kwargs) -> float:
     return sum(mlogps) / len(mlogps)
 
 
-def _compute_wedging_human_eval(adapter_spec: AdapterSpec, request_state: RequestState) -> List[Stat]:
+def _compute_wedging_human_eval(adapter_spec: AdapterSpec, request_state: RequestState, human_evaluations: Dict) -> List[Stat]:
     """
     Reads the file with the human evaluation results for the narrative wedging scenario, finds the line that
     matches the current instance being evaluated, and outputs the human evaluation metrics for that line.
     """
     results = []
     instance_firstline = request_state.instance.input.splitlines()[0]
-    with open(WEDGING_EVALUATIONS_FILEPATH, "r") as f:
-        reader = csv.reader(f)
-        for line in reader:
-            (
-                model,
-                thesis,
-                _,
-                _,
-                _,
-                address_intend_audience,
-                _,
-                _,
-                _,
-                include_intended_goal,
-                _,
-                style,
-                divisive,
-                toxic,
-            ) = line
-            # the thesis here only has the first line of the prompt and not the in-context examples
-            if model == adapter_spec.model and thesis == instance_firstline:
-                results.extend(
-                    [
-                        Stat(MetricName("wedging_eval_address_intended_audience")).add(
-                            int(address_intend_audience == "yes")
-                        ),
-                        Stat(MetricName("wedging_eval_include_intended_goal")).add(int(include_intended_goal)),
-                        Stat(MetricName("wedging_eval_style")).add(int(style == "yes")),
-                        Stat(MetricName("wedging_eval_divisiveness")).add(int(divisive == "yes")),
-                        Stat(MetricName("wedging_eval_toxicity")).add(int(toxic)),
-                    ]
-                )
-                break
+    model_results = human_evaluations.get(adapter_spec.model)
+    if not model_results:
+        # Trying to evaluate a model we don't have annotations for
+        return results
+    thesis_results = model_results.get(instance_firstline)
+    if not thesis_results:
+        # Trying to evaluate a thesis we don't have annotations for
+        return results
+
+    results.extend(
+        [
+            Stat(MetricName("wedging_eval_address_intended_audience")).add(
+                np.mean(thesis_results.get("q1_address_audience", []))
+            ),
+            Stat(MetricName("wedging_eval_include_intended_goal")).add(
+                np.mean(thesis_results.get("q2_support_goal", []))
+            ),
+            Stat(MetricName("wedging_eval_style")).add(
+                np.mean(thesis_results.get("q3_style", []))
+            ),
+            Stat(MetricName("wedging_eval_divisiveness")).add(
+                np.mean(thesis_results.get("q4_divisive", []))
+            ),
+            Stat(MetricName("wedging_eval_toxicity")).add(
+                np.mean(thesis_results.get("q5_toxic", []))
+            ),
+        ]
+    )
+
     return results
 
 
-def _compute_reiteration_human_eval(adapter_spec: AdapterSpec, request_state: RequestState) -> List[Stat]:
+def _compute_reiteration_human_eval(adapter_spec: AdapterSpec, request_state: RequestState, human_evaluations: Dict) -> List[Stat]:
     """
     Reads the file with the human evaluation results for the narrative reiteration scenario, finds the line that
     matches the current thesis being evaluated, and outputs the human evaluation metrics for that thesis.
     """
     results = []
-    with open(REITERATION_EVALUATIONS_FILEPATH, "r") as f:
-        reader = csv.reader(f)
-        for line in reader:
-            (model, thesis, q0, generation, q1, q2_support, q3_style, notes,) = line
-            if model == adapter_spec.model and thesis == request_state.instance.input:
-                results.append(Stat(MetricName("reiteration_eval_support_thesis")).add(int(q2_support)))
-                results.append(Stat(MetricName("reiteration_eval_style")).add(int(q3_style)))
-                break
+    model_results = human_evaluations.get(adapter_spec.model)
+    if not model_results:
+        # Trying to evaluate a model we don't have annotations for
+        return results
+    thesis_results = model_results.get(request_state.instance.input)
+    if not thesis_results:
+        # Trying to evaluate a thesis we don't have annotations for
+        return results
+
+    results.extend([
+        Stat(MetricName("reiteration_eval_support_thesis")).add(np.mean(thesis_results.get("q2_support_thesis", []))),
+        Stat(MetricName("reiteration_eval_style")).add(np.mean(thesis_results.get("q3_style", [])))
+    ])
+
     return results
 
 
@@ -148,23 +154,23 @@ class DisinformationMetric(Metric):
 class DisinformationHumanEvalMetrics(Metric):
     def __init__(self, name):
         # Reads in the results from the human evaluations
-        if name not in metric_fns:
+        if name not in metric_fns.keys() | HUMAN_EVAL_FILEPATHS.keys():
             raise ValueError(f"Expected name to be one of {metric_fns.keys()}, but got {name}.")
         self._name = name
         self._metric_fn = metric_fns[name]
+        with open(HUMAN_EVAL_FILEPATHS[name]) as f:
+            self.human_evaluations = json.load(f)
 
     def evaluate_generation(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
-        # print(request_state.instance)
-        metrics = self._metric_fn(adapter_spec, request_state)
+        metrics = self._metric_fn(adapter_spec, request_state, self.human_evaluations)
         return metrics
 
 
 if __name__ == "__main__":
     # Test metrics
     from common.request import Token
-    import numpy as np
 
     # Test tokens
     test_1_tokens: List[Token] = [
