@@ -15,7 +15,7 @@ class GooseAIClient(Client):
     """
     GooseAI API Client
     - How to use the API: https://goose.ai/docs/api
-    - Supported models: : https://goose.ai/docs/models
+    - Supported models: https://goose.ai/docs/models
     """
 
     def __init__(self, api_key: str, cache_path: str):
