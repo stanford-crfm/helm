@@ -1094,7 +1094,7 @@ def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str, be
         max_train_instances=5,
         model="openai/davinci",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
-        stop_sequences=["\"</span>", "</div>", "\""],
+        stop_sequences=["\"</span>", "</div>", "\"", "</span"],
         num_outputs=1,
         max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
         temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify
@@ -1129,7 +1129,7 @@ def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str, begi
         max_train_instances=5,
         model="ai21/j1-large",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
-        stop_sequences=["\"</span>", "</div>", "\""],
+        stop_sequences=["\"</span>", "</div>", "\"", "</span>"],
         num_outputs=1,
         max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
         temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify
@@ -1164,7 +1164,7 @@ def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str, 
         max_train_instances=5,
         model="openai/davinci",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
-        stop_sequences=["\"</span>", "</div>", "\""],
+        stop_sequences=["\"</span>", "</div>", "\"", "</span>"],
         num_outputs=1,
         max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
         temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify
