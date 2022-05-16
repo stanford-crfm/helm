@@ -265,28 +265,34 @@ class Adapter:
         # We can slice and dice later in defining the metrics.
         eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
         if self.adapter_spec.max_eval_instances is not None:
-            # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
-            # number of instances, so we can include all the perturbed versions of the instances
-            # we choose in the eval set.
-            id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
-            for instance in eval_instances:
-                if instance.id in id_to_instances:
-                    id_to_instances[instance.id].append(instance)
-                else:
-                    id_to_instances[instance.id] = [instance]
+            if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS:
+                # For minimal pair scenarios, we need to make sure both instances in a minimal pair are sampled.
+                # Since instances in a minimal pair are adjacent in eval_instances, the simplest solution is to
+                # take the first max_eval_instances instances.
+                eval_instances = eval_instances[: self.adapter_spec.max_eval_instances]
+            else:
+                # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
+                # number of instances, so we can include all the perturbed versions of the instances
+                # we choose in the eval set.
+                id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
+                for instance in eval_instances:
+                    if instance.id in id_to_instances:
+                        id_to_instances[instance.id].append(instance)
+                    else:
+                        id_to_instances[instance.id] = [instance]
 
-            # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
-            # include all their instances in the final set of eval instances.
-            # The random sampling includes instances monotonically.
-            np.random.seed(0)
-            ids = list(id_to_instances.keys())
-            if len(ids) > self.adapter_spec.max_eval_instances:
-                ids = list(
-                    np.random.choice(ids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
-                )
-            eval_instances = []
-            for id_ in ids:
-                eval_instances.extend(id_to_instances[id_])
+                # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
+                # include all their instances in the final set of eval instances.
+                # The random sampling includes instances monotonically.
+                np.random.seed(0)
+                ids = list(id_to_instances.keys())
+                if len(ids) > self.adapter_spec.max_eval_instances:
+                    ids = list(
+                        np.random.choice(ids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
+                    )
+                eval_instances = []
+                for id_ in ids:
+                    eval_instances.extend(id_to_instances[id_])
 
         hlog(
             f"{len(instances)} instances, "
