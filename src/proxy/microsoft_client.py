@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from filelock import FileLock
 from openai.api_resources.abstract import engine_api_resource
 import openai as turing
 
@@ -13,6 +14,8 @@ from .tokenizer.tokenizer_factory import TokenizerFactory
 
 
 class MicrosoftClient(Client):
+    _CLIENT_LOCK = "microsoft_client.lock"
+
     """
     Client for the Microsoft's Megatron-Turing NLG models (https://arxiv.org/abs/2201.11990).
 
@@ -36,6 +39,14 @@ class MicrosoftClient(Client):
 
         self.cache = Cache(cache_path)
         self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer("microsoft")
+
+        # The Microsoft Turing server only allows a single request at a time, so acquire a
+        # process-safe lock before making a request.
+        # https://github.com/microsoft/turing-academic-TNLG#rate-limitations
+        #
+        # Since the model will generate roughly three tokens per second and the max context window
+        # is 2048 tokens, we expect the maximum time for a request to be fulfilled to be 700 seconds.
+        self.lock = FileLock(MicrosoftClient._CLIENT_LOCK, timeout=700)
 
     def make_request(self, request: Request) -> RequestResult:
         """
@@ -87,10 +98,11 @@ class MicrosoftClient(Client):
         try:
 
             def do_it():
-                turing.api_key = self.api_key
-                turing.api_base = self.api_base
-                turing.api_resources.completion.Completion.__bases__ = self.completion_attributes
-                return turing.Completion.create(**raw_request)
+                with self.lock:
+                    turing.api_key = self.api_key
+                    turing.api_base = self.api_base
+                    turing.api_resources.completion.Completion.__bases__ = self.completion_attributes
+                    return turing.Completion.create(**raw_request)
 
             cache_key = Client.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
