@@ -19,6 +19,7 @@ DEFAULT_QUOTAS = {
     "gpt3": {"daily": 10000},
     "codex": {"daily": 10000},
     "jurassic": {"daily": 10000},
+    "gooseai": {"daily": 10000},
 }
 
 
