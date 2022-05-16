@@ -67,7 +67,7 @@ class GooseAIClient(Client):
             for text, logprob, top_logprobs in zip(
                 raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
             ):
-                tokens.append(Token(text=text, logprob=logprob, top_logprobs=dict(top_logprobs)))
+                tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                 sequence_logprob += logprob or 0
             completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
             completions.append(completion)

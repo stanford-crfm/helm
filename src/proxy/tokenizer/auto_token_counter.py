@@ -3,6 +3,7 @@ from typing import Dict, List
 from common.request import Request, Sequence
 from .ai21_token_counter import AI21TokenCounter
 from .free_token_counter import FreeTokenCounter
+from .gooseai_token_counter import GooseAITokenCounter
 from .openai_token_counter import OpenAITokenCounter
 from .token_counter import TokenCounter
 
@@ -22,8 +23,7 @@ class AutoTokenCounter(TokenCounter):
             elif organization == "ai21":
                 token_counter = AI21TokenCounter()
             elif organization == "gooseai":
-                # TODO: implement token counter for gooseai
-                pass
+                token_counter = GooseAITokenCounter()
             else:
                 token_counter = FreeTokenCounter()
             self.token_counters[organization] = token_counter

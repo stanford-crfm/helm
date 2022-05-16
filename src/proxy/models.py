@@ -111,13 +111,13 @@ ALL_MODELS = [
     ),
     # GooseAI supported models
     Model(
-        group="goose",
+        group="gooseai",
         name="gooseai/gpt-neo-20b",
         description="GPT-NeoX (20B parameters trained by EleutherAI on The Pile)",
         tags=[TEXT_MODEL_TAG],
     ),
     Model(
-        group="goose",
+        group="gooseai",
         name="gooseai/gpt-j-6b",
         description="GPT-J (6B parameters trained by EleutherAI on The Pile)",
         tags=[TEXT_MODEL_TAG],
