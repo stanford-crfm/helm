@@ -10,6 +10,7 @@ from common.tokenization_request import TokenizationRequest, TokenizationRequest
 from .client import Client
 from .ai21_client import AI21Client
 from .anthropic_client import AnthropicClient
+from .goose_ai_client import GooseAIClient
 from .huggingface_client import HuggingFaceClient
 from .openai_client import OpenAIClient
 from .microsoft_client import MicrosoftClient
@@ -35,6 +36,8 @@ class AutoClient(Client):
                 client = OpenAIClient(api_key=self.credentials["openaiApiKey"], cache_path=client_cache_path)
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
+            elif organization == "gooseai":
+                client = GooseAIClient(api_key=self.credentials["gooseaiApiKey"], cache_path=client_cache_path)
             elif organization == "huggingface":
                 client = HuggingFaceClient(cache_path=client_cache_path)
             elif organization == "anthropic":

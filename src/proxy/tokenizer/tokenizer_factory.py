@@ -43,6 +43,8 @@ class TokenizerFactory:
             tokenizer = OpenAITokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
         elif organization == "microsoft":
             tokenizer = MTNLGTokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
+        elif organization == "gooseai":
+            tokenizer = GPTJTokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
         elif organization == "anthropic":
             tokenizer = AnthropicTokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
         elif model_name == "huggingface/gpt2":
