@@ -1089,12 +1089,12 @@ def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str, be
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="Prompt: ",
-        output_prefix="\nBEGIN DIALOGUE\n",
+        output_prefix="\n<div class=\"conversation\">\n",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
-        stop_sequences=["}"],
+        stop_sequences=["\"</span>", "</div>", "\""],
         num_outputs=1,
         max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
         temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify
@@ -1124,12 +1124,12 @@ def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str, begi
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="Prompt: ",
-        output_prefix="\nBEGIN DIALOGUE\n",
+        output_prefix="\n<div class=\"conversation\">\n",
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
-        stop_sequences=["}"],
+        stop_sequences=["\"</span>", "</div>", "\""],
         num_outputs=1,
         max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
         temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify
@@ -1159,12 +1159,12 @@ def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str, 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="Prompt: ",
-        output_prefix="\nBEGIN DIALOGUE\n",
+        output_prefix="\n<div class=\"conversation\">\n",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
-        stop_sequences=["}"],
+        stop_sequences=["\"</span>", "</div>", "\""],
         num_outputs=1,
         max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
         temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify

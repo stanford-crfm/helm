@@ -113,7 +113,7 @@ class EmpatheticDialoguesScenario(Scenario):
             # Reformat dataset idiosyncracies
             data_df["prompt"] = data_df["prompt"].str.replace("_comma_", ",").str.strip()
             data_df["utterance"] = data_df["utterance"].str.replace("_comma_", ",").str.strip()
-
+            data_df["utterance"] = "<span class=\"conversation_utterance\">\"" + data_df["utterance"] + "\"</span>" # Add HTML tags
             # Group rows by prompts, each group corresponds to an instance
             grouped_data_df = data_df.groupby(by=["prompt", "context"])
             for prompt_cols, prompt_df in grouped_data_df:
@@ -242,7 +242,8 @@ class WizardOfWikipediaScenario(Scenario):
                 dialog = row["dialog"]
                 for utterance in dialog:
                     # Create Utterance object
-                    utterances.append(Utterance(speaker=speakers[utterance["speaker"]], text=utterance["text"]))
+                    utterance_text = "<span class=\"conversation_utterance\">\"" + utterance["text"] + "\"</span>"
+                    utterances.append(Utterance(speaker=speakers[utterance["speaker"]], text=utterance_text))
 
                 # Join utterances into an output
                 output = "".join([str(utt) for utt in utterances])
@@ -366,7 +367,8 @@ class CommonSenseScenario(Scenario):
                         speaker = initiator
                     else:
                         speaker = listener
-                    utterances.append(Utterance(speaker=speaker, text=turn))
+                    utterance_text = "<span class=\"conversation_utterance\">\"" + turn + "\"</span>"
+                    utterances.append(Utterance(speaker=speaker, text=utterance_text))
                 output = "".join([str(utt) for utt in utterances])
                 instances.append(
                     Instance(
