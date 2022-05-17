@@ -1101,9 +1101,12 @@ def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str, be
         interactive=True,
     )
 
+    idx = adapter_spec.model.index('/')
+    model_name = adapter_spec.model[idx+1:]
+
     return RunSpec(
         name=f"empatheticdialogues:annotation_stage={annotation_stage},"
-        f"user_initiated={user_initiated},begin={begin},end={end}",
+        f"user_initiated={user_initiated},begin={begin},end={end},model={model_name}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -1136,9 +1139,12 @@ def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str, begi
         interactive=True,
     )
 
+    idx = adapter_spec.model.index('/')
+    model_name = adapter_spec.model[idx+1:]
+
     return RunSpec(
         name=f"wizardofwikipedia:annotation_stage={annotation_stage},"
-        f"user_initiated={user_initiated},begin={begin},end={end}",
+        f"user_initiated={user_initiated},begin={begin},end={end},model={model_name}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -1171,9 +1177,12 @@ def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str, 
         interactive=True,
     )
 
+    idx = adapter_spec.model.index('/')
+    model_name = adapter_spec.model[idx+1:]
+
     return RunSpec(
         name=f"commonsense_dialogues:annotation_stage={annotation_stage},"
-        f"user_initiated={user_initiated},begin={begin},end={end}",
+        f"user_initiated={user_initiated},begin={begin},end={end},model={model_name}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
