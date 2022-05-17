@@ -12,7 +12,7 @@ from typing import List, Optional, Set, Dict
 from common.authentication import Authentication
 from common.general import parse_hocon, write
 from common.hierarchical_logger import hlog, htrack
-from benchmark.run import run_benchmarking, add_run_args
+from benchmark.run import run_benchmarking, add_run_args, validate_args, LATEST_SYMLINK
 from benchmark.runner import RunSpec
 from proxy.remote_service import add_service_args, create_authentication
 from proxy.models import ALL_MODELS
@@ -135,7 +135,7 @@ class AllRunner:
 
         # Create a symlink runs/latest -> runs/<name_of_suite>,
         # so runs/latest always points to the latest run suite.
-        symlink_path: str = os.path.abspath(os.path.join(runs_dir, "latest"))
+        symlink_path: str = os.path.abspath(os.path.join(runs_dir, LATEST_SYMLINK))
         if os.path.islink(symlink_path):
             # Remove the previous symlink if it exists.
             os.unlink(symlink_path)
@@ -176,6 +176,7 @@ def main():
     )
     add_run_args(parser)
     args = parser.parse_args()
+    validate_args(args)
 
     runner = AllRunner(
         # The benchmarking framework will not make any requests to the proxy server when
@@ -184,11 +185,11 @@ def main():
         conf_path=args.conf_path,
         url=args.server_url,
         output_path=args.output_path,
+        suite=args.suite,
         num_threads=args.num_threads,
         dry_run=args.dry_run,
         skip_instances=args.skip_instances,
         max_eval_instances=args.max_eval_instances,
-        suite=args.suite,
     )
     runner.run()
     hlog("Done.")

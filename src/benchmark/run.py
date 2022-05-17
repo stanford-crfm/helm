@@ -13,6 +13,9 @@ from .runner import Runner, RunSpec
 from .run_specs import construct_run_specs
 
 
+LATEST_SYMLINK: str = "latest"
+
+
 def run_benchmarking(
     run_spec_descriptions: List[str],
     auth: Authentication,
@@ -81,6 +84,10 @@ def add_run_args(parser: argparse.ArgumentParser):
     )
 
 
+def validate_args(args):
+    assert args.suite != LATEST_SYMLINK, f"Suite name can't be '{LATEST_SYMLINK}'"
+
+
 @htrack(None)
 def main():
     """
@@ -91,6 +98,7 @@ def main():
     parser.add_argument("-r", "--run-specs", nargs="*", help="Specifies what to run", default=["simple1"])
     add_run_args(parser)
     args = parser.parse_args()
+    validate_args(args)
 
     auth: Authentication = create_authentication(args)
     run_benchmarking(
