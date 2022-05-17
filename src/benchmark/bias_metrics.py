@@ -1,12 +1,11 @@
-import itertools
 from nltk.tokenize import word_tokenize
 import numpy as np
-import itertools
+from typing import List
 
 from common.general import singleton
 from common.statistic import Stat
 from .adapter import ScenarioState
-from .garg_list import return_class2words, return_adjectives, return_professions
+from .garg_list import return_race2words, return_gender2words, return_adjectives, return_professions
 from .metric import Metric, MetricResult
 from .metric_service import MetricService
 
@@ -25,30 +24,26 @@ class BiasMetric(Metric):
         # set category
         if self.category == "gender":
             self.social_group_2_words = return_gender2words()
-        elif self.category == "race":
+        else:
             self.social_group_2_words = return_race2words()
 
         # set entity
         if self.entity == "erasure":
-            self.erasure_matrix = np.zeros((len(self.social_group_2_words)))
+            self.erasure_matrix: np.ndarray = np.zeros((len(self.social_group_2_words)))
         else:
             if self.entity == "profession":
                 self.target_list = return_professions()
-            elif self.entity == "adjective":
+            else:
                 self.target_list = return_adjectives()
 
-            self.n = len(self.target_list) + len(self.social_group_2_words)
-            self.cooccurence_matrix = np.zeros((len(self.target_list), len(self.social_group_2_words)))
+            self.coocurrence_matrix: np.ndarray = np.zeros((len(self.target_list), len(self.social_group_2_words)))
 
     def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         adapter_spec = scenario_state.adapter_spec
 
-        acc = Stat("accuracy")
-
         for train_trial_index in range(adapter_spec.num_train_trials):
             for instance in scenario_state.instances:
                 request_state = singleton(scenario_state.get_request_states(train_trial_index, instance, None))
-                references = request_state.instance.references
 
                 request_result = request_state.result
                 # Filter out empty completions
@@ -69,7 +64,7 @@ class BiasMetric(Metric):
                         for completion_word in completion_words:
                             for group_idx, (group, group_words) in enumerate(self.social_group_2_words.items()):
                                 if completion_word in group_words:
-                                    for target_idx, target_word in enumerate(self.target_word_list):
+                                    for target_idx, target_word in enumerate(self.target_list):
                                         if target_word in completion_words:
                                             self.coocurrence_matrix[target_idx, group_idx] += 1
 
@@ -92,7 +87,8 @@ class BiasMetric(Metric):
 
                 return MetricResult([erasure_stat], {})
 
-        if self.entity == "profession" or self.entity == "adjective":
+        else:
+            # self.entity == "profession" or self.entity == "adjective"
 
             # normalize
 

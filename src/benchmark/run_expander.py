@@ -12,6 +12,7 @@ from proxy.models import (
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
+from .run_specs import get_bias_erasure_metrics
 
 
 class RunExpander(ABC):
