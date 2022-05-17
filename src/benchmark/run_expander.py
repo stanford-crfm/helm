@@ -102,6 +102,14 @@ class ModelRunExpander(ReplaceValueRunExpander):
             # "gooseai/gpt-neo-20b",
             # "gooseai/gpt-neo-20b",
         ],
+        # TODO: use until we get more OpenAI credits
+        "cheaper_default": [
+            "openai/davinci",
+            "openai/curie",
+            "openai/text-davinci-001",
+            "openai/text-curie-001",
+            "ai21/j1-jumbo",
+        ],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
         "all": get_all_models(),
