@@ -10,7 +10,7 @@ from .metric import Metric, MetricResult
 from .metric_service import MetricService
 
 
-class BiasMetric(Metric):
+class BiasErasureMetric(Metric):
     """
     TODO @ryanachi: add description
     """
