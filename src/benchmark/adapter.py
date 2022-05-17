@@ -167,6 +167,7 @@ class InteractionRound:
 
     request_state: RequestState
     user_input: Optional[UserInput] = None
+    generated_toxic: bool = False # Whether toxic generation was produced
 
 
 @dataclass
@@ -198,6 +199,9 @@ class InteractionTrace:
     user_id: Optional[str] = None
 
     trace_completed: bool = False
+
+    # All toxic generations produced during interaction
+    toxic_generations = []
 
     def render_lines(self) -> List[str]:
         output = [f"train_trial_index: {self.train_trial_index}"]
