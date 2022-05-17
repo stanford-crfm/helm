@@ -65,21 +65,19 @@ class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     values_dict = {"default": [5]}
 
 
+def get_bias_erasure_metrics() -> List[MetricSpec]:
+    categories = ["gender", "race"]
+    entities = ["erasure", "profession", "adjective"]
+    cross_cat_ent = itertools.product(categories, entities)
+
+    return [
+        MetricSpec(class_name="benchmark.bias_erasure_metrics.BiasErasureMetric", args={"category": cat, "entity": ent})
+        for cat, ent in cross_cat_ent
+    ]
+
+
 class MetricsRunExpander(ReplaceValueRunExpander):
     """For overriding metrics."""
-
-    @staticmethod
-    def get_bias_erasure_metrics() -> List[MetricSpec]:
-        categories = ["gender", "race"]
-        entities = ["erasure", "profession", "adjective"]
-        cross_cat_ent = itertools.product(categories, entities)
-
-        return [
-            MetricSpec(
-                class_name="benchmark.bias_erasure_metrics.BiasErasureMetric", args={"category": cat, "entity": ent}
-            )
-            for cat, ent in cross_cat_ent
-        ]
 
     name = "metrics"
     values_dict = {"bias_erasure": [get_bias_erasure_metrics()]}
@@ -118,6 +116,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
 
 ############################################################
+
 
 # Helper functions to instantiate `PerturbationSpec`s.
 def extra_space(num_spaces: int) -> PerturbationSpec:
