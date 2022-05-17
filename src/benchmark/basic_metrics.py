@@ -461,6 +461,7 @@ class BasicMetric(Metric):
             training_co2_cost = None
 
         return [
+            Stat(MetricName("num_output_tokens")).add(num_output_tokens),
             Stat(MetricName("num_tokens_in_prompt")).add(num_tokens_in_prompt),
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
