@@ -1075,32 +1075,38 @@ def get_cnndm_summarization_spec() -> RunSpec:
     )
 
 
-def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str) -> RunSpec:
+def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str, begin: int, end: int) -> RunSpec:
     """
     annotation_stage: Specifies the type of annotation being conducted in this run
                     (for e.g. annotator filtering, inter-annotator agreement, final)
     """
     if type(user_initiated) == str:
         user_initiated = user_initiated == "True"
-    scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.EmpatheticDialoguesScenario", args={})
+        scenario = ScenarioSpec(
+            class_name="benchmark.dialogue_scenarios.EmpatheticDialoguesScenario", args={"begin": begin, "end": end}
+        )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="Prompt: ",
-        output_prefix="\nBEGIN DIALOGUE\n",
+        output_prefix="\n<div class=\"conversation\">\n",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
-        stop_sequences=["}"],
+        stop_sequences=["\"</span>", "</div>", "\"", "</span>"],
         num_outputs=1,
         max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
         temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify
         interactive=True,
     )
 
+    idx = adapter_spec.model.index('/')
+    model_name = adapter_spec.model[idx+1:]
+
     return RunSpec(
-        name=f"empatheticdialogues:annotation_stage={annotation_stage},user_initiated={user_initiated}",
+        name=f"empatheticdialogues:annotation_stage={annotation_stage},"
+        f"user_initiated={user_initiated},begin={begin},end={end},model={model_name}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -1111,28 +1117,34 @@ def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str) ->
     )
 
 
-def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str) -> RunSpec:
+def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str, begin: int, end: int) -> RunSpec:
     if type(user_initiated) == str:
         user_initiated = user_initiated == "True"
-    scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.WizardOfWikipediaScenario", args={})
+    scenario = ScenarioSpec(
+        class_name="benchmark.dialogue_scenarios.WizardOfWikipediaScenario", args={"begin": begin, "end": end}
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="Prompt: ",
-        output_prefix="\nBEGIN DIALOGUE\n",
+        output_prefix="\n<div class=\"conversation\">\n",
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
-        stop_sequences=["}"],
+        stop_sequences=["\"</span>", "</div>", "\"", "</span>"],
         num_outputs=1,
         max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
         temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify
         interactive=True,
     )
 
+    idx = adapter_spec.model.index('/')
+    model_name = adapter_spec.model[idx+1:]
+
     return RunSpec(
-        name=f"wizardofwikipedia:annotation_stage={annotation_stage},user_initiated={user_initiated}",
+        name=f"wizardofwikipedia:annotation_stage={annotation_stage},"
+        f"user_initiated={user_initiated},begin={begin},end={end},model={model_name}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -1143,28 +1155,34 @@ def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str) -> R
     )
 
 
-def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str) -> RunSpec:
+def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str, begin: int, end: int) -> RunSpec:
     if type(user_initiated) == str:
         user_initiated = user_initiated == "True"
-    scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.CommonSenseScenario", args={})
+    scenario = ScenarioSpec(
+        class_name="benchmark.dialogue_scenarios.CommonSenseScenario", args={"begin": begin, "end": end}
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="Prompt: ",
-        output_prefix="\nBEGIN DIALOGUE\n",
+        output_prefix="\n<div class=\"conversation\">\n",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-large",
+        model="openai/davinci",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
-        stop_sequences=["}"],
+        stop_sequences=["\"</span>", "</div>", "\"", "</span>"],
         num_outputs=1,
         max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
         temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify
         interactive=True,
     )
 
+    idx = adapter_spec.model.index('/')
+    model_name = adapter_spec.model[idx+1:]
+
     return RunSpec(
-        name=f"commonsense_dialogues:annotation_stage={annotation_stage},user_initiated={user_initiated}",
+        name=f"commonsense_dialogues:annotation_stage={annotation_stage},"
+        f"user_initiated={user_initiated},begin={begin},end={end},model={model_name}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),

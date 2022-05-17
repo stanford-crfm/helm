@@ -167,6 +167,7 @@ class InteractionRound:
 
     request_state: RequestState
     user_input: Optional[UserInput] = None
+    generated_toxic: bool = False # Whether toxic generation was produced
 
 
 @dataclass
@@ -198,6 +199,9 @@ class InteractionTrace:
     user_id: Optional[str] = None
 
     trace_completed: bool = False
+
+    # All toxic generations produced during interaction
+    toxic_generations = []
 
     def render_lines(self) -> List[str]:
         output = [f"train_trial_index: {self.train_trial_index}"]
@@ -794,6 +798,15 @@ class InteractiveAdapter(ABC):
         This function is subclassed to encode the adaptation into and produce a new RequestState
         """
         raise NotImplementedError
+
+    def postprocess_initial_request(
+        self, initial_request_state: RequestState, adapter_spec: AdapterSpec
+    ) -> RequestState:
+        """
+        For some scenarios, the (non-interactive) adapter code is not expressive enough, but is still largely useful.
+        The following code postprocesses the initial request (using information from adapter_spec)
+        """
+        return initial_request_state
 
     @abstractmethod
     def adapt_user_input(self, interaction_trace: InteractionTrace, user_input: UserInput) -> RequestState:

@@ -28,5 +28,5 @@ COMPLETION_CODES = [
     "fresh",
     "training",
     "spray",
-    "assignment"
+    "assignment",
 ]

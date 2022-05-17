@@ -33,7 +33,6 @@ from .executor import ExecutionSpec, Executor, render_request_state
 from .metric import Metric, MetricSpec, create_metric, Stat
 from .tokens_metric import TokensMetric
 
-
 @dataclass(frozen=True)
 class RunSpec:
     """
@@ -272,18 +271,29 @@ class InteractiveRunner:
             # Do not overwrite
             return interaction_trace
 
+        # Postprocess the initial request
+        first_interaction_round = interaction_trace.trace[0]
+        assert first_interaction_round.user_input is None
+        new_request_state = self.interactive_adapter.postprocess_initial_request(
+            first_interaction_round.request_state, self.run_spec.adapter_spec
+        )
+        first_interaction_round = InteractionRound(user_input=None, request_state=new_request_state)
+
         if self.interactive_adapter.user_initiated is False:
-            first_interaction_round = interaction_trace.trace[0]
-            assert first_interaction_round.user_input is None
-            new_request_state: RequestState = self.interactive_adapter.initial_lm_request(
-                first_interaction_round.request_state
-            )
+            new_request_state = self.interactive_adapter.initial_lm_request(first_interaction_round.request_state)
             new_request_state = self.process(new_request_state)
             hlog(new_request_state.render_lines())
             first_interaction_round = InteractionRound(user_input=None, request_state=new_request_state)
-
-            interaction_trace.trace[0] = first_interaction_round
-            self.save_interaction_trace(interaction_trace=interaction_trace)
+        
+        # Handle toxicity, if any
+        clean_output, generated_toxic = self.interactive_adapter.filter_toxic_generations(first_interaction_round)
+        if generated_toxic:
+            toxic_generation = first_interaction_round.request_state.result.completions[0].text # Original generation was toxic
+            first_interaction_round = self.replace_toxic_with_safe(first_interaction_round, clean_output)
+            interaction_trace.toxic_generations.append(toxic_generation)
+        interaction_trace.trace[0] = first_interaction_round
+    
+        self.save_interaction_trace(interaction_trace=interaction_trace)
         return interaction_trace
 
     def handle_user_input(self, interaction_trace_id: uuid.UUID, user_input: UserInput) -> RequestResult:
@@ -295,12 +305,31 @@ class InteractiveRunner:
         new_request_state = self.process(new_request_state)
         print(new_request_state.render_lines())
         assert new_request_state.result
-        interaction_trace.trace.append(InteractionRound(user_input=user_input, request_state=new_request_state))
+
+        # Handle toxicity
+        interaction_round = InteractionRound(user_input=user_input, request_state=new_request_state)
+        clean_output, generated_toxic = self.interactive_adapter.filter_toxic_generations(interaction_round)
+        if generated_toxic:
+            toxic_generation = interaction_round.request_state.result.completions[0].text # Original generation was toxic
+            interaction_round = self.replace_toxic_with_safe(interaction_round, clean_output)
+            interaction_trace.toxic_generations.append(toxic_generation)
+        
+        interaction_trace.trace.append(interaction_round)
         print(interaction_trace.render_lines())
 
         self.save_interaction_trace(interaction_trace=interaction_trace)
 
         return new_request_state.result
+
+    def replace_toxic_with_safe(self, toxic_round: InteractionRound, clean_text: str) -> InteractionRound:
+        """Replace toxic generation with clean generation in InteractionRound"""
+        clean_completions = toxic_round.request_state.result.completions
+        clean_completions[0] = replace(clean_completions[0], text=clean_text)
+        clean_result = replace(toxic_round.request_state.result, completions=clean_completions)
+        clean_request_state = replace(toxic_round.request_state, result=clean_result)
+        clean_round = replace(toxic_round, request_state=clean_request_state)
+        clean_round = replace(clean_round, generated_toxic=True)
+        return clean_round
 
     def terminate_interaction_trace(self, interaction_trace_id: uuid.UUID):
         interaction_trace = self.load_interaction_trace(interaction_trace_id=interaction_trace_id)
