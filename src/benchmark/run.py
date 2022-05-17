@@ -1,6 +1,7 @@
 import argparse
-from typing import List, Optional
 from dataclasses import replace
+from datetime import datetime
+from typing import List, Optional
 
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.authentication import Authentication
@@ -18,10 +19,10 @@ def run_benchmarking(
     url: str,
     num_threads: int,
     output_path: str,
+    suite: str,
     dry_run: bool,
     skip_instances: bool,
     max_eval_instances: Optional[int],
-    suite: Optional[str],
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
     execution_spec = ExecutionSpec(auth=auth, url=url, parallelism=num_threads, dry_run=dry_run)
@@ -43,7 +44,7 @@ def run_benchmarking(
         for run_spec in run_specs:
             hlog(run_spec.name)
 
-    runner = Runner(execution_spec, output_path, run_specs, skip_instances, suite)
+    runner = Runner(execution_spec, output_path, suite, run_specs, skip_instances)
     runner.run_all()
     return run_specs
 
@@ -73,7 +74,10 @@ def add_run_args(parser: argparse.ArgumentParser):
         help="Maximum number of instances to evaluate on, overrides adapter spec (for piloting)",
     )
     parser.add_argument(
-        "--suite", type=str, help="Name of the suite this run belongs to (default is None).", default=None
+        "--suite",
+        type=str,
+        help="Name of the suite this run belongs to (default is today's date).",
+        default=datetime.today().strftime("%m-%d-%Y"),
     )
 
 
@@ -95,8 +99,8 @@ def main():
         url=args.server_url,
         num_threads=args.num_threads,
         output_path=args.output_path,
+        suite=args.suite,
         dry_run=args.dry_run,
         skip_instances=args.skip_instances,
         max_eval_instances=args.max_eval_instances,
-        suite=args.suite,
     )

@@ -2,7 +2,6 @@ import argparse
 import dataclasses
 import os.path
 from collections import defaultdict
-from datetime import datetime
 from pathlib import Path
 
 import json
@@ -45,22 +44,21 @@ class AllRunner:
         conf_path: str,
         url: str,
         output_path: str,
+        suite: str,
         num_threads: int,
         dry_run: Optional[bool],
         skip_instances: bool,
         max_eval_instances: Optional[int],
-        suite: Optional[str] = None,
     ):
         self.auth: Authentication = auth
         self.conf_path: str = conf_path
         self.url: str = url
         self.output_path: str = output_path
+        self.suite: str = suite
         self.num_threads: int = num_threads
-        self.dry_run = dry_run
-        self.skip_instances = skip_instances
-        self.max_eval_instances = max_eval_instances
-        # Name of the run suite. If a name is not specified, default to today's date
-        self.suite: str = suite if suite else datetime.today().strftime("%m-%d-%Y")
+        self.dry_run: Optional[bool] = dry_run
+        self.skip_instances: bool = skip_instances
+        self.max_eval_instances: Optional[int] = max_eval_instances
 
     @htrack(None)
     def run(self):
@@ -104,10 +102,10 @@ class AllRunner:
                 url=self.url,
                 num_threads=self.num_threads,
                 output_path=self.output_path,
+                suite=self.suite,
                 dry_run=dry_run,
                 skip_instances=self.skip_instances,
                 max_eval_instances=self.max_eval_instances,
-                suite=self.suite,
             )
             run_specs.extend(new_run_specs)
 

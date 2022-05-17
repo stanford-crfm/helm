@@ -2,7 +2,7 @@ import json
 import os
 from collections import defaultdict
 from dataclasses import dataclass, asdict
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple
 
 from common.general import ensure_directory_exists, write, write_lines
 from common.hierarchical_logger import hlog, htrack_block
@@ -50,9 +50,9 @@ class Runner:
         self,
         execution_spec: ExecutionSpec,
         output_path: str,
+        suite: str,
         run_specs: List[RunSpec],
         skip_instances: bool,
-        suite: Optional[str] = None,
     ):
         self.executor = Executor(execution_spec)
         self.dry_run: bool = execution_spec.dry_run
@@ -66,11 +66,8 @@ class Runner:
         self.scenarios_path: str = os.path.join(output_path, "scenarios")
         ensure_directory_exists(self.scenarios_path)
 
-        self.runs_path: str = os.path.join(output_path, "runs")
-        if suite:
-            # When`suite` is specified, this run belongs to particular run suite,
-            # so output the results under a folder with the name of the suite
-            self.runs_path = os.path.join(self.runs_path, suite)
+        # Output the results under a folder with the name of the suite
+        self.runs_path: str = os.path.join(output_path, "runs", suite)
 
     def run_all(self):
         for run_spec in self.run_specs:
