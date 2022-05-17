@@ -56,8 +56,15 @@ $(function () {
     return result;
   }
 
+  function renderStopSequence(value) {
+    return JSON.stringify(value);
+  }
+
   function renderFieldValue(field, value) {
     if (!field.values) {
+      if (field.name === 'stop_sequences') {
+        return renderStopSequence(value);
+      }
       return value;
     }
     const valueField = field.values.find(valueField => valueField.name === value);
