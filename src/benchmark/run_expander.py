@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
+import itertools
 from typing import List, Dict, Optional, Tuple
 
 from proxy.models import (
@@ -9,10 +10,10 @@ from proxy.models import (
     get_model_names_with_tag,
     LIMITED_FUNCTIONALITY_MODEL_TAG,
 )
+from .metric import MetricSpec
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
-from .run_specs import get_bias_erasure_metrics
 
 
 class RunExpander(ABC):
@@ -66,6 +67,19 @@ class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
 
 class MetricsRunExpander(ReplaceValueRunExpander):
     """For overriding metrics."""
+
+    @staticmethod
+    def get_bias_erasure_metrics() -> List[MetricSpec]:
+        categories = ["gender", "race"]
+        entities = ["erasure", "profession", "adjective"]
+        cross_cat_ent = itertools.product(categories, entities)
+
+        return [
+            MetricSpec(
+                class_name="benchmark.bias_erasure_metrics.BiasErasureMetric", args={"category": cat, "entity": ent}
+            )
+            for cat, ent in cross_cat_ent
+        ]
 
     name = "metrics"
     values_dict = {"bias_erasure": [get_bias_erasure_metrics()]}
