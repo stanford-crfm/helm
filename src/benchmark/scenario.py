@@ -154,7 +154,7 @@ class Scenario(ABC):
         # Assume `/.../src/benchmark/...`
         path = inspect.getfile(type(self))
         # Strip out prefix in absolute path and replace with GitHub link.
-        path = re.sub(r"^.*\/src/", "https://github.com/stanford-crfm/benchmarking/blob/master/src/", path)
+        path = re.sub(r"^.*\/src/", "https://github.com/stanford-crfm/benchmarking/blob/main/src/", path)
         return path
 
     @abstractmethod

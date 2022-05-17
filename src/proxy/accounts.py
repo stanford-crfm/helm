@@ -19,6 +19,7 @@ DEFAULT_QUOTAS = {
     "gpt3": {"daily": 10000},
     "codex": {"daily": 10000},
     "jurassic": {"daily": 10000},
+    "gooseai": {"daily": 10000},
 }
 
 
@@ -34,7 +35,7 @@ class InsufficientQuotaError(Exception):
 class Usage:
     """Usage information (for a given account, model group, and granularity)."""
 
-    # What period it is (so we know when to reset `used`) - for exmaple, for
+    # What period it is (so we know when to reset `used`) - for example, for
     # daily granularity, period might be 2021-12-30
     period: Optional[str] = None
 
