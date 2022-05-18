@@ -79,7 +79,7 @@ def get_bias_erasure_metrics() -> List[MetricSpec]:
 class MetricsRunExpander(ReplaceValueRunExpander):
     """For overriding metrics."""
 
-    name = "metrics"
+    name = "metric_augmentation"
     values_dict = {"bias_erasure": [get_bias_erasure_metrics()]}
 
 
@@ -388,6 +388,7 @@ RUN_EXPANDERS = dict(
     (expander.name, expander)
     for expander in [
         NumTrainTrialsRunExpander,
+        MetricsRunExpander,
         MaxTrainInstancesRunExpander,
         NumOutputsRunExpander,
         ModelRunExpander,
