@@ -113,7 +113,9 @@ class EmpatheticDialoguesScenario(Scenario):
             # Reformat dataset idiosyncracies
             data_df["prompt"] = data_df["prompt"].str.replace("_comma_", ",").str.strip()
             data_df["utterance"] = data_df["utterance"].str.replace("_comma_", ",").str.strip()
-            data_df["utterance"] = "<span class=\"conversation_utterance\">\"" + data_df["utterance"] + "\"</span>" # Add HTML tags
+            data_df["utterance"] = (
+                '<span class="conversation_utterance">"' + data_df["utterance"] + '"</span>'
+            )  # Add HTML tags
             # Group rows by prompts, each group corresponds to an instance
             grouped_data_df = data_df.groupby(by=["prompt", "context"])
             for prompt_cols, prompt_df in grouped_data_df:
@@ -242,7 +244,7 @@ class WizardOfWikipediaScenario(Scenario):
                 dialog = row["dialog"]
                 for utterance in dialog:
                     # Create Utterance object
-                    utterance_text = "<span class=\"conversation_utterance\">\"" + utterance["text"] + "\"</span>"
+                    utterance_text = '<span class="conversation_utterance">"' + utterance["text"] + '"</span>'
                     utterances.append(Utterance(speaker=speakers[utterance["speaker"]], text=utterance_text))
 
                 # Join utterances into an output
@@ -330,6 +332,16 @@ class CommonSenseScenario(Scenario):
             target_path=self.whitelist_path,
         )
 
+    def _group_samples_by_context(self, samples: Dict[int, Dict]) -> Dict[str, Dict]:
+        samples_by_context = {}
+        for idx, sample in samples.items():
+            context = sample["context"]
+            if context not in samples_by_context:
+                samples_by_context[context] = []
+            samples_by_context[context].append(sample)
+
+        return samples_by_context
+
     def read_instances(self):
         """Downloads the train, valid, test dataset and saves homogenized instances in self.instances"""
 
@@ -354,27 +366,28 @@ class CommonSenseScenario(Scenario):
                 samples = json.load(fin)
 
             listener = Speaker(id=0, initiator=False, name="Bob")
-            for idx, sample in samples.items():
-                context = sample["context"]
+            idx = 0
+            for context, samps in self._group_samples_by_context(samples).items():
+                references: List[Reference] = []
 
-                # Skip over prompts from the eval set (valid and test) that aren't whitelisted
-                if splits[split] in EVAL_SPLITS and not is_whitelisted(context, whitelisted_prompts):
-                    continue
-                initiator = Speaker(id=int(idx) + 1, initiator=True, name=sample["speaker"])
-                utterances: List[Utterance] = []
-                for i, turn in enumerate(sample["turns"]):
-                    if (i % 2) == 0:
-                        speaker = initiator
-                    else:
-                        speaker = listener
-                    utterance_text = "<span class=\"conversation_utterance\">\"" + turn + "\"</span>"
-                    utterances.append(Utterance(speaker=speaker, text=utterance_text))
-                output = "".join([str(utt) for utt in utterances])
-                instances.append(
-                    Instance(
-                        input=context, references=[Reference(output=output, tags=[CORRECT_TAG])], split=splits[split]
-                    )
-                )
+                for sample in samps:
+                    # Skip over prompts from the eval set (valid and test) that aren't whitelisted
+                    if splits[split] in EVAL_SPLITS and not is_whitelisted(context, whitelisted_prompts):
+                        continue
+                    initiator = Speaker(id=int(idx) + 1, initiator=True, name=sample["speaker"])
+                    idx += 1
+                    utterances: List[Utterance] = []
+                    for i, turn in enumerate(sample["turns"]):
+                        if (i % 2) == 0:
+                            speaker = initiator
+                        else:
+                            speaker = listener
+                        utterance_text = '<span class="conversation_utterance">"' + turn + '"</span>'
+                        utterances.append(Utterance(speaker=speaker, text=utterance_text))
+                    output = "".join([str(utt) for utt in utterances])
+                    references.append(Reference(output=output, tags=[CORRECT_TAG]))
+
+                instances.append(Instance(input=context, references=references, split=splits[split]))
 
         return instances
 
