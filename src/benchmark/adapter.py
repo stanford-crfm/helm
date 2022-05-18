@@ -6,6 +6,7 @@ from itertools import cycle
 from typing import List, Dict, Tuple, Optional, Any, Union, Sequence
 from collections import defaultdict, OrderedDict
 import uuid
+import datetime
 
 import numpy as np
 
@@ -164,11 +165,11 @@ class InteractionRound:
     """
     Represents a round of interaction between a user and the model (LM)
     """
-
+    # To Do: add timestamp parameter
     request_state: RequestState
     user_input: Optional[UserInput] = None
     generated_toxic: bool = False # Whether toxic generation was produced
-
+    time: datetime.datetime = None
 
 @dataclass
 class InteractionTrace:
