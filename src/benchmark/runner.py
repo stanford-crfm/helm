@@ -280,21 +280,25 @@ class InteractiveRunner:
         new_request_state = self.interactive_adapter.postprocess_initial_request(
             first_interaction_round.request_state, self.run_spec.adapter_spec
         )
-        first_interaction_round = InteractionRound(user_input=None, request_state=new_request_state, time=datetime.datetime.now())
+        first_interaction_round = InteractionRound(
+            user_input=None, request_state=new_request_state, time=datetime.datetime.now()
+        )
         if self.interactive_adapter.user_initiated is False:
             new_request_state = self.interactive_adapter.initial_lm_request(first_interaction_round.request_state)
             new_request_state = self.process(new_request_state)
             hlog(new_request_state.render_lines())
             first_interaction_round = InteractionRound(user_input=None, request_state=new_request_state)
-        
+
         # Handle toxicity, if any
         clean_output, generated_toxic = self.interactive_adapter.filter_toxic_generations(first_interaction_round)
-        if generated_toxic:
-            toxic_generation = first_interaction_round.request_state.result.completions[0].text # Original generation was toxic
+        if generated_toxic and first_interaction_round.request_state.result is not None:
+            toxic_generation = first_interaction_round.request_state.result.completions[
+                0
+            ].text  # Original generation was toxic
             first_interaction_round = self.replace_toxic_with_safe(first_interaction_round, clean_output)
             interaction_trace.toxic_generations.append(toxic_generation)
         interaction_trace.trace[0] = first_interaction_round
-    
+
         self.save_interaction_trace(interaction_trace=interaction_trace)
         return interaction_trace
 
@@ -309,13 +313,17 @@ class InteractiveRunner:
         assert new_request_state.result
 
         # Handle toxicity
-        interaction_round = InteractionRound(user_input=user_input, request_state=new_request_state, time=datetime.datetime.now())
+        interaction_round = InteractionRound(
+            user_input=user_input, request_state=new_request_state, time=datetime.datetime.now()
+        )
         clean_output, generated_toxic = self.interactive_adapter.filter_toxic_generations(interaction_round)
-        if generated_toxic:
-            toxic_generation = interaction_round.request_state.result.completions[0].text # Original generation was toxic
+        if generated_toxic and interaction_round.request_state.result is not None:
+            toxic_generation = interaction_round.request_state.result.completions[
+                0
+            ].text  # Original generation was toxic
             interaction_round = self.replace_toxic_with_safe(interaction_round, clean_output)
             interaction_trace.toxic_generations.append(toxic_generation)
-        
+
         interaction_trace.trace.append(interaction_round)
         print(interaction_trace.render_lines())
 
@@ -325,6 +333,7 @@ class InteractiveRunner:
 
     def replace_toxic_with_safe(self, toxic_round: InteractionRound, clean_text: str) -> InteractionRound:
         """Replace toxic generation with clean generation in InteractionRound"""
+        assert toxic_round.request_state.result is not None
         clean_completions = toxic_round.request_state.result.completions
         clean_completions[0] = replace(clean_completions[0], text=clean_text)
         clean_result = replace(toxic_round.request_state.result, completions=clean_completions)

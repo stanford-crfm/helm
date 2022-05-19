@@ -2,7 +2,7 @@ import csv
 import os
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set
-from common.general import ensure_file_downloaded
+from common.general import ensure_file_downloaded, format_text
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, EVAL_SPLITS
 import pandas as pd
@@ -24,6 +24,30 @@ class Utterance:
     def __str__(self):
         assert self.speaker.name is not None, "Speaker name needs to be set for generating utterance string"
         return f"{self.speaker.name}: {self.text}" + "\n"
+
+
+@dataclass(frozen=True, eq=False)
+class DialogueInstance(Instance):
+    """
+    A `DialogueInstance` is an Instance with additional dialogue specific
+    attributes
+    """
+
+    # The first speaker's name
+    initiator: Optional[Speaker] = None
+
+    # The second speaker's name
+    listener: Optional[Speaker] = None
+
+    def render_lines(self) -> List[str]:
+        info = super().render_lines()
+
+        if self.initiator:
+            info.append(f"initiator: {format_text(self.initiator.name)}")
+        if self.listener:
+            info.append(f"listener: {format_text(self.listener.name)}")
+
+        return info
 
 
 def get_whitelisted_prompts(path) -> List[str]:
@@ -332,8 +356,8 @@ class CommonSenseScenario(Scenario):
             target_path=self.whitelist_path,
         )
 
-    def _group_samples_by_context(self, samples: Dict[int, Dict]) -> Dict[str, Dict]:
-        samples_by_context = {}
+    def _group_samples_by_context(self, samples: Dict[int, Dict]) -> Dict[str, List]:
+        samples_by_context: Dict[str, List] = {}
         for idx, sample in samples.items():
             context = sample["context"]
             if context not in samples_by_context:
@@ -368,12 +392,13 @@ class CommonSenseScenario(Scenario):
             listener = Speaker(id=0, initiator=False, name="Bob")
             idx = 0
             for context, samps in self._group_samples_by_context(samples).items():
+                if splits[split] in EVAL_SPLITS and not is_whitelisted(context, whitelisted_prompts):
+                    continue
+
                 references: List[Reference] = []
 
                 for sample in samps:
                     # Skip over prompts from the eval set (valid and test) that aren't whitelisted
-                    if splits[split] in EVAL_SPLITS and not is_whitelisted(context, whitelisted_prompts):
-                        continue
                     initiator = Speaker(id=int(idx) + 1, initiator=True, name=sample["speaker"])
                     idx += 1
                     utterances: List[Utterance] = []
@@ -387,7 +412,15 @@ class CommonSenseScenario(Scenario):
                     output = "".join([str(utt) for utt in utterances])
                     references.append(Reference(output=output, tags=[CORRECT_TAG]))
 
-                instances.append(Instance(input=context, references=references, split=splits[split]))
+                instances.append(
+                    DialogueInstance(
+                        input=context,
+                        references=references,
+                        split=splits[split],
+                        initiator=initiator,
+                        listener=listener,
+                    )
+                )
 
         return instances
 
