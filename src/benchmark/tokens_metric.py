@@ -1,13 +1,12 @@
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 from common.request import Request
 from common.statistic import Stat, merge_stat
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from .adapter import ScenarioState
-from .metric import Metric, MetricResult
+from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenario import Instance
 
 
 class TokensMetric(Metric):
@@ -22,7 +21,7 @@ class TokensMetric(Metric):
         """
         Add up all the estimated number of tokens used for each request.
         """
-        per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = {}
+        per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
         stats: Dict[MetricName, Stat] = {}
 
         for request_state in scenario_state.request_states:
@@ -32,6 +31,6 @@ class TokensMetric(Metric):
             merge_stat(stats, stat)
             # Call take_mean to make a copy of the stat above so that merge_stat updates do
             # not change what is in per_instance_stats.
-            per_instance_stats[(request_state.instance, 0)] = [stat.take_mean()]
+            per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = [stat.take_mean()]
 
         return MetricResult(list(stats.values()), per_instance_stats)

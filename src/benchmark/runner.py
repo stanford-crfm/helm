@@ -2,7 +2,7 @@ import json
 import os
 from collections import defaultdict
 from dataclasses import dataclass, asdict
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 from common.general import ensure_directory_exists, write, write_lines
 from common.hierarchical_logger import hlog, htrack_block
@@ -13,7 +13,7 @@ from .scenario import Scenario, ScenarioSpec, create_scenario, Instance
 from .adapter import AdapterSpec, Adapter, ScenarioState
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
-from .metric import Metric, MetricSpec, MetricResult, create_metric, Stat
+from .metric import Metric, MetricSpec, MetricResult, PerInstanceStatsKey, create_metric, Stat
 from .tokens_metric import TokensMetric
 
 
@@ -105,7 +105,7 @@ class Runner:
             TokensMetric()
         ]
         stats: List[Stat] = []
-        per_instance_stats: Dict[Tuple[Instance, int], List[Stat]] = defaultdict(list)
+        per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
         with htrack_block(f"{len(metrics)} metrics"):
             for metric in metrics:
                 with htrack_block(metric):
@@ -135,6 +135,6 @@ class Runner:
         write(
             os.path.join(run_path, "per_instance_metrics.json"),
             json.dumps(
-                {str(key): [asdict(stat) for stat in value] for (key, value) in per_instance_stats.items()}, indent=2
+                {str(key): [asdict(stat) for stat in value] for (key, value) in per_instance_stats.items()}, indent=2,
             ),
         )
