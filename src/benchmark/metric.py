@@ -292,6 +292,8 @@ class Metric(ABC):
                             efficiency_stats[efficiency_stat_name][pair_id] += stat.sum
                 all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = request_stats
 
+            # To evaluate minimal pairs, the pair_ids of the good and the bad examples must be the same
+            assert set(good_logprobs.keys()) == set(bad_logprobs.keys())
             accuracy = sum(good_logprobs[pair_id] > bad_logprobs[pair_id] for pair_id in good_logprobs) / len(
                 good_logprobs
             )
