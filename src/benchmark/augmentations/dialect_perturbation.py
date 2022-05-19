@@ -1,35 +1,16 @@
 from dataclasses import dataclass
 import json
+import os
 import random
+import re
+from pathlib import Path
 from typing import Dict, Optional, List
 
-from nltk.tokenize.treebank import TreebankWordTokenizer, TreebankWordDetokenizer
-
 from benchmark.scenario import Instance
-from common.general import match_case
+from common.general import match_case, ensure_file_downloaded
+from common.hierarchical_logger import hlog
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
-
-
-""" Dictionary mapping words in SAE to their counterparts in AAVE.
-
-List taken from from Ziems et al. (2022): https://arxiv.org/abs/2204.03031
-"""
-SAE_TO_AAVE_MAPPING_DICT = {
-    "arguing": ["beefing", "beefin", "arguin"],
-    "anymore": ["nomore", "nomo"],
-    "brother": ["homeboy"],
-    "classy": ["fly"],
-    "dude": ["n*ggah", "niggah", "manee", "n*gga", "nigga"],
-    "huge": ["bigass"],
-    "probably": ["prob", "prolly", "def", "probly", "deff"],
-    "rad": ["dope"],
-    "remember": ["rememba"],
-    "screaming": ["screamin", "yellin", "hollering"],
-    "sister": ["sista", "sis"],
-    "these": ["dese", "dem"],
-    "with": ["wit"],
-}
 
 
 @dataclass
@@ -39,14 +20,27 @@ class DialectPerturbation(Perturbation):
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "dialect"
 
-    """ Line seperator """
-    LINE_SEP = "\n"
+    """ Output path to store external files and folders """
+    OUTPUT_PATH = os.path.join("benchmark_output", "perturbations", name)
 
     """ Dictionary mapping dialects to one another """
     SAE = "SAE"
     AAVE = "AAVE"
-    MAPPING_DICTS = {
-        (SAE, AAVE): SAE_TO_AAVE_MAPPING_DICT,
+
+    """ Dictionary containing the URIs for the dialect mapping dictionaries
+
+    Keys are tuples of the form (source_class, target_class), such as
+    ("SAE", "AAVE"). Mapping dictionaries are from the sources listed below,
+    converted to JSON and stored in CodaLab.
+
+        (1) SAE to AAVE dictionary is from Ziems et al. (2022)
+
+                Paper: https://arxiv.org/abs/2204.03031
+                GitHub: https://github.com/GT-SALT/value/
+
+    """
+    MAPPING_DICT_URIS = {
+        (SAE, AAVE): "https://worksheets.codalab.org/rest/bundles/0x3523e02bd46b42bcad783292b40b4e38/contents/blob/"
     }
 
     @dataclass(frozen=True)
@@ -70,7 +64,7 @@ class DialectPerturbation(Perturbation):
                 a word in the target class given that a substitution is
                 available.
             source_class: The source dialect that will be substituted with
-                the target dialect.
+                the target dialect. Case-insensitive.
             target_class: The target dialect.
             mapping_file_path: The absolute path to a file containing the
                 word mappings from the source dialect to the target dialect in
@@ -79,32 +73,24 @@ class DialectPerturbation(Perturbation):
                 self.MAPPING_DICTS for the provided source and target classes
                 will be used, if available.
         """
-        # self.random, will be set in the apply function
+        # @TODO: This field should be inherited from the base perturbation class
+        self.output_path: str = self.OUTPUT_PATH
+        Path(self.output_path).mkdir(parents=True, exist_ok=True)
+
+        # Random generator specific to this class, will be set in the apply function
         self.random: random.Random
 
+        # Assign parameters to instance variables
         assert 0 <= prob <= 1
         self.prob = prob
-        self.source_class: str = source_class
-        self.target_class: str = target_class
+        self.source_class: str = source_class.upper()
+        self.target_class: str = target_class.upper()
 
-        self.mapping_file_path: Optional[str] = mapping_file_path
-        if self.mapping_file_path:
-            with open(self.mapping_file_path, "r") as f:
-                loaded_json = json.load(f)
-                mapping_dict = {k.lower(): [e.lower() for e in l] for k, l in loaded_json.items()}
+        if mapping_file_path:
+            self.mapping_file_path: str = mapping_file_path
         else:
-            mapping = (self.source_class, self.target_class)
-            if mapping not in self.MAPPING_DICTS:
-                msg = f"""The mapping from the source class {self.source_class} to the
-                          target class {self.target_class} isn't available in {self.MAPPING_DICTS}.
-                       """
-                raise ValueError(msg)
-            mapping_dict = self.MAPPING_DICTS[mapping]
-        self.mapping_dict: Dict[str, List[str]] = mapping_dict
-
-        # Initialize the tokenizers
-        self.tokenizer = TreebankWordTokenizer()
-        self.detokenizer = TreebankWordDetokenizer()
+            self.mapping_file_path = self.retrieve_mapping_dict()
+        self.mapping_dict: Dict[str, List[str]] = self.load_mapping_dict()
 
     @property
     def description(self) -> PerturbationDescription:
@@ -113,22 +99,50 @@ class DialectPerturbation(Perturbation):
             self.name, self.prob, self.source_class, self.target_class, self.mapping_file_path
         )
 
+    def retrieve_mapping_dict(self) -> str:
+        """ Download the mapping dict for self.source_class to self.target_class, if available. """
+        mapping_tuple = (self.source_class, self.target_class)
+        if mapping_tuple not in self.MAPPING_DICT_URIS:
+            msg = f"""The mapping from the source class {self.source_class} to the
+                      target class {self.target_class} isn't available in {self.MAPPING_DICT_URIS}.
+                   """
+            raise ValueError(msg)
+        file_name = f"{self.source_class}_to_{self.target_class}_mapping.json"
+        target_file_path: str = os.path.join(self.output_path, file_name)
+        ensure_file_downloaded(source_url=self.MAPPING_DICT_URIS[mapping_tuple], target_path=target_file_path)
+        return target_file_path
+
+    def load_mapping_dict(self) -> Dict[str, List[str]]:
+        """ Load the mapping dict. """
+        with open(self.mapping_file_path, "r") as f:
+            return json.load(f)
+
     def substitute_dialect(self, text: str) -> str:
-        """ Substitute the source dialect in text with the target dialect. """
-        lines, new_lines = text.split(self.LINE_SEP), []
-        for line in lines:
-            words, new_words = self.tokenizer.tokenize(line), []
-            for word in words:
-                lowered_word = word.lower()
-                if lowered_word in self.mapping_dict and self.random.uniform(0, 1) < self.prob:
-                    # Sample a new word and ensure that the case of the new word matches the original
-                    synonym = self.random.choice(self.mapping_dict[lowered_word])
-                    word = match_case(word, synonym)
-                new_words.append(word)
-            perturbed_line = str(self.detokenizer.detokenize(new_words))
-            new_lines.append(perturbed_line)
-        perturbed_text = self.LINE_SEP.join(new_lines)
-        return perturbed_text
+        """ Substitute the source dialect in text with the target dialect with probability self.prob. """
+
+        # Pattern capturing any occurence of the given words in the text, surrounded by characters other than
+        # alphanumeric characters and '-'. We use re.escape since the words in our dictionary may
+        # contain special RegEx characters.
+        words = [re.escape(w) for w in self.mapping_dict.keys()]
+        words_string = "|".join(words)
+        pattern = f"[^\\w-]({words_string})[^\\w-]"
+
+        # Substitution function
+        def sub_func(m: re.Match):
+            match_str = m.group(0)  # The full match (e.g. " With ", " With,", " With.")
+            word = m.group(1)  # Captured group (e.g. "With")
+            if self.random.uniform(0, 1) < self.prob:
+                synonyms = self.mapping_dict[word.lower()]
+                synonym = self.random.choice(synonyms)  # Synonym (e.g. "wit")
+                synonym = match_case(word, synonym)  # Synoynm with matching case (e.g. "Wit")
+                hlog(f"P: {word} => {synonym}")
+                match_str = match_str.replace(
+                    word, synonym
+                )  # Synonym placed in the matching group (e.g. " Wit ", " Wit,", " Wit.")
+            return match_str
+
+        # Execute the RegEx
+        return re.sub(pattern, sub_func, text, flags=re.IGNORECASE)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         """ Apply the perturbation to the provided instance. """
@@ -138,4 +152,9 @@ class DialectPerturbation(Perturbation):
 
     def perturb(self, text: str) -> str:
         """ Perturb the provided text. """
-        return self.substitute_dialect(text)
+        new_text = self.substitute_dialect(text)
+        hlog(f"   {text}")
+        hlog(f"   {new_text}")
+        hlog("")
+        return new_text
+        # return self.substitute_dialect(text)
