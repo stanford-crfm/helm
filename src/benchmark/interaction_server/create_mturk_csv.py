@@ -6,7 +6,7 @@ import csv
 scenario2Instructions = {
     "commonsense_dialogues": "When you start the chat, you will be given a scenario to discuss. For example, you may have the scenario “I lost my keys this morning. It was very stressful.” During the conversation, please talk as though you have experienced the scenario given. For this scenario, you might say something like “I had such a stressful morning! I couldn’t find my keys anywhere.” The goal of this task is to evaluate how well the chatbot understands common social scenarios.",
     "empatheticdialogues": "When you start the chat, you will be given a scenario to discuss. For example, you may have the scenario “I lost my keys this morning. It was very stressful.” During the conversation, please talk as though you have experienced the scenario given. For this scenario, you might say something like “I had such a stressful morning! I couldn’t find my keys anywhere.” The goal of this task is to evaluate how well the chatbot communicates empathetically.",
-    "wizardofwikipedia": "When you start the chat, you will be given a topic to discuss. To the best of your ability, please talk with the bot about this topic. The goal of this conversation is to evaluate how well the chatbot discusses factual topics."
+    "wizardofwikipedia": "When you start the chat, you will be given a topic to discuss. To the best of your ability, please talk with the chatbot about this topic. The goal of this conversation is to evaluate how well the chatbot discusses factual topics."
 }
 
 scenario2GoalPrefix = {
