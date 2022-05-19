@@ -1075,7 +1075,7 @@ def get_cnndm_summarization_spec() -> RunSpec:
     )
 
 
-def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str, begin: int, end: int) -> RunSpec:
+def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str, begin: int, end: int, batch: Optional[int]=None) -> RunSpec:
     """
     annotation_stage: Specifies the type of annotation being conducted in this run
                     (for e.g. annotator filtering, inter-annotator agreement, final)
@@ -1092,7 +1092,7 @@ def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str, be
         output_prefix="\n<div class=\"conversation\">\n",
         num_train_trials=1,
         max_train_instances=5,
-        model="openai/davinci",
+        model="openai/text-davinci-002",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
         stop_sequences=["\"</span>", "</div>", "\"", "</span>"],
         num_outputs=1,
@@ -1104,9 +1104,14 @@ def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str, be
     idx = adapter_spec.model.index('/')
     model_name = adapter_spec.model[idx+1:]
 
+    # Optionally add batch number to spec name
+    spec_name = f"empatheticdialogues:annotation_stage={annotation_stage}," 
+    spec_name += f"user_initiated={user_initiated},begin={begin},end={end},model={model_name}"
+    if batch is not None:
+        spec_name += f",batch={batch}"
+
     return RunSpec(
-        name=f"empatheticdialogues:annotation_stage={annotation_stage},"
-        f"user_initiated={user_initiated},begin={begin},end={end},model={model_name}",
+        name=spec_name,
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -1117,7 +1122,7 @@ def get_empatheticdialogues_spec(user_initiated: bool, annotation_stage: str, be
     )
 
 
-def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str, begin: int, end: int) -> RunSpec:
+def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str, begin: int, end: int, batch: Optional[int]=None) -> RunSpec:
     if type(user_initiated) == str:
         user_initiated = user_initiated == "True"
     scenario = ScenarioSpec(
@@ -1142,9 +1147,13 @@ def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str, begi
     idx = adapter_spec.model.index('/')
     model_name = adapter_spec.model[idx+1:]
 
+    spec_name = f"wizardofwikipedia:annotation_stage={annotation_stage}," 
+    spec_name += f"user_initiated={user_initiated},begin={begin},end={end},model={model_name}"
+    if batch is not None:
+        spec_name += f",batch={batch}"
+
     return RunSpec(
-        name=f"wizardofwikipedia:annotation_stage={annotation_stage},"
-        f"user_initiated={user_initiated},begin={begin},end={end},model={model_name}",
+        name=spec_name,
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -1155,7 +1164,7 @@ def get_wizardofwikipedia_spec(user_initiated: bool, annotation_stage: str, begi
     )
 
 
-def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str, begin: int, end: int) -> RunSpec:
+def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str, begin: int, end: int, batch: Optional[int]=None) -> RunSpec:
     if type(user_initiated) == str:
         user_initiated = user_initiated == "True"
     scenario = ScenarioSpec(
@@ -1168,7 +1177,7 @@ def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str, 
         output_prefix="\n<div class=\"conversation\">\n",
         num_train_trials=1,
         max_train_instances=5,
-        model="openai/davinci",
+        model="openai/text-davinci-002",
         max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
         stop_sequences=["\"</span>", "</div>", "\"", "</span>"],
         num_outputs=1,
@@ -1180,9 +1189,13 @@ def get_commonsense_dialogues_spec(user_initiated: bool, annotation_stage: str, 
     idx = adapter_spec.model.index('/')
     model_name = adapter_spec.model[idx+1:]
 
+    spec_name = f"commonsense_dialogues:annotation_stage={annotation_stage}," 
+    spec_name += f"user_initiated={user_initiated},begin={begin},end={end},model={model_name}"
+    if batch is not None:
+        spec_name += f",batch={batch}"
+
     return RunSpec(
-        name=f"commonsense_dialogues:annotation_stage={annotation_stage},"
-        f"user_initiated={user_initiated},begin={begin},end={end},model={model_name}",
+        name=spec_name,
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),

@@ -3,6 +3,7 @@ import os
 from dataclasses import dataclass, asdict, replace
 from typing import List, Optional
 import uuid
+import datetime
 
 from tqdm import tqdm
 from sqlitedict import SqliteDict
@@ -32,6 +33,7 @@ from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor, render_request_state
 from .metric import Metric, MetricSpec, create_metric, Stat
 from .tokens_metric import TokensMetric
+
 
 @dataclass(frozen=True)
 class RunSpec:
@@ -277,8 +279,7 @@ class InteractiveRunner:
         new_request_state = self.interactive_adapter.postprocess_initial_request(
             first_interaction_round.request_state, self.run_spec.adapter_spec
         )
-        first_interaction_round = InteractionRound(user_input=None, request_state=new_request_state)
-
+        first_interaction_round = InteractionRound(user_input=None, request_state=new_request_state, time=datetime.datetime.now())
         if self.interactive_adapter.user_initiated is False:
             new_request_state = self.interactive_adapter.initial_lm_request(first_interaction_round.request_state)
             new_request_state = self.process(new_request_state)
@@ -307,7 +308,7 @@ class InteractiveRunner:
         assert new_request_state.result
 
         # Handle toxicity
-        interaction_round = InteractionRound(user_input=user_input, request_state=new_request_state)
+        interaction_round = InteractionRound(user_input=user_input, request_state=new_request_state, time=datetime.datetime.now())
         clean_output, generated_toxic = self.interactive_adapter.filter_toxic_generations(interaction_round)
         if generated_toxic:
             toxic_generation = interaction_round.request_state.result.completions[0].text # Original generation was toxic
