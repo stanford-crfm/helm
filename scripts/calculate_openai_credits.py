@@ -7,9 +7,9 @@ from typing import Dict
 """
 Given a run suite directory, calculates how much OpenAI credits we will need.
 
-Example usage:
+Usage:
 
-    python3 scripts/calculate_openai_credits.py benchmark_output/runs/05-18-2022
+    python3 scripts/calculate_openai_credits.py benchmark_output/runs/<Name of the run suite>
 
 """
 
