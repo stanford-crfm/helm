@@ -2,13 +2,13 @@ import os.path
 from collections import defaultdict
 from dataclasses import dataclass
 import random
+import re
 from pathlib import Path
 from typing import Dict, Optional, Set, Tuple
 
-from nltk.tokenize.treebank import TreebankWordTokenizer, TreebankWordDetokenizer
-
 from benchmark.scenario import Instance
 from common.general import ensure_file_downloaded, ensure_directory_exists, match_case
+from common.hierarchical_logger import hlog
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
@@ -20,7 +20,7 @@ class PersonNamePerturbation(Perturbation):
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "person_name"
 
-    """ Line seperator """
+    """ Line seperator character """
     LINE_SEP = "\n"
 
     """ Information needed to download person_names.txt """
@@ -102,6 +102,8 @@ class PersonNamePerturbation(Perturbation):
                 corresponding values. If more than one category is provided,
                 the source_names list will be constructed by finding the
                 intersection of the names list for the provided categories.
+                Assuming the 'first_name' mode is selected, an example
+                dictionary can be: {'race': 'white_american'}. Case-insensitive.
             target_class: Same as source_class, but specifies the target_class.
             name_file_path: The absolute path to a file containing the
                 category associations of names. Each row of the file must
@@ -112,8 +114,8 @@ class PersonNamePerturbation(Perturbation):
                 Here is a breakdown of the fields:
                     <name>: The name (e.g. Alex).
                     <name_type>: Must be one of "first_name" or "last_name".
-                    <category>: The name of the category (e.g. Race, Gender,
-                        Age, Religion, etc.)
+                    <category>: The name of the category (e.g. race, gender,
+                        age, religion, etc.)
                     <value>: Value of the preceding category.
 
                 [,<category>,<value>]* denotes that any number of category
@@ -133,28 +135,28 @@ class PersonNamePerturbation(Perturbation):
 
                 We use the default file if None is provided.
             person_name_type: One of "first_name" or "last_name". If
-                "last_name", preseverve_gender field must be False.
+                "last_name", preserve_gender field must be False.
+                Case-insensitive.
             preserve_gender: If set to True, we preserve the gender when
                 mapping names of one category to those of another. If we can't
                 find the gender association for a source_word, we randomly
                 pick from one of the target names.
         """
-        # TODO: This field should be inherited from the base perturbation class
+        # @TODO: This field should be inherited from the base perturbation class
         self.output_path: str = self.OUTPUT_PATH
         Path(self.output_path).mkdir(parents=True, exist_ok=True)
 
-        # self.random, will be set in the apply function
+        # Random generator specific to this class, will be set in the apply function
         self.random: random.Random
 
-        # Initialize the tokenizers
-        self.tokenizer = TreebankWordTokenizer()
-        self.detokenizer = TreebankWordDetokenizer()
-
+        # Assign parameters to instance variables
         assert 0 <= prob <= 1
         self.prob = prob
-        self.source_class: Dict[str, str] = source_class
-        self.target_class: Dict[str, str] = target_class
 
+        self.source_class: Dict[str, str] = self.lower_dictionary(source_class)
+        self.target_class: Dict[str, str] = self.lower_dictionary(target_class)
+
+        person_name_type = person_name_type.lower()
         assert person_name_type in [self.FIRST_NAME, self.LAST_NAME]
         self.person_name_type = person_name_type
 
@@ -187,6 +189,11 @@ class PersonNamePerturbation(Perturbation):
             self.person_name_type,
             self.preserve_gender,
         )
+
+    @staticmethod
+    def lower_dictionary(d: Dict[str, str]) -> Dict[str, str]:
+        """ Lower the keys and values of a dictionary """
+        return dict((k.lower(), v.lower()) for k, v in d.items())
 
     def get_possible_names(self, selected_class: Dict[str, str]) -> Set[str]:
         """ Return possible names given a selected class, using self.mapping_dict """
@@ -226,49 +233,52 @@ class PersonNamePerturbation(Perturbation):
                 return gender
         return None
 
-    def process_word(
-        self, word: str, subs_dict: Dict[str, str], nonsubs: Set[str]
-    ) -> Tuple[str, Dict[str, str], Set[str]]:
-        """ Process a word.
+    def get_substitute_name(self, token: str) -> Optional[str]:
+        """ Get the substitute name for the token.
 
-        Return the processed word, updated subs_dict and updated nonsubs. """
-        gender_dict = self.mapping_dict[self.GENDER_CATEGORY]
-        lowered_word = word.lower()
-        if lowered_word in subs_dict:
-            # If we already substituted the same word in the past, we substitute this word as well
-            word = match_case(word, subs_dict[lowered_word])
-        elif lowered_word not in nonsubs:
-            # Only consider a word for substitution if we didn't pass on it before
-            if lowered_word in self.source_names:
-                if self.random.uniform(0, 1) < self.prob:
-                    # Substitute the name
-                    options = self.target_names
-                    if self.preserve_gender:
-                        name_gender = self.get_name_gender(lowered_word)
-                        if name_gender:
-                            options = self.target_names.intersection(gender_dict[name_gender])
-                        # If we don't know the gender for the source names, we randomly pick one of the target names
-                    word = match_case(word, self.random.choice(list(options)))
-                    subs_dict[lowered_word] = word
-                else:
-                    # Do not substitute the name
-                    nonsubs.add(lowered_word)
-        return word, subs_dict, nonsubs
+        The lowered version of the token must exist in self.source_names. Return
+        None if self.preserve_gender tag is set, but there is no corresponding
+        name in the matching gender.
+        """
+        options = self.target_names
+        if self.preserve_gender:
+            name_gender = self.get_name_gender(token.lower())
+            if name_gender:
+                gendered_names_dict = self.mapping_dict[self.GENDER_CATEGORY]
+                options = self.target_names.intersection(gendered_names_dict[name_gender])
+                if not options:
+                    return None  # No substitution exist if we preserve the gender
+            # If we don't know the gender for the source names, we randomly pick one of the target names
+        name = self.random.choice(list(options))
+        return match_case(token, name)
 
     def substitute_names(self, text: str) -> str:
-        """ Substitute the source dialect in text with the target dialect. """
-        subs_dict: Dict[str, str] = {}
-        nonsubs: Set[str] = set()
-        lines, new_lines = text.split(self.LINE_SEP), []
-        for line in lines:
-            words, new_words = self.tokenizer.tokenize(line), []
-            for word in words:
-                word, subs_dict, nonsubs = self.process_word(word, subs_dict, nonsubs)
-                new_words.append(word)
-            perturbed_line = str(self.detokenizer.detokenize(new_words))
-            new_lines.append(perturbed_line)
-        perturbed_text = self.LINE_SEP.join(new_lines)
-        return perturbed_text
+        """ Substitute the names in text if there is a matching target_name """
+
+        # Tokenize the text
+        sep_pattern = r"([^\w])"
+        tokens = re.split(sep_pattern, text)
+
+        subs_dict: Dict[str, str] = {}  # The tokens we have substituted before
+        skipped_tokens: Set[str] = set()  # The tokens we have skipped
+        new_tokens = []
+        for token in tokens:
+            token_lowered = token.lower()
+            # Find a substitution for the name, if possible
+            skip = token_lowered in subs_dict or token_lowered not in skipped_tokens
+            if not skip and token_lowered in self.source_names:
+                if self.random.uniform(0, 1) < self.prob:
+                    name = self.get_substitute_name(token)
+                    if name:
+                        subs_dict[token_lowered] = name
+                        hlog(f"P: {token} => {name}")
+                else:
+                    skipped_tokens.add(token_lowered)
+            # Substitute the token if a substitution exist
+            token = token if token_lowered not in subs_dict else subs_dict[token_lowered]
+            new_tokens.append(token)
+        new_text = "".join(new_tokens)
+        return new_text
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         """ Apply the perturbation to the provided instance. """
@@ -278,4 +288,9 @@ class PersonNamePerturbation(Perturbation):
 
     def perturb(self, text: str) -> str:
         """ Perturb the provided text. """
-        return self.substitute_names(text)
+        new_text = self.substitute_names(text)
+        hlog(f"   {text}")
+        hlog(f"   {new_text}")
+        hlog("")
+        return text
+        # return self.substitute_names(text)
