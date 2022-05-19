@@ -78,12 +78,7 @@ class ReplaceRunSpecValueRunExpander(RunExpander):
             return str(value).replace("/", "_")
 
         return [
-            replace(
-                run_spec,
-                name=f"{run_spec.name},{self.name}={sanitize(value)}",
-                metrics=value,
-                adapter_spec=run_spec.adapter_spec,
-            )
+            replace(run_spec, name=f"{run_spec.name},{self.name}={sanitize(value)}", metrics=value,)
             for value in self.values
         ]
 
