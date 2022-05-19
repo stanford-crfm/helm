@@ -56,7 +56,8 @@ class ReplaceValueRunExpander(RunExpander):
             )
             for value in self.values
         ]
-    
+
+
 class ReplaceRunSpecValueRunExpander(RunExpander):
     """
     Replace a single field (e.g., max_train_instances) with a list of values (e.g., 0, 1, 2).
