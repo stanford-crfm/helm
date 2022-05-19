@@ -56,6 +56,35 @@ class ReplaceValueRunExpander(RunExpander):
             )
             for value in self.values
         ]
+    
+class ReplaceRunSpecValueRunExpander(RunExpander):
+    """
+    Replace a single field (e.g., max_train_instances) with a list of values (e.g., 0, 1, 2).
+    """
+
+    def __init__(self, value):
+        """
+        `value` is either the actual value to use or a lookup into the values dict.
+        """
+        self.name = type(self).name
+        if value in type(self).values_dict:
+            self.values = type(self).values_dict[value]
+        else:
+            self.values = [value]
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        def sanitize(value):
+            return str(value).replace("/", "_")
+
+        return [
+            replace(
+                run_spec,
+                name=f"{run_spec.name},{self.name}={sanitize(value)}",
+                metrics=value,
+                adapter_spec=run_spec.adapter_spec,
+            )
+            for value in self.values
+        ]
 
 
 class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
@@ -76,7 +105,7 @@ def get_bias_erasure_metrics() -> List[MetricSpec]:
     ]
 
 
-class MetricsRunExpander(ReplaceValueRunExpander):
+class MetricsRunExpander(ReplaceRunSpecValueRunExpander):
     """For overriding metrics."""
 
     name = "metrics"
