@@ -108,6 +108,10 @@ class ModelRunExpander(ReplaceValueRunExpander):
             "openai/text-curie-001",
             "ai21/j1-jumbo",
         ],
+        "dryrun": [
+            "openai/curie",
+            "openai/text-davinci-002",
+        ],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
         "all": get_all_models(),
