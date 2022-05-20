@@ -18,7 +18,7 @@ file_path = "benchmark_output/runs/"
 
 
 def construct_url(task_name, trace_id, batch):
-    base_url = "http://35.202.162.13:80/static/dialogue/interface.html?"
+    base_url = "http://35.202.162.13:80/dialogue/interface?"
     # base_url = "http://localhost:5001/static/dialogue/interface.html?"
     base_url = base_url + "run_name=" + task_name  # Add parameters from task
     base_url = base_url + "&interaction_trace_id=" + trace_id  # Add trace_id
