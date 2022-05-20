@@ -23,7 +23,10 @@ class OpenAICreditsCalculator:
 
     @staticmethod
     def compute_credits(models_to_tokens: Dict[str, float]) -> float:
-        """Compute credits based on https://openai.com/api/pricing."""
+        """
+        Given the number of tokens we need for each model,
+        compute total credits based on https://openai.com/api/pricing.
+        """
         total: float = 0
         for model, tokens in models_to_tokens.items():
             if "openai" not in model:
@@ -48,9 +51,12 @@ class OpenAICreditsCalculator:
         self.run_suite_path: str = run_suite_path
 
     def calculate(self) -> float:
+        """
+        Sums up the estimated number of tokens we need and converts it to dollars
+        using OpenAI's pricing model.
+        """
         models_to_tokens: Dict[str, float] = defaultdict(float)
 
-        """Sums up estimated token cost and converts it to dollars."""
         for run_dir in os.listdir(self.run_suite_path):
             run_path: str = os.path.join(self.run_suite_path, run_dir)
 
