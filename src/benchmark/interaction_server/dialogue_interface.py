@@ -33,6 +33,7 @@ def get_runner(args: dict) -> InteractiveRunner:
     output_path = args["output_path"]
 
     credentials_path = os.path.join(base_path, "dialogue_credentials.conf")
+    print("CREDENTIALS PATH",credentials_path)
 
     if os.path.exists(credentials_path):
         with open(credentials_path) as f:

@@ -1,26 +1,39 @@
 import sys
 import argparse
-from flask import Flask, request
+from flask import Flask, request, render_template
 
 from common.general import ensure_directory_exists
 import dialogue_interface
 
-"""
-Server running on GCP for interaction-benchmarking teams, which calls
-CRFM API on proxy server and stores experiment results in SQLite DB
-"""
-
-"""
-TODO:
-1. set up config
-2. fix args in function calls
-"""
-
-sys.path = sys.path + ["../"]
 app = Flask(__name__)
 
 file_globals: dict = {}
 
+class CustomFlask(Flask):
+    jinja_options = Flask.jinja_options.copy()
+    jinja_options.update(dict(
+        variable_start_string='%%',  # Default is '{{', I'm changing this because Vue.js uses '{{' / '}}'
+        variable_end_string='%%',
+    ))
+
+
+app = CustomFlask(__name__)  # This replaces your existing "app = Flask(__name__)"
+
+@app.after_request
+def add_header(r):
+    """
+    Add headers to both force latest IE rendering engine or Chrome Frame,
+    and also to cache the rendered page for 10 minutes.
+    """
+    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    r.headers["Pragma"] = "no-cache"
+    r.headers["Expires"] = "0"
+    r.headers['Cache-Control'] = 'public, max-age=0'
+    return r
+
+@app.route("/dialogue/interface")
+def template_test():
+    return render_template('dialogue/interface.html')
 
 @app.route("/api/dialogue/start", methods=["POST"])
 def start_dialogue():
@@ -60,13 +73,8 @@ def submit_interview():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=5001)
-    parser.add_argument(
-        "-b",
-        "--base-path",
-        help="What directory has credentials, etc.",
-        default="src/benchmark/interaction_server/interaction_env",
-    )
+    parser.add_argument("-p", "--port", type=int, help="What port to listen on", default=80)
+    parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="src/benchmark/interaction_server/interaction_env")
     parser.add_argument(
         "-o", "--output-path", help="What directory stores interactive scenarios", default="benchmark_output"
     )
@@ -77,9 +85,7 @@ def main():
     ensure_directory_exists(args.output_path)
     file_globals["output_path"] = args.output_path
     file_globals["base_path"] = args.base_path
-
-    # app.static_url_path = "../../proxy/static/dialogue/#"
-    app.run(host="127.0.0.1", port=args.port)
+    app.run(host="0.0.0.0", port=args.port) # Use 0.0.0.0 on GCP, 127.0.0.1 elsewhere
 
 
 if __name__ == "__main__":

@@ -146,7 +146,6 @@ class Runner:
                 json.dumps(asdict(scenario_state), indent=2, cls=UUIDEncoder),
             )
             pickle(os.path.join(runs_path, "scenario_state.pkl"), scenario_state)
-            print(scenario_state)
             if scenario_state.interaction_traces:
                 with SqliteDict(
                     os.path.join(runs_path, "interaction_traces.sqlite"), tablename="interaction_traces", flag="n"
