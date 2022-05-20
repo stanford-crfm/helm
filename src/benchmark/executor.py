@@ -1,4 +1,5 @@
 from typing import Optional
+import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, replace
 
@@ -74,6 +75,7 @@ class Executor:
             )
 
         def process(state: RequestState) -> RequestState:
+            time.sleep(1)
             result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, state.request)
             state = replace(state, result=result)
             tqdm.write(render_request_state(state))

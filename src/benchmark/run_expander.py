@@ -88,12 +88,12 @@ class ModelRunExpander(ReplaceValueRunExpander):
         # TODO: Add GPT-NeoX-20B and GPT-J
         #       https://github.com/stanford-crfm/benchmarking/issues/310
         "default": [
-            "openai/davinci",
-            "openai/curie",
-            "openai/text-davinci-002",
-            "openai/text-davinci-001",
-            "openai/text-curie-001",
-            "ai21/j1-jumbo",
+            # "openai/davinci",
+            # "openai/curie",
+            # "openai/text-davinci-002",
+            # "openai/text-davinci-001",
+            # "openai/text-curie-001",
+            # "ai21/j1-jumbo",
             "ai21/j1-grande",
             "ai21/j1-large",
             # TODO: uncomment once we get credits for GooseAI
