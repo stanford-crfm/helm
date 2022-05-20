@@ -5,7 +5,7 @@ from collections import defaultdict
 from typing import Dict
 
 """
-Given a run suite directory, calculates how much OpenAI credits we will need.
+Given a run suite directory, calculates how many OpenAI credits (in dollars) is needed.
 
 Usage:
 
@@ -24,8 +24,8 @@ class OpenAICreditsCalculator:
     @staticmethod
     def compute_credits(models_to_tokens: Dict[str, float]) -> float:
         """
-        Given the number of tokens we need for each model,
-        compute total credits based on https://openai.com/api/pricing.
+        Given the number of tokens for each model, compute total credits
+        based on https://openai.com/api/pricing.
         """
         total: float = 0
         for model, tokens in models_to_tokens.items():
@@ -40,7 +40,7 @@ class OpenAICreditsCalculator:
             elif "curie" in model:
                 total += tokens * OpenAICreditsCalculator.CURIE_PRICE_PER_TOKEN
             elif "davinci" in model or "code" in model:
-                # TODO: Not sure what the price is for codex (still in beta), but we don't use these models much
+                # TODO: Not sure what the price is for codex (still in beta)
                 total += tokens * OpenAICreditsCalculator.DAVINCI_PRICE_PER_TOKEN
             else:
                 raise ValueError(f"Unknown model: {model}")
@@ -52,7 +52,7 @@ class OpenAICreditsCalculator:
 
     def calculate(self) -> float:
         """
-        Sums up the estimated number of tokens we need and converts it to dollars
+        Sums up the estimated number of tokens and converts it to dollars
         using OpenAI's pricing model.
         """
         models_to_tokens: Dict[str, float] = defaultdict(float)
