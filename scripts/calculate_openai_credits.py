@@ -37,7 +37,7 @@ class OpenAICreditsCalculator:
             elif "curie" in model:
                 total += tokens * OpenAICreditsCalculator.CURIE_PRICE_PER_TOKEN
             elif "davinci" in model or "code" in model:
-                # TODO: Not sure what the price is for codex
+                # TODO: Not sure what the price is for codex (still in beta), but we don't use these models much
                 total += tokens * OpenAICreditsCalculator.DAVINCI_PRICE_PER_TOKEN
             else:
                 raise ValueError(f"Unknown model: {model}")
