@@ -165,11 +165,13 @@ class InteractionRound:
     """
     Represents a round of interaction between a user and the model (LM)
     """
+
     # To Do: add timestamp parameter
     request_state: RequestState
     user_input: Optional[UserInput] = None
-    generated_toxic: bool = False # Whether toxic generation was produced
-    time: datetime.datetime = None
+    generated_toxic: bool = False  # Whether toxic generation was produced
+    time: Optional[datetime.datetime] = None
+
 
 @dataclass
 class InteractionTrace:
@@ -202,7 +204,7 @@ class InteractionTrace:
     trace_completed: bool = False
 
     # All toxic generations produced during interaction
-    toxic_generations = []
+    toxic_generations: List[str] = []
 
     def render_lines(self) -> List[str]:
         output = [f"train_trial_index: {self.train_trial_index}"]
@@ -797,6 +799,13 @@ class InteractiveAdapter(ABC):
         """
         In some scenarios, a call to the LM needs to be made before the first user input.
         This function is subclassed to encode the adaptation into and produce a new RequestState
+        """
+        raise NotImplementedError
+
+    def filter_toxic_generations(self, interaction_round: InteractionRound) -> Tuple[str, bool]:
+        """
+        Interactive scenarios will have users interact with the LM, so we need
+        to be able to handle toxic generations from the LM.
         """
         raise NotImplementedError
 
