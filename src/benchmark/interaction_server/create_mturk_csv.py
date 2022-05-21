@@ -2,6 +2,7 @@ import os
 import json
 import argparse
 import csv
+import uuid
 
 scenario2Instructions = {
     "commonsense_dialogues": "When you start the chat, you will be given a scenario to discuss. For example, you may have the scenario “I lost my keys this morning. It was very stressful.” During the conversation, please talk as though you have experienced the scenario given. For this scenario, you might say something like “I had such a stressful morning! I couldn’t find my keys anywhere.” The goal of this task is to evaluate how well the chatbot understands common social scenarios.",
@@ -17,12 +18,12 @@ scenario2GoalPrefix = {
 file_path = "benchmark_output/runs/"
 
 
-def construct_url(task_name, trace_id, batch):
+def construct_url(task_name, trace_id, batch, user_id):
     base_url = "http://35.202.162.13:80/dialogue/interface?"
     # base_url = "http://localhost:5001/static/dialogue/interface.html?"
     base_url = base_url + "run_name=" + task_name  # Add parameters from task
     base_url = base_url + "&interaction_trace_id=" + trace_id  # Add trace_id
-    final_url = base_url + "&user_id=1"  # Add default user_id
+    final_url = base_url + "&user_id=" + user_id 
     if batch is not None:
         final_url = final_url + "&batch=" + batch
     return final_url
@@ -65,7 +66,9 @@ def write_csv(in_fname, out_fname):
         for trace in traces:
             goal = scenario2GoalPrefix[scenario] + trace["instance"]["input"]
             trace_id = trace["_id"]
-            url = construct_url(in_fname, trace_id, batch)
+            user_id = uuid.uuid4()
+            url = construct_url(in_fname, trace_id, batch, user_id)
+            print(url) # Display in terminal for easy testing
             writer.writerow([goal, instructions, url])
     return
 
