@@ -23,7 +23,7 @@ def construct_url(task_name, trace_id, batch, user_id):
     # base_url = "http://localhost:5001/static/dialogue/interface.html?"
     base_url = base_url + "run_name=" + task_name  # Add parameters from task
     base_url = base_url + "&interaction_trace_id=" + trace_id  # Add trace_id
-    final_url = base_url + "&user_id=" + user_id 
+    final_url = base_url + "&user_id=" + str(user_id) 
     if batch is not None:
         final_url = final_url + "&batch=" + batch
     return final_url
