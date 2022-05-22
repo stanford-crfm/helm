@@ -8,7 +8,6 @@ from typing import Dict, Optional, Set, Tuple
 
 from benchmark.scenario import Instance
 from common.general import ensure_file_downloaded, ensure_directory_exists, match_case
-from common.hierarchical_logger import hlog
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
@@ -271,7 +270,6 @@ class PersonNamePerturbation(Perturbation):
                     name = self.get_substitute_name(token)
                     if name:
                         subs_dict[token_lowered] = name
-                        hlog(f"P: {token} => {name}")
                 else:
                     skipped_tokens.add(token_lowered)
             # Substitute the token if a substitution exist
@@ -288,9 +286,4 @@ class PersonNamePerturbation(Perturbation):
 
     def perturb(self, text: str) -> str:
         """ Perturb the provided text. """
-        new_text = self.substitute_names(text)
-        hlog(f"   {text}")
-        hlog(f"   {new_text}")
-        hlog("")
-        return text
-        # return self.substitute_names(text)
+        return self.substitute_names(text)

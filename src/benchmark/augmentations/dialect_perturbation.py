@@ -8,7 +8,6 @@ from typing import Dict, Optional, List
 
 from benchmark.scenario import Instance
 from common.general import match_case, ensure_file_downloaded
-from common.hierarchical_logger import hlog
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
@@ -135,7 +134,6 @@ class DialectPerturbation(Perturbation):
                 synonyms = self.mapping_dict[word.lower()]
                 synonym = self.random.choice(synonyms)  # Synonym (e.g. "wit")
                 synonym = match_case(word, synonym)  # Synoynm with matching case (e.g. "Wit")
-                hlog(f"P: {word} => {synonym}")
                 match_str = match_str.replace(
                     word, synonym
                 )  # Synonym placed in the matching group (e.g. " Wit ", " Wit,", " Wit.")
@@ -152,9 +150,4 @@ class DialectPerturbation(Perturbation):
 
     def perturb(self, text: str) -> str:
         """ Perturb the provided text. """
-        new_text = self.substitute_dialect(text)
-        hlog(f"   {text}")
-        hlog(f"   {new_text}")
-        hlog("")
-        return new_text
-        # return self.substitute_dialect(text)
+        return self.substitute_dialect(text)

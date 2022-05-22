@@ -6,7 +6,6 @@ from typing import Dict, List, Optional, Tuple
 
 from benchmark.scenario import Instance
 from common.general import match_case
-from common.hierarchical_logger import hlog
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
@@ -195,7 +194,6 @@ class GenderPerturbation(Perturbation):
             match_word = m.group(1)  # Captured group (e.g. "Man")
             if self.random.uniform(0, 1) < self.prob:
                 syn = match_case(match_word, synonym)  # Synoynm with matching case (e.g. "Woman")
-                hlog(f"P: {match_word} => {syn}")
                 match_str = match_str.replace(
                     match_word, syn
                 )  # Synonym placed in the matching group (e.g. " Woman ", " Woman,", " Woman.", "-Woman")
@@ -238,8 +236,4 @@ class GenderPerturbation(Perturbation):
 
     def perturb(self, text: str) -> str:
         """ Perturb the provided text. """
-        new_text = self.substitute_gender(text)
-        hlog(f"   {text}")
-        hlog(f"   {new_text}")
-        hlog("")
-        return new_text
+        return self.substitute_gender(text)
