@@ -552,7 +552,7 @@ class Adapter:
         #
         # e.g. original text: ",  (", which is tokenized to:
         # [('▁', 0, 0), (',', 0, 1), ('▁▁', 1, 3), ('(', 3, 4)]
-        # normalized test: ",  (", which is tokenized to:
+        # normalized text: ",  (", which is tokenized to:
         # [('▁', 0, 0), (',', 0, 1), ('▁', 1, 2), ('▁', 2, 3), ('(', 3, 4)]
         while prompt_length > max_req_len:
             # Trims the extra (prompt_length - max_req_len) tokens
