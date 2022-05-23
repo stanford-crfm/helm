@@ -1,8 +1,8 @@
 import json
 import os
+from collections import defaultdict
 from dataclasses import dataclass, asdict
-from typing import List
-
+from typing import Dict, List
 
 from common.general import ensure_directory_exists, write, write_lines
 from common.hierarchical_logger import hlog, htrack_block
@@ -13,7 +13,7 @@ from .scenario import Scenario, ScenarioSpec, create_scenario, Instance
 from .adapter import AdapterSpec, Adapter, ScenarioState
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
-from .metric import Metric, MetricSpec, create_metric, Stat
+from .metric import Metric, MetricSpec, MetricResult, PerInstanceStatsKey, create_metric, Stat
 from .tokens_metric import TokensMetric
 
 
@@ -46,15 +46,28 @@ class Runner:
     dispatches to other classes.
     """
 
-    def __init__(self, execution_spec: ExecutionSpec, output_path: str, run_specs: List[RunSpec], skip_instances: bool):
+    def __init__(
+        self,
+        execution_spec: ExecutionSpec,
+        output_path: str,
+        suite: str,
+        run_specs: List[RunSpec],
+        skip_instances: bool,
+    ):
         self.executor = Executor(execution_spec)
-        self.dry_run = execution_spec.dry_run
+        self.dry_run: bool = execution_spec.dry_run
         self.adapter_service = AdapterService(self.executor.remote_service, execution_spec.auth)
         self.metric_service = MetricService(self.executor.remote_service, execution_spec.auth)
-        self.output_path = output_path
-        self.run_specs = run_specs
-        self.skip_instances = skip_instances
-        ensure_directory_exists(self.output_path)
+        self.run_specs: List[RunSpec] = run_specs
+        self.skip_instances: bool = skip_instances
+
+        ensure_directory_exists(output_path)
+        # Decide where to save the raw data (e.g., "output/scenarios/mmlu").
+        self.scenarios_path: str = os.path.join(output_path, "scenarios")
+        ensure_directory_exists(self.scenarios_path)
+
+        # Output the results under a folder with the name of the suite
+        self.runs_path: str = os.path.join(output_path, "runs", suite)
 
     def run_all(self):
         for run_spec in self.run_specs:
@@ -65,15 +78,12 @@ class Runner:
         # Load the scenario
         scenario: Scenario = create_scenario(run_spec.scenario)
 
-        # Decide where to save the raw data (e.g., "output/scenarios/mmlu").
         # This `output_path` will be used when `Adapter` calls `Scenario.get_instances`.
-        scenarios_path = os.path.join(self.output_path, "scenarios")
-        ensure_directory_exists(scenarios_path)
-        scenario.output_path = os.path.join(scenarios_path, scenario.name)
-        scenario.definition_path = scenario.get_definition_path()
+        scenario.output_path = os.path.join(self.scenarios_path, scenario.name)
         ensure_directory_exists(scenario.output_path)
-        runs_path = os.path.join(self.output_path, "runs", run_spec.name)
-        ensure_directory_exists(runs_path)
+        scenario.definition_path = scenario.get_definition_path()
+        run_path: str = os.path.join(self.runs_path, run_spec.name)
+        ensure_directory_exists(run_path)
 
         # Data preprocessing
         if not self.skip_instances:
@@ -95,10 +105,14 @@ class Runner:
             TokensMetric()
         ]
         stats: List[Stat] = []
+        per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
         with htrack_block(f"{len(metrics)} metrics"):
             for metric in metrics:
                 with htrack_block(metric):
-                    stats.extend(metric.evaluate(scenario_state, self.metric_service))
+                    metric_result: MetricResult = metric.evaluate(scenario_state, self.metric_service)
+                    stats.extend(metric_result.aggregated_stats)
+                    for key in metric_result.per_instance_stats:
+                        per_instance_stats[key].extend(metric_result.per_instance_stats[key])
 
         # Print out stats
         with htrack_block("Stats"):
@@ -106,15 +120,21 @@ class Runner:
                 hlog(stat)
 
         # Output benchmarking information and results to files
-        write(os.path.join(runs_path, "run_spec.json"), json.dumps(asdict(run_spec), indent=2))
+        write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict(run_spec), indent=2))
 
         scenario_dict = asdict(scenario)
         scenario_dict["instances"] = [asdict(instance) for instance in scenario_state.instances]
-        write_lines(os.path.join(runs_path, "scenario.txt"), scenario.render_lines(scenario_state.instances))
-        write(os.path.join(runs_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
+        write_lines(os.path.join(run_path, "scenario.txt"), scenario.render_lines(scenario_state.instances))
+        write(os.path.join(run_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
 
-        write_lines(os.path.join(runs_path, "scenario_state.txt"), scenario_state.render_lines())
-        write(os.path.join(runs_path, "scenario_state.json"), json.dumps(asdict(scenario_state), indent=2))
+        write_lines(os.path.join(run_path, "scenario_state.txt"), scenario_state.render_lines())
+        write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict(scenario_state), indent=2))
 
-        write_lines(os.path.join(runs_path, "metrics.txt"), [str(stat) for stat in stats])
-        write(os.path.join(runs_path, "metrics.json"), json.dumps([asdict(stat) for stat in stats], indent=2))
+        write_lines(os.path.join(run_path, "metrics.txt"), [str(stat) for stat in stats])
+        write(os.path.join(run_path, "metrics.json"), json.dumps([asdict(stat) for stat in stats], indent=2))
+        write(
+            os.path.join(run_path, "per_instance_metrics.json"),
+            json.dumps(
+                {str(key): [asdict(stat) for stat in value] for (key, value) in per_instance_stats.items()}, indent=2,
+            ),
+        )

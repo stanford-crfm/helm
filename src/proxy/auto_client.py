@@ -1,6 +1,6 @@
 import os
 from dataclasses import replace
-from typing import Dict
+from typing import Dict, Optional
 
 from retrying import RetryError, Attempt
 
@@ -10,6 +10,7 @@ from common.tokenization_request import TokenizationRequest, TokenizationRequest
 from .client import Client
 from .ai21_client import AI21Client
 from .anthropic_client import AnthropicClient
+from .goose_ai_client import GooseAIClient
 from .huggingface_client import HuggingFaceClient
 from .openai_client import OpenAIClient
 from .microsoft_client import MicrosoftClient
@@ -27,13 +28,16 @@ class AutoClient(Client):
 
     def get_client(self, organization: str) -> Client:
         """Return a client based on `organization`, creating it if necessary."""
-        client = self.clients.get(organization)
+        client: Optional[Client] = self.clients.get(organization)
+
         if client is None:
             client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
             if organization == "openai":
                 client = OpenAIClient(api_key=self.credentials["openaiApiKey"], cache_path=client_cache_path)
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
+            elif organization == "gooseai":
+                client = GooseAIClient(api_key=self.credentials["gooseaiApiKey"], cache_path=client_cache_path)
             elif organization == "huggingface":
                 client = HuggingFaceClient(cache_path=client_cache_path)
             elif organization == "anthropic":
@@ -41,7 +45,7 @@ class AutoClient(Client):
             elif organization == "microsoft":
                 client = MicrosoftClient(api_key=self.credentials["microsoftApiKey"], cache_path=client_cache_path)
             elif organization == "simple":
-                client = SimpleClient()
+                client = SimpleClient(cache_path=client_cache_path)
             else:
                 raise ValueError(f"Unknown organization: {organization}")
             self.clients[organization] = client

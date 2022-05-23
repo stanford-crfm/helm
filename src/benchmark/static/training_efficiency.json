@@ -1,7 +1,13 @@
 {
   "huggingface/gptj_6b": 12.5,
   "openai/ada": 1.1,
+  "openai/text-ada-001": 1.1,
+  "openai/babbage": 4.1,
+  "openai/text-babbage-001": 4.1,
+  "openai/curie": 21.1,
+  "openai/text-curie-001": 21.1,
   "openai/davinci": 552,
-  "ai21/j1-large": 0,
-  "ai21/j1-jumbo": 0
+  "openai/text-davinci-001": 552,
+  "openai/text-davinci-002": 552,
+  "microsoft/TNLGv2_530B": 241
 }

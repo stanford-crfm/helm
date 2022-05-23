@@ -16,6 +16,40 @@ class MMLUScenario(Scenario):
 
         https://github.com/hendrycks/test/blob/master/evaluate.py
         https://github.com/EleutherAI/lm-evaluation-harness/blob/master/lm_eval/tasks/hendrycks_test.py
+
+    We prompt models using the following format:
+        <input>                  # train
+        A. <reference>
+        B. <reference>
+        C. <reference>
+        D. <reference>
+        Answer: <A/B/C/D>
+
+        x N (N-shot)
+
+        <input>                  # test
+        A. <reference1>
+        B. <reference2>
+        C. <reference3>
+        D. <reference4>
+        Answer:
+
+    For example (from mmlu:anatomy), we have:
+        The pleura
+        A. have no sensory innervation.
+        B. are separated by a 2 mm space.
+        C. extend into the neck.
+        D. are composed of respiratory epithelium.
+        Answer: C
+
+        Which of the following terms describes the body's ability to maintain its normal state?
+        A. Anabolism
+        B. Catabolism
+        C. Tolerance
+        D. Homeostasis
+        Answer:
+
+    Target: D
     """
 
     name = "mmlu"

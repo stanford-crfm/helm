@@ -2,10 +2,12 @@
 venv
 __pycache__
 *.egg-info
+.mypy_cache
 
 prod_env
 benchmark_output
 proxy_api_key.txt
+microsoft_client.lock
 
 # Percy's stuff
 nav

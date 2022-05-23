@@ -1,11 +1,19 @@
 import copy
+from dataclasses import asdict
+
+import os
 import pytest
+import shutil
+import tempfile
+
+from sqlitedict import SqliteDict
 
 from common.authentication import Authentication
 from common.request import Request
-from proxy.accounts import AuthenticationError
+from proxy.accounts import AuthenticationError, Account, Usage
+
 from .query import Query
-from proxy.server_service import ServerService
+from proxy.server_service import ServerService, ACCOUNTS_FILE
 
 
 def get_authentication():
@@ -14,12 +22,19 @@ def get_authentication():
 
 class TestServerService:
     def setup_method(self, method):
-        base_path = "test_env"
-        self.service = ServerService(base_path=base_path, read_only=True)
+        # Create a temporary admin account to test account creation, updating quotas, etc.
+        self.base_path: str = tempfile.mkdtemp()
+        auth: Authentication = get_authentication()
+        with SqliteDict(os.path.join(self.base_path, ACCOUNTS_FILE)) as cache:
+            account: Account = Account(auth.api_key, is_admin=True, usages={"gpt3": {"daily": Usage()}})
+            cache[auth.api_key] = asdict(account)
+            cache.commit()
+
+        self.service = ServerService(base_path=self.base_path)
         self.auth = get_authentication()
 
     def teardown_method(self, method):
-        self.service.finish()
+        shutil.rmtree(self.base_path)
 
     def test_expand_query(self):
         query = Query(prompt="8 5 4 ${x} ${y}", settings="", environments="x: [1, 2, 3]\ny: [4, 5]",)
@@ -160,7 +175,7 @@ class TestServerService:
 
 def get_prod_service():
     # Note that this is not checked in / available by default
-    return ServerService(base_path="prod_env", read_only=True)
+    return ServerService(base_path="prod_env")
 
 
 def helper_prod_test_service(request: Request, expected_text: str):

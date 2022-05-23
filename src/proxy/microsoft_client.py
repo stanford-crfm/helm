@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from filelock import FileLock
 from openai.api_resources.abstract import engine_api_resource
 import openai as turing
 
@@ -7,11 +8,14 @@ from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
 from .client import Client, wrap_request_time
+from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 from .tokenizer.tokenizer import Tokenizer
 from .tokenizer.tokenizer_factory import TokenizerFactory
 
 
 class MicrosoftClient(Client):
+    _CLIENT_LOCK = "microsoft_client.lock"
+
     """
     Client for the Microsoft's Megatron-Turing NLG models (https://arxiv.org/abs/2201.11990).
 
@@ -29,13 +33,20 @@ class MicrosoftClient(Client):
             ) -> str:
                 return f"/{engine}/inference"
 
-        prev_bases = turing.api_resources.completion.Completion.__bases__
-        turing.api_resources.completion.Completion.__bases__ = (EngineAPIResource,) + prev_bases[1:]
-        turing.api_base = "https://turingnlg-turingnlg-mstap-v2.turingase.p.azurewebsites.net"
-        turing.api_key = api_key
+        self.api_key: str = api_key
+        self.api_base: str = "https://turingnlg-turingnlg-mstap-v2.turingase.p.azurewebsites.net"
+        self.completion_attributes = (EngineAPIResource,) + ORIGINAL_COMPLETION_ATTRIBUTES[1:]
 
         self.cache = Cache(cache_path)
         self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer("microsoft")
+
+        # The Microsoft Turing server only allows a single request at a time, so acquire a
+        # process-safe lock before making a request.
+        # https://github.com/microsoft/turing-academic-TNLG#rate-limitations
+        #
+        # Since the model will generate roughly three tokens per second and the max context window
+        # is 2048 tokens, we expect the maximum time for a request to be fulfilled to be 700 seconds.
+        self.lock = FileLock(MicrosoftClient._CLIENT_LOCK, timeout=700)
 
     def make_request(self, request: Request) -> RequestResult:
         """
@@ -61,6 +72,10 @@ class MicrosoftClient(Client):
 
         Log probabilities are also currently not supported.
         """
+
+        def fix_text(text: str) -> str:
+            return text.replace("Ġ", " ")
+
         # Only a single "stop" value (str) or None is currently supported.
         stop_sequence: Optional[str]
         if len(request.stop_sequences) == 0:
@@ -83,7 +98,11 @@ class MicrosoftClient(Client):
         try:
 
             def do_it():
-                return turing.Completion.create(**raw_request)
+                with self.lock:
+                    turing.api_key = self.api_key
+                    turing.api_base = self.api_base
+                    turing.api_resources.completion.Completion.__bases__ = self.completion_attributes
+                    return turing.Completion.create(**raw_request)
 
             cache_key = Client.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
@@ -103,7 +122,8 @@ class MicrosoftClient(Client):
             # Since the log probs and tokens are not available to us just tokenize the completion using the tokenizer
             completion_text: str = raw_completion["text"]
             tokens: List[Token] = [
-                Token(text=text, logprob=0, top_logprobs={}) for text in self.tokenizer.tokenize(completion_text)
+                Token(text=fix_text(text), logprob=0, top_logprobs={})
+                for text in self.tokenizer.tokenize(completion_text)
             ]
             completion = Sequence(text=completion_text, logprob=0, tokens=tokens)
             completions.append(completion)

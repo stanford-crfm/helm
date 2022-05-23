@@ -1,14 +1,22 @@
 import json
 import os
+import tqdm
 from typing import List
 
-import tqdm
-
-from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TEST_SPLIT
 
-PILOT_DATA_URL = "https://docs.google.com/uc?export=download&id=1NwzDx19uzIwBuw7Lq5CSytG7jIth2wJ-"
-FULL_DATA_URL = "https://docs.google.com/uc?export=download&id=1lJS5LQmaj3R5WVwzbNQdl8I4U1tf266t"  # Size ~ 3gigs.
+datatag2hash = {
+    # Very small; 10 examples.
+    "pilot": "1NwzDx19uzIwBuw7Lq5CSytG7jIth2wJ-",
+    # 1k examples.
+    "n_books_1000-extractions_per_book_1-prefix_length_5": "16nQD8Nq3ma4K2EZLXHcahG9fcBDxS-zB",
+    "n_books_1000-extractions_per_book_1-prefix_length_25": "108sZcMjzY7mvyy1p5Rw62_A8A1I2zM2S",
+    "n_books_1000-extractions_per_book_1-prefix_length_125": "10uC4jM6tgI1pgtq--07FFHQ2Te7-SXGA",
+    # 3k examples from 1k books.
+    "n_books_1000-extractions_per_book_3-prefix_length_5": "1byrafXv2iULcZArxguJZp2LyFxswX7fN",
+    "n_books_1000-extractions_per_book_3-prefix_length_25": "13QOKOd5Fpu5cVu1HRBYxzRcQzwhcPhjD",
+    "n_books_1000-extractions_per_book_3-prefix_length_125": "1Y6QvYStCJVanHaI67Pxep3HakWL2cIRP",
+}
 
 
 class CopyrightScenario(Scenario):
@@ -28,19 +36,17 @@ class CopyrightScenario(Scenario):
     description = "Data extraction attacks based on the BookCorpus."
     tags = ["harms", "copyright"]
 
-    def __init__(self, use_pilot_data=True):
-        self.use_pilot_data = use_pilot_data
+    def __init__(self, datatag="pilot"):
+        self.datatag = datatag
+        self.source_url = f"https://drive.google.com/uc?id={datatag2hash[datatag]}"
 
     def get_instances(self) -> List[Instance]:
-        if self.use_pilot_data:
-            source_url = PILOT_DATA_URL
-        else:
-            source_url = FULL_DATA_URL
-        data_path = os.path.join(self.output_path, "data")
-        ensure_file_downloaded(
-            source_url=source_url, target_path=data_path,
-        )
-        with open(data_path, "r") as f:
+        target_path = os.path.join(self.output_path, f"{self.datatag}.json")
+        # `ensure_file_downloaded` in src.common doesn't work.
+        # The main problem is that naive wget cannot bypass the gdrive large file virus scan warning.
+        if not os.path.exists(target_path):
+            os.system(f"gdown {self.source_url} -O {target_path}")
+        with open(target_path, "r") as f:
             # Processed data with the format {"data": {prefix: prefix_to_end}, "metadata":...}.
             data = json.load(f)
 

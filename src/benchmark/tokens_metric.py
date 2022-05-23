@@ -1,11 +1,10 @@
-from tqdm import tqdm
 from typing import List, Dict
 
 from common.request import Request
 from common.statistic import Stat, merge_stat
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from .adapter import ScenarioState
-from .metric import Metric
+from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
 from .metric_service import MetricService
 
@@ -18,15 +17,20 @@ class TokensMetric(Metric):
     def __init__(self):
         self.token_counter = AutoTokenCounter()
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         """
         Add up all the estimated number of tokens used for each request.
         """
+        per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
         stats: Dict[MetricName, Stat] = {}
 
-        for request_state in tqdm(scenario_state.request_states):
+        for request_state in scenario_state.request_states:
             request: Request = request_state.request
             num_tokens: int = self.token_counter.estimate_tokens(request)
-            merge_stat(stats, Stat(MetricName("estimated_number_of_tokens")).add(num_tokens))
+            stat = Stat(MetricName("estimated_number_of_tokens")).add(num_tokens)
+            merge_stat(stats, stat)
+            # Call take_mean to make a copy of the stat above so that merge_stat updates do
+            # not change what is in per_instance_stats.
+            per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = [stat.take_mean()]
 
-        return list(stats.values())
+        return MetricResult([stat.take_mean() for stat in stats.values()], per_instance_stats)

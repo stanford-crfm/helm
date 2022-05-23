@@ -1,12 +1,12 @@
+from collections import defaultdict
 from typing import List, Dict, Tuple, Optional, cast
 
 from common.statistic import Stat
 from .adapter import ScenarioState, RequestState
 from .metric_service import MetricService
-from .metric import Metric
+from .metric import Metric, MetricResult
 from .metric_name import MetricName
-from .scenario import VALID_SPLIT
-from .msmarco_scenario import MSMARCOInstance
+from .scenario import VALID_SPLIT, InformationRetrievalInstance
 
 
 class MSMARCOMetric(Metric):
@@ -34,6 +34,10 @@ class MSMARCOMetric(Metric):
                 compute two stats, one considering the top 5 ranking, while the
                 other ones considers the top 10 rankings.
         """
+        # The gold_relations list specifies when should we consider an instance
+        # to be a gold example, meaning that the passage in the instance is one
+        # of the gold matches for the query.
+        self.gold_relations = [1]
 
         # Set the name of the metric
         if name not in self.METRIC_NAMES:
@@ -81,13 +85,13 @@ class MSMARCOMetric(Metric):
             # Extract important information from the ID
             if rs.result and rs.result.completions and rs.output_mapping:
                 # Extract instance information
-                instance = cast(MSMARCOInstance, rs.instance)
-                qid, pid, gold = instance.qid, instance.pid, instance.gold
+                instance = cast(InformationRetrievalInstance, rs.instance)
+                qid, pid, rel = instance.qid, instance.oid, instance.qrel
                 # We need to check that the values of the qid, pid, and gold
                 # are not None otherwise the code fails static typeckecking
-                if qid and pid and gold is not None:
+                if qid and pid:
                     # Populate the gold mapping dictionary
-                    if gold:
+                    if rel in self.gold_relations:
                         qid_to_gold_pid[qid] = pid
                     # Get the completion from the model
                     model_completion = rs.result.completions[0]
@@ -122,7 +126,7 @@ class MSMARCOMetric(Metric):
         yes_tuples = sorted(yes_tuples, key=lambda t: t[2], reverse=True)
         ranked_pids_yes = [t[1] for t in yes_tuples]
 
-        # Take the examples where the model answered yes, and sort them from the lowest to the biggest
+        # Take the examples where the model answered no, and sort them from the lowest to the biggest
         no_tuples = [t for t in qid_pid_logprob_dict[self.NO_ANSWER] if t[0] == qid]
         no_tuples = sorted(no_tuples, key=lambda t: t[2])
         ranked_pids_no = [t[1] for t in no_tuples]
@@ -191,8 +195,35 @@ class MSMARCOMetric(Metric):
 
         return list(topk_to_stat.values())
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+    def aggregated_runtime(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+        """Computes the aggregate runtime to run all model queries corresponding to a given qid.
+
+        Returns:
+            aggregated_runtimes: List of one stat corresponding to the aggregated runtime across all
+                model queries corresponding to a single qid.
+        """
+        adapter_spec = scenario_state.adapter_spec
+
+        for train_trial_index in range(adapter_spec.num_train_trials):
+            validation_request_states = [rs for rs in scenario_state.request_states if rs.instance.split == VALID_SPLIT]
+            aggregated_runtimes: Dict[int, float] = defaultdict(lambda: 0.0)  # Mapping from qid to total runtime.
+
+            for validation_request_state in validation_request_states:
+                instance = cast(InformationRetrievalInstance, validation_request_state.instance)
+                if instance.qid is not None:
+                    assert validation_request_state.result is not None
+                    aggregated_runtimes[instance.qid] += validation_request_state.result.request_time
+
+        # For now, just return the aggregated runtimes from the last trial. Can do something smarter.
+        aggregated_runtime = Stat(MetricName("aggregated_runtime"))
+        for key, value in aggregated_runtimes.items():
+            aggregated_runtime.add(value)
+
+        return [aggregated_runtime]
+
+    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         """Returns the stats for the MSMARCO metric.
         """
         mrr_stats = self.metric_fn(scenario_state, metric_service)
-        return mrr_stats
+        aggregated_runtime_stats = self.aggregated_runtime(scenario_state, metric_service)
+        return MetricResult(mrr_stats + aggregated_runtime_stats, {})

@@ -1,24 +1,26 @@
-from typing import List
-
-from nltk.tokenize.treebank import TreebankWordTokenizer
-
 from common.request import RequestResult
 from common.statistic import Stat
+from nltk.tokenize.treebank import TreebankWordTokenizer
+from typing import List, Optional
+
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 
 
-def _longest_common_prefix_length(s1: List[str], s2: List[str]) -> int:
-    min_len = min(len(s1), len(s2))
+def _longest_common_prefix_length(s1: List[str], s2: List[str], previous_best: Optional[int] = None) -> int:
+    result = min_len = min(len(s1), len(s2))
     for i in range(min_len):
         if s1[i] != s2[i]:
-            return len(s1[:i])
-    return min_len
+            result = i
+            break
+    if previous_best is not None:
+        return max(previous_best, result)
+    return result
 
 
-def _edit_distance(s1: List[str], s2: List[str]) -> int:
+def _edit_distance(s1: List[str], s2: List[str], previous_best: Optional[int] = None) -> int:
     """Compute the Levenshtein distance between two sequences of tokens.
 
     Edit distance is really an umbrella term. We focus on the Levenshtein distance.
@@ -43,6 +45,8 @@ def _edit_distance(s1: List[str], s2: List[str]) -> int:
                     distance_grid[i - 1][j],  # Remove from s2.
                     distance_grid[i - 1][j - 1],  # Replace.
                 )
+    if previous_best is not None:
+        return min(distance_grid[l1][l2], previous_best)
     return distance_grid[l1][l2]
 
 
@@ -52,7 +56,6 @@ metric_fns = {
 }
 
 
-# TODO(lxuechen): Create mock data to test `longest_common_prefix_length`.
 class BasicCopyrightMetric(Metric):
     """Basic copyright metric for evaluating surface-level similarity.
 
@@ -93,7 +96,7 @@ class BasicCopyrightMetric(Metric):
         prefix: str = request_state.instance.input
         reference: str = references[0].output[len(prefix) :]
 
-        result = 0.0
+        result: Optional[int] = None
         request_result: RequestResult = request_state.result
         for completion in request_result.completions:
             completion = completion.text.strip()
@@ -103,10 +106,13 @@ class BasicCopyrightMetric(Metric):
 
             completion_tokens = self.tokenizer.tokenize(completion)
             truncated_reference_tokens = self.tokenizer.tokenize(truncated_reference)
-            result = max(result, self.metric_fn(completion_tokens, truncated_reference_tokens))
+            result = self.metric_fn(completion_tokens, truncated_reference_tokens, previous_best=result)
 
+        assert result is not None  # Should never be triggered; just to make static analyzer happy.
         if self.normalize_by_prefix_length:
             prefix_tokens = self.tokenizer.tokenize(prefix)
-            result /= len(prefix_tokens)
+            final_result = result / len(prefix_tokens)
+        else:
+            final_result = result
 
-        return [Stat(self.metric_name).add(result)]
+        return [Stat(self.metric_name).add(final_result)]

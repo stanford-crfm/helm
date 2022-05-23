@@ -1,13 +1,14 @@
 from abc import ABC
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from typing import List, Dict, Tuple
 from math import log, e
 from collections import defaultdict
 
-from common.hierarchical_logger import hlog
 from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
+
+from .augmentations.perturbation_description import PerturbationDescription
 
 from .adapter import (
     AdapterSpec,
@@ -18,7 +19,34 @@ from .adapter import (
 )
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenario import EVAL_SPLITS, TEST_SPLIT
+from .scenario import Instance, EVAL_SPLITS, TEST_SPLIT
+
+
+@dataclass(unsafe_hash=True)
+class PerInstanceStatsKey:
+    """
+    `PerInstanceStatsKey` is a (instance, trial index) tuple.
+    """
+
+    instance: str
+    trial_index: int
+
+    def __init__(self, instance: Instance, trial_index: int):
+        self.instance = instance.id if instance.id is not None else str(instance)
+        self.trial_index = trial_index
+
+
+@dataclass
+class MetricResult:
+    """
+    `MetricResult` is a wrapper around aggregated statistics (averaged over instances and trial index),
+    and per-(instance, trial index) statistics.
+    """
+
+    aggregated_stats: List[Stat]
+
+    # Key for per-instance statistics is (instance, trial index), value is list of statistics.
+    per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]]
 
 
 class Metric(ABC):
@@ -31,7 +59,7 @@ class Metric(ABC):
     might move to a world where there is one (or very few metrics that are domain-independent).
     """
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         """
         Main entry point for a `Metric`.  This function groups the single
         list of `RequestState` by training trial and instance, and invokes
@@ -47,6 +75,7 @@ class Metric(ABC):
 
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
+        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
@@ -55,7 +84,6 @@ class Metric(ABC):
             #       https://github.com/stanford-crfm/benchmarking/issues/48
             for instance_index, instance in enumerate(scenario_state.instances):
                 instance_stats = []
-                hlog(f"trial {train_trial_index}: evaluate {instance_index} (total {len(scenario_state.instances)})")
 
                 # Evaluate generated request_state
                 request_state = singleton(scenario_state.get_request_states(train_trial_index, instance, None))
@@ -68,6 +96,7 @@ class Metric(ABC):
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
                 instance_stats.extend(self.evaluate_references(adapter_spec, request_states, metric_service))
+                all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
 
                 # Merge these statistics back.
                 # TODO: we should add statistics with the individual instances too and serialize them out.
@@ -76,7 +105,7 @@ class Metric(ABC):
                     stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
 
-                    stat = Stat(replace(stat.name, perturbation="worst")).merge(stat)
+                    stat = Stat(replace(stat.name, perturbation=PerturbationDescription(name="worst"))).merge(stat)
                     assert instance.id is not None
                     key = (stat.name, instance.id)
                     if key not in per_instance_stats:
@@ -96,6 +125,14 @@ class Metric(ABC):
                     and MetricName("num_tokens", split=split) in trial_stats
                     and MetricName("num_bytes", split=split) in trial_stats
                 ):
+                    # TODO: find out the root cause and undo this change
+                    #       https://github.com/stanford-crfm/benchmarking/issues/350
+                    if (
+                        trial_stats[MetricName("num_tokens", split=split)].sum == 0
+                        or trial_stats[MetricName("num_bytes", split=split)].sum == 0
+                    ):
+                        continue
+
                     merge_stat(
                         trial_stats,
                         Stat(MetricName("perplexity", split=split)).add(
@@ -126,7 +163,8 @@ class Metric(ABC):
             for stat in trial_stats.values():
                 merge_stat(global_stats, stat.take_mean())
 
-        return list(global_stats.values())
+        # Wrap aggregated and per-instance stats in a MetricResult.
+        return MetricResult(list(global_stats.values()), all_per_instance_stats)
 
     def evaluate_generation(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -140,16 +178,20 @@ class Metric(ABC):
         """Evaluate the references.  Override me!"""
         return []
 
-    def evaluate_language_modeling(self, scenario_state: ScenarioState, metric_service: MetricService) -> List[Stat]:
+    def evaluate_language_modeling(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         global_stats: Dict[MetricName, Stat] = {}
         # The first and only trial
         trial_stats: Dict[MetricName, Stat] = {}
+        # Per-instance stats
+        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
         # Assume models are only evaluated on the test set
         split: str = TEST_SPLIT
 
         for request_state in scenario_state.request_states:
             # Evaluate request_state
             request_stats = self.evaluate_generation(scenario_state.adapter_spec, request_state, metric_service)
+            # Use trial index of 0 here since we run only one trial for LM
+            all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = request_stats
 
             for stat in request_stats:
                 stat = Stat(replace(stat.name, split=split)).merge(stat)
@@ -189,11 +231,11 @@ class Metric(ABC):
 
         for stat in trial_stats.values():
             merge_stat(global_stats, stat.take_mean())
-        return list(global_stats.values())
+        return MetricResult(list(global_stats.values()), all_per_instance_stats)
 
     def evaluate_language_modeling_minimal_pairs(
         self, scenario_state: ScenarioState, metric_service: MetricService
-    ) -> List[Stat]:
+    ) -> MetricResult:
         """
         This function computes the log probability of both sentences in each minimal pair
         and compares them. If the model assigns a higher log probability to the "good" sentence,
@@ -209,12 +251,25 @@ class Metric(ABC):
         global_stats: Dict[MetricName, Stat] = {}
         # The first and only trial
         trial_stats: Dict[MetricName, Stat] = {}
+        # Per-instance stats
+        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
         # Assume models are only evaluated on the test set
         split: str = TEST_SPLIT
 
         # The logprobs of good and bad sentences in the dataset
         good_logprobs: defaultdict = defaultdict(float)
         bad_logprobs: defaultdict = defaultdict(float)
+
+        # Efficiency metrics
+        efficiency_stat_names: List[str] = [
+            "inference_runtime",
+            "inference_idealized_runtime",
+            "inference_runtime_discrepancy",
+            "training_co2_cost",
+        ]
+        efficiency_stats: Dict[str, defaultdict] = {
+            efficiency_stat_name: defaultdict(float) for efficiency_stat_name in efficiency_stat_names
+        }
 
         if scenario_state.request_states:
             for request_state in scenario_state.request_states:
@@ -231,10 +286,26 @@ class Metric(ABC):
                         else:
                             raise Exception(f"Unknown sub_split {sub_split}")
                         continue
+                    # Sum runtimes (real and idealized) across pair
+                    for efficiency_stat_name in efficiency_stat_names:
+                        if stat.name == MetricName(efficiency_stat_name):
+                            efficiency_stats[efficiency_stat_name][pair_id] += stat.sum
+                all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = request_stats
 
+            # To evaluate minimal pairs, the pair_ids of the good and the bad examples must be the same
+            assert set(good_logprobs.keys()) == set(bad_logprobs.keys())
             accuracy = sum(good_logprobs[pair_id] > bad_logprobs[pair_id] for pair_id in good_logprobs) / len(
                 good_logprobs
             )
+            for efficiency_stat_name in efficiency_stat_names:
+                for pair_id in efficiency_stats[efficiency_stat_name]:
+                    efficiency_stat: float = efficiency_stats[efficiency_stat_name][pair_id]
+                    # training_co2_cost should not add across pair, so divide by 2
+                    if efficiency_stat_name == "training_co2_cost":
+                        efficiency_stat = efficiency_stat / 2
+                    merge_stat(
+                        trial_stats, Stat(MetricName(efficiency_stat_name, split=split)).add(efficiency_stat),
+                    )
         else:
             accuracy = 0
 
@@ -242,7 +313,7 @@ class Metric(ABC):
 
         for stat in trial_stats.values():
             merge_stat(global_stats, stat.take_mean())
-        return list(global_stats.values())
+        return MetricResult(list(global_stats.values()), all_per_instance_stats)
 
 
 class MetricSpec(ObjectSpec):

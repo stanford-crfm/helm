@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
+
+from proxy.models import Model, get_model
 from .general import indent_lines, format_text
 
 
@@ -50,14 +52,16 @@ class Request:
     random: Optional[str] = None
 
     @property
-    def model_organization(self):
+    def model_organization(self) -> str:
         """Example: 'openai/davinci' => 'openai'"""
-        return self.model.split("/")[0]
+        model: Model = get_model(self.model)
+        return model.organization
 
     @property
-    def model_engine(self):
+    def model_engine(self) -> str:
         """Example: 'openai/davinci' => 'davinci'"""
-        return self.model.split("/")[1]
+        model: Model = get_model(self.model)
+        return model.engine
 
 
 @dataclass(frozen=True)
