@@ -225,10 +225,4 @@ class AI21Tokenizer(Tokenizer):
                 num_processed_tokens += token_chunk_size
                 num_processed_positions += len(normalized_text_chunk)
 
-            # Check whether the tokens are well-formed. Uncomment below for debugging.
-            # assert all_tokens[0].text_range.start == 0
-            # assert all_tokens[-1].text_range.end == num_processed_positions
-            # for i in range(len(all_tokens) - 1):
-            #     assert all_tokens[i].text_range.end == all_tokens[i + 1].text_range.start
-
             return all_tokens, "".join(normalized_text_chunks)
