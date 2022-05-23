@@ -47,8 +47,12 @@ class Tokenizer(ABC):
         pass
 
     @abstractmethod
-    def decode(self, tokens: List, text: Optional[str] = None) -> str:
-        """Given the model and a list of tokens, outputs the corresponding text."""
+    def decode(self, tokens: List, normalized_text: Optional[str] = None) -> str:
+        """
+        Given the model and a list of tokens, outputs the corresponding text.
+        Some tokenizers (e.g. AI21) normalize the text before encoding it and
+        require the `normalized_text` for decoding.
+        """
         pass
 
     @abstractmethod

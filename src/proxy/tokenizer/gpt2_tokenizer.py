@@ -45,9 +45,11 @@ class GPT2Tokenizer(Tokenizer):
         tokens: List = self._tokenizer.encode(text)
         return EncodeResult(text=text, tokens=tokens)
 
-    def decode(self, tokens: List, text: Optional[str] = None) -> str:
+    def decode(self, tokens: List, normalized_text: Optional[str] = None) -> str:
         """
-        Given a list of tokens, outputs the corresponding text.
+        Given the model and a list of tokens, outputs the corresponding text.
+        Some tokenizers (e.g. AI21) normalize the text before encoding it and
+        require the `normalized_text` for decoding.
         """
         return self._tokenizer.decode(tokens, clean_up_tokenization_spaces=False)
 

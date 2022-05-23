@@ -85,14 +85,16 @@ class AI21Tokenizer(Tokenizer):
         assert tokens[-1].text_range.end == len(normalized_text)
         return EncodeResult(text=normalized_text, tokens=tokens)
 
-    def decode(self, tokens: List, text: Optional[str] = None) -> str:
+    def decode(self, tokens: List, normalized_text: Optional[str] = None) -> str:
         """
-        Given a list of tokens, outputs the corresponding text.
+        Given the model and a list of tokens, outputs the corresponding text.
+        Some tokenizers (e.g. AI21) normalize the text before encoding it and
+        require the `normalized_text` for decoding.
         """
         if not tokens:
             return ""
-        # Text is necessary for decoding AI21 tokens.
-        assert text
+        # `normalized_text` is necessary for decoding AI21 tokens.
+        assert normalized_text
         # The tokens must be a consecutive subset of the original text.
         for j in range(len(tokens) - 1):
             assert tokens[j].text_range.end == tokens[j + 1].text_range.start, (
@@ -116,7 +118,7 @@ class AI21Tokenizer(Tokenizer):
             # Not a byte token: retrieves the token text based on text_range.
             else:
                 token: TokenizationToken = tokens[i]
-                token_text = text[token.text_range.start : token.text_range.end]
+                token_text = normalized_text[token.text_range.start : token.text_range.end]
                 i += 1
             token_texts.append(token_text)
         return "".join(token_texts)
