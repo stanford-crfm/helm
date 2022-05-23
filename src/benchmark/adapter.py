@@ -514,8 +514,27 @@ class Adapter:
         """
         return prefix.replace("A", chr(ord("A") + i))
 
+    def fits_tokens_within_context_window(
+        self, conditioning_tokens: List, pred_tokens: List, tokenizer: Tokenizer, max_req_len: int, text: str
+    ) -> Tuple[str, List]:
+        """
+        Decoding then encoding k tokens may result in > k tokens, so we need to trim the tokens repeatedly
+        until they fit in the context window.
+        """
+        prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens, text)
+        prompt_length: int = len(tokenizer.encode(prompt).tokens)
+        # If the prompt is too long, remove the overflowing tokens.
+        # Since encoding might generate extra tokens, we need to repeat this until prompt_length <= max_req_len
+        while prompt_length > max_req_len:
+            # Trims the extra (prompt_length - max_req_len) tokens
+            pred_tokens = pred_tokens[: -(prompt_length - max_req_len)]
+            prompt = tokenizer.decode(conditioning_tokens + pred_tokens, text)
+            prompt_length = len(tokenizer.encode(prompt).tokens)
+
+        return prompt, pred_tokens
+
     def construct_language_modeling_prompt(
-        self, conditioning_tokens: List[int], pred_tokens: List[int], tokenizer: Tokenizer, max_req_len: int, text: str,
+        self, conditioning_tokens: List, pred_tokens: List, tokenizer: Tokenizer, max_req_len: int, text: str,
     ) -> Tuple[str, int]:
         """
         Some subwords/symbols might translate to multiple tokens. e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"].
@@ -527,7 +546,11 @@ class Adapter:
 
         text is the normalized text fed to decode(). Some tokenizers (e.g. AI21) need this field for decoding.
         """
-        raw_prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens, text)
+        raw_prompt: str
+        raw_prompt, pred_tokens = self.fits_tokens_within_context_window(
+            conditioning_tokens, pred_tokens, tokenizer, max_req_len, text
+        )
+
         prompt: str = raw_prompt.strip("\ufffd")
         # If there are no byte tokens, avoid API calls
         if len(prompt) == len(raw_prompt):
@@ -573,9 +596,9 @@ class Adapter:
             # Note: There are trailing byte tokens in the raw sequence because some subwords/symbols might translate to
             # multiple tokens (e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]) and we chunk documents by token, not by word.
             first_seq_len = min(max_seq_len, len(tokens))
-            prompt = self.tokenizer.decode(
-                self.tokenizer.encode(prefix_token).tokens + tokens[:first_seq_len], text
-            ).rstrip("\ufffd")
+            prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
+                self.tokenizer.encode(prefix_token).tokens, tokens[:first_seq_len], self.tokenizer, max_req_len, text
+            )
             request = Request(
                 model=self.adapter_spec.model,
                 prompt=prompt,

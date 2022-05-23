@@ -59,7 +59,7 @@ class AI21Tokenizer(Tokenizer):
         # [('▁', 0, 0), (',', 0, 1), ('▁', 1, 2), ('▁', 2, 3), ('(', 3, 4)]
         #
         # Empirically, tokenizing the normalized text will not generate > 10 extra tokens.
-        return AI21Tokenizer.MAX_REQUEST_LENGTH - 10
+        return AI21Tokenizer.MAX_REQUEST_LENGTH
 
     @property
     def end_of_text_token(self) -> str:
