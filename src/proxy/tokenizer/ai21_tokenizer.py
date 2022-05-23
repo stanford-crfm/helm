@@ -59,14 +59,13 @@ class AI21Tokenizer(Tokenizer):
         """
         Encodes the input text to tokens.
         """
-        # If text is empty, skips the API call and returns an empty list.
-        if not text:
-            return EncodeResult(text=text, tokens=[])
         tokens: List[TokenizationToken]
         normalized_text: str
         tokens, normalized_text = self._make_long_tokenization_request(text)
         # The end position of the last token should be the end of the text.
-        assert tokens[-1].text_range.end == len(normalized_text)
+        if len(tokens) > 0:
+            assert tokens[-1].text_range.end == len(normalized_text)
+
         return EncodeResult(text=normalized_text, tokens=tokens)
 
     def decode(self, tokens: List, normalized_text: Optional[str] = None) -> str:
