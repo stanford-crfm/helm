@@ -27,7 +27,10 @@ class Tokenizer(ABC):
     @property
     @abstractmethod
     def max_request_length(self) -> int:
-        """ The max reqeust length of the model."""
+        """ 
+        The max reqeust length of the model. Some models allow `max_request_length > max_sequence_length`
+        so that users can specify the last output token. e.g. GPT-3.
+        """
         pass
 
     @property

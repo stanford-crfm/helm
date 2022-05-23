@@ -14,7 +14,7 @@ class AI21Tokenizer(Tokenizer):
     """Tokenizes by making a request to the proxy server with REST endpoint: `/api/tokenize`."""
 
     # The max token length of the model input
-    # AI21's server automatically prepends a token to every prompt, so the actual max sequence length is 2048-1 = 2047
+    # AI21's server automatically prepends a token to every prompt, so the actual max sequence length is 2048-1 = 2047.
     MAX_SEQUENCE_LENGTH: int = 2047
 
     # The max sequence length is the same as the max request length for AI21.
