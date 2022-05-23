@@ -523,8 +523,18 @@ class Adapter:
         """
         prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens, text)
         prompt_length: int = len(tokenizer.encode(prompt).tokens)
-        # If the prompt is too long, remove the overflowing tokens.
-        # Since encoding might generate extra tokens, we need to repeat this until prompt_length <= max_req_len
+
+        # If the prompt is too long, removes the overflowing tokens.
+        # Since encoding might generate extra tokens, we need to repeat this until prompt_length <= max_req_len.
+        # For AI21, for example, this happens especially frequently when a document contains different types of
+        # whitespace characters because some whitespaces are tokenized to multiple tokens and the others
+        # are tokenized to a single token. However, the AI21 tokenizer seems to normalize all types
+        # of whitespaces to the same whitespace character.
+        #
+        # e.g. original text: ",  (", which is tokenized to:
+        # [('▁', 0, 0), (',', 0, 1), ('▁▁', 1, 3), ('(', 3, 4)]
+        # normalized test: ",  (", which is tokenized to:
+        # [('▁', 0, 0), (',', 0, 1), ('▁', 1, 2), ('▁', 2, 3), ('(', 3, 4)]
         while prompt_length > max_req_len:
             # Trims the extra (prompt_length - max_req_len) tokens
             pred_tokens = pred_tokens[: -(prompt_length - max_req_len)]

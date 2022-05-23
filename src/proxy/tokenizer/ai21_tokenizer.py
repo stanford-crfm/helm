@@ -7,7 +7,7 @@ from urllib.parse import unquote
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken, TextRange
 from .tokenizer import Tokenizer, EncodeResult
 from .tokenizer_service import TokenizerService
-from .openai_tokenizer import OpenAITokenizer
+from .gpt2_tokenizer import GPT2Tokenizer
 
 
 class AI21Tokenizer(Tokenizer):
@@ -20,8 +20,10 @@ class AI21Tokenizer(Tokenizer):
     # The max sequence length is the same as the max request length for AI21.
     MAX_REQUEST_LENGTH: int = 2047
 
-    # Empirically, if the OpenAI's tokenizer tokenizes a sequence to <= 11000 tokens,
-    # then it is most likely safe to assume that AI21's tokenization API will process this request.
+    # AI21's tokenizer API rejects a tokenization request if the input sequence is too long, so
+    # we need to set an upper limit for the length of the request. Empirically, if the GPT2 tokenizer tokenizes a
+    # sequence to <= 11000 tokens, then it is most likely safe to assume that AI21's tokenization API will
+    # process this request.
     MAX_TOKENIZATION_REQUEST_LENGTH: int = 11000
 
     NOT_IMPLEMENTED_ERROR_MESSAGE: str = (
@@ -32,7 +34,8 @@ class AI21Tokenizer(Tokenizer):
         self.model: str = model
         # We need the `TokenizerService` to make requests to the server.
         self.service: TokenizerService = service
-        self.openai_tokenizer = OpenAITokenizer(GPT2TokenizerFast.from_pretrained("gpt2"))
+        # As explained above, we need a gpt2 tokenizer to help tokenize long text sequences.
+        self.gpt2_tokenizer = GPT2Tokenizer(GPT2TokenizerFast.from_pretrained("gpt2"))
 
     @property
     def max_sequence_length(self) -> int:
@@ -40,25 +43,6 @@ class AI21Tokenizer(Tokenizer):
 
     @property
     def max_request_length(self) -> int:
-        # With a list of tokens, we can only reconstruct the normalized text and use it
-        # as the prompt for inference, not the original text. However, the tokenization
-        # results of the original text and the normalized text are different.
-        # In other words, if we put together a prompt from k tokens and make an inference
-        # request and receive a p-token response, p may unequal k. If p > MAX_REQUEST_LENGTH,
-        # then an error will be raised. Therefore, we should set a lower upper bound for k.
-        #
-        # This happens especially frequently when a document contains different types of
-        # whitespace characters because some whitespaces are tokenized to multiple tokens and the others
-        # are tokenized to a single token. However, the AI21 tokenizer seems to normalize all types
-        # of whitespaces to the same whitespace character.
-        #
-        # e.g. original text: ",  (", which is tokenized to:
-        # [('▁', 0, 0), (',', 0, 1), ('▁▁', 1, 3), ('(', 3, 4)]
-        #
-        # normalized test: ",  (", which is tokenized to:
-        # [('▁', 0, 0), (',', 0, 1), ('▁', 1, 2), ('▁', 2, 3), ('(', 3, 4)]
-        #
-        # Empirically, tokenizing the normalized text will not generate > 10 extra tokens.
         return AI21Tokenizer.MAX_REQUEST_LENGTH
 
     @property
@@ -170,33 +154,33 @@ class AI21Tokenizer(Tokenizer):
         """If the text is too long, the AI21 server will close the connection. Therefore,
         we need to split the text into smaller chunks, tokenize each chunk, and re-assemble
         the tokenization results."""
-        # Uses the number of OpenAI tokens as a measure of text length.
-        open_ai_tokens: List[int]
-        open_ai_tokens = self.openai_tokenizer.encode(text).tokens
+        # Uses the number of gpt2-style tokens as a measure of text length.
+        gpt2_tokens: List[int]
+        gpt2_tokens = self.gpt2_tokenizer.encode(text).tokens
 
         # If the text is short, just makes one request and returns the result.
-        if len(open_ai_tokens) < AI21Tokenizer.MAX_TOKENIZATION_REQUEST_LENGTH:
+        if len(gpt2_tokens) < AI21Tokenizer.MAX_TOKENIZATION_REQUEST_LENGTH:
             result: TokenizationRequestResult = self._make_tokenization_request(text)
             return result.tokens, result.text
         # Otherwise, splits the text to chunks, tokenizes each chunk, and re-assembles them.
         else:
             all_tokens: List[TokenizationToken] = []
             normalized_text_chunks: List[str] = []
-            # The number of OpenAI tokens we have tokenized with the AI21 tokenizer.
+            # The number of gpt2-style tokens we have tokenized with the AI21 tokenizer.
             num_processed_tokens: int = 0
             # The length of the (normalized) text string we have tokenized with the AI21 tokenizer.
             num_processed_positions: int = 0
-            while num_processed_tokens < len(open_ai_tokens):
+            while num_processed_tokens < len(gpt2_tokens):
                 token_chunk_size: int = min(
-                    len(open_ai_tokens) - num_processed_tokens, AI21Tokenizer.MAX_TOKENIZATION_REQUEST_LENGTH
+                    len(gpt2_tokens) - num_processed_tokens, AI21Tokenizer.MAX_TOKENIZATION_REQUEST_LENGTH
                 )
-                token_chunk: List[int] = open_ai_tokens[num_processed_tokens : num_processed_tokens + token_chunk_size]
-                text_chunk: str = self.openai_tokenizer.decode(token_chunk)
+                token_chunk: List[int] = gpt2_tokens[num_processed_tokens : num_processed_tokens + token_chunk_size]
+                text_chunk: str = self.gpt2_tokenizer.decode(token_chunk)
                 # We need to avoid generating byte tokens when splitting the text
                 while text_chunk.endswith("\ufffd"):
                     token_chunk_size -= 1
-                    token_chunk = open_ai_tokens[num_processed_tokens : num_processed_tokens + token_chunk_size]
-                    text_chunk = self.openai_tokenizer.decode(token_chunk)
+                    token_chunk = gpt2_tokens[num_processed_tokens : num_processed_tokens + token_chunk_size]
+                    text_chunk = self.gpt2_tokenizer.decode(token_chunk)
                 chunk_result: TokenizationRequestResult = self._make_tokenization_request(text_chunk)
                 chunk_tokens: List[TokenizationToken]
                 normalized_text_chunk: str
