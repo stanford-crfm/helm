@@ -599,12 +599,15 @@ class Adapter:
             # Special handling for first window: predict all tokens
             # Example for GPT-3:
             # Raw token sequence format: [<str_tok1>, <str_tok2>, ..., <byte_tok1>, ...] (total length <= max_seq_len)
-            # Convert it to: [<eot>, <str_tok1>, <str_tok2>, ...] (total length <= max_seq_len+1)
+            # Convert it to: [<eot>, <str_tok1>, <str_tok2>, ...](total length <= max_req_len = max_seq_len+1 for GPT-3)
             # Num_conditioning_tokens = 1
             # Example: ["Hello", " world", "bytes:\xe2\x80"] => "<eot>Hello world"
             #
             # Note: There are trailing byte tokens in the raw sequence because some subwords/symbols might translate to
             # multiple tokens (e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]) and we chunk documents by token, not by word.
+
+            # Uses `max_seq_len` instead of `max_req_len` here because `prefix_token` will be prepended to the sequence
+            # later. This is the only place where `max_seq_len` is used.
             first_seq_len = min(max_seq_len, len(tokens))
             prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
                 self.tokenizer.encode(prefix_token).tokens, tokens[:first_seq_len], self.tokenizer, max_req_len, text
@@ -634,13 +637,15 @@ class Adapter:
                 # Example for GPT-3:
                 # Raw token sequence format:
                 # [<cond_byte1>, ..., <cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, ..., <pred_byte1>, ...]
-                # (total length <= max_seq_len+1)
+                # (total length <= max_req_len = max_seq_len+1 for GPT-3)
                 #
                 # Convert it to: [<cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, <pred_str_tok2>. ...]
-                # (total length <= max_seq_len+1)
+                # (total length <= max_req_len = max_seq_len+1 for GPT-3)
                 #
                 # Example: conditioning_tokens=["bytes:\x99", "Exc"], pred_tokens=["use", " me", "bytes:\xe2\x80"] =>
                 # prompt="Excuse me", num_conditioning_tokens = 1
+
+                # The upper bound is `max_req_len - 1` because there will be at least 1 conditioning tokens.
                 window_pred_len = min(len(tokens) - num_predicted_tokens, max_req_len - 1)
                 window_end = num_predicted_tokens + window_pred_len
                 conditioning_tokens = tokens[window_end - max_req_len : num_predicted_tokens]
