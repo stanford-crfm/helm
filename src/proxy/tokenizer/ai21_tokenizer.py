@@ -94,13 +94,11 @@ class AI21Tokenizer(Tokenizer):
         if not tokens:
             return ""
         # `normalized_text` is necessary for decoding AI21 tokens.
-        assert normalized_text
-        # The tokens must be a consecutive subset of the original text.
+        assert normalized_text, "The AI21 tokenizer needs `normalized_text` for decoding"
         for j in range(len(tokens) - 1):
-            assert tokens[j].text_range.end == tokens[j + 1].text_range.start, (
-                tokens[j].text_range,
-                tokens[j + 1].text_range,
-            )
+            assert (
+                tokens[j].text_range.end == tokens[j + 1].text_range.start
+            ), "The tokens to be decoded must form a substring of `normalized_text`."
         token_texts: List[str] = []
         # The format of AI21 byte token representations. e.g. <0xE8>
         byte_pattern = "<0x[0-9A-F]{2}>"
