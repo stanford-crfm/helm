@@ -333,8 +333,10 @@ class InteractiveRunner:
     def replace_toxic_with_safe(self, toxic_round: InteractionRound, clean_text: str) -> InteractionRound:
         """Replace toxic generation with clean generation in InteractionRound"""
         assert toxic_round.request_state.result is not None
+        toxic_generation = toxic_round.request_state.result.completions[0].text
         clean_completions = toxic_round.request_state.result.completions
         clean_completions[0] = replace(clean_completions[0], text=clean_text)
+        clean_completions[1] = replace(clean_completions[1], text=toxic_generation)
         clean_result = replace(toxic_round.request_state.result, completions=clean_completions)
         clean_request_state = replace(toxic_round.request_state, result=clean_result)
         clean_round = replace(toxic_round, request_state=clean_request_state)

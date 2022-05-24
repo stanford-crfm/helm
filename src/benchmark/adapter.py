@@ -204,7 +204,7 @@ class InteractionTrace:
     trace_completed: bool = False
 
     # All toxic generations produced during interaction
-    toxic_generations: List[str] = []
+    toxic_generations: List[str] = field(default_factory=list)
 
     def render_lines(self) -> List[str]:
         output = [f"train_trial_index: {self.train_trial_index}"]
