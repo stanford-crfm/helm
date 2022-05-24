@@ -1,11 +1,11 @@
 import argparse
 import dataclasses
-import os.path
+import json
+import os
+import traceback
+import yaml
 from collections import defaultdict
 from pathlib import Path
-
-import json
-import yaml
 from tqdm import tqdm
 from typing import List, Optional, Set, Dict
 
@@ -49,6 +49,7 @@ class AllRunner:
         dry_run: Optional[bool],
         skip_instances: bool,
         max_eval_instances: Optional[int],
+        models_to_run: List[str],
     ):
         self.auth: Authentication = auth
         self.conf_path: str = conf_path
@@ -59,6 +60,15 @@ class AllRunner:
         self.dry_run: Optional[bool] = dry_run
         self.skip_instances: bool = skip_instances
         self.max_eval_instances: Optional[int] = max_eval_instances
+        self.models_to_run: List[str] = models_to_run
+
+    @staticmethod
+    def update_status_page(output_dir: str, wip_content: List[str], ready_content: List[str]):
+        """
+        Updates the status page with the WIP and READY `RunSpec`s results.
+        """
+        status: str = "\n".join(wip_content + ["", "-" * 150, ""] + ready_content)
+        write(os.path.join(output_dir, "status.txt"), status)
 
     @htrack(None)
     def run(self):
@@ -96,35 +106,44 @@ class AllRunner:
             # Use `dry_run` flag if set, else use what's in the file.
             dry_run = self.dry_run if self.dry_run is not None else status == WIP_STATUS
 
-            new_run_specs = run_benchmarking(
-                run_spec_descriptions=[run_spec_description],
-                auth=self.auth,
-                url=self.url,
-                num_threads=self.num_threads,
-                output_path=self.output_path,
-                suite=self.suite,
-                dry_run=dry_run,
-                skip_instances=self.skip_instances,
-                max_eval_instances=self.max_eval_instances,
-            )
-            run_specs.extend(new_run_specs)
+            try:
+                new_run_specs = run_benchmarking(
+                    run_spec_descriptions=[run_spec_description],
+                    auth=self.auth,
+                    url=self.url,
+                    num_threads=self.num_threads,
+                    output_path=self.output_path,
+                    suite=self.suite,
+                    dry_run=dry_run,
+                    skip_instances=self.skip_instances,
+                    max_eval_instances=self.max_eval_instances,
+                    models_to_run=self.models_to_run,
+                )
+                run_specs.extend(new_run_specs)
 
-            for run_spec in new_run_specs:
-                run_dir: str = os.path.join(suite_dir, run_spec.name)
-                # Get the metric output, so we can display it on the status page
-                metrics_text: str = Path(os.path.join(run_dir, "metrics.txt")).read_text()
-                if status == READY_STATUS:
-                    ready_content.append(f"{run_spec} - \n{metrics_text}\n")
-                else:
-                    wip_content.append(f"{run_spec} - {metrics_text}")
+                for run_spec in new_run_specs:
+                    run_dir: str = os.path.join(suite_dir, run_spec.name)
+                    # Get the metric output, so we can display it on the status page
+                    metrics_text: str = Path(os.path.join(run_dir, "metrics.txt")).read_text()
+                    if status == READY_STATUS:
+                        ready_content.append(f"{run_spec} - \n{metrics_text}\n")
+                    else:
+                        wip_content.append(f"{run_spec} - {metrics_text}")
 
-                # Keep track of all the names of the metrics that have been computed
-                with open(os.path.join(run_dir, "metrics.json")) as f:
-                    for metric in json.load(f):
-                        computed_metrics_to_scenarios[metric["name"]["name"]].add(run_spec.name.split(":")[0])
+                    # Keep track of all the names of the metrics that have been computed
+                    with open(os.path.join(run_dir, "metrics.json")) as f:
+                        for metric in json.load(f):
+                            computed_metrics_to_scenarios[metric["name"]["name"]].add(run_spec.name.split(":")[0])
 
-            # Update the status page after processing every `RunSpec` description
-            self._update_status_page(wip_content, ready_content)
+                # Update the status page after processing every `RunSpec` description
+                AllRunner.update_status_page(suite_dir, wip_content, ready_content)
+
+            except Exception:
+                hlog(f"Error when running {run_spec_description}:\n{traceback.format_exc()}")
+
+        if len(run_specs) == 0:
+            hlog("There were no RunSpecs or they got filtered out.")
+            return
 
         # Write out all the `RunSpec`s and models to json files
         write(
@@ -157,13 +176,6 @@ class AllRunner:
                 f"WARNING: Missing an entry for the following metrics in {SCHEMA_YAML_PATH}: \n\t{missing_metrics_str}"
             )
 
-    def _update_status_page(self, wip_content: List[str], ready_content: List[str]):
-        """
-        Updates the status page with the WIP and READY `RunSpec`s results.
-        """
-        status: str = "\n".join(wip_content + ["", "-" * 150, ""] + ready_content)
-        write(os.path.join(self.output_path, "status.txt"), status)
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -173,6 +185,12 @@ def main():
         "--conf-path",
         help="Where to read RunSpecs to run from",
         default="src/benchmark/presentation/run_specs.conf",
+    )
+    parser.add_argument(
+        "--models-to-run",
+        nargs="+",
+        help="Only RunSpecs with these models specified. If no model is specified, run everything.",
+        default=[],
     )
     add_run_args(parser)
     args = parser.parse_args()
@@ -190,6 +208,7 @@ def main():
         dry_run=args.dry_run,
         skip_instances=args.skip_instances,
         max_eval_instances=args.max_eval_instances,
+        models_to_run=args.models_to_run,
     )
     runner.run()
     hlog("Done.")
