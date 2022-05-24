@@ -125,6 +125,14 @@ const ChatBox = {
 				}
 			}
 			return this.questions[this.currentQuestionIdx]
+		},
+		nWords: function() {
+			var nWords = 0;
+			for(utterance of this.utterances) {
+				words = utterance["text"].split(" ");
+				nWords = nWords + words.length;
+			}
+			return nWords;
 		}
 	},
 	methods: {
