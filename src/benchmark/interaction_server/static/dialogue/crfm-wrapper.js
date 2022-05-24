@@ -25,7 +25,18 @@ const ChatBox = {
 					tag: "humanness-utterances",
 					text: "Which responses did not sound human?",
 					type: "turn-binary",
+				}, 
+				{
+					tag: "sensibility-utterances",
+					text: "Mark responses where the chatbot did not make sense",
+					type: "turn-binary",
 				},
+				{
+					tag: "specificity-utterances",
+					text: "Mark the responses that were not specific to what you had said, i.e. responses that could have been used in many different situations.  For example, if you say “I love tennis” then “That’s nice” would be a non-specific response, but “Me too, I can’t get enough of Roger Federer!” would be a specific response.",
+					type: "turn-binary",
+				},
+				/*
 				{
 					tag: "positive-feedback-utterances",
 					text: "If you gave the chatbot feedback (e.g. by making a correction or clarification), mark turns where it improved based on that feedback",
@@ -42,11 +53,7 @@ const ChatBox = {
 					text: "Mark responses where you felt that the chatbot was making things up",
 					type: "turn-binary"
 				},
-				{
-					tag: "nonsensical-utterances",
-					text: "Mark responses where the chatbot did not make sense",
-					type: "turn-binary",
-				},
+				
 				{
 					tag: "consistency-utterances",
 					text: "Which responses contradicted previous dialogue?",
@@ -68,7 +75,7 @@ const ChatBox = {
 					text: "How much did the chatbot contribute to the conversation's direction?",
 					type: "likert",
 					options: ["1 - Not enough", "2 - The right amount", "3 - Too much"]
-				},
+				}, */
 				{
 					tag: "quality-overall",
 					text: "Would you want to talk to this chatbot again?",
