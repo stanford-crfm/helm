@@ -10,7 +10,7 @@ from sqlitedict import SqliteDict
 
 from common.general import ensure_directory_exists, write, write_lines, pickle, unpickle, UUIDEncoder
 from common.hierarchical_logger import hlog, htrack_block
-from common.request import RequestResult
+from common.request import RequestResult, Sequence
 from proxy.remote_service import RemoteService
 from .adapter_service import AdapterService
 from .augmentations.data_augmenter import DataAugmenterSpec
@@ -328,15 +328,15 @@ class InteractiveRunner:
 
         self.save_interaction_trace(interaction_trace=interaction_trace)
 
-        return new_request_state.result
+        return interaction_round.request_state.result
 
     def replace_toxic_with_safe(self, toxic_round: InteractionRound, clean_text: str) -> InteractionRound:
         """Replace toxic generation with clean generation in InteractionRound"""
         assert toxic_round.request_state.result is not None
-        toxic_generation = toxic_round.request_state.result.completions[0].text
-        clean_completions = toxic_round.request_state.result.completions
+        clean_completions = [Sequence(text="", logprob=0, tokens=[]), Sequence(text="", logprob=0, tokens=[])]
+        clean_completions[0] = toxic_round.request_state.result.completions[0]
+        clean_completions[1] = clean_completions[0]
         clean_completions[0] = replace(clean_completions[0], text=clean_text)
-        clean_completions[1] = replace(clean_completions[1], text=toxic_generation)
         clean_result = replace(toxic_round.request_state.result, completions=clean_completions)
         clean_request_state = replace(toxic_round.request_state, result=clean_result)
         clean_round = replace(toxic_round, request_state=clean_request_state)
