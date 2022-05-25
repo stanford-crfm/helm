@@ -98,7 +98,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
             "ai21/j1-large",
             # TODO: uncomment once we get credits for GooseAI
             # "gooseai/gpt-neo-20b",
-            # "gooseai/gpt-neo-20b",
+            # "gooseai/gpt-j-6b",
         ],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
