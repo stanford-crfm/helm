@@ -24,7 +24,7 @@ class OpenAITokenizer(GPT2Tokenizer):
 
     @property
     def max_request_length(self) -> int:
-        """Return the max reqeust length of the OpenAI models."""
+        """Return the max request length of the OpenAI models."""
         return OpenAITokenizer.MAX_REQUEST_LENGTH
 
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
