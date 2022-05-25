@@ -9,10 +9,6 @@ from proxy.remote_service import RemoteService
 from benchmark.adapter_service import AdapterService
 from .tokenizer_factory import TokenizerFactory
 
-# We use mocking for tokenization calls so no valid api_keys are required.
-auth = Authentication(api_key="DUMMY_API_KEY")
-service = AdapterService(RemoteService("DUMMY_URL"), auth)
-
 TEST_PROMPT: str = (
     "The Center for Research on Foundation Models (CRFM) is "
     "an interdisciplinary initiative born out of the Stanford "
@@ -110,6 +106,9 @@ with open("src/proxy/tokenizer/mock_ai21_tokenizer_request_results.pkl", "rb") a
 
 class TestAI21Tokenizer:
     def setup_method(self):
+        # We use mocking for tokenization calls so no valid api_keys are required.
+        auth = Authentication(api_key="DUMMY_API_KEY")
+        service = AdapterService(RemoteService("DUMMY_URL"), auth)
         self.tokenizer = TokenizerFactory.get_tokenizer("ai21/j1-jumbo", service)
 
     @mock.patch("proxy.tokenizer.ai21_tokenizer.TokenizerService.tokenize", return_value=REQUEST_RESULT)
