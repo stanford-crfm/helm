@@ -49,7 +49,7 @@ class ReplaceValueRunExpander(RunExpander):
         return [
             replace(
                 run_spec,
-                name=f"{run_spec.name},{self.name}={sanitize(value)}",
+                name=f"{run_spec.name}{',' if ':' in run_spec.name else ':'}{self.name}={sanitize(value)}",
                 adapter_spec=replace(run_spec.adapter_spec, **{self.name: value}),
             )
             for value in self.values
@@ -60,7 +60,7 @@ class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
     name = "num_train_trials"
-    values_dict = {"default": [5]}
+    values_dict = {"default": [3]}
 
 
 class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
@@ -85,7 +85,23 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
     name = "model"
     values_dict = {
-        "default": ["openai/davinci", "ai21/j1-jumbo", "huggingface/gpt2"],
+        # TODO: Add GPT-NeoX-20B and GPT-J
+        #       https://github.com/stanford-crfm/benchmarking/issues/310
+        "default": [
+            "openai/davinci",
+            "openai/curie",
+            "openai/text-davinci-002",
+            "openai/text-davinci-001",
+            "openai/text-curie-001",
+            "ai21/j1-jumbo",
+            # TODO: increase quota in AI21 account
+            #       https://github.com/stanford-crfm/benchmarking/issues/353
+            # "ai21/j1-grande",
+            # "ai21/j1-large",
+            # TODO: uncomment once we get credits for GooseAI
+            # "gooseai/gpt-neo-20b",
+            # "gooseai/gpt-neo-20b",
+        ],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
         "all": get_all_models(),
@@ -238,12 +254,20 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "typo_medium": {"typo0.3": [typo(prob=0.30)]},
     "typo_hard": {"typo0.5": [typo(prob=0.50)]},
     "synonym": {"synonym0.5": [synonym(prob=0.5)]},
-    "dialect_easy": {"dialect0.1": [dialect(prob=0.1, source_class="SAE", target_class="AAVE")]},
-    "dialect_medium": {"dialect0.3": [dialect(prob=0.3, source_class="SAE", target_class="AAVE")]},
-    "dialect_hard": {"dialect0.5": [dialect(prob=0.5, source_class="SAE", target_class="AAVE")]},
-    "dialect_deterministic": {"dialect1.0": [dialect(prob=1.0, source_class="SAE", target_class="AAVE")]},
-    "person_name_first": {
-        "person_name_first-prob=0.5-white-black-preserve=True": [
+    "dialect_easy": {
+        "dialect_easy_prob=0.1_source=SAE_target=AAVE": [dialect(prob=0.1, source_class="SAE", target_class="AAVE")]
+    },
+    "dialect_medium": {
+        "dialect_prob=0.3_source=SAE_target=AAVE": [dialect(prob=0.3, source_class="SAE", target_class="AAVE")]
+    },
+    "dialect_hard": {
+        "dialect_prob=0.5_source=SAE_target=AAVE": [dialect(prob=0.5, source_class="SAE", target_class="AAVE")]
+    },
+    "dialect_deterministic": {
+        "dialect_prob=1.0_source=SAE_target=AAVE": [dialect(prob=1.0, source_class="SAE", target_class="AAVE")]
+    },
+    "person_name_first_hard_preserve_gender": {
+        "person_name_first_prob=0.5_source=white_target=black_preserve_gender=True": [
             person_name(
                 prob=0.5,
                 source_class={"race": "white_american"},
@@ -252,7 +276,9 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
                 preserve_gender=True,
             )
         ],
-        "person_name_first-prob0.5-white-black-preserve=False": [
+    },
+    "person_name_first_hard_dont_preserve_gender": {
+        "person_name_first_prob=0.5_source=white_target=black_preserve_gender=False": [
             person_name(
                 prob=0.5,
                 source_class={"race": "white_american"},
@@ -262,43 +288,78 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             )
         ],
     },
-    "person_name_last": {
-        "person_name_last:prob=0.5-white-asian-preserve=True": [
+    "person_name_first_deterministic": {
+        "person_name_first_prob=1.0_source=white_target=black_preserve_gender=True": [
             person_name(
-                prob=0.5,
+                prob=1.0,
+                source_class={"race": "white_american"},
+                target_class={"race": "black_american"},
+                person_name_type="first_name",
+                preserve_gender=True,
+            )
+        ],
+    },
+    "person_name_last_deterministic": {
+        "person_name_last_prob=1.0_source=white_target=hispanic": [
+            person_name(
+                prob=1.0,
                 source_class={"race": "white"},
-                target_class={"race": "asian"},
+                target_class={"race": "hispanic"},
                 person_name_type="last_name",
                 preserve_gender=False,
             )
         ],
-        "person_name_last:prob=0.5-white-asian-preserve=False": [
+    },
+    "person_name_last_hard": {
+        "person_name_last_prob=0.5_source=white_target=hispanic": [
             person_name(
                 prob=0.5,
                 source_class={"race": "white"},
-                target_class={"race": "asian"},
+                target_class={"race": "hispanic"},
                 person_name_type="last_name",
                 preserve_gender=False,
             )
         ],
     },
     "gender_terms_easy": {
-        "gender_terms:prob=0.1": [gender(mode="terms", prob=0.1, source_class="male", target_class="female")]
+        "gender_terms_prob=0.1_source=male_target=female": [
+            gender(mode="terms", prob=0.1, source_class="male", target_class="female")
+        ]
     },
     "gender_terms_medium": {
-        "gender_terms:prob=0.3": [gender(mode="terms", prob=0.3, source_class="male", target_class="female")]
+        "gender_terms_prob=0.3_source=male_target=female": [
+            gender(mode="terms", prob=0.3, source_class="male", target_class="female")
+        ]
     },
     "gender_terms_hard": {
-        "gender_terms:prob=0.5": [gender(mode="terms", prob=0.5, source_class="male", target_class="female")]
+        "gender_terms_prob=0.5_source=male_target=female": [
+            gender(mode="terms", prob=0.5, source_class="male", target_class="female")
+        ]
+    },
+    "gender_terms_deterministic": {
+        "gender_terms_prob=1.0_source=male_target=female": [
+            gender(mode="terms", prob=1.0, source_class="male", target_class="female")
+        ]
     },
     "gender_pronouns_easy": {
-        "gender_pronouns:prob=0.1": [gender(mode="pronouns", prob=0.1, source_class="male", target_class="female")]
+        "gender_pronouns_prob=0.1_source=male_target=female": [
+            gender(mode="pronouns", prob=0.1, source_class="male", target_class="female")
+        ]
     },
     "gender_pronouns_medium": {
-        "gender_pronouns:prob=0.3": [gender(mode="pronouns", prob=0.3, source_class="male", target_class="female")]
+        "gender_pronouns_prob=0.3_source=male_target=female": [
+            gender(mode="pronouns", prob=0.3, source_class="male", target_class="female")
+        ]
     },
     "gender_pronouns_hard": {
-        "gender_pronouns:prob=0.5": [gender(mode="pronouns", prob=0.5, source_class="male", target_class="female")]
+        "gender_pronouns_prob=0.5_source=male_target=female": [
+            gender(mode="pronouns", prob=0.5, source_class="male", target_class="female")
+        ]
+    },
+    "gender_pronouns_deterministic": {
+        "gender_pronouns_prob=1.0_source=male_target=female": [
+            gender(mode="pronouns", prob=1.0, source_class="male", target_class="female")
+        ]
     },
     "all": {
         "all": [

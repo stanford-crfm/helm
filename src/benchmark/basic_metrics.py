@@ -34,8 +34,8 @@ try:
 except LookupError:
     nltk.download("punkt")  # Required for rouge
 
-INFERENCE_EFFICIENCY_JSON_FILEPATH = "src/benchmark/static/inference_efficiency.json"
-TRAINING_EFFICIENCY_JSON_FILEPATH = "src/benchmark/static/training_efficiency.json"
+INFERENCE_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/static/inference_efficiency.json"
+TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/static/training_efficiency.json"
 
 
 def pass_at_k_estimator(n: int, c: int, k: int) -> float:
@@ -71,10 +71,16 @@ def normalize_text(text: str) -> str:
 
 
 def exact_match(gold: str, pred: str) -> float:
+    if not pred:
+        return 0
+
     return 1 if gold.strip() == pred.strip() else 0
 
 
 def quasi_exact_match(gold: str, pred: str) -> float:
+    if not pred:
+        return 0
+
     return 1 if normalize_text(gold) == normalize_text(pred) else 0
 
 
@@ -322,8 +328,11 @@ class BasicMetric(Metric):
                 preds = [completion.text.strip() for completion in request_state.result.completions]
 
                 # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
+                # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
+                # sometimes predict a random letter like 'M'.
                 if request_state.output_mapping is not None:
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
+
                 reference_metrics.extend(
                     compute_metrics_helper(MetricName(metric_name), metric_fn_mapping[metric_name])
                 )
@@ -452,6 +461,7 @@ class BasicMetric(Metric):
             training_co2_cost = None
 
         return [
+            Stat(MetricName("num_output_tokens")).add(num_output_tokens),
             Stat(MetricName("num_tokens_in_prompt")).add(num_tokens_in_prompt),
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),

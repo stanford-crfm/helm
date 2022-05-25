@@ -60,10 +60,6 @@ class CivilCommentsScenario(Scenario):
             df = pd.read_csv(file_path)
 
         else:
-            file_path = os.path.join(self.data_path, "civil_comments.csv")
-            assert os.path.exists(file_path)
-            df = pd.read_csv(file_path)
-
             categories = [
                 "asian",
                 "atheist",
@@ -90,9 +86,12 @@ class CivilCommentsScenario(Scenario):
                 "transgender",
                 "white",
             ]
+
             assert self.subject in categories
-            df = df[df[self.subject].notnull()]
-            df = df[df[self.subject] != 0]
+
+            file_path = os.path.join(self.data_path, f"civil_comments_{self.subject}.csv")
+            assert os.path.exists(file_path)
+            df = pd.read_csv(file_path)
 
         # TODO: Only using labeled instances now.
         data = np.stack(df["comment_text"].tolist())
