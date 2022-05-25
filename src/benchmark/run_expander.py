@@ -94,13 +94,11 @@ class ModelRunExpander(ReplaceValueRunExpander):
             "openai/text-davinci-001",
             "openai/text-curie-001",
             "ai21/j1-jumbo",
-            # TODO: increase quota in AI21 account
-            #       https://github.com/stanford-crfm/benchmarking/issues/353
-            # "ai21/j1-grande",
-            # "ai21/j1-large",
+            "ai21/j1-grande",
+            "ai21/j1-large",
             # TODO: uncomment once we get credits for GooseAI
             # "gooseai/gpt-neo-20b",
-            # "gooseai/gpt-neo-20b",
+            # "gooseai/gpt-j-6b",
         ],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
