@@ -3,10 +3,10 @@ Run RunSpecs in parallel by models using benchmark-present.
 
 Usage:
 
-  bash scripts/run.sh <Any additional CLI arguments for benchmark-present>
+  bash scripts/benchmark-present-all.sh <Any additional CLI arguments for benchmark-present>
 
   e.g.,
-  bash scripts/run.sh --output-path test --max-eval-instances 300 --conf-path src/benchmark/presentation/run_specs.conf
+  bash scripts/benchmark-present-all.sh --max-eval-instances 300 --conf-path src/benchmark/presentation/run_specs.conf
 
 To kill a running process:
 
@@ -17,7 +17,7 @@ To kill a running process:
 function execute {
    # Prints and executes command
    echo $1
-   eval $1
+   eval "time $1"
 }
 
 # Perform dry run with just a single model to download and cache all the datasets

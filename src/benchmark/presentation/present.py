@@ -49,7 +49,7 @@ class AllRunner:
         dry_run: Optional[bool],
         skip_instances: bool,
         max_eval_instances: Optional[int],
-        models_to_run: List[str],
+        models_to_run: Optional[List[str]],
     ):
         self.auth: Authentication = auth
         self.conf_path: str = conf_path
@@ -60,7 +60,7 @@ class AllRunner:
         self.dry_run: Optional[bool] = dry_run
         self.skip_instances: bool = skip_instances
         self.max_eval_instances: Optional[int] = max_eval_instances
-        self.models_to_run: List[str] = models_to_run
+        self.models_to_run: Optional[List[str]] = models_to_run
 
     @staticmethod
     def update_status_page(output_dir: str, wip_content: List[str], ready_content: List[str]):
@@ -190,7 +190,7 @@ def main():
         "--models-to-run",
         nargs="+",
         help="Only RunSpecs with these models specified. If no model is specified, run everything.",
-        default=[],
+        default=None,
     )
     add_run_args(parser)
     args = parser.parse_args()
