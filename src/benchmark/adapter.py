@@ -534,7 +534,12 @@ class Adapter:
         return prefix.replace("A", chr(ord("A") + i))
 
     def fits_tokens_within_context_window(
-        self, conditioning_tokens: List, pred_tokens: List, tokenizer: Tokenizer, max_req_len: int, text: str
+        self,
+        conditioning_tokens: List,
+        pred_tokens: List,
+        tokenizer: Tokenizer,
+        max_req_len: int,
+        text: Optional[str] = None,
     ) -> Tuple[str, List]:
         """
         Decoding then encoding k tokens may result in > k tokens, so we need to trim the tokens repeatedly
