@@ -40,6 +40,7 @@ class Tokenizer(ABC):
         pass
 
     @property
+    @abstractmethod
     def prefix_token(self) -> str:
         """The prefix token"""
         pass
