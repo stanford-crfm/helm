@@ -153,7 +153,7 @@ class AI21Tokenizer(Tokenizer):
 
     def _make_long_tokenization_request(self, text: str) -> Tuple[List[TokenizationToken], str]:
         """If the text is too long  (longer than 11,000 tokens when tokenized by the GPT-2 tokenizer),
-        the AI21 server will close the connection. Therefore, we need to split the text into smaller 
+        the AI21 server will close the connection. Therefore, we need to split the text into smaller
         chunks, tokenize each chunk, and re-assemble the tokenization results."""
         # Uses the number of gpt2-style tokens as a measure of text length.
         gpt2_tokens: List[int]
