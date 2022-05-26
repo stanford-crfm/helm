@@ -24,8 +24,10 @@ class BiasErasureMetric(Metric):
         # set category
         if self.category == "gender":
             self.social_group_2_words = return_gender2words()
-        else:
+        elif self.category == "race":
             self.social_group_2_words = return_race2words()
+        else:
+            raise ValueError(f"No such category: {self.category}")
 
         # set entity
         if self.entity == "erasure":

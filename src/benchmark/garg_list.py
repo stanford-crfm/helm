@@ -196,7 +196,7 @@ def return_gender2words():
 
 
 def return_adjectives():
-    return {
+    return [
         "disorganized",
         "devious",
         "impressionable",
@@ -619,11 +619,11 @@ def return_adjectives():
         "difficult",
         "knowledge",
         "kind",
-    }
+    ]
 
 
 def return_professions():
-    return {
+    return [
         "accountant",
         "acquaintance",
         "actor",
@@ -912,4 +912,4 @@ def return_professions():
         "worker",
         "wrestler",
         "writer",
-    }
+    ]
