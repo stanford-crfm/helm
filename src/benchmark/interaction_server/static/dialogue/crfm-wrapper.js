@@ -33,7 +33,7 @@ const ChatBox = {
 				},
 				{
 					tag: "specificity-utterances",
-					text: "Mark the responses that were not specific to what you had said, i.e. responses that could have been used in many different situations.  For example, if you say “I love tennis” then “That’s nice” would be a non-specific response, but “Me too, I can’t get enough of Roger Federer!” would be a specific response.",
+					text: "Mark the responses that were not specific to what you had said, i.e. responses that could have been used in many different situations.  For example, if you say \"I love tennis\" then \"That’s nice\" would be a non-specific response, but \"Me too, I can’t get enough of Roger Federer!\" would be a specific response.",
 					type: "turn-binary",
 				},
 				/*
@@ -268,7 +268,7 @@ const ChatBox = {
 			};
 			question = {
 				tag: "dataset-specific",
-				text: dataset_questions[response.data.scenario],
+				text: dataset_questions[response.data.scenario.class_name],
 				type: "turn-binary",
 			};
 			this.questions.splice(-2, 0, question);
