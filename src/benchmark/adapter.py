@@ -265,28 +265,46 @@ class Adapter:
         # We can slice and dice later in defining the metrics.
         eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
         if self.adapter_spec.max_eval_instances is not None:
-            # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
-            # number of instances, so we can include all the perturbed versions of the instances
-            # we choose in the eval set.
-            id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
-            for instance in eval_instances:
-                if instance.id in id_to_instances:
-                    id_to_instances[instance.id].append(instance)
-                else:
-                    id_to_instances[instance.id] = [instance]
-
-            # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
-            # include all their instances in the final set of eval instances.
-            # The random sampling includes instances monotonically.
             np.random.seed(0)
-            ids = list(id_to_instances.keys())
-            if len(ids) > self.adapter_spec.max_eval_instances:
-                ids = list(
-                    np.random.choice(ids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
-                )
-            eval_instances = []
-            for id_ in ids:
-                eval_instances.extend(id_to_instances[id_])
+            if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS:
+                # For minimal pair scenarios, we need to make sure both instances in a minimal pair are sampled.
+                # Therefore, we use the index of the first instance in each pair (even_id) as pair id to
+                # sample minimal pairs instead of sampling individual instances.
+                max_eval_instances: int = self.adapter_spec.max_eval_instances
+                if max_eval_instances % 2 != 0:
+                    max_eval_instances -= 1
+                    hlog(f"max_eval_instances is odd. Set max_eval_instances to {max_eval_instances} instead")
+
+                even_ids = list(range(0, len(eval_instances), 2))
+                if len(even_ids) > max_eval_instances // 2:
+                    even_ids = list(np.random.choice(even_ids, max_eval_instances // 2, replace=False))
+                sampled_eval_instances = []
+                for even_id in even_ids:
+                    sampled_eval_instances.append(eval_instances[even_id])
+                    sampled_eval_instances.append(eval_instances[even_id + 1])
+                eval_instances = sampled_eval_instances
+            else:
+                # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
+                # number of instances, so we can include all the perturbed versions of the instances
+                # we choose in the eval set.
+                id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
+                for instance in eval_instances:
+                    if instance.id in id_to_instances:
+                        id_to_instances[instance.id].append(instance)
+                    else:
+                        id_to_instances[instance.id] = [instance]
+
+                # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
+                # include all their instances in the final set of eval instances.
+                # The random sampling includes instances monotonically.
+                ids = list(id_to_instances.keys())
+                if len(ids) > self.adapter_spec.max_eval_instances:
+                    ids = list(
+                        np.random.choice(ids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
+                    )
+                eval_instances = []
+                for id_ in ids:
+                    eval_instances.extend(id_to_instances[id_])
 
         hlog(
             f"{len(instances)} instances, "
