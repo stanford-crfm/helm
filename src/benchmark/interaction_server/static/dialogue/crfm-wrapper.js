@@ -18,22 +18,22 @@ const ChatBox = {
 				},
 				{
 					tag: "preference-utterances",
-					text: "Which responses made you not want to talk with the chatbot again?",
+					text: "Which responses made you NOT want to talk with the chatbot again?",
 					type: "turn-binary",
 				},
 				{
 					tag: "humanness-utterances",
-					text: "Which responses did not sound human?",
+					text: "Which responses did NOT sound human?",
 					type: "turn-binary",
 				}, 
 				{
 					tag: "sensibility-utterances",
-					text: "Mark responses where the chatbot did not make sense",
+					text: "Mark responses where the chatbot did NOT make sense",
 					type: "turn-binary",
 				},
 				{
 					tag: "specificity-utterances",
-					text: "Mark the responses that were not specific to what you had said, i.e. responses that could have been used in many different situations.  For example, if you say \"I love tennis\" then \"That’s nice\" would be a non-specific response, but \"Me too, I can’t get enough of Roger Federer!\" would be a specific response.",
+					text: "Mark the responses that were NOT specific to what you had said, i.e. responses that could have been used in many different situations.  \n\n For example, if you say \"I love tennis\" then \"That’s nice\" would be a non-specific response, but \"Me too, I can’t get enough of Roger Federer!\" would be a specific response.",
 					type: "turn-binary",
 				},
 				/*
@@ -45,7 +45,7 @@ const ChatBox = {
 				},
 				{
 					tag: "negative-feedback-utterances",
-					text: "If you gave the chatbot feedback (e.g. by making a correction or clarification), mark turns where it did not improve based on that feedback",
+					text: "If you gave the chatbot feedback (e.g. by making a correction or clarification), mark turns where it did NOT improve based on that feedback",
 					type: "turn-binary",
 				},
 				{
