@@ -25,8 +25,8 @@ def run_benchmarking(
     suite: str,
     dry_run: bool,
     skip_instances: bool,
-    max_eval_instances: Optional[int],
-    models_to_run: Optional[List[str]],
+    max_eval_instances: Optional[int] = None,
+    models_to_run: Optional[List[str]] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
     execution_spec = ExecutionSpec(auth=auth, url=url, parallelism=num_threads, dry_run=dry_run)
