@@ -542,8 +542,10 @@ class Adapter:
         text: Optional[str] = None,
     ) -> Tuple[str, List]:
         """
-        Decoding then encoding k tokens may result in > k tokens, so we need to trim the tokens repeatedly
-        until they fit in the context window.
+        This method is used for adapting instances for language modeling scenarios.
+        For some tokenizers (e.g. AI21), decoding then encoding k tokens may result
+        in > k tokens. This method trims the tokens and check with the tokenizer
+        repeatedly until they fit in the context window.
         """
         prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens, text)
         prompt_length: int = len(tokenizer.encode(prompt).tokens)
