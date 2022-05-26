@@ -18,14 +18,12 @@ scenario2GoalPrefix = {
 file_path = "benchmark_output/runs/"
 
 
-def construct_url(task_name, trace_id, batch, user_id):
+def construct_url(task_name, trace_id, user_id):
     base_url = "http://35.202.162.13:80/dialogue/interface?"
     # base_url = "http://localhost:5001/static/dialogue/interface.html?"
     base_url = base_url + "run_name=" + task_name  # Add parameters from task
     base_url = base_url + "&interaction_trace_id=" + trace_id  # Add trace_id
     final_url = base_url + "&user_id=" + str(user_id) 
-    if batch is not None:
-        final_url = final_url + "&batch=" + batch
     return final_url
 
 
@@ -40,12 +38,6 @@ def write_csv(in_fname, out_fname):
     idx = in_fname.index(":")
     scenario = in_fname[:idx]
     instructions = scenario2Instructions[scenario]
-
-    # Get batch
-    batch = None
-    if "batch" in in_fname:
-        idx = in_fname.index("batch")
-        batch = in_fname[idx + 6 :]
 
     # Iterate through json file
     full_path = os.path.join(file_path, in_fname, "scenario_state.json")
@@ -67,7 +59,7 @@ def write_csv(in_fname, out_fname):
             goal = scenario2GoalPrefix[scenario] + trace["instance"]["input"]
             trace_id = trace["_id"]
             user_id = uuid.uuid4()
-            url = construct_url(in_fname, trace_id, batch, user_id)
+            url = construct_url(in_fname, trace_id, user_id)
             print(url) # Display in terminal for easy testing
             writer.writerow([goal, instructions, url])
     return
