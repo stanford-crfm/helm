@@ -10,7 +10,7 @@ class AI21Tokenizer(Tokenizer):
 
     # The max token length of the model input
     # The max sequence length is the same as the max request length for AI21.
-    MAX_SEQUENCE_LENGTH: int = 2048
+    MAX_SEQUENCE_LENGTH: int = 2047
 
     NOT_IMPLEMENTED_ERROR_MESSAGE: str = (
         "AI21 only gave API access to their tokenizer, so this method is not supported."
