@@ -12,6 +12,11 @@ class AI21Tokenizer(Tokenizer):
     # The max sequence length is the same as the max request length for AI21.
     MAX_SEQUENCE_LENGTH: int = 2048
 
+    # The AI21 tokenizer throws the following error when sending a request with text that has too many characters:
+    # "Text must be under 100,000 characters (type=value_error)"
+    # Sending a request with 100,000 characters seem to work though.
+    MAX_CHARACTER_LENGTH: int = 100_000
+
     NOT_IMPLEMENTED_ERROR_MESSAGE: str = (
         "AI21 only gave API access to their tokenizer, so this method is not supported."
     )
@@ -56,16 +61,21 @@ class AI21Tokenizer(Tokenizer):
         return len(self.tokenize(text))
 
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
-        return self.tokenize_and_count(text) + expected_completion_token_length <= self.max_sequence_length
+        return (
+            len(text) <= AI21Tokenizer.MAX_CHARACTER_LENGTH
+            and self.tokenize_and_count(text) + expected_completion_token_length <= self.max_sequence_length
+        )
 
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
         Truncates the text using the AI21 Jurassic tokenizer.
-        First tokenizes, then truncates the list of tokens to fit within the context window minus the
+        First, ensures the text is less than `AI21Tokenizer.MAX_CHARACTER_LENGTH`.
+        Tokenizes, then truncates the list of tokens to fit within the context window minus the
         expected completion length (defaults to 0), then uses the start of the text range of the first
         token and the end of the text range of the last token of the truncated list of tokens to
         build the truncated text.
         """
+        text = text[: AI21Tokenizer.MAX_CHARACTER_LENGTH]
         response: TokenizationRequestResult = self._make_tokenization_request(text)
 
         # Only look at the first `self.max_sequence_length` - `expected_completion_token_length`
