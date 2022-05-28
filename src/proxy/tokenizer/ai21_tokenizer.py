@@ -69,7 +69,7 @@ class AI21Tokenizer(Tokenizer):
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
         Truncates the text using the AI21 Jurassic tokenizer.
-        First, ensures the text is less than `AI21Tokenizer.MAX_CHARACTER_LENGTH`.
+        First, ensures the text is shorter than `AI21Tokenizer.MAX_CHARACTER_LENGTH` long.
         Tokenizes, then truncates the list of tokens to fit within the context window minus the
         expected completion length (defaults to 0), then uses the start of the text range of the first
         token and the end of the text range of the last token of the truncated list of tokens to
