@@ -1,45 +1,50 @@
 import argparse
-import os
 
-from common.cache import Cache
+from sqlitedict import SqliteDict
+
+from common.hierarchical_logger import hlog, htrack
 
 """
-Script to fix an existing AI21 cache.
-
+Script to fix an existing AI21 cache by removing unwanted entries.
 Usage:
-
     python3 scripts/fix_ai21_cache.py -p prod_env/cache/ai21.sqlite
-
 """
 
 QUOTA_EXCEEDED_ERROR = "Quota exceeded."
 
 
-def remove_quota_exceeded_entries(cache_path: str):
-    cache = Cache(cache_path)
+@htrack("AI21 cache - Removing entries with errors")
+def remove_entries_with_errors(cache_path: str, dry_run: bool):
+    with SqliteDict(cache_path) as cache:
+        hlog(f"Found {len(cache)} entries at {cache_path}.")
 
-    # Create a copy of keys because we can't delete keys while iterating over an ordered dict
-    for key in list(cache.data):
-        response = cache.data[key]
+        for key, response in cache.items():
+            if ("detail" in response and response["detail"] == QUOTA_EXCEEDED_ERROR) or "Error" in response:
+                hlog(f"Deleting entry: {response}")
+                del cache[key]
 
-        # Remove entries from the cache that has the 'Quota exceeded' error
-        if "detail" in response and response["detail"] == QUOTA_EXCEEDED_ERROR:
-            del cache.data[key]
-
-    # Delete the old cache file and write out the repaired cache to cache_path
-    os.remove(cache_path)
-    cache.write()
+        if not dry_run:
+            # Write to SQLite
+            cache.commit()
+            hlog(f"Wrote to {cache_path}.")
 
 
 def main():
-    remove_quota_exceeded_entries(args.cache_path)
-    print("Done.")
+    remove_entries_with_errors(args.cache_path, args.dry_run)
+    hlog("Done.")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-p", "--cache-path", type=str, default="prod_env/cache/ai21.sqlite", help="Path to AI21 cache.",
+    )
+    parser.add_argument(
+        "-d",
+        "--dry-run",
+        action="store_true",
+        default=None,
+        help="Skips persisting fixes and just outputs log messages.",
     )
     args = parser.parse_args()
 

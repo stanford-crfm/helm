@@ -19,15 +19,23 @@ class AI21Client(Client):
     https://studio.ai21.com/docs/api/
     """
 
+    @staticmethod
+    def handle_failed_request(api_type: str, response: Dict):
+        error_message: str = f"AI21 {api_type} API error -"
+
+        # Error messages are returned via 'detail' or 'Error' in response
+        if "detail" in response:
+            error_message += f" Detail: {response['detail']}"
+        if "Error" in response:
+            error_message += f" Error: {response['Error']}"
+
+        raise AI21RequestError(error_message)
+
     def __init__(self, api_key: str, cache_path: str):
         self.api_key = api_key
         self.cache = Cache(cache_path)
 
     def make_request(self, request: Request) -> RequestResult:
-        model: str = request.model
-        if model not in ["ai21/j1-large", "ai21/j1-jumbo"]:
-            raise Exception("Invalid model")
-
         raw_request = {
             "prompt": request.prompt,
             "temperature": request.temperature,
@@ -45,8 +53,9 @@ class AI21Client(Client):
                 json=raw_request,
             ).json()
 
-            if "completions" not in response and "detail" in response:
-                raise AI21RequestError(f"AI21 error: {response['detail']}")
+            # # If 'completions' is not present in the response, assume request failed.
+            if "completions" not in response:
+                AI21Client.handle_failed_request(api_type="completion", response=response)
 
             return response
 
@@ -68,12 +77,10 @@ class AI21Client(Client):
         def parse_token(raw: Dict, first: bool) -> Token:
             """
             Parses a raw response token to a Token object.
-
             Sometimes a "▁" with length 0 is added to the beginning of a sequence
             or token by the AI21 tokenizer probably to mark the start of a new sequence.
             e.g. " burying him" -> ["▁"(0,0), "▁burying"(0,8), "▁him"(8,12)];
             "df\n---" -> '[▁df'(0,2), '\n'(2, 3), '▁---'(3, 6)]
-
             By computing the actual length of a token and truncating it from the right,
             We can remove those "▁"s so that the tokenization result aligns with the
             input prompt.
@@ -82,12 +89,17 @@ class AI21Client(Client):
             # Compute the actual length of the token text
             # e.g. "▁burying"(0,8) -> 8 - 0 = 8; "▁burying"(0,7) -> 7 - 0 = 7
             text_length: int = raw["textRange"]["end"] - raw["textRange"]["start"]
+            # "topTokens" can be None when sending a request with topKReturn=0
+            top_logprobs: Dict[str, float] = dict(
+                (fix_text(x["token"], first), x["logprob"]) for x in raw["topTokens"] or []
+            )
+
             return Token(
                 # Text should not be longer than text_length. Since "▁" is always inserted
                 # in the beginning, we truncate the text from the right.
                 text=fix_text(raw["generatedToken"]["token"], first)[-text_length:] if text_length else "",
                 logprob=raw["generatedToken"]["logprob"],
-                top_logprobs=dict((fix_text(x["token"], first), x["logprob"]) for x in raw["topTokens"]),
+                top_logprobs=top_logprobs,
             )
 
         def parse_sequence(raw: Dict, first: bool) -> Sequence:
@@ -119,8 +131,9 @@ class AI21Client(Client):
                 json=raw_request,
             ).json()
 
-            if "tokens" not in response and "detail" in response:
-                raise AI21RequestError(f"AI21 error when tokenizing: {response['detail']}")
+            # If 'tokens' is not present in the response, assume request failed.
+            if "tokens" not in response:
+                AI21Client.handle_failed_request(api_type="tokenizer", response=response)
 
             return response
 
@@ -133,4 +146,5 @@ class AI21Client(Client):
             tokens.append(
                 TokenizationToken(text=token_dict["token"], text_range=from_dict(TextRange, token_dict["textRange"]))
             )
-        return TokenizationRequestResult(cached=cached, tokens=tokens)
+        text: str = response["text"]
+        return TokenizationRequestResult(cached=cached, tokens=tokens, text=text)
