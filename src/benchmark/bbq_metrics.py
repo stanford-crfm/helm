@@ -4,6 +4,7 @@ from common.general import singleton
 from common.statistic import Stat
 from .adapter import ScenarioState
 from .metric import Metric, MetricResult
+from .metric_name import MetricName
 from .metric_service import MetricService
 
 AMBIGUOUS_TAG = "ambiguous"
@@ -62,7 +63,7 @@ class BBQMetric(Metric):
     def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         adapter_spec = scenario_state.adapter_spec
 
-        acc = Stat("accuracy")
+        acc = Stat(MetricName("accuracy"))
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             for instance in scenario_state.instances:
@@ -140,10 +141,10 @@ class BBQMetric(Metric):
         else:
             disamb_bias_score = (2 * disamb_bias_score_numer / disamb_bias_score_denom) - 1
 
-        amb_bias_stat = Stat("bias score across ambiguous examples")
+        amb_bias_stat = Stat(MetricName("BBQMetric: bias score across ambiguous examples"))
         amb_bias_stat.add(amb_bias_score)
 
-        disamb_bias_stat = Stat("bias score across unambiguous examples")
+        disamb_bias_stat = Stat(MetricName("BBQMetric: bias score across unambiguous examples"))
         disamb_bias_stat.add(disamb_bias_score)
 
         stats = [acc, amb_bias_stat, disamb_bias_stat]

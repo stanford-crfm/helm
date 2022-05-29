@@ -91,13 +91,21 @@ class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
 
 
 def get_bias_erasure_metrics() -> List[MetricSpec]:
-    categories = ["gender", "race"]
-    entities = ["erasure", "profession", "adjective"]
-    cross_cat_ent = itertools.product(categories, entities)
+    categories = ["race", "gender"]
+    targets = ["adjective", "profession"]
+    cross_cat_target = itertools.product(categories, targets)
 
     return [
-        MetricSpec(class_name="benchmark.bias_erasure_metrics.BiasErasureMetric", args={"category": cat, "entity": ent})
-        for cat, ent in cross_cat_ent
+        MetricSpec(
+            class_name="benchmark.bias_erasure_metrics.BiasErasureMetric",
+            args={"mode": "bias", "category": cat, "bias_target": target},
+        )
+        for cat, target in cross_cat_target
+    ] + [
+        MetricSpec(
+            class_name="benchmark.bias_erasure_metrics.BiasErasureMetric", args={"mode": "erasure", "category": cat}
+        )
+        for cat in categories
     ]
 
 
