@@ -42,14 +42,18 @@ class GPT2Tokenizer(Tokenizer):
         """
         Encodes the input text to tokens.
         """
-        tokens: List = self._tokenizer.encode(text)
+        tokens: List[int] = self._tokenizer.encode(text)
         return EncodeResult(text=text, tokens=tokens)
 
-    def decode(self, tokens: List, normalized_text: Optional[str] = None) -> str:
+    def decode(self, tokens: List[int], normalized_text: Optional[str] = None) -> str:
         """
         Given the model and a list of tokens, outputs the corresponding text.
+
+        For models using the GPT-2 tokenizer, the tokens are integers; for AI21
+        models, the tokens are `TokenizationToken`s.
+
         Some tokenizers (e.g. AI21) normalize the text before encoding it and
-        require the `normalized_text` for decoding.
+        thus require the `normalized_text` for decoding.
         """
         return self._tokenizer.decode(tokens, clean_up_tokenization_spaces=False)
 

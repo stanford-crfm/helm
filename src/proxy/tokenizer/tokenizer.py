@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Union
 from dataclasses import dataclass
+
+from common.tokenization_request import TokenizationToken
 
 
 @dataclass(frozen=True)
@@ -11,10 +13,9 @@ class EncodeResult:
     # e.g. The AI21 tokenizer replaces "½" with "1/2" before tokenization.
     text: str
 
-    # The list of tokens. The tokens can be of any datatype as long as
-    # they can be used for the decode() method. e.g. int for GPT-3 and
-    # TokenizationToken for AI21.
-    tokens: List
+    # The list of tokens. For models using the GPT-2 tokenizer, the tokens
+    # are integers; for AI21 models, the tokens are TokenizationTokens.
+    tokens: List[Union[int, TokenizationToken]]
 
 
 class Tokenizer(ABC):
@@ -51,11 +52,15 @@ class Tokenizer(ABC):
         pass
 
     @abstractmethod
-    def decode(self, tokens: List, normalized_text: Optional[str] = None) -> str:
+    def decode(self, tokens: List[Union[int, TokenizationToken]], normalized_text: Optional[str] = None) -> str:
         """
         Given the model and a list of tokens, outputs the corresponding text.
+
+        For models using the GPT-2 tokenizer, the tokens are integers; for AI21
+        models, the tokens are `TokenizationToken`s.
+
         Some tokenizers (e.g. AI21) normalize the text before encoding it and
-        require the `normalized_text` for decoding.
+        thus require the `normalized_text` for decoding.
         """
         pass
 

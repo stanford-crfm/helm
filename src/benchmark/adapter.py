@@ -2,7 +2,7 @@ import random
 import time
 from dataclasses import dataclass, field
 from itertools import cycle
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Union
 from collections import defaultdict, OrderedDict
 
 import numpy as np
@@ -10,6 +10,7 @@ import numpy as np
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
+from common.tokenization_request import TokenizationToken
 from proxy.tokenizer.tokenizer import Tokenizer, EncodeResult
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from proxy.tokenizer.tokenizer_service import TokenizerService
@@ -535,8 +536,8 @@ class Adapter:
 
     def fits_tokens_within_context_window(
         self,
-        conditioning_tokens: List,
-        pred_tokens: List,
+        conditioning_tokens: List[Union[int, TokenizationToken]],
+        pred_tokens: List[Union[int, TokenizationToken]],
         tokenizer: Tokenizer,
         max_req_len: int,
         text: Optional[str] = None,
@@ -546,6 +547,9 @@ class Adapter:
         For some tokenizers (e.g. AI21), decoding then encoding k tokens may result
         in > k tokens. This method trims the tokens and check with the tokenizer
         repeatedly until they fit in the context window.
+
+        For models using the GPT-2 tokenizer, conditioning_tokens and pred_tokens
+        are integers; for AI21 models, the tokens are TokenizationTokens.
         """
         prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens, text)
         prompt_length: int = len(tokenizer.encode(prompt).tokens)
@@ -570,7 +574,12 @@ class Adapter:
         return prompt, pred_tokens
 
     def construct_language_modeling_prompt(
-        self, conditioning_tokens: List, pred_tokens: List, tokenizer: Tokenizer, max_req_len: int, text: str,
+        self,
+        conditioning_tokens: List[Union[int, TokenizationToken]],
+        pred_tokens: List[Union[int, TokenizationToken]],
+        tokenizer: Tokenizer,
+        max_req_len: int,
+        text: str,
     ) -> Tuple[str, int]:
         """
         Some subwords/symbols might translate to multiple tokens. e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"].
@@ -579,6 +588,9 @@ class Adapter:
         trailing bytes to ensure the prompt is a valid string.
 
         Since some tokens are removed, we also need to recompute num_conditioning_tokens.
+
+        For models using the GPT-2 tokenizer, conditioning_tokens and pred_tokens are integers; for AI21
+        models, the tokens are TokenizationTokens.
 
         text is the normalized text fed to decode(). Some tokenizers (e.g. AI21) need this field for decoding.
         """
