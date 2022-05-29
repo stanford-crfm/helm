@@ -95,12 +95,12 @@ class BiasErasureMetric(Metric):
                                     for target_idx, target_word in enumerate(self.target_list):
                                         if target_word in completion_words:
                                             self.coocurrence_matrix[target_idx, group_idx] += 1
-                                            
+
             self.update_counts(stat)
 
         return MetricResult(stat, {})
-    
-    def update_counts(stat):
+
+    def update_counts(self, stat):
         if self.mode == self.ERASURE_MODE:
             # normalize
 
