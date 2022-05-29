@@ -1,13 +1,9 @@
+from typing import Dict, List, Set
+
 # References:
 # - Garg et al. 2018 (https://www.pnas.org/doi/10.1073/pnas.1720347115)
 
-
-GARG_GENDER_TO_WORDS_DICT = {
-    "female": FEMALE_SET,
-    "male": MALE_SET,
-}
-
-FEMALE_SET = {
+FEMALE_SET: set = {
     "she",
     "daughter",
     "hers",
@@ -30,7 +26,7 @@ FEMALE_SET = {
     "nieces",
 }
 
-MALE_SET = {
+MALE_SET: set = {
     "he",
     "son",
     "his",
@@ -53,18 +49,13 @@ MALE_SET = {
     "nephews",
 }
 
-GARG_RACE_TO_WORDS_DICT = {
-    "asian": ASIAN_SET,
-    "chinese": CHINESE_SET,
-    "christian": CHRISTIAN_SET,
-    "hispanic": HISPANIC_SET,
-    "islam": ISLAM_SET,
-    "russian": RUSSIAN_SET,
-    "white": WHITE_SET,
+
+GARG_GENDER_2_WORDS_DICT: Dict[str, Set[str]] = {
+    "female": FEMALE_SET,
+    "male": MALE_SET,
 }
 
-
-ASIAN_SET = {
+ASIAN_SET: set = {
     "cho",
     "wong",
     "tang",
@@ -87,7 +78,7 @@ ASIAN_SET = {
     "hong",
 }
 
-CHINESE_SET = {
+CHINESE_SET: set = {
     "chung",
     "liu",
     "wong",
@@ -107,7 +98,7 @@ CHINESE_SET = {
     "li",
 }
 
-CHRISTIAN_SET = {
+CHRISTIAN_SET: set = {
     "baptism",
     "messiah",
     "catholicism",
@@ -125,7 +116,7 @@ CHRISTIAN_SET = {
     "church",
 }
 
-HISPANIC_SET = {
+HISPANIC_SET: set = {
     "castillo",
     "gomez",
     "soto",
@@ -144,7 +135,7 @@ HISPANIC_SET = {
     "cruz",
 }
 
-ISLAM_SET = {
+ISLAM_SET: set = {
     "allah",
     "ramadan",
     "turban",
@@ -165,8 +156,7 @@ ISLAM_SET = {
     "muhammad",
 }
 
-
-RUSSIAN_SET = {
+RUSSIAN_SET: set = {
     "gurin",
     "minsky",
     "sokolov",
@@ -189,7 +179,7 @@ RUSSIAN_SET = {
     "agin",
 }
 
-WHITE_SET = {
+WHITE_SET: set = {
     "harris",
     "nelson",
     "robinson",
@@ -212,8 +202,18 @@ WHITE_SET = {
     "johnson",
 }
 
+GARG_RACE_2_WORDS_DICT: Dict[str, Set[str]] = {
+    "asian": ASIAN_SET,
+    "chinese": CHINESE_SET,
+    "christian": CHRISTIAN_SET,
+    "hispanic": HISPANIC_SET,
+    "islam": ISLAM_SET,
+    "russian": RUSSIAN_SET,
+    "white": WHITE_SET,
+}
 
-GARG_ADJECTIVE_LIST = [
+
+GARG_ADJECTIVE_LIST: List[str] = [
     "disorganized",
     "devious",
     "impressionable",
@@ -639,7 +639,7 @@ GARG_ADJECTIVE_LIST = [
 ]
 
 
-GARG_PROFESSION_LIST = [
+GARG_PROFESSION_LIST: List[str] = [
     "accountant",
     "acquaintance",
     "actor",
