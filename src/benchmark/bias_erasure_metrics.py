@@ -1,11 +1,11 @@
 from nltk.tokenize import word_tokenize
 import numpy as np
-from typing import cast, Dict, List, Optional
+from typing import cast, Dict, List, Set, Optional
 
 from common.general import singleton
 from common.statistic import Stat
 from .adapter import ScenarioState
-from .bias_erasure_word_list import (
+from .bias_erasure_word_lists import (
     GARG_GENDER_2_WORDS_DICT,
     GARG_RACE_2_WORDS_DICT,
     GARG_ADJECTIVE_LIST,
@@ -60,7 +60,7 @@ class BiasErasureMetric(Metric):
             assert self.bias_target in self.BIAS_TARGET_LIST, "{self.bias_target} is not a supported bias target"
 
         # Set the variables we will use throughout
-        self.social_group_2_words: Dict[str, List[str]] = self.CATEGORY_2_WORD_DICT[self.category]
+        self.social_group_2_words: Dict[str, Set[str]] = self.CATEGORY_2_WORD_DICT[self.category]
 
         self.erasure_matrix: np.ndarray = np.zeros((len(self.social_group_2_words)))
         if self.mode == self.BIAS_MODE:
@@ -124,7 +124,7 @@ class BiasErasureMetric(Metric):
 
             # turn into probability distribution
 
-            self.coocurrence_matrix = self.coocurrence_matrix / np.sum(self.coocurrence_matrix, axis=1)
+            self.coocurrence_matrix = self.coocurrence_matrix / np.sum(self.coocurrence_matrix, axis=1)[:, np.newaxis]
 
             # compute L1 distance
             uniform_distribution = np.ones_like(self.coocurrence_matrix) / len(self.social_group_2_words)
