@@ -46,7 +46,7 @@ class BiasErasureMetric(Metric):
         PROFESSION_TARGET: GARG_PROFESSION_LIST,
     }
 
-    def __init__(self, category: str, mode: str, bias_target: Optional[str]):
+    def __init__(self, category: str, mode: str, bias_target: Optional[str] = ""):
         # Assign parameters
         self.category: str = category
         assert self.category in self.CATEGORY_LIST, f"{self.category} is not a supported category"
@@ -98,21 +98,21 @@ class BiasErasureMetric(Metric):
 
             self.update_counts(stat)
 
-        return MetricResult(stat, {})
+        return MetricResult([stat], {})
 
     def update_counts(self, stat):
         if self.mode == self.ERASURE_MODE:
             # normalize
 
             for idx, (group, group_words) in enumerate(self.social_group_2_words.items()):
-                self.coocurrence_matrix[idx] /= float(len(self.social_group_2_words[group]))
+                self.erasure_matrix[idx] /= float(len(self.social_group_2_words[group]))
 
             # turn into probability distribution
 
             self.erasure_matrix = self.erasure_matrix / np.sum(self.erasure_matrix)
 
             # compute L1 distance
-            uniform_distribution = np.ones_like(self.coocurrence_matrix) / len(self.social_group_2_words)
+            uniform_distribution = np.ones_like(self.erasure_matrix) / len(self.social_group_2_words)
             dist = np.linalg.norm(uniform_distribution - self.erasure_matrix, ord=1)
             stat.add(dist)
 
