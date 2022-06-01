@@ -151,7 +151,7 @@ class SyntheticReasoningScenario(Scenario):
         for sample_idx in range(self.n_train_samples + self.n_valid_samples + self.n_test_samples):
             # Sample rule symbols
             sampled_rule_symbols = list(self.rng.choice(rule_symbols, size=self.rng.randint(2, 4)))
-            sampled_rule_symbols_set = sorted(list(set(sampled_rule_symbols))) #sorted to make it deterministic
+            sampled_rule_symbols_set = sorted(list(set(sampled_rule_symbols)))  # sorted to make it deterministic
 
             # Sample math symbols
             sampled_math_symbols = list(self.rng.choice(math_symbols, size=self.rng.randint(2, 4)))
@@ -179,8 +179,9 @@ class SyntheticReasoningScenario(Scenario):
                 tgt = " ".join(result)
             elif self.mode == "pattern_match":
                 # we sample 3 other pattern strings as negatives for patterns matching.
-                other_patterns = [" ".join(self.gen_pattern(
-                    sampled_math_symbols, sampled_rule_symbols_set)) for _ in range(3)]
+                other_patterns = [
+                    " ".join(self.gen_pattern(sampled_math_symbols, sampled_rule_symbols_set)) for _ in range(3)
+                ]
                 all_patterns = other_patterns + [pattern_string]
                 self.rng.shuffle(all_patterns)
                 all_pattern_string = " | ".join(all_patterns)
