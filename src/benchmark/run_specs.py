@@ -543,12 +543,11 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
-        max_train_instances=3,  # TODO: @Tony W. - Justify
-        max_eval_instances=100,  # TODO: @Tony W. - Justify
-        num_outputs=3,  # TODO: @Tony W. - Justify
+        max_train_instances=3,  # limited by the context length
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_train_trials=1,
         model="openai/davinci",
-        temperature=1.0,  # TODO: @Tony W. - Justify; should it be 0?
+        temperature=0.0,
         stop_sequences=["\n"],
         max_tokens=20,
         input_prefix="Rules:\n",
@@ -1019,14 +1018,13 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
-        max_train_instances=3,  # TODO: @Tony W. - Justify
-        max_eval_instances=None,
-        num_outputs=3,  # TODO: @Tony W. - Justify
+        max_train_instances=5,
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_train_trials=1,
         model="openai/davinci",
-        temperature=1.0,  # TODO: @Tony W. - Justify; should it be 0.0
+        temperature=0.0,
         stop_sequences=["\n"],
-        max_tokens=20,  # TODO: @Tony W. - Justify
+        max_tokens=50,  # answer upperbounded by 50 tokens
         input_prefix="",
         output_prefix="| Target: ",
     )
