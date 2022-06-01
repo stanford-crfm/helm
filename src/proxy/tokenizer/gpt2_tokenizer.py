@@ -1,10 +1,14 @@
-from typing import List
+from typing import List, Optional
 from transformers import GPT2TokenizerFast
 
-from .tokenizer import Tokenizer
+from .tokenizer import Tokenizer, EncodeResult
 
 
 class GPT2Tokenizer(Tokenizer):
+
+    # The max request length of GPT2 is MAX_SEQUENCE_LENGTH + 1.
+    MAX_REQUEST_LENGTH: int = 1025
+
     # The max length of the model input. The max sequence length for GPT-2 is 1024.
     MAX_SEQUENCE_LENGTH: int = 1024
 
@@ -20,19 +24,36 @@ class GPT2Tokenizer(Tokenizer):
         return GPT2Tokenizer.MAX_SEQUENCE_LENGTH
 
     @property
+    def max_request_length(self) -> int:
+        """Return the max request length of GPT-2."""
+        return GPT2Tokenizer.MAX_REQUEST_LENGTH
+
+    @property
     def end_of_text_token(self) -> str:
         """The end of text token."""
         return GPT2Tokenizer.END_OF_TEXT_TOKEN
 
-    def encode(self, text: str) -> List[int]:
+    @property
+    def prefix_token(self) -> str:
+        """The prefix token for OPENAI models is the end of text token."""
+        return self.end_of_text_token
+
+    def encode(self, text: str) -> EncodeResult:
         """
         Encodes the input text to tokens.
         """
-        return self._tokenizer.encode(text)
+        tokens: List[int] = self._tokenizer.encode(text)
+        return EncodeResult(text=text, tokens=tokens)
 
-    def decode(self, tokens: List[int]) -> str:
+    def decode(self, tokens: List[int], normalized_text: Optional[str] = None) -> str:
         """
-        Given a list of tokens, outputs the corresponding text.
+        Given the model and a list of tokens, outputs the corresponding text.
+
+        For models using the GPT-2 tokenizer, the tokens are integers; for AI21
+        models, the tokens are `TokenizationToken`s.
+
+        Some tokenizers (e.g. AI21) normalize the text before encoding it and
+        thus require the `normalized_text` for decoding.
         """
         return self._tokenizer.decode(tokens, clean_up_tokenization_spaces=False)
 
