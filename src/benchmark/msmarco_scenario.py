@@ -6,11 +6,11 @@ from typing import Dict, List, Tuple, Optional
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, InformationRetrievalInstance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
+from .scenario import Scenario, MultipleRequestInstance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
 
 
 class MSMARCOScenario(Scenario):
-    """ Scenario implementing MS MARCO challange tasks.
+    """ Scenario implementing MS MARCO challenge tasks.
 
     I. Overview
 
@@ -285,6 +285,22 @@ class MSMARCOScenario(Scenario):
         (PASSAGE_TASK, TREC_TRACK): [2, 3],
     }
 
+    """ Measure names that will be used for each task track pair.
+
+    The measure names are retrieved in run_specs.py and passed to the
+    InformationRetrievalMetrics class, and correspond to the measure names in
+    pytrec_eval.supported_measures.
+    """
+    NDCG = "ndcg"
+    RECIP_RANK = "recip_rank"
+    MEASURE_NAMES = {
+        (PASSAGE_TASK, REGULAR_TRACK): [RECIP_RANK],
+        (PASSAGE_TASK, TREC_TRACK): [RECIP_RANK, NDCG],
+    }
+
+    """ The information retrieval mode used by this scenario. """
+    BINARY_LOGPROB_MODE = "binary_logprob"
+
     """ Upper and lower bounds on top-k.
 
     The top-k number represents the number of passages we will consider per
@@ -511,22 +527,21 @@ class MSMARCOScenario(Scenario):
         prompt = "Does the passage above answer the question?"
         return "\n".join([passage, f"Question: {question}", f"Prompt: {prompt}"])
 
-    def make_instance(self, qid: int, pid: int, split: str) -> InformationRetrievalInstance:
+    def make_instance(self, qid: int, pid: int, split: str) -> MultipleRequestInstance:
         """ Create and return an instance made using the provided parameters. """
         object_text = self.object_dict[pid]
         query_text = self.query_dicts[split][qid]
         context = self.make_context(object_text, query_text)
-        rank = None if pid not in self.topk_dicts[split][qid] else self.topk_dicts[split][qid][pid]
         rel = None if pid not in self.qrels_dicts[split][qid] else self.qrels_dicts[split][qid][pid]
         is_relevant = rel in self.gold_relations[split]
         reference = Reference(output=self.RELEVANCE_TO_OUTPUT[is_relevant], tags=[CORRECT_TAG])
         # Create instance
-        instance = InformationRetrievalInstance(
-            input=context, references=[reference], split=split, qid=qid, oid=pid, qrel=rel, rank=rank
+        instance = MultipleRequestInstance(
+            input=context, references=[reference], split=split, group_id=str(qid), request_id=str(pid), relevance=rel
         )
         return instance
 
-    def get_train_instances(self) -> List[InformationRetrievalInstance]:
+    def get_train_instances(self) -> List[MultipleRequestInstance]:
         """ Create and return the instances for the training set.
 
         For a random set of self.num_train_queries in the training set:
@@ -562,7 +577,7 @@ class MSMARCOScenario(Scenario):
 
         return instances
 
-    def get_valid_instances(self) -> List[InformationRetrievalInstance]:
+    def get_valid_instances(self) -> List[MultipleRequestInstance]:
         """ Create and return the instances for the validation set.
 
         For a random set of self.num_valid_queries in the validation set:
@@ -592,7 +607,7 @@ class MSMARCOScenario(Scenario):
             instances += [self.make_instance(qid, pid, split) for pid in set(pids)]
         return instances
 
-    def get_instances(self) -> List[InformationRetrievalInstance]:
+    def get_instances(self) -> List[MultipleRequestInstance]:
         """ Return the instances for this scenario.
 
         Refer to the documentation of the following methods for details on how
