@@ -25,7 +25,8 @@ def run_benchmarking(
     suite: str,
     dry_run: bool,
     skip_instances: bool,
-    max_eval_instances: Optional[int],
+    max_eval_instances: Optional[int] = None,
+    models_to_run: Optional[List[str]] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
     execution_spec = ExecutionSpec(auth=auth, url=url, parallelism=num_threads, dry_run=dry_run)
@@ -42,6 +43,8 @@ def run_benchmarking(
         override(run_spec)
         for description in run_spec_descriptions
         for run_spec in construct_run_specs(parse_object_spec(description))
+        # If no model is specified for `models_to_run`, run everything
+        if not models_to_run or run_spec.adapter_spec.model in models_to_run
     ]
     with htrack_block("run_specs"):
         for run_spec in run_specs:

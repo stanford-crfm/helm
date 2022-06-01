@@ -92,7 +92,13 @@ def ensure_file_downloaded(source_url: str, target_path: str, unpack: bool = Fal
             shell(["mv", tmp2_path, target_path])
         os.unlink(tmp_path)
     else:
-        shell(["mv", tmp_path, target_path])
+        if source_url.endswith(".gz"):
+            gzip_path = f"{target_path}.gz"
+            shell(["mv", tmp_path, gzip_path])
+            # gzip writes its output to a file named the same as the input file, omitting the .gz extension
+            shell(["gzip", "-d", gzip_path])
+        else:
+            shell(["mv", tmp_path, target_path])
     hlog(f"Finished downloading {source_url} to {target_path}")
 
 

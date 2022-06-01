@@ -8,6 +8,7 @@ prod_env
 benchmark_output
 proxy_api_key.txt
 microsoft_client.lock
+*.log
 
 # Percy's stuff
 nav

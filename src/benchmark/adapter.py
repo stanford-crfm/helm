@@ -2,7 +2,7 @@ import random
 import time
 from dataclasses import dataclass, field
 from itertools import cycle
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Union
 from collections import defaultdict, OrderedDict
 
 import numpy as np
@@ -10,7 +10,8 @@ import numpy as np
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
-from proxy.tokenizer.tokenizer import Tokenizer
+from common.tokenization_request import TokenizationToken
+from proxy.tokenizer.tokenizer import Tokenizer, EncodeResult
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from proxy.tokenizer.tokenizer_service import TokenizerService
 from .adapter_service import AdapterService
@@ -533,8 +534,52 @@ class Adapter:
         """
         return prefix.replace("A", chr(ord("A") + i))
 
+    def fits_tokens_within_context_window(
+        self,
+        conditioning_tokens: List[Union[int, TokenizationToken]],
+        pred_tokens: List[Union[int, TokenizationToken]],
+        tokenizer: Tokenizer,
+        max_req_len: int,
+        text: Optional[str] = None,
+    ) -> Tuple[str, List]:
+        """
+        This method is used for adapting instances for language modeling scenarios.
+        For some tokenizers (e.g. AI21), decoding then encoding k tokens may result
+        in > k tokens. This method trims the tokens and check with the tokenizer
+        repeatedly until they fit in the context window.
+
+        For models using the GPT-2 tokenizer, conditioning_tokens and pred_tokens
+        are integers; for AI21 models, the tokens are TokenizationTokens.
+        """
+        prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens, text)
+        prompt_length: int = len(tokenizer.encode(prompt).tokens)
+
+        # If the prompt is too long, removes the overflowing tokens.
+        # Since encoding might generate extra tokens, we need to repeat this until prompt_length <= max_req_len.
+        # For AI21, for example, this happens especially frequently when a document contains different types of
+        # whitespace characters because some whitespaces are tokenized to multiple tokens and the others
+        # are tokenized to a single token. However, the AI21 tokenizer seems to normalize all types
+        # of whitespaces to the same whitespace character.
+        #
+        # e.g. original text: ",  (", which is tokenized to:
+        # [('▁', 0, 0), (',', 0, 1), ('▁▁', 1, 3), ('(', 3, 4)]
+        # normalized text: ",  (", which is tokenized to:
+        # [('▁', 0, 0), (',', 0, 1), ('▁', 1, 2), ('▁', 2, 3), ('(', 3, 4)]
+        while prompt_length > max_req_len:
+            # Trims the extra (prompt_length - max_req_len) tokens
+            pred_tokens = pred_tokens[: -(prompt_length - max_req_len)]
+            prompt = tokenizer.decode(conditioning_tokens + pred_tokens, text)
+            prompt_length = len(tokenizer.encode(prompt).tokens)
+
+        return prompt, pred_tokens
+
     def construct_language_modeling_prompt(
-        self, conditioning_tokens: List[int], pred_tokens: List[int], tokenizer: Tokenizer, max_seq_len: int
+        self,
+        conditioning_tokens: List[Union[int, TokenizationToken]],
+        pred_tokens: List[Union[int, TokenizationToken]],
+        tokenizer: Tokenizer,
+        max_req_len: int,
+        text: str,
     ) -> Tuple[str, int]:
         """
         Some subwords/symbols might translate to multiple tokens. e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"].
@@ -543,20 +588,33 @@ class Adapter:
         trailing bytes to ensure the prompt is a valid string.
 
         Since some tokens are removed, we also need to recompute num_conditioning_tokens.
-        """
-        raw_prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens)
-        prompt: str = raw_prompt.strip("\ufffd")
-        num_leading_byte_tokens: int = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
-        num_trailing_byte_tokens: int = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
 
-        # There are no string tokens to predict
-        if num_trailing_byte_tokens >= len(pred_tokens):
-            num_conditioning_tokens = len(tokenizer.encode(prompt))
-        # There are no conditioning string tokens
-        elif num_leading_byte_tokens >= len(conditioning_tokens):
-            num_conditioning_tokens = 1
+        For models using the GPT-2 tokenizer, conditioning_tokens and pred_tokens are integers; for AI21
+        models, the tokens are TokenizationTokens.
+
+        text is the normalized text fed to decode(). Some tokenizers (e.g. AI21) need this field for decoding.
+        """
+        raw_prompt: str
+        raw_prompt, pred_tokens = self.fits_tokens_within_context_window(
+            conditioning_tokens, pred_tokens, tokenizer, max_req_len, text
+        )
+
+        prompt: str = raw_prompt.strip("\ufffd")
+        # If there are no byte tokens, avoid API calls
+        if len(prompt) == len(raw_prompt):
+            num_conditioning_tokens = len(conditioning_tokens)
         else:
-            num_conditioning_tokens = len(conditioning_tokens) - num_leading_byte_tokens
+            num_leading_byte_tokens: int = max_req_len - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")).tokens)
+            num_trailing_byte_tokens: int = max_req_len - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")).tokens)
+
+            # There are no string tokens to predict
+            if num_trailing_byte_tokens >= len(pred_tokens):
+                num_conditioning_tokens = len(tokenizer.encode(prompt).tokens)
+            # There are no conditioning string tokens
+            elif num_leading_byte_tokens >= len(conditioning_tokens):
+                num_conditioning_tokens = 1
+            else:
+                num_conditioning_tokens = len(conditioning_tokens) - num_leading_byte_tokens
         return prompt, num_conditioning_tokens
 
     def adapt_language_modeling(self, instances: List[Instance]) -> List[RequestState]:
@@ -566,29 +624,31 @@ class Adapter:
         """
         request_states: List[RequestState] = []
 
-        # TODO: Support other models and tokenizers
-        assert self.adapter_spec.model.startswith("openai/")
-
         max_seq_len: int = self.tokenizer.max_sequence_length
-        prefix_token: str = self.tokenizer.end_of_text_token
+        max_req_len: int = self.tokenizer.max_request_length
+        prefix_token: str = self.tokenizer.prefix_token
 
         for instance in instances:
-            tokens = self.tokenizer.encode(instance.input)
-            assert self.tokenizer.decode(tokens) == instance.input
+            encode_result: EncodeResult = self.tokenizer.encode(instance.input)
+            tokens, text = encode_result.tokens, encode_result.text
 
             num_predicted_tokens = 0
 
             # Special handling for first window: predict all tokens
+            # Example for GPT-3:
             # Raw token sequence format: [<str_tok1>, <str_tok2>, ..., <byte_tok1>, ...] (total length <= max_seq_len)
-            # Convert it to: [<eot>, <str_tok1>, <str_tok2>, ...] (total length <= max_seq_len+1)
+            # Convert it to: [<eot>, <str_tok1>, <str_tok2>, ...](total length <= max_req_len = max_seq_len+1 for GPT-3)
             # Num_conditioning_tokens = 1
             # Example: ["Hello", " world", "bytes:\xe2\x80"] => "<eot>Hello world"
             #
             # Note: There are trailing byte tokens in the raw sequence because some subwords/symbols might translate to
             # multiple tokens (e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]) and we chunk documents by token, not by word.
+
+            # Uses `max_seq_len` instead of `max_req_len` here because `prefix_token` will be prepended to the sequence
+            # later. This is the only place where `max_seq_len` is used.
             first_seq_len = min(max_seq_len, len(tokens))
-            prompt = self.tokenizer.decode(self.tokenizer.encode(prefix_token) + tokens[:first_seq_len]).rstrip(
-                "\ufffd"
+            prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
+                self.tokenizer.encode(prefix_token).tokens, tokens[:first_seq_len], self.tokenizer, max_req_len, text
             )
             request = Request(
                 model=self.adapter_spec.model,
@@ -606,27 +666,30 @@ class Adapter:
                 output_mapping=None,
                 request=request,
                 result=None,
-                num_conditioning_tokens=1,
+                num_conditioning_tokens=1 if len(prefix_token) > 0 else 0,
             )
             request_states.append(request_state)
             num_predicted_tokens += first_seq_len
 
             while num_predicted_tokens < len(tokens):
+                # Example for GPT-3:
                 # Raw token sequence format:
                 # [<cond_byte1>, ..., <cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, ..., <pred_byte1>, ...]
-                # (total length <= max_seq_len+1)
+                # (total length <= max_req_len = max_seq_len+1 for GPT-3)
                 #
                 # Convert it to: [<cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, <pred_str_tok2>. ...]
-                # (total length <= max_seq_len+1)
+                # (total length <= max_req_len = max_seq_len+1 for GPT-3)
                 #
                 # Example: conditioning_tokens=["bytes:\x99", "Exc"], pred_tokens=["use", " me", "bytes:\xe2\x80"] =>
                 # prompt="Excuse me", num_conditioning_tokens = 1
-                window_pred_len = min(len(tokens) - num_predicted_tokens, max_seq_len)
+
+                # The upper bound is `max_req_len - 1` because there will be at least 1 conditioning tokens.
+                window_pred_len = min(len(tokens) - num_predicted_tokens, max_req_len - 1)
                 window_end = num_predicted_tokens + window_pred_len
-                conditioning_tokens = tokens[window_end - max_seq_len - 1 : num_predicted_tokens]
+                conditioning_tokens = tokens[window_end - max_req_len : num_predicted_tokens]
                 pred_tokens = tokens[num_predicted_tokens:window_end]
                 prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                    conditioning_tokens, pred_tokens, self.tokenizer, max_seq_len
+                    conditioning_tokens, pred_tokens, self.tokenizer, max_req_len, text
                 )
 
                 request = Request(

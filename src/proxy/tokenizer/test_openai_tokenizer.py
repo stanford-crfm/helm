@@ -7,7 +7,7 @@ class TestOpenAITokenizer:
         self.tokenizer = TokenizerFactory.get_tokenizer("openai")
 
     def test_encode(self):
-        assert self.tokenizer.encode(TEST_PROMPT) == TEST_TOKEN_IDS
+        assert self.tokenizer.encode(TEST_PROMPT).tokens == TEST_TOKEN_IDS
 
     def test_decode(self):
         assert self.tokenizer.decode(TEST_TOKEN_IDS) == TEST_PROMPT
