@@ -22,7 +22,6 @@ from .scenario import VALID_SPLIT, MultipleRequestInstance
 class RequestStateGroup:
 
     """ Unique ID for the request state group.  """
-
     group_id: str
 
     """ Instances of the group with ID group_id. """
