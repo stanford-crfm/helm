@@ -1,4 +1,5 @@
 from typing import List, Dict, Optional, Any, Callable
+import os
 
 from common.object_spec import ObjectSpec
 from .adapter import (
@@ -8,14 +9,16 @@ from .adapter import (
     ADAPT_GENERATION,
     ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
 )
-from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
-from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
 from .metric import MetricSpec
-from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
-from .raft_scenario import get_raft_instructions
 from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenario import ScenarioSpec
+
+from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
+from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
+from .msmarco_scenario import MSMARCOScenario
+from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
+from .raft_scenario import get_raft_instructions
 
 HUMAN_EVAL_METRIC_NAMES = ("code_eval_acc", "pass")
 APPS_METRIC_NAMES = ("test_avg", "strict_acc")
@@ -65,11 +68,33 @@ def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
 
-def get_msmarco_metrics() -> List[MetricSpec]:
+def get_msmarco_metrics(task: str, track: str, rank_limit: Optional[int] = None) -> List[MetricSpec]:
+    mode = MSMARCOScenario.BINARY_LOGPROB_MODE
+    measure_names = MSMARCOScenario.MEASURE_NAMES[(task, track)]
+    correct_output, wrong_output = MSMARCOScenario.CORRECT_OUTPUT, MSMARCOScenario.WRONG_OUTPUT
+    qrels_path_arr = [
+        "benchmark_output",
+        "scenarios",
+        "msmarco",
+        "data",
+        f"{task}_{track}_qrels.tsv",
+    ]  # @TODO There should be a way to programmatically get this
+    qrels_path = os.path.join(*qrels_path_arr)
+
     return [
         MetricSpec(
-            class_name="benchmark.msmarco_metrics.MSMARCOMetric",
-            args={"name": "mean_reciprocal_rank", "topk_list": [10]},
+            class_name="benchmark.multiple_request_metrics.InformationRetrievalMetric",
+            args={
+                "measure_names": measure_names,
+                "qrels_path": qrels_path,
+                "mode": mode,
+                "correct_output": correct_output,
+                "wrong_output": wrong_output,
+                "rank_limit": rank_limit,
+            },
+        ),
+        MetricSpec(
+            class_name="benchmark.multiple_request_metrics.MultipleRequestMetrics", args={"use_basic_metrics": True}
         ),
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
@@ -183,38 +208,56 @@ def get_bbq_spec(subject: str) -> RunSpec:
 
 
 def get_msmarco_spec(
-    task: str, track: str = "regular", topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
+    task,
+    track,
+    use_qrels_passages="False",
+    use_topk_passages="False",
+    valid_topk=None,
+    num_valid_queries=None,
+    num_train_queries="1000",
 ) -> RunSpec:
-    scenario = ScenarioSpec(
+    # Create ScenarioSpec
+    use_qrels_passages = use_qrels_passages.lower() == "true"
+    use_topk_passages = use_topk_passages.lower() == "true"
+    valid_topk = int(valid_topk) if valid_topk else valid_topk
+    num_valid_queries = int(num_valid_queries) if num_valid_queries else num_valid_queries
+    num_train_queries = int(num_train_queries)
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.msmarco_scenario.MSMARCOScenario",
         args={
             "task": task,
             "track": track,
-            "topk": int(topk),
-            "num_eval_queries": int(num_eval_queries),
-            "num_train_queries": int(num_train_queries),
+            "use_qrels_passages": use_qrels_passages,
+            "use_topk_passages": use_topk_passages,
+            "valid_topk": valid_topk,
+            "num_valid_queries": num_valid_queries,
+            "num_train_queries": num_train_queries,
         },
     )
 
+    # Create AdapterSpec
     adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE,
+        method=ADAPT_GENERATION,
         instructions="",
         input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
-        max_train_instances=4,  # TODO: @Dilara - Justify
-        max_eval_instances=200,  # TODO: @Dilara - Justify
+        max_train_instances=4,  # Needs to be even to ensure equal number of correct and wrong examples
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
     )
+
+    # Return RunSpec
     return RunSpec(
-        name=f"msmarco:task={task},track={track},topk={topk},num_eval_queries={num_eval_queries},"
-        f"num_train_queries={num_train_queries}",
-        scenario=scenario,
+        name=f"""msmarco:task={task},track={track},use_qrels_passages={use_qrels_passages},use_topk_passages={use_topk_passages},
+                 valid_topk={valid_topk},num_valid_queries={num_valid_queries},num_train_queries={num_train_queries}
+              """,
+        scenario=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_msmarco_metrics(),
+        metrics=get_msmarco_metrics(task, track, rank_limit=valid_topk),
     )
 
 
