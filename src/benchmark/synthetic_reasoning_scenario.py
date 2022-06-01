@@ -1,11 +1,11 @@
-import random
+import numpy as np
 from typing import List, Dict, Tuple
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 """Synthetic Reasoning Scenario.
 
 We define 3 synthetic reasoning tasks, "pattern matching", "variable substitution", "induction".
-All 3 tasks build on three components: a rule string, a substitution dictionary and the final result.
+All 3 tasks build on three components: a pattern string, a substitution dictionary and the final result.
 As an example, we have:
 
 Rule: A + B = B + A.
@@ -15,16 +15,16 @@ Result: "apple + peach = peach + apple"
 The model hence is asked to do the following three tasks:
 
 Pattern matching:
-    Input: 4 rule strings, and a result string.
-    Output: the matched rule string.
+    Input: 4 pattern strings, and a result string.
+    Output: the matched pattern string.
 
 Variable substitution:
-    Input: A rule string, a substitution dictionary.
+    Input: A pattern string, a substitution dictionary.
     Output: the result string.
 
 Induction:
-    Input: Two result string that are induced by the same rule string.
-    Output: the rule string.
+    Input: Two result string that are induced by the same pattern string.
+    Output: the pattern string.
 
 """
 
@@ -86,43 +86,6 @@ def pattern_subst(pattern: List[str], rule_symbols: List[str], substitute_dict: 
     return out
 
 
-def gen_subst(rule_symbols: List[str], tokens: List[str]) -> Tuple[Dict[str, str], str]:
-    """
-    For each of the rule symbol, we sample a random substitution string composed of randomly sampled tokens.
-
-    :param rule_symbols: A list of rule symbols.
-    :param tokens: Tokens used to construct the substitution.
-    :return: We return a substitution dictionary, and its string representation.
-    """
-    substitute_dict = {}
-    substitute_str = []
-    for char in rule_symbols:
-        subst_len = random.randint(1, 2)
-        subst = " ".join(random.choices(tokens, k=subst_len))
-        substitute_dict.update({char: subst})
-        substitute_str.append(char)
-        substitute_str.append("by")
-        substitute_str.append('"')
-        substitute_str.append(subst)
-        substitute_str.append('"')
-        substitute_str.append(",")
-    substitute_dict_str = " ".join(substitute_str[:-1])
-    return substitute_dict, substitute_dict_str
-
-
-def gen_pattern(math_symbols: List[str], rule_symbols: List[str]) -> List[str]:
-    """
-    Generate a pattern string
-
-    Example Input: math_symbols: ["+", "-", "*"], rule_symbols: ["Y", "Y", "Z"]
-    Example Output: ["Y", "Y", "+", "Z", "="]
-    """
-    num_math_symbols = random.choice(range(2, 4))
-    pattern = rule_symbols + random.choices(math_symbols, k=num_math_symbols)
-    random.shuffle(pattern)
-    return pattern
-
-
 class SyntheticReasoningScenario(Scenario):
     """
     Synthetic Reasoning benchmark inspired by
@@ -138,13 +101,46 @@ class SyntheticReasoningScenario(Scenario):
         self.n_train_samples = 5
         self.n_valid_samples = 50
         self.n_test_samples = 50
+        self.rng = np.random.RandomState(random_seed)
         self.mode = mode
         assert self.mode in ["variable_substitution", "pattern_match", "induction"], f"Unsupported mode: {self.mode}"
-        self.random_seed = random_seed
+
+    def gen_subst(self, rule_symbols: List[str], tokens: List[str]) -> Tuple[Dict[str, str], str]:
+        """
+        For each of the rule symbol, we sample a random substitution string composed of randomly sampled tokens.
+
+        :param rule_symbols: A list of rule symbols.
+        :param tokens: Tokens used to construct the substitution.
+        :return: We return a substitution dictionary, and its string representation.
+        """
+        substitute_dict = {}
+        substitute_str = []
+        for char in rule_symbols:
+            subst_len = self.rng.randint(1, 3)
+            subst = " ".join(self.rng.choice(tokens, size=subst_len))
+            substitute_dict.update({char: subst})
+            substitute_str.append(char)
+            substitute_str.append("by")
+            substitute_str.append('"')
+            substitute_str.append(subst)
+            substitute_str.append('"')
+            substitute_str.append(",")
+        substitute_dict_str = " ".join(substitute_str[:-1])
+        return substitute_dict, substitute_dict_str
+
+    def gen_pattern(self, math_symbols: List[str], rule_symbols: List[str]) -> List[str]:
+        """
+        Generate a pattern string.
+
+        Example Input: math_symbols: ["+", "-", "*"], rule_symbols: ["Y", "Y", "Z"]
+        Example Output: ["Y", "Y", "+", "Z", "="]
+        """
+        pattern = rule_symbols + math_symbols
+        self.rng.shuffle(pattern)
+        return pattern
 
     def get_instances(self) -> List[Instance]:
         # We fix the seed for data generation to ensure reproducibility.
-        random.seed(self.random_seed)
         # Read all the instances
         instances: List[Instance] = []
 
@@ -153,20 +149,22 @@ class SyntheticReasoningScenario(Scenario):
         math_symbols = MATH_SYMBOLS
 
         for sample_idx in range(self.n_train_samples + self.n_valid_samples + self.n_test_samples):
+            # Sample rule symbols
+            sampled_rule_symbols = list(self.rng.choice(rule_symbols, size=self.rng.randint(2, 4)))
+            sampled_rule_symbols_set = sorted(list(set(sampled_rule_symbols))) #sorted to make it deterministic
 
-            # Sample number of rule symbols
-            sampled_rule_symbols = random.choices(rule_symbols, k=random.choice(range(2, 5)))
-            sampled_rule_symbols_set = list(set(sampled_rule_symbols))
+            # Sample math symbols
+            sampled_math_symbols = list(self.rng.choice(math_symbols, size=self.rng.randint(2, 4)))
 
             # generate the pattern
-            pattern = gen_pattern(math_symbols, sampled_rule_symbols)
+            pattern = self.gen_pattern(sampled_math_symbols, sampled_rule_symbols)
 
             # generate one substitution
-            substitute_dict, substitute_dict_str = gen_subst(sampled_rule_symbols_set, tokens)
+            substitute_dict, substitute_dict_str = self.gen_subst(sampled_rule_symbols_set, tokens)
             result = pattern_subst(pattern, sampled_rule_symbols_set, substitute_dict)
 
             # generate another substitution
-            substitute_dict_2, _ = gen_subst(sampled_rule_symbols_set, tokens)
+            substitute_dict_2, _ = self.gen_subst(sampled_rule_symbols_set, tokens)
             result_2 = pattern_subst(pattern, sampled_rule_symbols_set, substitute_dict_2)
 
             result_string = " ".join(result)
@@ -180,10 +178,11 @@ class SyntheticReasoningScenario(Scenario):
                 src = f"Rules: {pattern_string} | Substitutions: {substitute_dict_str} "
                 tgt = " ".join(result)
             elif self.mode == "pattern_match":
-                # we sample 3 other rule strings as negatives for patterns matching.
-                other_patterns = [" ".join(gen_pattern(math_symbols, sampled_rule_symbols_set)) for _ in range(3)]
+                # we sample 3 other pattern strings as negatives for patterns matching.
+                other_patterns = [" ".join(self.gen_pattern(
+                    sampled_math_symbols, sampled_rule_symbols_set)) for _ in range(3)]
                 all_patterns = other_patterns + [pattern_string]
-                random.shuffle(all_patterns)
+                self.rng.shuffle(all_patterns)
                 all_pattern_string = " | ".join(all_patterns)
                 src = f"Rules: {all_pattern_string} | Result: {result_string} "
                 tgt = pattern_string
