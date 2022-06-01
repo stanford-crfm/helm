@@ -86,6 +86,7 @@ class OpenAIClient(Client):
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes the text using the GPT-2 tokenizer created in `OpenAITokenizer`."""
         return TokenizationRequestResult(
+            success=True,
             cached=False,
             tokens=[TokenizationToken(raw_text) for raw_text in self.tokenizer.tokenize(request.text)],
             text=request.text,

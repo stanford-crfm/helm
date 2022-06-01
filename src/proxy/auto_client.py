@@ -78,6 +78,18 @@ class AutoClient(Client):
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes based on the organization in the name of the model (e.g., ai21/j1-jumbo)."""
+
+        @retry_request
+        def tokenize_with_retry(client: Client, request: TokenizationRequest) -> TokenizationRequestResult:
+            return client.tokenize(request)
+
         organization: str = request.model_organization
         client: Client = self.get_client(organization)
-        return client.tokenize(request)
+
+        try:
+            return tokenize_with_retry(client=client, request=request)
+        except RetryError as e:
+            last_attempt: Attempt = e.last_attempt
+            retry_error: str = f"Failed to tokenize after retrying {last_attempt.attempt_number} times"
+            hlog(retry_error)
+            return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
