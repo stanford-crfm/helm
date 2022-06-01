@@ -8,6 +8,12 @@ class GPTJTokenizer(GPT2Tokenizer):
     # The max length of the model input. The max sequence length for GPT-J is 2048.
     MAX_SEQUENCE_LENGTH: int = 2048
 
+    # TODO: Figure out how to do language modeling with GPT-J
+    # The length of the returned text (prompt + generation) cannot be longer than
+    # 2048 tokens. `max_tokens` cannot be zero. The logprob of the first token is
+    # not returned.
+    MAX_REQUEST_LENGTH: int = 2048
+
     def __init__(self, tokenizer: GPT2TokenizerFast):
         # Use the GPT-2 tokenizer.
         # From https://huggingface.co/EleutherAI/gpt-j-6B, "the model [GPT-J] is trained with a
