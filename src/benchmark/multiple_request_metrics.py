@@ -20,6 +20,7 @@ from .scenario import VALID_SPLIT, MultipleRequestInstance
 
 @dataclass(frozen=True, eq=False)
 class RequestStateGroup:
+    """ Class representing a group of request states. """
 
     """ Unique ID for the request state group.  """
     group_id: str
