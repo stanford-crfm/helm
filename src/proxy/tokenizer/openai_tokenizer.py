@@ -22,6 +22,11 @@ class OpenAITokenizer(GPT2Tokenizer):
         """Return the max sequence length of the OpenAI models."""
         return OpenAITokenizer.MAX_SEQUENCE_LENGTH
 
+    @property
+    def max_request_length(self) -> int:
+        """Return the max request length of the OpenAI models."""
+        return OpenAITokenizer.MAX_REQUEST_LENGTH
+
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
         """
         Checks if the given text fits within the OpenAI max request length of 2049 taking to account
