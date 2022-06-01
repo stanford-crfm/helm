@@ -100,10 +100,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
             # "gooseai/gpt-neo-20b",
             # "gooseai/gpt-j-6b",
         ],
-        "dryrun": [
-            "openai/curie",
-            "openai/text-davinci-002",
-        ],
+        "dryrun": ["gooseai/gpt-neo-20b", "gooseai/gpt-j-6b"],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
         "all": get_all_models(),
