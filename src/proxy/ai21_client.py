@@ -19,6 +19,18 @@ class AI21Client(Client):
     https://studio.ai21.com/docs/api/
     """
 
+    @staticmethod
+    def handle_failed_request(api_type: str, response: Dict):
+        error_message: str = f"AI21 {api_type} API error -"
+
+        # Error messages are returned via 'detail' or 'Error' in response
+        if "detail" in response:
+            error_message += f" Detail: {response['detail']}"
+        if "Error" in response:
+            error_message += f" Error: {response['Error']}"
+
+        raise AI21RequestError(error_message)
+
     def __init__(self, api_key: str, cache_path: str):
         self.api_key = api_key
         self.cache = Cache(cache_path)
@@ -41,8 +53,9 @@ class AI21Client(Client):
                 json=raw_request,
             ).json()
 
-            if "completions" not in response and "detail" in response:
-                raise AI21RequestError(f"AI21 error: {response['detail']}")
+            # # If 'completions' is not present in the response, assume request failed.
+            if "completions" not in response:
+                AI21Client.handle_failed_request(api_type="completion", response=response)
 
             return response
 
@@ -120,8 +133,9 @@ class AI21Client(Client):
                 json=raw_request,
             ).json()
 
-            if "tokens" not in response and "detail" in response:
-                raise AI21RequestError(f"AI21 error when tokenizing: {response['detail']}")
+            # If 'tokens' is not present in the response, assume request failed.
+            if "tokens" not in response:
+                AI21Client.handle_failed_request(api_type="tokenizer", response=response)
 
             return response
 
