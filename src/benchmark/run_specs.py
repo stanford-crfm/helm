@@ -771,7 +771,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
         class_name="benchmark.disinformation_scenario.DisinformationScenario",
         args={"capability": capability, "topic": topic},
     )
-
+    scenario_name = f"disinfo:type={capability}"
     if capability == "reiteration":
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
@@ -793,6 +793,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             stop_sequences=["\n"],
         )
         metrics = get_disinformation_metrics()
+        scenario_name += f",topic={topic}"
     elif capability == "wedging":
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
@@ -824,7 +825,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             "metrics list or increase `num_outputs`."
         )
 
-    return RunSpec(name=f"disinfo:type={capability}", scenario=scenario, adapter_spec=adapter_spec, metrics=metrics)
+    return RunSpec(name=scenario_name, scenario=scenario, adapter_spec=adapter_spec, metrics=metrics)
 
 
 def get_code_spec(dataset: str) -> RunSpec:
