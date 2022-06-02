@@ -643,7 +643,9 @@ def get_numeracy_spec(
             "dim": RELTYPE_INFO[relation_type].num_variables + 1,
             "instance_prefix": "\n\n",
         }
-    adapter_spec = get_numeracy_adapter_spec(**adapter_args)
+    adapter_spec = get_numeracy_adapter_spec(**adapter_args)  # Construct the AdapterSpec using a helper function.
+    # `get_numeracy_adapter_spec` is defined in numeracy_scenario.py
+    # because it is used within the scenario to construct the instances themselves.
 
     return RunSpec(
         name=f"numeracy:relation_type={relation_type},mode={mode}",
@@ -665,13 +667,14 @@ def get_math_spec(subject: str, level: str, use_official_prompt: bool = True) ->
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions=instructions,
-        max_train_instances=0 if use_official_prompt else 8,  # TODO: @Frieda @Tony W. - Justify/explain
+        max_train_instances=0 if use_official_prompt else 8,  # Official prompt includes train instances
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
-        stop_sequences=["$", "###", "\n"],  # TODO: @Frieda @Tony W. - Justify/explain
+        stop_sequences=["$", "###", "\n"],  # Reproduce setting from official MATH codebase
+        # Source: https://github.com/hendrycks/math/blob/main/modeling/evaluate_gpt3.py#L31
         max_tokens=20,
         input_prefix="\nProblem: ",
         output_prefix="\nAnswer: $",
@@ -814,7 +817,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
         class_name="benchmark.disinformation_scenario.DisinformationScenario",
         args={"capability": capability, "topic": topic},
     )
-
+    scenario_name = f"disinfo:type={capability}"
     if capability == "reiteration":
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
@@ -836,6 +839,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             stop_sequences=["\n"],
         )
         metrics = get_disinformation_metrics()
+        scenario_name += f",topic={topic}"
     elif capability == "wedging":
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
@@ -867,7 +871,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             "metrics list or increase `num_outputs`."
         )
 
-    return RunSpec(name=f"disinfo:type={capability}", scenario=scenario, adapter_spec=adapter_spec, metrics=metrics)
+    return RunSpec(name=scenario_name, scenario=scenario, adapter_spec=adapter_spec, metrics=metrics)
 
 
 def get_code_spec(dataset: str) -> RunSpec:

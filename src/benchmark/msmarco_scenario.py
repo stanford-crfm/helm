@@ -222,7 +222,6 @@ class MSMARCOScenario(Scenario):
          (Bajaj et. al., 2016)              | https://arxiv.org/abs/1611.09268
          (Nogueira and Jiang et. al., 2020) | https://arxiv.org/abd/2003.06713
          (MacAvaney, et. al. 2021)          | https://arxiv.org/abs/2103.02280
-
     """
 
     """ Information on the MSMARCOScenario. """
