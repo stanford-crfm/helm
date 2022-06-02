@@ -4,6 +4,9 @@
  */
 $(function () {
   const urlParams = decodeUrlParams(window.location.search);
+  // Extract the name of the suite from the URL parameters. Default to "latest" if none is specified.
+  const suite = "suite" in urlParams ? urlParams.suite : "latest";
+  console.log(`Suite: ${suite}`);
 
   ////////////////////////////////////////////////////////////
   // Main
@@ -53,8 +56,15 @@ $(function () {
     return result;
   }
 
+  function renderStopSequence(value) {
+    return JSON.stringify(value);
+  }
+
   function renderFieldValue(field, value) {
     if (!field.values) {
+      if (field.name === 'stop_sequences') {
+        return renderStopSequence(value);
+      }
       return value;
     }
     const valueField = field.values.find(valueField => valueField.name === value);
@@ -266,16 +276,16 @@ $(function () {
 
     // Paths (parallel arrays corresponding to `runSpecs`)
     const metricsPaths = runSpecs.map((runSpec) => {
-      return `benchmark_output/runs/${runSpec.name}/metrics.json`;
+      return `benchmark_output/runs/${suite}/${runSpec.name}/metrics.json`;
     });
     const scenarioPaths = runSpecs.map((runSpec) => {
-      return `benchmark_output/runs/${runSpec.name}/scenario.json`;
+      return `benchmark_output/runs/${suite}/${runSpec.name}/scenario.json`;
     });
     const scenarioStatePaths = runSpecs.map((runSpec) => {
-      return `benchmark_output/runs/${runSpec.name}/scenario_state.json`;
+      return `benchmark_output/runs/${suite}/${runSpec.name}/scenario_state.json`;
     });
     const runSpecPaths = runSpecs.map((runSpec) => {
-      return `benchmark_output/runs/${runSpec.name}/run_spec.json`;
+      return `benchmark_output/runs/${suite}/${runSpec.name}/run_spec.json`;
     });
 
     // Figure out short names for the runs based on where they differ
@@ -431,7 +441,7 @@ $(function () {
       models = response;
       console.log('models', models);
     }),
-    $.getJSON('benchmark_output/run_specs.json', {}, (response) => {
+    $.getJSON(`benchmark_output/runs/${suite}/run_specs.json`, {}, (response) => {
       runSpecs = response;
       console.log('runSpecs', runSpecs);
     }),

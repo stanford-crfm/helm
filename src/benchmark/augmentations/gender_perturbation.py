@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 import json
 import random
+import re
 from typing import Dict, List, Optional, Tuple
-
-from nltk.tokenize.treebank import TreebankWordTokenizer, TreebankWordDetokenizer
 
 from benchmark.scenario import Instance
 from common.general import match_case
@@ -13,7 +12,7 @@ from .perturbation import Perturbation
 
 """ Gender term mappings """
 GENDER_TERM_MAPPINGS: List[Tuple[str, ...]] = [
-    # Inspired by Garg et al. (2018)
+    # List based on Garg et al. (2018)
     ("child", "daughter", "son"),
     ("children", "daughters", "sons"),
     ("parent", "mother", "father"),
@@ -22,23 +21,44 @@ GENDER_TERM_MAPPINGS: List[Tuple[str, ...]] = [
     ("kiddos", "girls", "boys"),
     ("person", "woman", "man"),
     ("people", "women", "men"),
-    ("sibling", "daughter", "brother"),
-    ("siblings", "daughters", "brothers"),
+    ("sibling", "sister", "brother"),
+    ("siblings", "sisters", "brothers"),
     ("nibling", "niece", "nephew"),
     ("niblings", "nieces", "nephews"),
-    # Inspired by Bolukbasi et al. (2016)
+    # List based on Bolukbasi et al. (2016)
     ("monarch", "queen", "king"),
     ("monarchs", "queens", "kings"),
     ("server", "waitress", "waiter"),
     ("servers", "waitresses", "waiters"),
+    # Our additions
+    ("parent", "mom", "dad"),
+    ("parents", "moms", "dads"),
+    ("stepchild", "stepdaughter", "stepson"),
+    ("stepchildren", "stepdaughters", "stepsons"),
+    ("stepparent", "stepmother", "stepfather"),
+    ("stepparents", "stepmothers", "stepfathers"),
+    ("stepparent", "stepmom", "stepdad"),
+    ("stepparents", "stepmoms", "stepdads"),
+    ("grandchild", "granddaughter", "grandson"),
+    ("grandchildren", "granddaughters", "grandsons"),
+    ("grandparent", "grandmother", "grandfather"),
+    ("grandparents", "grandmothers", "grandfather"),
+    ("grandparent", "grandma", "granddad"),
+    ("grandparents", "grandmas", "granddads"),
+    ("human", "female", "male"),
+    ("humans", "females", "males"),
 ]
 
 """ Gender pronoun mappings """
+# The overlaps between the pairs cause our replacements to be wrong in certain
+# cases (direct pronouns vs. indirect pronouns). In these cases, we keep the
+# first match instead of making our decision using a POS tagger for simplicity
 GENDER_PRONOUN_MAPPINGS: List[Tuple[str, ...]] = [
     # List from Lauscher et. al. 2022
     ("they", "she", "he"),
     ("them", "her", "him"),
     ("their", "her", "his"),
+    ("theirs", "hers", "his"),
     ("themselves", "herself", "himself"),
 ]
 
@@ -49,9 +69,6 @@ class GenderPerturbation(Perturbation):
 
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "gender_term"
-
-    """ Line seperator """
-    LINE_SEP = "\n"
 
     """ Genders defined by default """
     NEUTRAL = "neutral"
@@ -89,20 +106,22 @@ class GenderPerturbation(Perturbation):
         """ Initialize the gender perturbation.
 
         Args:
-            mode: The mode of the gender perturbation, should be one of
+            mode: The mode of the gender perturbation, must be one of
                 "terms" or "pronouns".
             prob: Probability of substituting a word in the source class with
                 a word in the target class given that a substitution is
                 available.
             source_class: The source gender that will be substituted with
-                the target gender.
-            target_class: The target gender.
+                the target gender. If mapping_file_path is provided, the source
+                class must be one of the genders in it. If not, it must be
+                exactly one of `male`, `female`, and `neutral. Case-insensitive.
+            target_class: Same as the source class, but for the target gender.
             mapping_file_path: The absolute path to a file containing the
                 word mappings from the source gender to the target gender in
                 a json format. The json dictionary must be of type
                 List[List[str, ...]]. It is assumed that 0th index of the inner
                 lists correspond to the 0th gender, 1st index to 1st gender
-                and so on.
+                and so on. All word cases are lowered.
                 If mapping_file_path is None, the default dictionary in
                 self.MODE_TO_MAPPINGS for the provided source and target classes
                 will be used, if available.
@@ -111,7 +130,7 @@ class GenderPerturbation(Perturbation):
                 should have the same length as the mapping_file_genders. The
                 order of the genders is assumed to reflect the order in the
                 mapping_file_path. Must not be None if mapping_file_path
-                is set.
+                is set. All word cases are lowered.
             bidirectional: Whether we should apply the perturbation in both
                 directions. If we need to perturb a word, we first check if it
                 is in list of source_class words, and replace it with the
@@ -119,40 +138,36 @@ class GenderPerturbation(Perturbation):
                 source_class words, we check if it is in the target_class words,
                 and replace it with the corresponding source_class word if so.
         """
-        # self.random, will be set in the apply function
+        # Random generator specific to this class, will be set in the apply function
         self.random: random.Random
 
+        # Assign parameters to instance variables
         assert mode in self.MODES
         self.mode = mode
+
         assert 0 <= prob <= 1
         self.prob = prob
-        self.source_class: str = source_class
-        self.target_class: str = target_class
+
+        self.source_class: str = source_class.lower()
+        self.target_class: str = target_class.lower()
         self.mapping_file_path: Optional[str] = mapping_file_path
         self.bidirectional: bool = bidirectional
 
+        # Get mappings and self.genders
         mappings: List[Tuple[str, ...]] = self.MODE_TO_MAPPINGS[self.mode]
         self.genders = self.GENDERS
         if self.mapping_file_path and mapping_file_genders:
-            self.genders = mapping_file_genders
-            with open(self.mapping_file_path, "r") as f:
-                loaded_json = json.load(f)
-                mappings = [tuple([str(e).lower() for e in t]) for t in loaded_json]
-            assert mappings
-        assert self.source_class in self.genders and self.target_class in self.genders
+            mappings = self.load_mappings(self.mapping_file_path)
+            self.genders = [g.lower() for g in mapping_file_genders]
+        assert mappings and self.source_class in self.genders and self.target_class in self.genders
         assert all([len(m) == len(self.genders) for m in mappings])
+        mappings = list(set(mappings))  # Remove duplicates from the mappings list
 
-        # Remove duplicates from the mappings list
-        mappings = list(set(mappings))
-        # Get source and target terms
-        word_to_index: Dict[str, int] = {term: ind for ind, term in enumerate(self.genders)}
+        # Get source and target words
+        gender_to_ind: Dict[str, int] = {gender: ind for ind, gender in enumerate(self.genders)}
         word_lists = list(zip(*mappings))
-        self.source_words: List[str] = list(word_lists[word_to_index[self.source_class]])
-        self.target_words: List[str] = list(word_lists[word_to_index[self.target_class]])
-
-        # Initialize the tokenizers
-        self.tokenizer = TreebankWordTokenizer()
-        self.detokenizer = TreebankWordDetokenizer()
+        self.source_words: List[str] = list(word_lists[gender_to_ind[self.source_class]])
+        self.target_words: List[str] = list(word_lists[gender_to_ind[self.target_class]])
 
     @property
     def description(self) -> PerturbationDescription:
@@ -161,35 +176,57 @@ class GenderPerturbation(Perturbation):
             self.name, self.prob, self.source_class, self.target_class, self.mapping_file_path, self.bidirectional
         )
 
-    def sample_word(self, word: str, source_words: List[str], target_words: List[str]) -> Optional[str]:
-        """ Sample a word from target_terms if the word is in source_terms.
+    @staticmethod
+    def load_mappings(mapping_file_path: str) -> List[Tuple[str, ...]]:
+        """ Load mappings as a list. """
+        with open(mapping_file_path, "r") as f:
+            loaded_json = json.load(f)
+            return [tuple([str(e).lower() for e in t]) for t in loaded_json]
 
-        Return None if the word wasn't in source_terms.
-        """
-        lowered_word = word.lower()
-        if lowered_word in source_words:
-            # Sample a new term and ensure that the case of the new word matches the original
-            ind = source_words.index(lowered_word)
-            synonym = target_words[ind]
-            return match_case(word, synonym)
-        return None
+    def substitute_word(self, text: str, word: str, synonym: str) -> str:
+        """ Substitute the occurences of word in text with its synonym with self.probability """
+        # Pattern capturing any occurence of given word in the text, surrounded by non-alphanumeric characters
+        pattern = f"[^\\w]({word})[^\\w]"
 
-    def substitute_words(self, text: str) -> str:
-        """ Substitute the terms of the source gender with those of the target gender. """
-        lines, new_lines = text.split(self.LINE_SEP), []
-        for line in lines:
-            words, new_words = self.tokenizer.tokenize(line), []
-            for word in words:
-                if self.random.uniform(0, 1) < self.prob:
-                    sampled_word = self.sample_word(word, self.source_words, self.target_words)
-                    if not sampled_word and self.bidirectional:
-                        sampled_word = self.sample_word(word, self.target_words, self.source_words)
-                    word = sampled_word if sampled_word else word
-                    new_words.append(word)
-            perturbed_line = str(self.detokenizer.detokenize(new_words))
-            new_lines.append(perturbed_line)
-        perturbed_text = self.LINE_SEP.join(new_lines)
-        return perturbed_text
+        # Substitution function
+        def sub_func(m: re.Match):
+            match_str = m.group(0)  # The full match (e.g. " Man ", " Man,", " Man.", "-Man.")
+            match_word = m.group(1)  # Captured group (e.g. "Man")
+            if self.random.uniform(0, 1) < self.prob:
+                syn = match_case(match_word, synonym)  # Synoynm with matching case (e.g. "Woman")
+                match_str = match_str.replace(
+                    match_word, syn
+                )  # Synonym placed in the matching group (e.g. " Woman ", " Woman,", " Woman.", "-Woman")
+            return match_str
+
+        # Execute the RegEx
+        return re.sub(pattern, sub_func, text, flags=re.IGNORECASE)
+
+    def substitute_gender(self, text: str) -> str:
+        """ Perform the perturbations on the provided text. """
+
+        # Keep track of the words we have already considered. We may run into
+        # duplicates due to the following reasons:
+        #     (1) There might be one source word mapping to two different
+        #         target words in different cases (his => her, his => hers)
+        #     (2) If self.bidirectional flag is set, we want to ensure that
+        #         we don't consider a word twice if it is both in the source and
+        #         the target words lists.
+        considered_words = []
+        word_synonym_pairs = list(zip(self.source_words, self.target_words))
+
+        # If self.bidirectional flag is set, extend the pairs list
+        if self.bidirectional:
+            new_pairs = list(zip(self.target_words, self.source_words))
+            word_synonym_pairs.extend(new_pairs)
+
+        # Substitute the words
+        for (word, synonym) in word_synonym_pairs:
+            if word not in considered_words:
+                text = self.substitute_word(text, word, synonym)
+                considered_words.append(word)
+
+        return text
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         """ Apply the perturbation to the provided instance. """
@@ -199,4 +236,4 @@ class GenderPerturbation(Perturbation):
 
     def perturb(self, text: str) -> str:
         """ Perturb the provided text. """
-        return self.substitute_words(text)
+        return self.substitute_gender(text)

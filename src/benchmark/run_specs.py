@@ -55,7 +55,10 @@ def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
 
 
 def get_bbq_metrics() -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={})]
+    return [
+        MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={}),
+        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
+    ]
 
 
 def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
@@ -495,12 +498,11 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
-        max_train_instances=3,  # TODO: @Tony W. - Justify
-        max_eval_instances=100,  # TODO: @Tony W. - Justify
-        num_outputs=3,  # TODO: @Tony W. - Justify
+        max_train_instances=3,  # limited by the context length
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_train_trials=1,
         model="openai/davinci",
-        temperature=1.0,  # TODO: @Tony W. - Justify; should it be 0?
+        temperature=0.0,
         stop_sequences=["\n"],
         max_tokens=20,
         input_prefix="Rules:\n",
@@ -596,7 +598,9 @@ def get_numeracy_spec(
             "dim": RELTYPE_INFO[relation_type].num_variables + 1,
             "instance_prefix": "\n\n",
         }
-    adapter_spec = get_numeracy_adapter_spec(**adapter_args)
+    adapter_spec = get_numeracy_adapter_spec(**adapter_args)  # Construct the AdapterSpec using a helper function.
+    # `get_numeracy_adapter_spec` is defined in numeracy_scenario.py
+    # because it is used within the scenario to construct the instances themselves.
 
     return RunSpec(
         name=f"numeracy:relation_type={relation_type},mode={mode}",
@@ -618,13 +622,14 @@ def get_math_spec(subject: str, level: str, use_official_prompt: bool = True) ->
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions=instructions,
-        max_train_instances=0 if use_official_prompt else 8,  # TODO: @Frieda @Tony W. - Justify/explain
+        max_train_instances=0 if use_official_prompt else 8,  # Official prompt includes train instances
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
-        stop_sequences=["$", "###", "\n"],  # TODO: @Frieda @Tony W. - Justify/explain
+        stop_sequences=["$", "###", "\n"],  # Reproduce setting from official MATH codebase
+        # Source: https://github.com/hendrycks/math/blob/main/modeling/evaluate_gpt3.py#L31
         max_tokens=20,
         input_prefix="\nProblem: ",
         output_prefix="\nAnswer: $",
@@ -767,7 +772,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
         class_name="benchmark.disinformation_scenario.DisinformationScenario",
         args={"capability": capability, "topic": topic},
     )
-
+    scenario_name = f"disinfo:type={capability}"
     if capability == "reiteration":
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
@@ -789,6 +794,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             stop_sequences=["\n"],
         )
         metrics = get_disinformation_metrics(args={"name": "reiteration"})
+        scenario_name += f",topic={topic}"
     elif capability == "wedging":
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
@@ -820,7 +826,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             "metrics list or increase `num_outputs`."
         )
 
-    return RunSpec(name=f"disinfo:type={capability}", scenario=scenario, adapter_spec=adapter_spec, metrics=metrics)
+    return RunSpec(name=scenario_name, scenario=scenario, adapter_spec=adapter_spec, metrics=metrics)
 
 
 def get_code_spec(dataset: str) -> RunSpec:
@@ -971,14 +977,13 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
-        max_train_instances=3,  # TODO: @Tony W. - Justify
-        max_eval_instances=None,
-        num_outputs=3,  # TODO: @Tony W. - Justify
+        max_train_instances=5,
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_train_trials=1,
         model="openai/davinci",
-        temperature=1.0,  # TODO: @Tony W. - Justify; should it be 0.0
+        temperature=0.0,
         stop_sequences=["\n"],
-        max_tokens=20,  # TODO: @Tony W. - Justify
+        max_tokens=50,  # answer upperbounded by 50 tokens
         input_prefix="",
         output_prefix="| Target: ",
     )
@@ -1182,9 +1187,9 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Are Row A and Row B the same? Yes or No?",
+        instructions="Are Product A and Product B the same? Yes or No?",
         input_prefix="",
-        output_prefix="\n ",
+        output_prefix=" ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
@@ -1209,9 +1214,9 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Generate the missing value in the row.",
+        instructions="What is the missing value?",
         input_prefix="",
-        output_prefix="\n ",
+        output_prefix=" ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/davinci",
