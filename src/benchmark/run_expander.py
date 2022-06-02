@@ -118,7 +118,6 @@ class MetricsRunExpander(ReplaceRunSpecValueRunExpander):
 
     name = "metrics"
     values_dict = {"bias_erasure": get_bias_erasure_metrics()}
-    print(f"VALUES DICT IS: {values_dict}")
 
 
 class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
