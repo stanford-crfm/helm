@@ -107,7 +107,7 @@ class MSMARCOScenario(Scenario):
     Below are some details on the datasets we use, which can all be retrieved
     at the link below, pointing to a 1GB tar file. Here, "qid" stands for
     "Query ID" and "pid" stands for "Passage ID". FORMAT column specifies the
-    contents of each file, where \t is used as the delimeter character.
+    contents of each file, where \t is used as the delimiter character.
 
         https://msmarco.blob.core.windows.net/msmarcoranking/collectionandqueries.tar.gz
 
