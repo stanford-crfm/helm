@@ -64,6 +64,8 @@ def start_dialogue(args: dict):
     display_prompt = ""
     if runner.run_spec.scenario.class_name == "benchmark.dialogue_scenarios.WizardOfWikipediaScenario":
         display_prompt = "Your topic: " + prompt
+    elif runner.run_spec.scenario.class_name == "benchmark.dialogue_scenarios.CommonSenseScenario":
+        display_prompt = "Pretend that you are the person in this scenario: " + prompt
     else:
         display_prompt = "Your scenario: " + prompt
     utterances = []
@@ -105,6 +107,8 @@ def dialogue_turn(args: dict) -> dict:
     # Gets the LM response and also persists the trace to disk in a sqlite file
     response: RequestResult = runner.handle_user_input(interaction_trace_id, UserInput(input=user_utterance))
     bot_utterance = response.completions[0].text
+    print("BOT UTTERANCE")
+    print(bot_utterance)
 
     json_response = {
         "bot_utterance": bot_utterance,
