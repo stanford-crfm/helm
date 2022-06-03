@@ -510,19 +510,19 @@ def get_var(dim: int, variable_names=list("xyz")):
 
 
 def get_dataset_header(
-    dim: int, variable_names: List[str] = list("xyz"), delimeter: str = ", ", output_prefix: str = ", "
+    dim: int, variable_names: List[str] = list("xyz"), delimiter: str = ", ", output_prefix: str = ", "
 ):
-    return delimeter.join(variable_names[: dim - 1]) + output_prefix + variable_names[dim - 1]
+    return delimiter.join(variable_names[: dim - 1]) + output_prefix + variable_names[dim - 1]
 
 
 def get_numeracy_adapter_spec(
-    max_train_instances: int, max_eval_instances: int, dim: int, delimeter: str = ", ", **kwargs
+    max_train_instances: int, max_eval_instances: int, dim: int, delimiter: str = ", ", **kwargs
 ) -> AdapterSpec:
     return AdapterSpec(
         **{
             **{
                 "method": ADAPT_GENERATION,
-                "instructions": get_dataset_header(dim, delimeter=delimeter, output_prefix=", "),
+                "instructions": get_dataset_header(dim, delimiter=delimiter, output_prefix=", "),
                 "max_train_instances": max_train_instances,
                 "max_eval_instances": max_eval_instances,
                 "num_outputs": 1,
@@ -722,7 +722,7 @@ class NumeracyScenario(Scenario):
                 self.dim,
                 instructions="",
                 instance_prefix="\n\n",
-                delimeter=self.delimiter,
+                delimiter=self.delimiter,
             )
             outer_adapter = Adapter(outer_spec, service)
             instances = []
