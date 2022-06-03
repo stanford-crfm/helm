@@ -36,11 +36,11 @@ class OpenAITokenCounter(TokenCounter):
 
         Add num_tokens(prompt) if Request.echo_prompt is True.
         """
-        num_tokens_in_prompt: int = self.tokenizer.tokenize_and_count(request.prompt)
-        total_estimated_tokens: int = num_tokens_in_prompt + request.num_completions * request.max_tokens
+        total_estimated_tokens: int = request.num_completions * request.max_tokens
 
         # We should add the number of tokens in the prompt twice when echo_prompt is True because OpenAI counts
         # both the tokens in the prompt and the completions, which in this case, the original prompt is included.
         if request.echo_prompt:
+            num_tokens_in_prompt: int = self.tokenizer.tokenize_and_count(request.prompt)
             total_estimated_tokens += num_tokens_in_prompt
         return total_estimated_tokens
