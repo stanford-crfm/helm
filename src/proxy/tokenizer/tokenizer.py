@@ -1,5 +1,21 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional, Union
+from dataclasses import dataclass
+
+from common.tokenization_request import TokenizationToken
+
+
+@dataclass(frozen=True)
+class EncodeResult:
+    """Result returned by the encode() method."""
+
+    # The input text transformed by the tokenizer for tokenization.
+    # e.g. The AI21 tokenizer replaces "½" with "1/2" before tokenization.
+    text: str
+
+    # The list of tokens. For models using the GPT-2 tokenizer, the tokens
+    # are integers; for AI21 models, the tokens are TokenizationTokens.
+    tokens: List[Union[int, TokenizationToken]]
 
 
 class Tokenizer(ABC):
@@ -11,18 +27,41 @@ class Tokenizer(ABC):
 
     @property
     @abstractmethod
+    def max_request_length(self) -> int:
+        """
+        The max request length of the model. Some models allow `max_request_length > max_sequence_length`
+        so that users can specify the last output token. e.g. GPT-3.
+        """
+        pass
+
+    @property
+    @abstractmethod
     def end_of_text_token(self) -> str:
         """The end of text token."""
         pass
 
+    @property
     @abstractmethod
-    def encode(self, text: str) -> List[int]:
+    def prefix_token(self) -> str:
+        """The prefix token"""
+        pass
+
+    @abstractmethod
+    def encode(self, text: str) -> EncodeResult:
         """Encodes the input text to tokens given the model"""
         pass
 
     @abstractmethod
-    def decode(self, tokens: List[int]) -> str:
-        """Given the model and a list of tokens, outputs the corresponding text."""
+    def decode(self, tokens: List[Union[int, TokenizationToken]], normalized_text: Optional[str] = None) -> str:
+        """
+        Given the model and a list of tokens, outputs the corresponding text.
+
+        For models using the GPT-2 tokenizer, the tokens are integers; for AI21
+        models, the tokens are `TokenizationToken`s.
+
+        Some tokenizers (e.g. AI21) normalize the text before encoding it and
+        thus require the `normalized_text` for decoding.
+        """
         pass
 
     @abstractmethod

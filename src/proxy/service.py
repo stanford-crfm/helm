@@ -13,7 +13,7 @@ from .accounts import Authentication, Account
 
 VERSION = "1.0"
 CREDENTIALS_FILE = "credentials.conf"
-ACCOUNTS_FILE = "accounts.jsonl"
+ACCOUNTS_FILE = "accounts.sqlite"
 CACHE_DIR = "cache"
 MAX_EXPANSION = 1000
 

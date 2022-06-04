@@ -33,6 +33,12 @@ To start a local server (go to `http://localhost:1959` to try it out):
 
     venv/bin/proxy-server
 
+### For macOS developers
+
+Bypass the added security that restricts multithreading by running:
+
+    OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES venv/bin/proxy-server
+
 ## Deploying to production (for maintainers)
 
 The production version of the proxy is running on `crfm-models.stanford.edu`;
@@ -135,14 +141,22 @@ Update the code:
 
 If everything looks okay:
 
+    ssh crfm@crfm-models.stanford.edu
+
     # Switch into the screen session
-    crfm-models:$ gos bench
+    crfm-models:$ screen -r deploy
 
     # Hit ctrl-c to kill the existing process
+    # Restart the server
+    sudo venv/bin/proxy-server -p 443 --ssl-key-file /home/ssl/private.key --ssl-cert-file /home/ssl/crfm-models.crt --workers 16 &> server.log
 
-    sudo venv/bin/proxy-server -p 443 --ssl-key-file /home/ssl/private.key --ssl-cert-file /home/ssl/crfm-models.crt
+    # Exit the screen session: ctrl-ad
+
+The recommended number of Gunicorn workers is twice the number of cores. 
+crfm-models.stanford.edu has 8 cores (verified with `nproc`) * 2 = 16 workers.
 
 Double check that the [website](https://crfm-models.stanford.edu) still works.
+The server logs can be streamed by running: `tail -f /home/benchmarking/server.log`.
 
 # Benchmarking
 
@@ -289,7 +303,7 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Activate the Conda environment: `conda activate crfm_benchmarking`
    1. Run `pip install -e .` if there are new dependencies to install.
 1. Run the `benchmark-present` command e.g.,
-   `benchmark-present --max-eval-instances 200 --conf src/benchmark/presentation/run_specs.conf &> run.log`.
+   `benchmark-present --max-eval-instances 500 --conf src/benchmark/presentation/run_specs.conf &> run.log`.
 1. Exit the screen session: `ctrl+ad`.
 1. To check on the screen session: `screen -r benchmarking`.
 

@@ -47,6 +47,9 @@ class TokenizationToken:
 class TokenizationRequestResult:
     """Result after sending a `TokenizationRequest`."""
 
+    # Whether the request was successful
+    success: bool
+
     # Whether the request was cached
     cached: bool
 
