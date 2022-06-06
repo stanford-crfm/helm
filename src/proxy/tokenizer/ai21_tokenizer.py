@@ -1,7 +1,6 @@
 import re
 
 from typing import List, Optional, Tuple
-from transformers import GPT2TokenizerFast
 from urllib.parse import unquote
 
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken, TextRange
@@ -35,12 +34,12 @@ class AI21Tokenizer(Tokenizer):
         "AI21 only gave API access to their tokenizer, so this method is not supported."
     )
 
-    def __init__(self, model: str, service: TokenizerService):
+    def __init__(self, model: str, service: TokenizerService, gpt2_tokenizer: GPT2Tokenizer):
         self.model: str = model
         # We need the `TokenizerService` to make requests to the server.
         self.service: TokenizerService = service
-        # As explained above, we need a gpt2 tokenizer to help tokenize long text sequences.
-        self.gpt2_tokenizer = GPT2Tokenizer(GPT2TokenizerFast.from_pretrained("gpt2"))
+        # As explained above, we need a GPT-2 tokenizer to help tokenize long text sequences.
+        self.gpt2_tokenizer = gpt2_tokenizer
 
     @property
     def max_sequence_length(self) -> int:
