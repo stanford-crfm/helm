@@ -28,7 +28,7 @@ class Run:
     run_spec: RunSpec
 
     # Statistics for the run
-    metrics: List[Stat]
+    stats: List[Stat]
 
 
 def run_benchmarking(

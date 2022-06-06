@@ -1,4 +1,4 @@
-from typing import Dict, List, Any
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 import random
 
@@ -10,23 +10,14 @@ class Stat:
     """A mutable class that allows us to aggregate values and report mean/stddev."""
 
     name: MetricName
-    count: int
-    min: float
-    max: float
-    sum: float
-    mean: float
+    count: int = 0
+    sum: float = 0
+    sum_squared: float = 0
+    # We don't set these to +infinity/-infinity because those don't serialize to JSON well.
+    min: Optional[float] = None
+    max: Optional[float] = None
+    values_buffer_size: int = 300
     values: List[float] = field(default_factory=list)
-
-    def __init__(self, name: MetricName, values_buffer_size: int = 300):
-        self.name = name
-        self.values_buffer_size = values_buffer_size
-        self.count = 0
-        self.sum = 0
-        self.sum_squared = 0
-        # We don't set these to +infinity/-infinity because those don't serialize to JSON well.
-        self.min = None
-        self.max = None
-        self.values = []
 
     def _add_to_values(self, x: float):
         if len(self.values) < self.values_buffer_size:
@@ -36,17 +27,6 @@ class Stat:
             index_to_remove = random.randint(0, self.values_buffer_size)
             if index_to_remove < self.values_buffer_size:
                 self.values[index_to_remove] = x
-
-    @staticmethod
-    def from_dict(adict: Dict[str, Any]) -> "Stat":
-        assert "name" in adict, "The dictionary must contain a key named 'name'"
-        stat = Stat(name=adict["name"])
-        property_names = ["mean", "stddev"]
-        for k, v in adict.items():
-            assert hasattr(stat, k), f"Provided dict contains the key '{k}', which doesn't map to a Stat object field."
-            if k not in property_names:
-                setattr(stat, k, v)  # No need to explicitly type check as the Stat object fields are typed
-        return stat
 
     def add(self, x) -> "Stat":
         # Skip Nones for statistic aggregation.

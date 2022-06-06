@@ -27,7 +27,7 @@ class Model:
     # Short description of the model
     description: str
 
-    # Tags corresponding to the features of the model
+    # Tags corresponding to the properties of the model
     tags: List[str] = field(default_factory=list)
 
     # Estimated training co2e cost of this model
@@ -58,7 +58,7 @@ ALL_MODELS = [
     # AI21
     Model(
         group="jurassic",
-        creator_organization="AI21",
+        creator_organization="AI21 Labs",
         name="ai21/j1-jumbo",
         description="Jurassic J1-Jumbo (178B parameters)",
         tags=[TEXT_MODEL_TAG],
@@ -68,14 +68,14 @@ ALL_MODELS = [
     # help the unit economics on your end compared to Jumbo, without compromising too much on quality."
     Model(
         group="jurassic",
-        creator_organization="AI21",
+        creator_organization="AI21 Labs",
         name="ai21/j1-grande",
         description="Jurassic J1-Large (17B parameters with a few tweaks to its training process)",
         tags=[TEXT_MODEL_TAG],
     ),
     Model(
         group="jurassic",
-        creator_organization="AI21",
+        creator_organization="AI21 Labs",
         name="ai21/j1-large",
         description="Jurassic J1-Large (7.5B parameters)",
         tags=[TEXT_MODEL_TAG],
