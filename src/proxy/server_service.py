@@ -32,7 +32,7 @@ class ServerService(Service):
     Main class that supports various functionality for the server.
     """
 
-    def __init__(self, base_path: str = ".", read_only: bool = False):
+    def __init__(self, base_path: str = "."):
         credentials_path = os.path.join(base_path, CREDENTIALS_FILE)
         cache_path = os.path.join(base_path, CACHE_DIR)
         ensure_directory_exists(cache_path)
@@ -43,16 +43,14 @@ class ServerService(Service):
                 credentials = parse_hocon(f.read())
         else:
             credentials = {}
+
         self.client = AutoClient(credentials, cache_path)
         self.token_counter = AutoTokenCounter()
-        self.accounts = Accounts(accounts_path, read_only=read_only)
+        self.accounts = Accounts(accounts_path)
         self.perspective_api_client = PerspectiveAPIClient(
             api_key=credentials["perspectiveApiKey"] if "perspectiveApiKey" in credentials else "",
             cache_path=cache_path,
         )
-
-    def finish(self):
-        self.accounts.finish()
 
     def get_general_info(self) -> GeneralInfo:
         return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=ALL_MODELS)

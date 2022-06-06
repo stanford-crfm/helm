@@ -110,7 +110,11 @@ class QuACScenario(Scenario):
 
         prompt += f"Section: {sample['section_title']}\n"
         dialogue = sample["paragraphs"][0]
-        prompt += f"Context: {dialogue['context']}\n\n"
+
+        context = dialogue["context"]
+        assert context[-13:] == " CANNOTANSWER"
+        context = context[:-13]
+        prompt += f"Passage: {context}\n\n"
 
         qas = dialogue["qas"]
         num_qas = len(qas)

@@ -1,34 +1,41 @@
 from typing import List
 
-import openai
+import openai as gooseai
 
 from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
 from .client import Client, wrap_request_time
+from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
+from .tokenizer.tokenizer import Tokenizer
 from .tokenizer.tokenizer_factory import TokenizerFactory
 
 
-OPENAI_END_OF_TEXT_TOKEN: str = "<|endoftext|>"
-ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__bases__
+class GooseAIClient(Client):
+    """
+    GooseAI API Client
+    - How to use the API: https://goose.ai/docs/api
+    - Supported models: https://goose.ai/docs/models
+    """
 
-
-class OpenAIClient(Client):
     def __init__(self, api_key: str, cache_path: str):
         self.api_key: str = api_key
-        self.api_base: str = "https://api.openai.com"
+        self.api_base: str = "https://api.goose.ai/v1"
 
         self.cache = Cache(cache_path)
-        self.tokenizer = TokenizerFactory.get_tokenizer("openai")
+        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer("gooseai")
 
     def make_request(self, request: Request) -> RequestResult:
+        """
+        Request parameters for GooseAI API documented here: https://goose.ai/docs/api/completions
+        The only OpenAI API parameter not supported is `best_of`.
+        """
         raw_request = {
             "engine": request.model_engine,
             "prompt": request.prompt,
             "temperature": request.temperature,
             "n": request.num_completions,
             "max_tokens": request.max_tokens,
-            "best_of": request.top_k_per_token,
             "logprobs": request.top_k_per_token,
             "stop": request.stop_sequences or None,  # API doesn't like empty list
             "top_p": request.top_p,
@@ -37,26 +44,21 @@ class OpenAIClient(Client):
             "echo": request.echo_prompt,
         }
 
-        # OpenAI doesn't let you ask for more completions than the number of
-        # per-token candidates.
-        raw_request["best_of"] = max(raw_request["best_of"], raw_request["n"])
-        raw_request["logprobs"] = max(raw_request["logprobs"], raw_request["n"])
-
         try:
 
             def do_it():
-                openai.api_key = self.api_key
-                openai.api_base = self.api_base
-                openai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
-                return openai.Completion.create(**raw_request)
+                gooseai.api_key = self.api_key
+                gooseai.api_base = self.api_base
+                gooseai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
+                return gooseai.Completion.create(**raw_request)
 
             cache_key = Client.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except openai.error.OpenAIError as e:
-            error: str = f"OpenAI error: {e}"
+        except gooseai.error.OpenAIError as e:
+            error: str = f"OpenAI (GooseAI API) error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[])
 
-        completions = []
+        completions: List[Sequence] = []
         for raw_completion in response["choices"]:
             sequence_logprob = 0
             tokens: List[Token] = []
@@ -65,26 +67,17 @@ class OpenAIClient(Client):
             for text, logprob, top_logprobs in zip(
                 raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
             ):
-                # Do not include these excess tokens in the response.
-                # TODO: this is a hacky solution until we figure out why
-                #       OpenAI is sending tokens including and past the stop sequences.
-                # TODO: This logic doesn't work when the stop sequences spans multiple tokens.
-                #       https://github.com/stanford-crfm/benchmarking/issues/53
-                if any(stop in text for stop in request.stop_sequences):
-                    break
-
-                # TODO: For some reason, the first log probability and top choices are None.
-                #       https://github.com/stanford-crfm/benchmarking/issues/54
                 tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                 sequence_logprob += logprob or 0
             completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
             completions.append(completion)
+
         return RequestResult(
             success=True, cached=cached, request_time=response["request_time"], completions=completions
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes the text using the GPT-2 tokenizer created in `OpenAITokenizer`."""
+        """Tokenizes the text using the GPT-2 tokenizer."""
         return TokenizationRequestResult(
             success=True,
             cached=False,

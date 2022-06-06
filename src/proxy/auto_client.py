@@ -10,6 +10,7 @@ from common.tokenization_request import TokenizationRequest, TokenizationRequest
 from .client import Client
 from .ai21_client import AI21Client
 from .anthropic_client import AnthropicClient
+from .goose_ai_client import GooseAIClient
 from .huggingface_client import HuggingFaceClient
 from .openai_client import OpenAIClient
 from .microsoft_client import MicrosoftClient
@@ -35,6 +36,8 @@ class AutoClient(Client):
                 client = OpenAIClient(api_key=self.credentials["openaiApiKey"], cache_path=client_cache_path)
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
+            elif organization == "gooseai":
+                client = GooseAIClient(api_key=self.credentials["gooseaiApiKey"], cache_path=client_cache_path)
             elif organization == "huggingface":
                 client = HuggingFaceClient(cache_path=client_cache_path)
             elif organization == "anthropic":
@@ -42,7 +45,7 @@ class AutoClient(Client):
             elif organization == "microsoft":
                 client = MicrosoftClient(api_key=self.credentials["microsoftApiKey"], cache_path=client_cache_path)
             elif organization == "simple":
-                client = SimpleClient()
+                client = SimpleClient(cache_path=client_cache_path)
             else:
                 raise ValueError(f"Unknown organization: {organization}")
             self.clients[organization] = client
@@ -75,6 +78,18 @@ class AutoClient(Client):
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes based on the organization in the name of the model (e.g., ai21/j1-jumbo)."""
+
+        @retry_request
+        def tokenize_with_retry(client: Client, request: TokenizationRequest) -> TokenizationRequestResult:
+            return client.tokenize(request)
+
         organization: str = request.model_organization
         client: Client = self.get_client(organization)
-        return client.tokenize(request)
+
+        try:
+            return tokenize_with_retry(client=client, request=request)
+        except RetryError as e:
+            last_attempt: Attempt = e.last_attempt
+            retry_error: str = f"Failed to tokenize after retrying {last_attempt.attempt_number} times"
+            hlog(retry_error)
+            return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")

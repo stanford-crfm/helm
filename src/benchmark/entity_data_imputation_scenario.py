@@ -106,7 +106,7 @@ class EntityDataImputationScenario(Scenario):
         res = []
         for c in columns:
             res.append(f"{c}: {row[c]}".strip())
-        return " | ".join(res)
+        return ". ".join(res)
 
     def get_instances(self) -> List[Instance]:
         data_path = Path(self.output_path) / "data" / self.dataset
@@ -132,7 +132,7 @@ class EntityDataImputationScenario(Scenario):
             hlog(f"Processing {split} with {example_df.shape[0]} rows")
             for _, row in example_df.iterrows():
                 res = self.serialize_row(row, columns_for_serialize)
-                input = f"{res} | {col_to_impute}:"
+                input = f"{res}. {col_to_impute}?"
                 label = row[col_to_impute]
 
                 instance = Instance(input=input, references=[Reference(output=label, tags=[CORRECT_TAG])], split=split,)

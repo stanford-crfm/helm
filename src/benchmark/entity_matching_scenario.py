@@ -94,7 +94,7 @@ class EntityMatchingScenario(Scenario):
         res = []
         for c_og, c_map in column_map.items():
             res.append(f"{c_map}: {row[c_og]}".strip())
-        return " | ".join(res)
+        return ". ".join(res)
 
     def get_instances(self) -> List[Instance]:
         data_path = Path(self.output_path) / "data" / self.dataset
@@ -126,7 +126,7 @@ class EntityMatchingScenario(Scenario):
             for _, pair in example_df.iterrows():
                 resA = self.serialize_row(pair, column_mapA)
                 resB = self.serialize_row(pair, column_mapB)
-                input = f"Row A: {resA} ; Row B: {resB} ?"
+                input = f"Product A is {resA}. Product B is {resB}. Are A and B the same?"
                 label = "Yes" if pair["label"] else "No"
 
                 instance = Instance(input=input, references=[Reference(output=label, tags=[CORRECT_TAG])], split=split,)
