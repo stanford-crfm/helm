@@ -1,12 +1,12 @@
 from typing import List, Dict
 
 from common.request import Request
-from common.statistic import Stat, merge_stat
 from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from .adapter import ScenarioState
 from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
 from .metric_service import MetricService
+from .statistic import Stat, merge_stat
 
 
 class TokensMetric(Metric):

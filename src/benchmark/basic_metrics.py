@@ -15,7 +15,6 @@ from rouge_score import rouge_scorer
 
 from common.hierarchical_logger import hlog
 from common.request import Token
-from common.statistic import Stat
 from . import code_metrics_helper
 from proxy.tokenizer.tokenizer import Tokenizer
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
@@ -27,6 +26,7 @@ from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .code_scenario import CodeReference
+from .statistic import Stat
 
 
 try:

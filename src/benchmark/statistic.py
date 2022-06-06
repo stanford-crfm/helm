@@ -2,7 +2,7 @@ from typing import Dict, List
 from dataclasses import dataclass, field
 import random
 
-from benchmark.metric_name import MetricName
+from .metric_name import MetricName
 
 
 @dataclass
