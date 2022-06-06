@@ -853,8 +853,7 @@ def get_code_spec(dataset: str) -> RunSpec:
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
             instructions="",
-            # in-context examples are generally too long to fit in the model context window @258 pull request
-            max_train_instances=0,
+            max_train_instances=2,  # Follows the original paper https://arxiv.org/pdf/2105.09938.pdf Appendix D.
             max_eval_instances=10000,
             num_outputs=1,
             num_train_trials=1,
