@@ -238,16 +238,19 @@ class Summarizer:
         """ Load the corresponding runs for the run specs in run_specs.json. """
         runs = []
         run_specs_path = os.path.join(self.output_path, "run_specs.json")
-        with open(run_specs_path) as f:
-            j = json.load(f)
-            for rs in j:
-                run_spec = dacite.from_dict(RunSpec, rs)
-                run_dir_path = os.path.join(self.output_path, "runs", run_spec.name)
-                run_spec_path = os.path.join(run_dir_path, "run_spec.json")
-                metrics_path = os.path.join(run_dir_path, "metrics.json")
-                if os.path.exists(run_spec_path) and os.path.exists(metrics_path):
-                    run = self.load_run_from_directory(run_dir_path)
-                    runs.append(run)
+        if os.path.exists(run_specs_path):
+            with open(run_specs_path) as f:
+                j = json.load(f)
+                for rs in j:
+                    run_spec = dacite.from_dict(RunSpec, rs)
+                    run_dir_path = os.path.join(self.output_path, "runs", run_spec.name)
+                    run_spec_path = os.path.join(run_dir_path, "run_spec.json")
+                    metrics_path = os.path.join(run_dir_path, "metrics.json")
+                    if os.path.exists(run_spec_path) and os.path.exists(metrics_path):
+                        run = self.load_run_from_directory(run_dir_path)
+                        runs.append(run)
+        else:
+            hlog(f"Summarizer won't run because {run_specs_path} doesn't exist yet. This is expected in a dry run.")
         return runs
 
     @staticmethod
