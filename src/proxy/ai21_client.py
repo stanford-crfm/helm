@@ -139,7 +139,10 @@ class AI21Client(Client):
 
             return response
 
-        response, cached = self.cache.get(raw_request, do_it)
+        try:
+            response, cached = self.cache.get(raw_request, do_it)
+        except AI21RequestError:
+            return TokenizationRequestResult(success=False, cached=False, text="", tokens=[])
 
         # Each token is represented like this in the response:
         # {'token': '▁Hello', 'textRange': {'start': 0, 'end': 5}}
@@ -149,4 +152,4 @@ class AI21Client(Client):
                 TokenizationToken(text=token_dict["token"], text_range=from_dict(TextRange, token_dict["textRange"]))
             )
         text: str = response["text"]
-        return TokenizationRequestResult(cached=cached, tokens=tokens, text=text)
+        return TokenizationRequestResult(success=True, cached=cached, tokens=tokens, text=text)

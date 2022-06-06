@@ -1,5 +1,7 @@
 {
   "huggingface/gptj_6b": 12.5,
+  "gooseai/gpt-j-6b": 12.5,
+  "gooseai/gpt-neo-20b": 35,
   "openai/ada": 1.1,
   "openai/text-ada-001": 1.1,
   "openai/babbage": 4.1,
