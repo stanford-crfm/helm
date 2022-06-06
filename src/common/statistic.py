@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Any
 from dataclasses import dataclass, field
 import random
 
@@ -36,6 +36,17 @@ class Stat:
             index_to_remove = random.randint(0, self.values_buffer_size)
             if index_to_remove < self.values_buffer_size:
                 self.values[index_to_remove] = x
+
+    @staticmethod
+    def from_dict(adict: Dict[str, Any]) -> "Stat":
+        assert "name" in adict, "The dictionary must contain a key named 'name'"
+        stat = Stat(name=adict["name"])
+        property_names = ["mean", "stddev"]
+        for k, v in adict.items():
+            assert hasattr(stat, k), f"Provided dict contains the key '{k}', which doesn't map to a Stat object field."
+            if k not in property_names:
+                setattr(stat, k, v)  # No need to explicitly type check as the Stat object fields are typed
+        return stat
 
     def add(self, x) -> "Stat":
         # Skip Nones for statistic aggregation.
