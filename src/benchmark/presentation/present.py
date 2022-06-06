@@ -404,7 +404,7 @@ def main():
 
     # Summarize the results for use in the UI
     summarizer = Summarizer(output_path=args.output_path)
-    summarizer.write_runs()  # Can be read back with: Summarizer.load_runs_json(os.path.join(args.output_path, "runs.json"))
+    summarizer.write_runs()  # Can be read with: Summarizer.load_runs_json(os.path.join(args.output_path, "runs.json"))
     summarizer.write_model_stats()
     summarizer.write_scenario_stats()
     hlog("Done.")
