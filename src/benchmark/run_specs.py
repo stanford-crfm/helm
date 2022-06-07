@@ -884,11 +884,13 @@ def get_code_spec(dataset: str) -> RunSpec:
             method=ADAPT_GENERATION,
             instructions="",
             max_train_instances=0,
+            # in-context examples are generally too long to fit in the model context window
             max_eval_instances=10000,
             num_outputs=1,
             num_train_trials=1,
             model="openai/code-davinci-001",
             temperature=0.2,
+            # Taken from the original OpenAI paper to prevent the further generation of irrelevant classes/functions
             stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],
             max_tokens=600,
             input_prefix="",
@@ -899,13 +901,18 @@ def get_code_spec(dataset: str) -> RunSpec:
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
             instructions="",
-            max_train_instances=0,
+            max_train_instances=2,  # Follows the original paper https://arxiv.org/pdf/2105.09938.pdf Appendix D.
             max_eval_instances=10000,
             num_outputs=1,
             num_train_trials=1,
             model="openai/code-davinci-001",
             temperature=0.2,
-            stop_sequences=["'''", "---", '"""', "\n\n\n"],
+            stop_sequences=[
+                "'''",
+                "---",
+                '"""',
+                "\n\n\n",
+            ],  # Manually selected by @lxuechen to prevent the further generation of irrelevant classes/functions
             max_tokens=600,
             input_prefix="",
             output_prefix="",

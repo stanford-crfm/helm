@@ -1,8 +1,9 @@
-from typing import Callable
+from typing import Callable, Union
 
 from retrying import Retrying
 
 from common.request import RequestResult
+from common.tokenization_request import TokenizationRequestResult
 from common.hierarchical_logger import hlog
 
 """
@@ -39,8 +40,8 @@ def get_retry_decorator(stop_max_attempt_number: int, wait_exponential_multiplie
         hlog(f"The request failed. Attempt #{attempts + 1}, retrying in {delay // 1000} seconds...")
         return _retrying.exponential_sleep(attempts, delay)
 
-    def retry_if_request_failed(result: RequestResult) -> bool:
-        """Fails if `success` of `RequestResult` is false."""
+    def retry_if_request_failed(result: Union[RequestResult, TokenizationRequestResult]) -> bool:
+        """Fails if `success` of `RequestResult` or `TokenizationRequestResult` is false."""
         return not result.success
 
     _retrying = Retrying(

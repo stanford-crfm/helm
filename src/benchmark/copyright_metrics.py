@@ -1,5 +1,4 @@
 from common.request import RequestResult
-from common.statistic import Stat
 from nltk.tokenize.treebank import TreebankWordTokenizer
 from typing import List, Optional
 
@@ -7,6 +6,7 @@ from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
+from .statistic import Stat
 
 
 def _longest_common_prefix_length(s1: List[str], s2: List[str], previous_best: Optional[int] = None) -> int:
