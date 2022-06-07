@@ -1,8 +1,8 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 import random
 
-from benchmark.metric_name import MetricName
+from .metric_name import MetricName
 
 
 @dataclass
@@ -11,8 +11,8 @@ class Stat:
 
     name: MetricName
     count: int
-    min: float
-    max: float
+    min: Optional[float]
+    max: Optional[float]
     sum: float
     mean: float
     values: List[float] = field(default_factory=list)
@@ -76,7 +76,7 @@ class Stat:
         else:
             return f"{self.name}[(0)]"
 
-    @property
+    @property  # type: ignore
     def mean(self):
         if self.count == 0:
             return None

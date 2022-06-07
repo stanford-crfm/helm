@@ -1,12 +1,12 @@
 from collections import defaultdict
 from typing import List, Dict, Tuple, Optional, cast
 
-from common.statistic import Stat
 from .adapter import ScenarioState, RequestState
 from .metric_service import MetricService
 from .metric import Metric, MetricResult
 from .metric_name import MetricName
 from .scenario import VALID_SPLIT, InformationRetrievalInstance
+from .statistic import Stat
 
 
 class MSMARCOMetric(Metric):
