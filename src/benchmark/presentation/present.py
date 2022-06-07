@@ -1,21 +1,27 @@
 import argparse
 import dataclasses
-import json
 import os
 import traceback
 import yaml
 from collections import defaultdict
 from pathlib import Path
-from tqdm import tqdm
-from typing import List, Optional, Set, Dict
 
+import dacite
+from tqdm import tqdm
+from typing import List, Optional, Dict, Any, Set
+import json
+
+from benchmark.scenario import TEST_SPLIT
 from common.authentication import Authentication
 from common.general import parse_hocon, write
 from common.hierarchical_logger import hlog, htrack
-from benchmark.run import run_benchmarking, add_run_args, validate_args, LATEST_SYMLINK
+from benchmark.statistic import Stat
+from benchmark.augmentations.perturbation_description import PerturbationDescription
+from benchmark.run import Run, run_benchmarking, add_run_args, validate_args, LATEST_SYMLINK
 from benchmark.runner import RunSpec
+from benchmark.metric import MetricName
 from proxy.remote_service import add_service_args, create_authentication
-from proxy.models import ALL_MODELS
+from proxy.models import ALL_MODELS, Model
 
 """
 Runs all the RunSpecs in run_specs.conf and outputs a status page.
@@ -177,6 +183,149 @@ class AllRunner:
             )
 
 
+class Summarizer:
+    """ Summarize the benchmark results in json files to be displayed in the UI. """
+
+    DATA_AUGMENTATION_STR: str = "data_augmentation="
+
+    def __init__(self, output_path: str, conf_path: str):
+        """ Initialize the summarizer. """
+        self.output_path: str = output_path
+        self.conf_path: str = conf_path
+        self.runs: List[Run] = self.load_runs()
+
+    @staticmethod
+    def load_run_spec_json(run_spec_file_path: str) -> RunSpec:
+        """ Load a RunSpec object from a json file. """
+        with open(run_spec_file_path, "r") as f:
+            j = json.load(f)
+            return dacite.from_dict(RunSpec, j)
+
+    @staticmethod
+    def load_stats_json(stats_file_path: str) -> List[Stat]:
+        """ Load stats from a json file. """
+        stats: List[Stat] = []
+        with open(stats_file_path, "r") as f:
+            j = json.load(f)
+            for stat in j:
+                stat["name"]["perturbation"] = PerturbationDescription(stat["name"]["perturbation"])
+                stat["name"] = MetricName(**stat["name"])
+                stat = dacite.from_dict(Stat, stat)
+                stats.append(stat)
+        return stats
+
+    @staticmethod
+    def load_runs_json(runs_file_path: str) -> List[Run]:
+        """ Load runs from runs.json. """
+        runs: List[Run] = []
+        with open(runs_file_path, "r") as f:
+            j = json.load(f)
+            for r in j:
+                run = dacite.from_dict(Run, r)
+                runs.append(run)
+        return runs
+
+    def load_run_from_directory(self, run_dir: str) -> Run:
+        """ Load the run stored in run_dir. """
+        run_dict = {
+            "run_dir": run_dir,
+            "run_spec": self.load_run_spec_json(os.path.join(run_dir, "run_spec.json")),
+            "stats": self.load_stats_json(os.path.join(run_dir, "metrics.json")),
+        }
+        return Run(**run_dict)
+
+    def load_runs(self) -> List[Run]:
+        """ Load the corresponding runs for the run specs in run_specs.json. """
+        runs = []
+        run_specs_path = os.path.join(self.output_path, "run_specs.json")
+        if os.path.exists(run_specs_path):
+            with open(run_specs_path) as f:
+                j = json.load(f)
+                for rs in j:
+                    run_spec = dacite.from_dict(RunSpec, rs)
+                    run_dir_path = os.path.join(self.output_path, "runs", run_spec.name)
+                    run_spec_path = os.path.join(run_dir_path, "run_spec.json")
+                    metrics_path = os.path.join(run_dir_path, "metrics.json")
+                    if os.path.exists(run_spec_path) and os.path.exists(metrics_path):
+                        run = self.load_run_from_directory(run_dir_path)
+                        runs.append(run)
+        else:
+            hlog(f"Summarizer won't run because {run_specs_path} doesn't exist yet. This is expected in a dry run.")
+        return runs
+
+    @staticmethod
+    def get_scenario_name_from_run_spec(run_spec: RunSpec) -> str:
+        """ Get the scenario name from the RunSpec name.
+
+            run_spec.name                                         => scenario name
+            'boolq,model=ai21_j1-jumbo'                           => 'boolq'
+            'math:subject=prealgebra,level=5,model=ai21_j1-jumbo' => 'math:subject=prealgebra'
+        """
+        return run_spec.name.split(",")[0]
+
+    @staticmethod
+    def filter_runs_by_model_name(runs: List[Run], model_name: str) -> List[Run]:
+        return [r for r in runs if r.run_spec.adapter_spec.model == model_name]
+
+    @staticmethod
+    def filter_runs_by_scenario_name(runs: List[Run], scenario_name: str) -> List[Run]:
+        return [r for r in runs if Summarizer.get_scenario_name_from_run_spec(r.run_spec) == scenario_name]
+
+    @staticmethod
+    def filter_runs_with_perturbations(runs: List[Run]) -> List[Run]:
+        return [r for r in runs if not r.run_spec.data_augmenter_spec.perturbations]
+
+    @staticmethod
+    def filter_stats(
+        stats: List[Stat],
+        stat_name: str,
+        k: Optional[int] = None,
+        split: str = TEST_SPLIT,
+        perturbation_name: Optional[str] = None,
+    ) -> List[Stat]:
+        # We perform filters in separate lines to observe how the stats list change with each
+        filtered_stats = [s for s in stats if s.name.name == stat_name]
+        filtered_stats = [s for s in filtered_stats if s.name.k == k]
+        filtered_stats = [s for s in filtered_stats if s.name.split == split]
+        filtered_stats = [s for s in filtered_stats if s.name.perturbation.name == perturbation_name]
+        return filtered_stats
+
+    @staticmethod
+    def get_model_dict(runs: List[Run], model: Model) -> Dict[str, Any]:
+        """ Create a model dictionary containing all the information related to a model and its runs. """
+        # Initialize a model dict with the fields of a model
+        model_dict = vars(model)
+        filtered_runs = Summarizer.filter_runs_by_model_name(runs, model.name)
+        model_dict["results"] = [dataclasses.asdict(run) for run in filtered_runs]
+        return model_dict
+
+    def write_runs(self):
+        write(
+            os.path.join(self.output_path, "runs.json"), json.dumps(list(map(dataclasses.asdict, self.runs)), indent=2)
+        )
+
+    def write_model_stats(self):
+        """ Compute model stats and output them to <self.output_path>/model_stats.json """
+        # Populate the model stats for each model
+        model_stats = []
+        for model in ALL_MODELS:
+            model_dict = self.get_model_dict(self.runs, model)
+            model_stats.append(model_dict)
+
+        # Write the stats
+        write(os.path.join(self.output_path, "model_stats.json"), json.dumps(model_stats, indent=2))
+
+    def write_scenario_stats(self):
+        """ Computes model stats and output them to <self.output_path>/scenario_stats.json """
+        # @TODO Create scenario stats json
+        scenario_stats = []
+
+        # Write the stats
+        write(
+            os.path.join(self.output_path, "scenario_stats.json"), json.dumps(scenario_stats, indent=2),
+        )
+
+
 def main():
     parser = argparse.ArgumentParser()
     add_service_args(parser)
@@ -210,5 +359,14 @@ def main():
         max_eval_instances=args.max_eval_instances,
         models_to_run=args.models_to_run,
     )
+
+    # Run the benchmark!
     runner.run()
+
+    # Output JSON files summarizing the benchmark results which will be loaded in the web interface
+    summarizer = Summarizer(output_path=args.output_path, conf_path=args.conf_path)
+    summarizer.write_runs()
+    summarizer.write_model_stats()
+    summarizer.write_scenario_stats()
+
     hlog("Done.")
