@@ -293,10 +293,10 @@ class MSMARCOScenario(Scenario):
     RECALL_MEASURES = [f"recall.{k}" for k in [1, 2, 3, 5, 10, 20]]
     RECIP_RANK_MEASURES = [f"recip_rank.{k}" for k in [5, 10, 20]]
     SUCCESS_MEASURES = [f"success.{k}" for k in [1, 2, 3, 5, 10, 20]]
-    NDCG_MEASURES = [f"ndcg_cut.{k}" for k in [5, 10, 20]]
+    NDCG_CUT_MEASURES = [f"ndcg_cut.{k}" for k in [5, 10, 20]]
     MEASURE_NAMES = {
         (PASSAGE_TASK, REGULAR_TRACK): SUCCESS_MEASURES + RECALL_MEASURES + RECIP_RANK_MEASURES,
-        (PASSAGE_TASK, TREC_TRACK): SUCCESS_MEASURES + RECALL_MEASURES + RECIP_RANK_MEASURES + NDCG_MEASURES,
+        (PASSAGE_TASK, TREC_TRACK): SUCCESS_MEASURES + RECALL_MEASURES + RECIP_RANK_MEASURES + NDCG_CUT_MEASURES,
     }
 
     """ The information retrieval mode used by this scenario. """

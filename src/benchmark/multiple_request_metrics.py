@@ -1,7 +1,6 @@
 from collections import defaultdict, OrderedDict
 from dataclasses import dataclass
 import os
-import re
 from typing import Any, Callable, Dict, List, Tuple, Optional, cast
 
 import pytrec_eval
@@ -166,8 +165,14 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
     """ Metric name for this class. """
     IR_METRIC_NAME = "information_retrieval"
 
-    """ Recip rank measure name. """
+    """ Measures. """
     RECIP_RANK_MEASURE = "recip_rank"
+    SUCCESS_MEASURE = "success"
+    RECALL_MEASURE = "recall"
+    NDCG_CUT_MEASURE = "ndcg_cut"
+    SUPPORTED_MEASURES = [RECIP_RANK_MEASURE, SUCCESS_MEASURE, RECALL_MEASURE, NDCG_CUT_MEASURE]
+    BINARY_MEASURES = [RECIP_RANK_MEASURE, RECALL_MEASURE, SUCCESS_MEASURE]
+    CUSTOM_PARAMETRIZED_MEASURES = [RECIP_RANK_MEASURE]
 
     """ Measure topk delimiter. """
     TOPK_DELIMITER = "."
@@ -195,16 +200,15 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
             measure_names: The trec_eval measure names that will be computed.
                 Measure names must be measure names supported by the official
                 trec_eval measure. List of supported measures can be found in
-                pytrec_eval.supported_measures, with the following notes:
-                    (1) trec_eval accepts additional parameters specifying the
-                        number of top rankings to be considered. For example,
-                        "success.5" is the version of the "success" measure
-                        where the score is evaluated on the top 5 rankings for
-                        each query.
-                    (2) In trec_eval, "recip_rank" measure cannot be
-                        parameterized the same way, but this metric accounts for
-                        the parameterized version of "recip_rank". Hence,
-                        "recip_rank.k" is a valid measure that can be used.
+                self.SUPPORTED_MEASURES. Note that:
+                    (1) We also accept the parametrized versions
+                        (e.g. "measure_name.k") of self.SUPPORTED_MEASURES
+                        measures. Finally,
+                    (2) We accept any measure that's in either "measure_name" or
+                        "measure_name.k" form, where measure_name is in
+                        pytrec_eval.supported_measures, but note that
+                        self.BINARY_MEASURES list must be modified to
+                        include any new binary measures.
             qrels_path: Path to the qrels file for the validation examples.
                 Each row must follow the format below, where qid is the ID for
                 the question, oid is the ID for the object and rel is the
@@ -249,12 +253,13 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
 
         self.multi_value_qrels = multi_value_qrels
 
-        assert os.path.exists(qrels_path)
+        # assert os.path.exists(qrels_path)  # @TODO No data run leads to an error
         self.qrels_path = qrels_path
 
         # Instance level variables we use throughout
-        with open(qrels_path, "r") as f:
-            self.qrels = pytrec_eval.parse_qrel(f)
+        if os.path.exists(qrels_path):
+            with open(qrels_path, "r") as f:
+                self.qrels = pytrec_eval.parse_qrel(f)
 
         # Used to map get_run_ranking_dict to a function based on the selected mode
         self.mode_to_run_dict_function = {self.BINARY_LOGPROB_MODE: self.get_run_ranking_dict_binary_logprob_mode}
@@ -273,9 +278,13 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
         return measure_name, None
 
     def validate_measure_name(self, measure_name: str) -> bool:
-        """ Check if the provided measure_name is a valid measure name. """
+        """ Check if the provided measure_name is a valid measure name.
+
+        Note that this method doesn't check whether the parametrization, if any
+        is valid for the specific measure in TREC.
+        """
         measure_name, k = self.parse_measure_name(measure_name)
-        if measure_name in pytrec_eval.supported_measures:
+        if measure_name in self.SUPPORTED_MEASURES + list(pytrec_eval.supported_measures):
             return True
         return False
 
@@ -337,25 +346,23 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
             )
         return run
 
-    def binarize_dict(self, d: Dict[int, int]):
+    def binarize_dict(self, d: Dict[int, int]) -> Dict[int, int]:
         """ Binarize the dict by setting the values that are 1 to 0.
 
         Values greater than 1 stay untouched.
         """
         return {k: 0 if v == 1 else v for k, v in d.items()}
 
-    def measure_to_metric_name(self, measure_name):
+    def measure_to_metric_name(self, measure_name: str, k: Optional[int]) -> str:
         """ Convert the measure name to an easier to read metric name. """
-
-        def convert_measure_name(mn):
-            MEASURE_TO_METRIC_NAME = {"ndcg_cut": "NDCG", "recip_rank": "RR"}
-            return MEASURE_TO_METRIC_NAME[mn] if mn in MEASURE_TO_METRIC_NAME else mn.capitalize()
-
-        match = re.findall("(.*)\.([\d]+)", measure_name)  # Match strings of the form "{measure_name}_{k}"
-        if match:
-            measure_name, k = match[0]
-            return f"{convert_measure_name(measure_name)}@{k}"
-        return convert_measure_name(measure_name)
+        MEASURE_TO_METRIC_NAME = {"ndcg_cut": "NDCG", "recip_rank": "RR"}
+        mn_str = (
+            MEASURE_TO_METRIC_NAME[measure_name]
+            if measure_name in MEASURE_TO_METRIC_NAME
+            else measure_name.capitalize()
+        )
+        k_str = f"@{k}" if k else ""
+        return f"{mn_str}{k_str}"
 
     def information_retrieval(
         self, request_state_groups: List[RequestStateGroup], train_trial_index: int
@@ -364,19 +371,21 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
         # Compute evaluations
         evaluations: Dict[str, Dict[str, float]] = defaultdict(dict)
         run = self.get_run_ranking_dict_function(request_state_groups)
-        for measure_name in self.measure_names:
-            # Default values
-            evaluator_measure_name, evaluator_run, evaluator_qrels = measure_name, run, self.qrels
-            # Values for the custom measures
+        for evaluator_measure_name in self.measure_names:
+            evaluator_run, evaluator_qrels = run, self.qrels
             parsed_measure_name, k = self.parse_measure_name(evaluator_measure_name)
-            if parsed_measure_name == self.RECIP_RANK_MEASURE:
-                if k:
-                    evaluator_run = {qid: self.limit_dict_length(d, k) for qid, d in run.items()}
+            # If the measure is a binary measure, we binarize qrels files that are multi value.
+            if parsed_measure_name in self.BINARY_MEASURES and self.multi_value_qrels:
                 evaluator_qrels = {qid: self.binarize_dict(d) for qid, d in self.qrels.items()}
+            # If the measure is a custom parametrized one, we limit the length of the run dictionaries,
+            # since TREC doesn't support parametrization for some measures
+            if parsed_measure_name in self.CUSTOM_PARAMETRIZED_MEASURES and k:
+                evaluator_measure_name = parsed_measure_name
+                evaluator_run = {qid: self.limit_dict_length(d, k) for qid, d in run.items()}
             # Run the evaluator
             evaluator = pytrec_eval.RelevanceEvaluator(evaluator_qrels, {evaluator_measure_name})
             for qid, d in evaluator.evaluate(evaluator_run).items():
-                evaluations[qid][self.measure_to_metric_name(measure_name)] = list(d.values())[0]
+                evaluations[qid][self.measure_to_metric_name(parsed_measure_name, k)] = list(d.values())[0]
 
         # Create the metrics
         per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
