@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 import random
 
-from benchmark.metric_name import MetricName
+from .metric_name import MetricName
 
 
 @dataclass
@@ -67,7 +67,7 @@ class Stat:
         else:
             return f"{self.name}[(0)]"
 
-    @property
+    @property  # type: ignore
     def mean(self):
         if self.count == 0:
             return None

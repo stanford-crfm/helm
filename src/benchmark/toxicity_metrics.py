@@ -2,11 +2,11 @@ from typing import List, Optional
 
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from common.request import RequestResult
-from common.statistic import Stat
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
+from .statistic import Stat
 
 
 class ToxicityMetric(Metric):

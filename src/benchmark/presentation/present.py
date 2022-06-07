@@ -15,7 +15,7 @@ from benchmark.scenario import TEST_SPLIT
 from common.authentication import Authentication
 from common.general import parse_hocon, write
 from common.hierarchical_logger import hlog, htrack
-from common.statistic import Stat
+from benchmark.statistic import Stat
 from benchmark.augmentations.perturbation_description import PerturbationDescription
 from benchmark.run import Run, run_benchmarking, add_run_args, validate_args, LATEST_SYMLINK
 from benchmark.runner import RunSpec

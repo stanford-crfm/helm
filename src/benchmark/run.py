@@ -6,7 +6,7 @@ from typing import List, Optional
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.authentication import Authentication
 from common.object_spec import parse_object_spec
-from common.statistic import Stat
+from benchmark.statistic import Stat
 from proxy.remote_service import create_authentication, add_service_args
 
 from .executor import ExecutionSpec

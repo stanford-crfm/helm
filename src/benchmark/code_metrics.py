@@ -3,13 +3,13 @@
 from typing import List, Union, Sequence, cast
 
 from common.request import RequestResult
-from common.statistic import Stat
 from . import code_metrics_helper
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_service import MetricService
 from .code_scenario import CodeReference
 from .metric_name import MetricName
+from .statistic import Stat
 
 
 def _convert_scores(scores: Sequence[Union[int, bool]]) -> List[float]:
