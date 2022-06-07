@@ -237,9 +237,7 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
         self.mode = mode
 
         for measure_name in measure_names:
-            msg = f"""Measure name must be one of {pytrec_eval.supported_measures}
-                      or must be of the form 'recip_rank.k', instead found {measure_name}."""
-            assert measure_name in pytrec_eval.supported_measures or self.is_custom_measure(measure_name), msg
+            assert self.validate_measure_name(measure_name), f"""Measure name {measure_name} isn't supported."""
         self.measure_names = measure_names
 
         self.correct_output = self.standardize(correct_output)
@@ -267,21 +265,17 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
         self.metric_name_to_function = {self.IR_METRIC_NAME: self.information_retrieval}
         self.metric_names = [self.IR_METRIC_NAME]
 
-    def parse_custom_measure_name(self, measure_name):
-        """ Parse a custom measure of the form 'measure_name.k' """
+    def parse_measure_name(self, measure_name) -> Tuple[str, Optional[int]]:
+        """ Parse measure name of the form 'measure_name' or 'measure_name.k' into its parts. """
         if self.TOPK_DELIMITER in measure_name:
             measure_name, k = measure_name.split(self.TOPK_DELIMITER)
             return measure_name, int(k)
-        return None, None
+        return measure_name, None
 
-    def is_custom_measure(self, measure_name: str) -> bool:
-        """ Check if the provided measure_name belongs to a custom_measure.
-
-        Custom measures defined are as follows:
-            (1) "recip_rank.{k}", where k is a positive integer.
-        """
-        measure_name, k = self.parse_custom_measure_name(measure_name)
-        if measure_name and k:
+    def validate_measure_name(self, measure_name: str) -> bool:
+        """ Check if the provided measure_name is a valid measure name. """
+        measure_name, k = self.parse_measure_name(measure_name)
+        if measure_name in pytrec_eval.supported_measures:
             return True
         return False
 
@@ -344,7 +338,10 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
         return run
 
     def binarize_dict(self, d: Dict[int, int]):
-        """ Binarize the dict by setting the values that are 1 to 0. """
+        """ Binarize the dict by setting the values that are 1 to 0.
+
+        Values greater than 1 stay untouched.
+        """
         return {k: 0 if v == 1 else v for k, v in d.items()}
 
     def measure_to_metric_name(self, measure_name):
@@ -371,9 +368,10 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
             # Default values
             evaluator_measure_name, evaluator_run, evaluator_qrels = measure_name, run, self.qrels
             # Values for the custom measures
-            if self.is_custom_measure(measure_name):
-                evaluator_measure_name, k = self.parse_custom_measure_name(measure_name)
-                evaluator_run = {qid: self.limit_dict_length(d, k) for qid, d in run.items()}
+            parsed_measure_name, k = self.parse_measure_name(evaluator_measure_name)
+            if parsed_measure_name == self.RECIP_RANK_MEASURE:
+                if k:
+                    evaluator_run = {qid: self.limit_dict_length(d, k) for qid, d in run.items()}
                 evaluator_qrels = {qid: self.binarize_dict(d) for qid, d in self.qrels.items()}
             # Run the evaluator
             evaluator = pytrec_eval.RelevanceEvaluator(evaluator_qrels, {evaluator_measure_name})
