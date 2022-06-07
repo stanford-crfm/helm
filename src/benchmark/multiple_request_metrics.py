@@ -257,6 +257,7 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
         self.qrels_path = qrels_path
 
         # Instance level variables we use throughout
+        self.qrels = {}  # @TODO No data run leads to an error
         if os.path.exists(qrels_path):
             with open(qrels_path, "r") as f:
                 self.qrels = pytrec_eval.parse_qrel(f)
