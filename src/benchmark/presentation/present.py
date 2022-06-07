@@ -193,9 +193,10 @@ class Summarizer:
 
     DATA_AUGMENTATION_STR: str = "data_augmentation="
 
-    def __init__(self, output_path: str, conf_path: str):
+    def __init__(self, output_path: str, suite: str, conf_path: str):
         """ Initialize the summarizer. """
         self.output_path: str = output_path
+        self.suite: str = suite
         self.conf_path: str = conf_path
         self.runs: List[Run] = self.load_runs()
 
@@ -241,14 +242,16 @@ class Summarizer:
 
     def load_runs(self) -> List[Run]:
         """ Load the corresponding runs for the run specs in run_specs.json. """
-        runs = []
-        run_specs_path = os.path.join(self.output_path, "run_specs.json")
+        runs: List[Run] = []
+        suite_path: str = os.path.join(self.output_path, "runs", self.suite)
+        run_specs_path: str = os.path.join(suite_path, "run_specs.json")
+
         if os.path.exists(run_specs_path):
             with open(run_specs_path) as f:
                 j = json.load(f)
                 for rs in j:
                     run_spec = dacite.from_dict(RunSpec, rs)
-                    run_dir_path = os.path.join(self.output_path, "runs", run_spec.name)
+                    run_dir_path = os.path.join(suite_path, run_spec.name)
                     run_spec_path = os.path.join(run_dir_path, "run_spec.json")
                     metrics_path = os.path.join(run_dir_path, "metrics.json")
                     if os.path.exists(run_spec_path) and os.path.exists(metrics_path):
@@ -376,7 +379,7 @@ def main():
     runner.run()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
-    summarizer = Summarizer(output_path=args.output_path, conf_path=args.conf_path)
+    summarizer = Summarizer(output_path=args.output_path, suite=args.suite, conf_path=args.conf_path)
     summarizer.write_runs()
     summarizer.write_model_stats()
     summarizer.write_scenario_stats()
