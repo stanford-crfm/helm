@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Tuple, Optional, cast
 
 import pytrec_eval
 
-from common.statistic import Stat, merge_stat
+from benchmark.statistic import Stat, merge_stat
 from .adapter import ScenarioState, RequestState
 from .metric_service import MetricService
 from .metric import Metric, MetricResult, PerInstanceStatsKey
