@@ -4,9 +4,9 @@ from typing import List, Dict, Tuple
 from math import log, e
 from collections import defaultdict
 
-from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
+from .statistic import Stat, merge_stat
 
 from .augmentations.perturbation_description import PerturbationDescription
 
