@@ -296,7 +296,7 @@ class Summarizer:
         # Initialize a model dict with the fields of a model
         model_dict = vars(model)
         filtered_runs = Summarizer.filter_runs_by_model_name(runs, model.name)
-        model_dict["results"] = [dataclasses.asdict(run) for run in filtered_runs]
+        model_dict["runs"] = [dataclasses.asdict(run) for run in filtered_runs]
         return model_dict
 
     def write_runs(self):
