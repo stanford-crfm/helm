@@ -87,14 +87,14 @@ def get_srn_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
-def get_numeracy_metrics(relation_type: str, run_solver: bool = True) -> List[MetricSpec]:
+def get_numeracy_metrics(run_solver: bool = False) -> List[MetricSpec]:
     metric_names = {"names": ["exact_match", "quasi_exact_match", "absolute_value_difference"]}
-    metrics = [
+    metrics: List[MetricSpec] = [
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names),
     ]
-    if (
-        relation_type not in ["parabola", "paraboloid"] or run_solver
-    ):  # the solvers are slow to run so make them skippable
+
+    # The solvers are slow to run so make them skippable
+    if run_solver:
         metrics += [
             MetricSpec(class_name="benchmark.numeracy_metrics.DistanceMetric", args={}),
         ]
@@ -569,12 +569,12 @@ def get_raft_spec(subset: str) -> RunSpec:
 
 
 def get_numeracy_spec(
-    relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: bool = True
+    relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: bool = False
 ) -> RunSpec:
     random_seed = int(seed)
     scenario = ScenarioSpec(
         class_name="benchmark.numeracy_scenario.NumeracyScenario",
-        args={"seed": random_seed, "relation_type": relation_type, "mode": mode,},
+        args={"seed": random_seed, "relation_type": relation_type, "mode": mode},
     )
 
     if mode in ["example", "standard"]:
@@ -608,7 +608,7 @@ def get_numeracy_spec(
         name=f"numeracy:relation_type={relation_type},mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_numeracy_metrics(relation_type, run_solver=run_solver),
+        metrics=get_numeracy_metrics(run_solver),
     )
 
 
