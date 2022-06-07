@@ -399,7 +399,6 @@ class MSMARCOScenario(Scenario):
         data_path = os.path.join(self.output_path, "data")
         ensure_directory_exists(data_path)
         target_file_path = os.path.join(data_path, target_file_name)
-        return target_file_path  # TODO remove
         ensure_file_downloaded(source_url=urlstring, target_path=target_file_path)
         return target_file_path
 
