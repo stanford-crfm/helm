@@ -68,10 +68,8 @@ def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
 
-def get_msmarco_metrics(task: str, track: str, rank_limit: Optional[int] = None) -> List[MetricSpec]:
-    mode = MSMARCOScenario.BINARY_LOGPROB_MODE
+def get_msmarco_metrics(task: str, track: str, topk: Optional[int] = None) -> List[MetricSpec]:
     measure_names = MSMARCOScenario.MEASURE_NAMES[(task, track)]
-    correct_output, wrong_output = MSMARCOScenario.CORRECT_OUTPUT, MSMARCOScenario.WRONG_OUTPUT
     qrels_path_arr = [
         "benchmark_output",
         "scenarios",
@@ -80,6 +78,9 @@ def get_msmarco_metrics(task: str, track: str, rank_limit: Optional[int] = None)
         f"{task}_{track}_qrels.tsv",
     ]  # @TODO There should be a way to programmatically get this
     qrels_path = os.path.join(*qrels_path_arr)
+    mode = MSMARCOScenario.BINARY_LOGPROB_MODE
+    correct_output, wrong_output = MSMARCOScenario.CORRECT_OUTPUT, MSMARCOScenario.WRONG_OUTPUT
+    multi_value_qrels = set(MSMARCOScenario.GOLD_RELATIONS[(task, track)]) != {1}
 
     return [
         MetricSpec(
@@ -90,7 +91,8 @@ def get_msmarco_metrics(task: str, track: str, rank_limit: Optional[int] = None)
                 "mode": mode,
                 "correct_output": correct_output,
                 "wrong_output": wrong_output,
-                "rank_limit": rank_limit,
+                "topk": topk,
+                "multi_value_qrels": multi_value_qrels,
             },
         ),
         MetricSpec(
@@ -257,7 +259,7 @@ def get_msmarco_spec(
               """,
         scenario=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_msmarco_metrics(task, track, rank_limit=valid_topk),
+        metrics=get_msmarco_metrics(task, track, topk=valid_topk),
     )
 
 

@@ -290,11 +290,13 @@ class MSMARCOScenario(Scenario):
     InformationRetrievalMetrics class, and correspond to the measure names in
     pytrec_eval.supported_measures.
     """
-    NDCG = "ndcg"
-    RECIP_RANK = "recip_rank"
+    RECALL_MEASURES = [f"recall.{k}" for k in [1, 2, 3, 5, 10, 20]]
+    RECIP_RANK_MEASURES = [f"recip_rank.{k}" for k in [5, 10, 20]]
+    SUCCESS_MEASURES = [f"success.{k}" for k in [1, 2, 3, 5, 10, 20]]
+    NDCG_MEASURES = [f"ndcg_cut.{k}" for k in [5, 10, 20]]
     MEASURE_NAMES = {
-        (PASSAGE_TASK, REGULAR_TRACK): [RECIP_RANK],
-        (PASSAGE_TASK, TREC_TRACK): [RECIP_RANK, NDCG],
+        (PASSAGE_TASK, REGULAR_TRACK): SUCCESS_MEASURES + RECALL_MEASURES + RECIP_RANK_MEASURES,
+        (PASSAGE_TASK, TREC_TRACK): SUCCESS_MEASURES + RECALL_MEASURES + RECIP_RANK_MEASURES + NDCG_MEASURES,
     }
 
     """ The information retrieval mode used by this scenario. """

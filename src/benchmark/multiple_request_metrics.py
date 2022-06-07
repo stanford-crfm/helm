@@ -1,6 +1,7 @@
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from dataclasses import dataclass
 import os
+import re
 from typing import Any, Callable, Dict, List, Tuple, Optional, cast
 
 import pytrec_eval
@@ -165,12 +166,18 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
     """ Metric name for this class. """
     IR_METRIC_NAME = "information_retrieval"
 
+    """ Recip rank measure name. """
+    RECIP_RANK_MEASURE = "recip_rank"
+
+    """ Measure topk delimiter. """
+    TOPK_DELIMITER = "."
+
     """ Token used to represent missing results.
 
     Results may be missing if the RequestState object didn't reach to a
     completed stage.
     """
-    MISSING_RESULT_TOKEN = "missing"
+    MISSING_RESULT_TEXT = "missing"
 
     def __init__(
         self,
@@ -179,13 +186,25 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
         mode: str,
         correct_output: str,
         wrong_output: str,
-        rank_limit: Optional[int] = None,
+        topk: Optional[int] = None,
+        multi_value_qrels: bool = False,
     ):
         """Constructor for the InformationRetrievalMetric.
 
         Args:
             measure_names: The trec_eval measure names that will be computed.
-                Measure names must be in pytrec_eval.supported_measures.
+                Measure names must be measure names supported by the official
+                trec_eval measure. List of supported measures can be found in
+                pytrec_eval.supported_measures, with the following notes:
+                    (1) trec_eval accepts additional parameters specifying the
+                        number of top rankings to be considered. For example,
+                        "success.5" is the version of the "success" measure
+                        where the score is evaluated on the top 5 rankings for
+                        each query.
+                    (2) In trec_eval, "recip_rank" measure cannot be
+                        parameterized the same way, but this metric accounts for
+                        the parameterized version of "recip_rank". Hence,
+                        "recip_rank.k" is a valid measure that can be used.
             qrels_path: Path to the qrels file for the validation examples.
                 Each row must follow the format below, where qid is the ID for
                 the question, oid is the ID for the object and rel is the
@@ -201,29 +220,36 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
             wrong_output: If the binary_logprob mode is selected, the string
                 that should be outputted if the model predicts that the object
                 given in the instance can not answer the question.
-            rank_limit: The number of max top object rankings to keep for
-                evaluation. This flag can be used, for example, if k
-                validation examples were expanded by additional set examples,
-                yet we still want to compute the scores for the top k objects
-                ranked, irrespective of whether the objects came from the
-                original k or the expanded set.
+            topk: The optional number of max top object rankings to keep for
+                evaluation. If None, all the rankings are evaluated. If topk is
+                specified, only the top min(len(rankings), topk) passage
+                rankings are kept and used for evaluation for each query.
+            multi_value_qrels: Flag indicating whether the qrels file read
+                has more than two relevance values. In a binary qrels file, all
+                the non-matching relevance values would have the value 0 and
+                all the matching ones would have value of 1. For multi value
+                qrels files, value of 0 will be interpreted as non-matching,
+                but any other value would be interpreted as matching with
+                differing strengths.
         """
         # Input validation
         assert mode in self.MODE_LIST, f"Mode must be one of {self.MODE_LIST}, instead found {mode}."
         self.mode = mode
 
         for measure_name in measure_names:
-            assert (
-                measure_name in pytrec_eval.supported_measures
-            ), f"Measure name must be one of {pytrec_eval.supported_measures}, instead found {measure_name}."
+            msg = f"""Measure name must be one of {pytrec_eval.supported_measures}
+                      or must be of the form 'recip_rank.k', instead found {measure_name}."""
+            assert measure_name in pytrec_eval.supported_measures or self.is_custom_measure(measure_name), msg
         self.measure_names = measure_names
 
         self.correct_output = self.standardize(correct_output)
         self.wrong_output = self.standardize(wrong_output)
 
-        if rank_limit:
-            assert rank_limit >= 0
-        self.rank_limit = rank_limit
+        if topk:
+            assert topk >= 0
+        self.topk = topk
+
+        self.multi_value_qrels = multi_value_qrels
 
         assert os.path.exists(qrels_path)
         self.qrels_path = qrels_path
@@ -241,10 +267,38 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
         self.metric_name_to_function = {self.IR_METRIC_NAME: self.information_retrieval}
         self.metric_names = [self.IR_METRIC_NAME]
 
+    def parse_custom_measure_name(self, measure_name):
+        """ Parse a custom measure of the form 'measure_name.k' """
+        if self.TOPK_DELIMITER in measure_name:
+            measure_name, k = measure_name.split(self.TOPK_DELIMITER)
+            return measure_name, int(k)
+        return None, None
+
+    def is_custom_measure(self, measure_name: str) -> bool:
+        """ Check if the provided measure_name belongs to a custom_measure.
+
+        Custom measures defined are as follows:
+            (1) "recip_rank.{k}", where k is a positive integer.
+        """
+        measure_name, k = self.parse_custom_measure_name(measure_name)
+        if measure_name and k:
+            return True
+        return False
+
     @staticmethod
     def standardize(text: str) -> str:
         """ Strip and lower the given text. """
         return text.strip().lower()
+
+    @staticmethod
+    def limit_list_length(alist: List[Any], k: int) -> List[Any]:
+        """ Limit the length of the list to be at most k. """
+        end_ind = min(len(alist), k)
+        return alist[:end_ind]
+
+    def limit_dict_length(self, adict: Dict[Any, Any], k: int) -> Dict[Any, Any]:
+        """ Limit the number of elements in a dict to be at most k. """
+        return dict(self.limit_list_length(list(adict.items()), k))
 
     def triple_scorer(self, triple) -> Tuple[int, float]:
         """ Return a tuple score for the (oid, token, logprob) triple.
@@ -264,46 +318,72 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
         for instance, request_state in zip(group.instances, group.request_states):
             oid = instance.request_id
             if oid:
-                token, logprob = self.MISSING_RESULT_TOKEN, 0.0
+                text, logprob = self.MISSING_RESULT_TEXT, 0.0
                 if request_state.result and request_state.result.completions:
-                    token, logprob = (
-                        request_state.result.completions[0].text,
-                        request_state.result.completions[0].logprob,
-                    )
-                triples.append((oid, self.standardize(token), logprob))
+                    token = request_state.result.completions[0].tokens[0]
+                    text, logprob = token.text, token.logprob
+                triples.append((oid, self.standardize(text), logprob))
         sorted_triples = sorted(triples, key=self.triple_scorer, reverse=True)
         return [oid for (oid, _, _) in sorted_triples]
 
     def get_run_ranking_dict_binary_logprob_mode(
         self, request_state_groups: List[RequestStateGroup]
-    ) -> Dict[str, Dict[str, int]]:
+    ) -> Dict[str, Dict[str, float]]:
         """ Compute a run dictionary from the request_state_groups.
 
         The returned run dictionary can be used as an input to evaluators of the
         pytrec_eval module.
         """
-        run: Dict[str, Dict[str, int]] = {}
+        run: Dict[str, Dict[str, float]] = {}
         for group in request_state_groups:
             sorted_pids = self.get_sorted_oids(group)
-            sorted_pids = sorted_pids[: min(len(sorted_pids), self.rank_limit)] if self.rank_limit else sorted_pids
-            run[group.group_id] = {pid: rank + 1 for rank, pid in enumerate(sorted_pids)}
+            sorted_pids = self.limit_list_length(sorted_pids, self.topk) if self.topk else sorted_pids
+            run[group.group_id] = OrderedDict(
+                {pid: 1 - ind * (1 / len(sorted_pids)) for ind, pid in enumerate(sorted_pids)}
+            )
         return run
+
+    def binarize_dict(self, d: Dict[int, int]):
+        """ Binarize the dict by setting the values that are 1 to 0. """
+        return {k: 0 if v == 1 else v for k, v in d.items()}
+
+    def measure_to_metric_name(self, measure_name):
+        """ Convert the measure name to an easier to read metric name. """
+
+        def convert_measure_name(mn):
+            MEASURE_TO_METRIC_NAME = {"ndcg_cut": "NDCG", "recip_rank": "RR"}
+            return MEASURE_TO_METRIC_NAME[mn] if mn in MEASURE_TO_METRIC_NAME else mn.capitalize()
+
+        match = re.findall("(.*)\.([\d]+)", measure_name)  # Match strings of the form "{measure_name}_{k}"
+        if match:
+            measure_name, k = match[0]
+            return f"{convert_measure_name(measure_name)}@{k}"
+        return convert_measure_name(measure_name)
 
     def information_retrieval(
         self, request_state_groups: List[RequestStateGroup], train_trial_index: int
     ) -> Dict[PerInstanceStatsKey, List[Stat]]:
         """ Compute the self.measures on the request_state_groups and return statistics. """
+        # Compute evaluations
+        evaluations: Dict[str, Dict[str, float]] = defaultdict(dict)
         run = self.get_run_ranking_dict_function(request_state_groups)
-        evaluator = pytrec_eval.RelevanceEvaluator(self.qrels, set(self.measure_names))
-        evaluations: Dict[str, Dict[str, float]] = evaluator.evaluate(
-            run
-        )  # Dictionary mapping qid (group_id) to a dictionary of metric scores
+        for measure_name in self.measure_names:
+            # Default values
+            evaluator_measure_name, evaluator_run, evaluator_qrels = measure_name, run, self.qrels
+            # Values for the custom measures
+            if self.is_custom_measure(measure_name):
+                evaluator_measure_name, k = self.parse_custom_measure_name(measure_name)
+                evaluator_run = {qid: self.limit_dict_length(d, k) for qid, d in run.items()}
+                evaluator_qrels = {qid: self.binarize_dict(d) for qid, d in self.qrels.items()}
+            # Run the evaluator
+            evaluator = pytrec_eval.RelevanceEvaluator(evaluator_qrels, {evaluator_measure_name})
+            for qid, d in evaluator.evaluate(evaluator_run).items():
+                evaluations[qid][self.measure_to_metric_name(measure_name)] = list(d.values())[0]
+
+        # Create the metrics
         per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
         for group in request_state_groups:
             if group.instances:
-                group_stats = [
-                    Stat(MetricName(metric_name)).add(score)
-                    for metric_name, score in evaluations[group.group_id].items()
-                ]
+                group_stats = [Stat(MetricName(mn)).add(score) for mn, score in evaluations[group.group_id].items()]
                 per_instance_stats[PerInstanceStatsKey(group.instances[0], train_trial_index)] = group_stats
         return per_instance_stats
