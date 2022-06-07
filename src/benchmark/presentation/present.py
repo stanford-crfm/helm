@@ -56,6 +56,7 @@ class AllRunner:
         skip_instances: bool,
         max_eval_instances: Optional[int],
         models_to_run: Optional[List[str]],
+        exit_on_error: bool,
     ):
         self.auth: Authentication = auth
         self.conf_path: str = conf_path
@@ -67,6 +68,7 @@ class AllRunner:
         self.skip_instances: bool = skip_instances
         self.max_eval_instances: Optional[int] = max_eval_instances
         self.models_to_run: Optional[List[str]] = models_to_run
+        self.exit_on_error: bool = exit_on_error
 
     @staticmethod
     def update_status_page(output_dir: str, wip_content: List[str], ready_content: List[str]):
@@ -144,8 +146,11 @@ class AllRunner:
                 # Update the status page after processing every `RunSpec` description
                 AllRunner.update_status_page(suite_dir, wip_content, ready_content)
 
-            except Exception:
-                hlog(f"Error when running {run_spec_description}:\n{traceback.format_exc()}")
+            except Exception as e:
+                if self.exit_on_error:
+                    raise e
+                else:
+                    hlog(f"Error when running {run_spec_description}:\n{traceback.format_exc()}")
 
         if len(run_specs) == 0:
             hlog("There were no RunSpecs or they got filtered out.")
@@ -341,6 +346,12 @@ def main():
         help="Only RunSpecs with these models specified. If no model is specified, run everything.",
         default=None,
     )
+    parser.add_argument(
+        "--exit-on-error",
+        action="store_true",
+        default=None,
+        help="Fail and exit immediately if a particular RunSpec fails.",
+    )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
@@ -358,6 +369,7 @@ def main():
         skip_instances=args.skip_instances,
         max_eval_instances=args.max_eval_instances,
         models_to_run=args.models_to_run,
+        exit_on_error=args.exit_on_error,
     )
 
     # Run the benchmark!
