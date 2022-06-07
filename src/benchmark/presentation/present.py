@@ -292,15 +292,11 @@ class Summarizer:
 
     @staticmethod
     def get_model_dict(runs: List[Run], model: Model) -> Dict[str, Any]:
+        """ Create a model dictionary containing all the information related to a model and its runs. """
         # Initialize a model dict with the fields of a model
         model_dict = vars(model)
-        model_dict["results"] = {}
-
-        # Add accuracy across some subset of benchmarks
         filtered_runs = Summarizer.filter_runs_by_model_name(runs, model.name)
-        for run in filtered_runs:
-            model_dict["results"][run.run_spec.name] = dataclasses.asdict(run)
-
+        model_dict["results"] = [dataclasses.asdict(run) for run in filtered_runs]
         return model_dict
 
     def write_runs(self):
