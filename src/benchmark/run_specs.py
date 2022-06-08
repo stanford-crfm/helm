@@ -726,7 +726,7 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
         max_eval_instances=None,
         num_outputs=1,
         temperature=0.0,
-        stop_sequences=["\n"]
+        stop_sequences=["\n"],
     )
 
     return RunSpec(
