@@ -1,4 +1,5 @@
 from typing import List, Dict, Optional, Any, Callable
+import os
 
 from common.object_spec import ObjectSpec
 from .adapter import (
@@ -8,14 +9,16 @@ from .adapter import (
     ADAPT_GENERATION,
     ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
 )
-from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
-from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
 from .metric import MetricSpec
-from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
-from .raft_scenario import get_raft_instructions
 from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenario import ScenarioSpec
+
+from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
+from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
+from .msmarco_scenario import MSMARCOScenario
+from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
+from .raft_scenario import get_raft_instructions
 
 HUMAN_EVAL_METRIC_NAMES = ("code_eval_acc", "pass")
 APPS_METRIC_NAMES = ("test_avg", "strict_acc")
@@ -65,13 +68,31 @@ def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
 
-def get_msmarco_metrics() -> List[MetricSpec]:
+def get_msmarco_metrics(task: str, track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:
+    measure_names = MSMARCOScenario.MEASURE_NAMES[(task, track)]
+    mode = MSMARCOScenario.BINARY_LOGPROB_MODE
+    correct_output, wrong_output = MSMARCOScenario.CORRECT_OUTPUT, MSMARCOScenario.WRONG_OUTPUT
+    multi_value_qrels = set(MSMARCOScenario.GOLD_RELATIONS[(task, track)]) != {1}
+
     return [
         MetricSpec(
-            class_name="benchmark.msmarco_metrics.MSMARCOMetric",
-            args={"name": "mean_reciprocal_rank", "topk_list": [10]},
+            class_name="benchmark.multiple_request_metrics.InformationRetrievalMetric",
+            args={
+                "measure_names": measure_names,
+                "qrels_path": qrels_path,
+                "mode": mode,
+                "correct_output": correct_output,
+                "wrong_output": wrong_output,
+                "topk": topk,
+                "multi_value_qrels": multi_value_qrels,
+            },
         ),
-        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
+        MetricSpec(
+            class_name="benchmark.multiple_request_metrics.MultipleRequestMetrics", args={"use_basic_metrics": True}
+        ),
+        # The line below is commented out because efficiency metrics are taking a long time to compute
+        # @TODO Uncomment the line below when we have the efficiency computations for all the models
+        # MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
 
 
@@ -87,14 +108,14 @@ def get_srn_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
-def get_numeracy_metrics(relation_type: str, run_solver: bool = True) -> List[MetricSpec]:
+def get_numeracy_metrics(run_solver: bool = False) -> List[MetricSpec]:
     metric_names = {"names": ["exact_match", "quasi_exact_match", "absolute_value_difference"]}
-    metrics = [
+    metrics: List[MetricSpec] = [
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names),
     ]
-    if (
-        relation_type not in ["parabola", "paraboloid"] or run_solver
-    ):  # the solvers are slow to run so make them skippable
+
+    # The solvers are slow to run so make them skippable
+    if run_solver:
         metrics += [
             MetricSpec(class_name="benchmark.numeracy_metrics.DistanceMetric", args={}),
         ]
@@ -181,38 +202,60 @@ def get_bbq_spec(subject: str) -> RunSpec:
 
 
 def get_msmarco_spec(
-    task: str, track: str = "regular", topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
+    task,
+    track,
+    use_qrels_passages="False",
+    use_topk_passages="False",
+    valid_topk=None,
+    num_valid_queries=None,
+    num_train_queries="1000",
 ) -> RunSpec:
-    scenario = ScenarioSpec(
+    # Get ScenarioSpec
+    use_qrels_passages = use_qrels_passages.lower() == "true"
+    use_topk_passages = use_topk_passages.lower() == "true"
+    valid_topk = int(valid_topk) if valid_topk else valid_topk
+    num_valid_queries = int(num_valid_queries) if num_valid_queries else num_valid_queries
+    num_train_queries = int(num_train_queries)
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.msmarco_scenario.MSMARCOScenario",
         args={
             "task": task,
             "track": track,
-            "topk": int(topk),
-            "num_eval_queries": int(num_eval_queries),
-            "num_train_queries": int(num_train_queries),
+            "use_qrels_passages": use_qrels_passages,
+            "use_topk_passages": use_topk_passages,
+            "valid_topk": valid_topk,
+            "num_valid_queries": num_valid_queries,
+            "num_train_queries": num_train_queries,
         },
     )
 
+    # Get AdapterSpec
     adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE,
+        method=ADAPT_GENERATION,
         instructions="",
         input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
-        max_train_instances=4,  # TODO: @Dilara - Justify
-        max_eval_instances=200,  # TODO: @Dilara - Justify
+        max_train_instances=4,  # Needs to be even to ensure equal number of correct and wrong examples
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
     )
+
+    # Create metrics
+    qrels_path = os.path.join("benchmark_output", "scenarios", "msmarco", "data", f"{task}_{track}_qrels.tsv")
+    metrics = get_msmarco_metrics(task, track, qrels_path, topk=valid_topk)
+
+    # Return RunSpec
     return RunSpec(
-        name=f"msmarco:task={task},track={track},topk={topk},num_eval_queries={num_eval_queries},"
-        f"num_train_queries={num_train_queries}",
-        scenario=scenario,
+        name=f"""msmarco:task={task},track={track},use_qrels_passages={use_qrels_passages},use_topk_passages={use_topk_passages},
+                 valid_topk={valid_topk},num_valid_queries={num_valid_queries},num_train_queries={num_train_queries}
+              """,
+        scenario=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_msmarco_metrics(),
+        metrics=metrics,
     )
 
 
@@ -567,12 +610,12 @@ def get_raft_spec(subset: str) -> RunSpec:
 
 
 def get_numeracy_spec(
-    relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: bool = True
+    relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: bool = False
 ) -> RunSpec:
     random_seed = int(seed)
     scenario = ScenarioSpec(
         class_name="benchmark.numeracy_scenario.NumeracyScenario",
-        args={"seed": random_seed, "relation_type": relation_type, "mode": mode,},
+        args={"seed": random_seed, "relation_type": relation_type, "mode": mode},
     )
 
     if mode in ["example", "standard"]:
@@ -606,7 +649,7 @@ def get_numeracy_spec(
         name=f"numeracy:relation_type={relation_type},mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_numeracy_metrics(relation_type, run_solver=run_solver),
+        metrics=get_numeracy_metrics(run_solver),
     )
 
 
@@ -837,11 +880,13 @@ def get_code_spec(dataset: str) -> RunSpec:
             method=ADAPT_GENERATION,
             instructions="",
             max_train_instances=0,
+            # in-context examples are generally too long to fit in the model context window
             max_eval_instances=10000,
             num_outputs=1,
             num_train_trials=1,
             model="openai/code-davinci-001",
             temperature=0.2,
+            # Taken from the original OpenAI paper to prevent the further generation of irrelevant classes/functions
             stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],
             max_tokens=600,
             input_prefix="",
@@ -852,13 +897,18 @@ def get_code_spec(dataset: str) -> RunSpec:
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
             instructions="",
-            max_train_instances=0,
+            max_train_instances=2,  # Follows the original paper https://arxiv.org/pdf/2105.09938.pdf Appendix D.
             max_eval_instances=10000,
             num_outputs=1,
             num_train_trials=1,
             model="openai/code-davinci-001",
             temperature=0.2,
-            stop_sequences=["'''", "---", '"""', "\n\n\n"],
+            stop_sequences=[
+                "'''",
+                "---",
+                '"""',
+                "\n\n\n",
+            ],  # Manually selected by @lxuechen to prevent the further generation of irrelevant classes/functions
             max_tokens=600,
             input_prefix="",
             output_prefix="",

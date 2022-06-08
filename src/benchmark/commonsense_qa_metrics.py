@@ -2,13 +2,13 @@ from dataclasses import replace
 from typing import List, Dict
 
 from common.request import Token
-from common.statistic import Stat, merge_stat
 from .adapter import AdapterSpec, ScenarioState, RequestState
 from .metric_service import MetricService
 from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
 from .scenario import Instance
 from .commonsense_qa_scenario import CLM_CORRECT_TAG
+from .statistic import Stat, merge_stat
 
 
 class CommonSenseQAMetric(Metric):

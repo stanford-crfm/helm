@@ -1,7 +1,7 @@
 from typing import Dict
 
-from benchmark.metric_name import MetricName
-from common.statistic import Stat, merge_stat
+from .metric_name import MetricName
+from .statistic import Stat, merge_stat
 
 
 def test_merge_stat():
