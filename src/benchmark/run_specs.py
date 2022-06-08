@@ -68,16 +68,8 @@ def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
 
-def get_msmarco_metrics(task: str, track: str, topk: Optional[int] = None) -> List[MetricSpec]:
+def get_msmarco_metrics(task: str, track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:
     measure_names = MSMARCOScenario.MEASURE_NAMES[(task, track)]
-    qrels_path_arr = [
-        "benchmark_output",
-        "scenarios",
-        "msmarco",
-        "data",
-        f"{task}_{track}_qrels.tsv",
-    ]  # @TODO There should be a way to programmatically get this
-    qrels_path = os.path.join(*qrels_path_arr)
     mode = MSMARCOScenario.BINARY_LOGPROB_MODE
     correct_output, wrong_output = MSMARCOScenario.CORRECT_OUTPUT, MSMARCOScenario.WRONG_OUTPUT
     multi_value_qrels = set(MSMARCOScenario.GOLD_RELATIONS[(task, track)]) != {1}
@@ -98,7 +90,9 @@ def get_msmarco_metrics(task: str, track: str, topk: Optional[int] = None) -> Li
         MetricSpec(
             class_name="benchmark.multiple_request_metrics.MultipleRequestMetrics", args={"use_basic_metrics": True}
         ),
-        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
+        # The line below is commented out because efficiency metrics are taking a long time to compute
+        # @TODO Uncomment the line below when we have the efficiency computations for all the models
+        # MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
 
 
@@ -218,7 +212,7 @@ def get_msmarco_spec(
     num_valid_queries=None,
     num_train_queries="1000",
 ) -> RunSpec:
-    # Create ScenarioSpec
+    # Get ScenarioSpec
     use_qrels_passages = use_qrels_passages.lower() == "true"
     use_topk_passages = use_topk_passages.lower() == "true"
     valid_topk = int(valid_topk) if valid_topk else valid_topk
@@ -237,7 +231,7 @@ def get_msmarco_spec(
         },
     )
 
-    # Create AdapterSpec
+    # Get AdapterSpec
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="",
@@ -252,6 +246,10 @@ def get_msmarco_spec(
         stop_sequences=["\n"],
     )
 
+    # Create metrics
+    qrels_path = os.path.join("benchmark_output", "scenarios", "msmarco", "data", f"{task}_{track}_qrels.tsv")
+    metrics = get_msmarco_metrics(task, track, qrels_path, topk=valid_topk)
+
     # Return RunSpec
     return RunSpec(
         name=f"""msmarco:task={task},track={track},use_qrels_passages={use_qrels_passages},use_topk_passages={use_topk_passages},
@@ -259,7 +257,7 @@ def get_msmarco_spec(
               """,
         scenario=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_msmarco_metrics(task, track, topk=valid_topk),
+        metrics=metrics,
     )
 
 
