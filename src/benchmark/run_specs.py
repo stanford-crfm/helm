@@ -571,7 +571,7 @@ def get_raft_spec(subset: str) -> RunSpec:
 def get_numeracy_spec(
     relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
 ) -> RunSpec:
-    run_solver: bool = True if run_solver == "True" else False
+    run_solver: bool = True if run_solver == "True" else False  # type: ignore
     random_seed = int(seed)
     scenario = ScenarioSpec(
         class_name="benchmark.numeracy_scenario.NumeracyScenario",
@@ -609,12 +609,12 @@ def get_numeracy_spec(
         name=f"numeracy:relation_type={relation_type},mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_numeracy_metrics(run_solver),
+        metrics=get_numeracy_metrics(run_solver),   # type: ignore
     )
 
 
 def get_math_spec(subject: str, level: str, use_official_prompt: str = "True") -> RunSpec:
-    use_official_prompt: bool = True if use_official_prompt == "True" else False
+    use_official_prompt: bool = True if use_official_prompt == "True" else False  # type: ignore
     scenario = ScenarioSpec(
         class_name="benchmark.math_scenario.MATHScenario", args={"subject": subject, "level": level}
     )
