@@ -47,7 +47,9 @@ class CopyrightScenario(Scenario):
     """
 
     name = "copyright"
-    description = "Data extraction attacks based on the BookCorpus."
+    description = (
+        "Data extraction attacks based on the original BookCorpus, curated popular books, and GPL source code."
+    )
     tags = ["harms", "copyright"]
 
     def __init__(self, datatag="pilot"):
