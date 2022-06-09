@@ -398,13 +398,13 @@ class BasicMetric(Metric):
         # and calculate the number of tokens in the prompt.
         tokenizer_service: TokenizerService = metric_service
         tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
-        num_tokens_in_prompt: int = tokenizer.tokenize_and_count(request_state.request.prompt)
+        num_prompt_tokens: int = tokenizer.tokenize_and_count(request_state.request.prompt)
 
         sequence = request_state.result.completions[0]
         num_output_tokens: int = len(sequence.tokens)
         # Don't include prompt in number of generated tokens (e.g., for language modeling).
         if request_state.request.echo_prompt:
-            num_output_tokens -= num_tokens_in_prompt
+            num_output_tokens -= num_prompt_tokens
         assert num_output_tokens >= 0
 
         idealized_runtime: Optional[float]
@@ -422,7 +422,7 @@ class BasicMetric(Metric):
             largest_num_tokens_in_efficiency_dict: int = max(runtimes_for_input_tokens.keys())
             # Find the smallest num_input_tokens larger than the number of tokens in the given prompt.
             for num_input_tokens in sorted(runtimes_for_input_tokens.keys()):
-                if num_tokens_in_prompt <= num_input_tokens:
+                if num_prompt_tokens <= num_input_tokens:
                     runtime_for_input_tokens = runtimes_for_input_tokens[num_input_tokens]
                     break
 
@@ -431,7 +431,7 @@ class BasicMetric(Metric):
             # key (this is reasonably accurate under certain simplifying assumptions).
             if runtime_for_input_tokens is None:
                 runtime_for_input_tokens = runtimes_for_input_tokens[largest_num_tokens_in_efficiency_dict] * (
-                    num_tokens_in_prompt / largest_num_tokens_in_efficiency_dict
+                    num_prompt_tokens / largest_num_tokens_in_efficiency_dict
                 )
 
             # Idealized runtime is sum of the runtime of encoding the input tokens, and the
@@ -462,7 +462,7 @@ class BasicMetric(Metric):
 
         return [
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
-            Stat(MetricName("num_tokens_in_prompt")).add(num_tokens_in_prompt),
+            Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens),
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
             Stat(MetricName("inference_runtime_discrepancy")).add(runtime_discrepancy),
