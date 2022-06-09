@@ -69,6 +69,10 @@ class Runner:
         # Output the results under a folder with the name of the suite
         self.runs_path: str = os.path.join(output_path, "runs", suite)
 
+        # The path where to cache files needs to compute metrics, e.g., human evaluation results
+        self.eval_cache_path: str = os.path.join(self.runs_path, "eval_cache")
+        ensure_directory_exists(self.eval_cache_path)
+
     def run_all(self):
         for run_spec in self.run_specs:
             with htrack_block(f"Running {run_spec.name}"):
@@ -109,7 +113,9 @@ class Runner:
         with htrack_block(f"{len(metrics)} metrics"):
             for metric in metrics:
                 with htrack_block(metric):
-                    metric_result: MetricResult = metric.evaluate(scenario_state, self.metric_service)
+                    metric_result: MetricResult = metric.evaluate(
+                        scenario_state, self.metric_service, self.eval_cache_path
+                    )
                     stats.extend(metric_result.aggregated_stats)
                     for key in metric_result.per_instance_stats:
                         per_instance_stats[key].extend(metric_result.per_instance_stats[key])
