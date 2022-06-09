@@ -1100,7 +1100,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
     # TODO: @Faisal remove this parameter once testing is done.
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
-        args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512,},
+        args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
     )
 
     adapter_spec = AdapterSpec(
@@ -1113,7 +1113,42 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
         model="openai/davinci",
         max_eval_instances=None,
         num_outputs=1,
-        max_tokens=60,  # From Lewis et al. 2019 (https://arxiv.org/pdf/1910.13461.pdf)
+        max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
+        temperature=temperature,  # Temporary change for testing.
+        stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
+    )
+
+    return RunSpec(
+        name=f"summarization_xsum:temperature={temperature}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
+    )
+
+
+def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
+    # TODO: @Faisal remove this parameter once testing is done.
+    scenario = ScenarioSpec(
+        class_name="benchmark.summarization_scenario.SummarizationScenario",
+        args={
+            "dataset_name": "xsum-sampled",
+            "sampling_min_length": 50,
+            "sampling_max_length": 150,
+            "doc_max_length": 512,
+        },
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Summarize the given documents.",
+        input_prefix="Document: ",
+        output_prefix="\nSummary: {",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/davinci",
+        max_eval_instances=None,
+        num_outputs=1,
+        max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=temperature,  # Temporary change for testing.
         stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
     )
@@ -1305,6 +1340,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "babi_qa": get_babi_qa_spec,
     "real_toxicity_prompts": get_real_toxicity_prompts_spec,
     "summarization_xsum": get_xsum_summarization_spec,
+    "summarization_xsum_sampled": get_xsum_sampled_summarization_spec,
     "summarization_cnndm": get_cnndm_summarization_spec,
     "truthful_qa": get_truthful_qa_spec,
     "twitter_aae": get_twitter_aae_spec,
