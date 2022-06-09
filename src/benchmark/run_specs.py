@@ -801,7 +801,7 @@ def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
         max_eval_instances=None,  # TODO: Modify this as necessary.
         num_outputs=1,  # TODO: More is better; but we're subject to compute constraints.
         model="openai/davinci",
-        max_tokens=2048,
+        max_tokens=1024,
     )
 
     return RunSpec(
