@@ -22,7 +22,7 @@ class CommonSenseQAMetric(Metric):
         self.n_choice = n_choice
         self.n_request_per_instance = self.n_choice * 2  # each choice w/ context or w/o context
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
+    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService, runs_path: str) -> MetricResult:
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
         all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}  # (Instance, Trial index) -> List[Stat]
@@ -32,7 +32,7 @@ class CommonSenseQAMetric(Metric):
             for idx in range(0, len(scenario_state.request_states), self.n_request_per_instance):
                 request_states = scenario_state.request_states[idx : idx + self.n_request_per_instance]
 
-                instance_stats = self.evaluate_references(adapter_spec, request_states, metric_service)
+                instance_stats = self.evaluate_references(adapter_spec, request_states, metric_service, runs_path)
                 instance: Instance = scenario_state.instances[idx // self.n_request_per_instance]
                 all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
 
@@ -51,7 +51,7 @@ class CommonSenseQAMetric(Metric):
         return MetricResult(list(global_stats.values()), all_per_instance_stats)
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService, runs_path: str
     ) -> List[Stat]:
         """Compute the logprob and normalization factors for the first completion"""
         assert request_state.result is not None
@@ -80,12 +80,16 @@ class CommonSenseQAMetric(Metric):
         ]
 
     def evaluate_references(
-        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState], metric_service: MetricService
+        self,
+        adapter_spec: AdapterSpec,
+        reference_request_states: List[RequestState],
+        metric_service: MetricService,
+        runs_path: str,
     ) -> List[Stat]:
         """Evaluate the references."""
         assert len(reference_request_states) == self.n_request_per_instance
         stats = [
-            self.evaluate_generation(adapter_spec, request_state, metric_service)
+            self.evaluate_generation(adapter_spec, request_state, metric_service, runs_path)
             for request_state in reference_request_states
         ]
         choice_labels = [

@@ -501,7 +501,7 @@ class BasicMetric(Metric):
         ]
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService, runs_path: str
     ) -> List[Stat]:
         """Compute the reference metrics and language modeling metrics"""
         metrics = []
@@ -515,7 +515,11 @@ class BasicMetric(Metric):
         return metrics
 
     def evaluate_references(
-        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState], metric_service: MetricService
+        self,
+        adapter_spec: AdapterSpec,
+        reference_request_states: List[RequestState],
+        metric_service: MetricService,
+        runs_path: str,
     ) -> List[Stat]:
         """
         Setup: for each reference, we have a model score (log probability) and whether it's correct.

@@ -109,7 +109,7 @@ class Runner:
         with htrack_block(f"{len(metrics)} metrics"):
             for metric in metrics:
                 with htrack_block(metric):
-                    metric_result: MetricResult = metric.evaluate(scenario_state, self.metric_service)
+                    metric_result: MetricResult = metric.evaluate(scenario_state, self.metric_service, self.runs_path)
                     stats.extend(metric_result.aggregated_stats)
                     for key in metric_result.per_instance_stats:
                         per_instance_stats[key].extend(metric_result.per_instance_stats[key])

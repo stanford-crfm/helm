@@ -33,7 +33,7 @@ class DistanceMetric(Metric):
     """
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService, runs_path: str
     ) -> List[Stat]:
         """For given request, compute the following two metrics:
         1. geometric distance metric in range [0, ∞), calling the appropriate distance method, if possible, and
