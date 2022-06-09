@@ -652,7 +652,7 @@ def get_numeracy_spec(
         name=f"numeracy:relation_type={relation_type},mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_numeracy_metrics(run_solver),   # type: ignore
+        metrics=get_numeracy_metrics(run_solver),  # type: ignore
     )
 
 
