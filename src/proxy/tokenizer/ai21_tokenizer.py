@@ -158,7 +158,14 @@ class AI21Tokenizer(Tokenizer):
         last_text_range: TextRange = tokens[-1].text_range
         start: int = first_text_range.start
         end: int = last_text_range.end
-        return text[start:end]
+
+        truncated_text: str = text[start:end]
+        if truncated_text.endswith("  "):
+            # The AI21 tokenizer API seems inaccurate (token count is off by 1) when the text ends
+            # with double spaces. Replacing the extra spaces with a single space fixes it.
+            truncated_text = truncated_text.rstrip() + " "
+
+        return truncated_text
 
     def _make_tokenization_request(self, text: str) -> TokenizationRequestResult:
         """Sends a request to the server to tokenize the text via the `TokenizerService`."""
