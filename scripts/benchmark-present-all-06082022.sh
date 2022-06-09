@@ -3,6 +3,7 @@ Run RunSpecs in parallel by models using benchmark-present.
 
 Usage:
 
+  conda activate crfm_benchmarking
   bash scripts/benchmark-present-all-06082022.sh --api-key-path proxy_api_key.4122022.txt --max-eval-instances 1000 --conf-path src/benchmark/presentation/run_specs.conf --num-threads 1
 
 To kill a running process:
