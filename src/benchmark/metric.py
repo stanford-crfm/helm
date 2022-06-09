@@ -59,7 +59,9 @@ class Metric(ABC):
     might move to a world where there is one (or very few metrics that are domain-independent).
     """
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService, runs_path: str) -> MetricResult:
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
+    ) -> MetricResult:
         """
         Main entry point for a `Metric`.  This function groups the single
         list of `RequestState` by training trial and instance, and invokes
@@ -69,9 +71,9 @@ class Metric(ABC):
         as robustness.
         """
         if scenario_state.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
-            return self.evaluate_language_modeling(scenario_state, metric_service, runs_path)
+            return self.evaluate_language_modeling(scenario_state, metric_service, eval_cache_path)
         elif scenario_state.adapter_spec.method == ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS:
-            return self.evaluate_language_modeling_minimal_pairs(scenario_state, metric_service, runs_path)
+            return self.evaluate_language_modeling_minimal_pairs(scenario_state, metric_service, eval_cache_path)
 
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
@@ -87,7 +89,9 @@ class Metric(ABC):
 
                 # Evaluate generated request_state
                 request_state = singleton(scenario_state.get_request_states(train_trial_index, instance, None))
-                instance_stats.extend(self.evaluate_generation(adapter_spec, request_state, metric_service, runs_path))
+                instance_stats.extend(
+                    self.evaluate_generation(adapter_spec, request_state, metric_service, eval_cache_path)
+                )
 
                 # Evaluate the references
                 request_states = []
@@ -95,7 +99,9 @@ class Metric(ABC):
                     request_states.extend(
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
-                instance_stats.extend(self.evaluate_references(adapter_spec, request_states, metric_service, runs_path))
+                instance_stats.extend(
+                    self.evaluate_references(adapter_spec, request_states, metric_service, eval_cache_path)
+                )
                 all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
 
                 # Merge these statistics back.
@@ -167,7 +173,11 @@ class Metric(ABC):
         return MetricResult(list(global_stats.values()), all_per_instance_stats)
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService, runs_path: str,
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
     ) -> List[Stat]:
         """Evaluate free-form generation.  Override me!"""
         return []
@@ -177,13 +187,13 @@ class Metric(ABC):
         adapter_spec: AdapterSpec,
         reference_request_states: List[RequestState],
         metric_service: MetricService,
-        runs_path: str,
+        eval_cache_path: str,
     ) -> List[Stat]:
         """Evaluate the references.  Override me!"""
         return []
 
     def evaluate_language_modeling(
-        self, scenario_state: ScenarioState, metric_service: MetricService, runs_path: str
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
     ) -> MetricResult:
         global_stats: Dict[MetricName, Stat] = {}
         # The first and only trial
@@ -196,7 +206,7 @@ class Metric(ABC):
         for request_state in scenario_state.request_states:
             # Evaluate request_state
             request_stats = self.evaluate_generation(
-                scenario_state.adapter_spec, request_state, metric_service, runs_path
+                scenario_state.adapter_spec, request_state, metric_service, eval_cache_path
             )
             # Use trial index of 0 here since we run only one trial for LM
             all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = request_stats
@@ -242,7 +252,7 @@ class Metric(ABC):
         return MetricResult(list(global_stats.values()), all_per_instance_stats)
 
     def evaluate_language_modeling_minimal_pairs(
-        self, scenario_state: ScenarioState, metric_service: MetricService, runs_path: str
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
     ) -> MetricResult:
         """
         This function computes the log probability of both sentences in each minimal pair
@@ -285,7 +295,7 @@ class Metric(ABC):
                 pair_id: int = int(request_state.instance.id.lstrip("id")) // 2
                 sub_split: str = request_state.instance.sub_split
                 request_stats = self.evaluate_generation(
-                    scenario_state.adapter_spec, request_state, metric_service, runs_path
+                    scenario_state.adapter_spec, request_state, metric_service, eval_cache_path
                 )
                 for stat in request_stats:
                     if stat.name == MetricName("logprob"):

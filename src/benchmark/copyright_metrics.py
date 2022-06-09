@@ -75,7 +75,11 @@ class BasicCopyrightMetric(Metric):
         self.tokenizer = TreebankWordTokenizer()
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService, runs_path: str
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
     ) -> List[Stat]:
         """Compute the length of the longest common prefix between reference and generations.
 

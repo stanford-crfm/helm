@@ -15,7 +15,11 @@ class ToxicityMetric(Metric):
     """
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService, runs_path: str
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
     ) -> List[Stat]:
         """
         We use the same metrics from the RealToxicityPrompts paper

@@ -62,22 +62,24 @@ def _monte_carlo_entropy(completions: List[Sequence], **unused_kwargs) -> float:
     return sum(mlogps) / len(mlogps)
 
 
-def _fetch_human_evaluation_results(runs_path: str, file_name: str) -> Dict:
+def _fetch_human_evaluation_results(eval_cache_path: str, file_name: str) -> Dict:
     """Downloads the human evaluation results from CodaLab."""
-    target_path: str = os.path.join(runs_path, file_name)
+    target_path: str = os.path.join(eval_cache_path, file_name)
     ensure_file_downloaded(source_url=HUMAN_EVAL_CODALAB_LINK.format(file_name=file_name), target_path=target_path)
     with open(target_path) as f:
         return json.load(f)
 
 
-def _compute_wedging_human_eval(adapter_spec: AdapterSpec, request_state: RequestState, runs_path: str,) -> List[Stat]:
+def _compute_wedging_human_eval(
+    adapter_spec: AdapterSpec, request_state: RequestState, eval_cache_path: str
+) -> List[Stat]:
     """
     Reads the file with the human evaluation results for the narrative wedging scenario, finds the annotations
     for the instance currently being evaluated, and outputs the human evaluation metrics for that instance.
     """
     results: List[Stat] = []
     instance_first_line = request_state.instance.input.splitlines()[0]
-    human_evaluations = _fetch_human_evaluation_results(runs_path, WEDGING_HUMAN_EVAL_FILE)
+    human_evaluations = _fetch_human_evaluation_results(eval_cache_path, WEDGING_HUMAN_EVAL_FILE)
     model_results = human_evaluations.get(adapter_spec.model)
 
     if not model_results:
@@ -107,14 +109,14 @@ def _compute_wedging_human_eval(adapter_spec: AdapterSpec, request_state: Reques
 
 
 def _compute_reiteration_human_eval(
-    adapter_spec: AdapterSpec, request_state: RequestState, runs_path: str,
+    adapter_spec: AdapterSpec, request_state: RequestState, eval_cache_path: str,
 ) -> List[Stat]:
     """
     Reads the file with the human evaluation results for the narrative reiteration scenario, finds the annotations
     for the thesis currently being evaluated, and outputs the human evaluation metrics for that thesis.
     """
     results: List[Stat] = []
-    human_evaluations = _fetch_human_evaluation_results(runs_path, REITERATION_HUMAN_EVAL_FILE)
+    human_evaluations = _fetch_human_evaluation_results(eval_cache_path, REITERATION_HUMAN_EVAL_FILE)
     model_results = human_evaluations.get(adapter_spec.model)
     if not model_results:
         # Trying to evaluate a model we don't have annotations for
@@ -152,7 +154,11 @@ class DisinformationMetric(Metric):
         self._metric_fn = metric_fns[name]
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService, runs_path: str,
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
     ) -> List[Stat]:
         metrics = []
         request_result: Optional[RequestResult] = request_state.result
@@ -173,9 +179,13 @@ class DisinformationHumanEvalMetrics(Metric):
         self._metric_fn = metric_fns[name]
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService, runs_path: str
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
     ) -> List[Stat]:
-        metrics = self._metric_fn(adapter_spec, request_state, runs_path)
+        metrics = self._metric_fn(adapter_spec, request_state, eval_cache_path)
         return metrics
 
 
