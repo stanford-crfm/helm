@@ -488,7 +488,7 @@ class BasicMetric(Metric):
         else:
             tokens = sequence.tokens
         pred_tokens = tokens[request_state.num_conditioning_tokens :]
-        logprob, num_tokens, num_bytes = (
+        logprob, num_perplexity_tokens, num_bytes = (
             sum(token.logprob for token in pred_tokens),
             len(pred_tokens),
             get_num_bytes(pred_tokens),
@@ -496,7 +496,7 @@ class BasicMetric(Metric):
 
         return [
             Stat(MetricName("logprob")).add(logprob),
-            Stat(MetricName("num_tokens")).add(num_tokens),
+            Stat(MetricName("num_perplexity_tokens")).add(num_perplexity_tokens),
             Stat(MetricName("num_bytes")).add(num_bytes),
         ]
 
