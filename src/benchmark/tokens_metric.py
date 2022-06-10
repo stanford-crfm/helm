@@ -26,8 +26,7 @@ class TokensMetric(Metric):
 
         for request_state in scenario_state.request_states:
             request: Request = request_state.request
-            num_tokens: int = self.token_counter.estimate_tokens(request)
-            stat = Stat(MetricName("estimated_number_of_tokens")).add(num_tokens)
+            stat = Stat(MetricName("estimated_num_tokens_cost")).add(self.token_counter.estimate_tokens(request))
             merge_stat(stats, stat)
             # Call take_mean to make a copy of the stat above so that merge_stat updates do
             # not change what is in per_instance_stats.
