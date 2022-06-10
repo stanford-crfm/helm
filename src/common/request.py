@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 
-from proxy.models import Model, get_model
+from src.proxy.models import Model, get_model
 from .general import indent_lines, format_text
 
 
