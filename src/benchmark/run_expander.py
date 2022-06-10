@@ -85,8 +85,6 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
     name = "model"
     values_dict = {
-        # TODO: Add GPT-NeoX-20B and GPT-J
-        #       https://github.com/stanford-crfm/benchmarking/issues/310
         "default": [
             "openai/davinci",
             "openai/curie",
@@ -96,9 +94,9 @@ class ModelRunExpander(ReplaceValueRunExpander):
             "ai21/j1-jumbo",
             "ai21/j1-grande",
             "ai21/j1-large",
-            # TODO: uncomment once we get credits for GooseAI
+            "gooseai/gpt-j-6b",
+            # TODO: to conserve GooseAI credits, hold off on running on GPT-NeoX until the end
             # "gooseai/gpt-neo-20b",
-            # "gooseai/gpt-j-6b",
         ],
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
