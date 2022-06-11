@@ -92,7 +92,13 @@ def ensure_file_downloaded(source_url: str, target_path: str, unpack: bool = Fal
             shell(["mv", tmp2_path, target_path])
         os.unlink(tmp_path)
     else:
-        shell(["mv", tmp_path, target_path])
+        if source_url.endswith(".gz"):
+            gzip_path = f"{target_path}.gz"
+            shell(["mv", tmp_path, gzip_path])
+            # gzip writes its output to a file named the same as the input file, omitting the .gz extension
+            shell(["gzip", "-d", gzip_path])
+        else:
+            shell(["mv", tmp_path, target_path])
     hlog(f"Finished downloading {source_url} to {target_path}")
 
 
@@ -138,3 +144,15 @@ def indent_lines(lines: List[str], count: int = 2) -> List[str]:
     """Add `count` spaces before each line in `lines`."""
     prefix = " " * count
     return [prefix + line if len(line) > 0 else "" for line in lines]
+
+
+def match_case(source_word: str, target_word: str) -> str:
+    """ Returns a version of the target_word where the case matches the source_word """
+    if source_word and target_word:
+        # Check for all caps source_word
+        if all(letter.isupper() for letter in source_word):
+            return target_word.upper()
+        # Check for capital source_word
+        if source_word[0].isupper():
+            return target_word.capitalize()
+    return target_word

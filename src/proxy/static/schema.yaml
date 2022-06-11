@@ -1,0 +1,44 @@
+adapter:
+- name: method
+  description: The high-level strategy for converting instances into a prompt for the language model.
+  values:
+  - name: generation
+    description: Include the input and ask for the output free-form generation.
+  - name: multiple_choice
+    description: All the references are included in their prompt as multiple-choice options (A., B., C., D., E.).
+- name: instructions
+  description: The description of the task that is included at the beginning of the prompt.
+- name: input_prefix
+  description: The string that is included before each input (e.g., 'Question:').
+- name: reference_prefix
+  description: The string that is included before each reference (for multiple-choice questions).
+- name: output_prefix
+  description: The string that is included before each reference/predicted output (e.g., 'Answer:').
+- name: max_train_instances
+  description: Maximum number of training instances to include in the prompt (currently by randomly sampling).
+- name: max_eval_instances
+  description: Maximum number of instances to evaluate on (over all splits - test, valid, etc.).
+- name: num_outputs
+  description: Maximum number of possible outputs to generate (either sampling or top k).
+- name: num_train_trials
+  description: Number of trials, where in each trial we choose an independent, random set of training instances.  Used to compute variance.
+- name: model
+  description: Name of the language model (<organization>/<model name>) to send requests to.
+- name: temperature
+  description: Temperature parameter used in generation.
+- name: max_tokens
+  description: Maximum number of tokens to generate.
+- name: stop_sequences
+  description: List of sequences, where we stop generation if we encouter any of them.
+
+metrics:
+- name: exact_match
+  description: Whether the predicted output matches one of the correct references.
+- name: quasi_exact_match
+  description: Whether the predicted output matches one of the correct references up to lightweight processing.
+- name: logprob
+  description: Log-probability of the predicted output (for language modeling, the input too).
+- name: num_perplexity_tokens
+  description: Number of tokens in the output (for language modeling, the input too).
+- name: num_bytes
+  description: Number of bytes in the output (for language modeling, the input too).

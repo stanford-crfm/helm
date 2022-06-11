@@ -5,32 +5,12 @@ on:
   pull_request:
 
 jobs:
-  format:
-    name: Format
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 14.x
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
-      - uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            pip-
-      - run: ./pre-commit.sh && git diff --exit-code
-
   install:
     name: Install
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.8]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -48,8 +28,6 @@ jobs:
   test:
     name: Tests
     runs-on: ubuntu-latest
-    env:
-      TEST_PORT: 1959
     steps:
       - name: Clear free space
         run: |
@@ -65,21 +43,21 @@ jobs:
           key: pip-${{ hashFiles('requirements.txt') }}
           restore-keys: |
             pip-
+      # Installs dependencies and performs static code checks
       - run: ./pre-commit.sh
       - name: Run tests
-        run: |
-          nohup venv/bin/proxy-server -p ${TEST_PORT} --base-path test_env > server.logs &
-          venv/bin/pytest
+        run: venv/bin/pytest
         env:
           TEST: ${{ matrix.test }}
           VERSION: ${{ github.head_ref || 'master' }}
       - name: Run entire pipeline quickly without any data
-        run: venv/bin/benchmark-present --skip-instances
+        # Checking RunSpecs with openai/davinci should be comprehensive enough
+        run: venv/bin/benchmark-present --skip-instances --models-to-run openai/davinci --exit-on-error
 
   ci:
     name: All CI tasks complete
     runs-on: ubuntu-latest
-    needs: [format, install, test]
+    needs: [install, test]
     steps:
       - uses: actions/checkout@v2
       - run: echo Done

@@ -33,6 +33,12 @@ To start a local server (go to `http://localhost:1959` to try it out):
 
     venv/bin/proxy-server
 
+### For macOS developers
+
+Bypass the added security that restricts multithreading by running:
+
+    OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES venv/bin/proxy-server
+
 ## Deploying to production (for maintainers)
 
 The production version of the proxy is running on `crfm-models.stanford.edu`;
@@ -66,8 +72,8 @@ By default, Perspective API allows only 1 query per second. Fill out this
 [form](https://developers.perspectiveapi.com/s/request-quota-increase) to increase the request quota.
 
 The [current API key](https://console.cloud.google.com/apis/api/commentanalyzer.googleapis.com/overview?authuser=1&project=hai-gcp-models)
-we are using in production was created with the `hai-gcp-models` account and allows 100 queries per second.
-**The API key expires on 4/15/2022.**
+we are using in production was created with the `hai-gcp-models` account and allows 200 queries per second.
+**The API key expires on 7/15/2022.**
 
 #### SSL
 
@@ -135,14 +141,22 @@ Update the code:
 
 If everything looks okay:
 
+    ssh crfm@crfm-models.stanford.edu
+
     # Switch into the screen session
-    crfm-models:$ gos bench
+    crfm-models:$ screen -r deploy
 
     # Hit ctrl-c to kill the existing process
+    # Restart the server
+    sudo venv/bin/proxy-server -p 443 --ssl-key-file /home/ssl/private.key --ssl-cert-file /home/ssl/crfm-models.crt --workers 16 &> server.log
 
-    sudo venv/bin/proxy-server -p 443 --ssl-key-file /home/ssl/private.key --ssl-cert-file /home/ssl/crfm-models.crt
+    # Exit the screen session: ctrl-ad
+
+The recommended number of Gunicorn workers is twice the number of cores. 
+crfm-models.stanford.edu has 8 cores (verified with `nproc`) * 2 = 16 workers.
 
 Double check that the [website](https://crfm-models.stanford.edu) still works.
+The server logs can be streamed by running: `tail -f /home/benchmarking/server.log`.
 
 # Benchmarking
 
@@ -156,8 +170,8 @@ classes (see `benchmark`):
   an input (e.g., question) and a set of `Reference` outputs (e.g., multiple
   choice answers).
 
-- A `DataPreprocessor` takes in a `Scenario` and produces a list of `Instance`s 
-  Each `Instance` is given a unique ID. The set of `Instance`s is augmented 
+- A `DataPreprocessor` takes in a `Scenario` and produces a list of `Instance`s
+  Each `Instance` is given a unique ID. The set of `Instance`s is augmented
   according to `DataAugmenterSpec`.
 
 - An `Adapter` (given by an `AdaptationSpec`) takes a list of `Instance`s and
@@ -191,7 +205,7 @@ There are three types of classes:
 
 ## Data Augmentations
 
-To apply data augmentation, create a `DataAugmenterSpec` with a list of 
+To apply data augmentation, create a `DataAugmenterSpec` with a list of
 `PerturbationSpec`s and pass it into `RunSpec`. The following is an
 example:
 
@@ -199,7 +213,7 @@ example:
     data_augmenter_spec = DataAugmenterSpec(
         perturbation_specs=[
             PerturbationSpec(
-                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation", 
+                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation",
                 args={"num_spaces": 5},
             )
         ],
@@ -216,8 +230,8 @@ example:
 ```
 
 In the example above, the `DataPreprocessor` will augment the set of evaluation instances by perturbing
-the original set of instances with the `ExtraSpacePerturbation`, where spaces in the text are 
-replaced with `num_spaces` number of spaces. 
+the original set of instances with the `ExtraSpacePerturbation`, where spaces in the text are
+replaced with `num_spaces` number of spaces.
 
 We currently only support applying a single perturbation to an instance instead of chaining
 multiple perturbations and applying it onto a single instance.
@@ -225,8 +239,8 @@ multiple perturbations and applying it onto a single instance.
 ### Adding a new perturbation
 
 To add a new perturbation to the framework, create a new file at `src/benchmark/augmentations` with the name
-`<Name of perturbation>_perturbation.py` e.g., `typo_perturbation.py`. Inside the file, create a new class 
-(name it `<Name of the perturbation>Perturbation` e.g., `TypoPerturbation`) 
+`<Name of perturbation>_perturbation.py` e.g., `typo_perturbation.py`. Inside the file, create a new class
+(name it `<Name of the perturbation>Perturbation` e.g., `TypoPerturbation`)
 that extends the abstract class `Perturbation` and implement the `perturb` method which
 takes in text and outputs the perturbed text.
 Add your new perturbation to `src/benchmark/__init__.py`.
@@ -240,18 +254,21 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r mmlu:subject=philosophy
     venv/bin/benchmark-run -r synthetic_reasoning_natural:difficulty=easy
     venv/bin/benchmark-run -r twitter_aae:demographic=aa
-    venv/bin/benchmark-run -r copyright:pilot_study=true
+    venv/bin/benchmark-run -r copyright:datatag=pilot
+    venv/bin/benchmark-run -r disinformation:capability=reiteration
+    venv/bin/benchmark-run -r wikifact:k=2,subject=P31
     venv/bin/benchmark-run -r code:dataset=APPS
     venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles
-    venv/bin/benchmark-run -r wiki:subject=P31
+    venv/bin/benchmark-run -r wikifact:subject=P31
     venv/bin/benchmark-run -r raft:subset=ade_corpus_v2
     venv/bin/benchmark-run -r natural_qa:mode=closedbook
+    venv/bin/benchmark-run -r natural_qa:mode=openbook-longans
     venv/bin/benchmark-run -r quac
     venv/bin/benchmark-run -r wikitext_103
     venv/bin/benchmark-run -r blimp:phenomenon=irregular_forms
+    venv/bin/benchmark-run -r narrative_qa
     venv/bin/benchmark-run -r news_qa
     venv/bin/benchmark-run -r imdb
-    venv/bin/benchmark-run -r imdb_contrast_sets
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
@@ -266,7 +283,7 @@ For example, running `venv/bin/benchmark-run -r real_toxicity_prompts --dry-run`
 
 ```text
   Stats {
-    openai/davinci_estimated_number_of_tokens[min=505.000, mean=514.957, max=536.000, sum=514957.000 (1000)]
+    MetricName(name='estimated_num_tokens_cost', k=None, split=None, sub_split=None, perturbation=None)[min=505.000, mean=514.957, max=536.000, sum=514957.000 (1000)]
   }
 ```
 
@@ -283,11 +300,12 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Go to the source code directory: `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
    We have 700 GB of disk space total on `/u/scr/nlp/crfm`.
 1. Pull the latest changes: `git pull`.
-1. Run `venv/bin/benchmark-present -s /u/apache/htdocs/crfm/benchmarking/status.txt`.
+1. Activate the Conda environment: `conda activate crfm_benchmarking`
+   1. Run `pip install -e .` if there are new dependencies to install.
+1. Run the `benchmark-present` command e.g.,
+   `benchmark-present --max-eval-instances 500 --conf src/benchmark/presentation/run_specs.conf &> run.log`.
 1. Exit the screen session: `ctrl+ad`.
-
-Once all the runs complete, visit the
-[Benchmarking project status page](https://nlp.stanford.edu/crfm/benchmarking/status.txt).
+1. To check on the screen session: `screen -r benchmarking`.
 
 ### To visualize results at crfm-models.stanford.edu
 

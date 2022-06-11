@@ -6,17 +6,20 @@ from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
 from .client import Client, wrap_request_time
-from .tokenizer.openai_tokenizer import OpenAITokenizer
+from .tokenizer.tokenizer_factory import TokenizerFactory
 
 
 OPENAI_END_OF_TEXT_TOKEN: str = "<|endoftext|>"
+ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__bases__
 
 
 class OpenAIClient(Client):
     def __init__(self, api_key: str, cache_path: str):
-        openai.api_key = api_key
+        self.api_key: str = api_key
+        self.api_base: str = "https://api.openai.com"
+
         self.cache = Cache(cache_path)
-        self.tokenizer = OpenAITokenizer()
+        self.tokenizer = TokenizerFactory.get_tokenizer("openai")
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = {
@@ -42,6 +45,9 @@ class OpenAIClient(Client):
         try:
 
             def do_it():
+                openai.api_key = self.api_key
+                openai.api_base = self.api_base
+                openai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
                 return openai.Completion.create(**raw_request)
 
             cache_key = Client.make_cache_key(raw_request, request)
@@ -80,5 +86,8 @@ class OpenAIClient(Client):
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes the text using the GPT-2 tokenizer created in `OpenAITokenizer`."""
         return TokenizationRequestResult(
-            cached=False, tokens=[TokenizationToken(raw_text) for raw_text in self.tokenizer.tokenize(request.text)]
+            success=True,
+            cached=False,
+            tokens=[TokenizationToken(raw_text) for raw_text in self.tokenizer.tokenize(request.text)],
+            text=request.text,
         )

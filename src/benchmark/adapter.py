@@ -1,15 +1,20 @@
 import random
+import time
 from dataclasses import dataclass, field
-from typing import List, Dict, Tuple, Optional
+from itertools import cycle
+from typing import List, Dict, Tuple, Optional, Union
 from collections import defaultdict, OrderedDict
+
+import numpy as np
 
 from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
-from proxy.tokenizer.tokenizer import Tokenizer
+from common.tokenization_request import TokenizationToken
+from proxy.tokenizer.tokenizer import Tokenizer, EncodeResult
 from proxy.tokenizer.tokenizer_factory import TokenizerFactory
+from proxy.tokenizer.tokenizer_service import TokenizerService
 from .adapter_service import AdapterService
-from .tokenizer_service import TokenizerService
 from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
@@ -42,6 +47,9 @@ class AdapterSpec:
 
     # What goes before the output
     output_prefix: str = "\nOutput: "
+
+    # What goes before each Instance in the constructed prompt
+    instance_prefix: str = "\n\n"
 
     # Maximum number of (in-context) training instances to put into the prompt
     max_train_instances: int = 5
@@ -147,12 +155,13 @@ class ScenarioState:
         # the `Metric` later to access them.  Two things are produced:
         self.request_state_map: Dict[Tuple[int, Instance, Optional[int]], List[RequestState]] = defaultdict(list)
 
-        instances_set = set()
+        # Python doesn't support an ordered set, so use an OrderedDict instead to maintain insertion order
+        instances_set: Dict[Instance, None] = OrderedDict()
         for request_state in self.request_states:
-            instances_set.add(request_state.instance)
+            instances_set[request_state.instance] = None
             key = (request_state.train_trial_index, request_state.instance, request_state.reference_index)
             self.request_state_map[key].append(request_state)
-        self.instances: List[Instance] = list(instances_set)
+        self.instances: List[Instance] = list(instances_set.keys())
 
     def get_request_states(
         self, train_trial_index: int, instance: Instance, reference_index: Optional[int]
@@ -257,21 +266,46 @@ class Adapter:
         # We can slice and dice later in defining the metrics.
         eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
         if self.adapter_spec.max_eval_instances is not None:
-            # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
-            # number of instances, so we can include all the perturbed versions of the instances
-            # we choose in the eval set.
-            id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
-            for instance in eval_instances:
-                if instance.id in id_to_instances:
-                    id_to_instances[instance.id].append(instance)
-                else:
-                    id_to_instances[instance.id] = [instance]
+            np.random.seed(0)
+            if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS:
+                # For minimal pair scenarios, we need to make sure both instances in a minimal pair are sampled.
+                # Therefore, we use the index of the first instance in each pair (even_id) as pair id to
+                # sample minimal pairs instead of sampling individual instances.
+                max_eval_instances: int = self.adapter_spec.max_eval_instances
+                if max_eval_instances % 2 != 0:
+                    max_eval_instances -= 1
+                    hlog(f"max_eval_instances is odd. Set max_eval_instances to {max_eval_instances} instead")
 
-            # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
-            # include all their instances in the final set of eval instances.
-            eval_instances = []
-            for _, instances in list(id_to_instances.items())[: self.adapter_spec.max_eval_instances]:
-                eval_instances.extend(instances)
+                even_ids = list(range(0, len(eval_instances), 2))
+                if len(even_ids) > max_eval_instances // 2:
+                    even_ids = list(np.random.choice(even_ids, max_eval_instances // 2, replace=False))
+                sampled_eval_instances = []
+                for even_id in even_ids:
+                    sampled_eval_instances.append(eval_instances[even_id])
+                    sampled_eval_instances.append(eval_instances[even_id + 1])
+                eval_instances = sampled_eval_instances
+            else:
+                # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
+                # number of instances, so we can include all the perturbed versions of the instances
+                # we choose in the eval set.
+                id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
+                for instance in eval_instances:
+                    if instance.id in id_to_instances:
+                        id_to_instances[instance.id].append(instance)
+                    else:
+                        id_to_instances[instance.id] = [instance]
+
+                # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
+                # include all their instances in the final set of eval instances.
+                # The random sampling includes instances monotonically.
+                ids = list(id_to_instances.keys())
+                if len(ids) > self.adapter_spec.max_eval_instances:
+                    ids = list(
+                        np.random.choice(ids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
+                    )
+                eval_instances = []
+                for id_ in ids:
+                    eval_instances.extend(id_to_instances[id_])
 
         hlog(
             f"{len(instances)} instances, "
@@ -290,18 +324,17 @@ class Adapter:
             request_states = self.adapt_language_modeling(eval_instances)
         else:
             for train_trial_index in range(self.adapter_spec.num_train_trials):
-                # Choose a random set of training instances
-                random.seed(train_trial_index)
-                train_instances = random.sample(
-                    all_train_instances, min(len(all_train_instances), self.adapter_spec.max_train_instances)
-                )
+                train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
 
                 # Create request_states
                 for eval_index, eval_instance in enumerate(eval_instances):
+                    start_time: float = time.time()
                     prompt: str = self.construct_prompt(train_instances, eval_instance)
+                    construct_prompt_elapsed_time: float = time.time() - start_time
+
                     hlog(
                         f"trial {train_trial_index}: construct_prompt {eval_index} (total {len(eval_instances)}): "
-                        f"len(prompt) = {len(prompt)}"
+                        f"len(prompt) = {len(prompt)} ({construct_prompt_elapsed_time:.2f}s)"
                     )
 
                     # Just print one prompt (useful for debugging)
@@ -353,6 +386,68 @@ class Adapter:
         hlog(f"{len(request_states)} requests")
         return ScenarioState(self.adapter_spec, request_states)
 
+    def sample_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
+        """
+        Sample a random set of train instances to use as examples by following the steps below:
+        1. Sort the class labels (correct References) by the number of Instances that belong to the class.
+        2. Keep sampling one train Instance from each class in the order established in step 1, until
+           there are k examples.
+        3. If we run out of examples to sample, sample the rest from the Instances that do not have
+           class labels.
+
+        Example:
+
+            If we had to sample 2 instances from these train instances:
+                Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+
+            The following instances would be selected:
+
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])])
+                Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])])
+
+        Returns a new list of randomly sampled train instances.
+        """
+        # Fix the random seed for reproducibility
+        random.seed(seed)
+        num_instances_to_sample: int = min(len(all_train_instances), self.adapter_spec.max_train_instances)
+
+        unlabeled_instances: List[Instance] = []
+        label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
+
+        for instance in all_train_instances:
+            if instance.first_correct_reference:
+                label_to_instances[instance.first_correct_reference.output].append(instance)
+            else:
+                unlabeled_instances.append(instance)
+
+        # Sort the labels by the number of Instances that belong to them
+        sorted_labels: List[str] = [
+            key for key, _ in sorted(label_to_instances.items(), key=lambda x: len(x[1]), reverse=True)
+        ]
+        labels_iterable = cycle(sorted_labels)
+
+        examples: List[Instance] = []
+        while num_instances_to_sample > 0:
+            next_label: Optional[str] = next(labels_iterable, None)
+            if not next_label:
+                break
+
+            instances: List[Instance] = label_to_instances[next_label]
+            # If there are no Instances to sample for this particular label, skip it.
+            if len(instances) == 0:
+                continue
+
+            # Randomly sample without replacement
+            examples.append(instances.pop(random.randrange(len(instances))))
+            num_instances_to_sample -= 1
+
+        # If we ran out of Instances with correct References, sample the rest from
+        # the pool of Instances without any References
+        examples += random.sample(unlabeled_instances, num_instances_to_sample)
+        return examples
+
     def construct_prompt(self, train_instances: List[Instance], eval_instance: Instance) -> str:
         """
         Returns a prompt (string) given:
@@ -377,7 +472,7 @@ class Adapter:
 
             blocks.append(self.construct_example_prompt(eval_instance, include_output=False))
 
-            return "\n\n".join(blocks)
+            return self.adapter_spec.instance_prefix.join(blocks)
 
         orig_train_instances_count: int = len(train_instances)
         prompt: str = construct_prompt_helper(train_instances)
@@ -386,12 +481,12 @@ class Adapter:
         # exceed the max context length (https://github.com/hendrycks/test/blob/master/evaluate.py#L58),
         # we remove train instances one by one until it fits within the context window or
         # until we run out of train instances to remove.
-        while (
-            not self.tokenizer.fits_within_context_window(
+        while len(train_instances) > 0:
+            if self.tokenizer.fits_within_context_window(
                 text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
-            )
-            and len(train_instances) > 0
-        ):
+            ):
+                return prompt
+
             train_instances = train_instances[:-1]
             prompt = construct_prompt_helper(train_instances)
 
@@ -404,7 +499,7 @@ class Adapter:
 
         # If removing the in-context example is still not enough, we simply truncate the prompt.
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
-        return self.tokenizer.truncate_from_right(prompt)
+        return self.tokenizer.truncate_from_right(prompt, self.adapter_spec.max_tokens)
 
     def construct_example_prompt(self, instance: Instance, include_output: bool) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
@@ -439,8 +534,52 @@ class Adapter:
         """
         return prefix.replace("A", chr(ord("A") + i))
 
+    def fits_tokens_within_context_window(
+        self,
+        conditioning_tokens: List[Union[int, TokenizationToken]],
+        pred_tokens: List[Union[int, TokenizationToken]],
+        tokenizer: Tokenizer,
+        max_req_len: int,
+        text: Optional[str] = None,
+    ) -> Tuple[str, List]:
+        """
+        This method is used for adapting instances for language modeling scenarios.
+        For some tokenizers (e.g. AI21), decoding then encoding k tokens may result
+        in > k tokens. This method trims the tokens and check with the tokenizer
+        repeatedly until they fit in the context window.
+
+        For models using the GPT-2 tokenizer, conditioning_tokens and pred_tokens
+        are integers; for AI21 models, the tokens are TokenizationTokens.
+        """
+        prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens, text)
+        prompt_length: int = len(tokenizer.encode(prompt).tokens)
+
+        # If the prompt is too long, removes the overflowing tokens.
+        # Since encoding might generate extra tokens, we need to repeat this until prompt_length <= max_req_len.
+        # For AI21, for example, this happens especially frequently when a document contains different types of
+        # whitespace characters because some whitespaces are tokenized to multiple tokens and the others
+        # are tokenized to a single token. However, the AI21 tokenizer seems to normalize all types
+        # of whitespaces to the same whitespace character.
+        #
+        # e.g. original text: ",  (", which is tokenized to:
+        # [('▁', 0, 0), (',', 0, 1), ('▁▁', 1, 3), ('(', 3, 4)]
+        # normalized text: ",  (", which is tokenized to:
+        # [('▁', 0, 0), (',', 0, 1), ('▁', 1, 2), ('▁', 2, 3), ('(', 3, 4)]
+        while prompt_length > max_req_len:
+            # Trims the extra (prompt_length - max_req_len) tokens
+            pred_tokens = pred_tokens[: -(prompt_length - max_req_len)]
+            prompt = tokenizer.decode(conditioning_tokens + pred_tokens, text)
+            prompt_length = len(tokenizer.encode(prompt).tokens)
+
+        return prompt, pred_tokens
+
     def construct_language_modeling_prompt(
-        self, conditioning_tokens: List[int], pred_tokens: List[int], tokenizer: Tokenizer, max_seq_len: int
+        self,
+        conditioning_tokens: List[Union[int, TokenizationToken]],
+        pred_tokens: List[Union[int, TokenizationToken]],
+        tokenizer: Tokenizer,
+        max_req_len: int,
+        text: str,
     ) -> Tuple[str, int]:
         """
         Some subwords/symbols might translate to multiple tokens. e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"].
@@ -449,20 +588,33 @@ class Adapter:
         trailing bytes to ensure the prompt is a valid string.
 
         Since some tokens are removed, we also need to recompute num_conditioning_tokens.
-        """
-        raw_prompt: str = tokenizer.decode(conditioning_tokens + pred_tokens)
-        prompt: str = raw_prompt.strip("\ufffd")
-        num_leading_byte_tokens: int = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")))
-        num_trailing_byte_tokens: int = max_seq_len + 1 - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")))
 
-        # There are no string tokens to predict
-        if num_trailing_byte_tokens >= len(pred_tokens):
-            num_conditioning_tokens = len(tokenizer.encode(prompt))
-        # There are no conditioning string tokens
-        elif num_leading_byte_tokens >= len(conditioning_tokens):
-            num_conditioning_tokens = 1
+        For models using the GPT-2 tokenizer, conditioning_tokens and pred_tokens are integers; for AI21
+        models, the tokens are TokenizationTokens.
+
+        text is the normalized text fed to decode(). Some tokenizers (e.g. AI21) need this field for decoding.
+        """
+        raw_prompt: str
+        raw_prompt, pred_tokens = self.fits_tokens_within_context_window(
+            conditioning_tokens, pred_tokens, tokenizer, max_req_len, text
+        )
+
+        prompt: str = raw_prompt.strip("\ufffd")
+        # If there are no byte tokens, avoid API calls
+        if len(prompt) == len(raw_prompt):
+            num_conditioning_tokens = len(conditioning_tokens)
         else:
-            num_conditioning_tokens = len(conditioning_tokens) - num_leading_byte_tokens
+            num_leading_byte_tokens: int = max_req_len - len(tokenizer.encode(raw_prompt.lstrip("\ufffd")).tokens)
+            num_trailing_byte_tokens: int = max_req_len - len(tokenizer.encode(raw_prompt.rstrip("\ufffd")).tokens)
+
+            # There are no string tokens to predict
+            if num_trailing_byte_tokens >= len(pred_tokens):
+                num_conditioning_tokens = len(tokenizer.encode(prompt).tokens)
+            # There are no conditioning string tokens
+            elif num_leading_byte_tokens >= len(conditioning_tokens):
+                num_conditioning_tokens = 1
+            else:
+                num_conditioning_tokens = len(conditioning_tokens) - num_leading_byte_tokens
         return prompt, num_conditioning_tokens
 
     def adapt_language_modeling(self, instances: List[Instance]) -> List[RequestState]:
@@ -472,29 +624,31 @@ class Adapter:
         """
         request_states: List[RequestState] = []
 
-        # TODO: Support other models and tokenizers
-        assert self.adapter_spec.model.startswith("openai/")
-
         max_seq_len: int = self.tokenizer.max_sequence_length
-        prefix_token: str = self.tokenizer.end_of_text_token
+        max_req_len: int = self.tokenizer.max_request_length
+        prefix_token: str = self.tokenizer.prefix_token
 
         for instance in instances:
-            tokens = self.tokenizer.encode(instance.input)
-            assert self.tokenizer.decode(tokens) == instance.input
+            encode_result: EncodeResult = self.tokenizer.encode(instance.input)
+            tokens, text = encode_result.tokens, encode_result.text
 
             num_predicted_tokens = 0
 
             # Special handling for first window: predict all tokens
+            # Example for GPT-3:
             # Raw token sequence format: [<str_tok1>, <str_tok2>, ..., <byte_tok1>, ...] (total length <= max_seq_len)
-            # Convert it to: [<eot>, <str_tok1>, <str_tok2>, ...] (total length <= max_seq_len+1)
+            # Convert it to: [<eot>, <str_tok1>, <str_tok2>, ...](total length <= max_req_len = max_seq_len+1 for GPT-3)
             # Num_conditioning_tokens = 1
             # Example: ["Hello", " world", "bytes:\xe2\x80"] => "<eot>Hello world"
             #
             # Note: There are trailing byte tokens in the raw sequence because some subwords/symbols might translate to
             # multiple tokens (e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]) and we chunk documents by token, not by word.
+
+            # Uses `max_seq_len` instead of `max_req_len` here because `prefix_token` will be prepended to the sequence
+            # later. This is the only place where `max_seq_len` is used.
             first_seq_len = min(max_seq_len, len(tokens))
-            prompt = self.tokenizer.decode(self.tokenizer.encode(prefix_token) + tokens[:first_seq_len]).rstrip(
-                "\ufffd"
+            prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
+                self.tokenizer.encode(prefix_token).tokens, tokens[:first_seq_len], self.tokenizer, max_req_len, text
             )
             request = Request(
                 model=self.adapter_spec.model,
@@ -512,27 +666,30 @@ class Adapter:
                 output_mapping=None,
                 request=request,
                 result=None,
-                num_conditioning_tokens=1,
+                num_conditioning_tokens=1 if len(prefix_token) > 0 else 0,
             )
             request_states.append(request_state)
             num_predicted_tokens += first_seq_len
 
             while num_predicted_tokens < len(tokens):
+                # Example for GPT-3:
                 # Raw token sequence format:
                 # [<cond_byte1>, ..., <cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, ..., <pred_byte1>, ...]
-                # (total length <= max_seq_len+1)
+                # (total length <= max_req_len = max_seq_len+1 for GPT-3)
                 #
                 # Convert it to: [<cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, <pred_str_tok2>. ...]
-                # (total length <= max_seq_len+1)
+                # (total length <= max_req_len = max_seq_len+1 for GPT-3)
                 #
                 # Example: conditioning_tokens=["bytes:\x99", "Exc"], pred_tokens=["use", " me", "bytes:\xe2\x80"] =>
                 # prompt="Excuse me", num_conditioning_tokens = 1
-                window_pred_len = min(len(tokens) - num_predicted_tokens, max_seq_len)
+
+                # The upper bound is `max_req_len - 1` because there will be at least 1 conditioning tokens.
+                window_pred_len = min(len(tokens) - num_predicted_tokens, max_req_len - 1)
                 window_end = num_predicted_tokens + window_pred_len
-                conditioning_tokens = tokens[window_end - max_seq_len - 1 : num_predicted_tokens]
+                conditioning_tokens = tokens[window_end - max_req_len : num_predicted_tokens]
                 pred_tokens = tokens[num_predicted_tokens:window_end]
                 prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                    conditioning_tokens, pred_tokens, self.tokenizer, max_seq_len
+                    conditioning_tokens, pred_tokens, self.tokenizer, max_req_len, text
                 )
 
                 request = Request(

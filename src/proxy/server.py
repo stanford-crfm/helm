@@ -5,19 +5,16 @@ Starts a REST server for the frontend to interact with.
 Look at `index.js` to see how the functionality is invoked.
 """
 
+from urllib.parse import unquote_plus
 import argparse
-import bottle
 import dataclasses
 import json
 import os
 import sys
 import time
-from urllib.parse import unquote_plus
 
-import tornado.wsgi
-import tornado.httpserver
-import tornado.ioloop
 from dacite import from_dict
+import bottle
 
 from common.authentication import Authentication
 from common.hierarchical_logger import hlog
@@ -193,21 +190,24 @@ def main():
     parser.add_argument("--ssl-key-file", type=str, help="Path to SSL key file")
     parser.add_argument("--ssl-cert-file", type=str, help="Path to SSL cert file")
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
-    parser.add_argument(
-        "-r", "--read-only", action="store_true", help="To start a read-only service (for testing and debugging)."
-    )
+    parser.add_argument("-w", "--workers", type=int, help="Number of worker processes to handle requests", default=8)
+    parser.add_argument("-t", "--timeout", type=int, help="Request timeout in seconds", default=5 * 60)
     args = parser.parse_args()
 
-    service = ServerService(base_path=args.base_path, read_only=args.read_only)
+    service = ServerService(base_path=args.base_path)
 
-    wsgi_container = tornado.wsgi.WSGIContainer(app)
-
+    gunicorn_args = {
+        "workers": args.workers,
+        "timeout": args.timeout,
+        "limit_request_line": 0,  # Controls the maximum size of HTTP request line in bytes. 0 = unlimited.
+    }
     if args.ssl_key_file and args.ssl_cert_file:
-        server = tornado.httpserver.HTTPServer(
-            wsgi_container, ssl_options={"certfile": args.ssl_cert_file, "keyfile": args.ssl_key_file}
-        )
-    else:
-        server = tornado.httpserver.HTTPServer(wsgi_container)
+        gunicorn_args["keyfile"] = args.ssl_key_file
+        gunicorn_args["certfile"] = args.ssl_cert_file
 
-    server.listen(port=args.port)
-    tornado.ioloop.IOLoop.instance().start()
+    # To avoid deadlocks when using HuggingFace tokenizers with multiple Gunicorn processes
+    os.environ["TOKENIZERS_PARALLELISM"] = "False"
+
+    # Clear arguments before running gunicorn as it also uses argparse
+    sys.argv = [sys.argv[0]]
+    app.run(host="0.0.0.0", port=args.port, server="gunicorn", **gunicorn_args)

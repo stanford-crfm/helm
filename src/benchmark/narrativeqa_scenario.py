@@ -1,4 +1,5 @@
 import os
+import random
 import csv
 from typing import List, Dict
 
@@ -25,21 +26,23 @@ class NarrativeQAScenario(Scenario):
     All of the questions and answers are written by human annotators.
     For more details, see https://arxiv.org/abs/1712.07040.
 
+    Since there are multiple questions per document and we are unlikely to test every single one,
+    we randomly sample one question per document.
 
     More concretely, we prompt models using the following format:
         <story summary>
-        question: <question>
-        answer:
+        Question: <question>
+        Answer:
 
         Target completion:
             <answer>
 
     Using an example from the training dataset, we have
-    Mark Hunter (Slater), a high school student in a sleepy suburb of Phoenix, Arizona,
+    Summary: Mark Hunter (Slater), a high school student in a sleepy suburb of Phoenix, Arizona,
     starts an FM pirate radio station that broadcasts from the basement of his parents' house.
     Mark is a loner, an outsider, whose only outlet for his teenage angst and aggression is his ...
-    question: Who is Mark Hunter?
-    answer:
+    Question: Who is Mark Hunter?
+    Answer:
 
         Target completion:
             A loner and outsider student with a radio station.
@@ -59,7 +62,9 @@ class NarrativeQAScenario(Scenario):
         We follow the format from https://arxiv.org/abs/2005.14165.
         For more details, see the examples in Appendix G.
         """
-        return f"{summary}\nquestion: {question}"
+        if question[-1] != "?":
+            question = question + "?"
+        return f"{summary}\nQuestion: {question}"
 
     def get_split_instances(self, summaries_file: str, qaps_file: str, split_name: str, split: str) -> List[Instance]:
         """
@@ -83,27 +88,35 @@ class NarrativeQAScenario(Scenario):
                     continue
                 split_summaries[row["document_id"]] = row
 
+        doc_id_to_question_rows: Dict[str, List[Dict[str, str]]] = {}
         with open(qaps_file, encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 if row["set"] != split_name:
                     continue
                 document_id: str = row["document_id"]
-                summary: str = split_summaries[document_id]["summary"]
-                question: str = row["question"]
-                answer1: str = row["answer1"]
-                answer2: str = row["answer2"]
-                context: str = self.get_context(summary, question)
+                if document_id in doc_id_to_question_rows:
+                    doc_id_to_question_rows[document_id].append(row)
+                else:
+                    doc_id_to_question_rows[document_id] = [row]
 
-                instance: Instance = Instance(
-                    input=context,
-                    references=[
-                        Reference(output=answer1, tags=[CORRECT_TAG]),
-                        Reference(output=answer2, tags=[CORRECT_TAG]),
-                    ],
-                    split=split,
-                )
-                split_instances.append(instance)
+        for document_id, rows in doc_id_to_question_rows.items():
+            row = random.choice(rows)
+            summary: str = split_summaries[document_id]["summary"]
+            question: str = row["question"]
+            answer1: str = row["answer1"]
+            answer2: str = row["answer2"]
+            context: str = self.get_context(summary.strip(), question.strip())
+
+            instance: Instance = Instance(
+                input=context,
+                references=[
+                    Reference(output=answer1, tags=[CORRECT_TAG]),
+                    Reference(output=answer2, tags=[CORRECT_TAG]),
+                ],
+                split=split,
+            )
+            split_instances.append(instance)
 
         return split_instances
 
@@ -122,6 +135,7 @@ class NarrativeQAScenario(Scenario):
         summaries_file: str = os.path.join(repo_path, "third_party", "wikipedia", "summaries.csv")
         qaps_file: str = os.path.join(repo_path, "qaps.csv")
 
+        random.seed(0)  # we randomly pick one question per document
         instances: List[Instance] = []
         for split_name, split in splits.items():
             instances.extend(

@@ -3,12 +3,13 @@
 from typing import List, Union, Sequence, cast
 
 from common.request import RequestResult
-from common.statistic import Stat
 from . import code_metrics_helper
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_service import MetricService
-from .code_scenario import CodeInstance
+from .code_scenario import CodeReference
+from .metric_name import MetricName
+from .statistic import Stat
 
 
 def _convert_scores(scores: Sequence[Union[int, bool]]) -> List[float]:
@@ -45,11 +46,10 @@ class APPSMetric(Metric):
     def evaluate_generation(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
-        instance = request_state.instance
-        instance = cast(CodeInstance, instance)
+        reference = request_state.instance.references[0]
+        reference = cast(CodeReference, reference)
         request_result: RequestResult = request_state.result
-        # Type cast Optional[Dict] to Dict; we know for sure it's not None for this scenario.
-        metadata = instance.metadata
+        metadata = reference.test_cases
         assert metadata is not None
         root = metadata.get("root")
 
@@ -65,5 +65,5 @@ class APPSMetric(Metric):
                 this_score = metric_fn(scores)
                 if this_score > best_score:
                     best_score = this_score
-            metrics.append(Stat(name).add(best_score))
+            metrics.append(Stat(MetricName(name)).add(best_score))
         return metrics

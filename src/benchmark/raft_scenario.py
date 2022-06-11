@@ -72,6 +72,14 @@ class RAFTScenario(Scenario):
         terms_of_service
         tweet_eval_hate
         twitter_complaints
+
+    Prompt format:
+    Sentence: <sentence>
+    Label: <label>
+
+    Examples from ADE corpus (adverse drug effect):
+    Sentence: No regional side effects were noted.
+    Label: not ADE-related
     """
 
     name = "raft"
@@ -82,7 +90,6 @@ class RAFTScenario(Scenario):
         assert subset in SUBSETS, "Unknown subset: {}".format(subset)
         self.subset = subset
         self.random_seed = random_seed
-        random.seed(random_seed)
 
     def load_prompt_construction_settings(self):
         # Load from prompt construction settings
@@ -96,7 +103,7 @@ class RAFTScenario(Scenario):
         # TODO: Only using labeled instances now. Check if we can get the hidden test set labels.
         all_usable_dataset = datasets.load_dataset("ought/raft", self.subset, cache_dir=cache_dir, split="train")
         assert isinstance(all_usable_dataset, datasets.Dataset)
-        dataset = all_usable_dataset.train_test_split(test_size=0.2, seed=self.random_seed)
+        dataset = all_usable_dataset.train_test_split(test_size=0.8, seed=self.random_seed)
         train_dataset, test_dataset = dataset["train"], dataset["test"]
         class_label_to_string = train_dataset.features["Label"].int2str
 
@@ -106,6 +113,7 @@ class RAFTScenario(Scenario):
         }
 
         # Read all instances
+        random.seed(self.random_seed)
         instances: List[Instance] = []
         for split, subset in dataset_splits.items():
             for x in subset:

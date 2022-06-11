@@ -1,6 +1,8 @@
-from typing import List, Optional
+import os
+import pickle
 
-from datasets import load_dataset
+from typing import List, Optional
+from common.general import ensure_file_downloaded, ensure_directory_exists
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
@@ -56,7 +58,7 @@ class SummarizationScenario(Scenario):
                                 truncated to doc_max_length tokens.
                                 NOTE: Currently uses whitespace tokenization.
         """
-        if dataset_name not in ["xsum", "cnn-dm"]:
+        if dataset_name not in ["xsum", "xsum-sampled", "cnn-dm"]:
             raise Exception(f"Uknown dataset_name: {dataset_name}")
         self.dataset_name = dataset_name
         self.sampling_min_length = sampling_min_length
@@ -67,13 +69,48 @@ class SummarizationScenario(Scenario):
         text = text.replace("\n", " ")
         return " ".join(text.split()[:max_length])
 
+    def _xsum_filter(self, article: str, summary: str):
+        art_len = len(article.split())
+        summ_len = len(summary.split())
+
+        if "Media playback is unsupported on your device" in article:
+            return True
+
+        if "Last updated at" in article:
+            return True
+
+        if summ_len <= 10:
+            return True
+
+        if summ_len / art_len > 0.2:
+            return True
+
+        return False
+
+    def _download_dataset(self, url, tag):
+        data_dir = os.path.join(self.output_path, "data")
+        ensure_directory_exists(data_dir)
+        ensure_file_downloaded(source_url=url, target_path=os.path.join(data_dir, f"{tag}.pk"))
+
+        with open(os.path.join(data_dir, f"{tag}.pk"), "rb") as fin:
+            dataset = pickle.load(fin)
+
+        return dataset
+
     def _load_dataset(self, dataset_name: str):
         if dataset_name == "xsum":
-            dataset = load_dataset("xsum")
+            url = "https://worksheets.codalab.org/rest/bundles/0xac5607f21bf945939edc56ea945496d5/contents/blob/"
+            dataset = self._download_dataset(url, "xsum")
+            article_key = "document"
+            summary_key = "summary"
+        elif dataset_name == "xsum-sampled":
+            url = "https://worksheets.codalab.org/rest/bundles/0xcfbb0ef1226040f78e58060c9e4d13cf/contents/blob/"
+            dataset = self._download_dataset(url, "xsum-sampled")
             article_key = "document"
             summary_key = "summary"
         elif dataset_name == "cnn-dm":
-            dataset = load_dataset("cnn_dailymail", "3.0.0")
+            url = "https://worksheets.codalab.org/rest/bundles/0x07630390bbda44879a2ad36e2125d64c/contents/blob/"
+            dataset = self._download_dataset(url, "cnndm")
             article_key = "article"
             summary_key = "highlights"
         else:
@@ -99,6 +136,9 @@ class SummarizationScenario(Scenario):
                         continue
                     if self.sampling_min_length and art_len < self.sampling_min_length:
                         continue
+                    if self.dataset_name == "xsum":
+                        if self._xsum_filter(article, summary):
+                            continue
 
                 instances.append(
                     Instance(

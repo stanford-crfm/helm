@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional, Sequence
+import re
+import inspect
 
 from common.object_spec import ObjectSpec, create_object
 from common.general import format_text, format_split, format_tags, indent_lines
@@ -11,6 +13,10 @@ TRAIN_SPLIT: str = "train"
 VALID_SPLIT: str = "valid"
 TEST_SPLIT: str = "test"
 EVAL_SPLITS: List[str] = [VALID_SPLIT, TEST_SPLIT]
+
+# We mainly care about having enough test examples to ensure statistical significance;
+# the remaining N-1000 instances become training examples.
+DEFAULT_TEST_SIZE: int = 1000
 
 # Tags for references
 CORRECT_TAG: str = "correct"
@@ -65,6 +71,12 @@ class Instance:
     # Description of the Perturbation that was applied when creating this Instance
     perturbation: Optional[PerturbationDescription] = None
 
+    # Perturbed input as defined by contrast sets (if available)
+    contrast_inputs: Optional[List[str]] = None
+
+    # References for the perturbed input above (if available)
+    contrast_references: Optional[List[List[Reference]]] = None
+
     @property
     def first_correct_reference(self) -> Optional[Reference]:
         """Return the first correct reference."""
@@ -84,7 +96,22 @@ class Instance:
 
         for reference in self.references:
             info.extend(reference.render_lines())
+
         return info
+
+
+@dataclass(frozen=True, eq=False)
+class MultipleRequestInstance(Instance):
+    """ Instance """
+
+    """ Unique ID for the request group this instance is a part of.  """
+    group_id: Optional[str] = None
+
+    """ ID for this request, unique in the group of instances with the same group_id. """
+    request_id: Optional[str] = None
+
+    """ Relevance of this request instance for the group. """
+    relevance: Optional[int] = None
 
 
 @dataclass  # type: ignore
@@ -107,8 +134,19 @@ class Scenario(ABC):
     # Extra metadata (e.g., whether this is a question answering or commonsense task)
     tags: List[str]
 
-    # To be set by the `Runner` (for caching data)
+    # Where downloaded data is cached (to be set by the `Runner`)
     output_path: str
+
+    # File where the class exists so we can link to it on GitHub (to be set by the `Runner`)
+    definition_path: str
+
+    def get_definition_path(self) -> str:
+        """Return where the scenario subclass for `self` is defined."""
+        # Assume `/.../src/benchmark/...`
+        path = inspect.getfile(type(self))
+        # Strip out prefix in absolute path and replace with GitHub link.
+        path = re.sub(r"^.*\/src/", "https://github.com/stanford-crfm/benchmarking/blob/main/src/", path)
+        return path
 
     @abstractmethod
     def get_instances(self) -> Sequence[Instance]:

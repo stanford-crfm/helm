@@ -76,8 +76,15 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
         root: Path to the problem folder.
         test: Candidate source code solution in string format.
     Returns:
-        A list of numbers/booleans, one for each test case.
-        -2 means compile error, -1 means runtime error, `True` means passed, `False` means failed.
+        A list of numbers/booleans, one for each test case. Interpretation for all types of values:
+            -3: didn't find the function for evaluation
+            -2: compile error
+            -1: runtime error
+            True: passed
+            False: failed
+
+        The -3 entry is an additional type compared to the original code of APPS authors
+            https://github.com/hendrycks/apps/blob/main/eval/testing_util.py
     """
 
     input_output_fname = os.path.join(root, "input_output.json")
@@ -161,6 +168,7 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
         signal.alarm(0)
         e = sys.exc_info()
         hlog(f"unable to get function error = {e}")
+        results.append(-3)
         return results
 
     for index, inputs in enumerate(in_outs["inputs"]):
@@ -370,6 +378,7 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
             except Exception as e:
                 hlog(f"Failed check6 exception = {e}")
 
+            # By default, tmp_result is False; that's the 'catch' case.
             results.append(tmp_result)
 
     return results

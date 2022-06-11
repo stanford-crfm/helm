@@ -3,6 +3,7 @@ from typing import Dict, List
 from common.request import Request, Sequence
 from .ai21_token_counter import AI21TokenCounter
 from .free_token_counter import FreeTokenCounter
+from .gooseai_token_counter import GooseAITokenCounter
 from .openai_token_counter import OpenAITokenCounter
 from .token_counter import TokenCounter
 
@@ -17,12 +18,12 @@ class AutoTokenCounter(TokenCounter):
         """Return a token counter based on the organization."""
         token_counter = self.token_counters.get(organization)
         if token_counter is None:
-            # TODO: implement token counter for HuggingFace
-            #       https://github.com/stanford-crfm/benchmarking/issues/6
             if organization == "openai":
                 token_counter = OpenAITokenCounter()
             elif organization == "ai21":
                 token_counter = AI21TokenCounter()
+            elif organization == "gooseai":
+                token_counter = GooseAITokenCounter()
             else:
                 token_counter = FreeTokenCounter()
             self.token_counters[organization] = token_counter
