@@ -200,11 +200,11 @@ ALL_MODELS = [
         tags=[TEXT_MODEL_TAG],
     ),
     # Anthropic
-    # TODO: The API for the Anthropic LM is not production-ready. Update with the official name and description.
+    # TODO: The API for the Anthropic LM is not production-ready. Update with the official name.
     Model(
         group="anthropic",
         creator_organization="Anthropic",
-        name="anthropic/stanford-online-helpful-v4-s3",
+        name="anthropic/stanford-online-all-v4-s3",
         description="Anthropic model (52B parameters)",
         tags=[LIMITED_FUNCTIONALITY_MODEL_TAG, TEXT_MODEL_TAG],  # The Anthropic model has limited functionality
     ),
