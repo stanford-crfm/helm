@@ -20,7 +20,7 @@ function execute {
 
 # Perform dry run with just a single model to download and cache all the datasets
 # Override with passed-in CLI arguments
-execute "benchmark-present --models-to-run openai/davinci openai/code-davinci-001 --dry-run --suite dryrun $*"
+# execute "benchmark-present --models-to-run openai/davinci openai/code-davinci-001 --dry-run --suite dryrun $* &> dryrun.log"
 
 models=(
   "ai21/j1-jumbo"
@@ -29,6 +29,7 @@ models=(
   # "openai/davinci openai/curie openai/babbage openai/ada"
   # "openai/text-davinci-002 openai/text-davinci-001 openai/text-curie-001 openai/text-babbage-001 openai/text-ada-001"
   # "openai/code-davinci-002 openai/code-davinci-001 openai/code-cushman-001"
+  "openai/text-curie-001"   # Not enough OpenAI credits at the moment to run openai/text-davinci-001
   "gooseai/gpt-neo-20b gooseai/gpt-j-6b"
   "anthropic/stanford-online-helpful-v4-s3"
   "microsoft/TNLGv2_530B"
