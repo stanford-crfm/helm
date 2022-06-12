@@ -269,6 +269,7 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r narrative_qa
     venv/bin/benchmark-run -r news_qa
     venv/bin/benchmark-run -r imdb
+    venv/bin/benchmark-run -r twitter_aae:demographic=aa
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
