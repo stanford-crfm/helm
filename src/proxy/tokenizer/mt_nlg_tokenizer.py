@@ -21,3 +21,8 @@ class MTNLGTokenizer(GPT2Tokenizer):
     def max_sequence_length(self) -> int:
         """Return the max sequence length for the MT-NLG models."""
         return MTNLGTokenizer.MAX_SEQUENCE_LENGTH
+
+    @property
+    def max_request_length(self) -> int:
+        """Return the max request length for the MT-NLG models."""
+        return MTNLGTokenizer.MAX_REQUEST_LENGTH
