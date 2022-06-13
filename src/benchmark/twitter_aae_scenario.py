@@ -5,6 +5,11 @@ from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, TEST_SPLIT
 
+CODALAB_URI_TEMPLATE: str = (
+    "https://worksheets.codalab.org/rest/bundles/0x31485f8c37ad481fb9f4e9bf7ccff6e5/contents/blob/"
+    "{demographic}_tweets.csv"
+)
+
 
 class TwitterAAEScenario(Scenario):
     """
@@ -24,8 +29,6 @@ class TwitterAAEScenario(Scenario):
     description = "Twitter African-American English"
     tags = ["bias", "language_modeling"]
 
-    CODALAB_URI_TEMPLATE: str = "https://worksheets.codalab.org/rest/bundles/0x31485f8c37ad481fb9f4e9bf7ccff6e5/contents/blob/{demographic}_tweets.csv"  # noqa
-
     def __init__(self, demographic: str = "aa"):
         assert demographic in ["aa", "white"], f"Unsupported demographic: {demographic}"
         self.demographic: str = demographic
@@ -34,9 +37,7 @@ class TwitterAAEScenario(Scenario):
         # Download the raw data
         data_path: str = os.path.join(self.output_path, f"{self.demographic}_tweets.csv")
         ensure_file_downloaded(
-            source_url=self.CODALAB_URI_TEMPLATE.format(demographic=self.demographic),
-            target_path=data_path,
-            unpack=False,
+            source_url=CODALAB_URI_TEMPLATE.format(demographic=self.demographic), target_path=data_path, unpack=False,
         )
 
         # Read all the instances
