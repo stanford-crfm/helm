@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-from proxy.models import Model, get_model
+from src.proxy.models import Model, get_model
 
 
 @dataclass(frozen=True)

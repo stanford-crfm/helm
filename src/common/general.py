@@ -8,7 +8,7 @@ from typing import List, Optional
 import pyhocon
 from dataclasses import asdict, dataclass
 
-from common.hierarchical_logger import htrack, hlog
+from src.common.hierarchical_logger import htrack, hlog
 
 
 def singleton(items: List):

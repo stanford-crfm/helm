@@ -8,7 +8,7 @@ from dacite import from_dict
 from dataclasses import asdict, dataclass, field
 from sqlitedict import SqliteDict
 
-from common.authentication import Authentication
+from src.common.authentication import Authentication
 
 
 # TODO: Move this to a configuration file (`default_quotas.conf` alongside `accounts.jsonl`)

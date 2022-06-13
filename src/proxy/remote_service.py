@@ -5,14 +5,14 @@ import urllib.parse
 from dataclasses import asdict
 from typing import Any, List
 
-from common.authentication import Authentication
-from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
-from common.request import Request, RequestResult
+from src.common.authentication import Authentication
+from src.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
+from src.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
+from src.common.request import Request, RequestResult
 from dacite import from_dict
-from proxy.accounts import Account
-from proxy.query import Query, QueryResult
-from proxy.service import Service, GeneralInfo
+from src.proxy.accounts import Account
+from src.proxy.query import Query, QueryResult
+from src.proxy.service import Service, GeneralInfo
 
 
 class RemoteServiceError(Exception):
