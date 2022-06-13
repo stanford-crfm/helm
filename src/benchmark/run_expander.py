@@ -138,7 +138,7 @@ def misspelling(prob: float) -> PerturbationSpec:
 def citynames(allow_lower: bool) -> PerturbationSpec:
     return PerturbationSpec(
         class_name="benchmark.augmentations.city_name_replacement_perturbation.CityNameReplacementPerturbation",
-        args={"allow_lower": allow_lower}
+        args={"allow_lower": allow_lower},
     )
 
 

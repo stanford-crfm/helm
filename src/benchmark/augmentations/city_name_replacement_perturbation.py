@@ -40,16 +40,14 @@ class CityNameReplacementPerturbation(Perturbation):
             replacees: Set[str] = set(fin.read().strip().split("\n"))
         if allow_lower:
             replacees |= {replacee.lower() for replacee in replacees}
-        self.replacees = re.compile(
-            r'\b(?:' + '|'.join(f'(?:{re.escape(t)})' for t in replacees) + r')\b')
+        self.replacees = re.compile(r"\b(?:" + "|".join(f"(?:{re.escape(t)})" for t in replacees) + r")\b")
         # sort in descending order of length so that longer spans will match first
         with open(os.path.join(data_dir, self.replacers_filename)) as fin:
             self.replacers: List[str] = sorted(set(fin.read().split("\n")))
         self.allow_lower = allow_lower
 
     def perturb(self, text: str) -> str:
-        replaced_spans = [(m.span()[0], m.span()[1], m.group(0))
-                          for m in self.replacees.finditer(text)]
+        replaced_spans = [(m.span()[0], m.span()[1], m.group(0)) for m in self.replacees.finditer(text)]
 
         city_names = {span[2] for span in replaced_spans}
         # this is only required when allow_lower=True, but do it anyway to simplify the code
@@ -66,8 +64,8 @@ class CityNameReplacementPerturbation(Perturbation):
         # while keeping case the same as original
         name_mapping = {
             city_name: name_mapping_lower[city_name.lower()].lower()
-                       if city_name.lower() == city_name else
-                       name_mapping_lower[city_name.lower()]
+            if city_name.lower() == city_name
+            else name_mapping_lower[city_name.lower()]
             for city_name in city_names
         }
 
