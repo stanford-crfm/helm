@@ -43,7 +43,7 @@ def test_city_name_replacement_perturbation():
     def _perturb(text) -> str:
         instance = Instance(id="id0", input=text, references=[])
         random.seed(123)
-        perturbation = CityNameReplacementPerturbation()
+        perturbation = CityNameReplacementPerturbation(allow_lower=True)
         output: Instance = perturbation.apply(instance)
         assert output.id == "id0"
         assert output.perturbation.name == "city_name_replacement"  # type: ignore
@@ -61,9 +61,9 @@ def test_city_name_replacement_perturbation():
     output = _perturb("San Francisco is a nice city.")
     assert output == "Bell is a nice city."
 
-    # Non-city mentions
-    output = _perturb("San Francisco Giants is looking at buying properties in San Francisco.")
-    assert output == "San Francisco Giants is looking at buying properties in Bell."
+    # Proper handling of word boundaries
+    output = _perturb("San Franciscoa should not be replaced, but this should -> San Francisco.")
+    assert output == "San Franciscoa should not be replaced, but this should -> Bell."
 
     # Multiple mentions
     output = _perturb(
@@ -71,9 +71,9 @@ def test_city_name_replacement_perturbation():
     )
     assert output == "Forest Park is a nice city near Bell. It is one hour drive from Forest Park to Bell."
 
-    # Match inside a LOC span (like an address)
-    output = _perturb('Our office is at 353 Serra Mall San Jose CA.')
-    assert output == 'Our office is at 353 Serra Mall Bell CA.'
+    # Proper handling of case
+    output = _perturb("San Francisco and san francisco are the same city.")
+    assert output == "Bell and bell are the same city."
 
 
 def test_misspelling_perturbation():

@@ -25,14 +25,12 @@ Denver
 Manchester
 Brooklyn
 Vancouver
-Queens
 Riverside
 Baltimore
 Las Vegas
 Portland
 San Antonio
 St. Louis
-Leeds
 Sacramento
 Orlando
 San Jose
@@ -44,8 +42,6 @@ Newcastle
 Kansas City
 Manhattan
 Indianapolis
-Columbus
-Charlotte
 Virginia Beach
 Birstall
 Bronx
@@ -66,7 +62,6 @@ Winnipeg
 Quebec City
 Kitchener
 Halifax
-Victoria
 Glasgow
 Oklahoma City
 Bridgeport
@@ -91,12 +86,10 @@ Mississauga
 Dayton
 Rochester
 Fresno
-Hamilton
 Sheffield
 Allentown
 Tulsa
 Cape Coral
-Concord
 Colorado Springs
 Charleston
 Springfield
@@ -111,8 +104,6 @@ Kingston upon Hull
 Baton Rouge
 Akron
 New Haven
-Columbia
-Mesa
 Surrey
 Leicester
 Palm Bay
@@ -130,10 +121,8 @@ Des Moines
 Long Beach
 Port St. Lucie
 Denton
-Madison
 Reno
 Harrisburg
-Little Rock
 Oakland
 Durham
 Laval
@@ -144,15 +133,12 @@ Palm Coast
 Chattanooga
 Spokane
 Syracuse
-Lancaster
 Arlington
-Stockton
 Poughkeepsie
 Augusta
 Boise
 Oxnard
 Scranton
-London
 Modesto
 Kissimmee
 Aurora
@@ -166,7 +152,6 @@ Victorville
 Lancaster
 Greensboro
 Corpus Christi
-Reading
 Belfast
 Fort Wayne
 Islip
@@ -174,26 +159,22 @@ Santa Ana
 Flint
 Markham
 Fayetteville
-Jackson
 Santa Rosa
 Lansing
 Ann Arbor
 Henderson
 Huntsville
 Lexington
-Mobile
 Fort Collins
 Asheville
 Santa Clarita
 St. Catharines
-Niagara Falls
 St. Paul
 Vaughan
 Antioch
 Lakeland
 Oyster Bay
 Trenton
-Lincoln
 Springfield
 Plano
 Irvine
@@ -220,8 +201,6 @@ St. Petersburg
 Lafayette
 Laredo
 Jersey City
-Concord
-Columbus
 Chandler
 McKinney
 Scottsdale
@@ -230,7 +209,6 @@ Killeen
 Tallahassee
 Peoria
 Wilmington
-Montgomery
 Gilbert
 Glendale
 North Las Vegas
@@ -248,9 +226,7 @@ Longueuil
 Visalia
 Atlantic City
 Nashua
-Paradise
 Hialeah
-York
 Burnaby
 Milton Keynes
 Arlington
@@ -268,7 +244,6 @@ Luton
 Tacoma
 Norwich
 San Bernardino
-College Station
 Kalamazoo
 Regina
 Thousand Oaks
@@ -285,7 +260,6 @@ Huntington
 Santa Barbara
 Gainesville
 Croydon
-Olympia
 Frisco
 Yonkers
 Norwich
@@ -359,7 +333,6 @@ Alexandria
 Hayward
 Springfield
 Lakewood
-Oxford
 Lafayette
 Frederick
 Lake Charles
@@ -371,7 +344,6 @@ Hollywood
 Midland
 Leesburg
 Port Arthur
-York
 Harrow
 Poole
 Muskegon
@@ -395,18 +367,14 @@ Beaumont
 Paterson
 Merced
 Saguenay
-Pueblo
-Tyler
 Blackpool
 Torrance
 Metairie
-Lévis
 Tottenham
 Yuma
 Telford
 Kelowna
 Surprise
-Columbia
 Athens
 Roseville
 Thornton
@@ -417,18 +385,15 @@ Mesquite
 Santa Maria
 Olathe
 Houma
-Sale
 Coquitlam
 Carrollton
 Grand Junction
 Charleston
-Orange
 Fullerton
 Greeley
 Las Cruces
 Panama City
 Harlingen
-Brighton
 West Valley City
 Ramapo
 Hampton
@@ -449,10 +414,8 @@ Bellingham
 Santa Clara
 Racine
 Greenville
-Cambridge
 Bolton
 Stamford
-Elizabeth
 Romford
 Newport
 Whitby
@@ -476,7 +439,6 @@ Richardson
 Redding
 Arvada
 St. George
-Billings
 Yuba City
 Rochester
 East Los Angeles
@@ -502,7 +464,6 @@ Smithtown
 Norman
 Clearwater
 Coeur d'Alene
-Seaside
 Independence
 West Jordan
 Abilene
@@ -546,7 +507,6 @@ Broken Arrow
 Milton
 Miami Gardens
 The Woodlands
-Bend
 Burlington
 Jurupa Valley
 Sandy Springs
@@ -569,14 +529,12 @@ League City
 Gillingham
 Eau Claire
 Turlock
-Temple
 Mansfield
 Dieppe
 Sioux City
 Salisbury
 Davie
 Daly City
-Allen
 Highlands Ranch
 West Covina
 Sparks
@@ -587,14 +545,12 @@ Worcester
 Fyfield
 Norwalk
 Wigan
-Columbia
 Rialto
 Manteca
 Saint Helens
 El Cajon
 Burbank
 Longmont
-Delta
 Renton
 Chatham
 Vista

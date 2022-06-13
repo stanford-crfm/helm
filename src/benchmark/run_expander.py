@@ -135,9 +135,10 @@ def misspelling(prob: float) -> PerturbationSpec:
     )
 
 
-def citynames() -> PerturbationSpec:
+def citynames(allow_lower: bool) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.city_name_replacement_perturbation.CityNameReplacementPerturbation", args={}
+        class_name="benchmark.augmentations.city_name_replacement_perturbation.CityNameReplacementPerturbation",
+        args={"allow_lower": allow_lower}
     )
 
 
@@ -244,7 +245,7 @@ def gender(
 # - r1: with perturbations [a, b]
 # - r2: with perturbations [c, d, e]
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
-    "citynames": {"citenames": [citynames()]},
+    "citynames": {"citynames": [citynames(allow_lower=True)]},
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
     "contrast_sets": {"contrast_sets": [contrast_sets()]},
     "space": {"space3": [space(max_spaces=3)]},

@@ -5,8 +5,6 @@ import random
 from dataclasses import dataclass
 from typing import List, Set
 
-import spacy
-
 from .perturbation import Perturbation
 
 
@@ -36,61 +34,42 @@ class CityNameReplacementPerturbation(Perturbation):
     replacees_filename: str = "Eng_Pop.txt"
     replacers_filename: str = "Eng_Scarce.txt"
 
-    def __init__(self, nlp=None):
-        if nlp is None:
-            try:
-                self.nlp = spacy.load("en_core_web_sm", exclude=["tagger", "parser", "lemmatizer", "textcat"])
-            except OSError:
-                spacy.cli.download("en_core_web_sm")
-                self.nlp = spacy.load("en_core_web_sm", exclude=["tagger", "parser", "lemmatizer", "textcat"])
-        else:
-            self.nlp = nlp
+    def __init__(self, allow_lower: bool):
         data_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(data_dir, self.replacees_filename)) as fin:
-            self.replacees: Set[str] = set(fin.read().strip().split("\n"))
-        self.replacees_re = re.compile('|'.join(f'(?:{t})' for t in self.replacees))
+            replacees: Set[str] = set(fin.read().strip().split("\n"))
+        if allow_lower:
+            replacees |= {replacee.lower() for replacee in replacees}
+        self.replacees = re.compile(
+            r'\b(?:' + '|'.join(f'(?:{re.escape(t)})' for t in replacees) + r')\b')
         # sort in descending order of length so that longer spans will match first
         with open(os.path.join(data_dir, self.replacers_filename)) as fin:
             self.replacers: List[str] = sorted(set(fin.read().split("\n")))
-
-    @staticmethod
-    def _span_overlap(spans) -> bool:
-        return any((s1[1] > s2[0] for s1, s2 in pairwise(sorted(spans, key=lambda s: s[0]))))
-
-    def _find_replaced_spans(self, text):
-        doc = self.nlp(text)
-        replaced_spans = []
-        for ent in doc.ents:
-            if ent.label_ != "GPE" and ent.label_ != "LOC":
-                continue
-            # First, try exact match as it is much faster
-            if ent.text in self.replacees:
-                replaced_spans.append(
-                    (doc[ent.start].idx, doc[ent.end - 1].idx + len(doc[ent.end - 1]), ent.text)
-                )
-                continue
-            for m in self.replacees_re.finditer(ent.text):
-                match_start, match_end = m.span()
-                m_span = (doc[ent.start].idx + match_start,
-                          doc[ent.start].idx + match_end)
-                assert text[m_span[0]:m_span[1]] == m.group(0)
-                replaced_spans.append((m_span[0], m_span[1], m.group(0)))
-
-        assert not self._span_overlap(replaced_spans)
-        return replaced_spans
+        self.allow_lower = allow_lower
 
     def perturb(self, text: str) -> str:
-        replaced_spans = self._find_replaced_spans(text)
+        replaced_spans = [(m.span()[0], m.span()[1], m.group(0))
+                          for m in self.replacees.finditer(text)]
 
         city_names = {span[2] for span in replaced_spans}
-        if len(city_names) < len(self.replacers):
-            replacers = random.sample(self.replacers, len(city_names))
+        # this is only required when allow_lower=True, but do it anyway to simplify the code
+        city_names_lower = {n.lower() for n in city_names}
+        if len(city_names_lower) < len(self.replacers):
+            replacers = random.sample(self.replacers, len(city_names_lower))
         else:
             # in case there are more city names than our list
-            replacers = random.choices(self.replacers, k=len(city_names))
+            replacers = random.choices(self.replacers, k=len(city_names_lower))
         # map the same city names to a single city name unlike original impl.
         # sort city names for random seed consistency
-        name_mapping = dict(zip(sorted(city_names), replacers))
+        name_mapping_lower = dict(zip(sorted(city_names_lower), replacers))
+        # this maps a city name in lower characters and in upper characters to the same city name
+        # while keeping case the same as original
+        name_mapping = {
+            city_name: name_mapping_lower[city_name.lower()].lower()
+                       if city_name.lower() == city_name else
+                       name_mapping_lower[city_name.lower()]
+            for city_name in city_names
+        }
 
         last_char_idx = 0
         text_fragments = []
