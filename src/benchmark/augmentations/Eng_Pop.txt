@@ -1,4 +1,4 @@
-New York
+New York City
 Los Angeles
 London
 Chicago
@@ -8,7 +8,9 @@ Philadelphia
 Houston
 Atlanta
 Toronto
-Washington
+Washington DC
+Washington D.C.
+Washington, D.C.
 Boston
 Phoenix
 Seattle
