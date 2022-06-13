@@ -71,6 +71,10 @@ def test_city_name_replacement_perturbation():
     )
     assert output == "Forest Park is a nice city near Bell. It is one hour drive from Forest Park to Bell."
 
+    # Match inside a LOC span (like an address)
+    output = _perturb('Our office is at 353 Serra Mall San Jose CA.')
+    assert output == 'Our office is at 353 Serra Mall Bell CA.'
+
 
 def test_misspelling_perturbation():
     data_augmenter = DataAugmenter(perturbations=[MisspellingPerturbation(prob=1.0)], should_perturb_references=True)

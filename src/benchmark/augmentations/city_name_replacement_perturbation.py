@@ -1,5 +1,6 @@
 import itertools
 import os
+import re
 import random
 from dataclasses import dataclass
 from typing import List, Set
@@ -46,25 +47,40 @@ class CityNameReplacementPerturbation(Perturbation):
             self.nlp = nlp
         data_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(data_dir, self.replacees_filename)) as fin:
-            self.replacees: Set[str] = set(fin.read().split("\n"))
+            self.replacees: Set[str] = set(fin.read().strip().split("\n"))
+        self.replacees_re = re.compile('|'.join(f'(?:{t})' for t in self.replacees))
+        # sort in descending order of length so that longer spans will match first
         with open(os.path.join(data_dir, self.replacers_filename)) as fin:
             self.replacers: List[str] = sorted(set(fin.read().split("\n")))
-
-    def _is_target(self, ner_tag: str, text: str) -> bool:
-        return (ner_tag == "GPE" or ner_tag == "LOC") and text in self.replacees
 
     @staticmethod
     def _span_overlap(spans) -> bool:
         return any((s1[1] > s2[0] for s1, s2 in pairwise(sorted(spans, key=lambda s: s[0]))))
 
-    def perturb(self, text: str) -> str:
+    def _find_replaced_spans(self, text):
         doc = self.nlp(text)
-        replaced_spans = [
-            (doc[ent.start].idx, doc[ent.end - 1].idx + len(doc[ent.end - 1]), ent.text)
-            for ent in doc.ents
-            if self._is_target(ent.label_, ent.text)
-        ]
+        replaced_spans = []
+        for ent in doc.ents:
+            if ent.label_ != "GPE" and ent.label_ != "LOC":
+                continue
+            # First, try exact match as it is much faster
+            if ent.text in self.replacees:
+                replaced_spans.append(
+                    (doc[ent.start].idx, doc[ent.end - 1].idx + len(doc[ent.end - 1]), ent.text)
+                )
+                continue
+            for m in self.replacees_re.finditer(ent.text):
+                match_start, match_end = m.span()
+                m_span = (doc[ent.start].idx + match_start,
+                          doc[ent.start].idx + match_end)
+                assert text[m_span[0]:m_span[1]] == m.group(0)
+                replaced_spans.append((m_span[0], m_span[1], m.group(0)))
+
         assert not self._span_overlap(replaced_spans)
+        return replaced_spans
+
+    def perturb(self, text: str) -> str:
+        replaced_spans = self._find_replaced_spans(text)
 
         city_names = {span[2] for span in replaced_spans}
         if len(city_names) < len(self.replacers):
