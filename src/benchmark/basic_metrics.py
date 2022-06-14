@@ -92,7 +92,7 @@ def f1_score(gold: str, pred: str) -> float:
     return ret
 
 
-def exact_match_indicator(gold: str, pred: str, indicator: str = "#") -> float:
+def exact_match_indicator(gold: str, pred: str, indicator: str = " ") -> float:
     """
     Exact match, allowing for some preceding context.
     For example, the following two answers are considered matching:

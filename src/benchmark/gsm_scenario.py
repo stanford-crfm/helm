@@ -18,6 +18,10 @@ class GSM8KScenario(Scenario):
         "Natalia sold 48/2 = <<48/2=24>>24 clips in May.\n
         Natalia sold 48+24 = <<48+24=72>>72 clips altogether in April and May.\n
         #### 72"
+    
+    In addition, incorporates prompting methods from "Chain of Thought Prompting Elicits Reasoning in Large Language Models"
+    (Wei et al. 2021): https://arxiv.org/abs/2201.11903
+    For example, we use "The answer is" before the answer, and remove line breaks within the answer.
     """
 
     name = "gsm"
@@ -39,8 +43,10 @@ class GSM8KScenario(Scenario):
                 for example in reader:  # Each example is a dictionary with a 'question' and 'answer' key
                     instances.append(
                         Instance(
-                            input=example["question"],
-                            references=[Reference(output=example["answer"], tags=[CORRECT_TAG])],
+                            input=example["question"] + "\n",
+                            references=[Reference(
+                                output=example["answer"].replace("####", "The answer is").replace("\n", " ") + ".", 
+                            tags=[CORRECT_TAG])],
                             split=split_tag,  # Must assign split tag to instance.
                         ),
                     )
