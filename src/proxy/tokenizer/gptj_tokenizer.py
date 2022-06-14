@@ -24,3 +24,8 @@ class GPTJTokenizer(GPT2Tokenizer):
     def max_sequence_length(self) -> int:
         """Return the max sequence length for GPT-J."""
         return GPTJTokenizer.MAX_SEQUENCE_LENGTH
+
+    @property
+    def max_request_length(self) -> int:
+        """Return the max request length for GPT-J."""
+        return GPTJTokenizer.MAX_REQUEST_LENGTH
