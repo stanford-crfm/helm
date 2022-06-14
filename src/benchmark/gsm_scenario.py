@@ -44,9 +44,12 @@ class GSM8KScenario(Scenario):
                     instances.append(
                         Instance(
                             input=example["question"] + "\n",
-                            references=[Reference(
-                                output=example["answer"].replace("####", "The answer is").replace("\n", " ") + ".", 
-                            tags=[CORRECT_TAG])],
+                            references=[
+                                Reference(
+                                    output=example["answer"].replace("####", "The answer is").replace("\n", " ") + ".",
+                                    tags=[CORRECT_TAG],
+                                )
+                            ],
                             split=split_tag,  # Must assign split tag to instance.
                         ),
                     )
