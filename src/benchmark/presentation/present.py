@@ -160,8 +160,6 @@ class AllRunner:
         write(
             os.path.join(suite_dir, "run_specs.json"), json.dumps(list(map(dataclasses.asdict, run_specs)), indent=2),
         )
-        all_models = [dataclasses.asdict(model) for model in ALL_MODELS]
-        write(os.path.join(self.output_path, "models.json"), json.dumps(all_models, indent=2))
 
         # Create a symlink runs/latest -> runs/<name_of_suite>,
         # so runs/latest always points to the latest run suite.
@@ -193,10 +191,9 @@ class Summarizer:
 
     DATA_AUGMENTATION_STR: str = "data_augmentation="
 
-    def __init__(self, output_path: str, suite: str, conf_path: str):
+    def __init__(self, run_suite_path: str, conf_path: str):
         """ Initialize the summarizer. """
-        self.output_path: str = output_path
-        self.suite: str = suite
+        self.run_suite_path: str = run_suite_path
         self.conf_path: str = conf_path
         self.runs: List[Run] = self.load_runs()
 
@@ -243,17 +240,17 @@ class Summarizer:
     def load_runs(self) -> List[Run]:
         """ Load the corresponding runs for the run specs in run_specs.json. """
         runs: List[Run] = []
-        suite_path: str = os.path.join(self.output_path, "runs", self.suite)
-        run_specs_path: str = os.path.join(suite_path, "run_specs.json")
+        run_specs_path: str = os.path.join(self.run_suite_path, "run_specs.json")
 
         if os.path.exists(run_specs_path):
             with open(run_specs_path) as f:
                 j = json.load(f)
                 for rs in j:
                     run_spec = dacite.from_dict(RunSpec, rs)
-                    run_dir_path = os.path.join(suite_path, run_spec.name)
-                    run_spec_path = os.path.join(run_dir_path, "run_spec.json")
-                    metrics_path = os.path.join(run_dir_path, "metrics.json")
+                    run_dir_path: str = os.path.join(self.run_suite_path, run_spec.name)
+                    run_spec_path: str = os.path.join(run_dir_path, "run_spec.json")
+                    metrics_path: str = os.path.join(run_dir_path, "metrics.json")
+
                     if os.path.exists(run_spec_path) and os.path.exists(metrics_path):
                         run = self.load_run_from_directory(run_dir_path)
                         runs.append(run)
@@ -309,11 +306,12 @@ class Summarizer:
 
     def write_runs(self):
         write(
-            os.path.join(self.output_path, "runs.json"), json.dumps(list(map(dataclasses.asdict, self.runs)), indent=2)
+            os.path.join(self.run_suite_path, "runs.json"),
+            json.dumps(list(map(dataclasses.asdict, self.runs)), indent=2),
         )
 
     def write_model_stats(self):
-        """ Compute model stats and output them to <self.output_path>/model_stats.json """
+        """ Compute model stats and output them to <self.run_suite_path>/model_stats.json """
         # Populate the model stats for each model
         model_stats = []
         for model in ALL_MODELS:
@@ -321,16 +319,16 @@ class Summarizer:
             model_stats.append(model_dict)
 
         # Write the stats
-        write(os.path.join(self.output_path, "model_stats.json"), json.dumps(model_stats, indent=2))
+        write(os.path.join(self.run_suite_path, "model_stats.json"), json.dumps(model_stats, indent=2))
 
     def write_scenario_stats(self):
-        """ Computes model stats and output them to <self.output_path>/scenario_stats.json """
+        """ Computes model stats and output them to <self.run_suite_path>/scenario_stats.json """
         # @TODO Create scenario stats json
         scenario_stats = []
 
         # Write the stats
         write(
-            os.path.join(self.output_path, "scenario_stats.json"), json.dumps(scenario_stats, indent=2),
+            os.path.join(self.run_suite_path, "scenario_stats.json"), json.dumps(scenario_stats, indent=2),
         )
 
 
@@ -379,7 +377,7 @@ def main():
     runner.run()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
-    summarizer = Summarizer(output_path=args.output_path, suite=args.suite, conf_path=args.conf_path)
+    summarizer = Summarizer(run_suite_path=os.path.join(args.output_path, "runs", args.suite), conf_path=args.conf_path)
     summarizer.write_runs()
     summarizer.write_model_stats()
     summarizer.write_scenario_stats()
