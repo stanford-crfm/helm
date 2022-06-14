@@ -240,6 +240,7 @@ def gender(
 # - r1: with perturbations [a, b]
 # - r2: with perturbations [c, d, e]
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
+    # Robustness
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
     "contrast_sets": {"contrast_sets": [contrast_sets()]},
     "space": {"space3": [space(max_spaces=3)]},
@@ -254,6 +255,8 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "typo_medium": {"typo0.3": [typo(prob=0.30)]},
     "typo_hard": {"typo0.5": [typo(prob=0.50)]},
     "synonym": {"synonym0.5": [synonym(prob=0.5)]},
+
+    # Fairness
     "dialect_easy": {
         "dialect_easy_prob=0.1_source=SAE_target=AAVE": [dialect(prob=0.1, source_class="SAE", target_class="AAVE")]
     },
@@ -321,6 +324,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             )
         ],
     },
+
     "gender_terms_easy": {
         "gender_terms_prob=0.1_source=male_target=female": [
             gender(mode="terms", prob=0.1, source_class="male", target_class="female")
@@ -361,6 +365,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             gender(mode="pronouns", prob=1.0, source_class="male", target_class="female")
         ]
     },
+
     "all": {
         "all": [
             misspelling(prob=0.20),
@@ -371,6 +376,19 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             synonym(prob=0.5),
         ]
     },
+
+    # Robustness and fairness
+    # For each, choose
+    # - robustness (contains multiple perturbations)
+    #  * easy (output is a valid sentence)
+    #  * hard (output is typo ridden, etc.)
+    # - fairness (contains multiple perturbations)
+    #  * "dialect_deterministic"
+    #  * race names
+    #  * gender names
+    # TODO: add tags, so that we can have 
+    #
+    "canonical": { }, # TODO
 }
 
 
