@@ -32,4 +32,5 @@ class TokensMetric(Metric):
             # not change what is in per_instance_stats.
             per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = [stat.take_mean()]
 
-        return MetricResult([stat.take_mean() for stat in stats.values()], per_instance_stats)
+        merge_stat(stats, Stat(MetricName("number_of_requests")).add(len(scenario_state.request_states)))
+        return MetricResult(list(stats.values()), per_instance_stats)
