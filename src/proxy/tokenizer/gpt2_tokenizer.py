@@ -69,14 +69,14 @@ class GPT2Tokenizer(Tokenizer):
 
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
         """
-        Checks if the given text fits within the context window given by `max_sequence_length
+        Checks if the given text fits within the context window given by `max_request_length`
         taking to account the expected completion length (defaults to 0).
         """
-        return self.tokenize_and_count(text) + expected_completion_token_length <= self.max_sequence_length
+        return self.tokenize_and_count(text) + expected_completion_token_length <= self.max_request_length
 
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
-        Truncates text from the right to fit within the context window given by `max_sequence_length`
+        Truncates text from the right to fit within the context window given by `max_request_length`
         minus the expected completion length (defaults to 0).
 
         By default, HuggingFace uses the 'longest_first' truncation strategy:
@@ -85,8 +85,13 @@ class GPT2Tokenizer(Tokenizer):
 
         Since we are only passing in a single string, the tokenizer will simply truncate from the right.
         """
-        return self._tokenizer.decode(
-            self._tokenizer.encode(
-                text=text, truncation=True, max_length=self.max_sequence_length - expected_completion_token_length
-            )
-        )
+        max_length: int = self.max_request_length - expected_completion_token_length
+        result: str = self._tokenizer.decode(self._tokenizer.encode(text, truncation=True, max_length=max_length))
+
+        # HACK: Because of this bug: https://github.com/huggingface/transformers/issues/17682,
+        # there are certain text that is `max_length + 1` long even after truncating with
+        # `encode` + `decode`. Truncating again seems to fix the issue and produces text
+        # that is `max_length` long.
+        if self.tokenize_and_count(result) > max_length:
+            result = self.truncate_from_right(result, expected_completion_token_length)
+        return result
