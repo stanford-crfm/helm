@@ -7,7 +7,8 @@ from proxy.models import (
     get_all_models,
     get_all_text_models,
     get_model_names_with_tag,
-    LIMITED_FUNCTIONALITY_MODEL_TAG,
+    FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+    LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
 )
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
@@ -100,14 +101,13 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
     name = "model"
     values_dict = {
-        "default": DEFAULT_MODELS,
+        "full_functionality_text": get_model_names_with_tag(FULL_FUNCTIONALITY_TEXT_MODEL_TAG),
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
         "all": get_all_models(),
         "text": get_all_text_models(),
         "code": get_all_code_models(),
-        "limited_functionality": get_model_names_with_tag(LIMITED_FUNCTIONALITY_MODEL_TAG),
-        "default_and_limited": DEFAULT_MODELS + get_model_names_with_tag(LIMITED_FUNCTIONALITY_MODEL_TAG),
+        "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
     }
 
 
@@ -255,7 +255,6 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "typo_medium": {"typo0.3": [typo(prob=0.30)]},
     "typo_hard": {"typo0.5": [typo(prob=0.50)]},
     "synonym": {"synonym0.5": [synonym(prob=0.5)]},
-
     # Fairness
     "dialect_easy": {
         "dialect_easy_prob=0.1_source=SAE_target=AAVE": [dialect(prob=0.1, source_class="SAE", target_class="AAVE")]
@@ -324,7 +323,6 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             )
         ],
     },
-
     "gender_terms_easy": {
         "gender_terms_prob=0.1_source=male_target=female": [
             gender(mode="terms", prob=0.1, source_class="male", target_class="female")
@@ -365,7 +363,6 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             gender(mode="pronouns", prob=1.0, source_class="male", target_class="female")
         ]
     },
-
     "all": {
         "all": [
             misspelling(prob=0.20),
@@ -376,7 +373,6 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             synonym(prob=0.5),
         ]
     },
-
     # Robustness and fairness
     # For each, choose
     # - robustness (contains multiple perturbations)
@@ -386,9 +382,9 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     #  * "dialect_deterministic"
     #  * race names
     #  * gender names
-    # TODO: add tags, so that we can have 
+    # TODO: add tags, so that we can have
     #
-    "canonical": { }, # TODO
+    "canonical": {},  # TODO
 }
 
 
