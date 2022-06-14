@@ -1,6 +1,8 @@
 """Evaluating source code generation."""
 
 from typing import List, Union, Sequence, cast
+import resource
+
 
 from common.request import RequestResult
 from . import code_metrics_helper
@@ -42,6 +44,10 @@ class APPSMetric(Metric):
             if name not in METRICS.keys():
                 raise ValueError(f"Expected name to be either one of {METRICS.keys()}, but got {name}.")
         self.names = names
+
+        # Set a memory limit for this process.
+        maximum_memory_bytes = 32 * 1024 * 1024 * 1024  # 32GB.
+        resource.setrlimit(resource.RLIMIT_AS, (maximum_memory_bytes, maximum_memory_bytes))
 
     def evaluate_generation(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
