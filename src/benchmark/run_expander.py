@@ -77,6 +77,21 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
     values_dict = {"default": [1]}
 
 
+DEFAULT_MODELS: List[str] = [
+    "openai/davinci",
+    "openai/curie",
+    "openai/text-davinci-002",
+    "openai/text-davinci-001",
+    "openai/text-curie-001",
+    "ai21/j1-jumbo",
+    "ai21/j1-grande",
+    "ai21/j1-large",
+    "gooseai/gpt-j-6b",
+    # TODO: to conserve GooseAI credits, hold off on running on GPT-NeoX until the end
+    # "gooseai/gpt-neo-20b",
+]
+
+
 class ModelRunExpander(ReplaceValueRunExpander):
     """
     For specifying different models.
@@ -85,25 +100,14 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
     name = "model"
     values_dict = {
-        "default": [
-            "openai/davinci",
-            "openai/curie",
-            "openai/text-davinci-002",
-            "openai/text-davinci-001",
-            "openai/text-curie-001",
-            "ai21/j1-jumbo",
-            "ai21/j1-grande",
-            "ai21/j1-large",
-            "gooseai/gpt-j-6b",
-            # TODO: to conserve GooseAI credits, hold off on running on GPT-NeoX until the end
-            # "gooseai/gpt-neo-20b",
-        ],
+        "default": DEFAULT_MODELS,
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
         "all": get_all_models(),
         "text": get_all_text_models(),
         "code": get_all_code_models(),
         "limited_functionality": get_model_names_with_tag(LIMITED_FUNCTIONALITY_MODEL_TAG),
+        "default_and_limited": DEFAULT_MODELS + get_model_names_with_tag(LIMITED_FUNCTIONALITY_MODEL_TAG),
     }
 
 
