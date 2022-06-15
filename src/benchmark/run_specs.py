@@ -656,7 +656,7 @@ def get_numeracy_spec(
 
 
 def get_math_spec(subject: str, level: str, use_official_examples: str = "True") -> RunSpec:
-    use_official_examples: bool = True if use_official_examples == "True" else False  # type: ignore
+    use_official_examples: bool = use_official_examples == "True"  # type: ignore
     scenario = ScenarioSpec(
         class_name="benchmark.math_scenario.MATHScenario",
         args={"subject": subject, "level": level, "use_official_examples": use_official_examples},
