@@ -1261,7 +1261,7 @@ def get_legal_support_spec() -> RunSpec:
         temperature=0.0,
         max_train_instances=3,  # TODO: @Neel - Justify
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=10,  # TODO: @Neel - Justify
+        num_outputs=1,
         stop_sequences=["\n"],
     )
 
