@@ -207,7 +207,7 @@ ALL_MODELS = [
         creator_organization="Anthropic",
         name="anthropic/stanford-online-all-v4-s3",
         description="Anthropic model (52B parameters)",
-        tags=[LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, TEXT_MODEL_TAG],  # The Anthropic model has limited functionality
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],  # The Anthropic model has limited functionality
     ),
     # Microsoft
     Model(
@@ -215,7 +215,7 @@ ALL_MODELS = [
         creator_organization="Microsoft",
         name="microsoft/TNLGv2_530B",
         description="Megatron-Turing NLG (530B parameters)",
-        tags=[LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, TEXT_MODEL_TAG],  # The TNLGv2 models have limited functionality
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],  # The TNLGv2 models have limited functionality
     ),
     # TODO: The TNLGv2_7B model is unavailable to us at the moment, but simply uncomment the following when it's ready.
     # Model(
@@ -223,7 +223,7 @@ ALL_MODELS = [
     #     creator_organization="Microsoft",
     #     name="microsoft/TNLGv2_7B",
     #     description="Megatron-Turing NLG (7B parameters)",
-    #     tags = [LIMITED_FUNCTIONALITY_MODEL_TAG, TEXT_MODEL_TAG],  # The TNLGv2 models have limited functionality
+    #     tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],  # The TNLGv2 models have limited functionality
     # ),
     # For debugging
     Model(
