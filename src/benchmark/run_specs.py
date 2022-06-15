@@ -549,6 +549,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
+        num_outputs=1,
         max_tokens=20,
         input_prefix="Rules:\n",
         output_prefix="",
@@ -1038,6 +1039,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
+        num_outputs=1,
         max_tokens=50,  # answer upperbounded by 50 tokens
         input_prefix="",
         output_prefix="| Target: ",
