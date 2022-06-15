@@ -1,10 +1,14 @@
-from typing import List
+from typing import List, Optional
 from transformers import GPT2TokenizerFast
 
-from .tokenizer import Tokenizer
+from .tokenizer import Tokenizer, EncodeResult
 
 
 class GPT2Tokenizer(Tokenizer):
+
+    # The max request length of GPT2 is MAX_SEQUENCE_LENGTH + 1.
+    MAX_REQUEST_LENGTH: int = 1025
+
     # The max length of the model input. The max sequence length for GPT-2 is 1024.
     MAX_SEQUENCE_LENGTH: int = 1024
 
@@ -20,19 +24,36 @@ class GPT2Tokenizer(Tokenizer):
         return GPT2Tokenizer.MAX_SEQUENCE_LENGTH
 
     @property
+    def max_request_length(self) -> int:
+        """Return the max request length of GPT-2."""
+        return GPT2Tokenizer.MAX_REQUEST_LENGTH
+
+    @property
     def end_of_text_token(self) -> str:
         """The end of text token."""
         return GPT2Tokenizer.END_OF_TEXT_TOKEN
 
-    def encode(self, text: str) -> List[int]:
+    @property
+    def prefix_token(self) -> str:
+        """The prefix token for OPENAI models is the end of text token."""
+        return self.end_of_text_token
+
+    def encode(self, text: str) -> EncodeResult:
         """
         Encodes the input text to tokens.
         """
-        return self._tokenizer.encode(text)
+        tokens: List[int] = self._tokenizer.encode(text)
+        return EncodeResult(text=text, tokens=tokens)
 
-    def decode(self, tokens: List[int]) -> str:
+    def decode(self, tokens: List[int], normalized_text: Optional[str] = None) -> str:
         """
-        Given a list of tokens, outputs the corresponding text.
+        Given the model and a list of tokens, outputs the corresponding text.
+
+        For models using the GPT-2 tokenizer, the tokens are integers; for AI21
+        models, the tokens are `TokenizationToken`s.
+
+        Some tokenizers (e.g. AI21) normalize the text before encoding it and
+        thus require the `normalized_text` for decoding.
         """
         return self._tokenizer.decode(tokens, clean_up_tokenization_spaces=False)
 
@@ -48,14 +69,14 @@ class GPT2Tokenizer(Tokenizer):
 
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
         """
-        Checks if the given text fits within the context window given by `max_sequence_length
+        Checks if the given text fits within the context window given by `max_request_length`
         taking to account the expected completion length (defaults to 0).
         """
-        return self.tokenize_and_count(text) + expected_completion_token_length <= self.max_sequence_length
+        return self.tokenize_and_count(text) + expected_completion_token_length <= self.max_request_length
 
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
-        Truncates text from the right to fit within the context window given by `max_sequence_length`
+        Truncates text from the right to fit within the context window given by `max_request_length`
         minus the expected completion length (defaults to 0).
 
         By default, HuggingFace uses the 'longest_first' truncation strategy:
@@ -64,8 +85,14 @@ class GPT2Tokenizer(Tokenizer):
 
         Since we are only passing in a single string, the tokenizer will simply truncate from the right.
         """
-        return self._tokenizer.decode(
-            self._tokenizer.encode(
-                text=text, truncation=True, max_length=self.max_sequence_length - expected_completion_token_length
-            )
+        max_length: int = self.max_request_length - expected_completion_token_length
+        # Should set clean_up_tokenization_spaces=False: https://github.com/huggingface/transformers/issues/17682
+        # If we don't, something like "their 'studio'" becomes "their'studio'" when decoding.
+        result: str = self._tokenizer.decode(
+            self._tokenizer.encode(text, truncation=True, max_length=max_length), clean_up_tokenization_spaces=False
         )
+
+        # Validate that the truncated text now fits. Fail fast otherwise.
+        num_tokens: int = self.tokenize_and_count(result)
+        assert num_tokens <= max_length, f"Truncation failed ({num_tokens} > {max_length}). Input text: {text}"
+        return result

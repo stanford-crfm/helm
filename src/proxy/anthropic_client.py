@@ -19,18 +19,20 @@ class AnthropicRequestError(Exception):
 
 class AnthropicClient(Client):
     """
-    Anthropic models. Documentation and paper coming soon. They use their own version of the GPT-2 tokenizer.
+    Client for the Anthropic models (https://arxiv.org/abs/2204.05862).
+    They used their own version of the GPT-2 tokenizer.
 
-    The Anthropic API currently does not support:
+    The Anthropic API is not production-ready and currently does not support:
     - Top k per token
     - Multiple completions
     - Echo prompt
     - Log probabilities
     """
 
-    # Note: we can currently only request for a maximum of 700 tokens in the completion.
-    # TODO: increase this later when Anthropic supports it.
-    MAX_COMPLETION_LENGTH: int = 700
+    # Note: The model has a maximum context size of 8192, but the Anthropic API
+    #       can currently only support a maximum of ~3000 tokens in the completion.
+    # TODO: increase this later when Anthropic supports more.
+    MAX_COMPLETION_LENGTH: int = 3000
 
     def __init__(self, api_key: str, cache_path: str):
         self.api_key = api_key
@@ -40,7 +42,7 @@ class AnthropicClient(Client):
 
     def make_request(self, request: Request) -> RequestResult:
         # Validate the fields of `Request`
-        if request.model != "anthropic/stanford-online-helpful-v4-s3":
+        if request.model != "anthropic/stanford-online-all-v4-s3":
             raise ValueError(f"Invalid model: {request.model}")
         # `Request` field values that Anthropic currently does not support
         if request.echo_prompt:
@@ -71,10 +73,6 @@ class AnthropicClient(Client):
             # Meta tokens are non-text tokens Anthropic sometimes injects into the text to identify the dataset
             "meta": True,  # meta=True skips sampling meta tokens. Keep it true.
             "is_replicated": True,  # Always set to True
-            # Setting `use_sample_v1` to false enables batching to increase throughput.
-            # However, if false, the API will break when users send multiple requests with different hyperparameters.
-            # Therefore, default to True for now.
-            "use_sample_v1": True,
         }
 
         def do_it():
@@ -162,5 +160,8 @@ class AnthropicClient(Client):
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes the text using the underlying tokenizer."""
         return TokenizationRequestResult(
-            cached=False, tokens=[TokenizationToken(raw_text) for raw_text in self.tokenizer.tokenize(request.text)]
+            success=True,
+            cached=False,
+            tokens=[TokenizationToken(raw_text) for raw_text in self.tokenizer.tokenize(request.text)],
+            text=request.text,
         )

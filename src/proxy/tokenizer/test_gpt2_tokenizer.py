@@ -124,7 +124,7 @@ class TestGPT2Tokenizer:
         self.tokenizer = TokenizerFactory.get_tokenizer("huggingface/gpt2")
 
     def test_encode(self):
-        assert self.tokenizer.encode(TEST_PROMPT) == TEST_TOKEN_IDS
+        assert self.tokenizer.encode(TEST_PROMPT).tokens == TEST_TOKEN_IDS
 
     def test_decode(self):
         assert self.tokenizer.decode(TEST_TOKEN_IDS) == TEST_PROMPT
@@ -135,9 +135,9 @@ class TestGPT2Tokenizer:
     def test_fits_within_context_window(self):
         # Should fit in the context window since we subtracted the number of tokens of the test prompt
         # from the max context window
-        assert self.tokenizer.fits_within_context_window(TEST_PROMPT, 1024 - 51)
+        assert self.tokenizer.fits_within_context_window(TEST_PROMPT, 1025 - 51)
         # Should not fit in the context window because we're expecting one more extra token in the completion
-        assert not self.tokenizer.fits_within_context_window(TEST_PROMPT, 1024 - 51 + 1)
+        assert not self.tokenizer.fits_within_context_window(TEST_PROMPT, 1025 - 51 + 1)
 
     def test_truncate_from_right(self):
         # Create a prompt that exceed max context length: 51 * 41 = 2091 tokens
@@ -146,8 +146,15 @@ class TestGPT2Tokenizer:
 
         # Truncate and ensure it fits within the context window
         truncated_long_prompt: str = self.tokenizer.truncate_from_right(long_prompt)
-        assert self.tokenizer.tokenize_and_count(truncated_long_prompt) == 1024
+        assert self.tokenizer.tokenize_and_count(truncated_long_prompt) == 1025
         assert self.tokenizer.fits_within_context_window(truncated_long_prompt)
+
+    def test_truncate_from_right_edge_case(self):
+        # Example from https://github.com/huggingface/transformers/issues/17682
+        problematic_text: str = "their 'studio'"
+        assert (
+            self.tokenizer.truncate_from_right(problematic_text, expected_completion_token_length=0) == problematic_text
+        )
 
     def test_tokenize_and_count(self):
         assert self.tokenizer.tokenize_and_count(TEST_PROMPT) == 51

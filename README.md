@@ -269,6 +269,7 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r narrative_qa
     venv/bin/benchmark-run -r news_qa
     venv/bin/benchmark-run -r imdb
+    venv/bin/benchmark-run -r twitter_aae:demographic=aa
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
@@ -283,7 +284,7 @@ For example, running `venv/bin/benchmark-run -r real_toxicity_prompts --dry-run`
 
 ```text
   Stats {
-    openai/davinci_estimated_number_of_tokens[min=505.000, mean=514.957, max=536.000, sum=514957.000 (1000)]
+    MetricName(name='estimated_num_tokens_cost', k=None, split=None, sub_split=None, perturbation=None)[min=505.000, mean=514.957, max=536.000, sum=514957.000 (1000)]
   }
 ```
 

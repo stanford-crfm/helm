@@ -18,9 +18,6 @@ from proxy.remote_service import RemoteService
 from common.authentication import Authentication
 
 
-# import pdb
-
-
 def get_test_adapter_service() -> AdapterService:
     return AdapterService(RemoteService("test"), Authentication("test"))
 

@@ -43,7 +43,7 @@ from . import entity_data_imputation_scenario  # noqa
 # Metrics
 from . import basic_metrics  # noqa
 from . import commonsense_qa_metrics  # noqa
-from . import msmarco_metrics  # noqa
+from . import multiple_request_metrics  # noqa
 from . import toxicity_metrics  # noqa
 from . import tokens_metric  # noqa
 from . import copyright_metrics  # noqa

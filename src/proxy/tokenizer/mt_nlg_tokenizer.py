@@ -9,6 +9,10 @@ class MTNLGTokenizer(GPT2Tokenizer):
     # Source: https://github.com/microsoft/turing-academic-TNLG
     MAX_SEQUENCE_LENGTH: int = 2048
 
+    # TODO: Once the model supports returning logprobs,
+    # find the correct value for `MAX_REQUEST_LENGTH`
+    MAX_REQUEST_LENGTH: int = 2048
+
     def __init__(self, tokenizer: GPT2TokenizerFast):
         # Use the GPT-2 tokenizer.
         super().__init__(tokenizer)
@@ -17,3 +21,8 @@ class MTNLGTokenizer(GPT2Tokenizer):
     def max_sequence_length(self) -> int:
         """Return the max sequence length for the MT-NLG models."""
         return MTNLGTokenizer.MAX_SEQUENCE_LENGTH
+
+    @property
+    def max_request_length(self) -> int:
+        """Return the max request length for the MT-NLG models."""
+        return MTNLGTokenizer.MAX_REQUEST_LENGTH
