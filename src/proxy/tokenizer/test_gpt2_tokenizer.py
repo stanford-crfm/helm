@@ -149,5 +149,12 @@ class TestGPT2Tokenizer:
         assert self.tokenizer.tokenize_and_count(truncated_long_prompt) == 1025
         assert self.tokenizer.fits_within_context_window(truncated_long_prompt)
 
+    def test_truncate_from_right_edge_case(self):
+        # Example from https://github.com/huggingface/transformers/issues/17682
+        problematic_text: str = "their 'studio'"
+        assert (
+            self.tokenizer.truncate_from_right(problematic_text, expected_completion_token_length=0) == problematic_text
+        )
+
     def test_tokenize_and_count(self):
         assert self.tokenizer.tokenize_and_count(TEST_PROMPT) == 51
