@@ -15,7 +15,6 @@ from .runner import RunSpec
 from .scenario import ScenarioSpec
 
 from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
-from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
 from .msmarco_scenario import MSMARCOScenario
 from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .raft_scenario import get_raft_instructions
@@ -656,20 +655,17 @@ def get_numeracy_spec(
     )
 
 
-def get_math_spec(subject: str, level: str, use_official_prompt: str = "True") -> RunSpec:
-    use_official_prompt: bool = True if use_official_prompt == "True" else False  # type: ignore
+def get_math_spec(subject: str, level: str, use_official_examples: str = "True") -> RunSpec:
+    use_official_examples: bool = use_official_examples == "True"  # type: ignore
     scenario = ScenarioSpec(
-        class_name="benchmark.math_scenario.MATHScenario", args={"subject": subject, "level": level}
+        class_name="benchmark.math_scenario.MATHScenario",
+        args={"subject": subject, "level": level, "use_official_examples": use_official_examples},
     )
-
-    instructions = OFFICIAL_MATH_INSTRUCTIONS
-    if use_official_prompt:
-        instructions = OFFICIAL_MATH_PROMPT
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions=instructions,
-        max_train_instances=0 if use_official_prompt else 8,  # Official prompt includes train instances
+        instructions="Given a mathematics problem, determine the answer. Simplify your answer as much as possible.",
+        max_train_instances=8,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
