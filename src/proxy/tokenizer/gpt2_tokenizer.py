@@ -87,7 +87,7 @@ class GPT2Tokenizer(Tokenizer):
         """
         max_length: int = self.max_request_length - expected_completion_token_length
         # Should set clean_up_tokenization_spaces=False: https://github.com/huggingface/transformers/issues/17682
-        # If we don't, "their 'studio'" becomes "their'studio'" when decoding.
+        # If we don't, something like "their 'studio'" becomes "their'studio'" when decoding.
         result: str = self._tokenizer.decode(
             self._tokenizer.encode(text, truncation=True, max_length=max_length), clean_up_tokenization_spaces=False
         )
