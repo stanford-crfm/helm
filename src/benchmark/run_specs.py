@@ -567,10 +567,10 @@ def get_gsm_spec() -> RunSpec:
     # Create AdapterSpec based on the GSM8K paper: https://arxiv.org/pdf/2110.14168.pdf
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="",
+        input_prefix="Q: ",
+        output_prefix="A: ",
         num_train_trials=1,
-        max_train_instances=3,  # Due to limited context and long example length
+        max_train_instances=5,  # Due to limited context and long example length
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         model="openai/davinci",
         temperature=0.0,
