@@ -121,8 +121,8 @@ def get_numeracy_metrics(run_solver: bool = False) -> List[MetricSpec]:
     return metrics
 
 
-def get_math_metrics() -> List[MetricSpec]:
-    metric_names = {"names": ["math_equiv"]}
+def get_math_metrics(use_chain_of_thought: bool = True) -> List[MetricSpec]:
+    metric_names = {"names": ["math_equiv_chain_of_thought" if use_chain_of_thought else "math_equiv"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
@@ -655,12 +655,33 @@ def get_numeracy_spec(
     )
 
 
-def get_math_spec(subject: str, level: str, use_official_examples: str = "True") -> RunSpec:
+def get_math_spec(
+    subject: str, level: str, use_official_examples: str = "False", use_chain_of_thought: str = "True"
+) -> RunSpec:
     use_official_examples: bool = use_official_examples == "True"  # type: ignore
+    use_chain_of_thought: bool = use_chain_of_thought == "True"  # type: ignore
+    if use_chain_of_thought:
+        assert not use_official_examples, "Cannot use official examples when use_chain_of_thought is True."
     scenario = ScenarioSpec(
         class_name="benchmark.math_scenario.MATHScenario",
-        args={"subject": subject, "level": level, "use_official_examples": use_official_examples},
+        args={
+            "subject": subject,
+            "level": level,
+            "use_official_examples": use_official_examples,
+            "use_chain_of_thought": use_chain_of_thought,
+        },
     )
+
+    if use_chain_of_thought:  # Include the solution in the output as per https://arxiv.org/abs/2201.11903
+        output_prefix = "\nAnswer: "  # Don't include LaTeX '$' delimiters
+        instance_prefix = "\n###"  # Don't include LaTeX '$' delimiters
+        max_tokens = 400  # Increase the number of tokens to generate
+        stop_sequences = ["###"]  # Break at the next instance; extraneous output will be stripped out
+    else:
+        output_prefix = "\nAnswer: $"
+        instance_prefix = "$\n###"
+        max_tokens = 20
+        stop_sequences = ["$"]  # Break at the nearest LaTeX closing delimiter
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -671,19 +692,18 @@ def get_math_spec(subject: str, level: str, use_official_examples: str = "True")
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
-        stop_sequences=["$", "###", "\n"],  # Reproduce setting from official MATH codebase
-        # Source: https://github.com/hendrycks/math/blob/main/modeling/evaluate_gpt3.py#L31
-        max_tokens=20,
+        stop_sequences=stop_sequences,
+        max_tokens=max_tokens,
         input_prefix="\nProblem: ",
-        output_prefix="\nAnswer: $",
-        instance_prefix="$\n###",
+        output_prefix=output_prefix,
+        instance_prefix=instance_prefix,
     )
 
     return RunSpec(
         name=f"math:subject={subject},level={level}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_math_metrics(),
+        metrics=get_math_metrics(use_chain_of_thought),  # type: ignore
     )
 
 
