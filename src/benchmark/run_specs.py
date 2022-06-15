@@ -600,6 +600,7 @@ def get_raft_spec(subset: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
+        num_outputs=1,
         max_tokens=30,  # at most ~50 characters per label
     )
 
