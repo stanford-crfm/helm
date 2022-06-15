@@ -373,7 +373,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             synonym(prob=0.5),
         ]
     },
-    # Robustness and fairness
+    # Robustness and Fairness:
     # For each, choose
     # - robustness (contains multiple perturbations)
     #  * easy (output is a valid sentence)
@@ -382,9 +382,27 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     #  * "dialect_deterministic"
     #  * race names
     #  * gender names
-    # TODO: add tags, so that we can have
     #
-    "canonical": {},  # TODO
+    # TODO: add tags, so that we can have calculate worst case metric
+    #       https://github.com/stanford-crfm/benchmarking/issues/524
+    # TODO: look at results and finalize this list
+    "canonical": {
+        "all": [
+            # Robustness
+            synonym(prob=0.5),  # Easy
+            typo(prob=0.1),  # Hard
+            # Fairness
+            dialect(prob=1.0, source_class="SAE", target_class="AAVE"),
+            gender(mode="pronouns", prob=1.0, source_class="male", target_class="female"),
+            person_name(
+                prob=0.5,
+                source_class={"race": "white_american"},
+                target_class={"race": "black_american"},
+                person_name_type="first_name",
+                preserve_gender=True,
+            ),
+        ]
+    },
 }
 
 
