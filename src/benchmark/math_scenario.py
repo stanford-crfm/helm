@@ -5,38 +5,6 @@ from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CO
 
 from datasets import load_dataset, DatasetDict
 
-OFFICIAL_MATH_INSTRUCTIONS = (
-    "Given a mathematics problem, determine the answer. Simplify your answer as much as possible."
-)
-
-OFFICIAL_MATH_PROMPT = (
-    OFFICIAL_MATH_INSTRUCTIONS
-    + """
-Problem: What is $\left(\\frac{7}{8}\\right)^3 \cdot \left(\\frac{7}{8}\\right)^{-3}$?
-Answer: $1$
-###
-Problem: In how many ways can 4 books be selected from a shelf of 6 books if the order in which the books are selected does not matter?
-Answer: $15$
-###
-Problem: Find the distance between the points $(2,1,-4)$ and $(5,8,-3).$
-Answer: $\sqrt{59}$
-###
-Problem: The faces of an octahedral die are labeled with digits $1$ through $8$. What is the probability, expressed as a common fraction, of rolling a sum of $15$ with a pair of such octahedral dice?
-Answer: $\\frac{1}{32}$
-###
-Problem: The first three terms of an arithmetic sequence are 1, 10 and 19, respectively. What is the value of the 21st term?
-Answer: $181$
-###
-Problem: Calculate $6 \\cdot 8\\frac{1}{3}
-Answer: $50$
-###
-Problem: When the binary number $100101110010_2$ is divided by 4, what is the remainder (give your answer in base 10)?
-Answer: $2$
-###
-Problem: How many zeros are at the end of the product 25 $\\times$ 240?
-Answer: $3"""  # noqa
-)
-
 
 def remove_boxed(string: str) -> Optional[str]:
     """Source: https://github.com/hendrycks/math
@@ -299,9 +267,10 @@ class MATHScenario(Scenario):
 
         https://arxiv.org/pdf/2103.03874.pdf
 
-    Example input, using official prompt:
+    Example input, using official examples:
 
         Given a mathematics problem, determine the answer. Simplify your answer as much as possible.
+        ###
         Problem: What is $\left(\frac{7}{8}\right)^3 \cdot \left(\frac{7}{8}\right)^{-3}$?
         Answer: $1$
         ###
@@ -349,9 +318,10 @@ class MATHScenario(Scenario):
     }
     levels = ["1", "2", "3", "4", "5"]
 
-    def __init__(self, subject: str, level: str):
+    def __init__(self, subject: str, level: str, use_official_examples: bool = True):
         self.subject = subject
         self.level = level
+        self.use_official_examples = use_official_examples
 
     def get_instances(self) -> List[Instance]:
         dataset = {}
@@ -365,20 +335,52 @@ class MATHScenario(Scenario):
 
         instances = []
         for split, split_name in zip([TRAIN_SPLIT, TEST_SPLIT], ["train", "test"]):
-            data_split = [ex for ex in data[split_name]]
-            dataset[split] = group_by_key(data_split, "type")
-            dataset[split] = dataset[split][MATHScenario.subjects_mapping[self.subject]]
-            dataset[split] = group_by_key(dataset[split], "level")
-            dataset[split] = dataset[split][f"Level {self.level}"]
+            if split == TRAIN_SPLIT and self.use_official_examples:
+                train_instances = [
+                    ("What is $\left(\\frac{7}{8}\\right)^3 \cdot \left(\\frac{7}{8}\\right)^{-3}$?", "1"),
+                    (
+                        "In how many ways can 4 books be selected from a shelf of 6 books"
+                        + " if the order in which the books are selected does not matter?",
+                        "15",
+                    ),
+                    ("Find the distance between the points $(2,1,-4)$ and $(5,8,-3).$", "\sqrt{59}"),
+                    (
+                        "The faces of an octahedral die are labeled with digits $1$ through $8$."
+                        + " What is the probability, expressed as a common fraction,"
+                        + " of rolling a sum of $15$ with a pair of such octahedral dice?",
+                        "\\frac{1}{32}",
+                    ),
+                    (
+                        "The first three terms of an arithmetic sequence are 1, 10 and 19, respectively."
+                        + " What is the value of the 21st term?",
+                        "181",
+                    ),
+                    ("Calculate $6 \\cdot 8\\frac{1}{3}", "50"),
+                    (
+                        "When the binary number $100101110010_2$ is divided by 4,"
+                        + " what is the remainder (give your answer in base 10)?",
+                        "2",
+                    ),
+                    ("How many zeros are at the end of the product 25 $\\times$ 240?", "3"),
+                ]
+                dataset[TRAIN_SPLIT] = [{"problem": problem, "answer": answer} for problem, answer in train_instances]
+
+            else:
+                data_split = [ex for ex in data[split_name]]
+                dataset_split = group_by_key(data_split, "type")
+                dataset[split] = dataset_split[MATHScenario.subjects_mapping[self.subject]]
+                dataset_split = group_by_key(data_split, "level")
+                dataset[split] = dataset_split[f"Level {self.level}"]
+                for ex in dataset[split]:
+                    last_boxed = last_boxed_only_string(ex["solution"])
+                    if last_boxed is None:
+                        continue
+                    answer = remove_boxed(last_boxed)
+                    if answer is None:
+                        continue
+                    ex["answer"] = answer
 
             for ex in dataset[split]:
-                last_boxed = last_boxed_only_string(ex["solution"])
-                if last_boxed is None:
-                    continue
-                answer = remove_boxed(last_boxed)
-                if answer is None:
-                    continue
-                ex["answer"] = answer
                 instance = Instance(
                     input=ex["problem"], references=[Reference(output=ex["answer"], tags=[CORRECT_TAG])], split=split,
                 )
