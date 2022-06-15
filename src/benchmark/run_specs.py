@@ -656,7 +656,7 @@ def get_numeracy_spec(
 
 
 def get_math_spec(
-    subject: str, level: str, use_official_examples: str = "False", use_chain_of_thought: str = "True"
+    subject: str, level: str, use_official_examples: str = "False", use_chain_of_thought: str = "False"
 ) -> RunSpec:
     use_official_examples: bool = use_official_examples == "True"  # type: ignore
     use_chain_of_thought: bool = use_chain_of_thought == "True"  # type: ignore

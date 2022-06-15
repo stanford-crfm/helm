@@ -339,12 +339,15 @@ class MATHScenario(Scenario):
     }
     levels = ["1", "2", "3", "4", "5"]
 
-    def __init__(self, subject: str, level: str, use_official_examples: bool = True, use_chain_of_thought: bool = True):
+    def __init__(
+        self, subject: str, level: str, use_official_examples: bool = False, use_chain_of_thought: bool = False
+    ):
         self.subject = subject
         self.level = level
         self.use_official_examples = use_official_examples
         self.use_chain_of_thought = use_chain_of_thought
-        assert not use_official_examples, "Cannot use official examples when use_chain_of_thought is True."
+        if use_chain_of_thought:
+            assert not use_official_examples, "Cannot use official examples when use_chain_of_thought is True."
 
     def get_instances(self) -> List[Instance]:
         dataset = {}
