@@ -109,6 +109,10 @@ class HuggingFaceClient(Client):
         return self.model_server_instances[model_engine]
 
     def make_request(self, request: Request) -> RequestResult:
+        # Only a single stop sequence is supported as we can only pass in a single value for `eos_token_id`
+        if len(request.stop_sequences) > 1:
+            raise ValueError("More than one stop sequence is not supported.")
+
         raw_request = {
             "engine": request.model_engine,
             "prompt": request.prompt,

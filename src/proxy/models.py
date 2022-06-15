@@ -109,7 +109,22 @@ ALL_MODELS = [
         description="Codex (for natural language to code) - 2048 max tokens",
         tags=[CODE_MODEL_TAG],
     ),
+    # GooseAI supported models
+    Model(
+        group="gooseai",
+        name="gooseai/gpt-neo-20b",
+        description="GPT-NeoX (20B parameters trained by EleutherAI on The Pile)",
+        tags=[TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="gooseai",
+        name="gooseai/gpt-j-6b",
+        description="GPT-J (6B parameters trained by EleutherAI on The Pile)",
+        tags=[TEXT_MODEL_TAG],
+    ),
     # HuggingFace
+    # TODO: Switch GPT-J over to GooseAPI
+    #       https://github.com/stanford-crfm/benchmarking/issues/310
     Model(group="huggingface", name="huggingface/gptj_6b", description="GPT-J (6B parameters)", tags=[TEXT_MODEL_TAG]),
     Model(group="huggingface", name="huggingface/gpt2", description="GPT-2 (1.5B parameters)", tags=[TEXT_MODEL_TAG]),
     # Anthropic
