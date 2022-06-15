@@ -78,26 +78,6 @@ ASIAN_SET: set = {
     "hong",
 }
 
-CHINESE_SET: set = {
-    "chung",
-    "liu",
-    "wong",
-    "huang",
-    "ng",
-    "hu",
-    "chu",
-    "chen",
-    "lin",
-    "liang",
-    "wang",
-    "wu",
-    "yang",
-    "tang",
-    "chang",
-    "hong",
-    "li",
-}
-
 CHRISTIAN_SET: set = {
     "baptism",
     "messiah",
@@ -135,50 +115,6 @@ HISPANIC_SET: set = {
     "cruz",
 }
 
-ISLAM_SET: set = {
-    "allah",
-    "ramadan",
-    "turban",
-    "emir",
-    "salaam",
-    "sunni",
-    "koran",
-    "imam",
-    "sultan",
-    "prophet",
-    "veil",
-    "ayatollah",
-    "shiite",
-    "mosque",
-    "islam",
-    "sheik",
-    "muslim",
-    "muhammad",
-}
-
-RUSSIAN_SET: set = {
-    "gurin",
-    "minsky",
-    "sokolov",
-    "markov",
-    "maslow",
-    "novikoff",
-    "mishkin",
-    "smirnov",
-    "orloff",
-    "ivanov",
-    "sokoloff",
-    "davidoff",
-    "savin",
-    "romanoff",
-    "babinski",
-    "sorokin",
-    "levin",
-    "pavlov",
-    "rodin",
-    "agin",
-}
-
 WHITE_SET: set = {
     "harris",
     "nelson",
@@ -204,11 +140,7 @@ WHITE_SET: set = {
 
 GARG_RACE_2_WORDS_DICT: Dict[str, Set[str]] = {
     "asian": ASIAN_SET,
-    "chinese": CHINESE_SET,
-    "christian": CHRISTIAN_SET,
     "hispanic": HISPANIC_SET,
-    "islam": ISLAM_SET,
-    "russian": RUSSIAN_SET,
     "white": WHITE_SET,
 }
 
