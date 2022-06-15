@@ -236,7 +236,19 @@ def _strip_string(string: str) -> str:
     return string
 
 
-def is_equiv(str1: str, str2: str) -> float:
+def get_answer(solution: Optional[str]) -> Optional[str]:
+    if solution is None:
+        return None
+    last_boxed = last_boxed_only_string(solution)
+    if last_boxed is None:
+        return None
+    answer = remove_boxed(last_boxed)
+    if answer is None:
+        return None
+    return answer
+
+
+def is_equiv(str1: Optional[str], str2: Optional[str]) -> float:
     """Returns (as a float) whether two strings containing math are equivalent up to differences of formatting in
     - units
     - fractions
@@ -257,6 +269,15 @@ def is_equiv(str1: str, str2: str) -> float:
         return float(ss1 == ss2)
     except Exception:
         return float(str1 == str2)
+
+
+def is_equiv_chain_of_thought(str1: str, str2: str) -> float:
+    """Strips the solution first before calling `is_equiv`.
+    """
+    ans1 = get_answer(str1)
+    ans2 = get_answer(str2)
+
+    return is_equiv(ans1, ans2)
 
 
 class MATHScenario(Scenario):
@@ -318,10 +339,15 @@ class MATHScenario(Scenario):
     }
     levels = ["1", "2", "3", "4", "5"]
 
-    def __init__(self, subject: str, level: str, use_official_examples: bool = True):
+    def __init__(
+        self, subject: str, level: str, use_official_examples: bool = False, use_chain_of_thought: bool = False
+    ):
         self.subject = subject
         self.level = level
         self.use_official_examples = use_official_examples
+        self.use_chain_of_thought = use_chain_of_thought
+        if use_chain_of_thought:
+            assert not use_official_examples, "Cannot use official examples when use_chain_of_thought is True."
 
     def get_instances(self) -> List[Instance]:
         dataset = {}
@@ -372,12 +398,13 @@ class MATHScenario(Scenario):
                 dataset_split = group_by_key(data_split, "level")
                 dataset[split] = dataset_split[f"Level {self.level}"]
                 for ex in dataset[split]:
-                    last_boxed = last_boxed_only_string(ex["solution"])
-                    if last_boxed is None:
-                        continue
-                    answer = remove_boxed(last_boxed)
-                    if answer is None:
-                        continue
+                    if self.use_chain_of_thought:
+                        answer = ex["solution"]
+                    else:
+                        maybe_answer = get_answer(ex["solution"])
+                        if maybe_answer is None:
+                            continue
+                        answer = maybe_answer
                     ex["answer"] = answer
 
             for ex in dataset[split]:

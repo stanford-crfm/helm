@@ -21,7 +21,7 @@ from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from proxy.tokenizer.tokenizer_service import TokenizerService
 from .augmentations.perturbation_description import PerturbationDescription
 from .adapter import AdapterSpec, RequestState
-from .math_scenario import is_equiv
+from .math_scenario import is_equiv, is_equiv_chain_of_thought
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -334,6 +334,7 @@ class BasicMetric(Metric):
             "iou_set_match": iou_set_match,
             "f1_set_match": f1_set_match,
             "math_equiv": is_equiv,
+            "math_equiv_chain_of_thought": is_equiv_chain_of_thought,
             "code_eval_acc": code_eval,
             "pass": code_eval,
             "f1_score": f1_score,
