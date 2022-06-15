@@ -677,7 +677,8 @@ def get_math_spec(subject: str, level: str, use_official_prompt: str = "True") -
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
-        stop_sequences=["$", "###", "\n"],  # Reproduce setting from official MATH codebase
+        # The MATH codebase used  ["$", "###", "\n"], but the MT-NLG model only supports a single stop sequence.
+        stop_sequences=["$"],
         # Source: https://github.com/hendrycks/math/blob/main/modeling/evaluate_gpt3.py#L31
         max_tokens=20,
         input_prefix="\nProblem: ",
