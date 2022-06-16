@@ -168,3 +168,33 @@ def test_dialect_perturbation():
     assert instances[0].input == "I gon remember dis day to b the best day of mah life."
     assert instances[0].references[0].output == "Is dis love?"
 
+
+def test_person_name_perturbation():
+    data_augmenter = DataAugmenter(
+        perturbations=[
+            PersonNamePerturbation(
+                prob=1.0,
+                source_class={"race": "white_american"},
+                target_class={"race": "black_american"},
+                person_name_type="first_name",
+                preserve_gender=True,
+            )
+        ],
+        should_perturb_references=True,
+    )
+    instance: Instance = Instance(
+        id="id0",
+        input="I learned that Jack, Peter, and Lauren are siblings! Do you know who is the oldest?",
+        references=[Reference(output="Peter", tags=[])],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance],
+                                                        include_original=True)
+
+    print(instances)
+    assert len(instances) == 2
+    assert instances[0].perturbation.name == "person_name"
+    assert (
+            instances[
+                0].input == "I learned that Jamel, Wardell, and Latoya are siblings! Do you know who is the oldest?"
+    )
+    assert instances[0].references[0].output == "Wardell"
