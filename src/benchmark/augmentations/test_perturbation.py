@@ -12,6 +12,9 @@ from .filler_words_perturbation import FillerWordsPerturbation
 from .synonym_perturbation import SynonymPerturbation
 from .lowercase_perturbation import LowerCasePerturbation
 from .space_perturbation import SpacePerturbation
+from .dialect_perturbation import DialectPerturbation
+from .person_name_perturbation import PersonNamePerturbation
+from .gender_perturbation import GenderPerturbation
 
 
 def test_identity_perturbation():
@@ -145,3 +148,23 @@ def test_space_perturbation():
     assert len(instances) == 2
     assert instances[0].perturbation.name == "space"
     assert instances[0].input == "Hello   World!\nQuite   aday,  huh?"
+
+
+def test_dialect_perturbation():
+    data_augmenter = DataAugmenter(
+        perturbations=[DialectPerturbation(prob=1.0, source_class="SAE", target_class="AAVE")],
+        should_perturb_references=True,
+    )
+    instance: Instance = Instance(
+        id="id0",
+        input="I will remember this day to be the best day of my life.",
+        references=[Reference(output="Is this love?", tags=[])],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    print(instances)
+    assert len(instances) == 2
+    assert instances[0].perturbation.name == "dialect"
+    assert instances[0].input == "I gon remember dis day to b the best day of mah life."
+    assert instances[0].references[0].output == "Is dis love?"
+
