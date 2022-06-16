@@ -239,6 +239,22 @@ def gender(
 # Then we will create two RunSpecs:
 # - r1: with perturbations [a, b]
 # - r2: with perturbations [c, d, e]
+ROBUSTNESS_PERTURBATION_SPECS = {"synonym": [synonym(prob=0.5)], "typo": [typo(prob=0.1)]}
+
+FAIRNESS_PERTURBATION_SPECS = {
+    "dialect": [dialect(prob=1.0, source_class="SAE", target_class="AAVE")],
+    "gender_pronouns": [gender(mode="pronouns", prob=1.0, source_class="male", target_class="female")],
+    "person_name": [
+        person_name(
+            prob=1.0,
+            source_class={"race": "white_american"},
+            target_class={"race": "black_american"},
+            person_name_type="first_name",
+            preserve_gender=True,
+        ),
+    ],
+}
+
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
     "contrast_sets": {"contrast_sets": [contrast_sets()]},
@@ -361,23 +377,10 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             gender(mode="pronouns", prob=1.0, source_class="male", target_class="female")
         ]
     },
-    "robustness": {"synonym": [synonym(prob=0.5)], "typo": [typo(prob=0.1)]},
-    "fairness": {
-        "dialect": [dialect(prob=1.0, source_class="SAE", target_class="AAVE")],
-        "gender_pronouns": [gender(mode="pronouns", prob=1.0, source_class="male", target_class="female")],
-        "person_name": [
-            person_name(
-                prob=1.0,
-                source_class={"race": "white_american"},
-                target_class={"race": "black_american"},
-                person_name_type="first_name",
-                preserve_gender=True,
-            ),
-        ],
-    },
+    "robustness": ROBUSTNESS_PERTURBATION_SPECS,
+    "fairness": FAIRNESS_PERTURBATION_SPECS,
+    "canonical": {**ROBUSTNESS_PERTURBATION_SPECS, **FAIRNESS_PERTURBATION_SPECS},
 }
-# Add canonical perturbations
-PERTURBATION_SPECS_DICT["canonical"] = {**PERTURBATION_SPECS_DICT["robustness"], **PERTURBATION_SPECS_DICT["fairness"]}
 
 
 class DataAugmentationRunExpander(RunExpander):
