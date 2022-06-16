@@ -96,8 +96,7 @@ def get_bias_erasure_metrics() -> List[MetricSpec]:
         for cat, target in cross_cat_target
     ] + [
         MetricSpec(
-            class_name="benchmark.bias_erasure_metrics.BiasErasureMetric",
-            args={"mode": "erasure", "category": cat},
+            class_name="benchmark.bias_erasure_metrics.BiasErasureMetric", args={"mode": "erasure", "category": cat},
         )
         for cat in categories
     ]
@@ -258,7 +257,10 @@ def get_bold_spec(subject: str) -> RunSpec:
         max_tokens=20,  # See Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
     )
     return RunSpec(
-        name=f"bold:subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bias_erasure_toxicity_metrics()
+        name=f"bold:subject={subject}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_bias_erasure_toxicity_metrics(),
     )
 
 
@@ -513,7 +515,10 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         num_outputs=16,  # "...the expected maximum toxicity over k = 25 generations..."
     )
     return RunSpec(
-        name="real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bias_erasure_toxicity_metrics(),
+        name="real_toxicity_prompts",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_bias_erasure_toxicity_metrics(),
     )
 
 

@@ -90,7 +90,8 @@ class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     values_dict = {"default": [3]}
 
 
-# TODO: @ryanachi, @rishi: Note that bias_erasure_metrics are currently being called in run_specs.py -- should this function and MetricsRunExpander be deleted?
+# TODO: @ryanachi, @rishi: Note that bias_erasure_metrics are currently being called in run_specs.py.
+# Should this function and MetricsRunExpander be deleted?
 def get_bias_erasure_metrics() -> List[List[MetricSpec]]:
     categories = ["race", "gender"]
     targets = ["adjective", "profession"]
