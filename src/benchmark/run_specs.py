@@ -125,6 +125,10 @@ def get_bias_erasure_metrics() -> List[MetricSpec]:
 def get_bias_erasure_toxicity_metrics() -> List[MetricSpec]:
     return get_toxicity_metrics() + get_bias_erasure_metrics()
 
+def get_summarization_metrics() -> List[MetricSpec]:
+    return get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}) + get_bias_erasure_toxicity_metrics()
+    # TODO: Add faithfulness metrics later
+
 
 def get_srn_metrics() -> List[MetricSpec]:
     metric_names = {"names": ["f1_set_match", "iou_set_match", "exact_set_match"]}
@@ -1168,7 +1172,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_xsum:temperature={temperature}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
+        metrics=get_summarization_metrics(),  # TODO: Add faithfulness metrics later
     )
 
 
@@ -1203,7 +1207,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_xsum:temperature={temperature}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
+        metrics=get_summarization_metrics(),  # TODO: Add faithfulness metrics later
     )
 
 
@@ -1233,7 +1237,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_cnndm:temperature={temperature}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
+        metrics=get_summarization_metrics(),  # TODO: Add faithfulness metrics later
     )
 
 
