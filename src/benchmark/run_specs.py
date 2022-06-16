@@ -1,4 +1,5 @@
 from typing import List, Dict, Optional, Any, Callable
+import itertools
 from common.object_spec import ObjectSpec
 from .adapter import (
     AdapterSpec,
@@ -79,6 +80,30 @@ def get_toxicity_metrics() -> List[MetricSpec]:
         MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={}),
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
+
+
+def get_bias_erasure_metrics() -> List[MetricSpec]:
+    categories = ["race", "gender"]
+    targets = ["adjective", "profession"]
+    cross_cat_target = itertools.product(categories, targets)
+
+    return [
+        MetricSpec(
+            class_name="benchmark.bias_erasure_metrics.BiasErasureMetric",
+            args={"mode": "bias", "category": cat, "bias_target": target},
+        )
+        for cat, target in cross_cat_target
+    ] + [
+        MetricSpec(
+            class_name="benchmark.bias_erasure_metrics.BiasErasureMetric",
+            args={"mode": "erasure", "category": cat},
+        )
+        for cat in categories
+    ]
+
+
+def get_bias_erasure_toxicity_metrics() -> List[MetricSpec]:
+    return get_toxicity_metrics() + get_bias_erasure_metrics()
 
 
 def get_srn_metrics() -> List[MetricSpec]:
@@ -232,7 +257,7 @@ def get_bold_spec(subject: str) -> RunSpec:
         max_tokens=20,  # See Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
     )
     return RunSpec(
-        name=f"bold:subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics()
+        name=f"bold:subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bias_erasure_toxicity_metrics()
     )
 
 
@@ -487,7 +512,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         num_outputs=16,  # "...the expected maximum toxicity over k = 25 generations..."
     )
     return RunSpec(
-        name="real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics(),
+        name="real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bias_erasure_toxicity_metrics(),
     )
 
 

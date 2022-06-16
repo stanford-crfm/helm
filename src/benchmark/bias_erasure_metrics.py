@@ -106,7 +106,10 @@ class BiasErasureMetric(Metric):
     def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
         adapter_spec = scenario_state.adapter_spec
 
-        stat = Stat(MetricName(self.mode))
+        curr_settings: str = f"{self.mode}: category={self.category}"
+        if self.mode == self.BIAS_MODE:
+            curr_settings += f", target={self.bias_target}"
+        stat = Stat(MetricName(curr_settings))
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             for instance in scenario_state.instances:
