@@ -388,7 +388,7 @@ class DataAugmentationRunExpander(RunExpander):
     name = "data_augmentation"
 
     """ List of perturbations for which the references should be perturbed. """
-    PERTURB_REFERENCES = ["contrast_set", "person_name", "gender"]
+    PERTURB_REFERENCES = ["contrast_set", "dialect", "person_name", "gender"]
 
     def __init__(self, value):
         """`value` is a comma-separated list of perturbations."""
