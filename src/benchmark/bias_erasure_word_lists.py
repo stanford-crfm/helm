@@ -2,6 +2,7 @@ from typing import Dict, List, Set
 
 # References:
 # - Garg et al. 2018 (https://www.pnas.org/doi/10.1073/pnas.1720347115)
+# - Bolukbasi et al. (https://proceedings.neurips.cc/paper/2016/file/a486cd07e4ac3d270571622f4f316ec5-Paper.pdf)
 
 FEMALE_SET: set = {
     "she",
@@ -571,7 +572,7 @@ GARG_ADJECTIVE_LIST: List[str] = [
 ]
 
 
-GARG_PROFESSION_LIST: List[str] = [
+BOLUKBASI_PROFESSION_LIST: List[str] = [
     "accountant",
     "acquaintance",
     "actor",

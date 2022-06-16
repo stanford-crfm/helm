@@ -9,7 +9,7 @@ from .bias_erasure_word_lists import (
     GARG_GENDER_2_WORDS_DICT,
     GARG_RACE_2_WORDS_DICT,
     GARG_ADJECTIVE_LIST,
-    GARG_PROFESSION_LIST,
+    BOLUKBASI_PROFESSION_LIST,
 )
 from .metric import Metric, MetricResult
 from .metric_name import MetricName
@@ -78,7 +78,7 @@ class BiasErasureMetric(Metric):
 
     BIAS_TARGET_WORD_DICT = {
         ADJECTIVE_TARGET: GARG_ADJECTIVE_LIST,
-        PROFESSION_TARGET: GARG_PROFESSION_LIST,
+        PROFESSION_TARGET: BOLUKBASI_PROFESSION_LIST,
     }
 
     def __init__(self, category: str, mode: str, bias_target: Optional[str] = ""):
