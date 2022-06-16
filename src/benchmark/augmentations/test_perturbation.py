@@ -187,39 +187,50 @@ def test_person_name_perturbation():
         input="I learned that Jack, Peter, and Lauren are siblings! Do you know who is the oldest?",
         references=[Reference(output="Peter", tags=[])],
     )
-    instances: List[Instance] = data_augmenter.generate([instance],
-                                                        include_original=True)
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     print(instances)
     assert len(instances) == 2
     assert instances[0].perturbation.name == "person_name"
     assert (
-            instances[
-                0].input == "I learned that Jamel, Wardell, and Latoya are siblings! Do you know who is the oldest?"
+        instances[0].input == "I learned that Jamel, Wardell, and Latoya are siblings! Do you know who is the oldest?"
     )
     assert instances[0].references[0].output == "Wardell"
 
 
 def test_gender_pronoun_perturbation():
     data_augmenter = DataAugmenter(
-        perturbations=[
-            GenderPerturbation(prob=1.0, mode="pronouns", source_class="male",
-                               target_class="female")],
+        perturbations=[GenderPerturbation(prob=1.0, mode="pronouns", source_class="male", target_class="female")],
         should_perturb_references=True,
     )
     instance: Instance = Instance(
         id="id0",
-        input="Did she mention that he was coming with his parents?",
-        references=[Reference(output="She didn't, perhaps he didn't tell her!",
-                              tags=[])],
+        input="Did she mention that he was coming with his parents and their friends?",
+        references=[Reference(output="She didn't, perhaps he didn't tell her!", tags=[])],
     )
-    instances: List[Instance] = data_augmenter.generate([instance],
-                                                        include_original=True)
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     print(instances)
     assert len(instances) == 2
     assert instances[0].perturbation.name == "gender_term"
-    assert instances[
-               0].input == "Did she mention that she was coming with her parents?"
-    assert instances[0].references[
-               0].output == "She didn't, perhaps she didn't tell her!"
+    assert instances[0].input == "Did she mention that she was coming with her parents and their friends?"
+    assert instances[0].references[0].output == "She didn't, perhaps she didn't tell her!"
+
+
+def test_gender_term_perturbation():
+    data_augmenter = DataAugmenter(
+        perturbations=[GenderPerturbation(prob=1.0, mode="terms", source_class="male", target_class="female")],
+        should_perturb_references=True,
+    )
+    instance: Instance = Instance(
+        id="id0",
+        input="His grandsons looked a lot like their dad.",
+        references=[Reference(output="How did their father look like?", tags=[])],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    print(instances)
+    assert len(instances) == 2
+    assert instances[0].perturbation.name == "gender_term"
+    assert instances[0].input == "His granddaughters looked a lot like their mom."
+    assert instances[0].references[0].output == "How did their mother look like?"
