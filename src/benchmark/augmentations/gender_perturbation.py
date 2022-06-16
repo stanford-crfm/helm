@@ -169,6 +169,14 @@ class GenderPerturbation(Perturbation):
         self.source_words: List[str] = list(word_lists[gender_to_ind[self.source_class]])
         self.target_words: List[str] = list(word_lists[gender_to_ind[self.target_class]])
 
+        # Get word_synonym_pairs
+        self.word_synonym_pairs = list(zip(self.source_words, self.target_words))
+
+        # If self.bidirectional flag is set, extend the pairs list
+        if self.bidirectional:
+            new_pairs = list(zip(self.target_words, self.source_words))
+            self.word_synonym_pairs.extend(new_pairs)
+
     @property
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
@@ -204,27 +212,9 @@ class GenderPerturbation(Perturbation):
 
     def substitute_gender(self, text: str) -> str:
         """ Perform the perturbations on the provided text. """
-
-        # Keep track of the words we have already considered. We may run into
-        # duplicates due to the following reasons:
-        #     (1) There might be one source word mapping to two different
-        #         target words in different cases (his => her, his => hers)
-        #     (2) If self.bidirectional flag is set, we want to ensure that
-        #         we don't consider a word twice if it is both in the source and
-        #         the target words lists.
-        considered_words = []
-        word_synonym_pairs = list(zip(self.source_words, self.target_words))
-
-        # If self.bidirectional flag is set, extend the pairs list
-        if self.bidirectional:
-            new_pairs = list(zip(self.target_words, self.source_words))
-            word_synonym_pairs.extend(new_pairs)
-
         # Substitute the words
-        for (word, synonym) in word_synonym_pairs:
-            if word not in considered_words:
-                text = self.substitute_word(text, word, synonym)
-                considered_words.append(word)
+        for (word, synonym) in self.word_synonym_pairs:
+            text = self.substitute_word(text, word, synonym)
 
         return text
 
