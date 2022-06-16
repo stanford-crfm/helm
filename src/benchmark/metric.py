@@ -4,9 +4,9 @@ from typing import List, Dict, Tuple
 from math import log, e
 from collections import defaultdict
 
-from common.statistic import Stat, merge_stat
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
+from .statistic import Stat, merge_stat
 
 from .augmentations.perturbation_description import PerturbationDescription
 
@@ -122,13 +122,13 @@ class Metric(ABC):
             for split in EVAL_SPLITS:
                 if (
                     MetricName("logprob", split=split) in trial_stats
-                    and MetricName("num_tokens", split=split) in trial_stats
+                    and MetricName("num_perplexity_tokens", split=split) in trial_stats
                     and MetricName("num_bytes", split=split) in trial_stats
                 ):
                     # TODO: find out the root cause and undo this change
                     #       https://github.com/stanford-crfm/benchmarking/issues/350
                     if (
-                        trial_stats[MetricName("num_tokens", split=split)].sum == 0
+                        trial_stats[MetricName("num_perplexity_tokens", split=split)].sum == 0
                         or trial_stats[MetricName("num_bytes", split=split)].sum == 0
                     ):
                         continue
@@ -139,7 +139,7 @@ class Metric(ABC):
                             e
                             ** (
                                 -trial_stats[MetricName("logprob", split=split)].sum
-                                / trial_stats[MetricName("num_tokens", split=split)].sum
+                                / trial_stats[MetricName("num_perplexity_tokens", split=split)].sum
                             )
                         ),
                     )
@@ -200,8 +200,8 @@ class Metric(ABC):
         # Aggregate the corpus-level metrics
         if (
             MetricName("logprob", split=split) in trial_stats
-            and MetricName("num_tokens", split=split) in trial_stats
-            and trial_stats[MetricName("num_tokens", split=split)].sum != 0
+            and MetricName("num_perplexity_tokens", split=split) in trial_stats
+            and trial_stats[MetricName("num_perplexity_tokens", split=split)].sum != 0
         ):
             merge_stat(
                 trial_stats,
@@ -209,7 +209,7 @@ class Metric(ABC):
                     e
                     ** (
                         -trial_stats[MetricName("logprob", split=split)].sum
-                        / trial_stats[MetricName("num_tokens", split=split)].sum
+                        / trial_stats[MetricName("num_perplexity_tokens", split=split)].sum
                     )
                 ),
             )

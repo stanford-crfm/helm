@@ -5,6 +5,11 @@ from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, TEST_SPLIT
 
+CODALAB_URI_TEMPLATE: str = (
+    "https://worksheets.codalab.org/rest/bundles/0x31485f8c37ad481fb9f4e9bf7ccff6e5/contents/blob/"
+    "{demographic}_tweets.csv"
+)
+
 
 class TwitterAAEScenario(Scenario):
     """
@@ -12,10 +17,12 @@ class TwitterAAEScenario(Scenario):
 
         https://aclanthology.org/D16-1120.pdf
 
-    The current implementation of this scenario is incomplete and should only be used for testing purposes.
-    It does not support `demographic=white`; the `aa` subset is unfiltered, either.
-    # TODO: Implement the data filtering process for `white` and `aa`
-    #       https://github.com/stanford-crfm/benchmarking/issues/73
+    Our AA and white datasets are different from the AA-aligned and white-aligned corpora in the paper.
+
+    Specificaly, we derive the datasets in two steps:
+    1. Select the 830,000 tweets with the highest AA proportions and 7.3 million tweets with the highest
+    white proportions from the source dataset.
+    2. Randomly sample 50,000 tweets from each demographic subset as our test set.
     """
 
     name = "twitter_aae"
@@ -28,29 +35,19 @@ class TwitterAAEScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         # Download the raw data
-        data_path: str = os.path.join(self.output_path, "data")
+        data_path: str = os.path.join(self.output_path, f"{self.demographic}_tweets.csv")
         ensure_file_downloaded(
-            source_url="http://slanglab.cs.umass.edu/TwitterAAE/TwitterAAE-full-v1.zip",
-            target_path=data_path,
-            unpack=True,
-            unpack_type="unzip",
+            source_url=CODALAB_URI_TEMPLATE.format(demographic=self.demographic), target_path=data_path, unpack=False,
         )
 
         # Read all the instances
         instances: List[Instance] = []
-
-        tsv_path: str = os.path.join(data_path, "twitteraae_all_aa")
-        if not os.path.exists(tsv_path):
-            raise Exception(f"{tsv_path} doesn't exist")
-
-        hlog(f"Reading {tsv_path}")
-        with open(tsv_path) as f:
-            reader = csv.reader(f, delimiter="\t")
+        hlog(f"Reading {data_path}")
+        with open(data_path) as f:
+            reader = csv.reader(f)
             for row in reader:
-                # Example: ['293846693215096832', 'Tue Jan 22 22:24:45 +0000 2013', '1028920752',
-                # '[-80.01040975, 32.80108357]', '450190027021',"Click Clack Motha Fucka I ain't tryin to hear Nothin!",
-                # '0.894545454545', '0.0163636363636', '0.0', '0.0890909090909']
-                tweet = row[5]
+                # Example: ["Click Clack Motha Fucka I ain't tryin to hear Nothin!"]
+                tweet = row[0]
                 instance = Instance(input=tweet, references=[], split=TEST_SPLIT)
                 instances.append(instance)
 

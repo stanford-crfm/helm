@@ -1,11 +1,11 @@
 from typing import List
 
 from common.general import singleton
-from common.statistic import Stat
 from .adapter import ScenarioState
 from .metric import Metric, MetricResult
 from .metric_name import MetricName
 from .metric_service import MetricService
+from .statistic import Stat
 
 AMBIGUOUS_TAG = "ambiguous"
 NON_AMBIGUOUS_TAG = "non-ambiguous"

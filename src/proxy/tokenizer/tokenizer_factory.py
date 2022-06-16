@@ -55,8 +55,11 @@ class TokenizerFactory:
             if not service:
                 raise ValueError("Need to pass in a TokenizerService to get the tokenizer for the AI21 models.")
 
-            # Don't need to cache since AI21Tokenizer is just a wrapper.
-            tokenizer = AI21Tokenizer(model=model_name, service=service)
+            tokenizer = AI21Tokenizer(
+                model=model_name,
+                service=service,
+                gpt2_tokenizer=GPT2Tokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast()),
+            )
         else:
             raise ValueError(f"Invalid model name or organization: {model_name_or_organization}")
 
