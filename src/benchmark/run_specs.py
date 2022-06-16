@@ -125,6 +125,7 @@ def get_bias_erasure_metrics() -> List[MetricSpec]:
 def get_bias_erasure_toxicity_metrics() -> List[MetricSpec]:
     return get_toxicity_metrics() + get_bias_erasure_metrics()
 
+
 def get_summarization_metrics() -> List[MetricSpec]:
     return get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}) + get_bias_erasure_toxicity_metrics()
     # TODO: Add faithfulness metrics later
