@@ -1,11 +1,12 @@
 import argparse
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import datetime
 from typing import List, Optional
 
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.authentication import Authentication
 from common.object_spec import parse_object_spec
+from benchmark.statistic import Stat
 from proxy.remote_service import create_authentication, add_service_args
 
 from .executor import ExecutionSpec
@@ -14,6 +15,20 @@ from .run_specs import construct_run_specs
 
 
 LATEST_SYMLINK: str = "latest"
+
+
+@dataclass(frozen=True)
+class Run:
+    """ Represents a run with spec and stats. """
+
+    # Directory name of the run
+    run_dir: str
+
+    # Run spec for the run
+    run_spec: RunSpec
+
+    # Statistics for the run
+    stats: List[Stat]
 
 
 def run_benchmarking(

@@ -21,3 +21,8 @@ class AnthropicTokenizer(GPT2Tokenizer):
     def max_sequence_length(self) -> int:
         """Return the max sequence length of the Anthropic model."""
         return AnthropicTokenizer.MAX_SEQUENCE_LENGTH
+
+    @property
+    def max_request_length(self) -> int:
+        """Return the max request length of the Anthropic model."""
+        return AnthropicTokenizer.MAX_REQUEST_LENGTH

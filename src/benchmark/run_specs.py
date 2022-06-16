@@ -1,6 +1,7 @@
 from typing import List, Dict, Optional, Any, Callable
 import itertools
 import os
+
 from common.object_spec import ObjectSpec
 from .adapter import (
     AdapterSpec,
@@ -9,14 +10,15 @@ from .adapter import (
     ADAPT_GENERATION,
     ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
 )
-from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
-from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
 from .metric import MetricSpec
-from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
-from .raft_scenario import get_raft_instructions
 from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenario import ScenarioSpec
+
+from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
+from .msmarco_scenario import MSMARCOScenario
+from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
+from .raft_scenario import get_raft_instructions
 
 HUMAN_EVAL_METRIC_NAMES = ("code_eval_acc", "pass")
 APPS_METRIC_NAMES = ("test_avg", "strict_acc")
@@ -66,13 +68,31 @@ def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
 
 
-def get_msmarco_metrics() -> List[MetricSpec]:
+def get_msmarco_metrics(task: str, track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:
+    measure_names = MSMARCOScenario.MEASURE_NAMES[(task, track)]
+    mode = MSMARCOScenario.BINARY_LOGPROB_MODE
+    correct_output, wrong_output = MSMARCOScenario.CORRECT_OUTPUT, MSMARCOScenario.WRONG_OUTPUT
+    multi_value_qrels = set(MSMARCOScenario.GOLD_RELATIONS[(task, track)]) != {1}
+
     return [
         MetricSpec(
-            class_name="benchmark.msmarco_metrics.MSMARCOMetric",
-            args={"name": "mean_reciprocal_rank", "topk_list": [10]},
+            class_name="benchmark.multiple_request_metrics.InformationRetrievalMetric",
+            args={
+                "measure_names": measure_names,
+                "qrels_path": qrels_path,
+                "mode": mode,
+                "correct_output": correct_output,
+                "wrong_output": wrong_output,
+                "topk": topk,
+                "multi_value_qrels": multi_value_qrels,
+            },
         ),
-        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
+        MetricSpec(
+            class_name="benchmark.multiple_request_metrics.MultipleRequestMetrics", args={"use_basic_metrics": True}
+        ),
+        # The line below is commented out because efficiency metrics are taking a long time to compute
+        # @TODO Uncomment the line below when we have the efficiency computations for all the models
+        # MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
 
 
@@ -111,22 +131,22 @@ def get_srn_metrics() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
-def get_numeracy_metrics(relation_type: str, run_solver: bool = True) -> List[MetricSpec]:
+def get_numeracy_metrics(run_solver: bool = False) -> List[MetricSpec]:
     metric_names = {"names": ["exact_match", "quasi_exact_match", "absolute_value_difference"]}
-    metrics = [
+    metrics: List[MetricSpec] = [
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names),
     ]
-    if (
-        relation_type not in ["parabola", "paraboloid"] or run_solver
-    ):  # the solvers are slow to run so make them skippable
+
+    # The solvers are slow to run so make them skippable
+    if run_solver:
         metrics += [
             MetricSpec(class_name="benchmark.numeracy_metrics.DistanceMetric", args={}),
         ]
     return metrics
 
 
-def get_math_metrics() -> List[MetricSpec]:
-    metric_names = {"names": ["math_equiv"]}
+def get_math_metrics(use_chain_of_thought: bool = True) -> List[MetricSpec]:
+    metric_names = {"names": ["math_equiv_chain_of_thought" if use_chain_of_thought else "math_equiv"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
@@ -207,38 +227,60 @@ def get_bbq_spec(subject: str) -> RunSpec:
 
 
 def get_msmarco_spec(
-    task: str, track: str = "regular", topk: str = "30", num_eval_queries: str = "500", num_train_queries: str = "1000"
+    task,
+    track,
+    use_qrels_passages="False",
+    use_topk_passages="False",
+    valid_topk=None,
+    num_valid_queries=None,
+    num_train_queries="1000",
 ) -> RunSpec:
-    scenario = ScenarioSpec(
+    # Get ScenarioSpec
+    use_qrels_passages = use_qrels_passages.lower() == "true"
+    use_topk_passages = use_topk_passages.lower() == "true"
+    valid_topk = int(valid_topk) if valid_topk else valid_topk
+    num_valid_queries = int(num_valid_queries) if num_valid_queries else num_valid_queries
+    num_train_queries = int(num_train_queries)
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.msmarco_scenario.MSMARCOScenario",
         args={
             "task": task,
             "track": track,
-            "topk": int(topk),
-            "num_eval_queries": int(num_eval_queries),
-            "num_train_queries": int(num_train_queries),
+            "use_qrels_passages": use_qrels_passages,
+            "use_topk_passages": use_topk_passages,
+            "valid_topk": valid_topk,
+            "num_valid_queries": num_valid_queries,
+            "num_train_queries": num_train_queries,
         },
     )
 
+    # Get AdapterSpec
     adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE,
+        method=ADAPT_GENERATION,
         instructions="",
         input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
-        max_train_instances=4,  # TODO: @Dilara - Justify
-        max_eval_instances=200,  # TODO: @Dilara - Justify
+        max_train_instances=4,  # Needs to be even to ensure equal number of correct and wrong examples
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
     )
+
+    # Create metrics
+    qrels_path = os.path.join("benchmark_output", "scenarios", "msmarco", "data", f"{task}_{track}_qrels.tsv")
+    metrics = get_msmarco_metrics(task, track, qrels_path, topk=valid_topk)
+
+    # Return RunSpec
     return RunSpec(
-        name=f"msmarco:task={task},track={track},topk={topk},num_eval_queries={num_eval_queries},"
-        f"num_train_queries={num_train_queries}",
-        scenario=scenario,
+        name=f"""msmarco:task={task},track={track},use_qrels_passages={use_qrels_passages},use_topk_passages={use_topk_passages},
+                 valid_topk={valid_topk},num_valid_queries={num_valid_queries},num_train_queries={num_train_queries}
+              """,
+        scenario=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_msmarco_metrics(),
+        metrics=metrics,
     )
 
 
@@ -554,10 +596,10 @@ def get_gsm_spec() -> RunSpec:
     # Create AdapterSpec based on the GSM8K paper: https://arxiv.org/pdf/2110.14168.pdf
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="",
+        input_prefix="Q: ",
+        output_prefix="A: ",
         num_train_trials=1,
-        max_train_instances=3,  # Due to limited context and long example length
+        max_train_instances=5,  # Due to limited context and long example length
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         model="openai/davinci",
         temperature=0.0,
@@ -599,12 +641,13 @@ def get_raft_spec(subset: str) -> RunSpec:
 
 
 def get_numeracy_spec(
-    relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: bool = True
+    relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
 ) -> RunSpec:
+    run_solver: bool = True if run_solver == "True" else False  # type: ignore
     random_seed = int(seed)
     scenario = ScenarioSpec(
         class_name="benchmark.numeracy_scenario.NumeracyScenario",
-        args={"seed": random_seed, "relation_type": relation_type, "mode": mode,},
+        args={"seed": random_seed, "relation_type": relation_type, "mode": mode},
     )
 
     if mode in ["example", "standard"]:
@@ -638,41 +681,59 @@ def get_numeracy_spec(
         name=f"numeracy:relation_type={relation_type},mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_numeracy_metrics(relation_type, run_solver=run_solver),
+        metrics=get_numeracy_metrics(run_solver),  # type: ignore
     )
 
 
-def get_math_spec(subject: str, level: str, use_official_prompt: bool = True) -> RunSpec:
+def get_math_spec(
+    subject: str, level: str, use_official_examples: str = "False", use_chain_of_thought: str = "False"
+) -> RunSpec:
+    use_official_examples: bool = use_official_examples == "True"  # type: ignore
+    use_chain_of_thought: bool = use_chain_of_thought == "True"  # type: ignore
+    if use_chain_of_thought:
+        assert not use_official_examples, "Cannot use official examples when use_chain_of_thought is True."
     scenario = ScenarioSpec(
-        class_name="benchmark.math_scenario.MATHScenario", args={"subject": subject, "level": level}
+        class_name="benchmark.math_scenario.MATHScenario",
+        args={
+            "subject": subject,
+            "level": level,
+            "use_official_examples": use_official_examples,
+            "use_chain_of_thought": use_chain_of_thought,
+        },
     )
 
-    instructions = OFFICIAL_MATH_INSTRUCTIONS
-    if use_official_prompt:
-        instructions = OFFICIAL_MATH_PROMPT
+    if use_chain_of_thought:  # Include the solution in the output as per https://arxiv.org/abs/2201.11903
+        output_prefix = "\nAnswer: "  # Don't include LaTeX '$' delimiters
+        instance_prefix = "\n###"  # Don't include LaTeX '$' delimiters
+        max_tokens = 400  # Increase the number of tokens to generate
+        stop_sequences = ["###"]  # Break at the next instance; extraneous output will be stripped out
+    else:
+        output_prefix = "\nAnswer: $"
+        instance_prefix = "$\n###"
+        max_tokens = 20
+        stop_sequences = ["$"]  # Break at the nearest LaTeX closing delimiter
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions=instructions,
-        max_train_instances=0 if use_official_prompt else 8,  # Official prompt includes train instances
+        instructions="Given a mathematics problem, determine the answer. Simplify your answer as much as possible.",
+        max_train_instances=8,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
-        stop_sequences=["$", "###", "\n"],  # Reproduce setting from official MATH codebase
-        # Source: https://github.com/hendrycks/math/blob/main/modeling/evaluate_gpt3.py#L31
-        max_tokens=20,
+        stop_sequences=stop_sequences,
+        max_tokens=max_tokens,
         input_prefix="\nProblem: ",
-        output_prefix="\nAnswer: $",
-        instance_prefix="$\n###",
+        output_prefix=output_prefix,
+        instance_prefix=instance_prefix,
     )
 
     return RunSpec(
         name=f"math:subject={subject},level={level}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_math_metrics(),
+        metrics=get_math_metrics(use_chain_of_thought),  # type: ignore
     )
 
 
@@ -708,11 +769,12 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
         instructions="The following are multiple choice questions (with answers).",
         input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
-        max_train_instances=2,  # TODO: @Dor - Justify
+        max_train_instances=5,
         model="openai/davinci",
         max_eval_instances=None,
         num_outputs=1,
-        # TODO: @Dor - please add temperature, max_tokens, and stop_sequences
+        temperature=0.0,
+        stop_sequences=["\n"],
     )
 
     return RunSpec(
@@ -761,8 +823,7 @@ def get_babi_qa_spec(task: str) -> RunSpec:
         num_outputs=1,
         # Task 19's answers consist of two words (in contrast to all other tasks that feature a single-word answers.)
         max_tokens=2 if task == "19" else 1,
-        # TODO: @Dor - I think we should change this since it assumes tokenization behavior.
-        # max_tokens=5,
+        # setting max 1/2 tokens answers improved performance but indeed makes an assumption about tokenization.
         temperature=0.0,
         stop_sequences=["\n"],
     )
@@ -784,11 +845,11 @@ def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
         output_prefix="",
         max_train_instances=0,
         num_train_trials=1,
-        temperature=0.5,
+        temperature=0.2,
         max_eval_instances=None,  # TODO: Modify this as necessary.
         num_outputs=1,  # TODO: More is better; but we're subject to compute constraints.
         model="openai/davinci",
-        max_tokens=1000,  # TODO: Can be anything up to context window size; but we're subject to compute constraints.
+        max_tokens=1024,
     )
 
     return RunSpec(
@@ -869,11 +930,13 @@ def get_code_spec(dataset: str) -> RunSpec:
             method=ADAPT_GENERATION,
             instructions="",
             max_train_instances=0,
+            # in-context examples are generally too long to fit in the model context window
             max_eval_instances=10000,
             num_outputs=1,
             num_train_trials=1,
             model="openai/code-davinci-001",
             temperature=0.2,
+            # Taken from the original OpenAI paper to prevent the further generation of irrelevant classes/functions
             stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],
             max_tokens=600,
             input_prefix="",
@@ -884,13 +947,18 @@ def get_code_spec(dataset: str) -> RunSpec:
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
             instructions="",
-            max_train_instances=0,
+            max_train_instances=2,  # Follows the original paper https://arxiv.org/pdf/2105.09938.pdf Appendix D.
             max_eval_instances=10000,
             num_outputs=1,
             num_train_trials=1,
             model="openai/code-davinci-001",
             temperature=0.2,
-            stop_sequences=["'''", "---", '"""', "\n\n\n"],
+            stop_sequences=[
+                "'''",
+                "---",
+                '"""',
+                "\n\n\n",
+            ],  # Manually selected by @lxuechen to prevent the further generation of irrelevant classes/functions
             max_tokens=600,
             input_prefix="",
             output_prefix="",
@@ -1078,7 +1146,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
     # TODO: @Faisal remove this parameter once testing is done.
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
-        args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 64, "doc_max_length": 512,},
+        args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
     )
 
     adapter_spec = AdapterSpec(
@@ -1091,7 +1159,42 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
         model="openai/davinci",
         max_eval_instances=None,
         num_outputs=1,
-        max_tokens=60,  # From Lewis et al. 2019 (https://arxiv.org/pdf/1910.13461.pdf)
+        max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
+        temperature=temperature,  # Temporary change for testing.
+        stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
+    )
+
+    return RunSpec(
+        name=f"summarization_xsum:temperature={temperature}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
+    )
+
+
+def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
+    # TODO: @Faisal remove this parameter once testing is done.
+    scenario = ScenarioSpec(
+        class_name="benchmark.summarization_scenario.SummarizationScenario",
+        args={
+            "dataset_name": "xsum-sampled",
+            "sampling_min_length": 50,
+            "sampling_max_length": 150,
+            "doc_max_length": 512,
+        },
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Summarize the given documents.",
+        input_prefix="Document: ",
+        output_prefix="\nSummary: {",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/davinci",
+        max_eval_instances=None,
+        num_outputs=1,
+        max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=temperature,  # Temporary change for testing.
         stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
     )
@@ -1283,6 +1386,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "babi_qa": get_babi_qa_spec,
     "real_toxicity_prompts": get_real_toxicity_prompts_spec,
     "summarization_xsum": get_xsum_summarization_spec,
+    "summarization_xsum_sampled": get_xsum_sampled_summarization_spec,
     "summarization_cnndm": get_cnndm_summarization_spec,
     "truthful_qa": get_truthful_qa_spec,
     "twitter_aae": get_twitter_aae_spec,
