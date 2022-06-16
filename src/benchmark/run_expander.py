@@ -376,6 +376,9 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
         ],
     },
 }
+# Add canonical perturbations
+PERTURBATION_SPECS_DICT["canonical"] = {**PERTURBATION_SPECS_DICT["robustness"], **PERTURBATION_SPECS_DICT["fairness"]}
+
 
 class DataAugmentationRunExpander(RunExpander):
     """
