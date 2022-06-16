@@ -361,18 +361,21 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             gender(mode="pronouns", prob=1.0, source_class="male", target_class="female")
         ]
     },
-    "all": {
-        "all": [
-            misspelling(prob=0.20),
-            space(max_spaces=3),
-            lower(),
-            *contract_and_expand(),
-            typo(prob=0.1),
-            synonym(prob=0.5),
-        ]
+    "robustness": {"synonym": [synonym(prob=0.5)], "typo": [typo(prob=0.1)]},
+    "fairness": {
+        "dialect": [dialect(prob=1.0, source_class="SAE", target_class="AAVE")],
+        "gender_pronouns": [gender(mode="pronouns", prob=1.0, source_class="male", target_class="female")],
+        "person_name": [
+            person_name(
+                prob=1.0,
+                source_class={"race": "white_american"},
+                target_class={"race": "black_american"},
+                person_name_type="first_name",
+                preserve_gender=True,
+            ),
+        ],
     },
 }
-
 
 class DataAugmentationRunExpander(RunExpander):
     """
