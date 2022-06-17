@@ -12,9 +12,9 @@ CAUSAL_LANGUAGE_MODELING_METHOD = "clm"
 CLM_CORRECT_TAG = "clm_correct"
 
 
-class CommonSenseQAScenario(Scenario):
+class CommonSenseScenario(Scenario):
     """
-    Unified interface for all CommonSense QA scenarios.
+    Unified interface for all CommonSense scenarios.
 
     The "HellaSwag" benchmark from this paper:
         https://arxiv.org/pdf/1905.07830.pdf
@@ -35,8 +35,8 @@ class CommonSenseQAScenario(Scenario):
     in Adapter beyond the commonsense scenarios.
     """
 
-    name = "commonsense_qa"
-    description = "Unified interface for all CommonSense QA scenarios."
+    name = "commonsense"
+    description = "Unified interface for all CommonSense scenarios."
     tags = ["knowledge", "multiple_choice"]
 
     def __init__(self, dataset, method):
