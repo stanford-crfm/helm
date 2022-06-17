@@ -122,12 +122,12 @@ def get_bias_erasure_metrics() -> List[MetricSpec]:
     ]
 
 
-def get_bias_erasure_toxicity_metrics() -> List[MetricSpec]:
-    return get_toxicity_metrics() + get_bias_erasure_metrics()
+def get_generative_harms_metrics() -> List[MetricSpec]:
+    return get_toxicity_metrics() + get_bias_erasure_metrics() + get_basic_metrics({"names": []})
 
 
 def get_summarization_metrics() -> List[MetricSpec]:
-    return get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}) + get_bias_erasure_toxicity_metrics()
+    return get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}) + get_generative_harms_metrics()
     # TODO: Add faithfulness metrics later
 
 
@@ -307,7 +307,7 @@ def get_bold_spec(subject: str) -> RunSpec:
         name=f"bold:subject={subject}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_bias_erasure_toxicity_metrics(),
+        metrics=get_generative_harms_metrics(),
     )
 
 
@@ -565,7 +565,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         name="real_toxicity_prompts",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_bias_erasure_toxicity_metrics(),
+        metrics=get_generative_harms_metrics(),
     )
 
 
