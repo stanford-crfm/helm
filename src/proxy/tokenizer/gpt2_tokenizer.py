@@ -1,6 +1,8 @@
+import os
 from typing import List, Optional
 from transformers import GPT2TokenizerFast
 
+from common.cache import Cache
 from .tokenizer import Tokenizer, EncodeResult
 
 
@@ -15,8 +17,13 @@ class GPT2Tokenizer(Tokenizer):
     # The end of text token
     END_OF_TEXT_TOKEN: str = "<|endoftext|>"
 
-    def __init__(self, tokenizer: GPT2TokenizerFast):
-        self._tokenizer = tokenizer
+    GPT2_CACHE_FILE: str = "gpt2_tokenizer.sqlite"
+
+    # TODO: undo none?
+    def __init__(self, tokenizer: GPT2TokenizerFast, cache_path: str=None):
+        self._tokenizer: GPT2TokenizerFast = tokenizer
+        self._cache_path: str = cache_path
+        # self.cache = Cache(os.path.join(cache_path, GPT2Tokenizer.GPT2_CACHE_FILE))
 
     @property
     def max_sequence_length(self) -> int:
@@ -65,7 +72,11 @@ class GPT2Tokenizer(Tokenizer):
 
     def tokenize_and_count(self, text: str) -> int:
         """Tokenizes the text using the GPT-2 tokenizer and returns the number of tokens."""
-        return len(self.tokenize(text))
+        def do_it():
+            return {"length": len(self.tokenize(text))}
+
+        result, _ = self.cache.get({"operation": "count", "text": text}, do_it)
+        return result["length"]
 
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
         """
@@ -85,14 +96,25 @@ class GPT2Tokenizer(Tokenizer):
 
         Since we are only passing in a single string, the tokenizer will simply truncate from the right.
         """
-        max_length: int = self.max_request_length - expected_completion_token_length
-        # Should set clean_up_tokenization_spaces=False: https://github.com/huggingface/transformers/issues/17682
-        # If we don't, something like "their 'studio'" becomes "their'studio'" when decoding.
-        result: str = self._tokenizer.decode(
-            self._tokenizer.encode(text, truncation=True, max_length=max_length), clean_up_tokenization_spaces=False
-        )
 
-        # Validate that the truncated text now fits. Fail fast otherwise.
-        num_tokens: int = self.tokenize_and_count(result)
-        assert num_tokens <= max_length, f"Truncation failed ({num_tokens} > {max_length}). Input text: {text}"
-        return result
+        def do_it():
+            max_length: int = self.max_request_length - expected_completion_token_length
+            # Should set clean_up_tokenization_spaces=False: https://github.com/huggingface/transformers/issues/17682
+            # If we don't, something like "their 'studio'" becomes "their'studio'" when decoding.
+            truncated_text: str = self._tokenizer.decode(
+                self._tokenizer.encode(text, truncation=True, max_length=max_length), clean_up_tokenization_spaces=False
+            )
+
+            # Validate that the truncated text now fits. Fail fast otherwise.
+            num_tokens: int = self.tokenize_and_count(truncated_text)
+            assert num_tokens <= max_length, f"Truncation failed ({num_tokens} > {max_length}). Input text: {text}"
+            return {"truncated_text": truncated_text}
+
+        cache_key = {
+            "operation": "truncate_from_right",
+            "text": text,
+            "max_request_length": self.max_request_length,
+            "expected_completion_token_length": expected_completion_token_length,
+        }
+        result, _ = self.cache.get(cache_key, do_it)
+        return result["truncated_text"]

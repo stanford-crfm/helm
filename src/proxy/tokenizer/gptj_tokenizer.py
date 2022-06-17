@@ -14,11 +14,11 @@ class GPTJTokenizer(GPT2Tokenizer):
     # not returned.
     MAX_REQUEST_LENGTH: int = 2048
 
-    def __init__(self, tokenizer: GPT2TokenizerFast):
+    def __init__(self, tokenizer: GPT2TokenizerFast, cache_path: str):
         # Use the GPT-2 tokenizer.
         # From https://huggingface.co/EleutherAI/gpt-j-6B, "the model [GPT-J] is trained with a
         # tokenization vocabulary of 50257, using the same set of BPEs as GPT-2/GPT-3".
-        super().__init__(tokenizer)
+        super().__init__(tokenizer, cache_path)
 
     @property
     def max_sequence_length(self) -> int:

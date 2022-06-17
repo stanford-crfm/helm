@@ -62,6 +62,10 @@ class Runner:
         self.skip_instances: bool = skip_instances
 
         ensure_directory_exists(output_path)
+        # Where to cache prompt construction intermediate results
+        self.cache_path: str = os.path.join(output_path, "cache")
+        ensure_directory_exists(self.cache_path)
+
         # Decide where to save the raw data (e.g., "output/scenarios/mmlu").
         self.scenarios_path: str = os.path.join(output_path, "scenarios")
         ensure_directory_exists(self.scenarios_path)
@@ -92,7 +96,7 @@ class Runner:
             instances = []
 
         # Adaptation
-        adapter = Adapter(run_spec.adapter_spec, self.adapter_service)
+        adapter = Adapter(run_spec.adapter_spec, self.adapter_service, self.cache_path)
         scenario_state: ScenarioState = adapter.adapt(instances)
 
         # Execution

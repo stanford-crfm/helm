@@ -13,9 +13,9 @@ class MTNLGTokenizer(GPT2Tokenizer):
     # find the correct value for `MAX_REQUEST_LENGTH`
     MAX_REQUEST_LENGTH: int = 2048
 
-    def __init__(self, tokenizer: GPT2TokenizerFast):
+    def __init__(self, tokenizer: GPT2TokenizerFast, cache_path: str):
         # Use the GPT-2 tokenizer.
-        super().__init__(tokenizer)
+        super().__init__(tokenizer, cache_path)
 
     @property
     def max_sequence_length(self) -> int:

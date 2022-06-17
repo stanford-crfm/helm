@@ -1,8 +1,9 @@
+import os
 import re
-
 from typing import List, Optional, Tuple
 from urllib.parse import unquote
 
+from common.cache import Cache
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken, TextRange
 from .tokenizer import Tokenizer, EncodeResult
 from .tokenizer_service import TokenizerService
@@ -34,12 +35,15 @@ class AI21Tokenizer(Tokenizer):
         "AI21 only gave API access to their tokenizer, so this method is not supported."
     )
 
-    def __init__(self, model: str, service: TokenizerService, gpt2_tokenizer: GPT2Tokenizer):
+    AI21_CACHE_FILE: str = "ai21_tokenizer.sqlite"
+
+    def __init__(self, model: str, service: TokenizerService, gpt2_tokenizer: GPT2Tokenizer, cache_path: str):
         self.model: str = model
         # We need the `TokenizerService` to make requests to the server.
         self.service: TokenizerService = service
         # As explained above, we need a GPT-2 tokenizer to help tokenize long text sequences.
-        self.gpt2_tokenizer = gpt2_tokenizer
+        self.gpt2_tokenizer: GPT2Tokenizer = gpt2_tokenizer
+        self.cache = Cache(os.path.join(cache_path, AI21Tokenizer.AI21_CACHE_FILE))
 
     @property
     def max_sequence_length(self) -> int:
@@ -123,9 +127,18 @@ class AI21Tokenizer(Tokenizer):
 
     def tokenize_and_count(self, text: str) -> int:
         """Tokenizes the text using the GPT-2 tokenizer and returns the number of tokens."""
-        return len(self.tokenize(text))
+        def do_it():
+            return {"length": len(self.tokenize(text))}
+
+        result, _ = self.cache.get({"operation": "count", "text": text}, do_it)
+        return result["length"]
 
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
+        """
+        Checks if the given text s shorter than `AI21Tokenizer.MAX_CHARACTER_LENGTH` long
+        and fits within the context window given by `max_request_length`
+        taking to account the expected completion length (defaults to 0).
+        """
         return (
             len(text) <= AI21Tokenizer.MAX_CHARACTER_LENGTH
             and self.tokenize_and_count(text) + expected_completion_token_length <= self.max_sequence_length
@@ -140,32 +153,42 @@ class AI21Tokenizer(Tokenizer):
         token and the end of the text range of the last token of the truncated list of tokens to
         build the truncated text.
         """
-        text = text[: AI21Tokenizer.MAX_CHARACTER_LENGTH]
-        response: TokenizationRequestResult = self._make_tokenization_request(text)
 
-        # Only look at the first `self.max_sequence_length` - `expected_completion_token_length`
-        # number of tokens to the fit the text within the context window.
-        # Each token is represented like this: {'text': '▁Hello', 'textRange': {'start': 0, 'end': 5}}
-        tokens: List[TokenizationToken] = response.tokens[: self.max_sequence_length - expected_completion_token_length]
+        def do_it():
+            truncated_text: str = text[: AI21Tokenizer.MAX_CHARACTER_LENGTH]
+            response: TokenizationRequestResult = self._make_tokenization_request(truncated_text)
 
-        # If there is no tokens, just return the original text
-        if len(tokens) == 0:
-            return text
+            # Only look at the first `self.max_sequence_length` - `expected_completion_token_length`
+            # number of tokens to the fit the text within the context window.
+            # Each token is represented like this: {'text': '▁Hello', 'textRange': {'start': 0, 'end': 5}}
+            tokens: List[TokenizationToken] = response.tokens[
+                : self.max_request_length - expected_completion_token_length
+            ]
 
-        # AI21 uses "_" to represent a single space in their tokens, so we have to build the new text from the
-        # original text after truncation using the text ranges of tokens generated from the original text.
-        first_text_range: TextRange = tokens[0].text_range
-        last_text_range: TextRange = tokens[-1].text_range
-        start: int = first_text_range.start
-        end: int = last_text_range.end
+            # AI21 uses "_" to represent a single space in their tokens, so we have to build the new text from the
+            # original text after truncation using the text ranges of tokens generated from the original text.
+            if len(tokens) > 0:
+                first_text_range: TextRange = tokens[0].text_range
+                last_text_range: TextRange = tokens[-1].text_range
+                start: int = first_text_range.start
+                end: int = last_text_range.end
 
-        truncated_text: str = text[start:end]
-        if truncated_text.endswith("  "):
-            # The AI21 tokenizer API seems inaccurate (token count is off by 1) when the text ends
-            # with double spaces. Replacing the extra spaces with a single space fixes it.
-            truncated_text = truncated_text.rstrip() + " "
+                truncated_text = truncated_text[start:end]
+                if truncated_text.endswith("  "):
+                    # The AI21 tokenizer API seems inaccurate (token count is off by 1) when the text ends
+                    # with double spaces. Replacing the extra spaces with a single space fixes it.
+                    truncated_text = truncated_text.rstrip() + " "
 
-        return truncated_text
+            return {"truncated_text": truncated_text}
+
+        cache_key = {
+            "operation": "truncate_from_right",
+            "text": text,
+            "max_request_length": self.max_request_length,
+            "expected_completion_token_length": expected_completion_token_length,
+        }
+        result, _ = self.cache.get(cache_key, do_it)
+        return result["truncated_text"]
 
     def _make_tokenization_request(self, text: str) -> TokenizationRequestResult:
         """Sends a request to the server to tokenize the text via the `TokenizerService`."""

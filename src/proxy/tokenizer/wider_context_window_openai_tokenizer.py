@@ -12,9 +12,9 @@ class WiderContextWindowOpenAITokenizer(GPT2Tokenizer):
     # Set this value to 4001 for consistency with MAX_SEQUENCE_LENGTH.
     MAX_REQUEST_LENGTH: int = 4001
 
-    def __init__(self, tokenizer: GPT2TokenizerFast):
+    def __init__(self, tokenizer: GPT2TokenizerFast, cache_path: str):
         # OpenAI uses the same tokenizer for GPT-2 and GPT-3.
-        super().__init__(tokenizer)
+        super().__init__(tokenizer, cache_path)
 
     @property
     def max_sequence_length(self) -> int:

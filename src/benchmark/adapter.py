@@ -242,10 +242,10 @@ class Adapter:
     deal with references being of different lengths).
     """
 
-    def __init__(self, adapter_spec: AdapterSpec, adapter_service: AdapterService):
+    def __init__(self, adapter_spec: AdapterSpec, adapter_service: AdapterService, cache_path: str):
         self.adapter_spec: AdapterSpec = adapter_spec
         tokenizer_service: TokenizerService = adapter_service
-        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
+        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, cache_path, tokenizer_service)
 
     @htrack(None)
     def adapt(self, instances: List[Instance]) -> ScenarioState:
@@ -334,7 +334,7 @@ class Adapter:
 
                     hlog(
                         f"trial {train_trial_index}: construct_prompt {eval_index} (total {len(eval_instances)}): "
-                        f"len(prompt) = {len(prompt)} ({construct_prompt_elapsed_time:.2f}s)"
+                        f"len(prompt) = {len(prompt)} ({construct_prompt_elapsed_time:.3f}s)"
                     )
 
                     # Just print one prompt (useful for debugging)
