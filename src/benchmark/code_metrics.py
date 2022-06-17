@@ -44,7 +44,11 @@ class APPSMetric(Metric):
         self.names = names
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
     ) -> List[Stat]:
         reference = request_state.instance.references[0]
         reference = cast(CodeReference, reference)
