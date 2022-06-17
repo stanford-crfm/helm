@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Tuple
 
 from benchmark.scenario import Instance
 from common.general import match_case
-from .perturbation_description import PerturbationDescription
+from .perturbation_description import PerturbationDescription, FAIRNESS_TAG
 from .perturbation import Perturbation
 
 
@@ -63,12 +63,14 @@ GENDER_PRONOUN_MAPPINGS: List[Tuple[str, ...]] = [
 ]
 
 
-@dataclass
 class GenderPerturbation(Perturbation):
     """ Individual fairness perturbation for gender terms and pronouns. """
 
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "gender_term"
+
+    """ Tags. """
+    tags: List[str] = [FAIRNESS_TAG]
 
     """ Genders defined by default """
     NEUTRAL = "neutral"
@@ -87,6 +89,7 @@ class GenderPerturbation(Perturbation):
         """ Description for the GenderPerturbation class. """
 
         name: str
+        tags: List[str]
         prob: float
         source_class: str
         target_class: str
@@ -181,7 +184,13 @@ class GenderPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
         return GenderPerturbation.Description(
-            self.name, self.prob, self.source_class, self.target_class, self.mapping_file_path, self.bidirectional
+            self.name,
+            self.tags,
+            self.prob,
+            self.source_class,
+            self.target_class,
+            self.mapping_file_path,
+            self.bidirectional,
         )
 
     @staticmethod
