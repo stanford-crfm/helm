@@ -143,7 +143,9 @@ class AnthropicClient(Client):
                 # engines since the engine name is not included in the request itself.
                 # In addition, we want to make `request.num_completions` fresh
                 # requests, cache key should contain the completion_index.
-                cache_key = Client.make_cache_key({"engine": request.model_engine, "completion_index": completion_index, **raw_request}, request)
+                cache_key = Client.make_cache_key(
+                    {"engine": request.model_engine, "completion_index": completion_index, **raw_request}, request
+                )
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except AnthropicRequestError as e:
                 return RequestResult(success=False, cached=False, error=str(e), completions=[])
