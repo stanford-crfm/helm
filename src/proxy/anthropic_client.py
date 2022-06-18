@@ -135,6 +135,7 @@ class AnthropicClient(Client):
         # Since Anthropic doesn't support multiple completions, we have to manually call it multiple times,
         # and aggregate the results into `completions` and `request_time`.
         completions = []
+        all_cached = True
         request_time = 0
 
         for completion_index in range(request.num_completions):
@@ -163,10 +164,11 @@ class AnthropicClient(Client):
                 tokens.append(Token(text=token_text, logprob=token_logprob, top_logprobs={}))
 
             sequence = Sequence(text=raw_response["completion"], logprob=sequence_logprob, tokens=tokens)
-            request_time += response["request_time"]
             completions.append(sequence)
+            request_time += response["request_time"]
+            all_cached = all_cached and cached
 
-        return RequestResult(success=True, cached=cached, request_time=request_time, completions=completions)
+        return RequestResult(success=True, cached=all_cached, request_time=request_time, completions=completions)
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes the text using the underlying tokenizer."""

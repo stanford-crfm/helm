@@ -96,6 +96,8 @@ class MicrosoftClient(Client):
         }
 
         completions: List[Sequence] = []
+        request_time = 0
+        all_cached = True
 
         # API currently only supports 1 completion at a time, so we have to hit it multiple times.
         for completion_index in range(request.num_completions):
@@ -135,9 +137,10 @@ class MicrosoftClient(Client):
                 completion = Sequence(text=completion_text, logprob=0, tokens=tokens)
                 completions.append(completion)
 
-        return RequestResult(
-            success=True, cached=cached, request_time=response["request_time"], completions=completions
-        )
+            request_time += response["request_time"]
+            all_cached = all_cached and cached
+
+        return RequestResult(success=True, cached=all_cached, request_time=request_time, completions=completions)
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes the text using the GPT-2 tokenizer created in `MTNLGTokenizer`."""
