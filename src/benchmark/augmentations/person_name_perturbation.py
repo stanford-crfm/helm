@@ -9,16 +9,18 @@ from typing import Dict, Optional, List, Set, Tuple
 
 from benchmark.scenario import Instance
 from common.general import ensure_file_downloaded, ensure_directory_exists, match_case
-from .perturbation_description import PerturbationDescription
+from .perturbation_description import PerturbationDescription, FAIRNESS_TAG
 from .perturbation import Perturbation
 
 
-@dataclass
 class PersonNamePerturbation(Perturbation):
     """ Individual fairness perturbation for person names. """
 
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "person_name"
+
+    """ Tags. """
+    tags: List[str] = [FAIRNESS_TAG]
 
     """ Line seperator character """
     LINE_SEP = "\n"
@@ -47,6 +49,7 @@ class PersonNamePerturbation(Perturbation):
         """ Description for the PersonNamePerturbation class. """
 
         name: str
+        tags: List[str]
         prob: float
         source_class: Tuple[Tuple[str, str], ...]
         target_class: Tuple[Tuple[str, str], ...]
@@ -186,6 +189,7 @@ class PersonNamePerturbation(Perturbation):
         target_tuple = tuple([(k, v) for k, v in self.target_class.items()])
         return PersonNamePerturbation.Description(
             self.name,
+            self.tags,
             self.prob,
             source_tuple,
             target_tuple,

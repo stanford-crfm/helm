@@ -8,12 +8,11 @@ import numpy as np
 
 from benchmark.scenario import Instance
 from .perturbation import Perturbation
-from .perturbation_description import PerturbationDescription
+from .perturbation_description import PerturbationDescription, ROBUSTNESS_TAG
 
 
 # The implementation below is based on the following list of common misspellings:
 # https://en.wikipedia.org/wiki/Wikipedia:Lists_of_common_misspellings/For_machines
-@dataclass
 class MisspellingPerturbation(Perturbation):
     """
     Replaces words randomly with common misspellings, from a list of common misspellings.
@@ -27,9 +26,11 @@ class MisspellingPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         name: str
+        tags: List[str]
         prob: float
 
     name: str = "misspellings"
+    tags: List[str] = [ROBUSTNESS_TAG]
 
     def __init__(self, prob: float):
         """
@@ -45,7 +46,7 @@ class MisspellingPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return MisspellingPerturbation.Description(self.name, self.prob)
+        return MisspellingPerturbation.Description(self.name, self.tags, self.prob)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         assert instance.id is not None
