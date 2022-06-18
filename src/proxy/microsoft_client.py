@@ -117,14 +117,16 @@ class MicrosoftClient(Client):
                 return RequestResult(success=False, cached=False, error=error, completions=[])
 
             for raw_completion in response["choices"]:
-                # TODO: handle logprobs when it's supported (currently always null). Current example response:
+                # TODO: handle logprobs when it's supported (currently always
+                # null). Current example response:
                 # {
                 #   "finish_reason": "stop",
                 #   "index": 0,
                 #   "logprobs": null,
                 #   "text": "So I was takin' a walk the other day"
                 # }
-                # Since the log probs and tokens are not available to us just tokenize the completion using the tokenizer
+                # Since the log probs and tokens are not available to us just
+                # tokenize the completion using the tokenizer.
                 completion_text: str = raw_completion["text"]
                 tokens: List[Token] = [
                     Token(text=fix_text(text), logprob=0, top_logprobs={})
