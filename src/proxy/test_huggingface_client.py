@@ -7,7 +7,6 @@ from common.request import Request, RequestResult
 from common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
-    EncodeParameters,
     TokenizationRequest,
     TokenizationRequestResult,
 )
@@ -31,18 +30,14 @@ class TestHuggingFaceClient:
         assert result.tokens == ["I", "Ġam", "Ġa", "Ġcomputer", "Ġscientist", "."]
 
     def test_encode(self):
-        request = TokenizationRequest(
-            text="I am a computer scientist.", encode_parameters=EncodeParameters(truncation=True, max_length=1)
-        )
+        request = TokenizationRequest(text="I am a computer scientist.", truncation=True, max_length=1)
         result: TokenizationRequestResult = self.client.tokenize(request)
         assert not result.cached, "First time making the tokenize request. Result should not be cached"
         result: TokenizationRequestResult = self.client.tokenize(request)
         assert result.cached, "Result should be cached"
         assert result.tokens == [40]
 
-        request = TokenizationRequest(
-            text="I am a computer scientist.", encode_parameters=EncodeParameters(truncation=True, max_length=1024)
-        )
+        request = TokenizationRequest(text="I am a computer scientist.", truncation=True, max_length=1024)
         result = self.client.tokenize(request)
         assert not result.cached, "First time making this particular request. Result should not be cached"
         assert result.tokens == [40, 716, 257, 3644, 11444, 13]

@@ -1,7 +1,7 @@
 import torch
 from dataclasses import asdict
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from common.cache import Cache
 from common.hierarchical_logger import htrack_block, hlog
@@ -9,9 +9,9 @@ from common.request import Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
-    EncodeParameters,
     DecodeRequest,
     DecodeRequestResult,
+    TokenizationToken,
 )
 from .client import Client, wrap_request_time
 from .tokenizer.huggingface_tokenizer import HuggingFaceTokenizers
@@ -181,10 +181,9 @@ class HuggingFaceClient(Client):
         try:
 
             def do_it():
-                encode_parameters: Optional[EncodeParameters] = request.encode_parameters
-                if encode_parameters:
+                if request.truncation:
                     tokens = tokenizer.encode(
-                        request.text, truncation=encode_parameters.truncation, max_length=encode_parameters.max_length
+                        request.text, truncation=request.truncation, max_length=request.max_length
                     )
                 else:
                     tokens = tokenizer.tokenize(request.text)
@@ -196,7 +195,11 @@ class HuggingFaceClient(Client):
             return TokenizationRequestResult(success=False, cached=False, error=error, text="", tokens=[])
 
         return TokenizationRequestResult(
-            success=True, cached=cached, text=request.text, tokens=result["tokens"], request_time=result["request_time"]
+            success=True,
+            cached=cached,
+            text=request.text,
+            tokens=[TokenizationToken(value) for value in result["tokens"]],
+            request_time=result["request_time"],
         )
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:

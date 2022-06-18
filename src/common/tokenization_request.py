@@ -3,26 +3,20 @@ from typing import List, Optional, Union
 
 
 @dataclass(frozen=True)
-class EncodeParameters:
-    # Whether to truncate
-    truncation: bool
-
-    # Maximum length when encoding
-    max_length: int
-
-
-@dataclass(frozen=True)
 class TokenizationRequest:
     """A `TokenizationRequest` specifies how to tokenize some text."""
 
     # Text to tokenize
     text: str
 
+    # Whether to truncate (HuggingFace tokenizers only)
+    truncation: bool
+
+    # Maximum length when encoding  (HuggingFace tokenizers only)
+    max_length: int
+
     # Which tokenizer we should use
     tokenizer: str = "huggingface/gpt2_tokenizer_fast"
-
-    # For HuggingFace tokenizers
-    encode_parameters: Optional[EncodeParameters] = None
 
     @property
     def tokenizer_organization(self):
@@ -74,6 +68,14 @@ class TokenizationRequestResult:
 
     # If `success` is false, what was the error?
     error: Optional[str] = None
+
+    @property
+    def num_tokens(self) -> int:
+        return len(self.tokens)
+
+    @property
+    def raw_tokens(self) -> List[Union[str, int]]:
+        return [token.value for token in self.tokens]
 
 
 @dataclass(frozen=True)
