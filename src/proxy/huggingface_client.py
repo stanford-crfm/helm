@@ -1,13 +1,20 @@
+import torch
+from dataclasses import asdict
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from typing import Any, Dict, List, Optional
+
 from common.cache import Cache
 from common.hierarchical_logger import htrack_block, hlog
 from common.request import Request, RequestResult, Sequence, Token
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
-
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    EncodeParameters,
+    DecodeRequest,
+    DecodeRequestResult,
+)
 from .client import Client, wrap_request_time
-
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from typing import Any, Dict, List
+from .tokenizer.huggingface_tokenizer import HuggingFaceTokenizers
 
 
 class HuggingFaceServer:
@@ -168,5 +175,48 @@ class HuggingFaceClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        # TODO: implement -Tony
-        pass
+        tokenizer = HuggingFaceTokenizers.get_tokenizer(request.tokenizer)
+        cache_key = asdict(request)
+
+        try:
+
+            def do_it():
+                encode_parameters: Optional[EncodeParameters] = request.encode_parameters
+                if encode_parameters:
+                    tokens = tokenizer.encode(
+                        request.text, truncation=encode_parameters.truncation, max_length=encode_parameters.max_length
+                    )
+                else:
+                    tokens = tokenizer.tokenize(request.text)
+                return {"tokens": tokens}
+
+            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except Exception as e:
+            error: str = f"HuggingFace error: {e}"
+            return TokenizationRequestResult(success=False, cached=False, error=error, text="", tokens=[])
+
+        return TokenizationRequestResult(
+            success=True, cached=cached, text=request.text, tokens=result["tokens"], request_time=result["request_time"]
+        )
+
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        tokenizer = HuggingFaceTokenizers.get_tokenizer(request.tokenizer)
+        cache_key = asdict(request)
+
+        try:
+
+            def do_it():
+                return {
+                    "text": tokenizer.decode(
+                        request.tokens, clean_up_tokenization_spaces=request.clean_up_tokenization_spaces
+                    )
+                }
+
+            result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+        except Exception as e:
+            error: str = f"HuggingFace error: {e}"
+            return DecodeRequestResult(success=False, cached=False, error=error, text="")
+
+        return DecodeRequestResult(
+            success=True, cached=cached, text=result["text"], request_time=result["request_time"]
+        )

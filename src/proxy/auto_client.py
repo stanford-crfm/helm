@@ -6,7 +6,12 @@ from retrying import RetryError, Attempt
 
 from common.hierarchical_logger import hlog
 from common.request import Request, RequestResult
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    DecodeRequest,
+    DecodeRequestResult,
+)
 from .client import Client
 from .ai21_client import AI21Client
 from .anthropic_client import AnthropicClient
@@ -43,7 +48,10 @@ class AutoClient(Client):
             elif organization == "anthropic":
                 client = AnthropicClient(api_key=self.credentials["anthropicApiKey"], cache_path=client_cache_path)
             elif organization == "microsoft":
-                client = MicrosoftClient(api_key=self.credentials["microsoftApiKey"], cache_path=client_cache_path)
+                hf_client = HuggingFaceClient(cache_path=os.path.join(self.cache_path, "huggingface.sqlite"))
+                client = MicrosoftClient(
+                    api_key=self.credentials["microsoftApiKey"], cache_path=client_cache_path, hf_client=hf_client
+                )
             elif organization == "simple":
                 client = SimpleClient(cache_path=client_cache_path)
             else:
@@ -77,13 +85,13 @@ class AutoClient(Client):
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes based on the organization in the name of the model (e.g., ai21/j1-jumbo)."""
+        """Tokenizes based on the organization in the name of the tokenizer (e.g., huggingface/gpt2_tokenizer_fast)."""
 
         @retry_request
         def tokenize_with_retry(client: Client, request: TokenizationRequest) -> TokenizationRequestResult:
             return client.tokenize(request)
 
-        organization: str = request.model_organization
+        organization: str = request.tokenizer_organization
         client: Client = self.get_client(organization)
 
         try:
@@ -91,5 +99,23 @@ class AutoClient(Client):
         except RetryError as e:
             last_attempt: Attempt = e.last_attempt
             retry_error: str = f"Failed to tokenize after retrying {last_attempt.attempt_number} times"
+            hlog(retry_error)
+            return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
+
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        """Decodes based on the organization in the name of the tokenizer (e.g., huggingface/gpt2_tokenizer_fast)."""
+
+        @retry_request
+        def decode_with_retry(client: Client, request: DecodeRequest) -> DecodeRequestResult:
+            return client.decode(request)
+
+        organization: str = request.tokenizer_organization
+        client: Client = self.get_client(organization)
+
+        try:
+            return decode_with_retry(client=client, request=request)
+        except RetryError as e:
+            last_attempt: Attempt = e.last_attempt
+            retry_error: str = f"Failed to decode after retrying {last_attempt.attempt_number} times"
             hlog(retry_error)
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")

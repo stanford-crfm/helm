@@ -6,11 +6,15 @@ import openai as turing
 
 from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    DecodeRequest,
+    DecodeRequestResult,
+)
 from .client import Client, wrap_request_time
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
-from .tokenizer.tokenizer import Tokenizer
-from .tokenizer.tokenizer_factory import TokenizerFactory
+from .huggingface_client import HuggingFaceClient
 
 
 class MicrosoftClient(Client):
@@ -24,7 +28,7 @@ class MicrosoftClient(Client):
     all tokens have been generated."
     """
 
-    def __init__(self, api_key: str, cache_path: str):
+    def __init__(self, api_key: str, cache_path: str, hf_client: HuggingFaceClient):
         # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
         class EngineAPIResource(engine_api_resource.EngineAPIResource):
             @classmethod
@@ -38,7 +42,7 @@ class MicrosoftClient(Client):
         self.completion_attributes = (EngineAPIResource,) + ORIGINAL_COMPLETION_ATTRIBUTES[1:]
 
         self.cache = Cache(cache_path)
-        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer("microsoft")
+        self.hf_client: HuggingFaceClient = hf_client
 
         # The Microsoft Turing server only allows a single request at a time, so acquire a
         # process-safe lock before making a request.
@@ -121,9 +125,11 @@ class MicrosoftClient(Client):
             # }
             # Since the log probs and tokens are not available to us just tokenize the completion using the tokenizer
             completion_text: str = raw_completion["text"]
+            tokenization_result: TokenizationRequestResult = self.hf_client.tokenize(
+                TokenizationRequest(completion_text)
+            )
             tokens: List[Token] = [
-                Token(text=fix_text(text), logprob=0, top_logprobs={})
-                for text in self.tokenizer.tokenize(completion_text)
+                Token(text=fix_text(token.value), logprob=0, top_logprobs={}) for token in tokenization_result.tokens
             ]
             completion = Sequence(text=completion_text, logprob=0, tokens=tokens)
             completions.append(completion)
@@ -132,10 +138,7 @@ class MicrosoftClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes the text using the GPT-2 tokenizer created in `MTNLGTokenizer`."""
-        return TokenizationRequestResult(
-            success=True,
-            cached=False,
-            tokens=[TokenizationToken(raw_text) for raw_text in self.tokenizer.tokenize(request.text)],
-            text=request.text,
-        )
+        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
+
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        raise NotImplementedError("Use the HuggingFaceClient to decode.")

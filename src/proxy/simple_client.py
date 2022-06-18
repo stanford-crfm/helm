@@ -54,6 +54,9 @@ class SimpleClient(Client):
         else:
             raise ValueError("Unknown model")
 
+    def decode(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        raise NotImplementedError
+
     def invoke_model1(self, raw_request: Dict) -> Dict:
         """
         Example: 7 2 4 6

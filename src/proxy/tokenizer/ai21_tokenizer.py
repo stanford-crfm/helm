@@ -98,11 +98,11 @@ class AI21Tokenizer(Tokenizer):
         i: int = 0
         while i < len(tokens):
             # If there are byte tokens, aggregates them to a string
-            if re.match(byte_pattern, tokens[i].text):
+            if re.match(byte_pattern, tokens[i].value):
                 bytestring = ""
-                while i < len(tokens) and re.match(byte_pattern, tokens[i].text):
+                while i < len(tokens) and re.match(byte_pattern, tokens[i].value):
                     # e.g. <0xE8> -> \xE8
-                    bytestring += "\\" + tokens[i].text[2:-1]
+                    bytestring += "\\" + tokens[i].value[2:-1]
                     i += 1
                 # Convert to encoded URI (e.g., %e2%80%99) and decode
                 token_text = unquote(bytestring.replace("\\x", "%"))
@@ -119,7 +119,7 @@ class AI21Tokenizer(Tokenizer):
         Tokenizes the text via the /api/tokenize REST endpoint.
         """
         response: TokenizationRequestResult = self._make_tokenization_request(text)
-        return [token.text for token in response.tokens]
+        return [token.value for token in response.tokens]
 
     def tokenize_and_count(self, text: str) -> int:
         """Tokenizes the text using the GPT-2 tokenizer and returns the number of tokens."""
@@ -169,7 +169,7 @@ class AI21Tokenizer(Tokenizer):
 
     def _make_tokenization_request(self, text: str) -> TokenizationRequestResult:
         """Sends a request to the server to tokenize the text via the `TokenizerService`."""
-        return self.service.tokenize(TokenizationRequest(text=text, model=self.model))
+        return self.service.tokenize(TokenizationRequest(text=text, tokenizer="ai21"))
 
     def _make_long_tokenization_request(self, text: str) -> Tuple[List[TokenizationToken], str]:
         """If the text is too long  (longer than 11,000 tokens when tokenized by the GPT-2 tokenizer),
@@ -215,7 +215,7 @@ class AI21Tokenizer(Tokenizer):
                 # Shifts the start and end index of each token
                 shifted_tokens: List[TokenizationToken] = [
                     TokenizationToken(
-                        text=token.text,
+                        value=token.value,
                         text_range=TextRange(
                             start=token.text_range.start + num_processed_positions,
                             end=token.text_range.end + num_processed_positions,

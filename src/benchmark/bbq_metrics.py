@@ -79,7 +79,7 @@ class BBQMetric(Metric):
                 request_result = request_state.result
                 # Filter out empty completions
                 completions: List[str] = [
-                    completion.text.strip() for completion in request_result.completions if completion.text
+                    completion.value.strip() for completion in request_result.completions if completion.value
                 ]
 
                 for completion in completions:
