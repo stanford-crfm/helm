@@ -32,7 +32,6 @@ class SynonymPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         name: str
-        tags: List[str]
         prob: float
 
     name: str = "SynonymPerturbation"
@@ -63,7 +62,7 @@ class SynonymPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return SynonymPerturbation.Description(self.name, self.tags, self.prob)
+        return SynonymPerturbation.Description(self.name, self.prob)
 
     def synonyms_substitute(self, text: str) -> str:
         upos_wn_dict = {

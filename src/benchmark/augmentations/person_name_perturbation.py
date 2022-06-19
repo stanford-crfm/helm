@@ -5,7 +5,7 @@ from functools import reduce
 import random
 import re
 from pathlib import Path
-from typing import Dict, Optional, List, Set, Tuple
+from typing import Dict, Optional, List, Set
 
 from benchmark.scenario import Instance
 from common.general import ensure_file_downloaded, ensure_directory_exists, match_case
@@ -49,10 +49,9 @@ class PersonNamePerturbation(Perturbation):
         """ Description for the PersonNamePerturbation class. """
 
         name: str
-        tags: List[str]
         prob: float
-        source_class: Tuple[Tuple[str, str], ...]
-        target_class: Tuple[Tuple[str, str], ...]
+        source_class: str
+        target_class: str
         name_file_path: Optional[str]
         person_name_type: str
         preserve_gender: bool
@@ -185,14 +184,13 @@ class PersonNamePerturbation(Perturbation):
     @property
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
-        source_tuple = tuple([(k, v) for k, v in self.source_class.items()])
-        target_tuple = tuple([(k, v) for k, v in self.target_class.items()])
+        source_str = ",".join([f"{k}={v}" for k, v in self.source_class.items()])
+        target_str = ",".join([f"{k}={v}" for k, v in self.target_class.items()])
         return PersonNamePerturbation.Description(
             self.name,
-            self.tags,
             self.prob,
-            source_tuple,
-            target_tuple,
+            source_str,
+            target_str,
             self.name_file_path,
             self.person_name_type,
             self.preserve_gender,

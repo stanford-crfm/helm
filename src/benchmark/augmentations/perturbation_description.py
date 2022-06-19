@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List
 
 
 """ Perturbation tags """
@@ -13,7 +12,3 @@ class PerturbationDescription:
 
     # Name of the Perturbation
     name: str
-
-    # Extra metadata (e.g., ["robustness"] or ["fairness"])
-    # Used to group instances to compute metrics.
-    tags: List[str]

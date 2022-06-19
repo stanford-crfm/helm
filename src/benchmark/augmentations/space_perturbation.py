@@ -15,7 +15,6 @@ class SpacePerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         name: str
-        tags: List[str]
         max_spaces: int
 
     name: str = "space"
@@ -26,7 +25,7 @@ class SpacePerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return SpacePerturbation.Description(self.name, self.tags, self.max_spaces)
+        return SpacePerturbation.Description(self.name, self.max_spaces)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         assert instance.id is not None

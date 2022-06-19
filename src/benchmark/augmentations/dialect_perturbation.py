@@ -49,7 +49,6 @@ class DialectPerturbation(Perturbation):
         """ Description for the DialectPerturbation class. """
 
         name: str
-        tags: List[str]
         prob: float
         source_class: str
         target_class: str
@@ -98,7 +97,7 @@ class DialectPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
         return DialectPerturbation.Description(
-            self.name, self.tags, self.prob, self.source_class, self.target_class, self.mapping_file_path
+            self.name, self.prob, self.source_class, self.target_class, self.mapping_file_path
         )
 
     def retrieve_mapping_dict(self) -> str:

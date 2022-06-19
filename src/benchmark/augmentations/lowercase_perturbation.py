@@ -19,7 +19,7 @@ class LowerCasePerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return LowerCasePerturbation.Description(self.name, self.tags)
+        return LowerCasePerturbation.Description(self.name)
 
     def perturb(self, text: str) -> str:
         return text.lower()

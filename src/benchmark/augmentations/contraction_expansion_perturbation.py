@@ -104,7 +104,6 @@ class ContractionPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         name: str
-        tags: List[str]
 
     name: str = "contraction"
 
@@ -116,7 +115,7 @@ class ContractionPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return ContractionPerturbation.Description(self.name, self.tags)
+        return ContractionPerturbation.Description(self.name)
 
     def contract(self, sentence: str) -> str:
         reverse_contraction_pattern = re.compile(
@@ -164,7 +163,7 @@ class ExpansionPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return ExpansionPerturbation.Description(self.name, self.tags)
+        return ExpansionPerturbation.Description(self.name)
 
     def expand_contractions(self, sentence):
         contraction_pattern = re.compile(

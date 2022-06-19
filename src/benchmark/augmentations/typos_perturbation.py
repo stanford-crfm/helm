@@ -26,7 +26,6 @@ class TyposPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         name: str
-        tags: List[str]
         prob: float
 
     name: str = "TyposPerturbation"
@@ -37,7 +36,7 @@ class TyposPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return TyposPerturbation.Description(self.name, self.tags, self.prob)
+        return TyposPerturbation.Description(self.name, self.prob)
 
     def butter_finger(self, text):
         key_approx = {}

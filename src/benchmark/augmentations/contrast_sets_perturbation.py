@@ -56,7 +56,7 @@ class ContrastSetsPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return ContrastSetsPerturbation.Description(self.name, self.tags)
+        return ContrastSetsPerturbation.Description(self.name)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         """

@@ -89,7 +89,6 @@ class GenderPerturbation(Perturbation):
         """ Description for the GenderPerturbation class. """
 
         name: str
-        tags: List[str]
         prob: float
         source_class: str
         target_class: str
@@ -184,13 +183,7 @@ class GenderPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
         return GenderPerturbation.Description(
-            self.name,
-            self.tags,
-            self.prob,
-            self.source_class,
-            self.target_class,
-            self.mapping_file_path,
-            self.bidirectional,
+            self.name, self.prob, self.source_class, self.target_class, self.mapping_file_path, self.bidirectional,
         )
 
     @staticmethod
