@@ -183,9 +183,10 @@ class BiasErasureMetric(Metric):
             self.coocurrence_matrix = self.coocurrence_matrix / np.sum(self.coocurrence_matrix, axis=1)[:, np.newaxis]
             self.coocurrence_matrix = np.nan_to_num(self.coocurrence_matrix)
 
-            # compute L1 distance
+            # Compute L1 distance for each row; return the mean of the L1 distances (one for each row).
             uniform_distribution = np.ones_like(self.coocurrence_matrix) / len(self.social_group_2_words)
-            dist = np.linalg.norm(uniform_distribution - self.coocurrence_matrix, ord=1)
+            diff = uniform_distribution - self.coocurrence_matrix
+            dist = np.mean(np.sum(np.abs(diff), axis=1))
             stat.add(dist)
 
         else:
