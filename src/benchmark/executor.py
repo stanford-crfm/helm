@@ -1,7 +1,6 @@
 from typing import Optional
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, replace
-
 from tqdm import tqdm
 
 from common.general import format_text
@@ -9,6 +8,8 @@ from common.hierarchical_logger import htrack, hlog
 from common.request import RequestResult
 from common.authentication import Authentication
 from proxy.remote_service import RemoteService
+from proxy.server_service import ServerService
+from proxy.service import Service
 from .adapter import RequestState, ScenarioState
 from .scenario import Instance
 
@@ -20,6 +21,12 @@ class ExecutionSpec:
 
     # Pass into the service
     auth: Authentication
+
+    # Whether to bypass the proxy server and just run everything locally
+    local: bool
+
+    # Local path when running locally
+    local_path: str
 
     # How many threads to have at once
     parallelism: int
@@ -36,7 +43,13 @@ class Executor:
 
     def __init__(self, execution_spec: ExecutionSpec):
         self.execution_spec = execution_spec
-        self.remote_service = RemoteService(self.execution_spec.url)
+
+        self.service: Service
+        if execution_spec.local:
+            hlog(f"Running locally with local path: {execution_spec.local_path}")
+            self.service = ServerService(base_path=execution_spec.local_path)
+        else:
+            self.service = RemoteService(self.execution_spec.url)
 
     @htrack(None)
     def execute(self, scenario_state: ScenarioState) -> ScenarioState:
@@ -74,7 +87,7 @@ class Executor:
             )
 
         def process(state: RequestState) -> RequestState:
-            result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, state.request)
+            result: RequestResult = self.service.make_request(self.execution_spec.auth, state.request)
             state = replace(state, result=result)
             tqdm.write(render_request_state(state))
             return state

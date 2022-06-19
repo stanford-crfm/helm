@@ -9,14 +9,17 @@ class TokenizationRequest:
     # Text to tokenize
     text: str
 
-    # Whether to truncate (HuggingFace tokenizers only)
-    truncation: bool
-
-    # Maximum length when encoding  (HuggingFace tokenizers only)
-    max_length: int
-
     # Which tokenizer we should use
     tokenizer: str = "huggingface/gpt2_tokenizer_fast"
+
+    # Whether to encode (HuggingFace tokenizers only)
+    encode: bool = False
+
+    # Whether to truncate (HuggingFace tokenizers only)
+    truncation: bool = False
+
+    # Maximum length when encoding  (HuggingFace tokenizers only)
+    max_length: int = 2048
 
     @property
     def tokenizer_organization(self):
@@ -88,7 +91,7 @@ class DecodeRequest:
     # Which tokenizer we should use
     tokenizer: str = "huggingface/gpt2_tokenizer_fast"
 
-    # Whether to clean up the tokenization spaces. Should be False to preserve the original text.
+    # Whether to clean up the tokenization spaces. Setting to False preserves the original text.
     clean_up_tokenization_spaces: bool = False
 
     @property

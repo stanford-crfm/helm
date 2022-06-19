@@ -47,7 +47,7 @@ class Tokenizer(ABC):
         pass
 
     @abstractmethod
-    def encode(self, text: str) -> EncodeResult:
+    def encode(self, text: str, truncation: bool = False, max_length: int = 2048) -> EncodeResult:
         """Encodes the input text to tokens given the model"""
         pass
 

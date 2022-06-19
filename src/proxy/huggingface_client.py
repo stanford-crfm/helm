@@ -181,10 +181,13 @@ class HuggingFaceClient(Client):
         try:
 
             def do_it():
-                if request.truncation:
-                    tokens = tokenizer.encode(
-                        request.text, truncation=request.truncation, max_length=request.max_length
-                    )
+                if request.encode:
+                    if request.truncation:
+                        tokens = tokenizer.encode(
+                            request.text, truncation=request.truncation, max_length=request.max_length
+                        )
+                    else:
+                        tokens = tokenizer.encode(request.text)
                 else:
                     tokens = tokenizer.tokenize(request.text)
                 return {"tokens": tokens}

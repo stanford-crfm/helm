@@ -1,7 +1,13 @@
 from typing import List, Optional
-from transformers import GPT2TokenizerFast
 
 from .tokenizer import Tokenizer, EncodeResult
+from .tokenizer_service import TokenizerService
+from common.tokenization_request import (
+    DecodeRequest,
+    DecodeRequestResult,
+    TokenizationRequest,
+    TokenizationRequestResult,
+)
 
 
 class GPT2Tokenizer(Tokenizer):
@@ -15,8 +21,8 @@ class GPT2Tokenizer(Tokenizer):
     # The end of text token
     END_OF_TEXT_TOKEN: str = "<|endoftext|>"
 
-    def __init__(self, tokenizer: GPT2TokenizerFast):
-        self._tokenizer = tokenizer
+    def __init__(self, service: TokenizerService):
+        self.service: TokenizerService = service
 
     @property
     def max_sequence_length(self) -> int:
@@ -38,12 +44,14 @@ class GPT2Tokenizer(Tokenizer):
         """The prefix token for OPENAI models is the end of text token."""
         return self.end_of_text_token
 
-    def encode(self, text: str) -> EncodeResult:
+    def encode(self, text: str, truncation: bool = False, max_length: int = 2048) -> EncodeResult:
         """
         Encodes the input text to tokens.
         """
-        tokens: List[int] = self._tokenizer.encode(text)
-        return EncodeResult(text=text, tokens=tokens)
+        response: TokenizationRequestResult = self.service.tokenize(
+            TokenizationRequest(text, encode=True, truncation=truncation, max_length=max_length)
+        )
+        return EncodeResult(text=text, tokens=response.raw_tokens)
 
     def decode(self, tokens: List[int], normalized_text: Optional[str] = None) -> str:
         """
@@ -57,13 +65,15 @@ class GPT2Tokenizer(Tokenizer):
         """
         # Should set clean_up_tokenization_spaces=False: https://github.com/huggingface/transformers/issues/17682
         # If we don't, something like "their 'studio'" becomes "their'studio'" when decoding.
-        return self._tokenizer.decode(tokens, clean_up_tokenization_spaces=False)
+        response: DecodeRequestResult = self.service.decode(DecodeRequest(tokens, clean_up_tokenization_spaces=False))
+        return response.text
 
     def tokenize(self, text: str) -> List[str]:
         """
         Tokenizes the text.
         """
-        return self._tokenizer.tokenize(text)
+        response: TokenizationRequestResult = self.service.tokenize(TokenizationRequest(text))
+        return response.raw_tokens
 
     def tokenize_and_count(self, text: str) -> int:
         """Tokenizes the text using the GPT-2 tokenizer and returns the number of tokens."""
@@ -88,7 +98,7 @@ class GPT2Tokenizer(Tokenizer):
         Since we are only passing in a single string, the tokenizer will simply truncate from the right.
         """
         max_length: int = self.max_request_length - expected_completion_token_length
-        result: str = self.decode(self._tokenizer.encode(text, truncation=True, max_length=max_length))
+        result: str = self.decode(self.encode(text, truncation=True, max_length=max_length).tokens)
 
         # Validate that the truncated text now fits. Fail fast otherwise.
         num_tokens: int = self.tokenize_and_count(result)

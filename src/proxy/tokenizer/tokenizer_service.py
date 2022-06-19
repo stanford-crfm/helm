@@ -1,7 +1,12 @@
 from abc import ABC, abstractmethod
 
 from common.authentication import Authentication
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    DecodeRequest,
+    DecodeRequestResult,
+)
 from proxy.service import Service
 
 
@@ -18,3 +23,7 @@ class TokenizerService(ABC):
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenize via an API."""
         return self._service.tokenize(self._auth, request)
+
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        """Decode via an API."""
+        return self._service.decode(self._auth, request)

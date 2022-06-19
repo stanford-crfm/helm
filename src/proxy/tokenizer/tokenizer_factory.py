@@ -20,7 +20,7 @@ class TokenizerFactory:
     gpt2_tokenizer_fast: Optional[GPT2TokenizerFast] = None
 
     @staticmethod
-    def get_tokenizer(model_name_or_organization: str, service: Optional[TokenizerService] = None) -> Tokenizer:
+    def get_tokenizer(model_name_or_organization: str, service: TokenizerService) -> Tokenizer:
         """
         Returns a `Tokenizer` given the model name or organization,
         Can pass in "openai" or "openai/davinci" for `model_name_or_organization`.
@@ -38,28 +38,21 @@ class TokenizerFactory:
 
         tokenizer: Tokenizer
         if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
-            tokenizer = WiderContextWindowOpenAITokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
+            tokenizer = WiderContextWindowOpenAITokenizer(service)
         elif organization == "openai" or organization == "simple":
-            tokenizer = OpenAITokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
+            tokenizer = OpenAITokenizer(service)
         elif organization == "microsoft":
-            tokenizer = MTNLGTokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
+            tokenizer = MTNLGTokenizer(service)
         elif organization == "gooseai":
-            tokenizer = GPTJTokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
+            tokenizer = GPTJTokenizer(service)
         elif organization == "anthropic":
-            tokenizer = AnthropicTokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
+            tokenizer = AnthropicTokenizer(service)
         elif model_name == "huggingface/gpt2":
-            tokenizer = GPT2Tokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
+            tokenizer = GPT2Tokenizer(service)
         elif model_name == "huggingface/gptj_6b":
-            tokenizer = GPTJTokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast())
+            tokenizer = GPTJTokenizer(service)
         elif organization == "ai21":
-            if not service:
-                raise ValueError("Need to pass in a TokenizerService to get the tokenizer for the AI21 models.")
-
-            tokenizer = AI21Tokenizer(
-                model=model_name,
-                service=service,
-                gpt2_tokenizer=GPT2Tokenizer(tokenizer=TokenizerFactory.get_gpt2_tokenizer_fast()),
-            )
+            tokenizer = AI21Tokenizer(service=service, gpt2_tokenizer=GPT2Tokenizer(service))
         else:
             raise ValueError(f"Invalid model name or organization: {model_name_or_organization}")
 

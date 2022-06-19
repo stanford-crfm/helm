@@ -47,6 +47,8 @@ class AllRunner:
         auth: Authentication,
         conf_path: str,
         url: str,
+        local: bool,
+        local_path: str,
         output_path: str,
         suite: str,
         num_threads: int,
@@ -59,6 +61,8 @@ class AllRunner:
         self.auth: Authentication = auth
         self.conf_path: str = conf_path
         self.url: str = url
+        self.local: bool = local
+        self.local_path: str = local_path
         self.output_path: str = output_path
         self.suite: str = suite
         self.num_threads: int = num_threads
@@ -117,6 +121,8 @@ class AllRunner:
                     run_spec_descriptions=[run_spec_description],
                     auth=self.auth,
                     url=self.url,
+                    local=self.local,
+                    local_path=self.local_path,
                     num_threads=self.num_threads,
                     output_path=self.output_path,
                     suite=self.suite,
@@ -361,6 +367,8 @@ def main():
         auth=Authentication("test") if args.skip_instances else create_authentication(args),
         conf_path=args.conf_path,
         url=args.server_url,
+        local=args.local,
+        local_path=args.local_path,
         output_path=args.output_path,
         suite=args.suite,
         num_threads=args.num_threads,

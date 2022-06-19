@@ -27,20 +27,20 @@ class TestHuggingFaceClient:
         assert not result.cached, "First time making the tokenize request. Result should not be cached"
         result: TokenizationRequestResult = self.client.tokenize(request)
         assert result.cached, "Result should be cached"
-        assert result.tokens == ["I", "Ġam", "Ġa", "Ġcomputer", "Ġscientist", "."]
+        assert result.raw_tokens == ["I", "Ġam", "Ġa", "Ġcomputer", "Ġscientist", "."]
 
     def test_encode(self):
-        request = TokenizationRequest(text="I am a computer scientist.", truncation=True, max_length=1)
+        request = TokenizationRequest(text="I am a computer scientist.", encode=True, truncation=True, max_length=1)
         result: TokenizationRequestResult = self.client.tokenize(request)
         assert not result.cached, "First time making the tokenize request. Result should not be cached"
         result: TokenizationRequestResult = self.client.tokenize(request)
         assert result.cached, "Result should be cached"
-        assert result.tokens == [40]
+        assert result.raw_tokens == [40]
 
-        request = TokenizationRequest(text="I am a computer scientist.", truncation=True, max_length=1024)
+        request = TokenizationRequest(text="I am a computer scientist.", encode=True, truncation=True, max_length=1024)
         result = self.client.tokenize(request)
         assert not result.cached, "First time making this particular request. Result should not be cached"
-        assert result.tokens == [40, 716, 257, 3644, 11444, 13]
+        assert result.raw_tokens == [40, 716, 257, 3644, 11444, 13]
 
     def test_decode(self):
         request = DecodeRequest(tokens=[40, 716, 257, 3644, 11444, 13])

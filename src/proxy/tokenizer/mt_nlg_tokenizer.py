@@ -1,6 +1,5 @@
-from transformers import GPT2TokenizerFast
-
 from .gpt2_tokenizer import GPT2Tokenizer
+from .tokenizer_service import TokenizerService
 
 
 class MTNLGTokenizer(GPT2Tokenizer):
@@ -13,9 +12,8 @@ class MTNLGTokenizer(GPT2Tokenizer):
     # find the correct value for `MAX_REQUEST_LENGTH`
     MAX_REQUEST_LENGTH: int = 2048
 
-    def __init__(self, tokenizer: GPT2TokenizerFast):
-        # Use the GPT-2 tokenizer.
-        super().__init__(tokenizer)
+    def __init__(self, service: TokenizerService):
+        super().__init__(service)
 
     @property
     def max_sequence_length(self) -> int:

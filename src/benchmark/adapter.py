@@ -334,7 +334,7 @@ class Adapter:
 
                     hlog(
                         f"trial {train_trial_index}: construct_prompt {eval_index} (total {len(eval_instances)}): "
-                        f"len(prompt) = {len(prompt)} ({construct_prompt_elapsed_time:.2f}s)"
+                        f"len(prompt) = {len(prompt)} ({construct_prompt_elapsed_time:.3f}s)"
                     )
 
                     # Just print one prompt (useful for debugging)
