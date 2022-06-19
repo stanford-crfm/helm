@@ -1,7 +1,8 @@
 from dataclasses import dataclass
+from typing import List
 
 from .perturbation import Perturbation
-from .perturbation_description import PerturbationDescription
+from .perturbation_description import PerturbationDescription, ROBUSTNESS_TAG
 
 from benchmark.scenario import Instance
 import random
@@ -32,7 +33,6 @@ UNCERTAIN_PHRASES = ["maybe", "perhaps", "probably", "possibly", "most likely"]
 FILL_PHRASE = ["uhm", "umm", "ahh", "err", "actually", "obviously", "naturally", "like", "you know"]
 
 
-@dataclass
 class FillerWordsPerturbation(Perturbation):
     """
     Randomly inserts filler words and phrases in the sentence.
@@ -47,9 +47,12 @@ class FillerWordsPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         name: str
+        tags: List[str]
         insert_prob: float
 
     name: str = "filler_words"
+
+    tags: List[str] = [ROBUSTNESS_TAG]
 
     def __init__(self, insert_prob=0.333, max_num_insert=None, speaker_ph=True, uncertain_ph=True, fill_ph=True):
         self.insert_prob = insert_prob
@@ -60,7 +63,7 @@ class FillerWordsPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return FillerWordsPerturbation.Description(self.name, self.insert_prob)
+        return FillerWordsPerturbation.Description(self.name, self.tags, self.insert_prob)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         assert instance.id is not None

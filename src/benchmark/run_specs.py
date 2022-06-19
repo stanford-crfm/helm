@@ -173,12 +173,10 @@ def get_disinformation_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
     if args is None:
         args = dict()
     return [
+        MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationHumanEvalMetrics", args={**args}),
+        MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "self_bleu"},),
         MetricSpec(
-            class_name="benchmark.disinformation_metrics.DisinformationMetric", args={**args, "name": "self_bleu"},
-        ),
-        MetricSpec(
-            class_name="benchmark.disinformation_metrics.DisinformationMetric",
-            args={**args, "name": "monte_carlo_entropy"},
+            class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "monte_carlo_entropy"},
         ),
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
@@ -813,7 +811,7 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
     )
 
 
-def get_babi_qa_spec(task: str) -> RunSpec:
+def get_babi_qa_spec(task: int) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.babi_qa_scenario.BabiQAScenario", args={"task": task})
 
     adapter_spec = AdapterSpec(
@@ -826,7 +824,7 @@ def get_babi_qa_spec(task: str) -> RunSpec:
         max_eval_instances=None,
         num_outputs=1,
         # Task 19's answers consist of two words (in contrast to all other tasks that feature a single-word answers.)
-        max_tokens=2 if task == "19" else 1,
+        max_tokens=2 if task == 19 else 1,
         # setting max 1/2 tokens answers improved performance but indeed makes an assumption about tokenization.
         temperature=0.0,
         stop_sequences=["\n"],
@@ -890,7 +888,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             model="openai/text-davinci-001",
             stop_sequences=["\n"],
         )
-        metrics = get_disinformation_metrics()
+        metrics = get_disinformation_metrics(args={"name": "reiteration"})
         scenario_name += f",topic={topic}"
     elif capability == "wedging":
         adapter_spec = AdapterSpec(
@@ -908,7 +906,8 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             # Justification: The maximum number of tokens in the training prompts is 87
             max_tokens=90,
         )
-        metrics = get_generative_harms_metrics()
+        metrics = get_generative_harms_metrics() + get_disinformation_metrics(args={"name": "wedging"})
+
     else:
         raise ValueError(
             f"Unsupported evaluation for disinformation capability '{capability}'. "

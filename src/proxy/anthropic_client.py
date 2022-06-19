@@ -47,8 +47,6 @@ class AnthropicClient(Client):
         # `Request` field values that Anthropic currently does not support
         if request.echo_prompt:
             raise ValueError("Echoing the original prompt is not supported.")
-        if request.num_completions > 1:
-            raise ValueError("num_completions > 1 is not supported. Only a single completion is supported.")
         if request.top_k_per_token > 1:
             raise ValueError(
                 "top_k_per_token > 1 is not supported. The Anthropic API only gives a single token at a time."
@@ -134,28 +132,43 @@ class AnthropicClient(Client):
                     "raw_response": raw_response,
                 }
 
-        try:
-            # We need to include the engine's name to differentiate among requests made for different model
-            # engines since the engine name is not included in the request itself.
-            cache_key = Client.make_cache_key({"engine": request.model_engine, **raw_request}, request)
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except AnthropicRequestError as e:
-            return RequestResult(success=False, cached=False, error=str(e), completions=[])
+        # Since Anthropic doesn't support multiple completions, we have to manually call it multiple times,
+        # and aggregate the results into `completions` and `request_time`.
+        completions = []
+        all_cached = True
+        request_time = 0
 
-        token_texts: List[str] = response["tokens"]
-        raw_response: Dict = json.loads(response["raw_response"])
+        for completion_index in range(request.num_completions):
+            try:
+                # We need to include the engine's name to differentiate among requests made for different model
+                # engines since the engine name is not included in the request itself.
+                # In addition, we want to make `request.num_completions` fresh
+                # requests, cache key should contain the completion_index.
+                cache_key = Client.make_cache_key(
+                    {"engine": request.model_engine, "completion_index": completion_index, **raw_request}, request
+                )
+                response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            except AnthropicRequestError as e:
+                return RequestResult(success=False, cached=False, error=str(e), completions=[])
 
-        sequence_logprob: float = 0
-        tokens: List[Token] = []
+            token_texts: List[str] = response["tokens"]
+            raw_response: Dict = json.loads(response["raw_response"])
 
-        for token_text in token_texts:
-            # TODO: Anthropic currently doesn't support logprob. Just set logprob to 0 for now.
-            token_logprob: float = 0
-            sequence_logprob += token_logprob
-            tokens.append(Token(text=token_text, logprob=token_logprob, top_logprobs={}))
-        # TODO: Anthropic currently only supports a single completion per request
-        sequence = Sequence(text=raw_response["completion"], logprob=sequence_logprob, tokens=tokens)
-        return RequestResult(success=True, cached=cached, request_time=response["request_time"], completions=[sequence])
+            sequence_logprob: float = 0
+            tokens: List[Token] = []
+
+            for token_text in token_texts:
+                # TODO: Anthropic currently doesn't support logprob. Just set logprob to 0 for now.
+                token_logprob: float = 0
+                sequence_logprob += token_logprob
+                tokens.append(Token(text=token_text, logprob=token_logprob, top_logprobs={}))
+
+            sequence = Sequence(text=raw_response["completion"], logprob=sequence_logprob, tokens=tokens)
+            completions.append(sequence)
+            request_time += response["request_time"]
+            all_cached = all_cached and cached
+
+        return RequestResult(success=True, cached=all_cached, request_time=request_time, completions=completions)
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes the text using the underlying tokenizer."""

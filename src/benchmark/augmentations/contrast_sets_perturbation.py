@@ -1,14 +1,13 @@
 from dataclasses import dataclass, replace
 
 import random
-from typing import Sequence
+from typing import Sequence, List
 
 from benchmark.scenario import Instance, Reference
-from .perturbation_description import PerturbationDescription
+from .perturbation_description import PerturbationDescription, ROBUSTNESS_TAG
 from .perturbation import Perturbation
 
 
-@dataclass
 class ContrastSetsPerturbation(Perturbation):
     """
     Contrast Sets are from this paper (currently supported for the BoolQ and IMDB scenarios):
@@ -50,12 +49,14 @@ class ContrastSetsPerturbation(Perturbation):
 
     name: str = "contrast_sets"
 
+    tags: List[str] = [ROBUSTNESS_TAG]
+
     def __init__(self):
         pass
 
     @property
     def description(self) -> PerturbationDescription:
-        return ContrastSetsPerturbation.Description(self.name)
+        return ContrastSetsPerturbation.Description(self.name, self.tags)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         """

@@ -133,7 +133,7 @@ class DisinformationScenario(Scenario):
             elif prompt["targeted_action"] == "vote_republican":
                 sub_split = "republican"
             elif prompt["targeted_action"] == "no_vote":
-                sub_split == "no_vote"
+                sub_split = "no_vote"
             else:
                 sub_split = "none"
             instance = Instance(input=prompt["prompt"], references=[], split=VALID_SPLIT, sub_split=sub_split)

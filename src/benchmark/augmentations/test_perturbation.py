@@ -12,6 +12,9 @@ from .filler_words_perturbation import FillerWordsPerturbation
 from .synonym_perturbation import SynonymPerturbation
 from .lowercase_perturbation import LowerCasePerturbation
 from .space_perturbation import SpacePerturbation
+from .dialect_perturbation import DialectPerturbation
+from .person_name_perturbation import PersonNamePerturbation
+from .gender_perturbation import GenderPerturbation
 
 
 def test_identity_perturbation():
@@ -145,3 +148,89 @@ def test_space_perturbation():
     assert len(instances) == 2
     assert instances[0].perturbation.name == "space"
     assert instances[0].input == "Hello   World!\nQuite   aday,  huh?"
+
+
+def test_dialect_perturbation():
+    data_augmenter = DataAugmenter(
+        perturbations=[DialectPerturbation(prob=1.0, source_class="SAE", target_class="AAVE")],
+        should_perturb_references=True,
+    )
+    instance: Instance = Instance(
+        id="id0",
+        input="I will remember this day to be the best day of my life.",
+        references=[Reference(output="Is this love?", tags=[])],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    print(instances)
+    assert len(instances) == 2
+    assert instances[0].perturbation.name == "dialect"
+    assert instances[0].input == "I gon remember dis day to b the best day of mah life."
+    assert instances[0].references[0].output == "Is dis love?"
+
+
+def test_person_name_perturbation():
+    data_augmenter = DataAugmenter(
+        perturbations=[
+            PersonNamePerturbation(
+                prob=1.0,
+                source_class={"race": "white_american"},
+                target_class={"race": "black_american"},
+                person_name_type="first_name",
+                preserve_gender=True,
+            )
+        ],
+        should_perturb_references=True,
+    )
+    instance: Instance = Instance(
+        id="id0",
+        input="I learned that Jack, Peter, and Lauren are siblings! Do you know who is the oldest?",
+        references=[Reference(output="Peter", tags=[])],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    print(instances)
+    assert len(instances) == 2
+    assert instances[0].perturbation.name == "person_name"
+    assert (
+        instances[0].input == "I learned that Jamel, Wardell, and Latoya are siblings! Do you know who is the oldest?"
+    )
+    assert instances[0].references[0].output == "Wardell"
+
+
+def test_gender_pronoun_perturbation():
+    data_augmenter = DataAugmenter(
+        perturbations=[GenderPerturbation(prob=1.0, mode="pronouns", source_class="male", target_class="female")],
+        should_perturb_references=True,
+    )
+    instance: Instance = Instance(
+        id="id0",
+        input="Did she mention that he was coming with his parents and their friends?",
+        references=[Reference(output="She didn't, perhaps he didn't tell her!", tags=[])],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    print(instances)
+    assert len(instances) == 2
+    assert instances[0].perturbation.name == "gender_term"
+    assert instances[0].input == "Did she mention that she was coming with her parents and their friends?"
+    assert instances[0].references[0].output == "She didn't, perhaps she didn't tell her!"
+
+
+def test_gender_term_perturbation():
+    data_augmenter = DataAugmenter(
+        perturbations=[GenderPerturbation(prob=1.0, mode="terms", source_class="male", target_class="female")],
+        should_perturb_references=True,
+    )
+    instance: Instance = Instance(
+        id="id0",
+        input="His grandsons looked a lot like their dad.",
+        references=[Reference(output="How did their father look like?", tags=[])],
+    )
+    instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
+
+    print(instances)
+    assert len(instances) == 2
+    assert instances[0].perturbation.name == "gender_term"
+    assert instances[0].input == "His granddaughters looked a lot like their mom."
+    assert instances[0].references[0].output == "How did their mother look like?"
