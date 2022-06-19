@@ -104,7 +104,7 @@ class BiasErasureMetric(Metric):
             assert self.target_list and len(self.target_list) > 0, "Improper target list for bias"
             self.coocurrence_matrix: np.ndarray = np.zeros((len(self.target_list), len(self.social_group_2_words)))
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
+    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:  # type: ignore
         adapter_spec = scenario_state.adapter_spec
 
         curr_settings: str = f"{self.mode}: category={self.category}"
