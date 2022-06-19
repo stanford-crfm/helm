@@ -99,7 +99,6 @@ def get_msmarco_metrics(task: str, track: str, qrels_path: str, topk: Optional[i
 def get_toxicity_metrics() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={}),
-        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
 
 
@@ -297,7 +296,7 @@ def get_bold_spec(subject: str) -> RunSpec:
         input_prefix="",
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+        max_eval_instances=10,
         num_outputs=1,  # TODO: Rishi - setting for 1 to monitor token use; @Ryan please follow-up on this
         model="openai/davinci",
         temperature=0.9,  # TODO: Setting based on conversation with John Hewitt; @Ryan please better justify
@@ -553,7 +552,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         output_prefix="",
         num_train_trials=1,
         max_train_instances=0,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+        max_eval_instances=2,
         model="openai/davinci",  # "...we use the 175B parameter GPT-3 model, also known as DA VINCI in the OpenAI API"
         temperature=0.9,  # "We use a temperature of 1 during generation..."
         # Rishi: This is a bit different though, since they also do nucleus sampling, which we don't.
@@ -909,7 +908,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             # Justification: The maximum number of tokens in the training prompts is 87
             max_tokens=90,
         )
-        metrics = get_toxicity_metrics()
+        metrics = get_generative_harms_metrics()
     else:
         raise ValueError(
             f"Unsupported evaluation for disinformation capability '{capability}'. "
