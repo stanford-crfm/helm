@@ -163,7 +163,6 @@ class GenderPerturbation(Perturbation):
             self.genders = [g.lower() for g in mapping_file_genders]
         assert mappings and self.source_class in self.genders and self.target_class in self.genders
         assert all([len(m) == len(self.genders) for m in mappings])
-        mappings = list(set(mappings))  # Remove duplicates from the mappings list
 
         # Get source and target words
         gender_to_ind: Dict[str, int] = {gender: ind for ind, gender in enumerate(self.genders)}
