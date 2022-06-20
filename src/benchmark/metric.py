@@ -111,9 +111,12 @@ class Metric(ABC):
                     stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
 
-                    stat = Stat(replace(stat.name, perturbation=PerturbationDescription(name="worst", tags=[]))).merge(
-                        stat
-                    )
+                    stat = Stat(
+                        replace(
+                            stat.name,
+                            perturbation=PerturbationDescription(name="worst", robustness=False, fairness=False),
+                        )
+                    ).merge(stat)
                     assert instance.id is not None
                     key = (stat.name, instance.id)
                     if key not in per_instance_stats:
