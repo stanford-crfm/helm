@@ -1,10 +1,10 @@
-from dataclasses import dataclass, replace
+from dataclasses import replace
 
 import random
-from typing import Sequence, List
+from typing import Sequence
 
 from benchmark.scenario import Instance, Reference
-from .perturbation_description import PerturbationDescription, ROBUSTNESS_TAG
+from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
@@ -43,20 +43,14 @@ class ContrastSetsPerturbation(Perturbation):
     Sentiment: positive
     """
 
-    @dataclass(frozen=True)
-    class Description(PerturbationDescription):
-        name: str
-
     name: str = "contrast_sets"
-
-    tags: List[str] = [ROBUSTNESS_TAG]
 
     def __init__(self):
         pass
 
     @property
     def description(self) -> PerturbationDescription:
-        return ContrastSetsPerturbation.Description(self.name, self.tags)
+        return PerturbationDescription(name=self.name, robustness=True)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         """

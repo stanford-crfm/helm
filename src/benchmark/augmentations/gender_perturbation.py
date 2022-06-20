@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Tuple
 
 from benchmark.scenario import Instance
 from common.general import match_case
-from .perturbation_description import PerturbationDescription, FAIRNESS_TAG
+from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
@@ -69,9 +69,6 @@ class GenderPerturbation(Perturbation):
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "gender_term"
 
-    """ Tags. """
-    tags: List[str] = [FAIRNESS_TAG]
-
     """ Genders defined by default """
     NEUTRAL = "neutral"
     FEMALE = "female"
@@ -88,13 +85,11 @@ class GenderPerturbation(Perturbation):
     class Description(PerturbationDescription):
         """ Description for the GenderPerturbation class. """
 
-        name: str
-        tags: List[str]
-        prob: float
-        source_class: str
-        target_class: str
-        mapping_file_path: Optional[str]
-        bidirectional: bool
+        prob: float = 0.0
+        source_class: str = ""
+        target_class: str = ""
+        mapping_file_path: Optional[str] = None
+        bidirectional: bool = False
 
     def __init__(
         self,
@@ -164,7 +159,6 @@ class GenderPerturbation(Perturbation):
             self.genders = [g.lower() for g in mapping_file_genders]
         assert mappings and self.source_class in self.genders and self.target_class in self.genders
         assert all([len(m) == len(self.genders) for m in mappings])
-        mappings = list(set(mappings))  # Remove duplicates from the mappings list
 
         # Get source and target words
         gender_to_ind: Dict[str, int] = {gender: ind for ind, gender in enumerate(self.genders)}
@@ -184,13 +178,13 @@ class GenderPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
         return GenderPerturbation.Description(
-            self.name,
-            self.tags,
-            self.prob,
-            self.source_class,
-            self.target_class,
-            self.mapping_file_path,
-            self.bidirectional,
+            name=self.name,
+            fairness=True,
+            prob=self.prob,
+            source_class=self.source_class,
+            target_class=self.target_class,
+            mapping_file_path=self.mapping_file_path,
+            bidirectional=self.bidirectional,
         )
 
     @staticmethod

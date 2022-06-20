@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
-from typing import Sequence, List
+from typing import Sequence
 
 
 from .perturbation_description import PerturbationDescription
@@ -13,14 +13,10 @@ class Perturbation(ABC):
     # Unique name to describe perturbation
     name: str
 
-    # Extra metadata (e.g., ["robustness"] or ["fairness"])
-    # Used to group instances to compute metrics.
-    tags: List[str]
-
     @property
     def description(self) -> PerturbationDescription:
         """Description of the perturbation."""
-        return PerturbationDescription(self.name, self.tags)
+        return PerturbationDescription(name=self.name)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         """

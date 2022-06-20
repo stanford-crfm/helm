@@ -95,41 +95,52 @@ class MicrosoftClient(Client):
             "echo": request.echo_prompt,
         }
 
-        try:
-
-            def do_it():
-                with self.lock:
-                    turing.api_key = self.api_key
-                    turing.api_base = self.api_base
-                    turing.api_resources.completion.Completion.__bases__ = self.completion_attributes
-                    return turing.Completion.create(**raw_request)
-
-            cache_key = Client.make_cache_key(raw_request, request)
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except turing.error.OpenAIError as e:
-            error: str = f"OpenAI (Turing API) error: {e}"
-            return RequestResult(success=False, cached=False, error=error, completions=[])
-
         completions: List[Sequence] = []
-        for raw_completion in response["choices"]:
-            # TODO: handle logprobs when it's supported (currently always null). Current example response:
-            # {
-            #   "finish_reason": "stop",
-            #   "index": 0,
-            #   "logprobs": null,
-            #   "text": "So I was takin' a walk the other day"
-            # }
-            # Since the log probs and tokens are not available to us just tokenize the completion using the tokenizer
-            completion_text: str = raw_completion["text"]
-            tokens: List[Token] = [
-                Token(text=fix_text(text), logprob=0, top_logprobs={})
-                for text in self.tokenizer.tokenize(completion_text)
-            ]
-            completion = Sequence(text=completion_text, logprob=0, tokens=tokens)
-            completions.append(completion)
-        return RequestResult(
-            success=True, cached=cached, request_time=response["request_time"], completions=completions
-        )
+        request_time = 0
+        all_cached = True
+
+        # API currently only supports 1 completion at a time, so we have to hit it multiple times.
+        for completion_index in range(request.num_completions):
+            try:
+
+                def do_it():
+                    with self.lock:
+                        turing.api_key = self.api_key
+                        turing.api_base = self.api_base
+                        turing.api_resources.completion.Completion.__bases__ = self.completion_attributes
+                        return turing.Completion.create(**raw_request)
+
+                # We want to make `request.num_completions` fresh requests,
+                # cache key should contain the completion_index.
+                cache_key = Client.make_cache_key({"completion_index": completion_index, **raw_request}, request)
+                response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            except turing.error.OpenAIError as e:
+                error: str = f"OpenAI (Turing API) error: {e}"
+                return RequestResult(success=False, cached=False, error=error, completions=[])
+
+            for raw_completion in response["choices"]:
+                # TODO: handle logprobs when it's supported (currently always
+                # null). Current example response:
+                # {
+                #   "finish_reason": "stop",
+                #   "index": 0,
+                #   "logprobs": null,
+                #   "text": "So I was takin' a walk the other day"
+                # }
+                # Since the log probs and tokens are not available to us just
+                # tokenize the completion using the tokenizer.
+                completion_text: str = raw_completion["text"]
+                tokens: List[Token] = [
+                    Token(text=fix_text(text), logprob=0, top_logprobs={})
+                    for text in self.tokenizer.tokenize(completion_text)
+                ]
+                completion = Sequence(text=completion_text, logprob=0, tokens=tokens)
+                completions.append(completion)
+
+            request_time += response["request_time"]
+            all_cached = all_cached and cached
+
+        return RequestResult(success=True, cached=all_cached, request_time=request_time, completions=completions)
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenizes the text using the GPT-2 tokenizer created in `MTNLGTokenizer`."""

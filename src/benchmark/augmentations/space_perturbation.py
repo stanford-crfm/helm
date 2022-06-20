@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 import random
-from typing import List
 
 from benchmark.scenario import Instance
 from .perturbation import Perturbation
-from .perturbation_description import PerturbationDescription, ROBUSTNESS_TAG
+from .perturbation_description import PerturbationDescription
 
 
 class SpacePerturbation(Perturbation):
@@ -14,19 +13,16 @@ class SpacePerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        name: str
-        tags: List[str]
-        max_spaces: int
+        max_spaces: int = 0
 
     name: str = "space"
-    tags: List[str] = [ROBUSTNESS_TAG]
 
     def __init__(self, max_spaces: int):
         self.max_spaces = max_spaces
 
     @property
     def description(self) -> PerturbationDescription:
-        return SpacePerturbation.Description(self.name, self.tags, self.max_spaces)
+        return SpacePerturbation.Description(name=self.name, robustness=True, max_spaces=self.max_spaces)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         assert instance.id is not None
