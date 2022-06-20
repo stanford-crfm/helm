@@ -5,11 +5,11 @@ from functools import reduce
 import random
 import re
 from pathlib import Path
-from typing import Dict, Optional, List, Set, Tuple
+from typing import Dict, Optional, List, Set
 
 from benchmark.scenario import Instance
 from common.general import ensure_file_downloaded, ensure_directory_exists, match_case
-from .perturbation_description import PerturbationDescription, FAIRNESS_TAG
+from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
@@ -18,9 +18,6 @@ class PersonNamePerturbation(Perturbation):
 
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "person_name"
-
-    """ Tags. """
-    tags: List[str] = [FAIRNESS_TAG]
 
     """ Line seperator character """
     LINE_SEP = "\n"
@@ -46,16 +43,20 @@ class PersonNamePerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        """ Description for the PersonNamePerturbation class. """
+        """ Description for the PersonNamePerturbation class.
 
-        name: str
-        tags: List[str]
-        prob: float
-        source_class: Tuple[Tuple[str, str], ...]
-        target_class: Tuple[Tuple[str, str], ...]
-        name_file_path: Optional[str]
-        person_name_type: str
-        preserve_gender: bool
+        Explanation for the fields are provided in the docstring of
+        PersonNamePerturbation.__init__, except source_class and target_class
+        fields, which correspond to the string representation of the
+        corresponding parameters passed to __init__.
+        """
+
+        prob: float = 0.0
+        source_class: str = ""
+        target_class: str = ""
+        name_file_path: Optional[str] = None
+        person_name_type: str = ""
+        preserve_gender: bool = False
 
     def __init__(
         self,
@@ -185,17 +186,17 @@ class PersonNamePerturbation(Perturbation):
     @property
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
-        source_tuple = tuple([(k, v) for k, v in self.source_class.items()])
-        target_tuple = tuple([(k, v) for k, v in self.target_class.items()])
+        source_str = ",".join([f"{k}={v}" for k, v in self.source_class.items()])
+        target_str = ",".join([f"{k}={v}" for k, v in self.target_class.items()])
         return PersonNamePerturbation.Description(
-            self.name,
-            self.tags,
-            self.prob,
-            source_tuple,
-            target_tuple,
-            self.name_file_path,
-            self.person_name_type,
-            self.preserve_gender,
+            name=self.name,
+            fairness=True,
+            prob=self.prob,
+            source_class=source_str,
+            target_class=target_str,
+            name_file_path=self.name_file_path,
+            person_name_type=self.person_name_type,
+            preserve_gender=self.preserve_gender,
         )
 
     @staticmethod
