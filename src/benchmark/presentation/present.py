@@ -57,6 +57,7 @@ class AllRunner:
         max_eval_instances: Optional[int],
         models_to_run: Optional[List[str]],
         exit_on_error: bool,
+        priority: Optional[int],
     ):
         self.auth: Authentication = auth
         self.conf_path: str = conf_path
@@ -69,6 +70,7 @@ class AllRunner:
         self.max_eval_instances: Optional[int] = max_eval_instances
         self.models_to_run: Optional[List[str]] = models_to_run
         self.exit_on_error: bool = exit_on_error
+        self.priority: Optional[int] = priority
 
     @staticmethod
     def update_status_page(output_dir: str, wip_content: List[str], ready_content: List[str]):
@@ -107,9 +109,13 @@ class AllRunner:
             # We have to manually remove the double quotes from the descriptions.
             run_spec_description = run_spec_description.replace('"', "")
             status: str = run_spec_state.status
-
             if status != READY_STATUS and status != WIP_STATUS:
                 raise ValueError(f"RunSpec {run_spec_description} has an invalid status: {status}")
+
+            priority: int = run_spec_state.priority
+            if self.priority is not None and priority > self.priority:
+                hlog(f"Skipping {run_spec_description} since its priority {priority} > {self.priority}")
+                continue
 
             # Use `dry_run` flag if set, else use what's in the file.
             dry_run = self.dry_run if self.dry_run is not None else status == WIP_STATUS
@@ -355,6 +361,13 @@ def main():
         default=None,
         help="Fail and exit immediately if a particular RunSpec fails.",
     )
+    parser.add_argument(
+        "--priority",
+        type=int,
+        default=None,
+        help="Run RunSpecs with priority less than or equal to this number. "
+        "If a value for --priority is not specified, run on everything",
+    )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
@@ -373,6 +386,7 @@ def main():
         max_eval_instances=args.max_eval_instances,
         models_to_run=args.models_to_run,
         exit_on_error=args.exit_on_error,
+        priority=args.priority,
     )
 
     # Run the benchmark!
