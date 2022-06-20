@@ -43,7 +43,13 @@ class PersonNamePerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        """ Description for the PersonNamePerturbation class. """
+        """ Description for the PersonNamePerturbation class.
+
+        Explanation for the fields are provided in the docstring of
+        PersonNamePerturbation.__init__, except source_class and target_class
+        fields, which correspond to the string representation of the
+        corresponding parameters passed to __init__.
+        """
 
         prob: float = 0.0
         source_class: str = ""
