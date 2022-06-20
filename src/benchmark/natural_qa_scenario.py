@@ -1,7 +1,6 @@
 import json
 import os
 import re
-import gzip
 import html
 import random
 from common.hierarchical_logger import htrack_block, hlog
