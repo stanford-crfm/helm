@@ -45,10 +45,7 @@ class FillerWordsPerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        name: str
-        robustness: bool
-        fairness: bool
-        insert_prob: float
+        insert_prob: float = 0.0
 
     name: str = "filler_words"
 
@@ -61,9 +58,7 @@ class FillerWordsPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return FillerWordsPerturbation.Description(
-            name=self.name, robustness=True, fairness=False, insert_prob=self.insert_prob
-        )
+        return FillerWordsPerturbation.Description(name=self.name, robustness=True, insert_prob=self.insert_prob)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         assert instance.id is not None

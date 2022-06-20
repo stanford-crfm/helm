@@ -45,13 +45,10 @@ class DialectPerturbation(Perturbation):
     class Description(PerturbationDescription):
         """ Description for the DialectPerturbation class. """
 
-        name: str
-        robustness: bool
-        fairness: bool
-        prob: float
-        source_class: str
-        target_class: str
-        mapping_file_path: Optional[str]
+        prob: float = 0.0
+        source_class: str = ""
+        target_class: str = ""
+        mapping_file_path: Optional[str] = None
 
     def __init__(self, prob: float, source_class: str, target_class: str, mapping_file_path: Optional[str] = None):
         """ Initialize the dialect perturbation.
@@ -97,7 +94,6 @@ class DialectPerturbation(Perturbation):
         """ Return a perturbation description for this class. """
         return DialectPerturbation.Description(
             name=self.name,
-            robustness=False,
             fairness=True,
             prob=self.prob,
             source_class=self.source_class,

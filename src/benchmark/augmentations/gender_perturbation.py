@@ -85,14 +85,11 @@ class GenderPerturbation(Perturbation):
     class Description(PerturbationDescription):
         """ Description for the GenderPerturbation class. """
 
-        name: str
-        robustness: bool
-        fairness: bool
-        prob: float
-        source_class: str
-        target_class: str
-        mapping_file_path: Optional[str]
-        bidirectional: bool
+        prob: float = 0.0
+        source_class: str = ""
+        target_class: str = ""
+        mapping_file_path: Optional[str] = None
+        bidirectional: bool = False
 
     def __init__(
         self,
@@ -182,7 +179,6 @@ class GenderPerturbation(Perturbation):
         """ Return a perturbation description for this class. """
         return GenderPerturbation.Description(
             name=self.name,
-            robustness=False,
             fairness=True,
             prob=self.prob,
             source_class=self.source_class,

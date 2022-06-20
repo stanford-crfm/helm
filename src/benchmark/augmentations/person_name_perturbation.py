@@ -45,15 +45,12 @@ class PersonNamePerturbation(Perturbation):
     class Description(PerturbationDescription):
         """ Description for the PersonNamePerturbation class. """
 
-        name: str
-        robustness: bool
-        fairness: bool
-        prob: float
-        source_class: str
-        target_class: str
-        name_file_path: Optional[str]
-        person_name_type: str
-        preserve_gender: bool
+        prob: float = 0.0
+        source_class: str = ""
+        target_class: str = ""
+        name_file_path: Optional[str] = None
+        person_name_type: str = ""
+        preserve_gender: bool = False
 
     def __init__(
         self,
@@ -187,7 +184,6 @@ class PersonNamePerturbation(Perturbation):
         target_str = ",".join([f"{k}={v}" for k, v in self.target_class.items()])
         return PersonNamePerturbation.Description(
             name=self.name,
-            robustness=False,
             fairness=True,
             prob=self.prob,
             source_class=source_str,

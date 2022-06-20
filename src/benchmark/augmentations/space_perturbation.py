@@ -13,10 +13,7 @@ class SpacePerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        name: str
-        robustness: bool
-        fairness: bool
-        max_spaces: int
+        max_spaces: int = 0
 
     name: str = "space"
 
@@ -25,9 +22,7 @@ class SpacePerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return SpacePerturbation.Description(
-            name=self.name, robustness=True, fairness=False, max_spaces=self.max_spaces
-        )
+        return SpacePerturbation.Description(name=self.name, robustness=True, max_spaces=self.max_spaces)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         assert instance.id is not None

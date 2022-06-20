@@ -30,10 +30,7 @@ class SynonymPerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        name: str
-        robustness: bool
-        fairness: bool
-        prob: float
+        prob: float = 0.0
 
     name: str = "SynonymPerturbation"
 
@@ -62,7 +59,7 @@ class SynonymPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return SynonymPerturbation.Description(name=self.name, robustness=True, fairness=False, prob=self.prob)
+        return SynonymPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
 
     def synonyms_substitute(self, text: str) -> str:
         upos_wn_dict = {

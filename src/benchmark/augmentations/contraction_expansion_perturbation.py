@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Dict
 import re
 
@@ -101,12 +100,6 @@ class ContractionPerturbation(Perturbation):
         She's a doctor, and I'm a student
     """
 
-    @dataclass(frozen=True)
-    class Description(PerturbationDescription):
-        name: str
-        robustness: bool
-        fairness: bool
-
     name: str = "contraction"
 
     def __init__(self):
@@ -115,7 +108,7 @@ class ContractionPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return ContractionPerturbation.Description(name=self.name, robustness=True, fairness=False)
+        return PerturbationDescription(name=self.name, robustness=True)
 
     def contract(self, sentence: str) -> str:
         reverse_contraction_pattern = re.compile(
@@ -150,12 +143,6 @@ class ExpansionPerturbation(Perturbation):
         She is a doctor, and I am a student
     """
 
-    @dataclass(frozen=True)
-    class Description(PerturbationDescription):
-        name: str
-        robustness: bool
-        fairness: bool
-
     name: str = "expansion"
 
     def __init__(self):
@@ -163,7 +150,7 @@ class ExpansionPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return ExpansionPerturbation.Description(name=self.name, robustness=True, fairness=False)
+        return PerturbationDescription(name=self.name, robustness=True)
 
     def expand_contractions(self, sentence):
         contraction_pattern = re.compile(

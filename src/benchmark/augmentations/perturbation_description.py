@@ -7,5 +7,5 @@ class PerturbationDescription:
 
     # Name of the Perturbation
     name: str
-    robustness: bool
-    fairness: bool
+    robustness: bool = False
+    fairness: bool = False
