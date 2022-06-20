@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-from typing import List
 
 from .perturbation import Perturbation
-from .perturbation_description import PerturbationDescription, ROBUSTNESS_TAG
+from .perturbation_description import PerturbationDescription
 
 
 class LowerCasePerturbation(Perturbation):
@@ -13,13 +12,14 @@ class LowerCasePerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         name: str
+        robustness: bool
+        fairness: bool
 
     name: str = "lowercase"
-    tags: List[str] = [ROBUSTNESS_TAG]
 
     @property
     def description(self) -> PerturbationDescription:
-        return LowerCasePerturbation.Description(self.name)
+        return LowerCasePerturbation.Description(name=self.name, robustness=True, fairness=False)
 
     def perturb(self, text: str) -> str:
         return text.lower()

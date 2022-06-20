@@ -8,7 +8,7 @@ import numpy as np
 
 from benchmark.scenario import Instance
 from .perturbation import Perturbation
-from .perturbation_description import PerturbationDescription, ROBUSTNESS_TAG
+from .perturbation_description import PerturbationDescription
 
 
 # The implementation below is based on the following list of common misspellings:
@@ -26,10 +26,11 @@ class MisspellingPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         name: str
+        robustness: bool
+        fairness: bool
         prob: float
 
     name: str = "misspellings"
-    tags: List[str] = [ROBUSTNESS_TAG]
 
     def __init__(self, prob: float):
         """
@@ -45,7 +46,7 @@ class MisspellingPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return MisspellingPerturbation.Description(self.name, self.prob)
+        return MisspellingPerturbation.Description(name=self.name, robustness=True, fairness=False, prob=self.prob)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         assert instance.id is not None

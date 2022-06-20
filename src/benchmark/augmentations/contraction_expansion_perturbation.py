@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict
 import re
 
 from .perturbation import Perturbation
-from .perturbation_description import PerturbationDescription, ROBUSTNESS_TAG
+from .perturbation_description import PerturbationDescription
 
 
 CONTRACTION_MAP: Dict[str, str] = {
@@ -104,10 +104,10 @@ class ContractionPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         name: str
+        robustness: bool
+        fairness: bool
 
     name: str = "contraction"
-
-    tags: List[str] = [ROBUSTNESS_TAG]
 
     def __init__(self):
         self.contraction_map: Dict[str, str] = CONTRACTION_MAP
@@ -115,7 +115,7 @@ class ContractionPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return ContractionPerturbation.Description(self.name)
+        return ContractionPerturbation.Description(name=self.name, robustness=True, fairness=False)
 
     def contract(self, sentence: str) -> str:
         reverse_contraction_pattern = re.compile(
@@ -153,17 +153,17 @@ class ExpansionPerturbation(Perturbation):
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
         name: str
+        robustness: bool
+        fairness: bool
 
     name: str = "expansion"
-
-    tags: List[str] = [ROBUSTNESS_TAG]
 
     def __init__(self):
         self.contraction_map: Dict[str, str] = CONTRACTION_MAP
 
     @property
     def description(self) -> PerturbationDescription:
-        return ExpansionPerturbation.Description(self.name)
+        return ExpansionPerturbation.Description(name=self.name, robustness=True, fairness=False)
 
     def expand_contractions(self, sentence):
         contraction_pattern = re.compile(

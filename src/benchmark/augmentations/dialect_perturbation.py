@@ -8,7 +8,7 @@ from typing import Dict, Optional, List
 
 from benchmark.scenario import Instance
 from common.general import match_case, ensure_file_downloaded
-from .perturbation_description import PerturbationDescription, FAIRNESS_TAG
+from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
@@ -17,9 +17,6 @@ class DialectPerturbation(Perturbation):
 
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "dialect"
-
-    """ Short unique identifier of the perturbation (e.g., extra_space) """
-    tags: List[str] = [FAIRNESS_TAG]
 
     """ Output path to store external files and folders """
     OUTPUT_PATH = os.path.join("benchmark_output", "perturbations", name)
@@ -49,6 +46,8 @@ class DialectPerturbation(Perturbation):
         """ Description for the DialectPerturbation class. """
 
         name: str
+        robustness: bool
+        fairness: bool
         prob: float
         source_class: str
         target_class: str
@@ -97,7 +96,13 @@ class DialectPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
         return DialectPerturbation.Description(
-            self.name, self.prob, self.source_class, self.target_class, self.mapping_file_path
+            name=self.name,
+            robustness=False,
+            fairness=True,
+            prob=self.prob,
+            source_class=self.source_class,
+            target_class=self.target_class,
+            mapping_file_path=self.mapping_file_path,
         )
 
     def retrieve_mapping_dict(self) -> str:

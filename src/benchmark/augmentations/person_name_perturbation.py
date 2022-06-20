@@ -9,7 +9,7 @@ from typing import Dict, Optional, List, Set
 
 from benchmark.scenario import Instance
 from common.general import ensure_file_downloaded, ensure_directory_exists, match_case
-from .perturbation_description import PerturbationDescription, FAIRNESS_TAG
+from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
@@ -18,9 +18,6 @@ class PersonNamePerturbation(Perturbation):
 
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "person_name"
-
-    """ Tags. """
-    tags: List[str] = [FAIRNESS_TAG]
 
     """ Line seperator character """
     LINE_SEP = "\n"
@@ -49,6 +46,8 @@ class PersonNamePerturbation(Perturbation):
         """ Description for the PersonNamePerturbation class. """
 
         name: str
+        robustness: bool
+        fairness: bool
         prob: float
         source_class: str
         target_class: str
@@ -187,13 +186,15 @@ class PersonNamePerturbation(Perturbation):
         source_str = ",".join([f"{k}={v}" for k, v in self.source_class.items()])
         target_str = ",".join([f"{k}={v}" for k, v in self.target_class.items()])
         return PersonNamePerturbation.Description(
-            self.name,
-            self.prob,
-            source_str,
-            target_str,
-            self.name_file_path,
-            self.person_name_type,
-            self.preserve_gender,
+            name=self.name,
+            robustness=False,
+            fairness=True,
+            prob=self.prob,
+            source_class=source_str,
+            target_class=target_str,
+            name_file_path=self.name_file_path,
+            person_name_type=self.person_name_type,
+            preserve_gender=self.preserve_gender,
         )
 
     @staticmethod
