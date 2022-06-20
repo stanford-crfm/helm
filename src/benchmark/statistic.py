@@ -12,6 +12,7 @@ class Stat:
     name: MetricName
     count: int = 0
     sum: float = 0
+    mean: float = 0
     sum_squared: float = 0
     # We don't set these to +infinity/-infinity because those don't serialize to JSON well.
     min: Optional[float] = None
