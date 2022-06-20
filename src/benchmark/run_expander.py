@@ -239,6 +239,22 @@ def gender(
 # Then we will create two RunSpecs:
 # - r1: with perturbations [a, b]
 # - r2: with perturbations [c, d, e]
+ROBUSTNESS_PERTURBATION_SPECS = {"synonym": [synonym(prob=0.5)], "typo": [typo(prob=0.1)]}
+
+FAIRNESS_PERTURBATION_SPECS = {
+    "dialect": [dialect(prob=1.0, source_class="SAE", target_class="AAVE")],
+    "gender_pronouns": [gender(mode="pronouns", prob=1.0, source_class="male", target_class="female")],
+    "person_name": [
+        person_name(
+            prob=1.0,
+            source_class={"race": "white_american"},
+            target_class={"race": "black_american"},
+            person_name_type="first_name",
+            preserve_gender=True,
+        ),
+    ],
+}
+
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     # Robustness
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
@@ -363,46 +379,9 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             gender(mode="pronouns", prob=1.0, source_class="male", target_class="female")
         ]
     },
-    "all": {
-        "all": [
-            misspelling(prob=0.20),
-            space(max_spaces=3),
-            lower(),
-            *contract_and_expand(),
-            typo(prob=0.1),
-            synonym(prob=0.5),
-        ]
-    },
-    # Robustness and Fairness:
-    # For each, choose
-    # - robustness (contains multiple perturbations)
-    #  * easy (output is a valid sentence)
-    #  * hard (output is typo ridden, etc.)
-    # - fairness (contains multiple perturbations)
-    #  * "dialect_deterministic"
-    #  * race names
-    #  * gender names
-    #
-    # TODO: add tags, so that we can have calculate worst case metric
-    #       https://github.com/stanford-crfm/benchmarking/issues/524
-    # TODO: look at results and finalize this list
-    "canonical": {
-        "all": [
-            # Robustness
-            synonym(prob=0.5),  # Easy
-            typo(prob=0.1),  # Hard
-            # Fairness
-            dialect(prob=1.0, source_class="SAE", target_class="AAVE"),
-            gender(mode="pronouns", prob=1.0, source_class="male", target_class="female"),
-            person_name(
-                prob=0.5,
-                source_class={"race": "white_american"},
-                target_class={"race": "black_american"},
-                person_name_type="first_name",
-                preserve_gender=True,
-            ),
-        ]
-    },
+    "robustness": ROBUSTNESS_PERTURBATION_SPECS,
+    "fairness": FAIRNESS_PERTURBATION_SPECS,
+    "canonical": {**ROBUSTNESS_PERTURBATION_SPECS, **FAIRNESS_PERTURBATION_SPECS},
 }
 
 
@@ -421,6 +400,9 @@ class DataAugmentationRunExpander(RunExpander):
 
     name = "data_augmentation"
 
+    """ List of perturbations for which the references should be perturbed. """
+    PERTURB_REFERENCES = ["contrast_set", "dialect", "person_name", "gender"]
+
     def __init__(self, value):
         """`value` is a comma-separated list of perturbations."""
         self.value = value
@@ -436,7 +418,7 @@ class DataAugmentationRunExpander(RunExpander):
         def create_run_spec(aug_name: str, perturbation_specs: List[PerturbationSpec]) -> RunSpec:
             data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
                 perturbation_specs=perturbation_specs,
-                should_perturb_references=aug_name == "contrast_sets",
+                should_perturb_references=any(p in aug_name for p in self.PERTURB_REFERENCES),
                 # Always include original and perturbed instances together so that
                 # we can compute the normal and robustness metrics in the same run.
                 should_augment_train_instances=False,

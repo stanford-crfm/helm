@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-
 import os
+
 import nltk
 from nltk.corpus import wordnet
 from nltk.tokenize.treebank import TreebankWordDetokenizer
@@ -12,7 +12,6 @@ from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
-@dataclass
 class SynonymPerturbation(Perturbation):
     """
     Synonyms. For implementation details, see
@@ -31,8 +30,7 @@ class SynonymPerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        name: str
-        prob: float
+        prob: float = 0.0
 
     name: str = "SynonymPerturbation"
 
@@ -61,7 +59,7 @@ class SynonymPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return SynonymPerturbation.Description(self.name, self.prob)
+        return SynonymPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
 
     def synonyms_substitute(self, text: str) -> str:
         upos_wn_dict = {

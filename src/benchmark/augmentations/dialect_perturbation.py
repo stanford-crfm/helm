@@ -12,7 +12,6 @@ from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
-@dataclass
 class DialectPerturbation(Perturbation):
     """ Individual fairness perturbation for dialect. """
 
@@ -46,11 +45,10 @@ class DialectPerturbation(Perturbation):
     class Description(PerturbationDescription):
         """ Description for the DialectPerturbation class. """
 
-        name: str
-        prob: float
-        source_class: str
-        target_class: str
-        mapping_file_path: Optional[str]
+        prob: float = 0.0
+        source_class: str = ""
+        target_class: str = ""
+        mapping_file_path: Optional[str] = None
 
     def __init__(self, prob: float, source_class: str, target_class: str, mapping_file_path: Optional[str] = None):
         """ Initialize the dialect perturbation.
@@ -95,7 +93,12 @@ class DialectPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
         return DialectPerturbation.Description(
-            self.name, self.prob, self.source_class, self.target_class, self.mapping_file_path
+            name=self.name,
+            fairness=True,
+            prob=self.prob,
+            source_class=self.source_class,
+            target_class=self.target_class,
+            mapping_file_path=self.mapping_file_path,
         )
 
     def retrieve_mapping_dict(self) -> str:

@@ -16,10 +16,8 @@ from common.authentication import Authentication
 from common.general import parse_hocon, write
 from common.hierarchical_logger import hlog, htrack
 from benchmark.statistic import Stat
-from benchmark.augmentations.perturbation_description import PerturbationDescription
 from benchmark.run import Run, run_benchmarking, add_run_args, validate_args, LATEST_SYMLINK
 from benchmark.runner import RunSpec
-from benchmark.metric import MetricName
 from proxy.remote_service import add_service_args, create_authentication
 from proxy.models import ALL_MODELS, Model
 
@@ -220,8 +218,6 @@ class Summarizer:
         with open(stats_file_path, "r") as f:
             j = json.load(f)
             for stat in j:
-                stat["name"]["perturbation"] = PerturbationDescription(stat["name"]["perturbation"])
-                stat["name"] = MetricName(**stat["name"])
                 stat = dacite.from_dict(Stat, stat)
                 stats.append(stat)
         return stats

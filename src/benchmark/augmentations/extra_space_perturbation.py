@@ -4,7 +4,6 @@ from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
 
 
-@dataclass
 class ExtraSpacePerturbation(Perturbation):
     """
     A toy perturbation that replaces existing spaces in the text with
@@ -13,8 +12,7 @@ class ExtraSpacePerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        name: str
-        num_spaces: int
+        num_spaces: int = 0
 
     name: str = "extra_space"
 
@@ -23,7 +21,7 @@ class ExtraSpacePerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return ExtraSpacePerturbation.Description(self.name, self.num_spaces)
+        return ExtraSpacePerturbation.Description(name=self.name, robustness=True, num_spaces=self.num_spaces)
 
     def perturb(self, text: str) -> str:
         return text.replace(" ", " " * self.num_spaces)

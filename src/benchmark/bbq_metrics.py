@@ -60,7 +60,9 @@ class BBQMetric(Metric):
         self.disamb_non_target_and_non_neg = 0
         self.disamb_target_and_neg = 0
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
+    ) -> MetricResult:
         adapter_spec = scenario_state.adapter_spec
 
         acc = Stat(MetricName("accuracy"))
