@@ -64,15 +64,3 @@ class TestOpenAITokenCounter:
 
         # Verified against https://beta.openai.com/tokenizer. Prompt + completions = 51 + 32.
         assert self.token_counter.count_tokens(request, completions) == 51 + 32
-
-    def test_estimate_tokens(self):
-        request = Request(prompt=TestOpenAITokenCounter.TEST_PROMPT, num_completions=3, max_tokens=100)
-
-        # Prompt + max number of tokens from completions = 51 + 3 * 100
-        assert self.token_counter.estimate_tokens(request) == 51 + 3 * 100
-
-    def test_estimate_tokens_with_echo_prompt(self):
-        request = Request(prompt=TestOpenAITokenCounter.TEST_PROMPT, echo_prompt=True, num_completions=1, max_tokens=0,)
-
-        # Prompt + Prompt (echoed) = 51 + 51
-        assert self.token_counter.estimate_tokens(request) == 51 + 51

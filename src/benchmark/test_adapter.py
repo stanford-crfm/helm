@@ -5,7 +5,6 @@ from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
 from .run_specs import get_scenario_spec1, get_adapter_spec1
 from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, ADAPT_MULTIPLE_CHOICE, Adapter, AdapterSpec
 from proxy.remote_service import RemoteService
-from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from common.authentication import Authentication
 
 
@@ -22,9 +21,6 @@ def test_adapter1():
     # For each trial, instance and reference (+ 1 for free-form generation).
     num_instances = len(scenario_state.instances)
     assert num_instances * adapter_spec.num_train_trials == len(scenario_state.request_states)
-
-    # TODO: write tests to check the contents of the actual prompt
-    #       https://github.com/stanford-crfm/benchmarking/issues/50
 
 
 def test_construct_prompt():
@@ -68,12 +64,11 @@ def test_construct_language_modeling_prompt():
         method=ADAPT_LANGUAGE_MODELING, input_prefix="", model=model, output_prefix="", max_tokens=0,
     )
     adapter = Adapter(adapter_spec, get_test_adapter_service())
-    tokenizer = TokenizerFactory.get_tokenizer(model)
 
     # The tokens translate to: '�Excuse me�'
     conditioning_tokens, pred_tokens = [110, 40127], [1904, 502, 447]
     prompt, num_conditioning_tokens = adapter.construct_language_modeling_prompt(
-        conditioning_tokens=conditioning_tokens, pred_tokens=pred_tokens, tokenizer=tokenizer, max_req_len=5, text=""
+        conditioning_tokens=conditioning_tokens, pred_tokens=pred_tokens, max_req_len=5, text=""
     )
 
     # Ensure the prompt is correct
@@ -143,14 +138,13 @@ def test_fits_tokens_within_context_window():
         method=ADAPT_LANGUAGE_MODELING, input_prefix="", model=model, output_prefix="", max_tokens=0,
     )
     adapter = Adapter(adapter_spec, get_test_adapter_service())
-    tokenizer = TokenizerFactory.get_tokenizer(model)
 
     # The tokens translate to: '<|endoftext|>The the the the ... the the'
     # There are 1 `conditioning_token` and 2049 `pred_tokens`. Since the `max_request_length`
     # of GPT-3 is 2049, calling `fits_tokens_within_context_window` will remove the last `pred_token`
     conditioning_tokens, pred_tokens = [50256], [464] + [262] * 2048
     prompt, pred_tokens = adapter.fits_tokens_within_context_window(
-        conditioning_tokens, pred_tokens, tokenizer, tokenizer.max_request_length
+        conditioning_tokens, pred_tokens, adapter.tokenizer.max_request_length
     )
 
     # Ensure the prompt is correct

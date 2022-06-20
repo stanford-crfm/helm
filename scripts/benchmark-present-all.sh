@@ -1,5 +1,5 @@
 : '
-Run RunSpecs in parallel by models using benchmark-present.
+Run RunSpecs in parallel by models using benchmark-present. To bypass the proxy server, append --local.
 
 Usage:
 

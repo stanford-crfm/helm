@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from common.request import Request, Sequence
+from proxy.huggingface_client import HuggingFaceClient
 from .ai21_token_counter import AI21TokenCounter
 from .free_token_counter import FreeTokenCounter
 from .gooseai_token_counter import GooseAITokenCounter
@@ -11,15 +12,16 @@ from .token_counter import TokenCounter
 class AutoTokenCounter(TokenCounter):
     """Automatically count tokens based on the organization."""
 
-    def __init__(self):
+    def __init__(self, huggingface_client: HuggingFaceClient):
         self.token_counters: Dict[str, TokenCounter] = {}
+        self.huggingface_client: HuggingFaceClient = huggingface_client
 
     def get_token_counter(self, organization: str) -> TokenCounter:
         """Return a token counter based on the organization."""
         token_counter = self.token_counters.get(organization)
         if token_counter is None:
             if organization == "openai":
-                token_counter = OpenAITokenCounter()
+                token_counter = OpenAITokenCounter(self.huggingface_client)
             elif organization == "ai21":
                 token_counter = AI21TokenCounter()
             elif organization == "gooseai":
@@ -35,10 +37,3 @@ class AutoTokenCounter(TokenCounter):
         """
         token_counter: TokenCounter = self.get_token_counter(request.model_organization)
         return token_counter.count_tokens(request, completions)
-
-    def estimate_tokens(self, request: Request) -> int:
-        """
-        Estimate the number of tokens for a given request based on the organization.
-        """
-        token_counter: TokenCounter = self.get_token_counter(request.model_organization)
-        return token_counter.estimate_tokens(request)

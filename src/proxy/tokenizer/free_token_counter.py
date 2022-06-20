@@ -10,7 +10,3 @@ class FreeTokenCounter(TokenCounter):
     def count_tokens(self, request: Request, completions: List[Sequence]) -> int:
         """No need to count tokens, since it's free. Return 0."""
         return 0
-
-    def estimate_tokens(self, request: Request) -> int:
-        """No need to estimate tokens, since it's free. Return 0."""
-        return 0

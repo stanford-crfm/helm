@@ -50,7 +50,7 @@ class ServerService(Service):
             credentials = {}
 
         self.client = AutoClient(credentials, cache_path)
-        self.token_counter = AutoTokenCounter()
+        self.token_counter = AutoTokenCounter(self.client.huggingface_client)
         self.accounts = Accounts(accounts_path)
         self.perspective_api_client = PerspectiveAPIClient(
             api_key=credentials["perspectiveApiKey"] if "perspectiveApiKey" in credentials else "",

@@ -18,14 +18,3 @@ class AI21TokenCounter(TokenCounter):
         20 tokens. In total this request will consume 5+15+20=40 generated tokens."
         """
         return sum(len(sequence.tokens) for sequence in completions)
-
-    def estimate_tokens(self, request: Request) -> int:
-        """
-        Estimate the number of tokens given a request. We do not need to account for the number
-        of tokens in the prompt itself (https://studio.ai21.com/docs/calculating-usage).
-
-        Therefore, estimate using the following formula:
-
-            num_completions * max_tokens
-        """
-        return request.num_completions * request.max_tokens

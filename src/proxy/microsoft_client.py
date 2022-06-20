@@ -28,7 +28,7 @@ class MicrosoftClient(Client):
     all tokens have been generated."
     """
 
-    def __init__(self, api_key: str, cache_path: str, hf_client: HuggingFaceClient):
+    def __init__(self, api_key: str, cache_path: str, huggingface_client: HuggingFaceClient):
         # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
         class EngineAPIResource(engine_api_resource.EngineAPIResource):
             @classmethod
@@ -42,7 +42,7 @@ class MicrosoftClient(Client):
         self.completion_attributes = (EngineAPIResource,) + ORIGINAL_COMPLETION_ATTRIBUTES[1:]
 
         self.cache = Cache(cache_path)
-        self.hf_client: HuggingFaceClient = hf_client
+        self.huggingface_client: HuggingFaceClient = huggingface_client
 
         # The Microsoft Turing server only allows a single request at a time, so acquire a
         # process-safe lock before making a request.
@@ -125,7 +125,7 @@ class MicrosoftClient(Client):
             # }
             # Since the log probs and tokens are not available to us just tokenize the completion using the tokenizer
             completion_text: str = raw_completion["text"]
-            tokenization_result: TokenizationRequestResult = self.hf_client.tokenize(
+            tokenization_result: TokenizationRequestResult = self.huggingface_client.tokenize(
                 TokenizationRequest(completion_text)
             )
             tokens: List[Token] = [

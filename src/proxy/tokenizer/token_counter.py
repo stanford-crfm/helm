@@ -5,18 +5,11 @@ from common.request import Sequence, Request
 
 
 class TokenCounter(ABC):
-    """Counts and estimates tokens given `Request` and completions."""
+    """Counts the number of tokens used given `Request` and completions."""
 
     @abstractmethod
     def count_tokens(self, request: Request, completions: List[Sequence]) -> int:
         """
         Counts the total number of tokens given a request and completions.
-        """
-        pass
-
-    @abstractmethod
-    def estimate_tokens(self, request: Request) -> int:
-        """
-        Given a request, roughly estimate the number of tokens.
         """
         pass

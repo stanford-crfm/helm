@@ -1,8 +1,3 @@
-from typing import Optional
-
-from transformers import GPT2TokenizerFast
-
-from common.hierarchical_logger import htrack_block
 from proxy.models import get_model, get_model_names_with_tag, Model, WIDER_CONTEXT_WINDOW_TAG
 from .ai21_tokenizer import AI21Tokenizer
 from .anthropic_tokenizer import AnthropicTokenizer
@@ -16,9 +11,6 @@ from .tokenizer_service import TokenizerService
 
 
 class TokenizerFactory:
-    # The underlying HuggingFace tokenizer
-    gpt2_tokenizer_fast: Optional[GPT2TokenizerFast] = None
-
     @staticmethod
     def get_tokenizer(model_name_or_organization: str, service: TokenizerService) -> Tokenizer:
         """
@@ -57,15 +49,3 @@ class TokenizerFactory:
             raise ValueError(f"Invalid model name or organization: {model_name_or_organization}")
 
         return tokenizer
-
-    @staticmethod
-    def get_gpt2_tokenizer_fast() -> GPT2TokenizerFast:
-        """
-        Checks if the underlying GPT-2 tokenizer is cached. Creates the tokenizer if it's not cached.
-        Returns the tokenizer.
-        """
-        if TokenizerFactory.gpt2_tokenizer_fast is None:
-            # Weights are cached at ~/.cache/huggingface/transformers.
-            with htrack_block("Creating GPT2TokenizerFast with Hugging Face Transformers"):
-                TokenizerFactory.gpt2_tokenizer_fast = GPT2TokenizerFast.from_pretrained("gpt2")
-        return TokenizerFactory.gpt2_tokenizer_fast
