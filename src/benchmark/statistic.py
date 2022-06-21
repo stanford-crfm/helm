@@ -1,6 +1,7 @@
-from typing import Dict, List, Optional
 from dataclasses import dataclass, field
+import math
 import random
+from typing import Dict, List, Optional
 
 from .metric_name import MetricName
 
@@ -12,13 +13,14 @@ class Stat:
     name: MetricName
     count: int = 0
     sum: float = 0
-    mean: float = 0
     sum_squared: float = 0
-    # We don't set these to +infinity/-infinity because those don't serialize to JSON well.
     min: Optional[float] = None
     max: Optional[float] = None
-    values_buffer_size: int = 300
+    mean: Optional[float] = None
+    variance: Optional[float] = None
+    stddev: Optional[float] = None
     values: List[float] = field(default_factory=list)
+    values_buffer_size: int = 300
 
     def _add_to_values(self, x: float):
         if len(self.values) < self.values_buffer_size:
@@ -28,6 +30,7 @@ class Stat:
             index_to_remove = random.randint(0, self.values_buffer_size)
             if index_to_remove < self.values_buffer_size:
                 self.values[index_to_remove] = x
+        self.update_mean_stddev()
 
     def add(self, x) -> "Stat":
         # Skip Nones for statistic aggregation.
@@ -68,17 +71,19 @@ class Stat:
         else:
             return f"{self.name}[(0)]"
 
-    @property  # type: ignore
-    def mean(self):
-        if self.count == 0:
-            return None
-        return self.sum / self.count
+    def compute_mean(self) -> Optional[float]:
+        return self.sum / self.count if self.count else None
 
-    @property
-    def stddev(self):
-        if self.count == 0:
-            return None
-        return self.sum_squared / self.count - self.mean ** 2
+    def compute_variance(self) -> Optional[float]:
+        return self.sum_squared / self.count - self.mean ** 2 if self.count and self.mean is not None else None
+
+    def compute_stddev(self) -> Optional[float]:
+        return math.sqrt(self.variance) if self.variance is not None else None
+
+    def update_mean_stddev(self):
+        self.mean = self.compute_mean()
+        self.variance = self.compute_variance()
+        self.stddev = self.compute_stddev()
 
     def take_mean(self):
         """Return a version of the stat that only has the mean."""
