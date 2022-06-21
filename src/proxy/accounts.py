@@ -115,24 +115,37 @@ class Accounts:
     `path`: Path to sqlite file where the information about accounts is stored.
     """
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, root_mode=False):
         self.path: str = path
+        self.root_mode: bool = root_mode
 
     def authenticate(self, auth: Authentication):
         """Make sure this is a valid API key. Throw exception if not."""
+        if self.root_mode:
+            return
+
         with SqliteDict(self.path) as cache:
             self._authenticate_with_cache(auth, cache)
 
     def _authenticate_with_cache(self, auth: Authentication, sqlite_cache: Dict):
+        if self.root_mode:
+            return
+
         if auth.api_key not in sqlite_cache:
             raise AuthenticationError(f"Invalid API key {auth.api_key}")
 
     def check_admin(self, auth: Authentication):
         """Make sure this is an admin account. Throw exception if not."""
+        if self.root_mode:
+            return
+
         with SqliteDict(self.path) as cache:
             self._check_admin_with_cache(auth, cache)
 
     def _check_admin_with_cache(self, auth: Authentication, sqlite_cache: Dict):
+        if self.root_mode:
+            return
+
         self._authenticate_with_cache(auth, sqlite_cache)
 
         account: Account = from_dict(Account, sqlite_cache[auth.api_key])
@@ -286,6 +299,9 @@ class Accounts:
             usage.update_period(period)
             if not usage.can_use():
                 raise InsufficientQuotaError(f"{granularity} quota ({usage.quota}) for {model_group} already used up")
+
+        if self.root_mode:
+            return
 
         with SqliteDict(self.path) as cache:
             account: Account = from_dict(Account, cache[api_key])

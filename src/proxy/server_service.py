@@ -37,7 +37,7 @@ class ServerService(Service):
     Main class that supports various functionality for the server.
     """
 
-    def __init__(self, base_path: str = "."):
+    def __init__(self, base_path: str = ".", root_mode=False):
         credentials_path = os.path.join(base_path, CREDENTIALS_FILE)
         cache_path = os.path.join(base_path, CACHE_DIR)
         ensure_directory_exists(cache_path)
@@ -51,7 +51,7 @@ class ServerService(Service):
 
         self.client = AutoClient(credentials, cache_path)
         self.token_counter = AutoTokenCounter(self.client.huggingface_client)
-        self.accounts = Accounts(accounts_path)
+        self.accounts = Accounts(accounts_path, root_mode=root_mode)
         self.perspective_api_client = PerspectiveAPIClient(
             api_key=credentials["perspectiveApiKey"] if "perspectiveApiKey" in credentials else "",
             cache_path=cache_path,
@@ -78,7 +78,7 @@ class ServerService(Service):
         #       https://github.com/stanford-crfm/benchmarking/issues/56
 
         self.accounts.authenticate(auth)
-        model_group = get_model_group(request.model)
+        model_group: str = get_model_group(request.model)
         # Make sure we can use
         self.accounts.check_can_use(auth.api_key, model_group)
 
