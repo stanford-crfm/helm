@@ -7,13 +7,13 @@ from .metric_service import MetricService
 from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
 from .scenario import Instance
-from .commonsense_qa_scenario import CLM_CORRECT_TAG
+from .commonsense_scenario import CLM_CORRECT_TAG
 from .statistic import Stat, merge_stat
 
 
-class CommonSenseQAMetric(Metric):
+class CommonSenseMetric(Metric):
     """
-    Metrics for CommonsenseQA datasets using causal language modeling
+    Metrics for Commonsense datasets using causal language modeling
     TODO: Make it available (multiple requests per instance + calibration)
     in Adapter beyond the commonsense scenarios.
     """
