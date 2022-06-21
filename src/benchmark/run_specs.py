@@ -941,7 +941,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
+        input_prefix="Question: " if mode == "closedbook" else "",
         output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,

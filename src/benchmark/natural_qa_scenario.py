@@ -1,7 +1,6 @@
 import json
 import os
 import re
-import gzip
 import html
 import random
 from common.hierarchical_logger import htrack_block, hlog
@@ -182,12 +181,13 @@ class NaturalQAScenario(Scenario):
             elif self.context_mode == "openbook-longans":
                 context = long_answers[ans_idx]
 
-            prompt += f"Context: {context}\n\n"
+            prompt += f"Passage: {context}\n\n"
+            prompt += "Question: "
 
         question = sample["question_text"].capitalize()
         if question[-1] != "?":
             question += "?"
-        prompt += f"Question: {question}"
+        prompt += f"{question}"
 
         if split == "train":
             answers = short_answers[ans_idx : ans_idx + 1]
@@ -211,7 +211,7 @@ class NaturalQAScenario(Scenario):
         all_samples: List[dict] = []
 
         with htrack_block(f"Reading {target_file}"):
-            with gzip.open(target_file, "rb") as fp:
+            with open(target_file, "rb") as fp:
                 for line in fp:
                     raw = json.loads(line)
                     # Only keep dataset samples with at least one short answer
