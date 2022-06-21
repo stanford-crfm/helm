@@ -125,6 +125,10 @@ class Runner:
             for stat in stats:
                 hlog(stat)
 
+        if self.skip_instances:
+            hlog("skip_instances was True. Skipping writing results out.")
+            return
+
         # Output benchmarking information and results to files
         write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict(run_spec), indent=2))
 
