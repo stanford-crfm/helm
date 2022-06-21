@@ -127,7 +127,6 @@ def get_generative_harms_metrics() -> List[MetricSpec]:
 
 def get_summarization_metrics() -> List[MetricSpec]:
     return get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}) + get_generative_harms_metrics()
-    # TODO: Add faithfulness metrics later
 
 
 def get_srn_metrics() -> List[MetricSpec]:
@@ -294,7 +293,7 @@ def get_bold_spec(subject: str) -> RunSpec:
         input_prefix="",
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=10,
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,  # TODO: Rishi - setting for 1 to monitor token use; @Ryan please follow-up on this
         model="openai/davinci",
         temperature=0.9,  # TODO: Setting based on conversation with John Hewitt; @Ryan please better justify
@@ -887,7 +886,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             model="openai/text-davinci-001",
             stop_sequences=["\n"],
         )
-        metrics = get_disinformation_metrics(args={"name": "reiteration"})
+        metrics = get_generative_harms_metrics() + get_disinformation_metrics(args={"name": "reiteration"})
         scenario_name += f",topic={topic}"
     elif capability == "wedging":
         adapter_spec = AdapterSpec(
@@ -1170,7 +1169,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_xsum:temperature={temperature}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_summarization_metrics(),  # TODO: Add faithfulness metrics later
+        metrics=get_summarization_metrics(),
     )
 
 
@@ -1205,7 +1204,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_xsum:temperature={temperature}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_summarization_metrics(),  # TODO: Add faithfulness metrics later
+        metrics=get_summarization_metrics(),
     )
 
 
@@ -1235,7 +1234,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_cnndm:temperature={temperature}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_summarization_metrics(),  # TODO: Add faithfulness metrics later
+        metrics=get_summarization_metrics(),
     )
 
 
