@@ -14,7 +14,7 @@ from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenario import ScenarioSpec
 
-from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
+from .commonsense_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .msmarco_scenario import MSMARCOScenario
 from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .raft_scenario import get_raft_instructions
@@ -63,8 +63,8 @@ def get_bbq_metrics() -> List[MetricSpec]:
     ]
 
 
-def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
+def get_commonsense_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.commonsense_metrics.CommonSenseMetric", args=args)]
 
 
 def get_msmarco_metrics(task: str, track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:
@@ -356,10 +356,9 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
     )
 
 
-def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
+def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.commonsense_qa_scenario.CommonSenseQAScenario",
-        args={"dataset": dataset, "method": method,},
+        class_name="benchmark.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset, "method": method,},
     )
 
     if method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
@@ -377,7 +376,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             stop_sequences=["\n"],
         )
         run_spec = RunSpec(
-            name=f"commonsense_qa:dataset={dataset},method={method}",
+            name=f"commonsense:dataset={dataset},method={method}",
             scenario=scenario,
             adapter_spec=adapter_spec,
             metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -398,13 +397,13 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             temperature=0.0,
         )
         run_spec = RunSpec(
-            name=f"commonsense_qa:dataset={dataset},method={method}",
+            name=f"commonsense:dataset={dataset},method={method}",
             scenario=scenario,
             adapter_spec=adapter_spec,
-            metrics=get_commonsense_qa_metrics({"n_choice": n_choice}),
+            metrics=get_commonsense_metrics({"n_choice": n_choice}),
         )
     else:
-        raise ValueError(f"Unknown commonsense QA method: {method}")
+        raise ValueError(f"Unknown commonsense method: {method}")
 
     return run_spec
 
@@ -546,6 +545,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
+        num_outputs=1,
         max_tokens=20,
         input_prefix="Rules:\n",
         output_prefix="",
@@ -597,6 +597,7 @@ def get_raft_spec(subset: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
+        num_outputs=1,
         max_tokens=30,  # at most ~50 characters per label
     )
 
@@ -942,7 +943,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
+        input_prefix="Question: " if mode == "closedbook" else "",
         output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
@@ -1051,6 +1052,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
+        num_outputs=1,
         max_tokens=50,  # answer upperbounded by 50 tokens
         input_prefix="",
         output_prefix="| Target: ",
@@ -1271,7 +1273,7 @@ def get_legal_support_spec() -> RunSpec:
         temperature=0.0,
         max_train_instances=3,  # TODO: @Neel - Justify
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=10,  # TODO: @Neel - Justify
+        num_outputs=1,
         stop_sequences=["\n"],
     )
 
@@ -1347,7 +1349,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "mmlu": get_mmlu_spec,
     "msmarco": get_msmarco_spec,
     "narrative_qa": get_narrativeqa_spec,
-    "commonsense_qa": get_commonsense_qa_spec,
+    "commonsense": get_commonsense_spec,
     "lsat_qa": get_lsat_qa_spec,
     "quac": get_quac_spec,
     "wikifact": get_wikifact_spec,

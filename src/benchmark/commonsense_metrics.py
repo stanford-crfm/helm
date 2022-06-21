@@ -7,13 +7,13 @@ from .metric_service import MetricService
 from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
 from .scenario import Instance
-from .commonsense_qa_scenario import CLM_CORRECT_TAG
+from .commonsense_scenario import CLM_CORRECT_TAG
 from .statistic import Stat, merge_stat
 
 
-class CommonSenseQAMetric(Metric):
+class CommonSenseMetric(Metric):
     """
-    Metrics for CommonsenseQA datasets using causal language modeling
+    Metrics for Commonsense datasets using causal language modeling
     TODO: Make it available (multiple requests per instance + calibration)
     in Adapter beyond the commonsense scenarios.
     """
@@ -106,10 +106,12 @@ class CommonSenseQAMetric(Metric):
         answer = choice_labels.index(True)
 
         # Original: sum of token logprob in answer given context / num of tokens in answer
-        original_logprobs = [stats[i][0].mean / stats[i][1].mean for i in range(0, self.n_request_per_instance, 2)]
+        original_logprobs = [
+            stats[i][0].mean / stats[i][1].mean for i in range(0, self.n_request_per_instance, 2)  # type: ignore
+        ]
         # Calibration: sum of token logprob in answer given context - sum of token logprob in answer without context
         calibrated_logprobs = [
-            stats[i][0].mean - stats[i + 1][0].mean for i in range(0, self.n_request_per_instance, 2)
+            stats[i][0].mean - stats[i + 1][0].mean for i in range(0, self.n_request_per_instance, 2)  # type: ignore
         ]
         return [
             Stat(MetricName("original_acc")).add(float(max(original_logprobs) == original_logprobs[answer])),
