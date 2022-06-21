@@ -13,18 +13,21 @@ class Perturbation(ABC):
     # Unique name to describe perturbation
     name: str
 
+    # Whether to perturb references
+    should_perturb_references: bool = False
+
     @property
     def description(self) -> PerturbationDescription:
         """Description of the perturbation."""
         return PerturbationDescription(name=self.name)
 
-    def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
+    def apply(self, instance: Instance) -> Instance:
         """
         Generates a new Instance by perturbing the input, tagging the Instance and perturbing the References,
         if should_perturb_references is true.
         """
         references: Sequence[Reference] = instance.references
-        if should_perturb_references:
+        if self.should_perturb_references:
             references = [self.perturb_reference(reference) for reference in references]
 
         # Don't modify `id` of `Instance` here.
