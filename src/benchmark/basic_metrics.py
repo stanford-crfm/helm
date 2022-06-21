@@ -21,7 +21,7 @@ from proxy.tokenizer.tokenizer_factory import TokenizerFactory
 from proxy.tokenizer.tokenizer_service import TokenizerService
 from .augmentations.perturbation_description import PerturbationDescription
 from .adapter import AdapterSpec, RequestState
-from .math_scenario import is_equiv
+from .math_scenario import is_equiv, is_equiv_chain_of_thought
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -92,7 +92,7 @@ def f1_score(gold: str, pred: str) -> float:
     return ret
 
 
-def exact_match_indicator(gold: str, pred: str, indicator: str = "#") -> float:
+def exact_match_indicator(gold: str, pred: str, indicator: str = " ") -> float:
     """
     Exact match, allowing for some preceding context.
     For example, the following two answers are considered matching:
@@ -334,6 +334,7 @@ class BasicMetric(Metric):
             "iou_set_match": iou_set_match,
             "f1_set_match": f1_set_match,
             "math_equiv": is_equiv,
+            "math_equiv_chain_of_thought": is_equiv_chain_of_thought,
             "code_eval_acc": code_eval,
             "pass": code_eval,
             "f1_score": f1_score,
@@ -501,7 +502,11 @@ class BasicMetric(Metric):
         ]
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
     ) -> List[Stat]:
         """Compute the reference metrics and language modeling metrics"""
         metrics = []
@@ -515,7 +520,11 @@ class BasicMetric(Metric):
         return metrics
 
     def evaluate_references(
-        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState], metric_service: MetricService
+        self,
+        adapter_spec: AdapterSpec,
+        reference_request_states: List[RequestState],
+        metric_service: MetricService,
+        eval_cache_path: str,
     ) -> List[Stat]:
         """
         Setup: for each reference, we have a model score (log probability) and whether it's correct.

@@ -122,7 +122,9 @@ class MultipleRequestMetrics(Metric):
         ]
         return request_state_groups
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
+    ) -> MetricResult:
         """ Compute and return the metrics for self.metric_names. """
         aggregated_stats_dict: Dict[MetricName, Stat] = {}
         per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}

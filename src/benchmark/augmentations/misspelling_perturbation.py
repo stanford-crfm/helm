@@ -13,7 +13,6 @@ from .perturbation_description import PerturbationDescription
 
 # The implementation below is based on the following list of common misspellings:
 # https://en.wikipedia.org/wiki/Wikipedia:Lists_of_common_misspellings/For_machines
-@dataclass
 class MisspellingPerturbation(Perturbation):
     """
     Replaces words randomly with common misspellings, from a list of common misspellings.
@@ -26,8 +25,7 @@ class MisspellingPerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        name: str
-        prob: float
+        prob: float = 0.0
 
     name: str = "misspellings"
 
@@ -45,7 +43,7 @@ class MisspellingPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return MisspellingPerturbation.Description(self.name, self.prob)
+        return MisspellingPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         assert instance.id is not None

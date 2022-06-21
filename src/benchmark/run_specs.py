@@ -14,8 +14,7 @@ from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenario import ScenarioSpec
 
-from .commonsense_qa_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
-from .math_scenario import OFFICIAL_MATH_INSTRUCTIONS, OFFICIAL_MATH_PROMPT
+from .commonsense_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .msmarco_scenario import MSMARCOScenario
 from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .raft_scenario import get_raft_instructions
@@ -64,8 +63,8 @@ def get_bbq_metrics() -> List[MetricSpec]:
     ]
 
 
-def get_commonsense_qa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.commonsense_qa_metrics.CommonSenseQAMetric", args=args)]
+def get_commonsense_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
+    return [MetricSpec(class_name="benchmark.commonsense_metrics.CommonSenseMetric", args=args)]
 
 
 def get_msmarco_metrics(task: str, track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:
@@ -122,8 +121,8 @@ def get_numeracy_metrics(run_solver: bool = False) -> List[MetricSpec]:
     return metrics
 
 
-def get_math_metrics() -> List[MetricSpec]:
-    metric_names = {"names": ["math_equiv"]}
+def get_math_metrics(use_chain_of_thought: bool = True) -> List[MetricSpec]:
+    metric_names = {"names": ["math_equiv_chain_of_thought" if use_chain_of_thought else "math_equiv"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
@@ -146,12 +145,10 @@ def get_disinformation_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
     if args is None:
         args = dict()
     return [
+        MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationHumanEvalMetrics", args={**args}),
+        MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "self_bleu"},),
         MetricSpec(
-            class_name="benchmark.disinformation_metrics.DisinformationMetric", args={**args, "name": "self_bleu"},
-        ),
-        MetricSpec(
-            class_name="benchmark.disinformation_metrics.DisinformationMetric",
-            args={**args, "name": "monte_carlo_entropy"},
+            class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "monte_carlo_entropy"},
         ),
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
@@ -359,10 +356,9 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
     )
 
 
-def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
+def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.commonsense_qa_scenario.CommonSenseQAScenario",
-        args={"dataset": dataset, "method": method,},
+        class_name="benchmark.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset, "method": method,},
     )
 
     if method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
@@ -380,7 +376,7 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             stop_sequences=["\n"],
         )
         run_spec = RunSpec(
-            name=f"commonsense_qa:dataset={dataset},method={method}",
+            name=f"commonsense:dataset={dataset},method={method}",
             scenario=scenario,
             adapter_spec=adapter_spec,
             metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -401,13 +397,13 @@ def get_commonsense_qa_spec(dataset: str, method: str) -> RunSpec:
             temperature=0.0,
         )
         run_spec = RunSpec(
-            name=f"commonsense_qa:dataset={dataset},method={method}",
+            name=f"commonsense:dataset={dataset},method={method}",
             scenario=scenario,
             adapter_spec=adapter_spec,
-            metrics=get_commonsense_qa_metrics({"n_choice": n_choice}),
+            metrics=get_commonsense_metrics({"n_choice": n_choice}),
         )
     else:
-        raise ValueError(f"Unknown commonsense QA method: {method}")
+        raise ValueError(f"Unknown commonsense method: {method}")
 
     return run_spec
 
@@ -549,6 +545,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
+        num_outputs=1,
         max_tokens=20,
         input_prefix="Rules:\n",
         output_prefix="",
@@ -567,10 +564,10 @@ def get_gsm_spec() -> RunSpec:
     # Create AdapterSpec based on the GSM8K paper: https://arxiv.org/pdf/2110.14168.pdf
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
-        output_prefix="",
+        input_prefix="Q: ",
+        output_prefix="A: ",
         num_train_trials=1,
-        max_train_instances=3,  # Due to limited context and long example length
+        max_train_instances=5,  # Due to limited context and long example length
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         model="openai/davinci",
         temperature=0.0,
@@ -600,6 +597,7 @@ def get_raft_spec(subset: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
+        num_outputs=1,
         max_tokens=30,  # at most ~50 characters per label
     )
 
@@ -612,8 +610,9 @@ def get_raft_spec(subset: str) -> RunSpec:
 
 
 def get_numeracy_spec(
-    relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: bool = False
+    relation_type: str = "linear", mode: str = "function", seed: str = "0", run_solver: str = "False"
 ) -> RunSpec:
+    run_solver: bool = True if run_solver == "True" else False  # type: ignore
     random_seed = int(seed)
     scenario = ScenarioSpec(
         class_name="benchmark.numeracy_scenario.NumeracyScenario",
@@ -651,41 +650,59 @@ def get_numeracy_spec(
         name=f"numeracy:relation_type={relation_type},mode={mode}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_numeracy_metrics(run_solver),
+        metrics=get_numeracy_metrics(run_solver),  # type: ignore
     )
 
 
-def get_math_spec(subject: str, level: str, use_official_prompt: bool = True) -> RunSpec:
+def get_math_spec(
+    subject: str, level: str, use_official_examples: str = "False", use_chain_of_thought: str = "False"
+) -> RunSpec:
+    use_official_examples: bool = use_official_examples == "True"  # type: ignore
+    use_chain_of_thought: bool = use_chain_of_thought == "True"  # type: ignore
+    if use_chain_of_thought:
+        assert not use_official_examples, "Cannot use official examples when use_chain_of_thought is True."
     scenario = ScenarioSpec(
-        class_name="benchmark.math_scenario.MATHScenario", args={"subject": subject, "level": level}
+        class_name="benchmark.math_scenario.MATHScenario",
+        args={
+            "subject": subject,
+            "level": level,
+            "use_official_examples": use_official_examples,
+            "use_chain_of_thought": use_chain_of_thought,
+        },
     )
 
-    instructions = OFFICIAL_MATH_INSTRUCTIONS
-    if use_official_prompt:
-        instructions = OFFICIAL_MATH_PROMPT
+    if use_chain_of_thought:  # Include the solution in the output as per https://arxiv.org/abs/2201.11903
+        output_prefix = "\nAnswer: "  # Don't include LaTeX '$' delimiters
+        instance_prefix = "\n###"  # Don't include LaTeX '$' delimiters
+        max_tokens = 400  # Increase the number of tokens to generate
+        stop_sequences = ["###"]  # Break at the next instance; extraneous output will be stripped out
+    else:
+        output_prefix = "\nAnswer: $"
+        instance_prefix = "$\n###"
+        max_tokens = 20
+        stop_sequences = ["$"]  # Break at the nearest LaTeX closing delimiter
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions=instructions,
-        max_train_instances=0 if use_official_prompt else 8,  # Official prompt includes train instances
+        instructions="Given a mathematics problem, determine the answer. Simplify your answer as much as possible.",
+        max_train_instances=8,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
         temperature=0.0,
-        stop_sequences=["$", "###", "\n"],  # Reproduce setting from official MATH codebase
-        # Source: https://github.com/hendrycks/math/blob/main/modeling/evaluate_gpt3.py#L31
-        max_tokens=20,
+        stop_sequences=stop_sequences,
+        max_tokens=max_tokens,
         input_prefix="\nProblem: ",
-        output_prefix="\nAnswer: $",
-        instance_prefix="$\n###",
+        output_prefix=output_prefix,
+        instance_prefix=instance_prefix,
     )
 
     return RunSpec(
         name=f"math:subject={subject},level={level}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_math_metrics(),
+        metrics=get_math_metrics(use_chain_of_thought),  # type: ignore
     )
 
 
@@ -761,7 +778,7 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
     )
 
 
-def get_babi_qa_spec(task: str) -> RunSpec:
+def get_babi_qa_spec(task: int) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.babi_qa_scenario.BabiQAScenario", args={"task": task})
 
     adapter_spec = AdapterSpec(
@@ -774,7 +791,7 @@ def get_babi_qa_spec(task: str) -> RunSpec:
         max_eval_instances=None,
         num_outputs=1,
         # Task 19's answers consist of two words (in contrast to all other tasks that feature a single-word answers.)
-        max_tokens=2 if task == "19" else 1,
+        max_tokens=2 if task == 19 else 1,
         # setting max 1/2 tokens answers improved performance but indeed makes an assumption about tokenization.
         temperature=0.0,
         stop_sequences=["\n"],
@@ -838,7 +855,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             model="openai/text-davinci-001",
             stop_sequences=["\n"],
         )
-        metrics = get_disinformation_metrics()
+        metrics = get_disinformation_metrics(args={"name": "reiteration"})
         scenario_name += f",topic={topic}"
     elif capability == "wedging":
         adapter_spec = AdapterSpec(
@@ -856,7 +873,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             # Justification: The maximum number of tokens in the training prompts is 87
             max_tokens=90,
         )
-        metrics = get_toxicity_metrics()
+        metrics = get_toxicity_metrics() + get_disinformation_metrics(args={"name": "wedging"})
     else:
         raise ValueError(
             f"Unsupported evaluation for disinformation capability '{capability}'. "
@@ -926,7 +943,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        input_prefix="",
+        input_prefix="Question: " if mode == "closedbook" else "",
         output_prefix="\nAnswer: ",
         num_train_trials=1,
         max_train_instances=5,
@@ -1035,6 +1052,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
+        num_outputs=1,
         max_tokens=50,  # answer upperbounded by 50 tokens
         input_prefix="",
         output_prefix="| Target: ",
@@ -1255,7 +1273,7 @@ def get_legal_support_spec() -> RunSpec:
         temperature=0.0,
         max_train_instances=3,  # TODO: @Neel - Justify
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=10,  # TODO: @Neel - Justify
+        num_outputs=1,
         stop_sequences=["\n"],
     )
 
@@ -1331,7 +1349,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "mmlu": get_mmlu_spec,
     "msmarco": get_msmarco_spec,
     "narrative_qa": get_narrativeqa_spec,
-    "commonsense_qa": get_commonsense_qa_spec,
+    "commonsense": get_commonsense_spec,
     "lsat_qa": get_lsat_qa_spec,
     "quac": get_quac_spec,
     "wikifact": get_wikifact_spec,

@@ -16,7 +16,7 @@ class Perturbation(ABC):
     @property
     def description(self) -> PerturbationDescription:
         """Description of the perturbation."""
-        return PerturbationDescription(self.name)
+        return PerturbationDescription(name=self.name)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         """

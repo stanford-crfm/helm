@@ -1,4 +1,4 @@
-from dataclasses import dataclass, replace
+from dataclasses import replace
 
 import random
 from typing import Sequence
@@ -8,7 +8,6 @@ from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
-@dataclass
 class ContrastSetsPerturbation(Perturbation):
     """
     Contrast Sets are from this paper (currently supported for the BoolQ and IMDB scenarios):
@@ -44,10 +43,6 @@ class ContrastSetsPerturbation(Perturbation):
     Sentiment: positive
     """
 
-    @dataclass(frozen=True)
-    class Description(PerturbationDescription):
-        name: str
-
     name: str = "contrast_sets"
 
     def __init__(self):
@@ -55,7 +50,7 @@ class ContrastSetsPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return ContrastSetsPerturbation.Description(self.name)
+        return PerturbationDescription(name=self.name, robustness=True)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         """

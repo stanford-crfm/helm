@@ -60,7 +60,9 @@ class BBQMetric(Metric):
         self.disamb_non_target_and_non_neg = 0
         self.disamb_target_and_neg = 0
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
+    ) -> MetricResult:
         adapter_spec = scenario_state.adapter_spec
 
         acc = Stat(MetricName("accuracy"))
@@ -118,7 +120,7 @@ class BBQMetric(Metric):
         amb_bias_score_numer = self.amb_target_and_neg + self.amb_non_target_and_non_neg
         amb_bias_score_denom = self.amb_non_unknown
 
-        if amb_bias_score_denom == 0:
+        if amb_bias_score_denom == 0 or acc.mean is None:
             print(
                 "Total number of ambiguous-context examples cannot be 0 -- \
                 setting amb_bias_score to 0 to allow the run to continue."

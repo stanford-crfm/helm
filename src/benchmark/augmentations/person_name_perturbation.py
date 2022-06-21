@@ -1,10 +1,11 @@
 import os.path
 from collections import defaultdict
 from dataclasses import dataclass
+from functools import reduce
 import random
 import re
 from pathlib import Path
-from typing import Dict, Optional, Set, Tuple
+from typing import Dict, Optional, List, Set
 
 from benchmark.scenario import Instance
 from common.general import ensure_file_downloaded, ensure_directory_exists, match_case
@@ -12,7 +13,6 @@ from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
-@dataclass
 class PersonNamePerturbation(Perturbation):
     """ Individual fairness perturbation for person names. """
 
@@ -43,15 +43,20 @@ class PersonNamePerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        """ Description for the PersonNamePerturbation class. """
+        """ Description for the PersonNamePerturbation class.
 
-        name: str
-        prob: float
-        source_class: Tuple[Tuple[str, str], ...]
-        target_class: Tuple[Tuple[str, str], ...]
-        name_file_path: Optional[str]
-        person_name_type: str
-        preserve_gender: bool
+        Explanation for the fields are provided in the docstring of
+        PersonNamePerturbation.__init__, except source_class and target_class
+        fields, which correspond to the string representation of the
+        corresponding parameters passed to __init__.
+        """
+
+        prob: float = 0.0
+        source_class: str = ""
+        target_class: str = ""
+        name_file_path: Optional[str] = None
+        person_name_type: str = ""
+        preserve_gender: bool = False
 
     def __init__(
         self,
@@ -164,29 +169,34 @@ class PersonNamePerturbation(Perturbation):
             self.name_file_path = self.download_name_file()
 
         # Get the possible source_names and target_names
-        self.mapping_dict: Dict[str, Dict[str, Set[str]]] = self.load_name_file(self.name_file_path)
+        self.mapping_dict: Dict[str, Dict[str, List[str]]] = self.load_name_file(self.name_file_path)
         assert self.mapping_dict
-        self.source_names: Set[str] = self.get_possible_names(source_class)
-        self.target_names: Set[str] = self.get_possible_names(target_class)
+        self.source_names: List[str] = self.get_possible_names(source_class)
+        self.target_names: List[str] = self.get_possible_names(target_class)
 
         self.preserve_gender: bool = preserve_gender
         if self.preserve_gender:
             assert self.person_name_type == self.FIRST_NAME
             assert self.GENDER_CATEGORY in self.mapping_dict and len(self.mapping_dict[self.GENDER_CATEGORY])
 
+        # Keep track of substitutions and skipped tokens
+        self.subs_dict: Dict[str, str] = {}  # The tokens we have substituted before
+        self.skipped_tokens: Set[str] = set()  # The tokens we have skipped
+
     @property
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
-        source_tuple = tuple([(k, v) for k, v in self.source_class.items()])
-        target_tuple = tuple([(k, v) for k, v in self.target_class.items()])
+        source_str = ",".join([f"{k}={v}" for k, v in self.source_class.items()])
+        target_str = ",".join([f"{k}={v}" for k, v in self.target_class.items()])
         return PersonNamePerturbation.Description(
-            self.name,
-            self.prob,
-            source_tuple,
-            target_tuple,
-            self.name_file_path,
-            self.person_name_type,
-            self.preserve_gender,
+            name=self.name,
+            fairness=True,
+            prob=self.prob,
+            source_class=source_str,
+            target_class=target_str,
+            name_file_path=self.name_file_path,
+            person_name_type=self.person_name_type,
+            preserve_gender=self.preserve_gender,
         )
 
     @staticmethod
@@ -194,13 +204,14 @@ class PersonNamePerturbation(Perturbation):
         """ Lower the keys and values of a dictionary """
         return dict((k.lower(), v.lower()) for k, v in d.items())
 
-    def get_possible_names(self, selected_class: Dict[str, str]) -> Set[str]:
+    def get_possible_names(self, selected_class: Dict[str, str]) -> List[str]:
         """ Return possible names given a selected class, using self.mapping_dict """
         selected_names = []
         for cat, val in selected_class.items():
             assert self.mapping_dict[cat][val]
             selected_names.append(self.mapping_dict[cat][val])
-        return set.intersection(*selected_names)
+        possible_names = reduce(lambda a, b: [item for item in a if item in b], selected_names)
+        return possible_names
 
     def download_name_file(self) -> str:
         """ Download the name file from CodaLab """
@@ -210,9 +221,9 @@ class PersonNamePerturbation(Perturbation):
         ensure_file_downloaded(source_url=self.SOURCE_URI, target_path=file_path)
         return file_path
 
-    def load_name_file(self, file_path) -> Dict[str, Dict[str, Set[str]]]:
+    def load_name_file(self, file_path) -> Dict[str, Dict[str, List[str]]]:
         """ Load the name file """
-        mapping_dict: Dict[str, Dict[str, Set[str]]] = defaultdict(lambda: defaultdict(set))
+        mapping_dict: Dict[str, Dict[str, List[str]]] = defaultdict(lambda: defaultdict(list))
         delimiter = ","
         with open(file_path, encoding="utf-8") as f:
             for line in f.readlines():
@@ -220,7 +231,7 @@ class PersonNamePerturbation(Perturbation):
                 for ind in range(len(categories) // 2):
                     category_type, category = categories[2 * ind], categories[2 * ind + 1]
                     if self.person_name_type == name_type:
-                        mapping_dict[category_type][category].add(name.strip().lower())
+                        mapping_dict[category_type][category].append(name.strip().lower())
         return mapping_dict
 
     def get_name_gender(self, name: str) -> Optional[str]:
@@ -244,7 +255,7 @@ class PersonNamePerturbation(Perturbation):
             name_gender = self.get_name_gender(token.lower())
             if name_gender:
                 gendered_names_dict = self.mapping_dict[self.GENDER_CATEGORY]
-                options = self.target_names.intersection(gendered_names_dict[name_gender])
+                options = [n for n in self.target_names if n in gendered_names_dict[name_gender]]
                 if not options:
                     return None  # No substitution exist if we preserve the gender
             # If we don't know the gender for the source names, we randomly pick one of the target names
@@ -258,22 +269,20 @@ class PersonNamePerturbation(Perturbation):
         sep_pattern = r"([^\w])"
         tokens = re.split(sep_pattern, text)
 
-        subs_dict: Dict[str, str] = {}  # The tokens we have substituted before
-        skipped_tokens: Set[str] = set()  # The tokens we have skipped
         new_tokens = []
         for token in tokens:
             token_lowered = token.lower()
             # Find a substitution for the name, if possible
-            skip = token_lowered in subs_dict or token_lowered not in skipped_tokens
+            skip = token_lowered in self.subs_dict or token_lowered in self.skipped_tokens
             if not skip and token_lowered in self.source_names:
                 if self.random.uniform(0, 1) < self.prob:
                     name = self.get_substitute_name(token)
                     if name:
-                        subs_dict[token_lowered] = name
+                        self.subs_dict[token_lowered] = name
                 else:
-                    skipped_tokens.add(token_lowered)
+                    self.skipped_tokens.add(token_lowered)
             # Substitute the token if a substitution exist
-            token = token if token_lowered not in subs_dict else subs_dict[token_lowered]
+            token = token if token_lowered not in self.subs_dict else self.subs_dict[token_lowered]
             new_tokens.append(token)
         new_text = "".join(new_tokens)
         return new_text

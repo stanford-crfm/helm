@@ -17,7 +17,9 @@ class TokensMetric(Metric):
     def __init__(self):
         self.token_counter = AutoTokenCounter()
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
+    ) -> MetricResult:
         """
         Add up all the estimated number of tokens used for each request.
         """
@@ -32,4 +34,5 @@ class TokensMetric(Metric):
             # not change what is in per_instance_stats.
             per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = [stat.take_mean()]
 
-        return MetricResult([stat.take_mean() for stat in stats.values()], per_instance_stats)
+        merge_stat(stats, Stat(MetricName("number_of_requests")).add(len(scenario_state.request_states)))
+        return MetricResult(list(stats.values()), per_instance_stats)

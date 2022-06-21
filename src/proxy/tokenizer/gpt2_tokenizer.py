@@ -86,12 +86,13 @@ class GPT2Tokenizer(Tokenizer):
         Since we are only passing in a single string, the tokenizer will simply truncate from the right.
         """
         max_length: int = self.max_request_length - expected_completion_token_length
-        result: str = self._tokenizer.decode(self._tokenizer.encode(text, truncation=True, max_length=max_length))
+        # Should set clean_up_tokenization_spaces=False: https://github.com/huggingface/transformers/issues/17682
+        # If we don't, something like "their 'studio'" becomes "their'studio'" when decoding.
+        result: str = self._tokenizer.decode(
+            self._tokenizer.encode(text, truncation=True, max_length=max_length), clean_up_tokenization_spaces=False
+        )
 
-        # HACK: Because of this bug: https://github.com/huggingface/transformers/issues/17682,
-        # there are certain text that is `max_length + 1` long even after truncating with
-        # `encode` + `decode`. Truncating again seems to fix the issue and produces text
-        # that is `max_length` long.
-        if self.tokenize_and_count(result) > max_length:
-            result = self.truncate_from_right(result, expected_completion_token_length)
+        # Validate that the truncated text now fits. Fail fast otherwise.
+        num_tokens: int = self.tokenize_and_count(result)
+        assert num_tokens <= max_length, f"Truncation failed ({num_tokens} > {max_length}). Input text: {text}"
         return result

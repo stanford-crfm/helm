@@ -7,13 +7,13 @@ from .metric_service import MetricService
 from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
 from .scenario import Instance
-from .commonsense_qa_scenario import CLM_CORRECT_TAG
+from .commonsense_scenario import CLM_CORRECT_TAG
 from .statistic import Stat, merge_stat
 
 
-class CommonSenseQAMetric(Metric):
+class CommonSenseMetric(Metric):
     """
-    Metrics for CommonsenseQA datasets using causal language modeling
+    Metrics for Commonsense datasets using causal language modeling
     TODO: Make it available (multiple requests per instance + calibration)
     in Adapter beyond the commonsense scenarios.
     """
@@ -22,7 +22,9 @@ class CommonSenseQAMetric(Metric):
         self.n_choice = n_choice
         self.n_request_per_instance = self.n_choice * 2  # each choice w/ context or w/o context
 
-    def evaluate(self, scenario_state: ScenarioState, metric_service: MetricService) -> MetricResult:
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
+    ) -> MetricResult:
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
         all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}  # (Instance, Trial index) -> List[Stat]
@@ -32,7 +34,7 @@ class CommonSenseQAMetric(Metric):
             for idx in range(0, len(scenario_state.request_states), self.n_request_per_instance):
                 request_states = scenario_state.request_states[idx : idx + self.n_request_per_instance]
 
-                instance_stats = self.evaluate_references(adapter_spec, request_states, metric_service)
+                instance_stats = self.evaluate_references(adapter_spec, request_states, metric_service, eval_cache_path)
                 instance: Instance = scenario_state.instances[idx // self.n_request_per_instance]
                 all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
 
@@ -51,7 +53,11 @@ class CommonSenseQAMetric(Metric):
         return MetricResult(list(global_stats.values()), all_per_instance_stats)
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
     ) -> List[Stat]:
         """Compute the logprob and normalization factors for the first completion"""
         assert request_state.result is not None
@@ -80,12 +86,16 @@ class CommonSenseQAMetric(Metric):
         ]
 
     def evaluate_references(
-        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState], metric_service: MetricService
+        self,
+        adapter_spec: AdapterSpec,
+        reference_request_states: List[RequestState],
+        metric_service: MetricService,
+        eval_cache_path: str,
     ) -> List[Stat]:
         """Evaluate the references."""
         assert len(reference_request_states) == self.n_request_per_instance
         stats = [
-            self.evaluate_generation(adapter_spec, request_state, metric_service)
+            self.evaluate_generation(adapter_spec, request_state, metric_service, eval_cache_path)
             for request_state in reference_request_states
         ]
         choice_labels = [
@@ -96,10 +106,12 @@ class CommonSenseQAMetric(Metric):
         answer = choice_labels.index(True)
 
         # Original: sum of token logprob in answer given context / num of tokens in answer
-        original_logprobs = [stats[i][0].mean / stats[i][1].mean for i in range(0, self.n_request_per_instance, 2)]
+        original_logprobs = [
+            stats[i][0].mean / stats[i][1].mean for i in range(0, self.n_request_per_instance, 2)  # type: ignore
+        ]
         # Calibration: sum of token logprob in answer given context - sum of token logprob in answer without context
         calibrated_logprobs = [
-            stats[i][0].mean - stats[i + 1][0].mean for i in range(0, self.n_request_per_instance, 2)
+            stats[i][0].mean - stats[i + 1][0].mean for i in range(0, self.n_request_per_instance, 2)  # type: ignore
         ]
         return [
             Stat(MetricName("original_acc")).add(float(max(original_logprobs) == original_logprobs[answer])),

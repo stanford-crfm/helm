@@ -7,7 +7,8 @@ from proxy.models import (
     get_all_models,
     get_all_text_models,
     get_model_names_with_tag,
-    LIMITED_FUNCTIONALITY_MODEL_TAG,
+    FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+    LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
 )
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
@@ -77,6 +78,21 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
     values_dict = {"default": [1]}
 
 
+DEFAULT_MODELS: List[str] = [
+    "openai/davinci",
+    "openai/curie",
+    "openai/text-davinci-002",
+    "openai/text-davinci-001",
+    "openai/text-curie-001",
+    "ai21/j1-jumbo",
+    "ai21/j1-grande",
+    "ai21/j1-large",
+    "gooseai/gpt-j-6b",
+    # TODO: to conserve GooseAI credits, hold off on running on GPT-NeoX until the end
+    # "gooseai/gpt-neo-20b",
+]
+
+
 class ModelRunExpander(ReplaceValueRunExpander):
     """
     For specifying different models.
@@ -85,27 +101,13 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
     name = "model"
     values_dict = {
-        # TODO: Add GPT-NeoX-20B and GPT-J
-        #       https://github.com/stanford-crfm/benchmarking/issues/310
-        "default": [
-            "openai/davinci",
-            "openai/curie",
-            "openai/text-davinci-002",
-            "openai/text-davinci-001",
-            "openai/text-curie-001",
-            "ai21/j1-jumbo",
-            "ai21/j1-grande",
-            "ai21/j1-large",
-            # TODO: uncomment once we get credits for GooseAI
-            # "gooseai/gpt-neo-20b",
-            # "gooseai/gpt-j-6b",
-        ],
+        "full_functionality_text": get_model_names_with_tag(FULL_FUNCTIONALITY_TEXT_MODEL_TAG),
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
         "all": get_all_models(),
         "text": get_all_text_models(),
         "code": get_all_code_models(),
-        "limited_functionality": get_model_names_with_tag(LIMITED_FUNCTIONALITY_MODEL_TAG),
+        "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
     }
 
 
@@ -237,7 +239,24 @@ def gender(
 # Then we will create two RunSpecs:
 # - r1: with perturbations [a, b]
 # - r2: with perturbations [c, d, e]
+ROBUSTNESS_PERTURBATION_SPECS = {"synonym": [synonym(prob=0.5)], "typo": [typo(prob=0.1)]}
+
+FAIRNESS_PERTURBATION_SPECS = {
+    "dialect": [dialect(prob=1.0, source_class="SAE", target_class="AAVE")],
+    "gender_pronouns": [gender(mode="pronouns", prob=1.0, source_class="male", target_class="female")],
+    "person_name": [
+        person_name(
+            prob=1.0,
+            source_class={"race": "white_american"},
+            target_class={"race": "black_american"},
+            person_name_type="first_name",
+            preserve_gender=True,
+        ),
+    ],
+}
+
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
+    # Robustness
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
     "contrast_sets": {"contrast_sets": [contrast_sets()]},
     "space": {"space3": [space(max_spaces=3)]},
@@ -252,6 +271,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "typo_medium": {"typo0.3": [typo(prob=0.30)]},
     "typo_hard": {"typo0.5": [typo(prob=0.50)]},
     "synonym": {"synonym0.5": [synonym(prob=0.5)]},
+    # Fairness
     "dialect_easy": {
         "dialect_easy_prob=0.1_source=SAE_target=AAVE": [dialect(prob=0.1, source_class="SAE", target_class="AAVE")]
     },
@@ -359,16 +379,9 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             gender(mode="pronouns", prob=1.0, source_class="male", target_class="female")
         ]
     },
-    "all": {
-        "all": [
-            misspelling(prob=0.20),
-            space(max_spaces=3),
-            lower(),
-            *contract_and_expand(),
-            typo(prob=0.1),
-            synonym(prob=0.5),
-        ]
-    },
+    "robustness": ROBUSTNESS_PERTURBATION_SPECS,
+    "fairness": FAIRNESS_PERTURBATION_SPECS,
+    "canonical": {**ROBUSTNESS_PERTURBATION_SPECS, **FAIRNESS_PERTURBATION_SPECS},
 }
 
 
@@ -387,6 +400,9 @@ class DataAugmentationRunExpander(RunExpander):
 
     name = "data_augmentation"
 
+    """ List of perturbations for which the references should be perturbed. """
+    PERTURB_REFERENCES = ["contrast_set", "dialect", "person_name", "gender"]
+
     def __init__(self, value):
         """`value` is a comma-separated list of perturbations."""
         self.value = value
@@ -402,7 +418,7 @@ class DataAugmentationRunExpander(RunExpander):
         def create_run_spec(aug_name: str, perturbation_specs: List[PerturbationSpec]) -> RunSpec:
             data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
                 perturbation_specs=perturbation_specs,
-                should_perturb_references=aug_name == "contrast_sets",
+                should_perturb_references=any(p in aug_name for p in self.PERTURB_REFERENCES),
                 # Always include original and perturbed instances together so that
                 # we can compute the normal and robustness metrics in the same run.
                 should_augment_train_instances=False,
