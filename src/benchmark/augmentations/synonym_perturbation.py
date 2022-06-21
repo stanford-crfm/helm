@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import os
-from typing import List
 
 import nltk
 from nltk.corpus import wordnet
@@ -9,7 +8,7 @@ import numpy as np
 import spacy
 
 from benchmark.scenario import Instance
-from .perturbation_description import PerturbationDescription, ROBUSTNESS_TAG
+from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
@@ -31,12 +30,9 @@ class SynonymPerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        name: str
-        tags: List[str]
-        prob: float
+        prob: float = 0.0
 
     name: str = "SynonymPerturbation"
-    tags: List[str] = [ROBUSTNESS_TAG]
 
     def __init__(self, prob: float):
         self.prob: float = prob
@@ -63,7 +59,7 @@ class SynonymPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return SynonymPerturbation.Description(self.name, self.tags, self.prob)
+        return SynonymPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
 
     def synonyms_substitute(self, text: str) -> str:
         upos_wn_dict = {

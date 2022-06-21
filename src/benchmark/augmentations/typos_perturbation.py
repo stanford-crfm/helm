@@ -1,10 +1,9 @@
 from dataclasses import dataclass
-from typing import List
 
 import numpy as np
 
 from benchmark.scenario import Instance
-from .perturbation_description import PerturbationDescription, ROBUSTNESS_TAG
+from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
@@ -25,19 +24,16 @@ class TyposPerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        name: str
-        tags: List[str]
-        prob: float
+        prob: float = 0.0
 
     name: str = "TyposPerturbation"
-    tags: List[str] = [ROBUSTNESS_TAG]
 
     def __init__(self, prob: float):
         self.prob: float = prob
 
     @property
     def description(self) -> PerturbationDescription:
-        return TyposPerturbation.Description(self.name, self.tags, self.prob)
+        return TyposPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
 
     def butter_finger(self, text):
         key_approx = {}

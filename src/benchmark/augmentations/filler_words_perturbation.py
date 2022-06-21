@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-from typing import List
 
 from .perturbation import Perturbation
-from .perturbation_description import PerturbationDescription, ROBUSTNESS_TAG
+from .perturbation_description import PerturbationDescription
 
 from benchmark.scenario import Instance
 import random
@@ -46,13 +45,9 @@ class FillerWordsPerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        name: str
-        tags: List[str]
-        insert_prob: float
+        insert_prob: float = 0.0
 
     name: str = "filler_words"
-
-    tags: List[str] = [ROBUSTNESS_TAG]
 
     def __init__(self, insert_prob=0.333, max_num_insert=None, speaker_ph=True, uncertain_ph=True, fill_ph=True):
         self.insert_prob = insert_prob
@@ -63,7 +58,7 @@ class FillerWordsPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return FillerWordsPerturbation.Description(self.name, self.tags, self.insert_prob)
+        return FillerWordsPerturbation.Description(name=self.name, robustness=True, insert_prob=self.insert_prob)
 
     def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
         assert instance.id is not None
