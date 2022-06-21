@@ -437,7 +437,7 @@ $(function () {
   const $main = $('#main');
   let models, runSpecs, schema;
   $.when(
-    $.getJSON('benchmark_output/runs/${suite}/model_stats.json', {}, (response) => {
+    $.getJSON('benchmark_output/runs/${suite}/models.json', {}, (response) => {
       models = response;
       console.log('models', models);
     }),

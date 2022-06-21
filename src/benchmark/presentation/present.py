@@ -314,7 +314,7 @@ class Summarizer:
         )
 
     def write_model_stats(self):
-        """ Compute model stats and output them to <self.run_suite_path>/model_stats.json """
+        """ Compute model stats and output them to <self.run_suite_path>/models.json """
         # Populate the model stats for each model
         model_stats = []
         for model in ALL_MODELS:
@@ -322,7 +322,7 @@ class Summarizer:
             model_stats.append(model_dict)
 
         # Write the stats
-        write(os.path.join(self.run_suite_path, "model_stats.json"), json.dumps(model_stats, indent=2))
+        write(os.path.join(self.run_suite_path, "models.json"), json.dumps(model_stats, indent=2))
 
     def write_scenario_stats(self):
         """ Computes model stats and output them to <self.run_suite_path>/scenario_stats.json """
