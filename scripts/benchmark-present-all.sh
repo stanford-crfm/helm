@@ -30,7 +30,7 @@ models=(
   "openai/text-davinci-002 openai/text-davinci-001 openai/text-curie-001 openai/text-babbage-001 openai/text-ada-001"
   "openai/code-davinci-002 openai/code-davinci-001 openai/code-cushman-001"
   "gooseai/gpt-neo-20b gooseai/gpt-j-6b"
-  "anthropic/stanford-online-helpful-v4-s3"
+  "anthropic/stanford-online-all-v4-s3"
   "microsoft/TNLGv2_530B"
 )
 
