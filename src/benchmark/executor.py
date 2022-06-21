@@ -46,7 +46,7 @@ class Executor:
 
         self.service: Service
         if execution_spec.local:
-            hlog(f"Running locally with local path: {execution_spec.local_path}")
+            hlog(f"Running locally in root mode with local path: {execution_spec.local_path}")
             self.service = ServerService(base_path=execution_spec.local_path, root_mode=True)
         else:
             self.service = RemoteService(self.execution_spec.url)
