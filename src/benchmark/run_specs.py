@@ -249,9 +249,9 @@ def get_msmarco_spec(
 
     # Return RunSpec
     return RunSpec(
-        name=f"""msmarco:task={task},track={track},use_qrels_passages={use_qrels_passages},use_topk_passages={use_topk_passages},
-                 valid_topk={valid_topk},num_valid_queries={num_valid_queries},num_train_queries={num_train_queries}
-              """,
+        name=f"msmarco:task={task},track={track},use_qrels_passages={use_qrels_passages},"
+        f"use_topk_passages={use_topk_passages},valid_topk={valid_topk},num_valid_queries={num_valid_queries},"
+        f"num_train_queries={num_train_queries}",
         scenario=scenario_spec,
         adapter_spec=adapter_spec,
         metrics=metrics,
