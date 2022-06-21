@@ -133,22 +133,23 @@ class AllRunner:
                 )
                 run_specs.extend(new_run_specs)
 
-                for run_spec in new_run_specs:
-                    run_dir: str = os.path.join(suite_dir, run_spec.name)
-                    # Get the metric output, so we can display it on the status page
-                    metrics_text: str = Path(os.path.join(run_dir, "metrics.txt")).read_text()
-                    if status == READY_STATUS:
-                        ready_content.append(f"{run_spec} - \n{metrics_text}\n")
-                    else:
-                        wip_content.append(f"{run_spec} - {metrics_text}")
+                if not self.skip_instances:
+                    for run_spec in new_run_specs:
+                        run_dir: str = os.path.join(suite_dir, run_spec.name)
+                        # Get the metric output, so we can display it on the status page
+                        metrics_text: str = Path(os.path.join(run_dir, "metrics.txt")).read_text()
+                        if status == READY_STATUS:
+                            ready_content.append(f"{run_spec} - \n{metrics_text}\n")
+                        else:
+                            wip_content.append(f"{run_spec} - {metrics_text}")
 
-                    # Keep track of all the names of the metrics that have been computed
-                    with open(os.path.join(run_dir, "metrics.json")) as f:
-                        for metric in json.load(f):
-                            computed_metrics_to_scenarios[metric["name"]["name"]].add(run_spec.name.split(":")[0])
+                        # Keep track of all the names of the metrics that have been computed
+                        with open(os.path.join(run_dir, "metrics.json")) as f:
+                            for metric in json.load(f):
+                                computed_metrics_to_scenarios[metric["name"]["name"]].add(run_spec.name.split(":")[0])
 
-                # Update the status page after processing every `RunSpec` description
-                AllRunner.update_status_page(suite_dir, wip_content, ready_content)
+                    # Update the status page after processing every `RunSpec` description
+                    AllRunner.update_status_page(suite_dir, wip_content, ready_content)
 
             except Exception as e:
                 if self.exit_on_error:
