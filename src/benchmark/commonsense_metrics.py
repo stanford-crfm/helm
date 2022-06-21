@@ -106,10 +106,12 @@ class CommonSenseMetric(Metric):
         answer = choice_labels.index(True)
 
         # Original: sum of token logprob in answer given context / num of tokens in answer
-        original_logprobs = [stats[i][0].mean / stats[i][1].mean for i in range(0, self.n_request_per_instance, 2)]
+        original_logprobs = [
+            stats[i][0].mean / stats[i][1].mean for i in range(0, self.n_request_per_instance, 2)  # type: ignore
+        ]
         # Calibration: sum of token logprob in answer given context - sum of token logprob in answer without context
         calibrated_logprobs = [
-            stats[i][0].mean - stats[i + 1][0].mean for i in range(0, self.n_request_per_instance, 2)
+            stats[i][0].mean - stats[i + 1][0].mean for i in range(0, self.n_request_per_instance, 2)  # type: ignore
         ]
         return [
             Stat(MetricName("original_acc")).add(float(max(original_logprobs) == original_logprobs[answer])),
