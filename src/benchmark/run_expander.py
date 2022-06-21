@@ -7,7 +7,8 @@ from proxy.models import (
     get_all_models,
     get_all_text_models,
     get_model_names_with_tag,
-    LIMITED_FUNCTIONALITY_MODEL_TAG,
+    FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+    LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
 )
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
@@ -100,14 +101,13 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
     name = "model"
     values_dict = {
-        "default": DEFAULT_MODELS,
+        "full_functionality_text": get_model_names_with_tag(FULL_FUNCTIONALITY_TEXT_MODEL_TAG),
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
         "all": get_all_models(),
         "text": get_all_text_models(),
         "code": get_all_code_models(),
-        "limited_functionality": get_model_names_with_tag(LIMITED_FUNCTIONALITY_MODEL_TAG),
-        "default_and_limited": DEFAULT_MODELS + get_model_names_with_tag(LIMITED_FUNCTIONALITY_MODEL_TAG),
+        "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
     }
 
 
@@ -256,6 +256,7 @@ FAIRNESS_PERTURBATION_SPECS = {
 }
 
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
+    # Robustness
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
     "contrast_sets": {"contrast_sets": [contrast_sets()]},
     "space": {"space3": [space(max_spaces=3)]},
@@ -270,6 +271,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "typo_medium": {"typo0.3": [typo(prob=0.30)]},
     "typo_hard": {"typo0.5": [typo(prob=0.50)]},
     "synonym": {"synonym0.5": [synonym(prob=0.5)]},
+    # Fairness
     "dialect_easy": {
         "dialect_easy_prob=0.1_source=SAE_target=AAVE": [dialect(prob=0.1, source_class="SAE", target_class="AAVE")]
     },

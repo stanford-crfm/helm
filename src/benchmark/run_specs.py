@@ -545,6 +545,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
+        num_outputs=1,
         max_tokens=20,
         input_prefix="Rules:\n",
         output_prefix="",
@@ -596,6 +597,7 @@ def get_raft_spec(subset: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
+        num_outputs=1,
         max_tokens=30,  # at most ~50 characters per label
     )
 
@@ -1050,6 +1052,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
+        num_outputs=1,
         max_tokens=50,  # answer upperbounded by 50 tokens
         input_prefix="",
         output_prefix="| Target: ",
@@ -1270,7 +1273,7 @@ def get_legal_support_spec() -> RunSpec:
         temperature=0.0,
         max_train_instances=3,  # TODO: @Neel - Justify
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=10,  # TODO: @Neel - Justify
+        num_outputs=1,
         stop_sequences=["\n"],
     )
 

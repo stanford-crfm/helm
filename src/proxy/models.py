@@ -3,7 +3,8 @@ from typing import List, Dict, Optional
 
 TEXT_MODEL_TAG: str = "text"
 CODE_MODEL_TAG: str = "code"
-LIMITED_FUNCTIONALITY_MODEL_TAG: str = "limited_functionality"
+FULL_FUNCTIONALITY_TEXT_MODEL_TAG: str = "full_functionality_text"
+LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "limited_functionality_text"
 WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"
 
 
@@ -61,7 +62,7 @@ ALL_MODELS = [
         creator_organization="AI21 Labs",
         name="ai21/j1-jumbo",
         description="Jurassic J1-Jumbo (178B parameters)",
-        tags=[TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # From AI21: "the new model is a mid-point in terms of size, cost and performance between Jumbo and Large.
     # We also implemented a few tweaks to its training process. Internal benchmarks suggest it can really
@@ -71,14 +72,14 @@ ALL_MODELS = [
         creator_organization="AI21 Labs",
         name="ai21/j1-grande",
         description="Jurassic J1-Large (17B parameters with a few tweaks to its training process)",
-        tags=[TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="jurassic",
         creator_organization="AI21 Labs",
         name="ai21/j1-large",
         description="Jurassic J1-Large (7.5B parameters)",
-        tags=[TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # OpenAI: https://beta.openai.com/docs/engines/gpt-3
     Model(
@@ -86,28 +87,28 @@ ALL_MODELS = [
         creator_organization="OpenAI",
         name="openai/davinci",
         description="GPT-3 (175B parameters)",
-        tags=[TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/curie",
         description="GPT-3 (6.7B parameters)",
-        tags=[TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/babbage",
         description="GPT-3 (1.3B parameters)",
-        tags=[TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/ada",
         description="GPT-3 (350M parameters)",
-        tags=[TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
     #       https://github.com/stanford-crfm/benchmarking/issues/359
@@ -116,35 +117,35 @@ ALL_MODELS = [
         creator_organization="OpenAI",
         name="openai/text-davinci-002",
         description="GPT-3 from Instruct series 2nd generation (175B parameters) - 4000 max tokens",
-        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG],
+        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-davinci-001",
         description="GPT-3 from Instruct series (175B parameters)",
-        tags=[TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-curie-001",
         description="GPT-3 from Instruct series (6.7B parameters)",
-        tags=[TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-babbage-001",
         description="GPT-3 from Instruct series (1.3B parameters)",
-        tags=[TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-ada-001",
         description="GPT-3 from Instruct series (350M parameters)",
-        tags=[TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="codex",
@@ -173,14 +174,14 @@ ALL_MODELS = [
         creator_organization="EleutherAI",
         name="gooseai/gpt-neo-20b",
         description="GPT-NeoX (20B parameters trained by EleutherAI on The Pile)",
-        tags=[TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="gooseai",
         creator_organization="EleutherAI",
         name="gooseai/gpt-j-6b",
         description="GPT-J (6B parameters trained by EleutherAI on The Pile)",
-        tags=[TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # HuggingFace
     # TODO: Switch GPT-J over to GooseAPI
@@ -206,7 +207,7 @@ ALL_MODELS = [
         creator_organization="Anthropic",
         name="anthropic/stanford-online-all-v4-s3",
         description="Anthropic model (52B parameters)",
-        tags=[LIMITED_FUNCTIONALITY_MODEL_TAG, TEXT_MODEL_TAG],  # The Anthropic model has limited functionality
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],  # The Anthropic model has limited functionality
     ),
     # Microsoft
     Model(
@@ -214,7 +215,7 @@ ALL_MODELS = [
         creator_organization="Microsoft",
         name="microsoft/TNLGv2_530B",
         description="Megatron-Turing NLG (530B parameters)",
-        tags=[LIMITED_FUNCTIONALITY_MODEL_TAG, TEXT_MODEL_TAG],  # The TNLGv2 models have limited functionality
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],  # The TNLGv2 models have limited functionality
     ),
     # TODO: The TNLGv2_7B model is unavailable to us at the moment, but simply uncomment the following when it's ready.
     # Model(
@@ -222,7 +223,7 @@ ALL_MODELS = [
     #     creator_organization="Microsoft",
     #     name="microsoft/TNLGv2_7B",
     #     description="Megatron-Turing NLG (7B parameters)",
-    #     tags = [LIMITED_FUNCTIONALITY_MODEL_TAG, TEXT_MODEL_TAG],  # The TNLGv2 models have limited functionality
+    #     tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],  # The TNLGv2 models have limited functionality
     # ),
     # For debugging
     Model(
