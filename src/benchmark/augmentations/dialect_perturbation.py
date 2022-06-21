@@ -18,6 +18,8 @@ class DialectPerturbation(Perturbation):
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "dialect"
 
+    should_perturb_references: bool = True
+
     """ Output path to store external files and folders """
     OUTPUT_PATH = os.path.join("benchmark_output", "perturbations", name)
 
@@ -145,11 +147,11 @@ class DialectPerturbation(Perturbation):
         # Execute the RegEx
         return re.sub(pattern, sub_func, text, flags=re.IGNORECASE)
 
-    def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
+    def apply(self, instance: Instance) -> Instance:
         """ Apply the perturbation to the provided instance. """
         assert instance.id is not None
         self.random = random.Random(int(instance.id[2:]))
-        return super().apply(instance, should_perturb_references)
+        return super().apply(instance)
 
     def perturb(self, text: str) -> str:
         """ Perturb the provided text. """

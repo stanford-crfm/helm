@@ -19,6 +19,8 @@ class PersonNamePerturbation(Perturbation):
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "person_name"
 
+    should_perturb_references: bool = True
+
     """ Line seperator character """
     LINE_SEP = "\n"
 
@@ -287,11 +289,11 @@ class PersonNamePerturbation(Perturbation):
         new_text = "".join(new_tokens)
         return new_text
 
-    def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
+    def apply(self, instance: Instance) -> Instance:
         """ Apply the perturbation to the provided instance. """
         assert instance.id is not None
         self.random = random.Random(int(instance.id[2:]))
-        return super().apply(instance, should_perturb_references)
+        return super().apply(instance)
 
     def perturb(self, text: str) -> str:
         """ Perturb the provided text. """

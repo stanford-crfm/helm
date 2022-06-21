@@ -24,10 +24,10 @@ class SpacePerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return SpacePerturbation.Description(name=self.name, robustness=True, max_spaces=self.max_spaces)
 
-    def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
+    def apply(self, instance: Instance) -> Instance:
         assert instance.id is not None
         random.seed(int(instance.id[2:]))  # set seed based on instance ID
-        return super().apply(instance, should_perturb_references)
+        return super().apply(instance)
 
     def perturb(self, text: str) -> str:
         result = []
