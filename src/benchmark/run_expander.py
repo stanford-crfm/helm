@@ -398,9 +398,6 @@ class DataAugmentationRunExpander(RunExpander):
 
     name = "data_augmentation"
 
-    """ List of perturbations for which the references should be perturbed. """
-    PERTURB_REFERENCES = ["contrast_set", "dialect", "person_name", "gender"]
-
     def __init__(self, value):
         """`value` is a comma-separated list of perturbations."""
         self.value = value
@@ -416,7 +413,6 @@ class DataAugmentationRunExpander(RunExpander):
         def create_run_spec(aug_name: str, perturbation_specs: List[PerturbationSpec]) -> RunSpec:
             data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
                 perturbation_specs=perturbation_specs,
-                should_perturb_references=any(p in aug_name for p in self.PERTURB_REFERENCES),
                 # Always include original and perturbed instances together so that
                 # we can compute the normal and robustness metrics in the same run.
                 should_augment_train_instances=False,

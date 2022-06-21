@@ -27,7 +27,7 @@ def test_identity_perturbation():
 
 
 def test_extra_space_perturbation():
-    data_augmenter = DataAugmenter(perturbations=[ExtraSpacePerturbation(num_spaces=2)], should_perturb_references=True)
+    data_augmenter = DataAugmenter(perturbations=[ExtraSpacePerturbation(num_spaces=2)])
     instance: Instance = Instance(
         id="id0", input="Hello my name is", references=[Reference(output="some name", tags=[])]
     )
@@ -38,11 +38,11 @@ def test_extra_space_perturbation():
     assert instances[0].perturbation.name == "extra_space"
     assert instances[0].perturbation.num_spaces == 2
     assert instances[0].input == "Hello  my  name  is"
-    assert instances[0].references[0].output == "some  name"
+    assert instances[0].references[0].output == "some name"
 
 
 def test_misspelling_perturbation():
-    data_augmenter = DataAugmenter(perturbations=[MisspellingPerturbation(prob=1.0)], should_perturb_references=True)
+    data_augmenter = DataAugmenter(perturbations=[MisspellingPerturbation(prob=1.0)])
     instance: Instance = Instance(
         id="id0", input="Already, the new product is not available.", references=[],
     )
@@ -56,9 +56,7 @@ def test_misspelling_perturbation():
 
 
 def test_filler_words_perturbation():
-    data_augmenter = DataAugmenter(
-        perturbations=[FillerWordsPerturbation(insert_prob=0.3, speaker_ph=False)], should_perturb_references=True
-    )
+    data_augmenter = DataAugmenter(perturbations=[FillerWordsPerturbation(insert_prob=0.3, speaker_ph=False)])
     instance: Instance = Instance(
         id="id0",
         input="The quick brown fox jumps over the lazy dog.",
@@ -69,11 +67,11 @@ def test_filler_words_perturbation():
     assert len(instances) == 2
     assert instances[0].id == "id0"
     assert instances[0].perturbation.name == "filler_words"
-    assert instances[0].input == "The probably quick like brown like fox err jumps over the lazy dog."
+    assert instances[0].input == "The quick brown err fox jumps over the lazy dog."
 
 
 def test_contraction_perturbation():
-    data_augmenter = DataAugmenter(perturbations=[ContractionPerturbation()], should_perturb_references=True)
+    data_augmenter = DataAugmenter(perturbations=[ContractionPerturbation()])
     instance: Instance = Instance(
         id="id0", input="She is a doctor, and I am a student", references=[Reference(output="he is a teacher", tags=[])]
     )
@@ -83,11 +81,11 @@ def test_contraction_perturbation():
     assert instances[0].id == "id0"
     assert instances[0].perturbation.name == "contraction"
     assert instances[0].input == "She's a doctor, and I'm a student"
-    assert instances[0].references[0].output == "he's a teacher"
+    assert instances[0].references[0].output == "he is a teacher"
 
 
 def test_expansion_perturbation():
-    data_augmenter = DataAugmenter(perturbations=[ExpansionPerturbation()], should_perturb_references=True)
+    data_augmenter = DataAugmenter(perturbations=[ExpansionPerturbation()])
     instance: Instance = Instance(
         id="id0", input="She's a doctor, and I'm a student", references=[Reference(output="he's a teacher", tags=[])]
     )
@@ -97,11 +95,11 @@ def test_expansion_perturbation():
     assert instances[0].id == "id0"
     assert instances[0].perturbation.name == "expansion"
     assert instances[0].input == "She is a doctor, and I am a student"
-    assert instances[0].references[0].output == "he is a teacher"
+    assert instances[0].references[0].output == "he's a teacher"
 
 
 def test_typos_perturbation():
-    data_augmenter = DataAugmenter(perturbations=[TyposPerturbation(prob=0.1)], should_perturb_references=True)
+    data_augmenter = DataAugmenter(perturbations=[TyposPerturbation(prob=0.1)])
     instance: Instance = Instance(
         id="id0", input="After their marriage, she started a close collaboration with Karvelas.", references=[],
     )
@@ -114,7 +112,7 @@ def test_typos_perturbation():
 
 
 def test_synonym_perturbation():
-    data_augmenter = DataAugmenter(perturbations=[SynonymPerturbation(prob=1.0)], should_perturb_references=True)
+    data_augmenter = DataAugmenter(perturbations=[SynonymPerturbation(prob=1.0)])
     instance: Instance = Instance(
         id="id0", input="This was a good movie, would watch again.", references=[],
     )
@@ -127,7 +125,7 @@ def test_synonym_perturbation():
 
 
 def test_lowercase_perturbation():
-    data_augmenter = DataAugmenter(perturbations=[LowerCasePerturbation()], should_perturb_references=True)
+    data_augmenter = DataAugmenter(perturbations=[LowerCasePerturbation()])
     instance: Instance = Instance(
         id="id0", input="Hello World!\nQuite a day, huh?", references=[Reference(output="Yes!", tags=[])],
     )
@@ -136,11 +134,11 @@ def test_lowercase_perturbation():
     assert len(instances) == 2
     assert instances[0].perturbation.name == "lowercase"
     assert instances[0].input == "hello world!\nquite a day, huh?"
-    assert instances[0].references[0].output == "yes!"
+    assert instances[0].references[0].output == "Yes!"
 
 
 def test_space_perturbation():
-    data_augmenter = DataAugmenter(perturbations=[SpacePerturbation(max_spaces=3)], should_perturb_references=False)
+    data_augmenter = DataAugmenter(perturbations=[SpacePerturbation(max_spaces=3)])
     instance: Instance = Instance(id="id0", input="Hello World!\nQuite a day, huh?", references=[])
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
@@ -153,7 +151,6 @@ def test_space_perturbation():
 def test_dialect_perturbation():
     data_augmenter = DataAugmenter(
         perturbations=[DialectPerturbation(prob=1.0, source_class="SAE", target_class="AAVE")],
-        should_perturb_references=True,
     )
     instance: Instance = Instance(
         id="id0",
@@ -180,7 +177,6 @@ def test_person_name_perturbation():
                 preserve_gender=True,
             )
         ],
-        should_perturb_references=True,
     )
     instance: Instance = Instance(
         id="id0",
@@ -201,7 +197,6 @@ def test_person_name_perturbation():
 def test_gender_pronoun_perturbation():
     data_augmenter = DataAugmenter(
         perturbations=[GenderPerturbation(prob=1.0, mode="pronouns", source_class="male", target_class="female")],
-        should_perturb_references=True,
     )
     instance: Instance = Instance(
         id="id0",
@@ -220,7 +215,6 @@ def test_gender_pronoun_perturbation():
 def test_gender_term_perturbation():
     data_augmenter = DataAugmenter(
         perturbations=[GenderPerturbation(prob=1.0, mode="terms", source_class="male", target_class="female")],
-        should_perturb_references=True,
     )
     instance: Instance = Instance(
         id="id0",

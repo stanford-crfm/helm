@@ -45,10 +45,10 @@ class MisspellingPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return MisspellingPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
 
-    def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
+    def apply(self, instance: Instance) -> Instance:
         assert instance.id is not None
         np.random.seed(int(instance.id[2:]))  # set seed based on instance ID
-        return super().apply(instance, should_perturb_references)
+        return super().apply(instance)
 
     def perturb_word(self, word: str) -> str:
         # check if word is in dictionary and perturb with probability self.prob

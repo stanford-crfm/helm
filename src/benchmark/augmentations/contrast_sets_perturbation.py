@@ -45,6 +45,9 @@ class ContrastSetsPerturbation(Perturbation):
 
     name: str = "contrast_sets"
 
+    # Contrast sets do not make sense if not True.
+    should_perturb_references: bool = True
+
     def __init__(self):
         pass
 
@@ -52,13 +55,12 @@ class ContrastSetsPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return PerturbationDescription(name=self.name, robustness=True)
 
-    def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
+    def apply(self, instance: Instance) -> Instance:
         """
         Generates a new Instance by perturbing the input, tagging the Instance and
-        perturbing the References, if should_perturb_references is true.
+        perturbing the References, if `should_perturb_references` is true.
         """
 
-        assert should_perturb_references  # contast sets do not make sense otherwise
         assert instance.id is not None
         random.seed(int(instance.id[2:]))  # set seed based on instance ID
 
