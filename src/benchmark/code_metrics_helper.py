@@ -14,6 +14,7 @@ We split this out so we can disable type checking for this entire file.
 """
 
 import contextlib
+import gc
 from enum import Enum
 import faulthandler
 import io
@@ -119,7 +120,7 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
             signal.alarm(0)
         except Exception as e:
             signal.alarm(0)
-            hlog(f"type 0 compilation error = {e}")
+            hlog(f"type 0 compilation error")
             results.append(-2)
             return results
         signal.alarm(0)
@@ -158,7 +159,7 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
             signal.alarm(0)
         except Exception as e:
             signal.alarm(0)
-            hlog(f"type 1 compilation error = {e}")
+            hlog(f"type 1 compilation error")
             results.append(-2)
             return results
         signal.alarm(0)
@@ -167,11 +168,13 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
     except:
         signal.alarm(0)
         e = sys.exc_info()
-        hlog(f"unable to get function error = {e}")
+        hlog(f"unable to get function error")
         results.append(-3)
         return results
 
     for index, inputs in enumerate(in_outs["inputs"]):
+        gc.collect()
+
         # JSON forces dictionaries to have string keys; this undoes this (assuming a singleton list)
         try:
             if isinstance(inputs[0], dict):
@@ -215,10 +218,10 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
 
                 # reset the alarm
                 signal.alarm(0)
-            except Exception as e:
+            except Exception:
                 signal.alarm(0)
                 faulthandler.disable()
-                hlog(f"Standard input runtime error or time limit exceeded error = {e}")
+                hlog(f"Standard input runtime error or time limit exceeded error")
                 results.append(-1)
                 continue
             faulthandler.disable()
@@ -239,10 +242,10 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
                     # reset the alarm
                     signal.alarm(0)
                     passed = True
-                except Exception as e:
+                except Exception:
                     # runtime error or took too long
                     signal.alarm(0)
-                    hlog(f"Call-based runtime error or time limit exceeded error = {repr(e)}{e}")
+                    hlog(f"Call-based runtime error or time limit exceeded error")
                     results.append(-1)
                 signal.alarm(0)
 
@@ -265,8 +268,8 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
                     tmp_result = tmp_result or (output == in_outs["outputs"][index])
                     if isinstance(output[0], str):
                         tmp_result = tmp_result or ([e.strip() for e in output] == in_outs["outputs"][index])
-            except Exception as e:
-                hlog(f"Failed check1 exception = {e}")
+            except Exception:
+                hlog(f"Failed check1 exception")
                 pass
 
             if isinstance(tmp_result, bool) and tmp_result:
@@ -289,8 +292,8 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
                 tmp_result = output == [in_outs["outputs"][index]]
                 if isinstance(in_outs["outputs"][index], list):
                     tmp_result = tmp_result or (output == in_outs["outputs"][index])
-            except Exception as e:
-                hlog(f"Failed check2 exception = {e}")
+            except Exception:
+                hlog(f"Failed check2 exception")
                 pass
 
             if isinstance(tmp_result, bool) and tmp_result:
@@ -309,8 +312,8 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
                 tmp_result = output == [in_outs["outputs"][index]]
                 if isinstance(in_outs["outputs"][index], list):
                     tmp_result = tmp_result or (output == in_outs["outputs"][index])
-            except Exception as e:
-                hlog(f"Failed check3 exception = {e}")
+            except Exception:
+                hlog(f"Failed check3 exception")
                 pass
 
             try:
@@ -344,8 +347,8 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
 
             try:
                 tmp_result = output == in_outs["outputs"][index]
-            except Exception as e:
-                hlog(f"Failed check4 exception = {e}")
+            except Exception:
+                hlog(f"Failed check4 exception")
                 continue
 
             if isinstance(tmp_result, bool) and tmp_result:
@@ -366,8 +369,8 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
 
             try:
                 tmp_result = set(frozenset(s) for s in output) == set(frozenset(s) for s in in_outs["outputs"][index])
-            except Exception as e:
-                hlog(f"Failed check5 exception = {e}")
+            except Exception:
+                hlog(f"Failed check5 exception")
 
             # if they are all numbers, round so that similar numbers are treated as identical
             try:
@@ -375,8 +378,8 @@ def run_test(root: str, test: str) -> List[Union[int, bool]]:
                     set(frozenset(round(float(t), 3) for t in s) for s in output)
                     == set(frozenset(round(float(t), 3) for t in s) for s in in_outs["outputs"][index])
                 )
-            except Exception as e:
-                hlog(f"Failed check6 exception = {e}")
+            except Exception:
+                hlog(f"Failed check6 exception")
 
             # By default, tmp_result is False; that's the 'catch' case.
             results.append(tmp_result)

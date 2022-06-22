@@ -1,6 +1,8 @@
 """Evaluating source code generation."""
 
 from typing import List, Union, Sequence, cast
+import resource
+
 
 from common.request import RequestResult
 from . import code_metrics_helper
@@ -10,6 +12,8 @@ from .metric_service import MetricService
 from .code_scenario import CodeReference
 from .metric_name import MetricName
 from .statistic import Stat
+
+MAXIMUM_MEMORY_BYTES = 8 * 1024 * 1024 * 1024  # 8GB.
 
 
 def _convert_scores(scores: Sequence[Union[int, bool]]) -> List[float]:
@@ -42,6 +46,9 @@ class APPSMetric(Metric):
             if name not in METRICS.keys():
                 raise ValueError(f"Expected name to be either one of {METRICS.keys()}, but got {name}.")
         self.names = names
+
+        # Set a memory limit for this process.
+        resource.setrlimit(resource.RLIMIT_AS, (MAXIMUM_MEMORY_BYTES, MAXIMUM_MEMORY_BYTES))
 
     def evaluate_generation(
         self,
