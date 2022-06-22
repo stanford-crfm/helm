@@ -1,6 +1,9 @@
+import os
+import tempfile
 from typing import List
 
 from common.request import Request, Sequence, Token
+from proxy.huggingface_client import HuggingFaceClient
 from .openai_token_counter import OpenAITokenCounter
 
 
@@ -16,7 +19,11 @@ class TestOpenAITokenCounter:
     )
 
     def setup_method(self, method):
-        self.token_counter = OpenAITokenCounter()
+        self.cache_path: str = tempfile.NamedTemporaryFile(delete=False).name
+        self.token_counter = OpenAITokenCounter(HuggingFaceClient(self.cache_path))
+
+    def teardown_method(self, method):
+        os.remove(self.cache_path)
 
     def test_count_tokens(self):
         request = Request(prompt=TestOpenAITokenCounter.TEST_PROMPT)

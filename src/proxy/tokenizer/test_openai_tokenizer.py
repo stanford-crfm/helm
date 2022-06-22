@@ -1,10 +1,20 @@
+import shutil
+import tempfile
+
+from .test_utils import get_tokenizer_service
+from .tokenizer_service import TokenizerService
 from .test_gpt2_tokenizer import TEST_TOKENS, TEST_PROMPT, TEST_TOKEN_IDS
 from .tokenizer_factory import TokenizerFactory
 
 
 class TestOpenAITokenizer:
     def setup_method(self):
-        self.tokenizer = TokenizerFactory.get_tokenizer("openai")
+        self.path: str = tempfile.mkdtemp()
+        service: TokenizerService = get_tokenizer_service(self.path)
+        self.tokenizer = TokenizerFactory.get_tokenizer("openai", service)
+
+    def teardown_method(self, method):
+        shutil.rmtree(self.path)
 
     def test_encode(self):
         assert self.tokenizer.encode(TEST_PROMPT).tokens == TEST_TOKEN_IDS

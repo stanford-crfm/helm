@@ -1,10 +1,20 @@
+import shutil
+import tempfile
+
+from .tokenizer_service import TokenizerService
 from .tokenizer_factory import TokenizerFactory
 from .test_gpt2_tokenizer import TEST_TOKENS, TEST_PROMPT, TEST_TOKEN_IDS
+from .test_utils import get_tokenizer_service
 
 
 class TestGPTJTokenizer:
     def setup_method(self):
-        self.tokenizer = TokenizerFactory.get_tokenizer("huggingface/gptj_6b")
+        self.path: str = tempfile.mkdtemp()
+        service: TokenizerService = get_tokenizer_service(self.path)
+        self.tokenizer = TokenizerFactory.get_tokenizer("huggingface/gptj_6b", service)
+
+    def teardown_method(self, method):
+        shutil.rmtree(self.path)
 
     def test_encode(self):
         assert self.tokenizer.encode(TEST_PROMPT).tokens == TEST_TOKEN_IDS
