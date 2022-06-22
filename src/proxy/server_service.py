@@ -29,7 +29,7 @@ from proxy.service import (
     expand_environments,
     synthesize_request,
 )
-from proxy.tokenizer.auto_token_counter import AutoTokenCounter
+from .token_counter.auto_token_counter import AutoTokenCounter
 
 
 class ServerService(Service):

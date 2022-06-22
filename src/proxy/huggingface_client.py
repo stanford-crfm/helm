@@ -14,7 +14,7 @@ from common.tokenization_request import (
     TokenizationToken,
 )
 from .client import Client, wrap_request_time
-from .tokenizer.huggingface_tokenizer import HuggingFaceTokenizers
+from .huggingface_tokenizer import HuggingFaceTokenizers
 
 
 class HuggingFaceServer:

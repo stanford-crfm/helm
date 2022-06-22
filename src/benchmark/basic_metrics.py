@@ -16,9 +16,9 @@ from rouge_score import rouge_scorer
 from common.hierarchical_logger import hlog
 from common.request import Token
 from . import code_metrics_helper
-from proxy.tokenizer.tokenizer import Tokenizer
-from proxy.tokenizer.tokenizer_factory import TokenizerFactory
-from proxy.tokenizer.tokenizer_service import TokenizerService
+from benchmark.tokenizer.tokenizer import Tokenizer
+from benchmark.tokenizer.tokenizer_factory import TokenizerFactory
+from benchmark.tokenizer.tokenizer_service import TokenizerService
 from .augmentations.perturbation_description import PerturbationDescription
 from .adapter import AdapterSpec, RequestState
 from .math_scenario import is_equiv, is_equiv_chain_of_thought

@@ -1,8 +1,8 @@
 from benchmark.metric_service import MetricService
+from benchmark.tokenizer.tokenizer import Tokenizer
+from benchmark.tokenizer.tokenizer_factory import TokenizerFactory
 from common.request import Request
-from proxy.tokenizer.tokenizer import Tokenizer
-from proxy.tokenizer.tokenizer_factory import TokenizerFactory
-from proxy.tokenizer.gooseai_token_counter import GooseAITokenCounter
+from proxy.token_counter.gooseai_token_counter import GooseAITokenCounter
 from .token_cost_estimator import TokenCostEstimator
 
 

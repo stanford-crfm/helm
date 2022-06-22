@@ -1,7 +1,7 @@
 from benchmark.metric_service import MetricService
 from common.request import Request
-from proxy.tokenizer.tokenizer_factory import TokenizerFactory
-from proxy.tokenizer.tokenizer import Tokenizer
+from benchmark.tokenizer.tokenizer_factory import TokenizerFactory
+from benchmark.tokenizer.tokenizer import Tokenizer
 from .token_cost_estimator import TokenCostEstimator
 
 

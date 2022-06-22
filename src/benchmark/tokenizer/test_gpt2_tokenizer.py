@@ -2,7 +2,7 @@ import shutil
 import tempfile
 from typing import List
 
-from proxy.tokenizer.tokenizer_service import TokenizerService
+from benchmark.tokenizer.tokenizer_service import TokenizerService
 
 from .test_utils import get_tokenizer_service
 from .tokenizer_factory import TokenizerFactory

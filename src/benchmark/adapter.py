@@ -11,9 +11,9 @@ from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationToken
-from proxy.tokenizer.tokenizer import Tokenizer, EncodeResult
-from proxy.tokenizer.tokenizer_factory import TokenizerFactory
-from proxy.tokenizer.tokenizer_service import TokenizerService
+from benchmark.tokenizer.tokenizer import Tokenizer, EncodeResult
+from benchmark.tokenizer.tokenizer_factory import TokenizerFactory
+from benchmark.tokenizer.tokenizer_service import TokenizerService
 from .adapter_service import AdapterService
 from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 

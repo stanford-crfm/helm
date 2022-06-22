@@ -101,7 +101,7 @@ LONG_REQUEST_RESULT: TokenizationRequestResult
 TRUNCATED_REQUEST_RESULT: TokenizationRequestResult
 
 # The request results are too long to be put here, so we save them to file.
-with open("src/proxy/tokenizer/mock_ai21_tokenizer_request_results.pkl", "rb") as f:
+with open("src/benchmark/tokenizer/mock_ai21_tokenizer_request_results.pkl", "rb") as f:
     REQUEST_RESULT, LONG_REQUEST_RESULT, TRUNCATED_REQUEST_RESULT = pickle.load(f)
 
 
@@ -112,7 +112,7 @@ class TestAI21Tokenizer:
         service = AdapterService(RemoteService("DUMMY_URL"), auth)
         self.tokenizer = TokenizerFactory.get_tokenizer("ai21/j1-jumbo", service)
 
-    @mock.patch("proxy.tokenizer.ai21_tokenizer.TokenizerService.tokenize", return_value=REQUEST_RESULT)
+    @mock.patch("benchmark.tokenizer.ai21_tokenizer.TokenizerService.tokenize", return_value=REQUEST_RESULT)
     @pytest.mark.skip("TODO: update the pickle file with the response")
     def test_encode(self, mock_tokenize):
         assert self.tokenizer.encode(TEST_PROMPT).tokens == TEST_TOKEN_REPRESENTATIONS
@@ -122,12 +122,12 @@ class TestAI21Tokenizer:
         assert self.tokenizer.decode(TEST_TOKEN_REPRESENTATIONS, TEST_PROMPT) == TEST_PROMPT
         assert self.tokenizer.decode(TEST_TOKEN_REPRESENTATIONS, TEST_PROMPT)[:-1] == TEST_PROMPT[:-1]
 
-    @mock.patch("proxy.tokenizer.ai21_tokenizer.TokenizerService.tokenize", return_value=REQUEST_RESULT)
+    @mock.patch("benchmark.tokenizer.ai21_tokenizer.TokenizerService.tokenize", return_value=REQUEST_RESULT)
     @pytest.mark.skip("TODO: update the pickle file with the response")
     def test_tokenize(self, mock_tokenize):
         assert self.tokenizer.tokenize(TEST_PROMPT) == TEST_TOKENS
 
-    @mock.patch("proxy.tokenizer.ai21_tokenizer.TokenizerService.tokenize", return_value=REQUEST_RESULT)
+    @mock.patch("benchmark.tokenizer.ai21_tokenizer.TokenizerService.tokenize", return_value=REQUEST_RESULT)
     @pytest.mark.skip("TODO: update the pickle file with the response")
     def test_fits_within_context_window(self, mock_tokenize):
         # Should fit in the context window since we subtracted the number of tokens of the test prompt
@@ -137,7 +137,7 @@ class TestAI21Tokenizer:
         assert not self.tokenizer.fits_within_context_window(TEST_PROMPT, 2047 - 36 + 1)
 
     @mock.patch(
-        "proxy.tokenizer.ai21_tokenizer.TokenizerService.tokenize",
+        "benchmark.tokenizer.ai21_tokenizer.TokenizerService.tokenize",
         side_effect=[LONG_REQUEST_RESULT, LONG_REQUEST_RESULT, TRUNCATED_REQUEST_RESULT, TRUNCATED_REQUEST_RESULT],
     )
     @pytest.mark.skip("TODO: update the pickle file with the response")
@@ -152,7 +152,7 @@ class TestAI21Tokenizer:
         assert self.tokenizer.tokenize_and_count(truncated_long_prompt) == 2047
         assert self.tokenizer.fits_within_context_window(truncated_long_prompt)
 
-    @mock.patch("proxy.tokenizer.ai21_tokenizer.TokenizerService.tokenize", return_value=REQUEST_RESULT)
+    @mock.patch("benchmark.tokenizer.ai21_tokenizer.TokenizerService.tokenize", return_value=REQUEST_RESULT)
     @pytest.mark.skip("TODO: update the pickle file with the response")
     def test_tokenize_and_count(self, mock_tokenize):
         assert self.tokenizer.tokenize_and_count(TEST_PROMPT) == 36
