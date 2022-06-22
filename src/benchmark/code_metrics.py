@@ -13,6 +13,8 @@ from .code_scenario import CodeReference
 from .metric_name import MetricName
 from .statistic import Stat
 
+MAXIMUM_MEMORY_BYTES = 8 * 1024 * 1024 * 1024  # 8GB.
+
 
 def _convert_scores(scores: Sequence[Union[int, bool]]) -> List[float]:
     """Convert boolean scores to int."""
@@ -46,8 +48,7 @@ class APPSMetric(Metric):
         self.names = names
 
         # Set a memory limit for this process.
-        maximum_memory_bytes = 32 * 1024 * 1024 * 1024  # 32GB.
-        resource.setrlimit(resource.RLIMIT_AS, (maximum_memory_bytes, maximum_memory_bytes))
+        resource.setrlimit(resource.RLIMIT_AS, (MAXIMUM_MEMORY_BYTES, MAXIMUM_MEMORY_BYTES))
 
     def evaluate_generation(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
