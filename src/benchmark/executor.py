@@ -14,6 +14,10 @@ from .adapter import RequestState, ScenarioState
 from .scenario import Instance
 
 
+class ExecutorError(Exception):
+    pass
+
+
 @dataclass(frozen=True)
 class ExecutionSpec:
     # Where the service lives (e.g., http://localhost:1959)
@@ -88,6 +92,9 @@ class Executor:
 
         def process(state: RequestState) -> RequestState:
             result: RequestResult = self.service.make_request(self.execution_spec.auth, state.request)
+            if not result.success:
+                raise ExecutorError(result.error + f"Request: {state.request}")
+
             state = replace(state, result=result)
             tqdm.write(render_request_state(state))
             return state
