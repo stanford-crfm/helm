@@ -14,12 +14,14 @@ from typing import List, Optional, Tuple, Dict, Union
 from .adapter import AdapterSpec, Adapter, ADAPT_GENERATION
 from .adapter_service import AdapterService
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
-from proxy.remote_service import RemoteService
 from common.authentication import Authentication
+from proxy.server_service import ServerService
 
 
+# TODO: we shouldn't create an Adapter and AdapterService in a scenario
+#       The Adapter and Scenarios should be completely decoupled.
 def get_test_adapter_service() -> AdapterService:
-    return AdapterService(RemoteService("test"), Authentication("test"))
+    return AdapterService(ServerService(base_path="prod_env", root_mode=True), Authentication("test"))
 
 
 SOLUTION_TAG: str = "solution"
@@ -707,6 +709,7 @@ class NumeracyScenario(Scenario):
         def generate_datasets(num_instances: int, split: str):
             spec = get_numeracy_adapter_spec(self.num_train, self.num_test, self.dim, self.delimiter)
             service = get_test_adapter_service()
+            # TODO: we should not instantiate Adapter. construct_prompt of Adapter will be called downstream
             adapter = Adapter(spec, service)
             outer_spec = get_numeracy_adapter_spec(
                 self.num_train,
