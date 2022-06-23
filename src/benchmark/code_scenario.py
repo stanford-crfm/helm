@@ -45,7 +45,6 @@ APPS is a benchmark for code generation from natural language specifications.
 Each instance has 1) a problem description with examples (as what you get in
 programming competitions), 2) coding solutions, 3) test cases.
 """
-import gzip
 import io
 import json
 import os
@@ -110,17 +109,10 @@ def _read_human_eval(evalset_file: str = "HumanEval.jsonl.gz") -> Dict[str, Dict
 
 def _stream_jsonl(filename: str) -> Iterable[Dict]:
     """Parses each jsonl line and yields it as a dictionary."""
-    if filename.endswith(".gz"):
-        with open(filename, "rb") as gzfp:
-            with gzip.open(gzfp, "rt") as fp:
-                for line in fp:
-                    if any(not x.isspace() for x in line):
-                        yield json.loads(line)
-    else:
-        with open(filename, "r") as fp:
-            for line in fp:
-                if any(not x.isspace() for x in line):
-                    yield json.loads(line)
+    with open(filename, "r") as f:
+        for line in f:
+            if any(not x.isspace() for x in line):
+                yield json.loads(line)
 
 
 # === APPS ===

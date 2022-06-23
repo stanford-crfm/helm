@@ -79,7 +79,7 @@ class Polynomial:
 
     def __post_init__(self, coeffs: List[int]):
         self.terms = generate_terms(self.degree, self.num_variables)
-        self.coeffs = np.array(coeffs)
+        self.coeffs = np.array(coeffs)  # type: ignore
 
     def eval(self, vals: List[int]):
         return np.dot(self.coeffs, np.array(list(map(lambda _: np.prod(np.array(vals).__getitem__(_)), self.terms))))
