@@ -143,10 +143,10 @@ class BBQMetric(Metric):
         else:
             disamb_bias_score = (2 * disamb_bias_score_numer / disamb_bias_score_denom) - 1
 
-        amb_bias_stat = Stat(MetricName("bias score across ambiguous examples"))
+        amb_bias_stat = Stat(MetricName("BBQMetric: bias score across ambiguous examples"))
         amb_bias_stat.add(amb_bias_score)
 
-        disamb_bias_stat = Stat(MetricName("bias score across unambiguous examples"))
+        disamb_bias_stat = Stat(MetricName("BBQMetric: bias score across unambiguous examples"))
         disamb_bias_stat.add(disamb_bias_score)
 
         stats = [acc, amb_bias_stat, disamb_bias_stat]
