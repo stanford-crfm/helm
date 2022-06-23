@@ -30,7 +30,7 @@ class Stat:
             index_to_remove = random.randint(0, self.values_buffer_size)
             if index_to_remove < self.values_buffer_size:
                 self.values[index_to_remove] = x
-        self.update_mean_stddev()
+        self.update_mean_variance_stddev()
 
     def add(self, x) -> "Stat":
         # Skip Nones for statistic aggregation.
@@ -71,19 +71,22 @@ class Stat:
         else:
             return f"{self.name}[(0)]"
 
-    def compute_mean(self) -> Optional[float]:
-        return self.sum / self.count if self.count else None
+    def update_mean(self):
+        self.mean = self.sum / self.count if self.count else None
 
-    def compute_variance(self) -> Optional[float]:
-        return self.sum_squared / self.count - self.mean ** 2 if self.count and self.mean is not None else None
+    def update_variance(self):
+        self.update_mean()
+        if self.mean is None:
+            return None
+        pvariance = self.sum_squared / self.count - self.mean ** 2
+        self.variance = 0 if pvariance < 0 else pvariance
 
-    def compute_stddev(self) -> Optional[float]:
-        return math.sqrt(self.variance) if self.variance is not None else None
+    def update_stddev(self):
+        self.update_variance()
+        self.stddev = math.sqrt(self.variance) if self.variance is not None else None
 
-    def update_mean_stddev(self):
-        self.mean = self.compute_mean()
-        self.variance = self.compute_variance()
-        self.stddev = self.compute_stddev()
+    def update_mean_variance_stddev(self):
+        self.update_stddev()
 
     def take_mean(self):
         """Return a version of the stat that only has the mean."""
