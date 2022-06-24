@@ -20,6 +20,7 @@ from proxy.server_service import ServerService
 
 # TODO: we shouldn't create an Adapter and AdapterService in a scenario
 #       The Adapter and Scenarios should be completely decoupled.
+#       https://github.com/stanford-crfm/benchmarking/issues/569
 def get_test_adapter_service() -> AdapterService:
     return AdapterService(ServerService(base_path="prod_env", root_mode=True), Authentication("test"))
 
@@ -710,6 +711,7 @@ class NumeracyScenario(Scenario):
             spec = get_numeracy_adapter_spec(self.num_train, self.num_test, self.dim, self.delimiter)
             service = get_test_adapter_service()
             # TODO: we should not instantiate Adapter. construct_prompt of Adapter will be called downstream
+            #       https://github.com/stanford-crfm/benchmarking/issues/569
             adapter = Adapter(spec, service)
             outer_spec = get_numeracy_adapter_spec(
                 self.num_train,
