@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
+import itertools
 from typing import List, Dict, Optional, Tuple
 
 from proxy.models import (
@@ -10,6 +11,7 @@ from proxy.models import (
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
 )
+from .metric import MetricSpec
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
@@ -57,11 +59,69 @@ class ReplaceValueRunExpander(RunExpander):
         ]
 
 
+class ReplaceRunSpecValueRunExpander(RunExpander):
+    """
+    Replace a single field (e.g., max_train_instances) with a list of values (e.g., 0, 1, 2).
+    """
+
+    def __init__(self, value):
+        """
+        `value` is either the actual value to use or a lookup into the values dict.
+        """
+        self.name = type(self).name
+        if value in type(self).values_dict:
+            self.values = type(self).values_dict[value]
+        else:
+            self.values = [value]
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        def sanitize(value):
+            return str(value).replace("/", "_")
+
+        return [
+            replace(run_spec, name=f"{run_spec.name},{self.name}={sanitize(value)}", metrics=value,)
+            for value in self.values
+        ]
+
+
 class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
     name = "num_train_trials"
     values_dict = {"default": [3]}
+
+
+# TODO: @ryanachi, @rishi: Note that bias_erasure_metrics are currently being called in run_specs.py.
+# Should this function and MetricsRunExpander be deleted?
+def get_bias_erasure_metrics() -> List[List[MetricSpec]]:
+    categories = ["race", "gender"]
+    targets = ["adjective", "profession"]
+    cross_cat_target = itertools.product(categories, targets)
+
+    return [
+        [
+            MetricSpec(
+                class_name="benchmark.bias_erasure_metrics.BiasErasureMetric",
+                args={"mode": "bias", "category": cat, "bias_target": target},
+            )
+        ]
+        for cat, target in cross_cat_target
+    ] + [
+        [
+            MetricSpec(
+                class_name="benchmark.bias_erasure_metrics.BiasErasureMetric",
+                args={"mode": "erasure", "category": cat},
+            )
+        ]
+        for cat in categories
+    ]
+
+
+class MetricsRunExpander(ReplaceRunSpecValueRunExpander):
+    """For overriding metrics."""
+
+    name = "metrics"
+    values_dict = {"bias_erasure": get_bias_erasure_metrics()}
 
 
 class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
@@ -113,6 +173,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
 ############################################################
 
+
 # Helper functions to instantiate `PerturbationSpec`s.
 def extra_space(num_spaces: int) -> PerturbationSpec:
     return PerturbationSpec(
@@ -133,25 +194,25 @@ def lower() -> PerturbationSpec:
 
 def misspelling(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.misspelling_perturbation.MisspellingPerturbation", args={"prob": prob}
+        class_name="benchmark.augmentations.misspelling_perturbation.MisspellingPerturbation", args={"prob": prob},
     )
 
 
 def synonym(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.synonym_perturbation.SynonymPerturbation", args={"prob": prob}
+        class_name="benchmark.augmentations.synonym_perturbation.SynonymPerturbation", args={"prob": prob},
     )
 
 
 def contrast_sets() -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.contrast_sets_perturbation.ContrastSetsPerturbation", args={}
+        class_name="benchmark.augmentations.contrast_sets_perturbation.ContrastSetsPerturbation", args={},
     )
 
 
 def typo(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.typos_perturbation.TyposPerturbation", args={"prob": prob}
+        class_name="benchmark.augmentations.typos_perturbation.TyposPerturbation", args={"prob": prob},
     )
 
 
@@ -165,7 +226,7 @@ def filler(prob: float) -> PerturbationSpec:
 def contract_and_expand() -> List[PerturbationSpec]:
     return [
         PerturbationSpec(
-            class_name=f"benchmark.augmentations.contraction_expansion_perturbation.{mode}Perturbation", args={}
+            class_name=f"benchmark.augmentations.contraction_expansion_perturbation.{mode}Perturbation", args={},
         )
         for mode in ["Contraction", "Expansion"]
     ]
@@ -388,9 +449,7 @@ class DataAugmentationRunExpander(RunExpander):
     Applies a list of data augmentations, where the list of data augmentations
     is given by a name (see the keys to `PERTURBATION_SPECS_DICT` above).
     For example:
-
         data_augmentation=all
-
     Note that some names map to a single data augmentation with multiple
     perturbations (e.g., all), and others map to a list of data augmentations
     each with one perturbation (e.g., misspelling_sweep).
@@ -436,6 +495,7 @@ RUN_EXPANDERS = dict(
     (expander.name, expander)
     for expander in [
         NumTrainTrialsRunExpander,
+        MetricsRunExpander,
         MaxTrainInstancesRunExpander,
         NumOutputsRunExpander,
         ModelRunExpander,

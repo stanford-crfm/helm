@@ -325,7 +325,11 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
             oid = instance.request_id
             if oid:
                 text, logprob = self.MISSING_RESULT_TEXT, 0.0
-                if request_state.result and request_state.result.completions:
+                if (
+                    request_state.result
+                    and request_state.result.completions
+                    and request_state.result.completions[0].tokens
+                ):
                     token = request_state.result.completions[0].tokens[0]
                     text, logprob = token.text, token.logprob
                 triples.append((oid, self.standardize(text), logprob))

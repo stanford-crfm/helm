@@ -1,4 +1,5 @@
 from typing import List, Dict, Optional, Any, Callable
+import itertools
 import os
 
 from common.object_spec import ObjectSpec
@@ -98,8 +99,34 @@ def get_msmarco_metrics(task: str, track: str, qrels_path: str, topk: Optional[i
 def get_toxicity_metrics() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={}),
-        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
+
+
+def get_bias_erasure_metrics() -> List[MetricSpec]:
+    categories = ["race", "gender"]
+    targets = ["adjective", "profession"]
+    cross_cat_target = itertools.product(categories, targets)
+
+    return [
+        MetricSpec(
+            class_name="benchmark.bias_erasure_metrics.BiasErasureMetric",
+            args={"mode": "bias", "category": cat, "bias_target": target},
+        )
+        for cat, target in cross_cat_target
+    ] + [
+        MetricSpec(
+            class_name="benchmark.bias_erasure_metrics.BiasErasureMetric", args={"mode": "erasure", "category": cat},
+        )
+        for cat in categories
+    ]
+
+
+def get_generative_harms_metrics() -> List[MetricSpec]:
+    return get_toxicity_metrics() + get_bias_erasure_metrics() + get_basic_metrics({"names": []})
+
+
+def get_summarization_metrics() -> List[MetricSpec]:
+    return get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}) + get_generative_harms_metrics()
 
 
 def get_srn_metrics() -> List[MetricSpec]:
@@ -273,7 +300,10 @@ def get_bold_spec(subject: str) -> RunSpec:
         max_tokens=20,  # See Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
     )
     return RunSpec(
-        name=f"bold:subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics()
+        name=f"bold:subject={subject}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_generative_harms_metrics(),
     )
 
 
@@ -518,7 +548,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         output_prefix="",
         num_train_trials=1,
         max_train_instances=0,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+        max_eval_instances=2,
         model="openai/davinci",  # "...we use the 175B parameter GPT-3 model, also known as DA VINCI in the OpenAI API"
         temperature=0.9,  # "We use a temperature of 1 during generation..."
         # Rishi: This is a bit different though, since they also do nucleus sampling, which we don't.
@@ -527,7 +557,10 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         num_outputs=16,  # "...the expected maximum toxicity over k = 25 generations..."
     )
     return RunSpec(
-        name="real_toxicity_prompts", scenario=scenario, adapter_spec=adapter_spec, metrics=get_toxicity_metrics(),
+        name="real_toxicity_prompts",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_generative_harms_metrics(),
     )
 
 
@@ -855,7 +888,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             model="openai/text-davinci-001",
             stop_sequences=["\n"],
         )
-        metrics = get_disinformation_metrics(args={"name": "reiteration"})
+        metrics = get_generative_harms_metrics() + get_disinformation_metrics(args={"name": "reiteration"})
         scenario_name += f",topic={topic}"
     elif capability == "wedging":
         adapter_spec = AdapterSpec(
@@ -873,7 +906,8 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             # Justification: The maximum number of tokens in the training prompts is 87
             max_tokens=90,
         )
-        metrics = get_toxicity_metrics() + get_disinformation_metrics(args={"name": "wedging"})
+        metrics = get_generative_harms_metrics() + get_disinformation_metrics(args={"name": "wedging"})
+
     else:
         raise ValueError(
             f"Unsupported evaluation for disinformation capability '{capability}'. "
@@ -1138,7 +1172,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_xsum:temperature={temperature}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
+        metrics=get_summarization_metrics(),
     )
 
 
@@ -1173,7 +1207,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_xsum:temperature={temperature}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
+        metrics=get_summarization_metrics(),
     )
 
 
@@ -1203,7 +1237,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_cnndm:temperature={temperature}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}),  # TODO: Add faithfulness metrics later
+        metrics=get_summarization_metrics(),
     )
 
 
