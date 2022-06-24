@@ -128,7 +128,7 @@ class AI21Tokenizer(Tokenizer):
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
         return (
             len(text) <= AI21Tokenizer.MAX_CHARACTER_LENGTH
-            and self.tokenize_and_count(text) + expected_completion_token_length <= self.max_sequence_length
+            and self.tokenize_and_count(text) + expected_completion_token_length <= self.max_request_length
         )
 
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
@@ -143,10 +143,11 @@ class AI21Tokenizer(Tokenizer):
         text = text[: AI21Tokenizer.MAX_CHARACTER_LENGTH]
         response: TokenizationRequestResult = self._make_tokenization_request(text)
 
-        # Only look at the first `self.max_sequence_length` - `expected_completion_token_length`
+        # Only look at the first `self.max_request_length` - `expected_completion_token_length`
         # number of tokens to the fit the text within the context window.
         # Each token is represented like this: {'text': '▁Hello', 'textRange': {'start': 0, 'end': 5}}
-        tokens: List[TokenizationToken] = response.tokens[: self.max_sequence_length - expected_completion_token_length]
+        max_length: int = self.max_request_length - expected_completion_token_length
+        tokens: List[TokenizationToken] = response.tokens[:max_length]
 
         # If there is no tokens, just return the original text
         if len(tokens) == 0:
@@ -158,13 +159,14 @@ class AI21Tokenizer(Tokenizer):
         last_text_range: TextRange = tokens[-1].text_range
         start: int = first_text_range.start
         end: int = last_text_range.end
-
         truncated_text: str = text[start:end]
-        if truncated_text.endswith("  "):
-            # The AI21 tokenizer API seems inaccurate (token count is off by 1) when the text ends
-            # with double spaces. Replacing the extra spaces with a single space fixes it.
-            truncated_text = truncated_text.rstrip() + " "
 
+        # For the vast majority of cases, the above logic works, but there are a few where the token
+        # count exceeds `max_length` by 1. We handle those by removing characters one by one until
+        # it fits within the context window.
+        while not self.fits_within_context_window(truncated_text, expected_completion_token_length):
+            end -= 1
+            truncated_text = text[start:end]
         return truncated_text
 
     def _make_tokenization_request(self, text: str) -> TokenizationRequestResult:
