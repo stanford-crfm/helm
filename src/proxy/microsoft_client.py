@@ -59,23 +59,17 @@ class MicrosoftClient(Client):
             prompt
             temperature
             max_tokens
+            best_of
+            logprobs
             stop ("Only a single "stop" value (str) is currently supported.")
             top_p
             echo
 
         Not supported parameters:
-            n (to get multiple completions)
-            best_of
-            logprobs
+            n (we simulate n by making multiple requests)
             presence_penalty
             frequency_penalty
-
-        Log probabilities are also currently not supported.
         """
-
-        def fix_text(text: str) -> str:
-            return text.replace("Ġ", " ")
-
         # Only a single "stop" value (str) or None is currently supported.
         stop_sequence: Optional[str]
         if len(request.stop_sequences) == 0:
@@ -90,6 +84,8 @@ class MicrosoftClient(Client):
             "prompt": request.prompt,
             "temperature": request.temperature,
             "max_tokens": request.max_tokens,
+            "best_of": request.top_k_per_token,
+            "logprobs": request.top_k_per_token,
             "stop": stop_sequence,
             "top_p": request.top_p,
             "echo": request.echo_prompt,
@@ -119,22 +115,17 @@ class MicrosoftClient(Client):
                 return RequestResult(success=False, cached=False, error=error, completions=[])
 
             for raw_completion in response["choices"]:
-                # TODO: handle logprobs when it's supported (currently always
-                # null). Current example response:
-                # {
-                #   "finish_reason": "stop",
-                #   "index": 0,
-                #   "logprobs": null,
-                #   "text": "So I was takin' a walk the other day"
-                # }
-                # Since the log probs and tokens are not available to us just
-                # tokenize the completion using the tokenizer.
-                completion_text: str = raw_completion["text"]
-                tokens: List[Token] = [
-                    Token(text=fix_text(text), logprob=0, top_logprobs={})
-                    for text in self.tokenizer.tokenize(completion_text)
-                ]
-                completion = Sequence(text=completion_text, logprob=0, tokens=tokens)
+                sequence_logprob = 0
+                tokens: List[Token] = []
+
+                raw_data = raw_completion["logprobs"]
+                for text, logprob, top_logprobs in zip(
+                    raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
+                ):
+                    tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
+                    sequence_logprob += logprob or 0
+
+                completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
                 completions.append(completion)
 
             request_time += response["request_time"]
