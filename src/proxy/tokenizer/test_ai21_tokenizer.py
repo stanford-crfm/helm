@@ -133,7 +133,13 @@ class TestAI21Tokenizer:
 
     @mock.patch(
         "proxy.tokenizer.ai21_tokenizer.TokenizerService.tokenize",
-        side_effect=[LONG_REQUEST_RESULT, LONG_REQUEST_RESULT, TRUNCATED_REQUEST_RESULT, TRUNCATED_REQUEST_RESULT],
+        side_effect=[
+            LONG_REQUEST_RESULT,
+            LONG_REQUEST_RESULT,
+            TRUNCATED_REQUEST_RESULT,
+            TRUNCATED_REQUEST_RESULT,
+            TRUNCATED_REQUEST_RESULT,
+        ],
     )
     def test_truncate_from_right(self, mock_tokenize):
         # Create a prompt that exceed max context length: 36 * 57 = 2052 tokens.
