@@ -22,6 +22,7 @@ from proxy.server_service import ServerService
 #       The Adapter and Scenarios should be completely decoupled.
 #       https://github.com/stanford-crfm/benchmarking/issues/569
 def get_test_adapter_service() -> AdapterService:
+    # Pointed to the default local path set in run.py (--local-path)
     return AdapterService(ServerService(base_path="prod_env", root_mode=True), Authentication("test"))
 
 
