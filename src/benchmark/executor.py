@@ -20,8 +20,9 @@ class ExecutorError(Exception):
 
 @dataclass(frozen=True)
 class ExecutionSpec:
-    # Where the service lives (e.g., http://localhost:1959)
-    url: str
+    # URL of the proxy server we send requests to (e.g., http://localhost:1959).
+    # Required when local=False.
+    url: Optional[str]
 
     # Pass into the service
     auth: Authentication
@@ -29,8 +30,10 @@ class ExecutionSpec:
     # Whether to bypass the proxy server and just run everything locally
     local: bool
 
-    # Local path when running locally
-    local_path: str
+    # Path where API credentials and cache is stored.
+    # This path is the same as `--base-path` when launching the proxy server (see server.py).
+    # Required when local=True.
+    local_path: Optional[str]
 
     # How many threads to have at once
     parallelism: int
@@ -50,9 +53,11 @@ class Executor:
 
         self.service: Service
         if execution_spec.local:
+            assert execution_spec.local_path, "local=True. Need to specify a value for `local_path`."
             hlog(f"Running locally in root mode with local path: {execution_spec.local_path}")
             self.service = ServerService(base_path=execution_spec.local_path, root_mode=True)
         else:
+            assert execution_spec.url, "local=False. Need to specify the URL of proxy server (`url`)."
             self.service = RemoteService(self.execution_spec.url)
 
     @htrack(None)
