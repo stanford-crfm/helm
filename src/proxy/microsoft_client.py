@@ -14,7 +14,6 @@ from common.tokenization_request import (
 )
 from .client import Client, wrap_request_time
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
-from .huggingface_client import HuggingFaceClient
 
 
 class MicrosoftClient(Client):
@@ -28,7 +27,7 @@ class MicrosoftClient(Client):
     all tokens have been generated."
     """
 
-    def __init__(self, api_key: str, cache_path: str, huggingface_client: HuggingFaceClient):
+    def __init__(self, api_key: str, cache_path: str):
         # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
         class EngineAPIResource(engine_api_resource.EngineAPIResource):
             @classmethod
@@ -42,7 +41,6 @@ class MicrosoftClient(Client):
         self.completion_attributes = (EngineAPIResource,) + ORIGINAL_COMPLETION_ATTRIBUTES[1:]
 
         self.cache = Cache(cache_path)
-        self.huggingface_client: HuggingFaceClient = huggingface_client
 
         # The Microsoft Turing server only allows a single request at a time, so acquire a
         # process-safe lock before making a request.
