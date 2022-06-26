@@ -1,8 +1,8 @@
 from typing import List, Dict
 
 from common.request import Request
-from proxy.tokenizer.auto_token_counter import AutoTokenCounter
 from .adapter import ScenarioState
+from .metrics.tokens.auto_token_cost_estimator import AutoTokenCostEstimator
 from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -15,7 +15,7 @@ class TokensMetric(Metric):
     """
 
     def __init__(self):
-        self.token_counter = AutoTokenCounter()
+        self.token_cost_estimator = AutoTokenCostEstimator()
 
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
@@ -28,7 +28,9 @@ class TokensMetric(Metric):
 
         for request_state in scenario_state.request_states:
             request: Request = request_state.request
-            stat = Stat(MetricName("estimated_num_tokens_cost")).add(self.token_counter.estimate_tokens(request))
+            stat = Stat(MetricName("estimated_num_tokens_cost")).add(
+                self.token_cost_estimator.estimate_tokens(request, metric_service)
+            )
             merge_stat(stats, stat)
             # Call take_mean to make a copy of the stat above so that merge_stat updates do
             # not change what is in per_instance_stats.

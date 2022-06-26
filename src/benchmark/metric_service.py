@@ -1,7 +1,7 @@
 from common.authentication import Authentication
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from proxy.service import Service
-from proxy.tokenizer.tokenizer_service import TokenizerService
+from benchmark.tokenizer.tokenizer_service import TokenizerService
 
 
 class MetricService(TokenizerService):

@@ -1,7 +1,6 @@
 from typing import Optional
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, replace
-
 from tqdm import tqdm
 
 from common.general import format_text
@@ -9,17 +8,32 @@ from common.hierarchical_logger import htrack, hlog
 from common.request import RequestResult
 from common.authentication import Authentication
 from proxy.remote_service import RemoteService
+from proxy.server_service import ServerService
+from proxy.service import Service
 from .adapter import RequestState, ScenarioState
 from .scenario import Instance
 
 
+class ExecutorError(Exception):
+    pass
+
+
 @dataclass(frozen=True)
 class ExecutionSpec:
-    # Where the service lives (e.g., http://localhost:1959)
-    url: str
+    # URL of the proxy server we send requests to (e.g., http://localhost:1959).
+    # Required when local=False.
+    url: Optional[str]
 
     # Pass into the service
     auth: Authentication
+
+    # Whether to bypass the proxy server and just run everything locally
+    local: bool
+
+    # Path where API credentials and cache is stored.
+    # This path is the same as `--base-path` when launching the proxy server (see server.py).
+    # Required when local=True.
+    local_path: Optional[str]
 
     # How many threads to have at once
     parallelism: int
@@ -36,7 +50,15 @@ class Executor:
 
     def __init__(self, execution_spec: ExecutionSpec):
         self.execution_spec = execution_spec
-        self.remote_service = RemoteService(self.execution_spec.url)
+
+        self.service: Service
+        if execution_spec.local:
+            assert execution_spec.local_path, "local=True. Need to specify a value for `local_path`."
+            hlog(f"Running locally in root mode with local path: {execution_spec.local_path}")
+            self.service = ServerService(base_path=execution_spec.local_path, root_mode=True)
+        else:
+            assert execution_spec.url, "local=False. Need to specify the URL of proxy server (`url`)."
+            self.service = RemoteService(self.execution_spec.url)
 
     @htrack(None)
     def execute(self, scenario_state: ScenarioState) -> ScenarioState:
@@ -74,7 +96,10 @@ class Executor:
             )
 
         def process(state: RequestState) -> RequestState:
-            result: RequestResult = self.remote_service.make_request(self.execution_spec.auth, state.request)
+            result: RequestResult = self.service.make_request(self.execution_spec.auth, state.request)
+            if not result.success:
+                raise ExecutorError(result.error + f"Request: {state.request}")
+
             state = replace(state, result=result)
             tqdm.write(render_request_state(state))
             return state

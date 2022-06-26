@@ -5,7 +5,12 @@ from typing import List
 from common.authentication import Authentication
 from common.general import ensure_directory_exists, parse_hocon
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    DecodeRequest,
+    DecodeRequestResult,
+)
 from common.request import Request, RequestResult
 from common.hierarchical_logger import hlog
 from proxy.accounts import Accounts, Account
@@ -24,7 +29,7 @@ from proxy.service import (
     expand_environments,
     synthesize_request,
 )
-from proxy.tokenizer.auto_token_counter import AutoTokenCounter
+from .token_counter.auto_token_counter import AutoTokenCounter
 
 
 class ServerService(Service):
@@ -32,7 +37,7 @@ class ServerService(Service):
     Main class that supports various functionality for the server.
     """
 
-    def __init__(self, base_path: str = "."):
+    def __init__(self, base_path: str = ".", root_mode=False):
         credentials_path = os.path.join(base_path, CREDENTIALS_FILE)
         cache_path = os.path.join(base_path, CACHE_DIR)
         ensure_directory_exists(cache_path)
@@ -45,8 +50,8 @@ class ServerService(Service):
             credentials = {}
 
         self.client = AutoClient(credentials, cache_path)
-        self.token_counter = AutoTokenCounter()
-        self.accounts = Accounts(accounts_path)
+        self.token_counter = AutoTokenCounter(self.client.huggingface_client)
+        self.accounts = Accounts(accounts_path, root_mode=root_mode)
         self.perspective_api_client = PerspectiveAPIClient(
             api_key=credentials["perspectiveApiKey"] if "perspectiveApiKey" in credentials else "",
             cache_path=cache_path,
@@ -73,7 +78,7 @@ class ServerService(Service):
         #       https://github.com/stanford-crfm/benchmarking/issues/56
 
         self.accounts.authenticate(auth)
-        model_group = get_model_group(request.model)
+        model_group: str = get_model_group(request.model)
         # Make sure we can use
         self.accounts.check_can_use(auth.api_key, model_group)
 
@@ -93,6 +98,11 @@ class ServerService(Service):
         """Tokenize via an API."""
         self.accounts.authenticate(auth)
         return self.client.tokenize(request)
+
+    def decode(self, auth: Authentication, request: DecodeRequest) -> DecodeRequestResult:
+        """Decodes to text."""
+        self.accounts.authenticate(auth)
+        return self.client.decode(request)
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         self.accounts.authenticate(auth)

@@ -56,8 +56,8 @@ class Runner:
     ):
         self.executor = Executor(execution_spec)
         self.dry_run: bool = execution_spec.dry_run
-        self.adapter_service = AdapterService(self.executor.remote_service, execution_spec.auth)
-        self.metric_service = MetricService(self.executor.remote_service, execution_spec.auth)
+        self.adapter_service = AdapterService(self.executor.service, execution_spec.auth)
+        self.metric_service = MetricService(self.executor.service, execution_spec.auth)
         self.run_specs: List[RunSpec] = run_specs
         self.skip_instances: bool = skip_instances
 

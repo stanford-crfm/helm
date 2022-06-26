@@ -35,6 +35,8 @@ def run_benchmarking(
     run_spec_descriptions: List[str],
     auth: Authentication,
     url: str,
+    local: bool,
+    local_path: str,
     num_threads: int,
     output_path: str,
     suite: str,
@@ -44,7 +46,9 @@ def run_benchmarking(
     models_to_run: Optional[List[str]] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
-    execution_spec = ExecutionSpec(auth=auth, url=url, parallelism=num_threads, dry_run=dry_run)
+    execution_spec = ExecutionSpec(
+        auth=auth, url=url, local=local, local_path=local_path, parallelism=num_threads, dry_run=dry_run
+    )
 
     def override(run_spec: RunSpec) -> RunSpec:
         """Override parts of `run_spec`."""
@@ -100,6 +104,12 @@ def add_run_args(parser: argparse.ArgumentParser):
         help="Name of the suite this run belongs to (default is today's date).",
         default=datetime.today().strftime("%m-%d-%Y"),
     )
+    parser.add_argument(
+        "--local", action="store_true", help="If true, bypasses the proxy server and runs everything locally",
+    )
+    parser.add_argument(
+        "--local-path", type=str, help="If running locally, the path for `ServerService`.", default="prod_env",
+    )
 
 
 def validate_args(args):
@@ -123,6 +133,8 @@ def main():
         args.run_specs,
         auth=auth,
         url=args.server_url,
+        local=args.local,
+        local_path=args.local_path,
         num_threads=args.num_threads,
         output_path=args.output_path,
         suite=args.suite,

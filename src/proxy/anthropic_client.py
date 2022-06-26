@@ -8,9 +8,13 @@ import websocket
 from common.cache import Cache
 from common.hierarchical_logger import htrack_block, hlog
 from common.request import Request, RequestResult, Sequence, Token
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    DecodeRequest,
+    DecodeRequestResult,
+)
 from .client import Client, wrap_request_time
-from .tokenizer.tokenizer_factory import TokenizerFactory
 
 
 class AnthropicRequestError(Exception):
@@ -37,8 +41,6 @@ class AnthropicClient(Client):
     def __init__(self, api_key: str, cache_path: str):
         self.api_key = api_key
         self.cache = Cache(cache_path)
-        # Anthropic is using a modified version of the GPT-2 tokenizer.
-        self.tokenizer = TokenizerFactory.get_tokenizer("anthropic")
 
     def make_request(self, request: Request) -> RequestResult:
         # Validate the fields of `Request`
@@ -51,11 +53,10 @@ class AnthropicClient(Client):
             raise ValueError(
                 "top_k_per_token > 1 is not supported. The Anthropic API only gives a single token at a time."
             )
-        expected_completion_length: int = request.max_tokens - self.tokenizer.tokenize_and_count(request.prompt)
-        if expected_completion_length > AnthropicClient.MAX_COMPLETION_LENGTH:
+        if request.max_tokens > AnthropicClient.MAX_COMPLETION_LENGTH:
             raise ValueError(
-                f"Expected to get back {expected_completion_length} number of tokens in the completion, which "
-                f"exceeds the currently supported max completion length of {AnthropicClient.MAX_COMPLETION_LENGTH}."
+                "The value for `max_tokens` exceeds the currently supported maximum "
+                f"({request.max_tokens} > {AnthropicClient.MAX_COMPLETION_LENGTH})."
             )
 
         raw_request = {
@@ -171,10 +172,7 @@ class AnthropicClient(Client):
         return RequestResult(success=True, cached=all_cached, request_time=request_time, completions=completions)
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes the text using the underlying tokenizer."""
-        return TokenizationRequestResult(
-            success=True,
-            cached=False,
-            tokens=[TokenizationToken(raw_text) for raw_text in self.tokenizer.tokenize(request.text)],
-            text=request.text,
-        )
+        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
+
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        raise NotImplementedError("Use the HuggingFaceClient to decode.")
