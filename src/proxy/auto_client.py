@@ -49,11 +49,7 @@ class AutoClient(Client):
             elif organization == "anthropic":
                 client = AnthropicClient(api_key=self.credentials["anthropicApiKey"], cache_path=client_cache_path)
             elif organization == "microsoft":
-                client = MicrosoftClient(
-                    api_key=self.credentials["microsoftApiKey"],
-                    cache_path=client_cache_path,
-                    huggingface_client=self.huggingface_client,
-                )
+                client = MicrosoftClient(api_key=self.credentials["microsoftApiKey"], cache_path=client_cache_path)
             elif organization == "simple":
                 client = SimpleClient(cache_path=client_cache_path)
             else:

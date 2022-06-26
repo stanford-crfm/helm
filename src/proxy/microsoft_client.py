@@ -14,7 +14,6 @@ from common.tokenization_request import (
 )
 from .client import Client, wrap_request_time
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
-from .huggingface_client import HuggingFaceClient
 
 
 class MicrosoftClient(Client):
@@ -28,7 +27,7 @@ class MicrosoftClient(Client):
     all tokens have been generated."
     """
 
-    def __init__(self, api_key: str, cache_path: str, huggingface_client: HuggingFaceClient):
+    def __init__(self, api_key: str, cache_path: str):
         # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
         class EngineAPIResource(engine_api_resource.EngineAPIResource):
             @classmethod
@@ -42,7 +41,6 @@ class MicrosoftClient(Client):
         self.completion_attributes = (EngineAPIResource,) + ORIGINAL_COMPLETION_ATTRIBUTES[1:]
 
         self.cache = Cache(cache_path)
-        self.huggingface_client: HuggingFaceClient = huggingface_client
 
         # The Microsoft Turing server only allows a single request at a time, so acquire a
         # process-safe lock before making a request.
@@ -63,23 +61,17 @@ class MicrosoftClient(Client):
             prompt
             temperature
             max_tokens
+            best_of
+            logprobs
             stop ("Only a single "stop" value (str) is currently supported.")
             top_p
             echo
 
         Not supported parameters:
-            n (to get multiple completions)
-            best_of
-            logprobs
+            n (we simulate n by making multiple requests)
             presence_penalty
             frequency_penalty
-
-        Log probabilities are also currently not supported.
         """
-
-        def fix_text(text: str) -> str:
-            return text.replace("Ġ", " ")
-
         # Only a single "stop" value (str) or None is currently supported.
         stop_sequence: Optional[str]
         if len(request.stop_sequences) == 0:
@@ -94,6 +86,8 @@ class MicrosoftClient(Client):
             "prompt": request.prompt,
             "temperature": request.temperature,
             "max_tokens": request.max_tokens,
+            "best_of": request.top_k_per_token,
+            "logprobs": request.top_k_per_token,
             "stop": stop_sequence,
             "top_p": request.top_p,
             "echo": request.echo_prompt,
@@ -123,25 +117,17 @@ class MicrosoftClient(Client):
                 return RequestResult(success=False, cached=False, error=error, completions=[])
 
             for raw_completion in response["choices"]:
-                # TODO: handle logprobs when it's supported (currently always
-                # null). Current example response:
-                # {
-                #   "finish_reason": "stop",
-                #   "index": 0,
-                #   "logprobs": null,
-                #   "text": "So I was takin' a walk the other day"
-                # }
-                # Since the log probs and tokens are not available to us just
-                # tokenize the completion using the tokenizer.
-                completion_text: str = raw_completion["text"]
-                tokenization_result: TokenizationRequestResult = self.huggingface_client.tokenize(
-                    TokenizationRequest(completion_text)
-                )
-                tokens: List[Token] = [
-                    Token(text=fix_text(token.value), logprob=0, top_logprobs={})
-                    for token in tokenization_result.tokens
-                ]
-                completion = Sequence(text=completion_text, logprob=0, tokens=tokens)
+                sequence_logprob = 0
+                tokens: List[Token] = []
+
+                raw_data = raw_completion["logprobs"]
+                for text, logprob, top_logprobs in zip(
+                    raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
+                ):
+                    tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
+                    sequence_logprob += logprob or 0
+
+                completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
                 completions.append(completion)
 
             request_time += response["request_time"]
