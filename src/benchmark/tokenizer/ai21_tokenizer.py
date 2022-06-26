@@ -160,9 +160,9 @@ class AI21Tokenizer(Tokenizer):
         end: int = last_text_range.end
         truncated_text: str = text[start:end]
 
-        # For the vast majority of cases, the above logic works, but there are a few where the token
-        # count exceeds `max_length` by 1. We handle those by removing characters one by one until
-        # it fits within the context window.
+        # HACK: For the vast majority of cases, the above logic works, but there are a few where the
+        # token count exceeds `max_length` by 1. This might be a bug with the AI21 tokenizer API.
+        # We handle those by removing characters one by one until it fits within the context window.
         while not self.fits_within_context_window(truncated_text, expected_completion_token_length):
             end -= 1
             truncated_text = text[start:end]
