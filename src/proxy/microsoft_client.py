@@ -6,11 +6,15 @@ import openai as turing
 
 from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    DecodeRequest,
+    DecodeRequestResult,
+)
 from .client import Client, wrap_request_time
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
-from .tokenizer.tokenizer import Tokenizer
-from .tokenizer.tokenizer_factory import TokenizerFactory
+from .huggingface_client import HuggingFaceClient
 
 
 class MicrosoftClient(Client):
@@ -24,7 +28,7 @@ class MicrosoftClient(Client):
     all tokens have been generated."
     """
 
-    def __init__(self, api_key: str, cache_path: str):
+    def __init__(self, api_key: str, cache_path: str, huggingface_client: HuggingFaceClient):
         # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
         class EngineAPIResource(engine_api_resource.EngineAPIResource):
             @classmethod
@@ -38,7 +42,7 @@ class MicrosoftClient(Client):
         self.completion_attributes = (EngineAPIResource,) + ORIGINAL_COMPLETION_ATTRIBUTES[1:]
 
         self.cache = Cache(cache_path)
-        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer("microsoft")
+        self.huggingface_client: HuggingFaceClient = huggingface_client
 
         # The Microsoft Turing server only allows a single request at a time, so acquire a
         # process-safe lock before making a request.
@@ -134,10 +138,7 @@ class MicrosoftClient(Client):
         return RequestResult(success=True, cached=all_cached, request_time=request_time, completions=completions)
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes the text using the GPT-2 tokenizer created in `MTNLGTokenizer`."""
-        return TokenizationRequestResult(
-            success=True,
-            cached=False,
-            tokens=[TokenizationToken(raw_text) for raw_text in self.tokenizer.tokenize(request.text)],
-            text=request.text,
-        )
+        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
+
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        raise NotImplementedError("Use the HuggingFaceClient to decode.")

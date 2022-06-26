@@ -4,11 +4,14 @@ import openai as gooseai
 
 from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    DecodeRequest,
+    DecodeRequestResult,
+)
 from .client import Client, wrap_request_time
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
-from .tokenizer.tokenizer import Tokenizer
-from .tokenizer.tokenizer_factory import TokenizerFactory
 
 
 class GooseAIClient(Client):
@@ -23,7 +26,6 @@ class GooseAIClient(Client):
         self.api_base: str = "https://api.goose.ai/v1"
 
         self.cache = Cache(cache_path)
-        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer("gooseai")
 
     def make_request(self, request: Request) -> RequestResult:
         """
@@ -77,10 +79,7 @@ class GooseAIClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes the text using the GPT-2 tokenizer."""
-        return TokenizationRequestResult(
-            success=True,
-            cached=False,
-            tokens=[TokenizationToken(raw_text) for raw_text in self.tokenizer.tokenize(request.text)],
-            text=request.text,
-        )
+        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
+
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        raise NotImplementedError("Use the HuggingFaceClient to decode.")

@@ -5,7 +5,14 @@ from dacite import from_dict
 
 from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken, TextRange
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    TokenizationToken,
+    TextRange,
+    DecodeRequest,
+    DecodeRequestResult,
+)
 from .client import Client, wrap_request_time
 
 
@@ -149,7 +156,10 @@ class AI21Client(Client):
         tokens: List[TokenizationToken] = []
         for token_dict in response["tokens"]:
             tokens.append(
-                TokenizationToken(text=token_dict["token"], text_range=from_dict(TextRange, token_dict["textRange"]))
+                TokenizationToken(value=token_dict["token"], text_range=from_dict(TextRange, token_dict["textRange"]))
             )
         text: str = response["text"]
         return TokenizationRequestResult(success=True, cached=cached, tokens=tokens, text=text)
+
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        raise NotImplementedError("Not supported")

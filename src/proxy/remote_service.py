@@ -7,7 +7,12 @@ from typing import Any, List, Optional
 
 from common.authentication import Authentication
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    DecodeRequestResult,
+    DecodeRequest,
+)
 from common.request import Request, RequestResult
 from dacite import from_dict
 from proxy.accounts import Account
@@ -61,6 +66,16 @@ class RemoteService(Service):
         response = requests.get(f"{self.base_url}/api/tokenize?{urllib.parse.urlencode(params)}").json()
         RemoteService._check_response(response, request_json)
         return from_dict(TokenizationRequestResult, response)
+
+    def decode(self, auth: Authentication, request: DecodeRequest) -> DecodeRequestResult:
+        request_json: str = json.dumps(asdict(request))
+        params = {
+            "auth": json.dumps(asdict(auth)),
+            "request": request_json,
+        }
+        response = requests.get(f"{self.base_url}/api/decode?{urllib.parse.urlencode(params)}").json()
+        RemoteService._check_response(response, request_json)
+        return from_dict(DecodeRequestResult, response)
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         request_json: str = json.dumps(asdict(request))

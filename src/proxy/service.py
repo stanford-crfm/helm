@@ -5,7 +5,12 @@ from typing import Dict, List, Tuple, Any
 
 from common.general import parse_hocon
 from common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    DecodeRequest,
+    DecodeRequestResult,
+)
 from common.request import Request, RequestResult
 from .models import Model
 from .query import Query, QueryResult
@@ -84,6 +89,11 @@ class Service(ABC):
     @abstractmethod
     def tokenize(self, auth: Authentication, request: TokenizationRequest) -> TokenizationRequestResult:
         """Tokenize via an API."""
+        pass
+
+    @abstractmethod
+    def decode(self, auth: Authentication, request: DecodeRequest) -> DecodeRequestResult:
+        """Decodes to text."""
         pass
 
     @abstractmethod
