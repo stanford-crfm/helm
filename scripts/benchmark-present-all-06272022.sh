@@ -4,7 +4,7 @@ Run RunSpecs in parallel by models using benchmark-present.
 Usage:
 
   conda activate crfm_benchmarking
-  bash scripts/benchmark-present-all-06252022.sh --api-key-path proxy_api_key.4122022.txt --max-eval-instances 1000 --conf-path src/benchmark/presentation/run_specs.conf --num-threads 1 --priority 1 --local
+  bash scripts/benchmark-present-all-06272022.sh --api-key-path proxy_api_key.4122022.txt --max-eval-instances 1000 --conf-path src/benchmark/presentation/run_specs.conf --num-threads 1 --priority 2 --local
 
 To kill a running process:
 
@@ -26,12 +26,13 @@ models=(
   "ai21/j1-jumbo"
   "ai21/j1-grande"
   "ai21/j1-large"
+  # Not enough OpenAI credits at the moment
   # "openai/davinci openai/curie openai/babbage openai/ada"
   # "openai/text-davinci-002 openai/text-davinci-001 openai/text-curie-001 openai/text-babbage-001 openai/text-ada-001"
   # "openai/code-davinci-002 openai/code-davinci-001 openai/code-cushman-001"
-  "openai/text-curie-001"
-  "openai/text-davinci-002"
-  "openai/curie"
+  # "openai/text-curie-001"
+  # "openai/text-davinci-002"
+  # "openai/curie"
   "gooseai/gpt-j-6b"
   "anthropic/stanford-online-all-v4-s3"
   "microsoft/TNLGv2_530B"
@@ -43,5 +44,5 @@ do
     suite="${suite// /_}"   # Replace spaces
 
     # Override with passed-in CLI arguments
-    execute "benchmark-present --models-to-run $model --suite 06-25-2022 $* &> $suite.log &"
+    execute "benchmark-present --models-to-run $model --suite 06-27-2022 $* &> $suite.log &"
 done
