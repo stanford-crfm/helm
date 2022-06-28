@@ -174,10 +174,7 @@ def bleu_4(gold: str, pred: str) -> float:
 
 
 def extract_set_from_text(
-    set_str: str,
-    set_start_str: str = " is ",
-    set_separator: str = " and ",
-    empty_set_str: str = "Nothing.",
+    set_str: str, set_start_str: str = " is ", set_separator: str = " and ", empty_set_str: str = "Nothing.",
 ) -> Set[str]:
     """
     Given a string, extract the set of strings implied by that string.
@@ -305,11 +302,7 @@ class BasicMetric(Metric):
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
 
-        def compute_metrics_helper(
-            name: MetricName,
-            score_func: Callable,
-            group: Optional[str] = None,
-        ) -> List[Stat]:
+        def compute_metrics_helper(name: MetricName, score_func: Callable, group: Optional[str] = None,) -> List[Stat]:
             if name.name == "pass":  # Calculate pass@k for HumanEval from CodeScenario.
                 score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
                 code_golds = cast(List[CodeReference], golds)
