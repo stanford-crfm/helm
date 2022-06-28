@@ -476,14 +476,15 @@ class BasicMetric(Metric):
         """Record how often generation finished due to reaching token limit, stop token(s), or end of text"""
         assert request_state.result is not None
         sequence = request_state.result.completions[0]
-        if sequence.finish_reason is not None:
-            reason = sequence.finish_reason["reason"]
-            valid_reasons = ["length", "stop", "endoftext"]
-            assert reason in set(valid_reasons)
-            return [
-                Stat(MetricName(f"finish_reason_{valid_reason}")).add(int(reason == valid_reason))
-                for valid_reason in valid_reasons
-            ]
+        valid_reasons = ["length", "stop", "endoftext", "unknown"]
+        reason = sequence.finish_reason["reason"]
+        if reason is None:
+            reason = "unknown"
+        assert reason in set(valid_reasons)
+        return [
+            Stat(MetricName(f"finish_reason_{valid_reason}")).add(int(reason == valid_reason))
+            for valid_reason in valid_reasons
+        ]
 
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
