@@ -51,8 +51,8 @@ def pass_at_k_estimator(n: int, c: int, k: int) -> float:
 
 def normalize_text(text: str) -> str:
     """Lower text and remove punctuation, articles and extra whitespace.
-     Copied from the [QuAC](http://quac.ai/) evaluation script found at
-     https://s3.amazonaws.com/my89public/quac/scorer.py"""
+    Copied from the [QuAC](http://quac.ai/) evaluation script found at
+    https://s3.amazonaws.com/my89public/quac/scorer.py"""
 
     def remove_articles(text: str) -> str:
         return re.sub(r"\b(a|an|the)\b", " ", text)
@@ -174,7 +174,10 @@ def bleu_4(gold: str, pred: str) -> float:
 
 
 def extract_set_from_text(
-    set_str: str, set_start_str: str = " is ", set_separator: str = " and ", empty_set_str: str = "Nothing.",
+    set_str: str,
+    set_start_str: str = " is ",
+    set_separator: str = " and ",
+    empty_set_str: str = "Nothing.",
 ) -> Set[str]:
     """
     Given a string, extract the set of strings implied by that string.
@@ -302,7 +305,11 @@ class BasicMetric(Metric):
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
 
-        def compute_metrics_helper(name: MetricName, score_func: Callable, group: Optional[str] = None,) -> List[Stat]:
+        def compute_metrics_helper(
+            name: MetricName,
+            score_func: Callable,
+            group: Optional[str] = None,
+        ) -> List[Stat]:
             if name.name == "pass":  # Calculate pass@k for HumanEval from CodeScenario.
                 score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
                 code_golds = cast(List[CodeReference], golds)
@@ -470,6 +477,21 @@ class BasicMetric(Metric):
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
         ]
 
+    def compute_finish_reason_metrics(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    ) -> List[Stat]:
+        """Record how often generation finished due to reaching token limit, stop token(s), or end of text"""
+        assert request_state.result is not None
+        sequence = request_state.result.completions[0]
+        if sequence.finish_reason is not None:
+            reason = sequence.finish_reason["reason"]
+            valid_reasons = ["length", "stop", "endoftext"]
+            assert reason in set(valid_reasons)
+            return [
+                Stat(MetricName(f"finish_reason_{valid_reason}")).add(int(reason == valid_reason))
+                for valid_reason in valid_reasons
+            ]
+
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
@@ -515,6 +537,7 @@ class BasicMetric(Metric):
 
         metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
 
         # Future: add F1, BLEU, etc.
         return metrics
