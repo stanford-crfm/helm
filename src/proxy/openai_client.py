@@ -59,6 +59,7 @@ class OpenAIClient(Client):
             return RequestResult(success=False, cached=False, error=error, completions=[])
 
         completions = []
+        finish_reasons = []
         for raw_completion in response["choices"]:
             sequence_logprob = 0
             tokens: List[Token] = []
@@ -81,8 +82,9 @@ class OpenAIClient(Client):
                 sequence_logprob += logprob or 0
             completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
             completions.append(completion)
+            finish_reasons.append({"reason": raw_completion["finish_reason"]})
         return RequestResult(
-            success=True, cached=cached, request_time=response["request_time"], completions=completions
+            success=True, cached=cached, request_time=response["request_time"], completions=completions, finish_reasons=finish_reasons
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:

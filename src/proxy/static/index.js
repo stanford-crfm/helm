@@ -175,6 +175,10 @@ $(function () {
     return (Math.round(time * 10) / 10) + 's';
   }
 
+  function renderFinishReason(reason) {
+      return $('<p>').append(JSON.stringify(reason));
+  }
+
   function constructTokenGroups(tokens) {
     // Note: sometimes multiple tokens correspond to one character, for example:
     // ["bytes:\xe2\x80", "bytes:\x99"] => ’
@@ -234,10 +238,17 @@ $(function () {
       return renderError(requestResult.error);
     }
     const $result = $('<div>');
-    requestResult.completions.forEach((completion) => {
+    const finish_reasons = requestResult.finish_reasons == null ? [] : requestResult.finish_reasons;
+    for (let i = 0; i < requestResult.completions.length;) {
+        const finish_reason = {"reason": "unknown"};
+        finish_reasons.push(finish_reason);
+        i++;
+    }
+    requestResult.completions.map(function(completion, i) {
       const $contents = $('<span>', {title: `logprob: ${completion.logprob}`}).append(renderTokens(completion.tokens));
       const $metadata = $('<span>', {class: 'metadata'}).append(round(completion.logprob, 2));
-      $result.append($('<div>', {class: 'completion'}).append($metadata).append($contents));
+      const $finish_reason = $('<details>', {title: 'finish_reason'}).append($('<summary>').append("Finish reason")).append(renderFinishReason(finish_reasons[i]));
+      $result.append($('<div>', {class: 'completion'}).append($metadata).append($contents).append($finish_reason));
     });
     $result.append($('<i>').append(renderTime(requestResult.request_time)));
     return $result;

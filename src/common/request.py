@@ -136,6 +136,9 @@ class RequestResult:
     # How long did the query take?
     request_time: Optional[float] = None
 
+    # Why did the query finish generating?
+    finish_reasons: Optional[List[Dict]] = None
+
     # If `success` is false, what was the error?
     error: Optional[str] = None
 

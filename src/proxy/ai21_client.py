@@ -119,12 +119,14 @@ class AI21Client(Client):
 
         prompt = parse_sequence(response["prompt"], True)
         completions = []
+        finish_reasons = []
         for raw_completion in response["completions"]:
             completion = parse_sequence(raw_completion["data"], False)
             completions.append(prompt + completion if request.echo_prompt else completion)
+            finish_reasons.append(raw_completion["finishReason"])
 
         return RequestResult(
-            success=True, cached=cached, request_time=response["request_time"], completions=completions
+            success=True, cached=cached, request_time=response["request_time"], completions=completions, finish_reasons=finish_reasons
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
