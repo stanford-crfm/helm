@@ -477,9 +477,10 @@ class BasicMetric(Metric):
         assert request_state.result is not None
         sequence = request_state.result.completions[0]
         valid_reasons = ["length", "stop", "endoftext", "unknown"]
-        reason = sequence.finish_reason["reason"]
-        if reason is None:
+        if sequence.finish_reason is None:
             reason = "unknown"
+        else:
+            reason = sequence.finish_reason["reason"]
         assert reason in set(valid_reasons)
         return [
             Stat(MetricName(f"finish_reason_{valid_reason}")).add(int(reason == valid_reason))
