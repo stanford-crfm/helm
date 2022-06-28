@@ -126,7 +126,11 @@ class AI21Client(Client):
             finish_reasons.append(raw_completion["finishReason"])
 
         return RequestResult(
-            success=True, cached=cached, request_time=response["request_time"], completions=completions, finish_reasons=finish_reasons
+            success=True,
+            cached=cached,
+            request_time=response["request_time"],
+            completions=completions,
+            finish_reasons=finish_reasons,
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
