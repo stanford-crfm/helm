@@ -81,8 +81,9 @@ class SynonymPerturbation(Perturbation):
             wordnet_pos = spacy_to_wordnet_pos.get(token.pos_)
             if wordnet_pos:
                 synsets = wordnet.synsets(word, pos=wordnet_pos)
-                synonyms = [synset.name().split(".")[0] for synset in synsets]
+                synonyms = [lemma.name() for synset in synsets for lemma in synset.lemmas()]
                 synonyms = [s for s in synonyms if s != word.lower()]
+                synonyms = list(dict.fromkeys(synonyms))  # Make the list unique while preserving the order
                 if synonyms and self.random.uniform(0, 1) < self.prob:
                     synonym = self.random.choice(synonyms)
                     synonym = synonym.replace("_", " ")  # We might get synonyms such as "passive_voice"
