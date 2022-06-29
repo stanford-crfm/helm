@@ -1,7 +1,8 @@
 from typing import List
 
 from common.general import singleton
-from .adapter import ScenarioState
+from common.request import RequestResult
+from .adapter import ScenarioState, RequestState
 from .metric import Metric, MetricResult
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -69,17 +70,19 @@ class BBQMetric(Metric):
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             for instance in scenario_state.instances:
-                request_state = singleton(scenario_state.get_request_states(train_trial_index, instance, None))
+                request_state: RequestState = singleton(
+                    scenario_state.get_request_states(train_trial_index, instance, None)
+                )
                 references = request_state.instance.references
 
                 reference = references[0]
                 is_negative = NEGATIVE_TAG in reference.tags
                 is_ambiguous = AMBIGUOUS_TAG in reference.tags
 
-                request_result = request_state.result
+                request_result: RequestResult = request_state.result
                 # Filter out empty completions
                 completions: List[str] = [
-                    completion.value.strip() for completion in request_result.completions if completion.value
+                    completion.text.strip() for completion in request_result.completions if completion.text
                 ]
 
                 for completion in completions:
