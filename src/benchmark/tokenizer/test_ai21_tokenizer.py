@@ -138,7 +138,13 @@ class TestAI21Tokenizer:
 
     @mock.patch(
         "benchmark.tokenizer.ai21_tokenizer.TokenizerService.tokenize",
-        side_effect=[LONG_REQUEST_RESULT, LONG_REQUEST_RESULT, TRUNCATED_REQUEST_RESULT, TRUNCATED_REQUEST_RESULT],
+        side_effect=[
+            LONG_REQUEST_RESULT,
+            LONG_REQUEST_RESULT,
+            TRUNCATED_REQUEST_RESULT,
+            TRUNCATED_REQUEST_RESULT,
+            TRUNCATED_REQUEST_RESULT,
+        ],
     )
     @pytest.mark.skip("TODO: update the pickle file with the response")
     def test_truncate_from_right(self, mock_tokenize):
