@@ -3,11 +3,16 @@ import json
 import requests
 import urllib.parse
 from dataclasses import asdict
-from typing import Any, List
+from typing import Any, List, Optional
 
 from common.authentication import Authentication
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    DecodeRequestResult,
+    DecodeRequest,
+)
 from common.request import Request, RequestResult
 from dacite import from_dict
 from proxy.accounts import Account
@@ -21,12 +26,16 @@ class RemoteServiceError(Exception):
 
 class RemoteService(Service):
     def __init__(self, base_url="https://crfm-models.stanford.edu"):
-        self.base_url = base_url
+        self.base_url: str = base_url
 
     @staticmethod
-    def _check_response(response: Any):
+    def _check_response(response: Any, request: Optional[str] = None):
         if type(response) is dict and "error" in response and response["error"]:
-            raise RemoteServiceError(response["error"])
+            error_message: str = response["error"]
+            if request:
+                error_message += f" Request: {request}"
+
+            raise RemoteServiceError(error_message)
 
     def get_general_info(self) -> GeneralInfo:
         response = requests.get(f"{self.base_url}/api/general_info").json()
@@ -39,30 +48,43 @@ class RemoteService(Service):
         return from_dict(QueryResult, response)
 
     def make_request(self, auth: Authentication, request: Request) -> RequestResult:
+        request_json: str = json.dumps(asdict(request))
         params = {
             "auth": json.dumps(asdict(auth)),
-            "request": json.dumps(asdict(request)),
+            "request": request_json,
         }
         response = requests.get(f"{self.base_url}/api/request?{urllib.parse.urlencode(params)}").json()
-        RemoteService._check_response(response)
+        RemoteService._check_response(response, request_json)
         return from_dict(RequestResult, response)
 
     def tokenize(self, auth: Authentication, request: TokenizationRequest) -> TokenizationRequestResult:
+        request_json: str = json.dumps(asdict(request))
         params = {
             "auth": json.dumps(asdict(auth)),
-            "request": json.dumps(asdict(request)),
+            "request": request_json,
         }
         response = requests.get(f"{self.base_url}/api/tokenize?{urllib.parse.urlencode(params)}").json()
-        RemoteService._check_response(response)
+        RemoteService._check_response(response, request_json)
         return from_dict(TokenizationRequestResult, response)
 
-    def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
+    def decode(self, auth: Authentication, request: DecodeRequest) -> DecodeRequestResult:
+        request_json: str = json.dumps(asdict(request))
         params = {
             "auth": json.dumps(asdict(auth)),
-            "request": json.dumps(asdict(request)),
+            "request": request_json,
+        }
+        response = requests.get(f"{self.base_url}/api/decode?{urllib.parse.urlencode(params)}").json()
+        RemoteService._check_response(response, request_json)
+        return from_dict(DecodeRequestResult, response)
+
+    def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
+        request_json: str = json.dumps(asdict(request))
+        params = {
+            "auth": json.dumps(asdict(auth)),
+            "request": request_json,
         }
         response = requests.get(f"{self.base_url}/api/toxicity?{urllib.parse.urlencode(params)}").json()
-        RemoteService._check_response(response)
+        RemoteService._check_response(response, request_json)
         return from_dict(PerspectiveAPIRequestResult, response)
 
     def create_account(self, auth: Authentication) -> Account:

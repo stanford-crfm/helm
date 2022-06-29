@@ -32,7 +32,6 @@ UNCERTAIN_PHRASES = ["maybe", "perhaps", "probably", "possibly", "most likely"]
 FILL_PHRASE = ["uhm", "umm", "ahh", "err", "actually", "obviously", "naturally", "like", "you know"]
 
 
-@dataclass
 class FillerWordsPerturbation(Perturbation):
     """
     Randomly inserts filler words and phrases in the sentence.
@@ -46,8 +45,7 @@ class FillerWordsPerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        name: str
-        insert_prob: float
+        insert_prob: float = 0.0
 
     name: str = "filler_words"
 
@@ -60,14 +58,14 @@ class FillerWordsPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return FillerWordsPerturbation.Description(self.name, self.insert_prob)
+        return FillerWordsPerturbation.Description(name=self.name, robustness=True, insert_prob=self.insert_prob)
 
-    def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
+    def apply(self, instance: Instance) -> Instance:
         assert instance.id is not None
         seed = int(instance.id[2:])
         # set seed based on instance ID
         random.seed(seed)
-        return super().apply(instance, should_perturb_references)
+        return super().apply(instance)
 
     @staticmethod
     def gen_filled_text(text, insert_prob, max_num_insert=1, speaker_ph=True, uncertain_ph=True, fill_ph=True):

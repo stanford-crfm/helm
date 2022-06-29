@@ -1,9 +1,6 @@
-from dataclasses import dataclass
-
 from .perturbation import Perturbation
 
 
-@dataclass
 class IdentityPerturbation(Perturbation):
     """Doesn't apply any perturbations."""
 

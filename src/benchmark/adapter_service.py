@@ -1,6 +1,6 @@
 from common.authentication import Authentication
 from proxy.service import Service
-from proxy.tokenizer.tokenizer_service import TokenizerService
+from benchmark.tokenizer.tokenizer_service import TokenizerService
 
 
 class AdapterService(TokenizerService):

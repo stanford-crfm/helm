@@ -12,12 +12,13 @@ from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
-@dataclass
 class DialectPerturbation(Perturbation):
     """ Individual fairness perturbation for dialect. """
 
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "dialect"
+
+    should_perturb_references: bool = True
 
     """ Output path to store external files and folders """
     OUTPUT_PATH = os.path.join("benchmark_output", "perturbations", name)
@@ -46,11 +47,10 @@ class DialectPerturbation(Perturbation):
     class Description(PerturbationDescription):
         """ Description for the DialectPerturbation class. """
 
-        name: str
-        prob: float
-        source_class: str
-        target_class: str
-        mapping_file_path: Optional[str]
+        prob: float = 0.0
+        source_class: str = ""
+        target_class: str = ""
+        mapping_file_path: Optional[str] = None
 
     def __init__(self, prob: float, source_class: str, target_class: str, mapping_file_path: Optional[str] = None):
         """ Initialize the dialect perturbation.
@@ -95,7 +95,12 @@ class DialectPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
         return DialectPerturbation.Description(
-            self.name, self.prob, self.source_class, self.target_class, self.mapping_file_path
+            name=self.name,
+            fairness=True,
+            prob=self.prob,
+            source_class=self.source_class,
+            target_class=self.target_class,
+            mapping_file_path=self.mapping_file_path,
         )
 
     def retrieve_mapping_dict(self) -> str:
@@ -142,11 +147,11 @@ class DialectPerturbation(Perturbation):
         # Execute the RegEx
         return re.sub(pattern, sub_func, text, flags=re.IGNORECASE)
 
-    def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
+    def apply(self, instance: Instance) -> Instance:
         """ Apply the perturbation to the provided instance. """
         assert instance.id is not None
         self.random = random.Random(int(instance.id[2:]))
-        return super().apply(instance, should_perturb_references)
+        return super().apply(instance)
 
     def perturb(self, text: str) -> str:
         """ Perturb the provided text. """

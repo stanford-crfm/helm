@@ -24,7 +24,6 @@ def test_data_preprocessor_with_data_augmentation():
                 args={"num_spaces": 5},
             )
         ],
-        should_perturb_references=False,
         should_augment_train_instances=False,
         should_include_original_train=False,
         should_augment_eval_instances=True,

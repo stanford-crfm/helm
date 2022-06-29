@@ -101,26 +101,17 @@ class Instance:
 
 
 @dataclass(frozen=True, eq=False)
-class InformationRetrievalInstance(Instance):
-    """ Instance for the MSMARCO class. """
+class MultipleRequestInstance(Instance):
+    """ Instance """
 
-    """ Query ID: The ID of the query. """
-    qid: Optional[int] = None
+    """ Unique ID for the request group this instance is a part of.  """
+    group_id: Optional[str] = None
 
-    """ Object ID: The ID of the object (passage, document, file etc.) """
-    oid: Optional[int] = None
+    """ ID for this request, unique in the group of instances with the same group_id. """
+    request_id: Optional[str] = None
 
-    """ Query Relevance: Relevance of the object with the ID oid for the query with the qid.
-
-    Listed below are the possible values and their meanings:
-        None: Indicates that the relevance of the object for the query is unknown.
-        Int: Indicates that the object is relevant for the query. Higher values indicates
-            higher relevance.
-    """
-    qrel: Optional[int] = None
-
-    """ Rank in the topk file. """
-    rank: Optional[int] = None
+    """ Relevance of this request instance for the group. """
+    relevance: Optional[int] = None
 
 
 @dataclass  # type: ignore

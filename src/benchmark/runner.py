@@ -56,8 +56,8 @@ class Runner:
     ):
         self.executor = Executor(execution_spec)
         self.dry_run: bool = execution_spec.dry_run
-        self.adapter_service = AdapterService(self.executor.remote_service, execution_spec.auth)
-        self.metric_service = MetricService(self.executor.remote_service, execution_spec.auth)
+        self.adapter_service = AdapterService(self.executor.service, execution_spec.auth)
+        self.metric_service = MetricService(self.executor.service, execution_spec.auth)
         self.run_specs: List[RunSpec] = run_specs
         self.skip_instances: bool = skip_instances
 
@@ -68,6 +68,10 @@ class Runner:
 
         # Output the results under a folder with the name of the suite
         self.runs_path: str = os.path.join(output_path, "runs", suite)
+
+        # The path where to cache files needs to compute metrics, e.g., human evaluation results
+        self.eval_cache_path: str = os.path.join(self.runs_path, "eval_cache")
+        ensure_directory_exists(self.eval_cache_path)
 
     def run_all(self):
         for run_spec in self.run_specs:
@@ -109,7 +113,9 @@ class Runner:
         with htrack_block(f"{len(metrics)} metrics"):
             for metric in metrics:
                 with htrack_block(metric):
-                    metric_result: MetricResult = metric.evaluate(scenario_state, self.metric_service)
+                    metric_result: MetricResult = metric.evaluate(
+                        scenario_state, self.metric_service, self.eval_cache_path
+                    )
                     stats.extend(metric_result.aggregated_stats)
                     for key in metric_result.per_instance_stats:
                         per_instance_stats[key].extend(metric_result.per_instance_stats[key])
@@ -118,6 +124,10 @@ class Runner:
         with htrack_block("Stats"):
             for stat in stats:
                 hlog(stat)
+
+        if self.skip_instances:
+            hlog("skip_instances was True. Skipping writing results out.")
+            return
 
         # Output benchmarking information and results to files
         write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict(run_spec), indent=2))

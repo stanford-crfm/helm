@@ -3,7 +3,12 @@ import time
 from typing import Callable, Any, Dict
 
 from common.request import Request, RequestResult
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    DecodeRequest,
+    DecodeRequestResult,
+)
 
 
 class Client(ABC):
@@ -26,6 +31,10 @@ class Client(ABC):
 
     @abstractmethod
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        pass
+
+    @abstractmethod
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         pass
 
 

@@ -6,7 +6,6 @@ from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
 
 
-@dataclass
 class SpacePerturbation(Perturbation):
     """
     A simple perturbation that replaces existing spaces with 0-max_spaces spaces (thus potentially merging words).
@@ -14,8 +13,7 @@ class SpacePerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        name: str
-        max_spaces: int
+        max_spaces: int = 0
 
     name: str = "space"
 
@@ -24,12 +22,12 @@ class SpacePerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return SpacePerturbation.Description(self.name, self.max_spaces)
+        return SpacePerturbation.Description(name=self.name, robustness=True, max_spaces=self.max_spaces)
 
-    def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
+    def apply(self, instance: Instance) -> Instance:
         assert instance.id is not None
         random.seed(int(instance.id[2:]))  # set seed based on instance ID
-        return super().apply(instance, should_perturb_references)
+        return super().apply(instance)
 
     def perturb(self, text: str) -> str:
         result = []

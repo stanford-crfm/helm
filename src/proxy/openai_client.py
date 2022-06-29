@@ -4,9 +4,13 @@ import openai
 
 from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    DecodeRequest,
+    DecodeRequestResult,
+)
 from .client import Client, wrap_request_time
-from .tokenizer.tokenizer_factory import TokenizerFactory
 
 
 OPENAI_END_OF_TEXT_TOKEN: str = "<|endoftext|>"
@@ -17,9 +21,7 @@ class OpenAIClient(Client):
     def __init__(self, api_key: str, cache_path: str):
         self.api_key: str = api_key
         self.api_base: str = "https://api.openai.com"
-
         self.cache = Cache(cache_path)
-        self.tokenizer = TokenizerFactory.get_tokenizer("openai")
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = {
@@ -77,17 +79,19 @@ class OpenAIClient(Client):
                 #       https://github.com/stanford-crfm/benchmarking/issues/54
                 tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                 sequence_logprob += logprob or 0
-            completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
+            completion = Sequence(
+                text=raw_completion["text"],
+                logprob=sequence_logprob,
+                tokens=tokens,
+                finish_reason={"reason": raw_completion["finish_reason"]},
+            )
             completions.append(completion)
         return RequestResult(
-            success=True, cached=cached, request_time=response["request_time"], completions=completions
+            success=True, cached=cached, request_time=response["request_time"], completions=completions,
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes the text using the GPT-2 tokenizer created in `OpenAITokenizer`."""
-        return TokenizationRequestResult(
-            success=True,
-            cached=False,
-            tokens=[TokenizationToken(raw_text) for raw_text in self.tokenizer.tokenize(request.text)],
-            text=request.text,
-        )
+        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
+
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        raise NotImplementedError("Use the HuggingFaceClient to decode.")

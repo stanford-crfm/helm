@@ -46,13 +46,16 @@ class SimpleClient(Client):
         return RequestResult(success=True, cached=False, request_time=0, completions=completions)
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        if request.model == "simple/model1":
+        if request.tokenizer == "simple/model1":
             raw_tokens: List[str] = SimpleClient.tokenize_by_space(request.text)
             return TokenizationRequestResult(
                 success=True, cached=False, tokens=[TokenizationToken(text) for text in raw_tokens], text=request.text
             )
         else:
             raise ValueError("Unknown model")
+
+    def decode(self, request: TokenizationRequest) -> TokenizationRequestResult:
+        raise NotImplementedError
 
     def invoke_model1(self, raw_request: Dict) -> Dict:
         """

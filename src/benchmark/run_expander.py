@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
+import itertools
 from typing import List, Dict, Optional, Tuple
 
 from proxy.models import (
@@ -7,8 +8,10 @@ from proxy.models import (
     get_all_models,
     get_all_text_models,
     get_model_names_with_tag,
-    LIMITED_FUNCTIONALITY_MODEL_TAG,
+    FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+    LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
 )
+from .metric import MetricSpec
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
@@ -56,11 +59,69 @@ class ReplaceValueRunExpander(RunExpander):
         ]
 
 
+class ReplaceRunSpecValueRunExpander(RunExpander):
+    """
+    Replace a single field (e.g., max_train_instances) with a list of values (e.g., 0, 1, 2).
+    """
+
+    def __init__(self, value):
+        """
+        `value` is either the actual value to use or a lookup into the values dict.
+        """
+        self.name = type(self).name
+        if value in type(self).values_dict:
+            self.values = type(self).values_dict[value]
+        else:
+            self.values = [value]
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        def sanitize(value):
+            return str(value).replace("/", "_")
+
+        return [
+            replace(run_spec, name=f"{run_spec.name},{self.name}={sanitize(value)}", metrics=value,)
+            for value in self.values
+        ]
+
+
 class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
     name = "num_train_trials"
     values_dict = {"default": [3]}
+
+
+# TODO: @ryanachi, @rishi: Note that bias_erasure_metrics are currently being called in run_specs.py.
+# Should this function and MetricsRunExpander be deleted?
+def get_bias_erasure_metrics() -> List[List[MetricSpec]]:
+    categories = ["race", "gender"]
+    targets = ["adjective", "profession"]
+    cross_cat_target = itertools.product(categories, targets)
+
+    return [
+        [
+            MetricSpec(
+                class_name="benchmark.bias_erasure_metrics.BiasErasureMetric",
+                args={"mode": "bias", "category": cat, "bias_target": target},
+            )
+        ]
+        for cat, target in cross_cat_target
+    ] + [
+        [
+            MetricSpec(
+                class_name="benchmark.bias_erasure_metrics.BiasErasureMetric",
+                args={"mode": "erasure", "category": cat},
+            )
+        ]
+        for cat in categories
+    ]
+
+
+class MetricsRunExpander(ReplaceRunSpecValueRunExpander):
+    """For overriding metrics."""
+
+    name = "metrics"
+    values_dict = {"bias_erasure": get_bias_erasure_metrics()}
 
 
 class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
@@ -77,6 +138,21 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
     values_dict = {"default": [1]}
 
 
+DEFAULT_MODELS: List[str] = [
+    "openai/davinci",
+    "openai/curie",
+    "openai/text-davinci-002",
+    "openai/text-davinci-001",
+    "openai/text-curie-001",
+    "ai21/j1-jumbo",
+    "ai21/j1-grande",
+    "ai21/j1-large",
+    "gooseai/gpt-j-6b",
+    # TODO: to conserve GooseAI credits, hold off on running on GPT-NeoX until the end
+    # "gooseai/gpt-neo-20b",
+]
+
+
 class ModelRunExpander(ReplaceValueRunExpander):
     """
     For specifying different models.
@@ -85,31 +161,18 @@ class ModelRunExpander(ReplaceValueRunExpander):
 
     name = "model"
     values_dict = {
-        # TODO: Add GPT-NeoX-20B and GPT-J
-        #       https://github.com/stanford-crfm/benchmarking/issues/310
-        "default": [
-            "openai/davinci",
-            "openai/curie",
-            "openai/text-davinci-002",
-            "openai/text-davinci-001",
-            "openai/text-curie-001",
-            "ai21/j1-jumbo",
-            "ai21/j1-grande",
-            "ai21/j1-large",
-            # TODO: uncomment once we get credits for GooseAI
-            # "gooseai/gpt-neo-20b",
-            # "gooseai/gpt-j-6b",
-        ],
+        "full_functionality_text": get_model_names_with_tag(FULL_FUNCTIONALITY_TEXT_MODEL_TAG),
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
         "all": get_all_models(),
         "text": get_all_text_models(),
         "code": get_all_code_models(),
-        "limited_functionality": get_model_names_with_tag(LIMITED_FUNCTIONALITY_MODEL_TAG),
+        "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
     }
 
 
 ############################################################
+
 
 # Helper functions to instantiate `PerturbationSpec`s.
 def extra_space(num_spaces: int) -> PerturbationSpec:
@@ -131,25 +194,25 @@ def lower() -> PerturbationSpec:
 
 def misspelling(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.misspelling_perturbation.MisspellingPerturbation", args={"prob": prob}
+        class_name="benchmark.augmentations.misspelling_perturbation.MisspellingPerturbation", args={"prob": prob},
     )
 
 
 def synonym(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.synonym_perturbation.SynonymPerturbation", args={"prob": prob}
+        class_name="benchmark.augmentations.synonym_perturbation.SynonymPerturbation", args={"prob": prob},
     )
 
 
 def contrast_sets() -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.contrast_sets_perturbation.ContrastSetsPerturbation", args={}
+        class_name="benchmark.augmentations.contrast_sets_perturbation.ContrastSetsPerturbation", args={},
     )
 
 
 def typo(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.typos_perturbation.TyposPerturbation", args={"prob": prob}
+        class_name="benchmark.augmentations.typos_perturbation.TyposPerturbation", args={"prob": prob},
     )
 
 
@@ -163,7 +226,7 @@ def filler(prob: float) -> PerturbationSpec:
 def contract_and_expand() -> List[PerturbationSpec]:
     return [
         PerturbationSpec(
-            class_name=f"benchmark.augmentations.contraction_expansion_perturbation.{mode}Perturbation", args={}
+            class_name=f"benchmark.augmentations.contraction_expansion_perturbation.{mode}Perturbation", args={},
         )
         for mode in ["Contraction", "Expansion"]
     ]
@@ -237,7 +300,22 @@ def gender(
 # Then we will create two RunSpecs:
 # - r1: with perturbations [a, b]
 # - r2: with perturbations [c, d, e]
+ROBUSTNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [synonym(prob=0.5), typo(prob=0.05)]
+
+FAIRNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [
+    dialect(prob=1.0, source_class="SAE", target_class="AAVE"),
+    gender(mode="pronouns", prob=1.0, source_class="male", target_class="female"),
+    person_name(
+        prob=1.0,
+        source_class={"race": "white_american"},
+        target_class={"race": "black_american"},
+        person_name_type="first_name",
+        preserve_gender=True,
+    ),
+]
+
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
+    # Robustness
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
     "contrast_sets": {"contrast_sets": [contrast_sets()]},
     "space": {"space3": [space(max_spaces=3)]},
@@ -252,6 +330,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "typo_medium": {"typo0.3": [typo(prob=0.30)]},
     "typo_hard": {"typo0.5": [typo(prob=0.50)]},
     "synonym": {"synonym0.5": [synonym(prob=0.5)]},
+    # Fairness
     "dialect_easy": {
         "dialect_easy_prob=0.1_source=SAE_target=AAVE": [dialect(prob=0.1, source_class="SAE", target_class="AAVE")]
     },
@@ -359,16 +438,9 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             gender(mode="pronouns", prob=1.0, source_class="male", target_class="female")
         ]
     },
-    "all": {
-        "all": [
-            misspelling(prob=0.20),
-            space(max_spaces=3),
-            lower(),
-            *contract_and_expand(),
-            typo(prob=0.1),
-            synonym(prob=0.5),
-        ]
-    },
+    "robustness": {"robustness": ROBUSTNESS_PERTURBATION_SPECS},
+    "fairness": {"fairness": FAIRNESS_PERTURBATION_SPECS},
+    "canonical": {"canonical": ROBUSTNESS_PERTURBATION_SPECS + FAIRNESS_PERTURBATION_SPECS},
 }
 
 
@@ -377,9 +449,7 @@ class DataAugmentationRunExpander(RunExpander):
     Applies a list of data augmentations, where the list of data augmentations
     is given by a name (see the keys to `PERTURBATION_SPECS_DICT` above).
     For example:
-
         data_augmentation=all
-
     Note that some names map to a single data augmentation with multiple
     perturbations (e.g., all), and others map to a list of data augmentations
     each with one perturbation (e.g., misspelling_sweep).
@@ -402,7 +472,6 @@ class DataAugmentationRunExpander(RunExpander):
         def create_run_spec(aug_name: str, perturbation_specs: List[PerturbationSpec]) -> RunSpec:
             data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
                 perturbation_specs=perturbation_specs,
-                should_perturb_references=aug_name == "contrast_sets",
                 # Always include original and perturbed instances together so that
                 # we can compute the normal and robustness metrics in the same run.
                 should_augment_train_instances=False,
@@ -426,6 +495,7 @@ RUN_EXPANDERS = dict(
     (expander.name, expander)
     for expander in [
         NumTrainTrialsRunExpander,
+        MetricsRunExpander,
         MaxTrainInstancesRunExpander,
         NumOutputsRunExpander,
         ModelRunExpander,

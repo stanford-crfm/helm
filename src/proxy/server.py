@@ -20,7 +20,7 @@ from common.authentication import Authentication
 from common.hierarchical_logger import hlog
 from common.request import Request
 from common.perspective_api_request import PerspectiveAPIRequest
-from common.tokenization_request import TokenizationRequest
+from common.tokenization_request import TokenizationRequest, DecodeRequest
 from .accounts import Account
 from .server_service import ServerService
 from .query import Query
@@ -164,6 +164,16 @@ def handle_tokenization():
     return safe_call(perform)
 
 
+@app.get("/api/decode")
+def handle_decode():
+    def perform(args):
+        auth = Authentication(**json.loads(args["auth"]))
+        request = DecodeRequest(**json.loads(args["request"]))
+        return dataclasses.asdict(service.decode(auth, request))
+
+    return safe_call(perform)
+
+
 @app.get("/api/toxicity")
 def handle_toxicity_request():
     def perform(args):
@@ -204,9 +214,6 @@ def main():
     if args.ssl_key_file and args.ssl_cert_file:
         gunicorn_args["keyfile"] = args.ssl_key_file
         gunicorn_args["certfile"] = args.ssl_cert_file
-
-    # To avoid deadlocks when using HuggingFace tokenizers with multiple Gunicorn processes
-    os.environ["TOKENIZERS_PARALLELISM"] = "False"
 
     # Clear arguments before running gunicorn as it also uses argparse
     sys.argv = [sys.argv[0]]

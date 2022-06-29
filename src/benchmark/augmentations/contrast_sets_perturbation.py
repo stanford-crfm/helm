@@ -1,4 +1,4 @@
-from dataclasses import dataclass, replace
+from dataclasses import replace
 
 import random
 from typing import Sequence
@@ -8,7 +8,6 @@ from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
-@dataclass
 class ContrastSetsPerturbation(Perturbation):
     """
     Contrast Sets are from this paper (currently supported for the BoolQ and IMDB scenarios):
@@ -44,26 +43,24 @@ class ContrastSetsPerturbation(Perturbation):
     Sentiment: positive
     """
 
-    @dataclass(frozen=True)
-    class Description(PerturbationDescription):
-        name: str
-
     name: str = "contrast_sets"
+
+    # Contrast sets do not make sense if not True.
+    should_perturb_references: bool = True
 
     def __init__(self):
         pass
 
     @property
     def description(self) -> PerturbationDescription:
-        return ContrastSetsPerturbation.Description(self.name)
+        return PerturbationDescription(name=self.name, robustness=True)
 
-    def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
+    def apply(self, instance: Instance) -> Instance:
         """
         Generates a new Instance by perturbing the input, tagging the Instance and
-        perturbing the References, if should_perturb_references is true.
+        perturbing the References, if `should_perturb_references` is true.
         """
 
-        assert should_perturb_references  # contast sets do not make sense otherwise
         assert instance.id is not None
         random.seed(int(instance.id[2:]))  # set seed based on instance ID
 

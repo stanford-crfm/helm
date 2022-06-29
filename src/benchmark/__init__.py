@@ -4,7 +4,7 @@
 from . import simple_scenarios  # noqa
 from . import mmlu_scenario  # noqa
 from . import msmarco_scenario  # noqa
-from . import commonsense_qa_scenario  # noqa
+from . import commonsense_scenario  # noqa
 from . import twitter_aae_scenario  # noqa
 from . import real_toxicity_prompts_scenario  # noqa
 from . import math_scenario  # noqa
@@ -42,8 +42,8 @@ from . import entity_data_imputation_scenario  # noqa
 
 # Metrics
 from . import basic_metrics  # noqa
-from . import commonsense_qa_metrics  # noqa
-from . import msmarco_metrics  # noqa
+from . import commonsense_metrics  # noqa
+from . import multiple_request_metrics  # noqa
 from . import toxicity_metrics  # noqa
 from . import tokens_metric  # noqa
 from . import copyright_metrics  # noqa
@@ -51,6 +51,7 @@ from . import numeracy_metrics  # noqa
 from . import disinformation_metrics  # noqa
 from . import code_metrics  # noqa
 from . import bbq_metrics  # noqa
+from . import bias_erasure_metrics  # noqa
 
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa

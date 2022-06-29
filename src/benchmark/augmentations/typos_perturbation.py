@@ -7,7 +7,6 @@ from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
 
-@dataclass
 class TyposPerturbation(Perturbation):
     """
     Typos. For implementation details, see
@@ -25,8 +24,7 @@ class TyposPerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        name: str
-        prob: float
+        prob: float = 0.0
 
     name: str = "TyposPerturbation"
 
@@ -35,7 +33,7 @@ class TyposPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return TyposPerturbation.Description(self.name, self.prob)
+        return TyposPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
 
     def butter_finger(self, text):
         key_approx = {}
@@ -85,10 +83,10 @@ class TyposPerturbation(Perturbation):
             perturbed_texts += new_letter
         return perturbed_texts
 
-    def apply(self, instance: Instance, should_perturb_references: bool = True) -> Instance:
+    def apply(self, instance: Instance) -> Instance:
         assert instance.id is not None
         np.random.seed(int(instance.id[2:]))  # set seed based on instance ID
-        return super().apply(instance, should_perturb_references)
+        return super().apply(instance)
 
     def perturb(self, text: str) -> str:
         return self.butter_finger(text)

@@ -129,9 +129,9 @@ class TestRemoteServerService:
         assert response.success
 
     def test_tokenize(self):
-        request = TokenizationRequest(text="1 2 3", model="simple/model1")
+        request = TokenizationRequest(text="1 2 3", tokenizer="simple/model1")
         response: TokenizationRequestResult = self.service.tokenize(self.auth, request)
-        assert [token.text for token in response.tokens] == ["1", "2", "3"]
+        assert [token.value for token in response.tokens] == ["1", "2", "3"]
 
     def test_make_request_plus_sign(self):
         # Ensure + in prompt doesn't get replaced by a blank space

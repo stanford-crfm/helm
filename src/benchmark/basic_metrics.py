@@ -16,12 +16,12 @@ from rouge_score import rouge_scorer
 from common.hierarchical_logger import hlog
 from common.request import Token
 from . import code_metrics_helper
-from proxy.tokenizer.tokenizer import Tokenizer
-from proxy.tokenizer.tokenizer_factory import TokenizerFactory
-from proxy.tokenizer.tokenizer_service import TokenizerService
+from benchmark.tokenizer.tokenizer import Tokenizer
+from benchmark.tokenizer.tokenizer_factory import TokenizerFactory
+from benchmark.tokenizer.tokenizer_service import TokenizerService
 from .augmentations.perturbation_description import PerturbationDescription
 from .adapter import AdapterSpec, RequestState
-from .math_scenario import is_equiv
+from .math_scenario import is_equiv, is_equiv_chain_of_thought
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -51,8 +51,8 @@ def pass_at_k_estimator(n: int, c: int, k: int) -> float:
 
 def normalize_text(text: str) -> str:
     """Lower text and remove punctuation, articles and extra whitespace.
-     Copied from the [QuAC](http://quac.ai/) evaluation script found at
-     https://s3.amazonaws.com/my89public/quac/scorer.py"""
+    Copied from the [QuAC](http://quac.ai/) evaluation script found at
+    https://s3.amazonaws.com/my89public/quac/scorer.py"""
 
     def remove_articles(text: str) -> str:
         return re.sub(r"\b(a|an|the)\b", " ", text)
@@ -92,7 +92,7 @@ def f1_score(gold: str, pred: str) -> float:
     return ret
 
 
-def exact_match_indicator(gold: str, pred: str, indicator: str = "#") -> float:
+def exact_match_indicator(gold: str, pred: str, indicator: str = " ") -> float:
     """
     Exact match, allowing for some preceding context.
     For example, the following two answers are considered matching:
@@ -334,6 +334,7 @@ class BasicMetric(Metric):
             "iou_set_match": iou_set_match,
             "f1_set_match": f1_set_match,
             "math_equiv": is_equiv,
+            "math_equiv_chain_of_thought": is_equiv_chain_of_thought,
             "code_eval_acc": code_eval,
             "pass": code_eval,
             "f1_score": f1_score,
@@ -398,13 +399,13 @@ class BasicMetric(Metric):
         # and calculate the number of tokens in the prompt.
         tokenizer_service: TokenizerService = metric_service
         tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
-        num_tokens_in_prompt: int = tokenizer.tokenize_and_count(request_state.request.prompt)
+        num_prompt_tokens: int = tokenizer.tokenize_and_count(request_state.request.prompt)
 
         sequence = request_state.result.completions[0]
         num_output_tokens: int = len(sequence.tokens)
         # Don't include prompt in number of generated tokens (e.g., for language modeling).
         if request_state.request.echo_prompt:
-            num_output_tokens -= num_tokens_in_prompt
+            num_output_tokens -= num_prompt_tokens
         assert num_output_tokens >= 0
 
         idealized_runtime: Optional[float]
@@ -422,7 +423,7 @@ class BasicMetric(Metric):
             largest_num_tokens_in_efficiency_dict: int = max(runtimes_for_input_tokens.keys())
             # Find the smallest num_input_tokens larger than the number of tokens in the given prompt.
             for num_input_tokens in sorted(runtimes_for_input_tokens.keys()):
-                if num_tokens_in_prompt <= num_input_tokens:
+                if num_prompt_tokens <= num_input_tokens:
                     runtime_for_input_tokens = runtimes_for_input_tokens[num_input_tokens]
                     break
 
@@ -431,7 +432,7 @@ class BasicMetric(Metric):
             # key (this is reasonably accurate under certain simplifying assumptions).
             if runtime_for_input_tokens is None:
                 runtime_for_input_tokens = runtimes_for_input_tokens[largest_num_tokens_in_efficiency_dict] * (
-                    num_tokens_in_prompt / largest_num_tokens_in_efficiency_dict
+                    num_prompt_tokens / largest_num_tokens_in_efficiency_dict
                 )
 
             # Idealized runtime is sum of the runtime of encoding the input tokens, and the
@@ -462,11 +463,32 @@ class BasicMetric(Metric):
 
         return [
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
-            Stat(MetricName("num_tokens_in_prompt")).add(num_tokens_in_prompt),
+            Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens),
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
             Stat(MetricName("inference_runtime_discrepancy")).add(runtime_discrepancy),
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
+        ]
+
+    def compute_finish_reason_metrics(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    ) -> List[Stat]:
+        """Record how often generation finished due to reaching token limit, stop token(s), or end of text"""
+        assert request_state.result is not None
+        sequence = request_state.result.completions[0]
+        valid_reasons = [
+            "length",
+            "stop",
+            "endoftext",
+            "unknown",
+        ]
+        if sequence.finish_reason is None or sequence.finish_reason["reason"] not in valid_reasons:
+            reason = "unknown"
+        else:
+            reason = sequence.finish_reason["reason"]
+        return [
+            Stat(MetricName(f"finish_reason_{valid_reason}")).add(int(reason == valid_reason))
+            for valid_reason in valid_reasons
         ]
 
     def compute_language_modeling_metrics(
@@ -488,7 +510,7 @@ class BasicMetric(Metric):
         else:
             tokens = sequence.tokens
         pred_tokens = tokens[request_state.num_conditioning_tokens :]
-        logprob, num_tokens, num_bytes = (
+        logprob, num_perplexity_tokens, num_bytes = (
             sum(token.logprob for token in pred_tokens),
             len(pred_tokens),
             get_num_bytes(pred_tokens),
@@ -496,12 +518,16 @@ class BasicMetric(Metric):
 
         return [
             Stat(MetricName("logprob")).add(logprob),
-            Stat(MetricName("num_tokens")).add(num_tokens),
+            Stat(MetricName("num_perplexity_tokens")).add(num_perplexity_tokens),
             Stat(MetricName("num_bytes")).add(num_bytes),
         ]
 
     def evaluate_generation(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+        self,
+        adapter_spec: AdapterSpec,
+        request_state: RequestState,
+        metric_service: MetricService,
+        eval_cache_path: str,
     ) -> List[Stat]:
         """Compute the reference metrics and language modeling metrics"""
         metrics = []
@@ -510,12 +536,17 @@ class BasicMetric(Metric):
 
         metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
 
         # Future: add F1, BLEU, etc.
         return metrics
 
     def evaluate_references(
-        self, adapter_spec: AdapterSpec, reference_request_states: List[RequestState], metric_service: MetricService
+        self,
+        adapter_spec: AdapterSpec,
+        reference_request_states: List[RequestState],
+        metric_service: MetricService,
+        eval_cache_path: str,
     ) -> List[Stat]:
         """
         Setup: for each reference, we have a model score (log probability) and whether it's correct.

@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Dict
 import re
 
@@ -89,7 +88,6 @@ CONTRACTION_MAP: Dict[str, str] = {
 
 # The implementations below are based on
 # https://github.com/GEM-benchmark/NL-Augmenter/blob/main/transformations/contraction_expansions/transformation.py
-@dataclass
 class ContractionPerturbation(Perturbation):
     """
     Contractions.
@@ -102,10 +100,6 @@ class ContractionPerturbation(Perturbation):
         She's a doctor, and I'm a student
     """
 
-    @dataclass(frozen=True)
-    class Description(PerturbationDescription):
-        name: str
-
     name: str = "contraction"
 
     def __init__(self):
@@ -114,7 +108,7 @@ class ContractionPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return ContractionPerturbation.Description(self.name)
+        return PerturbationDescription(name=self.name, robustness=True)
 
     def contract(self, sentence: str) -> str:
         reverse_contraction_pattern = re.compile(
@@ -137,7 +131,6 @@ class ContractionPerturbation(Perturbation):
         return self.contract(text)
 
 
-@dataclass
 class ExpansionPerturbation(Perturbation):
     """
     Expansions.
@@ -150,10 +143,6 @@ class ExpansionPerturbation(Perturbation):
         She is a doctor, and I am a student
     """
 
-    @dataclass(frozen=True)
-    class Description(PerturbationDescription):
-        name: str
-
     name: str = "expansion"
 
     def __init__(self):
@@ -161,7 +150,7 @@ class ExpansionPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        return ExpansionPerturbation.Description(self.name)
+        return PerturbationDescription(name=self.name, robustness=True)
 
     def expand_contractions(self, sentence):
         contraction_pattern = re.compile(

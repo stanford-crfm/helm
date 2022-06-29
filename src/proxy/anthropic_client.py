@@ -8,9 +8,13 @@ import websocket
 from common.cache import Cache
 from common.hierarchical_logger import htrack_block, hlog
 from common.request import Request, RequestResult, Sequence, Token
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
+from common.tokenization_request import (
+    TokenizationRequest,
+    TokenizationRequestResult,
+    DecodeRequest,
+    DecodeRequestResult,
+)
 from .client import Client, wrap_request_time
-from .tokenizer.tokenizer_factory import TokenizerFactory
 
 
 class AnthropicRequestError(Exception):
@@ -19,43 +23,40 @@ class AnthropicRequestError(Exception):
 
 class AnthropicClient(Client):
     """
-    Anthropic models. Documentation and paper coming soon. They use their own version of the GPT-2 tokenizer.
+    Client for the Anthropic models (https://arxiv.org/abs/2204.05862).
+    They used their own version of the GPT-2 tokenizer.
 
-    The Anthropic API currently does not support:
+    The Anthropic API is not production-ready and currently does not support:
     - Top k per token
     - Multiple completions
     - Echo prompt
     - Log probabilities
     """
 
-    # Note: we can currently only request for a maximum of 700 tokens in the completion.
-    # TODO: increase this later when Anthropic supports it.
-    MAX_COMPLETION_LENGTH: int = 700
+    # Note: The model has a maximum context size of 8192, but the Anthropic API
+    #       can currently only support a maximum of ~3000 tokens in the completion.
+    # TODO: increase this later when Anthropic supports more.
+    MAX_COMPLETION_LENGTH: int = 3000
 
     def __init__(self, api_key: str, cache_path: str):
         self.api_key = api_key
         self.cache = Cache(cache_path)
-        # Anthropic is using a modified version of the GPT-2 tokenizer.
-        self.tokenizer = TokenizerFactory.get_tokenizer("anthropic")
 
     def make_request(self, request: Request) -> RequestResult:
         # Validate the fields of `Request`
-        if request.model != "anthropic/stanford-online-helpful-v4-s3":
+        if request.model != "anthropic/stanford-online-all-v4-s3":
             raise ValueError(f"Invalid model: {request.model}")
         # `Request` field values that Anthropic currently does not support
         if request.echo_prompt:
             raise ValueError("Echoing the original prompt is not supported.")
-        if request.num_completions > 1:
-            raise ValueError("num_completions > 1 is not supported. Only a single completion is supported.")
         if request.top_k_per_token > 1:
             raise ValueError(
                 "top_k_per_token > 1 is not supported. The Anthropic API only gives a single token at a time."
             )
-        expected_completion_length: int = request.max_tokens - self.tokenizer.tokenize_and_count(request.prompt)
-        if expected_completion_length > AnthropicClient.MAX_COMPLETION_LENGTH:
+        if request.max_tokens > AnthropicClient.MAX_COMPLETION_LENGTH:
             raise ValueError(
-                f"Expected to get back {expected_completion_length} number of tokens in the completion, which "
-                f"exceeds the currently supported max completion length of {AnthropicClient.MAX_COMPLETION_LENGTH}."
+                "The value for `max_tokens` exceeds the currently supported maximum "
+                f"({request.max_tokens} > {AnthropicClient.MAX_COMPLETION_LENGTH})."
             )
 
         raw_request = {
@@ -71,10 +72,6 @@ class AnthropicClient(Client):
             # Meta tokens are non-text tokens Anthropic sometimes injects into the text to identify the dataset
             "meta": True,  # meta=True skips sampling meta tokens. Keep it true.
             "is_replicated": True,  # Always set to True
-            # Setting `use_sample_v1` to false enables batching to increase throughput.
-            # However, if false, the API will break when users send multiple requests with different hyperparameters.
-            # Therefore, default to True for now.
-            "use_sample_v1": True,
         }
 
         def do_it():
@@ -136,34 +133,56 @@ class AnthropicClient(Client):
                     "raw_response": raw_response,
                 }
 
-        try:
-            # We need to include the engine's name to differentiate among requests made for different model
-            # engines since the engine name is not included in the request itself.
-            cache_key = Client.make_cache_key({"engine": request.model_engine, **raw_request}, request)
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-        except AnthropicRequestError as e:
-            return RequestResult(success=False, cached=False, error=str(e), completions=[])
+        # Since Anthropic doesn't support multiple completions, we have to manually call it multiple times,
+        # and aggregate the results into `completions` and `request_time`.
+        completions = []
+        all_cached = True
+        request_time = 0
 
-        token_texts: List[str] = response["tokens"]
-        raw_response: Dict = json.loads(response["raw_response"])
+        for completion_index in range(request.num_completions):
+            try:
+                # We need to include the engine's name to differentiate among requests made for different model
+                # engines since the engine name is not included in the request itself.
+                # In addition, we want to make `request.num_completions` fresh
+                # requests, cache key should contain the completion_index.
+                cache_key = Client.make_cache_key(
+                    {"engine": request.model_engine, "completion_index": completion_index, **raw_request}, request
+                )
+                response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            except AnthropicRequestError as e:
+                return RequestResult(success=False, cached=False, error=str(e), completions=[])
 
-        sequence_logprob: float = 0
-        tokens: List[Token] = []
+            token_texts: List[str] = response["tokens"]
+            raw_response: Dict = json.loads(response["raw_response"])
 
-        for token_text in token_texts:
-            # TODO: Anthropic currently doesn't support logprob. Just set logprob to 0 for now.
-            token_logprob: float = 0
-            sequence_logprob += token_logprob
-            tokens.append(Token(text=token_text, logprob=token_logprob, top_logprobs={}))
-        # TODO: Anthropic currently only supports a single completion per request
-        sequence = Sequence(text=raw_response["completion"], logprob=sequence_logprob, tokens=tokens)
-        return RequestResult(success=True, cached=cached, request_time=response["request_time"], completions=[sequence])
+            sequence_logprob: float = 0
+            tokens: List[Token] = []
+
+            for token_text in token_texts:
+                # TODO: Anthropic currently doesn't support logprob. Just set logprob to 0 for now.
+                token_logprob: float = 0
+                sequence_logprob += token_logprob
+                tokens.append(Token(text=token_text, logprob=token_logprob, top_logprobs={}))
+
+            finish_reason: str = raw_response["stop_reason"]
+            # Maintain uniformity with other APIs
+            if finish_reason == "stop_sequence":
+                finish_reason = "stop"
+
+            sequence = Sequence(
+                text=raw_response["completion"],
+                logprob=sequence_logprob,
+                tokens=tokens,
+                finish_reason={"reason": finish_reason},
+            )
+            completions.append(sequence)
+            request_time += response["request_time"]
+            all_cached = all_cached and cached
+
+        return RequestResult(success=True, cached=all_cached, request_time=request_time, completions=completions)
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes the text using the underlying tokenizer."""
-        return TokenizationRequestResult(
-            success=True,
-            cached=False,
-            tokens=[TokenizationToken(raw_text) for raw_text in self.tokenizer.tokenize(request.text)],
-            text=request.text,
-        )
+        raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
+
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
+        raise NotImplementedError("Use the HuggingFaceClient to decode.")
