@@ -111,20 +111,20 @@ class AI21Client(Client):
                 top_logprobs=top_logprobs,
             )
 
-        def parse_sequence(raw: Dict, first: bool) -> Sequence:
+        def parse_sequence(raw: Dict, first: bool, finish_reason: Dict = None) -> Sequence:
             text = raw["text"]
             tokens = [parse_token(token, first and i == 0) for i, token in enumerate(raw["tokens"])]
             logprob = sum(token.logprob for token in tokens)
-            return Sequence(text=text, logprob=logprob, tokens=tokens)
+            return Sequence(text=text, logprob=logprob, tokens=tokens, finish_reason=finish_reason)
 
         prompt = parse_sequence(response["prompt"], True)
         completions = []
         for raw_completion in response["completions"]:
-            completion = parse_sequence(raw_completion["data"], False)
+            completion = parse_sequence(raw_completion["data"], False, raw_completion["finishReason"])
             completions.append(prompt + completion if request.echo_prompt else completion)
 
         return RequestResult(
-            success=True, cached=cached, request_time=response["request_time"], completions=completions
+            success=True, cached=cached, request_time=response["request_time"], completions=completions,
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
