@@ -8,7 +8,7 @@ Usage:
   e.g.,
 
   conda activate crfm_benchmarking
-  bash scripts/benchmark-present-all-06272022.sh --max-eval-instances 1000 --num-threads 1 --priority 2 --local
+  bash scripts/benchmark-present-all-06282022.sh --max-eval-instances 1000 --num-threads 1 --priority 2 --local
 
 To kill a running process:
 
@@ -55,5 +55,5 @@ do
     suite="${suite// /_}"   # Replace spaces
 
     # Override with passed-in CLI arguments
-    execute "benchmark-present --models-to-run $model --suite 06-27-2022 $* &> $suite.log &"
+    execute "benchmark-present --models-to-run $model --suite 06-28-2022 $* &> $suite.log &"
 done
