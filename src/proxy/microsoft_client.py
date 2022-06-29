@@ -127,7 +127,12 @@ class MicrosoftClient(Client):
                     tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                     sequence_logprob += logprob or 0
 
-                completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
+                completion = Sequence(
+                    text=raw_completion["text"],
+                    logprob=sequence_logprob,
+                    tokens=tokens,
+                    finish_reason={"reason": raw_completion["finish_reason"]},
+                )
                 completions.append(completion)
 
             request_time += response["request_time"]

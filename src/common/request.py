@@ -105,6 +105,9 @@ class Sequence:
     # The tokens
     tokens: List[Token]
 
+    # Why did the sequence finish?
+    finish_reason: Optional[Dict] = None
+
     def __add__(self, other: "Sequence") -> "Sequence":
         return Sequence(self.text + other.text, self.logprob + other.logprob, self.tokens + other.tokens)
 
@@ -117,6 +120,8 @@ class Sequence:
         for token in self.tokens:
             result.extend(indent_lines(token.render_lines(), 2))
         result.append("}")
+        if self.finish_reason:
+            result.append(f"finish_reason: {self.finish_reason}")
         return result
 
 
