@@ -300,7 +300,7 @@ def gender(
 # Then we will create two RunSpecs:
 # - r1: with perturbations [a, b]
 # - r2: with perturbations [c, d, e]
-ROBUSTNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [synonym(prob=0.5), typo(prob=0.1)]
+ROBUSTNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [synonym(prob=0.5), typo(prob=0.05)]
 
 FAIRNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [
     dialect(prob=1.0, source_class="SAE", target_class="AAVE"),
