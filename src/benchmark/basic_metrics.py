@@ -476,7 +476,13 @@ class BasicMetric(Metric):
         """Record how often generation finished due to reaching token limit, stop token(s), or end of text"""
         assert request_state.result is not None
         sequence = request_state.result.completions[0]
-        valid_reasons = ["length", "stop", "endoftext", "unknown"]
+        valid_reasons = [
+            "length",
+            "stop",  # For OpenAI, GooseAI and MT-NLG models
+            "stop_sequence",  # For Anthropic
+            "endoftext",
+            "unknown",
+        ]
         if sequence.finish_reason is None or sequence.finish_reason["reason"] not in valid_reasons:
             reason = "unknown"
         else:
