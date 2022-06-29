@@ -164,7 +164,12 @@ class AnthropicClient(Client):
                 sequence_logprob += token_logprob
                 tokens.append(Token(text=token_text, logprob=token_logprob, top_logprobs={}))
 
-            sequence = Sequence(text=raw_response["completion"], logprob=sequence_logprob, tokens=tokens)
+            sequence = Sequence(
+                text=raw_response["completion"],
+                logprob=sequence_logprob,
+                tokens=tokens,
+                finish_reason={"reason": raw_response["stop_reason"]},
+            )
             completions.append(sequence)
             request_time += response["request_time"]
             all_cached = all_cached and cached

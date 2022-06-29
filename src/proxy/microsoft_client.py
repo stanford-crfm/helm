@@ -141,7 +141,12 @@ class MicrosoftClient(Client):
                     Token(text=fix_text(token.value), logprob=0, top_logprobs={})
                     for token in tokenization_result.tokens
                 ]
-                completion = Sequence(text=completion_text, logprob=0, tokens=tokens)
+                completion = Sequence(
+                    text=completion_text,
+                    logprob=0,
+                    tokens=tokens,
+                    finish_reason={"reason": raw_completion["finish_reason"]},
+                )
                 completions.append(completion)
 
             request_time += response["request_time"]
