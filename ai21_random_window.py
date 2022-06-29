@@ -26,64 +26,77 @@ print(account.usages)
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dataset_name", default="squad", choices=["ptb", "squad"])
-args = parser.parse_args()
+# parser.add_argument("--dataset_name", default="squad", choices=["ptb", "squad"])
+# args = parser.parse_args()
 
-base_path = Path("../data")
-if args.dataset_name == "ptb":
-    file_name = "ptb_test.txt"
-elif args.dataset_name == "squad":
-    file_name = "squad_dev.json"
-else:
-    raise ValueError("Invalid Dataset Name.")
-file_name = base_path / args.dataset_name / file_name
+for model_name in ["ai21/j1-large", "ai21/j1-grande", "ai21/j1-jumbo"]:
+    for dataset_name in ["squad", "mnli", "ptb"]:
+        base_path = Path("../data")
+        if dataset_name == "ptb":
+            file_name = "ptb_test.txt"
+        elif dataset_name == "squad":
+            file_name = "squad_dev.json"
+        elif dataset_name == "mnli":
+            file_name = "multinli_1.0_dev_matched.jsonl"
+        else:
+            raise ValueError("Invalid Dataset Name.")
+        file_name = base_path / dataset_name / file_name
 
-# Load PTB data
-with open(file_name, "r") as f:
-    text = f.read().strip()
+        # Load PTB data
+        with open(file_name, "r") as f:
+            text = f.read().strip()
 
-# Very Raw Tokenize
-text = text.split(" ")
+        # Very Raw Tokenize
+        text = text.split(" ")
 
-# tokenziing first
-tokens_cache_dir = base_path / args.dataset_name / "tokenized.pt"
-if not os.path.exists(tokens_cache_dir):
-    request_stride = 512
-    all_result_tokens = []
-    all_result_detokens = []
-    for request_start in trange(0, len(text), request_stride):
-        request_text = " ".join(text[request_start:request_start+request_stride])
-        request = TokenizationRequest(model="ai21/j1-jumbo", text=request_text)
-        request_result: TokenizationRequestResult = service.tokenize(auth, request)
-        tokens = request_result.tokens
-        detoks = []
-        for tok in tokens:
-            text_range = tok.text_range
-            start = text_range.start
-            end = text_range.end
-            detoks.append(
-                request_text[start:end]
-            )
-        all_result_tokens += tokens
-        all_result_detokens += detoks
+        # tokenziing first
+        tokens_cache_dir = base_path / dataset_name / "tokenized.pt"
+        if not os.path.exists(tokens_cache_dir):
+            request_stride = 512
+            all_result_tokens = []
+            all_result_detokens = []
+            for request_start in trange(0, len(text), request_stride, desc=f"tokenizing {dataset_name}"):
+                request_text = " ".join(text[request_start:request_start+request_stride])
+                request = TokenizationRequest(tokenizer="ai21/j1-jumbo", text=request_text)
+                request_result: TokenizationRequestResult = service.tokenize(auth, request)
+                tokens = request_result.tokens
+                detoks = []
+                for tok in tokens:
+                    text_range = tok.text_range
+                    start = text_range.start
+                    end = text_range.end
+                    detoks.append(
+                        request_text[start:end]
+                    )
+                all_result_tokens += tokens
+                all_result_detokens += detoks
 
-    torch.save((all_result_tokens, all_result_detokens), tokens_cache_dir)
-else:
-    all_result_tokens, all_result_detokens = torch.load(tokens_cache_dir)
+            torch.save((all_result_tokens, all_result_detokens), tokens_cache_dir)
+        else:
+            print(f"{dataset_name} has been tokenized. loading tokenized files.")
+            all_result_tokens, all_result_detokens = torch.load(tokens_cache_dir)
 
-# build dictionary from token index to list of logprobs
-# we are going to draw random window over the long text so some tokens can correspond to multiple logprobs
-window_size = 1024
-random_windows = []
-random.seed(0)
-all_logprobs = []
-for rand_draw_i in trange(1000):
-    rand_window_start = random.randint(0, len(all_result_tokens)-window_size)
-    rand_window = all_result_detokens[rand_window_start:rand_window_start+window_size]
-    request_text = "".join(rand_window)
-    request = Request(model="ai21/j1-large", prompt=request_text, max_tokens=0, echo_prompt=True)
-    request_result: RequestResult = service.make_request(auth, request)
-    results = request_result.completions[0].tokens
-    results = [{"text": t.text, "logprob": t.logprob, "top_logprobs": t.top_logprobs} for t in results]
-    all_logprobs.append(results)
-torch.save(all_logprobs, base_path / args.dataset_name / "logprobs.pt")
+        model_name = model_name.replace("/", "_").replace("-", "_")
+        checkpoint_name = f"{model_name}_logprobs.pt"
+        checkpoint_name = base_path / dataset_name / checkpoint_name
+        if not os.path.exists(checkpoint_name):
+            print(f"{checkpoint_name} not found!")
+            print(f"{dataset_name} {model_name} inference!")
+            # build dictionary from token index to list of logprobs
+            # we are going to draw random window over the long text so some tokens can correspond to multiple logprobs
+            window_size = 1024
+            random_windows = []
+            random.seed(0)
+            all_logprobs = []
+            for rand_draw_i in trange(100):
+                rand_window_start = random.randint(0, len(all_result_tokens)-window_size)
+                rand_window = all_result_detokens[rand_window_start:rand_window_start+window_size]
+                request_text = "".join(rand_window)
+                request = Request(model="ai21/j1-large", prompt=request_text, max_tokens=0, echo_prompt=True)
+                request_result: RequestResult = service.make_request(auth, request)
+                results = request_result.completions[0].tokens
+                results = [{"text": t.text, "logprob": t.logprob, "top_logprobs": t.top_logprobs} for t in results]
+                all_logprobs.append(results)
+            torch.save(all_logprobs, base_path / dataset_name / "logprobs.pt")
+        else:
+            print(f"{dataset_name} {model_name} done!")
