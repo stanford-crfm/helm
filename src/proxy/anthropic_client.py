@@ -164,11 +164,15 @@ class AnthropicClient(Client):
                 sequence_logprob += token_logprob
                 tokens.append(Token(text=token_text, logprob=token_logprob, top_logprobs={}))
 
+            finish_reason = raw_response["stop_reason"]
+            # Maintain uniformity with other APIs
+            if finish_reason == "stop_sequence":
+                finish_reason = "stop"
             sequence = Sequence(
                 text=raw_response["completion"],
                 logprob=sequence_logprob,
                 tokens=tokens,
-                finish_reason={"reason": raw_response["stop_reason"]},
+                finish_reason={"reason": finish_reason},
             )
             completions.append(sequence)
             request_time += response["request_time"]

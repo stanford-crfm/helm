@@ -478,8 +478,7 @@ class BasicMetric(Metric):
         sequence = request_state.result.completions[0]
         valid_reasons = [
             "length",
-            "stop",  # For OpenAI, GooseAI and MT-NLG models
-            "stop_sequence",  # For Anthropic
+            "stop",
             "endoftext",
             "unknown",
         ]
