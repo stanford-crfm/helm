@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 import os
+import random
 
 import nltk
 from nltk.corpus import wordnet
-from nltk.tokenize.treebank import TreebankWordDetokenizer
-import numpy as np
 import spacy
 
 from benchmark.scenario import Instance
+from common.general import match_case
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
@@ -15,7 +15,7 @@ from .perturbation import Perturbation
 class SynonymPerturbation(Perturbation):
     """
     Synonyms. For implementation details, see
-    https://github.com/GEM-benchmark/NL-Augmenter/blob/main/transformations/synonym_substitution
+    https://github.com/GEM-benchmark/NL-Augmenter/blob/main/nlaugmenter/transformations/synonym_substitution/transformation.py
     This perturbation adds noise to a text source by randomly inserting synonyms of randomly selected
     words excluding punctuations and stopwords.
     The space of synonyms depends on WordNet and could be limited. The transformation might introduce
@@ -35,8 +35,11 @@ class SynonymPerturbation(Perturbation):
     name: str = "SynonymPerturbation"
 
     def __init__(self, prob: float):
+        # Assign parameters to instance variables
         self.prob: float = prob
-        self.detokenizer = TreebankWordDetokenizer()
+
+        # Random generator specific to this class, will be set in the apply function
+        self.random: random.Random
 
         # Initialize the model with spaCy: https://spacy.io/models/en
         try:
@@ -62,7 +65,7 @@ class SynonymPerturbation(Perturbation):
         return SynonymPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
 
     def synonyms_substitute(self, text: str) -> str:
-        upos_wn_dict = {
+        spacy_to_wordnet_pos = {
             "VERB": "v",
             "NOUN": "n",
             "ADV": "r",
@@ -71,30 +74,27 @@ class SynonymPerturbation(Perturbation):
 
         doc = self.spacy_model(text)
 
-        result = []
+        perturbed_text = ""
 
         for token in doc:
             word = token.text
-            wn_pos = upos_wn_dict.get(token.pos_)
-            if wn_pos is None:
-                result.append(word)
-            else:
-                syns = wordnet.synsets(word, pos=wn_pos)
-                syns = [syn.name().split(".")[0] for syn in syns]
-                syns = [syn for syn in syns if syn.lower() != word.lower()]
-                if len(syns) > 0 and np.random.random() < self.prob:
-                    result.append(np.random.choice(syns).replace("_", " "))
-                else:
-                    result.append(word)
-
-        # detokenize sentences
-        perturbed_text = self.detokenizer.detokenize(result).replace(" .", ".")
+            wordnet_pos = spacy_to_wordnet_pos.get(token.pos_)
+            if wordnet_pos:
+                synsets = wordnet.synsets(word, pos=wordnet_pos)
+                synonyms = [lemma.name() for synset in synsets for lemma in synset.lemmas()]
+                synonyms = [s for s in synonyms if s != word.lower()]
+                synonyms = list(dict.fromkeys(synonyms))  # Make the list unique while preserving the order
+                if synonyms and self.random.uniform(0, 1) < self.prob:
+                    synonym = self.random.choice(synonyms)
+                    synonym = synonym.replace("_", " ")  # We might get synonyms such as "passive_voice"
+                    word = match_case(word, synonym)
+            perturbed_text += word + token.whitespace_
 
         return perturbed_text
 
     def apply(self, instance: Instance) -> Instance:
         assert instance.id is not None
-        np.random.seed(int(instance.id[2:]))  # set seed based on instance ID
+        self.random = random.Random(int(instance.id[2:]))
         return super().apply(instance)
 
     def perturb(self, text: str) -> str:
