@@ -121,7 +121,7 @@ def test_synonym_perturbation():
     assert len(instances) == 2
     assert instances[0].perturbation.name == "SynonymPerturbation"
     assert instances[0].perturbation.prob == 1.0
-    assert instances[0].input == "This was a dependable movie, would determine again."
+    assert instances[0].input == "This was a serious film, would learn once more."
 
 
 def test_lowercase_perturbation():
