@@ -66,9 +66,9 @@ class MicrosoftClient(Client):
             stop ("Only a single "stop" value (str) is currently supported.")
             top_p
             echo
+            n (Not originally supported, but we simulate n by making multiple requests)
 
         Not supported parameters:
-            n (we simulate n by making multiple requests)
             presence_penalty
             frequency_penalty
         """
