@@ -78,18 +78,15 @@ class FillerWordsPerturbation(Perturbation):
             all_fillers.extend(FILL_PHRASE)
 
         insert_count = 0
-        perturbed_lines = []
-        for line in text.split("\n"):
-            perturbed_words = []
-            for word in line.split():
-                if (max_num_insert is None or insert_count < max_num_insert) and random.random() <= insert_prob:
-                    random_filler = random.choice(all_fillers)
-                    perturbed_words.append(random_filler)
-                    insert_count += 1
-                perturbed_words.append(word)
-            perturbed_lines.append(" ".join(perturbed_words))
+        perturbed_words = []
+        for word in text.split(" "):
+            if (max_num_insert is None or insert_count < max_num_insert) and random.random() <= insert_prob:
+                random_filler = random.choice(all_fillers)
+                perturbed_words.append(random_filler)
+                insert_count += 1
+            perturbed_words.append(word)
 
-        perturbed_text = "\n".join(perturbed_lines)
+        perturbed_text = " ".join(perturbed_words)
 
         return perturbed_text
 
