@@ -376,7 +376,8 @@ def main():
     runner = AllRunner(
         # Use a dummy API key when `skip_instances` or `local` is set.
         # The benchmarking framework will not make any requests to the proxy server when
-        # `skip_instances` is set. Setting `local` will run in root mode.
+        # `skip_instances` is set, so a valid API key is not necessary.
+        # Setting `local` will run and cache everything locally.
         auth=Authentication("") if args.skip_instances or args.local else create_authentication(args),
         conf_path=args.conf_path,
         url=args.server_url,

@@ -54,7 +54,7 @@ do
     logfile="${logfile// /_}"   # Replace spaces
 
     # Override with passed-in CLI arguments
-    # By default, the command will RunSpecs listed in src/benchmark/presentation/run_specs.conf
+    # By default, the command will run the RunSpecs listed in src/benchmark/presentation/run_specs.conf
     # and output results to `benchmark_output/runs/<Today's date e.g., 06-28-2022>`.
     execute "benchmark-present --models-to-run $model $* &> $logfile.log &"
 done
