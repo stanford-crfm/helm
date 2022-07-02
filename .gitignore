@@ -3,12 +3,14 @@ venv
 __pycache__
 *.egg-info
 .mypy_cache
+pip-wheel-metadata/
 
 prod_env
 benchmark_output
 proxy_api_key.txt
 microsoft_client.lock
 *.log
+nltk_data/
 
 # Percy's stuff
 nav
@@ -24,3 +26,6 @@ notes.otl
 
 # For vim
 *.swp
+
+# Miscellaneous
+.nfs*

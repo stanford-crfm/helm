@@ -331,6 +331,9 @@ class Accounts:
             usage.update_period(period)
             usage.used += delta
 
+        if self.root_mode:
+            return
+
         with SqliteDict(self.path) as cache:
             account: Account = from_dict(Account, cache[api_key])
             granular_use(account, model_group, "daily", compute_daily_period)
