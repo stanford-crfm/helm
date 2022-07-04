@@ -1072,14 +1072,10 @@ def get_narrativeqa_spec() -> RunSpec:
     )
 
 
-def get_synthetic_efficiency_spec(num_input_tokens: int, num_output_tokens: int, tokenizer_model: str) -> RunSpec:
+def get_synthetic_efficiency_spec(num_input_tokens: int, num_output_tokens: int) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
-        args={
-            "num_input_tokens": num_input_tokens,
-            "num_instances": SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-            "model": tokenizer_model,
-        },
+        args={"num_input_tokens": num_input_tokens, "num_instances": SIMPLE_METRIC_MAX_EVAL_INSTANCES,},
     )
 
     adapter_spec = AdapterSpec(
@@ -1088,7 +1084,7 @@ def get_synthetic_efficiency_spec(num_input_tokens: int, num_output_tokens: int,
         max_train_instances=0,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_train_trials=1,
-        model=tokenizer_model,
+        model="openai/davinci",
         temperature=0.0,
         stop_sequences=[],
         num_outputs=1,
