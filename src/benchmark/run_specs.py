@@ -1072,7 +1072,7 @@ def get_narrativeqa_spec() -> RunSpec:
     )
 
 
-def get_synthetic_efficiency_spec(num_input_tokens: int, num_output_tokens: int) -> RunSpec:
+def get_synthetic_efficiency_spec(num_input_tokens: int = 16, num_output_tokens: int = 16) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
         args={"num_input_tokens": num_input_tokens, "num_instances": SIMPLE_METRIC_MAX_EVAL_INSTANCES,},

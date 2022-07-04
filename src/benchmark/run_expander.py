@@ -138,6 +138,50 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
     values_dict = {"default": [1]}
 
 
+class NumInputTokensRunExpander(ReplaceRunSpecValueRunExpander):
+    """For overriding num_input_tokens."""
+
+    name = "num_input_tokens"
+    values_dict = {
+        "all": [
+            1,
+            16,
+            32,
+            64,
+            128,
+            192,
+            256,
+            320,
+            384,
+            428,
+            472,
+            512,
+            576,
+            640,
+            704,
+            768,
+            832,
+            896,
+            960,
+            1024,
+            1152,
+            1280,
+            1408,
+            1536,
+            1664,
+            1792,
+            1920,
+        ]
+    }
+
+
+class NumOutputTokensRunExpander(ReplaceRunSpecValueRunExpander):
+    """For overriding num_output_tokens."""
+
+    name = "num_output_tokens"
+    values_dict = {"all": [1, 2, 4, 8, 12, 16, 24, 32, 48, 64]}
+
+
 DEFAULT_MODELS: List[str] = [
     "openai/davinci",
     "openai/curie",
@@ -500,5 +544,6 @@ RUN_EXPANDERS = dict(
         NumOutputsRunExpander,
         ModelRunExpander,
         DataAugmentationRunExpander,
+        NumInputTokensRunExpander,
     ]
 )
