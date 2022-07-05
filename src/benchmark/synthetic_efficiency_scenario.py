@@ -1,8 +1,8 @@
 import os
 from typing import Dict, List
-from common.general import ensure_file_downloaded
-from benchmark.tokenizer.huggingface_tokenizer import HuggingFaceTokenizers
 
+from common.general import ensure_file_downloaded
+from proxy.huggingface_tokenizer import HuggingFaceTokenizers
 from .scenario import Scenario, Instance, Reference, TEST_SPLIT, CORRECT_TAG
 
 
