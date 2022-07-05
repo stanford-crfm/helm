@@ -108,8 +108,6 @@ class NewsQAScenario(Scenario):
                 add_question = True
                 if ("isQuestionBad" in question.keys()) and (question["isQuestionBad"] != 0.0):
                     add_question = False
-                if ("isAnswerAbsent" in question.keys()) and (question["isAnswerAbsent"] != 0.0):
-                    add_question = False
                 if ("badQuestion" in question["consensus"].keys()) and (question["consensus"]["badQuestion"] is True):
                     add_question = False
                 if add_question is True:
