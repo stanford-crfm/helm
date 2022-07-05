@@ -1,11 +1,18 @@
 #!/bin/bash
 
 # This script fails when any of its commands fail.
-pip install -e .
-pip check
+set -e
+
+if ! [ -e venv ]; then
+  python3 -m pip install virtualenv
+  python3 -m virtualenv -p python3 venv
+fi
+
+venv/bin/pip install -e .
+venv/bin/pip check
 
 # Python style checks and linting
-black --check --diff src scripts || (
+venv/bin/black --check --diff src scripts || (
   echo ""
   echo "The code formatting check failed. To fix the formatting, run:"
   echo ""
@@ -16,7 +23,7 @@ black --check --diff src scripts || (
   exit 1
 )
 
-mypy src scripts
-flake8 src scripts
+venv/bin/mypy src scripts
+venv/bin/flake8 src scripts
 
 echo "Done."
