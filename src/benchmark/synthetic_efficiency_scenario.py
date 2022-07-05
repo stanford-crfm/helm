@@ -58,13 +58,14 @@ class SyntheticEfficiencyScenario(Scenario):
             i = 0
             tokens[book] = []
             while len(tokens[book]) < num_total_tokens_per_book:
-                tokens[book] += tokenizer.tokenize((" ").join(text[i * batch_size : (i + 1) * batch_size]))
+                tokens[book] += tokenizer.tokenize(text[i * batch_size : (i + 1) * batch_size])
                 i += 1
 
         instances: List[Instance] = []
         for i in range(self.num_instances // len(books)):
             for j in range(len(books)):
                 per_instance_tokens = tokens[books[j]][i * self.num_input_tokens : (i + 1) * self.num_input_tokens]
+                assert len(per_instance_tokens) == self.num_input_tokens
                 per_instance_token_ids = tokenizer.convert_tokens_to_ids(per_instance_tokens)
                 prompt = tokenizer.decode(per_instance_token_ids)
                 instance = Instance(
