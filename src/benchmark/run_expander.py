@@ -545,5 +545,6 @@ RUN_EXPANDERS = dict(
         ModelRunExpander,
         DataAugmentationRunExpander,
         NumInputTokensRunExpander,
+        NumOutputTokensRunExpander,
     ]
 )

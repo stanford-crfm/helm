@@ -26,24 +26,25 @@ class SyntheticEfficiencyScenario(Scenario):
     name = "synthetic_efficiency"
     description = "Synthetic scenario for benchmarking efficiency metrics"
     tags: List[str] = []
+    sources = {
+        "alice": "https://www.gutenberg.org/files/11/11-0.txt",
+        "pride_and_prejudice": "https://www.gutenberg.org/files/1342/1342-0.txt",
+        "sherlock_holmes": "https://www.gutenberg.org/files/1661/1661-0.txt",
+        "monte_cristo": "https://www.gutenberg.org/cache/epub/1184/pg1184.txt",
+        "crime_and_punishment": "https://www.gutenberg.org/files/2554/2554-0.txt",
+    }
 
     def __init__(self, num_input_tokens: int, num_instances: int):
         self.num_input_tokens: int = num_input_tokens
         self.num_instances: int = num_instances
+        assert self.num_instances % len(self.sources) == 0
 
     def get_instances(self) -> List[Instance]:
-        sources = {
-            "alice": "https://www.gutenberg.org/files/11/11-0.txt",
-            "pride_and_prejudice": "https://www.gutenberg.org/files/1342/1342-0.txt",
-            "sherlock_holmes": "https://www.gutenberg.org/files/1661/1661-0.txt",
-            "monte_cristo": "https://www.gutenberg.org/cache/epub/1184/pg1184.txt",
-            "crime_and_punishment": "https://www.gutenberg.org/files/2554/2554-0.txt",
-        }
-        books: List[str] = list(sources.keys())
+        books: List[str] = list(self.sources.keys())
         tokens: Dict = {}
         tokenizer = HuggingFaceTokenizers.get_tokenizer("huggingface/gpt2_tokenizer_fast")
         # Extract tokens from book sources
-        for book, source_url in sources.items():
+        for book, source_url in self.sources.items():
             data_path = os.path.join(self.output_path, f"{book}.txt")
             ensure_file_downloaded(
                 source_url=source_url, target_path=data_path, unpack=False,
@@ -53,7 +54,7 @@ class SyntheticEfficiencyScenario(Scenario):
             batch_size = 2048
             # Skip intro text
             text = text[batch_size:]
-            num_total_tokens_per_book = self.num_instances // len(books) * self.num_input_tokens
+            num_total_tokens_per_book = (self.num_instances * self.num_input_tokens) // len(books)
             i = 0
             tokens[book] = []
             while len(tokens[book]) < num_total_tokens_per_book:
