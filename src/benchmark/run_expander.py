@@ -475,9 +475,11 @@ class DataAugmentationRunExpander(RunExpander):
                 # Always include original and perturbed instances together so that
                 # we can compute the normal and robustness metrics in the same run.
                 should_augment_train_instances=False,
-                should_include_original_train=True,
+                should_include_original_train=True,  # irrelevant
+                should_skip_unchanged_train=True,  # irrelevant
                 should_augment_eval_instances=True,
                 should_include_original_eval=True,
+                should_skip_unchanged_eval=True,
             )
             return replace(
                 run_spec,

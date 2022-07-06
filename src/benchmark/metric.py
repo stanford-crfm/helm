@@ -111,6 +111,10 @@ class Metric(ABC):
                     stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
 
+                    #  count how many inputs we have per perturbation
+                    if stat.name.name == "exact_match":  # could be any metric name that all instances have
+                        merge_stat(trial_stats, Stat(replace(stat.name, name="number_of_instances")).add(1))
+
                     stat = Stat(
                         replace(
                             stat.name,
@@ -172,7 +176,10 @@ class Metric(ABC):
 
             # We only take the mean value for each trial
             for stat in trial_stats.values():
-                merge_stat(global_stats, stat.take_mean())
+                if stat.name.name == "number_of_instances":
+                    merge_stat(global_stats, stat.take_sum())
+                else:
+                    merge_stat(global_stats, stat.take_mean())
 
         # Wrap aggregated and per-instance stats in a MetricResult.
         return MetricResult(list(global_stats.values()), all_per_instance_stats)
