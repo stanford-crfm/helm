@@ -140,7 +140,7 @@ class Metric(ABC):
                     merge_stat(trial_stats, worst_stat)
 
             for metric_name, instance_ids in per_metric_instance_ids.items():
-                merge_stat(trial_stats, Stat(replace(metric_name, name="number_of_instances")).add(len(instance_ids)))
+                merge_stat(trial_stats, Stat(replace(metric_name, name="num_instances")).add(len(instance_ids)))
 
             # Aggregate the corpus-level metrics
             for split in EVAL_SPLITS:
