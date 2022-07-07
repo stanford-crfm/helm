@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass, replace
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Set
 from math import log, e
 from collections import defaultdict
 
@@ -82,6 +82,8 @@ class Metric(ABC):
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
             per_instance_stats: Dict[Tuple[MetricName, str], Stat] = {}  # Statistics for per-instance worst-case metric
+            per_metric_instance_ids: Dict[MetricName, Set[str]] = defaultdict(set)  # Collect instance-ids per metric
+
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
             #       https://github.com/stanford-crfm/benchmarking/issues/48
             for instance_index, instance in enumerate(scenario_state.instances):
@@ -107,9 +109,13 @@ class Metric(ABC):
                 # Merge these statistics back.
                 # TODO: we should add statistics with the individual instances too and serialize them out.
                 #       https://github.com/stanford-crfm/benchmarking/issues/49
+
                 for stat in instance_stats:
                     stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
+
+                    assert instance.id is not None
+                    per_metric_instance_ids[stat.name].add(instance.id)
 
                     stat = Stat(
                         replace(
@@ -128,6 +134,9 @@ class Metric(ABC):
                 if stat.count > 0:
                     worst_stat = Stat(stat.name).add(stat.min)
                     merge_stat(trial_stats, worst_stat)
+
+            for metric_name, instance_ids in per_metric_instance_ids.items():
+                merge_stat(trial_stats, Stat(replace(metric_name, name="num_instances")).add(len(instance_ids)))
 
             # Aggregate the corpus-level metrics
             for split in EVAL_SPLITS:
