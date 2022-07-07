@@ -1,6 +1,5 @@
 from typing import List, Dict
 
-from benchmark.tokenizer.tokenizer_factory import TokenizerFactory
 from common.request import Request
 from .adapter import ScenarioState
 from .metrics.tokens.auto_token_cost_estimator import AutoTokenCostEstimator
@@ -9,6 +8,7 @@ from .metric_name import MetricName
 from .metric_service import MetricService
 from .scenario import Instance
 from .statistic import Stat, merge_stat
+from .tokenizer.tokenizer_factory import TokenizerFactory
 
 
 class TokensMetric(Metric):
