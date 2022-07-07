@@ -82,7 +82,7 @@ class Metric(ABC):
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
             per_instance_stats: Dict[Tuple[MetricName, str], Stat] = {}  # Statistics for per-instance worst-case metric
-            per_metric_instance_ids: Dict[MetricName, Set[str]] = {}  # Collect the instance-ids for each metric
+            per_metric_instance_ids: Dict[MetricName, Set[str]] = defaultdict(set)  # Collect instance-ids per metric
 
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
             #       https://github.com/stanford-crfm/benchmarking/issues/48
@@ -114,12 +114,8 @@ class Metric(ABC):
                     stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
 
-                    metric_name = stat.name
                     assert instance.id is not None
-                    if metric_name in per_metric_instance_ids:
-                        per_metric_instance_ids[metric_name].add(instance.id)
-                    else:
-                        per_metric_instance_ids[metric_name] = {instance.id}
+                    per_metric_instance_ids[stat.name].add(instance.id)
 
                     stat = Stat(
                         replace(
