@@ -11,7 +11,7 @@ class TestGPTJTokenizer:
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()
         service: TokenizerService = get_tokenizer_service(self.path)
-        self.tokenizer = TokenizerFactory.get_tokenizer("huggingface/gptj_6b", service)
+        self.tokenizer = TokenizerFactory.get_tokenizer("huggingface/gpt-j-6b", service)
 
     def teardown_method(self, method):
         shutil.rmtree(self.path)

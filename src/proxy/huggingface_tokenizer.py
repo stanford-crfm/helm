@@ -1,7 +1,7 @@
 import os
 from typing import Any, Dict
 
-from transformers import GPT2TokenizerFast
+from transformers import GPT2TokenizerFast, AutoTokenizer, GPTNeoXTokenizerFast
 
 from common.hierarchical_logger import htrack_block
 
@@ -21,10 +21,19 @@ class HuggingFaceTokenizers:
                 # To avoid deadlocks when using HuggingFace tokenizers with multiple processes
                 os.environ["TOKENIZERS_PARALLELISM"] = "False"
 
+                # Use the "fast" version of the tokenizer if available.
                 # Weights are cached at ~/.cache/huggingface/transformers.
-                if tokenizer_name == "huggingface/gpt2_tokenizer_fast":
-                    HuggingFaceTokenizers.tokenizers[tokenizer_name] = GPT2TokenizerFast.from_pretrained("gpt2")
+                if tokenizer_name == "huggingface/gpt2-tokenizer-fast":
+                    tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
+                elif tokenizer_name == "huggingface/gpt-j-6b":
+                    # Not a typo: Named "gpt-j-6B" instead of "gpt-j-6b" in HuggingFace
+                    tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
+                elif tokenizer_name == "huggingface/gpt-neox-20b":
+                    tokenizer = GPTNeoXTokenizerFast.from_pretrained("EleutherAI/gpt-neox-20b")
                 else:
                     raise ValueError(f"Unsupported tokenizer: {tokenizer_name}")
+
+                # Keep the tokenizer in memory, so we don't recreate it for future requests
+                HuggingFaceTokenizers.tokenizers[tokenizer_name] = tokenizer
 
         return HuggingFaceTokenizers.tokenizers[tokenizer_name]

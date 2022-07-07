@@ -22,7 +22,7 @@ class HuggingFaceTokenizers:
                 os.environ["TOKENIZERS_PARALLELISM"] = "False"
 
                 # Weights are cached at ~/.cache/huggingface/transformers.
-                if tokenizer_name == "huggingface/gpt2_tokenizer_fast":
+                if tokenizer_name == "huggingface/gpt2-tokenizer-fast":
                     HuggingFaceTokenizers.tokenizers[tokenizer_name] = GPT2TokenizerFast.from_pretrained("gpt2")
                 else:
                     raise ValueError(f"Unsupported tokenizer: {tokenizer_name}")

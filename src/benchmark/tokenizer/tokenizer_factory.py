@@ -41,7 +41,7 @@ class TokenizerFactory:
             tokenizer = AnthropicTokenizer(service)
         elif model_name == "huggingface/gpt2":
             tokenizer = GPT2Tokenizer(service)
-        elif model_name == "huggingface/gptj_6b":
+        elif model_name == "huggingface/gpt-j-6b":
             tokenizer = GPTJTokenizer(service)
         elif organization == "ai21":
             tokenizer = AI21Tokenizer(service=service, gpt2_tokenizer=GPT2Tokenizer(service))

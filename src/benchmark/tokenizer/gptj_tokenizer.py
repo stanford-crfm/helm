@@ -1,3 +1,4 @@
+from .tokenizer import Tokenizer
 from .gpt2_tokenizer import GPT2Tokenizer
 from .tokenizer_service import TokenizerService
 

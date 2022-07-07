@@ -72,7 +72,7 @@ class TestHuggingFaceClient:
     def test_gptj_6b(self):
         result: RequestResult = self.client.make_request(
             Request(
-                model="huggingface/gptj_6b",
+                model="huggingface/gpt-j-6b",
                 prompt="I am a computer scientist.",
                 num_completions=3,
                 max_tokens=20,

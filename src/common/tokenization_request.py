@@ -10,7 +10,7 @@ class TokenizationRequest:
     text: str
 
     # Which tokenizer we should use
-    tokenizer: str = "huggingface/gpt2_tokenizer_fast"
+    tokenizer: str = "huggingface/gpt2-tokenizer-fast"
 
     # Whether to encode (HuggingFace tokenizers only)
     encode: bool = False
@@ -23,7 +23,7 @@ class TokenizationRequest:
 
     @property
     def tokenizer_organization(self):
-        """Example: 'huggingface/gpt2_tokenizer_fast' => 'huggingface'"""
+        """Example: 'huggingface/gpt2-tokenizer-fast' => 'huggingface'"""
         return self.tokenizer.split("/")[0]
 
 
@@ -89,14 +89,14 @@ class DecodeRequest:
     tokens: List[int]
 
     # Which tokenizer we should use
-    tokenizer: str = "huggingface/gpt2_tokenizer_fast"
+    tokenizer: str = "huggingface/gpt2-tokenizer-fast"
 
     # Whether to clean up the tokenization spaces. Setting to False preserves the original text.
     clean_up_tokenization_spaces: bool = False
 
     @property
     def tokenizer_organization(self):
-        """Example: 'huggingface/gpt2_tokenizer_fast' => 'huggingface'"""
+        """Example: 'huggingface/gpt2-tokenizer-fast' => 'huggingface'"""
         return self.tokenizer.split("/")[0]
 
 
