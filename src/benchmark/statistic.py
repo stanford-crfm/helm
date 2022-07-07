@@ -94,12 +94,6 @@ class Stat:
             return self
         return Stat(self.name).add(self.mean)
 
-    def take_sum(self):
-        """Return a version of the stat that only has the sum."""
-        if self.count == 0:
-            return self
-        return Stat(self.name).add(self.sum)
-
 
 def merge_stat(stats: Dict[MetricName, Stat], stat: Stat):
     """Mutate the appropriate part of `stats`."""
