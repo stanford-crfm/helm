@@ -11,7 +11,7 @@ Remove entries in the Anthropic cache with `stop=[]`.
 
 Usage:
 
-    python3 scripts/fix_anthropic_cache.py -p prod_env/cache/anthropic.sqlite
+    python3 scripts/one_off/fix_anthropic_cache.py -p prod_env/cache/anthropic.sqlite
 
 """
 
