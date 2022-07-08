@@ -27,7 +27,7 @@ class TokensMetric(Metric):
         """
 
         def merge_stat_helper(stat: Stat, instance: Instance):
-            """Merges stat to `stats` and `per_instance_stats` dictionaries."""
+            """Merges "stat" to `stats` and `per_instance_stats` dictionaries."""
             merge_stat(stats, stat)
             # Call take_mean to make a copy of the stat, so that merge_stat updates do
             # not change what is in per_instance_stats.
