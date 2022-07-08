@@ -1,6 +1,6 @@
-from typing import List, Dict, Optional, Any, Callable
 import itertools
 import os
+from typing import List, Dict, Optional, Any, Callable
 
 from common.object_spec import ObjectSpec
 from .adapter import (
@@ -1072,10 +1072,10 @@ def get_narrativeqa_spec() -> RunSpec:
     )
 
 
-def get_synthetic_efficiency_spec(num_input_tokens: int = 16, num_output_tokens: int = 16) -> RunSpec:
+def get_synthetic_efficiency_spec(num_input_tokens: int, num_output_tokens: int, tokenizer: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
-        args={"num_input_tokens": num_input_tokens, "num_instances": SIMPLE_METRIC_MAX_EVAL_INSTANCES,},
+        args={"num_input_tokens": num_input_tokens, "num_instances": 10, "tokenizer": tokenizer,},
     )
 
     adapter_spec = AdapterSpec(

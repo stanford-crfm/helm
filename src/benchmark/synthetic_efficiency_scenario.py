@@ -1,9 +1,44 @@
 import os
-from typing import Dict, List
+from typing import List
+import urllib.parse
 
 from common.general import ensure_file_downloaded
-from proxy.huggingface_tokenizer import HuggingFaceTokenizers
 from .scenario import Scenario, Instance, Reference, TEST_SPLIT, CORRECT_TAG
+
+NUM_INPUT_TOKENS: List[int] = [
+    1,
+    16,
+    32,
+    64,
+    128,
+    192,
+    256,
+    320,
+    384,
+    428,
+    472,
+    512,
+    576,
+    640,
+    704,
+    768,
+    832,
+    896,
+    960,
+    1024,
+    1152,
+    1280,
+    1408,
+    1536,
+    1664,
+    1792,
+    1920,
+]
+NUM_OUTPUT_TOKENS: List[int] = [1, 2, 4, 8, 16, 32, 64]
+
+BASE_URL = (
+    "https://raw.githubusercontent.com/stanford-crfm/benchmarking_efficiency/main/synthetic_efficiency_instances/"
+)
 
 
 class SyntheticEfficiencyScenario(Scenario):
@@ -26,51 +61,34 @@ class SyntheticEfficiencyScenario(Scenario):
     name = "synthetic_efficiency"
     description = "Synthetic scenario for benchmarking efficiency metrics"
     tags: List[str] = []
-    sources = {
-        "alice": "https://www.gutenberg.org/files/11/11-0.txt",
-        "pride_and_prejudice": "https://www.gutenberg.org/files/1342/1342-0.txt",
-        "sherlock_holmes": "https://www.gutenberg.org/files/1661/1661-0.txt",
-        "monte_cristo": "https://www.gutenberg.org/cache/epub/1184/pg1184.txt",
-        "crime_and_punishment": "https://www.gutenberg.org/files/2554/2554-0.txt",
-    }
 
-    def __init__(self, num_input_tokens: int, num_instances: int):
+    def __init__(self, num_input_tokens: int, num_instances: int, tokenizer: str):
         self.num_input_tokens: int = num_input_tokens
         self.num_instances: int = num_instances
-        assert self.num_instances % len(self.sources) == 0
+        self.tokenizer = tokenizer
+        assert self.tokenizer in ["huggingface/gpt2_tokenizer_fast", "ai21"]
 
     def get_instances(self) -> List[Instance]:
-        books: List[str] = list(self.sources.keys())
-        tokens: Dict = {}
-        tokenizer = HuggingFaceTokenizers.get_tokenizer("huggingface/gpt2_tokenizer_fast")
-        # Extract tokens from book sources
-        for book, source_url in self.sources.items():
-            data_path = os.path.join(self.output_path, f"{book}.txt")
+        data_paths = []
+        for instance_id in range(self.num_instances):
+            parameters = (
+                f"input_tokens={self.num_input_tokens},"
+                f"tokenizer={self.tokenizer.replace('/', '_')},"
+                f"id={instance_id}.txt"
+            )
+            source_url = f"{BASE_URL}{urllib.parse.quote(parameters)}"
+            data_path = os.path.join(self.output_path, parameters.replace("/", "_"))
             ensure_file_downloaded(
                 source_url=source_url, target_path=data_path, unpack=False,
             )
-            with open(data_path, "r") as f:
-                text = f.read()
-            batch_size = 2048
-            # Skip intro text
-            text = text[batch_size:]
-            num_total_tokens_per_book = (self.num_instances * self.num_input_tokens) // len(books)
-            i = 0
-            tokens[book] = []
-            while len(tokens[book]) < num_total_tokens_per_book:
-                tokens[book] += tokenizer.tokenize(text[i * batch_size : (i + 1) * batch_size])
-                i += 1
+            data_paths.append(data_path)
 
-        instances: List[Instance] = []
-        for i in range(self.num_instances // len(books)):
-            for j in range(len(books)):
-                per_instance_tokens = tokens[books[j]][i * self.num_input_tokens : (i + 1) * self.num_input_tokens]
-                assert len(per_instance_tokens) == self.num_input_tokens
-                per_instance_token_ids = tokenizer.convert_tokens_to_ids(per_instance_tokens)
-                prompt = tokenizer.decode(per_instance_token_ids)
+        instances = []
+        for data_path in data_paths:
+            with open(data_path, "r") as f:
+                prompt = f.read()
                 instance = Instance(
                     input=prompt, references=[Reference(output="", tags=[CORRECT_TAG])], split=TEST_SPLIT,
                 )
                 instances.append(instance)
-
         return instances
