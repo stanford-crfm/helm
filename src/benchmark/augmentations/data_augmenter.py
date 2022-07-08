@@ -16,17 +16,27 @@ class DataAugmenter:
     # Perturbations to apply to generate new instances
     perturbations: List[Perturbation]
 
-    def generate(self, instances: List[Instance], include_original: bool = True) -> List[Instance]:
+    def generate(
+        self, instances: List[Instance], include_original: bool = True, skip_unchanged: bool = False
+    ) -> List[Instance]:
         """
         Given a list of Instances, generate a new list of perturbed Instances.
         include_original controls whether to include the original Instance in the new list of Instances.
+        skip_unchanged controls whether we include instances for which the perturbation did not change the input.
         """
-        perturbations = self.perturbations + [IdentityPerturbation()] if include_original else self.perturbations
 
         result: List[Instance] = []
-        for i, instance in enumerate(instances):
-            for perturbation in perturbations:
-                result.append(perturbation.apply(instance))
+        for instance in instances:
+            if include_original:
+                #  we want to include the original even when the perturbation does not change the input
+                result.append(IdentityPerturbation().apply(instance))
+
+            original_input: str = instance.input
+            for perturbation in self.perturbations:
+                perturbed_instance: Instance = perturbation.apply(instance)
+                if skip_unchanged and perturbed_instance.input == original_input:
+                    continue
+                result.append(perturbed_instance)
         return result
 
 
@@ -42,11 +52,17 @@ class DataAugmenterSpec:
     # Whether to include the original instances in the augmented set of train instances
     should_include_original_train: bool = False
 
+    # Whether to include train instances which were unaffected by the perturbation
+    should_skip_unchanged_train: bool = False
+
     # Whether to augment val/test instances
     should_augment_eval_instances: bool = False
 
     # Whether to include the original instances in the augmented set of val/test instances
     should_include_original_eval: bool = False
+
+    # Whether to include val/test instances which were unaffected by the perturbation
+    should_skip_unchanged_eval: bool = False
 
     @property
     def perturbations(self) -> List[Perturbation]:

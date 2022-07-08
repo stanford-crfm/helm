@@ -357,7 +357,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         name=f"mmlu:subject={subject}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -409,7 +409,7 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             name=f"commonsense:dataset={dataset},method={method}",
             scenario=scenario,
             adapter_spec=adapter_spec,
-            metrics=get_basic_metrics({"names": ["exact_match"]}),
+            metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
         )
     elif method == CAUSAL_LANGUAGE_MODELING_METHOD:
         n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
@@ -783,7 +783,7 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
         name=f"lsat_qa:task={task}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -1344,7 +1344,7 @@ def get_legal_support_spec() -> RunSpec:
         name="legal_support",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
@@ -1371,7 +1371,7 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
         name=f"entity_matching:dataset={dataset}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
     )
 
 
