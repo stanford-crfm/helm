@@ -463,7 +463,6 @@ class BasicMetric(Metric):
 
         return [
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
-            Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens),
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
             Stat(MetricName("inference_runtime_discrepancy")).add(runtime_discrepancy),
