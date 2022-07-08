@@ -576,6 +576,10 @@ $(function () {
     // Output all the stats/run that are shown in the table in a list so that the user can double
     // check the stats / click on the runs.
 
+    const $root = $('<div>');
+    const scenarioGroupsTitle = scenarioGroups.map(s => s.name).join(", ");
+    $root.append($('<h2>').append(scenarioGroupsTitle));
+
     // Group by model
     const runsGroupedByModel = runs.reduce((r, run) => {
       model = run.run_spec.adapter_spec.model;
@@ -622,8 +626,8 @@ $(function () {
 
     // Render table
     const $table = renderTable(tableHeaders, tableData, 'scenario-table')
+    $root.append($table);
 
-    const $root = $('<div>').append($table);
     return $root;
   }
 
