@@ -42,3 +42,332 @@ metrics:
   description: Number of tokens in the output (for language modeling, the input too).
 - name: num_bytes
   description: Number of bytes in the output (for language modeling, the input too).
+
+scenarioGroups:
+- name: NarrativeQA
+  class_name: benchmark.narrativeqa_scenario.NarrativeQAScenario
+  display_split: test
+  display_stat_names:
+  - f1_score
+- name: BoolQ
+  class_name: benchmark.boolq_scenario.BoolQScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+- name: QuAC
+  class_name: benchmark.quac_scenario.QuACScenario
+  display_split: test
+  display_stat_names:
+  - f1_score
+- name: NaturalQuestions
+  class_name: benchmark.natural_qa_scenario.NaturalQAScenario
+  display_split: test
+  display_stat_names:
+  - f1_score
+- name: TruthfulQA
+  class_name: benchmark.truthful_qa_scenario.TruthfulQAScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+- name: MMLU
+  class_name: benchmark.mmlu_scenario.MMLUScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+- name: IMDB
+  class_name: benchmark.imdb_scenario.IMDBScenario
+  display_split: valid
+  display_stat_names:
+  - quasi_exact_match
+- name: RAFT
+  class_name: benchmark.raft_scenario.RAFTScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+- name: Entity matching
+  class_name: benchmark.entity_matching_scenario.EntityMatchingScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+- name: Data imputation
+  class_name: benchmark.entity_data_imputation_scenario.EntityDataImputationScenario
+  display_split: test
+  display_stat_names:
+  - exact_match
+- name: CivilComments
+  class_name: benchmark.civil_comments_scenario.CivilCommentsScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+- name: The Pile
+  class_name: benchmark.the_pile_scenario.ThePileScenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+- name: WikiFact
+  class_name: benchmark.wikifact_scenario.WIKIFactScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+- name: Numeracy
+  class_name: benchmark.numeracy_scenario.NumeracyScenario
+  display_split: test
+  display_stat_names:
+  - absolute_value_difference
+- name: Synthetic reasoning (abstract symbols)
+  class_name: benchmark.synthetic_reasoning_scenario.SyntheticReasoningScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+- name: Synthetic reasoning (natural language)
+  class_name: benchmark.synthetic_reasoning_natural_scenario.SRNScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+- name: bAbI
+  class_name: benchmark.babi_qa_scenario.BabiQAScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+- name: Dyck
+  class_name: benchmark.dyck_language_scenario.DyckLanguageScenario
+  display_split: test
+  display_stat_names:
+  - exact_match_indicator
+- name: GSM8K
+  class_name: benchmark.gsm_scenario.GSM8KScenario
+  display_split: test
+  display_stat_names:
+  - exact_match_indicator
+- name: LSAT
+  class_name: benchmark.lsat_qa_scenario.LSATScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+- name: LegalSupport
+  class_name: benchmark.legal_support_scenario.LegalSupportScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+- name: Copyright
+  class_name: benchmark.copyright_scenario.CopyrightScenario
+  display_split: test
+  display_stat_names:
+  - longest_common_prefix_length
+  - edit_distance
+- name: BBQ
+  class_name: benchmark.bbq_scenario.BBQScenario
+  display_split: test
+  display_stat_names:
+  - TODO
+- name: RealToxicityPrompts
+  class_name: benchmark.real_toxicity_prompts_scenario.RealToxicityPromptsScenario
+  display_split: test
+  display_stat_names:
+  - toxicity_probability
+- name: BOLD
+  class_name: benchmark.bold_scenario.BOLDScenario
+  display_split: test
+  display_stat_names:
+  - toxicity_probability
+- name: WikiText-103
+  class_name: benchmark.wikitext_103_scenario.Wikitext103Scenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+- name: BLiMP
+  class_name: benchmark.blimp_scenario.BLiMPScenario
+  display_split: test
+  display_stat_names:
+  - accuracy
+- name: NewsQA
+  class_name: benchmark.newsqa_scenario.NewsQAScenario
+  display_split: test
+  display_stat_names:
+  - f1_score
+- name: MATH
+  class_name: benchmark.math_scenario.MATHScenario
+  display_split: test
+  display_stat_names:
+  - math_equiv
+  args:
+    use_chain_of_thought: False
+- name: MATH (chain_of_thought)
+  class_name: benchmark.math_scenario.MATHScenario
+  display_split: test
+  display_stat_names:
+  - math_equiv_chain_of_thought
+  args:
+    use_chain_of_thought: True
+- name: Code (HumanEval)
+  class_name: benchmark.code_scenario.CodeScenario
+  display_split: test
+  display_stat_names:
+  - code_eval_acc
+  - pass
+  args:
+    dataset: HumanEval
+- name: Code (APPS)
+  class_name: benchmark.code_scenario.CodeScenario
+  display_split: test
+  display_stat_names:
+  - test_avg
+  - strict_acc
+  args:
+    dataset: APPS
+- name: Disinformation (reiteration)
+  class_name: benchmark.disinformation_scenario.DisinformationScenario
+  display_split: test
+  display_stat_names:
+  - self_bleu
+  - monte_carlo_entropy
+  args:
+    capability: reiteration
+- name: Disinformation (wedging)
+  class_name: benchmark.disinformation_scenario.DisinformationScenario
+  display_split: test
+  display_stat_names:
+  - self_bleu
+  - monte_carlo_entropy
+  args:
+    capability: wedging
+- name: HellaSwag
+  class_name: benchmark.commonsense_scenario.CommonSenseScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+  args:
+    dataset: hellaswag
+- name: OpenbookQA
+  class_name: benchmark.commonsense_scenario.CommonSenseScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+  args:
+    dataset: openbookqa
+- name: CommonsenseQA
+  class_name: benchmark.commonsense_scenario.CommonSenseScenario
+  display_split: test
+  display_stat_names:
+  - quasi_exact_match
+  args:
+    dataset: commonsenseqa
+- name: MS MARCO (regular)
+  class_name: benchmark.msmarco_scenario.MSMARCOScenario
+  display_split: test
+  display_stat_names:
+  - TODO
+  args:
+    track: regular
+- name: MS MARCO (TREC)
+  class_name: benchmark.msmarco_scenario.MSMARCOScenario
+  display_split: test
+  display_stat_names:
+  - TODO
+  args:
+    track: trec
+- name: CNN/DailyMail
+  class_name: benchmark.summarization_scenario.SummarizationScenario
+  display_split: test
+  display_stat_names:
+  - rouge-2
+  args:
+    dataset_name: cnn-dm
+- name: XSUM
+  class_name: benchmark.summarization_scenario.SummarizationScenario
+  display_split: test
+  display_stat_names:
+  - rouge-2
+  args:
+    dataset_name: xsum-sampled
+- name: TwitterAAE (AAE)
+  class_name: benchmark.twitter_aae_scenario.TwitterAAEScenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+  args:
+    demographic: aa
+- name: TwitterAAE (White)
+  class_name: benchmark.twitter_aae_scenario.TwitterAAEScenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+  args:
+    demographic: white
+- name: ICE (Canada)
+  class_name: benchmark.ice_scenario.ICEScenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+  args:
+    subset: CAN
+- name: ICE (Hong Kong)
+  class_name: benchmark.ice_scenario.ICEScenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+  args:
+    subset: HK
+- name: ICE (India)
+  class_name: benchmark.ice_scenario.ICEScenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+  args:
+    subset: IND
+- name: ICE (Japan)
+  class_name: benchmark.ice_scenario.ICEScenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+  args:
+    subset: JA
+- name: ICE (Phillipines)
+  class_name: benchmark.ice_scenario.ICEScenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+  args:
+    subset: PHI
+- name: ICE (Singapore)
+  class_name: benchmark.ice_scenario.ICEScenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+  args:
+    subset: SIN
+- name: ICE (USA)
+  class_name: benchmark.ice_scenario.ICEScenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+  args:
+    subset: USA
+- name: ICE (spoken)
+  class_name: benchmark.ice_scenario.ICEScenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+  args:
+    split: spoken
+- name: ICE (written)
+  class_name: benchmark.ice_scenario.ICEScenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+  args:
+    split: written
+- name: ICE (female)
+  class_name: benchmark.ice_scenario.ICEScenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+  args:
+    gender: F
+- name: ICE (male)
+  class_name: benchmark.ice_scenario.ICEScenario
+  display_split: test
+  display_stat_names:
+  - bits_per_byte
+  args:
+    gender: M
