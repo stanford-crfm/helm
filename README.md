@@ -73,7 +73,7 @@ By default, Perspective API allows only 1 query per second. Fill out this
 
 The [current API key](https://console.cloud.google.com/apis/api/commentanalyzer.googleapis.com/overview?authuser=1&project=hai-gcp-models)
 we are using in production was created with the `hai-gcp-models` account and allows 200 queries per second.
-**The API key expires on 7/15/2022.**
+**The API key expires on 7/30/2022.**
 
 #### SSL
 
