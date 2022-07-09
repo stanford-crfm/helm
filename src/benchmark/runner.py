@@ -39,6 +39,13 @@ class RunSpec:
     # Data augmenter. The default `DataAugmenterSpec` does nothing.
     data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec()
 
+    def __post_init__(self):
+        """
+        `self.name` is used as the output folder name for the `RunSpec`.
+        Clean up `self.name` by replacing any "/"'s with "_".
+        """
+        object.__setattr__(self, "name", self.name.replace("/", "_"))
+
 
 class Runner:
     """

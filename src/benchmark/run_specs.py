@@ -1094,7 +1094,8 @@ def get_synthetic_efficiency_spec(num_input_tokens: int, num_output_tokens: int,
     )
 
     return RunSpec(
-        name="synthetic_efficiency",
+        name=f"synthetic_efficiency:tokenizer={tokenizer},num_input_tokens={num_input_tokens},"
+        f"num_output_tokens={num_output_tokens}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
