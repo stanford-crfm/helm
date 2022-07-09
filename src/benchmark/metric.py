@@ -118,7 +118,10 @@ class Metric(ABC):
                     assert instance.id is not None
                     per_metric_instance_ids[stat.name].add(instance.id)
                     # group all perturbations for a specific metric name together
-                    per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(stat)
+                    if stat.name.perturbation is not None:
+                        per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(
+                            stat
+                        )
 
             for (name, instance_id), stats in per_instance_perturbation_stats.items():
                 identity_stat: Optional[Stat] = None
