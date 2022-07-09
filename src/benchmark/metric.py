@@ -135,17 +135,17 @@ class Metric(ABC):
 
                 for stat in stats:  # go through the stats for each perturbation
                     perturbation = stat.name.perturbation
-                    if perturbation is not None:
-                        if perturbation.name == "identity":
-                            assert identity_stat is None  # we should only have one identity stat
-                            identity_stat = stat
-                        else:
-                            if perturbation.robustness:
-                                robustness_stat.merge(stat)
-                            if perturbation.fairness:
-                                fairness_stat.merge(stat)
-                            assert perturbation not in individual_perturbation_stats
-                            individual_perturbation_stats[perturbation] = stat
+                    assert perturbation is not None
+                    if perturbation.name == "identity":
+                        assert identity_stat is None  # we should only have one identity stat
+                        identity_stat = stat
+                    else:
+                        if perturbation.robustness:
+                            robustness_stat.merge(stat)
+                        if perturbation.fairness:
+                            fairness_stat.merge(stat)
+                        assert perturbation not in individual_perturbation_stats
+                        individual_perturbation_stats[perturbation] = stat
 
                 for stat in [robustness_stat, fairness_stat, *individual_perturbation_stats.values()]:
                     perturbation = stat.name.perturbation
