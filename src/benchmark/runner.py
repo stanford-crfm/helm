@@ -41,10 +41,10 @@ class RunSpec:
 
     def __post_init__(self):
         """
-        `self.name` is used as the output folder name for the `RunSpec`.
+        `self.name` is used as the name of the output folder for the `RunSpec`.
         Clean up `self.name` by replacing any "/"'s with "_".
         """
-        object.__setattr__(self, "name", self.name.replace("/", "_"))
+        object.__setattr__(self, "name", self.name.replace(os.path.sep, "_"))
 
 
 class Runner:
