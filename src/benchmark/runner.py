@@ -28,7 +28,7 @@ class RunSpec:
     name: str
 
     # Scenario groups that this run spec belongs to
-    groups: str
+    groups: List[str]
 
     # Which scenario
     scenario: ScenarioSpec
