@@ -1,6 +1,6 @@
-from typing import List, Dict, Optional, Any, Callable
 import itertools
 import os
+from typing import List, Dict, Optional, Any, Callable
 
 from common.object_spec import ObjectSpec
 from .adapter import (
@@ -1072,6 +1072,36 @@ def get_narrativeqa_spec() -> RunSpec:
     )
 
 
+def get_synthetic_efficiency_spec(num_input_tokens: int, num_output_tokens: int, tokenizer: str) -> RunSpec:
+    scenario = ScenarioSpec(
+        class_name="benchmark.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
+        args={"num_input_tokens": num_input_tokens, "num_instances": 10, "tokenizer": tokenizer},
+    )
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="",
+        max_train_instances=0,
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0.0,
+        stop_sequences=[],
+        num_outputs=1,
+        max_tokens=num_output_tokens,
+        input_prefix="",
+        output_prefix="",
+    )
+
+    return RunSpec(
+        name=f"synthetic_efficiency:tokenizer={tokenizer},num_input_tokens={num_input_tokens},"
+        f"num_output_tokens={num_output_tokens}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+    )
+
+
 def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.synthetic_reasoning_scenario.SyntheticReasoningScenario", args={"mode": mode},
@@ -1401,6 +1431,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "numeracy": get_numeracy_spec,
     "the_pile": get_the_pile_spec,
     "raft": get_raft_spec,
+    "synthetic_efficiency": get_synthetic_efficiency_spec,
     "synthetic_reasoning": get_synthetic_reasoning_spec,
     "synthetic_reasoning_natural": get_synthetic_reasoning_natural_spec,
     "news_qa": get_news_qa_spec,

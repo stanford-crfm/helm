@@ -10,6 +10,8 @@ from proxy.models import (
     get_model_names_with_tag,
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+    GPT2_TOKENIZER_TAG,
+    AI21_TOKENIZER_TAG,
 )
 from .metric import MetricSpec
 from .runner import RunSpec
@@ -168,6 +170,8 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "text": get_all_text_models(),
         "code": get_all_code_models(),
         "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
+        "gpt2_tokenizer": get_model_names_with_tag(GPT2_TOKENIZER_TAG),
+        "ai21_tokenizer": get_model_names_with_tag(AI21_TOKENIZER_TAG),
     }
 
 
