@@ -58,6 +58,8 @@ class MisspellingPerturbation(Perturbation):
             word = match.group(1)
             if np.random.rand() < self.prob:
                 mispelled_word = str(np.random.choice(self.correct_to_misspelling[word.lower()]))
-            return match_case(word, mispelled_word)
+                return match_case(word, mispelled_word)
+            else:
+                return word
 
         return mispelling_pattern.sub(mispell, text)

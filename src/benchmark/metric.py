@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass, replace
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Set, Optional
 from math import log, e
 from collections import defaultdict
 
@@ -81,7 +81,10 @@ class Metric(ABC):
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
-            per_instance_stats: Dict[Tuple[MetricName, str], Stat] = {}  # Statistics for per-instance worst-case metric
+            # Collect statistics per input-metric pair across perturbations
+            per_instance_perturbation_stats: Dict[Tuple[MetricName, str], List[Stat]] = defaultdict(list)
+            per_metric_instance_ids: Dict[MetricName, Set[str]] = defaultdict(set)  # Collect instance-ids per metric
+
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
             #       https://github.com/stanford-crfm/benchmarking/issues/48
             for instance_index, instance in enumerate(scenario_state.instances):
@@ -107,27 +110,56 @@ class Metric(ABC):
                 # Merge these statistics back.
                 # TODO: we should add statistics with the individual instances too and serialize them out.
                 #       https://github.com/stanford-crfm/benchmarking/issues/49
+
                 for stat in instance_stats:
                     stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
 
-                    stat = Stat(
-                        replace(
-                            stat.name,
-                            perturbation=PerturbationDescription(name="worst", robustness=False, fairness=False),
-                        )
-                    ).merge(stat)
                     assert instance.id is not None
-                    key = (stat.name, instance.id)
-                    if key not in per_instance_stats:
-                        per_instance_stats[key] = stat
-                    else:
-                        per_instance_stats[key].merge(stat)
+                    per_metric_instance_ids[stat.name].add(instance.id)
+                    # group all perturbations for a specific metric name together
+                    if stat.name.perturbation is not None:
+                        per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(
+                            stat
+                        )
 
-            for (name, instance_id), stat in per_instance_stats.items():
-                if stat.count > 0:
-                    worst_stat = Stat(stat.name).add(stat.min)
-                    merge_stat(trial_stats, worst_stat)
+            for (name, instance_id), stats in per_instance_perturbation_stats.items():
+                identity_stat: Optional[Stat] = None
+                robustness_stat = Stat(
+                    replace(name, perturbation=PerturbationDescription(name="robustness", robustness=True))
+                )
+                fairness_stat = Stat(
+                    replace(name, perturbation=PerturbationDescription(name="fairness", fairness=True))
+                )
+                individual_perturbation_stats: Dict[PerturbationDescription, Stat] = {}
+
+                for stat in stats:  # go through the stats for each perturbation
+                    perturbation = stat.name.perturbation
+                    assert perturbation is not None
+                    if perturbation.name == "identity":
+                        assert identity_stat is None  # we should only have one identity stat
+                        identity_stat = stat
+                    else:
+                        if perturbation.robustness:
+                            robustness_stat.merge(stat)
+                        if perturbation.fairness:
+                            fairness_stat.merge(stat)
+                        assert perturbation not in individual_perturbation_stats
+                        individual_perturbation_stats[perturbation] = Stat(stat.name).merge(stat)  # copy
+
+                for stat in [robustness_stat, fairness_stat, *individual_perturbation_stats.values()]:
+                    perturbation = stat.name.perturbation
+                    assert perturbation is not None
+
+                    if identity_stat is not None:
+                        stat.merge(identity_stat)
+
+                    perturbation = replace(perturbation, name=f"worst_{perturbation.name}")
+                    if stat.count > 0:
+                        merge_stat(trial_stats, Stat(replace(stat.name, perturbation=perturbation)).add(stat.min))
+
+            for metric_name, instance_ids in per_metric_instance_ids.items():
+                merge_stat(trial_stats, Stat(replace(metric_name, name="num_instances")).add(len(instance_ids)))
 
             # Aggregate the corpus-level metrics
             for split in EVAL_SPLITS:
