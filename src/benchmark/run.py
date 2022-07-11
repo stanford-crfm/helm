@@ -51,8 +51,9 @@ def run_benchmarking(
         auth=auth, url=url, local=local, local_path=local_path, parallelism=num_threads, dry_run=dry_run
     )
 
-    def override(run_spec: RunSpec) -> RunSpec:
+    def override(run_spec: RunSpec, groups: List[str]) -> RunSpec:
         """Override parts of `run_spec`."""
+        run_spec = replace(run_spec, groups=groups)
         if max_eval_instances is not None:
             run_spec = replace(
                 run_spec, adapter_spec=replace(run_spec.adapter_spec, max_eval_instances=max_eval_instances)
@@ -60,9 +61,9 @@ def run_benchmarking(
         return run_spec
 
     run_specs = [
-        override(run_spec)
+        override(run_spec, groups)
         for description, groups in zip(run_spec_descriptions, run_spec_groups)
-        for run_spec in construct_run_specs(parse_object_spec(description), groups)
+        for run_spec in construct_run_specs(parse_object_spec(description))
         # If no model is specified for `models_to_run`, run everything
         if not models_to_run or run_spec.adapter_spec.model in models_to_run
     ]
