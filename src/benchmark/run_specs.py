@@ -739,7 +739,7 @@ def get_math_spec(
     )
 
 
-def get_boolq_spec(groups: List[str], only_contrast=False) -> RunSpec:
+def get_boolq_spec(only_contrast=False) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={"only_contrast": only_contrast})
 
     adapter_spec = AdapterSpec(
@@ -1021,7 +1021,7 @@ def get_the_pile_spec(subset: str) -> RunSpec:
     )
 
 
-def get_ice_spec(groups: List[str], **kwargs) -> RunSpec:
+def get_ice_spec(**kwargs) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.ice_scenario.ICEScenario", args=kwargs)
 
     adapter_spec = AdapterSpec(
@@ -1241,7 +1241,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
     )
 
 
-def get_cnndm_summarization_spec(groups: List[str], temperature: float = 0.3) -> RunSpec:
+def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
     # TODO: @Faisal remove this parameter once testing is done.
     scenario = ScenarioSpec(
         class_name="benchmark.summarization_scenario.SummarizationScenario",
