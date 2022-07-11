@@ -28,7 +28,7 @@ request_result: RequestResult = service.make_request(auth, request)
 print(request_result.completions[0].text)
 
 # Tokenize
-request = TokenizationRequest(model="ai21/j1-jumbo", text="Tokenize me please.")
+request = TokenizationRequest(tokenizer="ai21", text="Tokenize me please.")
 request_result: TokenizationRequestResult = service.tokenize(auth, request)
 print(f"Number of tokens: {len(request_result.tokens)}")
 
