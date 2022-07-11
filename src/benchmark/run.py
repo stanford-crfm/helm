@@ -33,6 +33,7 @@ class Run:
 
 def run_benchmarking(
     run_spec_descriptions: List[str],
+    run_spec_groups: List[List[str]],
     auth: Authentication,
     url: str,
     local: bool,
@@ -60,8 +61,8 @@ def run_benchmarking(
 
     run_specs = [
         override(run_spec)
-        for description in run_spec_descriptions
-        for run_spec in construct_run_specs(parse_object_spec(description))
+        for description, groups in zip(run_spec_descriptions, run_spec_groups)
+        for run_spec in construct_run_specs(parse_object_spec(description), groups)
         # If no model is specified for `models_to_run`, run everything
         if not models_to_run or run_spec.adapter_spec.model in models_to_run
     ]

@@ -27,6 +27,9 @@ class RunSpec:
     # Unique identifier of the RunSpec
     name: str
 
+    # Scenario groups that this run spec belongs to
+    groups: str
+
     # Which scenario
     scenario: ScenarioSpec
 
