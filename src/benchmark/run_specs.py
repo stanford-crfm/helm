@@ -262,7 +262,18 @@ def get_msmarco_spec(
         input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
         max_train_instances=4,  # Needs to be even to ensure equal number of correct and wrong examples
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+        # MS MARCO scenario generates several instances per evaluation query.
+        # We are currently (July 22') testing with 200 evaluation instances
+        # at most and topk=30, and have at most:
+        # -> Regular case:
+        #       topk instances:  200 * 30 instances
+        #       qrels additions: 200 * 2 instances
+        #       total:           6400 instances
+        # -> TREC case:
+        #       topk instances:  43 * 30
+        #       qrels additions: 9260
+        #       total:           10550
+        max_eval_instances=10550,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
