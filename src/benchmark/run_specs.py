@@ -197,6 +197,7 @@ def get_simple1_spec() -> RunSpec:
         scenario=get_scenario_spec1(),
         adapter_spec=get_adapter_spec1(),
         metrics=get_basic_metrics({"names": []}),
+        groups=[],
     )
 
 
@@ -223,7 +224,11 @@ def get_bbq_spec(subject: str) -> RunSpec:
     )
 
     return RunSpec(
-        name=f"bbq:subject={subject}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_bbq_metrics(),
+        name=f"bbq:subject={subject}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_bbq_metrics(),
+        groups=["BBQ"],
     )
 
 
@@ -236,6 +241,12 @@ def get_msmarco_spec(
     num_valid_queries=None,
     num_train_queries="1000",
 ) -> RunSpec:
+    # Decide on groups
+    track_to_groups: Dict[str, List[str]] = {
+        "regular": ["MS MARCO (regular)"],
+        "trec": ["MS MARCO (TREC)"],
+    }
+
     # Get ScenarioSpec
     use_qrels_passages = use_qrels_passages.lower() == "true"
     use_topk_passages = use_topk_passages.lower() == "true"
@@ -271,8 +282,8 @@ def get_msmarco_spec(
     )
 
     # Create metrics
-    qrels_path = os.path.join("benchmark_output", "scenarios", "msmarco", "data", f"{task}_{track}_qrels.tsv")
-    metrics = get_msmarco_metrics(task, track, qrels_path, topk=valid_topk)
+    qrels_path: str = os.path.join("benchmark_output", "scenarios", "msmarco", "data", f"{task}_{track}_qrels.tsv")
+    metrics: List[MetricSpec] = get_msmarco_metrics(task, track, qrels_path, topk=valid_topk)
 
     # Return RunSpec
     return RunSpec(
@@ -282,6 +293,7 @@ def get_msmarco_spec(
         scenario=scenario_spec,
         adapter_spec=adapter_spec,
         metrics=metrics,
+        groups=track_to_groups[track],
     )
 
 
@@ -304,6 +316,7 @@ def get_bold_spec(subject: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_generative_harms_metrics(),
+        groups=["BOLD"],
     )
 
 
@@ -330,6 +343,7 @@ def get_civil_comments_spec(subject: str, data_path: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["CivilComments"],
     )
 
 
@@ -358,6 +372,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["MMLU"],
     )
 
 
@@ -383,10 +398,18 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["WikiFact"],
     )
 
 
 def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
+    # Decide on groups
+    dataset_to_groups: Dict[str, List[str]] = {
+        "hellaswag": ["HellaSwag"],
+        "openbookqa": ["OpenbookQA"],
+        "commonsenseqa": ["CommonsenseQA"],
+    }
+
     scenario = ScenarioSpec(
         class_name="benchmark.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset, "method": method,},
     )
@@ -410,6 +433,7 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             scenario=scenario,
             adapter_spec=adapter_spec,
             metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+            groups=dataset_to_groups[dataset],
         )
     elif method == CAUSAL_LANGUAGE_MODELING_METHOD:
         n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
@@ -431,6 +455,7 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             scenario=scenario,
             adapter_spec=adapter_spec,
             metrics=get_commonsense_metrics({"n_choice": n_choice}),
+            groups=dataset_to_groups[dataset],
         )
     else:
         raise ValueError(f"Unknown commonsense method: {method}")
@@ -459,6 +484,7 @@ def get_quac_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
+        groups=["QuAC"],
     )
 
 
@@ -483,6 +509,7 @@ def get_news_qa_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
+        groups=["NewsQA"],
     )
 
 
@@ -509,10 +536,18 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["TruthfulQA"],
     )
 
 
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
+    # Decide on groups
+    demographic_to_subgroup: Dict[str, str] = {
+        "aa": "AAE",
+        "white": "White",
+    }
+    groups: List[str] = [f"Twitter AAE ({demographic_to_subgroup[demographic]})", "Twitter AAE"]
+
     scenario = ScenarioSpec(
         class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
     )
@@ -536,6 +571,7 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": []}),
+        groups=groups,
     )
 
 
@@ -561,6 +597,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_generative_harms_metrics(),
+        groups=["RealToxicityPrompts"],
     )
 
 
@@ -589,6 +626,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_srn_metrics(),
+        groups=["Synthetic reasoning (abstract symbols)"],
     )
 
 
@@ -613,6 +651,7 @@ def get_gsm_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match_indicator"]}),
+        groups=["GSM8K"],
     )
 
 
@@ -639,6 +678,7 @@ def get_raft_spec(subset: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["RAFT"],
     )
 
 
@@ -684,6 +724,7 @@ def get_numeracy_spec(
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_numeracy_metrics(run_solver),  # type: ignore
+        groups=["Numeracy"],
     )
 
 
@@ -736,6 +777,7 @@ def get_math_spec(
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_math_metrics(use_chain_of_thought),  # type: ignore
+        groups=["MATH"],
     )
 
 
@@ -760,6 +802,7 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["BoolQ"],
     )
 
 
@@ -784,6 +827,7 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["LSAT"],
     )
 
 
@@ -808,6 +852,7 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["IMDB"],
     )
 
 
@@ -834,6 +879,7 @@ def get_babi_qa_spec(task: int) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["bAbi"],
     )
 
 
@@ -859,10 +905,17 @@ def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),
+        groups=["Copyright"],
     )
 
 
 def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str] = "covid") -> RunSpec:
+    # Decide on groups
+    capability_to_groups: Dict[str, List[str]] = {
+        "reiteration": ["Disinformation (reiteration)"],
+        "wedging": ["Disinformation (wedging)"],
+    }
+
     scenario = ScenarioSpec(
         class_name="benchmark.disinformation_scenario.DisinformationScenario",
         args={"capability": capability, "topic": topic},
@@ -922,7 +975,13 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             "metrics list or increase `num_outputs`."
         )
 
-    return RunSpec(name=scenario_name, scenario=scenario, adapter_spec=adapter_spec, metrics=metrics)
+    return RunSpec(
+        name=scenario_name,
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=metrics,
+        groups=capability_to_groups[capability],
+    )
 
 
 def get_code_spec(dataset: str) -> RunSpec:
@@ -968,11 +1027,21 @@ def get_code_spec(dataset: str) -> RunSpec:
         )
 
     return RunSpec(
-        name=f"code:dataset={dataset}", scenario=scenario, adapter_spec=adapter_spec, metrics=get_code_metrics(dataset),
+        name=f"code:dataset={dataset}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_code_metrics(dataset),
+        groups=[dataset],
     )
 
 
 def get_natural_qa_spec(mode: str) -> RunSpec:
+    # Decide on groups
+    mode_to_groups: Dict[str, List[str]] = {
+        "openbook-longans": ["NaturalQuestions (open-book)"],
+        "closedbook": ["NaturalQuestions (closed-book)"],
+    }
+
     scenario = ScenarioSpec(class_name="benchmark.natural_qa_scenario.NaturalQAScenario", args={"mode": mode})
 
     adapter_spec = AdapterSpec(
@@ -993,6 +1062,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
+        groups=mode_to_groups[mode],
     )
 
 
@@ -1018,10 +1088,22 @@ def get_the_pile_spec(subset: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": []}),
+        groups=["The Pile"],
     )
 
 
 def get_ice_spec(**kwargs) -> RunSpec:
+    # Get country name
+    subset_to_country_name: Dict[str, List[str]] = {
+        "CA": ["Canada"],
+        "HK": ["Hong Kong"],
+        "IND": ["India"],
+        "JA": ["Japan"],
+        "PHI": ["Phillipines"],
+        "SIN": ["Singapore"],
+        "USA": ["USA"],
+    }
+
     scenario = ScenarioSpec(class_name="benchmark.ice_scenario.ICEScenario", args=kwargs)
 
     adapter_spec = AdapterSpec(
@@ -1043,6 +1125,7 @@ def get_ice_spec(**kwargs) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": []}),
+        groups=[f"ICE ({subset_to_country_name[kwargs['subset']]})"],
     )
 
 
@@ -1069,6 +1152,7 @@ def get_narrativeqa_spec() -> RunSpec:
         metrics=get_basic_metrics(
             {"names": ["exact_match", "quasi_exact_match", "f1_score", "rouge-l", "bleu_1", "bleu_4"]}
         ),
+        groups=["NarrativeQA"],
     )
 
 
@@ -1099,6 +1183,7 @@ def get_synthetic_efficiency_spec(num_input_tokens: int, num_output_tokens: int,
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
+        groups=["Efficiency"],
     )
 
 
@@ -1126,6 +1211,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["Synthetic reasoning (natural language)"],
     )
 
 
@@ -1147,7 +1233,11 @@ def get_wikitext_103_spec() -> RunSpec:
     )
 
     return RunSpec(
-        name="wikitext_103", scenario=scenario, adapter_spec=adapter_spec, metrics=get_basic_metrics({"names": []}),
+        name="wikitext_103",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": []}),
+        groups=["WikiText-103"],
     )
 
 
@@ -1173,6 +1263,7 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": []}),
+        groups=["BLiMP"],
     )
 
 
@@ -1203,6 +1294,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_summarization_metrics(),
+        groups=["XSUM"],
     )
 
 
@@ -1238,6 +1330,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_summarization_metrics(),
+        groups=["XSUM"],
     )
 
 
@@ -1268,6 +1361,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_summarization_metrics(),
+        groups=["CNN/DailyMail"],
     )
 
 
@@ -1293,6 +1387,7 @@ def get_empatheticdialogues_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=[],  # @TODO @Amelia @Ashwin @Ines @Rishi @Dilara
     )
 
 
@@ -1322,6 +1417,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match_indicator"]}),
+        groups=["Dyck"],
     )
 
 
@@ -1346,6 +1442,7 @@ def get_legal_support_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["LegalSupport"],
     )
 
 
@@ -1373,6 +1470,7 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["Entity matching"],
     )
 
 
@@ -1400,6 +1498,7 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
+        groups=["Data imputation"],
     )
 
 
