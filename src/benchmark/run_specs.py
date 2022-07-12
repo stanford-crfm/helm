@@ -1095,7 +1095,7 @@ def get_the_pile_spec(subset: str) -> RunSpec:
 def get_ice_spec(**kwargs) -> RunSpec:
     # Get country name
     subset_to_country_name: Dict[str, List[str]] = {
-        "CA": ["Canada"],
+        "CAN": ["Canada"],
         "HK": ["Hong Kong"],
         "IND": ["India"],
         "JA": ["Japan"],
