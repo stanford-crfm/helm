@@ -119,17 +119,12 @@ class AllRunner:
                 hlog(f"Skipping {run_spec_description} since its priority {priority} > {self.priority}")
                 continue
 
-            groups: List[str] = run_spec_state.groups
-            if not groups:
-                raise ValueError(f"RunSpec {run_spec_description} doesn't specify groups: {groups}")
-
             # Use `dry_run` flag if set, else use what's in the file.
             dry_run = self.dry_run if self.dry_run is not None else status == WIP_STATUS
 
             try:
                 new_run_specs = run_benchmarking(
                     run_spec_descriptions=[run_spec_description],
-                    run_spec_groups=[groups],
                     auth=self.auth,
                     url=self.url,
                     local=self.local,
