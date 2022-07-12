@@ -89,11 +89,11 @@ scenarioGroups:
   display_split: test
   display_stat_names:
   - quasi_exact_match
-- name: Data imputation
+- name: 
   class_name: benchmark.entity_data_imputation_scenario.EntityDataImputationScenario
   display_split: test
   display_stat_names:
-  - exact_match
+  - quasi_exact_match
 - name: CivilComments
   class_name: benchmark.civil_comments_scenario.CivilCommentsScenario
   display_split: test
