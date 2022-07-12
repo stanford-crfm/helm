@@ -18,7 +18,7 @@ from benchmark.synthetic_efficiency_scenario import NUM_INPUT_TOKENS
 MAX_ITERS = 5
 
 
-def _verify_prompt(client: AutoClient, prompt: str, tokenizer: str, num_input_tokens: int):
+def _count_prompt_tokens(client: AutoClient, prompt: str, tokenizer: str):
     request: TokenizationRequest = TokenizationRequest(text=prompt, tokenizer=tokenizer)
     result: TokenizationRequestResult = client.tokenize(request)
     return len(result.tokens)
@@ -116,7 +116,7 @@ def generate_synthetic_efficiency_instances(
                 else:
                     prompt = "".join(per_instance_tokens)
 
-                num_generated_tokens = _verify_prompt(client, prompt, tokenizer, num_input_tokens)
+                num_generated_tokens = _count_prompt_tokens(client, prompt, tokenizer)
                 if num_generated_tokens != num_input_tokens:
                     temp_num_tokens = num_generated_tokens
                     while temp_num_tokens < num_input_tokens:
@@ -137,9 +137,9 @@ def generate_synthetic_efficiency_instances(
                     break
                 num_iters += 1
             if not success:
-                print(
-                    f"WARNING: Requested {num_input_tokens}, "
-                    f"got {num_generated_tokens} for book {books[j]}, instance #{i}, tokenizer={tokenizer}"
+                raise RuntimeError(
+                    f"Requested {num_input_tokens}, got {num_generated_tokens} for "
+                    f"book {books[j]}, instance #{i}, tokenizer={tokenizer}"
                 )
             prompts.append(prompt)
 
