@@ -13,7 +13,15 @@ from proxy.service import (
     CREDENTIALS_FILE,
     CACHE_DIR,
 )
-from .synthetic_efficiency_scenario import NUM_INPUT_TOKENS
+from benchmark.synthetic_efficiency_scenario import NUM_INPUT_TOKENS
+
+MAX_ITERS = 5
+
+
+def _count_prompt_tokens(client: AutoClient, prompt: str, tokenizer: str):
+    request: TokenizationRequest = TokenizationRequest(text=prompt, tokenizer=tokenizer)
+    result: TokenizationRequestResult = client.tokenize(request)
+    return len(result.tokens)
 
 
 def generate_synthetic_efficiency_instances(
@@ -58,16 +66,16 @@ def generate_synthetic_efficiency_instances(
             source_url=source_url, target_path=data_path, unpack=False,
         )
         with open(data_path, "r") as f:
-            text = f.read()
+            raw_text = f.read()
         batch_size = 2048
         # Skip intro text
-        text = text[batch_size:]
+        text = raw_text.split(" ")[batch_size:]
         num_total_tokens_per_book = (num_instances * num_input_tokens) // len(books)
         i = 0
         tokens[book] = []
         text_chunks[book] = []
         while len(tokens[book]) < num_total_tokens_per_book:
-            batch = text[i * batch_size : (i + 1) * batch_size]
+            batch = " ".join(text[i * batch_size : (i + 1) * batch_size])
             while True:
                 request: TokenizationRequest = TokenizationRequest(
                     text=batch, tokenizer=tokenizer, encode=huggingface_tokenizer
@@ -79,23 +87,60 @@ def generate_synthetic_efficiency_instances(
                     break
             tokens[book] += result.tokens
             if not huggingface_tokenizer:
-                text_chunks[book] += [batch[token.text_range.start : token.text_range.end] for token in result.tokens]
+                text_chunks[book] += [
+                    result.text[token.text_range.start : token.text_range.end] for token in result.tokens
+                ]
             i += 1
 
     prompts = []
     for i in range(num_instances // len(books)):
         for j in range(len(books)):
             prompt: str = ""
+
+            # Initialize
             if huggingface_tokenizer:
                 per_instance_tokens = [
                     token.value for token in tokens[books[j]][i * num_input_tokens : (i + 1) * num_input_tokens]
                 ]
-                decode_request: DecodeRequest = DecodeRequest(tokens=per_instance_tokens)
-                decode_result: DecodeRequestResult = client.decode(decode_request)
-                prompt = decode_result.text
             else:
-                for text_chunk in text_chunks[books[j]][i * num_input_tokens : (i + 1) * num_input_tokens]:
-                    prompt += text_chunk
+                per_instance_tokens = text_chunks[books[j]][i * num_input_tokens : (i + 1) * num_input_tokens]
+
+            # Iterate until we get the right number of tokens
+            success = False
+            num_iters = 0
+            while num_iters < MAX_ITERS:
+                if huggingface_tokenizer:
+                    decode_request: DecodeRequest = DecodeRequest(tokens=per_instance_tokens)
+                    decode_result: DecodeRequestResult = client.decode(decode_request)
+                    prompt = decode_result.text
+                else:
+                    prompt = "".join(per_instance_tokens)
+
+                num_generated_tokens = _count_prompt_tokens(client, prompt, tokenizer)
+                if num_generated_tokens != num_input_tokens:
+                    temp_num_tokens = num_generated_tokens
+                    while temp_num_tokens < num_input_tokens:
+                        if len(per_instance_tokens) == 0:
+                            assert num_input_tokens == 1
+                            if huggingface_tokenizer:
+                                per_instance_tokens = tokens[books[j]][:2]
+                            else:
+                                per_instance_tokens = text_chunks[books[j]][:2]
+                        else:
+                            per_instance_tokens.append(per_instance_tokens[-1])
+                        temp_num_tokens += 1
+                    while temp_num_tokens > num_input_tokens:
+                        per_instance_tokens = per_instance_tokens[:-1]
+                        temp_num_tokens -= 1
+                else:
+                    success = True
+                    break
+                num_iters += 1
+            if not success:
+                raise RuntimeError(
+                    f"Requested {num_input_tokens}, got {num_generated_tokens} for "
+                    f"book {books[j]}, instance #{i}, tokenizer={tokenizer}"
+                )
             prompts.append(prompt)
 
     for i, prompt in enumerate(prompts):
