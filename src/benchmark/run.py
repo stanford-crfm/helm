@@ -33,7 +33,6 @@ class Run:
 
 def run_benchmarking(
     run_spec_descriptions: List[str],
-    run_spec_groups: List[List[str]],
     auth: Authentication,
     url: str,
     local: bool,
@@ -45,15 +44,17 @@ def run_benchmarking(
     skip_instances: bool,
     max_eval_instances: Optional[int] = None,
     models_to_run: Optional[List[str]] = None,
+    run_spec_groups: Optional[List[List[str]]] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
+
     execution_spec = ExecutionSpec(
         auth=auth, url=url, local=local, local_path=local_path, parallelism=num_threads, dry_run=dry_run
     )
 
-    def override(run_spec: RunSpec, groups: List[str]) -> RunSpec:
+    def override(run_spec: RunSpec) -> RunSpec:
         """Override parts of `run_spec`."""
-        run_spec = replace(run_spec, groups=groups)
+        # run_spec = replace(run_spec, groups=groups)
         if max_eval_instances is not None:
             run_spec = replace(
                 run_spec, adapter_spec=replace(run_spec.adapter_spec, max_eval_instances=max_eval_instances)
@@ -61,12 +62,20 @@ def run_benchmarking(
         return run_spec
 
     run_specs = [
-        override(run_spec, groups)
-        for description, groups in zip(run_spec_descriptions, run_spec_groups)
+        override(run_spec)
+        for description in run_spec_descriptions
         for run_spec in construct_run_specs(parse_object_spec(description))
         # If no model is specified for `models_to_run`, run everything
         if not models_to_run or run_spec.adapter_spec.model in models_to_run
     ]
+
+    # Replace the groups field of the RunSpec if run_spec_groups is provided.
+    # Note that this information is stored in a conf file, which is read when
+    # `benchmark-present` command is run. The groups field will be empty if the
+    # benchmark is started with the benchmark-present command.
+    if run_spec_groups:
+        run_specs = [replace(r, groups=groups) for r, groups in zip(run_specs, run_spec_groups)]
+
     with htrack_block("run_specs"):
         for run_spec in run_specs:
             hlog(run_spec.name)
