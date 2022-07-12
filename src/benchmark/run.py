@@ -53,7 +53,6 @@ def run_benchmarking(
 
     def override(run_spec: RunSpec) -> RunSpec:
         """Override parts of `run_spec`."""
-        # run_spec = replace(run_spec, groups=groups)
         if max_eval_instances is not None:
             run_spec = replace(
                 run_spec, adapter_spec=replace(run_spec.adapter_spec, max_eval_instances=max_eval_instances)
