@@ -65,7 +65,7 @@ def get_bbq_metrics() -> List[MetricSpec]:
 
 
 def get_commonsense_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.commonsense_metrics.CommonSenseMetric", args=args)]
+    return [MetricSpec(class_name="benchmark.multiple_request_metrics.CLMForMultiChoiceQAMetric", args=args)]
 
 
 def get_msmarco_metrics(task: str, track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:

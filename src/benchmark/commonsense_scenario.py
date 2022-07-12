@@ -5,7 +5,16 @@ from typing import List
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import (
+    Scenario,
+    Instance,
+    MultipleRequestInstance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+)
 
 MULTI_CHOICE_QUESTION_ANSWERING_METHOD = "mcqa"
 CAUSAL_LANGUAGE_MODELING_METHOD = "clm"
@@ -248,7 +257,7 @@ class CommonSenseScenario(Scenario):
         def answer_to_reference(answer, correct_tag):
             return Reference(output=answer, tags=[correct_tag] if answer == correct_answer else [])
 
-        for (question, answers, correct_answer, split) in data:
+        for question_id, (question, answers, correct_answer, split) in enumerate(data):
             if self.method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
                 answer_to_reference_mcqa = partial(answer_to_reference, correct_tag=CORRECT_TAG)
                 instance = Instance(
@@ -257,12 +266,20 @@ class CommonSenseScenario(Scenario):
                 instances.append(instance)
             elif self.method == CAUSAL_LANGUAGE_MODELING_METHOD:
                 answer_to_reference_clm = partial(answer_to_reference, correct_tag=CLM_CORRECT_TAG)
-                for answer in answers:
-                    instance1 = Instance(
-                        input=f"{question} {answer}", references=[answer_to_reference_clm(answer)], split=splits[split],
+                for answer_id, answer in enumerate(answers):
+                    instance_original = MultipleRequestInstance(
+                        input=f"{question} {answer}",
+                        references=[answer_to_reference_clm(answer)],
+                        split=splits[split],
+                        group_id=f"{question_id}",
+                        request_id=f"{answer_id}_original",
                     )
-                    instance2 = Instance(
-                        input=f"Answer: {answer}", references=[answer_to_reference_clm(answer)], split=splits[split],
+                    instance_calibration = MultipleRequestInstance(
+                        input=f"Answer: {answer}",
+                        references=[answer_to_reference_clm(answer)],
+                        split=splits[split],
+                        group_id=f"{question_id}",
+                        request_id=f"{answer_id}_calibration",
                     )
-                    instances.extend([instance1, instance2])
+                    instances.extend([instance_original, instance_calibration])
         return instances
