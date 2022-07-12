@@ -419,7 +419,7 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             input_prefix="",
             output_prefix="",
             max_train_instances=0,  # Appropriate for CLM approach
-            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES * n_choice * 2,
+            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
             num_outputs=1,
             max_tokens=0,
             num_train_trials=1,

@@ -285,27 +285,31 @@ class Adapter:
                     sampled_eval_instances.append(eval_instances[even_id + 1])
                 eval_instances = sampled_eval_instances
             else:
-                # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
+                # Build a dict of group IDs to instances before we pick self.adapter_spec.max_eval_instances
                 # number of instances, so we can include all the perturbed versions of the instances
                 # we choose in the eval set.
-                id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
-                for instance in eval_instances:
-                    if instance.id in id_to_instances:
-                        id_to_instances[instance.id].append(instance)
-                    else:
-                        id_to_instances[instance.id] = [instance]
+                gid_to_instances = OrderedDict()  # type: ignore
+                for idx, instance in enumerate(eval_instances):
+                    group_id = getattr(instance, "group_id", f"gid{idx}")
+                    instance_id = instance.id
+                    if group_id not in gid_to_instances:
+                        gid_to_instances[group_id] = OrderedDict()  # type: ignore
+                    if instance_id not in gid_to_instances[group_id]:
+                        gid_to_instances[group_id][instance_id] = []
+                    gid_to_instances[group_id][instance_id].append(instance)
 
                 # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
                 # include all their instances in the final set of eval instances.
                 # The random sampling includes instances monotonically.
-                ids = list(id_to_instances.keys())
-                if len(ids) > self.adapter_spec.max_eval_instances:
-                    ids = list(
-                        np.random.choice(ids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
+                gids = list(gid_to_instances.keys())
+                if len(gids) > self.adapter_spec.max_eval_instances:
+                    gids = list(
+                        np.random.choice(gids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
                     )
                 eval_instances = []
-                for id_ in ids:
-                    eval_instances.extend(id_to_instances[id_])
+                for gid_ in gids:
+                    for id_ in gid_to_instances[gid_]:
+                        eval_instances.extend(gid_to_instances[gid_][id_])
 
         hlog(
             f"{len(instances)} instances, "
