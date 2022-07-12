@@ -1,7 +1,7 @@
 import json
 import os
 from collections import defaultdict
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from typing import Dict, List
 
 from common.general import ensure_directory_exists, write, write_lines
@@ -38,6 +38,9 @@ class RunSpec:
 
     # Data augmenter. The default `DataAugmenterSpec` does nothing.
     data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec()
+
+    # Scenario groups that this run spec belongs to
+    groups: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         """
