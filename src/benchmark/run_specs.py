@@ -910,12 +910,6 @@ def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
 
 
 def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str] = "covid") -> RunSpec:
-    # Decide on groups
-    capability_to_groups: Dict[str, List[str]] = {
-        "reiteration": ["Disinformation (reiteration)"],
-        "wedging": ["Disinformation (wedging)"],
-    }
-
     scenario = ScenarioSpec(
         class_name="benchmark.disinformation_scenario.DisinformationScenario",
         args={"capability": capability, "topic": topic},
@@ -980,7 +974,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=metrics,
-        groups=capability_to_groups[capability],
+        groups=[f"Disinformation ({capability})"],
     )
 
 
