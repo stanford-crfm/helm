@@ -66,10 +66,10 @@ def generate_synthetic_efficiency_instances(
             source_url=source_url, target_path=data_path, unpack=False,
         )
         with open(data_path, "r") as f:
-            text = f.read()
+            raw_text = f.read()
         batch_size = 2048
         # Skip intro text
-        text = text.split(" ")[batch_size:]
+        text = raw_text.split(" ")[batch_size:]
         num_total_tokens_per_book = (num_instances * num_input_tokens) // len(books)
         i = 0
         tokens[book] = []
