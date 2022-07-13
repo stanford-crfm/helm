@@ -387,9 +387,7 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
 
 
 def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
-    scenario = ScenarioSpec(
-        class_name="benchmark.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset, "method": method,},
-    )
+    scenario = ScenarioSpec(class_name="benchmark.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset},)
 
     if method == ADAPT_MULTIPLE_CHOICE:
         adapter_spec = AdapterSpec(

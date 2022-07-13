@@ -42,7 +42,7 @@ class CommonSenseScenario(Scenario):
     description = "Unified interface for all CommonSense scenarios."
     tags = ["knowledge", "multiple_choice"]
 
-    def __init__(self, dataset, method):
+    def __init__(self, dataset):
         self.dataset = dataset
         assert self.dataset in ["hellaswag", "openbookqa", "commonsenseqa", "piqa", "siqa"]
 
