@@ -9,7 +9,6 @@ from .adapter import (
     ADAPT_MULTIPLE_CHOICE,
     ADAPT_MULTIPLE_CHOICE_CLM,
     ADAPT_GENERATION,
-    ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
 )
 from .metric import MetricSpec
 from .run_expander import RUN_EXPANDERS
@@ -1153,7 +1152,7 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon})
 
     adapter_spec = AdapterSpec(
-        method=ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
+        method=ADAPT_MULTIPLE_CHOICE_CLM,
         instructions="",
         input_prefix="",
         output_prefix="",
@@ -1170,7 +1169,7 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
         name=f"blimp:phenomenon={phenomenon}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": []}),
+        metrics=get_clm_for_mcqa_metrics({"n_choice": 2}),
     )
 
 

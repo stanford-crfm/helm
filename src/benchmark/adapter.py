@@ -22,7 +22,6 @@ ADAPT_LANGUAGE_MODELING = "language_modeling"
 ADAPT_MULTIPLE_CHOICE = "multiple_choice"
 ADAPT_MULTIPLE_CHOICE_CLM = "multiple_choice_clm"
 ADAPT_GENERATION = "generation"
-ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS = "language_modeling_minimal_pairs"
 
 
 @dataclass(frozen=True)
@@ -268,49 +267,32 @@ class Adapter:
         eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
         if self.adapter_spec.max_eval_instances is not None:
             np.random.seed(0)
-            if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS:
-                # For minimal pair scenarios, we need to make sure both instances in a minimal pair are sampled.
-                # Therefore, we use the index of the first instance in each pair (even_id) as pair id to
-                # sample minimal pairs instead of sampling individual instances.
-                max_eval_instances: int = self.adapter_spec.max_eval_instances
-                if max_eval_instances % 2 != 0:
-                    max_eval_instances -= 1
-                    hlog(f"max_eval_instances is odd. Set max_eval_instances to {max_eval_instances} instead")
 
-                even_ids = list(range(0, len(eval_instances), 2))
-                if len(even_ids) > max_eval_instances // 2:
-                    even_ids = list(np.random.choice(even_ids, max_eval_instances // 2, replace=False))
-                sampled_eval_instances = []
-                for even_id in even_ids:
-                    sampled_eval_instances.append(eval_instances[even_id])
-                    sampled_eval_instances.append(eval_instances[even_id + 1])
-                eval_instances = sampled_eval_instances
-            else:
-                # Build a dict of group IDs to instances before we pick self.adapter_spec.max_eval_instances
-                # number of instances, so we can include all the perturbed versions of the instances
-                # we choose in the eval set.
-                gid_to_instances = OrderedDict()  # type: ignore
-                for idx, instance in enumerate(eval_instances):
-                    group_id = getattr(instance, "group_id", f"gid{idx}")
-                    instance_id = instance.id
-                    if group_id not in gid_to_instances:
-                        gid_to_instances[group_id] = OrderedDict()  # type: ignore
-                    if instance_id not in gid_to_instances[group_id]:
-                        gid_to_instances[group_id][instance_id] = []
-                    gid_to_instances[group_id][instance_id].append(instance)
+            # Build a dict of group IDs to instances before we pick self.adapter_spec.max_eval_instances
+            # number of instances, so we can include all the perturbed versions of the instances
+            # we choose in the eval set.
+            gid_to_instances = OrderedDict()  # type: ignore
+            for idx, instance in enumerate(eval_instances):
+                group_id = getattr(instance, "group_id", f"gid{idx}")
+                instance_id = instance.id
+                if group_id not in gid_to_instances:
+                    gid_to_instances[group_id] = OrderedDict()  # type: ignore
+                if instance_id not in gid_to_instances[group_id]:
+                    gid_to_instances[group_id][instance_id] = []
+                gid_to_instances[group_id][instance_id].append(instance)
 
-                # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
-                # include all their instances in the final set of eval instances.
-                # The random sampling includes instances monotonically.
-                gids = list(gid_to_instances.keys())
-                if len(gids) > self.adapter_spec.max_eval_instances:
-                    gids = list(
-                        np.random.choice(gids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
-                    )
-                eval_instances = []
-                for gid_ in gids:
-                    for id_ in gid_to_instances[gid_]:
-                        eval_instances.extend(gid_to_instances[gid_][id_])
+            # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
+            # include all their instances in the final set of eval instances.
+            # The random sampling includes instances monotonically.
+            gids = list(gid_to_instances.keys())
+            if len(gids) > self.adapter_spec.max_eval_instances:
+                gids = list(
+                    np.random.choice(gids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
+                )
+            eval_instances = []
+            for gid_ in gids:
+                for id_ in gid_to_instances[gid_]:
+                    eval_instances.extend(gid_to_instances[gid_][id_])
 
         hlog(
             f"{len(instances)} instances, "
@@ -321,10 +303,7 @@ class Adapter:
         # Accumulate all the request states due to adaptation
         request_states: List[RequestState] = []
 
-        if (
-            self.adapter_spec.method == ADAPT_LANGUAGE_MODELING
-            or self.adapter_spec.method == ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS
-        ):
+        if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
             # Use the LM-specific method to adapt LM scenarios
             request_states = self.adapt_language_modeling(eval_instances)
         elif self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_CLM:

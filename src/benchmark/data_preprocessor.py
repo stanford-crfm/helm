@@ -30,7 +30,6 @@ class DataPreprocessor:
             instances: Sequence[Instance] = scenario.get_instances()
 
         # Give the `Instance`s of the `Scenario` a unique ID
-        # Warning: Changing the id assignment logic might affect LM minimal pair evaluation (e.g. BLiMP.)
         instances = [replace(instance, id=f"id{i}") for i, instance in enumerate(instances)]
 
         # Create `DataAugmenter` using `DataAugmenterSpec`
