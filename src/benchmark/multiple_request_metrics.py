@@ -419,9 +419,9 @@ class CLMForMultiChoiceQAMetric(MultipleRequestMetrics):
 
     CLM_MCQA_METRIC_NAME = "clm_for_mcqa"
 
-    def __init__(self, n_choice: int = 4):
-        self.n_choice = n_choice
-        self.n_request_per_instance = self.n_choice * 2  # each choice w/ context or w/o context
+    def __init__(self, num_choices: int = 4):
+        self.num_choices = num_choices
+        self.num_requests_per_instance = self.num_choices * 2  # each choice w/ context or w/o context
 
         self.metric_name_to_function = {self.CLM_MCQA_METRIC_NAME: self.clm_for_mcqa}
         self.metric_names = [self.CLM_MCQA_METRIC_NAME]
@@ -451,7 +451,7 @@ class CLMForMultiChoiceQAMetric(MultipleRequestMetrics):
 
     def compute_acc_with_calibration(self, request_state_group: List[RequestState]) -> List[Stat]:
         """Compute accuracy and calibrated accuracy for single instance."""
-        assert len(request_state_group) == self.n_request_per_instance
+        assert len(request_state_group) == self.num_requests_per_instance
         stats = {
             request_state.instance.request_id: self.compute_logprob_and_length(request_state)  # type: ignore
             for request_state in request_state_group
@@ -472,10 +472,12 @@ class CLMForMultiChoiceQAMetric(MultipleRequestMetrics):
         answer = answers[0]
 
         # Original: sum of token logprob in answer given context / num of tokens in answer
-        original_logprobs = [stats[f"rid{i}_original"][0] / stats[f"rid{i}_original"][1] for i in range(self.n_choice)]
+        original_logprobs = [
+            stats[f"rid{i}_original"][0] / stats[f"rid{i}_original"][1] for i in range(self.num_choices)
+        ]
         # Calibration: sum of token logprob in answer given context - sum of token logprob in answer without context
         calibrated_logprobs = [
-            stats[f"rid{i}_original"][0] - stats[f"rid{i}_calibration"][0] for i in range(self.n_choice)
+            stats[f"rid{i}_original"][0] - stats[f"rid{i}_calibration"][0] for i in range(self.num_choices)
         ]
         return [
             Stat(MetricName("original_acc")).add(float(max(original_logprobs) == original_logprobs[answer])),

@@ -19,8 +19,8 @@ from .scenario import Instance, MultipleRequestInstance, TRAIN_SPLIT, EVAL_SPLIT
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"
-ADAPT_MULTIPLE_CHOICE = "multiple_choice"
-ADAPT_MULTIPLE_CHOICE_CLM = "multiple_choice_clm"
+ADAPT_MULTIPLE_CHOICE_JOINT = "multiple_choice_joint"
+ADAPT_MULTIPLE_CHOICE_SEPARATE = "multiple_choice_separate"
 ADAPT_GENERATION = "generation"
 
 
@@ -306,7 +306,7 @@ class Adapter:
         if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
             # Use the LM-specific method to adapt LM scenarios
             request_states = self.adapt_language_modeling(eval_instances)
-        elif self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_CLM:
+        elif self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE:
             request_states = self.adapt_multiple_choice_clm(eval_instances)
         else:
             for train_trial_index in range(self.adapter_spec.num_train_trials):
@@ -342,7 +342,7 @@ class Adapter:
                             max_tokens=self.adapter_spec.max_tokens,
                             stop_sequences=self.adapter_spec.stop_sequences,
                         )
-                    elif method == ADAPT_MULTIPLE_CHOICE:
+                    elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
                         output_mapping = dict(
                             (self.get_reference_prefix("A", reference_index), reference.output)
                             for reference_index, reference in enumerate(eval_instance.references)
@@ -494,7 +494,7 @@ class Adapter:
         result = self.adapter_spec.input_prefix + instance.input
 
         # References (optionally) and output
-        if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE:
+        if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
             # If multiple choice, include the references
             output = "n/a"
             for reference_index, reference in enumerate(instance.references):
@@ -608,8 +608,8 @@ class Adapter:
         """
         request_states: List[RequestState] = []
 
-        max_seq_len: int = self.tokenizer.max_sequence_length
-        max_req_len: int = self.tokenizer.max_request_length
+        max_sequence_length: int = self.tokenizer.max_sequence_length
+        max_request_length: int = self.tokenizer.max_request_length
         prefix_token: str = self.tokenizer.prefix_token
 
         for instance in instances:
@@ -620,19 +620,21 @@ class Adapter:
 
             # Special handling for first window: predict all tokens
             # Example for GPT-3:
-            # Raw token sequence format: [<str_tok1>, <str_tok2>, ..., <byte_tok1>, ...] (total length <= max_seq_len)
-            # Convert it to: [<eot>, <str_tok1>, <str_tok2>, ...](total length <= max_req_len = max_seq_len+1 for GPT-3)
+            # Raw token sequence format: [<str_tok1>, <str_tok2>, ..., <byte_tok1>, ...]
+            # (total length <= max_sequence_length)
+            # Convert it to: [<eot>, <str_tok1>, <str_tok2>, ...]
+            # (total length <= max_req_len = max_sequence_length+1 for GPT-3)
             # Num_conditioning_tokens = 1
             # Example: ["Hello", " world", "bytes:\xe2\x80"] => "<eot>Hello world"
             #
             # Note: There are trailing byte tokens in the raw sequence because some subwords/symbols might translate to
             # multiple tokens (e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]) and we chunk documents by token, not by word.
 
-            # Uses `max_seq_len` instead of `max_req_len` here because `prefix_token` will be prepended to the sequence
-            # later. This is the only place where `max_seq_len` is used.
-            first_seq_len = min(max_seq_len, len(tokens))
+            # Uses `max_sequence_length` instead of `max_request_length` here because `prefix_token` will be prepended
+            # to the sequence later. This is the only place where `max_sequence_length` is used.
+            first_seq_len = min(max_sequence_length, len(tokens))
             prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                self.tokenizer.encode(prefix_token).tokens, tokens[:first_seq_len], max_req_len, text
+                self.tokenizer.encode(prefix_token).tokens, tokens[:first_seq_len], max_request_length, text
             )
             request = Request(
                 model=self.adapter_spec.model,
@@ -659,21 +661,21 @@ class Adapter:
                 # Example for GPT-3:
                 # Raw token sequence format:
                 # [<cond_byte1>, ..., <cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, ..., <pred_byte1>, ...]
-                # (total length <= max_req_len = max_seq_len+1 for GPT-3)
+                # (total length <= max_req_len = max_sequence_length+1 for GPT-3)
                 #
                 # Convert it to: [<cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, <pred_str_tok2>. ...]
-                # (total length <= max_req_len = max_seq_len+1 for GPT-3)
+                # (total length <= max_req_len = max_sequence_length+1 for GPT-3)
                 #
                 # Example: conditioning_tokens=["bytes:\x99", "Exc"], pred_tokens=["use", " me", "bytes:\xe2\x80"] =>
                 # prompt="Excuse me", num_conditioning_tokens = 1
 
                 # The upper bound is `max_req_len - 1` because there will be at least 1 conditioning tokens.
-                window_pred_len = min(len(tokens) - num_predicted_tokens, max_req_len - 1)
+                window_pred_len = min(len(tokens) - num_predicted_tokens, max_request_length - 1)
                 window_end = num_predicted_tokens + window_pred_len
-                conditioning_tokens = tokens[window_end - max_req_len : num_predicted_tokens]
+                conditioning_tokens = tokens[window_end - max_request_length : num_predicted_tokens]
                 pred_tokens = tokens[num_predicted_tokens:window_end]
                 prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                    conditioning_tokens, pred_tokens, max_req_len, text
+                    conditioning_tokens, pred_tokens, max_request_length, text
                 )
 
                 request = Request(
@@ -704,22 +706,26 @@ class Adapter:
         """
         request_states: List[RequestState] = []
 
-        max_seq_len: int = self.tokenizer.max_sequence_length
-        max_req_len: int = self.tokenizer.max_request_length
+        max_sequence_length: int = self.tokenizer.max_sequence_length
+        max_request_length: int = self.tokenizer.max_request_length
         prefix_token: str = self.tokenizer.prefix_token
 
         for instance_index, instance in enumerate(instances):
             for reference_index, reference in enumerate(instance.references):
-                for prompt_type in ["original", "calibration"]:
+                for request_mode in ["original", "calibration"]:
+                    if request_mode == "original":
+                        query = f"{instance.input} {reference.output}"
+                    elif request_mode == "calibration":
+                        query = f"Answer: {reference.output}"
+                    else:
+                        raise ValueError(f"Unknown request mode: {request_mode}")
+                    encode_result: EncodeResult = self.tokenizer.encode(query)
 
-                    encode_result: EncodeResult = self.tokenizer.encode(
-                        f"{instance.input} {reference.output}"
-                    ) if prompt_type == "original" else self.tokenizer.encode(f"Answer: {reference.output}")
                     tokens, text = encode_result.tokens, encode_result.text
 
-                    assert len(tokens) <= max_seq_len  # simple assertion because MCQA should not be too long
+                    assert len(tokens) <= max_sequence_length  # simple assertion because MCQA should not be too long
                     prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                        self.tokenizer.encode(prefix_token).tokens, tokens, max_req_len, text
+                        self.tokenizer.encode(prefix_token).tokens, tokens, max_request_length, text
                     )
 
                     request = Request(
@@ -735,7 +741,7 @@ class Adapter:
                     multi_request_instance = MultipleRequestInstance(
                         **instance.__dict__,
                         group_id=f"gid{instance_index}",
-                        request_id=f"rid{reference_index}_{prompt_type}",
+                        request_id=f"rid{reference_index}_{request_mode}",
                     )  # type: ignore
                     request_state = RequestState(
                         instance=multi_request_instance,
