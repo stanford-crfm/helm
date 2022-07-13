@@ -7,6 +7,7 @@ from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE,
+    ADAPT_MULTIPLE_CHOICE_CLM,
     ADAPT_GENERATION,
     ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
 )
@@ -15,7 +16,6 @@ from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenario import ScenarioSpec
 
-from .commonsense_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .msmarco_scenario import MSMARCOScenario
 from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .raft_scenario import get_raft_instructions
@@ -64,7 +64,7 @@ def get_bbq_metrics() -> List[MetricSpec]:
     ]
 
 
-def get_commonsense_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
+def get_clm_for_mcqa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.multiple_request_metrics.CLMForMultiChoiceQAMetric", args=args)]
 
 
@@ -391,9 +391,9 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
         class_name="benchmark.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset, "method": method,},
     )
 
-    if method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
+    if method == ADAPT_MULTIPLE_CHOICE:
         adapter_spec = AdapterSpec(
-            method=ADAPT_MULTIPLE_CHOICE,
+            method=method,
             instructions="The following are multiple choice questions (with answers) about common sense.",
             input_prefix="Question: ",
             output_prefix="\nAnswer: ",
@@ -411,10 +411,10 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             adapter_spec=adapter_spec,
             metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
         )
-    elif method == CAUSAL_LANGUAGE_MODELING_METHOD:
+    elif method == ADAPT_MULTIPLE_CHOICE_CLM:
         n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
         adapter_spec = AdapterSpec(
-            method=ADAPT_LANGUAGE_MODELING,
+            method=method,
             instructions="",
             input_prefix="",
             output_prefix="",
@@ -430,7 +430,7 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             name=f"commonsense:dataset={dataset},method={method}",
             scenario=scenario,
             adapter_spec=adapter_spec,
-            metrics=get_commonsense_metrics({"n_choice": n_choice}),
+            metrics=get_clm_for_mcqa_metrics({"n_choice": n_choice}),
         )
     else:
         raise ValueError(f"Unknown commonsense method: {method}")

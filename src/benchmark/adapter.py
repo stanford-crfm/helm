@@ -15,11 +15,12 @@ from benchmark.tokenizer.tokenizer import Tokenizer, EncodeResult
 from benchmark.tokenizer.tokenizer_factory import TokenizerFactory
 from benchmark.tokenizer.tokenizer_service import TokenizerService
 from .adapter_service import AdapterService
-from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
+from .scenario import Instance, MultipleRequestInstance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"
 ADAPT_MULTIPLE_CHOICE = "multiple_choice"
+ADAPT_MULTIPLE_CHOICE_CLM = "multiple_choice_clm"
 ADAPT_GENERATION = "generation"
 ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS = "language_modeling_minimal_pairs"
 
@@ -326,6 +327,8 @@ class Adapter:
         ):
             # Use the LM-specific method to adapt LM scenarios
             request_states = self.adapt_language_modeling(eval_instances)
+        elif self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_CLM:
+            request_states = self.adapt_multiple_choice_clm(eval_instances)
         else:
             for train_trial_index in range(self.adapter_spec.num_train_trials):
                 train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
@@ -714,5 +717,56 @@ class Adapter:
                 )
                 request_states.append(request_state)
                 num_predicted_tokens += window_pred_len
+
+        return request_states
+
+    def adapt_multiple_choice_clm(self, instances: List[Instance]) -> List[RequestState]:
+        """ Using causal language modeling objective to answer multiple choice questions.
+        """
+        request_states: List[RequestState] = []
+
+        max_seq_len: int = self.tokenizer.max_sequence_length
+        max_req_len: int = self.tokenizer.max_request_length
+        prefix_token: str = self.tokenizer.prefix_token
+
+        for instance_index, instance in enumerate(instances):
+            for reference_index, reference in enumerate(instance.references):
+                for prompt_type in ["original", "calibration"]:
+
+                    encode_result: EncodeResult = self.tokenizer.encode(
+                        f"{instance.input} {reference.output}"
+                    ) if prompt_type == "original" else self.tokenizer.encode(f"Answer: {reference.output}")
+                    tokens, text = encode_result.tokens, encode_result.text
+
+                    assert len(tokens) <= max_seq_len  # simple assertion because MCQA should not be too long
+                    prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
+                        self.tokenizer.encode(prefix_token).tokens, tokens, max_req_len, text
+                    )
+
+                    request = Request(
+                        model=self.adapter_spec.model,
+                        prompt=prompt,
+                        num_completions=1,
+                        temperature=0,
+                        max_tokens=0,
+                        stop_sequences=[],
+                        echo_prompt=True,
+                    )
+
+                    multi_request_instance = MultipleRequestInstance(
+                        **instance.__dict__,
+                        group_id=f"gid{instance_index}",
+                        request_id=f"rid{reference_index}_{prompt_type}",
+                    )  # type: ignore
+                    request_state = RequestState(
+                        instance=multi_request_instance,
+                        reference_index=None,
+                        train_trial_index=0,
+                        output_mapping=None,
+                        request=request,
+                        result=None,
+                        num_conditioning_tokens=1 if len(prefix_token) > 0 else 0,
+                    )
+                    request_states.append(request_state)
 
         return request_states

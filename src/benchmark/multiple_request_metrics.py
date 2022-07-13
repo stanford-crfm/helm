@@ -10,9 +10,8 @@ from .adapter import ScenarioState, RequestState
 from .metric_service import MetricService
 from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
-from .scenario import VALID_SPLIT, TEST_SPLIT, MultipleRequestInstance
+from .scenario import CORRECT_TAG, VALID_SPLIT, TEST_SPLIT, MultipleRequestInstance
 from common.request import Token
-from .commonsense_scenario import CLM_CORRECT_TAG
 
 
 ################################################################################
@@ -430,11 +429,11 @@ class CLMForMultiChoiceQAMetric(MultipleRequestMetrics):
     def compute_logprob_and_length(self, request_state: RequestState) -> Tuple[float, int]:
         """Compute the logprob and length for the completion."""
         assert request_state.result is not None
-        assert len(request_state.instance.references) == 1
         assert len(request_state.result.completions) == 1
 
+        reference_index = int(request_state.instance.request_id.replace("rid", "").split("_")[0])  # type: ignore
         sequence = request_state.result.completions[0]
-        reference = request_state.instance.references[0].output
+        reference = request_state.instance.references[reference_index].output
 
         answer_length = 0
         answer_tokens: List[Token] = []
@@ -457,19 +456,27 @@ class CLMForMultiChoiceQAMetric(MultipleRequestMetrics):
             request_state.instance.request_id: self.compute_logprob_and_length(request_state)  # type: ignore
             for request_state in request_state_group
         }
+
+        assert all(
+            [
+                request_state_group[0].instance.references == request_state.instance.references
+                for request_state in request_state_group
+            ]
+        )  # all request_state in request_state_group should have same references
         answers = [
-            int(request_state.instance.request_id.replace("_original", ""))  # type: ignore
-            for request_state in request_state_group
-            if CLM_CORRECT_TAG in request_state.instance.references[0].tags
-            and "_original" in request_state.instance.request_id  # type: ignore
+            reference_index
+            for reference_index, reference in enumerate(request_state_group[0].instance.references)
+            if CORRECT_TAG in reference.tags
         ]
-        assert len(answers) == 1
+        assert len(answers) == 1  # MCQA should only have 1 correct answer
         answer = answers[0]
 
         # Original: sum of token logprob in answer given context / num of tokens in answer
-        original_logprobs = [stats[f"{i}_original"][0] / stats[f"{i}_original"][1] for i in range(self.n_choice)]
+        original_logprobs = [stats[f"rid{i}_original"][0] / stats[f"rid{i}_original"][1] for i in range(self.n_choice)]
         # Calibration: sum of token logprob in answer given context - sum of token logprob in answer without context
-        calibrated_logprobs = [stats[f"{i}_original"][0] - stats[f"{i}_calibration"][0] for i in range(self.n_choice)]
+        calibrated_logprobs = [
+            stats[f"rid{i}_original"][0] - stats[f"rid{i}_calibration"][0] for i in range(self.n_choice)
+        ]
         return [
             Stat(MetricName("original_acc")).add(float(max(original_logprobs) == original_logprobs[answer])),
             Stat(MetricName("calibrated_acc")).add(float(max(calibrated_logprobs) == calibrated_logprobs[answer])),

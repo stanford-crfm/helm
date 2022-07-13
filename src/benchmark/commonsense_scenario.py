@@ -1,6 +1,5 @@
 import json
 import os
-from functools import partial
 from typing import List
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
@@ -8,17 +7,12 @@ from common.hierarchical_logger import hlog
 from .scenario import (
     Scenario,
     Instance,
-    MultipleRequestInstance,
     Reference,
     TRAIN_SPLIT,
     VALID_SPLIT,
     TEST_SPLIT,
     CORRECT_TAG,
 )
-
-MULTI_CHOICE_QUESTION_ANSWERING_METHOD = "mcqa"
-CAUSAL_LANGUAGE_MODELING_METHOD = "clm"
-CLM_CORRECT_TAG = "clm_correct"
 
 
 class CommonSenseScenario(Scenario):
@@ -51,8 +45,6 @@ class CommonSenseScenario(Scenario):
     def __init__(self, dataset, method):
         self.dataset = dataset
         assert self.dataset in ["hellaswag", "openbookqa", "commonsenseqa", "piqa", "siqa"]
-        self.method = method
-        assert self.method in [MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD]
 
     @staticmethod
     def process_hellaswag_item(item):
@@ -254,32 +246,12 @@ class CommonSenseScenario(Scenario):
 
         instances: List[Instance] = []
 
-        def answer_to_reference(answer, correct_tag):
-            return Reference(output=answer, tags=[correct_tag] if answer == correct_answer else [])
+        def answer_to_reference(answer):
+            return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
 
         for question_id, (question, answers, correct_answer, split) in enumerate(data):
-            if self.method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
-                answer_to_reference_mcqa = partial(answer_to_reference, correct_tag=CORRECT_TAG)
-                instance = Instance(
-                    input=question, references=list(map(answer_to_reference_mcqa, answers)), split=splits[split],
-                )
-                instances.append(instance)
-            elif self.method == CAUSAL_LANGUAGE_MODELING_METHOD:
-                answer_to_reference_clm = partial(answer_to_reference, correct_tag=CLM_CORRECT_TAG)
-                for answer_id, answer in enumerate(answers):
-                    instance_original = MultipleRequestInstance(
-                        input=f"{question} {answer}",
-                        references=[answer_to_reference_clm(answer)],
-                        split=splits[split],
-                        group_id=f"{question_id}",
-                        request_id=f"{answer_id}_original",
-                    )
-                    instance_calibration = MultipleRequestInstance(
-                        input=f"Answer: {answer}",
-                        references=[answer_to_reference_clm(answer)],
-                        split=splits[split],
-                        group_id=f"{question_id}",
-                        request_id=f"{answer_id}_calibration",
-                    )
-                    instances.extend([instance_original, instance_calibration])
+            instance = Instance(
+                input=question, references=list(map(answer_to_reference, answers)), split=splits[split],
+            )
+            instances.append(instance)
         return instances
