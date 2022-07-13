@@ -31,7 +31,9 @@ class TokenizerFactory:
         tokenizer: Tokenizer
         if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
             tokenizer = WiderContextWindowOpenAITokenizer(service)
-        elif organization == "openai" or organization == "simple":
+        # TODO: create tokenizers for the individual DTFM models
+        #       https://github.com/stanford-crfm/benchmarking/issues/588
+        elif organization == "openai" or organization == "simple" or organization == "dtfm":
             tokenizer = OpenAITokenizer(service)
         elif organization == "microsoft":
             tokenizer = MTNLGTokenizer(service)

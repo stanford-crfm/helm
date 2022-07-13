@@ -237,6 +237,14 @@ ALL_MODELS = [
     #     # The TNLGv2 models have limited functionality
     #     tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     # ),
+    # Decentralized Training of Foundation Models (DTFM) models
+    Model(
+        group="dtfm",
+        creator_organization="EleutherAI",
+        name="dtfm/gpt-j-6b",
+        description="GPT-J (6B parameters trained by EleutherAI on The Pile)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
     # For debugging
     Model(
         group="simple",
