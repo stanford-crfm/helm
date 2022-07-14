@@ -9,7 +9,7 @@ from common.hierarchical_logger import hlog, htrack
 
 
 """
-Script to update cache with responses for the Together models (together/{model engine}).
+Script to update cache with responses/request results for the Together models (together/{model engine}).
 
 Usage:
 
@@ -44,6 +44,10 @@ def import_results(cache_path: str, request_results_path: str, dry_run: bool):
                 count += 1
 
                 if count > 0 and count % 10_000 == 0:
+                    if not dry_run:
+                        # Write to SQLite
+                        cache.commit()
+
                     hlog(f"Processed {count} entries")
 
         if dry_run:

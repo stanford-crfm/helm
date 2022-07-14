@@ -14,11 +14,11 @@ Exports raw requests from a run suite to a jsonl file for the Together models (t
 
 Usage:
 
-    python3 scripts/together/together_export_request.py <Path to run suite>
+    python3 scripts/together/together_export_requests.py <Path to run suite>
 
     Example:
 
-        python3 scripts/together/together_export_request.py benchmark_output/runs/dryrun
+        python3 scripts/together/together_export_requests.py benchmark_output/runs/dryrun
 """
 
 
