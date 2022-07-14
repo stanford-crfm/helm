@@ -529,12 +529,13 @@ $(function () {
     return runs.filter((run) => checkScenarioGroupRunMatch(scenarioGroup, run));
   }
 
-  function getStatsFromRun(run, statName, perturbationName = null, split='test') {
+  function getStatsFromRun(run, statName, perturbationName=null, k=null, split='test') {
     stats = run.stats.filter(stat => {
       const statNameMatch = stat.name.name === statName;
       const perturbationNameMatch = (stat.name.perturbation ? stat.name.perturbation.name : null) === perturbationName;
       const splitMatch = stat.name.split === split;
-      return statNameMatch && perturbationNameMatch && splitMatch;
+      const kMatch = stat.name.k === k;
+      return statNameMatch && perturbationNameMatch && splitMatch && kMatch;
     });
     return stats;
   }
@@ -545,40 +546,43 @@ $(function () {
     return statType ? statName + " (" + statType + ")" : statName;
   }
 
-  function extractDisplayStats(run, statName, split, includePerturbations=false) {
+  function extractDisplayStats(run, statName, k=null, split='test', includePerturbations=false) {
     // Extract summary stats to be displayed in the scenario and model tables.
     displayStats = {}
 
     // Original stat
-    displayStats[statNameToDisplayName(statName)] = getStatsFromRun(run, statName, null, split);
+    displayStats[statNameToDisplayName(statName)] = getStatsFromRun(run, statName, null, k, split);
     if (includePerturbations) {
       // Robustness (easy)
-      displayStats[statNameToDisplayName(statName, 'Typos Perturbation')] = getStatsFromRun(run, statName, 'TyposPerturbation', split);
+      displayStats[statNameToDisplayName(statName, 'Typos Perturbation')] = getStatsFromRun(run, statName, 'TyposPerturbation', k, split);
       // Robustness (hard)
-      displayStats[statNameToDisplayName(statName, 'Synonym Perturbation')] = getStatsFromRun(run, statName, 'SynonymPerturbation', split);
+      displayStats[statNameToDisplayName(statName, 'Synonym Perturbation')] = getStatsFromRun(run, statName, 'SynonymPerturbation', k, split);
       // TODO Make the naming of robustness and fairness perturbations consistent.
       // Fairness (dialect)
-      displayStats[statNameToDisplayName(statName, 'Dialect Perturbation')] = getStatsFromRun(run, statName, 'dialect', split);
+      displayStats[statNameToDisplayName(statName, 'Dialect Perturbation')] = getStatsFromRun(run, statName, 'dialect', k, split);
       // Fairness (race)
-      displayStats[statNameToDisplayName(statName, 'Race Perturbation')] = getStatsFromRun(run, statName, 'person_name', split);
+      displayStats[statNameToDisplayName(statName, 'Race Perturbation')] = getStatsFromRun(run, statName, 'person_name', k, split);
       // Fairness (gender)
-      displayStats[statNameToDisplayName(statName, 'Gender Perturbation')] = getStatsFromRun(run, statName, 'gender_term', split);
+      displayStats[statNameToDisplayName(statName, 'Gender Perturbation')] = getStatsFromRun(run, statName, 'gender_term', k, split);
     }
 
     return displayStats;
   }
 
-  function extractBiasAndToxicityDisplayStats(split, run) {
+  function extractBiasAndToxicityDisplayStats(run, k, split) {
     // TODO extract Bias (race, profession), Bias (gender, profession), Bias(race), Bias(gender) if present.
     // TODO extract toxicity stat if present.
     return {};
   }
 
-  function extractRuntimeDisplayStats(split, run) {
-    // TODO "inference_runtime" and "inference_idealized_runtime" or sometimes "runtime".
-    // TODO triage.
-    // TODO TrainingCO2.
-    return {};
+  function extractRuntimeDisplayStats(run, split) {
+    displayStats = {
+      "Inference Runtime": getStatsFromRun(run, "inference_runtime", perturbationName=null, k=null, split=split),
+      "Inference Runtime (Idealized)": getStatsFromRun(run, "inference_idealized_runtime", perturbationName=null, k=null, split=split),
+      "Inference Runtime (Discrepancy)": getStatsFromRun(run, "inference_runtime_discrepancy", perturbationName=null, k=null, split=split),
+      "Training CO2 Cost": getStatsFromRun(run, "training_co2_cost", perturbationName=null, k=null, split=split),
+    }
+    return displayStats;
   }
 
   function renderScenarioGroups(scenarioGroups, runs) {
@@ -608,17 +612,18 @@ $(function () {
       scenarioGroups.forEach(scenarioGroup => {
         // Unpack scenarioGroup fields
         console.log(scenarioGroup);
-        const split = scenarioGroup.display.split;
+        const displayK = scenarioGroup.display.k;
+        const displaySplit = scenarioGroup.display.split;
         const displayStatNames = scenarioGroup.display.stat_names;
         const scenarioGroupRuns = filterRunsByScenarioGroup(scenarioGroup, modelRuns);
         scenarioGroupRuns.forEach(run => {
           displayStatNames.forEach(statName => {
             // Accuracy stat (w perturbations)
-            displayStatsArr.push(extractDisplayStats(run, statName, split, includePerturbations=true));
+            displayStatsArr.push(extractDisplayStats(run, statName, k=displayK, split=displaySplit, includePerturbations=true));
             // Toxicity and bias
-            displayStatsArr.push(extractBiasAndToxicityDisplayStats(split, run));
+            displayStatsArr.push(extractBiasAndToxicityDisplayStats(run, k=displayK, split=displaySplit));
             // Run Time
-            displayStatsArr.push(extractRuntimeDisplayStats(split, run));
+            displayStatsArr.push(extractRuntimeDisplayStats(run, split=displaySplit));
         })});
       });
       const averageDisplayStatObj = getAverageStats(displayStatsArr);
