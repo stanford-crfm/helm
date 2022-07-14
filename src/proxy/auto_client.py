@@ -15,6 +15,7 @@ from common.tokenization_request import (
 from .client import Client
 from .ai21_client import AI21Client
 from .anthropic_client import AnthropicClient
+from .together_client import TogetherClient
 from .goose_ai_client import GooseAIClient
 from .huggingface_client import HuggingFaceClient
 from .openai_client import OpenAIClient
@@ -61,6 +62,8 @@ class AutoClient(Client):
                 client = MicrosoftClient(
                     api_key=self.credentials["microsoftApiKey"], cache_path=client_cache_path, org_id=org_id
                 )
+            elif organization == "together":
+                client = TogetherClient(cache_path=client_cache_path)
             elif organization == "simple":
                 client = SimpleClient(cache_path=client_cache_path)
             else:
