@@ -575,12 +575,12 @@ $(function () {
     return {};
   }
 
-  function extractRuntimeDisplayStats(run, split) {
+  function extractRuntimeDisplayStats(run, k, split) {
     displayStats = {
-      "Inference Runtime": getStatsFromRun(run, "inference_runtime", perturbationName=null, k=null, split=split),
-      "Inference Runtime (Idealized)": getStatsFromRun(run, "inference_idealized_runtime", perturbationName=null, k=null, split=split),
-      "Inference Runtime (Discrepancy)": getStatsFromRun(run, "inference_runtime_discrepancy", perturbationName=null, k=null, split=split),
-      "Training CO2 Cost": getStatsFromRun(run, "training_co2_cost", perturbationName=null, k=null, split=split),
+      "Inference Runtime": getStatsFromRun(run, "inference_runtime", perturbationName=null, k=k, split=split),
+      "Inference Runtime (Idealized)": getStatsFromRun(run, "inference_idealized_runtime", perturbationName=null, k=k, split=split),
+      "Inference Runtime (Discrepancy)": getStatsFromRun(run, "inference_runtime_discrepancy", perturbationName=null, k=k, split=split),
+      "Training CO2 Cost": getStatsFromRun(run, "training_co2_cost", perturbationName=null, k=k, split=split),
     }
     return displayStats;
   }
@@ -623,7 +623,7 @@ $(function () {
             // Toxicity and bias
             displayStatsArr.push(extractBiasAndToxicityDisplayStats(run, k=displayK, split=displaySplit));
             // Run Time
-            displayStatsArr.push(extractRuntimeDisplayStats(run, split=displaySplit));
+            displayStatsArr.push(extractRuntimeDisplayStats(run, k=displayK, split=displaySplit));
         })});
       });
       const averageDisplayStatObj = getAverageStats(displayStatsArr);
