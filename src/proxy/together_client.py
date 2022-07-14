@@ -19,6 +19,7 @@ class TogetherClient(Client):
 
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
+        # Uses the same parameter names as the OpenAI API: https://beta.openai.com/docs/api-reference/completions
         return {
             "engine": request.model_engine,
             "prompt": request.prompt,
@@ -36,7 +37,6 @@ class TogetherClient(Client):
         self.cache = Cache(cache_path)
 
     def make_request(self, request: Request) -> RequestResult:
-        # Uses the same parameter names as the OpenAI API: https://beta.openai.com/docs/api-reference/completions
         raw_request = TogetherClient.convert_to_raw_request(request)
         cache_key: Dict = Client.make_cache_key(raw_request, request)
 
@@ -54,6 +54,8 @@ class TogetherClient(Client):
             return RequestResult(success=False, cached=False, error=error, completions=[])
 
         # Expect the result to be structured the same way as a response from OpenAI API
+        # with an additional field called `request_time`, which is the time in seconds to
+        # perform inference.
         completions: List[Sequence] = []
         for raw_completion in response["choices"]:
             sequence_logprob = 0
