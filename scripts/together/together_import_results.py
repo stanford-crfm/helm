@@ -43,7 +43,7 @@ def import_results(cache_path: str, request_results_path: str, dry_run: bool):
                 cache[key] = result
                 count += 1
 
-                if count > 0 and count % 10_000:
+                if count > 0 and count % 10_000 == 0:
                     hlog(f"Processed {count} entries")
 
         if dry_run:

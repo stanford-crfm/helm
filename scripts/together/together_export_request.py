@@ -58,7 +58,7 @@ def export_requests(run_suite_path: str, output_path: str):
                     out_file.write(request_to_key(raw_request) + "\n")
                     count += 1
 
-                    if count > 0 and count % 10_000:
+                    if count > 0 and count % 10_000 == 0:
                         hlog(f"Wrote {count} requests...")
 
     hlog(f"Wrote {count} requests to {output_path}.")
