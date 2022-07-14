@@ -37,7 +37,7 @@ class TestAdapter:
         correct_reference = Reference(output="", tags=[CORRECT_TAG])
         train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(2049)]
         eval_instances = Instance(input="eval", references=[])
-        prompt: str = adapter.construct_prompt(train_instances, eval_instances)
+        prompt: str = adapter.construct_prompt(train_instances, eval_instances, include_output=False, output_index=None)
 
         # Ensure the prompt fits within the context window
         assert adapter.tokenizer.fits_within_context_window(prompt)
@@ -53,7 +53,7 @@ class TestAdapter:
         correct_reference = Reference(output="", tags=[CORRECT_TAG])
         train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(100)]
         eval_instances = Instance(input="eval" * 2049, references=[])
-        prompt: str = adapter.construct_prompt(train_instances, eval_instances)
+        prompt: str = adapter.construct_prompt(train_instances, eval_instances, include_output=False, output_index=None)
 
         # Ensure the prompt fits within the context window
         assert adapter.tokenizer.fits_within_context_window(prompt)
