@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import openai
 
@@ -18,7 +18,8 @@ ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__ba
 
 
 class OpenAIClient(Client):
-    def __init__(self, api_key: str, cache_path: str):
+    def __init__(self, api_key: str, cache_path: str, org_id: Optional[str] = None):
+        self.org_id: Optional[str] = org_id
         self.api_key: str = api_key
         self.api_base: str = "https://api.openai.com"
         self.cache = Cache(cache_path)
@@ -47,6 +48,9 @@ class OpenAIClient(Client):
         try:
 
             def do_it():
+                # Following https://beta.openai.com/docs/api-reference/authentication
+                # `organization` can be set to None.
+                openai.organization = self.org_id
                 openai.api_key = self.api_key
                 openai.api_base = self.api_base
                 openai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES
