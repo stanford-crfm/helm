@@ -7,7 +7,8 @@ from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE_JOINT,
-    ADAPT_MULTIPLE_CHOICE_SEPARATE,
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_GENERATION,
 )
 from .metric import MetricSpec
@@ -61,10 +62,6 @@ def get_bbq_metrics() -> List[MetricSpec]:
         MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={}),
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
-
-
-def get_clm_for_mcqa_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.multiple_request_metrics.CLMForMultiChoiceQAMetric", args=args)]
 
 
 def get_msmarco_metrics(task: str, track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:
@@ -408,13 +405,12 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             adapter_spec=adapter_spec,
             metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
         )
-    elif method == ADAPT_MULTIPLE_CHOICE_SEPARATE:
-        num_choices = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
+    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
         adapter_spec = AdapterSpec(
             method=method,
             instructions="",
             input_prefix="",
-            output_prefix="",
+            output_prefix=" ",
             max_train_instances=0,  # Appropriate for CLM approach
             max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
             num_outputs=1,
@@ -427,7 +423,7 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             name=f"commonsense:dataset={dataset},method={method}",
             scenario=scenario,
             adapter_spec=adapter_spec,
-            metrics=get_clm_for_mcqa_metrics({"num_choices": num_choices}),
+            metrics=get_basic_metrics({"names": []}),
         )
     else:
         raise ValueError(f"Unknown commonsense method: {method}")
@@ -1152,10 +1148,10 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon})
 
     adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_SEPARATE,
+        method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
         instructions="",
         input_prefix="",
-        output_prefix="",
+        output_prefix=" ",
         max_train_instances=0,
         max_eval_instances=None,
         num_outputs=1,
@@ -1169,7 +1165,7 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
         name=f"blimp:phenomenon={phenomenon}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_clm_for_mcqa_metrics({"num_choices": 2}),
+        metrics=get_basic_metrics({"names": []}),
     )
 
 

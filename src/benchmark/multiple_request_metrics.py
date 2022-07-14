@@ -10,8 +10,7 @@ from .adapter import ScenarioState, RequestState
 from .metric_service import MetricService
 from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
-from .scenario import CORRECT_TAG, VALID_SPLIT, TEST_SPLIT, MultipleRequestInstance
-from common.request import Token
+from .scenario import VALID_SPLIT, TEST_SPLIT, MultipleRequestInstance
 
 
 ################################################################################
@@ -403,95 +402,4 @@ class InformationRetrievalMetric(MultipleRequestMetrics):
             if group.instances:
                 group_stats = [Stat(MetricName(mn)).add(score) for mn, score in evaluations[group.group_id].items()]
                 per_instance_stats[PerInstanceStatsKey(group.instances[0], train_trial_index)] = group_stats
-        return per_instance_stats
-
-
-class CLMForMultiChoiceQAMetric(MultipleRequestMetrics):
-    """
-    Metrics for multi-choice question answering (MCQA) datasets using causal language modeling (CLM).
-
-    Each instance has n_choices, each choice has 2 requests (w/ context or w/o context for calibration purpose).
-
-    Therefore, each instance has 2 * n_choices requests.
-
-    Each request should have request_id ({choice_id}_original or {choice_id}_calibration).
-    """
-
-    CLM_MCQA_METRIC_NAME = "clm_for_mcqa"
-
-    def __init__(self, num_choices: int = 4):
-        self.num_choices = num_choices
-        self.num_requests_per_instance = self.num_choices * 2  # each choice w/ context or w/o context
-
-        self.metric_name_to_function = {self.CLM_MCQA_METRIC_NAME: self.clm_for_mcqa}
-        self.metric_names = [self.CLM_MCQA_METRIC_NAME]
-
-    def compute_logprob_and_length(self, request_state: RequestState) -> Tuple[float, int]:
-        """Compute the logprob and length for the completion."""
-        assert request_state.result is not None
-        assert len(request_state.result.completions) == 1
-
-        reference_index = int(request_state.instance.request_id.replace("rid", "").split("_")[0])  # type: ignore
-        sequence = request_state.result.completions[0]
-        reference = request_state.instance.references[reference_index].output
-
-        answer_length = 0
-        answer_tokens: List[Token] = []
-        for token in sequence.tokens[::-1]:
-            if answer_length >= len(reference):
-                break
-            answer_tokens.insert(0, token)
-            answer_length += len(token.text)
-        assert "".join([token.text for token in answer_tokens]).lstrip() == reference
-
-        logprob = sum(token.logprob for token in answer_tokens)
-        num_tokens = len(answer_tokens)
-
-        return logprob, num_tokens
-
-    def compute_acc_with_calibration(self, request_state_group: List[RequestState]) -> List[Stat]:
-        """Compute accuracy and calibrated accuracy for single instance."""
-        assert len(request_state_group) == self.num_requests_per_instance
-        stats = {
-            request_state.instance.request_id: self.compute_logprob_and_length(request_state)  # type: ignore
-            for request_state in request_state_group
-        }
-
-        assert all(
-            [
-                request_state_group[0].instance.references == request_state.instance.references
-                for request_state in request_state_group
-            ]
-        )  # all request_state in request_state_group should have same references
-        answers = [
-            reference_index
-            for reference_index, reference in enumerate(request_state_group[0].instance.references)
-            if CORRECT_TAG in reference.tags
-        ]
-        assert len(answers) == 1  # MCQA should only have 1 correct answer
-        answer = answers[0]
-
-        # Original: sum of token logprob in answer given context / num of tokens in answer
-        original_logprobs = [
-            stats[f"rid{i}_original"][0] / stats[f"rid{i}_original"][1] for i in range(self.num_choices)
-        ]
-        # Calibration: sum of token logprob in answer given context - sum of token logprob in answer without context
-        calibrated_logprobs = [
-            stats[f"rid{i}_original"][0] - stats[f"rid{i}_calibration"][0] for i in range(self.num_choices)
-        ]
-        return [
-            Stat(MetricName("original_acc")).add(float(max(original_logprobs) == original_logprobs[answer])),
-            Stat(MetricName("calibrated_acc")).add(float(max(calibrated_logprobs) == calibrated_logprobs[answer])),
-        ]
-
-    def clm_for_mcqa(
-        self, request_state_groups: List[RequestStateGroup], train_trial_index
-    ) -> Dict[PerInstanceStatsKey, List[Stat]]:
-        """ Compute and return the aggregate original / calibrated accuracy. """
-        per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
-        for group in request_state_groups:
-            if group.instances:
-                per_instance_stats[
-                    PerInstanceStatsKey(group.instances[0], train_trial_index)
-                ] = self.compute_acc_with_calibration(group.request_states)
         return per_instance_stats

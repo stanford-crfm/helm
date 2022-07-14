@@ -1,3 +1,4 @@
+import copy
 import random
 import time
 from dataclasses import dataclass, field
@@ -15,12 +16,13 @@ from benchmark.tokenizer.tokenizer import Tokenizer, EncodeResult
 from benchmark.tokenizer.tokenizer_factory import TokenizerFactory
 from benchmark.tokenizer.tokenizer_service import TokenizerService
 from .adapter_service import AdapterService
-from .scenario import Instance, MultipleRequestInstance, TRAIN_SPLIT, EVAL_SPLITS
+from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"
 ADAPT_MULTIPLE_CHOICE_JOINT = "multiple_choice_joint"
-ADAPT_MULTIPLE_CHOICE_SEPARATE = "multiple_choice_separate"
+ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL = "multiple_choice_separate_original"
+ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED = "multiple_choice_separate_calibrated"
 ADAPT_GENERATION = "generation"
 
 
@@ -94,6 +96,9 @@ class RequestState:
 
     # Which reference of the instance we're evaluating (if any)
     reference_index: Optional[int]
+
+    # Which request mode ("original" or "calibration") of the instance we're evaluating (if any)
+    request_mode: Optional[str]
 
     # Which training set this request is for
     train_trial_index: int
@@ -301,13 +306,11 @@ class Adapter:
         )
 
         # Accumulate all the request states due to adaptation
-        request_states: List[RequestState] = []
+        all_request_states: List[RequestState] = []
 
         if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
             # Use the LM-specific method to adapt LM scenarios
-            request_states = self.adapt_language_modeling(eval_instances)
-        elif self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE:
-            request_states = self.adapt_multiple_choice_clm(eval_instances)
+            all_request_states = self.adapt_language_modeling(eval_instances)
         else:
             for train_trial_index in range(self.adapter_spec.num_train_trials):
                 train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
@@ -315,25 +318,14 @@ class Adapter:
                 # Create request_states
                 for eval_index, eval_instance in enumerate(eval_instances):
                     start_time: float = time.time()
-                    prompt: str = self.construct_prompt(train_instances, eval_instance)
-                    construct_prompt_elapsed_time: float = time.time() - start_time
-
-                    hlog(
-                        f"trial {train_trial_index}: construct_prompt {eval_index} (total {len(eval_instances)}): "
-                        f"len(prompt) = {len(prompt)} ({construct_prompt_elapsed_time:.3f}s)"
-                    )
-
-                    # Just print one prompt (useful for debugging)
-                    if train_trial_index == 0 and eval_index == 0:
-                        with htrack_block("Sample prompt"):
-                            for line in prompt.split("\n"):
-                                hlog(line)
 
                     # Define the request
                     method = self.adapter_spec.method
 
                     if method == ADAPT_GENERATION:
-                        output_mapping = None
+                        prompt = self.construct_prompt(
+                            train_instances, eval_instance, include_output=False, output_index=None
+                        )
                         request = Request(
                             model=self.adapter_spec.model,
                             prompt=prompt,
@@ -342,7 +334,21 @@ class Adapter:
                             max_tokens=self.adapter_spec.max_tokens,
                             stop_sequences=self.adapter_spec.stop_sequences,
                         )
+                        request_states = [
+                            RequestState(
+                                instance=eval_instance,
+                                reference_index=None,
+                                request_mode=None,
+                                train_trial_index=train_trial_index,
+                                output_mapping=None,
+                                request=request,
+                                result=None,
+                            )
+                        ]
                     elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
+                        prompt = self.construct_prompt(
+                            train_instances, eval_instance, include_output=False, output_index=None
+                        )
                         output_mapping = dict(
                             (self.get_reference_prefix("A", reference_index), reference.output)
                             for reference_index, reference in enumerate(eval_instance.references)
@@ -356,21 +362,91 @@ class Adapter:
                             max_tokens=1,
                             stop_sequences=[],
                         )
+                        request_states = [
+                            RequestState(
+                                instance=eval_instance,
+                                reference_index=None,
+                                request_mode=None,
+                                train_trial_index=train_trial_index,
+                                output_mapping=output_mapping,
+                                request=request,
+                                result=None,
+                            )
+                        ]
+                    elif self.adapter_spec.method in [
+                        ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+                        ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+                    ]:
+                        request_states = []
+                        for reference_index, reference in enumerate(eval_instance.references):
+                            if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
+                                request_modes = ["original"]
+                            elif self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED:
+                                request_modes = ["original", "calibration"]
+                            else:
+                                raise ValueError(f"Unknown adapter method: {self.adapter_spec.method}")
+
+                            for request_mode in request_modes:
+                                if request_mode == "original":
+                                    prompt = self.construct_prompt(
+                                        train_instances,
+                                        eval_instance,
+                                        include_output=True,
+                                        output_index=reference_index,
+                                    )
+                                elif request_mode == "calibration":
+                                    # For calibration purpose, we compute the logprobs of the reference
+                                    # without the input question.
+                                    eval_instance_dict = copy.deepcopy(eval_instance.__dict__)
+                                    eval_instance_dict["input"] = "Answer:"
+                                    eval_instance_calibration = Instance(**eval_instance_dict)
+                                    prompt = self.construct_prompt(
+                                        [], eval_instance_calibration, include_output=True, output_index=reference_index
+                                    )  # TODO: whether to include the train_instances for calibration?
+                                else:
+                                    raise ValueError(f"Unknown request mode: {request_mode}")
+                                request = Request(
+                                    model=self.adapter_spec.model,
+                                    prompt=prompt,
+                                    num_completions=1,
+                                    temperature=0,
+                                    max_tokens=0,
+                                    stop_sequences=[],
+                                    echo_prompt=True,
+                                )
+                                request_state = RequestState(
+                                    instance=eval_instance,
+                                    reference_index=reference_index,
+                                    request_mode=request_mode,
+                                    train_trial_index=train_trial_index,
+                                    output_mapping=None,
+                                    request=request,
+                                    result=None,
+                                )
+                                request_states.append(request_state)
                     else:
                         raise ValueError(f"Invalid method: {method}")
 
-                    request_state = RequestState(
-                        instance=eval_instance,
-                        reference_index=None,
-                        train_trial_index=train_trial_index,
-                        output_mapping=output_mapping,
-                        request=request,
-                        result=None,
-                    )
-                    request_states.append(request_state)
+                    construct_requests_elapsed_time: float = time.time() - start_time
 
-        hlog(f"{len(request_states)} requests")
-        return ScenarioState(self.adapter_spec, request_states)
+                    hlog(
+                        f"trial {train_trial_index}: construct_requests {eval_index} (total {len(eval_instances)}): "
+                        f"len(requests) = {len(request_states)}, len(prompts) = "
+                        f"{[len(request_state.request.prompt) for request_state in request_states]} "
+                        f"({construct_requests_elapsed_time:.3f}s)"
+                    )
+
+                    # Just print one prompt (useful for debugging)
+                    if train_trial_index == 0 and eval_index == 0:
+                        with htrack_block("Sample prompts"):
+                            for request_state in request_states:
+                                for line in request_state.request.prompt.split("\n"):
+                                    hlog(line)
+
+                    all_request_states.extend(request_states)
+
+        hlog(f"{len(all_request_states)} requests")
+        return ScenarioState(self.adapter_spec, all_request_states)
 
     def sample_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
         """
@@ -434,7 +510,13 @@ class Adapter:
         examples += random.sample(unlabeled_instances, num_instances_to_sample)
         return examples
 
-    def construct_prompt(self, train_instances: List[Instance], eval_instance: Instance) -> str:
+    def construct_prompt(
+        self,
+        train_instances: List[Instance],
+        eval_instance: Instance,
+        include_output: bool,
+        output_index: Optional[int],
+    ) -> str:
         """
         Returns a prompt (string) given:
         - the `self.adapter_spec.instructions`
@@ -444,6 +526,7 @@ class Adapter:
 
         Fits the prompt within the context window by removing in-context training examples.
         """
+        assert include_output or output_index is None
 
         def construct_prompt_helper(train_instances: List[Instance]) -> str:
             # Instructions
@@ -454,9 +537,11 @@ class Adapter:
 
             # In-context training instances
             for instance in train_instances:
-                blocks.append(self.construct_example_prompt(instance, include_output=True))
+                blocks.append(self.construct_example_prompt(instance, include_output=True, output_index=None))
 
-            blocks.append(self.construct_example_prompt(eval_instance, include_output=False))
+            blocks.append(
+                self.construct_example_prompt(eval_instance, include_output=include_output, output_index=output_index)
+            )
 
             return self.adapter_spec.instance_prefix.join(blocks)
 
@@ -487,7 +572,7 @@ class Adapter:
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
         return self.tokenizer.truncate_from_right(prompt, self.adapter_spec.max_tokens)
 
-    def construct_example_prompt(self, instance: Instance, include_output: bool) -> str:
+    def construct_example_prompt(self, instance: Instance, include_output: bool, output_index: Optional[int]) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
 
         # Input
@@ -503,9 +588,13 @@ class Adapter:
                 if reference.is_correct and output == "n/a":
                     output = self.get_reference_prefix("A", reference_index)
         else:
-            # Put only the correct reference as the output
-            correct_reference = instance.first_correct_reference
-            output = correct_reference.output if correct_reference is not None else "n/a"
+            if output_index is None:
+                # Put only the correct reference as the output
+                correct_reference = instance.first_correct_reference
+                output = correct_reference.output if correct_reference is not None else "n/a"
+            else:
+                reference = instance.references[output_index]
+                output = reference.output
 
         if include_output:
             result += self.adapter_spec.output_prefix + output
@@ -648,6 +737,7 @@ class Adapter:
             request_state = RequestState(
                 instance=instance,
                 reference_index=None,
+                request_mode=None,
                 train_trial_index=0,
                 output_mapping=None,
                 request=request,
@@ -690,6 +780,7 @@ class Adapter:
                 request_state = RequestState(
                     instance=instance,
                     reference_index=None,
+                    request_mode=None,
                     train_trial_index=0,
                     output_mapping=None,
                     request=request,
@@ -698,60 +789,5 @@ class Adapter:
                 )
                 request_states.append(request_state)
                 num_predicted_tokens += window_pred_len
-
-        return request_states
-
-    def adapt_multiple_choice_clm(self, instances: List[Instance]) -> List[RequestState]:
-        """ Using causal language modeling objective to answer multiple choice questions.
-        """
-        request_states: List[RequestState] = []
-
-        max_sequence_length: int = self.tokenizer.max_sequence_length
-        max_request_length: int = self.tokenizer.max_request_length
-        prefix_token: str = self.tokenizer.prefix_token
-
-        for instance_index, instance in enumerate(instances):
-            for reference_index, reference in enumerate(instance.references):
-                for request_mode in ["original", "calibration"]:
-                    if request_mode == "original":
-                        query = f"{instance.input} {reference.output}"
-                    elif request_mode == "calibration":
-                        query = f"Answer: {reference.output}"
-                    else:
-                        raise ValueError(f"Unknown request mode: {request_mode}")
-                    encode_result: EncodeResult = self.tokenizer.encode(query)
-
-                    tokens, text = encode_result.tokens, encode_result.text
-
-                    assert len(tokens) <= max_sequence_length  # simple assertion because MCQA should not be too long
-                    prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                        self.tokenizer.encode(prefix_token).tokens, tokens, max_request_length, text
-                    )
-
-                    request = Request(
-                        model=self.adapter_spec.model,
-                        prompt=prompt,
-                        num_completions=1,
-                        temperature=0,
-                        max_tokens=0,
-                        stop_sequences=[],
-                        echo_prompt=True,
-                    )
-
-                    multi_request_instance = MultipleRequestInstance(
-                        **instance.__dict__,
-                        group_id=f"gid{instance_index}",
-                        request_id=f"rid{reference_index}_{request_mode}",
-                    )  # type: ignore
-                    request_state = RequestState(
-                        instance=multi_request_instance,
-                        reference_index=None,
-                        train_trial_index=0,
-                        output_mapping=None,
-                        request=request,
-                        result=None,
-                        num_conditioning_tokens=1 if len(prefix_token) > 0 else 0,
-                    )
-                    request_states.append(request_state)
 
         return request_states

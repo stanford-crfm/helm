@@ -88,10 +88,13 @@ class Metric(ABC):
                 instance_stats = []
 
                 # Evaluate generated request_state
-                request_state = singleton(scenario_state.get_request_states(train_trial_index, instance, None))
-                instance_stats.extend(
-                    self.evaluate_generation(adapter_spec, request_state, metric_service, eval_cache_path)
-                )
+                request_states = scenario_state.get_request_states(train_trial_index, instance, None)
+                if len(request_states) != 0:
+                    instance_stats.extend(
+                        self.evaluate_generation(
+                            adapter_spec, singleton(request_states), metric_service, eval_cache_path
+                        )
+                    )
 
                 # Evaluate the references
                 request_states = []
@@ -99,9 +102,10 @@ class Metric(ABC):
                     request_states.extend(
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
-                instance_stats.extend(
-                    self.evaluate_references(adapter_spec, request_states, metric_service, eval_cache_path)
-                )
+                if len(request_states) != 0:
+                    instance_stats.extend(
+                        self.evaluate_references(adapter_spec, request_states, metric_service, eval_cache_path)
+                    )
                 all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
 
                 # Merge these statistics back.
