@@ -24,12 +24,16 @@ $(function () {
   }
 
   // Captures information about a field of a scenarioGroup.
-  class scenarioGroupField {
+  class ScenarioGroupField {
     constructor(raw) {
       this.name = raw.name;
+      this.display = {
+        "k": raw.display.k,
+        "split": raw.display.split,
+        "stat_names": raw.display.stat_names,
+      }
+      // @TODO delete the following after the new run_spec.json files are generated
       this.className = raw.class_name;
-      this.displaySplit = raw.display_split;
-      this.displayStatNames = raw.display_stat_names;
       this.args = raw.args;
     }
   }
@@ -40,7 +44,7 @@ $(function () {
     constructor(raw) {
       this.adapterFields = raw.adapter.map((fieldRaw) => new Field(fieldRaw));
       this.metricsFields = raw.metrics.map((fieldRaw) => new Field(fieldRaw));
-      this.scenarioGroupsFields = raw.scenarioGroups.map((fieldRaw) => new scenarioGroupField(fieldRaw));
+      this.scenarioGroupsFields = raw.scenarioGroups.map((fieldRaw) => new ScenarioGroupField(fieldRaw));
 
       // Allow convenient access
       this.adapterFieldNames = this.adapterFields.map((field) => field.name);
@@ -469,11 +473,10 @@ $(function () {
     Object.keys(displayStat).forEach(key => {
       const numStats = displayStat[key].length;
       const sumMean = displayStat[key].map(stat => stat.mean).reduce((acc, val) => {
-        acc = acc || 0;
         acc += val;
         return acc;
-      }, undefined);
-      result[key] = sumMean / numStats;
+      }, 0);
+      result[key] = numStats > 0 ? sumMean / numStats : undefined;
     });
     return result;
   }
@@ -498,6 +501,13 @@ $(function () {
     });
 
     return $table;
+  }
+
+  function toDecimalStrings(dataArr, numDecimals=3) {
+    dataArr.forEach(dataRow => {
+      Object.keys(dataRow).forEach(k => {
+        dataRow[k] = dataRow[k].toLocaleString("en-US", {maximumFractionDigits: numDecimals, minimumFractionDigits: numDecimals});
+    })});
   }
 
   function checkScenarioGroupRunMatch(scenarioGroup, run) {
@@ -546,13 +556,13 @@ $(function () {
       displayStats[statNameToDisplayName(statName, 'Typos Perturbation')] = getStatsFromRun(run, statName, 'TyposPerturbation', split);
       // Robustness (hard)
       displayStats[statNameToDisplayName(statName, 'Synonym Perturbation')] = getStatsFromRun(run, statName, 'SynonymPerturbation', split);
-      // TODO double check that the fairness perturbation results are included.
+      // TODO Make the naming of robustness and fairness perturbations consistent.
       // Fairness (dialect)
-      displayStats[statNameToDisplayName(statName, 'Dialect Perturbation')] = getStatsFromRun(run, statName, 'DialectPerturbation', split);
+      displayStats[statNameToDisplayName(statName, 'Dialect Perturbation')] = getStatsFromRun(run, statName, 'dialect', split);
       // Fairness (race)
-      displayStats[statNameToDisplayName(statName, 'Race Perturbation')] = getStatsFromRun(run, statName, 'PersonNamePerturbation', split);
+      displayStats[statNameToDisplayName(statName, 'Race Perturbation')] = getStatsFromRun(run, statName, 'person_name', split);
       // Fairness (gender)
-      displayStats[statNameToDisplayName(statName, 'Gender Perturbation')] = getStatsFromRun(run, statName, 'GenderPronounsPerturbation', split);
+      displayStats[statNameToDisplayName(statName, 'Gender Perturbation')] = getStatsFromRun(run, statName, 'gender_term', split);
     }
 
     return displayStats;
@@ -597,8 +607,9 @@ $(function () {
       var displayStatsArr = [];
       scenarioGroups.forEach(scenarioGroup => {
         // Unpack scenarioGroup fields
-        const split = scenarioGroup.displaySplit;
-        const displayStatNames = scenarioGroup.displayStatNames;
+        console.log(scenarioGroup);
+        const split = scenarioGroup.display.split;
+        const displayStatNames = scenarioGroup.display.stat_names;
         const scenarioGroupRuns = filterRunsByScenarioGroup(scenarioGroup, modelRuns);
         scenarioGroupRuns.forEach(run => {
           displayStatNames.forEach(statName => {
@@ -625,6 +636,7 @@ $(function () {
     }, []);
 
     // Render table
+    toDecimalStrings(tableData, numDecimals=3);
     const $table = renderTable(tableHeaders, tableData, 'scenario-table')
     $root.append($table);
 
