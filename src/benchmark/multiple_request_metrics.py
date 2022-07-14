@@ -10,7 +10,7 @@ from .adapter import ScenarioState, RequestState
 from .metric_service import MetricService
 from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
-from .scenario import VALID_SPLIT, TEST_SPLIT, MultipleRequestInstance
+from .scenario import VALID_SPLIT, MultipleRequestInstance
 
 
 ################################################################################
@@ -130,10 +130,8 @@ class MultipleRequestMetrics(Metric):
         per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
         # Loop through train trials
         for train_trial_index in range(scenario_state.adapter_spec.num_train_trials):
-            request_states = [
-                rs for rs in scenario_state.request_states if rs.instance.split in [VALID_SPLIT, TEST_SPLIT]
-            ]
-            request_state_groups = self.group_request_states(request_states)
+            validation_request_states = [rs for rs in scenario_state.request_states if rs.instance.split == VALID_SPLIT]
+            request_state_groups = self.group_request_states(validation_request_states)
             # Run the request_state_groups through all metrics
             for metric_name in self.metric_names:
                 # Get metric_per_instance_stats
