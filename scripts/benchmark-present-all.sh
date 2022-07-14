@@ -37,7 +37,7 @@ models=(
   # "openai/babbage"
   # "openai/ada"
   # "openai/text-davinci-002"
-  # "openai/text-curie-001"
+  "openai/text-curie-001"
   # "openai/text-babbage-001"
   # "openai/text-ada-001"
   # "openai/code-davinci-002"
