@@ -53,9 +53,7 @@ class TogetherClient(Client):
             error: str = f"TogetherClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[])
 
-        # Expect the result to be structured the same way as a response from OpenAI API
-        # with an additional field called `request_time`, which is the time in seconds to
-        # perform inference.
+        # Expect the result to be structured the same way as a response from OpenAI API.
         completions: List[Sequence] = []
         for raw_completion in response["choices"]:
             sequence_logprob = 0
@@ -76,9 +74,9 @@ class TogetherClient(Client):
             )
             completions.append(completion)
 
-        return RequestResult(
-            success=True, cached=cached, request_time=response["request_time"], completions=completions,
-        )
+        # TODO: handle batch size and time it take to process batch in response
+        #       https://github.com/stanford-crfm/benchmarking/issues/618
+        return RequestResult(success=True, cached=cached, request_time=0, completions=completions)
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
