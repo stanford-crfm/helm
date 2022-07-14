@@ -37,19 +37,30 @@ class AutoClient(Client):
         client: Optional[Client] = self.clients.get(organization)
 
         if client is None:
+            org_id: Optional[str]
             client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
+
             if organization == "openai":
-                client = OpenAIClient(api_key=self.credentials["openaiApiKey"], cache_path=client_cache_path)
+                org_id = self.credentials.get("openaiOrgID", None)
+                client = OpenAIClient(
+                    api_key=self.credentials["openaiApiKey"], cache_path=client_cache_path, org_id=org_id
+                )
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
             elif organization == "gooseai":
-                client = GooseAIClient(api_key=self.credentials["gooseaiApiKey"], cache_path=client_cache_path)
+                org_id = self.credentials.get("gooseaiOrgID", None)
+                client = GooseAIClient(
+                    api_key=self.credentials["gooseaiApiKey"], cache_path=client_cache_path, org_id=org_id
+                )
             elif organization == "huggingface":
                 client = self.huggingface_client
             elif organization == "anthropic":
                 client = AnthropicClient(api_key=self.credentials["anthropicApiKey"], cache_path=client_cache_path)
             elif organization == "microsoft":
-                client = MicrosoftClient(api_key=self.credentials["microsoftApiKey"], cache_path=client_cache_path)
+                org_id = self.credentials.get("microsoftOrgID", None)
+                client = MicrosoftClient(
+                    api_key=self.credentials["microsoftApiKey"], cache_path=client_cache_path, org_id=org_id
+                )
             elif organization == "simple":
                 client = SimpleClient(cache_path=client_cache_path)
             else:
