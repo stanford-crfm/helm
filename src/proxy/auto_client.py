@@ -41,14 +41,14 @@ class AutoClient(Client):
             client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
 
             if organization == "openai":
-                org_id = self.credentials.get("openaiOrgID", None)
+                org_id = self.credentials.get("openaiOrgId", None)
                 client = OpenAIClient(
                     api_key=self.credentials["openaiApiKey"], cache_path=client_cache_path, org_id=org_id
                 )
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
             elif organization == "gooseai":
-                org_id = self.credentials.get("gooseaiOrgID", None)
+                org_id = self.credentials.get("gooseaiOrgId", None)
                 client = GooseAIClient(
                     api_key=self.credentials["gooseaiApiKey"], cache_path=client_cache_path, org_id=org_id
                 )
@@ -57,7 +57,7 @@ class AutoClient(Client):
             elif organization == "anthropic":
                 client = AnthropicClient(api_key=self.credentials["anthropicApiKey"], cache_path=client_cache_path)
             elif organization == "microsoft":
-                org_id = self.credentials.get("microsoftOrgID", None)
+                org_id = self.credentials.get("microsoftOrgId", None)
                 client = MicrosoftClient(
                     api_key=self.credentials["microsoftApiKey"], cache_path=client_cache_path, org_id=org_id
                 )
