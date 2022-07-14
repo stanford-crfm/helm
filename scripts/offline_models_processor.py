@@ -75,7 +75,8 @@ def generate_queries(run_suite_path: str, output_path: str):
         with open(scenario_state_path) as f:
             scenario_state = json.load(f)
             model: str = scenario_state["adapter_spec"]["model"]
-            assert model.startswith("together/")
+            if not model.startswith("together/"):
+                continue
 
             for request_state in scenario_state["request_states"]:
                 request: Request = from_dict(Request, request_state["request"])

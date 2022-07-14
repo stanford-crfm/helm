@@ -13,7 +13,7 @@ from .client import Client
 
 class TogetherClient(Client):
     """
-    Client for the models where we evaluate offline. Since the queries handled offline, the `TogetherClient` just
+    Client for the models where we evaluate offline. Since the queries are handled offline, the `TogetherClient` just
     checks if the request/result is cached. We return the result if it's in the cache. Otherwise, we return an error.
     """
 
