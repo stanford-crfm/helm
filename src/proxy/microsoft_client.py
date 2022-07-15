@@ -27,7 +27,7 @@ class MicrosoftClient(Client):
     all tokens have been generated."
     """
 
-    def __init__(self, api_key: str, cache_path: str):
+    def __init__(self, api_key: str, cache_path: str, org_id: Optional[str] = None):
         # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
         class EngineAPIResource(engine_api_resource.EngineAPIResource):
             @classmethod
@@ -36,6 +36,7 @@ class MicrosoftClient(Client):
             ) -> str:
                 return f"/{engine}/inference"
 
+        self.org_id: Optional[str] = org_id
         self.api_key: str = api_key
         self.api_base: str = "https://turingnlg-turingnlg-mstap-v2.turingase.p.azurewebsites.net"
         self.completion_attributes = (EngineAPIResource,) + ORIGINAL_COMPLETION_ATTRIBUTES[1:]
@@ -103,6 +104,9 @@ class MicrosoftClient(Client):
 
                 def do_it():
                     with self.lock:
+                        # Following https://beta.openai.com/docs/api-reference/authentication
+                        # `organization` can be set to None.
+                        turing.organization = self.org_id
                         turing.api_key = self.api_key
                         turing.api_base = self.api_base
                         turing.api_resources.completion.Completion.__bases__ = self.completion_attributes
