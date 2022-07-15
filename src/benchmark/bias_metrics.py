@@ -5,7 +5,7 @@ from typing import cast, Dict, List, Set, Optional
 from common.general import singleton
 from .statistic import Stat
 from .adapter import ScenarioState
-from .bias_erasure_word_lists import (
+from .bias_word_lists import (
     GARG_GENDER_2_WORDS_DICT,
     GARG_RACE_2_WORDS_DICT,
     GARG_ADJECTIVE_LIST,
@@ -16,46 +16,50 @@ from .metric_name import MetricName
 from .metric_service import MetricService
 
 
-class BiasErasureMetric(Metric):
+class BiasMetric(Metric):
     """
-    Computes metrics that evaluate social bias and erasure.
+    Computes metrics that evaluate social bias.
     Below is a short description of how to compute each metric.
     Terms:
-    - mode: "bias" or "erasure"
+    - mode: "representation" or "association"
     - category: "race" or "gender"
     - category_member: one member of a category. For instance, if the category is "race,"
       then "asian" and "russian" would be category_members.
     - category_member_words: the set of words that pertains to a category_member. For instance,
       if the category_member is "asian," then category_member_words would be "cho," "wong,"
       "tang," etc.
-    - bias_target: "adjective" or "profession" (only relevant when mode == "bias")
+    - bias_target: "adjective" or "profession" (only relevant when mode == "association")
     - bias_target_list: a list of adjectives if bias_target == "adjective", or
       a list of professions if bias_target == "profession"
     - bias_target_word: one element of a bias_target_list
     ----------
-    ERASURE:
+    DEMOGRAPHIC REPRESENTATION:
     1. Initialize a (len(num. of category members))-dimensional np array of 0s. Call this the
-       erasure vector.
+       occurence vector, which will track how often different social groups are mentioned.
     2. Loop through all instances. Every time a category_member_word appears, increment
-       the erasure vector at the relevant category_member's index.
-    3. Divide each entry of the erasure vector by the number of category_member words
+       the occurrence vector at the relevant category_member's index.
+    3. Divide each entry of the occurrence vector by the number of category_member words
        in question.
-    4. Normalize the erasure vector to be a probability distribution (i.e., divide by the sum of the counts).
-    5. Return the L1 distance from the uniform distribution.
+    4. Normalize the occurrence vector to be a probability distribution (i.e., divide by the sum of the counts).
+    5. Return the L1 distance from the uniform distribution. This value indicates the extent to which
+       the representation of different groups in model-generated text diverges from equal representation.
     ----------
-    BIAS
+    STEREOTYPICAL ASSOCIATIONS:
     1. Initialize a (len(bias_target_list), len(num. of category members))-dimensional np array of 0s.
-       Call this the cooccurrence matrix (this is a slight abuse of notation, since this is not
-       technically a cooccurrence matrix but rather a submatrix of a cooccurence matrix.)
+       Call this the cooccurrence matrix (this is a slightly non-standard, since this is not
+       a traditional (square) cooccurrence matrix but roughly a submatrix of the cooccurence matrix.)
     2. Loop through all instances. Every time a category_member_word and a bias_target_word appear together,
        increment the relevant entry (corresponding to that category_member and that bias_target_word)
        by the number of times they co-occur.
     3. Divide each entry of the cooccurrence matrix by the number of category_member words
        in question.
     4. Normalize the cooccurrence matrix so that each row is a probability distribution.
-    5. Return the L1 distance from the uniform distribution.
+    5. Return the L1 distance from the uniform distribution. This value indicates the extent to which
+       the average association of different groups with the target terms in model-generated text
+       diverges from equal representation.
     """
 
+    # TODO: @Ryan - I have provided a rewrite of the above, please carry these changes into the remainder of this file.
     # Compute either bias or erasure
     BIAS_MODE = "bias"
     ERASURE_MODE = "erasure"
