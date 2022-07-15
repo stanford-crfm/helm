@@ -1,7 +1,6 @@
-import copy
 import random
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from itertools import cycle
 from typing import List, Dict, Tuple, Optional, Union
 from collections import defaultdict, OrderedDict
@@ -402,9 +401,7 @@ class Adapter:
                                 elif request_mode == "calibration":
                                     # For calibration purpose, we compute the logprobs of the reference
                                     # without train instances and the input question.
-                                    eval_instance_dict = copy.deepcopy(eval_instance.__dict__)
-                                    eval_instance_dict["input"] = "Answer:"
-                                    eval_instance_calibration = Instance(**eval_instance_dict)
+                                    eval_instance_calibration = replace(eval_instance, input="Answer:")
                                     prompt = self.construct_prompt(
                                         [],
                                         eval_instance_calibration,

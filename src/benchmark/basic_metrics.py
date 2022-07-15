@@ -1,4 +1,4 @@
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from typing import List, Callable, Optional, Dict, Tuple, Set, cast
 from urllib.parse import unquote
 from functools import partial
@@ -555,7 +555,18 @@ class BasicMetric(Metric):
         - correct_rank: if we sort references by their logprobs, what is the ranking of the first correct reference.
         """
         # TODO: https://github.com/stanford-crfm/benchmarking/issues/45
-        def compute_logprob_and_length(request_state: RequestState) -> Tuple[float, int]:
+
+        @dataclass(frozen=True)
+        class ReferenceKey:
+            reference_index: int  # index of the reference
+            request_mode: str  # "original" or "calibration"
+
+        @dataclass(frozen=True)
+        class ReferenceStat:
+            logprob: float  # sum of logprobs for all tokens in the reference
+            num_tokens: int  # number of tokens in the reference
+
+        def compute_logprob_and_length(request_state: RequestState) -> ReferenceStat:
             """Compute the logprob and length for the only completion from the request_state."""
             assert request_state.reference_index is not None
             assert request_state.result is not None
@@ -580,7 +591,7 @@ class BasicMetric(Metric):
             logprob = sum(token.logprob for token in answer_tokens)
             num_tokens = len(answer_tokens)
 
-            return logprob, num_tokens
+            return ReferenceStat(logprob, num_tokens)
 
         references = reference_request_states[0].instance.references
         assert all(
@@ -591,20 +602,23 @@ class BasicMetric(Metric):
         ]
         num_choices = len(references)
 
-        reference_stats: Dict[Tuple[int, str], Tuple[float, int]] = {}
+        reference_stats: Dict[ReferenceKey, ReferenceStat] = {}
         for request_state in reference_request_states:
             assert request_state.reference_index is not None and request_state.request_mode is not None
-            reference_stats[(request_state.reference_index, request_state.request_mode)] = compute_logprob_and_length(
-                request_state
-            )
+            reference_key = ReferenceKey(request_state.reference_index, request_state.request_mode)
+            reference_stats[reference_key] = compute_logprob_and_length(request_state)
 
         if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
             reference_scores = [
-                reference_stats[(i, "original")][0] / reference_stats[(i, "original")][1] for i in range(num_choices)
+                reference_stats[ReferenceKey(i, "original")].logprob
+                / reference_stats[ReferenceKey(i, "original")].num_tokens
+                for i in range(num_choices)
             ]
         elif adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED:
             reference_scores = [
-                reference_stats[(i, "original")][0] - reference_stats[(i, "calibration")][0] for i in range(num_choices)
+                reference_stats[ReferenceKey(i, "original")].logprob
+                - reference_stats[ReferenceKey(i, "calibration")].logprob
+                for i in range(num_choices)
             ]
         else:
             raise ValueError(f"Unknown adapter method: {adapter_spec.method}")
