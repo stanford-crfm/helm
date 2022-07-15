@@ -43,7 +43,7 @@ models=(
   # "openai/code-davinci-002"
   "openai/code-cushman-001"
   "gooseai/gpt-j-6b"
-  # "gooseai/gpt-neo-20b"
+  "gooseai/gpt-neo-20b"
   "anthropic/stanford-online-all-v4-s3"
   "microsoft/TNLGv2_530B"
 )
