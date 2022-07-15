@@ -1,4 +1,4 @@
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from typing import List, Callable, Optional, Dict, Tuple, Set, cast
 from urllib.parse import unquote
 from functools import partial
@@ -16,6 +16,8 @@ from rouge_score import rouge_scorer
 from common.hierarchical_logger import hlog
 from common.request import Token
 from . import code_metrics_helper
+from benchmark.scenario import CORRECT_TAG
+from benchmark.adapter import ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED
 from benchmark.tokenizer.tokenizer import Tokenizer
 from benchmark.tokenizer.tokenizer_factory import TokenizerFactory
 from benchmark.tokenizer.tokenizer_service import TokenizerService
@@ -553,4 +555,76 @@ class BasicMetric(Metric):
         - correct_rank: if we sort references by their logprobs, what is the ranking of the first correct reference.
         """
         # TODO: https://github.com/stanford-crfm/benchmarking/issues/45
-        return []
+
+        @dataclass(frozen=True)
+        class ReferenceKey:
+            reference_index: int  # index of the reference
+            request_mode: str  # "original" or "calibration"
+
+        @dataclass(frozen=True)
+        class ReferenceStat:
+            logprob: float  # sum of logprobs for all tokens in the reference
+            num_tokens: int  # number of tokens in the reference
+
+        def compute_logprob_and_length(request_state: RequestState) -> ReferenceStat:
+            """Compute the logprob and length for the only completion from the request_state."""
+            assert request_state.reference_index is not None
+            assert request_state.result is not None
+            assert len(request_state.result.completions) == 1
+
+            reference_index = request_state.reference_index
+            sequence = request_state.result.completions[0]
+            reference = request_state.instance.references[reference_index].output
+
+            # Find the span of the completion that matches the reference.
+            answer_length = 0
+            answer_tokens: List[Token] = []
+            for token in sequence.tokens[::-1]:
+                if answer_length >= len(reference):
+                    break
+                answer_tokens.insert(0, token)
+                answer_length += len(token.text)
+            assert (
+                "".join([token.text for token in answer_tokens]).lstrip() == reference
+            )  # make sure the span finding is correct (TODO: whether using the detokenizer function rather than join)
+
+            logprob = sum(token.logprob for token in answer_tokens)
+            num_tokens = len(answer_tokens)
+
+            return ReferenceStat(logprob, num_tokens)
+
+        references = reference_request_states[0].instance.references
+        assert all(
+            [references == request_state.instance.references for request_state in reference_request_states]
+        )  # all request_state in reference_request_states should have same references
+        answers = [
+            reference_index for reference_index, reference in enumerate(references) if CORRECT_TAG in reference.tags
+        ]
+        num_choices = len(references)
+
+        reference_stats: Dict[ReferenceKey, ReferenceStat] = {}
+        for request_state in reference_request_states:
+            assert request_state.reference_index is not None and request_state.request_mode is not None
+            reference_key = ReferenceKey(request_state.reference_index, request_state.request_mode)
+            reference_stats[reference_key] = compute_logprob_and_length(request_state)
+
+        if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
+            reference_scores = [
+                reference_stats[ReferenceKey(i, "original")].logprob
+                / reference_stats[ReferenceKey(i, "original")].num_tokens
+                for i in range(num_choices)
+            ]
+        elif adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED:
+            reference_scores = [
+                reference_stats[ReferenceKey(i, "original")].logprob
+                - reference_stats[ReferenceKey(i, "calibration")].logprob
+                for i in range(num_choices)
+            ]
+        else:
+            raise ValueError(f"Unknown adapter method: {adapter_spec.method}")
+
+        answer_scores = [reference_scores[i] for i in answers]
+
+        return [
+            Stat(MetricName("accuracy")).add(float(max(reference_scores) == max(answer_scores))),
+        ]

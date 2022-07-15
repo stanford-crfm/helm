@@ -6,16 +6,16 @@ from common.object_spec import ObjectSpec
 from .adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
-    ADAPT_MULTIPLE_CHOICE,
+    ADAPT_MULTIPLE_CHOICE_JOINT,
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_GENERATION,
-    ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
 )
 from .metric import MetricSpec
 from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenario import ScenarioSpec
 
-from .commonsense_scenario import MULTI_CHOICE_QUESTION_ANSWERING_METHOD, CAUSAL_LANGUAGE_MODELING_METHOD
 from .msmarco_scenario import MSMARCOScenario
 from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .raft_scenario import get_raft_instructions
@@ -62,10 +62,6 @@ def get_bbq_metrics() -> List[MetricSpec]:
         MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={}),
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
-
-
-def get_commonsense_metrics(args: Dict[str, Any]) -> List[MetricSpec]:
-    return [MetricSpec(class_name="benchmark.commonsense_metrics.CommonSenseMetric", args=args)]
 
 
 def get_msmarco_metrics(task: str, track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:
@@ -210,7 +206,7 @@ def get_bbq_spec(subject: str) -> RunSpec:
         return subject
 
     adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE,
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="The following are multiple choice questions (with answers).",
         input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
@@ -354,7 +350,7 @@ def get_mmlu_spec(subject: str) -> RunSpec:
         return subject.replace("_", " ")
 
     adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE,
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions=f"The following are multiple choice questions (with answers) about {format(subject)}.",
         input_prefix="Question: ",
         output_prefix="\nAnswer: ",
@@ -403,6 +399,7 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
 
 
 def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
+
     # Decide on groups
     dataset_to_groups: Dict[str, List[str]] = {
         "hellaswag": ["HellaSwag"],
@@ -410,13 +407,11 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
         "commonsenseqa": ["CommonsenseQA"],
     }
 
-    scenario = ScenarioSpec(
-        class_name="benchmark.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset, "method": method,},
-    )
+    scenario = ScenarioSpec(class_name="benchmark.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset},)
 
-    if method == MULTI_CHOICE_QUESTION_ANSWERING_METHOD:
+    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
         adapter_spec = AdapterSpec(
-            method=ADAPT_MULTIPLE_CHOICE,
+            method=method,
             instructions="The following are multiple choice questions (with answers) about common sense.",
             input_prefix="Question: ",
             output_prefix="\nAnswer: ",
@@ -435,15 +430,14 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
             groups=dataset_to_groups[dataset],
         )
-    elif method == CAUSAL_LANGUAGE_MODELING_METHOD:
-        n_choice = {"hellaswag": 4, "openbookqa": 4, "commonsenseqa": 5, "piqa": 2, "siqa": 3,}[dataset]
+    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
         adapter_spec = AdapterSpec(
-            method=ADAPT_LANGUAGE_MODELING,
+            method=method,
             instructions="",
             input_prefix="",
-            output_prefix="",
+            output_prefix=" ",
             max_train_instances=0,  # Appropriate for CLM approach
-            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES * n_choice * 2,
+            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
             num_outputs=1,
             max_tokens=0,
             num_train_trials=1,
@@ -454,7 +448,7 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             name=f"commonsense:dataset={dataset},method={method}",
             scenario=scenario,
             adapter_spec=adapter_spec,
-            metrics=get_commonsense_metrics({"n_choice": n_choice}),
+            metrics=get_basic_metrics({"names": []}),
             groups=dataset_to_groups[dataset],
         )
     else:
@@ -517,7 +511,7 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.truthful_qa_scenario.TruthfulQAScenario", args={"task": task},)
 
     adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE,
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="",
         input_prefix="Question: ",
         output_prefix="\nAnswer: ",
@@ -810,7 +804,7 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.lsat_qa_scenario.LSATScenario", args={"task": task})
 
     adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE,
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="The following are multiple choice questions (with answers).",
         input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
@@ -1239,10 +1233,10 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon})
 
     adapter_spec = AdapterSpec(
-        method=ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
+        method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
         instructions="",
         input_prefix="",
-        output_prefix="",
+        output_prefix=" ",
         max_train_instances=0,
         max_eval_instances=None,
         num_outputs=1,
@@ -1419,7 +1413,7 @@ def get_legal_support_spec() -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.legal_support_scenario.LegalSupportScenario", args={},)
 
     adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE,
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="Which statement best supports the passage?",
         input_prefix="Passage: ",
         output_prefix="\nAnswer: ",
