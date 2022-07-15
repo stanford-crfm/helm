@@ -78,7 +78,7 @@ scenarioGroups:
     split: valid
     stat_names:
       - quasi_exact_match
-  class_name: benchmark.truthful_qa_scenario.TruthfulQAScenario\
+  class_name: benchmark.truthful_qa_scenario.TruthfulQAScenario
 - name: MMLU
   display:
     k: null
@@ -103,14 +103,14 @@ scenarioGroups:
 - name: Entity matching
   display:
     k: null
-    split: test
+    split: valid
     stat_names:
       - quasi_exact_match
   class_name: benchmark.entity_matching_scenario.EntityMatchingScenario
 - name: Data imputation
   display:
     k: null
-    split: test
+    split: valid
     stat_names:
       - quasi_exact_match
   class_name: benchmark.entity_data_imputation_scenario.EntityDataImputationScenario
@@ -131,7 +131,7 @@ scenarioGroups:
 - name: WikiFact
   display:
     k: null
-    split: test
+    split: valid
     stat_names:
       - absolute_value_difference
   class_name: benchmark.wikifact_scenario.WIKIFactScenario
@@ -320,7 +320,7 @@ scenarioGroups:
 - name: CommonsenseQA
   display:
     k: null
-    split: test
+    split: valid
     stat_names:
       - quasi_exact_match
   class_name: benchmark.commonsense_scenario.CommonSenseScenario
