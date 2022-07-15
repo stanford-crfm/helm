@@ -3,7 +3,7 @@ import os
 from typing import List
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, TEST_SPLIT
+from .scenario import CORRECT_TAG, Reference, Scenario, Instance, TEST_SPLIT
 
 
 class BLiMPScenario(Scenario):
@@ -136,12 +136,13 @@ class BLiMPScenario(Scenario):
                     # "simple_LM_method": true, "one_prefix_method": false, "two_prefix_method": false,
                     # "lexically_identical": true, "pairID": "0"}
                     example = json.loads(line)
-                    instance_good = Instance(
-                        input=example["sentence_good"], references=[], split=TEST_SPLIT, sub_split="good"
+                    instance = Instance(
+                        input="",
+                        references=[
+                            Reference(output=example["sentence_good"], tags=[CORRECT_TAG]),
+                            Reference(output=example["sentence_bad"], tags=[]),
+                        ],
+                        split=TEST_SPLIT,
                     )
-                    instances.append(instance_good)
-                    instance_bad = Instance(
-                        input=example["sentence_bad"], references=[], split=TEST_SPLIT, sub_split="bad"
-                    )
-                    instances.append(instance_bad)
+                    instances.append(instance)
         return instances

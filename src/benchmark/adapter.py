@@ -1,6 +1,6 @@
 import random
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from itertools import cycle
 from typing import List, Dict, Tuple, Optional, Union
 from collections import defaultdict, OrderedDict
@@ -19,9 +19,10 @@ from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"
-ADAPT_MULTIPLE_CHOICE = "multiple_choice"
+ADAPT_MULTIPLE_CHOICE_JOINT = "multiple_choice_joint"
+ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL = "multiple_choice_separate_original"
+ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED = "multiple_choice_separate_calibrated"
 ADAPT_GENERATION = "generation"
-ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS = "language_modeling_minimal_pairs"
 
 
 @dataclass(frozen=True)
@@ -94,6 +95,10 @@ class RequestState:
 
     # Which reference of the instance we're evaluating (if any)
     reference_index: Optional[int]
+
+    # Which request mode ("original" or "calibration") of the instance we're evaluating (if any)
+    # (for ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED)
+    request_mode: Optional[str]
 
     # Which training set this request is for
     train_trial_index: int
@@ -267,45 +272,28 @@ class Adapter:
         eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
         if self.adapter_spec.max_eval_instances is not None:
             np.random.seed(0)
-            if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS:
-                # For minimal pair scenarios, we need to make sure both instances in a minimal pair are sampled.
-                # Therefore, we use the index of the first instance in each pair (even_id) as pair id to
-                # sample minimal pairs instead of sampling individual instances.
-                max_eval_instances: int = self.adapter_spec.max_eval_instances
-                if max_eval_instances % 2 != 0:
-                    max_eval_instances -= 1
-                    hlog(f"max_eval_instances is odd. Set max_eval_instances to {max_eval_instances} instead")
 
-                even_ids = list(range(0, len(eval_instances), 2))
-                if len(even_ids) > max_eval_instances // 2:
-                    even_ids = list(np.random.choice(even_ids, max_eval_instances // 2, replace=False))
-                sampled_eval_instances = []
-                for even_id in even_ids:
-                    sampled_eval_instances.append(eval_instances[even_id])
-                    sampled_eval_instances.append(eval_instances[even_id + 1])
-                eval_instances = sampled_eval_instances
-            else:
-                # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
-                # number of instances, so we can include all the perturbed versions of the instances
-                # we choose in the eval set.
-                id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
-                for instance in eval_instances:
-                    if instance.id in id_to_instances:
-                        id_to_instances[instance.id].append(instance)
-                    else:
-                        id_to_instances[instance.id] = [instance]
+            # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
+            # number of instances, so we can include all the perturbed versions of the instances
+            # we choose in the eval set.
+            id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
+            for instance in eval_instances:
+                if instance.id in id_to_instances:
+                    id_to_instances[instance.id].append(instance)
+                else:
+                    id_to_instances[instance.id] = [instance]
 
-                # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
-                # include all their instances in the final set of eval instances.
-                # The random sampling includes instances monotonically.
-                ids = list(id_to_instances.keys())
-                if len(ids) > self.adapter_spec.max_eval_instances:
-                    ids = list(
-                        np.random.choice(ids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
-                    )
-                eval_instances = []
-                for id_ in ids:
-                    eval_instances.extend(id_to_instances[id_])
+            # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
+            # include all their instances in the final set of eval instances.
+            # The random sampling includes instances monotonically.
+            ids = list(id_to_instances.keys())
+            if len(ids) > self.adapter_spec.max_eval_instances:
+                ids = list(
+                    np.random.choice(ids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
+                )
+            eval_instances = []
+            for id_ in ids:
+                eval_instances.extend(id_to_instances[id_])
 
         hlog(
             f"{len(instances)} instances, "
@@ -314,14 +302,11 @@ class Adapter:
         )
 
         # Accumulate all the request states due to adaptation
-        request_states: List[RequestState] = []
+        all_request_states: List[RequestState] = []
 
-        if (
-            self.adapter_spec.method == ADAPT_LANGUAGE_MODELING
-            or self.adapter_spec.method == ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS
-        ):
+        if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
             # Use the LM-specific method to adapt LM scenarios
-            request_states = self.adapt_language_modeling(eval_instances)
+            all_request_states = self.adapt_language_modeling(eval_instances)
         else:
             for train_trial_index in range(self.adapter_spec.num_train_trials):
                 train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
@@ -329,25 +314,14 @@ class Adapter:
                 # Create request_states
                 for eval_index, eval_instance in enumerate(eval_instances):
                     start_time: float = time.time()
-                    prompt: str = self.construct_prompt(train_instances, eval_instance)
-                    construct_prompt_elapsed_time: float = time.time() - start_time
-
-                    hlog(
-                        f"trial {train_trial_index}: construct_prompt {eval_index} (total {len(eval_instances)}): "
-                        f"len(prompt) = {len(prompt)} ({construct_prompt_elapsed_time:.3f}s)"
-                    )
-
-                    # Just print one prompt (useful for debugging)
-                    if train_trial_index == 0 and eval_index == 0:
-                        with htrack_block("Sample prompt"):
-                            for line in prompt.split("\n"):
-                                hlog(line)
 
                     # Define the request
                     method = self.adapter_spec.method
 
                     if method == ADAPT_GENERATION:
-                        output_mapping = None
+                        prompt = self.construct_prompt(
+                            train_instances, eval_instance, include_output=False, reference_index=None
+                        )
                         request = Request(
                             model=self.adapter_spec.model,
                             prompt=prompt,
@@ -356,7 +330,21 @@ class Adapter:
                             max_tokens=self.adapter_spec.max_tokens,
                             stop_sequences=self.adapter_spec.stop_sequences,
                         )
-                    elif method == ADAPT_MULTIPLE_CHOICE:
+                        request_states = [
+                            RequestState(
+                                instance=eval_instance,
+                                reference_index=None,
+                                request_mode=None,
+                                train_trial_index=train_trial_index,
+                                output_mapping=None,
+                                request=request,
+                                result=None,
+                            )
+                        ]
+                    elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
+                        prompt = self.construct_prompt(
+                            train_instances, eval_instance, include_output=False, reference_index=None
+                        )
                         output_mapping = dict(
                             (self.get_reference_prefix("A", reference_index), reference.output)
                             for reference_index, reference in enumerate(eval_instance.references)
@@ -370,21 +358,104 @@ class Adapter:
                             max_tokens=1,
                             stop_sequences=[],
                         )
+                        request_states = [
+                            RequestState(
+                                instance=eval_instance,
+                                reference_index=None,
+                                request_mode=None,
+                                train_trial_index=train_trial_index,
+                                output_mapping=output_mapping,
+                                request=request,
+                                result=None,
+                            )
+                        ]
+                    elif self.adapter_spec.method in [
+                        ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+                        ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+                    ]:
+                        request_states = []
+                        for reference_index, reference in enumerate(eval_instance.references):
+                            # Explanation for request_modes:
+                            # - ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL: each answer choice sentence is
+                            # scored independently, where the score is the sentence probability
+                            # normalized by sentence length.
+                            # - ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED: each answer choice sentence is
+                            # scored independently, where the score is the sentence probability
+                            # normalized by the unconditional sentence probability.
+                            # Details refer to Section 2.4 of GPT-3 paper (https://arxiv.org/pdf/2005.14165.pdf))
+                            if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
+                                request_modes = ["original"]
+                            elif self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED:
+                                request_modes = ["original", "calibration"]
+                            else:
+                                raise ValueError(f"Unknown adapter method: {self.adapter_spec.method}")
+
+                            for request_mode in request_modes:
+                                if request_mode == "original":
+                                    prompt = self.construct_prompt(
+                                        train_instances,
+                                        eval_instance,
+                                        include_output=True,
+                                        reference_index=reference_index,
+                                    )
+                                elif request_mode == "calibration":
+                                    # For calibration purpose, we compute the logprobs of the reference
+                                    # without train instances and the input question.
+                                    eval_instance_calibration = replace(eval_instance, input="Answer:")
+                                    prompt = self.construct_prompt(
+                                        [],
+                                        eval_instance_calibration,
+                                        include_output=True,
+                                        reference_index=reference_index,
+                                    )
+                                else:
+                                    raise ValueError(f"Unknown request mode: {request_mode}")
+                                request = Request(
+                                    model=self.adapter_spec.model,
+                                    prompt=prompt,
+                                    num_completions=1,
+                                    temperature=0,
+                                    max_tokens=0,
+                                    stop_sequences=[],
+                                    echo_prompt=True,
+                                )
+                                request_state = RequestState(
+                                    instance=eval_instance,
+                                    reference_index=reference_index,
+                                    request_mode=request_mode,
+                                    train_trial_index=train_trial_index,
+                                    output_mapping=None,
+                                    request=request,
+                                    result=None,
+                                )
+                                request_states.append(request_state)
                     else:
                         raise ValueError(f"Invalid method: {method}")
 
-                    request_state = RequestState(
-                        instance=eval_instance,
-                        reference_index=None,
-                        train_trial_index=train_trial_index,
-                        output_mapping=output_mapping,
-                        request=request,
-                        result=None,
-                    )
-                    request_states.append(request_state)
+                    construct_requests_elapsed_time: float = time.time() - start_time
 
-        hlog(f"{len(request_states)} requests")
-        return ScenarioState(self.adapter_spec, request_states)
+                    hlog(
+                        f"trial {train_trial_index}: construct_requests {eval_index} (total {len(eval_instances)}): "
+                        f"len(requests) = {len(request_states)}, len(prompts) = "
+                        f"{[len(request_state.request.prompt) for request_state in request_states]} "
+                        f"({construct_requests_elapsed_time:.3f}s)"
+                    )
+
+                    # Just print out prompts for one instance (useful for debugging)
+                    if train_trial_index == 0 and eval_index == 0:
+                        with htrack_block("Sample prompts"):
+                            for request_state in request_states:
+                                with htrack_block(
+                                    f"reference index = {request_state.reference_index}, "
+                                    f"request_mode = {request_state.request_mode}"
+                                ):
+                                    for line in request_state.request.prompt.split("\n"):
+                                        hlog(line)
+
+                    all_request_states.extend(request_states)
+
+        hlog(f"{len(all_request_states)} requests")
+        return ScenarioState(self.adapter_spec, all_request_states)
 
     def sample_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
         """
@@ -448,16 +519,24 @@ class Adapter:
         examples += random.sample(unlabeled_instances, num_instances_to_sample)
         return examples
 
-    def construct_prompt(self, train_instances: List[Instance], eval_instance: Instance) -> str:
+    def construct_prompt(
+        self,
+        train_instances: List[Instance],
+        eval_instance: Instance,
+        include_output: bool,
+        reference_index: Optional[int],
+    ) -> str:
         """
         Returns a prompt (string) given:
         - the `self.adapter_spec.instructions`
         - the `train_instances` (in-context training examples)
         - the input part of the `eval_instance`
-        - the `reference` (if provided)
+        - the `reference` if `include_output` is true (if reference_index is not None, the reference
+        at the given index; otherwise, the first correct reference)
 
         Fits the prompt within the context window by removing in-context training examples.
         """
+        assert include_output or reference_index is None
 
         def construct_prompt_helper(train_instances: List[Instance]) -> str:
             # Instructions
@@ -468,9 +547,13 @@ class Adapter:
 
             # In-context training instances
             for instance in train_instances:
-                blocks.append(self.construct_example_prompt(instance, include_output=True))
+                blocks.append(self.construct_example_prompt(instance, include_output=True, reference_index=None))
 
-            blocks.append(self.construct_example_prompt(eval_instance, include_output=False))
+            blocks.append(
+                self.construct_example_prompt(
+                    eval_instance, include_output=include_output, reference_index=reference_index
+                )
+            )
 
             return self.adapter_spec.instance_prefix.join(blocks)
 
@@ -501,14 +584,14 @@ class Adapter:
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
         return self.tokenizer.truncate_from_right(prompt, self.adapter_spec.max_tokens)
 
-    def construct_example_prompt(self, instance: Instance, include_output: bool) -> str:
+    def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
 
         # Input
         result = self.adapter_spec.input_prefix + instance.input
 
         # References (optionally) and output
-        if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE:
+        if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
             # If multiple choice, include the references
             output = "n/a"
             for reference_index, reference in enumerate(instance.references):
@@ -517,9 +600,13 @@ class Adapter:
                 if reference.is_correct and output == "n/a":
                     output = self.get_reference_prefix("A", reference_index)
         else:
-            # Put only the correct reference as the output
-            correct_reference = instance.first_correct_reference
-            output = correct_reference.output if correct_reference is not None else "n/a"
+            if reference_index is None:
+                # Put only the correct reference as the output
+                correct_reference = instance.first_correct_reference
+                output = correct_reference.output if correct_reference is not None else "n/a"
+            else:
+                reference = instance.references[reference_index]
+                output = reference.output
 
         if include_output:
             result += self.adapter_spec.output_prefix + output
@@ -622,8 +709,8 @@ class Adapter:
         """
         request_states: List[RequestState] = []
 
-        max_seq_len: int = self.tokenizer.max_sequence_length
-        max_req_len: int = self.tokenizer.max_request_length
+        max_sequence_length: int = self.tokenizer.max_sequence_length
+        max_request_length: int = self.tokenizer.max_request_length
         prefix_token: str = self.tokenizer.prefix_token
 
         for instance in instances:
@@ -634,19 +721,21 @@ class Adapter:
 
             # Special handling for first window: predict all tokens
             # Example for GPT-3:
-            # Raw token sequence format: [<str_tok1>, <str_tok2>, ..., <byte_tok1>, ...] (total length <= max_seq_len)
-            # Convert it to: [<eot>, <str_tok1>, <str_tok2>, ...](total length <= max_req_len = max_seq_len+1 for GPT-3)
+            # Raw token sequence format: [<str_tok1>, <str_tok2>, ..., <byte_tok1>, ...]
+            # (total length <= max_sequence_length)
+            # Convert it to: [<eot>, <str_tok1>, <str_tok2>, ...]
+            # (total length <= max_req_len = max_sequence_length+1 for GPT-3)
             # Num_conditioning_tokens = 1
             # Example: ["Hello", " world", "bytes:\xe2\x80"] => "<eot>Hello world"
             #
             # Note: There are trailing byte tokens in the raw sequence because some subwords/symbols might translate to
             # multiple tokens (e.g. ’ => ["bytes:\xe2\x80", "bytes:\x99"]) and we chunk documents by token, not by word.
 
-            # Uses `max_seq_len` instead of `max_req_len` here because `prefix_token` will be prepended to the sequence
-            # later. This is the only place where `max_seq_len` is used.
-            first_seq_len = min(max_seq_len, len(tokens))
+            # Uses `max_sequence_length` instead of `max_request_length` here because `prefix_token` will be prepended
+            # to the sequence later. This is the only place where `max_sequence_length` is used.
+            first_seq_len = min(max_sequence_length, len(tokens))
             prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                self.tokenizer.encode(prefix_token).tokens, tokens[:first_seq_len], max_req_len, text
+                self.tokenizer.encode(prefix_token).tokens, tokens[:first_seq_len], max_request_length, text
             )
             request = Request(
                 model=self.adapter_spec.model,
@@ -660,6 +749,7 @@ class Adapter:
             request_state = RequestState(
                 instance=instance,
                 reference_index=None,
+                request_mode=None,
                 train_trial_index=0,
                 output_mapping=None,
                 request=request,
@@ -673,21 +763,21 @@ class Adapter:
                 # Example for GPT-3:
                 # Raw token sequence format:
                 # [<cond_byte1>, ..., <cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, ..., <pred_byte1>, ...]
-                # (total length <= max_req_len = max_seq_len+1 for GPT-3)
+                # (total length <= max_req_len = max_sequence_length+1 for GPT-3)
                 #
                 # Convert it to: [<cond_str_tok1>, <cond_str_tok2>, ..., <pred_str_tok1>, <pred_str_tok2>. ...]
-                # (total length <= max_req_len = max_seq_len+1 for GPT-3)
+                # (total length <= max_req_len = max_sequence_length+1 for GPT-3)
                 #
                 # Example: conditioning_tokens=["bytes:\x99", "Exc"], pred_tokens=["use", " me", "bytes:\xe2\x80"] =>
                 # prompt="Excuse me", num_conditioning_tokens = 1
 
                 # The upper bound is `max_req_len - 1` because there will be at least 1 conditioning tokens.
-                window_pred_len = min(len(tokens) - num_predicted_tokens, max_req_len - 1)
+                window_pred_len = min(len(tokens) - num_predicted_tokens, max_request_length - 1)
                 window_end = num_predicted_tokens + window_pred_len
-                conditioning_tokens = tokens[window_end - max_req_len : num_predicted_tokens]
+                conditioning_tokens = tokens[window_end - max_request_length : num_predicted_tokens]
                 pred_tokens = tokens[num_predicted_tokens:window_end]
                 prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                    conditioning_tokens, pred_tokens, max_req_len, text
+                    conditioning_tokens, pred_tokens, max_request_length, text
                 )
 
                 request = Request(
@@ -702,6 +792,7 @@ class Adapter:
                 request_state = RequestState(
                     instance=instance,
                     reference_index=None,
+                    request_mode=None,
                     train_trial_index=0,
                     output_mapping=None,
                     request=request,

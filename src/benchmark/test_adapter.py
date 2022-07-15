@@ -5,7 +5,7 @@ from typing import List
 from .adapter_service import AdapterService
 from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
 from .run_specs import get_scenario_spec1, get_adapter_spec1
-from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, ADAPT_MULTIPLE_CHOICE, Adapter, AdapterSpec
+from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, ADAPT_MULTIPLE_CHOICE_JOINT, Adapter, AdapterSpec
 from common.authentication import Authentication
 from proxy.server_service import ServerService
 
@@ -37,7 +37,9 @@ class TestAdapter:
         correct_reference = Reference(output="", tags=[CORRECT_TAG])
         train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(2049)]
         eval_instances = Instance(input="eval", references=[])
-        prompt: str = adapter.construct_prompt(train_instances, eval_instances)
+        prompt: str = adapter.construct_prompt(
+            train_instances, eval_instances, include_output=False, reference_index=None
+        )
 
         # Ensure the prompt fits within the context window
         assert adapter.tokenizer.fits_within_context_window(prompt)
@@ -53,7 +55,9 @@ class TestAdapter:
         correct_reference = Reference(output="", tags=[CORRECT_TAG])
         train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(100)]
         eval_instances = Instance(input="eval" * 2049, references=[])
-        prompt: str = adapter.construct_prompt(train_instances, eval_instances)
+        prompt: str = adapter.construct_prompt(
+            train_instances, eval_instances, include_output=False, reference_index=None
+        )
 
         # Ensure the prompt fits within the context window
         assert adapter.tokenizer.fits_within_context_window(prompt)
@@ -82,7 +86,7 @@ class TestAdapter:
         assert num_conditioning_tokens == 1
 
     def test_sample_examples(self):
-        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE, max_train_instances=4)
+        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, max_train_instances=4)
         adapter = Adapter(adapter_spec, self.adapter_service)
         all_train_instances = [
             Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
@@ -102,13 +106,13 @@ class TestAdapter:
         assert examples[3].input == "say yes3"
 
     def test_sample_examples_no_train_instances(self):
-        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE, max_train_instances=2)
+        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, max_train_instances=2)
         adapter = Adapter(adapter_spec, self.adapter_service)
         examples = adapter.sample_examples(all_train_instances=[], seed=0)
         assert len(examples) == 0
 
     def test_sample_examples_greater_max_train_instances(self):
-        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE, max_train_instances=10)
+        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, max_train_instances=10)
         adapter = Adapter(adapter_spec, self.adapter_service)
         all_train_instances = [
             Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
