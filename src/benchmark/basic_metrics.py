@@ -13,7 +13,6 @@ from nltk.translate.bleu_score import sentence_bleu
 import numpy as np
 from rouge_score import rouge_scorer
 
-from common.general import singleton
 from common.hierarchical_logger import hlog
 from common.request import Token
 from . import code_metrics_helper
@@ -557,7 +556,7 @@ class BasicMetric(Metric):
         """
         # TODO: https://github.com/stanford-crfm/benchmarking/issues/45
         def compute_logprob_and_length(request_state: RequestState) -> Tuple[float, int]:
-            """Compute the logprob and length for the completion."""
+            """Compute the logprob and length for the only completion from the request_state."""
             assert request_state.reference_index is not None
             assert request_state.result is not None
             assert len(request_state.result.completions) == 1
@@ -576,7 +575,7 @@ class BasicMetric(Metric):
                 answer_length += len(token.text)
             assert (
                 "".join([token.text for token in answer_tokens]).lstrip() == reference
-            )  # make sure the span finding is correct
+            )  # make sure the span finding is correct (TODO: whether using the detokenizer function rather than join)
 
             logprob = sum(token.logprob for token in answer_tokens)
             num_tokens = len(answer_tokens)
@@ -590,7 +589,6 @@ class BasicMetric(Metric):
         answers = [
             reference_index for reference_index, reference in enumerate(references) if CORRECT_TAG in reference.tags
         ]
-        answer = singleton(answers)
         num_choices = len(references)
 
         reference_stats: Dict[Tuple[int, str], Tuple[float, int]] = {}
@@ -611,6 +609,8 @@ class BasicMetric(Metric):
         else:
             raise ValueError(f"Unknown adapter method: {adapter_spec.method}")
 
+        answer_scores = [reference_scores[i] for i in answers]
+
         return [
-            Stat(MetricName("accuracy")).add(float(max(reference_scores) == reference_scores[answer])),
+            Stat(MetricName("accuracy")).add(float(max(reference_scores) == max(answer_scores))),
         ]

@@ -98,6 +98,7 @@ class RequestState:
     reference_index: Optional[int]
 
     # Which request mode ("original" or "calibration") of the instance we're evaluating (if any)
+    # (for ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED)
     request_mode: Optional[str]
 
     # Which training set this request is for
@@ -320,7 +321,7 @@ class Adapter:
 
                     if method == ADAPT_GENERATION:
                         prompt = self.construct_prompt(
-                            train_instances, eval_instance, include_output=False, output_index=None
+                            train_instances, eval_instance, include_output=False, reference_index=None
                         )
                         request = Request(
                             model=self.adapter_spec.model,
@@ -343,7 +344,7 @@ class Adapter:
                         ]
                     elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
                         prompt = self.construct_prompt(
-                            train_instances, eval_instance, include_output=False, output_index=None
+                            train_instances, eval_instance, include_output=False, reference_index=None
                         )
                         output_mapping = dict(
                             (self.get_reference_prefix("A", reference_index), reference.output)
@@ -375,6 +376,14 @@ class Adapter:
                     ]:
                         request_states = []
                         for reference_index, reference in enumerate(eval_instance.references):
+                            # Explanation for request_modes:
+                            # - ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL: each answer choice sentence is
+                            # scored independently, where the score is the sentence probability
+                            # normalized by sentence length.
+                            # - ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED: each answer choice sentence is
+                            # scored independently, where the score is the sentence probability
+                            # normalized by the unconditional sentence probability.
+                            # Details refer to Section 2.4 of GPT-3 paper (https://arxiv.org/pdf/2005.14165.pdf))
                             if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
                                 request_modes = ["original"]
                             elif self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED:
@@ -388,17 +397,20 @@ class Adapter:
                                         train_instances,
                                         eval_instance,
                                         include_output=True,
-                                        output_index=reference_index,
+                                        reference_index=reference_index,
                                     )
                                 elif request_mode == "calibration":
                                     # For calibration purpose, we compute the logprobs of the reference
-                                    # without the input question.
+                                    # without train instances and the input question.
                                     eval_instance_dict = copy.deepcopy(eval_instance.__dict__)
                                     eval_instance_dict["input"] = "Answer:"
                                     eval_instance_calibration = Instance(**eval_instance_dict)
                                     prompt = self.construct_prompt(
-                                        [], eval_instance_calibration, include_output=True, output_index=reference_index
-                                    )  # TODO: whether to include the train_instances for calibration?
+                                        [],
+                                        eval_instance_calibration,
+                                        include_output=True,
+                                        reference_index=reference_index,
+                                    )
                                 else:
                                     raise ValueError(f"Unknown request mode: {request_mode}")
                                 request = Request(
@@ -432,12 +444,16 @@ class Adapter:
                         f"({construct_requests_elapsed_time:.3f}s)"
                     )
 
-                    # Just print one prompt (useful for debugging)
+                    # Just print out prompts for one instance (useful for debugging)
                     if train_trial_index == 0 and eval_index == 0:
                         with htrack_block("Sample prompts"):
                             for request_state in request_states:
-                                for line in request_state.request.prompt.split("\n"):
-                                    hlog(line)
+                                with htrack_block(
+                                    f"reference index = {request_state.reference_index}, "
+                                    f"request_mode = {request_state.request_mode}"
+                                ):
+                                    for line in request_state.request.prompt.split("\n"):
+                                        hlog(line)
 
                     all_request_states.extend(request_states)
 
@@ -511,18 +527,19 @@ class Adapter:
         train_instances: List[Instance],
         eval_instance: Instance,
         include_output: bool,
-        output_index: Optional[int],
+        reference_index: Optional[int],
     ) -> str:
         """
         Returns a prompt (string) given:
         - the `self.adapter_spec.instructions`
         - the `train_instances` (in-context training examples)
         - the input part of the `eval_instance`
-        - the `reference` (if provided)
+        - the `reference` if `include_output` is true (if reference_index is not None, the reference
+        at the given index; otherwise, the first correct reference)
 
         Fits the prompt within the context window by removing in-context training examples.
         """
-        assert include_output or output_index is None
+        assert include_output or reference_index is None
 
         def construct_prompt_helper(train_instances: List[Instance]) -> str:
             # Instructions
@@ -533,10 +550,12 @@ class Adapter:
 
             # In-context training instances
             for instance in train_instances:
-                blocks.append(self.construct_example_prompt(instance, include_output=True, output_index=None))
+                blocks.append(self.construct_example_prompt(instance, include_output=True, reference_index=None))
 
             blocks.append(
-                self.construct_example_prompt(eval_instance, include_output=include_output, output_index=output_index)
+                self.construct_example_prompt(
+                    eval_instance, include_output=include_output, reference_index=reference_index
+                )
             )
 
             return self.adapter_spec.instance_prefix.join(blocks)
@@ -568,7 +587,7 @@ class Adapter:
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
         return self.tokenizer.truncate_from_right(prompt, self.adapter_spec.max_tokens)
 
-    def construct_example_prompt(self, instance: Instance, include_output: bool, output_index: Optional[int]) -> str:
+    def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
 
         # Input
@@ -584,12 +603,12 @@ class Adapter:
                 if reference.is_correct and output == "n/a":
                     output = self.get_reference_prefix("A", reference_index)
         else:
-            if output_index is None:
+            if reference_index is None:
                 # Put only the correct reference as the output
                 correct_reference = instance.first_correct_reference
                 output = correct_reference.output if correct_reference is not None else "n/a"
             else:
-                reference = instance.references[output_index]
+                reference = instance.references[reference_index]
                 output = reference.output
 
         if include_output:
