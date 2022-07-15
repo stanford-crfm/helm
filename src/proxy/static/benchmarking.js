@@ -461,18 +461,19 @@ $(function () {
     // TODO document and clean up.
     // Result is an object where each value is a list of stats that can be averaged.
     // TODO we should probably keep track of stddev.
-    const displayStat = displayStatArr.reduce((r, obj) => {
-      Object.keys(obj).forEach((key) => {
-        r[key] = r[key] || [];
-        r[key] = r[key].concat(obj[key]);
-      });
-      return r;
-    }, {});
+    var combinedDisplayStats = {};
+    for (const displayStat of displayStatArr) {
+      console.log(displayStat);
+      for (statName in displayStat) {
+        combinedDisplayStats[statName] = combinedDisplayStats[statName] || [];
+        combinedDisplayStats[statName] = combinedDisplayStats[statName].concat(displayStat[statName]);
+      };
+    };
     // Average the stats.
     const result = {}
-    Object.keys(displayStat).forEach(key => {
-      const numStats = displayStat[key].length;
-      const sumMean = displayStat[key].map(stat => stat.mean).reduce((acc, val) => {
+    Object.keys(combinedDisplayStats).forEach(key => {
+      const numStats = combinedDisplayStats[key].length;
+      const sumMean = combinedDisplayStats[key].map(stat => stat.mean).reduce((acc, val) => {
         acc += val;
         return acc;
       }, 0);
@@ -617,6 +618,8 @@ $(function () {
 
   function renderScenarioGroups(scenarioGroups, runs) {
     // TODO Add explainer.
+    // TODO refactor and clean up the scenario group computation
+    //      TODO add scenario tables
     // Output all the stats/run that are shown in the table in a list so that the user can double
     // check the stats / click on the runs.
 
