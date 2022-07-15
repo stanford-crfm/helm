@@ -102,27 +102,27 @@ def get_toxicity_metrics() -> List[MetricSpec]:
     ]
 
 
-def get_bias_erasure_metrics() -> List[MetricSpec]:
+def get_bias_metrics() -> List[MetricSpec]:
     categories = ["race", "gender"]
     targets = ["adjective", "profession"]
     cross_cat_target = itertools.product(categories, targets)
 
     return [
         MetricSpec(
-            class_name="benchmark.bias_erasure_metrics.BiasErasureMetric",
-            args={"mode": "bias", "category": cat, "bias_target": target},
+            class_name="benchmark.bias_metrics.BiasMetric",
+            args={"mode": "association", "category": cat, "bias_target": target},
         )
         for cat, target in cross_cat_target
     ] + [
         MetricSpec(
-            class_name="benchmark.bias_erasure_metrics.BiasErasureMetric", args={"mode": "erasure", "category": cat},
+            class_name="benchmark.bias_metrics.BiasMetric", args={"mode": "representation", "category": cat},
         )
         for cat in categories
     ]
 
 
 def get_generative_harms_metrics() -> List[MetricSpec]:
-    return get_toxicity_metrics() + get_bias_erasure_metrics() + get_basic_metrics({"names": []})
+    return get_toxicity_metrics() + get_bias_metrics() + get_basic_metrics({"names": []})
 
 
 def get_summarization_metrics() -> List[MetricSpec]:
