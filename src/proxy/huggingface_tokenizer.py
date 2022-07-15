@@ -20,7 +20,12 @@ class HuggingFaceTokenizers:
         def load_tokenizer(load_method: Any, hf_tokenizer_name: str):
             """Loads tokenizer using files from disk if they exist. Otherwise, downloads from HuggingFace."""
             try:
-                # "local_files_only(defaults to False) — Whether or not to only look at local files"
+                # From the HuggingFace documentation, "local_files_only(defaults to False) —
+                # Whether or not to only look at local files".
+                # Running `local_files_only=False` requires an internet connection even if the files are downloaded
+                # and cached. We need to first run with `local_files_only=True` just in case the machine
+                # we are running this code has connection issues. If the tokenizer files are not cached,
+                # we attempt to download them from HuggingFace.
                 return load_method(hf_tokenizer_name, local_files_only=True)
             except OSError:
                 hlog(f"Local files do not exist for HuggingFace tokenizer: {hf_tokenizer_name}. Downloading...")
