@@ -3,41 +3,32 @@ from typing import Dict
 
 from sqlitedict import SqliteDict
 
-from common.cache import key_to_request, request_to_key
+from common.cache import key_to_request
 from common.hierarchical_logger import hlog, htrack
 
 """
-Script to add completion_index to the keys of SQLiteDict.
+Remove entries in the Anthropic cache with `stop=[]`.
 
 Usage:
 
-    python3 scripts/add_completion_index_to_cache.py -p prod_env/cache/anthropic.sqlite
-    python3 scripts/add_completion_index_to_cache.py -p prod_env/cache/microsoft.sqlite
+    python3 scripts/one_off/fix_anthropic_cache.py -p prod_env/cache/anthropic.sqlite
 
 """
 
 
-@htrack("Add default completion_index to every key")
-def add_completion_index(cache_path: str, dry_run: bool):
-    cache_copy = dict()
-
+@htrack("Removing entries in the Anthropic cache with `stop=[]`.")
+def fix(cache_path: str, dry_run: bool):
     with SqliteDict(cache_path) as cache:
         hlog(f"Found {len(cache)} entries at {cache_path}.")
 
+        count: int = 0
         for key, response in cache.items():
-            # Construct the new key with completion_index=0
             request: Dict = key_to_request(key)
-            request["completion_index"] = 0
-            new_key: str = request_to_key(request)
-            cache_copy[new_key] = response
+            if request["stop"] == []:
+                del cache[key]
+                count += 1
 
-            # Remove the old entry
-            del cache[key]
-
-        for key, response in cache_copy.items():
-            cache[key] = response
-        hlog(f"Modified {len(cache)} entries.")
-
+        hlog(f"Deleting {count} entries...")
         if not dry_run:
             # Write to SQLite
             cache.commit()
@@ -45,7 +36,7 @@ def add_completion_index(cache_path: str, dry_run: bool):
 
 
 def main():
-    add_completion_index(args.cache_path, args.dry_run)
+    fix(args.cache_path, args.dry_run)
     hlog("Done.")
 
 

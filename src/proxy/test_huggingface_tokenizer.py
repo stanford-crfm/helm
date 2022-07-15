@@ -1,5 +1,3 @@
-from transformers import GPT2TokenizerFast
-
 from .huggingface_tokenizer import HuggingFaceTokenizers
 
 
@@ -26,5 +24,4 @@ class TestHuggingFaceTokenizers:
         TestHuggingFaceTokenizers.verify_get_tokenizer("huggingface/gpt-j-6b", 51)
 
     def test_get_tokenizer_gptneox(self):
-        tokenizer_name: str = "huggingface/gpt-neox-20b"
         TestHuggingFaceTokenizers.verify_get_tokenizer("huggingface/gpt-neox-20b", 52)

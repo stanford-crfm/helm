@@ -26,6 +26,7 @@ from . import raft_scenario  # noqa
 from . import numeracy_scenario  # noqa
 from . import ice_scenario  # noqa
 from . import summarization_scenario  # noqa
+from . import synthetic_efficiency_scenario  # noqa
 from . import synthetic_reasoning_scenario  # noqa
 from . import newsqa_scenario  # noqa
 from . import wikitext_103_scenario  # noqa

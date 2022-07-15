@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import openai as gooseai
 
@@ -21,7 +21,8 @@ class GooseAIClient(Client):
     - Supported models: https://goose.ai/docs/models
     """
 
-    def __init__(self, api_key: str, cache_path: str):
+    def __init__(self, api_key: str, cache_path: str, org_id: Optional[str] = None):
+        self.org_id: Optional[str] = org_id
         self.api_key: str = api_key
         self.api_base: str = "https://api.goose.ai/v1"
 
@@ -49,6 +50,9 @@ class GooseAIClient(Client):
         try:
 
             def do_it():
+                # Following https://beta.openai.com/docs/api-reference/authentication
+                # `organization` can be set to None.
+                gooseai.organization = self.org_id
                 gooseai.api_key = self.api_key
                 gooseai.api_base = self.api_base
                 gooseai.api_resources.completion.Completion.__bases__ = ORIGINAL_COMPLETION_ATTRIBUTES

@@ -46,6 +46,7 @@ def run_benchmarking(
     models_to_run: Optional[List[str]] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
+
     execution_spec = ExecutionSpec(
         auth=auth, url=url, local=local, local_path=local_path, parallelism=num_threads, dry_run=dry_run
     )
@@ -65,6 +66,7 @@ def run_benchmarking(
         # If no model is specified for `models_to_run`, run everything
         if not models_to_run or run_spec.adapter_spec.model in models_to_run
     ]
+
     with htrack_block("run_specs"):
         for run_spec in run_specs:
             hlog(run_spec.name)
