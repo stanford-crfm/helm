@@ -23,7 +23,7 @@ account: Account = service.get_account(auth)
 print(account.usages)
 
 # Load PTB data
-with open("../data/ptb_test.txt", "r") as f:
+with open("../data/ptb/ptb_test.txt", "r") as f:
     text = f.read().strip()
 
 # Very Raw Tokenize

@@ -20,7 +20,7 @@ Usage:
 
 # Defaults for the benchmarking proxy server
 # Number of retries
-_NUM_RETRIES: int = 5
+_NUM_RETRIES: int = 6
 
 # Used to calculate the wait between retries (2^r * _WAIT_EXPONENTIAL_MULTIPLIER seconds)
 # where r is the number of attempts so far
@@ -37,7 +37,7 @@ def get_retry_decorator(stop_max_attempt_number: int, wait_exponential_multiplie
         Wait function to pass into `Retrying` that logs and returns the amount of time to sleep
         depending on the number of attempts and delay (in milliseconds).
         """
-        hlog(f"The request failed. Attempt #{attempts + 1}, retrying in {delay // 1000} seconds...")
+        hlog(f"The request failed. Retrying (attempt #{attempts + 1}) in {delay // 1000} seconds...")
         return _retrying.exponential_sleep(attempts, delay)
 
     def retry_if_request_failed(result: Union[RequestResult, TokenizationRequestResult]) -> bool:
