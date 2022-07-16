@@ -18,7 +18,7 @@ class TestHuggingFaceTokenizers:
         assert len(tokenizer.encode(TestHuggingFaceTokenizers.TEST_PROMPT)) == expected_num_tokens
 
     def test_get_tokenizer_gpt2(self):
-        TestHuggingFaceTokenizers.verify_get_tokenizer("huggingface/gpt2-tokenizer-fast", 51)
+        TestHuggingFaceTokenizers.verify_get_tokenizer("huggingface/gpt", 51)
 
     def test_get_tokenizer_gptj(self):
         TestHuggingFaceTokenizers.verify_get_tokenizer("huggingface/gpt-j-6b", 51)
