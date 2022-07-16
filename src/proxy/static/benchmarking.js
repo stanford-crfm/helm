@@ -28,7 +28,7 @@ $(function () {
     constructor(raw) {
       this.name = raw.name;
       this.display = {
-        k: raw.display.k,
+        k: raw.display.k || null,
         split: raw.display.split,
         stat_names: raw.display.stat_names,
       }
@@ -463,7 +463,6 @@ $(function () {
     // TODO we should probably keep track of stddev.
     var combinedDisplayStats = {};
     for (const displayStat of displayStatArr) {
-      console.log(displayStat);
       for (statName in displayStat) {
         combinedDisplayStats[statName] = combinedDisplayStats[statName] || [];
         combinedDisplayStats[statName] = combinedDisplayStats[statName].concat(displayStat[statName]);
@@ -645,7 +644,6 @@ $(function () {
         // Unpack scenarioGroup fields
         const statNames = scenarioGroup.display.stat_names, k = scenarioGroup.display.k, split = scenarioGroup.display.split;
         const scenarioGroupRuns = filterRunsByScenarioGroup(scenarioGroup, modelRuns);
-        console.log(scenarioGroupRuns);
         scenarioGroupRuns.forEach(run => {
           statNames.forEach(statName => {
             // Accuracy stat (w perturbations)
