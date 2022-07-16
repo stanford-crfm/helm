@@ -207,7 +207,7 @@ def test_gender_pronoun_perturbation():
 
     print(instances)
     assert len(instances) == 2
-    assert instances[0].perturbation.name == "gender_term"
+    assert instances[0].perturbation.mode == "pronouns"
     assert instances[0].input == "Did she mention that she was coming with her parents and their friends?"
     assert instances[0].references[0].output == "She didn't, perhaps she didn't tell her!"
 
@@ -225,6 +225,6 @@ def test_gender_term_perturbation():
 
     print(instances)
     assert len(instances) == 2
-    assert instances[0].perturbation.name == "gender_term"
+    assert instances[0].perturbation.mode == "terms"
     assert instances[0].input == "His granddaughters looked a lot like their mom."
     assert instances[0].references[0].output == "How did their mother look like?"
