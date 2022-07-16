@@ -66,7 +66,9 @@ class AnthropicClient(Client):
             "k": -1,  # k: ony the top k possibilities
             "p": request.top_p,  # Top p
             "n": request.max_tokens,  # Max tokens
-            "stop": request.stop_sequences,  # Stop sequences
+            # There was a bug recently introduced (07/2022) where the API breaks when a user specifies stop=[]
+            # in the request. The workaround is to pass in None instead of an empty list.
+            "stop": request.stop_sequences or None,  # Stop sequences.
             # Anthropic-specific arguments - keep these default values for now.
             "max_simultaneous_queries": 20,  # should be ~20
             # Meta tokens are non-text tokens Anthropic sometimes injects into the text to identify the dataset

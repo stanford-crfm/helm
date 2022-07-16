@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass, replace
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Set, Optional
 from math import log, e
 from collections import defaultdict
 
@@ -15,7 +15,6 @@ from .adapter import (
     ScenarioState,
     RequestState,
     ADAPT_LANGUAGE_MODELING,
-    ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS,
 )
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -72,8 +71,6 @@ class Metric(ABC):
         """
         if scenario_state.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
             return self.evaluate_language_modeling(scenario_state, metric_service, eval_cache_path)
-        elif scenario_state.adapter_spec.method == ADAPT_LANGUAGE_MODELING_MINIMAL_PAIRS:
-            return self.evaluate_language_modeling_minimal_pairs(scenario_state, metric_service, eval_cache_path)
 
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
@@ -81,17 +78,23 @@ class Metric(ABC):
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
-            per_instance_stats: Dict[Tuple[MetricName, str], Stat] = {}  # Statistics for per-instance worst-case metric
+            # Collect statistics per input-metric pair across perturbations
+            per_instance_perturbation_stats: Dict[Tuple[MetricName, str], List[Stat]] = defaultdict(list)
+            per_metric_instance_ids: Dict[MetricName, Set[str]] = defaultdict(set)  # Collect instance-ids per metric
+
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
             #       https://github.com/stanford-crfm/benchmarking/issues/48
             for instance_index, instance in enumerate(scenario_state.instances):
                 instance_stats = []
 
                 # Evaluate generated request_state
-                request_state = singleton(scenario_state.get_request_states(train_trial_index, instance, None))
-                instance_stats.extend(
-                    self.evaluate_generation(adapter_spec, request_state, metric_service, eval_cache_path)
-                )
+                request_states = scenario_state.get_request_states(train_trial_index, instance, None)
+                if len(request_states) != 0:
+                    instance_stats.extend(
+                        self.evaluate_generation(
+                            adapter_spec, singleton(request_states), metric_service, eval_cache_path
+                        )
+                    )
 
                 # Evaluate the references
                 request_states = []
@@ -99,35 +102,65 @@ class Metric(ABC):
                     request_states.extend(
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
-                instance_stats.extend(
-                    self.evaluate_references(adapter_spec, request_states, metric_service, eval_cache_path)
-                )
+                if len(request_states) != 0:
+                    instance_stats.extend(
+                        self.evaluate_references(adapter_spec, request_states, metric_service, eval_cache_path)
+                    )
                 all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
 
                 # Merge these statistics back.
                 # TODO: we should add statistics with the individual instances too and serialize them out.
                 #       https://github.com/stanford-crfm/benchmarking/issues/49
+
                 for stat in instance_stats:
                     stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
 
-                    stat = Stat(
-                        replace(
-                            stat.name,
-                            perturbation=PerturbationDescription(name="worst", robustness=False, fairness=False),
-                        )
-                    ).merge(stat)
                     assert instance.id is not None
-                    key = (stat.name, instance.id)
-                    if key not in per_instance_stats:
-                        per_instance_stats[key] = stat
-                    else:
-                        per_instance_stats[key].merge(stat)
+                    per_metric_instance_ids[stat.name].add(instance.id)
+                    # group all perturbations for a specific metric name together
+                    if stat.name.perturbation is not None:
+                        per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(
+                            stat
+                        )
 
-            for (name, instance_id), stat in per_instance_stats.items():
-                if stat.count > 0:
-                    worst_stat = Stat(stat.name).add(stat.min)
-                    merge_stat(trial_stats, worst_stat)
+            for (name, instance_id), stats in per_instance_perturbation_stats.items():
+                identity_stat: Optional[Stat] = None
+                robustness_stat = Stat(
+                    replace(name, perturbation=PerturbationDescription(name="robustness", robustness=True))
+                )
+                fairness_stat = Stat(
+                    replace(name, perturbation=PerturbationDescription(name="fairness", fairness=True))
+                )
+                individual_perturbation_stats: Dict[PerturbationDescription, Stat] = {}
+
+                for stat in stats:  # go through the stats for each perturbation
+                    perturbation = stat.name.perturbation
+                    assert perturbation is not None
+                    if perturbation.name == "identity":
+                        assert identity_stat is None  # we should only have one identity stat
+                        identity_stat = stat
+                    else:
+                        if perturbation.robustness:
+                            robustness_stat.merge(stat)
+                        if perturbation.fairness:
+                            fairness_stat.merge(stat)
+                        assert perturbation not in individual_perturbation_stats
+                        individual_perturbation_stats[perturbation] = Stat(stat.name).merge(stat)  # copy
+
+                for stat in [robustness_stat, fairness_stat, *individual_perturbation_stats.values()]:
+                    perturbation = stat.name.perturbation
+                    assert perturbation is not None
+
+                    if identity_stat is not None:
+                        stat.merge(identity_stat)
+
+                    perturbation = replace(perturbation, name=f"worst_{perturbation.name}")
+                    if stat.count > 0:
+                        merge_stat(trial_stats, Stat(replace(stat.name, perturbation=perturbation)).add(stat.min))
+
+            for metric_name, instance_ids in per_metric_instance_ids.items():
+                merge_stat(trial_stats, Stat(replace(metric_name, name="num_instances")).add(len(instance_ids)))
 
             # Aggregate the corpus-level metrics
             for split in EVAL_SPLITS:
@@ -251,90 +284,6 @@ class Metric(ABC):
                     / trial_stats[MetricName("num_bytes", split=split)].sum
                 ),
             )
-
-        for stat in trial_stats.values():
-            merge_stat(global_stats, stat.take_mean())
-        return MetricResult(list(global_stats.values()), all_per_instance_stats)
-
-    def evaluate_language_modeling_minimal_pairs(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
-    ) -> MetricResult:
-        """
-        This function computes the log probability of both sentences in each minimal pair
-        and compares them. If the model assigns a higher log probability to the "good" sentence,
-        it is considered correct.
-
-        After evaluating the model on all the minimal pairs in the scenario, the function
-        returns an accuracy score.
-
-        This implementation is based on the important assumption that the adaptation process does not
-        change the order of the instances and the instance ids are assigned based on the sequential
-        order of the instances.
-        """
-        global_stats: Dict[MetricName, Stat] = {}
-        # The first and only trial
-        trial_stats: Dict[MetricName, Stat] = {}
-        # Per-instance stats
-        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
-        # Assume models are only evaluated on the test set
-        split: str = TEST_SPLIT
-
-        # The logprobs of good and bad sentences in the dataset
-        good_logprobs: defaultdict = defaultdict(float)
-        bad_logprobs: defaultdict = defaultdict(float)
-
-        # Efficiency metrics
-        efficiency_stat_names: List[str] = [
-            "inference_runtime",
-            "inference_idealized_runtime",
-            "inference_runtime_discrepancy",
-            "training_co2_cost",
-        ]
-        efficiency_stats: Dict[str, defaultdict] = {
-            efficiency_stat_name: defaultdict(float) for efficiency_stat_name in efficiency_stat_names
-        }
-
-        if scenario_state.request_states:
-            for request_state in scenario_state.request_states:
-                assert request_state.instance.id is not None and request_state.instance.sub_split is not None
-                pair_id: int = int(request_state.instance.id.lstrip("id")) // 2
-                sub_split: str = request_state.instance.sub_split
-                request_stats = self.evaluate_generation(
-                    scenario_state.adapter_spec, request_state, metric_service, eval_cache_path
-                )
-                for stat in request_stats:
-                    if stat.name == MetricName("logprob"):
-                        if sub_split == "good":
-                            good_logprobs[pair_id] += stat.sum
-                        elif sub_split == "bad":
-                            bad_logprobs[pair_id] += stat.sum
-                        else:
-                            raise Exception(f"Unknown sub_split {sub_split}")
-                        continue
-                    # Sum runtimes (real and idealized) across pair
-                    for efficiency_stat_name in efficiency_stat_names:
-                        if stat.name == MetricName(efficiency_stat_name):
-                            efficiency_stats[efficiency_stat_name][pair_id] += stat.sum
-                all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = request_stats
-
-            # To evaluate minimal pairs, the pair_ids of the good and the bad examples must be the same
-            assert set(good_logprobs.keys()) == set(bad_logprobs.keys())
-            accuracy = sum(good_logprobs[pair_id] > bad_logprobs[pair_id] for pair_id in good_logprobs) / len(
-                good_logprobs
-            )
-            for efficiency_stat_name in efficiency_stat_names:
-                for pair_id in efficiency_stats[efficiency_stat_name]:
-                    efficiency_stat: float = efficiency_stats[efficiency_stat_name][pair_id]
-                    # training_co2_cost should not add across pair, so divide by 2
-                    if efficiency_stat_name == "training_co2_cost":
-                        efficiency_stat = efficiency_stat / 2
-                    merge_stat(
-                        trial_stats, Stat(MetricName(efficiency_stat_name, split=split)).add(efficiency_stat),
-                    )
-        else:
-            accuracy = 0
-
-        merge_stat(trial_stats, Stat(MetricName("accuracy", split=split)).add(accuracy))
 
         for stat in trial_stats.values():
             merge_stat(global_stats, stat.take_mean())
