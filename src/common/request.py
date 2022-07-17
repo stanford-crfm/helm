@@ -147,7 +147,7 @@ class RequestResult:
     # Batch size (`TogetherClient` only)
     batch_size: Optional[int] = None
 
-    # How long it took to process batch? (`TogetherClient` only)
+    # How long it took to process the batch? (`TogetherClient` only)
     batch_time: Optional[float] = None
 
     def render_lines(self) -> List[str]:
