@@ -86,7 +86,7 @@ class TogetherClient(Client):
             request_time=0,
             completions=completions,
             batch_size=batch_performance_metadata["batch_size"],
-            batch_time=batch_performance_metadata["batch_time"],
+            batch_request_time=batch_performance_metadata["batch_time"],
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:

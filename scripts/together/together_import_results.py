@@ -39,8 +39,9 @@ def import_results(cache_path: str, request_results_path: str, dry_run: bool):
                 request: Dict = request_and_result["request"]
                 result: Dict = request_and_result["result"]
 
-                # For some reason, "line" was included in the request keys in the results file.
-                # Remove "line" so the `TogetherClient` can fetch results properly.
+                # TODO: For some reason, "line" was included in the request keys in the results file.
+                #       Remove "line" so the `TogetherClient` can fetch results properly.
+                #       Follow up on this.
                 request.pop("line", None)
 
                 key: str = request_to_key(request)
