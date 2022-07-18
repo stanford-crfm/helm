@@ -40,6 +40,11 @@ class GPT2Tokenizer(Tokenizer):
         return GPT2Tokenizer.END_OF_TEXT_TOKEN
 
     @property
+    def tokenizer_name(self) -> str:
+        """Name of the tokenizer to use when sending a request."""
+        return "huggingface/gpt2"
+
+    @property
     def prefix_token(self) -> str:
         """The prefix token for OPENAI models is the end of text token."""
         return self.end_of_text_token
@@ -49,7 +54,9 @@ class GPT2Tokenizer(Tokenizer):
         Encodes the input text to tokens.
         """
         response: TokenizationRequestResult = self.service.tokenize(
-            TokenizationRequest(text, encode=True, truncation=truncation, max_length=max_length)
+            TokenizationRequest(
+                text, tokenizer=self.tokenizer_name, encode=True, truncation=truncation, max_length=max_length
+            )
         )
         return EncodeResult(text=text, tokens=response.raw_tokens)
 
@@ -65,14 +72,18 @@ class GPT2Tokenizer(Tokenizer):
         """
         # Should set clean_up_tokenization_spaces=False: https://github.com/huggingface/transformers/issues/17682
         # If we don't, something like "their 'studio'" becomes "their'studio'" when decoding.
-        response: DecodeRequestResult = self.service.decode(DecodeRequest(tokens, clean_up_tokenization_spaces=False))
+        response: DecodeRequestResult = self.service.decode(
+            DecodeRequest(tokens, tokenizer=self.tokenizer_name, clean_up_tokenization_spaces=False)
+        )
         return response.text
 
     def tokenize(self, text: str) -> List[str]:
         """
         Tokenizes the text.
         """
-        response: TokenizationRequestResult = self.service.tokenize(TokenizationRequest(text))
+        response: TokenizationRequestResult = self.service.tokenize(
+            TokenizationRequest(text, tokenizer=self.tokenizer_name)
+        )
         return response.raw_tokens
 
     def tokenize_and_count(self, text: str) -> int:

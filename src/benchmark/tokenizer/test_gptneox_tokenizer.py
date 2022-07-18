@@ -7,11 +7,11 @@ from .test_gpt2_tokenizer import TEST_TOKENS, TEST_PROMPT, TEST_TOKEN_IDS
 from .test_utils import get_tokenizer_service
 
 
-class TestGPTJTokenizer:
+class TestGPTNeoXTokenizer:
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()
         service: TokenizerService = get_tokenizer_service(self.path)
-        self.tokenizer = TokenizerFactory.get_tokenizer("together/gpt-j-6b", service)
+        self.tokenizer = TokenizerFactory.get_tokenizer("together/gpt-neox-20b", service)
 
     def teardown_method(self, method):
         shutil.rmtree(self.path)

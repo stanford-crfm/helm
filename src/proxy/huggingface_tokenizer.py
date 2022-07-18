@@ -38,7 +38,7 @@ class HuggingFaceTokenizers:
 
                 # Use the "fast" version of the tokenizer if available.
                 # Weights are cached at ~/.cache/huggingface/transformers.
-                if tokenizer_name == "huggingface/gpt":
+                if tokenizer_name == "huggingface/gpt2":
                     tokenizer = load_tokenizer(GPT2TokenizerFast.from_pretrained, "gpt2")
                 elif tokenizer_name == "huggingface/gpt-j-6b":
                     # Not a typo: Named "gpt-j-6B" instead of "gpt-j-6b" in HuggingFace

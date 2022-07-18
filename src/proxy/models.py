@@ -196,13 +196,6 @@ ALL_MODELS = [
     Model(
         group="huggingface",
         creator_organization="EleutherAI",
-        name="huggingface/gpt-neox-20b",
-        description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
-    ),
-    Model(
-        group="huggingface",
-        creator_organization="EleutherAI",
         name="huggingface/gpt-j-6b",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
@@ -248,6 +241,13 @@ ALL_MODELS = [
         creator_organization="EleutherAI",
         name="together/gpt-j-6b",
         description="GPT-J (6B parameters trained by EleutherAI on The Pile)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="EleutherAI",
+        name="together/gpt-neox-20b",
+        description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # For debugging

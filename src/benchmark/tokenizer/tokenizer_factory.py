@@ -6,6 +6,7 @@ from .wider_context_window_openai_tokenizer import WiderContextWindowOpenAIToken
 from .mt_nlg_tokenizer import MTNLGTokenizer
 from .gpt2_tokenizer import GPT2Tokenizer
 from .gptj_tokenizer import GPTJTokenizer
+from .gptneox_tokenizer import GPTNeoXTokenizer
 from .tokenizer import Tokenizer
 from .tokenizer_service import TokenizerService
 
@@ -37,14 +38,14 @@ class TokenizerFactory:
             tokenizer = OpenAITokenizer(service)
         elif organization == "microsoft":
             tokenizer = MTNLGTokenizer(service)
-        elif organization == "gooseai":
-            tokenizer = GPTJTokenizer(service)
         elif organization == "anthropic":
             tokenizer = AnthropicTokenizer(service)
         elif model_name == "huggingface/gpt2":
             tokenizer = GPT2Tokenizer(service)
-        elif model_name == "huggingface/gpt-j-6b":
+        elif model_name in ["huggingface/gpt-j-6b", "together/gpt-j-6b", "gooseai/gpt-j-6b"]:
             tokenizer = GPTJTokenizer(service)
+        elif model_name in ["together/gpt-neox-20b", "gooseai/gpt-neo-20b"]:
+            tokenizer = GPTNeoXTokenizer(service)
         elif organization == "ai21":
             tokenizer = AI21Tokenizer(service=service, gpt2_tokenizer=GPT2Tokenizer(service))
         else:

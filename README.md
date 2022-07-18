@@ -246,6 +246,10 @@ takes in text and outputs the perturbed text.
 Add your new perturbation to `src/benchmark/__init__.py`.
 Add a test for the new perturbation in `test_perturbation.py`.
 
+## Supporting new HuggingFace tokenizers
+
+TODO -Tony
+
 ## Running the benchmark
 
 Examples of running the benchmark:
