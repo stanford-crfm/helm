@@ -127,7 +127,7 @@ class QuACScenario(Scenario):
         prompt += f"Question: {qas[k]['question']}"
 
         answers = [ans["text"] for ans in qas[k]["answers"]]
-        answers = list(set(answers))  # deduplicate
+        answers = list(dict.fromkeys(answers))  # de-duplicate
 
         if answers == ["CANNOTANSWER"]:
             answers.extend(["Not enough information", "Cannot answer", "Do not know"])
