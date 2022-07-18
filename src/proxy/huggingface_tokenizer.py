@@ -1,7 +1,7 @@
 import os
 from typing import Any, Dict
 
-from transformers import GPT2TokenizerFast, AutoTokenizer, GPTNeoXTokenizerFast
+from transformers import AutoTokenizer, GPT2TokenizerFast, GPTNeoXTokenizerFast
 
 from common.hierarchical_logger import htrack_block, hlog
 
@@ -20,7 +20,7 @@ class HuggingFaceTokenizers:
         def load_tokenizer(load_method: Any, hf_tokenizer_name: str):
             """Loads tokenizer using files from disk if they exist. Otherwise, downloads from HuggingFace."""
             try:
-                # From the HuggingFace documentation, "local_files_only(defaults to False) —
+                # From the Hugging Face documentation, "local_files_only(defaults to False) —
                 # Whether or not to only look at local files".
                 # Running `local_files_only=False` requires an internet connection even if the files are downloaded
                 # and cached. We need to first run with `local_files_only=True` just in case the machine
@@ -36,12 +36,14 @@ class HuggingFaceTokenizers:
                 # To avoid deadlocks when using HuggingFace tokenizers with multiple processes
                 os.environ["TOKENIZERS_PARALLELISM"] = "False"
 
-                # Use the "fast" version of the tokenizer if available (https://huggingface.co/course/chapter6/3).
+                # From https://huggingface.co/course/chapter6/3, "slow tokenizers are those written in Python inside
+                # the Hugging Face Transformers library, while the fast versions are the ones provided by Hugging Face
+                # Tokenizers, which are written in Rust." So, use the "fast" version of the tokenizers if available.
                 # Weights are cached at ~/.cache/huggingface/transformers.
                 if tokenizer_name == "huggingface/gpt2":
                     tokenizer = load_tokenizer(GPT2TokenizerFast.from_pretrained, "gpt2")
                 elif tokenizer_name == "huggingface/gpt-j-6b":
-                    # Not a typo: Named "gpt-j-6B" instead of "gpt-j-6b" in HuggingFace
+                    # Not a typo: Named "gpt-j-6B" instead of "gpt-j-6b" in Hugging Face
                     tokenizer = load_tokenizer(AutoTokenizer.from_pretrained, "EleutherAI/gpt-j-6B")
                 elif tokenizer_name == "huggingface/gpt-neox-20b":
                     tokenizer = load_tokenizer(GPTNeoXTokenizerFast.from_pretrained, "EleutherAI/gpt-neox-20b")

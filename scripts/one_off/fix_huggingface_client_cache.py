@@ -7,7 +7,7 @@ from common.cache import key_to_request, request_to_key
 from common.hierarchical_logger import hlog, htrack
 
 """
-Fix `HuggingFaceClient` cache.
+Fix the `HuggingFaceClient` cache.
 
 Usage:
 
@@ -16,7 +16,7 @@ Usage:
 """
 
 
-@htrack("Renaming entries with tokenizer 'huggingface/gpt2_tokenizer_fast' to 'huggingface/gpt2'.")
+@htrack("Renaming the name of the tokenizer 'huggingface/gpt2_tokenizer_fast' to 'huggingface/gpt2'.")
 def fix(cache_path: str):
     temp_cache: Dict[str, Dict] = dict()
     count: int
