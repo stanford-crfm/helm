@@ -34,11 +34,11 @@ def test_extra_space_perturbation():
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
-    assert instances[0].id == "id0"
-    assert instances[0].perturbation.name == "extra_space"
-    assert instances[0].perturbation.num_spaces == 2
-    assert instances[0].input == "Hello  my  name  is"
-    assert instances[0].references[0].output == "some name"
+    assert instances[1].id == "id0"
+    assert instances[1].perturbation.name == "extra_space"
+    assert instances[1].perturbation.num_spaces == 2
+    assert instances[1].input == "Hello  my  name  is"
+    assert instances[1].references[0].output == "some name"
 
 
 def test_misspelling_perturbation():
@@ -49,10 +49,10 @@ def test_misspelling_perturbation():
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
-    assert instances[0].id == "id0"
-    assert instances[0].perturbation.name == "misspellings"
-    assert instances[0].perturbation.prob == 1.0
-    assert instances[0].input == "Alreayd, teh new product is nto availaible."
+    assert instances[1].id == "id0"
+    assert instances[1].perturbation.name == "misspellings"
+    assert instances[1].perturbation.prob == 1.0
+    assert instances[1].input == "Alreayd, teh new product is nto availaible."
 
 
 def test_filler_words_perturbation():
@@ -65,9 +65,9 @@ def test_filler_words_perturbation():
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
-    assert instances[0].id == "id0"
-    assert instances[0].perturbation.name == "filler_words"
-    assert instances[0].input == "The quick brown err fox jumps over the lazy dog."
+    assert instances[1].id == "id0"
+    assert instances[1].perturbation.name == "filler_words"
+    assert instances[1].input == "The quick brown err fox jumps over the lazy dog."
 
 
 def test_contraction_perturbation():
@@ -78,10 +78,10 @@ def test_contraction_perturbation():
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
-    assert instances[0].id == "id0"
-    assert instances[0].perturbation.name == "contraction"
-    assert instances[0].input == "She's a doctor, and I'm a student"
-    assert instances[0].references[0].output == "he is a teacher"
+    assert instances[1].id == "id0"
+    assert instances[1].perturbation.name == "contraction"
+    assert instances[1].input == "She's a doctor, and I'm a student"
+    assert instances[1].references[0].output == "he is a teacher"
 
 
 def test_expansion_perturbation():
@@ -92,10 +92,10 @@ def test_expansion_perturbation():
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
-    assert instances[0].id == "id0"
-    assert instances[0].perturbation.name == "expansion"
-    assert instances[0].input == "She is a doctor, and I am a student"
-    assert instances[0].references[0].output == "he's a teacher"
+    assert instances[1].id == "id0"
+    assert instances[1].perturbation.name == "expansion"
+    assert instances[1].input == "She is a doctor, and I am a student"
+    assert instances[1].references[0].output == "he's a teacher"
 
 
 def test_typos_perturbation():
@@ -106,9 +106,9 @@ def test_typos_perturbation():
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
-    assert instances[0].perturbation.name == "TyposPerturbation"
-    assert instances[0].perturbation.prob == 0.1
-    assert instances[0].input == "After their marrjage, she started a close collaborwtion with Karvelas."
+    assert instances[1].perturbation.name == "TyposPerturbation"
+    assert instances[1].perturbation.prob == 0.1
+    assert instances[1].input == "After their marrjage, she started a close collaborwtion with Karvelas."
 
 
 def test_synonym_perturbation():
@@ -119,9 +119,9 @@ def test_synonym_perturbation():
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
-    assert instances[0].perturbation.name == "SynonymPerturbation"
-    assert instances[0].perturbation.prob == 1.0
-    assert instances[0].input == "This was a dependable movie, would determine again."
+    assert instances[1].perturbation.name == "SynonymPerturbation"
+    assert instances[1].perturbation.prob == 1.0
+    assert instances[1].input == "This was a serious film, would learn once more."
 
 
 def test_lowercase_perturbation():
@@ -132,9 +132,9 @@ def test_lowercase_perturbation():
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
-    assert instances[0].perturbation.name == "lowercase"
-    assert instances[0].input == "hello world!\nquite a day, huh?"
-    assert instances[0].references[0].output == "Yes!"
+    assert instances[1].perturbation.name == "lowercase"
+    assert instances[1].input == "hello world!\nquite a day, huh?"
+    assert instances[1].references[0].output == "Yes!"
 
 
 def test_space_perturbation():
@@ -144,8 +144,8 @@ def test_space_perturbation():
 
     print(instances)
     assert len(instances) == 2
-    assert instances[0].perturbation.name == "space"
-    assert instances[0].input == "Hello   World!\nQuite   aday,  huh?"
+    assert instances[1].perturbation.name == "space"
+    assert instances[1].input == "Hello   World!\nQuite   aday,  huh?"
 
 
 def test_dialect_perturbation():
@@ -161,9 +161,9 @@ def test_dialect_perturbation():
 
     print(instances)
     assert len(instances) == 2
-    assert instances[0].perturbation.name == "dialect"
-    assert instances[0].input == "I gon remember dis day to b the best day of mah life."
-    assert instances[0].references[0].output == "Is dis love?"
+    assert instances[1].perturbation.name == "dialect"
+    assert instances[1].input == "I gon remember dis day to b the best day of mah life."
+    assert instances[1].references[0].output == "Is dis love?"
 
 
 def test_person_name_perturbation():
@@ -187,11 +187,11 @@ def test_person_name_perturbation():
 
     print(instances)
     assert len(instances) == 2
-    assert instances[0].perturbation.name == "person_name"
+    assert instances[1].perturbation.name == "person_name"
     assert (
-        instances[0].input == "I learned that Jamel, Wardell, and Latoya are siblings! Do you know who is the oldest?"
+        instances[1].input == "I learned that Jamel, Wardell, and Latoya are siblings! Do you know who is the oldest?"
     )
-    assert instances[0].references[0].output == "Wardell"
+    assert instances[1].references[0].output == "Wardell"
 
 
 def test_gender_pronoun_perturbation():
@@ -207,9 +207,9 @@ def test_gender_pronoun_perturbation():
 
     print(instances)
     assert len(instances) == 2
-    assert instances[0].perturbation.mode == "pronouns"
-    assert instances[0].input == "Did she mention that she was coming with her parents and their friends?"
-    assert instances[0].references[0].output == "She didn't, perhaps she didn't tell her!"
+    assert instances[1].perturbation.mode == "pronouns"
+    assert instances[1].input == "Did she mention that she was coming with her parents and their friends?"
+    assert instances[1].references[0].output == "She didn't, perhaps she didn't tell her!"
 
 
 def test_gender_term_perturbation():
@@ -225,6 +225,6 @@ def test_gender_term_perturbation():
 
     print(instances)
     assert len(instances) == 2
-    assert instances[0].perturbation.mode == "terms"
-    assert instances[0].input == "His granddaughters looked a lot like their mom."
-    assert instances[0].references[0].output == "How did their mother look like?"
+    assert instances[1].perturbation.mode == "terms"
+    assert instances[1].input == "His granddaughters looked a lot like their mom."
+    assert instances[1].references[0].output == "How did their mother look like?"

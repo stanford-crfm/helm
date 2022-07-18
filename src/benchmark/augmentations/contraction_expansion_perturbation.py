@@ -1,6 +1,7 @@
 from typing import Dict
 import re
 
+from common.general import match_case
 from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
 
@@ -111,19 +112,17 @@ class ContractionPerturbation(Perturbation):
         return PerturbationDescription(name=self.name, robustness=True)
 
     def contract(self, sentence: str) -> str:
+        # Only contract things followed by a space to avoid contract end of sentence
         reverse_contraction_pattern = re.compile(
             r"\b({})\b ".format("|".join(self.reverse_contraction_map.keys())), flags=re.IGNORECASE | re.DOTALL,
         )
 
         def cont(possible):
             match = possible.group(1)
-            # The first character is handled separately to preserve capitalization
-            first_char = match[0]
             expanded_contraction = self.reverse_contraction_map.get(
                 match, self.reverse_contraction_map.get(match.lower())
             )
-            expanded_contraction = first_char + expanded_contraction[1:] + " "
-            return expanded_contraction
+            return match_case(match, expanded_contraction) + " "
 
         return reverse_contraction_pattern.sub(cont, sentence)
 
@@ -159,11 +158,8 @@ class ExpansionPerturbation(Perturbation):
 
         def expand_match(contraction):
             match = contraction.group(0)
-            first_char = match[0]
-            # The first character is handled separately to preserve capitalization
             expanded_contraction = self.contraction_map.get(match, self.contraction_map.get(match.lower()))
-            expanded_contraction = first_char + expanded_contraction[1:]
-            return expanded_contraction
+            return match_case(match, expanded_contraction)
 
         return contraction_pattern.sub(expand_match, sentence)
 

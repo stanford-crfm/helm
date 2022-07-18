@@ -731,13 +731,17 @@ class NumeracyScenario(Scenario):
                 dataset_instances = []
                 for idx in range(self.num_test):
                     eval_instance = eval_instances[idx]
-                    input = adapter.construct_prompt(train_instances, eval_instance)
+                    input = adapter.construct_prompt(
+                        train_instances, eval_instance, include_output=False, reference_index=None
+                    )
                     input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
                     references = eval_instance.references
                     dataset_instance = Instance(input=input, references=references, split=split)  # split doesn't matter
                     dataset_instances.append(dataset_instance)
 
-                input = outer_adapter.construct_prompt(dataset_instances[:-1], dataset_instances[-1])
+                input = outer_adapter.construct_prompt(
+                    dataset_instances[:-1], dataset_instances[-1], include_output=False, reference_index=None
+                )
                 input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
                 references = dataset_instances[-1].references
                 instance = Instance(input=input, references=references, split=split)
