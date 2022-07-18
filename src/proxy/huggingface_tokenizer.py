@@ -36,7 +36,7 @@ class HuggingFaceTokenizers:
                 # To avoid deadlocks when using HuggingFace tokenizers with multiple processes
                 os.environ["TOKENIZERS_PARALLELISM"] = "False"
 
-                # Use the "fast" version of the tokenizer if available.
+                # Use the "fast" version of the tokenizer if available (https://huggingface.co/course/chapter6/3).
                 # Weights are cached at ~/.cache/huggingface/transformers.
                 if tokenizer_name == "huggingface/gpt2":
                     tokenizer = load_tokenizer(GPT2TokenizerFast.from_pretrained, "gpt2")

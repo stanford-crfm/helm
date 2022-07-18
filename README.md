@@ -246,9 +246,15 @@ takes in text and outputs the perturbed text.
 Add your new perturbation to `src/benchmark/__init__.py`.
 Add a test for the new perturbation in `test_perturbation.py`.
 
-## Supporting new HuggingFace tokenizers
+## Supporting new Hugging Face tokenizers
 
-TODO -Tony
+1. Give the tokenizer a name: `huggingface/<Name of tokenizer in Hugging Face>`.
+2. In `HuggingFaceTokenizers`, we load and cache tokenizers in memory. Use the appropriate load method 
+   provided by the Transformers library and add logic to handle the tokenizer in the `load_tokenizer` method. 
+   Try to use the["fast" version of the tokenizers](https://huggingface.co/course/chapter6/3) if available.
+3. Add a new class `<Name of tokenizer>Tokenizer` in file `<Name of tokenizer>_gptj_tokenizer.py`.
+   Follow what we did for `GPTJTokenizer`.
+4. Import the new tokenizer and map the model(s) to the tokenizer in `TokenizerFactory`.
 
 ## Running the benchmark
 
