@@ -620,7 +620,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_srn_metrics(),
-        groups=["Synthetic reasoning (abstract symbols)"],
+        groups=["Synthetic reasoning (natural language)"],
     )
 
 
@@ -1199,7 +1199,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
-        groups=["Synthetic reasoning (natural language)"],
+        groups=["Synthetic reasoning (abstract symbols)"],
     )
 
 
