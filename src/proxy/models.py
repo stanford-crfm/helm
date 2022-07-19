@@ -225,8 +225,7 @@ ALL_MODELS = [
         creator_organization="Microsoft",
         name="microsoft/TNLGv2_530B",
         description="Megatron-Turing NLG (530B parameters)",
-        # The TNLGv2 models have limited functionality
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # TODO: The TNLGv2_7B model is unavailable to us at the moment, but simply uncomment the following when it's ready.
     # Model(
@@ -234,8 +233,7 @@ ALL_MODELS = [
     #     creator_organization="Microsoft",
     #     name="microsoft/TNLGv2_7B",
     #     description="Megatron-Turing NLG (7B parameters)",
-    #     # The TNLGv2 models have limited functionality
-    #     tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    #     tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     # ),
     # Offline models
     Model(
