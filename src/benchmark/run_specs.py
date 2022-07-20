@@ -1087,7 +1087,7 @@ def get_ice_spec(**kwargs) -> RunSpec:
         "HK": ["Hong Kong"],
         "IND": ["India"],
         "JA": ["Japan"],
-        "PHI": ["Phillipines"],
+        "PHI": ["Philippines"],
         "SIN": ["Singapore"],
         "USA": ["USA"],
     }
