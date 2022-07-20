@@ -1,8 +1,8 @@
-from .gpt2_window_service import GPT2WindowService
+from .huggingface_window_service import HuggingFaceWindowService
 from .tokenizer_service import TokenizerService
 
 
-class GPTJWindowService(GPT2WindowService):
+class GPTJWindowService(HuggingFaceWindowService):
     """
     The same tokenizer as GPT-2, but with an additional 143 tokens
     (source: https://huggingface.co/docs/transformers/model_doc/gptj).
@@ -19,9 +19,19 @@ class GPTJWindowService(GPT2WindowService):
     @property
     def max_request_length(self) -> int:
         """Return the max request length."""
-        return 2049
+        return self.max_sequence_length + 1
 
     @property
     def tokenizer_name(self) -> str:
         """Name of the tokenizer to use when sending a request."""
         return "huggingface/gpt-j-6b"
+
+    @property
+    def end_of_text_token(self) -> str:
+        """The end of text token."""
+        return "<|endoftext|>"
+
+    @property
+    def prefix_token(self) -> str:
+        """The prefix token for models is the same as the end of text token."""
+        return self.end_of_text_token

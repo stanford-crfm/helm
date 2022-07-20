@@ -16,14 +16,8 @@ class TestGPTJWindowService:
     def teardown_method(self, method):
         shutil.rmtree(self.path)
 
-    def test_max_sequence_length(self):
-        assert self.window_service.max_sequence_length == 2048
-
     def test_max_request_length(self):
         assert self.window_service.max_request_length == 2049
-
-    def test_tokenizer_name(self):
-        assert self.window_service.tokenizer_name == "huggingface/gpt-j-6b"
 
     def test_encode(self):
         assert self.window_service.encode(TEST_PROMPT).tokens == TEST_TOKEN_IDS

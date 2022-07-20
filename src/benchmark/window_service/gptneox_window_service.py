@@ -1,8 +1,8 @@
-from .gpt2_window_service import GPT2WindowService
+from .huggingface_window_service import HuggingFaceWindowService
 from .tokenizer_service import TokenizerService
 
 
-class GPTNeoXWindowService(GPT2WindowService):
+class GPTNeoXWindowService(HuggingFaceWindowService):
     def __init__(self, service: TokenizerService):
         super().__init__(service)
 
@@ -13,13 +13,20 @@ class GPTNeoXWindowService(GPT2WindowService):
 
     @property
     def max_request_length(self) -> int:
-        """
-        Return the max request length. The max request length of GPT-NeoX is 1 greater
-        than the max sequence length.
-        """
-        return 2049
+        """Return the max request length."""
+        return self.max_sequence_length + 1
+
+    @property
+    def end_of_text_token(self) -> str:
+        """The end of text token."""
+        return "<|endoftext|>"
 
     @property
     def tokenizer_name(self) -> str:
         """Name of the tokenizer to use when sending a request."""
         return "huggingface/gpt-neox-20b"
+
+    @property
+    def prefix_token(self) -> str:
+        """The prefix token is the same as the end of text token."""
+        return self.end_of_text_token

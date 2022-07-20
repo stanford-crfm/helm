@@ -13,9 +13,3 @@ class MTNLGWindowService(GPT2WindowService):
         Source: https://github.com/microsoft/turing-academic-TNLG
         """
         return 2048
-
-    @property
-    def max_request_length(self) -> int:
-        """Return the max request length for the MT-NLG models."""
-        # TODO: double check this
-        return 2049

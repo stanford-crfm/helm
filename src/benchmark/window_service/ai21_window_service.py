@@ -44,7 +44,7 @@ class AI21WindowService(WindowService):
     @property
     def max_request_length(self) -> int:
         """The max sequence length is the same as the max request length for AI21."""
-        return 2047
+        return self.max_sequence_length
 
     @property
     def end_of_text_token(self) -> str:
