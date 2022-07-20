@@ -764,7 +764,7 @@ $(function () {
         const metadata = runsGroupedByScenarioMetadata[scenarioMetadataString];
         const args = metadata.scenarioSpecArgs;
         tableTitle = `${metadata.scenarioSpecName}`;
-        if (args.scenarioSpecArgs && args.scenarioSpecArgs.length > 0) {
+        if (Object.keys(args).length > 0) {
           const argValues = Object.values(args).join(', ');
           tableTitle += ` (${argValues})`;
         }
