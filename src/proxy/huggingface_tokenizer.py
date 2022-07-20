@@ -1,7 +1,7 @@
 import os
 from typing import Any, Dict
 
-from transformers import AutoTokenizer, GPT2TokenizerFast, GPTNeoXTokenizerFast
+from transformers import AutoTokenizer
 
 from common.hierarchical_logger import htrack_block, hlog
 
@@ -17,7 +17,7 @@ class HuggingFaceTokenizers:
         Returns the tokenizer.
         """
 
-        def load_tokenizer(load_method: Any, hf_tokenizer_name: str):
+        def load_tokenizer(hf_tokenizer_name: str):
             """Loads tokenizer using files from disk if they exist. Otherwise, downloads from HuggingFace."""
             try:
                 # From the Hugging Face documentation, "local_files_only(defaults to False) —
@@ -26,31 +26,32 @@ class HuggingFaceTokenizers:
                 # and cached. We need to first run with `local_files_only=True` just in case the machine
                 # we are running this code has connection issues. If the tokenizer files are not cached,
                 # we attempt to download them from HuggingFace.
-                return load_method(hf_tokenizer_name, local_files_only=True)
+                # From https://huggingface.co/course/chapter6/3, "slow tokenizers are those written in Python inside
+                # the Hugging Face Transformers library, while the fast versions are the ones provided by Hugging Face
+                # Tokenizers, which are written in Rust." So, use the "fast" version of the tokenizers if available.
+                return AutoTokenizer.from_pretrained(hf_tokenizer_name, local_files_only=True, use_fast=True)
             except OSError:
                 hlog(f"Local files do not exist for HuggingFace tokenizer: {hf_tokenizer_name}. Downloading...")
-                return load_method(hf_tokenizer_name, local_files_only=False)
+                return AutoTokenizer.from_pretrained(hf_tokenizer_name, local_files_only=False, use_fast=True)
 
         if tokenizer_name not in HuggingFaceTokenizers.tokenizers:
             with htrack_block(f"Loading {tokenizer_name} with Hugging Face Transformers"):
                 # To avoid deadlocks when using HuggingFace tokenizers with multiple processes
                 os.environ["TOKENIZERS_PARALLELISM"] = "False"
 
-                # From https://huggingface.co/course/chapter6/3, "slow tokenizers are those written in Python inside
-                # the Hugging Face Transformers library, while the fast versions are the ones provided by Hugging Face
-                # Tokenizers, which are written in Rust." So, use the "fast" version of the tokenizers if available.
                 # Weights are cached at ~/.cache/huggingface/transformers.
+                hf_tokenizer_name: str
                 if tokenizer_name == "huggingface/gpt2":
-                    tokenizer = load_tokenizer(GPT2TokenizerFast.from_pretrained, "gpt2")
+                    hf_tokenizer_name = "gpt2"
                 elif tokenizer_name == "huggingface/gpt-j-6b":
                     # Not a typo: Named "gpt-j-6B" instead of "gpt-j-6b" in Hugging Face
-                    tokenizer = load_tokenizer(AutoTokenizer.from_pretrained, "EleutherAI/gpt-j-6B")
+                    hf_tokenizer_name = "EleutherAI/gpt-j-6B"
                 elif tokenizer_name == "huggingface/gpt-neox-20b":
-                    tokenizer = load_tokenizer(GPTNeoXTokenizerFast.from_pretrained, "EleutherAI/gpt-neox-20b")
+                    hf_tokenizer_name = "EleutherAI/gpt-neox-20b"
                 else:
                     raise ValueError(f"Unsupported tokenizer: {tokenizer_name}")
 
                 # Keep the tokenizer in memory, so we don't recreate it for future requests
-                HuggingFaceTokenizers.tokenizers[tokenizer_name] = tokenizer
+                HuggingFaceTokenizers.tokenizers[tokenizer_name] = load_tokenizer(hf_tokenizer_name)
 
         return HuggingFaceTokenizers.tokenizers[tokenizer_name]
