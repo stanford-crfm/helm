@@ -12,13 +12,6 @@ from .gpt2_tokenizer import GPT2Tokenizer
 class AI21Tokenizer(Tokenizer):
     """Tokenizes by making a request to the proxy server with REST endpoint: `/api/tokenize`."""
 
-    # The max token length of the model input
-    # AI21's server automatically prepends a token to every prompt, so the actual max sequence length is 2048-1 = 2047.
-    MAX_SEQUENCE_LENGTH: int = 2047
-
-    # The max sequence length is the same as the max request length for AI21.
-    MAX_REQUEST_LENGTH: int = 2047
-
     # AI21's tokenizer API rejects a tokenization request if the input sequence is too long, so
     # we need to set an upper limit for the length of the request. Empirically, if the GPT2 tokenizer tokenizes a
     # sequence to <= 11000 tokens, then it is most likely safe to assume that AI21's tokenization API will
@@ -42,11 +35,16 @@ class AI21Tokenizer(Tokenizer):
 
     @property
     def max_sequence_length(self) -> int:
-        return AI21Tokenizer.MAX_SEQUENCE_LENGTH
+        """
+        The max token length of the model in. The AI21 server automatically prepends a token to every prompt,
+        so the actual max sequence length is 2048-1 = 2047.
+        """
+        return 2047
 
     @property
     def max_request_length(self) -> int:
-        return AI21Tokenizer.MAX_REQUEST_LENGTH
+        """The max sequence length is the same as the max request length for AI21."""
+        return 2047
 
     @property
     def end_of_text_token(self) -> str:

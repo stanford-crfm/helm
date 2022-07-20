@@ -10,34 +10,26 @@ from common.tokenization_request import (
 )
 
 
+# TODO: move all of this logic to new HuggingFaceWindowService
+#      and have the GPT2WindowService inherit from it -Tony
 class GPT2Tokenizer(Tokenizer):
-
-    # The max request length of GPT2 is MAX_SEQUENCE_LENGTH + 1.
-    MAX_REQUEST_LENGTH: int = 1025
-
-    # The max length of the model input. The max sequence length for GPT-2 is 1024.
-    MAX_SEQUENCE_LENGTH: int = 1024
-
-    # The end of text token
-    END_OF_TEXT_TOKEN: str = "<|endoftext|>"
-
     def __init__(self, service: TokenizerService):
         self.service: TokenizerService = service
 
     @property
     def max_sequence_length(self) -> int:
         """Return the max sequence length of this tokenizer."""
-        return GPT2Tokenizer.MAX_SEQUENCE_LENGTH
+        return 1024
 
     @property
     def max_request_length(self) -> int:
         """Return the max request length of GPT-2."""
-        return GPT2Tokenizer.MAX_REQUEST_LENGTH
+        return 1025
 
     @property
     def end_of_text_token(self) -> str:
         """The end of text token."""
-        return GPT2Tokenizer.END_OF_TEXT_TOKEN
+        return "<|endoftext|>"
 
     @property
     def tokenizer_name(self) -> str:

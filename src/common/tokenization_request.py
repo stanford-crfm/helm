@@ -23,7 +23,7 @@ class TokenizationRequest:
 
     @property
     def tokenizer_organization(self):
-        """Example: 'huggingface/gpt' => 'huggingface'"""
+        """Example: 'huggingface/gpt2' => 'huggingface'"""
         return self.tokenizer.split("/")[0]
 
 
@@ -96,7 +96,7 @@ class DecodeRequest:
 
     @property
     def tokenizer_organization(self):
-        """Example: 'huggingface/gpt' => 'huggingface'"""
+        """Example: 'huggingface/gpt2' => 'huggingface'"""
         return self.tokenizer.split("/")[0]
 
 
