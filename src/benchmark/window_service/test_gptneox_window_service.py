@@ -3,12 +3,12 @@ import tempfile
 from typing import List
 
 from .tokenizer_service import TokenizerService
-from .tokenizer_factory import TokenizerFactory
-from .test_gpt2_tokenizer import TEST_PROMPT
+from .window_service_factory import WindowServiceFactory
+from .test_gpt2_window_service import TEST_PROMPT
 from .test_utils import get_tokenizer_service
 
 
-class TestGPTNeoXTokenizer:
+class TestGPTNeoXWindowService:
     TEST_TOKEN_IDS: List[int] = [
         510,
         5197,
@@ -67,28 +67,28 @@ class TestGPTNeoXTokenizer:
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()
         service: TokenizerService = get_tokenizer_service(self.path)
-        self.tokenizer = TokenizerFactory.get_tokenizer("together/gpt-neox-20b", service)
+        self.window_service = WindowServiceFactory.get_window_service("together/gpt-neox-20b", service)
 
     def teardown_method(self, method):
         shutil.rmtree(self.path)
 
     def test_max_sequence_length(self):
-        assert self.tokenizer.max_sequence_length == 2048
+        assert self.window_service.max_sequence_length == 2048
 
     def test_max_request_length(self):
-        assert self.tokenizer.max_request_length == 2049
+        assert self.window_service.max_request_length == 2049
 
     def test_tokenizer_name(self):
-        assert self.tokenizer.tokenizer_name == "huggingface/gpt-neox-20b"
+        assert self.window_service.tokenizer_name == "huggingface/gpt-neox-20b"
 
     def test_encode(self):
-        assert self.tokenizer.encode(TEST_PROMPT).tokens == TestGPTNeoXTokenizer.TEST_TOKEN_IDS
+        assert self.window_service.encode(TEST_PROMPT).tokens == TestGPTNeoXWindowService.TEST_TOKEN_IDS
 
     def test_decode(self):
-        assert self.tokenizer.decode(TestGPTNeoXTokenizer.TEST_TOKEN_IDS) == TEST_PROMPT
+        assert self.window_service.decode(TestGPTNeoXWindowService.TEST_TOKEN_IDS) == TEST_PROMPT
 
     def test_tokenize(self):
-        assert self.tokenizer.tokenize(TEST_PROMPT) == [
+        assert self.window_service.tokenize(TEST_PROMPT) == [
             "The",
             "ĠCenter",
             "Ġfor",
@@ -145,21 +145,21 @@ class TestGPTNeoXTokenizer:
 
     def test_tokenize_and_count(self):
         # There are 52 tokens in `TEST_PROMPT`.
-        assert self.tokenizer.tokenize_and_count(TEST_PROMPT) == 52
+        assert self.window_service.get_num_tokens(TEST_PROMPT) == 52
 
     def test_fits_within_context_window(self):
         # Should fit in the context window since we subtracted the number of tokens of the test prompt
         # from the max context window
-        assert self.tokenizer.fits_within_context_window(TEST_PROMPT, 2049 - 52)
+        assert self.window_service.fits_within_context_window(TEST_PROMPT, 2049 - 52)
         # Should not fit in the context window because we're expecting one more extra token in the completion
-        assert not self.tokenizer.fits_within_context_window(TEST_PROMPT, 2049 - 52 + 1)
+        assert not self.window_service.fits_within_context_window(TEST_PROMPT, 2049 - 52 + 1)
 
     def test_truncate_from_right(self):
         # Create a prompt that exceed max context length: 51 * 41 = 2091 tokens
         long_prompt: str = TEST_PROMPT * 41
-        assert not self.tokenizer.fits_within_context_window(long_prompt)
+        assert not self.window_service.fits_within_context_window(long_prompt)
 
         # Truncate and ensure it fits within the context window
-        truncated_long_prompt: str = self.tokenizer.truncate_from_right(long_prompt)
-        assert self.tokenizer.tokenize_and_count(truncated_long_prompt) == 2049
-        assert self.tokenizer.fits_within_context_window(truncated_long_prompt)
+        truncated_long_prompt: str = self.window_service.truncate_from_right(long_prompt)
+        assert self.window_service.get_num_tokens(truncated_long_prompt) == 2049
+        assert self.window_service.fits_within_context_window(truncated_long_prompt)

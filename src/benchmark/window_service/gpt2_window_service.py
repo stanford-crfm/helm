@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from .tokenizer import Tokenizer, EncodeResult
+from .window_service import WindowService, EncodeResult
 from .tokenizer_service import TokenizerService
 from common.tokenization_request import (
     DecodeRequest,
@@ -12,7 +12,7 @@ from common.tokenization_request import (
 
 # TODO: move all of this logic to new HuggingFaceWindowService
 #      and have the GPT2WindowService inherit from it -Tony
-class GPT2Tokenizer(Tokenizer):
+class GPT2WindowService(WindowService):
     def __init__(self, service: TokenizerService):
         self.service: TokenizerService = service
 
@@ -78,7 +78,7 @@ class GPT2Tokenizer(Tokenizer):
         )
         return response.raw_tokens
 
-    def tokenize_and_count(self, text: str) -> int:
+    def get_num_tokens(self, text: str) -> int:
         """Tokenizes the text using the GPT-2 tokenizer and returns the number of tokens."""
         return len(self.tokenize(text))
 
@@ -87,7 +87,7 @@ class GPT2Tokenizer(Tokenizer):
         Checks if the given text fits within the context window given by `max_request_length`
         taking to account the expected completion length (defaults to 0).
         """
-        return self.tokenize_and_count(text) + expected_completion_token_length <= self.max_request_length
+        return self.get_num_tokens(text) + expected_completion_token_length <= self.max_request_length
 
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
@@ -104,6 +104,6 @@ class GPT2Tokenizer(Tokenizer):
         result: str = self.decode(self.encode(text, truncation=True, max_length=max_length).tokens)
 
         # Validate that the truncated text now fits. Fail fast otherwise.
-        num_tokens: int = self.tokenize_and_count(result)
+        num_tokens: int = self.get_num_tokens(result)
         assert num_tokens <= max_length, f"Truncation failed ({num_tokens} > {max_length}). Input text: {text}"
         return result

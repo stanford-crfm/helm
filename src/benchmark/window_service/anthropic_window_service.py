@@ -1,8 +1,8 @@
-from .gpt2_tokenizer import GPT2Tokenizer
+from .gpt2_window_service import GPT2WindowService
 from .tokenizer_service import TokenizerService
 
 
-class AnthropicTokenizer(GPT2Tokenizer):
+class AnthropicWindowService(GPT2WindowService):
     """
     Anthropic has their own tokenizer based on the GPT-2 tokenizer.
     This tokenizer is not publicly available, so approximate with the GPT-2 tokenizer.

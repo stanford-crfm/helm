@@ -42,7 +42,7 @@ class TestAdapter:
         )
 
         # Ensure the prompt fits within the context window
-        assert adapter.tokenizer.fits_within_context_window(prompt)
+        assert adapter.window_service.fits_within_context_window(prompt)
 
         # Ensure the in-context examples were removed before touching the evaluation instance
         assert prompt.endswith("eval")
@@ -60,7 +60,7 @@ class TestAdapter:
         )
 
         # Ensure the prompt fits within the context window
-        assert adapter.tokenizer.fits_within_context_window(prompt)
+        assert adapter.window_service.fits_within_context_window(prompt)
 
         # Ensure that all the in-context examples were completely removed and we had to truncate the eval Instance input
         assert "train" not in prompt
@@ -147,7 +147,7 @@ class TestAdapter:
         # of GPT-3 is 2049, calling `fits_tokens_within_context_window` will remove the last `pred_token`
         conditioning_tokens, pred_tokens = [50256], [464] + [262] * 2048
         prompt, pred_tokens = adapter.fits_tokens_within_context_window(
-            conditioning_tokens, pred_tokens, adapter.tokenizer.max_request_length
+            conditioning_tokens, pred_tokens, adapter.window_service.max_request_length
         )
 
         # Ensure the prompt is correct

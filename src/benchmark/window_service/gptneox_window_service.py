@@ -1,13 +1,8 @@
-from .gpt2_tokenizer import GPT2Tokenizer
+from .gpt2_window_service import GPT2WindowService
 from .tokenizer_service import TokenizerService
 
 
-class GPTJTokenizer(GPT2Tokenizer):
-    """
-    The same tokenizer as GPT-2, but with an additional 143 tokens
-    (source: https://huggingface.co/docs/transformers/model_doc/gptj).
-    """
-
+class GPTNeoXWindowService(GPT2WindowService):
     def __init__(self, service: TokenizerService):
         super().__init__(service)
 
@@ -18,10 +13,13 @@ class GPTJTokenizer(GPT2Tokenizer):
 
     @property
     def max_request_length(self) -> int:
-        """Return the max request length."""
+        """
+        Return the max request length. The max request length of GPT-NeoX is 1 greater
+        than the max sequence length.
+        """
         return 2049
 
     @property
     def tokenizer_name(self) -> str:
         """Name of the tokenizer to use when sending a request."""
-        return "huggingface/gpt-j-6b"
+        return "huggingface/gpt-neox-20b"
