@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from filelock import FileLock
 from openai.api_resources.abstract import engine_api_resource
@@ -110,7 +110,13 @@ class MicrosoftClient(Client):
                         turing.api_key = self.api_key
                         turing.api_base = self.api_base
                         turing.api_resources.completion.Completion.__bases__ = self.completion_attributes
-                        return turing.Completion.create(**raw_request)
+
+                        response: Dict = turing.Completion.create(**raw_request)
+                        # Validate the responses, so we don't cache malformed responses with null `logprobs` and `text`
+                        if response["choices"][0]["text"] is None or response["choices"][0]["logprobs"] is None:
+                            raise turing.error.OpenAIError(f"Invalid response from the MT-NLG server: {response}")
+
+                        return response
 
                 # We want to make `request.num_completions` fresh requests,
                 # cache key should contain the completion_index.
