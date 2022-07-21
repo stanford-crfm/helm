@@ -1,7 +1,7 @@
 from benchmark.metric_service import MetricService
 from common.request import Request
-from benchmark.tokenizer.tokenizer_factory import TokenizerFactory
-from benchmark.tokenizer.tokenizer import Tokenizer
+from benchmark.window_service.window_service_factory import WindowServiceFactory
+from benchmark.window_service.window_service import WindowService
 from .token_cost_estimator import TokenCostEstimator
 
 
@@ -15,8 +15,8 @@ class OpenAITokenCostEstimator(TokenCostEstimator):
 
         Add num_tokens(prompt) if Request.echo_prompt is True.
         """
-        tokenizer: Tokenizer = TokenizerFactory.get_tokenizer("openai", metric_service)
-        num_prompt_tokens: int = tokenizer.tokenize_and_count(request.prompt)
+        tokenizer: WindowService = WindowServiceFactory.get_window_service(request.model, metric_service)
+        num_prompt_tokens: int = tokenizer.get_num_tokens(request.prompt)
         total_estimated_tokens: int = num_prompt_tokens + request.num_completions * request.max_tokens
 
         # We should add the number of tokens in the prompt twice when echo_prompt is True because OpenAI counts

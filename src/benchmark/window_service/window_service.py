@@ -18,7 +18,7 @@ class EncodeResult:
     tokens: List[Union[int, TokenizationToken]]
 
 
-class Tokenizer(ABC):
+class WindowService(ABC):
     @property
     @abstractmethod
     def max_sequence_length(self) -> int:
@@ -70,7 +70,7 @@ class Tokenizer(ABC):
         pass
 
     @abstractmethod
-    def tokenize_and_count(self, text: str) -> int:
+    def get_num_tokens(self, text: str) -> int:
         """Tokenizes the text and counts the number of tokens."""
         pass
 

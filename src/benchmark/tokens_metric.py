@@ -8,7 +8,8 @@ from .metric_name import MetricName
 from .metric_service import MetricService
 from .scenario import Instance
 from .statistic import Stat, merge_stat
-from .tokenizer.tokenizer_factory import TokenizerFactory
+from .window_service.window_service import WindowService
+from .window_service.window_service_factory import WindowServiceFactory
 
 
 class TokensMetric(Metric):
@@ -46,9 +47,8 @@ class TokensMetric(Metric):
             merge_stat_helper(stat, instance)
 
             # Number of tokens in the prompt
-            num_prompt_tokens: int = TokenizerFactory.get_tokenizer(request.model, metric_service).tokenize_and_count(
-                text=request.prompt
-            )
+            window_service: WindowService = WindowServiceFactory.get_window_service(request.model, metric_service)
+            num_prompt_tokens: int = window_service.get_num_tokens(text=request.prompt)
             stat = Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens)
             merge_stat_helper(stat, instance)
 

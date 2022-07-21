@@ -107,7 +107,7 @@ class HuggingFaceClient(Client):
 
     def get_model_server_instance(self, model_engine) -> HuggingFaceServer:
         if model_engine not in self.model_server_instances:
-            if model_engine == "gptj_6b":
+            if model_engine == "gpt-j-6b":
                 self.model_server_instances[model_engine] = HuggingFaceServer("EleutherAI/gpt-j-6B")
             elif model_engine == "gpt2":
                 self.model_server_instances[model_engine] = HuggingFaceServer("gpt2")

@@ -49,7 +49,7 @@ class SyntheticEfficiencyScenario(Scenario):
         self.num_input_tokens: int = num_input_tokens
         self.num_instances: int = num_instances
         self.tokenizer = tokenizer
-        assert self.tokenizer in ["huggingface/gpt2_tokenizer_fast", "ai21"]
+        assert self.tokenizer in ["huggingface/gpt2", "ai21/j1"]
 
     def get_instances(self) -> List[Instance]:
         data_paths = []

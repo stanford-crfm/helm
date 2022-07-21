@@ -114,7 +114,7 @@ class AutoClient(Client):
         return client
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes based on the organization in the name of the tokenizer (e.g., huggingface/gpt2_tokenizer_fast)."""
+        """Tokenizes based on the organization in the name of the tokenizer (e.g., huggingface/gpt2)."""
 
         @retry_request
         def tokenize_with_retry(client: Client, request: TokenizationRequest) -> TokenizationRequestResult:
@@ -132,7 +132,7 @@ class AutoClient(Client):
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        """Decodes based on the organization in the name of the tokenizer (e.g., huggingface/gpt2_tokenizer_fast)."""
+        """Decodes based on the organization in the name of the tokenizer (e.g., huggingface/gpt2)."""
 
         @retry_request
         def decode_with_retry(client: Client, request: DecodeRequest) -> DecodeRequestResult:
