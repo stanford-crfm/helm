@@ -547,6 +547,7 @@ $(function () {
     const nameMappingDict = {
       // Stat names
       training_co2_cost: "Training CO2 Cost",
+      inference_runtime: "Inference Runtime (Actual)",
       inference_idealized_runtime: "Inference Runtime (Idealized)",
       // Perturbation names
       // @TODO standardize perturbation names in the python code
