@@ -79,9 +79,15 @@ class TogetherClient(Client):
             )
             completions.append(completion)
 
-        # TODO: handle batch size and time it take to process batch in response
-        #       https://github.com/stanford-crfm/benchmarking/issues/618
-        return RequestResult(success=True, cached=cached, request_time=0, completions=completions)
+        batch_performance_metadata: Dict = response["request_time"]
+        return RequestResult(
+            success=True,
+            cached=cached,
+            request_time=0,
+            completions=completions,
+            batch_size=batch_performance_metadata["batch_size"],
+            batch_request_time=batch_performance_metadata["batch_time"],
+        )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         raise NotImplementedError("Use the HuggingFaceClient to tokenize.")

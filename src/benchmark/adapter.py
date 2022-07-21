@@ -81,6 +81,9 @@ class AdapterSpec:
     # When to stop
     stop_sequences: List[str] = field(default_factory=list)
 
+    # Random string (used concretely to bypass cache / see diverse results)
+    random: Optional[str] = None
+
 
 @dataclass(frozen=True)
 class RequestState:
@@ -331,6 +334,7 @@ class Adapter:
                             temperature=self.adapter_spec.temperature,
                             max_tokens=self.adapter_spec.max_tokens,
                             stop_sequences=self.adapter_spec.stop_sequences,
+                            random=self.adapter_spec.random,
                         )
                         request_states = [
                             RequestState(
@@ -359,6 +363,7 @@ class Adapter:
                             temperature=0,
                             max_tokens=1,
                             stop_sequences=[],
+                            random=self.adapter_spec.random,
                         )
                         request_states = [
                             RequestState(
@@ -751,6 +756,7 @@ class Adapter:
                 max_tokens=self.adapter_spec.max_tokens,  # usually this is zero
                 stop_sequences=self.adapter_spec.stop_sequences,
                 echo_prompt=True,
+                random=self.adapter_spec.random,
             )
             request_state = RequestState(
                 instance=instance,

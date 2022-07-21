@@ -67,7 +67,7 @@ class GenderPerturbation(Perturbation):
     """ Individual fairness perturbation for gender terms and pronouns. """
 
     """ Short unique identifier of the perturbation (e.g., extra_space) """
-    name: str = "gender_term"
+    name: str = "gender"
 
     should_perturb_references: bool = True
 
@@ -87,10 +87,10 @@ class GenderPerturbation(Perturbation):
     class Description(PerturbationDescription):
         """ Description for the GenderPerturbation class. """
 
+        mode: str = ""
         prob: float = 0.0
         source_class: str = ""
         target_class: str = ""
-        mapping_file_path: Optional[str] = None
         bidirectional: bool = False
 
     def __init__(
@@ -181,11 +181,11 @@ class GenderPerturbation(Perturbation):
         """ Return a perturbation description for this class. """
         return GenderPerturbation.Description(
             name=self.name,
+            mode=self.mode,
             fairness=True,
             prob=self.prob,
             source_class=self.source_class,
             target_class=self.target_class,
-            mapping_file_path=self.mapping_file_path,
             bidirectional=self.bidirectional,
         )
 

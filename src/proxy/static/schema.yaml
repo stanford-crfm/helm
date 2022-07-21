@@ -46,7 +46,7 @@ metrics:
 scenarioGroups:
 - name: NarrativeQA
   display:
-    split: valid
+    split: test
     stat_names:
       - f1_score
   class_name: benchmark.narrativeqa_scenario.NarrativeQAScenario
@@ -76,7 +76,7 @@ scenarioGroups:
   class_name: benchmark.truthful_qa_scenario.TruthfulQAScenario
 - name: MMLU
   display:
-    split: valid
+    split: test
     stat_names:
       - quasi_exact_match
   class_name: benchmark.mmlu_scenario.MMLUScenario
@@ -94,13 +94,13 @@ scenarioGroups:
   class_name: benchmark.raft_scenario.RAFTScenario
 - name: Entity matching
   display:
-    split: valid
+    split: test
     stat_names:
       - quasi_exact_match
   class_name: benchmark.entity_matching_scenario.EntityMatchingScenario
 - name: Data imputation
   display:
-    split: valid
+    split: test
     stat_names:
       - quasi_exact_match
   class_name: benchmark.entity_data_imputation_scenario.EntityDataImputationScenario
@@ -118,9 +118,9 @@ scenarioGroups:
   class_name: benchmark.the_pile_scenario.ThePileScenario
 - name: WikiFact
   display:
-    split: valid
+    split: test
     stat_names:
-      - absolute_value_difference
+      - quasi_exact_match
   class_name: benchmark.wikifact_scenario.WIKIFactScenario
 - name: Numeracy
   display:
@@ -138,7 +138,7 @@ scenarioGroups:
   display:
     split: test
     stat_names:
-      - quasi_exact_match
+      - f1_set_match
   class_name: benchmark.synthetic_reasoning_natural_scenario.SRNScenario
 - name: bAbI
   display:
@@ -209,7 +209,7 @@ scenarioGroups:
   class_name: benchmark.blimp_scenario.BLiMPScenario
 - name: NewsQA
   display:
-    split: test
+    split: valid
     stat_names:
       - f1_score
   class_name: benchmark.newsqa_scenario.NewsQAScenario
@@ -229,7 +229,7 @@ scenarioGroups:
   class_name: benchmark.math_scenario.MATHScenario
   args:
     use_chain_of_thought: True
-- name: Code (HumanEval)
+- name: HumanEval (Code)
   display:
     split: test
     stat_names:
@@ -238,7 +238,7 @@ scenarioGroups:
   class_name: benchmark.code_scenario.CodeScenario
   args:
     dataset: HumanEval
-- name: Code (APPS)
+- name: APPS (Code)
   display:
     split: test
     stat_names:
@@ -249,7 +249,7 @@ scenarioGroups:
     dataset: APPS
 - name: Disinformation (reiteration)
   display:
-    split: test
+    split: valid
     stat_names:
       - self_bleu
       - monte_carlo_entropy
@@ -258,7 +258,7 @@ scenarioGroups:
     capability: reiteration
 - name: Disinformation (wedging)
   display:
-    split: test
+    split: valid
     stat_names:
       - self_bleu
       - monte_carlo_entropy
@@ -267,7 +267,7 @@ scenarioGroups:
     capability: wedging
 - name: HellaSwag
   display:
-    split: test
+    split: valid
     stat_names:
       - quasi_exact_match
   class_name: benchmark.commonsense_scenario.CommonSenseScenario
@@ -291,7 +291,7 @@ scenarioGroups:
     dataset: commonsenseqa
 - name: MS MARCO (regular)
   display:
-    split: test
+    split: valid
     stat_names:
       - RR@20
   class_name: benchmark.msmarco_scenario.MSMARCOScenario
@@ -299,7 +299,7 @@ scenarioGroups:
     track: regular
 - name: MS MARCO (TREC)
   display:
-    split: test
+    split: valid
     stat_names:
       - NDCG@20
   class_name: benchmark.msmarco_scenario.MSMARCOScenario

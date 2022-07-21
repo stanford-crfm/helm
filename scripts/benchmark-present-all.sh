@@ -46,6 +46,7 @@ models=(
   "gooseai/gpt-neo-20b"
   "anthropic/stanford-online-all-v4-s3"
   "microsoft/TNLGv2_530B"
+  "together/gpt-j-6b"
 )
 
 for model in "${models[@]}"
