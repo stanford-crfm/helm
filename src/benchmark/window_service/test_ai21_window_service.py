@@ -7,8 +7,9 @@ from unittest import mock
 from common.authentication import Authentication
 from common.tokenization_request import TokenizationRequestResult, TokenizationToken, TextRange
 from proxy.remote_service import RemoteService
-from benchmark.adapter_service import AdapterService
+from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
+
 
 TEST_PROMPT: str = (
     "The Center for Research on Foundation Models (CRFM) is "
@@ -109,7 +110,7 @@ class TestAI21WindowService:
     def setup_method(self):
         # We use mocking for tokenization calls so no valid api_keys are required.
         auth = Authentication(api_key="DUMMY_API_KEY")
-        service = AdapterService(RemoteService("DUMMY_URL"), auth)
+        service = TokenizerService(RemoteService("DUMMY_URL"), auth)
         self.window_service = WindowServiceFactory.get_window_service("ai21/j1-jumbo", service)
 
     @mock.patch("benchmark.tokenizer.ai21_tokenizer.TokenizerService.tokenize", return_value=REQUEST_RESULT)

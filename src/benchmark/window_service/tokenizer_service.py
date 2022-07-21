@@ -1,5 +1,3 @@
-from abc import ABC, abstractmethod
-
 from common.authentication import Authentication
 from common.tokenization_request import (
     TokenizationRequest,
@@ -10,12 +8,11 @@ from common.tokenization_request import (
 from proxy.service import Service
 
 
-class TokenizerService(ABC):
+class TokenizerService:
     """
     A wrapper around `Service` that makes only necessary server requests to tokenize.
     """
 
-    @abstractmethod
     def __init__(self, service: Service, auth: Authentication):
         self._service: Service = service
         self._auth: Authentication = auth

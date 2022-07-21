@@ -21,24 +21,24 @@ class WindowServiceFactory:
         model: Model = get_model(model_name)
         organization: str = model.organization
 
-        tokenizer: WindowService
+        window_service: WindowService
         if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
-            tokenizer = WiderOpenAIWindowService(service)
+            window_service = WiderOpenAIWindowService(service)
         elif organization == "openai" or organization == "simple":
-            tokenizer = OpenAIWindowService(service)
+            window_service = OpenAIWindowService(service)
         elif organization == "microsoft":
-            tokenizer = MTNLGWindowService(service)
+            window_service = MTNLGWindowService(service)
         elif organization == "anthropic":
-            tokenizer = AnthropicWindowService(service)
+            window_service = AnthropicWindowService(service)
         elif model_name == "huggingface/gpt2":
-            tokenizer = GPT2WindowService(service)
+            window_service = GPT2WindowService(service)
         elif model_name in ["huggingface/gpt-j-6b", "together/gpt-j-6b", "gooseai/gpt-j-6b"]:
-            tokenizer = GPTJWindowService(service)
+            window_service = GPTJWindowService(service)
         elif model_name in ["together/gpt-neox-20b", "gooseai/gpt-neo-20b"]:
-            tokenizer = GPTNeoXWindowService(service)
+            window_service = GPTNeoXWindowService(service)
         elif organization == "ai21":
-            tokenizer = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
+            window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
         else:
             raise ValueError(f"Unhandled model name: {model_name}")
 
-        return tokenizer
+        return window_service

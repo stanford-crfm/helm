@@ -14,7 +14,6 @@ from common.tokenization_request import TokenizationToken
 from benchmark.window_service.window_service import WindowService, EncodeResult
 from benchmark.window_service.window_service_factory import WindowServiceFactory
 from benchmark.window_service.tokenizer_service import TokenizerService
-from .adapter_service import AdapterService
 from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
@@ -250,9 +249,8 @@ class Adapter:
     deal with references being of different lengths).
     """
 
-    def __init__(self, adapter_spec: AdapterSpec, adapter_service: AdapterService):
+    def __init__(self, adapter_spec: AdapterSpec, tokenizer_service: TokenizerService):
         self.adapter_spec: AdapterSpec = adapter_spec
-        tokenizer_service: TokenizerService = adapter_service
         self.window_service: WindowService = WindowServiceFactory.get_window_service(
             adapter_spec.model, tokenizer_service
         )
