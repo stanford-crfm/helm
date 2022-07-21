@@ -1,6 +1,6 @@
 from benchmark.metric_service import MetricService
-from benchmark.tokenizer.tokenizer import Tokenizer
-from benchmark.tokenizer.tokenizer_factory import TokenizerFactory
+from benchmark.window_service.window_service import WindowService
+from benchmark.window_service.window_service_factory import WindowServiceFactory
 from common.request import Request
 from proxy.token_counter.gooseai_token_counter import GooseAITokenCounter
 from .token_cost_estimator import TokenCostEstimator
@@ -17,6 +17,6 @@ class GooseAITokenCostEstimator(TokenCostEstimator):
         """
         total_estimated_tokens: int = request.num_completions * request.max_tokens
         if request.echo_prompt:
-            tokenizer: Tokenizer = TokenizerFactory.get_tokenizer("gooseai", metric_service)
-            total_estimated_tokens += tokenizer.tokenize_and_count(request.prompt)
+            window_service: WindowService = WindowServiceFactory.get_window_service(request.model, metric_service)
+            total_estimated_tokens += window_service.get_num_tokens(request.prompt)
         return GooseAITokenCounter.account_for_base_tokens(total_estimated_tokens)

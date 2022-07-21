@@ -6,7 +6,6 @@ from typing import Dict, List
 
 from common.general import ensure_directory_exists, write, write_lines
 from common.hierarchical_logger import hlog, htrack_block
-from .adapter_service import AdapterService
 from .augmentations.data_augmenter import DataAugmenterSpec
 from .metric_service import MetricService
 from .scenario import Scenario, ScenarioSpec, create_scenario, Instance
@@ -15,6 +14,7 @@ from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
 from .metric import Metric, MetricSpec, MetricResult, PerInstanceStatsKey, create_metric, Stat
 from .tokens_metric import TokensMetric
+from .window_service.tokenizer_service import TokenizerService
 
 
 @dataclass(frozen=True)
@@ -66,7 +66,7 @@ class Runner:
     ):
         self.executor = Executor(execution_spec)
         self.dry_run: bool = execution_spec.dry_run
-        self.adapter_service = AdapterService(self.executor.service, execution_spec.auth)
+        self.tokenizer_service = TokenizerService(self.executor.service, execution_spec.auth)
         self.metric_service = MetricService(self.executor.service, execution_spec.auth)
         self.run_specs: List[RunSpec] = run_specs
         self.skip_instances: bool = skip_instances
@@ -106,7 +106,7 @@ class Runner:
             instances = []
 
         # Adaptation
-        adapter = Adapter(run_spec.adapter_spec, self.adapter_service)
+        adapter = Adapter(run_spec.adapter_spec, self.tokenizer_service)
         scenario_state: ScenarioState = adapter.adapt(instances)
 
         # Execution

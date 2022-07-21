@@ -1,6 +1,7 @@
+from abc import abstractmethod
 from typing import List, Optional
 
-from .tokenizer import Tokenizer, EncodeResult
+from .window_service import WindowService, EncodeResult
 from .tokenizer_service import TokenizerService
 from common.tokenization_request import (
     DecodeRequest,
@@ -10,46 +11,23 @@ from common.tokenization_request import (
 )
 
 
-class GPT2Tokenizer(Tokenizer):
-
-    # The max request length of GPT2 is MAX_SEQUENCE_LENGTH + 1.
-    MAX_REQUEST_LENGTH: int = 1025
-
-    # The max length of the model input. The max sequence length for GPT-2 is 1024.
-    MAX_SEQUENCE_LENGTH: int = 1024
-
-    # The end of text token
-    END_OF_TEXT_TOKEN: str = "<|endoftext|>"
-
+class HuggingFaceWindowService(WindowService):
     def __init__(self, service: TokenizerService):
         self.service: TokenizerService = service
 
     @property
-    def max_sequence_length(self) -> int:
-        """Return the max sequence length of this tokenizer."""
-        return GPT2Tokenizer.MAX_SEQUENCE_LENGTH
-
-    @property
-    def max_request_length(self) -> int:
-        """Return the max request length of GPT-2."""
-        return GPT2Tokenizer.MAX_REQUEST_LENGTH
-
-    @property
-    def end_of_text_token(self) -> str:
-        """The end of text token."""
-        return GPT2Tokenizer.END_OF_TEXT_TOKEN
-
-    @property
-    def prefix_token(self) -> str:
-        """The prefix token for OPENAI models is the end of text token."""
-        return self.end_of_text_token
+    @abstractmethod
+    def tokenizer_name(self) -> str:
+        pass
 
     def encode(self, text: str, truncation: bool = False, max_length: int = 2048) -> EncodeResult:
         """
         Encodes the input text to tokens.
         """
         response: TokenizationRequestResult = self.service.tokenize(
-            TokenizationRequest(text, encode=True, truncation=truncation, max_length=max_length)
+            TokenizationRequest(
+                text, tokenizer=self.tokenizer_name, encode=True, truncation=truncation, max_length=max_length
+            )
         )
         return EncodeResult(text=text, tokens=response.raw_tokens)
 
@@ -65,17 +43,21 @@ class GPT2Tokenizer(Tokenizer):
         """
         # Should set clean_up_tokenization_spaces=False: https://github.com/huggingface/transformers/issues/17682
         # If we don't, something like "their 'studio'" becomes "their'studio'" when decoding.
-        response: DecodeRequestResult = self.service.decode(DecodeRequest(tokens, clean_up_tokenization_spaces=False))
+        response: DecodeRequestResult = self.service.decode(
+            DecodeRequest(tokens, tokenizer=self.tokenizer_name, clean_up_tokenization_spaces=False)
+        )
         return response.text
 
     def tokenize(self, text: str) -> List[str]:
         """
         Tokenizes the text.
         """
-        response: TokenizationRequestResult = self.service.tokenize(TokenizationRequest(text))
+        response: TokenizationRequestResult = self.service.tokenize(
+            TokenizationRequest(text, tokenizer=self.tokenizer_name)
+        )
         return response.raw_tokens
 
-    def tokenize_and_count(self, text: str) -> int:
+    def get_num_tokens(self, text: str) -> int:
         """Tokenizes the text using the GPT-2 tokenizer and returns the number of tokens."""
         return len(self.tokenize(text))
 
@@ -84,7 +66,7 @@ class GPT2Tokenizer(Tokenizer):
         Checks if the given text fits within the context window given by `max_request_length`
         taking to account the expected completion length (defaults to 0).
         """
-        return self.tokenize_and_count(text) + expected_completion_token_length <= self.max_request_length
+        return self.get_num_tokens(text) + expected_completion_token_length <= self.max_request_length
 
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
@@ -101,6 +83,6 @@ class GPT2Tokenizer(Tokenizer):
         result: str = self.decode(self.encode(text, truncation=True, max_length=max_length).tokens)
 
         # Validate that the truncated text now fits. Fail fast otherwise.
-        num_tokens: int = self.tokenize_and_count(result)
+        num_tokens: int = self.get_num_tokens(result)
         assert num_tokens <= max_length, f"Truncation failed ({num_tokens} > {max_length}). Input text: {text}"
         return result

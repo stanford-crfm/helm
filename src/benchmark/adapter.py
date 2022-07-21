@@ -11,10 +11,9 @@ from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationToken
-from benchmark.tokenizer.tokenizer import Tokenizer, EncodeResult
-from benchmark.tokenizer.tokenizer_factory import TokenizerFactory
-from benchmark.tokenizer.tokenizer_service import TokenizerService
-from .adapter_service import AdapterService
+from benchmark.window_service.window_service import WindowService, EncodeResult
+from benchmark.window_service.window_service_factory import WindowServiceFactory
+from benchmark.window_service.tokenizer_service import TokenizerService
 from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
@@ -250,10 +249,11 @@ class Adapter:
     deal with references being of different lengths).
     """
 
-    def __init__(self, adapter_spec: AdapterSpec, adapter_service: AdapterService):
+    def __init__(self, adapter_spec: AdapterSpec, tokenizer_service: TokenizerService):
         self.adapter_spec: AdapterSpec = adapter_spec
-        tokenizer_service: TokenizerService = adapter_service
-        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
+        self.window_service: WindowService = WindowServiceFactory.get_window_service(
+            adapter_spec.model, tokenizer_service
+        )
 
     @htrack(None)
     def adapt(self, instances: List[Instance]) -> ScenarioState:
@@ -570,7 +570,7 @@ class Adapter:
         # we remove train instances one by one until it fits within the context window or
         # until we run out of train instances to remove.
         while len(train_instances) > 0:
-            if self.tokenizer.fits_within_context_window(
+            if self.window_service.fits_within_context_window(
                 text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
             ):
                 return prompt
@@ -587,7 +587,7 @@ class Adapter:
 
         # If removing the in-context example is still not enough, we simply truncate the prompt.
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
-        return self.tokenizer.truncate_from_right(prompt, self.adapter_spec.max_tokens)
+        return self.window_service.truncate_from_right(prompt, self.adapter_spec.max_tokens)
 
     def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
@@ -642,8 +642,8 @@ class Adapter:
         For models using the GPT-2 tokenizer, conditioning_tokens and pred_tokens
         are integers; for AI21 models, the tokens are TokenizationTokens.
         """
-        prompt: str = self.tokenizer.decode(conditioning_tokens + pred_tokens, text)
-        prompt_length: int = len(self.tokenizer.encode(prompt).tokens)
+        prompt: str = self.window_service.decode(conditioning_tokens + pred_tokens, text)
+        prompt_length: int = len(self.window_service.encode(prompt).tokens)
 
         # If the prompt is too long, removes the overflowing tokens.
         # Since encoding might generate extra tokens, we need to repeat this until prompt_length <= max_req_len.
@@ -659,8 +659,8 @@ class Adapter:
         while prompt_length > max_req_len:
             # Trims the extra (prompt_length - max_req_len) tokens
             pred_tokens = pred_tokens[: -(prompt_length - max_req_len)]
-            prompt = self.tokenizer.decode(conditioning_tokens + pred_tokens, text)
-            prompt_length = len(self.tokenizer.encode(prompt).tokens)
+            prompt = self.window_service.decode(conditioning_tokens + pred_tokens, text)
+            prompt_length = len(self.window_service.encode(prompt).tokens)
 
         return prompt, pred_tokens
 
@@ -694,12 +694,16 @@ class Adapter:
         if len(prompt) == len(raw_prompt):
             num_conditioning_tokens = len(conditioning_tokens)
         else:
-            num_leading_byte_tokens: int = max_req_len - len(self.tokenizer.encode(raw_prompt.lstrip("\ufffd")).tokens)
-            num_trailing_byte_tokens: int = max_req_len - len(self.tokenizer.encode(raw_prompt.rstrip("\ufffd")).tokens)
+            num_leading_byte_tokens: int = max_req_len - len(
+                self.window_service.encode(raw_prompt.lstrip("\ufffd")).tokens
+            )
+            num_trailing_byte_tokens: int = max_req_len - len(
+                self.window_service.encode(raw_prompt.rstrip("\ufffd")).tokens
+            )
 
             # There are no string tokens to predict
             if num_trailing_byte_tokens >= len(pred_tokens):
-                num_conditioning_tokens = len(self.tokenizer.encode(prompt).tokens)
+                num_conditioning_tokens = len(self.window_service.encode(prompt).tokens)
             # There are no conditioning string tokens
             elif num_leading_byte_tokens >= len(conditioning_tokens):
                 num_conditioning_tokens = 1
@@ -714,12 +718,12 @@ class Adapter:
         """
         request_states: List[RequestState] = []
 
-        max_sequence_length: int = self.tokenizer.max_sequence_length
-        max_request_length: int = self.tokenizer.max_request_length
-        prefix_token: str = self.tokenizer.prefix_token
+        max_sequence_length: int = self.window_service.max_sequence_length
+        max_request_length: int = self.window_service.max_request_length
+        prefix_token: str = self.window_service.prefix_token
 
         for instance in instances:
-            encode_result: EncodeResult = self.tokenizer.encode(instance.input)
+            encode_result: EncodeResult = self.window_service.encode(instance.input)
             tokens, text = encode_result.tokens, encode_result.text
 
             num_predicted_tokens = 0
@@ -740,7 +744,7 @@ class Adapter:
             # to the sequence later. This is the only place where `max_sequence_length` is used.
             first_seq_len = min(max_sequence_length, len(tokens))
             prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                self.tokenizer.encode(prefix_token).tokens, tokens[:first_seq_len], max_request_length, text
+                self.window_service.encode(prefix_token).tokens, tokens[:first_seq_len], max_request_length, text
             )
             request = Request(
                 model=self.adapter_spec.model,
