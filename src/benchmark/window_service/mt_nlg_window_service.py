@@ -13,3 +13,10 @@ class MTNLGWindowService(GPT2WindowService):
         Source: https://github.com/microsoft/turing-academic-TNLG
         """
         return 2048
+
+    @property
+    def max_request_length(self) -> int:
+        """
+        The max request length for the MT-NLG models is also 2048.
+        """
+        return self.max_sequence_length
