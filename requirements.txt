@@ -3,6 +3,7 @@ bottle==0.12.19
 gunicorn==20.1.0
 dacite==1.6.0
 google-api-python-client==2.35.0
+jsoncomparison==1.1.0
 Mako==1.1.5
 pyhocon==0.3.58
 pyOpenSSL==21.0.0
