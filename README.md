@@ -322,6 +322,16 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Run `venv/bin/benchmark-present --output-path src/proxy/static/benchmark_output`.
 1. Visit the [benchmarking status page](https://crfm-models.stanford.edu/static/benchmarking.html).
 
+### To verify that the Scenario construction and generation of prompts are reproducible
+
+1. `ssh scdt`
+1. `cd /u/scr/nlp/crfm/benchmarking/benchmarking`
+1. Create a screen session: `screen -S reproducible`.
+1. `conda activate crfm_benchmarking`
+1. Run `python3 scripts/verify_reproducibility.py --models-to-run openai/davinci openai/code-cushman-001 together/gpt-neox-20b
+   --conf-path src/benchmark/presentation/run_specs.conf --max-eval-instances 1000 --priority 2 &> reproducible.log`.
+1. Check the result at `reproducible.log`.
+
 # Contributing
 
 ## One-time setup
