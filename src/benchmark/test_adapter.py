@@ -4,7 +4,14 @@ from typing import List
 
 from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
 from .run_specs import get_scenario_spec1, get_adapter_spec1
-from .adapter import ADAPT_GENERATION, ADAPT_LANGUAGE_MODELING, ADAPT_MULTIPLE_CHOICE_JOINT, Adapter, AdapterSpec
+from .adapter import (
+    ADAPT_GENERATION,
+    ADAPT_LANGUAGE_MODELING,
+    ADAPT_MULTIPLE_CHOICE_JOINT,
+    Adapter,
+    AdapterSpec,
+    PromptConstructionResult,
+)
 from .window_service.tokenizer_service import TokenizerService
 from common.authentication import Authentication
 from proxy.server_service import ServerService
@@ -37,9 +44,10 @@ class TestAdapter:
         correct_reference = Reference(output="", tags=[CORRECT_TAG])
         train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(2049)]
         eval_instances = Instance(input="eval", references=[])
-        prompt: str = adapter.construct_prompt(
+        prompt_construction_result: PromptConstructionResult = adapter.construct_prompt(
             train_instances, eval_instances, include_output=False, reference_index=None
         )
+        prompt: str = prompt_construction_result.prompt
 
         # Ensure the prompt fits within the context window
         assert adapter.window_service.fits_within_context_window(prompt)
@@ -55,9 +63,10 @@ class TestAdapter:
         correct_reference = Reference(output="", tags=[CORRECT_TAG])
         train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(100)]
         eval_instances = Instance(input="eval" * 2049, references=[])
-        prompt: str = adapter.construct_prompt(
+        prompt_construction_result: PromptConstructionResult = adapter.construct_prompt(
             train_instances, eval_instances, include_output=False, reference_index=None
         )
+        prompt: str = prompt_construction_result.prompt
 
         # Ensure the prompt fits within the context window
         assert adapter.window_service.fits_within_context_window(prompt)

@@ -114,6 +114,9 @@ class RequestState:
     # The result of the request (filled in when the request is executed)
     result: Optional[RequestResult]
 
+    # The number of in-context examples used
+    num_in_context_examples: int
+
     # The number of initial tokens that will be ignored when computing language modeling metrics
     num_conditioning_tokens: int = 0
 
@@ -187,6 +190,17 @@ class ScenarioState:
             result.append("}")
 
         return result
+
+
+@dataclass
+class PromptConstructionResult:
+    """Result of prompt construction."""
+
+    # The prompt
+    prompt: str
+
+    # Number of in-context examples in the prompt
+    num_in_context_examples: int
 
 
 class Adapter:
@@ -306,6 +320,7 @@ class Adapter:
 
         # Accumulate all the request states due to adaptation
         all_request_states: List[RequestState] = []
+        prompt_construction_result: PromptConstructionResult
 
         if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
             # Use the LM-specific method to adapt LM scenarios
@@ -322,12 +337,12 @@ class Adapter:
                     method = self.adapter_spec.method
 
                     if method == ADAPT_GENERATION:
-                        prompt = self.construct_prompt(
+                        prompt_construction_result = self.construct_prompt(
                             train_instances, eval_instance, include_output=False, reference_index=None
                         )
                         request = Request(
                             model=self.adapter_spec.model,
-                            prompt=prompt,
+                            prompt=prompt_construction_result.prompt,
                             num_completions=self.adapter_spec.num_outputs,
                             temperature=self.adapter_spec.temperature,
                             max_tokens=self.adapter_spec.max_tokens,
@@ -343,10 +358,11 @@ class Adapter:
                                 output_mapping=None,
                                 request=request,
                                 result=None,
+                                num_in_context_examples=prompt_construction_result.num_in_context_examples,
                             )
                         ]
                     elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
-                        prompt = self.construct_prompt(
+                        prompt_construction_result = self.construct_prompt(
                             train_instances, eval_instance, include_output=False, reference_index=None
                         )
                         output_mapping = dict(
@@ -355,7 +371,7 @@ class Adapter:
                         )
                         request = Request(
                             model=self.adapter_spec.model,
-                            prompt=prompt,
+                            prompt=prompt_construction_result.prompt,
                             num_completions=1,
                             top_k_per_token=self.adapter_spec.num_outputs,
                             temperature=0,
@@ -372,6 +388,7 @@ class Adapter:
                                 output_mapping=output_mapping,
                                 request=request,
                                 result=None,
+                                num_in_context_examples=prompt_construction_result.num_in_context_examples,
                             )
                         ]
                     elif self.adapter_spec.method in [
@@ -397,7 +414,7 @@ class Adapter:
 
                             for request_mode in request_modes:
                                 if request_mode == "original":
-                                    prompt = self.construct_prompt(
+                                    prompt_construction_result = self.construct_prompt(
                                         train_instances,
                                         eval_instance,
                                         include_output=True,
@@ -407,7 +424,7 @@ class Adapter:
                                     # For calibration purpose, we compute the logprobs of the reference
                                     # without train instances and the input question.
                                     eval_instance_calibration = replace(eval_instance, input="Answer:")
-                                    prompt = self.construct_prompt(
+                                    prompt_construction_result = self.construct_prompt(
                                         [],
                                         eval_instance_calibration,
                                         include_output=True,
@@ -417,7 +434,7 @@ class Adapter:
                                     raise ValueError(f"Unknown request mode: {request_mode}")
                                 request = Request(
                                     model=self.adapter_spec.model,
-                                    prompt=prompt,
+                                    prompt=prompt_construction_result.prompt,
                                     num_completions=1,
                                     temperature=0,
                                     max_tokens=0,
@@ -432,6 +449,7 @@ class Adapter:
                                     output_mapping=None,
                                     request=request,
                                     result=None,
+                                    num_in_context_examples=prompt_construction_result.num_in_context_examples,
                                 )
                                 request_states.append(request_state)
                     else:
@@ -530,7 +548,7 @@ class Adapter:
         eval_instance: Instance,
         include_output: bool,
         reference_index: Optional[int],
-    ) -> str:
+    ) -> PromptConstructionResult:
         """
         Returns a prompt (string) given:
         - the `self.adapter_spec.instructions`
@@ -573,7 +591,7 @@ class Adapter:
             if self.window_service.fits_within_context_window(
                 text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
             ):
-                return prompt
+                return PromptConstructionResult(prompt, num_in_context_examples=len(train_instances))
 
             train_instances = train_instances[:-1]
             prompt = construct_prompt_helper(train_instances)
@@ -587,7 +605,8 @@ class Adapter:
 
         # If removing the in-context example is still not enough, we simply truncate the prompt.
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
-        return self.window_service.truncate_from_right(prompt, self.adapter_spec.max_tokens)
+        prompt = self.window_service.truncate_from_right(prompt, self.adapter_spec.max_tokens)
+        return PromptConstructionResult(prompt, num_in_context_examples=len(train_instances))
 
     def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
@@ -765,6 +784,7 @@ class Adapter:
                 request=request,
                 result=None,
                 num_conditioning_tokens=1 if len(prefix_token) > 0 else 0,
+                num_in_context_examples=self.adapter_spec.max_train_instances,
             )
             request_states.append(request_state)
             num_predicted_tokens += first_seq_len
@@ -808,6 +828,7 @@ class Adapter:
                     request=request,
                     result=None,
                     num_conditioning_tokens=num_conditioning_tokens,
+                    num_in_context_examples=self.adapter_spec.max_train_instances,
                 )
                 request_states.append(request_state)
                 num_predicted_tokens += window_pred_len
