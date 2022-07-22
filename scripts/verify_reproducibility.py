@@ -1,10 +1,8 @@
 import argparse
-import json
 import os
+import shutil
 import subprocess
 from typing import List, Optional
-
-from jsoncomparison import Compare, NO_DIFF
 
 from common.hierarchical_logger import hlog, htrack, htrack_block
 
@@ -20,8 +18,8 @@ Usage:
   python3 scripts/verify_reproducibility.py --models-to-run openai/davinci openai/code-cushman-001 together/gpt-neox-20b
 
 """
-DRYRUN_SUITE1: str = "dryrun1"
-DRYRUN_SUITE2: str = "dryrun2"
+DRYRUN_SUITE1: str = "dryrun_results1"
+DRYRUN_SUITE2: str = "dryrun_results2"
 
 
 @htrack("Performing dryrun")
@@ -29,6 +27,10 @@ def do_dry_run(
     dryrun_suite: str, conf_path: str, max_eval_instances: int, priority: int, models: Optional[List[str]]
 ) -> str:
     """Performs dry run. Blocks until the run finishes."""
+    output_path: str = f"benchmark_output/runs/{dryrun_suite}"
+    shutil.rmtree(output_path, ignore_errors=True)
+    hlog(f"Deleted old results at path: {output_path}.")
+
     command: List[str] = [
         "benchmark-present",
         f"--suite={dryrun_suite}",
@@ -44,8 +46,7 @@ def do_dry_run(
 
     hlog(" ".join(command))
     subprocess.call(command)
-    output_path: str = f"benchmark_output/runs/{dryrun_suite}"
-    hlog(f"Results written out to path: {output_path}.")
+    hlog(f"Results are written out to path: {output_path}.")
     return output_path
 
 
@@ -70,16 +71,28 @@ def verify_reproducibility(conf_path: str, max_eval_instances: int, priority: in
 
         with htrack_block(f"Comparing `ScenarioState`s for {run_dir}"):
             with open(scenario_state_path1) as f:
-                scenario_state1 = json.load(f)
+                scenario_state1 = f.readlines()
 
             with open(scenario_state_path2) as f:
-                scenario_state2 = json.load(f)
+                scenario_state2 = f.readlines()
 
-            diff = Compare().check(scenario_state1, scenario_state2)
-            if diff != NO_DIFF:
-                hlog(f"ERROR: not reproducible. Diff:\n{diff}")
-            else:
-                hlog("Verified reproducibility.")
+            same: bool = True
+            # Check the difference between two scenario_state.json files
+            for i, (line1, line2) in enumerate(zip(scenario_state1, scenario_state2)):
+                if line1 != line2:
+                    line_number: int = i + 1
+                    same = False
+                    hlog(
+                        "ERROR: Not reproducible - content of "
+                        f"{scenario_state_path1} and {scenario_state_path2} are different. "
+                        f"Line {line_number}:"
+                    )
+                    hlog(f"--- scenario_state.json (1): {line1}")
+                    hlog(f"+++ scenario_state.json (2): {line2}")
+                    break
+
+            if same:
+                hlog("Verified reproducible.")
 
 
 if __name__ == "__main__":
