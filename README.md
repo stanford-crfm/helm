@@ -343,6 +343,7 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. `cd /u/scr/nlp/crfm/benchmarking/benchmarking`
 1. Download the results from CodaLab: `cl download <UUID of the results bundle>`.
 1. Run: `python3 scripts/together/together_import_results.py <Path to results jsonl file> prod_env/cache/together.sqlite`.
+   This will update the cache with requests and their results.
 
 
 ### To visualize results at crfm-models.stanford.edu
