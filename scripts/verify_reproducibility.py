@@ -2,13 +2,14 @@ import argparse
 import json
 import os
 import subprocess
+from typing import List, Optional
 
 from jsoncomparison import Compare, NO_DIFF
 
 from common.hierarchical_logger import hlog, htrack, htrack_block
 
 """
-Verifies that results are reproducible:
+Verifies that the Scenario construction and generation of prompts are reproducible:
 
 1. Performs dryrun
 2. Performs dryrun again.
@@ -16,7 +17,7 @@ Verifies that results are reproducible:
 
 Usage:
 
-    python3 scripts/verify_reproducibility.py -m 1000 -c src/benchmark/presentation/run_specs.conf
+  python3 scripts/verify_reproducibility.py --models-to-run openai/davinci openai/code-cushman-001 together/gpt-neox-20b
 
 """
 DRYRUN_SUITE1: str = "dryrun1"
@@ -24,28 +25,34 @@ DRYRUN_SUITE2: str = "dryrun2"
 
 
 @htrack("Performing dryrun")
-def do_dry_run(dryrun_suite: str, conf_path: str, max_eval_instances: int, priority: int) -> str:
+def do_dry_run(
+    dryrun_suite: str, conf_path: str, max_eval_instances: int, priority: int, models: Optional[List[str]]
+) -> str:
     """Performs dry run. Blocks until the run finishes."""
-    subprocess.call(
-        [
-            "benchmark-present",
-            f"--suite={dryrun_suite}",
-            f"--conf-path={conf_path}",
-            f"--max-eval-instances={max_eval_instances}",
-            "--local",
-            "--dry-run",
-            f"--priority={priority}",
-        ]
-    )
+    command: List[str] = [
+        "benchmark-present",
+        f"--suite={dryrun_suite}",
+        f"--conf-path={conf_path}",
+        f"--max-eval-instances={max_eval_instances}",
+        "--local",
+        "--dry-run",
+        f"--priority={priority}",
+    ]
+    if models:
+        command.append("--models-to-run")
+        command.extend(models)
+
+    hlog(" ".join(command))
+    subprocess.call(command)
     output_path: str = f"benchmark_output/runs/{dryrun_suite}"
     hlog(f"Results written out to path: {output_path}.")
     return output_path
 
 
 @htrack("Verifying reproducibility")
-def verify_reproducibility(conf_path: str, max_eval_instances: int, priority: int):
-    dryrun_path1: str = do_dry_run(DRYRUN_SUITE1, conf_path, max_eval_instances, priority)
-    dryrun_path2: str = do_dry_run(DRYRUN_SUITE2, conf_path, max_eval_instances, priority)
+def verify_reproducibility(conf_path: str, max_eval_instances: int, priority: int, models: Optional[List[str]]):
+    dryrun_path1: str = do_dry_run(DRYRUN_SUITE1, conf_path, max_eval_instances, priority, models)
+    dryrun_path2: str = do_dry_run(DRYRUN_SUITE2, conf_path, max_eval_instances, priority, models)
 
     hlog(f"Comparing results in {dryrun_path1} vs. {dryrun_path2}")
     for run_dir in os.listdir(dryrun_path1):
@@ -88,9 +95,15 @@ if __name__ == "__main__":
         default="src/benchmark/presentation/run_specs.conf",
     )
     parser.add_argument(
+        "--models-to-run",
+        nargs="+",
+        help="Only RunSpecs with these models specified. If no model is specified, run with all models.",
+        default=None,
+    )
+    parser.add_argument(
         "--priority", type=int, default=2, help="Run RunSpecs with priority less than or equal to this number."
     )
     args = parser.parse_args()
 
-    verify_reproducibility(args.conf_path, args.max_eval_instances, args.priority)
+    verify_reproducibility(args.conf_path, args.max_eval_instances, args.priority, args.models_to_run)
     hlog("Done.")
