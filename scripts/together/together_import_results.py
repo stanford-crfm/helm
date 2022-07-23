@@ -66,7 +66,9 @@ def import_results(cache_path: str, request_results_path: str, dry_run: bool):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("request_results_path", type=str, help="Path to jsonl file with requests and results.")
-    parser.add_argument("cache_path", type=str, help="Path to sqlite file for the cache.")
+    parser.add_argument(
+        "cache_path", type=str, help="Path to sqlite file (together.sqlite) for the `TogetherClient` cache."
+    )
     parser.add_argument(
         "-d",
         "--dry-run",
