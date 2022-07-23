@@ -317,6 +317,36 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Exit the screen session: `ctrl+ad`.
 1. To check on the screen session: `screen -r benchmarking`.
 
+### Offline evaluation for `TogetherClient` models
+
+#### Exporting requests
+
+1. `ssh scdt`
+1. `cd /u/scr/nlp/crfm/benchmarking/benchmarking`
+1. Create a screen session: `screen -S together`.
+1. Activate the Conda environment: `conda activate crfm_benchmarking`.
+1. Do a dry run and list the `TogetherClient` models for `--models-to-run`:  
+   `benchmark-present --suite together --models-to-run together/gpt-j-6b together/gpt-neox-20b --max-eval-instances 1000 --local --priority 2 --dry-run &> together.log`.
+1. Exit the screen session: `ctrl+ad`.
+1. Check on the dry run by streaming `together.log`: `tail -f together.log`.
+1. The dry run results will be outputted to `benchmark_output/runs/together`.
+1. Once the dry run is done, run 
+   `python3 scripts/together/together_export_requests.py benchmark_output/runs/together prod_env/cache/together.sqlite --output-path request.jsonl`.
+   This command will generate a `requests.jsonl` that contains requests that are not in the cache (`prod_env/cache/together.sqlite`).
+1. Upload `queries.jsonl` to CodaLab:
+    1. Log on to CodaLab: `cl work main::0xbd9f3df457854889bda8ac114efa8061`.
+    1. Upload by running `cl upload queries.jsonl`.
+1. Share the link to the CodaLab bundle with our collaborators.
+
+#### Importing results
+
+1. `ssh scdt`
+1. `cd /u/scr/nlp/crfm/benchmarking/benchmarking`
+1. Download the results from CodaLab: `cl download <UUID of the results bundle>`.
+1. Run: `python3 scripts/together/together_import_results.py <Path to results jsonl file> prod_env/cache/together.sqlite`.
+   This will update the cache with requests and their results.
+
+
 ### To visualize results at crfm-models.stanford.edu
 
 1. Run `venv/bin/benchmark-present --output-path src/proxy/static/benchmark_output`.
