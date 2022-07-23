@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
-import itertools
 from typing import List, Dict, Optional, Tuple
 
 from proxy.models import (
@@ -13,7 +12,6 @@ from proxy.models import (
     GPT2_TOKENIZER_TAG,
     AI21_TOKENIZER_TAG,
 )
-from .metric import MetricSpec
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
