@@ -78,8 +78,10 @@ def export_requests(run_suite_path: str, cache_path: str, output_path: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("run_suite_path", type=str, help="Path to run path.")
-    parser.add_argument("cache_path", type=str, help="Path to sqlite file for the cache.")
-    parser.add_argument("--output-path", type=str, default="queries.jsonl", help="Path to jsonl file.")
+    parser.add_argument(
+        "cache_path", type=str, help="Path to sqlite file (together.sqlite) for the `TogetherClient` cache."
+    )
+    parser.add_argument("--output-path", type=str, default="requests.jsonl", help="Path to jsonl file.")
     args = parser.parse_args()
 
     export_requests(args.run_suite_path, args.cache_path, args.output_path)
