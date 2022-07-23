@@ -10,7 +10,7 @@ from .adapter import (
     ADAPT_MULTIPLE_CHOICE_JOINT,
     Adapter,
     AdapterSpec,
-    PromptConstructionResult,
+    Prompt,
 )
 from .window_service.tokenizer_service import TokenizerService
 from common.authentication import Authentication
@@ -44,16 +44,16 @@ class TestAdapter:
         correct_reference = Reference(output="", tags=[CORRECT_TAG])
         train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(2049)]
         eval_instances = Instance(input="eval", references=[])
-        prompt_construction_result: PromptConstructionResult = adapter.construct_prompt(
+        prompt: Prompt = adapter.construct_prompt(
             train_instances, eval_instances, include_output=False, reference_index=None
         )
-        prompt: str = prompt_construction_result.prompt
+        prompt_text: str = prompt.text
 
         # Ensure the prompt fits within the context window
-        assert adapter.window_service.fits_within_context_window(prompt)
+        assert adapter.window_service.fits_within_context_window(prompt_text)
 
         # Ensure the in-context examples were removed before touching the evaluation instance
-        assert prompt.endswith("eval")
+        assert prompt_text.endswith("eval")
 
     def test_construct_prompt_with_truncation(self):
         adapter_spec = AdapterSpec(
@@ -63,17 +63,17 @@ class TestAdapter:
         correct_reference = Reference(output="", tags=[CORRECT_TAG])
         train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(100)]
         eval_instances = Instance(input="eval" * 2049, references=[])
-        prompt_construction_result: PromptConstructionResult = adapter.construct_prompt(
+        prompt: Prompt = adapter.construct_prompt(
             train_instances, eval_instances, include_output=False, reference_index=None
         )
-        prompt: str = prompt_construction_result.prompt
+        prompt_text: str = prompt.text
 
         # Ensure the prompt fits within the context window
-        assert adapter.window_service.fits_within_context_window(prompt)
+        assert adapter.window_service.fits_within_context_window(prompt_text)
 
         # Ensure that all the in-context examples were completely removed and we had to truncate the eval Instance input
-        assert "train" not in prompt
-        assert prompt.count("eval") == 1948
+        assert "train" not in prompt_text
+        assert prompt_text.count("eval") == 1948
 
     def test_construct_language_modeling_prompt(self):
         model: str = "openai/davinci"
