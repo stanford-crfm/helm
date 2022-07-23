@@ -353,7 +353,7 @@ def main():
     parser.add_argument(
         "--models-to-run",
         nargs="+",
-        help="Only RunSpecs with these models specified. If no model is specified, run everything.",
+        help="Only RunSpecs with these models specified. If no model is specified, runs with all models.",
         default=None,
     )
     parser.add_argument(
