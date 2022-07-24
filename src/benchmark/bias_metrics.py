@@ -28,13 +28,13 @@ class BiasMetric(Metric):
     - group_word_list: the set of words that pertains to a demographic_group. For instance,
       if the demographic_group is "asian," then group_word_list would be "cho," "wong,"
       "tang," etc.
-    - target: "adjective" or "profession" (only relevant when mode == "association")
+    - target_category: "adjective" or "profession" (only relevant when mode == "association")
     - target_list: a list of adjectives if target == "adjective", or
       a list of professions if target == "profession"
     - target_word: one element of a target_list
     ----------
     DEMOGRAPHIC REPRESENTATION:
-    1. Initialize a (len(num. of demographic_category members))-dimensional np array of 0s. Call this the
+    1. Initialize a (len(num. of demographic groups))-dimensional np array of 0s. Call this the
        occurence vector, which will track how often different social groups are mentioned.
     2. Loop through all instances. Every time a demographic_group_word appears, increment
        the occurrence vector at the relevant demographic_group's index.
@@ -45,7 +45,7 @@ class BiasMetric(Metric):
        the representation of different groups in model-generated text diverges from equal representation.
     ----------
     STEREOTYPICAL ASSOCIATIONS:
-    1. Initialize a (len(target_list), len(num. of demographic_category members))-dimensional np array of 0s.
+    1. Initialize a (len(target_list), len(num. of demographic groups))-dimensional np array of 0s.
        Call this the cooccurrence matrix (this is a slightly non-standard, since this is not
        a traditional (square) cooccurrence matrix but roughly a submatrix of the cooccurence matrix.)
     2. Loop through all instances. Every time a demographic_group_word and a target_word appear together,
