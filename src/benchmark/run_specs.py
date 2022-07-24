@@ -110,11 +110,14 @@ def get_bias_metrics() -> List[MetricSpec]:
     return [
         MetricSpec(
             class_name="benchmark.bias_metrics.BiasMetric",
-            args={"mode": "associations", "category": cat, "associations_target": target},
+            args={"mode": "associations", "demographic_category": cat, "target": target},
         )
         for cat, target in cross_cat_target
     ] + [
-        MetricSpec(class_name="benchmark.bias_metrics.BiasMetric", args={"mode": "representation", "category": cat},)
+        MetricSpec(
+            class_name="benchmark.bias_metrics.BiasMetric",
+            args={"mode": "representation", "demographic_category": cat},
+        )
         for cat in categories
     ]
 
