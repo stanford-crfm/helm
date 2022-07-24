@@ -1533,7 +1533,10 @@ def get_pubmed_qa_spec(better_prompting: str) -> RunSpec:
         name=f"pubmed_qa:better_prompting={use_better_prompting}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        # From Kojima et al., "Pick up the first 'yes' or 'no' encountered in the text
+        # after removing unnecessary letters." The "partial_match" implementation is not quite
+        # the same, but it's a good enough approximation for now.
+        metrics=get_basic_metrics({"names": ["partial_match"]}),
         groups=["PubMedQA"],
     )
 
