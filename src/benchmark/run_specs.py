@@ -316,10 +316,9 @@ def get_bold_spec(subject: str) -> RunSpec:
     )
 
 
-def get_civil_comments_spec(subject: str, data_path: str) -> RunSpec:
+def get_civil_comments_spec(subject: str) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.civil_comments_scenario.CivilCommentsScenario",
-        args={"subject": subject, "data_path": data_path},
+        class_name="benchmark.civil_comments_scenario.CivilCommentsScenario", args={"subject": subject},
     )
 
     adapter_spec = AdapterSpec(
