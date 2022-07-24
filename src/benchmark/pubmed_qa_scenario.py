@@ -18,6 +18,23 @@ class PubMedQAScenario(Scenario):
     The train and dev splits are from the "pqal_fold0" fold. A copy of the preprocessed dataset is stored at
     https://worksheets.codalab.org/bundles/0x531c9c54d8314d289da812af608b86fb.
 
+    The following is an example from the dataset:
+
+    "The aim of this study was to evaluate the effectiveness of our surgical strategy for acute aortic dissection based
+    on the extent of the dissection and the site of the entry, with special emphasis on resection of all dissected
+    aortic segments if technically possible. Between January 1995 and March 2001, 43 consecutive patients underwent
+    operations for acute aortic dissection. In all patients the distal repair was performed under circulatory arrest
+    without the use of an aortic cross-clamp. Fifteen patients underwent aortic arch replacement with additional
+    reconstruction of supra-aortic vessels in 3 patients. Complete replacement of all dissected tissue could be
+    achieved in 21 patients (group 1). Because of the distal extent of the dissection beyond the aortic arch,
+    replacement of all the dissected tissue was not possible in 22 patients (group 2). Early mortality was 4.7%
+    (2 patients), and the incidence of perioperative cerebrovascular events was 7.0% (3 patients). All of these events
+    occurred in group 2 (p<0.025). During the follow-up period of 6 years or less, 5 patients died, all from causes not
+    related to the aorta or the aortic valve. A persisting patent false lumen was observed in 14 of the 36 surviving
+    patients (39%). Is extended aortic replacement in acute type A dissection justifiable?"
+
+    Expected answer: "yes"
+
     @inproceedings{jin2019pubmedqa,
       title={PubMedQA: A Dataset for Biomedical Research Question Answering},
       author={Jin, Qiao and Dhingra, Bhuwan and Liu, Zhengping and Cohen, William and Lu, Xinghua},
@@ -73,16 +90,15 @@ class PubMedQAScenario(Scenario):
                     question: str = example["QUESTION"]
                     answer: str = example["final_decision"]  # One of "yes", "no" or "maybe"
 
-                    # Following Liévin et al., prepend the question with the provided context
-                    # TODO: find an example of their prompt for PubMedQA and compare to our prompts.
+                    # Following Liévin et al., prepend the question with the provided context.
+                    # TODO: find an example of their prompt for PubMedQA and compare it to our prompts.
                     #       The link to their code and example prompts (https://vlievin.github.io/medical-reasoning)
-                    #       is currently broken.
+                    #       is currently broken, and I didn't see any examples for PubMedQA in the paper.
                     instance: Instance = Instance(
                         input=" ".join(contexts + [question]),
                         references=[Reference(output=answer, tags=[CORRECT_TAG])],
                         split=split,
                     )
-                    print(instance.input)
                     instances.append(instance)
 
         return instances

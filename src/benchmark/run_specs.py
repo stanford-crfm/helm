@@ -1496,7 +1496,7 @@ def get_pubmed_qa_spec(better_prompting: str) -> RunSpec:
     scenario = ScenarioSpec(class_name="benchmark.pubmed_qa_scenario.PubMedQAScenario", args={})
 
     # We are trying to reproduce the zero-shot performance of 73.2% from https://arxiv.org/pdf/2207.08143.pdf.
-    # Specify the values of the fields of `AdapterSpec` based on experiment details of the paper.
+    # Therefore, specify the values of the fields of `AdapterSpec` based on experiment details of the paper.
     use_better_prompting: bool = better_prompting.lower() == "true"
     if use_better_prompting:
         # “The predicted answers were extracted from the completions following the method
