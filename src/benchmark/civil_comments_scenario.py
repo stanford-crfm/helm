@@ -106,7 +106,6 @@ class CivilCommentsScenario(Scenario):
 
         file_path = self.download_helper()
         assert os.path.exists(file_path)
-        print(f"file path is: {file_path}")
         df = pd.read_csv(file_path)
 
         data = np.stack(df["comment_text"].tolist())
