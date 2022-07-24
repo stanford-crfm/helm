@@ -29,8 +29,8 @@ class BiasMetric(Metric):
       if the demographic_group is "asian," then group_word_list would be "cho," "wong,"
       "tang," etc.
     - target_category: "adjective" or "profession" (only relevant when mode == "association")
-    - target_list: a list of adjectives if target == "adjective", or
-      a list of professions if target == "profession"
+    - target_list: a list of adjectives if target_category == "adjective", or
+      a list of professions if target_category == "profession"
     - target_word: one element of a target_list
     ----------
     DEMOGRAPHIC REPRESENTATION:
@@ -85,7 +85,7 @@ class BiasMetric(Metric):
         PROFESSION_TARGET: BOLUKBASI_PROFESSION_LIST,
     }
 
-    def __init__(self, demographic_category: str, mode: str, target: Optional[str] = ""):
+    def __init__(self, demographic_category: str, mode: str, target_category: Optional[str] = ""):
         # Assign parameters
         self.demographic_category: str = demographic_category
         assert (
@@ -96,16 +96,16 @@ class BiasMetric(Metric):
         assert self.mode in self.MODE_LIST, f"{self.mode} is not a supported mode"
 
         if self.mode == self.ASSOCIATIONS_MODE:
-            self.target: str = cast(str, target)
-            assert self.target, "Need to specify a target"
-            assert self.target in self.TARGET_LIST, "{self.target} is not a supported target"
+            self.target_category: str = cast(str, target_category)
+            assert self.target_category, "Need to specify a target_category"
+            assert self.target_category in self.TARGET_LIST, "{self.target_category} is not a supported target_category"
 
         # Set the variables we will use throughout
         self.social_group_2_words: Dict[str, Set[str]] = self.GROUP_2_WORD_LIST[self.demographic_category]
 
         self.representation_vector: np.ndarray = np.zeros((len(self.social_group_2_words)))
         if self.mode == self.ASSOCIATIONS_MODE:
-            self.target_list = self.TARGET_CATEGORY_2_WORD_LIST[self.target]
+            self.target_list = self.TARGET_CATEGORY_2_WORD_LIST[self.target_category]
             assert self.target_list and len(self.target_list) > 0, "Improper target list for computing associations"
             self.coocurrence_matrix: np.ndarray = np.zeros((len(self.target_list), len(self.social_group_2_words)))
 
@@ -117,7 +117,7 @@ class BiasMetric(Metric):
 
         curr_settings: str = f"{self.mode}: demographic_category={self.demographic_category}"
         if self.mode == self.ASSOCIATIONS_MODE:
-            curr_settings += f", target={self.target}"
+            curr_settings += f", target_category={self.target_category}"
         stat = Stat(MetricName(curr_settings))
 
         for train_trial_index in range(adapter_spec.num_train_trials):

@@ -103,22 +103,22 @@ def get_toxicity_metrics() -> List[MetricSpec]:
 
 
 def get_bias_metrics() -> List[MetricSpec]:
-    categories = ["race", "gender"]
-    targets = ["adjective", "profession"]
-    cross_cat_target = itertools.product(categories, targets)
+    demographic_categories = ["race", "gender"]
+    target_categories = ["adjective", "profession"]
+    cross_dem_target = itertools.product(demographic_categories, target_categories)
 
     return [
         MetricSpec(
             class_name="benchmark.bias_metrics.BiasMetric",
-            args={"mode": "associations", "demographic_category": cat, "target": target},
+            args={"mode": "associations", "demographic_category": dem, "target_category": tgt},
         )
-        for cat, target in cross_cat_target
+        for dem, tgt in cross_dem_target
     ] + [
         MetricSpec(
             class_name="benchmark.bias_metrics.BiasMetric",
-            args={"mode": "representation", "demographic_category": cat},
+            args={"mode": "representation", "demographic_category": dem},
         )
-        for cat in categories
+        for dem in demographic_categories
     ]
 
 
