@@ -1493,6 +1493,52 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
     )
 
 
+def get_pubmed_qa_spec(better_prompting: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.pubmed_qa_scenario.PubMedQAScenario", args={})
+
+    # We are trying to reproduce the zero-shot performance of 73.2% from https://arxiv.org/pdf/2207.08143.pdf.
+    # Specify the values of the fields of `AdapterSpec` based on experiment details of the paper.
+    use_better_prompting: bool = better_prompting.lower() == "true"
+    if use_better_prompting:
+        # “The predicted answers were extracted from the completions following the method
+        # described in Kojima et al. (2022).”
+        # From Kojima et al., "we used Zero-shot (left) and Zero-shot-CoT (left) as
+        # default prompts for answer extraction across all the experiments."
+        # TODO: So, output_prefix should either be:
+        #       "Among yes, no or maybe, the answer is"
+        #       "The answer (yes or no or maybe) is"
+        #       Double check this once we get an example of the prompts they used.
+        input_prefix = ""
+        output_prefix = " Among yes, no or maybe, the answer is "
+    else:
+        input_prefix = "Question: "
+        output_prefix = "\nAnswer: "
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        num_train_trials=1,
+        max_eval_instances=550,  # The dev (50 examples) + test (500 examples) split has 550 examples total.
+        # "We applied the largest human-aligned GPT-3 (InstructGPT, text-davinci-002, Ouyang et al.
+        # (2022), 175B parameters) to answering medical questions in a zero-shot setting..."
+        model="openai/text-davinci-002",
+        max_train_instances=0,
+        # "We sampled one completion per prompt with a temperature of zero
+        # and limited the completions to a maximum length of 1024 tokens.”"
+        num_outputs=1,
+        temperature=0,
+        max_tokens=1024,
+        input_prefix=input_prefix,
+        output_prefix=output_prefix,
+    )
+    return RunSpec(
+        name=f"pubmed_qa:better_prompting={use_better_prompting}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        groups=["PubMedQA"],
+    )
+
+
 ############################################################
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
@@ -1537,6 +1583,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "entity_matching": get_entity_matching_spec,
     "entity_data_imputation": get_entity_data_imputation_spec,
     "ice": get_ice_spec,
+    "pubmed_qa": get_pubmed_qa_spec,
 }
 
 
