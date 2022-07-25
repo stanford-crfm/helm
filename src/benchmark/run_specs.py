@@ -1516,7 +1516,7 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
         # "We applied the largest human-aligned GPT-3 (InstructGPT, text-davinci-002, Ouyang et al.
         # (2022), 175B parameters) to answering medical questions in a zero-shot setting..."
         model="openai/text-davinci-002",
-        max_train_instances=1,  # We want to reproduce the zero-shot performance.
+        max_train_instances=0,  # We want to reproduce the zero-shot performance.
         # "We sampled one completion per prompt with a temperature of zero..."
         num_outputs=1,
         temperature=0,
