@@ -20,20 +20,49 @@ class PubMedQAScenario(Scenario):
 
     The following is an example from the dataset:
 
-    "The aim of this study was to evaluate the effectiveness of our surgical strategy for acute aortic dissection based
-    on the extent of the dissection and the site of the entry, with special emphasis on resection of all dissected
-    aortic segments if technically possible. Between January 1995 and March 2001, 43 consecutive patients underwent
-    operations for acute aortic dissection. In all patients the distal repair was performed under circulatory arrest
-    without the use of an aortic cross-clamp. Fifteen patients underwent aortic arch replacement with additional
-    reconstruction of supra-aortic vessels in 3 patients. Complete replacement of all dissected tissue could be
-    achieved in 21 patients (group 1). Because of the distal extent of the dissection beyond the aortic arch,
-    replacement of all the dissected tissue was not possible in 22 patients (group 2). Early mortality was 4.7%
-    (2 patients), and the incidence of perioperative cerebrovascular events was 7.0% (3 patients). All of these events
-    occurred in group 2 (p<0.025). During the follow-up period of 6 years or less, 5 patients died, all from causes not
-    related to the aorta or the aortic valve. A persisting patent false lumen was observed in 14 of the 36 surviving
-    patients (39%). Is extended aortic replacement in acute type A dissection justifiable?"
-
-    Expected answer: "yes"
+    "QUESTION": "Is anorectal endosonography valuable in dyschesia?",
+    "CONTEXTS": [
+        "Dyschesia can be provoked by inappropriate defecation movements. The aim of this prospective study was to
+        demonstrate dysfunction of the anal sphincter and/or the musculus (m.) puborectalis in patients with dyschesia
+        using anorectal endosonography.",
+        "Twenty consecutive patients with a medical history of dyschesia and a control group of 20 healthy subjects
+        underwent linear anorectal endosonography (Toshiba models IUV 5060 and PVL-625 RT). In both groups, the
+        dimensions of the anal sphincter and the m. puborectalis were measured at rest, and during voluntary squeezing
+        and straining. Statistical analysis was performed within and between the two groups.",
+        "The anal sphincter became paradoxically shorter and/or thicker during straining (versus the resting state) in
+        85% of patients but in only 35% of control subjects. Changes in sphincter length were statistically
+        significantly different (p<0.01, chi(2) test) in patients compared with control subjects. The m. puborectalis
+        became paradoxically shorter and/or thicker during straining in 80% of patients but in only 30% of controls.
+        Both the changes in length and thickness of the m. puborectalis were significantly different (p<0.01, chi(2)
+        test) in patients versus control subjects."
+    ],
+    "LABELS": [
+        "AIMS",
+        "METHODS",
+        "RESULTS"
+    ],
+    "MESHES": [
+        "Adolescent",
+        "Adult",
+        "Aged",
+        "Aged, 80 and over",
+        "Anal Canal",
+        "Case-Control Studies",
+        "Chi-Square Distribution",
+        "Constipation",
+        "Defecation",
+        "Endosonography",
+        "Female",
+        "Humans",
+        "Male",
+        "Middle Aged",
+        "Pelvic Floor",
+        "Rectum"
+    ],
+    "YEAR": "2002",
+    "reasoning_required_pred": "yes",
+    "reasoning_free_pred": "yes",
+    "final_decision": "yes"
 
     @inproceedings{jin2019pubmedqa,
       title={PubMedQA: A Dataset for Biomedical Research Question Answering},
@@ -48,30 +77,19 @@ class PubMedQAScenario(Scenario):
     done in "Can large language models reason about medical questions?" (Liévin et al.) when constructing
     the `Instance`s.
 
-    The following is an example of a prompt they constructed:
+    The following is the template of how they constructed the prompts:
 
-    "Context: Background. Uncontrolled hemorrhage is the leading cause of fatality. The aim of this study was to
-    evaluate the effect of zeolite mineral (QuikClot - Advanced Clotting Sponge [QC-ACS]) on blood loss and
-    physiological variables in a swine extremity arterial injury model.
-    Methods. Sixteen swine were used. Oblique groin incision was created and a 5 mm incision was made. The animals
-    were allocated to: control group (n: 6): Pressure dressing was applied with manual pressure over gauze sponge;
-    or QC group (n: 10): QC was directly applied over lacerated femoral artery. Mean arterial pressure, blood loss
-    and physiological parameters were measured during the study period.
-    Results. Application of QC led to a slower drop in blood pressure. The control group had a significantly higher
-    increase in lactate within 60 minutes. The mean prothrombin time in the control group was significantly increased
-    at 60 minutes. The application of QC led to decreased total blood loss. The QC group had significantly higher
-    hematocrit levels. QC application generated a significant heat production. There were mild edematous and vacuolar
-    changes in nerve samples.
+    Context: <Label>. <context>
+    <Label>. <context>
+    <Label>. <context>
 
-    Question: Is the zeolite hemostatic agent beneficial in reducing blood loss during arterial injury?
+    Question: <Question>
 
     A) yes
     B) no
     C) maybe
 
     among A through C, the answer is
-
-    Expected output: A
 
     @misc{https://doi.org/10.48550/arxiv.2207.08143,
       doi = {10.48550/ARXIV.2207.08143},
@@ -89,6 +107,8 @@ class PubMedQAScenario(Scenario):
     name = "pubmed_qa"
     description = "A biomedical question answering (QA) dataset collected from PubMed abstracts."
     tags = ["question_answering", "biomedical"]
+
+    POSSIBLE_ANSWER_CHOICES: List[str] = ["yes", "no", "maybe"]
 
     def __init__(self):
         pass
@@ -125,11 +145,11 @@ class PubMedQAScenario(Scenario):
 
                     # Build `Reference`s. The possible answer choices are one of: "yes", "no" or "maybe"
                     correct_answer: str = example["final_decision"]
-                    references: List[Reference] = []
-                    for answer in ["yes", "no", "maybe"]:
-                        references.append(
-                            Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
-                        )
+                    assert correct_answer in PubMedQAScenario.POSSIBLE_ANSWER_CHOICES
+                    references: List[Reference] = [
+                        Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
+                        for answer in PubMedQAScenario.POSSIBLE_ANSWER_CHOICES
+                    ]
 
                     # Following Liévin et al., prepend the question with the provided context.
                     # Examples can be found here: https://vlievin.github.io/medical-reasoning/samples/pubmedqa.html.

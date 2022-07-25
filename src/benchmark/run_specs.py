@@ -1529,7 +1529,7 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
         name=f"pubmed_qa:prompt_answer_choices={prompt_answer_choices}",
         scenario=scenario,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["PubMedQA"],
     )
 
