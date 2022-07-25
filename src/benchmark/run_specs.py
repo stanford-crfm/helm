@@ -1503,11 +1503,11 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
     if prompt_answer_choices.lower() == "true":
         output_prefix += "among A through C, the answer is "
 
-    # Liévin et al. followed what Kojima et al. did in "Large Language Models are Zero-Shot Reasoners"
+    # Liévin et al. followed what Kojima et al. did in "Large Language Models are Zero-Shot Reasoners."
     # to extract answers from completions: set the max completion length to a large number and
     # "...pick up the first large letter encountered in the text." Then they set "'Q:'...as a customized stop
     # sequence for all the models except for Instruct-GPT3 to stop the models from repeating questions and
-    # answers by themselves." We don't need to do this since our framework has an "multiple_choice_joint"
+    # answers by themselves." We don't need to do this since our framework has a "multiple_choice_joint"
     # adaptation method that handles the prompt construction for multiple-choice QA for us.
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
