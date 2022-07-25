@@ -48,6 +48,31 @@ class PubMedQAScenario(Scenario):
     done in "Can large language models reason about medical questions?" (Liévin et al.) when constructing
     the `Instance`s.
 
+    The following is an example of a prompt they constructed:
+
+    "Context: Background. Uncontrolled hemorrhage is the leading cause of fatality. The aim of this study was to
+    evaluate the effect of zeolite mineral (QuikClot - Advanced Clotting Sponge [QC-ACS]) on blood loss and
+    physiological variables in a swine extremity arterial injury model.
+    Methods. Sixteen swine were used. Oblique groin incision was created and a 5 mm incision was made. The animals
+    were allocated to: control group (n: 6): Pressure dressing was applied with manual pressure over gauze sponge;
+    or QC group (n: 10): QC was directly applied over lacerated femoral artery. Mean arterial pressure, blood loss
+    and physiological parameters were measured during the study period.
+    Results. Application of QC led to a slower drop in blood pressure. The control group had a significantly higher
+    increase in lactate within 60 minutes. The mean prothrombin time in the control group was significantly increased
+    at 60 minutes. The application of QC led to decreased total blood loss. The QC group had significantly higher
+    hematocrit levels. QC application generated a significant heat production. There were mild edematous and vacuolar
+    changes in nerve samples.
+
+    Question: Is the zeolite hemostatic agent beneficial in reducing blood loss during arterial injury?
+
+    A) yes
+    B) no
+    C) maybe
+
+    among A through C, the answer is
+
+    Expected output: A
+
     @misc{https://doi.org/10.48550/arxiv.2207.08143,
       doi = {10.48550/ARXIV.2207.08143},
       url = {https://arxiv.org/abs/2207.08143},
@@ -86,17 +111,31 @@ class PubMedQAScenario(Scenario):
             with open(split_path, "r") as f:
                 split_examples: Dict = json.load(f)
                 for example in split_examples.values():
+                    context_labels: List[str] = example["LABELS"]
                     contexts: List[str] = example["CONTEXTS"]
-                    question: str = example["QUESTION"]
-                    answer: str = example["final_decision"]  # One of "yes", "no" or "maybe"
+                    assert len(contexts) == len(context_labels)
+
+                    # Format: <Label>. <context>
+                    #         <Label>. <context>
+                    # Example: Methods. Sixteen swine were used...
+                    #          Results. Application of QC led to...
+                    background: str = "\n".join(
+                        [f"{label.title()}. {context}" for label, context in zip(context_labels, contexts)]
+                    )
+
+                    # Build `Reference`s. The possible answer choices are one of: "yes", "no" or "maybe"
+                    correct_answer: str = example["final_decision"]
+                    references: List[Reference] = []
+                    for answer in ["yes", "no", "maybe"]:
+                        references.append(
+                            Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
+                        )
 
                     # Following Liévin et al., prepend the question with the provided context.
-                    # TODO: find an example of their prompt for PubMedQA and compare it to our prompts.
-                    #       The link to their code and example prompts (https://vlievin.github.io/medical-reasoning)
-                    #       is currently broken, and I didn't see any examples for PubMedQA in the paper.
+                    # Examples can be found here: https://vlievin.github.io/medical-reasoning/samples/pubmedqa.html.
                     instance: Instance = Instance(
-                        input=" ".join(contexts + [question]),
-                        references=[Reference(output=answer, tags=[CORRECT_TAG])],
+                        input=f"Context: {background}\n\nQuestion: {example['QUESTION']}\n",
+                        references=references,
                         split=split,
                     )
                     instances.append(instance)
