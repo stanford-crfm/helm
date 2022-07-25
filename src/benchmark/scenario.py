@@ -13,6 +13,7 @@ TRAIN_SPLIT: str = "train"
 VALID_SPLIT: str = "valid"
 TEST_SPLIT: str = "test"
 EVAL_SPLITS: List[str] = [VALID_SPLIT, TEST_SPLIT]
+ALL_SPLITS: List[str] = [TRAIN_SPLIT] + EVAL_SPLITS
 
 # We mainly care about having enough test examples to ensure statistical significance;
 # the remaining N-1000 instances become training examples.

@@ -1493,6 +1493,48 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
     )
 
 
+def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.pubmed_qa_scenario.PubMedQAScenario", args={})
+
+    # We are trying to reproduce the Instruct-GPT3's zero-shot performance of 73.2% from
+    # "Can large language models reason about medical questions?" (Liévin et al.).
+    # Therefore, specify the values of the fields of `AdapterSpec` based on experiment details of the paper.
+    # Set `output_prefix` based on Table 1 (titled "Prompt templates") of the paper.
+    output_prefix: str = "\nAnswer: "
+    if prompt_answer_choices.lower() == "true":
+        output_prefix += "among A through C, the answer is "
+
+    # Liévin et al. followed what Kojima et al. did in "Large Language Models are Zero-Shot Reasoners."
+    # to extract answers from completions: set the max completion length to a large number and
+    # "...pick up the first large letter encountered in the text." Then they set "'Q:'...as a customized stop
+    # sequence for all the models except for Instruct-GPT3 to stop the models from repeating questions and
+    # answers by themselves." We don't need to do this since our framework has a "multiple_choice_joint"
+    # adaptation method that handles the prompt construction for multiple-choice QA for us.
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        num_train_trials=1,
+        max_eval_instances=550,  # The dev (50 examples) + test (500 examples) split has 550 examples total.
+        # "We applied the largest human-aligned GPT-3 (InstructGPT, text-davinci-002, Ouyang et al.
+        # (2022), 175B parameters) to answering medical questions in a zero-shot setting..."
+        model="openai/text-davinci-002",
+        max_train_instances=0,  # We want to reproduce the zero-shot performance.
+        # "We sampled one completion per prompt with a temperature of zero..."
+        num_outputs=1,
+        temperature=0,
+        input_prefix="",
+        output_prefix=output_prefix,
+        # Following the examples in https://vlievin.github.io/medical-reasoning/samples/pubmedqa.html
+        reference_prefix="\nA) ",
+    )
+    return RunSpec(
+        name=f"pubmed_qa:prompt_answer_choices={prompt_answer_choices}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["PubMedQA"],
+    )
+
+
 ############################################################
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
@@ -1537,6 +1579,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "entity_matching": get_entity_matching_spec,
     "entity_data_imputation": get_entity_data_imputation_spec,
     "ice": get_ice_spec,
+    "pubmed_qa": get_pubmed_qa_spec,
 }
 
 
