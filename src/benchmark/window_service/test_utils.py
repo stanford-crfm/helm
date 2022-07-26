@@ -1,6 +1,6 @@
 from common.authentication import Authentication
 from proxy.server_service import ServerService
-from benchmark.tokenizer.tokenizer_service import TokenizerService
+from benchmark.window_service.tokenizer_service import TokenizerService
 from benchmark.metric_service import MetricService
 
 

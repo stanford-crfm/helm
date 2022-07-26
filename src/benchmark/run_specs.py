@@ -98,27 +98,28 @@ def get_toxicity_metrics() -> List[MetricSpec]:
     ]
 
 
-def get_bias_erasure_metrics() -> List[MetricSpec]:
-    categories = ["race", "gender"]
-    targets = ["adjective", "profession"]
-    cross_cat_target = itertools.product(categories, targets)
+def get_bias_metrics() -> List[MetricSpec]:
+    demographic_categories = ["race", "gender"]
+    target_categories = ["adjective", "profession"]
+    cross_dem_target = itertools.product(demographic_categories, target_categories)
 
     return [
         MetricSpec(
-            class_name="benchmark.bias_erasure_metrics.BiasErasureMetric",
-            args={"mode": "bias", "category": cat, "bias_target": target},
+            class_name="benchmark.bias_metrics.BiasMetric",
+            args={"mode": "associations", "demographic_category": dem, "target_category": tgt},
         )
-        for cat, target in cross_cat_target
+        for dem, tgt in cross_dem_target
     ] + [
         MetricSpec(
-            class_name="benchmark.bias_erasure_metrics.BiasErasureMetric", args={"mode": "erasure", "category": cat},
+            class_name="benchmark.bias_metrics.BiasMetric",
+            args={"mode": "representation", "demographic_category": dem},
         )
-        for cat in categories
+        for dem in demographic_categories
     ]
 
 
 def get_generative_harms_metrics() -> List[MetricSpec]:
-    return get_toxicity_metrics() + get_bias_erasure_metrics() + get_basic_metrics({"names": []})
+    return get_toxicity_metrics() + get_bias_metrics() + get_basic_metrics({"names": []})
 
 
 def get_summarization_metrics() -> List[MetricSpec]:
@@ -316,10 +317,9 @@ def get_bold_spec(subject: str) -> RunSpec:
     )
 
 
-def get_civil_comments_spec(subject: str, data_path: str) -> RunSpec:
+def get_civil_comments_spec(subject: str) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.civil_comments_scenario.CivilCommentsScenario",
-        args={"subject": subject, "data_path": data_path},
+        class_name="benchmark.civil_comments_scenario.CivilCommentsScenario", args={"subject": subject},
     )
 
     adapter_spec = AdapterSpec(
@@ -620,7 +620,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_srn_metrics(),
-        groups=["Synthetic reasoning (abstract symbols)"],
+        groups=["Synthetic reasoning (natural language)"],
     )
 
 
@@ -1087,7 +1087,7 @@ def get_ice_spec(**kwargs) -> RunSpec:
         "HK": ["Hong Kong"],
         "IND": ["India"],
         "JA": ["Japan"],
-        "PHI": ["Phillipines"],
+        "PHI": ["Philippines"],
         "SIN": ["Singapore"],
         "USA": ["USA"],
     }
@@ -1144,7 +1144,9 @@ def get_narrativeqa_spec() -> RunSpec:
     )
 
 
-def get_synthetic_efficiency_spec(num_input_tokens: int, num_output_tokens: int, tokenizer: str) -> RunSpec:
+def get_synthetic_efficiency_spec(
+    num_input_tokens: int, num_output_tokens: int, tokenizer: str, random: Optional[str] = None
+) -> RunSpec:
     scenario = ScenarioSpec(
         class_name="benchmark.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
         args={"num_input_tokens": num_input_tokens, "num_instances": 10, "tokenizer": tokenizer},
@@ -1163,11 +1165,12 @@ def get_synthetic_efficiency_spec(num_input_tokens: int, num_output_tokens: int,
         max_tokens=num_output_tokens,
         input_prefix="",
         output_prefix="",
+        random=random,
     )
 
     return RunSpec(
         name=f"synthetic_efficiency:tokenizer={tokenizer},num_input_tokens={num_input_tokens},"
-        f"num_output_tokens={num_output_tokens}",
+        f"num_output_tokens={num_output_tokens},random={random}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match"]}),
@@ -1199,7 +1202,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
-        groups=["Synthetic reasoning (natural language)"],
+        groups=["Synthetic reasoning (abstract symbols)"],
     )
 
 
@@ -1490,6 +1493,48 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
     )
 
 
+def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.pubmed_qa_scenario.PubMedQAScenario", args={})
+
+    # We are trying to reproduce the Instruct-GPT3's zero-shot performance of 73.2% from
+    # "Can large language models reason about medical questions?" (Liévin et al.).
+    # Therefore, specify the values of the fields of `AdapterSpec` based on experiment details of the paper.
+    # Set `output_prefix` based on Table 1 (titled "Prompt templates") of the paper.
+    output_prefix: str = "\nAnswer: "
+    if prompt_answer_choices.lower() == "true":
+        output_prefix += "among A through C, the answer is "
+
+    # Liévin et al. followed what Kojima et al. did in "Large Language Models are Zero-Shot Reasoners."
+    # to extract answers from completions: set the max completion length to a large number and
+    # "...pick up the first large letter encountered in the text." Then they set "'Q:'...as a customized stop
+    # sequence for all the models except for Instruct-GPT3 to stop the models from repeating questions and
+    # answers by themselves." We don't need to do this since our framework has a "multiple_choice_joint"
+    # adaptation method that handles the prompt construction for multiple-choice QA for us.
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        num_train_trials=1,
+        max_eval_instances=550,  # The dev (50 examples) + test (500 examples) split has 550 examples total.
+        # "We applied the largest human-aligned GPT-3 (InstructGPT, text-davinci-002, Ouyang et al.
+        # (2022), 175B parameters) to answering medical questions in a zero-shot setting..."
+        model="openai/text-davinci-002",
+        max_train_instances=0,  # We want to reproduce the zero-shot performance.
+        # "We sampled one completion per prompt with a temperature of zero..."
+        num_outputs=1,
+        temperature=0,
+        input_prefix="",
+        output_prefix=output_prefix,
+        # Following the examples in https://vlievin.github.io/medical-reasoning/samples/pubmedqa.html
+        reference_prefix="\nA) ",
+    )
+    return RunSpec(
+        name=f"pubmed_qa:prompt_answer_choices={prompt_answer_choices}",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["PubMedQA"],
+    )
+
+
 ############################################################
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
@@ -1534,6 +1579,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "entity_matching": get_entity_matching_spec,
     "entity_data_imputation": get_entity_data_imputation_spec,
     "ice": get_ice_spec,
+    "pubmed_qa": get_pubmed_qa_spec,
 }
 
 

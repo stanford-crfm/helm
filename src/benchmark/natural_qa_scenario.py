@@ -192,7 +192,8 @@ class NaturalQAScenario(Scenario):
         if split == "train":
             answers = short_answers[ans_idx : ans_idx + 1]
         else:
-            answers = list(set(short_answers))  # deduplicate
+            # De-duplicate the list with dict.fromkeys, which preserves the list order
+            answers = list(dict.fromkeys(short_answers))
 
         return prompt, answers
 

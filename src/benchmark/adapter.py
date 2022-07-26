@@ -11,10 +11,9 @@ from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationToken
-from benchmark.tokenizer.tokenizer import Tokenizer, EncodeResult
-from benchmark.tokenizer.tokenizer_factory import TokenizerFactory
-from benchmark.tokenizer.tokenizer_service import TokenizerService
-from .adapter_service import AdapterService
+from benchmark.window_service.window_service import WindowService, EncodeResult
+from benchmark.window_service.window_service_factory import WindowServiceFactory
+from benchmark.window_service.tokenizer_service import TokenizerService
 from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 # Methods of adaptation
@@ -81,6 +80,9 @@ class AdapterSpec:
     # When to stop
     stop_sequences: List[str] = field(default_factory=list)
 
+    # Random string (used concretely to bypass cache / see diverse results)
+    random: Optional[str] = None
+
 
 @dataclass(frozen=True)
 class RequestState:
@@ -111,6 +113,9 @@ class RequestState:
 
     # The result of the request (filled in when the request is executed)
     result: Optional[RequestResult]
+
+    # The number of in-context examples used
+    num_in_context_examples: int
 
     # The number of initial tokens that will be ignored when computing language modeling metrics
     num_conditioning_tokens: int = 0
@@ -187,6 +192,17 @@ class ScenarioState:
         return result
 
 
+@dataclass
+class Prompt:
+    """Result of prompt construction."""
+
+    # The prompt
+    text: str
+
+    # Number of in-context examples in the prompt
+    num_in_context_examples: int
+
+
 class Adapter:
     """
     An `Adapter`, guided by the `AdapterSpec`, takes a `Scenario` and produces
@@ -247,10 +263,11 @@ class Adapter:
     deal with references being of different lengths).
     """
 
-    def __init__(self, adapter_spec: AdapterSpec, adapter_service: AdapterService):
+    def __init__(self, adapter_spec: AdapterSpec, tokenizer_service: TokenizerService):
         self.adapter_spec: AdapterSpec = adapter_spec
-        tokenizer_service: TokenizerService = adapter_service
-        self.tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
+        self.window_service: WindowService = WindowServiceFactory.get_window_service(
+            adapter_spec.model, tokenizer_service
+        )
 
     @htrack(None)
     def adapt(self, instances: List[Instance]) -> ScenarioState:
@@ -303,6 +320,7 @@ class Adapter:
 
         # Accumulate all the request states due to adaptation
         all_request_states: List[RequestState] = []
+        prompt: Prompt
 
         if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
             # Use the LM-specific method to adapt LM scenarios
@@ -324,11 +342,12 @@ class Adapter:
                         )
                         request = Request(
                             model=self.adapter_spec.model,
-                            prompt=prompt,
+                            prompt=prompt.text,
                             num_completions=self.adapter_spec.num_outputs,
                             temperature=self.adapter_spec.temperature,
                             max_tokens=self.adapter_spec.max_tokens,
                             stop_sequences=self.adapter_spec.stop_sequences,
+                            random=self.adapter_spec.random,
                         )
                         request_states = [
                             RequestState(
@@ -339,6 +358,7 @@ class Adapter:
                                 output_mapping=None,
                                 request=request,
                                 result=None,
+                                num_in_context_examples=prompt.num_in_context_examples,
                             )
                         ]
                     elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
@@ -351,12 +371,13 @@ class Adapter:
                         )
                         request = Request(
                             model=self.adapter_spec.model,
-                            prompt=prompt,
+                            prompt=prompt.text,
                             num_completions=1,
                             top_k_per_token=self.adapter_spec.num_outputs,
                             temperature=0,
                             max_tokens=1,
                             stop_sequences=[],
+                            random=self.adapter_spec.random,
                         )
                         request_states = [
                             RequestState(
@@ -367,6 +388,7 @@ class Adapter:
                                 output_mapping=output_mapping,
                                 request=request,
                                 result=None,
+                                num_in_context_examples=prompt.num_in_context_examples,
                             )
                         ]
                     elif self.adapter_spec.method in [
@@ -412,7 +434,7 @@ class Adapter:
                                     raise ValueError(f"Unknown request mode: {request_mode}")
                                 request = Request(
                                     model=self.adapter_spec.model,
-                                    prompt=prompt,
+                                    prompt=prompt.text,
                                     num_completions=1,
                                     temperature=0,
                                     max_tokens=0,
@@ -427,6 +449,7 @@ class Adapter:
                                     output_mapping=None,
                                     request=request,
                                     result=None,
+                                    num_in_context_examples=prompt.num_in_context_examples,
                                 )
                                 request_states.append(request_state)
                     else:
@@ -525,7 +548,7 @@ class Adapter:
         eval_instance: Instance,
         include_output: bool,
         reference_index: Optional[int],
-    ) -> str:
+    ) -> Prompt:
         """
         Returns a prompt (string) given:
         - the `self.adapter_spec.instructions`
@@ -565,10 +588,10 @@ class Adapter:
         # we remove train instances one by one until it fits within the context window or
         # until we run out of train instances to remove.
         while len(train_instances) > 0:
-            if self.tokenizer.fits_within_context_window(
+            if self.window_service.fits_within_context_window(
                 text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
             ):
-                return prompt
+                return Prompt(prompt, num_in_context_examples=len(train_instances))
 
             train_instances = train_instances[:-1]
             prompt = construct_prompt_helper(train_instances)
@@ -582,7 +605,8 @@ class Adapter:
 
         # If removing the in-context example is still not enough, we simply truncate the prompt.
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
-        return self.tokenizer.truncate_from_right(prompt, self.adapter_spec.max_tokens)
+        prompt = self.window_service.truncate_from_right(prompt, self.adapter_spec.max_tokens)
+        return Prompt(prompt, num_in_context_examples=len(train_instances))
 
     def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
@@ -637,8 +661,8 @@ class Adapter:
         For models using the GPT-2 tokenizer, conditioning_tokens and pred_tokens
         are integers; for AI21 models, the tokens are TokenizationTokens.
         """
-        prompt: str = self.tokenizer.decode(conditioning_tokens + pred_tokens, text)
-        prompt_length: int = len(self.tokenizer.encode(prompt).tokens)
+        prompt: str = self.window_service.decode(conditioning_tokens + pred_tokens, text)
+        prompt_length: int = len(self.window_service.encode(prompt).tokens)
 
         # If the prompt is too long, removes the overflowing tokens.
         # Since encoding might generate extra tokens, we need to repeat this until prompt_length <= max_req_len.
@@ -654,8 +678,8 @@ class Adapter:
         while prompt_length > max_req_len:
             # Trims the extra (prompt_length - max_req_len) tokens
             pred_tokens = pred_tokens[: -(prompt_length - max_req_len)]
-            prompt = self.tokenizer.decode(conditioning_tokens + pred_tokens, text)
-            prompt_length = len(self.tokenizer.encode(prompt).tokens)
+            prompt = self.window_service.decode(conditioning_tokens + pred_tokens, text)
+            prompt_length = len(self.window_service.encode(prompt).tokens)
 
         return prompt, pred_tokens
 
@@ -689,12 +713,16 @@ class Adapter:
         if len(prompt) == len(raw_prompt):
             num_conditioning_tokens = len(conditioning_tokens)
         else:
-            num_leading_byte_tokens: int = max_req_len - len(self.tokenizer.encode(raw_prompt.lstrip("\ufffd")).tokens)
-            num_trailing_byte_tokens: int = max_req_len - len(self.tokenizer.encode(raw_prompt.rstrip("\ufffd")).tokens)
+            num_leading_byte_tokens: int = max_req_len - len(
+                self.window_service.encode(raw_prompt.lstrip("\ufffd")).tokens
+            )
+            num_trailing_byte_tokens: int = max_req_len - len(
+                self.window_service.encode(raw_prompt.rstrip("\ufffd")).tokens
+            )
 
             # There are no string tokens to predict
             if num_trailing_byte_tokens >= len(pred_tokens):
-                num_conditioning_tokens = len(self.tokenizer.encode(prompt).tokens)
+                num_conditioning_tokens = len(self.window_service.encode(prompt).tokens)
             # There are no conditioning string tokens
             elif num_leading_byte_tokens >= len(conditioning_tokens):
                 num_conditioning_tokens = 1
@@ -709,12 +737,12 @@ class Adapter:
         """
         request_states: List[RequestState] = []
 
-        max_sequence_length: int = self.tokenizer.max_sequence_length
-        max_request_length: int = self.tokenizer.max_request_length
-        prefix_token: str = self.tokenizer.prefix_token
+        max_sequence_length: int = self.window_service.max_sequence_length
+        max_request_length: int = self.window_service.max_request_length
+        prefix_token: str = self.window_service.prefix_token
 
         for instance in instances:
-            encode_result: EncodeResult = self.tokenizer.encode(instance.input)
+            encode_result: EncodeResult = self.window_service.encode(instance.input)
             tokens, text = encode_result.tokens, encode_result.text
 
             num_predicted_tokens = 0
@@ -735,7 +763,7 @@ class Adapter:
             # to the sequence later. This is the only place where `max_sequence_length` is used.
             first_seq_len = min(max_sequence_length, len(tokens))
             prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
-                self.tokenizer.encode(prefix_token).tokens, tokens[:first_seq_len], max_request_length, text
+                self.window_service.encode(prefix_token).tokens, tokens[:first_seq_len], max_request_length, text
             )
             request = Request(
                 model=self.adapter_spec.model,
@@ -745,6 +773,7 @@ class Adapter:
                 max_tokens=self.adapter_spec.max_tokens,  # usually this is zero
                 stop_sequences=self.adapter_spec.stop_sequences,
                 echo_prompt=True,
+                random=self.adapter_spec.random,
             )
             request_state = RequestState(
                 instance=instance,
@@ -755,6 +784,7 @@ class Adapter:
                 request=request,
                 result=None,
                 num_conditioning_tokens=1 if len(prefix_token) > 0 else 0,
+                num_in_context_examples=self.adapter_spec.max_train_instances,
             )
             request_states.append(request_state)
             num_predicted_tokens += first_seq_len
@@ -798,6 +828,7 @@ class Adapter:
                     request=request,
                     result=None,
                     num_conditioning_tokens=num_conditioning_tokens,
+                    num_in_context_examples=self.adapter_spec.max_train_instances,
                 )
                 request_states.append(request_state)
                 num_predicted_tokens += window_pred_len

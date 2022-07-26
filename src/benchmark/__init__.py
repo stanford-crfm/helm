@@ -40,6 +40,7 @@ from . import dyck_language_scenario  # noqa
 from . import legal_support_scenario  # noqa
 from . import entity_matching_scenario  # noqa
 from . import entity_data_imputation_scenario  # noqa
+from . import pubmed_qa_scenario  # noqa
 
 # Metrics
 from . import basic_metrics  # noqa
@@ -51,7 +52,7 @@ from . import numeracy_metrics  # noqa
 from . import disinformation_metrics  # noqa
 from . import code_metrics  # noqa
 from . import bbq_metrics  # noqa
-from . import bias_erasure_metrics  # noqa
+from . import bias_metrics  # noqa
 
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa

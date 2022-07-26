@@ -24,12 +24,12 @@ class Model:
     # Model group, used to filter for quotas (e.g. "huggingface")
     group: str
 
-    # Name of the specific model (e.g. "huggingface/gptj_6b")
+    # Name of the specific model (e.g. "huggingface/gpt-j-6b")
     name: str
 
     # Organization that originally created the model (e.g. "EleutherAI")
     #   Note that this may be different from group or the prefix of the name
-    #   ("huggingface" in "huggingface/gptj_6b") as the hosting organization
+    #   ("huggingface" in "huggingface/gpt-j-6b") as the hosting organization
     #   may be different from the creator organization. We also capitalize
     #   this field properly to later display in the UI.
     creator_organization: str
@@ -182,32 +182,30 @@ ALL_MODELS = [
         group="gooseai",
         creator_organization="EleutherAI",
         name="gooseai/gpt-neo-20b",
-        description="GPT-NeoX (20B parameters trained by EleutherAI on The Pile)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="gooseai",
         creator_organization="EleutherAI",
         name="gooseai/gpt-j-6b",
-        description="GPT-J (6B parameters trained by EleutherAI on The Pile)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # HuggingFace
-    # TODO: Switch GPT-J over to GooseAPI
-    #       https://github.com/stanford-crfm/benchmarking/issues/310
     Model(
         group="huggingface",
         creator_organization="EleutherAI",
-        name="huggingface/gptj_6b",
-        description="GPT-J (6B parameters)",
-        tags=[TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        name="huggingface/gpt-j-6b",
+        description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="huggingface",
         creator_organization="OpenAI",
         name="huggingface/gpt2",
         description="GPT-2 (1.5B parameters)",
-        tags=[TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # Anthropic
     # TODO: The API for the Anthropic LM is not production-ready. Update with the official name.
@@ -225,25 +223,29 @@ ALL_MODELS = [
         creator_organization="Microsoft",
         name="microsoft/TNLGv2_530B",
         description="Megatron-Turing NLG (530B parameters)",
-        # The TNLGv2 models have limited functionality
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
-    # TODO: The TNLGv2_7B model is unavailable to us at the moment, but simply uncomment the following when it's ready.
-    # Model(
-    #     group="microsoft",
-    #     creator_organization="Microsoft",
-    #     name="microsoft/TNLGv2_7B",
-    #     description="Megatron-Turing NLG (7B parameters)",
-    #     # The TNLGv2 models have limited functionality
-    #     tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
-    # ),
+    Model(
+        group="microsoft",
+        creator_organization="Microsoft",
+        name="microsoft/TNLGv2_7B",
+        description="Megatron-Turing NLG (7B parameters)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
     # Offline models
     Model(
         group="together",
         creator_organization="EleutherAI",
         name="together/gpt-j-6b",
         description="GPT-J (6B parameters trained by EleutherAI on The Pile)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="EleutherAI",
+        name="together/gpt-neox-20b",
+        description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # For debugging
     Model(

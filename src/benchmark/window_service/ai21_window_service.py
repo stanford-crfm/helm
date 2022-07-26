@@ -4,20 +4,13 @@ from typing import List, Optional, Tuple
 from urllib.parse import unquote
 
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken, TextRange
-from .tokenizer import Tokenizer, EncodeResult
+from .window_service import WindowService, EncodeResult
 from .tokenizer_service import TokenizerService
-from .gpt2_tokenizer import GPT2Tokenizer
+from .gpt2_window_service import GPT2WindowService
 
 
-class AI21Tokenizer(Tokenizer):
+class AI21WindowService(WindowService):
     """Tokenizes by making a request to the proxy server with REST endpoint: `/api/tokenize`."""
-
-    # The max token length of the model input
-    # AI21's server automatically prepends a token to every prompt, so the actual max sequence length is 2048-1 = 2047.
-    MAX_SEQUENCE_LENGTH: int = 2047
-
-    # The max sequence length is the same as the max request length for AI21.
-    MAX_REQUEST_LENGTH: int = 2047
 
     # AI21's tokenizer API rejects a tokenization request if the input sequence is too long, so
     # we need to set an upper limit for the length of the request. Empirically, if the GPT2 tokenizer tokenizes a
@@ -34,19 +27,24 @@ class AI21Tokenizer(Tokenizer):
         "AI21 only gave API access to their tokenizer, so this method is not supported."
     )
 
-    def __init__(self, service: TokenizerService, gpt2_tokenizer: GPT2Tokenizer):
+    def __init__(self, service: TokenizerService, gpt2_window_service: GPT2WindowService):
         # We need the `TokenizerService` to make requests to the server.
         self.service: TokenizerService = service
-        # As explained above, we need a GPT-2 tokenizer to help tokenize long text sequences.
-        self.gpt2_tokenizer = gpt2_tokenizer
+        # As explained above, we need a `GPT2WindowService` to help tokenize long text sequences.
+        self.gpt2_window_service: GPT2WindowService = gpt2_window_service
 
     @property
     def max_sequence_length(self) -> int:
-        return AI21Tokenizer.MAX_SEQUENCE_LENGTH
+        """
+        The max token length of the model in. The AI21 server automatically prepends a token to every prompt,
+        so the actual max sequence length is 2048-1 = 2047.
+        """
+        return 2047
 
     @property
     def max_request_length(self) -> int:
-        return AI21Tokenizer.MAX_REQUEST_LENGTH
+        """The max sequence length is the same as the max request length for AI21."""
+        return self.max_sequence_length
 
     @property
     def end_of_text_token(self) -> str:
@@ -120,14 +118,14 @@ class AI21Tokenizer(Tokenizer):
         response: TokenizationRequestResult = self._make_tokenization_request(text)
         return [token.value for token in response.tokens]
 
-    def tokenize_and_count(self, text: str) -> int:
+    def get_num_tokens(self, text: str) -> int:
         """Tokenizes the text using the GPT-2 tokenizer and returns the number of tokens."""
         return len(self.tokenize(text))
 
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
         return (
-            len(text) <= AI21Tokenizer.MAX_CHARACTER_LENGTH
-            and self.tokenize_and_count(text) + expected_completion_token_length <= self.max_request_length
+            len(text) <= AI21WindowService.MAX_CHARACTER_LENGTH
+            and self.get_num_tokens(text) + expected_completion_token_length <= self.max_request_length
         )
 
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
@@ -139,7 +137,7 @@ class AI21Tokenizer(Tokenizer):
         token and the end of the text range of the last token of the truncated list of tokens to
         build the truncated text.
         """
-        text = text[: AI21Tokenizer.MAX_CHARACTER_LENGTH]
+        text = text[: AI21WindowService.MAX_CHARACTER_LENGTH]
         response: TokenizationRequestResult = self._make_tokenization_request(text)
 
         # Only look at the first `self.max_request_length` - `expected_completion_token_length`
@@ -170,7 +168,7 @@ class AI21Tokenizer(Tokenizer):
 
     def _make_tokenization_request(self, text: str) -> TokenizationRequestResult:
         """Sends a request to the server to tokenize the text via the `TokenizerService`."""
-        return self.service.tokenize(TokenizationRequest(text=text, tokenizer="ai21"))
+        return self.service.tokenize(TokenizationRequest(text=text, tokenizer="ai21/j1"))
 
     def _make_long_tokenization_request(self, text: str) -> Tuple[List[TokenizationToken], str]:
         """If the text is too long  (longer than 11,000 tokens when tokenized by the GPT-2 tokenizer),
@@ -178,10 +176,10 @@ class AI21Tokenizer(Tokenizer):
         chunks, tokenize each chunk, and re-assemble the tokenization results."""
         # Uses the number of gpt2-style tokens as a measure of text length.
         gpt2_tokens: List[int]
-        gpt2_tokens = self.gpt2_tokenizer.encode(text).tokens
+        gpt2_tokens = self.gpt2_window_service.encode(text).tokens
 
         # If the text is short, just makes one request and returns the result.
-        if len(gpt2_tokens) < AI21Tokenizer.MAX_TOKENIZATION_REQUEST_LENGTH:
+        if len(gpt2_tokens) < AI21WindowService.MAX_TOKENIZATION_REQUEST_LENGTH:
             result: TokenizationRequestResult = self._make_tokenization_request(text)
             return result.tokens, result.text
         # Otherwise, splits the text to chunks, tokenizes each chunk, and re-assembles them.
@@ -194,15 +192,15 @@ class AI21Tokenizer(Tokenizer):
             num_processed_positions: int = 0
             while num_processed_tokens < len(gpt2_tokens):
                 token_chunk_size: int = min(
-                    len(gpt2_tokens) - num_processed_tokens, AI21Tokenizer.MAX_TOKENIZATION_REQUEST_LENGTH
+                    len(gpt2_tokens) - num_processed_tokens, AI21WindowService.MAX_TOKENIZATION_REQUEST_LENGTH
                 )
                 token_chunk: List[int] = gpt2_tokens[num_processed_tokens : num_processed_tokens + token_chunk_size]
-                text_chunk: str = self.gpt2_tokenizer.decode(token_chunk)
+                text_chunk: str = self.gpt2_window_service.decode(token_chunk)
                 # We need to avoid generating byte tokens when splitting the text
                 while text_chunk.endswith("\ufffd"):
                     token_chunk_size -= 1
                     token_chunk = gpt2_tokens[num_processed_tokens : num_processed_tokens + token_chunk_size]
-                    text_chunk = self.gpt2_tokenizer.decode(token_chunk)
+                    text_chunk = self.gpt2_window_service.decode(token_chunk)
                 chunk_result: TokenizationRequestResult = self._make_tokenization_request(text_chunk)
                 chunk_tokens: List[TokenizationToken]
                 normalized_text_chunk: str

@@ -12,18 +12,18 @@ from sympy.parsing.sympy_parser import standard_transformations, implicit_multip
 from typing import List, Optional, Tuple, Dict, Union
 
 from .adapter import AdapterSpec, Adapter, ADAPT_GENERATION
-from .adapter_service import AdapterService
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .window_service.tokenizer_service import TokenizerService
 from common.authentication import Authentication
 from proxy.server_service import ServerService
 
 
-# TODO: we shouldn't create an Adapter and AdapterService in a scenario
+# TODO: we shouldn't create an Adapter and TokenizerService in a scenario
 #       The Adapter and Scenarios should be completely decoupled.
 #       https://github.com/stanford-crfm/benchmarking/issues/569
-def get_test_adapter_service() -> AdapterService:
+def get_test_tokenizer_service() -> TokenizerService:
     # Pointed to the default local path set in run.py (--local-path)
-    return AdapterService(ServerService(base_path="prod_env", root_mode=True), Authentication("test"))
+    return TokenizerService(ServerService(base_path="prod_env", root_mode=True), Authentication("test"))
 
 
 SOLUTION_TAG: str = "solution"
@@ -710,7 +710,7 @@ class NumeracyScenario(Scenario):
 
         def generate_datasets(num_instances: int, split: str):
             spec = get_numeracy_adapter_spec(self.num_train, self.num_test, self.dim, self.delimiter)
-            service = get_test_adapter_service()
+            service = get_test_tokenizer_service()
             # TODO: we should not instantiate Adapter. construct_prompt of Adapter will be called downstream
             #       https://github.com/stanford-crfm/benchmarking/issues/569
             adapter = Adapter(spec, service)
@@ -733,7 +733,7 @@ class NumeracyScenario(Scenario):
                     eval_instance = eval_instances[idx]
                     input = adapter.construct_prompt(
                         train_instances, eval_instance, include_output=False, reference_index=None
-                    )
+                    ).text
                     input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
                     references = eval_instance.references
                     dataset_instance = Instance(input=input, references=references, split=split)  # split doesn't matter
@@ -741,7 +741,7 @@ class NumeracyScenario(Scenario):
 
                 input = outer_adapter.construct_prompt(
                     dataset_instances[:-1], dataset_instances[-1], include_output=False, reference_index=None
-                )
+                ).text
                 input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
                 references = dataset_instances[-1].references
                 instance = Instance(input=input, references=references, split=split)

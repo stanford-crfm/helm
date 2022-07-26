@@ -100,7 +100,7 @@ groups:
   values:
     display:
       k: null
-      split: valid
+      split: test
       stat_names:
         - f1_score
     class_name: benchmark.narrativeqa_scenario.NarrativeQAScenario
@@ -145,7 +145,7 @@ groups:
   values:
     display:
       k: null
-      split: valid
+      split: test
       stat_names:
         - quasi_exact_match
     class_name: benchmark.mmlu_scenario.MMLUScenario
@@ -172,7 +172,7 @@ groups:
   values:
     display:
       k: null
-      split: valid
+      split: test
       stat_names:
         - quasi_exact_match
     class_name: benchmark.entity_matching_scenario.EntityMatchingScenario
@@ -181,7 +181,7 @@ groups:
   values:
     display:
       k: null
-      split: valid
+      split: test
       stat_names:
         - quasi_exact_match
     class_name: benchmark.entity_data_imputation_scenario.EntityDataImputationScenario
@@ -208,9 +208,9 @@ groups:
   values:
     display:
       k: null
-      split: valid
+      split: test
       stat_names:
-        - absolute_value_difference
+        - quasi_exact_match
     class_name: benchmark.wikifact_scenario.WIKIFactScenario
 - name: Numeracy
   description: TODO
@@ -237,7 +237,7 @@ groups:
       k: null
       split: test
       stat_names:
-        - quasi_exact_match
+        - f1_set_match
     class_name: benchmark.synthetic_reasoning_natural_scenario.SRNScenario
 - name: bAbI
   description: TODO
@@ -345,7 +345,7 @@ groups:
   values:
     display:
       k: null
-      split: test
+      split: valid
       stat_names:
         - f1_score
     class_name: benchmark.newsqa_scenario.NewsQAScenario
@@ -371,7 +371,7 @@ groups:
     class_name: benchmark.math_scenario.MATHScenario
     args:
       use_chain_of_thought: True
-- name: Code (HumanEval)
+- name: HumanEval (Code)
   description: TODO
   values:
     display:
@@ -383,7 +383,7 @@ groups:
     class_name: benchmark.code_scenario.CodeScenario
     args:
       dataset: HumanEval
-- name: Code (APPS)
+- name: APPS (Code)
   description: TODO
   values:
     display:
@@ -400,7 +400,7 @@ groups:
   values:
     display:
       k: null
-      split: test
+      split: valid
       stat_names:
         - self_bleu
         - monte_carlo_entropy
@@ -412,7 +412,7 @@ groups:
   values:
     display:
       k: null
-      split: test
+      split: valid
       stat_names:
         - self_bleu
         - monte_carlo_entropy
@@ -424,7 +424,7 @@ groups:
   values:
     display:
       k: null
-      split: test
+      split: valid
       stat_names:
         - quasi_exact_match
     class_name: benchmark.commonsense_scenario.CommonSenseScenario
@@ -457,7 +457,7 @@ groups:
   values:
     display:
       k: null
-      split: test
+      split: valid
       stat_names:
         - RR@20
     class_name: benchmark.msmarco_scenario.MSMARCOScenario
@@ -468,7 +468,7 @@ groups:
   values:
     display:
       k: null
-      split: test
+      split: valid
       stat_names:
         - NDCG@20
     class_name: benchmark.msmarco_scenario.MSMARCOScenario

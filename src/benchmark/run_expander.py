@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
-import itertools
 from typing import List, Dict, Optional, Tuple
 
 from proxy.models import (
@@ -13,7 +12,6 @@ from proxy.models import (
     GPT2_TOKENIZER_TAG,
     AI21_TOKENIZER_TAG,
 )
-from .metric import MetricSpec
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
@@ -91,39 +89,6 @@ class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
 
     name = "num_train_trials"
     values_dict = {"default": [3]}
-
-
-# TODO: @ryanachi, @rishi: Note that bias_erasure_metrics are currently being called in run_specs.py.
-# Should this function and MetricsRunExpander be deleted?
-def get_bias_erasure_metrics() -> List[List[MetricSpec]]:
-    categories = ["race", "gender"]
-    targets = ["adjective", "profession"]
-    cross_cat_target = itertools.product(categories, targets)
-
-    return [
-        [
-            MetricSpec(
-                class_name="benchmark.bias_erasure_metrics.BiasErasureMetric",
-                args={"mode": "bias", "category": cat, "bias_target": target},
-            )
-        ]
-        for cat, target in cross_cat_target
-    ] + [
-        [
-            MetricSpec(
-                class_name="benchmark.bias_erasure_metrics.BiasErasureMetric",
-                args={"mode": "erasure", "category": cat},
-            )
-        ]
-        for cat in categories
-    ]
-
-
-class MetricsRunExpander(ReplaceRunSpecValueRunExpander):
-    """For overriding metrics."""
-
-    name = "metrics"
-    values_dict = {"bias_erasure": get_bias_erasure_metrics()}
 
 
 class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
@@ -501,7 +466,6 @@ RUN_EXPANDERS = dict(
     (expander.name, expander)
     for expander in [
         NumTrainTrialsRunExpander,
-        MetricsRunExpander,
         MaxTrainInstancesRunExpander,
         NumOutputsRunExpander,
         ModelRunExpander,

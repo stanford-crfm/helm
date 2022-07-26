@@ -18,9 +18,9 @@ from common.request import Token
 from . import code_metrics_helper
 from benchmark.scenario import CORRECT_TAG
 from benchmark.adapter import ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED
-from benchmark.tokenizer.tokenizer import Tokenizer
-from benchmark.tokenizer.tokenizer_factory import TokenizerFactory
-from benchmark.tokenizer.tokenizer_service import TokenizerService
+from benchmark.window_service.window_service import WindowService
+from benchmark.window_service.window_service_factory import WindowServiceFactory
+from benchmark.window_service.tokenizer_service import TokenizerService
 from .augmentations.perturbation_description import PerturbationDescription
 from .adapter import AdapterSpec, RequestState
 from .math_scenario import is_equiv, is_equiv_chain_of_thought
@@ -400,8 +400,8 @@ class BasicMetric(Metric):
         # Fetch the right `Tokenizer` depending on the model defined in `AdapterSpec`
         # and calculate the number of tokens in the prompt.
         tokenizer_service: TokenizerService = metric_service
-        tokenizer: Tokenizer = TokenizerFactory.get_tokenizer(adapter_spec.model, tokenizer_service)
-        num_prompt_tokens: int = tokenizer.tokenize_and_count(request_state.request.prompt)
+        window_service: WindowService = WindowServiceFactory.get_window_service(adapter_spec.model, tokenizer_service)
+        num_prompt_tokens: int = window_service.get_num_tokens(request_state.request.prompt)
 
         sequence = request_state.result.completions[0]
         num_output_tokens: int = len(sequence.tokens)
@@ -492,6 +492,12 @@ class BasicMetric(Metric):
             for valid_reason in valid_reasons
         ]
 
+    def compute_num_in_context_examples(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    ) -> List[Stat]:
+        """Record the number of in-context examples used in the prompt."""
+        return [Stat(MetricName("num_in_context_examples")).add(request_state.num_in_context_examples)]
+
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
@@ -538,6 +544,7 @@ class BasicMetric(Metric):
         metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_num_in_context_examples(adapter_spec, request_state, metric_service))
 
         # Future: add F1, BLEU, etc.
         return metrics
