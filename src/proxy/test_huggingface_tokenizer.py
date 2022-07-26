@@ -25,3 +25,12 @@ class TestHuggingFaceTokenizers:
 
     def test_get_tokenizer_gptneox(self):
         TestHuggingFaceTokenizers.verify_get_tokenizer("huggingface/gpt-neox-20b", 52)
+
+    def test_get_tokenizer_t0pp(self):
+        TestHuggingFaceTokenizers.verify_get_tokenizer("bigscience/T0pp", 58)
+
+    def test_get_tokenizer_t511b(self):
+        TestHuggingFaceTokenizers.verify_get_tokenizer("google/t5-11b", 58)
+
+    def test_get_tokenizer_ul2(self):
+        TestHuggingFaceTokenizers.verify_get_tokenizer("google/ul2", 58)

@@ -251,9 +251,10 @@ Add a test for the new perturbation in `test_perturbation.py`.
 1. Give the tokenizer a name: `huggingface/<Name of tokenizer in Hugging Face>`.
 2. In `HuggingFaceTokenizers`, we load and cache tokenizers in memory. Add logic to handle 
    the tokenizer in the `load_tokenizer` method.
-3. Add a new class `<Name of tokenizer>WindowService` in file `<Name of tokenizer>_window_service.py`.
+3. Add a test in `test_huggingface_tokenizer.py` to make sure we can load the tokenizer from Hugging Face.   
+4. Add a new class `<Name of tokenizer>WindowService` in file `<Name of tokenizer>_window_service.py`.
    Follow what we did for `GPTJWindowService`.
-4. Import the new `WindowService` and map the model(s) to it in `WindowServiceFactory`.
+5. Import the new `WindowService` and map the model(s) to it in `WindowServiceFactory`.
 
 ## Running the benchmark
 
