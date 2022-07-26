@@ -103,7 +103,7 @@ def _read_and_preprocess_human_eval(
     return instances
 
 
-def _read_human_eval(evalset_file: str = "HumanEval.jsonl.gz") -> Dict[str, Dict]:
+def _read_human_eval(evalset_file: str = "HumanEval.jsonl") -> Dict[str, Dict]:
     return {task["task_id"]: task for task in _stream_jsonl(evalset_file)}
 
 
@@ -267,7 +267,7 @@ class CodeScenario(Scenario):
     def get_instances(self) -> Sequence[CodeInstance]:
         # By construction, self.output_path == 'benchmark_output/scenarios/code'.
         if self.dataset == "HumanEval":
-            target_path = os.path.join(self.output_path, "HumanEval.jsonl.gz")
+            target_path = os.path.join(self.output_path, "HumanEval.jsonl")
             ensure_file_downloaded(
                 source_url="https://github.com/openai/human-eval/raw/master/data/HumanEval.jsonl.gz",
                 target_path=target_path,
