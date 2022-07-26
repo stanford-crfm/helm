@@ -102,7 +102,7 @@ class AutoClient(Client):
 
         if client is None:
             client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
-            if organization in ["openai", "gooseai", "huggingface", "anthropic", "microsoft"]:
+            if organization in ["openai", "gooseai", "huggingface", "anthropic", "microsoft", "google", "bigscience"]:
                 client = HuggingFaceClient(cache_path=client_cache_path)
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
