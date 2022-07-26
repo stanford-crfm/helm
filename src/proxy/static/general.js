@@ -1,3 +1,9 @@
+function assert(condition, message) {
+  if (!condition) {
+    throw message || 'Assertion failed';
+  }
+}
+
 function encodeUrlParams(params) {
   let s = '';
   for (let k in params)

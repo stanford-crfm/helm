@@ -64,7 +64,7 @@ $(function () {
       return field || new Field({name});
     }
 
-    scenarioGroupField(name) {
+    scenarioGroupsField(name) {
       // Return the scenario group field with the given `name`.
       const field = this.scenarioGroupsFields.find((field) => field.name === name);
       return field || new Field({name});
@@ -457,6 +457,187 @@ $(function () {
     return $root;
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+  //                        [BEGIN] Handy functions                           //
+  //////////////////////////////////////////////////////////////////////////////
+
+  // Functions in this section are finalized, - no further re-factoring planned.
+  // TODO: Remove the section comments once all the refactoring is complete.
+
+  function joinRunSpecNames(runs) {
+    const runSpecNames = runs.map(run => run.run_spec.name);
+    return runSpecNames.join('&');
+  }
+
+  function getScenarioSpecNameFromRunSpecName(runSpecName) {
+    // Extract scenario name from a run spec name. Example:
+    //   runSpecName: "boolq:model=ai21_j1-jumbo,data_augmentation=canonical"
+    //   scenarioName: "boolq"
+    // NOTE: We should ideally avoid parsing strings, but there is no other
+    //   way to get this information.
+    return runSpecName.split(':')[0];
+  }
+
+  function filterRunsByGroup(runs, group) {
+    return runs.filter(run => checkRunGroupMatch(run, group));
+  }
+
+  function filterRunsByGroups(runs, groups) {
+    return runs.filter(run => {
+      var match = false;
+      groups.forEach(group => {
+        match = match || checkRunGroupMatch(run, group);
+      });
+      return match;
+  })};
+
+  //////////////////////////////////////////////////////////////////////////////
+  //                          [END] Handy functions                           //
+  //////////////////////////////////////////////////////////////////////////////
+
+  // ------------------------------------------------------------------------ //
+
+  //////////////////////////////////////////////////////////////////////////////
+  //     [BEGIN] Functions in the below section can be re-factored better.    //
+  //////////////////////////////////////////////////////////////////////////////
+
+  function getStatsFromRun(run, statName, perturbationName, k, split) {
+    return stats = run.stats.filter(stat => {
+      // TODO iterate automatically
+      const statNameMatch = stat.name.name === statName;
+      const perturbationNameMatch = (stat.name.perturbation ? stat.name.perturbation.name : null) === perturbationName;
+      const splitMatch = stat.name.split === split;
+      const kMatch = stat.name.k === k;
+      return statNameMatch && perturbationNameMatch && splitMatch && kMatch;
+  })}
+
+  function groupByModel(runs) {
+    // Group runs by model name. Return a dictionary mapping each model name to
+    // a list of runs.
+    const runsGroupedByModel = runs.reduce((r, run) => {
+      model = run.run_spec.adapter_spec.model;
+      r[model] = r[model] || [];
+      r[model].push(run);
+      return r;
+    }, {});
+    return runsGroupedByModel;
+  }
+
+  function stringifyObject(obj) {
+    var stringArr = [];
+    Object.keys(obj).forEach(key => stringArr.push(`${key}=${obj[key]}`));
+    return stringArr.join(',');
+  }
+
+  function createScenarioMetadataString(scenarioSpecName, scenarioSpecArgs) {
+    if (scenarioSpecArgs && Object.keys(scenarioSpecArgs).length > 0) {
+      // TODO
+      const argsString = stringifyObject(scenarioSpecArgs);
+      return [scenarioSpecName, argsString].join(':');
+    }
+    return scenarioSpecName;
+  }
+
+  function groupByScenarioMetadata(runs) {
+    const runsGroupedByScenarioMetadata = runs.reduce((r, run) => {
+      const scenarioSpecName = getScenarioSpecNameFromRunSpecName(run.run_spec.name);
+      const scenarioSpecArgs = run.run_spec.scenario.args;
+      const scenarioMetadataString = createScenarioMetadataString(scenarioSpecName, scenarioSpecArgs);
+      const defaultValue = {scenarioSpecName: scenarioSpecName, scenarioSpecArgs: scenarioSpecArgs, runs: []};
+      r[scenarioMetadataString] = r[scenarioMetadataString] || defaultValue;
+      r[scenarioMetadataString].runs.push(run);
+      return r;
+    }, {});
+    return runsGroupedByScenarioMetadata;
+  }
+
+  function renderTable(headers, data, tableClass) {
+    // TODO make the table prettier
+    // TODO show stddev / confidence interval
+    // TODO Detail hrefLinkFieldName
+    // Render table with the given headers, data, and tableClass.
+    const $table = $('<table>', {class: tableClass});
+    $table.empty();
+
+    // Render header
+    const $header = $('<tr>');
+    headers.forEach(ht => $header.append($('<td>').append($('<b>').append(ht))));
+    $table.append($header);
+
+    // Render data
+    data.forEach(d => {
+      const $row = $('<tr>');
+      headers.forEach(ht => {
+        if (d[ht].href) {
+          $row.append($('<a>', {href: d[ht].href}).append(d[ht].value));
+        } else {
+          $row.append($('<td>').append(d[ht]));
+        }
+      });
+      $table.append($row);
+    });
+
+    return $table;
+  }
+
+  function toDecimalStrings(dataArr, numDecimals=3) {
+    dataArr.forEach(dataRow => {
+      Object.keys(dataRow).forEach(k => {
+        if (typeof dataRow[k] === 'number') {
+          dataRow[k] = dataRow[k].toLocaleString("en-US", {maximumFractionDigits: numDecimals, minimumFractionDigits: numDecimals});
+        }
+    })});
+  }
+
+  function checkRunGroupMatch(run, group) {
+    // Return whether the run belongs to the provided scenario group
+    // @TODO Replace the following logic to compare against the groups field once #586 is merged and
+    // the benchmark is re-run.
+    const scenario = run.run_spec.scenario;
+    var classNameCondition = scenario.class_name === group.className;
+    var argsCondition = true;
+    if (group.args) {
+      for (const key in group.args) {
+        argsCondition = scenario.args.hasOwnProperty(key) ? scenario.args[key] === group.args[key] : argsCondition;
+      }
+    }
+    return classNameCondition && argsCondition;
+  }
+
+  function statNameToDisplayName(statName, perturbationName) {
+    // Converts a statName and a statType to a string ready to be displayed to the user
+    //   statNameToDisplayName("f1_score", "Synonym Perturbation") => "F1 score (Synonym Perturbation)"
+
+    const displayNameMappingDict = {
+      // Stat names
+      // TODO The name mappings here should be moved to the schema.
+      training_co2_cost: "Training CO2 Cost",
+      inference_runtime: "Inference Runtime (Actual)",
+      inference_idealized_runtime: "Inference Runtime (Idealized)",
+      // Perturbation names
+      // @TODO standardize perturbation names in the python code
+      TyposPerturbation: 'Typos Perturbation',
+      SynonymPerturbation: 'Synonym Perturbation',
+      dialect: 'Dialect Perturbation',
+      person_name: 'Race Perturbation',
+      gender_term: 'Gender Perturbation',
+      'bias: category=race, target=profession': 'Bias (Race, Profession)',
+      'bias: category=gender, target=profession': 'Bias (Gender, Profession)',
+      'erasure: category=race': 'Bias (Race)',
+      'erasure: category=gender': 'Bias (Gender)'
+    };
+
+    if (statName in displayNameMappingDict) {
+      statName = displayNameMappingDict[statName]
+    } else {
+      statName = statName.replaceAll('_', ' ');
+      statName = statName.charAt(0).toUpperCase() + statName.slice(1);
+    }
+
+    return perturbationName ? statName + " (" + displayNameMappingDict[perturbationName] + ")" : statName;
+  }
+
+
   function getAverageStats(displayStatArr) {
     // TODO document and clean up.
     // Result is an object where each value is a list of stats that can be averaged.
@@ -481,98 +662,12 @@ $(function () {
     return result;
   }
 
-  function renderTable(headers, data, tableClass) {
-    // TODO make the table prettier
-    // TODO show stddev / confidence interval
-    // Render table with the given headers, data, and tableClass.
-    const $table = $('<table>', {class: tableClass});
-    $table.empty();
-
-    // Render header
-    const $header = $('<tr>');
-    headers.forEach(ht => $header.append($('<td>').append($('<b>').append(ht))));
-    $table.append($header);
-
-    // Render data
-    data.forEach(d => {
-      const $row = $('<tr>');
-      headers.forEach(ht => $row.append($('<td>').append(d[ht])));
-      $table.append($row);
-    });
-
-    return $table;
-  }
-
-  function toDecimalStrings(dataArr, numDecimals=3) {
-    dataArr.forEach(dataRow => {
-      Object.keys(dataRow).forEach(k => {
-        if (typeof dataRow[k] === 'number') {
-          dataRow[k] = dataRow[k].toLocaleString("en-US", {maximumFractionDigits: numDecimals, minimumFractionDigits: numDecimals});
-        }
-    })});
-  }
-
-  function checkScenarioGroupRunMatch(scenarioGroup, run) {
-    // Return whether the run belongs to the provided scenario group
-    // @TODO Replace the following logic to compare against the groups field once #586 is merged and
-    // the benchmark is re-run.
-    const scenario = run.run_spec.scenario;
-    var classNameCondition = scenario.class_name === scenarioGroup.className;
-    var argsCondition = true;
-    if (scenarioGroup.args) {
-      for (const key in scenarioGroup.args) {
-        argsCondition = scenario.args.hasOwnProperty(key) ? scenario.args[key] === scenarioGroup.args[key] : argsCondition;
-      }
-    }
-    return classNameCondition && argsCondition;
-  }
-
-  function filterRunsByScenarioGroup(scenarioGroup, runs) {
-    return runs.filter((run) => checkScenarioGroupRunMatch(scenarioGroup, run));
-  }
-
-  function getStatsFromRun(run, statName, perturbationName, k, split) {
-    return stats = run.stats.filter(stat => {
-      const statNameMatch = stat.name.name === statName;
-      const perturbationNameMatch = (stat.name.perturbation ? stat.name.perturbation.name : null) === perturbationName;
-      const splitMatch = stat.name.split === split;
-      const kMatch = stat.name.k === k;
-      return statNameMatch && perturbationNameMatch && splitMatch && kMatch;
-  })}
-
-  function statNameToDisplayName(statName, perturbationName) {
-    // Converts a statName and a statType to a string ready to be displayed to the user
-    //   statNameToDisplayName("f1_score", "Synonym Perturbation") => "F1 score (Synonym Perturbation)"
-
-    const nameMappingDict = {
-      // Stat names
-      training_co2_cost: "Training CO2 Cost",
-      inference_runtime: "Inference Runtime (Actual)",
-      inference_idealized_runtime: "Inference Runtime (Idealized)",
-      // Perturbation names
-      // @TODO standardize perturbation names in the python code
-      TyposPerturbation: "Typos Perturbation",
-      SynonymPerturbation: "Synonym Perturbation",
-      dialect: "Dialect Perturbation",
-      person_name: "Race Perturbation",
-      gender_term: "Gender Perturbation",
-    };
-
-    if (statName in nameMappingDict) {
-      statName = nameMappingDict[statName]
-    } else {
-      statName = statName.replaceAll('_', ' ');
-      statName = statName.charAt(0).toUpperCase() + statName.slice(1);
-    }
-
-    return perturbationName ? statName + " (" + nameMappingDict[perturbationName] + ")" : statName;
-  }
-
   function getDisplayStatDictFromRun(run, statName, k, split, perturbationName) {
     const stats = getStatsFromRun(run, statName, perturbationName, k, split);
     var displayStat = {};
-    if (stats.length) {
-      displayStat[statNameToDisplayName(statName)] = stats;
+    if (stats.length > 0) {
+      const displayName = statNameToDisplayName(statName);
+      displayStat[displayName] = stats;
     };
     return displayStat;
   }
@@ -585,7 +680,7 @@ $(function () {
     perturbationNames.forEach(perturbationName => {
       const stats = getStatsFromRun(run, statName, perturbationName, k, split);
       if (stats.length > 0) {
-        displayStats[statNameToDisplayName(statName, perturbationName)] = stats
+        displayStats[statNameToDisplayName(statName, perturbationName)] = stats;
       };
     });
 
@@ -593,9 +688,19 @@ $(function () {
   }
 
   function getBiasAndToxicityDisplayStats(run, k, split) {
-    // TODO extract Bias (race, profession), Bias (gender, profession), Bias(race), Bias(gender) if present.
-    // TODO extract toxicity stat if present.
-    return {};
+    // Stat names
+    const perturbationName = null;
+    const statNames = ['bias: category=race, target=profession', 'bias: category=gender, target=profession', 'erasure: category=race', 'erasure: category=gender'];
+
+    var displayStats = {};
+    statNames.forEach(statName => {
+      const stats = getStatsFromRun(run, statName, perturbationName, k, split);
+      if (stats.length > 0) {
+        displayStats[statNameToDisplayName(statName, perturbationName)] = stats;
+      };
+    });
+
+    return displayStats;
   }
 
   function getRuntimeDisplayStats(run, k, split) {
@@ -616,55 +721,122 @@ $(function () {
     return displayStats;
   }
 
-  function renderScenarioGroups(scenarioGroups, runs) {
-    // TODO Add explainer.
-    // TODO refactor and clean up the scenario group computation
-    //      TODO add scenario tables
-    // Output all the stats/run that are shown in the table in a list so that the user can double
-    // check the stats / click on the runs.
+  function getTableDisplayStats(run, statNames, k, split) {
+    // TODO rename this function
+    // TODO document 
 
-    const $root = $('<div>');
-    const scenarioGroupsTitle = scenarioGroups.map(s => s.name).join(", ");
-    $root.append($('<h2>').append(scenarioGroupsTitle));
+    var displayStatsArr = [];  // TODO rename
 
-    // Group by model
-    const runsGroupedByModel = runs.reduce((r, run) => {
-      model = run.run_spec.adapter_spec.model;
-      r[model] = r[model] || [];
-      r[model].push(run);
-      return r;
-    }, {});
-
-    // Get table data
-    const tableData = [];
-    Object.keys(runsGroupedByModel).forEach(model => {
-      const modelRuns = runsGroupedByModel[model];
-      var tableDataRow = {'model': model};
-      var displayStatsArr = [];
-      scenarioGroups.forEach(scenarioGroup => {
-        // Unpack scenarioGroup fields
-        const statNames = scenarioGroup.display.stat_names, k = scenarioGroup.display.k, split = scenarioGroup.display.split;
-        const scenarioGroupRuns = filterRunsByScenarioGroup(scenarioGroup, modelRuns);
-        scenarioGroupRuns.forEach(run => {
-          statNames.forEach(statName => {
-            // Accuracy stat (w perturbations)
-            displayStatsArr.push(getDisplayStatDictFromRun(run, statName, k, split, null));
-            displayStatsArr.push(getPerturbationDisplayStatsFromRun(run, statName, k, split, null));
-          });
-          // Toxicity and bias
-          displayStatsArr.push(getBiasAndToxicityDisplayStats(run, k, split));
-          // Run Time
-          displayStatsArr.push(getRuntimeDisplayStats(run, k, split));
-        });
-      });
-      const averageDisplayStatObj = getAverageStats(displayStatsArr);
-      Object.keys(averageDisplayStatObj).forEach(key => tableDataRow[key] = averageDisplayStatObj[key]);
-      tableData.push(tableDataRow);
+    statNames.forEach(statName => {
+      // Accuracy stat (w perturbations)
+      // TODO Ensure that the identity perturbation is appropriate
+      // TODO replace push once the display stat object is implemented
+      displayStatsArr.push(getDisplayStatDictFromRun(run, statName, k, split, 'identity'));
+      displayStatsArr.push(getPerturbationDisplayStatsFromRun(run, statName, k, split, 'identity'));
     });
 
+    // Toxicity and bias
+    displayStatsArr.push(getBiasAndToxicityDisplayStats(run, k, split));
+
+    // Run Time
+    displayStatsArr.push(getRuntimeDisplayStats(run, k, split));
+
+    // Flatten the array into a dictionary
+    // TODO revisit after the display stats object is implemented
+    var combinedDisplayStats = {};
+    for (const displayStat of displayStatsArr) {
+      for (statName in displayStat) {
+        combinedDisplayStats[statName] = combinedDisplayStats[statName] || [];
+        combinedDisplayStats[statName] = combinedDisplayStats[statName].concat(displayStat[statName]);
+      };
+    };
+
+    return combinedDisplayStats;
+  }
+
+  function renderTableExplainer(runs, tableTitle) {
+    // TODO Re-factor
+    const $tableExplainer = $('<div>');
+    const runsGroupedByScenarioMetadata = groupByScenarioMetadata(runs);
+
+    // Table title
+    if (!(tableTitle)) {
+      Object.keys(runsGroupedByScenarioMetadata).forEach(scenarioMetadataString => {
+        const metadata = runsGroupedByScenarioMetadata[scenarioMetadataString];
+        const args = metadata.scenarioSpecArgs;
+        tableTitle = `${metadata.scenarioSpecName}`;
+        if (Object.keys(args).length > 0) {
+          const argValues = Object.values(args).join(', ');
+          tableTitle += ` (${argValues})`;
+        }
+      });
+    }
+    $tableExplainer.append($('<h2>').append(tableTitle));
+
+    // Table information
+    const scenarioMetadataNamesRegex = '.*' + Object.keys(runsGroupedByScenarioMetadata).join('.*&.*') + '.*';
+    const predictionsHref = `benchmarking.html?runSpec=${scenarioMetadataNamesRegex}`;
+    $tableExplainer.append($('<a>', {href: predictionsHref}).append(`All predictions for the table`));
+
+    return $tableExplainer;
+  }
+
+  function renderModelRunStatsTable(runs, schema, includeMetadata, tableTitle) {
+    // Creates the model by stats table by aggregating the runs.
+    //   Links to predictions / specific run specs available based on the number
+    //   runs that are aggregated.
+    // TODO we can automatically decide whether to include links or not, possible refactor
+    // TODO this can be a generic table taking a "groupby" function with a field name
+    // TODO we can re-factor the explainer part from the table part, but it will cause some repetition
+
+    // Construct the table explainer, including table name and any explanation.
+    const $tableContainer =  $('<div>');
+
+    // Group runs by model
+    const runsGroupedByModel = groupByModel(runs);
+
+    // Table explainer
+    const $tableExplainer = renderTableExplainer(runs, tableTitle);
+    $tableContainer.append($tableExplainer);
+
+    // Get table data
+    var data = [];
+    Object.keys(runsGroupedByModel).forEach(model => {
+      var modelDisplayStats = []; // TODO rename
+      const modelRuns = runsGroupedByModel[model];
+
+      modelRuns.forEach(run => {
+        // Get display settings
+        const groupName = run.run_spec.groups[0]; // We select the first group name to get display settings
+        const display = schema.scenarioGroupsField(groupName).display; // TODO rename scenario groups
+        const k = display.k, split = display.split, statNames = display.stat_names;
+
+        // Get display stats
+        const runDisplayStats = getTableDisplayStats(run, statNames, k, split);
+        modelDisplayStats.push(runDisplayStats);
+      });
+      // Combine all stats of the same name and average
+      // TODO this can happen later
+      var dataRow = getAverageStats(modelDisplayStats);
+
+      // Add model information
+      if (includeMetadata) {
+        const joinedRunSpecNames = joinRunSpecNames(modelRuns); // TODO must
+        const href = encodeUrlParams(Object.assign(urlParams, {runSpec: joinedRunSpecNames}));
+        dataRow = {'Model': {'href': href, 'value': model}, ...dataRow};
+      } else {
+        dataRow = {'Model': model, ...dataRow};
+      }
+
+      // Add to data
+      data = data.concat(dataRow);
+    });
+
+    // Prepare the table
+    // TODO Clean up and re-factor
     // Get headers
-    const tableHeaders = tableData.reduce((r, tableDataRow) => {
-      Object.keys(tableDataRow).forEach(key => {
+    const headers = data.reduce((r, dataRow) => {
+      Object.keys(dataRow).forEach(key => {
         r = r || [];
         if (!(r.includes(key))) {r.push(key)};
       });
@@ -672,12 +844,54 @@ $(function () {
     }, []);
 
     // Render table
-    toDecimalStrings(tableData, numDecimals=3);
-    const $table = renderTable(tableHeaders, tableData, 'scenario-table')
-    $root.append($table);
+    toDecimalStrings(data, numDecimals=3);
+    const $table = renderTable(headers, data, 'scenario-table');
+    $tableContainer.append($table);
+
+    return $tableContainer;
+  }
+
+  function renderScenarioSpecsPage(runs, schema)  {
+    // TODO document this function, change name
+    // Page showing stats for a scenario spec
+    // Runs should already be filtered.
+    const $root = $('<div>');
+    const includeMetadata = true;
+    $root.append(renderModelRunStatsTable(runs, schema, includeMetadata));
+    return $root;
+  }
+
+  function renderGroupsPage(groups, runs, schema) {
+    // Page showing aggregate stats for the passed groups.
+    // TODO Add group explainer.
+
+    // Information panel
+    const $root = $('<div>');
+    const groupsTitle = groups.map(s => s.name).join(", ");
+    $root.append($('<h1>').append(groupsTitle));
+    
+    // Group table
+    const groupsRuns = filterRunsByGroups(runs, groups); // TODO groupsruns sound weird
+    var includeMetadata = false;
+    const tableTitle = `${groupsTitle} Group`;
+    const $groupTableContainer = renderModelRunStatsTable(groupsRuns, schema, true, tableTitle);
+    $root.append($groupTableContainer);
+
+    // Individual tables
+    includeMetadata = true;
+    const runsGroupedByScenarioMetadata = groupByScenarioMetadata(groupsRuns);
+    Object.keys(runsGroupedByScenarioMetadata).forEach(scenarioMetadataString => {
+      const scenarioMetadataRuns = runsGroupedByScenarioMetadata[scenarioMetadataString].runs;
+      const $subTableContainer = renderModelRunStatsTable(scenarioMetadataRuns, schema, includeMetadata);
+      $root.append($subTableContainer);
+    });
 
     return $root;
   }
+
+  //////////////////////////////////////////////////////////////////////////////
+  //       [END] TODO functions in the above section can be re-factored.      //
+  //////////////////////////////////////////////////////////////////////////////
 
   const $main = $('#main');
   let models, runSpecs, runs, schema;
@@ -703,25 +917,30 @@ $(function () {
     $main.empty();
     if (urlParams.models) {
       $main.append(renderHeader('Models', renderModels(models)));
-    }
-    if (urlParams.runSpec) {
+    } else if (urlParams.runSpec) {
       const matchedRunSpecs = runSpecs.filter((runSpec) => new RegExp('^' + urlParams.runSpec + '$').test(runSpec.name));
       if (matchedRunSpecs.length === 0) {
         $main.append(renderError('No matching runs'));
       } else {
         $main.append(renderRunsDetailed(matchedRunSpecs));
       }
-    }
-    if (urlParams.scenarioGroup) {
-      // TODO When we use the RegExp above we don't catch the groups. Debug.
-      const matchedScenarioGroups = schema.scenarioGroupsFields.filter((scenarioGroup) => urlParams.scenarioGroup.includes(scenarioGroup.name));
-      if (matchedScenarioGroups.length === 0) {
-        $main.append(renderError('No matching scenario groups'));
+    } else if (urlParams.scenarioSpec) {
+      // TODO Change matching so that scenario ...
+      const matchedRuns = runs.filter((run) => new RegExp('^.*' + urlParams.scenarioSpec + '.*$').test(run.run_spec.name));
+      if (matchedRuns.length === 0) {
+        $main.append(renderError('No matching runs'));
       } else {
-        $main.append(renderScenarioGroups(matchedScenarioGroups, runs));
+        $main.append(renderScenarioSpecsPage(matchedRuns, schema));
       }
-    }
-    else {
+    } else if (urlParams.group) {
+      // TODO When we use the RegExp above we don't catch the groups. Debug.
+      const matchedGroups = schema.scenarioGroupsFields.filter((group) => urlParams.group.includes(group.name));
+      if (matchedGroups.length === 0) {
+        $main.append(renderError('No matching groups'));
+      } else {
+        $main.append(renderGroupsPage(matchedGroups, runs, schema));
+      }
+    } else {
       $main.append(renderHeader('Runs', renderRunsOverview(runSpecs)));
     }
   });

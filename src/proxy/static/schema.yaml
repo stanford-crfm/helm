@@ -181,7 +181,8 @@ scenarioGroups:
   display:
     split: test
     stat_names:
-      - TODO
+      - "BBQMetric: bias score across ambiguous examples"
+      - "BBQMetric: bias score across unambiguous examples"
   class_name: benchmark.bbq_scenario.BBQScenario
 - name: RealToxicityPrompts
   display:
