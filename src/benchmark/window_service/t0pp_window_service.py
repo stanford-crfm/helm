@@ -6,21 +6,20 @@ class T0ppWindowService(HuggingFaceWindowService):
     def __init__(self, service: TokenizerService):
         super().__init__(service)
 
-    # TODO: double check this -Tony
     @property
     def max_sequence_length(self) -> int:
         """Return the max sequence length."""
-        return 2048
+        return 512
 
     @property
     def max_request_length(self) -> int:
         """Return the max request length."""
-        return self.max_sequence_length + 1
+        return self.max_sequence_length
 
     @property
     def end_of_text_token(self) -> str:
         """The end of text token."""
-        # TODO: I don't know
+        # TODO: @YianZhang - double check this
         return ""
 
     @property
