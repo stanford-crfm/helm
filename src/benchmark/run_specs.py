@@ -1422,7 +1422,7 @@ def get_legal_support_spec() -> RunSpec:
         output_prefix="\nAnswer: ",
         model="openai/davinci",
         temperature=0.0,
-        max_train_instances=3,  # TODO: @Neel - Justify
+        max_train_instances=3,  # We use 3 because these samples tend to be a bit longer
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         stop_sequences=["\n"],
