@@ -48,6 +48,7 @@ models=(
   "microsoft/TNLGv2_530B"
   "microsoft/TNLGv2_7B"
   "together/gpt-j-6b"
+  "together/gpt-neox-20b"
 )
 
 for model in "${models[@]}"
