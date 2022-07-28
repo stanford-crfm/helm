@@ -9,6 +9,7 @@ class UL2WindowService(HuggingFaceWindowService):
     @property
     def max_sequence_length(self) -> int:
         """Return the max sequence length."""
+        # From https://arxiv.org/pdf/2205.05131.pdf, "the sequence length is set to 512/512 for inputs and targets".
         return 512
 
     @property

@@ -9,6 +9,7 @@ class T511bWindowService(HuggingFaceWindowService):
     @property
     def max_sequence_length(self) -> int:
         """Return the max sequence length."""
+        # From https://arxiv.org/pdf/1910.10683.pdf, "we use a maximum sequence length of 512".
         return 512
 
     @property

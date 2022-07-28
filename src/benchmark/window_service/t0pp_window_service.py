@@ -9,6 +9,9 @@ class T0ppWindowService(HuggingFaceWindowService):
     @property
     def max_sequence_length(self) -> int:
         """Return the max sequence length."""
+        # From https://arxiv.org/pdf/2110.08207.pdf, "we truncate input and target sequences to 1024 and 256 tokens,
+        # respectively. Following Raffel et al. (2020), we use packing to combine multiple training examples into
+        # a single sequence to reach the maximum sequence length."
         return 512
 
     @property
