@@ -115,8 +115,9 @@ class MicrosoftClient(Client):
                         # Validate the responses, so we don't cache malformed responses with null `logprobs` and `text`
                         if (
                             "choices" not in response
-                            or response["choices"][0]["text"] is None
-                            or response["choices"][0]["logprobs"] is None
+                            or len(response["choices"]) == 0
+                            or response["choices"][0].get("text") is None
+                            or response["choices"][0].get("logprobs") is None
                         ):
                             raise turing.error.OpenAIError(
                                 f"For request: {raw_request}, invalid response from the MT-NLG server: {response}."
