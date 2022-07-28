@@ -118,7 +118,9 @@ class MicrosoftClient(Client):
                             or response["choices"][0]["text"] is None
                             or response["choices"][0]["logprobs"] is None
                         ):
-                            raise turing.error.OpenAIError(f"Invalid response from the MT-NLG server: {response}")
+                            raise turing.error.OpenAIError(
+                                f"For request: {raw_request}, invalid response from the MT-NLG server: {response}."
+                            )
 
                         return response
 
