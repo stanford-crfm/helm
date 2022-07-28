@@ -408,6 +408,7 @@ class BasicMetric(Metric):
         num_output_tokens: int = len(sequence.tokens)
         # Don't include prompt in number of generated tokens (e.g., for language modeling).
         if request_state.request.echo_prompt:
+            # This might fail when we get fewer output tokens in the response than the number of tokens in the prompt.
             assert (
                 num_prompt_tokens <= num_output_tokens
             ), f"num_prompt_tokens ({num_prompt_tokens}) > num_output_tokens ({num_output_tokens}) for prompt: {prompt}"
