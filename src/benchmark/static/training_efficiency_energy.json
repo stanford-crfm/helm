@@ -1,0 +1,14 @@
+{
+    "huggingface/gptj_6b": 33.5,
+    "gooseai/gpt-j-6b": 33.5,
+    "gooseai/gpt-neo-20b": 60.1,
+    "openai/babbage": 9.8,
+    "openai/text-babbage-001": 9.9,
+    "openai/curie": 49.2,
+    "openai/text-curie-001": 50.0,
+    "openai/davinci": 1287.1,
+    "openai/text-davinci-001": 1308.3,
+    "openai/text-davinci-002": 1308.3,
+    "microsoft/TNLGv2_530B": 1111.8
+  }
+  

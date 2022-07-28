@@ -1,15 +1,15 @@
 {
-  "huggingface/gptj_6b": 12.5,
-  "gooseai/gpt-j-6b": 12.5,
-  "gooseai/gpt-neo-20b": 35,
+  "huggingface/gptj_6b": 13.8,
+  "gooseai/gpt-j-6b": 13.8,
+  "gooseai/gpt-neo-20b": 31.73,
   "openai/ada": 1.1,
   "openai/text-ada-001": 1.1,
-  "openai/babbage": 4.1,
-  "openai/text-babbage-001": 4.1,
+  "openai/babbage": 4.2,
+  "openai/text-babbage-001": 4.3,
   "openai/curie": 21.1,
-  "openai/text-curie-001": 21.1,
-  "openai/davinci": 552,
-  "openai/text-davinci-001": 552,
-  "openai/text-davinci-002": 552,
-  "microsoft/TNLGv2_530B": 241
+  "openai/text-curie-001": 21.4,
+  "openai/davinci": 552.1,
+  "openai/text-davinci-001": 561.2,
+  "openai/text-davinci-002": 561.2,
+  "microsoft/TNLGv2_530B": 241.1
 }

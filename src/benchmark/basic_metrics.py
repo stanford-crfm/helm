@@ -38,7 +38,7 @@ except LookupError:
 
 INFERENCE_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/static/inference_efficiency.json"
 TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/static/training_efficiency.json"
-
+TRAINING_EFFICIENCY_ENERGY_JSON_FILEPATH: str = "src/benchmark/static/training_efficiency_energy.json"
 
 def pass_at_k_estimator(n: int, c: int, k: int) -> float:
     """Calculates 1 - comb(n - c, k) / comb(n, k).
@@ -289,6 +289,12 @@ class BasicMetric(Metric):
         with open(TRAINING_EFFICIENCY_JSON_FILEPATH, "r") as f:
             self.training_efficiency_dict = json.load(f)
 
+        # Carbon emissions are dependent on the cloud region and so give an insight into
+        # sustainability but not necessarily performance for energy cost (the better efficiency metric)
+        # As such we log both. In MWh
+        with open(TRAINING_EFFICIENCY_ENERGY_JSON_FILEPATH, "r") as f:
+            self.training_efficiency_energy_dict = json.load(f)
+
     def compute_reference_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
@@ -463,12 +469,24 @@ class BasicMetric(Metric):
             )
             training_co2_cost = None
 
+        training_energy_cost: Optional[float]
+        if request_state.request.model in self.training_efficiency_energy_dict:
+            training_energy_cost = self.training_efficiency_energy_dict[request_state.request.model]
+        else:
+            hlog(
+                f"WARNING: tried to estimate training energy cost for model {request_state.request.model} "
+                "that is not in training_efficiency_energy_dict"
+            )
+            training_energy_cost = None
+
+
         return [
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
             Stat(MetricName("inference_runtime_discrepancy")).add(runtime_discrepancy),
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
+            Stat(MetricName("training_energy_cost")).add(training_energy_cost),
         ]
 
     def compute_finish_reason_metrics(
