@@ -1,8 +1,8 @@
-from .huggingface_window_service import HuggingFaceWindowService
+from .encoder_decoder_window_service import EncoderDecoderWindowService
 from .tokenizer_service import TokenizerService
 
 
-class T0ppWindowService(HuggingFaceWindowService):
+class T0ppWindowService(EncoderDecoderWindowService):
     def __init__(self, service: TokenizerService):
         super().__init__(service)
 
@@ -12,7 +12,7 @@ class T0ppWindowService(HuggingFaceWindowService):
         # From https://arxiv.org/pdf/2110.08207.pdf, "we truncate input and target sequences to 1024 and 256 tokens,
         # respectively. Following Raffel et al. (2020), we use packing to combine multiple training examples into
         # a single sequence to reach the maximum sequence length."
-        return 512
+        return 1024
 
     @property
     def max_request_length(self) -> int:

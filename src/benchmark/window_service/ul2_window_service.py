@@ -1,8 +1,8 @@
-from .huggingface_window_service import HuggingFaceWindowService
+from .encoder_decoder_window_service import EncoderDecoderWindowService
 from .tokenizer_service import TokenizerService
 
 
-class UL2WindowService(HuggingFaceWindowService):
+class UL2WindowService(EncoderDecoderWindowService):
     def __init__(self, service: TokenizerService):
         super().__init__(service)
 

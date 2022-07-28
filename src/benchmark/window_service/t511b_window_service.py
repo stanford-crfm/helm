@@ -1,8 +1,9 @@
+from .encoder_decoder_window_service import EncoderDecoderWindowService
 from .huggingface_window_service import HuggingFaceWindowService
 from .tokenizer_service import TokenizerService
 
 
-class T511bWindowService(HuggingFaceWindowService):
+class T511bWindowService(EncoderDecoderWindowService):
     def __init__(self, service: TokenizerService):
         super().__init__(service)
 
