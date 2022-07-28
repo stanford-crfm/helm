@@ -40,6 +40,7 @@ INFERENCE_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/static/inference_effici
 TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/static/training_efficiency.json"
 TRAINING_EFFICIENCY_ENERGY_JSON_FILEPATH: str = "src/benchmark/static/training_efficiency_energy.json"
 
+
 def pass_at_k_estimator(n: int, c: int, k: int) -> float:
     """Calculates 1 - comb(n - c, k) / comb(n, k).
 
@@ -478,7 +479,6 @@ class BasicMetric(Metric):
                 "that is not in training_efficiency_energy_dict"
             )
             training_energy_cost = None
-
 
         return [
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
