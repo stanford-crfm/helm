@@ -47,7 +47,7 @@ class WindowService(ABC):
         pass
 
     @abstractmethod
-    def encode(self, text: str, truncation: bool = False, max_length: int = 2048) -> EncodeResult:
+    def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:
         """Encodes the input text to tokens given the model"""
         pass
 

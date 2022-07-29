@@ -20,10 +20,14 @@ class HuggingFaceWindowService(WindowService):
     def tokenizer_name(self) -> str:
         pass
 
-    def encode(self, text: str, truncation: bool = False, max_length: int = 2048) -> EncodeResult:
+    def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:
         """
         Encodes the input text to tokens.
         """
+        # If a value for `max_length` is not specified, then set it to the `max_request_length`of the `WindowService`.
+        if max_length is None:
+            max_length = self.max_request_length
+
         response: TokenizationRequestResult = self.service.tokenize(
             TokenizationRequest(
                 text, tokenizer=self.tokenizer_name, encode=True, truncation=truncation, max_length=max_length

@@ -67,8 +67,8 @@ class TestUL2WindowService:
         3361,
         2250,
         5,
-        # Exclude the '</s>' token that gets added when encoding
-        # 1,
+        # '</s>' token that gets added when encoding
+        1,
     ]
 
     def setup_method(self):
@@ -86,7 +86,7 @@ class TestUL2WindowService:
         assert self.window_service.encode(TEST_PROMPT).tokens == TestUL2WindowService.TEST_TOKEN_IDS
 
     def test_decode(self):
-        assert self.window_service.decode(TestUL2WindowService.TEST_TOKEN_IDS) == TEST_PROMPT
+        assert self.window_service.decode(TestUL2WindowService.TEST_TOKEN_IDS) == TEST_PROMPT + "</s>"
 
     def test_tokenize(self):
         assert self.window_service.tokenize(TEST_PROMPT) == [
@@ -155,7 +155,7 @@ class TestUL2WindowService:
 
     def test_fits_within_context_window(self):
         # Should fit in the context window
-        assert self.window_service.fits_within_context_window(TEST_PROMPT, 512 - 57)
+        assert self.window_service.fits_within_context_window(TEST_PROMPT, self.window_service.max_request_length - 57)
 
     def test_truncate_from_right(self):
         # Create a prompt that exceed max context length: 57 * 10 = 570 tokens
@@ -164,5 +164,6 @@ class TestUL2WindowService:
 
         # Truncate and ensure it fits within the context window
         truncated_long_prompt: str = self.window_service.truncate_from_right(long_prompt)
-        assert self.window_service.get_num_tokens(truncated_long_prompt) == 512
+        assert self.window_service.get_num_tokens(truncated_long_prompt) == self.window_service.max_request_length - 1
+        assert len(self.window_service.encode(truncated_long_prompt).tokens) == self.window_service.max_request_length
         assert self.window_service.fits_within_context_window(truncated_long_prompt)
