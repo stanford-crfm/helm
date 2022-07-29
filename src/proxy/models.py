@@ -249,6 +249,24 @@ ALL_MODELS = [
     ),
     Model(
         group="together",
+        creator_organization="Meta",
+        name="together/opt-66b",
+        # From https://arxiv.org/pdf/2205.01068.pdf
+        description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
+        "transformers fully and responsibly shared with interested researchers.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Meta",
+        name="together/opt-175b",
+        # From https://arxiv.org/pdf/2205.01068.pdf
+        description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
+        "transformers fully and responsibly shared with interested researchers.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
         creator_organization="Google",
         name="together/t5-11b",
         # From https://huggingface.co/docs/transformers/v4.20.1/en/model_doc/t5
