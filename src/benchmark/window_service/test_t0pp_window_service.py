@@ -80,7 +80,7 @@ class TestT0ppWindowService:
         shutil.rmtree(self.path)
 
     def test_max_request_length(self):
-        assert self.window_service.max_request_length == 1023
+        assert self.window_service.max_request_length == 1024
 
     def test_encode(self):
         assert self.window_service.encode(TEST_PROMPT).tokens == TestT0ppWindowService.TEST_TOKEN_IDS

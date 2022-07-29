@@ -80,7 +80,7 @@ class TestUL2WindowService:
         shutil.rmtree(self.path)
 
     def test_max_request_length(self):
-        assert self.window_service.max_request_length == 511
+        assert self.window_service.max_request_length == 512
 
     def test_encode(self):
         assert self.window_service.encode(TEST_PROMPT).tokens == TestUL2WindowService.TEST_TOKEN_IDS

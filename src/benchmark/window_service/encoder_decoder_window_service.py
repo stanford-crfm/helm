@@ -11,10 +11,9 @@ class EncoderDecoderWindowService(HuggingFaceWindowService, ABC):
     @property
     def max_request_length(self) -> int:
         """
-        Return the max request length. We set the max requests length to be `max_sequence_length - 1
-        because the encoder appends an additional token ("</s>") when encoding the text.
+        Return the max request length. We set the max requests length to be `max_sequence_length`.
         """
-        return self.max_sequence_length - 1
+        return self.max_sequence_length
 
     @property
     def max_output_length(self) -> int:
@@ -40,13 +39,16 @@ class EncoderDecoderWindowService(HuggingFaceWindowService, ABC):
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
         Truncates text from the right to left to fit within the maximum context length given
-        by `max_request_length`. Removes the `</s>` that was added when encoding after decoding.
+        by `max_request_length`. Removes the "</s>" that was added when encoding after decoding.
         """
-        max_length: int = self.max_request_length
-        result: str = self.decode(self.encode(text, truncation=True, max_length=max_length).tokens)
-        result = result.rstrip("</s>")
+        result: str = self.decode(self.encode(text, truncation=True, max_length=self.max_request_length).tokens)
+        if result.endswith("</s>"):
+            # Remove the added "</s>"
+            result = result[:-4]
 
-        # Validate that the truncated text now fits. Fail fast otherwise.
-        num_tokens: int = self.get_num_tokens(result)
-        assert num_tokens <= max_length, f"Truncation failed ({num_tokens} > {max_length}). Input text: {text}"
+        # HACK: For the vast majority of cases, the above logic works, but there are a few where the
+        # token count exceeds `max_length` by 1.
+        while not self.fits_within_context_window(result):
+            result = result[:-1]
+
         return result
