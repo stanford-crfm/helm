@@ -3,6 +3,7 @@ from dataclasses import dataclass, replace
 from typing import List, Dict, Tuple, Set, Optional
 from math import log, e
 from collections import defaultdict
+import numpy as np
 
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
@@ -82,6 +83,10 @@ class Metric(ABC):
 
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
             #       https://github.com/stanford-crfm/benchmarking/issues/48
+            # Store the max prob for each instance in this trial.
+            max_probs_list = []
+            # Store whether we got the example correct or not (for each instance in this trial).
+            correct_list = []
             for instance_index, instance in enumerate(scenario_state.instances):
                 instance_stats = []
 
@@ -101,11 +106,13 @@ class Metric(ABC):
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
                 if len(request_states) != 0:
-                    instance_stats.extend(
-                        self.evaluate_references(adapter_spec, request_states, metric_service, eval_cache_path)
+                    max_prob, acc = self.evaluate_references(
+                        adapter_spec, request_states, metric_service, eval_cache_path
                     )
+                    instance_stats.append(acc)
+                    max_probs_list.append(max_prob.mean)
+                    correct_list.append(acc.mean)
                 all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
-
                 # Merge these statistics back.
                 # TODO: we should add statistics with the individual instances too and serialize them out.
                 #       https://github.com/stanford-crfm/benchmarking/issues/49
@@ -160,6 +167,9 @@ class Metric(ABC):
             for metric_name, instance_ids in per_metric_instance_ids.items():
                 merge_stat(trial_stats, Stat(replace(metric_name, name="num_instances")).add(len(instance_ids)))
 
+            # Compute calibration stats.
+            ece_1_bin = np.abs(np.mean(max_probs_list) - np.mean(correct_list))
+            merge_stat(trial_stats, Stat(MetricName("ece_1_bin")).add(ece_1_bin))
             # Aggregate the corpus-level metrics
             for split in EVAL_SPLITS:
                 if (

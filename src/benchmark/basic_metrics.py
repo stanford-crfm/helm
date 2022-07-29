@@ -12,6 +12,7 @@ from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
 import numpy as np
 from rouge_score import rouge_scorer
+import scipy
 
 from common.hierarchical_logger import hlog
 from common.request import Token
@@ -635,7 +636,9 @@ class BasicMetric(Metric):
             raise ValueError(f"Unknown adapter method: {adapter_spec.method}")
 
         answer_scores = [reference_scores[i] for i in answers]
-
+        max_prob = np.max(scipy.special.softmax(reference_scores))
+        # TODO: handle case where there are multiple max probs?
         return [
+            Stat(MetricName("maxprob")).add(max_prob),
             Stat(MetricName("accuracy")).add(float(max(reference_scores) == max(answer_scores))),
         ]
