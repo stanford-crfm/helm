@@ -37,7 +37,6 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: 3.8
-      - uses: py-actions/py-dependency-install@v3
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
