@@ -252,7 +252,7 @@ ALL_MODELS = [
         creator_organization="Meta",
         name="together/opt-66b",
         # From https://arxiv.org/pdf/2205.01068.pdf
-        description="OpenPre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
+        description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
         "transformers fully and responsibly shared with interested researchers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
@@ -261,7 +261,7 @@ ALL_MODELS = [
         creator_organization="Meta",
         name="together/opt-175b",
         # From https://arxiv.org/pdf/2205.01068.pdf
-        description="OpenPre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
+        description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
         "transformers fully and responsibly shared with interested researchers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
