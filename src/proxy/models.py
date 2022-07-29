@@ -247,6 +247,34 @@ ALL_MODELS = [
         description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
+    Model(
+        group="together",
+        creator_organization="Google",
+        name="together/t5-11b",
+        # From https://huggingface.co/docs/transformers/v4.20.1/en/model_doc/t5
+        description="T5 (11B parameters) is an encoder-decoder model pre-trained on a multi-task mixture of "
+        "unsupervised and supervised tasks and for which each task is converted into a text-to-text "
+        "format.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Google",
+        name="together/ul2",
+        # From https://huggingface.co/google/ul2
+        description="UL2 (20b parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5"
+        "but trained with a different objective and slightly different scaling knobs.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="BigScience",
+        name="together/t0pp",
+        # From https://huggingface.co/bigscience/T0pp
+        description="T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks "
+        "specified in natural language prompts.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # For debugging
     Model(
         group="simple",

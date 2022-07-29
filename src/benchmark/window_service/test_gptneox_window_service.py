@@ -149,8 +149,8 @@ class TestGPTNeoXWindowService:
         assert not self.window_service.fits_within_context_window(TEST_PROMPT, 2049 - 52 + 1)
 
     def test_truncate_from_right(self):
-        # Create a prompt that exceed max context length: 51 * 41 = 2091 tokens
-        long_prompt: str = TEST_PROMPT * 41
+        # Create a prompt that exceed max context length: 52 * 40 = 2080 tokens
+        long_prompt: str = TEST_PROMPT * 40
         assert not self.window_service.fits_within_context_window(long_prompt)
 
         # Truncate and ensure it fits within the context window

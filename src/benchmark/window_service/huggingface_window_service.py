@@ -20,10 +20,14 @@ class HuggingFaceWindowService(WindowService):
     def tokenizer_name(self) -> str:
         pass
 
-    def encode(self, text: str, truncation: bool = False, max_length: int = 2048) -> EncodeResult:
+    def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:
         """
         Encodes the input text to tokens.
         """
+        # If a value for `max_length` is not specified, then set it to the `max_request_length`of the `WindowService`.
+        if max_length is None:
+            max_length = self.max_request_length
+
         response: TokenizationRequestResult = self.service.tokenize(
             TokenizationRequest(
                 text, tokenizer=self.tokenizer_name, encode=True, truncation=truncation, max_length=max_length
@@ -58,8 +62,8 @@ class HuggingFaceWindowService(WindowService):
         return response.raw_tokens
 
     def get_num_tokens(self, text: str) -> int:
-        """Tokenizes the text using the GPT-2 tokenizer and returns the number of tokens."""
-        return len(self.tokenize(text))
+        """Tokenizes the text using the Hugging Face tokenizer and returns the number of tokens."""
+        return len(self.encode(text).tokens)
 
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
         """

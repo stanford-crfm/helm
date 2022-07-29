@@ -7,6 +7,9 @@ from .mt_nlg_window_service import MTNLGWindowService
 from .gpt2_window_service import GPT2WindowService
 from .gptj_window_service import GPTJWindowService
 from .gptneox_window_service import GPTNeoXWindowService
+from .t0pp_window_service import T0ppWindowService
+from .t511b_window_service import T511bWindowService
+from .ul2_window_service import UL2WindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
 
@@ -36,6 +39,12 @@ class WindowServiceFactory:
             window_service = GPTJWindowService(service)
         elif model_name in ["together/gpt-neox-20b", "gooseai/gpt-neo-20b"]:
             window_service = GPTNeoXWindowService(service)
+        elif model_name == "together/t0pp":
+            window_service = T0ppWindowService(service)
+        elif model_name == "together/t5-11b":
+            window_service = T511bWindowService(service)
+        elif model_name == "together/ul2":
+            window_service = UL2WindowService(service)
         elif organization == "ai21":
             window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
         else:

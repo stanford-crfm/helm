@@ -9,6 +9,8 @@ if ! [ -e venv ]; then
 fi
 
 venv/bin/pip install -e .
+# Issue + workaround described here: https://github.com/protocolbuffers/protobuf/issues/6550
+venv/bin/pip uninstall -y protobuf && venv/bin/pip install --no-binary=protobuf protobuf
 venv/bin/pip check
 
 # Python style checks and linting
