@@ -93,11 +93,16 @@ class Metric(ABC):
                 # Evaluate generated request_state
                 request_states = scenario_state.get_request_states(train_trial_index, instance, None)
                 if len(request_states) != 0:
-                    instance_stats.extend(
-                        self.evaluate_generation(
-                            adapter_spec, singleton(request_states), metric_service, eval_cache_path
-                        )
+                    cur_stats = self.evaluate_generation(
+                        adapter_spec, singleton(request_states), metric_service, eval_cache_path
                     )
+                    instance_stats.extend(cur_stats)
+                    # Using index 0 seems a bit hardcoded. At least verify that
+                    # this corresponds to the metric we want (maxprob).
+                    assert cur_stats[0].name.name == "maxprob"
+                    max_probs_list.append(cur_stats[0].mean)
+                    # TODO: check if this metric is what we want?
+                    correct_list.append(cur_stats[1].mean)
 
                 # Evaluate the references
                 request_states = []
@@ -168,8 +173,11 @@ class Metric(ABC):
                 merge_stat(trial_stats, Stat(replace(metric_name, name="num_instances")).add(len(instance_ids)))
 
             # Compute calibration stats.
-            ece_1_bin = np.abs(np.mean(max_probs_list) - np.mean(correct_list))
-            merge_stat(trial_stats, Stat(MetricName("ece_1_bin")).add(ece_1_bin))
+            if len(max_probs_list) > 0:
+                assert len(max_probs_list) == len(scenario_state.instances)
+                assert len(max_probs_list) == len(correct_list)
+                ece_1_bin = np.abs(np.mean(max_probs_list) - np.mean(correct_list))
+                merge_stat(trial_stats, Stat(MetricName("ece_1_bin")).add(ece_1_bin))
             # Aggregate the corpus-level metrics
             for split in EVAL_SPLITS:
                 if (

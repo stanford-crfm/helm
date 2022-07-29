@@ -354,7 +354,7 @@ class BasicMetric(Metric):
         }
 
         reference_metrics = []
-        for metric_name in self.names:
+        for i, metric_name in zip(range(len(self.names)), self.names):
             if metric_name in metric_fn_mapping:
                 # Gold outputs
                 golds = [reference for reference in request_state.instance.references if reference.is_correct]
@@ -365,7 +365,10 @@ class BasicMetric(Metric):
                 # TODO: Sort the predictions, or take them from the top tokens of the first completion
                 #       https://github.com/stanford-crfm/benchmarking/issues/42
                 preds = [completion.text.strip() for completion in request_state.result.completions]
-
+                if i == 0:
+                    logprob = np.sum([c.logprob for c in request_state.result.completions])
+                    max_prob = np.exp(logprob)
+                    reference_metrics.append(Stat(MetricName("maxprob")).add(max_prob))
                 # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
                 # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
                 # sometimes predict a random letter like 'M'.
