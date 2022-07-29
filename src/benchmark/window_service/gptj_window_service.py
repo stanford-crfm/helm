@@ -24,7 +24,7 @@ class GPTJWindowService(HuggingFaceWindowService):
     @property
     def tokenizer_name(self) -> str:
         """Name of the tokenizer to use when sending a request."""
-        return "huggingface/gpt-j-6b"
+        return "EleutherAI/gpt-j-6B"
 
     @property
     def end_of_text_token(self) -> str:

@@ -43,10 +43,10 @@ class HuggingFaceTokenizers:
                 hf_tokenizer_name: str
                 if tokenizer_name == "huggingface/gpt2":
                     hf_tokenizer_name = "gpt2"
-                elif tokenizer_name == "huggingface/gpt-j-6b":
+                elif tokenizer_name == "EleutherAI/gpt-j-6B":
                     # Not a typo: Named "gpt-j-6B" instead of "gpt-j-6b" in Hugging Face
                     hf_tokenizer_name = "EleutherAI/gpt-j-6B"
-                elif tokenizer_name == "huggingface/gpt-neox-20b":
+                elif tokenizer_name == "EleutherAI/gpt-neox-20b":
                     hf_tokenizer_name = "EleutherAI/gpt-neox-20b"
                 elif tokenizer_name == "bigscience/T0pp":
                     hf_tokenizer_name = "bigscience/T0pp"

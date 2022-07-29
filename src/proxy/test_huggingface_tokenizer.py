@@ -21,10 +21,10 @@ class TestHuggingFaceTokenizers:
         TestHuggingFaceTokenizers.verify_get_tokenizer("huggingface/gpt2", 51)
 
     def test_get_tokenizer_gptj(self):
-        TestHuggingFaceTokenizers.verify_get_tokenizer("huggingface/gpt-j-6b", 51)
+        TestHuggingFaceTokenizers.verify_get_tokenizer("EleutherAI/gpt-j-6B", 51)
 
     def test_get_tokenizer_gptneox(self):
-        TestHuggingFaceTokenizers.verify_get_tokenizer("huggingface/gpt-neox-20b", 52)
+        TestHuggingFaceTokenizers.verify_get_tokenizer("EleutherAI/gpt-neox-20b", 52)
 
     def test_get_tokenizer_t0pp(self):
         TestHuggingFaceTokenizers.verify_get_tokenizer("bigscience/T0pp", 58)

@@ -248,7 +248,7 @@ Add a test for the new perturbation in `test_perturbation.py`.
 
 ## Supporting new Hugging Face tokenizers
 
-1. Give the tokenizer a name: `huggingface/<Name of tokenizer in Hugging Face>`.
+1. Give the tokenizer a name. Use the same name that's used in Hugging Face (e.g., "EleutherAI/gpt-j-6B").
 2. In `HuggingFaceTokenizers`, we load and cache tokenizers in memory. Add logic to handle 
    the tokenizer in the `load_tokenizer` method.
 3. Add a test in `test_huggingface_tokenizer.py` to make sure we can load the tokenizer from Hugging Face.   

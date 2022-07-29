@@ -16,7 +16,7 @@ Usage:
 """
 
 
-@htrack("Renaming the name of the tokenizer 'huggingface/gpt2_tokenizer_fast' to 'huggingface/gpt2'.")
+@htrack("Renaming the name of the tokenizers")
 def fix(cache_path: str):
     temp_cache: Dict[str, Dict] = dict()
     count: int
@@ -27,9 +27,14 @@ def fix(cache_path: str):
         for i, (key, response) in enumerate(cache.items()):
             count = i + 1
             request: Dict = key_to_request(key)
-            if request["tokenizer"] == "huggingface/gpt2_tokenizer_fast":
+            if request["tokenizer"] in ["huggingface/gpt-j-6b", "huggingface/gpt-neox-20b"]:
                 # Change the name and add to `cache_copy`
-                request["tokenizer"] = "huggingface/gpt2"
+                if request["tokenizer"] == "huggingface/gpt-j-6b":
+                    request["tokenizer"] = "EleutherAI/gpt-j-6B"
+                elif request["tokenizer"] == "huggingface/gpt-neox-20b":
+                    request["tokenizer"] = "EleutherAI/gpt-neox-20b"
+
+                hlog(f"Updated the name of the tokenizer to {request['tokenizer']}.")
                 new_key: str = request_to_key(request)
                 temp_cache[new_key] = response
 
@@ -38,7 +43,6 @@ def fix(cache_path: str):
 
                 if count > 0 and count % 10_000 == 0:
                     hlog(f"Processed {count} entries.")
-                    cache.commit()
 
         hlog("Copying values from temp cache...")
         for i, (key, response) in enumerate(temp_cache.items()):
@@ -47,7 +51,6 @@ def fix(cache_path: str):
 
             if count > 0 and count % 10_000 == 0:
                 hlog(f"Wrote {count} entries.")
-                cache.commit()
 
         cache.commit()
         hlog(f"Still have {len(cache)} entries at {cache_path}.")

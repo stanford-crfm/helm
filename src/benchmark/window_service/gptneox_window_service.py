@@ -24,7 +24,7 @@ class GPTNeoXWindowService(HuggingFaceWindowService):
     @property
     def tokenizer_name(self) -> str:
         """Name of the tokenizer to use when sending a request."""
-        return "huggingface/gpt-neox-20b"
+        return "EleutherAI/gpt-neox-20b"
 
     @property
     def prefix_token(self) -> str:
