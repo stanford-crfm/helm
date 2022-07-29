@@ -62,8 +62,8 @@ class HuggingFaceWindowService(WindowService):
         return response.raw_tokens
 
     def get_num_tokens(self, text: str) -> int:
-        """Tokenizes the text using the GPT-2 tokenizer and returns the number of tokens."""
-        return len(self.tokenize(text))
+        """Tokenizes the text using the Hugging Face tokenizer and returns the number of tokens."""
+        return len(self.encode(text).tokens)
 
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
         """

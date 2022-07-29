@@ -80,7 +80,7 @@ class TestT511bWindowService:
         shutil.rmtree(self.path)
 
     def test_max_request_length(self):
-        assert self.window_service.max_request_length == 512
+        assert self.window_service.max_request_length == 511
 
     def test_encode(self):
         assert self.window_service.encode(TEST_PROMPT).tokens == TestT511bWindowService.TEST_TOKEN_IDS
@@ -150,20 +150,19 @@ class TestT511bWindowService:
         ]
 
     def test_tokenize_and_count(self):
-        # There are 57 tokens in `TEST_PROMPT`.
-        assert self.window_service.get_num_tokens(TEST_PROMPT) == 57
+        # There are 58 tokens in `TEST_PROMPT`.
+        assert self.window_service.get_num_tokens(TEST_PROMPT) == 58
 
     def test_fits_within_context_window(self):
         # Should fit in the context window
         assert self.window_service.fits_within_context_window(TEST_PROMPT)
 
     def test_truncate_from_right(self):
-        # Create a prompt that exceed max context length: 57 * 10 = 570 tokens
+        # Create a prompt that exceed max context length
         long_prompt: str = TEST_PROMPT * 10
         assert not self.window_service.fits_within_context_window(long_prompt)
 
         # Truncate and ensure it fits within the context window
         truncated_long_prompt: str = self.window_service.truncate_from_right(long_prompt)
-        assert self.window_service.get_num_tokens(truncated_long_prompt) == self.window_service.max_request_length - 1
-        assert len(self.window_service.encode(truncated_long_prompt).tokens) == self.window_service.max_request_length
+        assert self.window_service.get_num_tokens(truncated_long_prompt) == self.window_service.max_request_length
         assert self.window_service.fits_within_context_window(truncated_long_prompt)

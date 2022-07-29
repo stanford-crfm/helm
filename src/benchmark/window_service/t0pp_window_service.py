@@ -15,11 +15,6 @@ class T0ppWindowService(EncoderDecoderWindowService):
         return 1024
 
     @property
-    def max_request_length(self) -> int:
-        """Return the max request length."""
-        return self.max_sequence_length
-
-    @property
     def end_of_text_token(self) -> str:
         """The end of text token."""
         # TODO: @YianZhang - double check this
