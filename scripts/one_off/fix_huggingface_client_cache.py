@@ -34,17 +34,16 @@ def fix(cache_path: str):
                 elif request["tokenizer"] == "huggingface/gpt-neox-20b":
                     request["tokenizer"] = "EleutherAI/gpt-neox-20b"
 
-                hlog(f"Updated the name of the tokenizer to {request['tokenizer']}.")
                 new_key: str = request_to_key(request)
                 temp_cache[new_key] = response
 
                 # Delete entry with the old tokenizer name
                 del cache[key]
 
-                if count > 0 and count % 10_000 == 0:
-                    hlog(f"Processed {count} entries.")
+            if count > 0 and count % 10_000 == 0:
+                hlog(f"Processed {count} entries.")
 
-        hlog("Copying values from temp cache...")
+        hlog(f"Copying {len(temp_cache)} values from temp cache...")
         for i, (key, response) in enumerate(temp_cache.items()):
             count = i + 1
             cache[key] = response

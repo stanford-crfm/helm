@@ -15,6 +15,10 @@ class T0ppWindowService(EncoderDecoderWindowService):
         return 1024
 
     @property
+    def max_output_length(self) -> int:
+        return 256
+
+    @property
     def end_of_text_token(self) -> str:
         """The end of text token."""
         # TODO: @YianZhang - double check this
