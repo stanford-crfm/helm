@@ -401,14 +401,18 @@ class BasicMetric(Metric):
         # and calculate the number of tokens in the prompt.
         tokenizer_service: TokenizerService = metric_service
         window_service: WindowService = WindowServiceFactory.get_window_service(adapter_spec.model, tokenizer_service)
-        num_prompt_tokens: int = window_service.get_num_tokens(request_state.request.prompt)
+        prompt: str = request_state.request.prompt
+        num_prompt_tokens: int = window_service.get_num_tokens(prompt)
 
         sequence = request_state.result.completions[0]
         num_output_tokens: int = len(sequence.tokens)
         # Don't include prompt in number of generated tokens (e.g., for language modeling).
         if request_state.request.echo_prompt:
+            # This might fail when we get fewer output tokens in the response than the number of tokens in the prompt.
+            assert (
+                num_prompt_tokens <= num_output_tokens
+            ), f"num_prompt_tokens ({num_prompt_tokens}) > num_output_tokens ({num_output_tokens}) for prompt: {prompt}"
             num_output_tokens -= num_prompt_tokens
-        assert num_output_tokens >= 0
 
         idealized_runtime: Optional[float]
         runtime_discrepancy: Optional[float]

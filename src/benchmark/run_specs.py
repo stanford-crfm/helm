@@ -767,7 +767,8 @@ def get_math_spec(
     )
 
     return RunSpec(
-        name=f"math:subject={subject},level={level}",
+        name=f"math:subject={subject},level={level},"
+        f"use_official_examples={use_official_examples},use_chain_of_thought={use_chain_of_thought}",
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_math_metrics(use_chain_of_thought),  # type: ignore
