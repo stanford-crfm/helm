@@ -8,8 +8,10 @@ class BloomWindowService(HuggingFaceWindowService):
 
     @property
     def max_sequence_length(self) -> int:
-        """Return the max sequence length."""
-        # TODO: double check this: https://bigscience.huggingface.co/blog/bloom -Tony
+        """
+        Return the max sequence length of 2,048.
+        Source: https://huggingface.co/bigscience/bloom
+        """
         return 2048
 
     @property
