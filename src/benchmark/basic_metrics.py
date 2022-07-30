@@ -367,17 +367,13 @@ class BasicMetric(Metric):
                 if request_state.output_mapping is not None:
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
 
+                perturbation: Optional[PerturbationDescription] = request_state.instance.perturbation
                 reference_metrics.extend(
-                    compute_metrics_helper(MetricName(metric_name), metric_fn_mapping[metric_name])
+                    compute_metrics_helper(
+                        MetricName(metric_name, perturbation=perturbation), metric_fn_mapping[metric_name]
+                    )
                 )
 
-                perturbation: Optional[PerturbationDescription] = request_state.instance.perturbation
-                if perturbation:
-                    reference_metrics.extend(
-                        compute_metrics_helper(
-                            MetricName(metric_name, perturbation=perturbation), metric_fn_mapping[metric_name]
-                        )
-                    )
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics
