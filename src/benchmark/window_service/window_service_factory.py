@@ -12,6 +12,7 @@ from .opt_window_service import OPTWindowService
 from .t0pp_window_service import T0ppWindowService
 from .t511b_window_service import T511bWindowService
 from .ul2_window_service import UL2WindowService
+from .yalm_window_service import YaLMWindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
 
@@ -51,6 +52,8 @@ class WindowServiceFactory:
             window_service = T511bWindowService(service)
         elif model_name == "together/ul2":
             window_service = UL2WindowService(service)
+        elif model_name == "together/yalm":
+            window_service = YaLMWindowService(service)
         elif organization == "ai21":
             window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
         else:
