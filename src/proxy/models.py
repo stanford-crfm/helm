@@ -302,6 +302,14 @@ ALL_MODELS = [
         "specified in natural language prompts.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
+    Model(
+        group="together",
+        creator_organization="Yandex",
+        name="together/yalm",
+        # From hhttps://github.com/yandex/YaLM-100B
+        description="YaLM (100b parameters) is an autoregressive language model trained on English and Russian text.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # For debugging
     Model(
         group="simple",
