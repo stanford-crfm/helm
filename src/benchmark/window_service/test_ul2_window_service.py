@@ -4,8 +4,7 @@ from typing import List
 
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
-from .test_gpt2_window_service import TEST_PROMPT
-from .test_utils import get_tokenizer_service
+from .test_utils import get_tokenizer_service, TEST_PROMPT
 
 
 class TestUL2WindowService:

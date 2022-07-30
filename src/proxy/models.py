@@ -235,6 +235,15 @@ ALL_MODELS = [
     # Offline models
     Model(
         group="together",
+        creator_organization="BigScience",
+        name="together/bloom",
+        # From https://bigscience.huggingface.co/blog/bloom
+        description="BLOOM (176B parameters) is an autoregressive model similar to GPT-3 trained "
+        "on 46 natural languages and 13 programming languages.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
         creator_organization="EleutherAI",
         name="together/gpt-j-6b",
         description="GPT-J (6B parameters trained by EleutherAI on The Pile)",
@@ -291,6 +300,14 @@ ALL_MODELS = [
         # From https://huggingface.co/bigscience/T0pp
         description="T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks "
         "specified in natural language prompts.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Yandex",
+        name="together/yalm",
+        # From hhttps://github.com/yandex/YaLM-100B
+        description="YaLM (100b parameters) is an autoregressive language model trained on English and Russian text.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # For debugging
