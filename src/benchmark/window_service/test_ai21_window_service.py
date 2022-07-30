@@ -7,17 +7,10 @@ from unittest import mock
 from common.authentication import Authentication
 from common.tokenization_request import TokenizationRequestResult, TokenizationToken, TextRange
 from proxy.remote_service import RemoteService
+from .test_utils import TEST_PROMPT
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
 
-
-TEST_PROMPT: str = (
-    "The Center for Research on Foundation Models (CRFM) is "
-    "an interdisciplinary initiative born out of the Stanford "
-    "Institute for Human-Centered Artificial Intelligence (HAI) "
-    "that aims to make fundamental advances in the study, development, "
-    "and deployment of foundation models."
-)
 
 TEST_TOKEN_REPRESENTATIONS: List[TokenizationToken] = [
     TokenizationToken(value="▁The▁Center▁for", text_range=TextRange(start=0, end=14)),

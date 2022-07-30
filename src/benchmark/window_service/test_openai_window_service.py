@@ -1,9 +1,8 @@
 import shutil
 import tempfile
 
-from .test_utils import get_tokenizer_service
+from .test_utils import get_tokenizer_service, TEST_PROMPT, GPT2_TEST_TOKENS, GPT2_TEST_TOKEN_IDS
 from .tokenizer_service import TokenizerService
-from .test_gpt2_window_service import TEST_TOKENS, TEST_PROMPT, TEST_TOKEN_IDS
 from .window_service_factory import WindowServiceFactory
 
 
@@ -20,13 +19,13 @@ class TestOpenAIWindowService:
         assert self.window_service.max_request_length == 2049
 
     def test_encode(self):
-        assert self.window_service.encode(TEST_PROMPT).tokens == TEST_TOKEN_IDS
+        assert self.window_service.encode(TEST_PROMPT).tokens == GPT2_TEST_TOKEN_IDS
 
     def test_decode(self):
-        assert self.window_service.decode(TEST_TOKEN_IDS) == TEST_PROMPT
+        assert self.window_service.decode(GPT2_TEST_TOKEN_IDS) == TEST_PROMPT
 
     def test_tokenize(self):
-        assert self.window_service.tokenize(TEST_PROMPT) == TEST_TOKENS
+        assert self.window_service.tokenize(TEST_PROMPT) == GPT2_TEST_TOKENS
 
     def test_fits_within_context_window(self):
         # Should fit in the context window since we subtracted the number of tokens of the test prompt
