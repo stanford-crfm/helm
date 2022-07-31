@@ -42,6 +42,8 @@ metrics:
   description: Number of tokens in the output (for language modeling, the input too).
 - name: num_bytes
   description: Number of bytes in the output (for language modeling, the input too).
+- name: ece_1_bin
+  description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
 
 scenarioGroups:
 - name: NarrativeQA
