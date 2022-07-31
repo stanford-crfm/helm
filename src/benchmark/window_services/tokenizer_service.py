@@ -5,7 +5,7 @@ from common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from proxy.service import Service
+from proxy.services.service import Service
 
 
 class TokenizerService:

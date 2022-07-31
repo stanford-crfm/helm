@@ -15,7 +15,7 @@ from .adapter import AdapterSpec, Adapter, ADAPT_GENERATION
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
 from .window_services.tokenizer_service import TokenizerService
 from common.authentication import Authentication
-from proxy.server_service import ServerService
+from proxy.services.server_service import ServerService
 
 
 # TODO: we shouldn't create an Adapter and TokenizerService in a scenario

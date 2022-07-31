@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 from common.request import Request, Sequence
-from proxy.huggingface_client import HuggingFaceClient
+from proxy.clients.huggingface_client import HuggingFaceClient
 from .ai21_token_counter import AI21TokenCounter
 from .free_token_counter import FreeTokenCounter
 from .gooseai_token_counter import GooseAITokenCounter

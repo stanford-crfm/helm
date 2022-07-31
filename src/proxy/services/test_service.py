@@ -11,9 +11,8 @@ from sqlitedict import SqliteDict
 from common.authentication import Authentication
 from common.request import Request
 from proxy.accounts import AuthenticationError, Account, Usage
-
-from .query import Query
-from proxy.server_service import ServerService, ACCOUNTS_FILE
+from proxy.query import Query
+from .server_service import ServerService, ACCOUNTS_FILE
 
 
 def get_authentication():

@@ -14,12 +14,13 @@ from common.tokenization_request import (
 from common.request import Request, RequestResult
 from common.hierarchical_logger import hlog
 from proxy.accounts import Accounts, Account
-from proxy.auto_client import AutoClient
+from proxy.clients.auto_client import AutoClient
 from proxy.example_queries import example_queries
-from proxy.perspective_api_client import PerspectiveAPIClient
+from proxy.clients.perspective_api_client import PerspectiveAPIClient
 from proxy.models import ALL_MODELS, get_model_group
 from proxy.query import Query, QueryResult
-from proxy.service import (
+from proxy.token_counters.auto_token_counter import AutoTokenCounter
+from .service import (
     Service,
     CREDENTIALS_FILE,
     CACHE_DIR,
@@ -29,7 +30,6 @@ from proxy.service import (
     expand_environments,
     synthesize_request,
 )
-from .token_counters.auto_token_counter import AutoTokenCounter
 
 
 class ServerService(Service):

@@ -8,8 +8,8 @@ from common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from proxy.auto_client import AutoClient
-from proxy.service import (
+from proxy.clients.auto_client import AutoClient
+from proxy.services.service import (
     CREDENTIALS_FILE,
     CACHE_DIR,
 )

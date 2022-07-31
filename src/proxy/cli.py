@@ -22,7 +22,7 @@ import re
 import sys
 
 from common.hierarchical_logger import hlog
-from .remote_service import RemoteService, add_service_args, create_remote_service, create_authentication
+from proxy.services.remote_service import RemoteService, add_service_args, create_remote_service, create_authentication
 from common.authentication import Authentication
 from .accounts import Usage, Account
 

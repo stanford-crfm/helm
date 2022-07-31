@@ -5,7 +5,7 @@ from src.common.perspective_api_request import PerspectiveAPIRequest, Perspectiv
 from src.common.request import Request, RequestResult
 from src.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
 from src.proxy.accounts import Account
-from proxy.remote_service import RemoteService
+from proxy.services.remote_service import RemoteService
 
 # An example of how to use the request API.
 # api_key = getpass.getpass(prompt="Enter a valid API key: ")

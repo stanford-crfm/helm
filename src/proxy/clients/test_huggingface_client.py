@@ -2,7 +2,6 @@ import pytest
 import os
 import tempfile
 
-from .huggingface_client import HuggingFaceClient
 from common.request import Request, RequestResult
 from common.tokenization_request import (
     DecodeRequest,
@@ -10,6 +9,7 @@ from common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
 )
+from .huggingface_client import HuggingFaceClient
 
 
 class TestHuggingFaceClient:

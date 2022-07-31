@@ -3,7 +3,7 @@ import tempfile
 from typing import List
 
 from common.request import Request, Sequence, Token
-from proxy.huggingface_client import HuggingFaceClient
+from proxy.clients.huggingface_client import HuggingFaceClient
 from .openai_token_counter import OpenAITokenCounter
 
 

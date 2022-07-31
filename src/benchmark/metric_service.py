@@ -1,6 +1,6 @@
 from common.authentication import Authentication
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
-from proxy.service import Service
+from proxy.services.service import Service
 from benchmark.window_services.tokenizer_service import TokenizerService
 
 

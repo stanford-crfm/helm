@@ -14,7 +14,7 @@ from .adapter import (
 )
 from .window_services.tokenizer_service import TokenizerService
 from common.authentication import Authentication
-from proxy.server_service import ServerService
+from proxy.services.server_service import ServerService
 
 
 class TestAdapter:

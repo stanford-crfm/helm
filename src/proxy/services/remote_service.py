@@ -17,7 +17,7 @@ from common.request import Request, RequestResult
 from dacite import from_dict
 from proxy.accounts import Account
 from proxy.query import Query, QueryResult
-from proxy.service import Service, GeneralInfo
+from .service import Service, GeneralInfo
 
 
 class RemoteServiceError(Exception):

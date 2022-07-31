@@ -12,9 +12,9 @@ from common.tokenization_request import (
     DecodeRequestResult,
 )
 from common.request import Request, RequestResult
-from .models import Model
-from .query import Query, QueryResult
-from .accounts import Authentication, Account
+from proxy.models import Model
+from proxy.query import Query, QueryResult
+from proxy.accounts import Authentication, Account
 
 VERSION = "1.0"
 CREDENTIALS_FILE = "credentials.conf"

@@ -16,7 +16,7 @@ from sqlitedict import SqliteDict
 from common.authentication import Authentication
 from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
-from .accounts import Account
+from proxy.accounts import Account
 from .remote_service import RemoteService
 from .service import ACCOUNTS_FILE
 

@@ -1,10 +1,9 @@
 from typing import List, Dict
 
 from common.cache import Cache
-
-from .client import Client, wrap_request_time
 from common.request import Request, RequestResult, Sequence, Token
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
+from .client import Client, wrap_request_time
 
 
 class SimpleClient(Client):

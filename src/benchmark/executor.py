@@ -7,9 +7,9 @@ from common.general import format_text
 from common.hierarchical_logger import htrack, hlog
 from common.request import RequestResult
 from common.authentication import Authentication
-from proxy.remote_service import RemoteService
-from proxy.server_service import ServerService
-from proxy.service import Service
+from proxy.services.remote_service import RemoteService
+from proxy.services.server_service import ServerService
+from proxy.services.service import Service
 from .adapter import RequestState, ScenarioState
 from .scenario import Instance
 

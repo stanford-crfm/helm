@@ -12,6 +12,7 @@ from common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
+from proxy.retry import retry_request
 from .client import Client
 from .ai21_client import AI21Client
 from .anthropic_client import AnthropicClient
@@ -21,7 +22,6 @@ from .huggingface_client import HuggingFaceClient
 from .openai_client import OpenAIClient
 from .microsoft_client import MicrosoftClient
 from .simple_client import SimpleClient
-from .retry import retry_request
 
 
 class AutoClient(Client):

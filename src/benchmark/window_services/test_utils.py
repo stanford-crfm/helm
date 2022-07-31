@@ -1,7 +1,7 @@
 from typing import List
 
 from common.authentication import Authentication
-from proxy.server_service import ServerService
+from proxy.services.server_service import ServerService
 from benchmark.window_services.tokenizer_service import TokenizerService
 from benchmark.metric_service import MetricService
 

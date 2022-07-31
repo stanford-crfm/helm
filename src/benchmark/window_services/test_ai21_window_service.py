@@ -6,7 +6,7 @@ from unittest import mock
 
 from common.authentication import Authentication
 from common.tokenization_request import TokenizationRequestResult, TokenizationToken, TextRange
-from proxy.remote_service import RemoteService
+from proxy.services.remote_service import RemoteService
 from .test_utils import TEST_PROMPT
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
@@ -95,7 +95,7 @@ LONG_REQUEST_RESULT: TokenizationRequestResult
 TRUNCATED_REQUEST_RESULT: TokenizationRequestResult
 
 # The request results are too long to be put here, so we save them to file.
-with open("src/benchmark/window_service/mock_ai21_tokenizer_request_results.pkl", "rb") as f:
+with open("src/benchmark/window_services/mock_ai21_tokenizer_request_results.pkl", "rb") as f:
     REQUEST_RESULT, LONG_REQUEST_RESULT, TRUNCATED_REQUEST_RESULT = pickle.load(f)
 
 

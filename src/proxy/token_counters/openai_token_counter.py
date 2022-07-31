@@ -2,7 +2,7 @@ from typing import List
 
 from common.request import Request, Sequence
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
-from proxy.huggingface_client import HuggingFaceClient
+from proxy.clients.huggingface_client import HuggingFaceClient
 from .token_counter import TokenCounter
 
 
