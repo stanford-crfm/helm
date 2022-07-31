@@ -83,9 +83,9 @@ class Metric(ABC):
 
             # TODO: incorporate disparities (compute difference between average over instances with some tag)
             #       https://github.com/stanford-crfm/benchmarking/issues/48
-            # Store the max prob for each instance in this trial.
+            # To estimate uncertainty calibration, for each instance in this trial we
+            # we store the max prob and whether we got the example correct or not.
             max_probs_list = []
-            # Store whether we got the example correct or not (for each instance in this trial).
             correct_list = []
             for instance_index, instance in enumerate(scenario_state.instances):
                 instance_stats = []
@@ -97,12 +97,11 @@ class Metric(ABC):
                         adapter_spec, singleton(request_states), metric_service, eval_cache_path
                     )
                     instance_stats.extend(cur_stats)
-                    # Using index 0 seems a bit hardcoded. At least verify that
-                    # this corresponds to the metric we want (maxprob).
-                    assert cur_stats[0].name.name == "maxprob"
-                    max_probs_list.append(cur_stats[0].mean)
-                    # TODO: check if this metric is what we want?
-                    correct_list.append(cur_stats[1].mean)
+                    maxprob_stats = get_stat_by_name(cur_stats, "maxprob")
+                    exact_match_stats = get_stat_by_name(cur_stats, "exact_match")
+                    if maxprob_stats is not None and exact_match_stats is not None:
+                        max_probs_list.append(maxprob_stats.mean)
+                        correct_list.append(exact_match_stats.mean)
 
                 # Evaluate the references
                 request_states = []
@@ -111,12 +110,16 @@ class Metric(ABC):
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
                 if len(request_states) != 0:
-                    max_prob, acc = self.evaluate_references(
+                    cur_stats = self.evaluate_references(
                         adapter_spec, request_states, metric_service, eval_cache_path
                     )
-                    instance_stats.append(acc)
-                    max_probs_list.append(max_prob.mean)
-                    correct_list.append(acc.mean)
+                    acc_stats = get_stat_by_name(cur_stats, "accuracy")
+                    assert acc_stats is not None
+                    instance_stats.append(acc_stats)
+                    maxprob_stats = get_stat_by_name(cur_stats, "maxprob")
+                    if maxprob_stats is not None:
+                        max_probs_list.append(maxprob_stats.mean)
+                        correct_list.append(acc_stats.mean)
                 all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
                 # Merge these statistics back.
                 # TODO: we should add statistics with the individual instances too and serialize them out.
@@ -310,6 +313,17 @@ class MetricSpec(ObjectSpec):
     """Specifies how to create a `Metric`."""
 
     pass
+
+
+def get_stat_by_name(stats: List[Stat], name: str) -> Optional[Stat]:
+    matching_list = list(filter(lambda m: m.name.name == name, stats))
+    # Check that we don't have duplicate metrics, otherwise we don't know which one to return.
+    # TODO: right now this raises an error, e.g., exact_match is added twice.
+    # So commenting this, but should figure this out.
+    # if len(matching_list) > 1:
+    #     raise ValueError(f"Found two metrics with same name '{name}': {matching_list}."
+    #                      f"\n\nFull stats: {stats}")
+    return matching_list[0] if len(matching_list) >= 1 else None
 
 
 def create_metric(metric_spec: MetricSpec) -> Metric:

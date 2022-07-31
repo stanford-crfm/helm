@@ -18,6 +18,7 @@ from common.hierarchical_logger import hlog
 from common.request import Token
 from . import code_metrics_helper
 from .adapter import (
+    ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     AdapterSpec,
@@ -354,27 +355,31 @@ class BasicMetric(Metric):
         }
 
         reference_metrics = []
-        for i, metric_name in zip(range(len(self.names)), self.names):
+        # Gold outputs
+        golds = [reference for reference in request_state.instance.references if reference.is_correct]
+        assert len(golds) > 0
+        
+        # Predicted outputs
+        assert request_state.result is not None
+        # TODO: Sort the predictions, or take them from the top tokens of the first completion
+        #       https://github.com/stanford-crfm/benchmarking/issues/42
+        preds = [completion.text.strip() for completion in request_state.result.completions]
+
+        # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
+        # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
+        # sometimes predict a random letter like 'M'.
+        if request_state.output_mapping is not None:
+            preds = [request_state.output_mapping.get(pred) for pred in preds]
+
+        # Add calibration metrics for ADAPT_MULTIPLE_CHOICE_JOINT.
+        if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
+            logprob = np.sum([c.logprob for c in request_state.result.completions])
+            max_prob = np.exp(logprob)
+            reference_metrics.append(Stat(MetricName("maxprob")).add(max_prob))
+        
+        # Add other metrics.
+        for metric_name in self.names:
             if metric_name in metric_fn_mapping:
-                # Gold outputs
-                golds = [reference for reference in request_state.instance.references if reference.is_correct]
-                assert len(golds) > 0
-
-                # Predicted outputs
-                assert request_state.result is not None
-                # TODO: Sort the predictions, or take them from the top tokens of the first completion
-                #       https://github.com/stanford-crfm/benchmarking/issues/42
-                preds = [completion.text.strip() for completion in request_state.result.completions]
-                if i == 0:
-                    logprob = np.sum([c.logprob for c in request_state.result.completions])
-                    max_prob = np.exp(logprob)
-                    reference_metrics.append(Stat(MetricName("maxprob")).add(max_prob))
-                # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
-                # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
-                # sometimes predict a random letter like 'M'.
-                if request_state.output_mapping is not None:
-                    preds = [request_state.output_mapping.get(pred) for pred in preds]
-
                 perturbation: Optional[PerturbationDescription] = request_state.instance.perturbation
                 reference_metrics.extend(
                     compute_metrics_helper(
