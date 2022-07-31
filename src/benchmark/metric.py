@@ -117,9 +117,9 @@ class Metric(ABC):
                     assert acc_stats is not None
                     instance_stats.append(acc_stats)
                     maxprob_stats = get_stat_by_name(cur_stats, "maxprob")
-                    if maxprob_stats is not None:
-                        max_probs_list.append(maxprob_stats.mean)
-                        correct_list.append(acc_stats.mean)
+                    assert maxprob_stats is not None
+                    max_probs_list.append(maxprob_stats.mean)
+                    correct_list.append(acc_stats.mean)
                 all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
                 # Merge these statistics back.
                 # TODO: we should add statistics with the individual instances too and serialize them out.
