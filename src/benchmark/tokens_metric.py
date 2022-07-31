@@ -8,8 +8,8 @@ from .metric_name import MetricName
 from .metric_service import MetricService
 from .scenario import Instance
 from .statistic import Stat, merge_stat
-from .window_service.window_service import WindowService
-from .window_service.window_service_factory import WindowServiceFactory
+from .window_services.window_service import WindowService
+from .window_services.window_service_factory import WindowServiceFactory
 
 
 class TokensMetric(Metric):

@@ -13,7 +13,7 @@ from typing import List, Optional, Tuple, Dict, Union
 
 from .adapter import AdapterSpec, Adapter, ADAPT_GENERATION
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
-from .window_service.tokenizer_service import TokenizerService
+from .window_services.tokenizer_service import TokenizerService
 from common.authentication import Authentication
 from proxy.server_service import ServerService
 

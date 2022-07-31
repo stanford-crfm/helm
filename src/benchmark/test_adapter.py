@@ -12,7 +12,7 @@ from .adapter import (
     AdapterSpec,
     Prompt,
 )
-from .window_service.tokenizer_service import TokenizerService
+from .window_services.tokenizer_service import TokenizerService
 from common.authentication import Authentication
 from proxy.server_service import ServerService
 

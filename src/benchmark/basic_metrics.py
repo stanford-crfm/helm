@@ -18,9 +18,9 @@ from common.request import Token
 from . import code_metrics_helper
 from benchmark.scenario import CORRECT_TAG
 from benchmark.adapter import ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED
-from benchmark.window_service.window_service import WindowService
-from benchmark.window_service.window_service_factory import WindowServiceFactory
-from benchmark.window_service.tokenizer_service import TokenizerService
+from benchmark.window_services.window_service import WindowService
+from benchmark.window_services.window_service_factory import WindowServiceFactory
+from benchmark.window_services.tokenizer_service import TokenizerService
 from .augmentations.perturbation_description import PerturbationDescription
 from .adapter import AdapterSpec, RequestState
 from .math_scenario import is_equiv, is_equiv_chain_of_thought

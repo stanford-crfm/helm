@@ -1,7 +1,7 @@
 import shutil
 import tempfile
 
-from benchmark.window_service.tokenizer_service import TokenizerService
+from benchmark.window_services.tokenizer_service import TokenizerService
 
 from .test_utils import get_tokenizer_service, TEST_PROMPT, GPT2_TEST_TOKENS, GPT2_TEST_TOKEN_IDS
 from .window_service_factory import WindowServiceFactory

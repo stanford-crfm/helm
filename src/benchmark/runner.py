@@ -14,7 +14,7 @@ from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
 from .metric import Metric, MetricSpec, MetricResult, PerInstanceStatsKey, create_metric, Stat
 from .tokens_metric import TokensMetric
-from .window_service.tokenizer_service import TokenizerService
+from .window_services.tokenizer_service import TokenizerService
 
 
 @dataclass(frozen=True)

@@ -1,7 +1,7 @@
 from benchmark.metric_service import MetricService
 from common.request import Request
-from benchmark.window_service.window_service_factory import WindowServiceFactory
-from benchmark.window_service.window_service import WindowService
+from benchmark.window_services.window_service_factory import WindowServiceFactory
+from benchmark.window_services.window_service import WindowService
 from .token_cost_estimator import TokenCostEstimator
 
 

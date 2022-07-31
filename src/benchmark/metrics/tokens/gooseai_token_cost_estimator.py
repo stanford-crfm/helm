@@ -1,8 +1,8 @@
 from benchmark.metric_service import MetricService
-from benchmark.window_service.window_service import WindowService
-from benchmark.window_service.window_service_factory import WindowServiceFactory
+from benchmark.window_services.window_service import WindowService
+from benchmark.window_services.window_service_factory import WindowServiceFactory
 from common.request import Request
-from proxy.token_counter.gooseai_token_counter import GooseAITokenCounter
+from proxy.token_counters.gooseai_token_counter import GooseAITokenCounter
 from .token_cost_estimator import TokenCostEstimator
 
 
