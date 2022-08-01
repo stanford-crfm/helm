@@ -620,7 +620,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_srn_metrics(),
-        groups=["Synthetic reasoning (natural language)"],
+        groups=["Synthetic reasoning", "Synthetic reasoning (natural language)"],
     )
 
 
@@ -969,7 +969,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=metrics,
-        groups=[f"Disinformation ({capability})"],
+        groups=["Disinformation", f"Disinformation ({capability})"],
     )
 
 
@@ -1026,9 +1026,9 @@ def get_code_spec(dataset: str) -> RunSpec:
 
 def get_natural_qa_spec(mode: str) -> RunSpec:
     # Decide on groups
-    mode_to_groups: Dict[str, List[str]] = {
-        "openbook-longans": ["NaturalQuestions (open-book)"],
-        "closedbook": ["NaturalQuestions (closed-book)"],
+    mode_to_subgroup: Dict[str, str] = {
+        "openbook-longans": "open-book",
+        "closedbook": "closed-book",
     }
 
     scenario = ScenarioSpec(class_name="benchmark.natural_qa_scenario.NaturalQAScenario", args={"mode": mode})
@@ -1051,7 +1051,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
-        groups=mode_to_groups[mode],
+        groups=["NaturalQuestions", mode_to_subgroup[mode]],
     )
 
 
@@ -1203,7 +1203,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
-        groups=["Synthetic reasoning (abstract symbols)"],
+        groups=["Synthetic reasoning", "Synthetic reasoning (abstract symbols)"],
     )
 
 
