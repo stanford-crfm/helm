@@ -121,6 +121,10 @@ class Metric(ABC):
                             stat
                         )
 
+            # Aggregate the corpus-level metrics
+            self.add_perplexity_metrics(trial_stats)
+
+            # Compute worst perturbation stats
             for (name, instance_id), stats in per_instance_perturbation_stats.items():
                 identity_stat: Optional[Stat] = None
                 robustness_stat = Stat(
@@ -158,9 +162,6 @@ class Metric(ABC):
 
             for metric_name, instance_ids in per_metric_instance_ids.items():
                 merge_stat(trial_stats, Stat(replace(metric_name, name="num_instances")).add(len(instance_ids)))
-
-            # Aggregate the corpus-level metrics
-            self.add_perplexity_metrics(trial_stats)
 
             # We only take the mean value for each trial
             for stat in trial_stats.values():
