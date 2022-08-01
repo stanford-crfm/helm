@@ -22,7 +22,7 @@ from common.request import Request
 from common.perspective_api_request import PerspectiveAPIRequest
 from common.tokenization_request import TokenizationRequest, DecodeRequest
 from .accounts import Account
-from proxy.services.server_service import ServerService
+from .services.server_service import ServerService
 from .query import Query
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024

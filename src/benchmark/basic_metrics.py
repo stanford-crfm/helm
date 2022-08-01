@@ -16,12 +16,16 @@ from rouge_score import rouge_scorer
 from common.hierarchical_logger import hlog
 from common.request import Token
 from . import code_metrics_helper
-from .adapter import ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED
+from .adapter import (
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+    AdapterSpec,
+    RequestState,
+)
 from .window_services.window_service import WindowService
 from .window_services.window_service_factory import WindowServiceFactory
 from .window_services.tokenizer_service import TokenizerService
 from .augmentations.perturbation_description import PerturbationDescription
-from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
