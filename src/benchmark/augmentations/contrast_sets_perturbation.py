@@ -3,7 +3,7 @@ from dataclasses import replace
 import random
 from typing import Sequence
 
-from benchmark.scenario import Instance, Reference
+from benchmark.scenarios.scenario import Instance, Reference
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 

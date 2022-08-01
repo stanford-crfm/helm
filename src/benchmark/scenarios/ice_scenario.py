@@ -3,10 +3,11 @@ import re
 import sys  # noqa
 import requests  # noqa
 from typing import List, Set
-from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, TEST_SPLIT
 from enum import Enum
 import pandas as pd
+
+from common.hierarchical_logger import hlog
+from .scenario import Scenario, Instance, TEST_SPLIT
 
 
 class HeaderFormat(Enum):

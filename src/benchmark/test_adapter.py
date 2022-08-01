@@ -2,7 +2,7 @@ import shutil
 import tempfile
 from typing import List
 
-from .scenario import CORRECT_TAG, create_scenario, Instance, Reference
+from .scenarios.scenario import CORRECT_TAG, create_scenario, Instance, Reference
 from .run_specs import get_scenario_spec1, get_adapter_spec1
 from .adapter import (
     ADAPT_GENERATION,

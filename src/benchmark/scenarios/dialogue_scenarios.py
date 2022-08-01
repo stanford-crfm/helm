@@ -1,11 +1,12 @@
 import csv
 import os
+import pandas as pd
 from dataclasses import dataclass
 from typing import Dict, List, Optional
+
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
-import pandas as pd
 
 
 @dataclass(frozen=True)

@@ -1,5 +1,5 @@
+from benchmark.run_specs import get_scenario_spec_tiny
 from .scenario import create_scenario, Scenario
-from .run_specs import get_scenario_spec_tiny
 
 
 class TestScenario:

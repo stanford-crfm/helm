@@ -4,7 +4,7 @@ import random
 import re
 from typing import Dict, List, Optional, Tuple
 
-from benchmark.scenario import Instance
+from benchmark.scenarios.scenario import Instance
 from common.general import match_case
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation

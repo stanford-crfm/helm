@@ -11,11 +11,11 @@ from sympy import Symbol, Poly, diff
 from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
 from typing import List, Optional, Tuple, Dict, Union
 
-from .adapter import AdapterSpec, Adapter, ADAPT_GENERATION
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
-from .window_services.tokenizer_service import TokenizerService
+from benchmark.adapter import AdapterSpec, Adapter, ADAPT_GENERATION
+from benchmark.window_services.tokenizer_service import TokenizerService
 from common.authentication import Authentication
 from proxy.services.server_service import ServerService
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
 # TODO: we shouldn't create an Adapter and TokenizerService in a scenario

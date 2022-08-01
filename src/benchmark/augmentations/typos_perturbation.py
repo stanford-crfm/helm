@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from benchmark.scenario import Instance
+from benchmark.scenarios.scenario import Instance
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 

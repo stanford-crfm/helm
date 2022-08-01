@@ -1,6 +1,7 @@
 import csv
 import os
 from typing import List
+
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, TEST_SPLIT

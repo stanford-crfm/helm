@@ -2,6 +2,7 @@ import os
 import json
 import random
 from typing import List, Tuple
+
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
 
 

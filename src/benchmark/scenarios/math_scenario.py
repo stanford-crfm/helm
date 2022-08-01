@@ -1,9 +1,9 @@
 import collections
 import typing
 from typing import List, Optional
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
-
 from datasets import load_dataset, DatasetDict
+
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
 def remove_boxed(string: str) -> Optional[str]:

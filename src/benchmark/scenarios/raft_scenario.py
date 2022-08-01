@@ -4,8 +4,9 @@ import json
 import tempfile
 import datasets
 from pathlib import Path
-from common.general import ensure_file_downloaded, ensure_directory_exists
 from typing import List, Dict
+
+from common.general import ensure_file_downloaded, ensure_directory_exists
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT
 
 PROMPT_SETTINGS_URL = "https://www.dropbox.com/s/a5cyevryzw8rt4f/prompt_construction_settings.json?dl=0"

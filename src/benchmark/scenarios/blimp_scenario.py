@@ -1,6 +1,7 @@
 import json
 import os
 from typing import List
+
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .scenario import CORRECT_TAG, Reference, Scenario, Instance, TEST_SPLIT

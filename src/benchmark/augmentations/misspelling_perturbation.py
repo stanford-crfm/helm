@@ -6,7 +6,7 @@ from typing import Dict, List
 
 import numpy as np
 
-from benchmark.scenario import Instance
+from benchmark.scenarios.scenario import Instance
 from common.general import match_case
 from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription

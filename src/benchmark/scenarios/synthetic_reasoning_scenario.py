@@ -1,5 +1,6 @@
 import numpy as np
 from typing import List, Dict, Tuple
+
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 """Synthetic Reasoning Scenario.

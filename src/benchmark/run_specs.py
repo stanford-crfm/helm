@@ -14,11 +14,10 @@ from .adapter import (
 from .metric import MetricSpec
 from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
-from .scenario import ScenarioSpec
-
-from .msmarco_scenario import MSMARCOScenario
-from .numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
-from .raft_scenario import get_raft_instructions
+from .scenarios.scenario import ScenarioSpec
+from .scenarios.msmarco_scenario import MSMARCOScenario
+from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
+from .scenarios.raft_scenario import get_raft_instructions
 
 HUMAN_EVAL_METRIC_NAMES = ("code_eval_acc", "pass")
 APPS_METRIC_NAMES = ("test_avg", "strict_acc")
@@ -27,14 +26,14 @@ SIMPLE_METRIC_MAX_EVAL_INSTANCES = 1000  # default for scenarios that only use s
 
 def get_scenario_spec1() -> ScenarioSpec:
     return ScenarioSpec(
-        class_name="benchmark.simple_scenarios.Simple1Scenario",
+        class_name="benchmark.scenarios.simple_scenarios.Simple1Scenario",
         args={"num_input_tokens": 5, "vocab_size": 20, "num_train_instances": 10, "num_test_instances": 10},
     )
 
 
 def get_scenario_spec_tiny():
     return ScenarioSpec(
-        class_name="benchmark.simple_scenarios.Simple1Scenario",
+        class_name="benchmark.scenarios.simple_scenarios.Simple1Scenario",
         args={"num_input_tokens": 5, "vocab_size": 20, "num_train_instances": 2, "num_test_instances": 2},
     )
 
@@ -199,7 +198,7 @@ def get_simple1_spec() -> RunSpec:
 
 
 def get_bbq_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.bbq_scenario.BBQScenario", args={"subject": subject})
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.bbq_scenario.BBQScenario", args={"subject": subject})
 
     def format(subject: str):
         if subject != "all":
@@ -251,7 +250,7 @@ def get_msmarco_spec(
     num_valid_queries = int(num_valid_queries) if num_valid_queries else num_valid_queries
     num_train_queries = int(num_train_queries)
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.msmarco_scenario.MSMARCOScenario",
+        class_name="benchmark.scenarios.msmarco_scenario.MSMARCOScenario",
         args={
             "task": task,
             "track": track,
@@ -295,7 +294,7 @@ def get_msmarco_spec(
 
 
 def get_bold_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.bold_scenario.BOLDScenario", args={"subject": subject})
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.bold_scenario.BOLDScenario", args={"subject": subject})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -319,7 +318,7 @@ def get_bold_spec(subject: str) -> RunSpec:
 
 def get_civil_comments_spec(subject: str) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.civil_comments_scenario.CivilCommentsScenario", args={"subject": subject},
+        class_name="benchmark.scenarios.civil_comments_scenario.CivilCommentsScenario", args={"subject": subject},
     )
 
     adapter_spec = AdapterSpec(
@@ -344,7 +343,7 @@ def get_civil_comments_spec(subject: str) -> RunSpec:
 
 
 def get_mmlu_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.mmlu_scenario.MMLUScenario", args={"subject": subject})
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.mmlu_scenario.MMLUScenario", args={"subject": subject})
 
     def format(subject: str):
         return subject.replace("_", " ")
@@ -373,7 +372,9 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 
 
 def get_wikifact_spec(k: str, subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.wikifact_scenario.WIKIFactScenario", args={"subject": subject},)
+    scenario = ScenarioSpec(
+        class_name="benchmark.scenarios.wikifact_scenario.WIKIFactScenario", args={"subject": subject},
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -407,7 +408,9 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
         "commonsenseqa": ["CommonsenseQA"],
     }
 
-    scenario = ScenarioSpec(class_name="benchmark.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset},)
+    scenario = ScenarioSpec(
+        class_name="benchmark.scenarios.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset},
+    )
 
     if method == ADAPT_MULTIPLE_CHOICE_JOINT:
         adapter_spec = AdapterSpec(
@@ -458,7 +461,7 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
 
 
 def get_quac_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.quac_scenario.QuACScenario", args=dict())
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.quac_scenario.QuACScenario", args=dict())
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -483,7 +486,7 @@ def get_quac_spec() -> RunSpec:
 
 
 def get_news_qa_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.newsqa_scenario.NewsQAScenario", args=dict())
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.newsqa_scenario.NewsQAScenario", args=dict())
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -508,7 +511,9 @@ def get_news_qa_spec() -> RunSpec:
 
 
 def get_truthful_qa_spec(task: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.truthful_qa_scenario.TruthfulQAScenario", args={"task": task},)
+    scenario = ScenarioSpec(
+        class_name="benchmark.scenarios.truthful_qa_scenario.TruthfulQAScenario", args={"task": task},
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -543,7 +548,7 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
     groups: List[str] = [f"Twitter AAE ({demographic_to_subgroup[demographic]})", "Twitter AAE"]
 
     scenario = ScenarioSpec(
-        class_name="benchmark.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
+        class_name="benchmark.scenarios.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
     )
 
     adapter_spec = AdapterSpec(
@@ -570,7 +575,9 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
 
 
 def get_real_toxicity_prompts_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.real_toxicity_prompts_scenario.RealToxicityPromptsScenario", args={})
+    scenario = ScenarioSpec(
+        class_name="benchmark.scenarios.real_toxicity_prompts_scenario.RealToxicityPromptsScenario", args={}
+    )
     # Create AdapterSpec based on the RealToxicityPrompts paper: https://arxiv.org/pdf/2009.11462.pdf
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -597,7 +604,8 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
 
 def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.synthetic_reasoning_natural_scenario.SRNScenario", args={"difficulty": difficulty}
+        class_name="benchmark.scenarios.synthetic_reasoning_natural_scenario.SRNScenario",
+        args={"difficulty": difficulty},
     )
 
     adapter_spec = AdapterSpec(
@@ -625,7 +633,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
 
 
 def get_gsm_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.gsm_scenario.GSM8KScenario", args={})
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.gsm_scenario.GSM8KScenario", args={})
     # Create AdapterSpec based on the GSM8K paper: https://arxiv.org/pdf/2110.14168.pdf
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -650,7 +658,7 @@ def get_gsm_spec() -> RunSpec:
 
 
 def get_raft_spec(subset: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.raft_scenario.RAFTScenario", args={"subset": subset},)
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.raft_scenario.RAFTScenario", args={"subset": subset},)
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -682,7 +690,7 @@ def get_numeracy_spec(
     run_solver: bool = True if run_solver == "True" else False  # type: ignore
     random_seed = int(seed)
     scenario = ScenarioSpec(
-        class_name="benchmark.numeracy_scenario.NumeracyScenario",
+        class_name="benchmark.scenarios.numeracy_scenario.NumeracyScenario",
         args={"seed": random_seed, "relation_type": relation_type, "mode": mode},
     )
 
@@ -730,7 +738,7 @@ def get_math_spec(
     if use_chain_of_thought:
         assert not use_official_examples, "Cannot use official examples when use_chain_of_thought is True."
     scenario = ScenarioSpec(
-        class_name="benchmark.math_scenario.MATHScenario",
+        class_name="benchmark.scenarios.math_scenario.MATHScenario",
         args={
             "subject": subject,
             "level": level,
@@ -777,7 +785,9 @@ def get_math_spec(
 
 
 def get_boolq_spec(only_contrast=False) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.boolq_scenario.BoolQScenario", args={"only_contrast": only_contrast})
+    scenario = ScenarioSpec(
+        class_name="benchmark.scenarios.boolq_scenario.BoolQScenario", args={"only_contrast": only_contrast}
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -802,7 +812,7 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
 
 
 def get_lsat_qa_spec(task: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.lsat_qa_scenario.LSATScenario", args={"task": task})
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.lsat_qa_scenario.LSATScenario", args={"task": task})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -827,7 +837,9 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
 
 
 def get_imdb_spec(only_contrast=False) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.imdb_scenario.IMDBScenario", args={"only_contrast": only_contrast})
+    scenario = ScenarioSpec(
+        class_name="benchmark.scenarios.imdb_scenario.IMDBScenario", args={"only_contrast": only_contrast}
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -852,7 +864,7 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
 
 
 def get_babi_qa_spec(task: int) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.babi_qa_scenario.BabiQAScenario", args={"task": task})
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.babi_qa_scenario.BabiQAScenario", args={"task": task})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -879,7 +891,9 @@ def get_babi_qa_spec(task: int) -> RunSpec:
 
 
 def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.copyright_scenario.CopyrightScenario", args=dict(datatag=datatag))
+    scenario = ScenarioSpec(
+        class_name="benchmark.scenarios.copyright_scenario.CopyrightScenario", args=dict(datatag=datatag)
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -906,7 +920,7 @@ def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
 
 def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str] = "covid") -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.disinformation_scenario.DisinformationScenario",
+        class_name="benchmark.scenarios.disinformation_scenario.DisinformationScenario",
         args={"capability": capability, "topic": topic},
     )
     scenario_name = f"disinfo:type={capability}"
@@ -974,7 +988,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
 
 
 def get_code_spec(dataset: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.code_scenario.CodeScenario", args={"dataset": dataset})
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.code_scenario.CodeScenario", args={"dataset": dataset})
 
     if dataset == "HumanEval":
         adapter_spec = AdapterSpec(
@@ -1031,7 +1045,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         "closedbook": ["NaturalQuestions (closed-book)"],
     }
 
-    scenario = ScenarioSpec(class_name="benchmark.natural_qa_scenario.NaturalQAScenario", args={"mode": mode})
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={"mode": mode})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -1056,7 +1070,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
 
 
 def get_the_pile_spec(subset: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.the_pile_scenario.ThePileScenario", args={"subset": subset})
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.the_pile_scenario.ThePileScenario", args={"subset": subset})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
@@ -1093,7 +1107,7 @@ def get_ice_spec(**kwargs) -> RunSpec:
         "USA": ["USA"],
     }
 
-    scenario = ScenarioSpec(class_name="benchmark.ice_scenario.ICEScenario", args=kwargs)
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.ice_scenario.ICEScenario", args=kwargs)
 
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
@@ -1119,7 +1133,7 @@ def get_ice_spec(**kwargs) -> RunSpec:
 
 
 def get_narrativeqa_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.narrativeqa_scenario.NarrativeQAScenario", args=dict())
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.narrativeqa_scenario.NarrativeQAScenario", args=dict())
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -1149,7 +1163,7 @@ def get_synthetic_efficiency_spec(
     num_input_tokens: int, num_output_tokens: int, tokenizer: str, random: Optional[str] = None
 ) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
+        class_name="benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
         args={"num_input_tokens": num_input_tokens, "num_instances": 10, "tokenizer": tokenizer},
     )
 
@@ -1181,7 +1195,7 @@ def get_synthetic_efficiency_spec(
 
 def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.synthetic_reasoning_scenario.SyntheticReasoningScenario", args={"mode": mode},
+        class_name="benchmark.scenarios.synthetic_reasoning_scenario.SyntheticReasoningScenario", args={"mode": mode},
     )
 
     adapter_spec = AdapterSpec(
@@ -1208,7 +1222,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
 
 
 def get_wikitext_103_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.wikitext_103_scenario.Wikitext103Scenario", args=dict())
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.wikitext_103_scenario.Wikitext103Scenario", args=dict())
 
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
@@ -1234,7 +1248,9 @@ def get_wikitext_103_spec() -> RunSpec:
 
 
 def get_blimp_spec(phenomenon: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon})
+    scenario = ScenarioSpec(
+        class_name="benchmark.scenarios.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon}
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
@@ -1262,7 +1278,7 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
 def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
     # TODO: @Faisal remove this parameter once testing is done.
     scenario = ScenarioSpec(
-        class_name="benchmark.summarization_scenario.SummarizationScenario",
+        class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
     )
 
@@ -1293,7 +1309,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
 def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
     # TODO: @Faisal remove this parameter once testing is done.
     scenario = ScenarioSpec(
-        class_name="benchmark.summarization_scenario.SummarizationScenario",
+        class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={
             "dataset_name": "xsum-sampled",
             "sampling_min_length": 50,
@@ -1329,7 +1345,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
 def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
     # TODO: @Faisal remove this parameter once testing is done.
     scenario = ScenarioSpec(
-        class_name="benchmark.summarization_scenario.SummarizationScenario",
+        class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
     )
 
@@ -1358,7 +1374,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
 
 
 def get_empatheticdialogues_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.dialogue_scenarios.EmpatheticDialoguesScenario", args={})
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.dialogue_scenarios.EmpatheticDialoguesScenario", args={})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -1385,7 +1401,7 @@ def get_empatheticdialogues_spec() -> RunSpec:
 
 def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.dyck_language_scenario.DyckLanguageScenario",
+        class_name="benchmark.scenarios.dyck_language_scenario.DyckLanguageScenario",
         args={"num_parenthesis_pairs": int(num_parenthesis_pairs)},
     )
 
@@ -1414,7 +1430,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
 
 
 def get_legal_support_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.legal_support_scenario.LegalSupportScenario", args={},)
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.legal_support_scenario.LegalSupportScenario", args={},)
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -1440,7 +1456,7 @@ def get_legal_support_spec() -> RunSpec:
 
 def get_entity_matching_spec(dataset: str) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.entity_matching_scenario.EntityMatchingScenario", args={"dataset": dataset}
+        class_name="benchmark.scenarios.entity_matching_scenario.EntityMatchingScenario", args={"dataset": dataset}
     )
 
     adapter_spec = AdapterSpec(
@@ -1468,7 +1484,8 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
 
 def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
     scenario = ScenarioSpec(
-        class_name="benchmark.entity_data_imputation_scenario.EntityDataImputationScenario", args={"dataset": dataset}
+        class_name="benchmark.scenarios.entity_data_imputation_scenario.EntityDataImputationScenario",
+        args={"dataset": dataset},
     )
 
     adapter_spec = AdapterSpec(
@@ -1495,7 +1512,7 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
 
 
 def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.pubmed_qa_scenario.PubMedQAScenario", args={})
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={})
 
     # We are trying to reproduce the Instruct-GPT3's zero-shot performance of 73.2% from
     # "Can large language models reason about medical questions?" (Liévin et al.).

@@ -6,7 +6,7 @@ from .metrics.tokens.auto_token_cost_estimator import AutoTokenCostEstimator
 from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenario import Instance
+from .scenarios.scenario import Instance
 from .statistic import Stat, merge_stat
 from .window_services.window_service import WindowService
 from .window_services.window_service_factory import WindowServiceFactory

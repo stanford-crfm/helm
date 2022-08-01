@@ -9,8 +9,8 @@ from . import code_metrics_helper
 from .adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_service import MetricService
-from .code_scenario import CodeReference
 from .metric_name import MetricName
+from .scenarios.code_scenario import CodeReference
 from .statistic import Stat
 
 MAXIMUM_MEMORY_BYTES = 8 * 1024 * 1024 * 1024  # 8GB.

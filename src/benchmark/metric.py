@@ -7,9 +7,7 @@ from collections import defaultdict
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
 from .statistic import Stat, merge_stat
-
 from .augmentations.perturbation_description import PerturbationDescription
-
 from .adapter import (
     AdapterSpec,
     ScenarioState,
@@ -18,7 +16,7 @@ from .adapter import (
 )
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenario import Instance, EVAL_SPLITS, TEST_SPLIT
+from .scenarios.scenario import Instance, EVAL_SPLITS, TEST_SPLIT
 
 
 @dataclass(unsafe_hash=True)

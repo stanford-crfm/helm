@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
 
-from benchmark.scenario import Instance
+from benchmark.scenarios.scenario import Instance
 import random
 
 # ADAPTED FROM

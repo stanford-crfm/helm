@@ -11,7 +11,7 @@ from proxy.services.remote_service import RemoteService
 from proxy.services.server_service import ServerService
 from proxy.services.service import Service
 from .adapter import RequestState, ScenarioState
-from .scenario import Instance
+from .scenarios.scenario import Instance
 
 
 class ExecutorError(Exception):

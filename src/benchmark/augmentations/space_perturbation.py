@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import random
 
-from benchmark.scenario import Instance
+from benchmark.scenarios.scenario import Instance
 from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
 

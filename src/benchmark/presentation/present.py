@@ -11,7 +11,7 @@ from tqdm import tqdm
 from typing import List, Optional, Dict, Any, Set
 import json
 
-from benchmark.scenario import TEST_SPLIT
+from benchmark.scenarios.scenario import TEST_SPLIT
 from common.authentication import Authentication
 from common.general import parse_hocon, write
 from common.hierarchical_logger import hlog, htrack

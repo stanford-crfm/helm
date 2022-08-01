@@ -8,7 +8,7 @@ from common.general import ensure_directory_exists, write, write_lines
 from common.hierarchical_logger import hlog, htrack_block
 from .augmentations.data_augmenter import DataAugmenterSpec
 from .metric_service import MetricService
-from .scenario import Scenario, ScenarioSpec, create_scenario, Instance
+from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance
 from .adapter import AdapterSpec, Adapter, ScenarioState
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor

@@ -13,7 +13,7 @@ from proxy.services.service import (
     CREDENTIALS_FILE,
     CACHE_DIR,
 )
-from benchmark.synthetic_efficiency_scenario import NUM_INPUT_TOKENS
+from benchmark.scenarios.synthetic_efficiency_scenario import NUM_INPUT_TOKENS
 
 MAX_ITERS = 5
 
