@@ -184,11 +184,14 @@ $(function () {
   function renderStatName(statName) {
     // TODO: Should we ensure all stats have a display name?
     // TODO: Should display name be a default field in schemas? (Rather than being a part of the values)
-    // TODO: Clean up this function.
-    const alternativeName = statName.replace('_', ' ');
-    const capitalized = alternativeName.charAt(0).toUpperCase() + alternativeName.slice(1);
     const metric = schema.metricsField(statName);
-    return metric.values && metric.values.display_name || capitalized;
+    if (metric.values && metric.values.display_name) {
+      return metric.values.display_name;
+    } else {
+      const formattedName = statName.replace('_', ' ');
+      const capitalizedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1);
+      return capitalizedName;
+    }
   }
 
   function renderPerturbationName(perturbationName) {
@@ -282,14 +285,13 @@ $(function () {
     return Object.entries(obj).map(([key, value]) => `${key}=${value}`).join(',');
   }
 
-  function toDecimalString(value, fractionDigits) {
-    if (typeof value === 'number') {
-      return value.toLocaleString("en-US", {
-        maximumFractionDigits: fractionDigits,
-        minimumFractionDigits: fractionDigits
-      });
-    }
-    return value;
+  function toDecimalString(value, numDecimalPlaces) {
+    // Convert the number in `value` to a decimal string with `numDecimalPlaces`.
+    // The `value` must be of type `number`.
+    return value.toLocaleString("en-US", {
+      maximumFractionDigits: numDecimalPlaces,
+      minimumFractionDigits: numDecimalPlaces
+    });
   }
 
   function renderRunSpecLink(runs) {
@@ -324,12 +326,12 @@ $(function () {
 
   function groupByModel(runs) {
     // Group `runs` by models. Return a dictionary mapping each model name to a list of runs.
-    return runs.reduce((acc, run) => {
-      model = run.run_spec.adapter_spec.model;
-      acc[model] = acc[model] || [];
-      acc[model].push(run);
-      return acc;
-    }, {});
+    var modelToRuns = {};
+    for (let run of runs) {
+      const model = run.run_spec.adapter_spec.model;
+      modelToRuns[model] = (modelToRuns[model] || []).concat([run]);
+    }
+    return modelToRuns;
   }
 
   function groupByScenarioSpec(runs) {
@@ -506,11 +508,11 @@ $(function () {
     }
 
     updateHoverData(wrappedStats) {
-      var runSpecNameToStatsDict = {};
-      wrappedStats.forEach(ws => {
+      const runSpecNameToStatsDict = {};
+      for (let ws of wrappedStats) {
         runSpecNameToStatsDict[ws.name] = runSpecNameToStatsDict[ws.name] || [];
         runSpecNameToStatsDict[ws.name].push(ws.stat);
-      });
+      };
       this.hoverData.runSpecNameToStatsDict = runSpecNameToStatsDict;
     }
 
@@ -538,8 +540,8 @@ $(function () {
       // TODO: Adding stddev to the string makes the table look crowded.
       // Not included for now, let's think of how/when we want to display it.
       // It can also be a part of the hover data.
-      const valueString = toDecimalString(this.data.value, 3);
-      const stddevString = toDecimalString(this.data.stddev, 1);
+      const valueString = this.data.value ? toDecimalString(this.data.value, 3) : this.data.value;
+      const stddevString = this.data.stddev ? toDecimalString(this.data.stddev, 1) : this.data.stddev;
       const dataString = `${valueString}`;
       return dataString;
     }
