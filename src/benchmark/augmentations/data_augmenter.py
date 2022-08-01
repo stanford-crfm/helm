@@ -6,7 +6,7 @@ from benchmark.augmentations.perturbation import (
     PerturbationSpec,
     create_perturbation,
 )
-from benchmark.scenario import Instance
+from benchmark.scenarios.scenario import Instance
 from .identity_perturbation import IdentityPerturbation
 
 

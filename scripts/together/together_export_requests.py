@@ -8,7 +8,7 @@ from sqlitedict import SqliteDict
 from common.request import Request
 from common.cache import request_to_key
 from common.hierarchical_logger import hlog, htrack, htrack_block
-from proxy.together_client import TogetherClient
+from proxy.clients.together_client import TogetherClient
 
 
 """

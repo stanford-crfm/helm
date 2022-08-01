@@ -8,12 +8,12 @@ from common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from proxy.auto_client import AutoClient
-from proxy.service import (
+from proxy.clients.auto_client import AutoClient
+from proxy.services.service import (
     CREDENTIALS_FILE,
     CACHE_DIR,
 )
-from benchmark.synthetic_efficiency_scenario import NUM_INPUT_TOKENS
+from benchmark.scenarios.synthetic_efficiency_scenario import NUM_INPUT_TOKENS
 
 MAX_ITERS = 5
 

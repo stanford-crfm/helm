@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 from typing import Dict, Optional, List, Set
 
-from benchmark.scenario import Instance
+from benchmark.scenarios.scenario import Instance
 from common.general import ensure_file_downloaded, ensure_directory_exists, match_case
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation

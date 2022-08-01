@@ -11,14 +11,14 @@ from tqdm import tqdm
 from typing import List, Optional, Dict, Any, Set
 import json
 
-from benchmark.scenario import TEST_SPLIT
+from benchmark.scenarios.scenario import TEST_SPLIT
 from common.authentication import Authentication
 from common.general import parse_hocon, write
 from common.hierarchical_logger import hlog, htrack
 from benchmark.statistic import Stat
 from benchmark.run import Run, run_benchmarking, add_run_args, validate_args, LATEST_SYMLINK
 from benchmark.runner import RunSpec
-from proxy.remote_service import add_service_args, create_authentication
+from proxy.services.remote_service import add_service_args, create_authentication
 from proxy.models import ALL_MODELS, Model
 
 """

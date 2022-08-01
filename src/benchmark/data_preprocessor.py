@@ -3,7 +3,7 @@ from dataclasses import replace
 
 from common.hierarchical_logger import htrack, htrack_block
 from .augmentations.data_augmenter import create_data_augmenter, DataAugmenterSpec, DataAugmenter
-from .scenario import Scenario, Instance, TRAIN_SPLIT, EVAL_SPLITS
+from .scenarios.scenario import Scenario, Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 
 class DataPreprocessor:

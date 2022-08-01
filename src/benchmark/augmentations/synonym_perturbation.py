@@ -6,7 +6,7 @@ import nltk
 from nltk.corpus import wordnet
 import spacy
 
-from benchmark.scenario import Instance
+from benchmark.scenarios.scenario import Instance
 from common.general import match_case
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation

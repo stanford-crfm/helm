@@ -11,10 +11,10 @@ from common.general import serialize, indent_lines, format_text_lines
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationToken
-from benchmark.window_service.window_service import WindowService, EncodeResult
-from benchmark.window_service.window_service_factory import WindowServiceFactory
-from benchmark.window_service.tokenizer_service import TokenizerService
-from .scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
+from .scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
+from .window_services.window_service import WindowService, EncodeResult
+from .window_services.window_service_factory import WindowServiceFactory
+from .window_services.tokenizer_service import TokenizerService
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"

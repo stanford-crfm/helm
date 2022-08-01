@@ -6,7 +6,7 @@ from benchmark.metric_service import MetricService
 from common.authentication import Authentication
 from common.request import Request
 from common.tokenization_request import TokenizationRequestResult, TokenizationToken
-from proxy.remote_service import RemoteService
+from proxy.services.remote_service import RemoteService
 from .openai_token_cost_estimator import OpenAITokenCostEstimator
 
 

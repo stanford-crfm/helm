@@ -10,7 +10,7 @@ from .adapter import ScenarioState, RequestState
 from .metric_service import MetricService
 from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
-from .scenario import VALID_SPLIT, MultipleRequestInstance
+from .scenarios.scenario import VALID_SPLIT, MultipleRequestInstance
 
 
 ################################################################################

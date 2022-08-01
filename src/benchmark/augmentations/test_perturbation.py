@@ -1,6 +1,6 @@
 from typing import List
 
-from benchmark.scenario import Instance, Reference
+from benchmark.scenarios.scenario import Instance, Reference
 
 from .data_augmenter import DataAugmenter
 from .extra_space_perturbation import ExtraSpacePerturbation

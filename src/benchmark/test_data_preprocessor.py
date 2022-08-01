@@ -4,7 +4,7 @@ from .augmentations.data_augmenter import DataAugmenterSpec
 from .augmentations.perturbation import PerturbationSpec
 from .data_preprocessor import DataPreprocessor
 from .run_specs import get_scenario_spec1
-from .scenario import create_scenario, Instance, Scenario
+from .scenarios.scenario import create_scenario, Instance, Scenario
 
 
 def test_data_preprocessor():

@@ -4,7 +4,7 @@ from typing import Sequence
 
 
 from .perturbation_description import PerturbationDescription
-from benchmark.scenario import Instance, Reference
+from benchmark.scenarios.scenario import Instance, Reference
 from common.object_spec import ObjectSpec, create_object
 
 

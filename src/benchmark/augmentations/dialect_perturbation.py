@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 from typing import Dict, Optional, List
 
-from benchmark.scenario import Instance
+from benchmark.scenarios.scenario import Instance
 from common.general import match_case, ensure_file_downloaded
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
