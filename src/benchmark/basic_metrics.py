@@ -25,7 +25,6 @@ from .adapter import (
 from .window_services.window_service import WindowService
 from .window_services.window_service_factory import WindowServiceFactory
 from .window_services.tokenizer_service import TokenizerService
-from .augmentations.perturbation_description import PerturbationDescription
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -326,10 +325,10 @@ class BasicMetric(Metric):
                 score_1 = max(score_func(gold.output, preds[0]) for gold in golds)
                 score_k = max(score_func(gold.output, pred) for gold in golds for pred in preds)
 
-            return [
-                Stat(name).add(score_1),
-                Stat(replace(name, k=adapter_spec.num_outputs)).add(score_k),
-            ]
+            metrics = [Stat(replace(name, k=1)).add(score_1)]
+            if adapter_spec.num_outputs != 1:
+                metrics.append(Stat(replace(name, k=adapter_spec.num_outputs)).add(score_k))
+            return metrics
 
         # maps each string metric name to its associated function
         metric_fn_mapping: Dict[str, Callable] = {
@@ -371,11 +370,8 @@ class BasicMetric(Metric):
                 if request_state.output_mapping is not None:
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
 
-                perturbation: Optional[PerturbationDescription] = request_state.instance.perturbation
                 reference_metrics.extend(
-                    compute_metrics_helper(
-                        MetricName(metric_name, perturbation=perturbation), metric_fn_mapping[metric_name]
-                    )
+                    compute_metrics_helper(MetricName(metric_name), metric_fn_mapping[metric_name])
                 )
 
             else:
@@ -541,16 +537,25 @@ class BasicMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         """Compute the reference metrics and language modeling metrics"""
-        metrics = []
+        raw_metrics = []
         if len(request_state.instance.references) > 0:
-            metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
+            raw_metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
 
-        metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
-        metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
-        metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
-        metrics.extend(self.compute_num_in_context_examples(adapter_spec, request_state, metric_service))
+        raw_metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
+        raw_metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
+        raw_metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
+        raw_metrics.extend(self.compute_num_in_context_examples(adapter_spec, request_state, metric_service))
 
         # Future: add F1, BLEU, etc.
+        metrics = []
+        for metric in raw_metrics:
+            instance = request_state.instance
+            metric = Stat(
+                replace(
+                    metric.name, split=instance.split, sub_split=instance.sub_split, perturbation=instance.perturbation
+                )
+            ).merge(metric)
+            metrics.append(metric)
         return metrics
 
     def evaluate_references(

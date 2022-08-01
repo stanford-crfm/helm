@@ -16,7 +16,7 @@ from .adapter import (
 )
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenarios.scenario import Instance, EVAL_SPLITS, TEST_SPLIT
+from .scenarios.scenario import Instance
 
 
 @dataclass(unsafe_hash=True)
@@ -111,7 +111,6 @@ class Metric(ABC):
                 #       https://github.com/stanford-crfm/benchmarking/issues/49
 
                 for stat in instance_stats:
-                    stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
 
                     assert instance.id is not None
@@ -161,45 +160,7 @@ class Metric(ABC):
                 merge_stat(trial_stats, Stat(replace(metric_name, name="num_instances")).add(len(instance_ids)))
 
             # Aggregate the corpus-level metrics
-            for split in EVAL_SPLITS:
-                if (
-                    MetricName("logprob", split=split) in trial_stats
-                    and MetricName("num_perplexity_tokens", split=split) in trial_stats
-                    and MetricName("num_bytes", split=split) in trial_stats
-                ):
-                    # TODO: find out the root cause and undo this change
-                    #       https://github.com/stanford-crfm/benchmarking/issues/350
-                    if (
-                        trial_stats[MetricName("num_perplexity_tokens", split=split)].sum == 0
-                        or trial_stats[MetricName("num_bytes", split=split)].sum == 0
-                    ):
-                        continue
-
-                    merge_stat(
-                        trial_stats,
-                        Stat(MetricName("perplexity", split=split)).add(
-                            e
-                            ** (
-                                -trial_stats[MetricName("logprob", split=split)].sum
-                                / trial_stats[MetricName("num_perplexity_tokens", split=split)].sum
-                            )
-                        ),
-                    )
-                    merge_stat(
-                        trial_stats,
-                        Stat(MetricName("bits_per_byte", split=split)).add(
-                            -trial_stats[MetricName("logprob", split=split)].sum
-                            / trial_stats[MetricName("num_bytes", split=split)].sum
-                            / log(2)
-                        ),
-                    )
-                    merge_stat(
-                        trial_stats,
-                        Stat(MetricName("logprob_per_byte", split=split)).add(
-                            trial_stats[MetricName("logprob", split=split)].sum
-                            / trial_stats[MetricName("num_bytes", split=split)].sum
-                        ),
-                    )
+            self.add_perplexity_metrics(trial_stats)
 
             # We only take the mean value for each trial
             for stat in trial_stats.values():
@@ -236,8 +197,6 @@ class Metric(ABC):
         trial_stats: Dict[MetricName, Stat] = {}
         # Per-instance stats
         all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
-        # Assume models are only evaluated on the test set
-        split: str = TEST_SPLIT
 
         for request_state in scenario_state.request_states:
             # Evaluate request_state
@@ -248,44 +207,40 @@ class Metric(ABC):
             all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = request_stats
 
             for stat in request_stats:
-                stat = Stat(replace(stat.name, split=split)).merge(stat)
                 merge_stat(trial_stats, stat)
 
         # Aggregate the corpus-level metrics
-        if (
-            MetricName("logprob", split=split) in trial_stats
-            and MetricName("num_perplexity_tokens", split=split) in trial_stats
-            and trial_stats[MetricName("num_perplexity_tokens", split=split)].sum != 0
-        ):
-            merge_stat(
-                trial_stats,
-                Stat(MetricName("perplexity", split=split)).add(
-                    e
-                    ** (
-                        -trial_stats[MetricName("logprob", split=split)].sum
-                        / trial_stats[MetricName("num_perplexity_tokens", split=split)].sum
-                    )
-                ),
-            )
-            merge_stat(
-                trial_stats,
-                Stat(MetricName("bits_per_byte", split=split)).add(
-                    -trial_stats[MetricName("logprob", split=split)].sum
-                    / trial_stats[MetricName("num_bytes", split=split)].sum
-                    / log(2)
-                ),
-            )
-            merge_stat(
-                trial_stats,
-                Stat(MetricName("logprob_per_byte", split=split)).add(
-                    trial_stats[MetricName("logprob", split=split)].sum
-                    / trial_stats[MetricName("num_bytes", split=split)].sum
-                ),
-            )
+        self.add_perplexity_metrics(trial_stats)
 
         for stat in trial_stats.values():
             merge_stat(global_stats, stat.take_mean())
         return MetricResult(list(global_stats.values()), all_per_instance_stats)
+
+    def add_perplexity_metrics(self, trial_stats: Dict[MetricName, Stat]):
+        # TODO: find out the root cause and undo num_X > 0 check
+        #       https://github.com/stanford-crfm/benchmarking/issues/350
+        for name, stat in list(trial_stats.items()):  # we want to change trial_stats in the loop
+            if name.name != "logprob":
+                continue
+            total_logprob = stat.sum
+
+            num_tokens_name = replace(name, name="num_perplexity_tokens")
+            if num_tokens_name in trial_stats:
+                num_perplexity_tokens = trial_stats[num_tokens_name].sum
+                if num_perplexity_tokens > 0:
+                    merge_stat(
+                        trial_stats,
+                        Stat(replace(name, name="perplexity")).add(e ** (-total_logprob / num_perplexity_tokens)),
+                    )
+
+            num_bytes_name = replace(name, name="num_bytes")
+            if num_bytes_name in trial_stats:
+                num_bytes = trial_stats[num_bytes_name].sum
+                if num_bytes > 0:
+                    merge_stat(
+                        trial_stats, Stat(replace(name, name="bits_per_byte")).add(-total_logprob / num_bytes / log(2))
+                    )
+                    merge_stat(trial_stats, Stat(replace(name, name="logprob_per_byte")).add(total_logprob / num_bytes))
 
 
 class MetricSpec(ObjectSpec):
