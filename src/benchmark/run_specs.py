@@ -1051,7 +1051,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
-        groups=["NaturalQuestions", mode_to_subgroup[mode]],
+        groups=["NaturalQuestions", f"NaturalQuestions ({mode_to_subgroup[mode]})"],
     )
 
 
