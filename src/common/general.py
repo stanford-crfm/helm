@@ -56,7 +56,7 @@ def ensure_file_downloaded(source_url: str, target_path: str, unpack: bool = Fal
     # Download
     # gdown is used to download large files/zip folders from Google Drive.
     # It bypasses security warnings which wget cannot handle.
-    downloader_executable: str = "gdown" if source_url.startswith(f"https://drive.google.com") else "wget"
+    downloader_executable: str = "gdown" if source_url.startswith("https://drive.google.com") else "wget"
     tmp_path: str = f"{target_path}.tmp"
     shell([downloader_executable, source_url, "-O", tmp_path])
 
