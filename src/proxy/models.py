@@ -27,6 +27,9 @@ class Model:
     # Name of the specific model (e.g. "huggingface/gpt-j-6b")
     name: str
 
+    # Display name of the specific model (e.g. "GPT-J-6B")
+    display_name: str
+
     # Organization that originally created the model (e.g. "EleutherAI")
     #   Note that this may be different from group or the prefix of the name
     #   ("huggingface" in "huggingface/gpt-j-6b") as the hosting organization
@@ -70,6 +73,7 @@ ALL_MODELS = [
         group="jurassic",
         creator_organization="AI21 Labs",
         name="ai21/j1-jumbo",
+        display_name="Jurassic Jumbo (178B)",
         description="Jurassic J1-Jumbo (178B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
@@ -80,6 +84,7 @@ ALL_MODELS = [
         group="jurassic",
         creator_organization="AI21 Labs",
         name="ai21/j1-grande",
+        display_name="Jurassic Grande (17B)",
         description="Jurassic J1-Large (17B parameters with a few tweaks to its training process)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
@@ -87,6 +92,7 @@ ALL_MODELS = [
         group="jurassic",
         creator_organization="AI21 Labs",
         name="ai21/j1-large",
+        display_name="Jurassic Large (7.5B)",
         description="Jurassic J1-Large (7.5B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
@@ -95,6 +101,7 @@ ALL_MODELS = [
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/davinci",
+        display_name="GPT-3 (175B)",
         description="GPT-3 (175B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -102,6 +109,7 @@ ALL_MODELS = [
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/curie",
+        display_name="GPT-3 (6.7B)",
         description="GPT-3 (6.7B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -109,6 +117,7 @@ ALL_MODELS = [
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/babbage",
+        display_name="GPT-3 (1.3B)",
         description="GPT-3 (1.3B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -116,6 +125,7 @@ ALL_MODELS = [
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/ada",
+        display_name="GPT-3 (350M)",
         description="GPT-3 (350M parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -125,6 +135,7 @@ ALL_MODELS = [
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-davinci-002",
+        display_name="Instruct GPT-3 (175B, 4000 max tokens)",
         description="GPT-3 from Instruct series 2nd generation (175B parameters) - 4000 max tokens",
         tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -132,6 +143,7 @@ ALL_MODELS = [
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-davinci-001",
+        display_name="Instruct GPT-3 (175B)",
         description="GPT-3 from Instruct series (175B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -139,6 +151,7 @@ ALL_MODELS = [
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-curie-001",
+        display_name="Instruct GPT-3 (6.7B)",
         description="GPT-3 from Instruct series (6.7B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -146,6 +159,7 @@ ALL_MODELS = [
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-babbage-001",
+        display_name="Instruct GPT-3 (1.3B)",
         description="GPT-3 from Instruct series (1.3B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -153,6 +167,7 @@ ALL_MODELS = [
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-ada-001",
+        display_name="Instruct GPT-3 (350M)",
         description="GPT-3 from Instruct series (350M parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -160,6 +175,7 @@ ALL_MODELS = [
         group="codex",
         creator_organization="OpenAI",
         name="openai/code-davinci-002",
+        display_name="Davinci Codex (4000 max tokens)",
         description="Codex 2nd Generation (for natural language to code) - 4000 max tokens",
         tags=[CODE_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -167,6 +183,7 @@ ALL_MODELS = [
         group="codex",
         creator_organization="OpenAI",
         name="openai/code-davinci-001",
+        display_name="Davinci Codex (2048 max tokens)",
         description="Codex (for natural language to code) - 2048 max tokens",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -174,6 +191,7 @@ ALL_MODELS = [
         group="codex",
         creator_organization="OpenAI",
         name="openai/code-cushman-001",
+        display_name="Cushman Codex (2048 max tokens)",
         description="Codex (for natural language to code) - 2048 max tokens",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -182,6 +200,7 @@ ALL_MODELS = [
         group="gooseai",
         creator_organization="EleutherAI",
         name="gooseai/gpt-neo-20b",
+        display_name="GPT-J (20B, GooseAI)",
         description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
@@ -189,6 +208,7 @@ ALL_MODELS = [
         group="gooseai",
         creator_organization="EleutherAI",
         name="gooseai/gpt-j-6b",
+        display_name="GPT-J (6B, GooseAI)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
@@ -197,6 +217,7 @@ ALL_MODELS = [
         group="huggingface",
         creator_organization="EleutherAI",
         name="huggingface/gpt-j-6b",
+        display_name="GPT-J (6B, HuggingFace)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
@@ -204,6 +225,7 @@ ALL_MODELS = [
         group="huggingface",
         creator_organization="OpenAI",
         name="huggingface/gpt2",
+        display_name="GPT-2 (1.5B)",
         description="GPT-2 (1.5B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -213,6 +235,7 @@ ALL_MODELS = [
         group="anthropic",
         creator_organization="Anthropic",
         name="anthropic/stanford-online-all-v4-s3",
+        display_name="Anthropic-LM (52B)",
         description="Anthropic model (52B parameters)",
         # The Anthropic model has limited functionality
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
@@ -222,6 +245,7 @@ ALL_MODELS = [
         group="microsoft",
         creator_organization="Microsoft",
         name="microsoft/TNLGv2_530B",
+        display_name="MT-NLG (530B)",
         description="Megatron-Turing NLG (530B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -229,6 +253,7 @@ ALL_MODELS = [
         group="microsoft",
         creator_organization="Microsoft",
         name="microsoft/TNLGv2_7B",
+        display_name="MT-NLG (7B)",
         description="Megatron-Turing NLG (7B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
@@ -237,6 +262,7 @@ ALL_MODELS = [
         group="together",
         creator_organization="BigScience",
         name="together/bloom",
+        display_name="BLOOM (176B)",
         # From https://bigscience.huggingface.co/blog/bloom
         description="BLOOM (176B parameters) is an autoregressive model similar to GPT-3 trained "
         "on 46 natural languages and 13 programming languages.",
@@ -246,6 +272,7 @@ ALL_MODELS = [
         group="together",
         creator_organization="EleutherAI",
         name="together/gpt-j-6b",
+        display_name="GPT-J (6B)",
         description="GPT-J (6B parameters trained by EleutherAI on The Pile)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
@@ -253,6 +280,7 @@ ALL_MODELS = [
         group="together",
         creator_organization="EleutherAI",
         name="together/gpt-neox-20b",
+        display_name="GPT-NeoX (20B)",
         description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
@@ -260,6 +288,7 @@ ALL_MODELS = [
         group="together",
         creator_organization="Meta",
         name="together/opt-66b",
+        display_name="OPT (66B)",
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
         "transformers fully and responsibly shared with interested researchers.",
@@ -269,6 +298,7 @@ ALL_MODELS = [
         group="together",
         creator_organization="Meta",
         name="together/opt-175b",
+        display_name="OPT (17B)",
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
         "transformers fully and responsibly shared with interested researchers.",
@@ -278,6 +308,7 @@ ALL_MODELS = [
         group="together",
         creator_organization="Google",
         name="together/t5-11b",
+        display_name="T5 (11B)",
         # From https://huggingface.co/docs/transformers/v4.20.1/en/model_doc/t5
         description="T5 (11B parameters) is an encoder-decoder model pre-trained on a multi-task mixture of "
         "unsupervised and supervised tasks and for which each task is converted into a text-to-text "
@@ -288,8 +319,9 @@ ALL_MODELS = [
         group="together",
         creator_organization="Google",
         name="together/ul2",
+        display_name="UL2 (20B)",
         # From https://huggingface.co/google/ul2
-        description="UL2 (20b parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5"
+        description="UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5"
         "but trained with a different objective and slightly different scaling knobs.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
@@ -297,6 +329,7 @@ ALL_MODELS = [
         group="together",
         creator_organization="BigScience",
         name="together/t0pp",
+        display_name="t0pp (11B)",
         # From https://huggingface.co/bigscience/T0pp
         description="T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks "
         "specified in natural language prompts.",
@@ -306,8 +339,9 @@ ALL_MODELS = [
         group="together",
         creator_organization="Yandex",
         name="together/yalm",
+        display_name="YaLM (1OOB)",
         # From hhttps://github.com/yandex/YaLM-100B
-        description="YaLM (100b parameters) is an autoregressive language model trained on English and Russian text.",
+        description="YaLM (100B parameters) is an autoregressive language model trained on English and Russian text.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # For debugging
@@ -315,6 +349,7 @@ ALL_MODELS = [
         group="simple",
         creator_organization="Simple",
         name="simple/model1",
+        display_name="Simple Model 1",
         description="Copy last tokens (for debugging)",
     ),
 ]
