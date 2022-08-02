@@ -323,14 +323,15 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 
 #### Exporting requests
 
-1. `ssh scdt`
-1. `cd /u/scr/nlp/crfm/benchmarking/benchmarking`
+1. `ssh sc`.
 1. Create a screen session: `screen -S together`.
+1. Use a john to run the suite: `nlprun --priority high -c 8 -g 0 --memory 64g`.
+1. `cd /u/scr/nlp/crfm/benchmarking/benchmarking`
 1. Activate the Conda environment: `conda activate crfm_benchmarking`.
-1. Do a dry run and list the `TogetherClient` models for `--models-to-run`:  
-   `benchmark-present --suite together --models-to-run together/gpt-j-6b together/gpt-neox-20b --max-eval-instances 1000 --local --priority 2 --dry-run &> together.log`.
+1. Do a dry run to generate `RequestState`s for all the Together models: 
+   `bash scripts/benchmark-present-together-dryrun.sh --max-eval-instances 1000 --priority 2 --local`.
 1. Exit the screen session: `ctrl+ad`.
-1. Check on the dry run by streaming `together.log`: `tail -f together.log`.
+1. Check on the dry run by streaming the logs: `tail -f dryrun_<Namne of together model>.log`.
 1. The dry run results will be outputted to `benchmark_output/runs/together`.
 1. Once the dry run is done, run 
    `python3 scripts/together/together_export_requests.py benchmark_output/runs/together prod_env/cache/together.sqlite --output-path request.jsonl`.
