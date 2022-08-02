@@ -95,6 +95,26 @@ $(function () {
 
   }
 
+  function renderModels(models) {
+    const $table = $('<table>', {class: 'query-table'});
+    models.forEach((model) => {
+      const $row = $('<tr>').append($('<td>').append(`${model.description} [${model.name}]`));
+      $table.append($row);
+    });
+    return $table;
+  }
+  
+  function renderGroups(groups) {
+    const $table = $('<table>', {class: 'query-table'});
+    groups.forEach((group) => {
+      const params = encodeUrlParams(Object.assign({}, {group: group.name}));
+      const href = `benchmarking.html${params}`;
+      const $row = $('<tr>').append($('<td>').append($('<a>', {href: href}).append(group.name)));
+      $table.append($row);
+    });
+    return $table;
+  }
+
   /////////////////////////////////// Pages ////////////////////////////////////
 
   function renderRunsOverview(runSpecs) {
@@ -377,6 +397,8 @@ $(function () {
       } else {
         $main.append(renderRunsDetailed(matchedRunSpecs));
       }
+    } else if (urlParams.groups) {
+      $main.append(renderHeader('Groups', renderGroups(schema.groupsFields)));
     } else if (urlParams.group) {
       const matchedGroups = schema.groupsFields.filter((group) => new RegExp('^' + urlParams.group + '$').test(group.name));
       const matchedGroupNames = matchedGroups.map((group) => group.name);

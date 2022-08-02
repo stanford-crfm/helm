@@ -230,15 +230,6 @@ function renderPerturbationName(schema, perturbationName) {
   return schema.perturbationsField(perturbationName).values.display_name;
 }
 
-function renderModels(models) {
-  const $table = $('<table>', {class: 'query-table'});
-  models.forEach((model) => {
-    const $row = $('<tr>').append($('<td>').append(`${model.description} [${model.name}]`));
-    $table.append($row);
-  });
-  return $table;
-}
-
 function getLast(l) {
   return l[l.length - 1];
 }
