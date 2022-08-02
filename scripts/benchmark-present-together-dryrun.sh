@@ -41,5 +41,5 @@ do
     # Override with passed-in CLI arguments
     # By default, the command will run the RunSpecs listed in src/benchmark/presentation/run_specs.conf
     # and output results to `benchmark_output/runs/together`.
-    execute "benchmark-present --suite together --dryrun --models-to-run $model $* &> dryrun_$logfile.log &"
+    execute "benchmark-present --suite together --dry-run --models-to-run $model $* &> dryrun_$logfile.log &"
 done
