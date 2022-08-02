@@ -326,7 +326,7 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. `ssh sc`.
 1. Create a screen session: `screen -S together`.
 1. Use a john to run the suite: `nlprun --priority high -c 8 -g 0 --memory 64g`.
-1. `cd /u/scr/nlp/crfm/benchmarking/benchmarking`
+1. `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
 1. Activate the Conda environment: `conda activate crfm_benchmarking`.
 1. Do a dry run to generate `RequestState`s for all the Together models: 
    `bash scripts/benchmark-present-together-dryrun.sh --max-eval-instances 1000 --priority 2 --local`.
