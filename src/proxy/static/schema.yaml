@@ -95,84 +95,54 @@ perturbations:
     display_name: Gender
 
 groups:
-- name: NarrativeQA
+- name: APPS (Code)
   description: TODO
   values:
     display:
       k: null
       split: test
       stat_names:
-        - f1_score
+        - test_avg
+        - strict_acc
+- name: bAbI
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - quasi_exact_match
+- name: BBQ
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - "BBQMetric: bias score across ambiguous examples"
+        - "BBQMetric: bias score across unambiguous examples"
+- name: BLiMP
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - accuracy
+- name: BOLD
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - toxicity_probability
 - name: BoolQ
   description: TODO
   values:
     display:
       k: null
       split: valid
-      stat_names:
-        - quasi_exact_match
-- name: QuAC
-  description: TODO
-  values:
-    display:
-      k: null
-      split: valid
-      stat_names:
-        - f1_score
-- name: NaturalQuestions
-  description: TODO
-  values:
-    display:
-      k: null
-      split: valid
-      stat_names:
-        - f1_score
-- name: TruthfulQA
-  description: TODO
-  values:
-    display:
-      k: null
-      split: valid
-      stat_names:
-        - quasi_exact_match
-- name: MMLU
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - quasi_exact_match
-- name: IMDB
-  description: TODO
-  values:
-    display:
-      k: null
-      split: valid
-      stat_names:
-        - quasi_exact_match
-- name: RAFT
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - quasi_exact_match
-- name: Entity matching
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - quasi_exact_match
-- name: Data imputation
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
       stat_names:
         - quasi_exact_match
 - name: CivilComments
@@ -183,84 +153,20 @@ groups:
       split: test
       stat_names:
         - quasi_exact_match
-- name: The Pile
+- name: CNN/DailyMail
   description: TODO
   values:
     display:
       k: null
       split: test
       stat_names:
-        - bits_per_byte
-- name: WikiFact
+        - rouge_2
+- name: CommonsenseQA
   description: TODO
   values:
     display:
       k: null
-      split: test
-      stat_names:
-        - quasi_exact_match
-- name: Numeracy
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - absolute_value_difference
-- name: Synthetic reasoning (abstract symbols)
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - quasi_exact_match
-- name: Synthetic reasoning (natural language)
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - f1_set_match
-- name: bAbI
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - quasi_exact_match
-- name: Dyck
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - exact_match_indicator
-- name: GSM8K
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - exact_match_indicator
-- name: LSAT
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - quasi_exact_match
-- name: LegalSupport
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
+      split: valid
       stat_names:
         - quasi_exact_match
 - name: Copyright
@@ -272,89 +178,14 @@ groups:
       stat_names:
         - longest_common_prefix_length
         - edit_distance
-- name: BBQ
+- name: Data imputation
   description: TODO
   values:
     display:
       k: null
       split: test
       stat_names:
-        - "BBQMetric: bias score across ambiguous examples"
-        - "BBQMetric: bias score across unambiguous examples"
-- name: RealToxicityPrompts
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - toxicity_probability
-- name: BOLD
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - toxicity_probability
-- name: WikiText-103
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - bits_per_byte
-- name: BLiMP
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - accuracy
-- name: NewsQA
-  description: TODO
-  values:
-    display:
-      k: null
-      split: valid
-      stat_names:
-        - f1_score
-- name: MATH
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - math_equiv
-- name: MATH (chain_of_thought)
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - math_equiv_chain_of_thought
-- name: HumanEval (Code)
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - code_eval_acc
-        - pass
-- name: APPS (Code)
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - test_avg
-        - strict_acc
+        - quasi_exact_match
 - name: Disinformation (reiteration)
   description: TODO
   values:
@@ -373,6 +204,30 @@ groups:
       stat_names:
         - self_bleu
         - monte_carlo_entropy
+- name: Dyck
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - exact_match_indicator
+- name: Entity matching
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - quasi_exact_match
+- name: GSM8K
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - exact_match_indicator
 - name: HellaSwag
   description: TODO
   values:
@@ -381,7 +236,24 @@ groups:
       split: valid
       stat_names:
         - quasi_exact_match
-- name: OpenbookQA
+- name: HumanEval (Code)
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - code_eval_acc
+        - pass
+- name: IMDB
+  description: TODO
+  values:
+    display:
+      k: null
+      split: valid
+      stat_names:
+        - quasi_exact_match
+- name: LegalSupport
   description: TODO
   values:
     display:
@@ -389,12 +261,36 @@ groups:
       split: test
       stat_names:
         - quasi_exact_match
-- name: CommonsenseQA
+- name: LSAT
   description: TODO
   values:
     display:
       k: null
-      split: valid
+      split: test
+      stat_names:
+        - quasi_exact_match
+- name: MATH
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - math_equiv
+- name: MATH (chain_of_thought)
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - math_equiv_chain_of_thought
+- name: MMLU
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
       stat_names:
         - quasi_exact_match
 - name: MS MARCO (regular)
@@ -413,22 +309,102 @@ groups:
       split: valid
       stat_names:
         - NDCG@20
-- name: CNN/DailyMail
+- name: NarrativeQA
   description: TODO
   values:
     display:
       k: null
       split: test
       stat_names:
-        - rouge_2
-- name: XSUM
+        - f1_score
+- name: NaturalQuestions
+  description: TODO
+  values:
+    display:
+      k: null
+      split: valid
+      stat_names:
+        - f1_score
+- name: NewsQA
+  description: TODO
+  values:
+    display:
+      k: null
+      split: valid
+      stat_names:
+        - f1_score
+- name: Numeracy
   description: TODO
   values:
     display:
       k: null
       split: test
       stat_names:
-        - rouge_2
+        - absolute_value_difference
+- name: OpenbookQA
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - quasi_exact_match
+- name: QuAC
+  description: TODO
+  values:
+    display:
+      k: null
+      split: valid
+      stat_names:
+        - f1_score
+- name: RAFT
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - quasi_exact_match
+- name: The Pile
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - bits_per_byte
+- name: TruthfulQA
+  description: TODO
+  values:
+    display:
+      k: null
+      split: valid
+      stat_names:
+        - quasi_exact_match
+- name: Synthetic reasoning (abstract symbols)
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - quasi_exact_match
+- name: Synthetic reasoning (natural language)
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - f1_set_match
+- name: RealToxicityPrompts
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - toxicity_probability
 - name: TwitterAAE (AAE)
   description: TODO
   values:
@@ -445,6 +421,30 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
+- name: WikiFact
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - quasi_exact_match
+- name: WikiText-103
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - bits_per_byte
+- name: XSUM
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - rouge_2
 - name: ICE (Canada)
   description: TODO
   values:
