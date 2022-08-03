@@ -35,7 +35,7 @@ class AnthropicClient(Client):
 
     # Note: The model has a maximum context size of 8192, but the Anthropic API
     #       can currently only support a maximum of ~3000 tokens in the completion.
-    # TODO: increase this later when Anthropic supports more.
+    # TODO: Increase this later when Anthropic supports more.
     MAX_COMPLETION_LENGTH: int = 3000
 
     def __init__(self, api_key: str, cache_path: str):
@@ -161,7 +161,7 @@ class AnthropicClient(Client):
             tokens: List[Token] = []
 
             for token_text in token_texts:
-                # TODO: Anthropic currently doesn't support logprob. Just set logprob to 0 for now.
+                # Anthropic currently doesn't support logprob. Just set logprob to 0 for now.
                 token_logprob: float = 0
                 sequence_logprob += token_logprob
                 tokens.append(Token(text=token_text, logprob=token_logprob, top_logprobs={}))

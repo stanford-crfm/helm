@@ -69,7 +69,7 @@ class CommonSenseScenario(Scenario):
 
     @staticmethod
     def process_commonsenseqa_item(item):
-        # TODO: question concept field is not used: item["question"]["question_concept"]
+        # Note: question concept field is not used: item["question"]["question_concept"]
         letter2idx = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4}
         question = item["question"]["stem"]
         answers = [answer["text"] for answer in item["question"]["choices"]]

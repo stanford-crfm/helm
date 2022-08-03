@@ -63,8 +63,8 @@ class TogetherClient(Client):
             for text, logprob, top_logprobs in zip(
                 raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
             ):
-                # TODO: `stop` sequences are not supported for the initial batch of responses.
-                #       Remove the following check, once `stop` is supported.
+                # `stop` sequences are not supported for the initial batch of responses.
+                # TODO: Remove the following check, once `stop` is supported.
                 if any(stop in text for stop in request.stop_sequences):
                     break
 

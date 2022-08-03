@@ -72,7 +72,6 @@ class DialectPerturbation(Perturbation):
                 self.MAPPING_DICTS for the provided source and target classes
                 will be used, if available.
         """
-        # @TODO: This field should be inherited from the base perturbation class
         self.output_path: str = self.OUTPUT_PATH
         Path(self.output_path).mkdir(parents=True, exist_ok=True)
 

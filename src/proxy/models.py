@@ -230,7 +230,6 @@ ALL_MODELS = [
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # Anthropic
-    # TODO: The API for the Anthropic LM is not production-ready. Update with the official name.
     Model(
         group="anthropic",
         creator_organization="Anthropic",

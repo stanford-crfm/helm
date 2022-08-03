@@ -148,7 +148,6 @@ class PersonNamePerturbation(Perturbation):
                 find the gender association for a source_word, we randomly
                 pick from one of the target names.
         """
-        # @TODO: This field should be inherited from the base perturbation class
         self.output_path: str = self.OUTPUT_PATH
         Path(self.output_path).mkdir(parents=True, exist_ok=True)
 
