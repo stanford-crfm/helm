@@ -3,6 +3,7 @@ import os
 import tqdm
 from typing import List
 
+from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TEST_SPLIT
 
 datatag2hash = {
@@ -56,10 +57,8 @@ class CopyrightScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         target_path = os.path.join(self.output_path, f"{self.datatag}.json")
-        # `ensure_file_downloaded` in src.common doesn't work.
-        # The main problem is that naive wget cannot bypass the gdrive large file virus scan warning.
-        if not os.path.exists(target_path):
-            os.system(f"gdown {self.source_url} -O {target_path}")
+        ensure_file_downloaded(self.source_url, target_path)
+
         with open(target_path, "r") as f:
             # Processed data with the format {"data": {prefix: prefix_to_end}, "metadata":...}.
             data = json.load(f)
