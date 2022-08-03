@@ -38,7 +38,7 @@ class WindowServiceFactory:
             window_service = AnthropicWindowService(service)
         elif model_name == "huggingface/gpt2":
             window_service = GPT2WindowService(service)
-        elif model_name == "together/bloom":
+        elif model_name.startswith("together/bloom"):
             window_service = BloomWindowService(service)
         elif model_name in ["huggingface/gpt-j-6b", "together/gpt-j-6b", "gooseai/gpt-j-6b"]:
             window_service = GPTJWindowService(service)

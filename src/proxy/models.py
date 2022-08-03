@@ -270,6 +270,46 @@ ALL_MODELS = [
     ),
     Model(
         group="together",
+        creator_organization="BigScience",
+        name="together/bloom-2b5",
+        display_name="BLOOM (2.5B)",
+        # From https://bigscience.huggingface.co/blog/bloom
+        description="BLOOM (2.5B parameters) is an autoregressive model similar to GPT-3 trained "
+        "on 46 natural languages and 13 programming languages.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="BigScience",
+        name="together/bloom-1b3",
+        display_name="BLOOM (1.3B)",
+        # From https://bigscience.huggingface.co/blog/bloom
+        description="BLOOM (1.3B parameters) is an autoregressive model similar to GPT-3 trained "
+        "on 46 natural languages and 13 programming languages.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="BigScience",
+        name="together/bloom-760m",
+        display_name="BLOOM (760M)",
+        # From https://bigscience.huggingface.co/blog/bloom
+        description="BLOOM (760M parameters) is an autoregressive model similar to GPT-3 trained "
+        "on 46 natural languages and 13 programming languages.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="BigScience",
+        name="together/bloom-350m",
+        display_name="BLOOM (350M)",
+        # From https://bigscience.huggingface.co/blog/bloom
+        description="BLOOM (350M parameters) is an autoregressive model similar to GPT-3 trained "
+        "on 46 natural languages and 13 programming languages.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
         creator_organization="EleutherAI",
         name="together/gpt-j-6b",
         display_name="GPT-J (6B)",

@@ -23,6 +23,10 @@ function execute {
 
 models=(
   "together/bloom"
+  "together/bloom-2b5"
+  "together/bloom-1b3"
+  "together/bloom-760m"
+  "together/bloom-350m"
   "together/gpt-j-6b"
   "together/gpt-neox-20b"
   "together/opt-66b"
