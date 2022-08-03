@@ -313,7 +313,8 @@ ALL_MODELS = [
         description="T5 (11B parameters) is an encoder-decoder model pre-trained on a multi-task mixture of "
         "unsupervised and supervised tasks and for which each task is converted into a text-to-text "
         "format.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        # Does not support echo=True
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
@@ -323,7 +324,8 @@ ALL_MODELS = [
         # From https://huggingface.co/google/ul2
         description="UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5"
         "but trained with a different objective and slightly different scaling knobs.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        # Does not support echo=True
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
@@ -333,7 +335,8 @@ ALL_MODELS = [
         # From https://huggingface.co/bigscience/T0pp
         description="T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks "
         "specified in natural language prompts.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        # Does not support echo=True
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",

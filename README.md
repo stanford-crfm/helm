@@ -329,7 +329,7 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
 1. Activate the Conda environment: `conda activate crfm_benchmarking`.
 1. Do a dry run to generate `RequestState`s for all the Together models: 
-   `bash scripts/benchmark-present-together-dryrun.sh --max-eval-instances 1000 --priority 2 --local`.
+   `bash scripts/generate-together-requests.sh --max-eval-instances 1000 --priority 2 --local`.
 1. Exit the screen session: `ctrl+ad`.
 1. Check on the dry run by streaming the logs: `tail -f dryrun_<Namne of together model>.log`.
 1. The dry run results will be outputted to `benchmark_output/runs/together`.

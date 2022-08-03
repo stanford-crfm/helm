@@ -1,13 +1,13 @@
 : '
-Does a dryrun for all the together models in parallel.
+Generates all the requests for the together models by doing a dryrun for all the Together models in parallel.
 The dry run results will be outputted to benchmark_output/runs/together.
 
 Usage:
 
-  bash scripts/benchmark-present-together-dryrun.sh <Any additional CLI arguments for benchmark-present>
+  bash scripts/generate-together-requests.sh <Any additional CLI arguments for benchmark-present>
 
   e.g.,
-  bash scripts/benchmark-present-together-dryrun.sh --max-eval-instances 1000 --priority 2 --local
+  bash scripts/generate-together-requests.sh --max-eval-instances 1000 --priority 2 --local
 
 To kill a running process:
 
