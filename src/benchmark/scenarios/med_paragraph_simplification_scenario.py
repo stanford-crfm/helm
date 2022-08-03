@@ -75,7 +75,7 @@ class MedParagraphSimplificationScenario(Scenario):
     description = "Corpus with technical abstracts and their lay summaries on various clinical topics"
     tags = ["summarization", "biomedical"]
 
-    DOWNLOAD_LINK_TEMPLATE: str = (
+    DOWNLOAD_URL_TEMPLATE: str = (
         "https://raw.githubusercontent.com/AshOlogn/Paragraph-level-Simplification-of-Medical-Texts/"
         "main/data/data-1024/{file_name}"
     )
@@ -93,7 +93,7 @@ class MedParagraphSimplificationScenario(Scenario):
             abstract_file_name: str = f"{'val' if split == VALID_SPLIT else split}.source"
             abstract_path: str = os.path.join(data_path, abstract_file_name)
             ensure_file_downloaded(
-                source_url=MedParagraphSimplificationScenario.DOWNLOAD_LINK_TEMPLATE.format(
+                source_url=MedParagraphSimplificationScenario.DOWNLOAD_URL_TEMPLATE.format(
                     file_name=abstract_file_name
                 ),
                 target_path=abstract_path,
@@ -103,7 +103,7 @@ class MedParagraphSimplificationScenario(Scenario):
             pls_file_name: str = f"{'val' if split == VALID_SPLIT else split}.target"
             pls_path: str = os.path.join(data_path, pls_file_name)
             ensure_file_downloaded(
-                source_url=MedParagraphSimplificationScenario.DOWNLOAD_LINK_TEMPLATE.format(file_name=pls_file_name),
+                source_url=MedParagraphSimplificationScenario.DOWNLOAD_URL_TEMPLATE.format(file_name=pls_file_name),
                 target_path=pls_path,
             )
 

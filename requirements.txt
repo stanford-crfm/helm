@@ -40,3 +40,4 @@ rouge-score==0.0.4
 gdown==4.4.0
 pysocks==1.7.1
 pytrec_eval==0.5
+cleantext==1.1.4

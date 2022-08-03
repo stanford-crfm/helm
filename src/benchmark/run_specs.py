@@ -1628,6 +1628,34 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
     )
 
 
+def get_covid_dialog_spec() -> RunSpec:
+    scenario = ScenarioSpec(class_name="benchmark.scenarios.covid_dialog_scenario.COVIDDialogScenario", args={},)
+
+    # TODO: double check this -Tony
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Summarize the given documents.",
+        input_prefix="Document: ",
+        output_prefix="\nSummary: ",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/text-davinci-002",
+        max_eval_instances=None,
+        num_outputs=1,
+        max_tokens=128,
+        temperature=0.3,  # TODO: why did we do this for summarization?
+        stop_sequences=["}"],
+    )
+
+    return RunSpec(
+        name="covid_dialog",
+        scenario=scenario,
+        adapter_spec=adapter_spec,
+        metrics=get_summarization_metrics(),
+        groups=["COVIDDialog"],
+    )
+
+
 ############################################################
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
@@ -1675,6 +1703,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "pubmed_qa": get_pubmed_qa_spec,
     "med_qa": get_med_qa_spec,
     "med_paragraph_simplification": get_med_paragraph_simplification_spec,
+    "covid_dialog": get_covid_dialog_spec,
 }
 
 
