@@ -54,10 +54,11 @@ def ensure_file_downloaded(source_url: str, target_path: str, unpack: bool = Fal
         return
 
     # Download
-    tmp_path = target_path + ".tmp"
-    # TODO: -c doesn't work for some URLs
-    #       https://github.com/stanford-crfm/benchmarking/issues/51
-    shell(["wget", source_url, "-O", tmp_path])
+    # gdown is used to download large files/zip folders from Google Drive.
+    # It bypasses security warnings which wget cannot handle.
+    downloader_executable: str = "gdown" if source_url.startswith("https://drive.google.com") else "wget"
+    tmp_path: str = f"{target_path}.tmp"
+    shell([downloader_executable, source_url, "-O", tmp_path])
 
     # Unpack (if needed) and put it in the right location
     if unpack:
