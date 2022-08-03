@@ -42,6 +42,7 @@ from .scenarios import entity_matching_scenario  # noqa
 from .scenarios import entity_data_imputation_scenario  # noqa
 from .scenarios import pubmed_qa_scenario  # noqa
 from .scenarios import med_qa_scenario  # noqa
+from .scenarios import med_paragraph_simplification_scenario  # noqa
 
 # Metrics
 from . import basic_metrics  # noqa
