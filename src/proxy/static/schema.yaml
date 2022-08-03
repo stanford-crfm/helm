@@ -534,7 +534,7 @@ groups:
       stat_names:
         - bits_per_byte
 
-tableSettings:
+table_settings:
 - name: default
   values:
     stat_groups:
@@ -542,7 +542,7 @@ tableSettings:
       - runtime
       - bias_and_toxicity
 
-statGroups:
+stat_groups:
 - name: accuracy
   description: TODO
   values:

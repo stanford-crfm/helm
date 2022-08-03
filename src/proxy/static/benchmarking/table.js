@@ -37,19 +37,21 @@ class StatNameFilter {
 
   constructor(statNames, ks, splits, perturbations) {
     this.keyToOptions = {};
-    if (!(statNames === undefined)) {this.keyToOptions.name = statNames}
-    if (!(ks === undefined)) {this.keyToOptions.k = ks}
-    if (!(splits === undefined)) {this.keyToOptions.split = splits}
-    if (!(perturbations === undefined)) {this.keyToOptions.perturbation = perturbations}
+    if (!(statNames === undefined)) { this.keyToOptions.name = statNames };
+    if (!(ks === undefined)) { this.keyToOptions.k = ks };
+    if (!(splits === undefined)) { this.keyToOptions.split = splits };
+    if (!(perturbations === undefined)) { this.keyToOptions.perturbation = perturbations };
   }
 
   test(statName) {
+    // Test whether the values of the `statName` keys correspond to one of the
+    // options specified in this.keyToOptions. Return a boolean.
     // TODO: Can be improved.
-    var match = true;
+    let match = true;
     Object.entries(this.keyToOptions).forEach(([key, options] = entry) => {
       if (key === 'perturbation') {
         // Compute perturbation matches
-        var perturbationMatches = options.map(target => {
+        const perturbationMatches = options.map(target => {
           // If the target or stat perturbation is null, we check whether the
           // other one is null and return.
           if ([target, statName.perturbation].includes(null)) {
@@ -57,7 +59,7 @@ class StatNameFilter {
           }
           // If the target perturbation is an object, we iterate through each
           // field and value.
-          var perturbationMatch = true;
+          let perturbationMatch = true;
           Object.entries(target).forEach(([pertKey, pertValue] = entry) => {
             if (!(pertKey in statName.perturbation) || !(statName.perturbation[pertKey] === pertValue)) {
               perturbationMatch = false;
@@ -161,7 +163,7 @@ class StatTableCell extends Cell {
   updateDataFields(kArr, splitArr, aggFuncName) {
     // Update this.data and this.hoverData
     const statFilter = new StatNameFilter(undefined, kArr, splitArr, undefined);
-    var filteredWrappedStats = this.wrappedStats.filter(ws => statFilter.test(ws.stat.name));
+    const filteredWrappedStats = this.wrappedStats.filter(ws => statFilter.test(ws.stat.name));
     this.updateData(filteredWrappedStats, aggFuncName);
     this.updateHoverData(filteredWrappedStats);
   }
@@ -256,7 +258,7 @@ class StatTableColumnSpec {
 
   makeColumn(groupedRuns) {
 
-    var rowKeyToCell = {};
+    const rowKeyToCell = {};
 
     Object.entries(groupedRuns).forEach(([groupName, runs] = entry) => {
       const wrappedStats = getWrappedStatsFromRuns(runs);
@@ -266,7 +268,7 @@ class StatTableColumnSpec {
       }
     });
 
-    var column = null;
+    let column = null;
     if (Object.keys(rowKeyToCell).length > 0) {
       column = new Column(this.group, this.name, rowKeyToCell);
     }
@@ -295,7 +297,7 @@ function getWrappedStatsFromRun(run) {
 }
 
 function getWrappedStatsFromRuns(runs) {
-  var wrappedStats = [];
+  const wrappedStats = [];
   runs.forEach(run => wrappedStats.push(...getWrappedStatsFromRun(run)));
   return wrappedStats;
 }
@@ -305,13 +307,13 @@ function getColumnSpecs(schema, groups) {
   const tableSetting = getTableSetting(schema, groups);
   const defaultK = getDisplayK(groups);
   const defaultSplit = getDisplaySplit(groups);
-  var columnSpecs = [];
+  const columnSpecs = [];
 
   tableSetting.values.stat_groups.forEach(statGroupName => {
     // Get stat names and perturbations.
     const statGroup = schema.statGroupsField(statGroupName);
-    var perturbationNames = statGroup.values.perturbation_names;
-    var statNames = statGroup.values.stat_names;
+    const perturbationNames = statGroup.values.perturbation_names;
+    let statNames = statGroup.values.stat_names;
     if (statGroupName === 'accuracy') {
       // Infer the stat names for the group.
       statNames = getStatNames(groups);
@@ -335,7 +337,7 @@ function getColumnSpecs(schema, groups) {
 function makeStatTableData(groupedRuns, columnSpecs, title, headerColumnName) {
 
   // Header column.
-  var headerRowKeyToCell = {};
+  const headerRowKeyToCell = {};
   Object.entries(groupedRuns).map(([groupName, runs] = entry) => {
     const href = renderRunSpecLink(runs);
     headerRowKeyToCell[groupName] = new HeaderCell(groupName, href);

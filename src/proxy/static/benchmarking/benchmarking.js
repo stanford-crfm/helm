@@ -45,8 +45,8 @@ $(function () {
       this.metricsFields = raw.metrics.map((fieldRaw) => new Field(fieldRaw));
       this.perturbationsFields = raw.perturbations.map((fieldRaw) => new Field(fieldRaw));
       this.groupsFields = raw.groups.map((fieldRaw) => new Field(fieldRaw));
-      this.tableSettingsFields = raw.tableSettings.map((fieldRaw) => new Field(fieldRaw));
-      this.statGroupsFields = raw.statGroups.map((fieldRaw) => new Field(fieldRaw));
+      this.tableSettingsFields = raw.table_settings.map((fieldRaw) => new Field(fieldRaw));
+      this.statGroupsFields = raw.stat_groups.map((fieldRaw) => new Field(fieldRaw));
 
       // Allow convenient access
       this.adapterFieldNames = this.adapterFields.map((field) => field.name);
