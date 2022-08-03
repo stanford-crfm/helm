@@ -7,9 +7,11 @@ from .scenario import Scenario, Instance, Reference, ALL_SPLITS, CORRECT_TAG, VA
 
 class MedParagraphSimplificationScenario(Scenario):
     """
-    From "Paragraph-level Simplification of Medical Texts" (Devaraj et al.), TODO: -Tony
+    "Paragraph-level Simplification of Medical Texts" (Devaraj et al.) studies the problem of learning to simplify
+    medical texts. One of their contributions is a new corpus that is composed of technical abstracts and their
+    lay summaries on various clinical topics.
 
-    The author generated train/val/test splits, which is available in the paper's GitHub repo.
+    The author generated train/val/test splits, which are available in the GitHub repository linked in the paper.
 
     Paper: http://arxiv.org/abs/2104.05767
     Code: https://github.com/AshOlogn/Paragraph-level-Simplification-of-Medical-Texts
@@ -70,7 +72,7 @@ class MedParagraphSimplificationScenario(Scenario):
     """
 
     name = "med_paragraph_simplification"
-    description = "TODO -Tony"
+    description = "Corpus with technical abstracts and their lay summaries on various clinical topics"
     tags = ["summarization", "biomedical"]
 
     DOWNLOAD_LINK_TEMPLATE: str = (
@@ -97,7 +99,7 @@ class MedParagraphSimplificationScenario(Scenario):
                 target_path=abstract_path,
             )
 
-            # Plain-language summaries
+            # Plain-language summaries of the abstracts
             pls_file_name: str = f"{'val' if split == VALID_SPLIT else split}.target"
             pls_path: str = os.path.join(data_path, pls_file_name)
             ensure_file_downloaded(
