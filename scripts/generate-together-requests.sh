@@ -1,5 +1,5 @@
 : '
-Generates all the requests for the together models by doing a dryrun for all the Together models in parallel.
+Generates requests for the Together models by doing a dryrun for all models in parallel.
 The dry run results will be outputted to benchmark_output/runs/together.
 
 Usage:
