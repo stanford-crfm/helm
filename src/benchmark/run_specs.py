@@ -888,7 +888,7 @@ def get_babi_qa_spec(task: int) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
-        groups=["bAbi"],
+        groups=["bAbI"],
     )
 
 
