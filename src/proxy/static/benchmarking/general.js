@@ -89,7 +89,7 @@ function renderStatName(schema, statName) {
   if (metric.values && metric.values.display_name) {
     return metric.values.display_name;
   } else {
-    const formattedName = statName.replace('_', ' ');
+    const formattedName = statName.replaceAll('_', ' ');
     const capitalizedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1);
     return capitalizedName;
   }

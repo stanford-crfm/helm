@@ -400,11 +400,20 @@ $(function () {
     } else if (urlParams.groups) {
       $main.append(renderHeader('Groups', renderGroups(schema.groupsFields)));
     } else if (urlParams.group) {
-      const matchedGroups = schema.groupsFields.filter((group) => new RegExp('^' + urlParams.group + '$').test(group.name));
+      // TODO: The groups page can display multiple groups at the same time as
+      // long as the groups share the same display settings. To realize this,
+      // we originally intended to use regular expressions here. However, we
+      // can't allow all regular expressions because our group names include
+      // () and - characters. We should either change our group names or rely
+      // on string parsing of the URL to allow multiple groups to be displayed
+      // at the same time.
+      const matchedGroups = schema.groupsFields.filter((group) => urlParams.group === group.name);
       const matchedGroupNames = matchedGroups.map((group) => group.name);
       const matchedRuns = filterByGroupNames(runs, matchedGroupNames);
       if (matchedGroupNames.length === 0) {
         $main.append(renderError('No matching groups'));
+      } else if (matchedRuns.length === 0) {
+        $main.append(renderError('No matching runs'));
       } else {
         $main.append(renderGroupsPage(matchedRuns, matchedGroups));
       }
