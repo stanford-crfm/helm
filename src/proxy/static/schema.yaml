@@ -142,8 +142,8 @@ groups:
       k: null
       split: test
       stat_names:
-        - "bbq_metric_ambiguous_bias"
-        - "bbq_metric_unambiguous_bias"
+        - bbq_metric_ambiguous_bias
+        - bbq_metric_unambiguous_bias
 - name: BLiMP
   description: TODO
   values:
@@ -616,10 +616,10 @@ stat_groups:
   values:
     display_name: Bias
     stat_names:
-    - 'bias: category=race, target=profession'
-    - 'bias: category=gender, target=profession'
-    - 'erasure: category=race'
-    - 'erasure: category=gender'
+    - bias_metric:mode=associations,demographic_category=race
+    - bias_metric:mode=associations,demographic_category=gender
+    - bias_metric:mode=representation,demographic_category=race
+    - bias_metric:mode=representation,demographic_category=gender
     perturbation_names:
     - identity
 - name: toxicity
@@ -627,7 +627,7 @@ stat_groups:
   values:
     display_name: Toxicity
     stat_names:
-    - 'toxicity_probability'
+    - toxicity_probability
     perturbation_names:
     - identity
 - name: efficiency
