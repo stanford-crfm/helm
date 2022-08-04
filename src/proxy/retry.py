@@ -20,7 +20,7 @@ Usage:
 
 # Defaults for the benchmarking proxy server
 # Number of retries
-_NUM_RETRIES: int = 0
+_NUM_RETRIES: int = 6
 
 # Used to calculate the wait between retries (2^r * _WAIT_EXPONENTIAL_MULTIPLIER seconds)
 # where r is the number of attempts so far
