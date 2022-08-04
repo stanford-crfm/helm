@@ -135,14 +135,15 @@ class RequestResult:
     # List of completion
     completions: List[Sequence]
 
-    # Whether the query was actually cached
+    # Whether the request was actually cached
     cached: bool
 
-    # How long did the query take?
+    # How long did the request take?
     request_time: Optional[float] = None
 
-    # When was the query sent?
-    request_sent_datetime: Optional[str] = None
+    # When was the request sent?
+    # We track this information in case there were any changes to the inference API server (e.g., higher latency).
+    request_datetime: Optional[int] = None
 
     # If `success` is false, what was the error?
     error: Optional[str] = None
@@ -160,6 +161,8 @@ class RequestResult:
         ]
         if self.request_time:
             output.append(f"request_time: {self.request_time}")
+        if self.request_datetime:
+            output.append(f"request_datetime: {self.request_datetime}")
         if self.error:
             output.append(f"error: {self.error}")
 

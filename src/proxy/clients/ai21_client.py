@@ -127,7 +127,7 @@ class AI21Client(Client):
             success=True,
             cached=cached,
             request_time=response["request_time"],
-            request_sent_datetime=response["request_sent_datetime"] if "request_sent_datetime" in response else None,
+            request_datetime=response.get("request_datetime"),
             completions=completions,
         )
 

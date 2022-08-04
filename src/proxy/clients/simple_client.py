@@ -46,7 +46,7 @@ class SimpleClient(Client):
             success=True,
             cached=False,
             request_time=0,
-            request_sent_datetime=response["request_sent_datetime"] if "request_sent_datetime" in response else None,
+            request_datetime=response.get("request_datetime"),
             completions=completions,
         )
 

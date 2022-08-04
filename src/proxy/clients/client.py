@@ -1,6 +1,5 @@
 import time
 from abc import ABC, abstractmethod
-from datetime import datetime
 from typing import Callable, Any, Dict
 
 from common.request import Request, RequestResult
@@ -43,13 +42,12 @@ def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:
     """Return a version of `compute` that puts `request_time` into its output."""
 
     def wrapped_compute():
-        # Example datetime: "08/03/2022, 17:07:56"
-        request_sent_datetime: str = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+        request_datetime: int = int(time.time())
         start_time = time.time()
         response = compute()
         end_time = time.time()
         response["request_time"] = end_time - start_time
-        response["request_sent_datetime"] = request_sent_datetime
+        response["request_datetime"] = request_datetime
         return response
 
     return wrapped_compute
