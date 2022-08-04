@@ -79,8 +79,6 @@ class OpenAIClient(Client):
                 if any(stop in text for stop in request.stop_sequences):
                     break
 
-                # TODO: For some reason, the first log probability and top choices are None.
-                #       https://github.com/stanford-crfm/benchmarking/issues/54
                 tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                 sequence_logprob += logprob or 0
             completion = Sequence(

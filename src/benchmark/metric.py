@@ -80,8 +80,6 @@ class Metric(ABC):
             per_instance_perturbation_stats: Dict[Tuple[MetricName, str], List[Stat]] = defaultdict(list)
             per_metric_instance_ids: Dict[MetricName, Set[str]] = defaultdict(set)  # Collect instance-ids per metric
 
-            # TODO: incorporate disparities (compute difference between average over instances with some tag)
-            #       https://github.com/stanford-crfm/benchmarking/issues/48
             for instance_index, instance in enumerate(scenario_state.instances):
                 instance_stats = []
 
@@ -107,9 +105,6 @@ class Metric(ABC):
                 all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
 
                 # Merge these statistics back.
-                # TODO: we should add statistics with the individual instances too and serialize them out.
-                #       https://github.com/stanford-crfm/benchmarking/issues/49
-
                 for stat in instance_stats:
                     stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
@@ -167,8 +162,6 @@ class Metric(ABC):
                     and MetricName("num_perplexity_tokens", split=split) in trial_stats
                     and MetricName("num_bytes", split=split) in trial_stats
                 ):
-                    # TODO: find out the root cause and undo this change
-                    #       https://github.com/stanford-crfm/benchmarking/issues/350
                     if (
                         trial_stats[MetricName("num_perplexity_tokens", split=split)].sum == 0
                         or trial_stats[MetricName("num_bytes", split=split)].sum == 0

@@ -52,7 +52,6 @@ class SynonymPerturbation(Perturbation):
         try:
             _ = wordnet.synsets("test")
         except LookupError:
-            # TODO get directory from broader output_path
             out_dir = "nltk_data"
             nltk.data.path.append(out_dir)
             if not os.path.exists(os.path.join(out_dir, "corpora/wordnet")):

@@ -46,7 +46,6 @@ class StatNameFilter {
   test(statName) {
     // Test whether the values of the `statName` keys correspond to one of the
     // options specified in this.keyToOptions. Return a boolean.
-    // TODO: Can be improved.
     let match = true;
     Object.entries(this.keyToOptions).forEach(([key, options] = entry) => {
       if (key === 'perturbation') {
