@@ -554,7 +554,7 @@ stat_groups:
     - SynonymPerturbation
     - dialect
     - person_name
-    - gender_term #TODO
+    - gender
 - name: runtime
   description: TODO
   values:
