@@ -85,7 +85,11 @@ class GooseAIClient(Client):
             completions.append(completion)
 
         return RequestResult(
-            success=True, cached=cached, request_time=response["request_time"], completions=completions
+            success=True,
+            cached=cached,
+            request_time=response["request_time"],
+            request_sent_datetime=response["request_sent_datetime"] if "request_sent_datetime" in response else None,
+            completions=completions,
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:

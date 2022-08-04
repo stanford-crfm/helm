@@ -96,6 +96,7 @@ class MicrosoftClient(Client):
 
         completions: List[Sequence] = []
         request_time = 0
+        request_sent_datetime: Optional[str] = None
         all_cached = True
 
         # API currently only supports 1 completion at a time, so we have to hit it multiple times.
@@ -153,9 +154,17 @@ class MicrosoftClient(Client):
                 completions.append(completion)
 
             request_time += response["request_time"]
+            if "request_sent_datetime" in response:
+                request_sent_datetime = request_sent_datetime or response["request_sent_datetime"]
             all_cached = all_cached and cached
 
-        return RequestResult(success=True, cached=all_cached, request_time=request_time, completions=completions)
+        return RequestResult(
+            success=True,
+            cached=all_cached,
+            request_time=request_time,
+            request_sent_datetime=request_sent_datetime,
+            completions=completions,
+        )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         raise NotImplementedError("Use the HuggingFaceClient to tokenize.")

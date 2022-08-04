@@ -141,6 +141,9 @@ class RequestResult:
     # How long did the query take?
     request_time: Optional[float] = None
 
+    # When was the query sent?
+    request_sent_datetime: Optional[str] = None
+
     # If `success` is false, what was the error?
     error: Optional[str] = None
 
