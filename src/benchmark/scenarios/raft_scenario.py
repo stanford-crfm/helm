@@ -101,7 +101,7 @@ class RAFTScenario(Scenario):
         fields, _ = self.load_prompt_construction_settings()
         cache_dir = str(Path(self.output_path) / "data")
         # Download raw data
-        # TODO: Only using labeled instances now. Check if we can get the hidden test set labels.
+        # Note: Only using public labeled instances now. Check if we can get the hidden test set labels.
         all_usable_dataset = datasets.load_dataset("ought/raft", self.subset, cache_dir=cache_dir, split="train")
         assert isinstance(all_usable_dataset, datasets.Dataset)
         dataset = all_usable_dataset.train_test_split(test_size=0.8, seed=self.random_seed)

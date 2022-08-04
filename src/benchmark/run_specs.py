@@ -302,9 +302,9 @@ def get_bold_spec(subject: str) -> RunSpec:
         output_prefix="",
         max_train_instances=0,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=1,  # TODO: Rishi - setting for 1 to monitor token use; @Ryan please follow-up on this
+        num_outputs=1,
         model="openai/davinci",
-        temperature=0.9,  # TODO: Setting based on conversation with John Hewitt; @Ryan please better justify
+        temperature=0.9,  # Set to approximate nucleus sampling conditions.
         max_tokens=20,  # See Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
     )
     return RunSpec(
@@ -525,7 +525,7 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
-        max_tokens=5,
+        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
         temperature=0.0,
         stop_sequences=["\n"],
     )
@@ -801,7 +801,7 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
         stop_sequences=["\n"],
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 6.5k questions
         num_outputs=1,
-        max_tokens=1,
+        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
         temperature=0.0,
     )
     return RunSpec(
@@ -824,7 +824,7 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
         max_train_instances=5,
         model="openai/davinci",
         max_eval_instances=None,
-        num_outputs=1,
+        num_outputs=5,  # answers are generally at most 1 token due to multiple-choice
         temperature=0.0,
         stop_sequences=["\n"],
     )
@@ -852,7 +852,7 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
         model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 25k test inputs
         num_outputs=1,
-        max_tokens=5,  # should be one or two tokens but just in case
+        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
         temperature=0.0,
         stop_sequences=["\n"],
     )
@@ -905,8 +905,8 @@ def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
         max_train_instances=0,
         num_train_trials=1,
         temperature=0.2,
-        max_eval_instances=None,  # TODO: Modify this as necessary.
-        num_outputs=1,  # TODO: More is better; but we're subject to compute constraints.
+        max_eval_instances=None,
+        num_outputs=1,
         model="openai/davinci",
         max_tokens=1024,
     )
@@ -1278,7 +1278,6 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
 
 
 def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
-    # TODO: @Faisal remove this parameter once testing is done.
     scenario = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
@@ -1295,7 +1294,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
         max_eval_instances=None,
         num_outputs=1,
         max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
-        temperature=temperature,  # Temporary change for testing.
+        temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
         stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
     )
 
@@ -1309,7 +1308,6 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
 
 
 def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
-    # TODO: @Faisal remove this parameter once testing is done.
     scenario = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={
@@ -1331,7 +1329,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
         max_eval_instances=None,
         num_outputs=1,
         max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
-        temperature=temperature,  # Temporary change for testing.
+        temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
         stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
     )
 
@@ -1345,7 +1343,6 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
 
 
 def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
-    # TODO: @Faisal remove this parameter once testing is done.
     scenario = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
@@ -1385,11 +1382,11 @@ def get_empatheticdialogues_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="ai21/j1-large",
-        max_eval_instances=100,  # TODO: @Amelia @Ashwin @Ines - Justify
+        max_eval_instances=None,
         num_outputs=1,
-        max_tokens=50,  # TODO: @Amelia @Ashwin @Ines - Justify
-        temperature=0.9,  # TODO: @Amelia @Ashwin @Ines - Justify
-        # TODO: @Amelia @Ashwin @Ines - Add stop sequences
+        max_tokens=50,  # TODO: Justify
+        temperature=0.9,  # TODO: Justify
+        # TODO: Add stop sequences
     )
 
     return RunSpec(
@@ -1397,7 +1394,7 @@ def get_empatheticdialogues_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
-        groups=[],  # @TODO @Amelia @Ashwin @Ines @Rishi @Dilara
+        groups=[],
     )
 
 
@@ -1415,10 +1412,10 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         output_prefix="",
         model="openai/davinci",
         temperature=0.0,
-        max_train_instances=3,  # TODO: @Mirac - Justify
+        max_train_instances=3,  # Determined by looking at average length of examples to see what fits
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         stop_sequences=["\n"],
-        max_tokens=5,  # TODO: @Mirac - Justify
+        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
         num_outputs=1,
     )
 
@@ -1471,7 +1468,7 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
         model="openai/davinci",
         max_eval_instances=None,
         num_outputs=1,
-        max_tokens=5,
+        max_tokens=5,  # answers are generally 1 token (Yes/No)
         temperature=0.0,
         stop_sequences=["\n"],
     )
