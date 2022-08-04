@@ -72,6 +72,8 @@ class DialectPerturbation(Perturbation):
                 self.MAPPING_DICTS for the provided source and target classes
                 will be used, if available.
         """
+        # TODO: Update path so it is not hard-coded to benchmark_output
+        # https://github.com/stanford-crfm/benchmarking/issues/493
         self.output_path: str = self.OUTPUT_PATH
         Path(self.output_path).mkdir(parents=True, exist_ok=True)
 

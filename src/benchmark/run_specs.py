@@ -302,7 +302,7 @@ def get_bold_spec(subject: str) -> RunSpec:
         output_prefix="",
         max_train_instances=0,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=1, 
+        num_outputs=1,
         model="openai/davinci",
         temperature=0.9,  # Set to approximate nucleus sampling conditions.
         max_tokens=20,  # See Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
@@ -525,7 +525,7 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
-        max_tokens=5,
+        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
         temperature=0.0,
         stop_sequences=["\n"],
     )
@@ -799,7 +799,7 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
         stop_sequences=["\n"],
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 6.5k questions
         num_outputs=1,
-        max_tokens=1,
+        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
         temperature=0.0,
     )
     return RunSpec(
@@ -822,7 +822,7 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
         max_train_instances=5,
         model="openai/davinci",
         max_eval_instances=None,
-        num_outputs=1,
+        num_outputs=5,  # answers are generally at most 1 token due to multiple-choice
         temperature=0.0,
         stop_sequences=["\n"],
     )
@@ -850,7 +850,7 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
         model="openai/davinci",
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 25k test inputs
         num_outputs=1,
-        max_tokens=5,  # should be one or two tokens but just in case
+        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
         temperature=0.0,
         stop_sequences=["\n"],
     )
@@ -903,8 +903,8 @@ def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
         max_train_instances=0,
         num_train_trials=1,
         temperature=0.2,
-        max_eval_instances=None, 
-        num_outputs=1,  
+        max_eval_instances=None,
+        num_outputs=1,
         model="openai/davinci",
         max_tokens=1024,
     )
@@ -1392,7 +1392,7 @@ def get_empatheticdialogues_spec() -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
-        groups=[], 
+        groups=[],
     )
 
 
@@ -1413,7 +1413,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         max_train_instances=3,  # Determined by looking at average length of examples to see what fits
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         stop_sequences=["\n"],
-        max_tokens=5,  # Stopping is generally determined by stop sequences, not max_tokens
+        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
         num_outputs=1,
     )
 
@@ -1466,7 +1466,7 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
         model="openai/davinci",
         max_eval_instances=None,
         num_outputs=1,
-        max_tokens=5,
+        max_tokens=5,  # answers are generally 1 token (Yes/No)
         temperature=0.0,
         stop_sequences=["\n"],
     )
