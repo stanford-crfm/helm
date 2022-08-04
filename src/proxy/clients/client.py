@@ -43,6 +43,7 @@ def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:
     """Return a version of `compute` that puts `request_time` into its output."""
 
     def wrapped_compute():
+        # Example datetime: "08/03/2022, 17:07:56"
         request_sent_datetime: str = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
         start_time = time.time()
         response = compute()
