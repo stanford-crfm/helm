@@ -63,7 +63,7 @@ class COVIDDialogScenario(Scenario):
     """
 
     name = "covid_dialog"
-    description = "Medical dialogue dataset "
+    description = "Medical dialogue dataset of conversations between doctors and patients on their COVID-19 concerns"
     tags = ["dialogue", "biomedical"]
 
     # TODO: use our clean version -Tony
