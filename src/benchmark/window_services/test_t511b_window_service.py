@@ -82,10 +82,10 @@ class TestT511bWindowService:
         assert self.window_service.max_request_length == 512
 
     def test_encode(self):
-        assert self.window_service.encode(TEST_PROMPT).tokens == TestT511bWindowService.TEST_TOKEN_IDS
+        assert self.window_service.encode(TEST_PROMPT).token_values == TestT511bWindowService.TEST_TOKEN_IDS
 
     def test_decode(self):
-        assert self.window_service.decode(TestT511bWindowService.TEST_TOKEN_IDS) == TEST_PROMPT + "</s>"
+        assert self.window_service.decode(self.window_service.encode(TEST_PROMPT).tokens) == TEST_PROMPT + "</s>"
 
     def test_tokenize(self):
         assert self.window_service.tokenize(TEST_PROMPT) == [

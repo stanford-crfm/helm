@@ -175,8 +175,7 @@ class AI21WindowService(WindowService):
         the AI21 server will close the connection. Therefore, we need to split the text into smaller
         chunks, tokenize each chunk, and re-assemble the tokenization results."""
         # Uses the number of gpt2-style tokens as a measure of text length.
-        gpt2_tokens: List[int]
-        gpt2_tokens = self.gpt2_window_service.encode(text).tokens
+        gpt2_tokens: List[TokenizationToken] = self.gpt2_window_service.encode(text).tokens
 
         # If the text is short, just makes one request and returns the result.
         if len(gpt2_tokens) < AI21WindowService.MAX_TOKENIZATION_REQUEST_LENGTH:
@@ -194,7 +193,9 @@ class AI21WindowService(WindowService):
                 token_chunk_size: int = min(
                     len(gpt2_tokens) - num_processed_tokens, AI21WindowService.MAX_TOKENIZATION_REQUEST_LENGTH
                 )
-                token_chunk: List[int] = gpt2_tokens[num_processed_tokens : num_processed_tokens + token_chunk_size]
+                token_chunk: List[TokenizationToken] = gpt2_tokens[
+                    num_processed_tokens : num_processed_tokens + token_chunk_size
+                ]
                 text_chunk: str = self.gpt2_window_service.decode(token_chunk)
                 # We need to avoid generating byte tokens when splitting the text
                 while text_chunk.endswith("\ufffd"):

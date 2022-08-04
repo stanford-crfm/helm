@@ -2,7 +2,7 @@ import random
 import time
 from dataclasses import dataclass, field, replace
 from itertools import cycle
-from typing import List, Dict, Tuple, Optional, Union
+from typing import List, Dict, Tuple, Optional
 from collections import defaultdict, OrderedDict
 
 import numpy as np
@@ -647,11 +647,11 @@ class Adapter:
 
     def fits_tokens_within_context_window(
         self,
-        conditioning_tokens: List[Union[int, TokenizationToken]],
-        pred_tokens: List[Union[int, TokenizationToken]],
+        conditioning_tokens: List[TokenizationToken],
+        pred_tokens: List[TokenizationToken],
         max_req_len: int,
         text: Optional[str] = None,
-    ) -> Tuple[str, List]:
+    ) -> Tuple[str, List[TokenizationToken]]:
         """
         This method is used for adapting instances for language modeling scenarios.
         For some tokenizers (e.g. AI21), decoding then encoding k tokens may result
@@ -685,8 +685,8 @@ class Adapter:
 
     def construct_language_modeling_prompt(
         self,
-        conditioning_tokens: List[Union[int, TokenizationToken]],
-        pred_tokens: List[Union[int, TokenizationToken]],
+        conditioning_tokens: List[TokenizationToken],
+        pred_tokens: List[TokenizationToken],
         max_req_len: int,
         text: str,
     ) -> Tuple[str, int]:
@@ -743,9 +743,10 @@ class Adapter:
 
         for instance in instances:
             encode_result: EncodeResult = self.window_service.encode(instance.input)
-            tokens, text = encode_result.tokens, encode_result.text
+            tokens: List[TokenizationToken] = encode_result.tokens
+            text: str = encode_result.text
 
-            num_predicted_tokens = 0
+            num_predicted_tokens: int = 0
 
             # Special handling for first window: predict all tokens
             # Example for GPT-3:
@@ -761,7 +762,7 @@ class Adapter:
 
             # Uses `max_sequence_length` instead of `max_request_length` here because `prefix_token` will be prepended
             # to the sequence later. This is the only place where `max_sequence_length` is used.
-            first_seq_len = min(max_sequence_length, len(tokens))
+            first_seq_len: int = min(max_sequence_length, len(tokens))
             prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
                 self.window_service.encode(prefix_token).tokens, tokens[:first_seq_len], max_request_length, text
             )
@@ -802,10 +803,12 @@ class Adapter:
                 # prompt="Excuse me", num_conditioning_tokens = 1
 
                 # The upper bound is `max_req_len - 1` because there will be at least 1 conditioning tokens.
-                window_pred_len = min(len(tokens) - num_predicted_tokens, max_request_length - 1)
-                window_end = num_predicted_tokens + window_pred_len
-                conditioning_tokens = tokens[window_end - max_request_length : num_predicted_tokens]
-                pred_tokens = tokens[num_predicted_tokens:window_end]
+                window_pred_len: int = min(len(tokens) - num_predicted_tokens, max_request_length - 1)
+                window_end: int = num_predicted_tokens + window_pred_len
+                conditioning_tokens: List[TokenizationToken] = tokens[
+                    window_end - max_request_length : num_predicted_tokens
+                ]
+                pred_tokens: List[TokenizationToken] = tokens[num_predicted_tokens:window_end]
                 prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
                     conditioning_tokens, pred_tokens, max_request_length, text
                 )
