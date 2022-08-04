@@ -334,7 +334,7 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Check on the dry run by streaming the logs: `tail -f dryrun_<Namne of together model>.log`.
 1. The dry run results will be outputted to `benchmark_output/runs/together`.
 1. Once the dry run is done, run 
-   `python3 scripts/together/together_export_requests.py benchmark_output/runs/together prod_env/cache/together.sqlite --output-path request.jsonl`.
+   `python3 scripts/together/together_export_requests.py benchmark_output/runs/together prod_env/cache/together.sqlite --output-path requests.jsonl`.
    This command will generate a `requests.jsonl` that contains requests that are not in the cache (`prod_env/cache/together.sqlite`).
 1. Upload `requests.jsonl` to CodaLab:
     1. Log on to CodaLab: `cl work main::0xbd9f3df457854889bda8ac114efa8061`.

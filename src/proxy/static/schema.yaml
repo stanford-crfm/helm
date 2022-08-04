@@ -245,127 +245,7 @@ groups:
       stat_names:
         - code_eval_acc
         - pass
-- name: IMDB
-  description: TODO
-  values:
-    display:
-      k: null
-      split: valid
-      stat_names:
-        - quasi_exact_match
-- name: LegalSupport
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - quasi_exact_match
-- name: LSAT
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - quasi_exact_match
-- name: MATH
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - math_equiv
-- name: MATH (chain_of_thought)
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - math_equiv_chain_of_thought
-- name: MMLU
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - quasi_exact_match
-- name: MS MARCO (regular)
-  description: TODO
-  values:
-    display:
-      k: null
-      split: valid
-      stat_names:
-        - RR@20
-- name: MS MARCO (TREC)
-  description: TODO
-  values:
-    display:
-      k: null
-      split: valid
-      stat_names:
-        - NDCG@20
-- name: NarrativeQA
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - f1_score
-- name: NaturalQuestions
-  description: TODO
-  values:
-    display:
-      k: null
-      split: valid
-      stat_names:
-        - f1_score
-- name: NewsQA
-  description: TODO
-  values:
-    display:
-      k: null
-      split: valid
-      stat_names:
-        - f1_score
-- name: Numeracy
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - absolute_value_difference
-- name: OpenbookQA
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - quasi_exact_match
-- name: QuAC
-  description: TODO
-  values:
-    display:
-      k: null
-      split: valid
-      stat_names:
-        - f1_score
-- name: RAFT
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - quasi_exact_match
-- name: The Pile
+- name: ICE
   description: TODO
   values:
     display:
@@ -373,78 +253,6 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: TruthfulQA
-  description: TODO
-  values:
-    display:
-      k: null
-      split: valid
-      stat_names:
-        - quasi_exact_match
-- name: Synthetic reasoning (abstract symbols)
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - quasi_exact_match
-- name: Synthetic reasoning (natural language)
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - f1_set_match
-- name: RealToxicityPrompts
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - toxicity_probability
-- name: TwitterAAE (AAE)
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - bits_per_byte
-- name: TwitterAAE (White)
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - bits_per_byte
-- name: WikiFact
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - quasi_exact_match
-- name: WikiText-103
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - bits_per_byte
-- name: XSUM
-  description: TODO
-  values:
-    display:
-      k: null
-      split: test
-      stat_names:
-        - rouge_2
 - name: ICE (Canada)
   description: TODO
   values:
@@ -533,6 +341,230 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
+- name: IMDB
+  description: TODO
+  values:
+    display:
+      k: null
+      split: valid
+      stat_names:
+        - quasi_exact_match
+- name: LegalSupport
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - quasi_exact_match
+- name: LSAT
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - quasi_exact_match
+- name: MATH
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - math_equiv
+- name: MATH (chain_of_thought)
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - math_equiv_chain_of_thought
+- name: MMLU
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - quasi_exact_match
+- name: MS MARCO (regular)
+  description: TODO
+  values:
+    display:
+      k: null
+      split: valid
+      stat_names:
+        - RR@20
+- name: MS MARCO (TREC)
+  description: TODO
+  values:
+    display:
+      k: null
+      split: valid
+      stat_names:
+        - NDCG@20
+- name: NarrativeQA
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - f1_score
+- name: NaturalQuestions
+  description: TODO
+  values:
+    display:
+      k: null
+      split: valid
+      stat_names:
+        - f1_score
+- name: NaturalQuestions (closed-book)
+  description: TODO
+  values:
+    display:
+      k: null
+      split: valid
+      stat_names:
+        - f1_score
+- name: NaturalQuestions (open-book)
+  description: TODO
+  values:
+    display:
+      k: null
+      split: valid
+      stat_names:
+        - f1_score
+- name: NewsQA
+  description: TODO
+  values:
+    display:
+      k: null
+      split: valid
+      stat_names:
+        - f1_score
+- name: Numeracy
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - absolute_value_difference
+- name: OpenbookQA
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - quasi_exact_match
+- name: QuAC
+  description: TODO
+  values:
+    display:
+      k: null
+      split: valid
+      stat_names:
+        - f1_score
+- name: RAFT
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - quasi_exact_match
+- name: RealToxicityPrompts
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - toxicity_probability
+- name: Synthetic reasoning (abstract symbols)
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - quasi_exact_match
+- name: Synthetic reasoning (natural language)
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - f1_set_match
+- name: The Pile
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - bits_per_byte
+- name: TruthfulQA
+  description: TODO
+  values:
+    display:
+      k: null
+      split: valid
+      stat_names:
+        - quasi_exact_match
+- name: Twitter AAE
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - bits_per_byte
+- name: Twitter AAE (AAE)
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - bits_per_byte
+- name: Twitter AAE (White)
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - bits_per_byte
+- name: WikiFact
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - quasi_exact_match
+- name: WikiText-103
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - bits_per_byte
+- name: XSUM
+  description: TODO
+  values:
+    display:
+      k: null
+      split: test
+      stat_names:
+        - rouge_2
 
 table_settings:
 - name: default

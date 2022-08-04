@@ -752,11 +752,13 @@ def get_math_spec(
         instance_prefix = "\n###"  # Don't include LaTeX '$' delimiters
         max_tokens = 400  # Increase the number of tokens to generate
         stop_sequences = ["###"]  # Break at the next instance; extraneous output will be stripped out
+        groups = ["MATH (chain_of_thought)"]
     else:
         output_prefix = "\nAnswer: $"
         instance_prefix = "$\n###"
         max_tokens = 20
         stop_sequences = ["$"]  # Break at the nearest LaTeX closing delimiter
+        groups = ["MATH"]
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -780,7 +782,7 @@ def get_math_spec(
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_math_metrics(use_chain_of_thought),  # type: ignore
-        groups=["MATH"],
+        groups=groups,
     )
 
 
@@ -886,7 +888,7 @@ def get_babi_qa_spec(task: int) -> RunSpec:
         scenario=scenario,
         adapter_spec=adapter_spec,
         metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
-        groups=["bAbi"],
+        groups=["bAbI"],
     )
 
 

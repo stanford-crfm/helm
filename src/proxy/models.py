@@ -298,7 +298,7 @@ ALL_MODELS = [
         group="together",
         creator_organization="Meta",
         name="together/opt-175b",
-        display_name="OPT (17B)",
+        display_name="OPT (175B)",
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
         "transformers fully and responsibly shared with interested researchers.",
