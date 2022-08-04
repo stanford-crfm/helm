@@ -116,7 +116,7 @@ class Runner:
         # When performing a dry run, only estimate the number of tokens instead
         # of calculating the metrics.
         metrics: List[Metric] = (
-            [] if self.dry_run else [create_metric(metric) for metric in run_spec.metric_specs]
+            [] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
         ) + [TokensMetric()]
         stats: List[Stat] = []
         per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
