@@ -229,9 +229,10 @@ function groupByModel(runs) {
 function groupByScenarioSpec(runs) {
   // Group `runs` by scenario specs. Return a dictionary mapping each scenario spec string to a list of runs.
   return runs.reduce((acc, run) => {
-    // To maintain backward compatibility, as `scenario` in `RunSpec` was renamed to `scenario_spec`.
+    // To maintain backward compatibility, as `scenario` in `run_spec` was renamed to `scenario_spec`.
+    // TODO: Remove the fallback option once we run all the run specs again.
     const scenarioSpec = renderScenarioSpec(
-        run.runSpec.hasOwnProperty('scenario_spec') ? run.runSpec.scenario_spec : run.runSpec.scenario
+        run.run_spec.hasOwnProperty('scenario_spec') ? run.run_spec.scenario_spec : run.run_spec.scenario
     );
     acc[scenarioSpec] = acc[scenarioSpec] || [];
     acc[scenarioSpec].push(run);
