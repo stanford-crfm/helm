@@ -319,6 +319,35 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Exit the screen session: `ctrl+ad`.
 1. To check on the screen session: `screen -r benchmarking`.
 
+### Offline evaluation for `MicrosoftClient` models
+
+#### Exporting requests
+
+1. `ssh scdt`.
+1. `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
+1. Create a screen session: `screen -S microsoft`.
+1. Activate the Conda environment: `conda activate crfm_benchmarking`.
+1. Do a dry run for the MT-NLG models to generate `RequestState`s: `benchmark-present --suite microsoft 
+   --models-to-run microsoft/TNLGv2_530B microsoft/TNLGv2_7B --max-eval-instances 1000 --num-threads 1 --priority 2 
+   --local --conf-path src/benchmark/presentation/run_specs.conf --dry-run`.
+1. Once the dry run is done, run 
+   `python3 scripts/microsoft/mtnlg_export_requests.py benchmark_output/runs/microsoft prod_env/cache/microsoft.sqlite 
+   --output-path mtnlg_requests.jsonl`.
+   This command will generate a `requests.jsonl` that contains requests that are not in the cache 
+   (`prod_env/cache/microsoft.sqlite`).
+1. Upload `mtnlg_requests.jsonl` to CodaLab:
+    1. Log on to CodaLab: `cl work main::0xbd9f3df457854889bda8ac114efa8061`.
+    1. Upload by running `cl upload mtnlg_requests.jsonl`.
+1. Share the link to the CodaLab bundle with Christian from Microsoft.
+
+#### Importing results
+
+1. `ssh scdt`
+1. `cd /u/scr/nlp/crfm/benchmarking/benchmarking`
+1. Download the results from CodaLab: `cl download <UUID of the results bundle>`.
+1. Run: `python3 scripts/microsoft/mtnlg_import_results.py <Path to results jsonl file> prod_env/cache/microsoft.sqlite`.
+   This will update the cache with requests and their results.
+
 ### Offline evaluation for `TogetherClient` models
 
 #### Exporting requests

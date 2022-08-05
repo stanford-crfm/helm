@@ -46,8 +46,10 @@ def export_requests(run_suite_path: str, cache_path: str, output_path: str):
 
                 with htrack_block(f"Processing run directory: {run_dir}"):
                     scenario_state_path: str = os.path.join(run_path, "scenario_state.json")
-                    hlog(f"{run_dir} is missing a scenario_state.json file. Expected at path: {scenario_state_path}.")
                     if not os.path.isfile(scenario_state_path):
+                        hlog(
+                            f"{run_dir} is missing a scenario_state.json file. Expected at path: {scenario_state_path}."
+                        )
                         continue
 
                     with open(scenario_state_path) as scenario_state_file:
