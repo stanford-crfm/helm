@@ -89,7 +89,7 @@ perturbations:
   description: TODO
   values:
     display_name: Race
-- name: gender_term # TODO
+- name: gender # TODO
   description: TODO
   values:
     display_name: Gender
@@ -586,7 +586,7 @@ stat_groups:
     - SynonymPerturbation
     - dialect
     - person_name
-    - gender_term #TODO
+    - gender
 - name: runtime
   description: TODO
   values:
