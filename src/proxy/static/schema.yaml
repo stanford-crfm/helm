@@ -78,7 +78,7 @@ perturbations:
 - name: person_name
   display_name: Race
   description: TODO
-- name: gender_term # TODO
+- name: gender
   display_name: Gender
   description: TODO
 
@@ -574,7 +574,7 @@ stat_groups:
     - SynonymPerturbation
     - dialect
     - person_name
-    - gender_term #TODO
+    - gender
 - name: runtime
   display_name: Runtime
   description: TODO
