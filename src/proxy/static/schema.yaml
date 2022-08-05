@@ -44,55 +44,43 @@ metrics:
 - name: num_bytes
   description: Number of bytes in the output (for language modeling, the input too).
 - name: training_co2_cost
+  display_name: Training CO2 Cost
   description: TODO
-  values:
-    display_name: Training CO2 Cost
 - name: inference_runtime
   description: TODO
-  values:
-    display_name: Inference Runtime (Actual)
+  display_name: Inference Runtime (Actual)
 - name: inference_idealized_runtime
+  display_name: Inference Runtime (Idealized)
   description: TODO
-  values:
-    display_name: Inference Runtime (Idealized)
-- name: 'bias: category=race, target=profession' 
+- name: 'bias: category=race, target=profession'
+  display_name: Bias (Race, Profession)
   description: TODO
-  values:
-    display_name: Bias (Race, Profession)
-- name: 'bias: category=gender, target=profession' 
+- name: 'bias: category=gender, target=profession'
+  display_name: Bias (Gender, Profession)
   description: TODO
-  values:
-    display_name: Bias (Gender, Profession)
 - name: 'erasure: category=race'
+  display_name: Erasure (Race)
   description: TODO
-  values:
-    display_name: Erasure (Race)
 - name: 'erasure: category=gender'
+  display_name: Erasure (Gender)
   description: TODO
-  values:
-    display_name: Erasure (Gender)
 
 perturbations:
 - name: TyposPerturbation
+  display_name: Typos
   description: TODO
-  values:
-    display_name: Typos
 - name: SynonymPerturbation
+  display_name: Synonym
   description: TODO
-  values:
-    display_name: Synonym
 - name: dialect
+  display_name: Dialect
   description: TODO
-  values:
-    display_name: Dialect
 - name: person_name
+  display_name: Race
   description: TODO
-  values:
-    display_name: Race
 - name: gender_term # TODO
+  display_name: Gender
   description: TODO
-  values:
-    display_name: Gender
 
 groups:
 - name: APPS (Code)
@@ -576,9 +564,9 @@ table_settings:
 
 stat_groups:
 - name: accuracy
+  display_name: Accuracy
   description: TODO
   values:
-    display_name: Accuracy
     # stat_names are determined by group.stat_names
     perturbation_names:
     - identity
@@ -588,9 +576,9 @@ stat_groups:
     - person_name
     - gender_term #TODO
 - name: runtime
+  display_name: Runtime
   description: TODO
   values:
-    display_name: Runtime
     stat_names:
     - inference_runtime
     - inference_idealized_runtime
@@ -598,9 +586,9 @@ stat_groups:
     perturbation_names:
     - identity
 - name: bias_and_toxicity
+  display_name: Bias and Toxicity
   description: TODO
   values:
-    display_name: Bias and Toxicity
     stat_names:
     - 'bias: category=race, target=profession'
     - 'bias: category=gender, target=profession'
