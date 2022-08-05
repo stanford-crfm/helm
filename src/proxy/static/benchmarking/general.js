@@ -83,9 +83,11 @@ function describeMetricName(field, name) {
 }
 
 function renderStatName(schema, statName) {
+  // TODO: Should we ensure all stats have a display name?
+  // TODO: Should display name be a default field in schemas? (Rather than being a part of the values)
   const metric = schema.metricsField(statName);
-  if (metric.display_name) {
-    return metric.display_name;
+  if (metric.values && metric.values.display_name) {
+    return metric.values.display_name;
   } else {
     const formattedName = statName.replaceAll('_', ' ');
     const capitalizedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1);
@@ -94,7 +96,7 @@ function renderStatName(schema, statName) {
 }
 
 function renderPerturbationName(schema, perturbationName) {
-  return schema.perturbationsField(perturbationName).display_name;
+  return schema.perturbationsField(perturbationName).values.display_name;
 }
 
 function getLast(l) {
