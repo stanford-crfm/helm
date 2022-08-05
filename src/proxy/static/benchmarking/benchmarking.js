@@ -145,10 +145,12 @@ $(function () {
         if (!new RegExp(query).test(runSpec.name)) {
           return;
         }
+        // To maintain backward compatibility, as `scenario` in `RunSpec` was renamed to `scenario_spec`.
+        const scenario_spec = runSpec.hasOwnProperty("scenario_spec") ? runSpec.scenario_spec : runSpec.scenario;
         const href = encodeUrlParams(Object.assign(urlParams, {runSpec: runSpec.name}));
         const $row = $('<tr>')
           .append($('<td>').append($('<a>', {href}).append(runSpec.name)))
-          .append($('<td>').append(renderScenarioSpec(runSpec.scenario)))
+          .append($('<td>').append(renderScenarioSpec(scenario_spec)))
           .append($('<td>').append(runSpec.adapter_spec.model))
           .append($('<td>').append(runSpec.adapter_spec.method))
         $table.append($row);
