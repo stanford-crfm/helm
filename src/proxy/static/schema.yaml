@@ -89,7 +89,7 @@ perturbations:
   description: TODO
   values:
     display_name: Race
-- name: gender_term # TODO
+- name: gender # TODO
   description: TODO
   values:
     display_name: Gender
