@@ -135,11 +135,16 @@ class RequestResult:
     # List of completion
     completions: List[Sequence]
 
-    # Whether the query was actually cached
+    # Whether the request was actually cached
     cached: bool
 
-    # How long did the query take?
+    # How long did the request take?
     request_time: Optional[float] = None
+
+    # When was the request sent?
+    # We keep track of when the request was made because the underlying model or inference procedure backing the API
+    # might change over time. The integer represents the current time in seconds since the Epoch (January 1, 1970).
+    request_datetime: Optional[int] = None
 
     # If `success` is false, what was the error?
     error: Optional[str] = None
@@ -157,6 +162,8 @@ class RequestResult:
         ]
         if self.request_time:
             output.append(f"request_time: {self.request_time}")
+        if self.request_datetime:
+            output.append(f"request_datetime: {self.request_datetime}")
         if self.error:
             output.append(f"error: {self.error}")
 
