@@ -140,6 +140,7 @@ class AnthropicClient(Client):
         completions = []
         all_cached = True
         request_time = 0
+        request_datetime: Optional[int] = None
 
         for completion_index in range(request.num_completions):
             try:
@@ -179,9 +180,17 @@ class AnthropicClient(Client):
             )
             completions.append(sequence)
             request_time += response["request_time"]
+            # Use the datetime from the first completion because that's when the request was fired
+            request_datetime = request_datetime or response.get("request_datetime")
             all_cached = all_cached and cached
 
-        return RequestResult(success=True, cached=all_cached, request_time=request_time, completions=completions)
+        return RequestResult(
+            success=True,
+            cached=all_cached,
+            request_time=request_time,
+            request_datetime=request_datetime,
+            completions=completions,
+        )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         raise NotImplementedError("Use the HuggingFaceClient to tokenize.")

@@ -42,7 +42,13 @@ class SimpleClient(Client):
         else:
             raise ValueError(f"Invalid model: {request.model}")
 
-        return RequestResult(success=True, cached=False, request_time=0, completions=completions)
+        return RequestResult(
+            success=True,
+            cached=False,
+            request_time=0,
+            request_datetime=response.get("request_datetime"),
+            completions=completions,
+        )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         if request.tokenizer == "simple/model1":
