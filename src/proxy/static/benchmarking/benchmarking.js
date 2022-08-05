@@ -18,6 +18,7 @@ $(function () {
     constructor(raw) {
       this.name = raw.name;
       this.description = raw.description;
+      this.diplay_name = raw.display_name || undefined;
       // Possible values this field can take
       this.values = this.readValues(raw.values);
     }
