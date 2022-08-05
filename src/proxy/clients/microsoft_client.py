@@ -27,6 +27,28 @@ class MicrosoftClient(Client):
     all tokens have been generated."
     """
 
+    @staticmethod
+    def convert_to_raw_request(request: Request) -> Dict:
+        stop_sequence: Optional[str]
+        if len(request.stop_sequences) == 0:
+            stop_sequence = None
+        elif len(request.stop_sequences) == 1:
+            stop_sequence = request.stop_sequences[0]
+        else:
+            raise ValueError("More than one stop sequence is not supported.")
+
+        return {
+            "engine": request.model_engine,
+            "prompt": request.prompt,
+            "temperature": request.temperature,
+            "max_tokens": request.max_tokens,
+            "best_of": request.top_k_per_token,
+            "logprobs": request.top_k_per_token,
+            "stop": stop_sequence,
+            "top_p": request.top_p,
+            "echo": request.echo_prompt,
+        }
+
     def __init__(self, api_key: str, cache_path: str, org_id: Optional[str] = None):
         # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
         class EngineAPIResource(engine_api_resource.EngineAPIResource):
@@ -73,27 +95,7 @@ class MicrosoftClient(Client):
             presence_penalty
             frequency_penalty
         """
-        # Only a single "stop" value (str) or None is currently supported.
-        stop_sequence: Optional[str]
-        if len(request.stop_sequences) == 0:
-            stop_sequence = None
-        elif len(request.stop_sequences) == 1:
-            stop_sequence = request.stop_sequences[0]
-        else:
-            raise ValueError("More than one stop sequence is not supported.")
-
-        raw_request = {
-            "engine": request.model_engine,
-            "prompt": request.prompt,
-            "temperature": request.temperature,
-            "max_tokens": request.max_tokens,
-            "best_of": request.top_k_per_token,
-            "logprobs": request.top_k_per_token,
-            "stop": stop_sequence,
-            "top_p": request.top_p,
-            "echo": request.echo_prompt,
-        }
-
+        raw_request = MicrosoftClient.convert_to_raw_request(request)
         completions: List[Sequence] = []
         request_time = 0
         request_datetime: Optional[int] = None
