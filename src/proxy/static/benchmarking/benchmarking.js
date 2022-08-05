@@ -146,7 +146,7 @@ $(function () {
           return;
         }
         // To maintain backward compatibility, as `scenario` in `RunSpec` was renamed to `scenario_spec`.
-        const scenario_spec = runSpec.hasOwnProperty("scenario_spec") ? runSpec.scenario_spec : runSpec.scenario;
+        const scenario_spec = runSpec.hasOwnProperty('scenario_spec') ? runSpec.scenario_spec : runSpec.scenario;
         const href = encodeUrlParams(Object.assign(urlParams, {runSpec: runSpec.name}));
         const $row = $('<tr>')
           .append($('<td>').append($('<a>', {href}).append(runSpec.name)))

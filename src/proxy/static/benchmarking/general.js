@@ -231,7 +231,7 @@ function groupByScenarioSpec(runs) {
   return runs.reduce((acc, run) => {
     // To maintain backward compatibility, as `scenario` in `RunSpec` was renamed to `scenario_spec`.
     const scenarioSpec = renderScenarioSpec(
-        run.runSpec.hasOwnProperty("scenario_spec") ? run.runSpec.scenario_spec : run.runSpec.scenario
+        run.runSpec.hasOwnProperty('scenario_spec') ? run.runSpec.scenario_spec : run.runSpec.scenario
     );
     acc[scenarioSpec] = acc[scenarioSpec] || [];
     acc[scenarioSpec].push(run);
