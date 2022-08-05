@@ -180,6 +180,7 @@ class AnthropicClient(Client):
             )
             completions.append(sequence)
             request_time += response["request_time"]
+            # Use the datetime from the first completion because that's when the request was fired
             request_datetime = request_datetime or response.get("request_datetime")
             all_cached = all_cached and cached
 

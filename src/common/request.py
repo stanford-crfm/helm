@@ -142,7 +142,8 @@ class RequestResult:
     request_time: Optional[float] = None
 
     # When was the request sent?
-    # We track this information in case there were any changes to the inference API server (e.g., higher latency).
+    # We keep track of when the request was made because the underlying model or inference procedure
+    # backing the API might change over time.
     request_datetime: Optional[int] = None
 
     # If `success` is false, what was the error?

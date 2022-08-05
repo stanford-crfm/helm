@@ -96,7 +96,7 @@ class MicrosoftClient(Client):
 
         completions: List[Sequence] = []
         request_time = 0
-        request_datetime: Optional[str] = None
+        request_datetime: Optional[int] = None
         all_cached = True
 
         # API currently only supports 1 completion at a time, so we have to hit it multiple times.
@@ -154,6 +154,7 @@ class MicrosoftClient(Client):
                 completions.append(completion)
 
             request_time += response["request_time"]
+            # Use the datetime from the first completion because that's when the request was fired
             request_datetime = request_datetime or response.get("request_datetime")
             all_cached = all_cached and cached
 
