@@ -52,18 +52,18 @@ def get_adapter_spec1() -> AdapterSpec:
     )
 
 
-def get_basic_metrics(args: Dict[str, List[str]]) -> List[MetricSpec]:
+def get_basic_metric_specs(args: Dict[str, List[str]]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=args)]
 
 
-def get_bbq_metrics() -> List[MetricSpec]:
+def get_bbq_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={}),
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
 
 
-def get_msmarco_metrics(task: str, track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:
+def get_msmarco_metric_specs(task: str, track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:
     measure_names = MSMARCOScenario.MEASURE_NAMES[(task, track)]
     mode = MSMARCOScenario.BINARY_LOGPROB_MODE
     correct_output, wrong_output = MSMARCOScenario.CORRECT_OUTPUT, MSMARCOScenario.WRONG_OUTPUT
@@ -91,13 +91,13 @@ def get_msmarco_metrics(task: str, track: str, qrels_path: str, topk: Optional[i
     ]
 
 
-def get_toxicity_metrics() -> List[MetricSpec]:
+def get_toxicity_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={}),
     ]
 
 
-def get_bias_metrics() -> List[MetricSpec]:
+def get_bias_metric_specs() -> List[MetricSpec]:
     demographic_categories = ["race", "gender"]
     target_categories = ["adjective", "profession"]
     cross_dem_target = itertools.product(demographic_categories, target_categories)
@@ -117,39 +117,39 @@ def get_bias_metrics() -> List[MetricSpec]:
     ]
 
 
-def get_generative_harms_metrics() -> List[MetricSpec]:
-    return get_toxicity_metrics() + get_bias_metrics() + get_basic_metrics({"names": []})
+def get_generative_harms_metric_specs() -> List[MetricSpec]:
+    return get_toxicity_metric_specs() + get_bias_metric_specs() + get_basic_metric_specs({"names": []})
 
 
-def get_summarization_metrics() -> List[MetricSpec]:
-    return get_basic_metrics({"names": ["rouge-1", "rouge-2", "rouge-l"]}) + get_generative_harms_metrics()
+def get_summarization_metric_specs() -> List[MetricSpec]:
+    return get_basic_metric_specs({"names": ["rouge-1", "rouge-2", "rouge-l"]}) + get_generative_harms_metric_specs()
 
 
-def get_srn_metrics() -> List[MetricSpec]:
+def get_srn_metric_specs() -> List[MetricSpec]:
     metric_names = {"names": ["f1_set_match", "iou_set_match", "exact_set_match"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
-def get_numeracy_metrics(run_solver: bool = False) -> List[MetricSpec]:
+def get_numeracy_metric_specs(run_solver: bool = False) -> List[MetricSpec]:
     metric_names = {"names": ["exact_match", "quasi_exact_match", "absolute_value_difference"]}
-    metrics: List[MetricSpec] = [
+    metric_specs: List[MetricSpec] = [
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names),
     ]
 
     # The solvers are slow to run so make them skippable
     if run_solver:
-        metrics += [
+        metric_specs += [
             MetricSpec(class_name="benchmark.numeracy_metrics.DistanceMetric", args={}),
         ]
-    return metrics
+    return metric_specs
 
 
-def get_math_metrics(use_chain_of_thought: bool = True) -> List[MetricSpec]:
+def get_math_metric_specs(use_chain_of_thought: bool = True) -> List[MetricSpec]:
     metric_names = {"names": ["math_equiv_chain_of_thought" if use_chain_of_thought else "math_equiv"]}
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
 
 
-def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
+def get_copyright_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
     if args is None:
         args = dict()
     return [
@@ -164,12 +164,12 @@ def get_copyright_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
     ]
 
 
-def get_disinformation_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
+def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
     if args is None:
         args = dict()
     return [
         MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationHumanEvalMetrics", args={**args}),
-        MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "self_bleu"},),
+        MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "self_bleu"}),
         MetricSpec(
             class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "monte_carlo_entropy"},
         ),
@@ -177,7 +177,7 @@ def get_disinformation_metrics(args: Optional[Dict] = None) -> List[MetricSpec]:
     ]
 
 
-def get_code_metrics(dataset: str) -> List[MetricSpec]:
+def get_code_metric_specs(dataset: str) -> List[MetricSpec]:
     if dataset == "HumanEval":
         metric_names = {"names": HUMAN_EVAL_METRIC_NAMES}
         return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
@@ -190,15 +190,15 @@ def get_simple1_spec() -> RunSpec:
     """An run spec for debugging."""
     return RunSpec(
         name="simple1",
-        scenario=get_scenario_spec1(),
+        scenario_spec=get_scenario_spec1(),
         adapter_spec=get_adapter_spec1(),
-        metrics=get_basic_metrics({"names": []}),
+        metric_specs=get_basic_metric_specs({"names": []}),
         groups=[],
     )
 
 
 def get_bbq_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.bbq_scenario.BBQScenario", args={"subject": subject})
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.bbq_scenario.BBQScenario", args={"subject": subject})
 
     def format(subject: str):
         if subject != "all":
@@ -221,9 +221,9 @@ def get_bbq_spec(subject: str) -> RunSpec:
 
     return RunSpec(
         name=f"bbq:subject={subject}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_bbq_metrics(),
+        metric_specs=get_bbq_metric_specs(),
         groups=["BBQ"],
     )
 
@@ -279,22 +279,22 @@ def get_msmarco_spec(
 
     # Create metrics
     qrels_path: str = os.path.join("benchmark_output", "scenarios", "msmarco", "data", f"{task}_{track}_qrels.tsv")
-    metrics: List[MetricSpec] = get_msmarco_metrics(task, track, qrels_path, topk=valid_topk)
+    metric_specs: List[MetricSpec] = get_msmarco_metric_specs(task, track, qrels_path, topk=valid_topk)
 
     # Return RunSpec
     return RunSpec(
         name=f"msmarco:task={task},track={track},use_qrels_passages={use_qrels_passages},"
         f"use_topk_passages={use_topk_passages},valid_topk={valid_topk},num_valid_queries={num_valid_queries},"
         f"num_train_queries={num_train_queries}",
-        scenario=scenario_spec,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=metrics,
+        metric_specs=metric_specs,
         groups=track_to_groups[track],
     )
 
 
 def get_bold_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.bold_scenario.BOLDScenario", args={"subject": subject})
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.bold_scenario.BOLDScenario", args={"subject": subject})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -309,15 +309,15 @@ def get_bold_spec(subject: str) -> RunSpec:
     )
     return RunSpec(
         name=f"bold:subject={subject}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_generative_harms_metrics(),
+        metric_specs=get_generative_harms_metric_specs(),
         groups=["BOLD"],
     )
 
 
 def get_civil_comments_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.civil_comments_scenario.CivilCommentsScenario", args={"subject": subject},
     )
 
@@ -335,15 +335,15 @@ def get_civil_comments_spec(subject: str) -> RunSpec:
     )
     return RunSpec(
         name=f"civil_comments:subject={subject}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["CivilComments"],
     )
 
 
 def get_mmlu_spec(subject: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.mmlu_scenario.MMLUScenario", args={"subject": subject})
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.mmlu_scenario.MMLUScenario", args={"subject": subject})
 
     def format(subject: str):
         return subject.replace("_", " ")
@@ -364,15 +364,15 @@ def get_mmlu_spec(subject: str) -> RunSpec:
 
     return RunSpec(
         name=f"mmlu:subject={subject}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["MMLU"],
     )
 
 
 def get_wikifact_spec(k: str, subject: str) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.wikifact_scenario.WIKIFactScenario", args={"subject": subject},
     )
 
@@ -392,9 +392,9 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
 
     return RunSpec(
         name=f"wikifact:k={k},subject={subject}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["WikiFact"],
     )
 
@@ -408,7 +408,7 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
         "commonsenseqa": ["CommonsenseQA"],
     }
 
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset},
     )
 
@@ -428,9 +428,9 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
         )
         run_spec = RunSpec(
             name=f"commonsense:dataset={dataset},method={method}",
-            scenario=scenario,
+            scenario_spec=scenario_spec,
             adapter_spec=adapter_spec,
-            metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+            metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
             groups=dataset_to_groups[dataset],
         )
     elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
@@ -449,9 +449,9 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
         )
         run_spec = RunSpec(
             name=f"commonsense:dataset={dataset},method={method}",
-            scenario=scenario,
+            scenario_spec=scenario_spec,
             adapter_spec=adapter_spec,
-            metrics=get_basic_metrics({"names": []}),
+            metric_specs=get_basic_metric_specs({"names": []}),
             groups=dataset_to_groups[dataset],
         )
     else:
@@ -461,7 +461,7 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
 
 
 def get_quac_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.quac_scenario.QuACScenario", args=dict())
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.quac_scenario.QuACScenario", args=dict())
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -478,15 +478,15 @@ def get_quac_spec() -> RunSpec:
     )
     return RunSpec(
         name="quac",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
         groups=["QuAC"],
     )
 
 
 def get_news_qa_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.newsqa_scenario.NewsQAScenario", args=dict())
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.newsqa_scenario.NewsQAScenario", args=dict())
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -503,15 +503,15 @@ def get_news_qa_spec() -> RunSpec:
     )
     return RunSpec(
         name="news_qa",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
         groups=["NewsQA"],
     )
 
 
 def get_truthful_qa_spec(task: str) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.truthful_qa_scenario.TruthfulQAScenario", args={"task": task},
     )
 
@@ -532,9 +532,9 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
 
     return RunSpec(
         name=f"truthful_qa:task={task}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["TruthfulQA"],
     )
 
@@ -547,7 +547,7 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
     }
     groups: List[str] = [f"Twitter AAE ({demographic_to_subgroup[demographic]})", "Twitter AAE"]
 
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
     )
 
@@ -567,15 +567,15 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
 
     return RunSpec(
         name=f"twitter_aae:demographic={demographic}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": []}),
+        metric_specs=get_basic_metric_specs({"names": []}),
         groups=groups,
     )
 
 
 def get_real_toxicity_prompts_spec() -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.real_toxicity_prompts_scenario.RealToxicityPromptsScenario", args={}
     )
     # Create AdapterSpec based on the RealToxicityPrompts paper: https://arxiv.org/pdf/2009.11462.pdf
@@ -595,15 +595,15 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
     )
     return RunSpec(
         name="real_toxicity_prompts",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_generative_harms_metrics(),
+        metric_specs=get_generative_harms_metric_specs(),
         groups=["RealToxicityPrompts"],
     )
 
 
 def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.synthetic_reasoning_natural_scenario.SRNScenario",
         args={"difficulty": difficulty},
     )
@@ -625,15 +625,15 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
 
     return RunSpec(
         name=f"synthetic_reasoning_natural:difficulty={difficulty}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_srn_metrics(),
+        metric_specs=get_srn_metric_specs(),
         groups=["Synthetic reasoning", "Synthetic reasoning (natural language)"],
     )
 
 
 def get_gsm_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.gsm_scenario.GSM8KScenario", args={})
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.gsm_scenario.GSM8KScenario", args={})
     # Create AdapterSpec based on the GSM8K paper: https://arxiv.org/pdf/2110.14168.pdf
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -650,15 +650,15 @@ def get_gsm_spec() -> RunSpec:
     )
     return RunSpec(
         name="gsm",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match_indicator"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match_indicator"]}),
         groups=["GSM8K"],
     )
 
 
 def get_raft_spec(subset: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.raft_scenario.RAFTScenario", args={"subset": subset},)
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.raft_scenario.RAFTScenario", args={"subset": subset})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -677,9 +677,9 @@ def get_raft_spec(subset: str) -> RunSpec:
 
     return RunSpec(
         name=f"raft:subset={subset}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["RAFT"],
     )
 
@@ -689,7 +689,7 @@ def get_numeracy_spec(
 ) -> RunSpec:
     run_solver: bool = True if run_solver == "True" else False  # type: ignore
     random_seed = int(seed)
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.numeracy_scenario.NumeracyScenario",
         args={"seed": random_seed, "relation_type": relation_type, "mode": mode},
     )
@@ -723,9 +723,9 @@ def get_numeracy_spec(
 
     return RunSpec(
         name=f"numeracy:relation_type={relation_type},mode={mode}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_numeracy_metrics(run_solver),  # type: ignore
+        metric_specs=get_numeracy_metric_specs(run_solver),  # type: ignore
         groups=["Numeracy"],
     )
 
@@ -737,7 +737,7 @@ def get_math_spec(
     use_chain_of_thought: bool = use_chain_of_thought == "True"  # type: ignore
     if use_chain_of_thought:
         assert not use_official_examples, "Cannot use official examples when use_chain_of_thought is True."
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.math_scenario.MATHScenario",
         args={
             "subject": subject,
@@ -779,15 +779,15 @@ def get_math_spec(
     return RunSpec(
         name=f"math:subject={subject},level={level},"
         f"use_official_examples={use_official_examples},use_chain_of_thought={use_chain_of_thought}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_math_metrics(use_chain_of_thought),  # type: ignore
+        metric_specs=get_math_metric_specs(use_chain_of_thought),  # type: ignore
         groups=groups,
     )
 
 
 def get_boolq_spec(only_contrast=False) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.boolq_scenario.BoolQScenario", args={"only_contrast": only_contrast}
     )
 
@@ -806,15 +806,15 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
     )
     return RunSpec(
         name="boolq" + (":only_contrast=True" if only_contrast else ""),
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["BoolQ"],
     )
 
 
 def get_lsat_qa_spec(task: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.lsat_qa_scenario.LSATScenario", args={"task": task})
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.lsat_qa_scenario.LSATScenario", args={"task": task})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -831,15 +831,15 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
 
     return RunSpec(
         name=f"lsat_qa:task={task}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["LSAT"],
     )
 
 
 def get_imdb_spec(only_contrast=False) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.imdb_scenario.IMDBScenario", args={"only_contrast": only_contrast}
     )
 
@@ -858,15 +858,15 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
     )
     return RunSpec(
         name="imdb" + (":only_contrast=True" if only_contrast else ""),
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["IMDB"],
     )
 
 
 def get_babi_qa_spec(task: int) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.babi_qa_scenario.BabiQAScenario", args={"task": task})
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.babi_qa_scenario.BabiQAScenario", args={"task": task})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -885,15 +885,15 @@ def get_babi_qa_spec(task: int) -> RunSpec:
     )
     return RunSpec(
         name=f"babi_qa:task={task}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["bAbI"],
     )
 
 
 def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.copyright_scenario.CopyrightScenario", args=dict(datatag=datatag)
     )
 
@@ -913,15 +913,15 @@ def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
 
     return RunSpec(
         name=f"copyright:datatag={datatag}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_copyright_metrics({"normalize_by_prefix_length": True}),
+        metric_specs=get_copyright_metric_specs({"normalize_by_prefix_length": True}),
         groups=["Copyright"],
     )
 
 
 def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str] = "covid") -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.disinformation_scenario.DisinformationScenario",
         args={"capability": capability, "topic": topic},
     )
@@ -946,7 +946,9 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             model="openai/text-davinci-001",
             stop_sequences=["\n"],
         )
-        metrics = get_generative_harms_metrics() + get_disinformation_metrics(args={"name": "reiteration"})
+        metric_specs = get_generative_harms_metric_specs() + get_disinformation_metric_specs(
+            args={"name": "reiteration"}
+        )
         scenario_name += f",topic={topic}"
     elif capability == "wedging":
         adapter_spec = AdapterSpec(
@@ -964,7 +966,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             # Justification: The maximum number of tokens in the training prompts is 87
             max_tokens=90,
         )
-        metrics = get_generative_harms_metrics() + get_disinformation_metrics(args={"name": "wedging"})
+        metric_specs = get_generative_harms_metric_specs() + get_disinformation_metric_specs(args={"name": "wedging"})
 
     else:
         raise ValueError(
@@ -973,7 +975,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
         )
 
     # Self-BLEU isn't defined for a single sequence.
-    if adapter_spec.num_outputs <= 1 and "self_bleu" in {metric.args["name"] for metric in metrics}:
+    if adapter_spec.num_outputs <= 1 and "self_bleu" in {metric_spec.args["name"] for metric_spec in metric_specs}:
         raise ValueError(
             "Self-BLEU is not defined for a single sequence. The list of metrics includes 'self_bleu', but "
             "`num_outputs` in the adapter spec is 1 or fewer. You should probably either remove 'self_bleu' from the "
@@ -982,15 +984,15 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
 
     return RunSpec(
         name=scenario_name,
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=metrics,
+        metric_specs=metric_specs,
         groups=["Disinformation", f"Disinformation ({capability})"],
     )
 
 
 def get_code_spec(dataset: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.code_scenario.CodeScenario", args={"dataset": dataset})
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.code_scenario.CodeScenario", args={"dataset": dataset})
 
     if dataset == "HumanEval":
         adapter_spec = AdapterSpec(
@@ -1033,9 +1035,9 @@ def get_code_spec(dataset: str) -> RunSpec:
 
     return RunSpec(
         name=f"code:dataset={dataset}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_code_metrics(dataset),
+        metric_specs=get_code_metric_specs(dataset),
         groups=[dataset],
     )
 
@@ -1047,7 +1049,9 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         "closedbook": "closed-book",
     }
 
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={"mode": mode})
+    scenario_spec = ScenarioSpec(
+        class_name="benchmark.scenarios.natural_qa_scenario.NaturalQAScenario", args={"mode": mode}
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -1064,15 +1068,17 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
     )
     return RunSpec(
         name=f"natural_qa:mode={mode}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
         groups=["NaturalQuestions", f"NaturalQuestions ({mode_to_subgroup[mode]})"],
     )
 
 
 def get_the_pile_spec(subset: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.the_pile_scenario.ThePileScenario", args={"subset": subset})
+    scenario_spec = ScenarioSpec(
+        class_name="benchmark.scenarios.the_pile_scenario.ThePileScenario", args={"subset": subset}
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
@@ -1090,9 +1096,9 @@ def get_the_pile_spec(subset: str) -> RunSpec:
 
     return RunSpec(
         name=f"the_pile:subset={subset}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": []}),
+        metric_specs=get_basic_metric_specs({"names": []}),
         groups=["The Pile"],
     )
 
@@ -1109,7 +1115,7 @@ def get_ice_spec(**kwargs) -> RunSpec:
         "USA": ["USA"],
     }
 
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.ice_scenario.ICEScenario", args=kwargs)
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.ice_scenario.ICEScenario", args=kwargs)
 
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
@@ -1127,15 +1133,15 @@ def get_ice_spec(**kwargs) -> RunSpec:
 
     return RunSpec(
         name="ice" + (":" if len(kwargs) > 0 else "") + ",".join(f"{k}={v}" for k, v in kwargs.items()),
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": []}),
+        metric_specs=get_basic_metric_specs({"names": []}),
         groups=[f"ICE ({subset_to_country_name[kwargs['subset']]})"],
     )
 
 
 def get_narrativeqa_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.narrativeqa_scenario.NarrativeQAScenario", args=dict())
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.narrativeqa_scenario.NarrativeQAScenario", args=dict())
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -1152,9 +1158,9 @@ def get_narrativeqa_spec() -> RunSpec:
     )
     return RunSpec(
         name="narrative_qa",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics(
+        metric_specs=get_basic_metric_specs(
             {"names": ["exact_match", "quasi_exact_match", "f1_score", "rouge-l", "bleu_1", "bleu_4"]}
         ),
         groups=["NarrativeQA"],
@@ -1164,7 +1170,7 @@ def get_narrativeqa_spec() -> RunSpec:
 def get_synthetic_efficiency_spec(
     num_input_tokens: int, num_output_tokens: int, tokenizer: str, random: Optional[str] = None
 ) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
         args={"num_input_tokens": num_input_tokens, "num_instances": 10, "tokenizer": tokenizer},
     )
@@ -1188,15 +1194,15 @@ def get_synthetic_efficiency_spec(
     return RunSpec(
         name=f"synthetic_efficiency:tokenizer={tokenizer},num_input_tokens={num_input_tokens},"
         f"num_output_tokens={num_output_tokens},random={random}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match"]}),
         groups=["Efficiency"],
     )
 
 
 def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.synthetic_reasoning_scenario.SyntheticReasoningScenario", args={"mode": mode},
     )
 
@@ -1216,15 +1222,17 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     )
     return RunSpec(
         name=f"synthetic_reasoning:mode={mode}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["Synthetic reasoning", "Synthetic reasoning (abstract symbols)"],
     )
 
 
 def get_wikitext_103_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.wikitext_103_scenario.Wikitext103Scenario", args=dict())
+    scenario_spec = ScenarioSpec(
+        class_name="benchmark.scenarios.wikitext_103_scenario.Wikitext103Scenario", args=dict()
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
@@ -1242,15 +1250,15 @@ def get_wikitext_103_spec() -> RunSpec:
 
     return RunSpec(
         name="wikitext_103",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": []}),
+        metric_specs=get_basic_metric_specs({"names": []}),
         groups=["WikiText-103"],
     )
 
 
 def get_blimp_spec(phenomenon: str) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon}
     )
 
@@ -1270,15 +1278,15 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
 
     return RunSpec(
         name=f"blimp:phenomenon={phenomenon}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": []}),
+        metric_specs=get_basic_metric_specs({"names": []}),
         groups=["BLiMP"],
     )
 
 
 def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
     )
@@ -1300,15 +1308,15 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
 
     return RunSpec(
         name=f"summarization_xsum:temperature={temperature}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_summarization_metrics(),
+        metric_specs=get_summarization_metric_specs(),
         groups=["XSUM"],
     )
 
 
 def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={
             "dataset_name": "xsum-sampled",
@@ -1335,15 +1343,15 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
 
     return RunSpec(
         name=f"summarization_xsum:temperature={temperature}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_summarization_metrics(),
+        metric_specs=get_summarization_metric_specs(),
         groups=["XSUM"],
     )
 
 
 def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
     )
@@ -1365,15 +1373,17 @@ def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
 
     return RunSpec(
         name=f"summarization_cnndm:temperature={temperature}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_summarization_metrics(),
+        metric_specs=get_summarization_metric_specs(),
         groups=["CNN/DailyMail"],
     )
 
 
 def get_empatheticdialogues_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.dialogue_scenarios.EmpatheticDialoguesScenario", args={})
+    scenario_spec = ScenarioSpec(
+        class_name="benchmark.scenarios.dialogue_scenarios.EmpatheticDialoguesScenario", args={}
+    )
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
@@ -1391,15 +1401,15 @@ def get_empatheticdialogues_spec() -> RunSpec:
 
     return RunSpec(
         name="empatheticdialogues",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=[],
     )
 
 
 def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.dyck_language_scenario.DyckLanguageScenario",
         args={"num_parenthesis_pairs": int(num_parenthesis_pairs)},
     )
@@ -1421,15 +1431,15 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
 
     return RunSpec(
         name=f"dyck_language_np={int(num_parenthesis_pairs)}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match_indicator"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match_indicator"]}),
         groups=["Dyck"],
     )
 
 
 def get_legal_support_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.legal_support_scenario.LegalSupportScenario", args={},)
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.legal_support_scenario.LegalSupportScenario", args={})
 
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -1446,15 +1456,15 @@ def get_legal_support_spec() -> RunSpec:
 
     return RunSpec(
         name="legal_support",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["LegalSupport"],
     )
 
 
 def get_entity_matching_spec(dataset: str) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.entity_matching_scenario.EntityMatchingScenario", args={"dataset": dataset}
     )
 
@@ -1474,15 +1484,15 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
     )
     return RunSpec(
         name=f"entity_matching:dataset={dataset}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["Entity matching"],
     )
 
 
 def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.entity_data_imputation_scenario.EntityDataImputationScenario",
         args={"dataset": dataset},
     )
@@ -1503,15 +1513,15 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
     )
     return RunSpec(
         name=f"entity_data_imputation:dataset={dataset}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match"]}),
         groups=["Data imputation"],
     )
 
 
 def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={})
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={})
 
     # We are trying to reproduce the Instruct-GPT3's zero-shot performance of 73.2% from
     # "Can large language models reason about medical questions?" (Liévin et al.).
@@ -1545,9 +1555,9 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
     )
     return RunSpec(
         name=f"pubmed_qa:prompt_answer_choices={prompt_answer_choices}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["PubMedQA"],
     )
 
