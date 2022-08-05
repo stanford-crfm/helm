@@ -17,7 +17,7 @@ Exports raw requests from a run suite to a jsonl file for the MT-NLG models (mic
 Usage:
 
   python3 scripts/microsoft/mtnlg_export_requests.py <Path to run suite> <Path to MicrosoftClient's cache>
- 
+
   Example:
 
   python3 scripts/microsoft/mtnlg_export_requests.py benchmark_output/runs/microsoft prod_env/cache/microsoft.sqlite
