@@ -1401,7 +1401,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs({"names": ["exact_match_indicator"]}),
-        groups=["dyck_language_np"],
+        groups=["dyck_language"],
     )
 
 
