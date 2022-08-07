@@ -47,11 +47,51 @@ class MetricResult:
     per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]]
 
 
+class CalibrationData:
+    def __init__(self):
+        # To estimate uncertainty calibration, for each instance in this trial
+        # we store the max prob and whether we got the example correct or not.
+        # max_probs_lists[max_prob_metric_name] and correct_lists[exact_match_metric_name]
+        # store a list of max probs and whether we got the example correct, for  a particular
+        # split (e.g., we apply perturbations and keep separate lists for each of these.
+        # Here, exact_match_metric_name = replace(max_prob_metric_name, name='correct').
+        self.max_probs_dict = defaultdict(list)
+        self.correct_dict = defaultdict(list)
+
+    def add_calibration_point(self, cur_stats, correct_metric_name):
+        """Add max prob and correct_metric_name from cur_stats into calibration data."""
+        cur_max_prob_stats = get_stats_by_name(cur_stats, "max_prob")
+        cur_correct_stats = get_stats_by_name(cur_stats, correct_metric_name)
+        for correct_stat in cur_correct_stats:
+            correct_stat.name = replace(correct_stat.name, name="correct")
+        cur_max_prob_stats_dict = metrics_list_to_dict(cur_max_prob_stats)
+        cur_correct_stats_dict = metrics_list_to_dict(cur_correct_stats)
+        for max_prob_stat_name in cur_max_prob_stats_dict:
+            correct_stat_name = replace(max_prob_stat_name, name="correct")
+            if correct_stat_name in cur_correct_stats_dict:
+                max_prob_val = cur_max_prob_stats_dict[max_prob_stat_name].mean
+                self.max_probs_dict[max_prob_stat_name].append(max_prob_val)
+                correct_val = cur_correct_stats_dict[correct_stat_name].mean
+                self.correct_dict[correct_stat_name].append(correct_val)
+
+    def get_calibration_metrics(self):
+        calibration_metrics = []
+        for max_prob_name in self.max_probs_dict:
+            correct_name = replace(max_prob_name, name="correct")
+            if correct_name in self.correct_dict:
+                cur_max_probs = self.max_probs_dict[max_prob_name]
+                cur_correct = self.correct_dict[correct_name]
+                ece_1_bin_name = replace(max_prob_name, name="ece_1_bin")
+                ece_1_bin = np.abs(np.mean(cur_max_probs) - np.mean(cur_correct))
+                calibration_metrics.append(Stat(ece_1_bin_name).add(ece_1_bin))
+        return calibration_metrics
+
+
 class Metric(ABC):
     """
     A `Metric` takes the results of execution and produces `Stat`s for a
     scenario.
-
+c
     Note: `Metric` actually right now is a bit of misnomer because it produces many
     `Stat`s, that might be distinct but are computed together.  Eventually we
     might move to a world where there is one (or very few metrics that are domain-independent).
@@ -81,12 +121,9 @@ class Metric(ABC):
             per_instance_perturbation_stats: Dict[Tuple[MetricName, str], List[Stat]] = defaultdict(list)
             per_metric_instance_ids: Dict[MetricName, Set[str]] = defaultdict(set)  # Collect instance-ids per metric
 
-            # TODO: incorporate disparities (compute difference between average over instances with some tag)
-            #       https://github.com/stanford-crfm/benchmarking/issues/48
-            # To estimate uncertainty calibration, for each instance in this trial we
-            # we store the max prob and whether we got the example correct or not.
-            max_probs_list = []
-            correct_list = []
+            # Store stats for computing uncertainty calibration.
+            calibration_data = CalibrationData()
+
             for instance_index, instance in enumerate(scenario_state.instances):
                 instance_stats = []
 
@@ -97,12 +134,7 @@ class Metric(ABC):
                         adapter_spec, singleton(request_states), metric_service, eval_cache_path
                     )
                     instance_stats.extend(cur_stats)
-                    maxprob_stats = get_stat_by_name(cur_stats, "maxprob")
-                    exact_match_stats = get_stat_by_name(cur_stats, "exact_match")
-                    if maxprob_stats is not None and exact_match_stats is not None:
-                        max_probs_list.append(maxprob_stats.mean)
-                        correct_list.append(exact_match_stats.mean)
-
+                    calibration_data.add_calibration_point(cur_stats, correct_metric_name="exact_match")
                 # Evaluate the references
                 request_states = []
                 for reference_index in range(len(instance.references)):
@@ -110,16 +142,11 @@ class Metric(ABC):
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
                 if len(request_states) != 0:
-                    cur_stats = self.evaluate_references(
-                        adapter_spec, request_states, metric_service, eval_cache_path
-                    )
-                    acc_stats = get_stat_by_name(cur_stats, "accuracy")
-                    assert acc_stats is not None
-                    instance_stats.append(acc_stats)
-                    maxprob_stats = get_stat_by_name(cur_stats, "maxprob")
-                    assert maxprob_stats is not None
-                    max_probs_list.append(maxprob_stats.mean)
-                    correct_list.append(acc_stats.mean)
+                    cur_stats = self.evaluate_references(adapter_spec, request_states, metric_service, eval_cache_path)
+                    acc_stats = get_stats_by_name(cur_stats, "accuracy")
+                    assert len(acc_stats) > 0
+                    instance_stats.append(acc_stats[0])
+                    calibration_data.add_calibration_point(cur_stats, correct_metric_name="accuracy")
                 all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
                 # Merge these statistics back.
                 for stat in instance_stats:
@@ -172,12 +199,10 @@ class Metric(ABC):
             for metric_name, instance_ids in per_metric_instance_ids.items():
                 merge_stat(trial_stats, Stat(replace(metric_name, name="num_instances")).add(len(instance_ids)))
 
-            # Compute calibration stats.
-            if len(max_probs_list) > 0:
-                assert len(max_probs_list) == len(scenario_state.instances)
-                assert len(max_probs_list) == len(correct_list)
-                ece_1_bin = np.abs(np.mean(max_probs_list) - np.mean(correct_list))
-                merge_stat(trial_stats, Stat(MetricName("ece_1_bin")).add(ece_1_bin))
+            # Compute calibration metrics and add them to trial_stats.
+            for calibration_metric in calibration_data.get_calibration_metrics():
+                merge_stat(trial_stats, calibration_metric)
+
             # Aggregate the corpus-level metrics
             for split in EVAL_SPLITS:
                 if (
@@ -310,15 +335,17 @@ class MetricSpec(ObjectSpec):
     pass
 
 
-def get_stat_by_name(stats: List[Stat], name: str) -> Optional[Stat]:
-    matching_list = list(filter(lambda m: m.name.name == name, stats))
-    # Check that we don't have duplicate metrics, otherwise we don't know which one to return.
-    # TODO: right now this raises an error, e.g., exact_match is added twice.
-    # So commenting this, but should figure this out.
-    # if len(matching_list) > 1:
-    #     raise ValueError(f"Found two metrics with same name '{name}': {matching_list}."
-    #                      f"\n\nFull stats: {stats}")
-    return matching_list[0] if len(matching_list) >= 1 else None
+def metrics_list_to_dict(stats: List[Stat]) -> Dict[MetricName, Stat]:
+    """Convert list of stats into a dict where the key is the metric name."""
+    metrics_dict = {}
+    for stat in stats:
+        metrics_dict[stat.name] = stat
+    return metrics_dict
+
+
+def get_stats_by_name(stats: List[Stat], name: str) -> Optional[Stat]:
+    """Returns a list of all stats with the specified name."""
+    return list(filter(lambda m: m.name.name == name, stats))
 
 
 def create_metric(metric_spec: MetricSpec) -> Metric:

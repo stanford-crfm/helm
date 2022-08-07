@@ -358,7 +358,7 @@ class BasicMetric(Metric):
         # Gold outputs
         golds = [reference for reference in request_state.instance.references if reference.is_correct]
         assert len(golds) > 0
-        
+
         # Predicted outputs
         assert request_state.result is not None
         # TODO: Sort the predictions, or take them from the top tokens of the first completion
@@ -371,22 +371,22 @@ class BasicMetric(Metric):
         if request_state.output_mapping is not None:
             preds = [request_state.output_mapping.get(pred) for pred in preds]
 
+        perturbation: Optional[PerturbationDescription] = request_state.instance.perturbation
+
         # Add calibration metrics for ADAPT_MULTIPLE_CHOICE_JOINT.
         if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
             logprob = np.sum([c.logprob for c in request_state.result.completions])
             max_prob = np.exp(logprob)
-            reference_metrics.append(Stat(MetricName("maxprob")).add(max_prob))
-        
+            reference_metrics.append(Stat(MetricName("max_prob", perturbation=perturbation)).add(max_prob))
+
         # Add other metrics.
         for metric_name in self.names:
             if metric_name in metric_fn_mapping:
-                perturbation: Optional[PerturbationDescription] = request_state.instance.perturbation
                 reference_metrics.extend(
                     compute_metrics_helper(
                         MetricName(metric_name, perturbation=perturbation), metric_fn_mapping[metric_name]
                     )
                 )
-
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics
@@ -553,7 +553,6 @@ class BasicMetric(Metric):
         metrics = []
         if len(request_state.instance.references) > 0:
             metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
-
         metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
@@ -647,6 +646,6 @@ class BasicMetric(Metric):
         max_prob = np.max(scipy.special.softmax(reference_scores))
         # TODO: handle case where there are multiple max probs?
         return [
-            Stat(MetricName("maxprob")).add(max_prob),
+            Stat(MetricName("max_prob")).add(max_prob),
             Stat(MetricName("accuracy")).add(float(max(reference_scores) == max(answer_scores))),
         ]
