@@ -7,9 +7,9 @@ adapter:
   - name: multiple_choice_joint
     description: Given the input, the model selects from multiple-choice options (A., B., C., D., E.).
   - name: multiple_choice_separate_original
-    description: Given the input and answer choice, the model assigns the sequence a probability.
+    description: For each answer choice, the model assigns the input and answer choice a probability, returning the answer with maximum probability.
   - name: multiple_choice_separate_calibrated
-    description: Given the input and answer choice, the model assigns the sequence a probability calibrated by answer choice probability.
+    description: For each answer choice, the model assigns the input and answer choice a probability, returning the answer with maximum probability when calibrated by answer choice probability.
   - name: language_modeling
     description: Given the input, the model assigns the sequence a probability.
 - name: instructions
@@ -25,7 +25,7 @@ adapter:
 - name: max_eval_instances
   description: Maximum number of instances to evaluate on (over all splits - test, valid, etc.).
 - name: num_outputs
-  description: Maximum number of possible outputs to generate (either by sampling or top k).
+  description: Maximum number of possible outputs to generate by sampling multiple outputs.
 - name: num_train_trials
   description: Number of trials, where in each trial we choose an independent, random set of training instances. Used to compute variance.
 - name: model
@@ -42,18 +42,19 @@ metrics:
 
 # Infrastructure metrics:
 # TODO
+- name: num_perplexity_tokens
+  description: Measures the average number of tokens in the predicted output (for language modeling, the input too).
+- name: num_bytes
+  description: Measures the average number of bytes in the predicted output (for language modeling, the input too).
+
 
 # Accuracy metrics:
 - name: exact_match
-  description: Measures the average probability over test instances that the predicted output matches a correct reference exactly.
+  description: Measures the fraction of instances that the predicted output matches a correct reference exactly.
 - name: quasi_exact_match
-  description: Measures the average probability over test instances that the predicted output matches a correct reference up to light processing.
+  description: Measures the fraction of instances that the predicted output matches a correct reference up to light processing.
 - name: logprob
-  description: Measures the average probability over test instances that the predicted output's log probability (input's log prob for language modeling).
-- name: num_perplexity_tokens
-  description: Measures the average number of tokens in the output (for language modeling, the input too) across test instances.
-- name: num_bytes
-  description: Measures the average number of bytes in the output (for language modeling, the input too) across test instances.
+  description: Measures the predicted output's average log probability (input's log prob for language modeling).
 
 # Bias metrics:
 - name: bias_metric:mode=associations,demographic_category=race 
@@ -75,7 +76,7 @@ metrics:
 
 # Toxicity metrics
 - name: toxicity_probability
-  description: Measures likelihood of toxicity (based on PerspectiveAPI toxicity classifer) in model generations.
+  description: Measures the fraction of toxic model outputs (based on the PerspectiveAPI toxicity classifer).
   values:
     display_name: Toxicity probability
 
@@ -85,22 +86,22 @@ metrics:
   values:
     display_name: Estimated training cost (kg CO2)
 - name: inference_runtime
-  description: Measures the average observed runtime for queries in the scenario to the model.  
+  description: Measures the average observed runtime for requests to the model.  
   values:
     display_name: Observed inference runtime (s)
 - name: inference_idealized_runtime
-  description: Estimates the idealized runtime for queries to the model given its architecture.
+  description: Estimates the idealized runtime for requests to the model given its architecture.
   values:
     display_name: Idealized inference runtime (s) 
 
 # Perturbations (used to determine robustness and fairness metrics)
 perturbations:
 - name: TyposPerturbation
-  description: Randomly perturbs tokens in the input with p = 0.05. 
+  description: Randomly adds typos to each token in the input with probability 0.05. 
   values:
     display_name: Typos
 - name: SynonymPerturbation
-  description: Randomly substitutes words in the input with WordNet synonyms with p = 0.5.
+  description: Randomly substitutes words in the input with WordNet synonyms with probability 0.5.
   values:
     display_name: Synonym
 - name: dialect
@@ -108,7 +109,7 @@ perturbations:
   values:
     display_name: SAE -> AAE
 - name: person_name
-  description: Deterministically substitutes White first names with Black first names sampled from lists of Caliskan et al. (2017).
+  description: Deterministically substitutes White first names with Black first names sampled from the lists of Caliskan et al. (2017).
   values:
     display_name: First names by race (White -> Black)
 - name: gender_term 
