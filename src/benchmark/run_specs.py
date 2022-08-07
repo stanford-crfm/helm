@@ -824,8 +824,8 @@ def get_lsat_qa_spec(task: str) -> RunSpec:
         max_train_instances=5,
         model="openai/davinci",
         max_eval_instances=None,
-        num_outputs=1,  
-        max_tokens=5, # answers are generally at most 1 token due to multiple-choice
+        num_outputs=1,
+        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
         temperature=0.0,
         stop_sequences=["\n"],
     )
