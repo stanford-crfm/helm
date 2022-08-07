@@ -43,10 +43,10 @@ metrics:
 # TODO
 - name: num_perplexity_tokens
   description: Measures the average number of tokens in the predicted output (for language modeling, the input too).
-  display_name: Num. tokens
+  display_name: # tokens
 - name: num_bytes
   description: Measures the average number of bytes in the predicted output (for language modeling, the input too).
-  display_name: Num. bytes
+  display_name: # bytes
 
 # Accuracy metrics:
 - name: exact_match
