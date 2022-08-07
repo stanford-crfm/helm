@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, Union
+from typing import List, Optional
 from dataclasses import dataclass
 
 from common.tokenization_request import TokenizationToken
@@ -13,9 +13,12 @@ class EncodeResult:
     # e.g. The AI21 tokenizer replaces "½" with "1/2" before tokenization.
     text: str
 
-    # The list of tokens. For models using the GPT-2 tokenizer, the tokens
-    # are integers; for AI21 models, the tokens are TokenizationTokens.
-    tokens: List[Union[int, TokenizationToken]]
+    # The resulting list of `TokenizationToken`s after encoding
+    tokens: List[TokenizationToken]
+
+    @property
+    def token_values(self):
+        return [token.value for token in self.tokens]
 
 
 class WindowService(ABC):
@@ -52,7 +55,7 @@ class WindowService(ABC):
         pass
 
     @abstractmethod
-    def decode(self, tokens: List[Union[int, TokenizationToken]], normalized_text: Optional[str] = None) -> str:
+    def decode(self, tokens: List[TokenizationToken], normalized_text: Optional[str] = None) -> str:
         """
         Given the model and a list of tokens, outputs the corresponding text.
 

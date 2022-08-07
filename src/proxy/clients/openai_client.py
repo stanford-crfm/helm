@@ -88,8 +88,13 @@ class OpenAIClient(Client):
                 finish_reason={"reason": raw_completion["finish_reason"]},
             )
             completions.append(completion)
+
         return RequestResult(
-            success=True, cached=cached, request_time=response["request_time"], completions=completions,
+            success=True,
+            cached=cached,
+            request_time=response["request_time"],
+            request_datetime=response.get("request_datetime"),
+            completions=completions,
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:

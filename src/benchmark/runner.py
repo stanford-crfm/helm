@@ -28,13 +28,13 @@ class RunSpec:
     name: str
 
     # Which scenario
-    scenario: ScenarioSpec
+    scenario_spec: ScenarioSpec
 
     # Specifies how to adapt an instance into a set of requests
     adapter_spec: AdapterSpec
 
     # What to evaluate on
-    metrics: List[MetricSpec]
+    metric_specs: List[MetricSpec]
 
     # Data augmenter. The default `DataAugmenterSpec` does nothing.
     data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec()
@@ -90,7 +90,7 @@ class Runner:
 
     def run_one(self, run_spec: RunSpec):
         # Load the scenario
-        scenario: Scenario = create_scenario(run_spec.scenario)
+        scenario: Scenario = create_scenario(run_spec.scenario_spec)
 
         # This `output_path` will be used when `Adapter` calls `Scenario.get_instances`.
         scenario.output_path = os.path.join(self.scenarios_path, scenario.name)
@@ -115,9 +115,9 @@ class Runner:
         # Apply the metrics
         # When performing a dry run, only estimate the number of tokens instead
         # of calculating the metrics.
-        metrics: List[Metric] = ([] if self.dry_run else [create_metric(metric) for metric in run_spec.metrics]) + [
-            TokensMetric()
-        ]
+        metrics: List[Metric] = (
+            [] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
+        ) + [TokensMetric()]
         stats: List[Stat] = []
         per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
         with htrack_block(f"{len(metrics)} metrics"):
