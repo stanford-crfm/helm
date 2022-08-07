@@ -83,7 +83,8 @@ perturbations:
   description: TODO
 
 groups:
-- name: APPS (Code)
+- name: APPS (Code) # TODO: Update.
+  display_name: APPS (Code)
   description: TODO
   values:
     display:
@@ -92,7 +93,8 @@ groups:
       stat_names:
         - test_avg
         - strict_acc
-- name: bAbI
+- name: bAbI # TODO: Update.
+  display_name: bAbI
   description: TODO
   values:
     display:
@@ -100,7 +102,8 @@ groups:
       split: test
       stat_names:
         - quasi_exact_match
-- name: BBQ
+- name: BBQ # TODO: Update.
+  display_name: BBQ
   description: TODO
   values:
     display:
@@ -109,7 +112,8 @@ groups:
       stat_names:
         - "BBQMetric: bias score across ambiguous examples"
         - "BBQMetric: bias score across unambiguous examples"
-- name: BLiMP
+- name: BLiMP # TODO: Update.
+  display_name: BLiMP
   description: TODO
   values:
     display:
@@ -117,7 +121,8 @@ groups:
       split: test
       stat_names:
         - accuracy
-- name: BOLD
+- name: BOLD # TODO: Update.
+  display_name: BOLD
   description: TODO
   values:
     display:
@@ -125,7 +130,8 @@ groups:
       split: test
       stat_names:
         - toxicity_probability
-- name: BoolQ
+- name: BoolQ # TODO: Update.
+  display_name: BoolQ
   description: TODO
   values:
     display:
@@ -133,7 +139,8 @@ groups:
       split: valid
       stat_names:
         - quasi_exact_match
-- name: CivilComments
+- name: CivilComments # TODO: Update.
+  display_name: CivilComments
   description: TODO
   values:
     display:
@@ -141,7 +148,8 @@ groups:
       split: test
       stat_names:
         - quasi_exact_match
-- name: CNN/DailyMail
+- name: CNN/DailyMail # TODO: Update.
+  display_name: CNN/DailyMail
   description: TODO
   values:
     display:
@@ -149,7 +157,8 @@ groups:
       split: test
       stat_names:
         - rouge_2
-- name: CommonsenseQA
+- name: CommonsenseQA # TODO: Update.
+  display_name: CommonsenseQA
   description: TODO
   values:
     display:
@@ -157,7 +166,8 @@ groups:
       split: valid
       stat_names:
         - quasi_exact_match
-- name: Copyright
+- name: Copyright # TODO: Update.
+  display_name: Copyright
   description: TODO
   values:
     display:
@@ -166,7 +176,8 @@ groups:
       stat_names:
         - longest_common_prefix_length
         - edit_distance
-- name: Data imputation
+- name: Data imputation # TODO: Update.
+  display_name: Data imputation
   description: TODO
   values:
     display:
@@ -174,7 +185,8 @@ groups:
       split: test
       stat_names:
         - quasi_exact_match
-- name: Disinformation (reiteration)
+- name: Disinformation (reiteration) # TODO: Update.
+  display_name: Disinformation (reiteration)
   description: TODO
   values:
     display:
@@ -183,7 +195,8 @@ groups:
       stat_names:
         - self_bleu
         - monte_carlo_entropy
-- name: Disinformation (wedging)
+- name: Disinformation (wedging) # TODO: Update.
+  display_name: Disinformation (wedging)
   description: TODO
   values:
     display:
@@ -192,7 +205,8 @@ groups:
       stat_names:
         - self_bleu
         - monte_carlo_entropy
-- name: Dyck
+- name: Dyck # TODO: Update.
+  display_name: Dyck
   description: TODO
   values:
     display:
@@ -200,7 +214,8 @@ groups:
       split: test
       stat_names:
         - exact_match_indicator
-- name: Entity matching
+- name: Entity matching # TODO: Update.
+  display_name: Entity matching
   description: TODO
   values:
     display:
@@ -208,7 +223,8 @@ groups:
       split: test
       stat_names:
         - quasi_exact_match
-- name: GSM8K
+- name: GSM8K # TODO: Update.
+  display_name: GSM8K
   description: TODO
   values:
     display:
@@ -216,7 +232,8 @@ groups:
       split: test
       stat_names:
         - exact_match_indicator
-- name: HellaSwag
+- name: HellaSwag # TODO: Update.
+  display_name: HellaSwag
   description: TODO
   values:
     display:
@@ -224,7 +241,8 @@ groups:
       split: valid
       stat_names:
         - quasi_exact_match
-- name: HumanEval (Code)
+- name: HumanEval (Code) # TODO: Update.
+  display_name: HumanEval (Code)
   description: TODO
   values:
     display:
@@ -233,7 +251,8 @@ groups:
       stat_names:
         - code_eval_acc
         - pass
-- name: ICE
+- name: ICE # TODO: Update.
+  display_name: ICE
   description: TODO
   values:
     display:
@@ -241,7 +260,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: ICE (Canada)
+- name: ICE (Canada) # TODO: Update.
+  display_name: ICE (Canada)
   description: TODO
   values:
     display:
@@ -249,7 +269,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: ICE (Hong Kong)
+- name: ICE (Hong Kong) # TODO: Update.
+  display_name: ICE (Hong Kong)
   description: TODO
   values:
     display:
@@ -257,7 +278,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: ICE (India)
+- name: ICE (India) # TODO: Update.
+  display_name: ICE (India)
   description: TODO
   values:
     display:
@@ -265,7 +287,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: ICE (Japan)
+- name: ICE (Japan) # TODO: Update.
+  display_name: ICE (Japan)
   description: TODO
   values:
     display:
@@ -273,7 +296,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: ICE (Phillippines)
+- name: ICE (Philippines) # TODO: Update.
+  display_name: ICE (Philippines)
   description: TODO
   values:
     display:
@@ -281,7 +305,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: ICE (Singapore)
+- name: ICE (Singapore) # TODO: Update.
+  display_name: ICE (Singapore)
   description: TODO
   values:
     display:
@@ -289,7 +314,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: ICE (USA)
+- name: ICE (USA) # TODO: Update.
+  display_name: ICE (USA)
   description: TODO
   values:
     display:
@@ -297,7 +323,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: ICE (spoken)
+- name: ICE (spoken) # TODO: Update.
+  display_name: ICE (spoken)
   description: TODO
   values:
     display:
@@ -305,7 +332,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: ICE (written)
+- name: ICE (written) # TODO: Update.
+  display_name: ICE (written)
   description: TODO
   values:
     display:
@@ -313,7 +341,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: ICE (female)
+- name: ICE (female) # TODO: Update.
+  display_name: ICE (female)
   description: TODO
   values:
     display:
@@ -321,7 +350,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: ICE (male)
+- name: ICE (male) # TODO: Update.
+  display_name: ICE (male)
   description: TODO
   values:
     display:
@@ -329,7 +359,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: IMDB
+- name: IMDB # TODO: Update.
+  display_name: IMDB
   description: TODO
   values:
     display:
@@ -337,7 +368,8 @@ groups:
       split: valid
       stat_names:
         - quasi_exact_match
-- name: LegalSupport
+- name: LegalSupport # TODO: Update.
+  display_name: LegalSupport
   description: TODO
   values:
     display:
@@ -345,7 +377,8 @@ groups:
       split: test
       stat_names:
         - quasi_exact_match
-- name: LSAT
+- name: LSAT # TODO: Update.
+  display_name: LSAT
   description: TODO
   values:
     display:
@@ -353,7 +386,8 @@ groups:
       split: test
       stat_names:
         - quasi_exact_match
-- name: MATH
+- name: MATH # TODO: Update.
+  display_name: MATH
   description: TODO
   values:
     display:
@@ -361,7 +395,8 @@ groups:
       split: test
       stat_names:
         - math_equiv
-- name: MATH (chain_of_thought)
+- name: MATH (chain_of_thought) # TODO: Update.
+  display_name: MATH (chain_of_thought)
   description: TODO
   values:
     display:
@@ -369,7 +404,8 @@ groups:
       split: test
       stat_names:
         - math_equiv_chain_of_thought
-- name: MMLU
+- name: MMLU # TODO: Update.
+  display_name: MMLU
   description: TODO
   values:
     display:
@@ -377,7 +413,8 @@ groups:
       split: test
       stat_names:
         - quasi_exact_match
-- name: MS MARCO (regular)
+- name: MS MARCO (regular) # TODO: Update.
+  display_name: MS MARCO (regular)
   description: TODO
   values:
     display:
@@ -385,7 +422,8 @@ groups:
       split: valid
       stat_names:
         - RR@20
-- name: MS MARCO (TREC)
+- name: MS MARCO (TREC) # TODO: Update.
+  display_name: MS MARCO (TREC)
   description: TODO
   values:
     display:
@@ -393,7 +431,8 @@ groups:
       split: valid
       stat_names:
         - NDCG@20
-- name: NarrativeQA
+- name: NarrativeQA # TODO: Update.
+  display_name: NarrativeQA
   description: TODO
   values:
     display:
@@ -401,7 +440,8 @@ groups:
       split: test
       stat_names:
         - f1_score
-- name: NaturalQuestions
+- name: NaturalQuestions # TODO: Update.
+  display_name: NaturalQuestions
   description: TODO
   values:
     display:
@@ -409,7 +449,8 @@ groups:
       split: valid
       stat_names:
         - f1_score
-- name: NaturalQuestions (closed-book)
+- name: NaturalQuestions (closed-book) # TODO: Update.
+  display_name: NaturalQuestions (closed-book)
   description: TODO
   values:
     display:
@@ -417,7 +458,8 @@ groups:
       split: valid
       stat_names:
         - f1_score
-- name: NaturalQuestions (open-book)
+- name: NaturalQuestions (open-book) # TODO: Update.
+  display_name: NaturalQuestions (open-book)
   description: TODO
   values:
     display:
@@ -425,7 +467,8 @@ groups:
       split: valid
       stat_names:
         - f1_score
-- name: NewsQA
+- name: NewsQA # TODO: Update.
+  display_name: NewsQA
   description: TODO
   values:
     display:
@@ -433,7 +476,8 @@ groups:
       split: valid
       stat_names:
         - f1_score
-- name: Numeracy
+- name: Numeracy # TODO: Update.
+  display_name: Numeracy
   description: TODO
   values:
     display:
@@ -441,7 +485,8 @@ groups:
       split: test
       stat_names:
         - absolute_value_difference
-- name: OpenbookQA
+- name: OpenbookQA # TODO: Update.
+  display_name: OpenbookQA
   description: TODO
   values:
     display:
@@ -449,7 +494,8 @@ groups:
       split: test
       stat_names:
         - quasi_exact_match
-- name: QuAC
+- name: QuAC # TODO: Update.
+  display_name: QuAC
   description: TODO
   values:
     display:
@@ -457,7 +503,8 @@ groups:
       split: valid
       stat_names:
         - f1_score
-- name: RAFT
+- name: RAFT # TODO: Update.
+  display_name: RAFT
   description: TODO
   values:
     display:
@@ -465,7 +512,8 @@ groups:
       split: test
       stat_names:
         - quasi_exact_match
-- name: RealToxicityPrompts
+- name: RealToxicityPrompts # TODO: Update.
+  display_name: RealToxicityPrompts
   description: TODO
   values:
     display:
@@ -473,7 +521,8 @@ groups:
       split: test
       stat_names:
         - toxicity_probability
-- name: Synthetic reasoning (abstract symbols)
+- name: Synthetic reasoning (abstract symbols) # TODO: Update.
+  display_name: Synthetic reasoning (abstract symbols)
   description: TODO
   values:
     display:
@@ -481,7 +530,8 @@ groups:
       split: test
       stat_names:
         - quasi_exact_match
-- name: Synthetic reasoning (natural language)
+- name: Synthetic reasoning (natural language) # TODO: Update.
+  display_name: Synthetic reasoning (natural language)
   description: TODO
   values:
     display:
@@ -489,7 +539,8 @@ groups:
       split: test
       stat_names:
         - f1_set_match
-- name: The Pile
+- name: The Pile # TODO: Update.
+  display_name: The Pile
   description: TODO
   values:
     display:
@@ -497,7 +548,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: TruthfulQA
+- name: TruthfulQA # TODO: Update.
+  display_name: TruthfulQA
   description: TODO
   values:
     display:
@@ -505,7 +557,8 @@ groups:
       split: valid
       stat_names:
         - quasi_exact_match
-- name: Twitter AAE
+- name: Twitter AAE # TODO: Update.
+  display_name: Twitter AAE
   description: TODO
   values:
     display:
@@ -513,7 +566,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: Twitter AAE (AAE)
+- name: Twitter AAE (AAE) # TODO: Update.
+  display_name: Twitter AAE (AAE)
   description: TODO
   values:
     display:
@@ -521,7 +575,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: Twitter AAE (White)
+- name: Twitter AAE (White) # TODO: Update.
+  display_name: Twitter AAE (White)
   description: TODO
   values:
     display:
@@ -529,7 +584,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: WikiFact
+- name: WikiFact # TODO: Update.
+  display_name: WikiFact
   description: TODO
   values:
     display:
@@ -537,7 +593,8 @@ groups:
       split: test
       stat_names:
         - quasi_exact_match
-- name: WikiText-103
+- name: WikiText-103 # TODO: Update.
+  display_name: WikiText-103
   description: TODO
   values:
     display:
@@ -545,7 +602,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: XSUM
+- name: XSUM # TODO: Update.
+  display_name: XSUM
   description: TODO
   values:
     display:
