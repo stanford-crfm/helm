@@ -147,6 +147,7 @@ metrics:
   description: Monte Carlo estimate of the entropy as a measure of diversity in model generations.
   display_name: Entropy (Monte Carlo)
 
+
 # Copyright metrics (measure copying/overlap):
 - name: longest_common_prefix_length
   description: Average length of longest common prefix between model generation and reference.
@@ -170,7 +171,7 @@ perturbations:
 - name: person_name
   description: Deterministically substitutes White first names with Black first names sampled from the lists of Caliskan et al. (2017).
   display_name: First names by race (White -> Black)
-- name: gender_term 
+- name: gender 
   description: Deterministically substitutes male gender terms with female gender terms from dictionaries of Garg et al. (2018) and Bolukbasi et al. (2016).
   display_name: Terms by gender (Male -> Female)
 
@@ -660,6 +661,7 @@ stat_groups:
 - name: accuracy
   description: Average performance of model based on the canonical metric for scenario (e.g. accuracy, F1, ROUGE).
   display_name: Accuracy
+  values:
     # stat_names are determined by group.stat_names
     perturbation_names:
     - identity
@@ -667,10 +669,11 @@ stat_groups:
     - SynonymPerturbation
     - dialect
     - person_name
-    - gender_term 
+    - gender 
 - name: bias
   description: Biases (stereotypical associations, demographic associations) in model generations.
   display_name: Bias
+  values:
     stat_names:
     - bias_metric:mode=associations,demographic_category=race
     - bias_metric:mode=associations,demographic_category=gender
@@ -681,6 +684,7 @@ stat_groups:
 - name: toxicity
   description: Toxicity in model generations.
   display_name: Toxicity
+  values:
     stat_names:
     - toxicity_probability
     perturbation_names:
@@ -688,6 +692,7 @@ stat_groups:
 - name: efficiency
   description: The efficiency of the model across both training and inference.
   display_name: Efficiency
+  values:
     stat_names:
     - inference_runtime
     - inference_idealized_runtime

@@ -20,10 +20,10 @@ class TestGPT2WindowService:
         assert self.window_service.max_request_length == 1025
 
     def test_encode(self):
-        assert self.window_service.encode(TEST_PROMPT).tokens == GPT2_TEST_TOKEN_IDS
+        assert self.window_service.encode(TEST_PROMPT).token_values == GPT2_TEST_TOKEN_IDS
 
     def test_decode(self):
-        assert self.window_service.decode(GPT2_TEST_TOKEN_IDS) == TEST_PROMPT
+        assert self.window_service.decode(self.window_service.encode(TEST_PROMPT).tokens) == TEST_PROMPT
 
     def test_tokenize(self):
         assert self.window_service.tokenize(TEST_PROMPT) == GPT2_TEST_TOKENS
