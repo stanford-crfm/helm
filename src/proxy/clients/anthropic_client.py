@@ -35,7 +35,7 @@ class AnthropicClient(Client):
 
     # Note: The model has a maximum context size of 8192, but the Anthropic API
     #       can currently only support a maximum of ~3000 tokens in the completion.
-    # TODO: increase this later when Anthropic supports more.
+    # TODO: Increase this later when Anthropic supports more.
     MAX_COMPLETION_LENGTH: int = 3000
 
     def __init__(self, api_key: str, cache_path: str):
@@ -140,6 +140,7 @@ class AnthropicClient(Client):
         completions = []
         all_cached = True
         request_time = 0
+        request_datetime: Optional[int] = None
 
         for completion_index in range(request.num_completions):
             try:
@@ -161,7 +162,7 @@ class AnthropicClient(Client):
             tokens: List[Token] = []
 
             for token_text in token_texts:
-                # TODO: Anthropic currently doesn't support logprob. Just set logprob to 0 for now.
+                # Anthropic currently doesn't support logprob. Just set logprob to 0 for now.
                 token_logprob: float = 0
                 sequence_logprob += token_logprob
                 tokens.append(Token(text=token_text, logprob=token_logprob, top_logprobs={}))
@@ -179,9 +180,17 @@ class AnthropicClient(Client):
             )
             completions.append(sequence)
             request_time += response["request_time"]
+            # Use the datetime from the first completion because that's when the request was fired
+            request_datetime = request_datetime or response.get("request_datetime")
             all_cached = all_cached and cached
 
-        return RequestResult(success=True, cached=all_cached, request_time=request_time, completions=completions)
+        return RequestResult(
+            success=True,
+            cached=all_cached,
+            request_time=request_time,
+            request_datetime=request_datetime,
+            completions=completions,
+        )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
