@@ -8,6 +8,7 @@ from common.tokenization_request import (
     DecodeRequestResult,
     TokenizationRequest,
     TokenizationRequestResult,
+    TokenizationToken,
 )
 
 
@@ -33,9 +34,9 @@ class HuggingFaceWindowService(WindowService):
                 text, tokenizer=self.tokenizer_name, encode=True, truncation=truncation, max_length=max_length
             )
         )
-        return EncodeResult(text=text, tokens=response.raw_tokens)
+        return EncodeResult(text=text, tokens=response.tokens)
 
-    def decode(self, tokens: List[int], normalized_text: Optional[str] = None) -> str:
+    def decode(self, tokens: List[TokenizationToken], normalized_text: Optional[str] = None) -> str:
         """
         Given the model and a list of tokens, outputs the corresponding text.
 
@@ -48,7 +49,9 @@ class HuggingFaceWindowService(WindowService):
         # Should set clean_up_tokenization_spaces=False: https://github.com/huggingface/transformers/issues/17682
         # If we don't, something like "their 'studio'" becomes "their'studio'" when decoding.
         response: DecodeRequestResult = self.service.decode(
-            DecodeRequest(tokens, tokenizer=self.tokenizer_name, clean_up_tokenization_spaces=False)
+            DecodeRequest(
+                [token.value for token in tokens], tokenizer=self.tokenizer_name, clean_up_tokenization_spaces=False
+            )
         )
         return response.text
 

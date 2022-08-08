@@ -77,8 +77,6 @@ class Metric(ABC):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
             per_instance_stats: Dict[Instance, List[Stat]] = defaultdict(list)  # Stats for individual instances
 
-            # TODO: incorporate disparities (compute difference between average over instances with some tag)
-            #       https://github.com/stanford-crfm/benchmarking/issues/48
             for instance_index, instance in enumerate(scenario_state.instances):
                 instance_stats = []
 
@@ -116,9 +114,6 @@ class Metric(ABC):
                 per_instance_stats[instance] = instance_stats
 
                 # Merge these statistics back.
-                # TODO: we should add statistics with the individual instances too and serialize them out.
-                #       https://github.com/stanford-crfm/benchmarking/issues/49
-
                 for stat in instance_stats:
                     merge_stat(trial_stats, stat)
 
