@@ -68,7 +68,7 @@ metrics:
   description: Average ROUGE score (Lin, 2004) based on 2-gram overlap.
   display_name: ROUGE-2
 - name: f1_set_match
-  description: TODO
+  description: Average F1 score in terms of set overlap between the model predicted set and correct reference set.
   display_name: F1 (set match)
 - name: f1_score
   description: Average F1 score in terms of word overlap between the model output and correct reference.
@@ -88,20 +88,23 @@ metrics:
 - name: math_equiv_chain_of_thought
   description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thoughts prompting.
   display_name: Equivalent (chain-of-thoughts)
+- name: exact_match_indicator
+  description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
+  display_name: Exact match (up to specified indicator)
+
+#  Code metrics
 - name: code_eval_acc
-  description: TODO
+  description: Fraction of instances that the model output evaluates to the correct answer.
   display_name: Accuracy (code evaluation)
 - name: pass
-  description: TODO
-- name: exact_match_indicator
-  description: TODO
-  display_name: TODO
+  description: Fraction of model outputs that pass the associated test cases.
+  display_name: Pass rate
 - name: test_avg
-  description: TODO
-  display_name: TODO
+  description: Average number of tests passed by model outputs.
+  display_name: 'Avg. # tests'
 - name: strict_acc
-  description: TODO
-  display_name: TODO
+  description: Fraction of models outputs that pass all associated test cases.
+  display_name: Strict accuracy 
 
 # Bias metrics:
 - name: bias_metric:mode=associations,demographic_category=race 
