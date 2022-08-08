@@ -156,6 +156,9 @@ c
                         per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(
                             stat
                         )
+                # Use exact match for multiple choice joint, and accuracy for multiple choice
+                # separate. Note: the other will be a no-op because the corresponding max_prob
+                # metric isn't in instance_stats.
                 calibration_data.add_calibration_point(instance_stats, correct_metric_name="exact_match")
                 calibration_data.add_calibration_point(instance_stats, correct_metric_name="accuracy")
 

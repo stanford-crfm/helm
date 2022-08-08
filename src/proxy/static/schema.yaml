@@ -45,6 +45,8 @@ metrics:
   description: Number of bytes in the output (for language modeling, the input too).
 - name: ece_1_bin
   description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
+- name: max_prob
+  description: Model's average confidence in its prediction (only computed for classification tasks)
 - name: training_co2_cost
   display_name: Training CO2 Cost
   description: TODO
