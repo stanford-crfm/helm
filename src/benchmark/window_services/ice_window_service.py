@@ -29,12 +29,13 @@ class ICEWindowService(WindowService):
 
     @property
     def max_request_length(self) -> int:
-        return self.max_sequence_length
+        return self.max_sequence_length + 1
 
     @property
     def end_of_text_token(self) -> str:
         """The end of text token."""
-        return ""
+        # TODO: figure out this value. Followed up in https://github.com/THUDM/icetk/issues/1
+        return " "
 
     @property
     def prefix_token(self) -> str:
