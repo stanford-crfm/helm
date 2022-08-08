@@ -42,51 +42,51 @@ metrics:
 # Infrastructure metrics:
 # TODO
 - name: num_perplexity_tokens
-  description: Measures the average number of tokens in the predicted output (for language modeling, the input too).
+  description: Average number of tokens in the predicted output (for language modeling, the input too).
   display_name: '# tokens'
 - name: num_bytes
-  description: Measures the average number of bytes in the predicted output (for language modeling, the input too).
+  description: Average number of bytes in the predicted output (for language modeling, the input too).
   display_name: '# bytes'
 
 # Accuracy metrics:
 - name: exact_match
-  description: Measures the fraction of instances that the predicted output matches a correct reference exactly.
+  description: Fraction of instances that the predicted output matches a correct reference exactly.
   display_name: Exact match
 - name: quasi_exact_match
-  description: Measures the fraction of instances that the predicted output matches a correct reference up to light processing.
+  description: Fraction of instances that the predicted output matches a correct reference up to light processing.
   display_name: Quasi-exact match
 - name: logprob
-  description: Measures the predicted output's average log probability (input's log prob for language modeling).
+  description: Predicted output's average log probability (input's log prob for language modeling).
   display_name: Log probability
 - name: accuracy
-  description: Measures the number of instances that the model correctly classifies based on sequence probability. 
+  description: Fraction of instances that the model correctly classifies based on sequence probability. 
   display_name: Accuracy
 - name: bits_per_byte
-  description: Measures the average number of bits per byte according to model probabilities.
+  description: Average number of bits per byte according to model probabilities.
   display_name: Bits/byte
 - name: rouge_2
-  description: Measures the average ROUGE score (Lin, 2004) based on 2-gram overlap.
+  description: Average ROUGE score (Lin, 2004) based on 2-gram overlap.
   display_name: ROUGE-2
 - name: f1_set_match
   description: TODO
   display_name: F1 (set match)
 - name: f1_score
-  description: Measures the average F1 score in terms of word overlap between the model output and correct reference.
+  description: Average F1 score in terms of word overlap between the model output and correct reference.
   display_name: F1
 - name: absolute_value_difference
-  description: Measures the average absolute difference between the model output (converted to a number) and the correct reference.
+  description: Average absolute difference between the model output (converted to a number) and the correct reference.
   display_name: Absolute difference 
 - name: NDCG@20
-  description: Measures the normalized discounted cumulative gain at 20 in information retrieval.
+  description: Normalized discounted cumulative gain at 20 in information retrieval.
   display_name: NDCG@20
 - name: RR@20
-  description: Measures the mean reciprocal rank at 20 in information retrieval.
+  description: Mean reciprocal rank at 20 in information retrieval.
   display_name: RR@20
 - name: math_equiv
-  description: Measures the fraction of model outputs that are mathematically equivalent to the correct reference.
+  description: Fraction of model outputs that are mathematically equivalent to the correct reference.
   display_name: Equivalent
 - name: math_equiv_chain_of_thought
-  description: Measures the fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thoughts prompting.
+  description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thoughts prompting.
   display_name: Equivalent (chain-of-thoughts)
 - name: code_eval_acc
   description: TODO
@@ -117,31 +117,31 @@ metrics:
   description: Measures uneven representation of gender groups (male, female).
   display_name: Demographic representation (Gender)
 - name: bbq_metric_ambiguous_bias
-  description: Measures the metric of Parrish et al. (2022) for BBQ on ambiguous examples.
+  description: Metric of Parrish et al. (2022) for BBQ on ambiguous examples.
   display_name: BBQ (ambiguous)
 - name: bbq_metric_unambiguous_bias
-  description: Measures the metric of Parrish et al. (2022) for BBQ on unambiguous examples.
+  description: Metric of Parrish et al. (2022) for BBQ on unambiguous examples.
   display_name: BBQ (unambiguous)
 
 # Toxicity metrics
 - name: toxicity_probability
-  description: Measures the fraction of toxic model outputs (based on the PerspectiveAPI toxicity classifer).
+  description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifer).
   display_name: Toxicity probability
 
 # Efficiency metrics:
 - name: training_co2_cost
-  description: Estimates cost of training in CO2.
+  description: Estimate of the cost of training in CO2.
   display_name: Estimated training cost (kg CO2)
 - name: inference_runtime
-  description: Measures the average observed runtime for requests to the model.  
+  description: Average observed runtime for requests to the model.  
   display_name: Observed inference runtime (s)
 - name: inference_idealized_runtime
-  description: Estimates the idealized runtime for requests to the model given its architecture.
+  description: Estimate of the average idealized runtime for requests to the model given its architecture.
   display_name: Idealized inference runtime (s)
 
 # Disinformation metrics (measure diversity):
 - name: self_bleu
-  description: Measures the Self-BLEU metric of Zhu et al. (2018) as a measure of diversity in model generations.
+  description: Self-BLEU metric of Zhu et al. (2018) as a measure of diversity in model generations.
   display_name: Self-BLEU
 - name: monte_carlo_entropy
   description: Monte Carlo estimate of the entropy as a measure of diversity in model generations.
