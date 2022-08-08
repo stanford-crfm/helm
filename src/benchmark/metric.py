@@ -51,28 +51,25 @@ class CalibrationData:
     def __init__(self):
         # To estimate uncertainty calibration, for each instance in this trial
         # we store the max prob and whether we got the example correct or not.
-        # max_probs_lists[max_prob_metric_name] and correct_lists[exact_match_metric_name]
-        # store a list of max probs and whether we got the example correct, for  a particular
-        # split (e.g., we apply perturbations and keep separate lists for each of these.
-        # Here, exact_match_metric_name = replace(max_prob_metric_name, name='correct').
+        # max_probs_lists[max_prob_metric_name] and correct_lists[correct_metric_name]
+        # store a list of max probs and whether we got the example correct, for a particular
+        # split (e.g., we apply perturbations and keep separate lists for each of these).
+        # Here, correct_metric_name = replace(max_prob_metric_name, name='correct').
         self.max_probs_dict = defaultdict(list)
         self.correct_dict = defaultdict(list)
 
     def add_calibration_point(self, cur_stats, correct_metric_name):
         """Add max prob and correct_metric_name from cur_stats into calibration data."""
-        cur_max_prob_stats = get_stats_by_name(cur_stats, "max_prob")
-        cur_correct_stats = get_stats_by_name(cur_stats, correct_metric_name)
-        for correct_stat in cur_correct_stats:
-            correct_stat.name = replace(correct_stat.name, name="correct")
-        cur_max_prob_stats_dict = metrics_list_to_dict(cur_max_prob_stats)
-        cur_correct_stats_dict = metrics_list_to_dict(cur_correct_stats)
-        for max_prob_stat_name in cur_max_prob_stats_dict:
-            correct_stat_name = replace(max_prob_stat_name, name="correct")
-            if correct_stat_name in cur_correct_stats_dict:
-                max_prob_val = cur_max_prob_stats_dict[max_prob_stat_name].mean
-                self.max_probs_dict[max_prob_stat_name].append(max_prob_val)
-                correct_val = cur_correct_stats_dict[correct_stat_name].mean
-                self.correct_dict[correct_stat_name].append(correct_val)
+        cur_max_prob_stats = get_stats_by_name(cur_stats, name="max_prob")
+        cur_correct_stats = get_stats_by_name(cur_stats, name=correct_metric_name)
+        cur_max_prob_dict = metrics_list_to_dict(cur_max_prob_stats)
+        cur_correct_dict = metrics_list_to_dict(cur_correct_stats)
+        for metric_name in cur_max_prob_dict:
+            if replace(metric_name, name=correct_metric_name) in cur_correct_dict:
+                max_prob_val = cur_max_prob_dict[metric_name].mean
+                self.max_probs_dict[metric_name].append(max_prob_val)
+                correct_val = cur_correct_dict[replace(metric_name, name=correct_metric_name)].mean
+                self.correct_dict[replace(metric_name, name="correct")].append(correct_val)
 
     def get_calibration_metrics(self):
         calibration_metrics = []
@@ -81,6 +78,7 @@ class CalibrationData:
             if correct_name in self.correct_dict:
                 cur_max_probs = self.max_probs_dict[max_prob_name]
                 cur_correct = self.correct_dict[correct_name]
+                assert len(cur_max_probs) == len(cur_correct)
                 ece_1_bin_name = replace(max_prob_name, name="ece_1_bin")
                 ece_1_bin = np.abs(np.mean(cur_max_probs) - np.mean(cur_correct))
                 calibration_metrics.append(Stat(ece_1_bin_name).add(ece_1_bin))
@@ -130,11 +128,11 @@ c
                 # Evaluate generated request_state
                 request_states = scenario_state.get_request_states(train_trial_index, instance, None)
                 if len(request_states) != 0:
-                    cur_stats = self.evaluate_generation(
-                        adapter_spec, singleton(request_states), metric_service, eval_cache_path
+                    instance_stats.extend(
+                        self.evaluate_generation(
+                            adapter_spec, singleton(request_states), metric_service, eval_cache_path
+                        )
                     )
-                    instance_stats.extend(cur_stats)
-                    calibration_data.add_calibration_point(cur_stats, correct_metric_name="exact_match")
                 # Evaluate the references
                 request_states = []
                 for reference_index in range(len(instance.references)):
@@ -142,15 +140,13 @@ c
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
                 if len(request_states) != 0:
-                    cur_stats = self.evaluate_references(adapter_spec, request_states, metric_service, eval_cache_path)
-                    acc_stats = get_stats_by_name(cur_stats, "accuracy")
-                    assert len(acc_stats) > 0
-                    instance_stats.append(acc_stats[0])
-                    calibration_data.add_calibration_point(cur_stats, correct_metric_name="accuracy")
+                    instance_stats.extend(
+                        self.evaluate_references(adapter_spec, request_states, metric_service, eval_cache_path)
+                    )
                 all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
                 # Merge these statistics back.
                 for stat in instance_stats:
-                    stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
+                    stat.name = replace(stat.name, split=instance.split)
                     merge_stat(trial_stats, stat)
 
                     assert instance.id is not None
@@ -160,6 +156,8 @@ c
                         per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(
                             stat
                         )
+                calibration_data.add_calibration_point(instance_stats, correct_metric_name="exact_match")
+                calibration_data.add_calibration_point(instance_stats, correct_metric_name="accuracy")
 
             for (name, instance_id), stats in per_instance_perturbation_stats.items():
                 identity_stat: Optional[Stat] = None
