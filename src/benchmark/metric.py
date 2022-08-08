@@ -89,7 +89,7 @@ class Metric(ABC):
     """
     A `Metric` takes the results of execution and produces `Stat`s for a
     scenario.
-c
+
     Note: `Metric` actually right now is a bit of misnomer because it produces many
     `Stat`s, that might be distinct but are computed together.  Eventually we
     might move to a world where there is one (or very few metrics that are domain-independent).
@@ -133,6 +133,7 @@ c
                             adapter_spec, singleton(request_states), metric_service, eval_cache_path
                         )
                     )
+
                 # Evaluate the references
                 request_states = []
                 for reference_index in range(len(instance.references)):
@@ -144,6 +145,7 @@ c
                         self.evaluate_references(adapter_spec, request_states, metric_service, eval_cache_path)
                     )
                 all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
+
                 # Merge these statistics back.
                 for stat in instance_stats:
                     stat.name = replace(stat.name, split=instance.split)
@@ -344,7 +346,7 @@ def metrics_list_to_dict(stats: List[Stat]) -> Dict[MetricName, Stat]:
     return metrics_dict
 
 
-def get_stats_by_name(stats: List[Stat], name: str) -> Optional[Stat]:
+def get_stats_by_name(stats: List[Stat], name: str) -> List[Stat]:
     """Returns a list of all stats with the specified name."""
     return list(filter(lambda m: m.name.name == name, stats))
 
