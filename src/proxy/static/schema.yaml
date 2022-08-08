@@ -181,6 +181,7 @@ perturbations:
 
 groups:
 - name: APPS (Code)
+  display_name: APPS (Code)
   description: The APPS benchmark for measuring competence on code challenges (Hendrycks et al., 2021).
   values:
     display:
@@ -190,6 +191,7 @@ groups:
         - test_avg
         - strict_acc
 - name: bAbI
+  display_name: bAbI 
   description: The bAbI benchmark for measuring understanding and reasoning (Weston et al., 2015).
   values:
     display:
@@ -198,7 +200,8 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: BBQ
-  description: The BBQ benchmark for measuring social bias in question answering in ambiguous and unambigous context (Parrish et al., 2022).
+  display_name: BBQ (Bias Benchmark for Question Answering)
+  description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context (Parrish et al., 2022).
   values:
     display:
       k: null
@@ -207,7 +210,8 @@ groups:
         - bbq_metric_ambiguous_bias
         - bbq_metric_unambiguous_bias
 - name: BLiMP
-  description: The BLiMP benchmark for measuring performance on linguistic phenomena using minimal pair design (Warstadt et al., 2020). 
+  display_name: BLiMP (The Benchmark of Linguistic Minimal Pairs for English)
+  description: The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design (Warstadt et al., 2020). 
   values:
     display:
       k: null
@@ -215,7 +219,8 @@ groups:
       stat_names:
         - accuracy
 - name: BOLD
-  description: The BOLD dataset for measuring biases and toxicity in open-ended language generation (Dhamala et al., 2021).
+  display_name: BOLD (Bias in Open-Ended Language Generation Dataset)
+  description: The  Bias in Open-Ended Language Generation Dataset (BOLD) for measuring biases and toxicity in open-ended language generation (Dhamala et al., 2021).
   values:
     display:
       k: null
@@ -223,6 +228,7 @@ groups:
       stat_names:
         - toxicity_probability
 - name: BoolQ
+  display_name: BoolQ
   description: The BoolQ benchmark for binary (yes/no) question answering (Clark et al., 2019).
   values:
     display:
@@ -231,6 +237,7 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: CivilComments
+  display_name: CivilComments
   description: The CivilComments benchmark for toxicity detection (Borkan et al., 2019).
   values:
     display:
@@ -239,6 +246,7 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: CNN/DailyMail
+  display_name: CNN/DailyMail
   description: The CNN/DailyMail benchmark for text summarization (Hermann et al., 2015; Nallapati et al.,2016). 
   values:
     display:
@@ -247,6 +255,7 @@ groups:
       stat_names:
         - rouge_2
 - name: CommonsenseQA
+  display_name: CommonsenseQA
   description: The CommonsenseQA benchmark for commonsense-inteisive question answering (Talmor et al., 2019).
   values:
     display:
@@ -255,6 +264,7 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: Copyright
+  display_name: Copyright
   description: Scenario introduced in this work to measure copyright and memorization behavior, based off of Carlini et al. (2021). 
   values:
     display:
@@ -264,6 +274,7 @@ groups:
         - longest_common_prefix_length
         - edit_distance
 - name: Data imputation
+  display_name: Data imputation
   description: Scenario from Mei et al. (2021) that tests the ability to impute missing entities in a data table. 
   values:
     display:
@@ -272,6 +283,7 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: Disinformation (reiteration)
+  display_name: Disinformation (reiteration)
   description: Scenario from Buchanan et al. (2021) that tests the ability to reiterate disinformation content.
   values:
     display:
@@ -281,6 +293,7 @@ groups:
         - self_bleu
         - monte_carlo_entropy
 - name: Disinformation (wedging)
+  display_name: Disinformation (wedging)
   description: Scenario from Buchanan et al. (2021) that tests the ability to generate divisive and wedging content.
   values:
     display:
@@ -290,6 +303,7 @@ groups:
         - self_bleu
         - monte_carlo_entropy
 - name: Dyck
+  display_name: Dyck
   description: Scenario testing hierarchical reasoning through the Dyck formal languages (Suzgun et al., 2019).
   values:
     display:
@@ -298,6 +312,7 @@ groups:
       stat_names:
         - exact_match_indicator
 - name: Entity matching
+  display_name: Entity matching
   description: Scenario from Mudgal et al. (2018) that tests the ability to determine if two entities match. 
   values:
     display:
@@ -306,7 +321,8 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: GSM8K
-  description: The GSM8K benchmark for testing mathematical reasoning on grade-school math problems (Cobbe et al., 2021).
+  display_name: GSM8K (Grade school math word problems)
+  description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems (Cobbe et al., 2021).
   values:
     display:
       k: null
@@ -314,6 +330,7 @@ groups:
       stat_names:
         - exact_match_indicator
 - name: HellaSwag
+  display_name: HellaSwag
   description: The HellaSwag benchmark for commonsense reasoning in question answering (Zellers et al., 2019).
   values:
     display:
@@ -322,6 +339,7 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: HumanEval (Code)
+  display_name: HumanEval (Code)
   description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings (Chen et al., 2021).
   values:
     display:
@@ -331,6 +349,7 @@ groups:
         - code_eval_acc
         - pass
 - name: ICE
+  display_name: ICE (International Corpus of English)
   description: The International Corpus of English (ICE) for measuring language model performance across English varieties (https://www.ice-corpora.uzh.ch/en.html).
   values:
     display:
@@ -338,7 +357,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: ICE (Canada)
+- name: ICE (International Corpus of English - Canada)
+  display_name: ICE (Canada)
   description: The subset of the International Corpus of English (ICE) drawn from English speakers in Canada.
   values:
     display:
@@ -347,6 +367,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: ICE (Hong Kong)
+  display_name: ICE (International Corpus of English - Hong Kong)
   description: The subset of the International Corpus of English (ICE) drawn from English speakers in Hong Kong.
   values:
     display:
@@ -355,6 +376,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: ICE (India)
+  display_name: ICE (International Corpus of English - India)
   description: The subset of the International Corpus of English (ICE) drawn from English speakers in India.
   values:
     display:
@@ -363,6 +385,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: ICE (Japan)
+  display_name: ICE (International Corpus of English - Japan)
   description: The subset of the International Corpus of English (ICE) drawn from English speakers in Japan.
   values:
     display:
@@ -371,6 +394,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: ICE (Phillippines)
+  display_name: ICE (International Corpus of English - Phillippines)
   description: The subset of the International Corpus of English (ICE) drawn from English speakers in the Philliphines.
   values:
     display:
@@ -378,7 +402,8 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-- name: ICE (Singapore)
+- name: ICE (International Corpus of English - Singapore)
+  display_name: ICE (Singapore)
   description: The subset of the International Corpus of English (ICE) drawn from English speakers in Singapore.
   values:
     display:
@@ -387,6 +412,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: ICE (USA)
+  display_name: ICE (International Corpus of English - USA)
   description: The subset of the International Corpus of English (ICE) drawn from English speakers in the United States of America.
   values:
     display:
@@ -395,6 +421,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: ICE (spoken)
+  display_name: ICE (International Corpus of English - spoken)
   description: The subset of the International Corpus of English (ICE) based on transcribed speech.
   values:
     display:
@@ -403,6 +430,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: ICE (written)
+  display_name: ICE (International Corpus of English - written)
   description: The subset of the International Corpus of English (ICE) based on written text.
   values:
     display:
@@ -411,6 +439,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: ICE (female)
+  display_name: ICE (International Corpus of English - female)
   description: The subset of the International Corpus of English (ICE) drawn from self-identified female speakers.
   values:
     display:
@@ -419,6 +448,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: ICE (male)
+  display_name: ICE (International Corpus of English - male)
   description: The subset of the International Corpus of English (ICE) drawn from self-identified male speakers.
   values:
     display:
@@ -427,6 +457,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: IMDB
+  display_name: IMDB
   description: The IMDB benchmark for sentiment analysis in movie review (Maas et al., 2011).
   values:
     display:
@@ -435,6 +466,7 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: LegalSupport
+  display_name: LegalSupport
   description: Scenario introduced in this work to measure fine-grained legal reasoning through reverse entailment.
   values:
     display:
@@ -443,6 +475,7 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: LSAT
+  display_name: LSAT
   description: The LSAT benchmark for measuring analytical reasoning on the Law School Admission Test (LSAT; Zhong et al., 2021).
   values:
     display:
@@ -451,6 +484,7 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: MATH
+  display_name: MATH
   description: The MATH benchmark for measuring mathematical problem solving on competition math problems (Hendrycks et al., 2021).
   values:
     display:
@@ -459,6 +493,7 @@ groups:
       stat_names:
         - math_equiv
 - name: MATH (chain_of_thought)
+  display_name: MATH (chain-of-thoughts)
   description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thoughts style reasoning (Hendrycks et al., 2021).
   values:
     display:
@@ -467,6 +502,7 @@ groups:
       stat_names:
         - math_equiv_chain_of_thought
 - name: MMLU
+  display_name: MMLU (Massive Multitask Language Understanding)
   description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intesive question answering across 57 domains (Hendrycks et al., 2021).
   values:
     display:
@@ -475,7 +511,8 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: MS MARCO (regular)
-  description: The MS MARCO regular benchmark for passage retrieval in information retrieval (https://microsoft.github.io/msmarco/).
+  display_name: MS MARCO (regular track)
+  description: The MS MARCO benchmark's regular track for passage retrieval in information retrieval (https://microsoft.github.io/msmarco/).
   values:
     display:
       k: null
@@ -483,7 +520,8 @@ groups:
       stat_names:
         - RR@20
 - name: MS MARCO (TREC)
-  description: The MS MARCO deep learning TREC benchmark  for passage retrieval in information retrieval (https://trec.nist.gov).
+  display_name: MS MARCO (TREC track)
+  description: The MS MARCO benchmark's deep learning TREC track for passage retrieval in information retrieval (https://trec.nist.gov).
   values:
     display:
       k: null
@@ -491,6 +529,7 @@ groups:
       stat_names:
         - NDCG@20
 - name: NarrativeQA
+  display_name: NarrativeQA
   description: The NarrativeQA benchmark for reading comprehension over narratives (Kočiský et al., 2017).
   values:
     display:
@@ -499,6 +538,7 @@ groups:
       stat_names:
         - f1_score
 - name: NaturalQuestions
+  display_name: NaturalQuestions
   description: The NaturalQuestions benchmark for question answering based on naturally-occurring queries through Google Search (Kwiatkowski et al., 2019).
   values:
     display:
@@ -507,6 +547,7 @@ groups:
       stat_names:
         - f1_score
 - name: NaturalQuestions (closed-book)
+  display_name: NaturalQuestions (closed-book)
   description: The variant of NaturalQuestions that does not include the Wikipedia page with the answer as input.
   values:
     display:
@@ -515,6 +556,7 @@ groups:
       stat_names:
         - f1_score
 - name: NaturalQuestions (open-book)
+  display_name: NaturalQuestions (open-book)
   description: The variant of NaturalQuestions that does include the Wikipedia page with the answer as input.
   values:
     display:
@@ -523,6 +565,7 @@ groups:
       stat_names:
         - f1_score
 - name: NewsQA
+  display_name: NewsQA
   description: The NewsQA benchmark for reading comprehension over CNN news articles (Trischler et al., 2017).
   values:
     display:
@@ -531,6 +574,7 @@ groups:
       stat_names:
         - f1_score
 - name: Numeracy
+  display_name: Numerical reasoning
   description: Scenario introduced in this work to test numerical reasoning via symbolic regression.
   values:
     display:
@@ -539,6 +583,7 @@ groups:
       stat_names:
         - absolute_value_difference
 - name: OpenbookQA
+  display_name: OpenbookQA
   description: The OpenbookQA benchmark for commonsense-intensive open book question answering (Mihaylov et al., 2018).
   values:
     display:
@@ -547,6 +592,7 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: QuAC
+  display_name: QuAC (Question Answering in Context)
   description: The QuAC benchmark for question answering in the context of dialogues (Choi et al., 2018).
   values:
     display:
@@ -555,6 +601,7 @@ groups:
       stat_names:
         - f1_score
 - name: RAFT
+  display_name: RAFT (Real-world Annotated Few-Shot)
   description: The Real-world annotated few-shot (RAFT) meta-benchmark of 11 real-world text classification tasks (Alex et al., 2021).
   values:
     display:
@@ -563,6 +610,7 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: RealToxicityPrompts
+  display_name: RealToxicityPrompts
   description: The RealToxicityPrompts dataset for measuring toxicity in prompted model generations (Gehman et al., 2020).
   values:
     display:
@@ -571,6 +619,7 @@ groups:
       stat_names:
         - toxicity_probability
 - name: Synthetic reasoning (abstract symbols)
+  display_name: Synthetic reasoning (abstract symbols)
   description: Synthetic reasoning tasks defined using abstract symbols based on LIME (Wu et al., 2021).
   values:
     display:
@@ -579,6 +628,7 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: Synthetic reasoning (natural language)
+  display_name: Synthetic reasoning (natural language)
   description: Synthetic reasoning tasks defined using simple natural language based on LIME (Wu et al., 2021).
   values:
     display:
@@ -587,6 +637,7 @@ groups:
       stat_names:
         - f1_set_match
 - name: The Pile
+  display_name: The Pile
   description: The Pile corpus for measuring lanugage model performance across various domains (Gao et al., 2020).
   values:
     display:
@@ -595,6 +646,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: TruthfulQA
+  display_name: TruthfulQA
   description: The TruthfulQA benchmarking for measuring model truthfulness and commonsense knowledge in question answering (Lin et al., 2022).
   values:
     display:
@@ -603,6 +655,7 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: Twitter AAE
+  display_name: TwitterAAE
   description: The TwitterAAE corpus of Blodgett et al. (2016) for measuring language model performance in tweets as a function of speaker dialect.
   values:
     display:
@@ -611,6 +664,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: Twitter AAE (AAE)
+  display_name: TwitterAAE (African American English)
   description: The subset of TwitterAAE associated with African American English (AAE) speakers by Blodgett et al. (2021).
   values:
     display:
@@ -619,6 +673,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: Twitter AAE (White)
+  display_name: TwitterAAE (White)
   description: The subset of TwitterAAE associated with White speakers by Blodgett et al. (2021).
   values:
     display:
@@ -627,6 +682,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: WikiFact
+  display_name: WikiFact
   description: Scenario introduced in this work, inspired by Petroni et al. (2019), to more extensively test factual knowledge.
   values:
     display:
@@ -635,6 +691,7 @@ groups:
       stat_names:
         - quasi_exact_match
 - name: WikiText-103
+  display_name: WikiText-103
   description: The Wiki-Text103 benchmark for language modeling performance (Merity et al., 2016).
   values:
     display:
@@ -643,6 +700,7 @@ groups:
       stat_names:
         - bits_per_byte
 - name: XSUM
+  display_name: XSUM
   description: The XSUM benchmark for text summarization of BBC news articles (Narayan et al., 2018). 
   values:
     display:
