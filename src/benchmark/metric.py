@@ -149,12 +149,12 @@ class Metric(ABC):
                 # (instance-level metrics should be computed in the evaluate_{generation,references} anyway).
                 for stat in derived_stats:
                     # could skip this line if we want derive_stats to overwrite metadata, but this feels more robust
-                    stat = Stat(replace(grouping_name, name=stat.name.name)).merge(stat)  # add correct metadata 
+                    stat = Stat(replace(grouping_name, name=stat.name.name)).merge(stat)  # add correct metadata
                     merge_stat(trial_stats, stat)
                 # keep track of how many instances are in each subset
                 merge_stat(
                     trial_stats,
-                    Stat(replace(metric_name, name="num_instances")).add(
+                    Stat(replace(grouping_name, name="num_instances")).add(
                         len(grouped_per_instance_stats[grouping_name])
                     ),
                 )
@@ -234,6 +234,18 @@ class Metric(ABC):
             request_stats = self.evaluate_generation(
                 scenario_state.adapter_spec, request_state, metric_service, eval_cache_path
             )
+
+            # Add metadata
+            for i, stat in enumerate(request_stats):
+                request_stats[i] = Stat(
+                    replace(
+                        stat.name,
+                        split=request_state.instance.split,
+                        sub_split=request_state.instance.sub_split,
+                        perturbation=request_state.instance.perturbation,
+                    )
+                ).merge(stat)
+
             # Use trial index of 0 here since we run only one trial for LM
             all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = request_stats
 

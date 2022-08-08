@@ -271,7 +271,9 @@ def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
         if num_bytes_name in stats:
             num_bytes = stats[num_bytes_name].sum
             if num_bytes > 0:
-                derived_stats.append(Stat(replace(metric_name, name="bits_per_byte")).add(-total_logprob / num_bytes / log(2)))
+                derived_stats.append(
+                    Stat(replace(metric_name, name="bits_per_byte")).add(-total_logprob / num_bytes / log(2))
+                )
                 derived_stats.append(Stat(replace(metric_name, name="logprob_per_byte")).add(total_logprob / num_bytes))
 
     return derived_stats
