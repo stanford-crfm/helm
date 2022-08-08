@@ -2,6 +2,7 @@ from dataclasses import dataclass, replace
 from typing import List, Callable, Optional, Dict, Tuple, Set, cast
 from urllib.parse import unquote
 from functools import partial
+from math import log, e
 
 import json
 import re
@@ -28,7 +29,7 @@ from .window_services.tokenizer_service import TokenizerService
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenarios.scenario import CORRECT_TAG
+from .scenarios.scenario import CORRECT_TAG, Instance
 from .scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
 from .scenarios.code_scenario import CodeReference
 from .statistic import Stat
@@ -247,6 +248,33 @@ def code_eval(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
     assert gold[1] is not None  # gold[1]["canonical_solution"]
     # Warning: will execute machine generated code; need to sandbox before executing
     return float(code_metrics_helper.check_correctness(gold[1], pred, 3.0)["passed"])  # type: ignore
+
+
+def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
+    # TODO: find out the root cause and undo num_X > 0 check
+    #       https://github.com/stanford-crfm/benchmarking/issues/350
+    derived_stats: List[Stat] = []
+    for metric_name, stat in stats.items():  # we could sligtly simplify if we assume we only deal with one metadata set
+        if metric_name.name != "logprob":
+            continue
+        total_logprob = stat.sum
+
+        num_tokens_name = replace(metric_name, name="num_perplexity_tokens")
+        if num_tokens_name in stats:
+            num_perplexity_tokens = stats[num_tokens_name].sum
+            if num_perplexity_tokens > 0:
+                derived_stats.append(
+                    Stat(replace(metric_name, name="perplexity")).add(e ** (-total_logprob / num_perplexity_tokens))
+                )
+
+        num_bytes_name = replace(metric_name, name="num_bytes")
+        if num_bytes_name in stats:
+            num_bytes = stats[num_bytes_name].sum
+            if num_bytes > 0:
+                derived_stats.append(Stat(replace(metric_name, name="bits_per_byte")).add(-total_logprob / num_bytes / log(2)))
+                derived_stats.append(Stat(replace(metric_name, name="logprob_per_byte")).add(total_logprob / num_bytes))
+
+    return derived_stats
 
 
 class BasicMetric(Metric):
@@ -537,25 +565,15 @@ class BasicMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         """Compute the reference metrics and language modeling metrics"""
-        raw_metrics = []
-        if len(request_state.instance.references) > 0:
-            raw_metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
-
-        raw_metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
-        raw_metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
-        raw_metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
-        raw_metrics.extend(self.compute_num_in_context_examples(adapter_spec, request_state, metric_service))
-
-        # Future: add F1, BLEU, etc.
         metrics = []
-        for metric in raw_metrics:
-            instance = request_state.instance
-            metric = Stat(
-                replace(
-                    metric.name, split=instance.split, sub_split=instance.sub_split, perturbation=instance.perturbation
-                )
-            ).merge(metric)
-            metrics.append(metric)
+        if len(request_state.instance.references) > 0:
+            metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
+
+        metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_num_in_context_examples(adapter_spec, request_state, metric_service))
+
         return metrics
 
     def evaluate_references(
@@ -644,3 +662,12 @@ class BasicMetric(Metric):
         return [
             Stat(MetricName("accuracy")).add(float(max(reference_scores) == max(answer_scores))),
         ]
+
+    def derive_stats(
+        self, aggregate_stats: Dict[MetricName, Stat], per_instance_stats: Dict[Instance, List[Stat]]
+    ) -> List[Stat]:
+        """Derive perplexity and calibration metrics if applicable. We don't worry about metadata/subsets here."""
+        derived_stats = []
+        derived_stats.extend(compute_perplexity_metrics(aggregate_stats))
+        # derived_stats.extend(compute_calibration_metrics(per_instance_stats))
+        return derived_stats
