@@ -106,6 +106,7 @@ class AutoClient(Client):
                 "anthropic",
                 "bigscience",
                 "EleutherAI",
+                "facebook",
                 "google",
                 "gooseai",
                 "huggingface",
