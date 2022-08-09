@@ -2,7 +2,7 @@ from dataclasses import dataclass, replace
 from typing import List, Callable, Optional, Dict, Tuple, Set, cast
 from urllib.parse import unquote
 from functools import partial
-from math import log, e
+import math
 
 import json
 import re
@@ -26,7 +26,7 @@ from .adapter import (
 from .window_services.window_service import WindowService
 from .window_services.window_service_factory import WindowServiceFactory
 from .window_services.tokenizer_service import TokenizerService
-from .metric import Metric
+from .metric import Metric, get_unique_stat_by_name
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .scenarios.scenario import CORRECT_TAG, Instance
@@ -254,27 +254,22 @@ def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
     # TODO: find out the root cause and undo num_X > 0 check
     #       https://github.com/stanford-crfm/benchmarking/issues/350
     derived_stats: List[Stat] = []
-    for metric_name, stat in stats.items():  # we could sligtly simplify if we assume we only deal with one metadata set
-        if metric_name.name != "logprob":
-            continue
-        total_logprob = stat.sum
 
-        num_tokens_name = replace(metric_name, name="num_perplexity_tokens")
-        if num_tokens_name in stats:
-            num_perplexity_tokens = stats[num_tokens_name].sum
-            if num_perplexity_tokens > 0:
-                derived_stats.append(
-                    Stat(replace(metric_name, name="perplexity")).add(e ** (-total_logprob / num_perplexity_tokens))
-                )
+    logprob_stat = get_unique_stat_by_name(stats, "logprob")
+    num_tokens_stat = get_unique_stat_by_name(stats, "num_perplexity_tokens")
+    num_bytes_stat = get_unique_stat_by_name(stats, "num_bytes")
 
-        num_bytes_name = replace(metric_name, name="num_bytes")
-        if num_bytes_name in stats:
-            num_bytes = stats[num_bytes_name].sum
-            if num_bytes > 0:
-                derived_stats.append(
-                    Stat(replace(metric_name, name="bits_per_byte")).add(-total_logprob / num_bytes / log(2))
-                )
-                derived_stats.append(Stat(replace(metric_name, name="logprob_per_byte")).add(total_logprob / num_bytes))
+    if logprob_stat is None:
+        return []
+
+    if num_tokens_stat is not None and num_tokens_stat.sum > 0:
+        derived_stats.append(Stat(MetricName("perplexity")).add(math.e ** (-logprob_stat.sum / num_tokens_stat.sum)))
+
+    if num_bytes_stat is not None and num_bytes_stat.sum > 0:
+        derived_stats.append(
+            Stat(MetricName("bits_per_byte")).add(-logprob_stat.sum / num_bytes_stat.sum / math.log(2))
+        )
+        derived_stats.append(Stat(MetricName("logprob_per_byte")).add(logprob_stat.sum / num_bytes_stat.sum))
 
     return derived_stats
 
@@ -355,7 +350,7 @@ class BasicMetric(Metric):
                 score_1 = max(score_func(gold.output, preds[0]) for gold in golds)
                 score_k = max(score_func(gold.output, pred) for gold in golds for pred in preds)
 
-            metrics = [Stat(replace(name, k=1)).add(score_1)]
+            metrics = [Stat(replace(name, k=1)).add(score_1)]  # score_1 corresponds to k=1, i.e., using one prediction
             if adapter_spec.num_outputs != 1:
                 metrics.append(Stat(replace(name, k=adapter_spec.num_outputs)).add(score_k))
             return metrics
@@ -665,11 +660,14 @@ class BasicMetric(Metric):
             Stat(MetricName("accuracy")).add(float(max(reference_scores) == max(answer_scores))),
         ]
 
-    def derive_stats(
-        self, aggregate_stats: Dict[MetricName, Stat], per_instance_stats: Dict[Instance, List[Stat]]
-    ) -> List[Stat]:
-        """Derive perplexity and calibration metrics if applicable. We don't worry about metadata/subsets here."""
-        derived_stats = []
-        derived_stats.extend(compute_perplexity_metrics(aggregate_stats))
+    def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
+        """Derive perplexity metrics if applicable. We don't worry about splits and perturbations here."""
+        derived_stats: List[Stat] = []
+        derived_stats.extend(compute_perplexity_metrics(stats_dict))
+        return derived_stats
+
+    def derive_per_instance_stats(self, per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
+        """Derive calibration metrics if applicable. We don't worry about splits and perturbations here."""
+        derived_stats: List[Stat] = []
         # derived_stats.extend(compute_calibration_metrics(per_instance_stats))
         return derived_stats
