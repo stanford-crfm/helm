@@ -58,7 +58,7 @@ class CalibrationData:
         self.max_probs_dict = defaultdict(list)
         self.correct_dict = defaultdict(list)
 
-    def add_calibration_point(self, cur_stats, correct_metric_name):
+    def add_calibration_point(self, cur_stats: List[Stat], correct_metric_name: str):
         """Add max prob and correct_metric_name from cur_stats into calibration data."""
         cur_max_prob_stats = get_stats_by_name(cur_stats, name="max_prob")
         cur_correct_stats = get_stats_by_name(cur_stats, name=correct_metric_name)
@@ -71,7 +71,7 @@ class CalibrationData:
                 correct_val = cur_correct_dict[replace(metric_name, name=correct_metric_name)].mean
                 self.correct_dict[replace(metric_name, name="correct")].append(correct_val)
 
-    def get_calibration_metrics(self):
+    def get_calibration_metrics(self) -> List[Stat]:
         calibration_metrics = []
         for max_prob_name in self.max_probs_dict:
             correct_name = replace(max_prob_name, name="correct")
