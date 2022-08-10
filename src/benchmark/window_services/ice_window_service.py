@@ -1,19 +1,10 @@
-from typing import List, Optional
-
-from .window_service import WindowService, EncodeResult
+from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
-from common.tokenization_request import (
-    DecodeRequest,
-    DecodeRequestResult,
-    TokenizationRequest,
-    TokenizationRequestResult,
-    TokenizationToken,
-)
 
 
-class ICEWindowService(WindowService):
+class ICEWindowService(LocalWindowService):
     def __init__(self, service: TokenizerService):
-        self.service: TokenizerService = service
+        super().__init__(service)
 
     @property
     def tokenizer_name(self) -> str:
@@ -41,44 +32,6 @@ class ICEWindowService(WindowService):
     def prefix_token(self) -> str:
         """The prefix token"""
         return self.end_of_text_token
-
-    def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:
-        """
-        Encodes the input text to tokens.
-        """
-        response: TokenizationRequestResult = self.service.tokenize(
-            TokenizationRequest(text, tokenizer=self.tokenizer_name, encode=True)
-        )
-        return EncodeResult(text=text, tokens=response.tokens)
-
-    def decode(self, tokens: List[TokenizationToken], normalized_text: Optional[str] = None) -> str:
-        """
-        Given the model and a list of tokens, outputs the corresponding text.
-        """
-        response: DecodeRequestResult = self.service.decode(
-            DecodeRequest([token.value for token in tokens], tokenizer=self.tokenizer_name,)
-        )
-        return response.text
-
-    def tokenize(self, text: str) -> List[str]:
-        """
-        Tokenizes the text.
-        """
-        response: TokenizationRequestResult = self.service.tokenize(
-            TokenizationRequest(text, tokenizer=self.tokenizer_name)
-        )
-        return response.raw_tokens
-
-    def get_num_tokens(self, text: str) -> int:
-        """Tokenizes the text using the Hugging Face tokenizer and returns the number of tokens."""
-        return len(self.encode(text).tokens)
-
-    def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
-        """
-        Checks if the given text fits within the context window given by `max_request_length`
-        taking to account the expected completion length (defaults to 0).
-        """
-        return self.get_num_tokens(text) + expected_completion_token_length <= self.max_request_length
 
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
