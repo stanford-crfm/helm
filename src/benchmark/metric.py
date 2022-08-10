@@ -142,9 +142,7 @@ class Metric(ABC):
             grouped_request_states: Dict[MetricName, List[RequestState]] = defaultdict(list)
             for instance in scenario_state.instances:
                 # TODO: do we need to support reference_index that is not None?
-                grouping_name = MetricName(
-                    name="none", split=instance.split, sub_split=instance.sub_split, perturbation=instance.perturbation,
-                )
+                grouping_name = add_context_from_instance(Stat(MetricName("none")), instance).name
                 grouped_request_states[grouping_name].extend(
                     scenario_state.get_request_states(train_trial_index, instance, None)
                 )
@@ -237,8 +235,7 @@ class Metric(ABC):
             grouped_trial_stats[grouping_name][metric_name] = stat
 
         for grouping_name, stats_dict in grouped_trial_stats.items():
-            derived_stats = self.derive_stats(stats_dict)
-            for stat in derived_stats:
+            for stat in self.derive_stats(stats_dict):
                 stat = Stat(replace(grouping_name, name=stat.name.name)).merge(stat)  # add correct context
                 merge_stat(trial_stats, stat)
             # keep track of how many instances are in each subset
