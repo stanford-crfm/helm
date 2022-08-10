@@ -48,7 +48,7 @@ def _self_bleu(completions: List[Sequence], **unused_kwargs) -> float:
 
 def _monte_carlo_entropy(completions: List[Sequence], **unused_kwargs) -> float:
     """Monte Carlo estimate of model entropy in nats."""
-    # TODO(lxuechen): This estimator is biased with non-unit temperature, since OpenAI API doesn't adjust logprob
+    #  This estimator is biased with non-unit temperature, since OpenAI API doesn't adjust logprob
     #  computation based on temperature.
     #  The actual entropy under non-unit temperatures cannot be evaluated, since the Mercury API doesn't give logprobs
     #  over the full vocabulary.

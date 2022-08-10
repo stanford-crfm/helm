@@ -2,6 +2,9 @@ import shutil
 import tempfile
 from typing import List
 
+from common.authentication import Authentication
+from common.tokenization_request import TokenizationToken
+from proxy.services.server_service import ServerService
 from .scenarios.scenario import CORRECT_TAG, create_scenario, Instance, Reference
 from .run_specs import get_scenario_spec1, get_adapter_spec1
 from .adapter import (
@@ -13,8 +16,6 @@ from .adapter import (
     Prompt,
 )
 from .window_services.tokenizer_service import TokenizerService
-from common.authentication import Authentication
-from proxy.services.server_service import ServerService
 
 
 class TestAdapter:
@@ -83,7 +84,8 @@ class TestAdapter:
         adapter = Adapter(adapter_spec, self.tokenizer_service)
 
         # The tokens translate to: '�Excuse me�'
-        conditioning_tokens, pred_tokens = [110, 40127], [1904, 502, 447]
+        conditioning_tokens: List[TokenizationToken] = [TokenizationToken(110), TokenizationToken(40127)]
+        pred_tokens: List[TokenizationToken] = [TokenizationToken(1904), TokenizationToken(502), TokenizationToken(447)]
         prompt, num_conditioning_tokens = adapter.construct_language_modeling_prompt(
             conditioning_tokens=conditioning_tokens, pred_tokens=pred_tokens, max_req_len=5, text=""
         )
@@ -154,7 +156,8 @@ class TestAdapter:
         # The tokens translate to: '<|endoftext|>The the the the ... the the'
         # There are 1 `conditioning_token` and 2049 `pred_tokens`. Since the `max_request_length`
         # of GPT-3 is 2049, calling `fits_tokens_within_context_window` will remove the last `pred_token`
-        conditioning_tokens, pred_tokens = [50256], [464] + [262] * 2048
+        conditioning_tokens: List[TokenizationToken] = [TokenizationToken(50256)]
+        pred_tokens: List[TokenizationToken] = [TokenizationToken(464)] + [TokenizationToken(262)] * 2048
         prompt, pred_tokens = adapter.fits_tokens_within_context_window(
             conditioning_tokens, pred_tokens, adapter.window_service.max_request_length
         )
@@ -163,4 +166,4 @@ class TestAdapter:
         assert prompt == "<|endoftext|>The" + " the" * 2047
 
         # Ensure the pred_tokens are correct
-        assert pred_tokens == [464] + [262] * 2047
+        assert pred_tokens == [TokenizationToken(464)] + [TokenizationToken(262)] * 2047
