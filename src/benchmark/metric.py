@@ -247,7 +247,12 @@ class Metric(ABC):
         at its performance on perturbed inputs. We also compute the worst case performance across all robustness-related
         and fairness-related perturbations (including identity in both).
 
-        We return the aggregate metrics across instances.
+        For each such worst-case metric, we record a `before_` metric that aggregates the performance on the
+        non-perturbed version of the corresponding inputs.
+
+        We return the aggregate metrics across instances. Note that none of these metrics make a lot of sense if the
+        original, un-perturbed version of an Instance is not included in a scenario (i.e., we want
+        `include_original=True`).
         """
         # Collect statistics per input-metric pair across perturbations
         per_instance_perturbation_stats: Dict[Tuple[MetricName, str], List[Stat]] = defaultdict(list)
@@ -290,6 +295,11 @@ class Metric(ABC):
 
                 if identity_stat is not None:
                     stat.merge(identity_stat)
+                    if perturbation.name not in ["robustness", "fairness"]:
+                        before = replace(perturbation, name=f"before_{perturbation.name}")
+                        merge_stat(
+                            derived_stats_dict, Stat(replace(stat.name, perturbation=before)).merge(identity_stat)
+                        )
 
                 # keep the minimum performance for each input
                 perturbation = replace(perturbation, name=f"worst_{perturbation.name}")
