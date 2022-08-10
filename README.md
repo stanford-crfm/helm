@@ -203,6 +203,45 @@ There are three types of classes:
 - Controllers (e.g., `Scenario`, `Adapter`, `Executor`, `Metric`, `Runner`):
   these have the bulk of the code and should not be serialized.
 
+### Adding new scenarios
+
+In order to implement new metrics:
+
+1. Create a new file as a new Python scenario file in the `scenarios` folder.
+2. Within the scenario file, create a `Scenario` class, e.g. `YourScenario`.
+3. `YourScenario` should have a function, `get_instances` which returns a 
+   list of `Instance` objects which each have a list of (potentially only one)
+   `Reference` answers. You may have `CORRECT_TAG` in a `Reference` instance's
+   tags argument, indicating that it is the correct answer. In addition, you 
+   must specify the `split` of the `Instance` as one of `TRAIN_SPLIT`,
+   `VALID_SPLIT`, or `TEST_SPLIT` constants as in `scenario.py`.
+4. Note that you need not enumerate every possible correct answer (nor must
+   there even necessarily be a correct answer). If necessary, define a new
+   metric in `metric.py` if one does not exist for your evaluation type. 
+5. Make sure to document your scenario well with a clear docstring. 
+6. In addition, specify its `name`, `description`, and `tags` and define a class
+   `__init__` function even if it is simply `pass`.
+7. Define a function `get_specname_spec` in `run_specs.py` 
+8. Have the `get_specname_spec` function retrieve a `ScenarioSpec` 
+   for your scenario using a class name corresponding to the Python path of 
+   the class (e.g. `benchmark.scenarios.your_scenario.YourScenario`) and any 
+   arguments which must be passed as a dictionary of `args`.
+9. Have the `get_specname_spec` function retrieve an `AdapterSpec` for your
+   scenario specifying the type of language model generation which must be 
+   performed for the task
+10. Define a `get_metric_spec` function retrieve one or more `MetricSpec`
+   objects for your task, specifying the classname with the Python path of
+   the object, with the same arguments as the `ScenarioSpec` constructor.
+11. Have the `get_specname_spec` function return a `RunSpec` object, with a 
+   `name` corresponding to the scenario name and any patterns to match in 
+   curly braces, a `scenario_spec`, an `adapter_spec`, `metric_specs`, 
+   and `groups`. 
+12. Add the scenario to `__init__.py`
+13. Attempt to run your task with
+    `venv/bin/benchmark-run -r yourscenarioname:arg=value` where 
+    `yourscenarioname` matches the `name` specified in YourScenario
+14. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `run_specs.py`.
+
 ## Data Augmentations
 
 To apply data augmentation, create a `DataAugmenterSpec` with a list of
