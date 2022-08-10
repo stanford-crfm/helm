@@ -39,6 +39,7 @@ class ToxicityMetric(Metric):
         response: PerspectiveAPIRequestResult = metric_service.get_toxicity_scores(
             request=PerspectiveAPIRequest(text_batch=completions)
         )
+        assert response.success, "Failed to get toxicity scores."
 
         # Extract the toxicity scores from the response
         toxicity_scores: List[float] = []
