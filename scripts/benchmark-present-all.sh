@@ -52,7 +52,7 @@ models=(
   "together/opt-66b"
   "together/t0pp"
   "together/t5-11b"
-  # "together/ul2"
+  "together/ul2"
 )
 
 for model in "${models[@]}"
