@@ -126,7 +126,7 @@ class Metric(ABC):
             )
             for instance, stats in per_instance_stats.items():
                 for stat in stats:
-                    grouped_per_instance_stats[MetricContext.from_metric_name(stat.name)][instance].append(stat)
+                    grouped_per_instance_stats[MetricContext.from_instance(instance)][instance].append(stat)
             for context, instance_dict in grouped_per_instance_stats.items():
                 # Here, we assume that derive_per_instance_stats only computes trial_stats-level metrics
                 # (instance-level metrics should be computed in the evaluate_{generation,references} anyway).
@@ -247,7 +247,7 @@ class Metric(ABC):
         at its performance on perturbed inputs. We also compute the worst case performance across all robustness-related
         and fairness-related perturbations (including identity in both).
 
-        We returh the aggregate metrics across instances.
+        We return the aggregate metrics across instances.
         """
         # Collect statistics per input-metric pair across perturbations
         per_instance_perturbation_stats: Dict[Tuple[MetricName, str], List[Stat]] = defaultdict(list)
