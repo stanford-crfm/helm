@@ -19,6 +19,7 @@ from .anthropic_client import AnthropicClient
 from .together_client import TogetherClient
 from .goose_ai_client import GooseAIClient
 from .huggingface_client import HuggingFaceClient
+from .ice_tokenizer_client import ICETokenizerClient
 from .openai_client import OpenAIClient
 from .microsoft_client import MicrosoftClient
 from .simple_client import SimpleClient
@@ -114,6 +115,8 @@ class AutoClient(Client):
                 "openai",
             ]:
                 client = HuggingFaceClient(cache_path=client_cache_path)
+            elif organization == "TsinghuaKEG":
+                client = ICETokenizerClient(cache_path=client_cache_path)
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
             elif organization == "simple":

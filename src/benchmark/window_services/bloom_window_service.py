@@ -1,8 +1,8 @@
-from .huggingface_window_service import HuggingFaceWindowService
+from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
 
 
-class BloomWindowService(HuggingFaceWindowService):
+class BloomWindowService(LocalWindowService):
     def __init__(self, service: TokenizerService):
         super().__init__(service)
 
