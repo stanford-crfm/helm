@@ -269,6 +269,16 @@ ALL_MODELS = [
     ),
     Model(
         group="together",
+        creator_organization="Tsinghua KEG",
+        name="together/glm",
+        display_name="GLM (130B)",
+        # From https://github.com/THUDM/GLM-130B
+        description="GLM-130B is an open bilingual (English & Chinese) bidirectional dense model with 130 billion "
+        "parameters, pre-trained using the algorithm of General Language Model (GLM).",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
         creator_organization="EleutherAI",
         name="together/gpt-j-6b",
         display_name="GPT-J (6B)",

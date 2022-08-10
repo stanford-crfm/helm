@@ -12,7 +12,7 @@ from common.tokenization_request import (
 )
 
 
-class HuggingFaceWindowService(WindowService):
+class LocalWindowService(WindowService):
     def __init__(self, service: TokenizerService):
         self.service: TokenizerService = service
 
@@ -46,7 +46,8 @@ class HuggingFaceWindowService(WindowService):
         Some tokenizers (e.g. AI21) normalize the text before encoding it and
         thus require the `normalized_text` for decoding.
         """
-        # Should set clean_up_tokenization_spaces=False: https://github.com/huggingface/transformers/issues/17682
+        # For Hugging Face tokenizers, should set `clean_up_tokenization_spaces` to False
+        # (https://github.com/huggingface/transformers/issues/17682).
         # If we don't, something like "their 'studio'" becomes "their'studio'" when decoding.
         response: DecodeRequestResult = self.service.decode(
             DecodeRequest(
@@ -65,7 +66,7 @@ class HuggingFaceWindowService(WindowService):
         return response.raw_tokens
 
     def get_num_tokens(self, text: str) -> int:
-        """Tokenizes the text using the Hugging Face tokenizer and returns the number of tokens."""
+        """Tokenizes the text and returns the number of tokens."""
         return len(self.encode(text).tokens)
 
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
@@ -80,7 +81,7 @@ class HuggingFaceWindowService(WindowService):
         Truncates text from the right to fit within the context window given by `max_request_length`
         minus the expected completion length (defaults to 0).
 
-        By default, HuggingFace uses the 'longest_first' truncation strategy:
+        By default, Hugging Face uses the 'longest_first' truncation strategy:
         "Iteratively reduce the inputs sequence until the input is under max_length starting from the longest one
         at each token (when there is a pair of input sequences)."
 

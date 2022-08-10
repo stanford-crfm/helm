@@ -5,6 +5,7 @@ from .openai_window_service import OpenAIWindowService
 from .wider_openai_window_service import WiderOpenAIWindowService
 from .mt_nlg_window_service import MTNLGWindowService
 from .bloom_window_service import BloomWindowService
+from .ice_window_service import ICEWindowService
 from .gpt2_window_service import GPT2WindowService
 from .gptj_window_service import GPTJWindowService
 from .gptneox_window_service import GPTNeoXWindowService
@@ -40,6 +41,10 @@ class WindowServiceFactory:
             window_service = GPT2WindowService(service)
         elif model_name == "together/bloom":
             window_service = BloomWindowService(service)
+        elif model_name == "together/glm":
+            # From https://github.com/THUDM/GLM-130B, "the tokenizer is implemented based on
+            # icetk---a unified multimodal tokenizer for images, Chinese, and English."
+            window_service = ICEWindowService(service)
         elif model_name in ["huggingface/gpt-j-6b", "together/gpt-j-6b", "gooseai/gpt-j-6b"]:
             window_service = GPTJWindowService(service)
         elif model_name in ["together/gpt-neox-20b", "gooseai/gpt-neo-20b"]:

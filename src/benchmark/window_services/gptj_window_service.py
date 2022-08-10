@@ -1,8 +1,8 @@
-from .huggingface_window_service import HuggingFaceWindowService
+from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
 
 
-class GPTJWindowService(HuggingFaceWindowService):
+class GPTJWindowService(LocalWindowService):
     """
     The same tokenizer as GPT-2, but with an additional 143 tokens
     (source: https://huggingface.co/docs/transformers/model_doc/gptj).
