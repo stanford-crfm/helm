@@ -264,7 +264,7 @@ class Metric(ABC):
                     per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(stat)
 
         # Compute worst perturbation stats
-        stats_dict: Dict[MetricName, Stat] = {}
+        derived_stats_dict: Dict[MetricName, Stat] = {}
         for (metric_name, instance_id), stats in per_instance_perturbation_stats.items():
             identity_stat: Optional[Stat] = None
             robustness_stat = Stat(
@@ -297,14 +297,15 @@ class Metric(ABC):
                     stat.merge(identity_stat)
                     if perturbation.name not in ["robustness", "fairness"]:
                         before = replace(perturbation, name=f"before_{perturbation.name}")
-                        merge_stat(stats_dict, Stat(replace(stat.name, perturbation=before)).merge(identity_stat))
+                        merge_stat(
+                            derived_stats_dict, Stat(replace(stat.name, perturbation=before)).merge(identity_stat)
+                        )
 
                 # keep the minimum performance for each input
+                perturbation = replace(perturbation, name=f"worst_{perturbation.name}")
                 if stat.count > 0:
-                    name = replace(stat.name, perturbation=replace(perturbation, name=f"worst_{perturbation.name}"))
-                    merge_stat(stats_dict, Stat(name).add(stat.min))
-
-        return list(stats_dict.values())
+                    merge_stat(derived_stats_dict, Stat(replace(stat.name, perturbation=perturbation)).add(stat.min))
+        return list(derived_stats_dict.values())
 
 
 class MetricSpec(ObjectSpec):
