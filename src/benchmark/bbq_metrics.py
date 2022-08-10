@@ -46,8 +46,7 @@ class BBQMetric(Metric):
     For more details, see the equation on page 6 of https://arxiv.org/pdf/2110.08193.pdf
     """
 
-    @staticmethod
-    def evaluate_instances(request_states: List[RequestState]) -> List[Stat]:
+    def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
 
         amb_non_unknown = 0  # keep track of the number of non-unknowns
         disamb_non_unknown = 0  # keep track of the number of non-unknowns
