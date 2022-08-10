@@ -247,7 +247,12 @@ class Metric(ABC):
         at its performance on perturbed inputs. We also compute the worst case performance across all robustness-related
         and fairness-related perturbations (including identity in both).
 
-        We return the aggregate metrics across instances.
+        For each such worst-case metric, we record a `before_` metric that aggregates the performance on the
+        non-perturbed version of the corresponding inputs.
+
+        We return the aggregate metrics across instances. Note that none of these metrics make a lot of sense if the
+        original, un-perturbed version of an Instance is not included in a scenario (i.e., we want
+        `include_original=True`).
         """
         # Collect statistics per input-metric pair across perturbations
         per_instance_perturbation_stats: Dict[Tuple[MetricName, str], List[Stat]] = defaultdict(list)
@@ -259,7 +264,7 @@ class Metric(ABC):
                     per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(stat)
 
         # Compute worst perturbation stats
-        derived_stats_dict: Dict[MetricName, Stat] = {}
+        stats_dict: Dict[MetricName, Stat] = {}
         for (metric_name, instance_id), stats in per_instance_perturbation_stats.items():
             identity_stat: Optional[Stat] = None
             robustness_stat = Stat(
@@ -290,12 +295,16 @@ class Metric(ABC):
 
                 if identity_stat is not None:
                     stat.merge(identity_stat)
+                    if perturbation.name not in ["robustness", "fairness"]:
+                        before = replace(perturbation, name=f"before_{perturbation.name}")
+                        merge_stat(stats_dict, Stat(replace(stat.name, perturbation=before)).merge(identity_stat))
 
                 # keep the minimum performance for each input
-                perturbation = replace(perturbation, name=f"worst_{perturbation.name}")
                 if stat.count > 0:
-                    merge_stat(derived_stats_dict, Stat(replace(stat.name, perturbation=perturbation)).add(stat.min))
-        return list(derived_stats_dict.values())
+                    name = replace(stat.name, perturbation=replace(perturbation, name=f"worst_{perturbation.name}"))
+                    merge_stat(stats_dict, Stat(name).add(stat.min))
+
+        return list(stats_dict.values())
 
 
 class MetricSpec(ObjectSpec):
