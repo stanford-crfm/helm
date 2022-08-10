@@ -15,7 +15,7 @@ import numpy as np
 from rouge_score import rouge_scorer
 
 from common.hierarchical_logger import hlog
-from common.request import Token
+from common.request import Token, Sequence
 from . import code_metrics_helper
 from .adapter import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
@@ -604,8 +604,8 @@ class BasicMetric(Metric):
             assert len(request_state.result.completions) == 1
 
             reference_index = request_state.reference_index
-            sequence = request_state.result.completions[0]
-            reference = request_state.instance.references[reference_index].output
+            sequence: Sequence = request_state.result.completions[0]
+            reference: str = request_state.instance.references[reference_index].output
 
             # Find the span of the completion that matches the reference.
             answer_length = 0
@@ -615,9 +615,10 @@ class BasicMetric(Metric):
                     break
                 answer_tokens.insert(0, token)
                 answer_length += len(token.text)
-            assert (
-                "".join([token.text for token in answer_tokens]).lstrip() == reference
-            )  # make sure the span finding is correct (TODO: whether using the detokenizer function rather than join)
+
+            span: str = "".join([token.text for token in answer_tokens]).lstrip()
+            # Make sure the span finding is correct (TODO: whether using the detokenizer function rather than join)
+            assert span == reference, f"Expected: {reference}, Actual: {span}"
 
             logprob = sum(token.logprob for token in answer_tokens)
             num_tokens = len(answer_tokens)
