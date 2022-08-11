@@ -209,7 +209,7 @@ In order to implement new scenarios:
 
 1. Create a new file as a new Python scenario file in the `scenarios` folder.
 2. Within the scenario file, create a `Scenario` class, e.g. `YourScenario`.
-3. `YourScenario` should have a function, `get_instances` which returns a 
+3. `YourScenario` should implement `get_instances`, a method returning a 
    list of `Instance` objects which each have a list of (potentially only one)
    `Reference` answers. You may have `CORRECT_TAG` in a `Reference` instance's
    tags argument, indicating that it is the correct answer. In addition, you 
