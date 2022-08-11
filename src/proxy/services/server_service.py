@@ -19,6 +19,7 @@ from proxy.example_queries import example_queries
 from proxy.clients.perspective_api_client import PerspectiveAPIClient
 from proxy.models import ALL_MODELS, get_model_group
 from proxy.query import Query, QueryResult
+from proxy.retry import retry_request
 from proxy.token_counters.auto_token_counter import AutoTokenCounter
 from .service import (
     Service,
@@ -105,8 +106,12 @@ class ServerService(Service):
         return self.client.decode(request)
 
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
+        @retry_request
+        def get_toxicity_scores_with_retry(request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
+            return self.perspective_api_client.get_toxicity_scores(request)
+
         self.accounts.authenticate(auth)
-        return self.perspective_api_client.get_toxicity_scores(request)
+        return get_toxicity_scores_with_retry(request)
 
     def create_account(self, auth: Authentication) -> Account:
         """Creates a new account."""
