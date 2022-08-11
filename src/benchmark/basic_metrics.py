@@ -27,7 +27,6 @@ from .adapter import (
 from .window_services.window_service import WindowService
 from .window_services.window_service_factory import WindowServiceFactory
 from .window_services.tokenizer_service import TokenizerService
-from .augmentations.perturbation_description import PerturbationDescription
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -371,21 +370,17 @@ class BasicMetric(Metric):
         if request_state.output_mapping is not None:
             preds = [request_state.output_mapping.get(pred) for pred in preds]
 
-        perturbation: Optional[PerturbationDescription] = request_state.instance.perturbation
-
         # Add calibration metrics for ADAPT_MULTIPLE_CHOICE_JOINT.
         if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
             logprob = np.sum([c.logprob for c in request_state.result.completions])
             max_prob = np.exp(logprob)
-            reference_metrics.append(Stat(MetricName("max_prob", perturbation=perturbation)).add(max_prob))
+            reference_metrics.append(Stat(MetricName("max_prob")).add(max_prob))
 
         # Add other metrics.
         for metric_name in self.names:
             if metric_name in metric_fn_mapping:
                 reference_metrics.extend(
-                    compute_metrics_helper(
-                        MetricName(metric_name, perturbation=perturbation), metric_fn_mapping[metric_name]
-                    )
+                    compute_metrics_helper(MetricName(metric_name), metric_fn_mapping[metric_name])
                 )
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
@@ -644,6 +639,7 @@ class BasicMetric(Metric):
             raise ValueError(f"Unknown adapter method: {adapter_spec.method}")
 
         answer_scores = [reference_scores[i] for i in answers]
+
         max_prob = np.max(scipy.special.softmax(reference_scores))
         # TODO: handle case where there are multiple max probs?
         return [
