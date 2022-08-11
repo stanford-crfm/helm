@@ -3,7 +3,6 @@ from dataclasses import dataclass, replace
 from typing import List, Dict, Tuple, Set, Optional
 from math import log, e
 from collections import defaultdict
-import numpy as np
 
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
@@ -119,9 +118,6 @@ class Metric(ABC):
             per_instance_perturbation_stats: Dict[Tuple[MetricName, str], List[Stat]] = defaultdict(list)
             per_metric_instance_ids: Dict[MetricName, Set[str]] = defaultdict(set)  # Collect instance-ids per metric
 
-            # Store stats for computing uncertainty calibration.
-            calibration_data = CalibrationData()
-
             for instance_index, instance in enumerate(scenario_state.instances):
                 instance_stats = []
 
@@ -148,7 +144,7 @@ class Metric(ABC):
 
                 # Merge these statistics back.
                 for stat in instance_stats:
-                    stat.name = replace(stat.name, split=instance.split)
+                    stat = Stat(replace(stat.name, split=instance.split)).merge(stat)
                     merge_stat(trial_stats, stat)
 
                     assert instance.id is not None
@@ -158,11 +154,6 @@ class Metric(ABC):
                         per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(
                             stat
                         )
-                # Use exact match for multiple choice joint, and accuracy for multiple choice
-                # separate. Note: the other will be a no-op because the corresponding max_prob
-                # metric isn't in instance_stats.
-                calibration_data.add_calibration_point(instance_stats, correct_metric_name="exact_match")
-                calibration_data.add_calibration_point(instance_stats, correct_metric_name="accuracy")
 
             for (name, instance_id), stats in per_instance_perturbation_stats.items():
                 identity_stat: Optional[Stat] = None
@@ -201,10 +192,6 @@ class Metric(ABC):
 
             for metric_name, instance_ids in per_metric_instance_ids.items():
                 merge_stat(trial_stats, Stat(replace(metric_name, name="num_instances")).add(len(instance_ids)))
-
-            # Compute calibration metrics and add them to trial_stats.
-            for calibration_metric in calibration_data.get_calibration_metrics():
-                merge_stat(trial_stats, calibration_metric)
 
             # Aggregate the corpus-level metrics
             for split in EVAL_SPLITS:
@@ -336,19 +323,6 @@ class MetricSpec(ObjectSpec):
     """Specifies how to create a `Metric`."""
 
     pass
-
-
-def metrics_list_to_dict(stats: List[Stat]) -> Dict[MetricName, Stat]:
-    """Convert list of stats into a dict where the key is the metric name."""
-    metrics_dict = {}
-    for stat in stats:
-        metrics_dict[stat.name] = stat
-    return metrics_dict
-
-
-def get_stats_by_name(stats: List[Stat], name: str) -> List[Stat]:
-    """Returns a list of all stats with the specified name."""
-    return list(filter(lambda m: m.name.name == name, stats))
 
 
 def create_metric(metric_spec: MetricSpec) -> Metric:
