@@ -32,16 +32,3 @@ class ICEWindowService(LocalWindowService):
     def prefix_token(self) -> str:
         """The prefix token"""
         return self.end_of_text_token
-
-    def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
-        """
-        Truncates text from the right to fit within the context window given by `max_request_length`
-        minus the expected completion length (defaults to 0).
-        """
-        max_length: int = self.max_request_length - expected_completion_token_length
-        result: str = self.decode(self.encode(text).tokens[:max_length])
-
-        # Validate that the truncated text now fits. Fail fast otherwise.
-        num_tokens: int = self.get_num_tokens(result)
-        assert num_tokens <= max_length, f"Truncation failed ({num_tokens} > {max_length}). Input text: {text}"
-        return result
