@@ -39,16 +39,15 @@ class EncoderDecoderWindowService(LocalWindowService, ABC):
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
         Truncates text from the right to left to fit within the maximum context length given
-        by `max_request_length`. Removes the "</s>" that was added when encoding after decoding.
+        by `max_request_length`. Does not take into expected completion length because the
+        the encoder-decoder models have separate max context lengths for the input prompts
+        and completions.
         """
         result: str = self.decode(self.encode(text, truncation=True, max_length=self.max_request_length).tokens)
-        if result.endswith("</s>"):
-            # Remove the added "</s>"
-            result = result[:-4]
 
-        # HACK: For the vast majority of cases, the above logic works, but there are a few where the
-        # token count exceeds `max_length` by 1.
-        while not self.fits_within_context_window(result):
-            result = result[:-1]
-
+        # Validate that the truncated text now fits. Fail fast otherwise.
+        num_tokens: int = self.get_num_tokens(result)
+        assert (
+            num_tokens <= self.max_request_length
+        ), f"Truncation failed ({num_tokens} > {self.max_request_length}). Input text: {text}"
         return result

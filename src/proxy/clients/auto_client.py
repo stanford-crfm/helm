@@ -114,6 +114,8 @@ class AutoClient(Client):
                 "microsoft",
                 "openai",
             ]:
+                # Cache all the Hugging Face tokenization results to huggingface.sqlite
+                client_cache_path = os.path.join(self.cache_path, "huggingface.sqlite")
                 client = HuggingFaceClient(cache_path=client_cache_path)
             elif organization == "TsinghuaKEG":
                 client = ICETokenizerClient(cache_path=client_cache_path)

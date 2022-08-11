@@ -17,7 +17,6 @@ class TestOPTWindowService:
 
     def test_encode(self):
         assert self.window_service.encode(TEST_PROMPT).token_values == [
-            2,
             133,
             824,
             13,
@@ -72,7 +71,7 @@ class TestOPTWindowService:
         ]
 
     def test_decode(self):
-        assert self.window_service.decode(self.window_service.encode(TEST_PROMPT).tokens) == "</s>" + TEST_PROMPT
+        assert self.window_service.decode(self.window_service.encode(TEST_PROMPT).tokens) == TEST_PROMPT
 
     def test_tokenize(self):
         assert self.window_service.tokenize(TEST_PROMPT) == [
@@ -129,13 +128,16 @@ class TestOPTWindowService:
             ".",
         ]
 
+    def test_tokenize_and_count(self):
+        assert self.window_service.get_num_tokens(TEST_PROMPT) == 51
+
     def test_fits_within_context_window(self):
         # Should fit in the context window since we subtracted the number of tokens of the test prompt
         # from the max request length of 2049
-        assert self.window_service.fits_within_context_window(TEST_PROMPT, self.window_service.max_request_length - 52)
+        assert self.window_service.fits_within_context_window(TEST_PROMPT, self.window_service.max_request_length - 51)
         # Should not fit within the max request length because we're expecting one more extra token in the completion
         assert not self.window_service.fits_within_context_window(
-            TEST_PROMPT, self.window_service.max_request_length - 52 + 1
+            TEST_PROMPT, self.window_service.max_request_length - 51 + 1
         )
 
     def test_truncate_from_right(self):
@@ -147,6 +149,3 @@ class TestOPTWindowService:
         truncated_long_prompt: str = self.window_service.truncate_from_right(long_prompt)
         assert self.window_service.get_num_tokens(truncated_long_prompt) == self.window_service.max_request_length
         assert self.window_service.fits_within_context_window(truncated_long_prompt)
-
-    def test_tokenize_and_count(self):
-        assert self.window_service.get_num_tokens(TEST_PROMPT) == 52
