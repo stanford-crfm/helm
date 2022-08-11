@@ -45,9 +45,9 @@ class EncoderDecoderWindowService(LocalWindowService, ABC):
         """
         result: str = self.decode(self.encode(text, truncation=True, max_length=self.max_request_length).tokens)
 
-        # Validate that the truncated text now fits. Fail fast otherwise.
-        num_tokens: int = self.get_num_tokens(result)
-        assert (
-            num_tokens <= self.max_request_length
-        ), f"Truncation failed ({num_tokens} > {self.max_request_length}). Input text: {text}"
+        # HACK: For the vast majority of cases, the above logic works, but there are a few where the
+        # token count exceeds `max_length` by 1.
+        while not self.fits_within_context_window(result):
+            result = result[:-1]
+
         return result
