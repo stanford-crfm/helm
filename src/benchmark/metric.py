@@ -45,44 +45,6 @@ class MetricResult:
     per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]]
 
 
-class CalibrationData:
-    def __init__(self):
-        # To estimate uncertainty calibration, for each instance in this trial
-        # we store the max prob and whether we got the example correct or not.
-        # max_probs_lists[max_prob_metric_name] and correct_lists[correct_metric_name]
-        # store a list of max probs and whether we got the example correct, for a particular
-        # split (e.g., we apply perturbations and keep separate lists for each of these).
-        # Here, correct_metric_name = replace(max_prob_metric_name, name='correct').
-        self.max_probs_dict = defaultdict(list)
-        self.correct_dict = defaultdict(list)
-
-    def add_calibration_point(self, cur_stats: List[Stat], correct_metric_name: str):
-        """Add max prob and correct_metric_name from cur_stats into calibration data."""
-        cur_max_prob_stats = get_stats_by_name(cur_stats, name="max_prob")
-        cur_correct_stats = get_stats_by_name(cur_stats, name=correct_metric_name)
-        cur_max_prob_dict = metrics_list_to_dict(cur_max_prob_stats)
-        cur_correct_dict = metrics_list_to_dict(cur_correct_stats)
-        for metric_name in cur_max_prob_dict:
-            if replace(metric_name, name=correct_metric_name) in cur_correct_dict:
-                max_prob_val = cur_max_prob_dict[metric_name].mean
-                self.max_probs_dict[metric_name].append(max_prob_val)
-                correct_val = cur_correct_dict[replace(metric_name, name=correct_metric_name)].mean
-                self.correct_dict[replace(metric_name, name="correct")].append(correct_val)
-
-    def get_calibration_metrics(self) -> List[Stat]:
-        calibration_metrics = []
-        for max_prob_name in self.max_probs_dict:
-            correct_name = replace(max_prob_name, name="correct")
-            if correct_name in self.correct_dict:
-                cur_max_probs = self.max_probs_dict[max_prob_name]
-                cur_correct = self.correct_dict[correct_name]
-                assert len(cur_max_probs) == len(cur_correct)
-                ece_1_bin_name = replace(max_prob_name, name="ece_1_bin")
-                ece_1_bin = np.abs(np.mean(cur_max_probs) - np.mean(cur_correct))
-                calibration_metrics.append(Stat(ece_1_bin_name).add(ece_1_bin))
-        return calibration_metrics
-
-
 class Metric(ABC):
     """
     A `Metric` takes the results of execution and produces `Stat`s for a
@@ -356,19 +318,25 @@ def create_metric(metric_spec: MetricSpec) -> Metric:
     return create_object(metric_spec)
 
 
-def get_all_stats_by_name(stats: Union[List[Stat], Dict[Any, Stat]], name: str) -> List[Stat]:
-    """Returns a list of all stats with the specified name."""
+def get_all_stats_by_name(stats: Union[List[Stat], Dict[Any, Stat]], name: str, k: Optional[int] = None) -> List[Stat]:
+    """Returns a list of all stats with the specified name and optionally the right k."""
     stats_list: List[Stat] = []
     if isinstance(stats, list):
         stats_list = stats
     else:
         stats_list = list(stats.values())
-    return [stat for stat in stats_list if stat.name.name == name]
+
+    def matches(stat):
+        return stat.name.name == name and (k is None or stat.name.k == k)
+
+    return list(filter(matches, stats_list))
 
 
-def get_unique_stat_by_name(stats: Union[List[Stat], Dict[Any, Stat]], name: str) -> Optional[Stat]:
-    """Returns the unique stat with the specified name or None if it's not there."""
-    matching_stats: List[Stat] = get_all_stats_by_name(stats, name)
+def get_unique_stat_by_name(
+    stats: Union[List[Stat], Dict[Any, Stat]], name: str, k: Optional[int] = None
+) -> Optional[Stat]:
+    """Returns the unique stat with the specified name (and maybe k) or None if it's not there."""
+    matching_stats: List[Stat] = get_all_stats_by_name(stats, name, k)
     if len(matching_stats) == 0:
         return None
     return singleton(matching_stats)

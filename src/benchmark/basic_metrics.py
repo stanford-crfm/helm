@@ -681,5 +681,26 @@ class BasicMetric(Metric):
     def derive_per_instance_stats(self, per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
         """Derive calibration metrics if applicable. We don't worry about splits and perturbations here."""
         derived_stats: List[Stat] = []
-        # derived_stats.extend(compute_calibration_metrics(per_instance_stats))
+        derived_stats.extend(compute_calibration_metrics(per_instance_stats))
         return derived_stats
+
+
+def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
+    max_probs = []
+    correct = []
+    for instance_stats in per_instance_stats.values():
+        max_prob_stat = get_unique_stat_by_name(instance_stats, "max_prob")
+        # Use exact_match for multiple choice joint, and accuracy for multiple choice separate
+        correct_stat = get_unique_stat_by_name(instance_stats, "exact_match", k=1)
+        if correct_stat is None:
+            correct_stat = get_unique_stat_by_name(instance_stats, "accuracy")
+        if correct_stat is not None and max_prob_stat is not None:
+            max_probs.append(max_prob_stat.mean)
+            correct.append(correct_stat.mean)
+
+    calibration_metrics: List[Stat] = []
+    assert len(max_probs) == len(correct)
+    if len(max_probs) > 0:
+        ece_1_bin = np.abs(np.mean(max_probs) - np.mean(correct))
+        calibration_metrics.append(Stat(MetricName("ece_1_bin")).add(ece_1_bin))
+    return calibration_metrics
