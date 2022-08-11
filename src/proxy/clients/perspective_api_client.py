@@ -88,7 +88,9 @@ class PerspectiveAPIClient:
             def do_it():
                 text_to_response: Dict[str, Dict] = dict()
 
-                def callback(request_id, response, _):
+                def callback(request_id: str, response: Dict, error: HttpError):
+                    if error:
+                        raise error
                     text_to_response[request_id] = response
 
                 # Create a batch request. We will add a request to the batch request for each text string
@@ -110,10 +112,13 @@ class PerspectiveAPIClient:
 
             batch_response, cached = self.cache.get(asdict(request), do_it)
 
-        except (BatchError, HttpLib2Error) as e:
-            raise PerspectiveAPIClientError(f"Error was thrown when making a request to Perspective API: {e}")
+        except (BatchError, HttpLib2Error, HttpError) as e:
+            return PerspectiveAPIRequestResult(
+                success=False, cached=False, error=f"Error was thrown when making a request to Perspective API: {e}",
+            )
 
         return PerspectiveAPIRequestResult(
+            success=True,
             cached=cached,
             text_to_toxicity_attributes={
                 text: PerspectiveAPIClient.extract_toxicity_attributes(response)

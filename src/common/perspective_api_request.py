@@ -71,8 +71,14 @@ class ToxicityAttributes:
 class PerspectiveAPIRequestResult:
     """Result after sending a `PerspectiveAPIRequest`."""
 
+    # Whether the request was successful
+    success: bool
+
     # Whether the request was cached
     cached: bool
 
     # Batch of text to calculate toxicity scores.
     text_to_toxicity_attributes: Dict[str, ToxicityAttributes] = field(default_factory=dict)
+
+    # If `success` is false, what was the error?
+    error: Optional[str] = None
