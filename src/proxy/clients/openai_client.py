@@ -79,8 +79,6 @@ class OpenAIClient(Client):
                 if any(stop in text for stop in request.stop_sequences):
                     break
 
-                # TODO: For some reason, the first log probability and top choices are None.
-                #       https://github.com/stanford-crfm/benchmarking/issues/54
                 tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                 sequence_logprob += logprob or 0
             completion = Sequence(
@@ -90,8 +88,13 @@ class OpenAIClient(Client):
                 finish_reason={"reason": raw_completion["finish_reason"]},
             )
             completions.append(completion)
+
         return RequestResult(
-            success=True, cached=cached, request_time=response["request_time"], completions=completions,
+            success=True,
+            cached=cached,
+            request_time=response["request_time"],
+            request_datetime=response.get("request_datetime"),
+            completions=completions,
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:

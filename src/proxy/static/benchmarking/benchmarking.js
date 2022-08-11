@@ -18,6 +18,7 @@ $(function () {
     constructor(raw) {
       this.name = raw.name;
       this.description = raw.description;
+      this.display_name = raw.display_name;
       // Possible values this field can take
       this.values = this.readValues(raw.values);
     }
@@ -145,10 +146,12 @@ $(function () {
         if (!new RegExp(query).test(runSpec.name)) {
           return;
         }
+        // To maintain backward compatibility, as `scenario` in `RunSpec` was renamed to `scenario_spec`.
+        const scenario_spec = runSpec.hasOwnProperty('scenario_spec') ? runSpec.scenario_spec : runSpec.scenario;
         const href = encodeUrlParams(Object.assign(urlParams, {runSpec: runSpec.name}));
         const $row = $('<tr>')
           .append($('<td>').append($('<a>', {href}).append(runSpec.name)))
-          .append($('<td>').append(renderScenarioSpec(runSpec.scenario)))
+          .append($('<td>').append(renderScenarioSpec(scenario_spec)))
           .append($('<td>').append(runSpec.adapter_spec.model))
           .append($('<td>').append(runSpec.adapter_spec.method))
         $table.append($row);
@@ -407,6 +410,8 @@ $(function () {
       // () and - characters. We should either change our group names or rely
       // on string parsing of the URL to allow multiple groups to be displayed
       // at the same time.
+      // TODO: We have removed the spaces/() from the group names, so we can
+      // switch back to the RegEx match after the next run.
       const matchedGroups = schema.groupsFields.filter((group) => urlParams.group === group.name);
       const matchedGroupNames = matchedGroups.map((group) => group.name);
       const matchedRuns = filterByGroupNames(runs, matchedGroupNames);

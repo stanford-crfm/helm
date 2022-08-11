@@ -2,6 +2,7 @@ from dataclasses import dataclass, replace
 from typing import List, Callable, Optional, Dict, Tuple, Set, cast
 from urllib.parse import unquote
 from functools import partial
+import math
 
 import json
 import re
@@ -14,7 +15,7 @@ import numpy as np
 from rouge_score import rouge_scorer
 
 from common.hierarchical_logger import hlog
-from common.request import Token
+from common.request import Token, Sequence
 from . import code_metrics_helper
 from .adapter import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
@@ -25,11 +26,10 @@ from .adapter import (
 from .window_services.window_service import WindowService
 from .window_services.window_service_factory import WindowServiceFactory
 from .window_services.tokenizer_service import TokenizerService
-from .augmentations.perturbation_description import PerturbationDescription
-from .metric import Metric
+from .metric import Metric, get_unique_stat_by_name
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenarios.scenario import CORRECT_TAG
+from .scenarios.scenario import CORRECT_TAG, Instance
 from .scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
 from .scenarios.code_scenario import CodeReference
 from .statistic import Stat
@@ -250,6 +250,30 @@ def code_eval(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
     return float(code_metrics_helper.check_correctness(gold[1], pred, 3.0)["passed"])  # type: ignore
 
 
+def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
+    # TODO: find out the root cause and undo num_X > 0 check
+    #       https://github.com/stanford-crfm/benchmarking/issues/350
+    derived_stats: List[Stat] = []
+
+    logprob_stat = get_unique_stat_by_name(stats, "logprob")
+    num_tokens_stat = get_unique_stat_by_name(stats, "num_perplexity_tokens")
+    num_bytes_stat = get_unique_stat_by_name(stats, "num_bytes")
+
+    if logprob_stat is None:
+        return []
+
+    if num_tokens_stat is not None and num_tokens_stat.sum > 0:
+        derived_stats.append(Stat(MetricName("perplexity")).add(math.e ** (-logprob_stat.sum / num_tokens_stat.sum)))
+
+    if num_bytes_stat is not None and num_bytes_stat.sum > 0:
+        derived_stats.append(
+            Stat(MetricName("bits_per_byte")).add(-logprob_stat.sum / num_bytes_stat.sum / math.log(2))
+        )
+        derived_stats.append(Stat(MetricName("logprob_per_byte")).add(logprob_stat.sum / num_bytes_stat.sum))
+
+    return derived_stats
+
+
 class BasicMetric(Metric):
     """
     Defines basic metrics which don't require domain knowledge.  This should be
@@ -326,10 +350,10 @@ class BasicMetric(Metric):
                 score_1 = max(score_func(gold.output, preds[0]) for gold in golds)
                 score_k = max(score_func(gold.output, pred) for gold in golds for pred in preds)
 
-            return [
-                Stat(name).add(score_1),
-                Stat(replace(name, k=adapter_spec.num_outputs)).add(score_k),
-            ]
+            metrics = [Stat(replace(name, k=1)).add(score_1)]  # score_1 corresponds to k=1, i.e., using one prediction
+            if adapter_spec.num_outputs != 1:
+                metrics.append(Stat(replace(name, k=adapter_spec.num_outputs)).add(score_k))
+            return metrics
 
         # maps each string metric name to its associated function
         metric_fn_mapping: Dict[str, Callable] = {
@@ -371,11 +395,8 @@ class BasicMetric(Metric):
                 if request_state.output_mapping is not None:
                     preds = [request_state.output_mapping.get(pred) for pred in preds]
 
-                perturbation: Optional[PerturbationDescription] = request_state.instance.perturbation
                 reference_metrics.extend(
-                    compute_metrics_helper(
-                        MetricName(metric_name, perturbation=perturbation), metric_fn_mapping[metric_name]
-                    )
+                    compute_metrics_helper(MetricName(metric_name), metric_fn_mapping[metric_name])
                 )
 
             else:
@@ -550,7 +571,6 @@ class BasicMetric(Metric):
         metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_num_in_context_examples(adapter_spec, request_state, metric_service))
 
-        # Future: add F1, BLEU, etc.
         return metrics
 
     def evaluate_references(
@@ -584,8 +604,8 @@ class BasicMetric(Metric):
             assert len(request_state.result.completions) == 1
 
             reference_index = request_state.reference_index
-            sequence = request_state.result.completions[0]
-            reference = request_state.instance.references[reference_index].output
+            sequence: Sequence = request_state.result.completions[0]
+            reference: str = request_state.instance.references[reference_index].output
 
             # Find the span of the completion that matches the reference.
             answer_length = 0
@@ -595,9 +615,10 @@ class BasicMetric(Metric):
                     break
                 answer_tokens.insert(0, token)
                 answer_length += len(token.text)
-            assert (
-                "".join([token.text for token in answer_tokens]).lstrip() == reference
-            )  # make sure the span finding is correct (TODO: whether using the detokenizer function rather than join)
+
+            span: str = "".join([token.text for token in answer_tokens]).lstrip()
+            # Make sure the span finding is correct (TODO: whether using the detokenizer function rather than join)
+            assert span == reference, f"Expected: {reference}, Actual: {span}"
 
             logprob = sum(token.logprob for token in answer_tokens)
             num_tokens = len(answer_tokens)
@@ -639,3 +660,15 @@ class BasicMetric(Metric):
         return [
             Stat(MetricName("accuracy")).add(float(max(reference_scores) == max(answer_scores))),
         ]
+
+    def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
+        """Derive perplexity metrics if applicable. We don't worry about splits and perturbations here."""
+        derived_stats: List[Stat] = []
+        derived_stats.extend(compute_perplexity_metrics(stats_dict))
+        return derived_stats
+
+    def derive_per_instance_stats(self, per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
+        """Derive calibration metrics if applicable. We don't worry about splits and perturbations here."""
+        derived_stats: List[Stat] = []
+        # derived_stats.extend(compute_calibration_metrics(per_instance_stats))
+        return derived_stats
