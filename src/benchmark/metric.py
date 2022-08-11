@@ -296,15 +296,15 @@ class Metric(ABC):
                 if identity_stat is not None:
                     stat.merge(identity_stat)
                     if perturbation.name not in ["robustness", "fairness"]:
-                        before = replace(perturbation, name=f"before_{perturbation.name}")
+                        before = replace(perturbation, includes_perturbed=False, includes_identity=True)
                         merge_stat(
                             derived_stats_dict, Stat(replace(stat.name, perturbation=before)).merge(identity_stat)
                         )
 
                 # keep the minimum performance for each input
-                perturbation = replace(perturbation, name=f"worst_{perturbation.name}")
+                worst = replace(perturbation, includes_perturbed=True, includes_identity=True)
                 if stat.count > 0:
-                    merge_stat(derived_stats_dict, Stat(replace(stat.name, perturbation=perturbation)).add(stat.min))
+                    merge_stat(derived_stats_dict, Stat(replace(stat.name, perturbation=worst)).add(stat.min))
         return list(derived_stats_dict.values())
 
 
