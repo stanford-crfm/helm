@@ -205,7 +205,7 @@ There are three types of classes:
 
 ### Adding new scenarios
 
-In order to implement new metrics:
+In order to implement new scenarios:
 
 1. Create a new file as a new Python scenario file in the `scenarios` folder.
 2. Within the scenario file, create a `Scenario` class, e.g. `YourScenario`.
