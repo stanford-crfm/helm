@@ -221,26 +221,25 @@ In order to implement new scenarios:
 5. Make sure to document your scenario well with a clear docstring. 
 6. In addition, specify its `name`, `description`, and `tags` and define a class
    `__init__` function even if it is simply `pass`.
-7. Define a function `get_specname_spec` in `run_specs.py` 
-8. Have the `get_specname_spec` function retrieve a `ScenarioSpec` 
+7. Define a function `get_specname_spec` in `run_specs.py` to retrieve a `ScenarioSpec` 
    for your scenario using a class name corresponding to the Python path of 
    the class (e.g. `benchmark.scenarios.your_scenario.YourScenario`) and any 
    arguments which must be passed as a dictionary of `args`.
-9. Have the `get_specname_spec` function retrieve an `AdapterSpec` for your
+8. Have the `get_specname_spec` function retrieve an `AdapterSpec` for your
    scenario specifying the type of language model generation which must be 
    performed for the task
-10. Define a `get_metric_spec` function retrieve one or more `MetricSpec`
+9. Define a `get_metric_spec` function retrieve one or more `MetricSpec`
    objects for your task, specifying the classname with the Python path of
    the object, with the same arguments as the `ScenarioSpec` constructor.
-11. Have the `get_specname_spec` function return a `RunSpec` object, with a 
+10. Have the `get_specname_spec` function return a `RunSpec` object, with a 
    `name` corresponding to the scenario name and any patterns to match in 
    curly braces, a `scenario_spec`, an `adapter_spec`, `metric_specs`, 
    and `groups`. 
-12. Add the scenario to `__init__.py`
-13. Attempt to run your task with
+11. Add the scenario to `__init__.py`
+12. Attempt to run your task with
     `venv/bin/benchmark-run -r yourscenarioname:arg=value` where 
     `yourscenarioname` matches the `name` specified in YourScenario
-14. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `run_specs.py`.
+13. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `run_specs.py`.
 
 ## Data Augmentations
 
