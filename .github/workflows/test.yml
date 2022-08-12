@@ -17,12 +17,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-#      - uses: actions/cache@v2
-#        with:
-#          path: ~/.cache/pip
-#          key: pip-${{ hashFiles('requirements.txt') }}-${{ matrix.python-version }}
-#          restore-keys: |
-#            pip-
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('requirements.txt') }}-${{ matrix.python-version }}
+          restore-keys: |
+            pip-
       - run: echo "Finished installation."
 
   test:
@@ -37,22 +37,22 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: 3.8
-#      - uses: actions/cache@v2
-#        with:
-#          path: ~/.cache/pip
-#          key: pip-${{ hashFiles('requirements.txt') }}
-#          restore-keys: |
-#            pip-
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            pip-
       # Installs dependencies and performs static code checks
       - run: ./pre-commit.sh
-#      - name: Run tests
-#        run: venv/bin/pytest
-#        env:
-#          TEST: ${{ matrix.test }}
-#          VERSION: ${{ github.head_ref || 'main' }}
-      - name: Run entire pipeline quickly without any data
+      - name: Run tests
+        run: venv/bin/pytest
+        env:
+          TEST: ${{ matrix.test }}
+          VERSION: ${{ github.head_ref || 'main' }}
+      # - name: Run entire pipeline quickly without any data
         # Checking RunSpecs with openai/davinci should be comprehensive enough
-        run: venv/bin/benchmark-present --skip-instances --models-to-run openai/davinci --exit-on-error
+      #  run: venv/bin/benchmark-present --skip-instances --models-to-run openai/davinci --exit-on-error
 
   ci:
     name: All CI tasks complete
