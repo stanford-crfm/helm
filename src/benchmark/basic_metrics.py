@@ -478,8 +478,8 @@ class BasicMetric(Metric):
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
             Stat(MetricName("inference_runtime_discrepancy")).add(runtime_discrepancy),
-            Stat(MetricName("training_co2_cost")).add(training_co2_cost),
-            Stat(MetricName("training_energy_cost")).add(training_energy_cost),
+            Stat(MetricName("training_co2_cost")).add(training_co2_cost["value"]),
+            Stat(MetricName("training_energy_cost")).add(training_energy_cost["value"]),
         ]
 
     def compute_finish_reason_metrics(
