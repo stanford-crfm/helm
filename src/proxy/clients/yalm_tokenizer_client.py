@@ -1,7 +1,5 @@
 from dataclasses import asdict
 
-from icetk import icetk as tokenizer
-
 from common.cache import Cache
 from common.request import Request, RequestResult
 from common.tokenization_request import (
@@ -12,16 +10,18 @@ from common.tokenization_request import (
     TokenizationToken,
 )
 from .client import Client, wrap_request_time
+from .yalm_tokenizer.yalm_tokenizer import YaLMTokenizer
 
 
-class ICETokenizerClient(Client):
+class YaLMTokenizerClient(Client):
     """
-    The ICE Tokenizer is a unified tokenization tool for images, Chinese, and English.
-    Source: https://github.com/THUDM/icetk
+    The tokenizer for YaLM, which was trained on Russian and English text.
+    Source: https://github.com/yandex/YaLM-100B
     """
 
     def __init__(self, cache_path: str):
         self.cache = Cache(cache_path)
+        self.tokenizer = YaLMTokenizer()
 
     def make_request(self, request: Request) -> RequestResult:
         raise NotImplementedError
@@ -32,14 +32,14 @@ class ICETokenizerClient(Client):
         try:
 
             def do_it():
-                tokens = tokenizer.encode(request.text) if request.encode else tokenizer.tokenize(request.text)
+                token_ids = self.tokenizer.tokenize(request.text)
                 if request.truncation:
-                    tokens = tokens[: request.max_length]
-                return {"tokens": tokens}
+                    token_ids = token_ids[: request.max_length]
+                return {"tokens": token_ids if request.encode else self.tokenizer.convert_ids_to_tokens(token_ids)}
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:
-            error: str = f"ICE Tokenizer error: {e}"
+            error: str = f"YaLM Tokenizer error: {e}"
             return TokenizationRequestResult(success=False, cached=False, error=error, text="", tokens=[])
 
         return TokenizationRequestResult(
@@ -56,11 +56,11 @@ class ICETokenizerClient(Client):
         try:
 
             def do_it():
-                return {"text": tokenizer.decode(request.tokens)}
+                return {"text": self.tokenizer.decode(request.tokens)}
 
             result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:
-            error: str = f"ICE Tokenizer error: {e}"
+            error: str = f"YaLM Tokenizer error: {e}"
             return DecodeRequestResult(success=False, cached=False, error=error, text="")
 
         return DecodeRequestResult(

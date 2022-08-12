@@ -106,7 +106,7 @@ def test_typos_perturbation():
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
-    assert instances[1].perturbation.name == "TyposPerturbation"
+    assert instances[1].perturbation.name == "typos"
     assert instances[1].perturbation.prob == 0.1
     assert instances[1].input == "After their marrjage, she started a close collaborwtion with Karvelas."
 
@@ -119,7 +119,7 @@ def test_synonym_perturbation():
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
-    assert instances[1].perturbation.name == "SynonymPerturbation"
+    assert instances[1].perturbation.name == "synonym"
     assert instances[1].perturbation.prob == 1.0
     assert instances[1].input == "This was a serious film, would learn once more."
 

@@ -12,13 +12,13 @@ class TokenizationRequest:
     # Which tokenizer we should use
     tokenizer: str = "huggingface/gpt2"
 
-    # Whether to encode (HuggingFace tokenizers only)
+    # Whether to encode
     encode: bool = False
 
-    # Whether to truncate (HuggingFace tokenizers only)
+    # Whether to truncate
     truncation: bool = False
 
-    # Maximum length when encoding  (HuggingFace tokenizers only)
+    # Maximum length when encoding
     max_length: int = 2048
 
     @property
