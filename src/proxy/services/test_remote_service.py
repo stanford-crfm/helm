@@ -124,6 +124,7 @@ class TestRemoteServerService:
         cls.service.shutdown(cls.auth)
         shutil.rmtree(cls.base_path)
 
+    #  TODO: remove skip in this file: https://github.com/stanford-crfm/benchmarking/issues/731
     @pytest.mark.skip
     def test_make_request(self):
         request = Request(prompt="1 2 3", model="simple/model1")
