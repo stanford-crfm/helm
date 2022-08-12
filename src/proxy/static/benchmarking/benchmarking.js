@@ -26,7 +26,6 @@ $(function () {
   class AdapterField extends Field {
     constructor(raw) {
       super(raw);
-      // Possible values this field can take
       this.values = this.readValues(raw.values);
     }
 
@@ -44,20 +43,30 @@ $(function () {
     }
   }
 
-  // Captures information about a field of a group.
+  // Each run spec (e.g. ice:subset=JA) specifies a list of groups it belongs
+  // to (e.g. [ "ice_ja"]). A GroupField captures what information should
+  // be displayed for each group (e.g. split, stat_names). For example, for
+  // the ICE scenario, the main stats we want to show come from the "test"
+  // split, while the main stats we want to show is "bits_per_byte".
   class GroupField extends Field {
     constructor(raw) {
       super(raw);
-      // Possible values this field can take
-      this.display = raw.display;
+      this.display = {
+        split: raw.display.split,
+        stat_names: raw.display.stat_names,
+      }
     }
   }
 
-  // Captures information about a field of a metric group.
+  // Metric group corresponds to a logical group of metrics we show in the
+  // group tables that share common characteristics. For example, for the
+  // metrics that belong to the "accuracy" group, the k value we show in the
+  // group tables is 1. For each of these metric, we also show the perturbed
+  // versions specified in the "perturbation_names" field. MetricGroupField
+  // keeps track of all the information related to a metric field.
   class MetricGroupField extends Field {
     constructor(raw) {
       super(raw);
-      // Possible values this field can take
       this.display_k = raw.display_k;
       this.stat_names = raw.stat_names;
       this.perturbation_names = raw.perturbation_names;
@@ -427,14 +436,10 @@ $(function () {
     } else if (urlParams.groups) {
       $main.append(renderHeader('Groups', renderGroups(schema.groupsFields)));
     } else if (urlParams.group) {
-      // TODO: The groups page can display multiple groups at the same time as
-      // To realize this, we originally intended to use regular expressions
-      // here. However, we can't allow all regular expressions because our group
-      // names include () and - characters. We should either change our group
-      // names or rely on string parsing of the URL to allow multiple groups to
-      // be displayed at the same time.
       // TODO: We have removed the spaces/() from the group names, so we can
-      // switch back to the RegEx match after the next run.
+      // switch back to the RegEx match after the next run, which will allow
+      // us to display multiple groups at the same time, as long as the groups
+      // have compatible display settings.
       const matchedGroups = schema.groupsFields.filter((group) => urlParams.group === group.name);
       const matchedGroupNames = matchedGroups.map((group) => group.name);
       const matchedRuns = filterByGroupNames(runs, matchedGroupNames);

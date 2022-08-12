@@ -309,11 +309,7 @@ function getColumnSpecs(schema, groups) {
     // Get stat names and perturbations.
     const defaultK = metricGroup.display_k;
     const perturbationNames = metricGroup.perturbation_names;
-    let statNames = metricGroup.stat_names;
-    if (metricGroup.name === 'accuracy') {
-      // Infer the stat names for the group.
-      statNames = getStatNames(groups);
-    }
+    const statNames = metricGroup.name === 'accuracy' ? getStatNames(groups) : metricGroup.stat_names;
 
     // Create filters
     statNames.forEach(statName => {

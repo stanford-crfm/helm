@@ -1016,15 +1016,16 @@ def get_code_spec(dataset: str) -> RunSpec:
             output_prefix="",
         )
 
-    # Dataset names can include capital letters, we are lowering them to standardize the group names.
-    group_name: str = f"code_{dataset.lower()}"
+    # Dataset names can include capital letters - we are lowering them here to
+    # standardize the RunSpec and group names.
+    dataset = dataset.lower()
 
     return RunSpec(
         name=f"code:dataset={dataset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_code_metric_specs(dataset),
-        groups=[group_name],
+        groups=[f"code_{dataset}"],
     )
 
 
@@ -1048,15 +1049,16 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         stop_sequences=["\n"],
     )
 
-    # Mode names could include - (e.g. openbook-longans), we are lowering them to standardize the group names.
-    group_name: str = mode.replace('-', '_')
+    # Mode names could include "-" (e.g. openbook-longans), which we are
+    # removing here to standardize the RunSpec and group names.
+    mode = mode.replace("-", "_")
 
     return RunSpec(
         name=f"natural_qa:mode={mode}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
-        groups=["natural_qa", f"natural_qa_{group_name}"],
+        groups=["natural_qa", f"natural_qa_{mode}"],
     )
 
 
@@ -1106,15 +1108,16 @@ def get_ice_spec(**kwargs) -> RunSpec:
         max_tokens=0,
     )
 
-    # Subset names can come in capital letters (e.g. JA), we are lowering them to standardize the group names.
-    group_name: str = kwargs['subset'].lower()
+    # Subset names can come in capital letters (e.g. JA), we are lowering them
+    # here to standardize the RunSpec and group names.
+    kwargs["subset"] = kwargs["subset"].lower()
 
     return RunSpec(
         name="ice" + (":" if len(kwargs) > 0 else "") + ",".join(f"{k}={v}" for k, v in kwargs.items()),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs({"names": []}),
-        groups=[f"ice_{group_name}"],
+        groups=[f"ice_{kwargs['subset']}"],
     )
 
 

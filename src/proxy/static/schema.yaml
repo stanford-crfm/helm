@@ -180,7 +180,8 @@ perturbations:
     description: >
       Deterministically substitutes male pronouns with female pronouns and computes the per-instance worst-case
       performance between perturbed and unperturbed versions.
-  # TODO: Remove the perturbations below. Included for now to better compare perturbation stats.
+  # TODO: Remove the perturbations below. Included for now to help us ensure
+  # the correctness of our perturbations.
   - name: TyposPerturbation # TODO: typos
     display_name: Typos
   - name: SynonymPerturbation # TODO: synonym
