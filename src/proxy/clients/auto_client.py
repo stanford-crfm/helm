@@ -22,6 +22,7 @@ from .huggingface_client import HuggingFaceClient
 from .ice_tokenizer_client import ICETokenizerClient
 from .openai_client import OpenAIClient
 from .microsoft_client import MicrosoftClient
+from .yalm_tokenizer_client import YaLMTokenizerClient
 from .simple_client import SimpleClient
 
 
@@ -116,6 +117,8 @@ class AutoClient(Client):
                 client = HuggingFaceClient(cache_path=client_cache_path)
             elif organization == "TsinghuaKEG":
                 client = ICETokenizerClient(cache_path=client_cache_path)
+            elif organization == "Yandex":
+                client = YaLMTokenizerClient(cache_path=client_cache_path)
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
             elif organization == "simple":
