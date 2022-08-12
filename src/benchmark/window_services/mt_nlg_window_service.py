@@ -20,3 +20,7 @@ class MTNLGWindowService(GPT2WindowService):
         The max request length for the MT-NLG models is also 2048.
         """
         return self.max_sequence_length
+
+    @property
+    def prefix_token(self) -> str:
+        return "."
