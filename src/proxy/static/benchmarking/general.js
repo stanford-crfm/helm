@@ -246,26 +246,20 @@ function getUniqueValue(arr, messageType) {
 }
 
 function getTableSetting(schema, groups) {
-  const tableSettingNames = groups.map(group => group.values.tableSetting || 'default');
+  const tableSettingNames = groups.map(group => group.tableSetting || 'default');
   const tableSettingsName = getUniqueValue(tableSettingNames, 'table settings');
   const tableSetting = schema.tableSettingsField(tableSettingsName);
   return tableSetting;
 }
 
-function getDisplayK(groups) {
-  const displayKArr = groups.map(group => group.values.display.k);
-  const displayK = getUniqueValue(displayKArr, 'display k');
-  return displayK;
-}
-
 function getDisplaySplit(groups) {
-  const displaySplitArr = groups.map(group => group.values.display.split);
+  const displaySplitArr = groups.map(group => group.display.split);
   const displaySplit = getUniqueValue(displaySplitArr, 'display k');
   return displaySplit;
 }
 
 function getStatNames(groups) {
-  const statNamesArr = groups.map(group => group.values.display.stat_names);
+  const statNamesArr = groups.map(group => group.display.stat_names);
   const statNames = [].concat(...statNamesArr);
   return statNames;
 }

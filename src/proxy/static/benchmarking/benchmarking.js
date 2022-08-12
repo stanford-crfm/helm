@@ -12,13 +12,20 @@ $(function () {
 
   //////////////////////////////// Schema //////////////////////////////////////
 
-  // Captures information about a field of an adapter (e.g.,
-  // max_train_instances) or a metric name (e.g., exact_match).
+  // Captures information about a field in the schema.
   class Field {
     constructor(raw) {
       this.name = raw.name;
-      this.description = raw.description;
       this.display_name = raw.display_name;
+      this.description = raw.description;
+    }
+  }
+
+  // Captures information about a field of an adapter (e.g.,
+  // max_train_instances) or a metric name (e.g., exact_match).
+  class AdapterField extends Field {
+    constructor(raw) {
+      super(raw);
       // Possible values this field can take
       this.values = this.readValues(raw.values);
     }
@@ -29,12 +36,31 @@ $(function () {
       if (Array.isArray(values)) {
         // If the values field is an array, read each element as a Field.
         return values.map((valueRaw) => new Field(valueRaw));
-      } else if (values === undefined || typeof(values) === 'object') {
-        // If the values field is an object, read it as is. Note that an object can be null.
-        return values;
+      } else if (values === undefined) {
+        return undefined;
       }
       // If no matching schema is found, raise an error!
       console.error(`The values field of ${this.name} should be an array or an object. Instead found: ${values}.`);
+    }
+  }
+
+  // Captures information about a field of a group.
+  class GroupField extends Field {
+    constructor(raw) {
+      super(raw);
+      // Possible values this field can take
+      this.display = raw.display;
+    }
+  }
+
+  // Captures information about a field of a metric group.
+  class MetricGroupField extends Field {
+    constructor(raw) {
+      super(raw);
+      // Possible values this field can take
+      this.display_k = raw.display_k;
+      this.stat_names = raw.stat_names;
+      this.perturbation_names = raw.perturbation_names;
     }
   }
 
@@ -42,20 +68,18 @@ $(function () {
   // for adapters and metrics.
   class Schema {
     constructor(raw) {
-      this.adapterFields = raw.adapter.map((fieldRaw) => new Field(fieldRaw));
+      this.adapterFields = raw.adapter.map((fieldRaw) => new AdapterField(fieldRaw));
       this.metricsFields = raw.metrics.map((fieldRaw) => new Field(fieldRaw));
       this.perturbationsFields = raw.perturbations.map((fieldRaw) => new Field(fieldRaw));
-      this.groupsFields = raw.groups.map((fieldRaw) => new Field(fieldRaw));
-      this.tableSettingsFields = raw.table_settings.map((fieldRaw) => new Field(fieldRaw));
-      this.statGroupsFields = raw.stat_groups.map((fieldRaw) => new Field(fieldRaw));
+      this.groupsFields = raw.groups.map((fieldRaw) => new GroupField(fieldRaw));
+      this.metricGroupsFields = raw.metric_groups.map((fieldRaw) => new MetricGroupField(fieldRaw));
 
       // Allow convenient access
       this.adapterFieldNames = this.adapterFields.map((field) => field.name);
       this.metricsFieldNames = this.metricsFields.map((field) => field.name);
       this.perturbationsFieldNames = this.perturbationsFields.map((field) => field.name);
       this.groupsFieldNames = this.groupsFields.map((field) => field.name);
-      this.tableSettingsFieldNames = this.tableSettingsFields.map((field) => field.name);
-      this.statGroupsFieldNames = this.statGroupsFields.map((field) => field.name);
+      this.metricGroupsFieldNames = this.metricGroupsFields.map((field) => field.name);
     }
 
     adapterField(name) {
@@ -76,9 +100,9 @@ $(function () {
       return field || new Field({name});
     }
 
-    statGroupsField(name) {
+    metricGroupsField(name) {
       // Return the group field with the given `name`.
-      const field = this.statGroupsFields.find((field) => field.name === name);
+      const field = this.metricGroupsFields.find((field) => field.name === name);
       return field || new Field({name});
     }
 
