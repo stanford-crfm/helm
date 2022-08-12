@@ -283,10 +283,15 @@ class InteractiveRunner:
             user_input=None, request_state=new_request_state, time=datetime.datetime.now()
         )
         if self.interactive_adapter.user_initiated is False:
-            new_request_state = self.interactive_adapter.initial_lm_request(first_interaction_round.request_state)
+            # Check whether previously initialized before creating new request
+            if not interaction_trace.request_initialized:
+                new_request_state = self.interactive_adapter.initial_lm_request(first_interaction_round.request_state)
             new_request_state = self.process(new_request_state)
             hlog(new_request_state.render_lines())
             first_interaction_round = InteractionRound(user_input=None, request_state=new_request_state)
+
+        # Store request initialized whether or not user initiated
+        interaction_trace.request_initialized = True
 
         # Handle toxicity, if any
         clean_output, generated_toxic = self.interactive_adapter.filter_toxic_generations(first_interaction_round)
