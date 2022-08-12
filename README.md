@@ -216,8 +216,7 @@ In order to implement new scenarios:
    must specify the `split` of the `Instance` as one of `TRAIN_SPLIT`,
    `VALID_SPLIT`, or `TEST_SPLIT` constants as in `scenario.py`.
 4. Note that you need not enumerate every possible correct answer (nor must
-   there even necessarily be a correct answer). If necessary, define a new
-   metric in `metric.py` if one does not exist for your evaluation type. 
+   there even necessarily be a correct answer). 
 5. Make sure to document your scenario well with a clear docstring. 
 6. In addition, specify its `name`, `description`, and `tags` and define a class
    `__init__` function even if it is simply `pass`.
@@ -227,19 +226,39 @@ In order to implement new scenarios:
    arguments which must be passed as a dictionary of `args`.
 8. Have the `get_specname_spec` function retrieve an `AdapterSpec` for your
    scenario specifying the type of language model generation which must be 
-   performed for the task
-9. Define a `get_metric_spec` function retrieve one or more `MetricSpec`
+   performed for the task.
+9. Identify the appropriate metric for your task in one of the `*_metrics.py` files.
+   If the metric you'd like to use does not exist, follow the directions in [Adding new metrics](#adding-new-metrics).
+   Many will be in `basic_metrics.py`.
+10. Have a `get_metric_spec` function retrieve one or more `MetricSpec`
    objects for your task, specifying the classname with the Python path of
    the object, with the same arguments as the `ScenarioSpec` constructor.
-10. Have the `get_specname_spec` function return a `RunSpec` object, with a 
+11. Have the `get_specname_spec` function return a `RunSpec` object, with a 
    `name` corresponding to the scenario name and any patterns to match in 
    curly braces, a `scenario_spec`, an `adapter_spec`, `metric_specs`, 
    and `groups`. 
-11. Add the scenario to `__init__.py`
-12. Attempt to run your task with
+12. Add the scenario to `__init__.py`
+13. Attempt to run your task with
     `venv/bin/benchmark-run -r yourscenarioname:arg=value` where 
     `yourscenarioname` matches the `name` specified in YourScenario
-13. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `run_specs.py`.
+14. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `run_specs.py`.
+
+### Adding new metrics
+
+To add a new metric:
+1. If the metric is task-specific, create a new `yourtask_metrics.py` file. 
+   Otherwise, if the metric is generic and likely to be widely used, add it
+   to `basic_metrics.py`.
+2. If you are creating a task-specific metric, create a `YourTaskMetric` 
+   which inherets from `Metric` in `metric.py`.
+3. Define methods `__init__` and `evaluate_generation` returning a list of `Stat` objects.
+4. Each `Stat` should correspond to a distinct aggregate measurement over the generated examples. 
+   Some may have one metric (e.g. accuracy), while others may quantify multiple aspects
+   (e.g. multiple distance metrics). 
+5. For each `value` generated for a `Stat`, add it to `yourstat` using `yourstat.add(value)`. 
+   Usually, there will only be one value for each `Stat`, but multiple can be used, e.g. to show variance.
+6. Add your metric to `__init__.py`.
+
 
 ## Data Augmentations
 
