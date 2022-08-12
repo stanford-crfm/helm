@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass, replace
-from typing import List, Dict, Tuple, Optional, Any, Union, Set
+from typing import List, Dict, Tuple, Optional, Iterable, Set
 from collections import defaultdict
 
 from common.object_spec import ObjectSpec, create_object
@@ -318,23 +318,16 @@ def create_metric(metric_spec: MetricSpec) -> Metric:
     return create_object(metric_spec)
 
 
-def get_all_stats_by_name(stats: Union[List[Stat], Dict[Any, Stat]], name: str, k: Optional[int] = None) -> List[Stat]:
+def get_all_stats_by_name(stats: Iterable[Stat], name: str, k: Optional[int] = None) -> List[Stat]:
     """Returns a list of all stats with the specified name and optionally the right k."""
-    stats_list: List[Stat] = []
-    if isinstance(stats, list):
-        stats_list = stats
-    else:
-        stats_list = list(stats.values())
 
     def matches(stat):
         return stat.name.name == name and (k is None or stat.name.k == k)
 
-    return list(filter(matches, stats_list))
+    return list(filter(matches, stats))
 
 
-def get_unique_stat_by_name(
-    stats: Union[List[Stat], Dict[Any, Stat]], name: str, k: Optional[int] = None
-) -> Optional[Stat]:
+def get_unique_stat_by_name(stats: Iterable[Stat], name: str, k: Optional[int] = None) -> Optional[Stat]:
     """Returns the unique stat with the specified name (and maybe k) or None if it's not there."""
     matching_stats: List[Stat] = get_all_stats_by_name(stats, name, k)
     if len(matching_stats) == 0:

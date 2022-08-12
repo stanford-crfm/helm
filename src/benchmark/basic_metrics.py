@@ -17,6 +17,7 @@ import scipy
 
 from common.hierarchical_logger import hlog
 from common.request import Token, Sequence
+from common.general import singleton
 from . import code_metrics_helper
 from .adapter import (
     ADAPT_MULTIPLE_CHOICE_JOINT,
@@ -257,9 +258,9 @@ def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
     #       https://github.com/stanford-crfm/benchmarking/issues/350
     derived_stats: List[Stat] = []
 
-    logprob_stat = get_unique_stat_by_name(stats, "logprob")
-    num_tokens_stat = get_unique_stat_by_name(stats, "num_perplexity_tokens")
-    num_bytes_stat = get_unique_stat_by_name(stats, "num_bytes")
+    logprob_stat = get_unique_stat_by_name(stats.values(), "logprob")
+    num_tokens_stat = get_unique_stat_by_name(stats.values(), "num_perplexity_tokens")
+    num_bytes_stat = get_unique_stat_by_name(stats.values(), "num_bytes")
 
     if logprob_stat is None:
         return []
@@ -397,9 +398,8 @@ class BasicMetric(Metric):
 
         # Add calibration metrics for ADAPT_MULTIPLE_CHOICE_JOINT.
         if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
-            logprob = np.sum([c.logprob for c in request_state.result.completions])
-            max_prob = np.exp(logprob)
-            reference_metrics.append(Stat(MetricName("max_prob")).add(max_prob))
+            max_prob = np.exp(singleton(request_state.result.completions).logprob)
+            reference_metrics.append(Stat(MetricName("max_prob", k=1)).add(max_prob))
 
         # Add other metrics.
         for metric_name in self.names:
@@ -668,8 +668,8 @@ class BasicMetric(Metric):
         max_prob = np.max(scipy.special.softmax(reference_scores))
         # TODO: handle case where there are multiple max probs?
         return [
-            Stat(MetricName("max_prob")).add(max_prob),
-            Stat(MetricName("accuracy")).add(float(max(reference_scores) == max(answer_scores))),
+            Stat(MetricName("max_prob", k=1)).add(max_prob),
+            Stat(MetricName("exact_match", k=1)).add(float(max(reference_scores) == max(answer_scores))),
         ]
 
     def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
@@ -689,11 +689,8 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
     max_probs = []
     correct = []
     for instance_stats in per_instance_stats.values():
-        max_prob_stat = get_unique_stat_by_name(instance_stats, "max_prob")
-        # Use exact_match for multiple choice joint, and accuracy for multiple choice separate
+        max_prob_stat = get_unique_stat_by_name(instance_stats, "max_prob", k=1)
         correct_stat = get_unique_stat_by_name(instance_stats, "exact_match", k=1)
-        if correct_stat is None:
-            correct_stat = get_unique_stat_by_name(instance_stats, "accuracy")
         if correct_stat is not None and max_prob_stat is not None:
             max_probs.append(max_prob_stat.mean)
             correct.append(correct_stat.mean)
