@@ -455,7 +455,7 @@ class BasicMetric(Metric):
         # Compute efficiency metrics for training.
         training_co2_cost: Optional[float]
         if request_state.request.model in self.training_efficiency_dict["carbon"]:
-            training_co2_cost = self.training_efficiency_dict["carbon"][request_state.request.model]
+            training_co2_cost = self.training_efficiency_dict["carbon"][request_state.request.model]["value"]
         else:
             hlog(
                 f"WARNING: tried to estimate training CO2 emissions for model {request_state.request.model} "
@@ -465,7 +465,7 @@ class BasicMetric(Metric):
 
         training_energy_cost: Optional[float]
         if request_state.request.model in self.training_efficiency_dict["energy"]:
-            training_energy_cost = self.training_efficiency_dict["energy"][request_state.request.model]
+            training_energy_cost = self.training_efficiency_dict["energy"][request_state.request.model]["value"]
         else:
             hlog(
                 f"WARNING: tried to estimate training energy cost for model {request_state.request.model} "
@@ -478,8 +478,8 @@ class BasicMetric(Metric):
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
             Stat(MetricName("inference_runtime_discrepancy")).add(runtime_discrepancy),
-            Stat(MetricName("training_co2_cost")).add(training_co2_cost["value"]),
-            Stat(MetricName("training_energy_cost")).add(training_energy_cost["value"]),
+            Stat(MetricName("training_co2_cost")).add(training_co2_cost),
+            Stat(MetricName("training_energy_cost")).add(training_energy_cost),
         ]
 
     def compute_finish_reason_metrics(
