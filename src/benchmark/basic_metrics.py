@@ -616,9 +616,12 @@ class BasicMetric(Metric):
                 answer_tokens.insert(0, token)
                 answer_length += len(token.text)
 
+            # Sanity check
             span: str = "".join([token.text for token in answer_tokens]).lstrip()
-            # Make sure the span finding is correct (TODO: whether using the detokenizer function rather than join)
-            assert span == reference, f"Expected: {reference}, Actual: {span}"
+            alphanumeric_chars: str = string.digits + string.ascii_lowercase + string.ascii_uppercase
+            filtered_span: str = "".join(list(filter(lambda x: x in alphanumeric_chars, span)))
+            filtered_reference: str = "".join(list(filter(lambda x: x in alphanumeric_chars, reference)))
+            assert filtered_span == filtered_reference, f"Expected: {filtered_reference}, Actual: {filtered_span}"
 
             logprob = sum(token.logprob for token in answer_tokens)
             num_tokens = len(answer_tokens)
