@@ -55,6 +55,7 @@ class DialogueAdapter(InteractiveAdapter):
 
             print("Before postprocessing")
             print(initial_request_state.request.prompt)
+            # Remove prompt
             new_prompt = re.sub(
                 adapter_spec.input_prefix + ".*(?=" + adapter_spec.output_prefix + ")",
                 "",

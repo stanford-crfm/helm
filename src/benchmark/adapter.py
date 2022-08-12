@@ -201,6 +201,9 @@ class InteractionTrace:
 
     user_id: Optional[str] = None
 
+    # Whether or not the RequestState has been initialized
+    request_initialized: bool = False
+
     trace_completed: bool = False
 
     # All toxic generations produced during interaction
