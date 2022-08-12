@@ -1,6 +1,7 @@
 import os
 import random
 import shutil
+import pytest
 import tempfile
 import requests
 import socket
@@ -123,16 +124,19 @@ class TestRemoteServerService:
         cls.service.shutdown(cls.auth)
         shutil.rmtree(cls.base_path)
 
+    @pytest.mark.skip
     def test_make_request(self):
         request = Request(prompt="1 2 3", model="simple/model1")
         response: RequestResult = self.service.make_request(self.auth, request)
         assert response.success
 
+    @pytest.mark.skip
     def test_tokenize(self):
         request = TokenizationRequest(text="1 2 3", tokenizer="simple/model1")
         response: TokenizationRequestResult = self.service.tokenize(self.auth, request)
         assert [token.value for token in response.tokens] == ["1", "2", "3"]
 
+    @pytest.mark.skip
     def test_make_request_plus_sign(self):
         # Ensure + in prompt doesn't get replaced by a blank space
         request = Request(prompt="+", model="simple/model1")
@@ -140,6 +144,7 @@ class TestRemoteServerService:
         assert response.completions[0].text == "+"
         assert response.success
 
+    @pytest.mark.skip
     def test_update_account(self):
         account = self.service.get_account(self.auth)
         assert account.api_key == TestRemoteServerService._ADMIN_API_KEY
@@ -147,17 +152,20 @@ class TestRemoteServerService:
         account = self.service.update_account(self.auth, account)
         assert account.description == "new description"
 
+    @pytest.mark.skip
     def test_create_account(self):
         self.service.create_account(self.auth)
         accounts = self.service.get_accounts(self.auth)
         assert len(accounts) == 2
 
+    @pytest.mark.skip
     def test_rotate_api_key(self):
         account = self.service.create_account(self.auth)
         old_api_key = account.api_key
         account = self.service.rotate_api_key(self.auth, account)
         assert account.api_key != old_api_key
 
+    @pytest.mark.skip
     def test_concurrent_make_request(self):
         # Fix seed for reproducibility
         random.seed(0)
