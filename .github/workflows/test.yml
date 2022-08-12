@@ -1,7 +1,7 @@
 name: Test
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
 
 jobs:
@@ -49,7 +49,7 @@ jobs:
         run: venv/bin/pytest
         env:
           TEST: ${{ matrix.test }}
-          VERSION: ${{ github.head_ref || 'master' }}
+          VERSION: ${{ github.head_ref || 'main' }}
       - name: Run entire pipeline quickly without any data
         # Checking RunSpecs with openai/davinci should be comprehensive enough
         run: venv/bin/benchmark-present --skip-instances --models-to-run openai/davinci --exit-on-error
