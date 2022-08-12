@@ -52,7 +52,6 @@ class DialogueInstance(Instance):
 
 def get_whitelisted_prompts(path) -> List[str]:
     whitelist_df_raw: pd.DataFrame = pd.DataFrame(pd.read_csv(path, engine="python", index_col=0))
-
     # At each stage, the return value can be None, that's why the following if conditions
     # Makes it pass type checks and is generally good to do
     if whitelist_df_raw is not None:
@@ -202,49 +201,69 @@ class WizardOfWikipediaScenario(Scenario):
     description = "A dataset of 25k conversations grounded in emotional situations."
     tags = ["interaction", "dialogue"]
 
-    def __init__(self, *args):
-        pass
+    def __init__(self, begin: int, end: int):
+        self.begin = begin
+        self.end = end
 
     def download_data(self):
-        # Download the raw data
+        # Set up paths
         self.data_path: str = os.path.join(
-            self.output_path, "data/train_cleaned.json"
-        )  # benchmark_output/scenarios/wizardofwikipedia/
+            self.output_path, "data/"
+        ) 
+        self.whitelist_path: str = os.path.join(self.output_path, "data/wizard/whitelisted_prompts.csv")
+        wizard_path = os.path.join(self.data_path, "wizard")
+
+        self.train_path = os.path.join(wizard_path, "train.json")
+        self.valid_path = os.path.join(wizard_path, "valid_topic_split.json")
+        self.test_path = os.path.join(wizard_path, "test_topic_split.json")
+        # Download and unpack WoW data
         ensure_file_downloaded(
-            source_url="https://dialogue-benchmark-wow.s3.amazonaws.com/train_pared.json",
-            target_path=self.data_path,
-            unpack=False,
+            source_url="https://parl.ai/downloads/wizard_of_wikipedia/wizard_of_wikipedia.tgz",
+            target_path=wizard_path,
+            unpack=True,
+            unpack_type="untar"
+        )
+
+        ensure_file_downloaded(
+            source_url="https://raw.githubusercontent.com/ameliahardy/whitelisted-dialogue-prompts/main/wizardofwikipedia.csv",
+            target_path=self.whitelist_path
         )
 
     def read_instances(self):
         """Downloads the train, valid, test dataset and saves homogenized instances in self.instances"""
 
         instances: List[Instance] = []
+        splits: Dict[str, str] = {"train": TRAIN_SPLIT, "valid": VALID_SPLIT, "test": TEST_SPLIT}
+        split_to_path: Dict[str, str] = {"train": self.train_path, "valid": self.valid_path, "test": self.test_path}
+
+        whitelisted_prompt_list = get_whitelisted_prompts(self.whitelist_path)
+        whitelisted_prompt_list = [s.replace("_comma_", ",").strip().lower() for s in whitelisted_prompt_list]
+
+        whitelisted_prompts: Set[str] = set(whitelisted_prompt_list[self.begin : self.end])
+        print(whitelisted_prompts)
 
         hlog(f"Reading {self.data_path}")
-
-        data_df = pd.read_json(self.data_path)
-        n_train = int(len(data_df) * 0.8)
 
         # Initialize references
         references = []
 
-        # Split df and iterate through splits
-        train_df, test_df = data_df.iloc[:n_train], data_df.iloc[n_train:]
-        split_to_df = {TRAIN_SPLIT: train_df, TEST_SPLIT: test_df}
-
         # Iterate through conversations in the df
-        for split in split_to_df.keys():
-            df = split_to_df[split]
+        for split in splits:
+            df = pd.read_json(split_to_path[split])
             for index, row in df.iterrows():
-
+                
                 # Check Wizard quality and skip if wizard_eval < 5
                 if row["wizard_eval"] < 5:
                     continue
 
                 # Cache topic
-                topic = row["chosen_topic"]
+                topic = row["chosen_topic"].lower()
 
+                # For the test set, only use manually whitelisted prompts (for sensitivity)
+                if splits[split] in EVAL_SPLITS and not is_whitelisted(topic, whitelisted_prompts):
+                    print(topic)
+                    continue
+                
                 # Create Speakers
                 apprentice_sp = Speaker(id=0, initiator=True, name="Bob")
                 apprentice_lis = Speaker(id=1, initiator=False, name="Bob")
@@ -273,7 +292,8 @@ class WizardOfWikipediaScenario(Scenario):
 
                 # Create an instance from reference (in our case, each instance should
                 # have a single reference which corresponds to a "prompt")
-                instances.append(Instance(input=topic, references=references, split=split))
+                instances.append(Instance(input=topic, references=references, split=splits[split]))
+                
         return instances
 
     def filter_instances(self, instances):
@@ -296,8 +316,9 @@ class WizardOfWikipediaScenario(Scenario):
         return instances
 
     def get_instances(self) -> List[Instance]:
+        print("Getting instances")
         self.download_data()
-        return self.filter_instances(self.read_instances())
+        return self.read_instances()
 
 
 class CommonSenseScenario(Scenario):
