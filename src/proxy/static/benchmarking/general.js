@@ -214,12 +214,14 @@ function filterByGroupNames(runs, possibleGroupNames) {
   });
 }
 
-function groupByModel(runs) {
+function groupByModel(models, runs) {
   // Group `runs` by models. Return a dictionary mapping each model name to a list of runs.
   var modelToRuns = {};
   for (let run of runs) {
-    const model = run.run_spec.adapter_spec.model;
-    modelToRuns[model] = (modelToRuns[model] || []).concat([run]);
+    // The filtered models list must have exactly 1 element.
+    const filteredModels = models.filter(model => model.name === run.run_spec.adapter_spec.model);
+    const modelDisplayName = filteredModels[0].display_name;
+    modelToRuns[modelDisplayName] = (modelToRuns[modelDisplayName] || []).concat([run]);
   }
   return modelToRuns;
 }

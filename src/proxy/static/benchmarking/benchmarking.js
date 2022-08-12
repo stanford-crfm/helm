@@ -360,7 +360,7 @@ $(function () {
     return $root;
   }
 
-  function renderGroupsPage(runs, groups) {
+  function renderGroupsPage(runs, groups, models) {
     // Page showing aggregate stats for the passed groups.
 
     // Groups page information panel
@@ -374,14 +374,14 @@ $(function () {
 
     // Main table for the groups
     const mainTableTitle = 'Aggregated Results';
-    const modelRunGroups = groupByModel(runs);
+    const modelRunGroups = groupByModel(models, runs);
     const $table = renderStatTable(modelRunGroups, columnSpecs, mainTableTitle, headerColumnName);
     $root.append($table);
 
     // Individual scenario spec tables
     const scenarioRunGroups = groupByScenarioSpec(runs);
     Object.entries(scenarioRunGroups).forEach(([scenarioName, scenarioRuns] = entry) => {
-      const scenarioModelRunGroups = groupByModel(scenarioRuns);
+      const scenarioModelRunGroups = groupByModel(models, scenarioRuns);
       const $subTableContainer = renderStatTable(scenarioModelRunGroups, columnSpecs, scenarioName, headerColumnName);
       $root.append($subTableContainer);
     });
@@ -428,12 +428,11 @@ $(function () {
       $main.append(renderHeader('Groups', renderGroups(schema.groupsFields)));
     } else if (urlParams.group) {
       // TODO: The groups page can display multiple groups at the same time as
-      // long as the groups share the same display settings. To realize this,
-      // we originally intended to use regular expressions here. However, we
-      // can't allow all regular expressions because our group names include
-      // () and - characters. We should either change our group names or rely
-      // on string parsing of the URL to allow multiple groups to be displayed
-      // at the same time.
+      // To realize this, we originally intended to use regular expressions
+      // here. However, we can't allow all regular expressions because our group
+      // names include () and - characters. We should either change our group
+      // names or rely on string parsing of the URL to allow multiple groups to
+      // be displayed at the same time.
       // TODO: We have removed the spaces/() from the group names, so we can
       // switch back to the RegEx match after the next run.
       const matchedGroups = schema.groupsFields.filter((group) => urlParams.group === group.name);
@@ -444,7 +443,7 @@ $(function () {
       } else if (matchedRuns.length === 0) {
         $main.append(renderError('No matching runs'));
       } else {
-        $main.append(renderGroupsPage(matchedRuns, matchedGroups));
+        $main.append(renderGroupsPage(matchedRuns, matchedGroups, models));
       }
     } else {
       $main.append(renderHeader('Runs', renderRunsOverview(runSpecs)));
