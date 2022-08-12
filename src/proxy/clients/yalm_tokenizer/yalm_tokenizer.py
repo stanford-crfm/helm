@@ -3,7 +3,8 @@ import six
 import sentencepiece as spm
 
 """
-Adapted from https://github.com/yandex/YaLM-100B
+From the YaLM GitHub repository (https://github.com/yandex/YaLM-100B),
+adapted from https://github.com/yandex/YaLM-100B/blob/main/megatron_lm/megatron/tokenizer/sp_tokenization.py.
 """
 
 
