@@ -249,7 +249,11 @@ class WizardOfWikipediaScenario(Scenario):
 
         # Iterate through conversations in the df
         for split in splits:
-            df = pd.read_json(split_to_path[split])
+            
+            # Break down steps to handle reading large file on GCP machine
+            data = json.load(open(split_to_path[split], "r"))
+            df = pd.DataFrame.from_dict(data)
+
             for index, row in df.iterrows():
                 
                 # Check Wizard quality and skip if wizard_eval < 5
