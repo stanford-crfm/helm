@@ -1,5 +1,6 @@
 from abc import ABC
 
+from common.hierarchical_logger import hlog
 from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
 
@@ -30,10 +31,11 @@ class EncoderDecoderWindowService(LocalWindowService, ABC):
         Since the encoder-decoder models have separate maximum context lengths for the input prompts
         vs. the completions, we check the two values separately.
         """
-        assert expected_completion_token_length <= self.max_output_length, (
-            f"The expected completion token length ({expected_completion_token_length}) exceeds the "
-            f"max output length ({self.max_output_length})."
-        )
+        if expected_completion_token_length > self.max_output_length:
+            hlog(
+                f"WARNING: The expected completion token length ({expected_completion_token_length}) "
+                f"exceeds the max output length ({self.max_output_length})."
+            )
         return self.get_num_tokens(text) <= self.max_request_length
 
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
