@@ -32,7 +32,7 @@ class SynonymPerturbation(Perturbation):
     class Description(PerturbationDescription):
         prob: float = 0.0
 
-    name: str = "SynonymPerturbation"
+    name: str = "synonym"
 
     def __init__(self, prob: float):
         # Assign parameters to instance variables
