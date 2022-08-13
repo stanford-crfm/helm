@@ -17,20 +17,19 @@ class BloomWindowService(LocalWindowService):
     @property
     def max_request_length(self) -> int:
         """Return the max request length."""
-        return self.max_sequence_length
+        return self.max_sequence_length + 1
 
     @property
     def end_of_text_token(self) -> str:
         """The end of text token."""
-        # TODO: @YianZhang - double check this
-        return ""
-
-    @property
-    def tokenizer_name(self) -> str:
-        """Name of the tokenizer to use when sending a request."""
-        return "bigscience/bloom"
+        return "</s>"
 
     @property
     def prefix_token(self) -> str:
         """The prefix token is the same as the end of text token."""
         return self.end_of_text_token
+
+    @property
+    def tokenizer_name(self) -> str:
+        """Name of the tokenizer to use when sending a request."""
+        return "bigscience/bloom"

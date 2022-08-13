@@ -52,6 +52,8 @@ class HuggingFaceTokenizers:
                     hf_tokenizer_name = "bigscience/bloom"
                 elif tokenizer_name == "bigscience/T0pp":
                     hf_tokenizer_name = "bigscience/T0pp"
+                elif tokenizer_name == "facebook/opt-66b":
+                    hf_tokenizer_name = "facebook/opt-66b"
                 elif tokenizer_name == "google/t5-11b":
                     hf_tokenizer_name = "t5-11b"
                 elif tokenizer_name == "google/ul2":

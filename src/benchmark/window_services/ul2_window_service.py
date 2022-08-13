@@ -15,8 +15,7 @@ class UL2WindowService(EncoderDecoderWindowService):
     @property
     def end_of_text_token(self) -> str:
         """The end of text token."""
-        # TODO: @YianZhang - double check this
-        return ""
+        return "</s>"
 
     @property
     def tokenizer_name(self) -> str:
@@ -26,4 +25,5 @@ class UL2WindowService(EncoderDecoderWindowService):
     @property
     def prefix_token(self) -> str:
         """The prefix token is the same as the end of text token."""
-        return self.end_of_text_token
+        # echo=True is not supported
+        return ""
