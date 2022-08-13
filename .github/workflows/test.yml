@@ -17,12 +17,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements.txt') }}-${{ matrix.python-version }}
-          restore-keys: |
-            pip-
+#      - uses: actions/cache@v2
+#        with:
+#          path: ~/.cache/pip
+#          key: pip-${{ hashFiles('requirements.txt') }}-${{ matrix.python-version }}
+#          restore-keys: |
+#            pip-
       - run: echo "Finished installation."
 
   test:
@@ -37,12 +37,12 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: 3.8
-      - uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            pip-
+#      - uses: actions/cache@v2
+#        with:
+#          path: ~/.cache/pip
+#          key: pip-${{ hashFiles('requirements.txt') }}
+#          restore-keys: |
+#            pip-
       # Installs dependencies and performs static code checks
       - run: ./pre-commit.sh
 #      - name: Run tests
