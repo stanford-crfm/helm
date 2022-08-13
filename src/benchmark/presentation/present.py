@@ -244,7 +244,7 @@ class Summarizer:
             "run_spec": self.load_run_spec_json(os.path.join(run_dir, "run_spec.json")),
             "stats": self.load_stats_json(os.path.join(run_dir, "metrics.json")),
         }
-        return Run(**run_dict)
+        return Run(**run_dict)  # type: ignore
 
     def load_runs(self) -> List[Run]:
         """ Load the corresponding runs for the run specs in run_specs.json. """
@@ -301,7 +301,7 @@ class Summarizer:
         filtered_stats = [s for s in stats if s.name.name == stat_name]
         filtered_stats = [s for s in filtered_stats if s.name.k == k]
         filtered_stats = [s for s in filtered_stats if s.name.split == split]
-        filtered_stats = [s for s in filtered_stats if s.name.perturbation.name == perturbation_name]
+        filtered_stats = [s for s in filtered_stats if s.name.perturbation.name == perturbation_name]  # type: ignore
         return filtered_stats
 
     @staticmethod
