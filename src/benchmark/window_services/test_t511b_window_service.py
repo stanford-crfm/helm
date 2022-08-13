@@ -66,8 +66,6 @@ class TestT511bWindowService:
         3361,
         2250,
         5,
-        # '</s>' token that gets added when encoding
-        1,
     ]
 
     def setup_method(self):
@@ -85,7 +83,7 @@ class TestT511bWindowService:
         assert self.window_service.encode(TEST_PROMPT).token_values == TestT511bWindowService.TEST_TOKEN_IDS
 
     def test_decode(self):
-        assert self.window_service.decode(self.window_service.encode(TEST_PROMPT).tokens) == TEST_PROMPT + "</s>"
+        assert self.window_service.decode(self.window_service.encode(TEST_PROMPT).tokens) == TEST_PROMPT
 
     def test_tokenize(self):
         assert self.window_service.tokenize(TEST_PROMPT) == [
@@ -149,8 +147,8 @@ class TestT511bWindowService:
         ]
 
     def test_tokenize_and_count(self):
-        # There are 58 tokens in `TEST_PROMPT`.
-        assert self.window_service.get_num_tokens(TEST_PROMPT) == 58
+        # There are 57 tokens in `TEST_PROMPT`.
+        assert self.window_service.get_num_tokens(TEST_PROMPT) == 57
 
     def test_fits_within_context_window(self):
         # Should fit in the context window
