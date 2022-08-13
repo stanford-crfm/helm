@@ -6,6 +6,7 @@ google-api-python-client==2.35.0
 Mako==1.1.5
 pyhocon==0.3.58
 pyOpenSSL==21.0.0
+setuptools==58.0.4
 sqlitedict==1.7.0
 sentencepiece==0.1.96   # Necessary for some of the HuggingFace tokenizers
 torch==1.12.1
