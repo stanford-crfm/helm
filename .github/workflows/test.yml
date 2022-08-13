@@ -44,7 +44,6 @@ jobs:
 #          restore-keys: |
 #            pip-
       # Installs dependencies and performs static code checks
-      - run: python3 -m venv venv
       - run: ./pre-commit.sh
 #      - name: Run tests
 #        run: venv/bin/pytest
