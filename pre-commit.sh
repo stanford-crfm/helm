@@ -11,7 +11,7 @@ fi
 
 venv/bin/pip install -e .
 # Issue + workaround described here: https://github.com/protocolbuffers/protobuf/issues/6550
-venv/bin/pip uninstall -y protobuf && venv/bin/pip install --no-binary=protobuf protobuf==4.21.5
+venv/bin/pip uninstall -y protobuf && venv/bin/pip install --no-binary=protobuf protobuf==3.19.4
 venv/bin/pip check
 
 # Python style checks and linting
