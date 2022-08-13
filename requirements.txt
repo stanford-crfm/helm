@@ -23,16 +23,16 @@ flake8==3.8.3
 mypy==0.782
 pre-commit==2.16.0
 pytest==6.2.5
-typed-ast<1.5.0,>=1.4.0
+typed-ast==1.4.3
 
 # For specific scenarios
-nltk>=3.6.7
+nltk==3.7
 sacrebleu==2.0.0
 numpy==1.22.3
 pandas==1.4.1
 sklearn==0.0
 pyext==0.7
-datasets>=1.18.3
+datasets==2.0.0
 spacy==3.2.3
 sympy==1.10
 py-rouge==1.1
