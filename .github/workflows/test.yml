@@ -45,11 +45,11 @@ jobs:
             pip-
       # Installs dependencies and performs static code checks
       - run: ./pre-commit.sh
-      - name: Run tests
-        run: venv/bin/pytest
-        env:
-          TEST: ${{ matrix.test }}
-          VERSION: ${{ github.head_ref || 'main' }}
+#      - name: Run tests
+#        run: venv/bin/pytest
+#        env:
+#          TEST: ${{ matrix.test }}
+#          VERSION: ${{ github.head_ref || 'main' }}
       - name: Run entire pipeline quickly without any data
         # Checking RunSpecs with openai/davinci should be comprehensive enough
         run: venv/bin/benchmark-present --skip-instances --models-to-run openai/davinci --exit-on-error
