@@ -666,7 +666,11 @@ class BasicMetric(Metric):
         answer_scores = [reference_scores[i] for i in answers]
 
         max_prob = np.max(scipy.special.softmax(reference_scores))
-        # TODO: handle case where there are multiple max probs?
+        # TODO: fix the accuracy calculation---it is currently incorrect when there are ties.
+        # For example, in binary classification if the model's predicted probabilities are
+        # [0.5, 0.5], then this code will say we got the example correct, regardless of what
+        # the answer is, because the calculation max(reference_scores) == max(answer_scores)
+        # will always return True.
         return [
             Stat(MetricName("max_prob", k=1)).add(max_prob),
             Stat(MetricName("exact_match", k=1)).add(float(max(reference_scores) == max(answer_scores))),
