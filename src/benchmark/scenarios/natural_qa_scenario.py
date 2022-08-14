@@ -126,7 +126,7 @@ class NaturalQAScenario(Scenario):
 
     def __init__(self, mode: str):
         self.context_mode = mode
-        assert self.context_mode in ["openbook-wiki", "openbook-longans", "closedbook"]
+        assert self.context_mode in ["openbook_wiki", "openbook_longans", "closedbook"]
 
     @staticmethod
     def _clean_token(token: dict):
@@ -175,10 +175,10 @@ class NaturalQAScenario(Scenario):
         ans_idx = random.randint(0, len(short_answers) - 1)
 
         if self.context_mode != "closedbook":
-            if self.context_mode == "openbook-wiki":
+            if self.context_mode == "openbook_wiki":
                 context = document
                 prompt += f"Title: {sample['document_title']}\n\n"
-            elif self.context_mode == "openbook-longans":
+            elif self.context_mode == "openbook_longans":
                 context = long_answers[ans_idx]
 
             prompt += f"Passage: {context}\n\n"

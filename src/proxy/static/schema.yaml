@@ -414,9 +414,9 @@ groups:
       split: test
       stat_names:
         - bits_per_byte
-  - name: ICE (Japan) # TODO: ice_ja
-    display_name: ICE (International Corpus of English - Japan)
-    description: The subset of the International Corpus of English (ICE) drawn from English speakers in Japan.
+  - name: ICE (Jamaica) # TODO: ice_ja
+    display_name: ICE (International Corpus of English - Jamaica)
+    description: The subset of the International Corpus of English (ICE) drawn from English speakers in Jamaica.
     display:
       split: test
       stat_names:

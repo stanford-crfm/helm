@@ -977,7 +977,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
 def get_code_spec(dataset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.code_scenario.CodeScenario", args={"dataset": dataset})
 
-    if dataset == "HumanEval":
+    if dataset == "humaneval":
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
             instructions="",
@@ -994,7 +994,7 @@ def get_code_spec(dataset: str) -> RunSpec:
             input_prefix="",
             output_prefix="",
         )
-    else:  # APPS.
+    else:  # apps.
         # Different in `stop_sequences`.
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
@@ -1015,10 +1015,6 @@ def get_code_spec(dataset: str) -> RunSpec:
             input_prefix="",
             output_prefix="",
         )
-
-    # Dataset names can include capital letters - we are lowering them here to
-    # standardize the RunSpec and group names.
-    dataset = dataset.lower()
 
     return RunSpec(
         name=f"code:dataset={dataset}",
@@ -1048,10 +1044,6 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         temperature=0.0,
         stop_sequences=["\n"],
     )
-
-    # Mode names could include "-" (e.g. openbook-longans), which we are
-    # removing here to standardize the RunSpec and group names.
-    mode = mode.replace("-", "_")
 
     return RunSpec(
         name=f"natural_qa:mode={mode}",
@@ -1107,10 +1099,6 @@ def get_ice_spec(**kwargs) -> RunSpec:
         temperature=0.0,
         max_tokens=0,
     )
-
-    # Subset names can come in capital letters (e.g. JA), we are lowering them
-    # here to standardize the RunSpec and group names.
-    kwargs["subset"] = kwargs["subset"].lower()
 
     return RunSpec(
         name="ice" + (":" if len(kwargs) > 0 else "") + ",".join(f"{k}={v}" for k, v in kwargs.items()),
