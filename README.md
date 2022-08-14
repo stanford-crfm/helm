@@ -250,7 +250,7 @@ To add a new metric:
    Otherwise, if the metric is generic and likely to be widely used, add it
    to `basic_metrics.py`.
 2. If you are creating a task-specific metric, create a `YourTaskMetric` 
-   which inherets from `Metric` in `metric.py`.
+   which inherits from `Metric` in `metric.py`.
 3. Define methods `__init__` and `evaluate_generation` returning a list of `Stat` objects.
 4. Each `Stat` should correspond to a distinct aggregate measurement over the generated examples. 
    Some may have one metric (e.g. accuracy), while others may quantify multiple aspects
