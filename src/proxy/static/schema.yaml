@@ -92,6 +92,14 @@ metrics:
   description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
   display_name: Exact match (up to specified indicator)
 
+# Calibration metrics:
+- name: ece_1_bin
+  description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
+  display_name: 1-bin Expected Calibration Error (ECE)
+- name: max_prob
+  description: Model's average confidence in its prediction (only computed for classification tasks)
+  display_name: Max prob
+
 #  Code metrics
 - name: code_eval_acc
   description: Fraction of instances that the model output evaluates to the correct answer.
