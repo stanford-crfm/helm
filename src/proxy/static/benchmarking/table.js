@@ -302,29 +302,23 @@ function getWrappedStatsFromRuns(runs) {
 }
 
 function getColumnSpecs(schema, groups) {
-  // Get table setting for the groups
-  const tableSetting = getTableSetting(schema, groups);
-  const defaultK = getDisplayK(groups);
   const defaultSplit = getDisplaySplit(groups);
   const columnSpecs = [];
 
-  tableSetting.values.stat_groups.forEach(statGroupName => {
+  schema.metricGroupsFields.forEach(metricGroup => {
     // Get stat names and perturbations.
-    const statGroup = schema.statGroupsField(statGroupName);
-    const perturbationNames = statGroup.values.perturbation_names;
-    let statNames = statGroup.values.stat_names;
-    if (statGroupName === 'accuracy') {
-      // Infer the stat names for the group.
-      statNames = getStatNames(groups);
-    }
+    const defaultK = metricGroup.display_k;
+    const perturbationNames = metricGroup.perturbation_names;
+    const statNames = metricGroup.name === 'accuracy' ? getStatNames(groups) : metricGroup.stat_names;
 
     // Create filters
     statNames.forEach(statName => {
       perturbationNames.forEach(perturbationName => {
+        // TODO: Once the new PR for worst metric's is in, we should change the matching logic here.
         const statNameFilter = new StatNameFilter([statName], undefined, undefined, [{name: perturbationName}]);
         // TODO: Wrap the rendering below in a function.
         const columnName = perturbationName === 'identity' ? renderStatName(schema, statName) : renderStatName(schema, statName) + ' (' + renderPerturbationName(schema, perturbationName) + ')';
-        const columnSpec = new StatTableColumnSpec(statGroupName, columnName, statNameFilter, defaultK, defaultSplit);
+        const columnSpec = new StatTableColumnSpec(metricGroup.name, columnName, statNameFilter, defaultK, defaultSplit);
         columnSpecs.push(columnSpec);
       });
     })
