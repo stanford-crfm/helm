@@ -253,7 +253,7 @@ metric_groups:
 
 
 groups:
-  - name: APPS (Code) # TODO: code_apps
+  - name: code_apps
     display_name: APPS (Code)
     description: The APPS benchmark for measuring competence on code challenges (Hendrycks et al., 2021).
     display:
@@ -261,14 +261,14 @@ groups:
       stat_names:
         - test_avg
         - strict_acc
-  - name: bAbI # TODO: babi_qa
+  - name: babi_qa
     display_name: bAbI 
     description: The bAbI benchmark for measuring understanding and reasoning (Weston et al., 2015).
     display:
       split: test
       stat_names:
         - quasi_exact_match
-  - name: BBQ # TODO: bbq
+  - name: bbq
     display_name: BBQ (Bias Benchmark for Question Answering)
     description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context (Parrish et al., 2022).
     display:
@@ -276,49 +276,49 @@ groups:
       stat_names:
         - bbq_metric_ambiguous_bias
         - bbq_metric_unambiguous_bias
-  - name: BLiMP # TODO: blimp
+  - name: blimp
     display_name: BLiMP (The Benchmark of Linguistic Minimal Pairs for English)
     description: The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design (Warstadt et al., 2020). 
     display:
       split: test
       stat_names:
         - accuracy
-  - name: BOLD # TODO: bold
+  - name: bold
     display_name: BOLD (Bias in Open-Ended Language Generation Dataset)
     description: The  Bias in Open-Ended Language Generation Dataset (BOLD) for measuring biases and toxicity in open-ended language generation (Dhamala et al., 2021).
     display:
       split: test
       stat_names:
         - toxicity_probability
-  - name: BoolQ # TODO: boolq
+  - name: boolq
     display_name: BoolQ
     description: The BoolQ benchmark for binary (yes/no) question answering (Clark et al., 2019).
     display:
       split: valid
       stat_names:
         - quasi_exact_match
-  - name: CivilComments # TODO: civil_comments
+  - name: civil_comments
     display_name: CivilComments
     description: The CivilComments benchmark for toxicity detection (Borkan et al., 2019).
     display:
       split: test
       stat_names:
         - quasi_exact_match
-  - name: CNN/DailyMail 
+  - name: summarization_cnndm
     display_name: CNN/DailyMail
     description: The CNN/DailyMail benchmark for text summarization (Hermann et al., 2015; Nallapati et al.,2016). 
     display:
       split: test
       stat_names:
         - rouge_2
-  - name: CommonsenseQA # TODO: commonsenseqa
+  - name: commonsenseqa
     display_name: CommonsenseQA
     description: The CommonsenseQA benchmark for commonsense-inteisive question answering (Talmor et al., 2019).
     display:
       split: valid
       stat_names:
         - quasi_exact_match
-  - name: Copyright # TODO: copyright
+  - name: copyright
     display_name: Copyright
     description: Scenario introduced in this work to measure copyright and memorization behavior, based off of Carlini et al. (2021). 
     display:
@@ -326,14 +326,14 @@ groups:
       stat_names:
         - longest_common_prefix_length
         - edit_distance
-  - name: Data imputation # TODO: entity_data_imputation
+  - name: entity_data_imputation
     display_name: Data imputation
     description: Scenario from Mei et al. (2021) that tests the ability to impute missing entities in a data table. 
     display:
       split: test
       stat_names:
         - quasi_exact_match
-  - name: Disinformation # TODO: disinformation
+  - name: disinformation
     display_name: Disinformation
     description: Scenario from Buchanan et al. (2021) that tests the ability to reiterate or generate disinformation content.
     display:
@@ -341,7 +341,7 @@ groups:
       stat_names:
         - self_bleu
         - monte_carlo_entropy
-  - name: Disinformation (reiteration) # TODO: disinformation_reiteration
+  - name: disinformation_reiteration
     display_name: Disinformation (reiteration)
     description: Scenario from Buchanan et al. (2021) that tests the ability to reiterate disinformation content.
     display:
@@ -349,7 +349,7 @@ groups:
       stat_names:
         - self_bleu
         - monte_carlo_entropy
-  - name: Disinformation (wedging) # TODO: disinformation_wedging
+  - name: disinformation_wedging
     display_name: Disinformation (wedging)
     description: Scenario from Buchanan et al. (2021) that tests the ability to generate divisive and wedging content.
     display:
@@ -357,35 +357,35 @@ groups:
       stat_names:
         - self_bleu
         - monte_carlo_entropy
-  - name: Dyck # TODO: dyck_language
+  - name: dyck_language
     display_name: Dyck
     description: Scenario testing hierarchical reasoning through the Dyck formal languages (Suzgun et al., 2019).
     display:
       split: test
       stat_names:
         - exact_match_indicator
-  - name: Entity matching # TODO: entity_matching
+  - name: entity_matching
     display_name: Entity matching
     description: Scenario from Mudgal et al. (2018) that tests the ability to determine if two entities match. 
     display:
       split: test
       stat_names:
         - quasi_exact_match
-  - name: GSM8K # TODO: gsm
+  - name: gsm
     display_name: GSM8K (Grade school math word problems)
     description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems (Cobbe et al., 2021).
     display:
       split: test
       stat_names:
         - exact_match_indicator
-  - name: HellaSwag  # TODO: hellaswag
+  - name: hellaswag
     display_name: HellaSwag
     description: The HellaSwag benchmark for commonsense reasoning in question answering (Zellers et al., 2019).
     display:
       split: valid
       stat_names:
         - quasi_exact_match
-  - name: HumanEval (Code) # TODO: code_humaneval
+  - name: code_humaneval
     display_name: HumanEval (Code)
     description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings (Chen et al., 2021).
     display:
@@ -393,280 +393,273 @@ groups:
       stat_names:
         - code_eval_acc
         - pass
-  - name: ICE # TODO: ice
-    display_name: ICE (International Corpus of English)
-    description: The International Corpus of English (ICE) for measuring language model performance across English varieties (https://www.ice-corpora.uzh.ch/en.html).
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
-  - name: ICE (Canada) # TODO: ice_can
+  - name: ice_can
     display_name: ICE (International Corpus of English - Canada)
     description: The subset of the International Corpus of English (ICE) drawn from English speakers in Canada.
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: ICE (Hong Kong) # TODO: ice_hk
+  - name: ice_hk
     display_name: ICE (International Corpus of English - Hong Kong)
     description: The subset of the International Corpus of English (ICE) drawn from English speakers in Hong Kong.
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: ICE (India) # TODO: ice_ind
+  - name: ice_ind
     display_name: ICE (International Corpus of English - India)
     description: The subset of the International Corpus of English (ICE) drawn from English speakers in India.
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: ICE (Jamaica) # TODO: ice_ja
+  - name: ice_ja
     display_name: ICE (International Corpus of English - Jamaica)
     description: The subset of the International Corpus of English (ICE) drawn from English speakers in Jamaica.
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: ICE (Philippines) # TODO: ice_phi
+  - name: ice_phi
     display_name: ICE (International Corpus of English - Philippines)
     description: The subset of the International Corpus of English (ICE) drawn from English speakers in the Philippines.
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: ICE (Singapore) # TODO: ice_sin
+  - name: ice_sin
     display_name: ICE (International Corpus of English - Singapore)
     description: The subset of the International Corpus of English (ICE) drawn from English speakers in Singapore.
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: ICE (USA) # TODO: ice_usa
+  - name: ice_usa
     display_name: ICE (International Corpus of English - USA)
     description: The subset of the International Corpus of English (ICE) drawn from English speakers in the United States of America.
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: ICE (spoken) # TODO: ice_spoken
+  - name: ice_spoken
     display_name: ICE (International Corpus of English - spoken)
     description: The subset of the International Corpus of English (ICE) based on transcribed speech.
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: ICE (written) # TODO: ice_written
+  - name: ice_written
     display_name: ICE (International Corpus of English - written)
     description: The subset of the International Corpus of English (ICE) based on written text.
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: ICE (female) # TODO: ice_female
+  - name: ice_female
     display_name: ICE (International Corpus of English - female)
     description: The subset of the International Corpus of English (ICE) drawn from self-identified female speakers.
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: ICE (male) # TODO: ice_male
+  - name: ice_male
     display_name: ICE (International Corpus of English - male)
     description: The subset of the International Corpus of English (ICE) drawn from self-identified male speakers.
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: IMDB # TODO: imdb
+  - name: imdb
     display_name: IMDB
     description: The IMDB benchmark for sentiment analysis in movie review (Maas et al., 2011).
     display:
       split: valid
       stat_names:
         - quasi_exact_match
-  - name: LegalSupport # TODO: legal_support
+  - name: legal_support
     display_name: LegalSupport
     description: Scenario introduced in this work to measure fine-grained legal reasoning through reverse entailment.
     display:
       split: test
       stat_names:
         - quasi_exact_match
-  - name: LSAT # TODO: last_qa
+  - name: last_qa
     display_name: LSAT
     description: The LSAT benchmark for measuring analytical reasoning on the Law School Admission Test (LSAT; Zhong et al., 2021).
     display:
       split: test
       stat_names:
         - quasi_exact_match
-  - name: MATH # TODO: math_regular
+  - name: math_regular
     display_name: MATH
     description: The MATH benchmark for measuring mathematical problem solving on competition math problems (Hendrycks et al., 2021).
     display:
       split: test
       stat_names:
         - math_equiv
-  - name: MATH (chain_of_thought) # TODO: math_chain_of_thought
+  - name: math_chain_of_thought
     display_name: MATH (chain-of-thoughts)
     description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thoughts style reasoning (Hendrycks et al., 2021).
     display:
       split: test
       stat_names:
         - math_equiv_chain_of_thought
-  - name: MMLU # TODO: mmlu
+  - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
     description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intesive question answering across 57 domains (Hendrycks et al., 2021).
     display:
       split: test
       stat_names:
         - quasi_exact_match
-  - name: MS MARCO (regular) # TODO: msmarco_regular
+  - name: msmarco_regular
     display_name: MS MARCO (regular track)
     description: The MS MARCO benchmark's regular track for passage retrieval in information retrieval (https://microsoft.github.io/msmarco/).
     display:
       split: valid
       stat_names:
         - RR@20
-  - name: MS MARCO (TREC) # TODO: msmarco_trec
+  - name: msmarco_trec
     display_name: MS MARCO (TREC track)
     description: The MS MARCO benchmark's deep learning TREC track for passage retrieval in information retrieval (https://trec.nist.gov).
     display:
       split: valid
       stat_names:
         - NDCG@20
-  - name: NarrativeQA # TODO: narrative_qa
+  - name: narrative_qa
     display_name: NarrativeQA
     description: The NarrativeQA benchmark for reading comprehension over narratives (Kočiský et al., 2017).
     display:
       split: test
       stat_names:
         - f1_score
-  - name: NaturalQuestions # TODO: natural_qa
+  - name: natural_qa
     display_name: NaturalQuestions
     description: The NaturalQuestions benchmark for question answering based on naturally-occurring queries through Google Search (Kwiatkowski et al., 2019).
     display:
       split: valid
       stat_names:
         - f1_score
-  - name: NaturalQuestions (closed-book) # TODO: natural_qa_closedbook
+  - name: natural_qa_closedbook
     display_name: NaturalQuestions (closed-book)
     description: The variant of NaturalQuestions that does not include the Wikipedia page with the answer as input.
     display:
       split: valid
       stat_names:
         - f1_score
-  - name: NaturalQuestions (open-book) # TODO: natural_qa_openbook_longans
+  - name: natural_qa_openbook-longans  # TODO: natural_qa_openbook_longans
     display_name: NaturalQuestions (open-book)
     description: The variant of NaturalQuestions that includes the Wikipedia page with the answer as input.
     display:
       split: valid
       stat_names:
         - f1_score
-  - name: NewsQA # TODO: news_qa
+  - name: news_qa
     display_name: NewsQA
     description: The NewsQA benchmark for reading comprehension over CNN news articles (Trischler et al., 2017).
     display:
       split: valid
       stat_names:
         - f1_score
-  - name: Numeracy # TODO: numeracy
+  - name: numeracy
     display_name: Numerical reasoning
     description: Scenario introduced in this work to test numerical reasoning via symbolic regression.
     display:
       split: test
       stat_names:
         - absolute_value_difference
-  - name: OpenbookQA # TODO: openbookqa
+  - name: openbookqa
     display_name: OpenbookQA
     description: The OpenbookQA benchmark for commonsense-intensive open book question answering (Mihaylov et al., 2018).
     display:
       split: test
       stat_names:
         - quasi_exact_match
-  - name: QuAC # TODO: quac
+  - name: quac
     display_name: QuAC (Question Answering in Context)
     description: The QuAC benchmark for question answering in the context of dialogues (Choi et al., 2018).
     display:
       split: valid
       stat_names:
         - f1_score
-  - name: RAFT # TODO: raft
+  - name: raft
     display_name: RAFT (Real-world Annotated Few-Shot)
     description: The Real-world annotated few-shot (RAFT) meta-benchmark of 11 real-world text classification tasks (Alex et al., 2021).
     display:
       split: test
       stat_names:
         - quasi_exact_match
-  - name: RealToxicityPrompts # TODO: real_toxicity_prompts
+  - name: real_toxicity_prompts
     display_name: RealToxicityPrompts
     description: The RealToxicityPrompts dataset for measuring toxicity in prompted model generations (Gehman et al., 2020).
     display:
       split: test
       stat_names:
         - toxicity_probability
-  - name: Synthetic reasoning (abstract symbols) # TODO: synthetic_reasoning_abstract
+  - name: synthetic_reasoning_abstract
     display_name: Synthetic reasoning (abstract symbols)
     description: Synthetic reasoning tasks defined using abstract symbols based on LIME (Wu et al., 2021).
     display:
       split: test
       stat_names:
         - quasi_exact_match
-  - name: Synthetic reasoning (natural language) # TODO: synthetic_reasoning_natural
+  - name: synthetic_reasoning_natural
     display_name: Synthetic reasoning (natural language)
     description: Synthetic reasoning tasks defined using simple natural language based on LIME (Wu et al., 2021).
     display:
       split: test
       stat_names:
         - f1_set_match
-  - name: The Pile # TODO: the_pile
+  - name: the_pile
     display_name: The Pile
     description: The Pile corpus for measuring lanugage model performance across various domains (Gao et al., 2020).
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: TruthfulQA # TODO: truthful_qa
+  - name: truthful_qa
     display_name: TruthfulQA
     description: The TruthfulQA benchmarking for measuring model truthfulness and commonsense knowledge in question answering (Lin et al., 2022).
     display:
       split: valid
       stat_names:
         - quasi_exact_match
-  - name: Twitter AAE # TODO: twitter_aae
+  - name: twitter_aae
     display_name: TwitterAAE
     description: The TwitterAAE corpus of Blodgett et al. (2016) for measuring language model performance in tweets as a function of speaker dialect.
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: Twitter AAE (AAE) # TODO: twitter_aae_aa
+  - name: twitter_aae_aa
     display_name: TwitterAAE (African American English)
     description: The subset of TwitterAAE associated with African American English (AAE) speakers by Blodgett et al. (2021).
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: Twitter AAE (White) # TODO: twitter_aae_white
+  - name: twitter_aae_white
     display_name: TwitterAAE (White)
     description: The subset of TwitterAAE associated with White speakers by Blodgett et al. (2021).
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: WikiFact # TODO: wikifact
+  - name: wikifact
     display_name: WikiFact
     description: Scenario introduced in this work, inspired by Petroni et al. (2019), to more extensively test factual knowledge.
     display:
       split: test
       stat_names:
         - quasi_exact_match
-  - name: WikiText-103 # TODO: wikitext_103
+  - name: wikitext_103
     display_name: WikiText-103
     description: The Wiki-Text103 benchmark for language modeling performance (Merity et al., 2016).
     display:
       split: test
       stat_names:
         - bits_per_byte
-  - name: XSUM # TODO: summarization_xsum
+  - name: summarization_xsum
     display_name: XSUM
     description: The XSUM benchmark for text summarization of BBC news articles (Narayan et al., 2018). 
     display:
