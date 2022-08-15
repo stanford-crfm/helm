@@ -48,11 +48,11 @@
     "carbon" : {
         "huggingface/gptj_6b": {
             "value" : 13.8,
-            "description" : "GPT-J (6B) was trained using 256 TPU v3 cores, or a single pod slice in europe-west4-a for five weeks of real time. We assume an average TPU power draw of 283 W (Patterson et al., 2021) per chip with two cores per chip.14 Thus we have 128 chips running at 283 W for five weeks for a total of 33.470976 MWh. Since europe-west4-a has a carbon intensity of 410 gCO2eq per kWh. We also assume a PUE scaling of 1.1 in the above calculation to align with other figures. We find a total carbon output of 13.8 metric tons of CO2eq."
+            "description" : "GPT-J (6B) was trained using 256 TPU v3 cores, or a single pod slice in europe-west4-a for five weeks of real time. We assume an average TPU power draw of 283 W (Patterson et al., 2021) per chip with two cores per chip.14 Thus we have 128 chips running at 283 W for five weeks for a total of 33.470976 MWh. europe-west4-a has a carbon intensity of 410 gCO2eq per kWh. We also assume a PUE scaling of 1.1 in the above calculation to align with other figures. We find a total carbon output of 13.8 metric tons of CO2eq."
         },
         "gooseai/gpt-j-6b": {
             "value" : 13.8,
-            "description" : "GPT-J (6B) was trained using 256 TPU v3 cores, or a single pod slice in europe-west4-a for five weeks of real time. We assume an average TPU power draw of 283 W (Patterson et al., 2021) per chip with two cores per chip.14 Thus we have 128 chips running at 283 W for five weeks for a total of 33.470976 MWh. Since europe-west4-a has a carbon intensity of 410 gCO2eq per kWh. We also assume a PUE scaling of 1.1 in the above calculation to align with other figures. We find a total carbon output of 13.8 metric tons of CO2eq."
+            "description" : "GPT-J (6B) was trained using 256 TPU v3 cores, or a single pod slice in europe-west4-a for five weeks of real time. We assume an average TPU power draw of 283 W (Patterson et al., 2021) per chip with two cores per chip.14 Thus we have 128 chips running at 283 W for five weeks for a total of 33.470976 MWh. europe-west4-a has a carbon intensity of 410 gCO2eq per kWh. We also assume a PUE scaling of 1.1 in the above calculation to align with other figures. We find a total carbon output of 13.8 metric tons of CO2eq."
         },
         "gooseai/gpt-neo-20b": {
             "value" : 31.73,
