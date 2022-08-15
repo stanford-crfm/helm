@@ -240,7 +240,6 @@ class WizardOfWikipediaScenario(Scenario):
         whitelisted_prompt_list = [s.replace("_comma_", ",").strip().lower() for s in whitelisted_prompt_list]
 
         whitelisted_prompts: Set[str] = set(whitelisted_prompt_list[self.begin : self.end])
-        print(whitelisted_prompts)
 
         hlog(f"Reading {self.data_path}")
 
@@ -254,48 +253,51 @@ class WizardOfWikipediaScenario(Scenario):
             data = json.load(open(split_to_path[split], "r"))
             df = pd.DataFrame.from_dict(data)
 
-            for index, row in df.iterrows():
-                
-                # Check Wizard quality and skip if wizard_eval < 5
-                if row["wizard_eval"] < 5:
-                    continue
+            # Group dataframe by topic
+            grouped_data_df = df.groupby(by=["chosen_topic"])
 
-                # Cache topic
-                topic = row["chosen_topic"].lower()
+            for topic_cols, topic_df in grouped_data_df:
+                topic = topic_cols
 
                 # For the test set, only use manually whitelisted prompts (for sensitivity)
                 if splits[split] in EVAL_SPLITS and not is_whitelisted(topic, whitelisted_prompts):
                     print(topic)
                     continue
                 
-                # Create Speakers
-                apprentice_sp = Speaker(id=0, initiator=True, name="Bob")
-                apprentice_lis = Speaker(id=1, initiator=False, name="Bob")
-                wizard_sp = Speaker(id=2, initiator=True, name="Jen")
-                wizard_lis = Speaker(id=3, initiator=False, name="Jen")
-                speakers = {
-                    "0_Apprentice": apprentice_sp,
-                    "1_Wizard": wizard_lis,
-                    "0_Wizard": wizard_sp,
-                    "1_Apprentice": apprentice_lis,
-                }
+                # Create list of references for topic
+                references = []
 
-                # Iterate through dialogue
-                utterances = []
-                dialog = row["dialog"]
-                for utterance in dialog:
-                    # Create Utterance object
-                    utterance_text = '<span class="conversation_utterance">"' + utterance["text"] + '"</span>'
-                    utterances.append(Utterance(speaker=speakers[utterance["speaker"]], text=utterance_text))
+                for index, row in topic_df.iterrows():
 
-                # Join utterances into an output
-                output = "".join([str(utt) for utt in utterances])
+                    # Check Wizard quality and skip if wizard_eval < 5
+                    if row["wizard_eval"] < 5:
+                        continue
 
-                # Create a reference from the output
-                references = [Reference(output=output, tags=[CORRECT_TAG])]
+                    # Create Speakers
+                    apprentice_sp = Speaker(id=0, initiator=True, name="Bob")
+                    apprentice_lis = Speaker(id=1, initiator=False, name="Bob")
+                    wizard_sp = Speaker(id=2, initiator=True, name="Jen")
+                    wizard_lis = Speaker(id=3, initiator=False, name="Jen")
+                    speakers = {
+                        "0_Apprentice": apprentice_sp,
+                        "1_Wizard": wizard_lis,
+                        "0_Wizard": wizard_sp,
+                        "1_Apprentice": apprentice_lis,
+                    }
 
-                # Create an instance from reference (in our case, each instance should
-                # have a single reference which corresponds to a "prompt")
+                    # Iterate through dialogue
+                    utterances = []
+                    dialog = row["dialog"]
+                    for utterance in dialog:
+                        # Create Utterance object
+                        utterance_text = '<span class="conversation_utterance">"' + utterance["text"] + '"</span>'
+                        utterances.append(Utterance(speaker=speakers[utterance["speaker"]], text=utterance_text))
+
+                    # Join utterances into an output
+                    output = "".join([str(utt) for utt in utterances])
+
+                    # Create a reference from the output
+                    references.append(Reference(output=output, tags=[CORRECT_TAG]))
                 instances.append(Instance(input=topic, references=references, split=splits[split]))
                 
         return instances
