@@ -126,7 +126,7 @@ class NaturalQAScenario(Scenario):
 
     def __init__(self, mode: str):
         self.context_mode = mode
-        assert self.context_mode in ["openbook-wiki", "openbook-longans", "closedbook"]
+        assert self.context_mode in ["openbook_wiki", "openbook_longans", "closedbook"]
 
     @staticmethod
     def _clean_token(token: dict):
@@ -180,9 +180,9 @@ class NaturalQAScenario(Scenario):
         if self.context_mode == "closedbook":
             prompt = question
         else:
-            if self.context_mode == "openbook-wiki":
+            if self.context_mode == "openbook_wiki":
                 context = document
-            else:  # self.context_mode == "openbook-longans":
+            else:  # self.context_mode == "openbook_longans":
                 context = long_answers[ans_idx]
             prompt = PassageQuestionInput(passage=context, question=question).to_text(
                 passage_prefix="Passage: ", separator="\n\n"

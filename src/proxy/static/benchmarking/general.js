@@ -214,12 +214,14 @@ function filterByGroupNames(runs, possibleGroupNames) {
   });
 }
 
-function groupByModel(runs) {
+function groupByModel(models, runs) {
   // Group `runs` by models. Return a dictionary mapping each model name to a list of runs.
   var modelToRuns = {};
   for (let run of runs) {
-    const model = run.run_spec.adapter_spec.model;
-    modelToRuns[model] = (modelToRuns[model] || []).concat([run]);
+    // The filtered models list must have exactly 1 element.
+    const filteredModels = models.filter(model => model.name === run.run_spec.adapter_spec.model);
+    const modelDisplayName = filteredModels[0].display_name;
+    modelToRuns[modelDisplayName] = (modelToRuns[modelDisplayName] || []).concat([run]);
   }
   return modelToRuns;
 }
@@ -246,26 +248,20 @@ function getUniqueValue(arr, messageType) {
 }
 
 function getTableSetting(schema, groups) {
-  const tableSettingNames = groups.map(group => group.values.tableSetting || 'default');
+  const tableSettingNames = groups.map(group => group.tableSetting || 'default');
   const tableSettingsName = getUniqueValue(tableSettingNames, 'table settings');
   const tableSetting = schema.tableSettingsField(tableSettingsName);
   return tableSetting;
 }
 
-function getDisplayK(groups) {
-  const displayKArr = groups.map(group => group.values.display.k);
-  const displayK = getUniqueValue(displayKArr, 'display k');
-  return displayK;
-}
-
 function getDisplaySplit(groups) {
-  const displaySplitArr = groups.map(group => group.values.display.split);
+  const displaySplitArr = groups.map(group => group.display.split);
   const displaySplit = getUniqueValue(displaySplitArr, 'display k');
   return displaySplit;
 }
 
 function getStatNames(groups) {
-  const statNamesArr = groups.map(group => group.values.display.stat_names);
+  const statNamesArr = groups.map(group => group.display.stat_names);
   const statNames = [].concat(...statNamesArr);
   return statNames;
 }
