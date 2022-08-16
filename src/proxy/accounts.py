@@ -11,8 +11,8 @@ from typing import Dict, Optional, Callable, List
 from dacite import from_dict
 from dataclasses import asdict, dataclass, field
 
-from common.hierarchical_logger import hlog
-from common.authentication import Authentication
+from src.common.hierarchical_logger import hlog
+from src.common.authentication import Authentication
 
 
 # TODO: Move this to a configuration file (`default_quotas.conf` alongside `accounts.jsonl`)

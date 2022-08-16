@@ -18,11 +18,12 @@ import tornado.wsgi
 import tornado.httpserver
 import tornado.ioloop
 from dacite import from_dict
-
-from common.authentication import Authentication
-from common.hierarchical_logger import hlog
-from common.request import Request
-from common.perspective_api_request import PerspectiveAPIRequest
+import sys
+sys.path.append('..')
+#from src.common.authentication import Authentication
+from src.common.hierarchical_logger import hlog
+from src.common.request import Request
+from src.common.perspective_api_request import PerspectiveAPIRequest
 from proxy.accounts import Account
 from proxy.server_service import ServerService
 from .query import Query

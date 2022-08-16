@@ -3,9 +3,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Any
 
-from common.general import parse_hocon
-from common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
-from common.request import Request, RequestResult
+from src.common.general import parse_hocon
+from src.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
+from src.common.request import Request, RequestResult
 from .models import Model
 from .query import Query, QueryResult
 from .accounts import Authentication, Account
