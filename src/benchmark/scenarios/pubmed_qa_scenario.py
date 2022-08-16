@@ -3,7 +3,7 @@ import os
 from typing import Dict, List
 
 from common.general import ensure_directory_exists, ensure_file_downloaded
-from .scenario import Scenario, Instance, ALL_SPLITS, CORRECT_TAG, Reference
+from .scenario import Scenario, Instance, ALL_SPLITS, CORRECT_TAG, Reference, PassageQuestionInput
 
 
 class PubMedQAScenario(Scenario):
@@ -154,9 +154,10 @@ class PubMedQAScenario(Scenario):
                     # Following Liévin et al., prepend the question with the provided context.
                     # Examples can be found here: https://vlievin.github.io/medical-reasoning/samples/pubmedqa.html.
                     question: str = example["QUESTION"]
-                    instance: Instance = Instance(
-                        input=f"Context: {background}\n\nQuestion: {question}\n", references=references, split=split,
+                    prompt = PassageQuestionInput(passage=background, question=question + "\n").to_text(
+                        passage_prefix="Context: ", separator="\n\n"
                     )
+                    instance: Instance = Instance(input=prompt, references=references, split=split)
                     instances.append(instance)
 
         return instances
