@@ -542,6 +542,12 @@ class BasicMetric(Metric):
         """Record the number of in-context examples used in the prompt."""
         return [Stat(MetricName("num_in_context_examples")).add(request_state.num_in_context_examples)]
 
+    def compute_truncated_input(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    ) -> List[Stat]:
+        """Record whether the input was truncated to fit the context window."""
+        return [Stat(MetricName("truncated_input")).add(request_state.truncated_input)]
+
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
@@ -589,6 +595,7 @@ class BasicMetric(Metric):
         metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_num_in_context_examples(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_truncated_input(adapter_spec, request_state, metric_service))
 
         return metrics
 
