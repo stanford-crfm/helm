@@ -187,7 +187,7 @@ class NaturalQAScenario(Scenario):
             prompt = PassageQuestionInput(passage=context, question=question).to_text(
                 passage_prefix="Passage: ", separator="\n\n"
             )
-            if self.context_mode == "openbook-wiki":
+            if self.context_mode == "openbook_wiki":
                 prompt = f"Title: {sample['document_title']}\n\n" + prompt
 
         if split == "train":
