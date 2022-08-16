@@ -14,7 +14,8 @@ class MetricName:
     # K of Top K score
     # Whenever the metric depends on completions, k needs to be an int that captures how many completions were used to
     # compute it (e.g., exact_match, f1_score). This will be k=1 in most cases.
-    # If a metric is independent of completions, then k should be None to reflect that (e.g., co2 cost, perplexity).
+    # If a metric is independent of completions, then k should be None to reflect that (e.g., training co2 cost,
+    # language modeling perplexity).
     k: Optional[int] = None
 
     # Split (e.g., train, valid, test)
