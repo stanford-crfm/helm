@@ -1,5 +1,6 @@
 import random
 import time
+from tqdm import tqdm
 from dataclasses import dataclass, field, replace
 from itertools import cycle
 from typing import List, Dict, Tuple, Optional
@@ -330,7 +331,7 @@ class Adapter:
                 train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
 
                 # Create request_states
-                for eval_index, eval_instance in enumerate(eval_instances):
+                for eval_index, eval_instance in tqdm(enumerate(eval_instances)):
                     start_time: float = time.time()
 
                     # Define the request
@@ -457,12 +458,14 @@ class Adapter:
 
                     construct_requests_elapsed_time: float = time.time() - start_time
 
-                    hlog(
-                        f"trial {train_trial_index}: construct_requests {eval_index} (total {len(eval_instances)}): "
-                        f"len(requests) = {len(request_states)}, len(prompts) = "
-                        f"{[len(request_state.request.prompt) for request_state in request_states]} "
-                        f"({construct_requests_elapsed_time:.3f}s)"
-                    )
+                    verbose = 0
+                    if verbose >= 2:
+                        hlog(
+                            f"trial {train_trial_index}: construct_requests {eval_index} (total {len(eval_instances)}): "
+                            f"len(requests) = {len(request_states)}, len(prompts) = "
+                            f"{[len(request_state.request.prompt) for request_state in request_states]} "
+                            f"({construct_requests_elapsed_time:.3f}s)"
+                        )
 
                     # Just print out prompts for one instance (useful for debugging)
                     if train_trial_index == 0 and eval_index == 0:

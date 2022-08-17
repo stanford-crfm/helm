@@ -153,10 +153,21 @@ class MetricNameMatcher:
     perturbation_name: Optional[str]
 
     def matches(self, metric_name: MetricName) -> bool:
-        return self.name == metric_name.name and \
-            (self.k is None or self.k == metric_name.k) and \
-            (self.split is None or self.split == metric_name.split) and \
-            (self.perturbation_name is None or standardize(self.perturbation_name) == standardize(metric_name.perturbation and metric_name.perturbation.name))
+        if self.name != metric_name.name:
+            return False
+        if self.k is not None and self.k != metric_name.k:
+            return False
+        if self.split is not None and self.split != metric_name.split:
+            return False
+        if self.perturbation_name is not None:
+            a = standardize(self.perturbation_name)
+            b = standardize(metric_name.perturbation and metric_name.perturbation.name)
+            if a != b:
+                return False
+            # TODO: include only one of the perturbation?
+            if metric_name.perturbation and not (metric_name.perturbation.includes_perturbed and metric_name.perturbation.includes_identity):
+                return False
+        return True
 
 def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) -> Optional[Stat]:
     matching_stats = [stat for stat in stats if matcher.matches(stat.name)]
@@ -269,14 +280,13 @@ class Summarizer:
             Cell("Description"),
             Cell("# models"),
         ]
-        rows = [
-            [
-                Cell(value=group.name, display_value=group.display_name),
+        rows = []
+        for group in self.schema.groups:
+            rows.append([
+                Cell(group.display_name, href=get_benchmarking_url({"group": group.name})),
                 Cell(group.description),
                 Cell(len(self.group_model_to_runs[group.name])),
-            ]
-            for group in self.schema.groups
-        ]
+            ])
         return Table(
             title="Overview of results",
             header=header,
@@ -319,6 +329,7 @@ class Summarizer:
         # (to pull out information later).
         header = []
         matchers = []
+        header.append(Cell('Model'))
         for metric_group in self.schema.metric_groups:
             # Get stat names and perturbations
             k = metric_group.display_k
