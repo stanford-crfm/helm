@@ -6,6 +6,27 @@ const ChatBox = {
 		var questions =
 			[	
 				{
+					tag: "experience",
+					text: "How would you describe your experience chatting with this bot?",
+					type: "freeForm",
+				},
+				{
+					tag: "experience-positive",
+					text: "What did you like about the experience?",
+					type: "freeForm",
+				},
+				{
+					tag: "experience-negative",
+					text: "What did you not like about the experience?",
+					type: "freeForm",
+				},
+				{
+					tag: "additional-questions",
+					text: "What questions would you have liked to be asked?",
+					type: "freeForm",
+				}
+				/*
+				{
 					tag: "workerID",
 					text: "Please enter your Mechanical Turk WorkerID for payment processing",
 					type: "freeForm",
@@ -36,7 +57,7 @@ const ChatBox = {
 					text: "Mark the responses that were NOT specific to what you had said, i.e. responses that could have been used in many different situations.  \n\n For example, if you say \"I love tennis\" then \"That’s nice\" would be a non-specific response, but \"Me too, I can’t get enough of Roger Federer!\" would be a specific response.",
 					type: "turn-binary",
 				},
-				/*
+				
 				{
 					tag: "positive-feedback-utterances",
 					text: "If you gave the chatbot feedback (e.g. by making a correction or clarification), mark turns where it improved based on that feedback",
@@ -75,7 +96,7 @@ const ChatBox = {
 					text: "How much did the chatbot contribute to the conversation's direction?",
 					type: "likert",
 					options: ["1 - Not enough", "2 - The right amount", "3 - Too much"]
-				}, */
+				}, 
 				{
 					tag: "quality-overall",
 					text: "Would you want to talk to this chatbot again?",
@@ -86,7 +107,7 @@ const ChatBox = {
 					tag: "feedback",
 					text: "Is there anything else you would like to say about the conversation?",
 					type: "freeForm",
-				}
+				}*/
 			];
 		for (let question of questions) {
 			if (question.type === "likert") {
