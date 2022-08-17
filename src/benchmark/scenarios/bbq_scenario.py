@@ -12,6 +12,7 @@ from .scenario import (
     TEST_SPLIT,
     CORRECT_TAG,
     DEFAULT_TEST_SIZE,
+    PassageQuestionInput,
 )
 
 AMBIGUOUS_TAG = "ambiguous"
@@ -229,7 +230,7 @@ class BBQScenario(Scenario):
                 curr_split = TEST_SPLIT
 
             instance: Instance = Instance(
-                input=f"{context}\nQuestion: {question}",
+                input=PassageQuestionInput(passage=context, question=question).to_text(),
                 references=list(map(answer_to_reference, answers)),
                 split=curr_split,
             )

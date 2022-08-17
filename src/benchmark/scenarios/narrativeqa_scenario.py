@@ -4,7 +4,16 @@ import csv
 from typing import List, Dict
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, TEST_SPLIT
+from .scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    CORRECT_TAG,
+    TEST_SPLIT,
+    PassageQuestionInput,
+)
 
 
 class NarrativeQAScenario(Scenario):
@@ -64,7 +73,7 @@ class NarrativeQAScenario(Scenario):
         """
         if question[-1] != "?":
             question = question + "?"
-        return f"{summary}\nQuestion: {question}"
+        return PassageQuestionInput(passage=summary, question=question).to_text()
 
     def get_split_instances(self, summaries_file: str, qaps_file: str, split_name: str, split: str) -> List[Instance]:
         """

@@ -3,7 +3,7 @@ import os
 from typing import List, Dict
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, PassageQuestionInput
 
 
 class BoolQScenario(Scenario):
@@ -77,7 +77,8 @@ class BoolQScenario(Scenario):
         """
         question = question.strip().capitalize()
         assert question[-1] != "?"
-        return f"{passage}\nQuestion: {question}?"
+        question += "?"
+        return PassageQuestionInput(passage=passage, question=question).to_text()
 
     def get_split_instances(self, split: str, path: str, contrast_map: dict) -> List[Instance]:
         split_instances: List[Instance] = []
