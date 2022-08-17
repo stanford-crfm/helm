@@ -266,7 +266,7 @@ class CodeScenario(Scenario):
 
     def get_instances(self) -> Sequence[CodeInstance]:
         # By construction, self.output_path == 'benchmark_output/scenarios/code'.
-        if self.dataset == "HumanEval":
+        if self.dataset == "humaneval":
             target_path = os.path.join(self.output_path, "HumanEval.jsonl")
             ensure_file_downloaded(
                 source_url="https://github.com/openai/human-eval/raw/master/data/HumanEval.jsonl.gz",
@@ -275,7 +275,7 @@ class CodeScenario(Scenario):
             )
             instances = _read_and_preprocess_human_eval(target_path=target_path, **self.human_eval_hparams)
 
-        elif self.dataset == "APPS":
+        elif self.dataset == "apps":
             # This dataset doesn't have a validation set.
             # Unclear how they do validation. Also not clarified in their paper.
             # `target_path` is the output folder, not the compressed file, since we unpack!

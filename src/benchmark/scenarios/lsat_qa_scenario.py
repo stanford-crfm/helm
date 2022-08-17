@@ -3,7 +3,16 @@ import json
 from typing import List
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    PassageQuestionInput,
+)
 
 
 class LSATScenario(Scenario):
@@ -106,7 +115,7 @@ class LSATScenario(Scenario):
                             question = q["question"]
                             options = q["options"]
                             answer = ord(q["answer"]) - ord("A")
-                            context = f"{passage}\nQuestion: {question}"
+                            context = PassageQuestionInput(passage=passage, question=question).to_text()
 
                             references: List[Reference] = []
                             for index, option in enumerate(options):
