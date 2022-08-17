@@ -1,10 +1,10 @@
 import json
 import os
 from collections import defaultdict
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, field
 from typing import Dict, List
 
-from common.general import ensure_directory_exists, write, write_lines
+from common.general import ensure_directory_exists, write, write_lines, asdict_without_nones
 from common.hierarchical_logger import hlog, htrack_block
 from .augmentations.data_augmenter import DataAugmenterSpec
 from .metric_service import MetricService
@@ -21,7 +21,7 @@ from .window_services.tokenizer_service import TokenizerService
 class RunSpec:
     """
     Specifies how to do a single run, which gets a scenario, adapts it, and
-    computes a list of metrics.
+    computes a list of stats based on the defined metrics.
     """
 
     # Unique identifier of the RunSpec
@@ -39,7 +39,7 @@ class RunSpec:
     # Data augmenter. The default `DataAugmenterSpec` does nothing.
     data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec()
 
-    # Scenario groups that this run spec belongs to
+    # Groups that this run spec belongs to (for summarization)
     groups: List[str] = field(default_factory=list)
 
     def __post_init__(self):
@@ -47,6 +47,7 @@ class RunSpec:
         `self.name` is used as the name of the output folder for the `RunSpec`.
         Clean up `self.name` by replacing any "/"'s with "_".
         """
+        # TODO: Don't mutate name! clean this up before passing it into the constructor here
         object.__setattr__(self, "name", self.name.replace(os.path.sep, "_"))
 
 
@@ -140,21 +141,21 @@ class Runner:
             return
 
         # Output benchmarking information and results to files
-        write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict(run_spec), indent=2))
+        write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
 
-        scenario_dict = asdict(scenario)
-        scenario_dict["instances"] = [asdict(instance) for instance in scenario_state.instances]
+        scenario_dict = asdict_without_nones(scenario)
+        scenario_dict["instances"] = [asdict_without_nones(instance) for instance in scenario_state.instances]
         write_lines(os.path.join(run_path, "scenario.txt"), scenario.render_lines(scenario_state.instances))
         write(os.path.join(run_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
 
         write_lines(os.path.join(run_path, "scenario_state.txt"), scenario_state.render_lines())
-        write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict(scenario_state), indent=2))
+        write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
 
-        write_lines(os.path.join(run_path, "metrics.txt"), [str(stat) for stat in stats])
-        write(os.path.join(run_path, "metrics.json"), json.dumps([asdict(stat) for stat in stats], indent=2))
+        write_lines(os.path.join(run_path, "stats.txt"), [str(stat) for stat in stats])
+        write(os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in stats], indent=2))
         write(
-            os.path.join(run_path, "per_instance_metrics.json"),
+            os.path.join(run_path, "per_instance_stats.json"),
             json.dumps(
-                {str(key): [asdict(stat) for stat in value] for (key, value) in per_instance_stats.items()}, indent=2,
+                {str(key): [asdict_without_nones(stat) for stat in value] for (key, value) in per_instance_stats.items()}, indent=2,
             ),
         )

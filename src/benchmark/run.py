@@ -17,20 +17,6 @@ from .run_specs import construct_run_specs
 LATEST_SYMLINK: str = "latest"
 
 
-@dataclass(frozen=True)
-class Run:
-    """ Represents a run with spec and stats. """
-
-    # Directory name of the run
-    run_dir: str
-
-    # Run spec for the run
-    run_spec: RunSpec
-
-    # Statistics for the run
-    stats: List[Stat]
-
-
 def run_benchmarking(
     run_spec_descriptions: List[str],
     auth: Authentication,

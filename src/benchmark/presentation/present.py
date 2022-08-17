@@ -16,13 +16,14 @@ from common.authentication import Authentication
 from common.general import parse_hocon, write
 from common.hierarchical_logger import hlog, htrack
 from benchmark.statistic import Stat
-from benchmark.run import Run, run_benchmarking, add_run_args, validate_args, LATEST_SYMLINK
+from benchmark.run import run_benchmarking, add_run_args, validate_args, LATEST_SYMLINK
 from benchmark.runner import RunSpec
 from proxy.services.remote_service import add_service_args, create_authentication
 from proxy.models import ALL_MODELS, Model
 
 """
-Runs all the RunSpecs in run_specs.conf and outputs a status page.
+Runs all the RunSpecs in run_specs.conf and outputs JSON files.
+TODO: rename this file to `run_all.py`
 
 Usage:
 
@@ -30,14 +31,8 @@ Usage:
 
 """
 
-# For READY RunSpecs, evaluate and generate metrics.
 READY_STATUS = "READY"
-
-# For WIP RunSpecs, just estimate token usage.
 WIP_STATUS = "WIP"
-
-SCHEMA_YAML_PATH: str = "src/proxy/static/schema.yaml"
-
 
 class AllRunner:
     """Runs all RunSpecs specified in the configuration file."""
@@ -74,35 +69,16 @@ class AllRunner:
         self.exit_on_error: bool = exit_on_error
         self.priority: Optional[int] = priority
 
-    @staticmethod
-    def update_status_page(output_dir: str, wip_content: List[str], ready_content: List[str]):
-        """
-        Updates the status page with the WIP and READY `RunSpec`s results.
-        """
-        status: str = "\n".join(wip_content + ["", "-" * 150, ""] + ready_content)
-        write(os.path.join(output_dir, "status.txt"), status)
-
     @htrack(None)
     def run(self):
         hlog("Reading RunSpecs from run_specs.conf...")
         with open(self.conf_path) as f:
             conf = parse_hocon(f.read())
 
-        # Keep track of the output of READY and WIP RunSpecs separately
-        ready_content: List[str] = ["##### Ready Run Specs ######\n"]
-        wip_content: List[str] = [
-            "##### Work In Progress Run Specs #####",
-            "",
-            "The following RunSpecs are not ready for evaluation. Instead of evaluating, "
-            "we just estimate the number of tokens needed.",
-            "",
-        ]
-
         hlog("Running all RunSpecs...")
         run_specs: List[RunSpec] = []
         runs_dir: str = os.path.join(self.output_path, "runs")
         suite_dir: str = os.path.join(runs_dir, self.suite)
-        computed_metrics_to_scenarios: Dict[str, Set[str]] = defaultdict(set)
 
         for run_spec_description, run_spec_state in tqdm(conf.items()):
             # We placed double quotes around the descriptions since they can have colons or equal signs.
@@ -111,7 +87,7 @@ class AllRunner:
             # We have to manually remove the double quotes from the descriptions.
             run_spec_description = run_spec_description.replace('"', "")
             status: str = run_spec_state.status
-            if status != READY_STATUS and status != WIP_STATUS:
+            if status not in (READY_STATUS, WIP_STATUS):
                 raise ValueError(f"RunSpec {run_spec_description} has an invalid status: {status}")
 
             priority: int = run_spec_state.priority
@@ -139,24 +115,6 @@ class AllRunner:
                 )
                 run_specs.extend(new_run_specs)
 
-                if not self.skip_instances:
-                    for run_spec in new_run_specs:
-                        run_dir: str = os.path.join(suite_dir, run_spec.name)
-                        # Get the metric output, so we can display it on the status page
-                        metrics_text: str = Path(os.path.join(run_dir, "metrics.txt")).read_text()
-                        if status == READY_STATUS:
-                            ready_content.append(f"{run_spec} - \n{metrics_text}\n")
-                        else:
-                            wip_content.append(f"{run_spec} - {metrics_text}")
-
-                        # Keep track of all the names of the metrics that have been computed
-                        with open(os.path.join(run_dir, "metrics.json")) as f:
-                            for metric in json.load(f):
-                                computed_metrics_to_scenarios[metric["name"]["name"]].add(run_spec.name.split(":")[0])
-
-                    # Update the status page after processing every `RunSpec` description
-                    AllRunner.update_status_page(suite_dir, wip_content, ready_content)
-
             except Exception as e:
                 if self.exit_on_error:
                     raise e
@@ -179,166 +137,6 @@ class AllRunner:
             # Remove the previous symlink if it exists.
             os.unlink(symlink_path)
         os.symlink(os.path.abspath(suite_dir), symlink_path)
-
-        # Print a warning that list the metrics that do not have a entry in schema.yaml
-        metrics_with_entries: Set[str] = set(
-            metric_entry["name"] for metric_entry in yaml.safe_load(open(SCHEMA_YAML_PATH))["metrics"]
-        )
-        missing_metrics_str: str = "\n\t".join(
-            [
-                f"{metric}: {','.join(scenarios)} "
-                for metric, scenarios in computed_metrics_to_scenarios.items()
-                if metric not in metrics_with_entries
-            ]
-        )
-        if missing_metrics_str:
-            hlog(
-                f"WARNING: Missing an entry for the following metrics in {SCHEMA_YAML_PATH}: \n\t{missing_metrics_str}"
-            )
-
-
-class Summarizer:
-    """ Summarize the benchmark results in json files to be displayed in the UI. """
-
-    DATA_AUGMENTATION_STR: str = "data_augmentation="
-
-    def __init__(self, run_suite_path: str, conf_path: str):
-        """ Initialize the summarizer. """
-        self.run_suite_path: str = run_suite_path
-        self.conf_path: str = conf_path
-        self.runs: List[Run] = self.load_runs()
-
-    @staticmethod
-    def load_run_spec_json(run_spec_file_path: str) -> RunSpec:
-        """ Load a RunSpec object from a json file. """
-        with open(run_spec_file_path, "r") as f:
-            j = json.load(f)
-            return dacite.from_dict(RunSpec, j)
-
-    @staticmethod
-    def load_stats_json(stats_file_path: str) -> List[Stat]:
-        """ Load stats from a json file. """
-        stats: List[Stat] = []
-        with open(stats_file_path, "r") as f:
-            j = json.load(f)
-            for stat in j:
-                stat = dacite.from_dict(Stat, stat)
-                stats.append(stat)
-        return stats
-
-    @staticmethod
-    def load_runs_json(runs_file_path: str) -> List[Run]:
-        """ Load runs from runs.json. """
-        runs: List[Run] = []
-        with open(runs_file_path, "r") as f:
-            j = json.load(f)
-            for r in j:
-                run = dacite.from_dict(Run, r)
-                runs.append(run)
-        return runs
-
-    def load_run_from_directory(self, run_dir: str) -> Run:
-        """ Load the run stored in run_dir. """
-        run_dict = {
-            "run_dir": run_dir,
-            "run_spec": self.load_run_spec_json(os.path.join(run_dir, "run_spec.json")),
-            "stats": self.load_stats_json(os.path.join(run_dir, "metrics.json")),
-        }
-        return Run(**run_dict)
-
-    def load_runs(self) -> List[Run]:
-        """ Load the corresponding runs for the run specs in run_specs.json. """
-        runs: List[Run] = []
-        run_specs_path: str = os.path.join(self.run_suite_path, "run_specs.json")
-
-        if os.path.exists(run_specs_path):
-            with open(run_specs_path) as f:
-                j = json.load(f)
-                for rs in j:
-                    run_spec = dacite.from_dict(RunSpec, rs)
-                    run_dir_path: str = os.path.join(self.run_suite_path, run_spec.name)
-                    run_spec_path: str = os.path.join(run_dir_path, "run_spec.json")
-                    metrics_path: str = os.path.join(run_dir_path, "metrics.json")
-
-                    if os.path.exists(run_spec_path) and os.path.exists(metrics_path):
-                        run = self.load_run_from_directory(run_dir_path)
-                        runs.append(run)
-        else:
-            hlog(f"Summarizer won't run because {run_specs_path} doesn't exist yet. This is expected in a dry run.")
-        return runs
-
-    @staticmethod
-    def get_scenario_name_from_run_spec(run_spec: RunSpec) -> str:
-        """ Get the scenario name from the RunSpec name.
-
-            run_spec.name                                         => scenario name
-            'boolq,model=ai21_j1-jumbo'                           => 'boolq'
-            'math:subject=prealgebra,level=5,model=ai21_j1-jumbo' => 'math:subject=prealgebra'
-        """
-        return run_spec.name.split(",")[0]
-
-    @staticmethod
-    def filter_runs_by_model_name(runs: List[Run], model_name: str) -> List[Run]:
-        return [r for r in runs if r.run_spec.adapter_spec.model == model_name]
-
-    @staticmethod
-    def filter_runs_by_scenario_name(runs: List[Run], scenario_name: str) -> List[Run]:
-        return [r for r in runs if Summarizer.get_scenario_name_from_run_spec(r.run_spec) == scenario_name]
-
-    @staticmethod
-    def filter_runs_with_perturbations(runs: List[Run]) -> List[Run]:
-        return [r for r in runs if not r.run_spec.data_augmenter_spec.perturbations]
-
-    @staticmethod
-    def filter_stats(
-        stats: List[Stat],
-        stat_name: str,
-        k: Optional[int] = None,
-        split: str = TEST_SPLIT,
-        perturbation_name: Optional[str] = None,
-    ) -> List[Stat]:
-        # We perform filters in separate lines to observe how the stats list change with each
-        filtered_stats = [s for s in stats if s.name.name == stat_name]
-        filtered_stats = [s for s in filtered_stats if s.name.k == k]
-        filtered_stats = [s for s in filtered_stats if s.name.split == split]
-        filtered_stats = [s for s in filtered_stats if s.name.perturbation.name == perturbation_name]
-        return filtered_stats
-
-    @staticmethod
-    def get_model_dict(runs: List[Run], model: Model) -> Dict[str, Any]:
-        """ Create a model dictionary containing all the information related to a model and its runs. """
-        # Initialize a model dict with the fields of a model
-        model_dict = vars(model)
-        filtered_runs = Summarizer.filter_runs_by_model_name(runs, model.name)
-        model_dict["runs"] = [dataclasses.asdict(run) for run in filtered_runs]
-        return model_dict
-
-    def write_runs(self):
-        write(
-            os.path.join(self.run_suite_path, "runs.json"),
-            json.dumps(list(map(dataclasses.asdict, self.runs)), indent=2),
-        )
-
-    def write_model_stats(self):
-        """ Compute model stats and output them to <self.run_suite_path>/models.json """
-        # Populate the model stats for each model
-        model_stats = []
-        for model in ALL_MODELS:
-            model_dict = self.get_model_dict(self.runs, model)
-            model_stats.append(model_dict)
-
-        # Write the stats
-        write(os.path.join(self.run_suite_path, "models.json"), json.dumps(model_stats, indent=2))
-
-    def write_scenario_stats(self):
-        """ Computes model stats and output them to <self.run_suite_path>/scenario_stats.json """
-        # @TODO Create scenario stats json
-        scenario_stats = []
-
-        # Write the stats
-        write(
-            os.path.join(self.run_suite_path, "scenario_stats.json"), json.dumps(scenario_stats, indent=2),
-        )
 
 
 def main():
@@ -396,11 +194,5 @@ def main():
 
     # Run the benchmark!
     runner.run()
-
-    # Output JSON files summarizing the benchmark results which will be loaded in the web interface
-    summarizer = Summarizer(run_suite_path=os.path.join(args.output_path, "runs", args.suite), conf_path=args.conf_path)
-    summarizer.write_runs()
-    summarizer.write_model_stats()
-    summarizer.write_scenario_stats()
 
     hlog("Done.")

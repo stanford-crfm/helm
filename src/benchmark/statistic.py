@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 import math
 import random
 from typing import Dict, List, Optional
@@ -59,6 +59,7 @@ class Stat:
         return self
 
     def __repr__(self):
+        # TODO: name is too long - find a better way to represent
         if self.count > 0:
             return (
                 f"{self.name}["
@@ -98,6 +99,7 @@ class Stat:
 def merge_stat(stats: Dict[MetricName, Stat], stat: Stat):
     """Mutate the appropriate part of `stats`."""
     if stat.name not in stats:
-        stats[stat.name] = stat
+        # Important: copy so that we don't mutate accidentally
+        stats[stat.name] = replace(stat)
     else:
         stats[stat.name].merge(stat)

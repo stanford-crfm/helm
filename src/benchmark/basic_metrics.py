@@ -1,5 +1,6 @@
 from dataclasses import dataclass, replace
 from typing import List, Callable, Optional, Dict, Tuple, Set, cast
+from tqdm import tqdm
 from urllib.parse import unquote
 from functools import partial
 import math

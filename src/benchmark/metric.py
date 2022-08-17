@@ -1,7 +1,8 @@
 from abc import ABC
 from dataclasses import dataclass, replace
-from typing import List, Dict, Tuple, Optional, Iterable, Set
 from collections import defaultdict
+from typing import List, Dict, Tuple, Optional, Iterable, Set
+from tqdm import tqdm
 
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
@@ -77,7 +78,7 @@ class Metric(ABC):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
             per_instance_stats: Dict[Instance, List[Stat]] = defaultdict(list)  # Stats for individual instances
 
-            for instance in scenario_state.instances:
+            for instance in tqdm(scenario_state.instances):
                 instance_stats = []
 
                 # Evaluate generated request_state

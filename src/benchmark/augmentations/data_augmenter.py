@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List
+from tqdm import tqdm
 
+from common.hierarchical_logger import htrack
 from benchmark.augmentations.perturbation import (
     Perturbation,
     PerturbationSpec,
@@ -16,6 +18,7 @@ class DataAugmenter:
     # Perturbations to apply to generate new instances
     perturbations: List[Perturbation]
 
+    @htrack(None)
     def generate(
         self, instances: List[Instance], include_original: bool = True, skip_unchanged: bool = False
     ) -> List[Instance]:
@@ -26,7 +29,7 @@ class DataAugmenter:
         """
 
         result: List[Instance] = []
-        for instance in instances:
+        for instance in tqdm(instances):
             if include_original:
                 #  we want to include the original even when the perturbation does not change the input
                 result.append(IdentityPerturbation().apply(instance))
