@@ -152,10 +152,16 @@ class Runner:
         write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
 
         write_lines(os.path.join(run_path, "stats.txt"), [str(stat) for stat in stats])
-        write(os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in stats], indent=2))
+        write(
+            os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in stats], indent=2)
+        )
         write(
             os.path.join(run_path, "per_instance_stats.json"),
             json.dumps(
-                {str(key): [asdict_without_nones(stat) for stat in value] for (key, value) in per_instance_stats.items()}, indent=2,
+                {
+                    str(key): [asdict_without_nones(stat) for stat in value]
+                    for (key, value) in per_instance_stats.items()
+                },
+                indent=2,
             ),
         )

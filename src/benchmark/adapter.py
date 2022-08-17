@@ -461,7 +461,8 @@ class Adapter:
                     verbose = 0
                     if verbose >= 2:
                         hlog(
-                            f"trial {train_trial_index}: construct_requests {eval_index} (total {len(eval_instances)}): "
+                            f"trial {train_trial_index}: "
+                            f"construct_requests {eval_index} (total {len(eval_instances)}): "
                             f"len(requests) = {len(request_states)}, len(prompts) = "
                             f"{[len(request_state.request.prompt) for request_state in request_states]} "
                             f"({construct_requests_elapsed_time:.3f}s)"

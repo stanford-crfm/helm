@@ -103,30 +103,6 @@ $(function () {
       return field || new Field({name});
     }
 
-    groupsField(name) {
-      // Return the group field with the given `name`.
-      const field = this.groupsFields.find((field) => field.name === name);
-      return field || new Field({name});
-    }
-
-    metricGroupsField(name) {
-      // Return the group field with the given `name`.
-      const field = this.metricGroupsFields.find((field) => field.name === name);
-      return field || new Field({name});
-    }
-
-    tableSettingsField(name) {
-      // Return the group field with the given `name`.
-      const field = this.tableSettingsFields.find((field) => field.name === name);
-      return field || new Field({name});
-    }
-
-    perturbationsField(name) {
-      // Return the group field with the given `name`.
-      const field = this.perturbationsFields.find((field) => field.name === name);
-      return field || new Field({name});
-    }
-
   }
 
   /////////////////////////////////// Pages ////////////////////////////////////
@@ -144,7 +120,7 @@ $(function () {
     });
     return $table;
   }
-  
+
   function renderGroups(groups) {
     const $table = $('<table>', {class: 'query-table'});
     groups.forEach((group) => {
@@ -384,7 +360,7 @@ $(function () {
   }
 
   function renderCell(cell) {
-    const value = cell.display_value || cell.value;
+    const value = $('<span>', {title: cell.description}).append(cell.display_value || cell.value);
     return $('<td>').append(cell.href ? $('<a>', {href: cell.href}).append(value) : value);
   }
 
