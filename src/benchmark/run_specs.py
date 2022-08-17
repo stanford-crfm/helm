@@ -2,6 +2,8 @@ import itertools
 import os
 from typing import List, Dict, Optional, Any, Callable
 
+from common.general import ensure_directory_exists, ensure_file_downloaded
+from common.hierarchical_logger import hlog
 from common.object_spec import ObjectSpec
 from .adapter import (
     AdapterSpec,
@@ -1488,6 +1490,74 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
     )
 
 
+def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
+    from .scenarios.big_bench_scenario import BIGBenchScenario
+
+    def get_metric_specs(big_bench_metrics: List[str]) -> List[MetricSpec]:
+        """Gets the corresponding `MetricSpec`s for the metrics from BIG-bench."""
+        # TODO: dedupe with a set -Tony
+        metric_specs: List[MetricSpec] = []
+        for metric_name in big_bench_metrics:
+            if metric_name == "multiple_choice_grade":
+                metric_specs.extend(get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}))
+            else:
+                hlog(f"Unhandled BIG-bench metric: {metric_name}")
+                continue
+        return metric_specs
+
+    scenario_spec = ScenarioSpec(
+        class_name="benchmark.scenarios.big_bench_scenario.BIGBenchScenario", args={"task": task, "subtask": subtask}
+    )
+
+    # TODO: handle this better -Tony
+    #       also refactor so it uses the same code in `BIGBenchScenario`.
+    output_path: str = "benchmark_output/scenarios"
+    output_path = os.path.join(output_path, "big_bench")  # "big_bench" is the Scenario.name
+    data_path: str = os.path.join(output_path, "data")
+    ensure_directory_exists(data_path)
+    dataset_path: str = os.path.join(data_path, task)
+    ensure_file_downloaded(source_url=BIGBenchScenario.DOWNLOAD_URL, target_path=dataset_path)
+    if subtask:
+        dataset_path = os.path.join(dataset_path, subtask)
+    task_path = os.path.join(dataset_path, "task.json")
+
+    import json
+
+    with open(task_path, "r") as f:
+        task_definition: Dict = json.load(f)
+
+    # TODO: the adaptation parameters and metrics depend on the BIG-bench task -Tony
+    # TODO: have to read it form task.json. Complicated because we have to ensure it's downloaded
+    # TODO: handle these -Tony
+    # TODO: I think we can use their package and get all this information
+    task_prefix: str = task_definition["task_prefix"]
+    append_choices_to_input: bool = task_definition["append_choices_to_input"]
+
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        num_train_trials=1,
+        max_eval_instances=1000,
+        model="openai/text-curie-001",
+        max_train_instances=0,
+        num_outputs=1,
+        temperature=0,
+        input_prefix=task_definition["example_input_prefix"],
+        output_prefix=task_definition["example_output_prefix"],
+        reference_prefix=task_definition["choice_prefix"],
+    )
+
+    run_spec_name: str = f"big_bench:task={task}"
+    if subtask:
+        run_spec_name = f"{run_spec_name},subtask={subtask}"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_metric_specs(task_definition["metrics"]),
+        groups=["BIG-bench"],
+    )
+
+
 def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={})
 
@@ -1574,6 +1644,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "entity_matching": get_entity_matching_spec,
     "entity_data_imputation": get_entity_data_imputation_spec,
     "ice": get_ice_spec,
+    "big_bench": get_big_bench_spec,
     "pubmed_qa": get_pubmed_qa_spec,
 }
 

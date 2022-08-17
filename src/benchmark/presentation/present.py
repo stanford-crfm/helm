@@ -84,7 +84,7 @@ class AllRunner:
 
     @htrack(None)
     def run(self):
-        hlog("Reading RunSpecs from run_specs.conf...")
+        hlog(f"Reading RunSpecs from {self.conf_path}...")
         with open(self.conf_path) as f:
             conf = parse_hocon(f.read())
 
