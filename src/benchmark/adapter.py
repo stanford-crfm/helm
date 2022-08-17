@@ -117,8 +117,9 @@ class RequestState:
     # The number of in-context examples used
     num_in_context_examples: int
 
-    # Was the input truncated to fit the context window?
-    truncated_input: bool
+    # Whether the input of the corresponding Instance was truncated to fit the model's context window for this Request
+    # (input_truncated == True implies num_in_context_examples == 0)
+    input_truncated: bool
 
     # The number of initial tokens that will be ignored when computing language modeling metrics
     num_conditioning_tokens: int = 0
@@ -205,8 +206,9 @@ class Prompt:
     # Number of in-context examples in the prompt
     num_in_context_examples: int
 
-    # Was the input truncated to fit the context window?
-    truncated_input: bool
+    # Whether the input of the corresponding Instance was truncated to fit the model's context window for this Request
+    # (input_truncated == True implies num_in_context_examples == 0)
+    input_truncated: bool
 
 
 class Adapter:
@@ -365,7 +367,7 @@ class Adapter:
                                 request=request,
                                 result=None,
                                 num_in_context_examples=prompt.num_in_context_examples,
-                                truncated_input=prompt.truncated_input,
+                                input_truncated=prompt.input_truncated,
                             )
                         ]
                     elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
@@ -396,7 +398,7 @@ class Adapter:
                                 request=request,
                                 result=None,
                                 num_in_context_examples=prompt.num_in_context_examples,
-                                truncated_input=prompt.truncated_input,
+                                input_truncated=prompt.input_truncated,
                             )
                         ]
                     elif self.adapter_spec.method in [
@@ -458,7 +460,7 @@ class Adapter:
                                     request=request,
                                     result=None,
                                     num_in_context_examples=prompt.num_in_context_examples,
-                                    truncated_input=prompt.truncated_input,
+                                    input_truncated=prompt.input_truncated,
                                 )
                                 request_states.append(request_state)
                     else:
@@ -600,7 +602,7 @@ class Adapter:
             if self.window_service.fits_within_context_window(
                 text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
             ):
-                return Prompt(prompt, num_in_context_examples=len(train_instances), truncated_input=False)
+                return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=False)
 
             train_instances = train_instances[:-1]
             prompt = construct_prompt_helper(train_instances)
@@ -616,8 +618,8 @@ class Adapter:
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
         original_length = len(prompt)
         prompt = self.window_service.truncate_from_right(prompt, self.adapter_spec.max_tokens)
-        truncated_input = len(prompt) < original_length
-        return Prompt(prompt, num_in_context_examples=len(train_instances), truncated_input=truncated_input)
+        input_truncated = len(prompt) < original_length
+        return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=input_truncated)
 
     def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
@@ -797,7 +799,7 @@ class Adapter:
                 result=None,
                 num_conditioning_tokens=1 if len(prefix_token) > 0 else 0,
                 num_in_context_examples=self.adapter_spec.max_train_instances,
-                truncated_input=False,
+                input_truncated=False,
             )
             request_states.append(request_state)
             num_predicted_tokens += first_seq_len
@@ -844,7 +846,7 @@ class Adapter:
                     result=None,
                     num_conditioning_tokens=num_conditioning_tokens,
                     num_in_context_examples=self.adapter_spec.max_train_instances,
-                    truncated_input=False,
+                    input_truncated=False,
                 )
                 request_states.append(request_state)
                 num_predicted_tokens += window_pred_len
