@@ -453,22 +453,3 @@ class SummaCZS:
             output["scores"].append(score["score"])
             output["images"].append(score["image"])
         return output
-
-
-if __name__ == "__main__":
-    model = SummaCZS(granularity="sentence", model_name="vitc", imager_load_cache=True)
-
-    # Example from Paul from the Keep it Simple project
-    document = """Jeff joined Microsoft in 1992 to lead corporate developer evangelism for Windows NT. He then served as a Group Program manager in Microsoft’s Internet Business Unit. In 1998, he led the creation of SharePoint Portal Server, which became one of Microsoft’s fastest-growing businesses, exceeding $2 billion in revenues. Jeff next served as Corporate Vice President for Program Management across Office 365 Services and Servers, which is the foundation of Microsoft’s enterprise cloud leadership. He then led Corporate Strategy supporting Satya Nadella and Amy Hood on Microsoft’s mobile-first/cloud-first transformation and acquisitions. Prior to joining Microsoft, Jeff was vice president for software development for an investment firm in New York. He leads Office shared experiences and core applications, as well as OneDrive and SharePoint consumer and business services in Office 365. Jeff holds a Master of Business Administration degree from Harvard Business School and a Bachelor of Science degree in information systems and finance from New York University."""
-    summary = "Jeff joined Microsoft in 1992 to lead the company's corporate evangelism. He then served as a Group Manager in Microsoft's Internet Business Unit. In 1998, Jeff led Sharepoint Portal Server, which became the company's fastest-growing business, surpassing $3 million in revenue. Jeff next leads corporate strategy for SharePoint and Servers which is the basis of Microsoft's cloud-first strategy. He leads corporate strategy for Satya Nadella and Amy Hood on Microsoft's mobile-first."
-
-    scores = model.score([document], [summary])["images"][0][0].T
-    summary_sentences = model.imager.split_text(summary)
-
-    print(np.array2string(scores, precision=2))
-    for score_row, sentence in zip(scores, summary_sentences):
-        print("-----------")
-        print(
-            "[SummaC score: %.3f; supporting sentence: %d] %s "
-            % (np.max(score_row), np.argmax(score_row) + 1, sentence)
-        )
