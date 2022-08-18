@@ -17,7 +17,7 @@ class DataPreprocessor:
         self.data_augmenter_spec: DataAugmenterSpec = data_augmenter_spec
 
     @htrack(None)
-    def preprocess(self, scenario: Scenario) -> List[Instance]:
+    def preprocess(self, scenario: Scenario, parallelism: int) -> List[Instance]:
         """
         Preprocessing steps:
         1. Gets `Instance`s for a given `Scenario`.
@@ -42,6 +42,7 @@ class DataPreprocessor:
                 train_instances,
                 include_original=self.data_augmenter_spec.should_include_original_train,
                 skip_unchanged=self.data_augmenter_spec.should_skip_unchanged_train,
+                parallelism=parallelism,
             )
 
         # Applies data augmentation to generate more eval instances
@@ -51,6 +52,7 @@ class DataPreprocessor:
                 eval_instances,
                 include_original=self.data_augmenter_spec.should_include_original_eval,
                 skip_unchanged=self.data_augmenter_spec.should_skip_unchanged_eval,
+                parallelism=parallelism,
             )
 
         return train_instances + eval_instances

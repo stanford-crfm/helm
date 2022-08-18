@@ -102,7 +102,9 @@ class Runner:
 
         # Data preprocessing
         if not self.skip_instances:
-            instances: List[Instance] = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(scenario)
+            instances: List[Instance] = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
+                scenario, self.executor.execution_spec.parallelism
+            )
         else:
             instances = []
 
@@ -132,9 +134,7 @@ class Runner:
                         per_instance_stats[key].extend(metric_result.per_instance_stats[key])
 
         # Print out stats
-        with htrack_block("Stats"):
-            for stat in stats:
-                hlog(stat)
+        hlog(f"Generated {len(stats)} stats")
 
         if self.skip_instances:
             hlog("skip_instances was True. Skipping writing results out.")

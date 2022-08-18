@@ -339,7 +339,7 @@ class Adapter:
                 train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
 
                 # Create request_states
-                for eval_index, eval_instance in tqdm(enumerate(eval_instances)):
+                for eval_index, eval_instance in tqdm(enumerate(eval_instances), total=len(eval_instances)):
                     start_time: float = time.time()
 
                     # Define the request
