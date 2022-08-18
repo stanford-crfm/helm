@@ -17,7 +17,7 @@ class DataPreprocessor:
         self.data_augmenter_spec: DataAugmenterSpec = data_augmenter_spec
 
     @htrack(None)
-    def preprocess(self, scenario: Scenario, parallelism: int) -> List[Instance]:
+    def preprocess(self, scenario: Scenario, parallelism: int = 1) -> List[Instance]:
         """
         Preprocessing steps:
         1. Gets `Instance`s for a given `Scenario`.
