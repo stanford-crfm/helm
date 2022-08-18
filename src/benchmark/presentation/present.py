@@ -165,7 +165,8 @@ def main():
     parser.add_argument(
         "--scenario-groups-to-run",
         nargs="+",
-        help="Only RunSpecs with these scenario groups specified. If no scenario group is specified, runs with all models.",
+        help="Only RunSpecs with these scenario groups specified. "
+        "If no scenario group is specified, runs with all models.",
         default=None,
     )
     parser.add_argument(

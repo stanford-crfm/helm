@@ -52,8 +52,8 @@ class DataAugmenter:
 
         with ThreadPoolExecutor(max_workers=parallelism) as executor:
             # Run `process` on each instance
-            lists: List[List[Instance]] = list(tqdm(executor.map(process, instances), total=len(instances)))
-            output_instances = [instance for l in lists for instance in l]
+            results: List[List[Instance]] = list(tqdm(executor.map(process, instances), total=len(instances)))
+            output_instances = [instance for result in results for instance in result]
 
         hlog(f"{len(instances)} instances augmented to {len(output_instances)} instances")
         return output_instances

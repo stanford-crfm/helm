@@ -1,5 +1,4 @@
 import random
-import time
 from tqdm import tqdm
 from dataclasses import dataclass, field, replace
 from itertools import cycle
@@ -340,8 +339,6 @@ class Adapter:
 
                 # Create request_states
                 for eval_index, eval_instance in tqdm(enumerate(eval_instances), total=len(eval_instances)):
-                    start_time: float = time.time()
-
                     # Define the request
                     method = self.adapter_spec.method
 
@@ -466,8 +463,6 @@ class Adapter:
                                 request_states.append(request_state)
                     else:
                         raise ValueError(f"Invalid method: {method}")
-
-                    construct_requests_elapsed_time: float = time.time() - start_time
 
                     # Just print out prompts for one instance (useful for debugging)
                     if train_trial_index == 0 and eval_index == 0:
