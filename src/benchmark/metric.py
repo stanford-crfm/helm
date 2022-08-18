@@ -71,7 +71,7 @@ class Metric(ABC):
 
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
-        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
+        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
@@ -158,7 +158,7 @@ class Metric(ABC):
                 merge_stat(global_stats, stat.take_mean())
 
             for instance, instance_stats in per_instance_stats.items():
-                all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
+                all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)].extend(instance_stats)
 
         # Wrap aggregated and per-instance stats in a MetricResult.
         return MetricResult(list(global_stats.values()), all_per_instance_stats)
@@ -202,7 +202,7 @@ class Metric(ABC):
         # The first and only trial
         trial_stats: Dict[MetricName, Stat] = {}
         # Per-instance stats
-        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
+        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
         instance_ids_per_context: Dict[MetricContext, Set[str]] = defaultdict(set)
 
         for request_state in scenario_state.request_states:
@@ -219,7 +219,7 @@ class Metric(ABC):
                 instance_ids_per_context[context].add(request_state.instance.id)
 
             # Use trial index of 0 here since we run only one trial for LM
-            all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = request_stats
+            all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)].extend(request_stats)
 
             for stat in request_stats:
                 merge_stat(trial_stats, stat)
@@ -243,9 +243,9 @@ class Metric(ABC):
     def compute_worst_case_metrics(self, per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
         """
         For each instance, we compute the worst case perfomance between each perturbation and the non-perturbed input
-        (identity perturbation). This allows us to reason about the invariances of a model as opposed to just looking
+        (perturbation=None). This allows us to reason about the invariances of a model as opposed to just looking
         at its performance on perturbed inputs. We also compute the worst case performance across all robustness-related
-        and fairness-related perturbations (including identity in both).
+        and fairness-related perturbations (including the original input in both).
 
         For each such worst-case metric, we record a `before_` metric that aggregates the performance on the
         non-perturbed version of the corresponding inputs.
@@ -260,13 +260,12 @@ class Metric(ABC):
             for stat in stats:
                 assert instance.id is not None
                 # group all perturbations for a specific metric name together
-                if stat.name.perturbation is not None:
-                    per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(stat)
+                per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(stat)
 
         # Compute worst perturbation stats
         derived_stats_dict: Dict[MetricName, Stat] = {}
         for (metric_name, instance_id), stats in per_instance_perturbation_stats.items():
-            identity_stat: Optional[Stat] = None
+            original_stat: Optional[Stat] = None
             robustness_stat = Stat(
                 replace(metric_name, perturbation=PerturbationDescription(name="robustness", robustness=True))
             )
@@ -277,10 +276,9 @@ class Metric(ABC):
 
             for stat in stats:  # go through all the perturbations of the instance and merge relevant stats
                 perturbation = stat.name.perturbation
-                assert perturbation is not None
-                if perturbation.name == "identity":
-                    assert identity_stat is None  # we should only have one identity stat
-                    identity_stat = stat
+                if perturbation is None:
+                    assert original_stat is None  # we should only have one original stat
+                    original_stat = stat
                 else:
                     if perturbation.robustness:
                         robustness_stat.merge(stat)
@@ -293,16 +291,16 @@ class Metric(ABC):
                 perturbation = stat.name.perturbation
                 assert perturbation is not None
 
-                if identity_stat is not None:
-                    stat.merge(identity_stat)
+                if original_stat is not None:
+                    stat.merge(original_stat)
                     if perturbation.name not in ["robustness", "fairness"]:
-                        before = replace(perturbation, includes_perturbed=False, includes_identity=True)
+                        before = replace(perturbation, includes_perturbed=False, includes_original=True)
                         merge_stat(
-                            derived_stats_dict, Stat(replace(stat.name, perturbation=before)).merge(identity_stat)
+                            derived_stats_dict, Stat(replace(stat.name, perturbation=before)).merge(original_stat)
                         )
 
                 # keep the minimum performance for each input
-                worst = replace(perturbation, includes_perturbed=True, includes_identity=True)
+                worst = replace(perturbation, includes_perturbed=True, includes_original=True)
                 if stat.count > 0:
                     merge_stat(derived_stats_dict, Stat(replace(stat.name, perturbation=worst)).add(stat.min))
         return list(derived_stats_dict.values())

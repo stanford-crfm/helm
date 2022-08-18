@@ -98,6 +98,6 @@ class Stat:
 def merge_stat(stats: Dict[MetricName, Stat], stat: Stat):
     """Mutate the appropriate part of `stats`."""
     if stat.name not in stats:
-        stats[stat.name] = stat
+        stats[stat.name] = Stat(stat.name).merge(stat)  # copy
     else:
         stats[stat.name].merge(stat)
