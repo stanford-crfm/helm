@@ -483,6 +483,12 @@ class BasicMetric(Metric):
         assert request_state.result is not None
         # Compute efficiency metrics for inference.
         runtime: float = request_state.result.request_time
+        batch_size: int = 1
+        # For models that perform offline batch inference, effective runtime is batch_request_time, but also
+        # record batch_size to provide nuance.
+        if request_state.result.batch_request_time is not None and request_state.result.batch_size is not None:
+            runtime = request_state.result.batch_request_time
+            batch_size = request_state.result.batch_size
 
         # Compute total number of prompt and output tokens (in first sequence).
         # Fetch the right `Tokenizer` depending on the model defined in `AdapterSpec`
@@ -542,6 +548,7 @@ class BasicMetric(Metric):
         return [
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
             Stat(MetricName("inference_runtime")).add(runtime),
+            Stat(MetricName("batch_size")).add(batch_size),
             Stat(MetricName("inference_denoised_runtime")).add(denoised_runtime),
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
