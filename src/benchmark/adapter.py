@@ -602,7 +602,12 @@ class Adapter:
             if self.window_service.fits_within_context_window(
                 text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
             ):
-                return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=False)
+                # Most models cannot handle spaces at the end of prompts. For example, when
+                # given the prompt "1 2 3 4", GPT-J will output "5 6 7...", but when given
+                # "1 2 3 4 " (white space at the end) will output a bunch of white spaces.
+                # This is an issue even with larger models like OpenAI's Davinci. When fed
+                # "1 2 3 4 ", it outputs "下一页 尾页 页码：1/4<|endoftext|>".
+                return Prompt(prompt.rstrip(), num_in_context_examples=len(train_instances), input_truncated=False)
 
             train_instances = train_instances[:-1]
             prompt = construct_prompt_helper(train_instances)
@@ -619,7 +624,7 @@ class Adapter:
         original_length = len(prompt)
         prompt = self.window_service.truncate_from_right(prompt, self.adapter_spec.max_tokens)
         input_truncated = len(prompt) < original_length
-        return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=input_truncated)
+        return Prompt(prompt.rstrip(), num_in_context_examples=len(train_instances), input_truncated=input_truncated)
 
     def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
