@@ -49,8 +49,8 @@ def run_benchmarking(
         override(run_spec)
         for description in run_spec_descriptions
         for run_spec in construct_run_specs(parse_object_spec(description))
-        if (not models_to_run or run_spec.adapter_spec.model in models_to_run) and \
-        (not scenario_groups_to_run or any(group in scenario_groups_to_run for group in run_spec.groups))
+        if (not models_to_run or run_spec.adapter_spec.model in models_to_run)
+        and (not scenario_groups_to_run or any(group in scenario_groups_to_run for group in run_spec.groups))
     ]
 
     with htrack_block("run_specs"):

@@ -127,15 +127,16 @@ class AllRunner:
             os.path.join(suite_dir, "run_specs.json"), json.dumps(list(map(dataclasses.asdict, run_specs)), indent=2),
         )
 
-        # Collect models and groups
+        # Print out all the models and scenario groups available
+        # This makes it easy to select individual ones to run.
         models = set()
         groups = set()
         for run_spec in run_specs:
             models.add(run_spec.adapter_spec.model)
             for group in run_spec.groups:
                 groups.add(group)
-        hlog(f"Models: {' '.join(models)}")
-        hlog(f"Scenario groups: {' '.join(groups)}")
+        hlog(f"{len(models)} models: {' '.join(models)}")
+        hlog(f"{len(groups)} scenario groups: {' '.join(groups)}")
 
         # Create a symlink runs/latest -> runs/<name_of_suite>,
         # so runs/latest always points to the latest run suite.
