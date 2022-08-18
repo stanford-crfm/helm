@@ -13,11 +13,14 @@ from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
 import numpy as np
 from rouge_score import rouge_scorer
+import scipy
 
 from common.hierarchical_logger import hlog
 from common.request import Token, Sequence
+from common.general import singleton
 from . import code_metrics_helper
 from .adapter import (
+    ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     AdapterSpec,
@@ -255,9 +258,9 @@ def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
     #       https://github.com/stanford-crfm/benchmarking/issues/350
     derived_stats: List[Stat] = []
 
-    logprob_stat = get_unique_stat_by_name(stats, "logprob")
-    num_tokens_stat = get_unique_stat_by_name(stats, "num_perplexity_tokens")
-    num_bytes_stat = get_unique_stat_by_name(stats, "num_bytes")
+    logprob_stat = get_unique_stat_by_name(stats.values(), "logprob")
+    num_tokens_stat = get_unique_stat_by_name(stats.values(), "num_perplexity_tokens")
+    num_bytes_stat = get_unique_stat_by_name(stats.values(), "num_bytes")
 
     if logprob_stat is None:
         return []
@@ -377,28 +380,33 @@ class BasicMetric(Metric):
         }
 
         reference_metrics = []
+        # Gold outputs
+        golds = [reference for reference in request_state.instance.references if reference.is_correct]
+        assert len(golds) > 0
+
+        # Predicted outputs
+        assert request_state.result is not None
+        # TODO: Sort the predictions, or take them from the top tokens of the first completion
+        #       https://github.com/stanford-crfm/benchmarking/issues/42
+        preds = [completion.text.strip() for completion in request_state.result.completions]
+
+        # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
+        # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
+        # sometimes predict a random letter like 'M'.
+        if request_state.output_mapping is not None:
+            preds = [request_state.output_mapping.get(pred) for pred in preds]
+
+        # Add calibration metrics for ADAPT_MULTIPLE_CHOICE_JOINT.
+        if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
+            max_prob = np.exp(singleton(request_state.result.completions).logprob)
+            reference_metrics.append(Stat(MetricName("max_prob", k=1)).add(max_prob))
+
+        # Add other metrics.
         for metric_name in self.names:
             if metric_name in metric_fn_mapping:
-                # Gold outputs
-                golds = [reference for reference in request_state.instance.references if reference.is_correct]
-                assert len(golds) > 0
-
-                # Predicted outputs
-                assert request_state.result is not None
-                # TODO: Sort the predictions, or take them from the top tokens of the first completion
-                #       https://github.com/stanford-crfm/benchmarking/issues/42
-                preds = [completion.text.strip() for completion in request_state.result.completions]
-
-                # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
-                # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
-                # sometimes predict a random letter like 'M'.
-                if request_state.output_mapping is not None:
-                    preds = [request_state.output_mapping.get(pred) for pred in preds]
-
                 reference_metrics.extend(
                     compute_metrics_helper(MetricName(metric_name), metric_fn_mapping[metric_name])
                 )
-
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics
@@ -479,14 +487,24 @@ class BasicMetric(Metric):
 
         # Compute efficiency metrics for training.
         training_co2_cost: Optional[float]
-        if request_state.request.model in self.training_efficiency_dict:
-            training_co2_cost = self.training_efficiency_dict[request_state.request.model]
+        if request_state.request.model in self.training_efficiency_dict["carbon"]:
+            training_co2_cost = self.training_efficiency_dict["carbon"][request_state.request.model]["value"]
         else:
             hlog(
                 f"WARNING: tried to estimate training CO2 emissions for model {request_state.request.model} "
-                "that is not in training_efficiency_dict"
+                "that is not in training_efficiency_dict['carbon']"
             )
             training_co2_cost = None
+
+        training_energy_cost: Optional[float]
+        if request_state.request.model in self.training_efficiency_dict["energy"]:
+            training_energy_cost = self.training_efficiency_dict["energy"][request_state.request.model]["value"]
+        else:
+            hlog(
+                f"WARNING: tried to estimate training energy cost for model {request_state.request.model} "
+                "that is not in training_efficiency_dict['energy']"
+            )
+            training_energy_cost = None
 
         return [
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
@@ -494,6 +512,7 @@ class BasicMetric(Metric):
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
             Stat(MetricName("inference_runtime_discrepancy")).add(runtime_discrepancy),
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
+            Stat(MetricName("training_energy_cost")).add(training_energy_cost),
         ]
 
     def compute_finish_reason_metrics(
@@ -522,6 +541,12 @@ class BasicMetric(Metric):
     ) -> List[Stat]:
         """Record the number of in-context examples used in the prompt."""
         return [Stat(MetricName("num_in_context_examples")).add(request_state.num_in_context_examples)]
+
+    def compute_input_truncated(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    ) -> List[Stat]:
+        """Record whether the input was truncated to fit the context window."""
+        return [Stat(MetricName("input_truncated")).add(request_state.input_truncated)]
 
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -570,6 +595,7 @@ class BasicMetric(Metric):
         metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_num_in_context_examples(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_input_truncated(adapter_spec, request_state, metric_service))
 
         return metrics
 
@@ -660,8 +686,15 @@ class BasicMetric(Metric):
 
         answer_scores = [reference_scores[i] for i in answers]
 
+        max_prob = np.max(scipy.special.softmax(reference_scores))
+        # TODO: fix the accuracy calculation---it is currently incorrect when there are ties.
+        # For example, in binary classification if the model's predicted probabilities are
+        # [0.5, 0.5], then this code will say we got the example correct, regardless of what
+        # the answer is, because the calculation max(reference_scores) == max(answer_scores)
+        # will always return True.
         return [
-            Stat(MetricName("accuracy")).add(float(max(reference_scores) == max(answer_scores))),
+            Stat(MetricName("max_prob", k=1)).add(max_prob),
+            Stat(MetricName("exact_match", k=1)).add(float(max(reference_scores) == max(answer_scores))),
         ]
 
     def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
@@ -673,5 +706,23 @@ class BasicMetric(Metric):
     def derive_per_instance_stats(self, per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
         """Derive calibration metrics if applicable. We don't worry about splits and perturbations here."""
         derived_stats: List[Stat] = []
-        # derived_stats.extend(compute_calibration_metrics(per_instance_stats))
+        derived_stats.extend(compute_calibration_metrics(per_instance_stats))
         return derived_stats
+
+
+def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
+    max_probs = []
+    correct = []
+    for instance_stats in per_instance_stats.values():
+        max_prob_stat = get_unique_stat_by_name(instance_stats, "max_prob", k=1)
+        correct_stat = get_unique_stat_by_name(instance_stats, "exact_match", k=1)
+        if correct_stat is not None and max_prob_stat is not None:
+            max_probs.append(max_prob_stat.mean)
+            correct.append(correct_stat.mean)
+
+    calibration_metrics: List[Stat] = []
+    assert len(max_probs) == len(correct)
+    if len(max_probs) > 0:
+        ece_1_bin = np.abs(np.mean(max_probs) - np.mean(correct))
+        calibration_metrics.append(Stat(MetricName("ece_1_bin")).add(ece_1_bin))
+    return calibration_metrics

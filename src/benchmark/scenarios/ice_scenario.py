@@ -18,18 +18,18 @@ class HeaderFormat(Enum):
 
 
 KEEP_TAGS = False
-GENDER_ANNOTATIONS = {"M": {"M", "m", "Male", "male"}, "F": {"F", "f", "Female", "female"}}
-ICE_SUBSETS = {"CAN", "JA", "HK", "IND", "SIN", "PHI", "USA"}
+GENDER_ANNOTATIONS = {"male": {"M", "m", "Male", "male"}, "female": {"F", "f", "Female", "female"}}
+ICE_SUBSETS = {"can", "ja", "hk", "ind", "sin", "phi", "usa"}
 UNSUPPORTED_SUBSETS = {"GB", "EA", "IRL", "NZ", "SL", "NG"}  # noqa
-METADATA_FORMAT = {"CAN": HeaderFormat.XLS, "HK": HeaderFormat.XLS, "IND": HeaderFormat.HDR, "USA": HeaderFormat.HDR}
+METADATA_FORMAT = {"can": HeaderFormat.XLS, "hk": HeaderFormat.XLS, "ind": HeaderFormat.HDR, "usa": HeaderFormat.HDR}
 SUBSET_TO_DIRECTORY = {
-    "IND": "ICE India",
-    "CAN": "ICE-CAN",
-    "HK": "ICE-HK",
-    "JA": "ICE-JA",
-    "PHI": "ICE Philippines",
-    "SIN": "ICE SINGAPORE",
-    "USA": "ICE-USA",
+    "ind": "ICE India",
+    "can": "ICE-CAN",
+    "hk": "ICE-HK",
+    "ja": "ICE-JA",
+    "phi": "ICE Philippines",
+    "sin": "ICE SINGAPORE",
+    "usa": "ICE-USA",
 }
 
 
@@ -49,8 +49,8 @@ class ICEScenario(Scenario):
     We evaluate on per-text perplexity (by default, all texts from all regions, but
     can be filtered using scenario parameters).
 
-    Initially, we are only able to evaluate the Canada (CAN), Hong Kong (HK), India (IND), Jamaica (JA),
-    Philippines (PHI), Singapore (SIN) and United States (USA) subsets, as these are the
+    Initially, we are only able to evaluate the Canada (can), Hong Kong (hk), India (ind), Jamaica (ja),
+    Philippines (phi), Singapore (sin) and United States (usa) subsets, as these are the
     only subsets which standardize the organization of their data/metadata. Evaluation
     can be restricted to one of these subsets by passing the corresponding code (parenthesized above)
     into the subset parameter.
@@ -232,13 +232,13 @@ class ICEScenario(Scenario):
         selected_texts = set()
 
         if METADATA_FORMAT[subset] == HeaderFormat.XLS:
-            if subset == "CAN":
+            if subset == "can":
                 files = ["Spoken ICE-CAN metadata.xls", "Written ICE-CAN metadata.xls"]
-            elif subset == "HK":
+            elif subset == "hk":
                 files = ["HKRecords.xls"]
 
             for fi in files:
-                dfs = pd.read_excel(os.path.join(header_dir, fi), sheet_name=[0] if subset == "CAN" else None)
+                dfs = pd.read_excel(os.path.join(header_dir, fi), sheet_name=[0] if subset == "can" else None)
 
                 for df in dfs.values():
                     for i in range(len(df)):
