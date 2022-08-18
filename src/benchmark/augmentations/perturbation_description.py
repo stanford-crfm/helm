@@ -10,9 +10,7 @@ class PerturbationDescription:
     robustness: bool = False
     fairness: bool = False
 
-    # Fields to capture which types of Instances we are evaluating, to be populated during metric evaluation.
-    # `includes_perturbed` means we are evaluating on perturbed instances, `includes_original` means we are evaluating
-    # the unperturbed version of instances where this perturbation appplies, and, if both are true, we are
-    # considering the minimum metric between the two.
-    includes_perturbed: bool = True
-    includes_original: bool = False
+    # Which types of Instances we are evaluating, to be populated during metric evaluation. "perturbed" (default) means
+    # we are evaluating on perturbed instances, "original" means we are evaluating the unperturbed version of instances
+    # where this perturbation appplies, and, "worst" means the the minimum metric between the two.
+    computed_on: str = "perturbed"
