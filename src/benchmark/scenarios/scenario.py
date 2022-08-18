@@ -23,6 +23,41 @@ DEFAULT_TEST_SIZE: int = 1000
 CORRECT_TAG: str = "correct"
 
 
+class Input(ABC):
+    """
+    The text corresponding to the input of an Instance. We want to subclass this for structure inputs (e.g., QA).
+    """
+
+    @abstractmethod
+    def to_text(self):
+        pass
+
+
+@dataclass(frozen=True)
+class RawInput(Input):
+    """
+    Contains a single text string.
+    """
+
+    text: str
+
+    def to_text(self):
+        return self.text
+
+
+@dataclass(frozen=True)
+class PassageQuestionInput(Input):
+    """
+    Passage-question pair used for question answering scenarios.
+    """
+
+    passage: str
+    question: str
+
+    def to_text(self, passage_prefix: str = "", question_prefix: str = "Question: ", separator: str = "\n"):
+        return f"{passage_prefix}{self.passage}{separator}{question_prefix}{self.question}"
+
+
 @dataclass(frozen=True)
 class Reference:
     """
@@ -55,7 +90,7 @@ class Instance:
     """
 
     # The input text
-    input: str
+    input: str  # TODO: eventually, we want to replace this with the Input defined above
 
     # References that helps us evaluate
     references: Sequence[Reference]

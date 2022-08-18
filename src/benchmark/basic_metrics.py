@@ -487,14 +487,24 @@ class BasicMetric(Metric):
 
         # Compute efficiency metrics for training.
         training_co2_cost: Optional[float]
-        if request_state.request.model in self.training_efficiency_dict:
-            training_co2_cost = self.training_efficiency_dict[request_state.request.model]
+        if request_state.request.model in self.training_efficiency_dict["carbon"]:
+            training_co2_cost = self.training_efficiency_dict["carbon"][request_state.request.model]["value"]
         else:
             hlog(
                 f"WARNING: tried to estimate training CO2 emissions for model {request_state.request.model} "
-                "that is not in training_efficiency_dict"
+                "that is not in training_efficiency_dict['carbon']"
             )
             training_co2_cost = None
+
+        training_energy_cost: Optional[float]
+        if request_state.request.model in self.training_efficiency_dict["energy"]:
+            training_energy_cost = self.training_efficiency_dict["energy"][request_state.request.model]["value"]
+        else:
+            hlog(
+                f"WARNING: tried to estimate training energy cost for model {request_state.request.model} "
+                "that is not in training_efficiency_dict['energy']"
+            )
+            training_energy_cost = None
 
         return [
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
@@ -502,6 +512,7 @@ class BasicMetric(Metric):
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
             Stat(MetricName("inference_runtime_discrepancy")).add(runtime_discrepancy),
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
+            Stat(MetricName("training_energy_cost")).add(training_energy_cost),
         ]
 
     def compute_finish_reason_metrics(
@@ -530,6 +541,12 @@ class BasicMetric(Metric):
     ) -> List[Stat]:
         """Record the number of in-context examples used in the prompt."""
         return [Stat(MetricName("num_in_context_examples")).add(request_state.num_in_context_examples)]
+
+    def compute_input_truncated(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    ) -> List[Stat]:
+        """Record whether the input was truncated to fit the context window."""
+        return [Stat(MetricName("input_truncated")).add(request_state.input_truncated)]
 
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -578,6 +595,7 @@ class BasicMetric(Metric):
         metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_num_in_context_examples(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_input_truncated(adapter_spec, request_state, metric_service))
 
         return metrics
 
