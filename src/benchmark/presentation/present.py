@@ -45,6 +45,7 @@ class AllRunner:
         skip_instances: bool,
         max_eval_instances: Optional[int],
         models_to_run: Optional[List[str]],
+        scenario_groups_to_run: Optional[List[str]],
         exit_on_error: bool,
         priority: Optional[int],
     ):
@@ -60,6 +61,7 @@ class AllRunner:
         self.skip_instances: bool = skip_instances
         self.max_eval_instances: Optional[int] = max_eval_instances
         self.models_to_run: Optional[List[str]] = models_to_run
+        self.scenario_groups_to_run: Optional[List[str]] = scenario_groups_to_run
         self.exit_on_error: bool = exit_on_error
         self.priority: Optional[int] = priority
 
@@ -106,6 +108,7 @@ class AllRunner:
                     skip_instances=self.skip_instances,
                     max_eval_instances=self.max_eval_instances,
                     models_to_run=self.models_to_run,
+                    scenario_groups_to_run=self.scenario_groups_to_run,
                 )
                 run_specs.extend(new_run_specs)
 
@@ -123,6 +126,16 @@ class AllRunner:
         write(
             os.path.join(suite_dir, "run_specs.json"), json.dumps(list(map(dataclasses.asdict, run_specs)), indent=2),
         )
+
+        # Collect models and groups
+        models = set()
+        groups = set()
+        for run_spec in run_specs:
+            models.add(run_spec.adapter_spec.model)
+            for group in run_spec.groups:
+                groups.add(group)
+        hlog(f"Models: {' '.join(models)}")
+        hlog(f"Scenario groups: {' '.join(groups)}")
 
         # Create a symlink runs/latest -> runs/<name_of_suite>,
         # so runs/latest always points to the latest run suite.
@@ -146,6 +159,12 @@ def main():
         "--models-to-run",
         nargs="+",
         help="Only RunSpecs with these models specified. If no model is specified, runs with all models.",
+        default=None,
+    )
+    parser.add_argument(
+        "--scenario-groups-to-run",
+        nargs="+",
+        help="Only RunSpecs with these scenario groups specified. If no scenario group is specified, runs with all models.",
         default=None,
     )
     parser.add_argument(
@@ -182,6 +201,7 @@ def main():
         skip_instances=args.skip_instances,
         max_eval_instances=args.max_eval_instances,
         models_to_run=args.models_to_run,
+        scenario_groups_to_run=args.scenario_groups_to_run,
         exit_on_error=args.exit_on_error,
         priority=args.priority,
     )
