@@ -1105,7 +1105,7 @@ def get_ice_spec(**kwargs) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs({"names": []}),
-        groups=[f"ice_{kwargs['subset']}"],
+        groups=["ice"],
     )
 
 
