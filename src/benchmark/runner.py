@@ -39,7 +39,7 @@ class RunSpec:
     # Data augmenter. The default `DataAugmenterSpec` does nothing.
     data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec()
 
-    # Groups that this run spec belongs to (for summarization)
+    # Groups that this run spec belongs to (for aggregation)
     groups: List[str] = field(default_factory=list)
 
     def __post_init__(self):

@@ -14,7 +14,7 @@ from common.hierarchical_logger import htrack, hlog
 def singleton(items: List):
     """Ensure there's only one item in `items` and return it."""
     if len(items) != 1:
-        raise ValueError(f"Expected 1 item, got {len(items)}")
+        raise ValueError(f"Expected 1 item, got {len(items)} items: {items}")
     return items[0]
 
 

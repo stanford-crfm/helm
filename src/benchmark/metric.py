@@ -260,7 +260,7 @@ class Metric(ABC):
         for instance, stats in per_instance_stats.items():
             for stat in stats:
                 assert instance.id is not None
-                # group all perturbations for a specific metric name together
+                # Group all perturbations for a specific metric name together
                 if stat.name.perturbation is not None:
                     per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(stat)
 

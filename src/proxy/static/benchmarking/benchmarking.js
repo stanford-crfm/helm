@@ -8,8 +8,6 @@ $(function () {
   const suite = "suite" in urlParams ? urlParams.suite : "latest";
   console.log(`Suite: ${suite}`);
 
-  ////////////////////////////////// Main //////////////////////////////////////
-
   //////////////////////////////// Schema //////////////////////////////////////
 
   // Captures information about a field in the schema.
@@ -31,7 +29,7 @@ $(function () {
 
     readValues(values) {
       // Read the values field.
-      // Note: We are using field to represent the schema for a field value too.
+      // Note: We are using `Field` to represent the schema for a field value too.
       if (Array.isArray(values)) {
         // If the values field is an array, read each element as a Field.
         return values.map((valueRaw) => new Field(valueRaw));
@@ -43,52 +41,16 @@ $(function () {
     }
   }
 
-  // Each run spec (e.g. ice:subset=JA) specifies a list of groups it belongs
-  // to (e.g. [ "ice_ja"]). A GroupField captures what information should
-  // be displayed for each group (e.g. split, stat_names). For example, for
-  // the ICE scenario, the main stats we want to show come from the "test"
-  // split, while the main stats we want to show is "bits_per_byte".
-  class GroupField extends Field {
-    constructor(raw) {
-      super(raw);
-      this.display = {
-        split: raw.display.split,
-        stat_names: raw.display.stat_names,
-      }
-    }
-  }
-
-  // Metric group corresponds to a logical group of metrics we show in the
-  // group tables that share common characteristics. For example, for the
-  // metrics that belong to the "accuracy" group, the k value we show in the
-  // group tables is 1. For each of these metric, we also show the perturbed
-  // versions specified in the "perturbation_names" field. MetricGroupField
-  // keeps track of all the information related to a metric field.
-  class MetricGroupField extends Field {
-    constructor(raw) {
-      super(raw);
-      this.display_k = raw.display_k;
-      this.stat_names = raw.stat_names;
-      this.perturbation_names = raw.perturbation_names;
-    }
-  }
-
   // Specifies all the information to help us render and understand the fields
   // for adapters and metrics.
   class Schema {
     constructor(raw) {
       this.adapterFields = raw.adapter.map((fieldRaw) => new AdapterField(fieldRaw));
       this.metricsFields = raw.metrics.map((fieldRaw) => new Field(fieldRaw));
-      this.perturbationsFields = raw.perturbations.map((fieldRaw) => new Field(fieldRaw));
-      this.groupsFields = raw.groups.map((fieldRaw) => new GroupField(fieldRaw));
-      this.metricGroupsFields = raw.metric_groups.map((fieldRaw) => new MetricGroupField(fieldRaw));
 
       // Allow convenient access
       this.adapterFieldNames = this.adapterFields.map((field) => field.name);
       this.metricsFieldNames = this.metricsFields.map((field) => field.name);
-      this.perturbationsFieldNames = this.perturbationsFields.map((field) => field.name);
-      this.groupsFieldNames = this.groupsFields.map((field) => field.name);
-      this.metricGroupsFieldNames = this.metricGroupsFields.map((field) => field.name);
     }
 
     adapterField(name) {
@@ -102,7 +64,6 @@ $(function () {
       const field = this.metricsFields.find((field) => field.name === name);
       return field || new Field({name});
     }
-
   }
 
   /////////////////////////////////// Pages ////////////////////////////////////
@@ -367,7 +328,7 @@ $(function () {
   function renderTable(table) {
     const $output = $('<div>');
     $output.append($('<h3>').append(table.title));
-    const $table = $('<table>', {class: 'query-table'});
+    const $table = $('<table>', {class: 'query-table results-table'});
     const $header = $('<tr>').append(table.header.map(renderCell));
     $table.append($header);
 
@@ -382,7 +343,7 @@ $(function () {
   function renderTables(tables) {
     const $output = $('<div>');
     tables.forEach((table) => {
-      $output.append(renderTable(table));
+      $output.append($('<div>', {class: 'table-container'}).append(renderTable(table)));
     });
     return $output;
   }

@@ -12,6 +12,7 @@ import json
 from common.general import write, ensure_directory_exists, asdict_without_nones, singleton
 from common.hierarchical_logger import hlog, htrack
 from benchmark.statistic import Stat
+from benchmark.scenarios.scenario import TEST_SPLIT
 from benchmark.runner import RunSpec
 from benchmark.metric_name import MetricName
 from proxy.models import ALL_MODELS, get_model
@@ -47,8 +48,8 @@ class Run:
 @dataclass(frozen=True)
 class Field:
     """
-    Represents a field in a specification (e.g., temperature for `AdapterSpec`
-    or exact_match for `Metric` or `Typos` for perturbations).
+    Represents a field in a specification (e.g., `temperature` for the adapter,
+    or `exact_match` for metrics or `typos` for perturbations.
     """
 
     # Internal name (usually no spaces, etc.)
@@ -57,8 +58,14 @@ class Field:
     # What is displayed to the user
     display_name: Optional[str] = None
 
+    # What is displayed to the user (e.g., in a table header)
+    short_display_name: Optional[str] = None
+
     # Description of the field
     description: Optional[str] = None
+
+    def get_short_display_name(self):
+        return self.short_display_name or self.display_name or self.name
 
 
 @dataclass(frozen=True)
@@ -66,34 +73,33 @@ class MetricGroup(Field):
     """
     Expands to a set of columns that correspond to a set of coherent metrics
     (e.g., all bias metrics).
-    The columns are defined by the cross product of `stat_names` and
+    The columns are defined by the cross product of `metric_names` and
     `perturbation_names`.
     """
 
     # Which k value to use
     display_k: Optional[int] = None
 
-    # If not specified, then use the group's default names
-    stat_names: Optional[List[str]] = field(default_factory=list)
+    # If not specified, then use the ScenarioGroup's default metric_names.
+    metric_names: Optional[List[str]] = field(default_factory=list)
 
     # Which perturbations to show (e.g., typos)
-    perturbation_names: List[str] = field(default_factory=list)
+    perturbation_names: List[Optional[str]] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
-class GroupDisplay:
+class ScenarioGroup(Field):
+    """
+    Defines information about how a scenario group (really a list of runs that
+    share the same scenario) are displayed.
+    """
+
     # Which data split to report numbers on
-    split: str
+    split: str = TEST_SPLIT
 
-    # What are the metric names that correspond to the default metric (e.g., accuracy)
-    # TODO: rename to metric_names
-    stat_names: List[str]
-
-
-# TODO: rename to RunGroup and remove GroupDisplay
-@dataclass(frozen=True)
-class Group(Field):
-    display: Optional[GroupDisplay] = None
+    # What are the metric names to display first (e.g., exact_match)
+    # This should be the main accuracy-like metric.
+    metric_names: List[str] = field(default_factory=list)
 
 
 @dataclass
@@ -104,7 +110,7 @@ class Schema:
     metrics: List[Field]
     perturbations: List[Field]
     metric_groups: List[MetricGroup]
-    groups: List[Group]
+    scenario_groups: List[ScenarioGroup]
 
     def __post_init__(self):
         self.name_to_metric = {metric.name: metric for metric in self.metrics}
@@ -133,11 +139,6 @@ class Table:
     rows: List[List[Cell]]
 
 
-# TODO: remove this once we actually standardize things
-def standardize(perturbation_name: Optional[str]) -> str:
-    return perturbation_name or "identity"
-
-
 @dataclass(frozen=True)
 class MetricNameMatcher:
     """
@@ -149,22 +150,21 @@ class MetricNameMatcher:
 
     name: str
     k: Optional[int]
-    split: Optional[str]
-    perturbation_name: Optional[str]
+    split: str
+    perturbation_name: str
 
     def matches(self, metric_name: MetricName) -> bool:
         if self.name != metric_name.name:
             return False
-        if self.k is not None and self.k != metric_name.k:
+        if self.k != metric_name.k:
             return False
-        if self.split is not None and self.split != metric_name.split:
+        if self.split != metric_name.split:
             return False
-        if self.perturbation_name is not None:
-            a = standardize(self.perturbation_name)
-            b = standardize(metric_name.perturbation and metric_name.perturbation.name)
-            if a != b:
-                return False
-            # TODO: include only one of the perturbation?
+        metric_perturbation_name = (metric_name.perturbation and metric_name.perturbation.name) or "identity"
+        if self.perturbation_name != metric_perturbation_name:
+            return False
+        # By default, want includes_perturbed=True AND includes_identity=True
+        if metric_perturbation_name != "identity":
             if metric_name.perturbation and not (
                 metric_name.perturbation.includes_perturbed and metric_name.perturbation.includes_identity
             ):
@@ -173,6 +173,7 @@ class MetricNameMatcher:
 
 
 def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) -> Optional[Stat]:
+    """Return the single stat that matches."""
     matching_stats = [stat for stat in stats if matcher.matches(stat.name)]
     if len(matching_stats) == 0:
         return None
@@ -231,7 +232,7 @@ class Summarizer:
             else:
                 hlog(f"WARNING: {run_path} doesn't have run_spec.json or stats.json, skipping")
 
-        # Build mapping from group (e.g., natural_qa) and model (e.g., openai/davinci) to list of runs
+        # Build mapping from scenario group (e.g., natural_qa) and model (e.g., openai/davinci) to list of runs
         self.group_model_to_runs: Dict[str, Dict[str, List[Run]]] = defaultdict(lambda: defaultdict(list))
         self.group_scenario_model_to_runs: Dict[str, Dict[str, List[Run]]] = defaultdict(
             lambda: defaultdict(lambda: defaultdict(list))
@@ -239,10 +240,9 @@ class Summarizer:
         for run in self.runs:
             for group in run.run_spec.groups:
                 model = run.run_spec.adapter_spec.model
-                # TODO: make this less hacky
-                # (mmlu:subject=philosophy,model=openai_davinci) since this
-                # doesn't work for data_augmentation=...
-                scenario = run.run_spec.name.split(",")[0]
+                # Assume it is sensible to shard by scenario arguments.
+                scenario = ", ".join(f"{k}: {v}" for k, v in run.run_spec.scenario_spec.args.items())
+
                 self.group_model_to_runs[group][model].append(run)
                 self.group_scenario_model_to_runs[group][scenario][model].append(run)
 
@@ -273,7 +273,6 @@ class Summarizer:
         )
 
     def write_runs(self):
-        # TODO: write more summary information and something smaller
         write(
             os.path.join(self.run_suite_path, "runs.json"),
             json.dumps(list(map(asdict_without_nones, self.runs)), indent=2),
@@ -286,7 +285,7 @@ class Summarizer:
             Cell("# models"),
         ]
         rows = []
-        for group in self.schema.groups:
+        for group in self.schema.scenario_groups:
             rows.append(
                 [
                     Cell(group.display_name, href=get_benchmarking_url({"group": group.name})),
@@ -318,17 +317,23 @@ class Summarizer:
         if aggregate_stat is None:
             return Cell(None)
         value = aggregate_stat.mean
-        description = str(aggregate_stat)  # TODO: make this nicer
+        description = aggregate_stat.bare_str()  # Show more information
         return Cell(value=value, display_value=round(value, 3), description=description)
 
     def create_group_table(
-        self, title: str, group: Group, model_to_runs: Dict[str, List[Run]], link_to_runs: bool
+        self, title: str, scenario_group: ScenarioGroup, model_to_runs: Dict[str, List[Run]], link_to_runs: bool
     ) -> Table:
         """
-        Create a table where each row is a model and columns are constructed based on the group
+        Create a table for a scenario_group (natural_qa) where each row is a
+        model and columns are constructed based on metrics.
+        Here's how the columns are constructed.  For each metric group:
+        - Take the cross product over the list of metric names (e.g.,
+          exact_match) and perturbation names (e.g., typos) defined by the
+          metric group.
+        - In some cases, the scenario group will supply the metric names.
         """
 
-        # Figure out what the columsn of the table are.
+        # Figure out what the columns of the table are.
         # Create header (cells to display) and the list of metric name filters
         # (to pull out information later).
         header = []
@@ -337,20 +342,30 @@ class Summarizer:
         for metric_group in self.schema.metric_groups:
             # Get stat names and perturbations
             k = metric_group.display_k
-            split = group.display.split
-            stat_names = metric_group.stat_names or group.display.stat_names
+            split = scenario_group.split
+            metric_names = metric_group.metric_names or scenario_group.metric_names
             perturbation_names = metric_group.perturbation_names
 
-            for stat_name in stat_names:
+            for metric_name in metric_names:
+                header_field = self.schema.name_to_metric[metric_name]
                 for perturbation_name in perturbation_names:
-                    header_field = self.schema.name_to_metric[stat_name]
-                    header_name = header_field.display_name
-                    if perturbation_name != "identity":
-                        header_name += " (" + self.schema.name_to_perturbation[perturbation_name].display_name + ")"
 
-                    header.append(Cell(header_name, description=header_field.description))
+                    header_name = header_field.get_short_display_name()
+                    description = header_field.display_name + ": " + header_field.description
+
+                    if perturbation_name != "identity":
+                        perturbation_field = self.schema.name_to_perturbation[perturbation_name]
+                        header_name += " (" + perturbation_field.get_short_display_name() + ")"
+                        description += (
+                            "\n- Perturbation "
+                            + perturbation_field.display_name
+                            + ": "
+                            + (perturbation_field.description or "???")
+                        )
+
+                    header.append(Cell(header_name, description=description))
                     matchers.append(
-                        MetricNameMatcher(name=stat_name, k=k, split=split, perturbation_name=perturbation_name)
+                        MetricNameMatcher(name=metric_name, k=k, split=split, perturbation_name=perturbation_name)
                     )
 
         # Populate the contents of the table
@@ -389,23 +404,33 @@ class Summarizer:
         # Write out a separate JSON for each group
         groups_path = os.path.join(self.run_suite_path, "groups")
         ensure_directory_exists(groups_path)
-        for group in self.schema.groups:
-            tables = [
-                self.create_group_table(
-                    title=group.name,
-                    group=group,
-                    model_to_runs=self.group_model_to_runs[group.name],
-                    link_to_runs=False,
+        for group in self.schema.scenario_groups:
+            tables = []
+
+            # Show the table aggregating over all the scenarios in this group (e.g., babi-1, babi-2, etc.)
+            if len(self.group_scenario_model_to_runs[group.name]) > 1:
+                tables.append(
+                    self.create_group_table(
+                        title=f"{group.display_name}",
+                        scenario_group=group,
+                        model_to_runs=self.group_model_to_runs[group.name],
+                        link_to_runs=False,
+                    )
                 )
-            ] + [
-                self.create_group_table(
-                    title=scenario,
-                    group=group,
-                    model_to_runs=self.group_scenario_model_to_runs[group.name][scenario],
-                    link_to_runs=True,
+
+            # Show the table per scenario
+            for scenario in self.group_scenario_model_to_runs[group.name]:
+                scenario_display_name = f"{group.display_name} / {scenario}"
+                tables.append(
+                    self.create_group_table(
+                        title=scenario_display_name,
+                        scenario_group=group,
+                        model_to_runs=self.group_scenario_model_to_runs[group.name][scenario],
+                        link_to_runs=True,
+                    )
                 )
-                for scenario in self.group_scenario_model_to_runs[group.name]
-            ]
+
+            # Write it!
             write(
                 os.path.join(groups_path, group.name + ".json"), json.dumps(list(map(asdict_without_nones, tables))),
             )
