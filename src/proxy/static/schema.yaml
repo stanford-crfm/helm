@@ -61,11 +61,11 @@ metrics:
     description: Fraction of instances that the predicted output matches a correct reference up to light processing.
   - name: logprob
     display_name: Log probability
-    short_display_name: log prob.
+    short_display_name: Log prob.
     description: Predicted output's average log probability (input's log prob for language modeling).
   - name: bits_per_byte
     display_name: Bits/byte
-    short_display_name: log prob.
+    short_display_name: BPB
     description: Average number of bits per byte according to model probabilities.
   - name: rouge_2
     display_name: ROUGE-2
@@ -546,10 +546,9 @@ scenario_groups:
   - name: quac
     display_name: QuAC (Question Answering in Context)
     description: The QuAC benchmark for question answering in the context of dialogues (Choi et al., 2018).
-    display:
-      split: valid
-      metric_names:
-        - f1_score
+    split: valid
+    metric_names:
+      - f1_score
   - name: raft
     display_name: RAFT (Real-world Annotated Few-Shot)
     description: The Real-world annotated few-shot (RAFT) meta-benchmark of 11 real-world text classification tasks (Alex et al., 2021).
