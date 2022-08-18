@@ -43,6 +43,7 @@ class ICEWindowService(LocalWindowService):
 
         # HACK: For the vast majority of cases, the above logic works, but it sometimes doesn't work
         # for non-English, non-Chinese text (e.g., Japanese text from NaturalQA).
+        # Truncate by removing character by character until the prompt fits within the context window.
         while not self.fits_within_context_window(result):
             result = result[:-1]
 
