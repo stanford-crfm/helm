@@ -469,16 +469,6 @@ class Adapter:
 
                     construct_requests_elapsed_time: float = time.time() - start_time
 
-                    verbose = 0
-                    if verbose >= 2:
-                        hlog(
-                            f"trial {train_trial_index}: "
-                            f"construct_requests {eval_index} (total {len(eval_instances)}): "
-                            f"len(requests) = {len(request_states)}, len(prompts) = "
-                            f"{[len(request_state.request.prompt) for request_state in request_states]} "
-                            f"({construct_requests_elapsed_time:.3f}s)"
-                        )
-
                     # Just print out prompts for one instance (useful for debugging)
                     if train_trial_index == 0 and eval_index == 0:
                         with htrack_block("Sample prompts"):
