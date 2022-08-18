@@ -4,9 +4,9 @@
 set -e
 
 if ! [ -e venv ]; then
-  python3 -m pip install virtualenv==20.14.0
-  python3 -m virtualenv -p python3 venv
-  # python3 -m venv venv
+  # python3 -m pip install virtualenv==20.14.0
+  # python3 -m virtualenv -p python3 venv
+  python3 -m venv venv
 fi
 
 venv/bin/pip install -e .
