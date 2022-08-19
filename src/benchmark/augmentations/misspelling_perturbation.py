@@ -39,6 +39,7 @@ class MisspellingPerturbation(Perturbation):
         misspellings_file = Path(__file__).resolve().expanduser().parent / "correct_to_misspelling.json"
         with open(misspellings_file, "r") as f:
             self.correct_to_misspelling: Dict[str, List[str]] = json.load(f)
+        self.mispelling_pattern = re.compile(r"\b({})\b".format("|".join(self.correct_to_misspelling.keys())))
 
     @property
     def description(self) -> PerturbationDescription:
@@ -50,16 +51,13 @@ class MisspellingPerturbation(Perturbation):
         return super().apply(instance)
 
     def perturb(self, text: str) -> str:
-        mispelling_pattern = re.compile(
-            r"\b({})\b".format("|".join(self.correct_to_misspelling.keys())), flags=re.IGNORECASE | re.DOTALL,
-        )
 
         def mispell(match: re.Match) -> str:
             word = match.group(1)
             if np.random.rand() < self.prob:
-                mispelled_word = str(np.random.choice(self.correct_to_misspelling[word.lower()]))
+                mispelled_word = str(np.random.choice(self.correct_to_misspelling[word]))
                 return match_case(word, mispelled_word)
             else:
                 return word
 
-        return mispelling_pattern.sub(mispell, text)
+        return self.mispelling_pattern.sub(mispell, text)
