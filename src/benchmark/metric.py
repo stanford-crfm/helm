@@ -317,18 +317,18 @@ def create_metric(metric_spec: MetricSpec) -> Metric:
     return create_object(metric_spec)
 
 
-def get_all_stats_by_name(stats: Iterable[Stat], name: str, k: Optional[int] = None) -> List[Stat]:
-    """Returns a list of all stats with the specified name and optionally the right k."""
+def get_all_stats_by_name(stats: Iterable[Stat], name: str) -> List[Stat]:
+    """Returns a list of all stats with the specified name."""
 
     def matches(stat):
-        return stat.name.name == name and (k is None or stat.name.k == k)
+        return stat.name.name == name
 
     return list(filter(matches, stats))
 
 
-def get_unique_stat_by_name(stats: Iterable[Stat], name: str, k: Optional[int] = None) -> Optional[Stat]:
-    """Returns the unique stat with the specified name (and maybe k) or None if it's not there."""
-    matching_stats: List[Stat] = get_all_stats_by_name(stats, name, k)
+def get_unique_stat_by_name(stats: Iterable[Stat], name: str) -> Optional[Stat]:
+    """Returns the unique stat with the specified name or None if it's not there."""
+    matching_stats: List[Stat] = get_all_stats_by_name(stats, name)
     if len(matching_stats) == 0:
         return None
     return singleton(matching_stats)
