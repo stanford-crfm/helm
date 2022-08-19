@@ -271,7 +271,7 @@ def gender(
 # - r2: with perturbations [c, d, e]
 ROBUSTNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [synonym(prob=0.5), typo(prob=0.05)]
 ROBUSTNESS_ALL_PERTURBATION_SPECS: List[PerturbationSpec] = [
-    contract_and_expand(),
+    *contract_and_expand(),
     filler(0.3),
     lower(),
     misspelling(prob=0.20),
