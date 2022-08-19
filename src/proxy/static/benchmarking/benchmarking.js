@@ -8,8 +8,6 @@ $(function () {
   const suite = "suite" in urlParams ? urlParams.suite : "latest";
   console.log(`Suite: ${suite}`);
 
-  ////////////////////////////////// Main //////////////////////////////////////
-
   //////////////////////////////// Schema //////////////////////////////////////
 
   // Captures information about a field in the schema.
@@ -31,7 +29,7 @@ $(function () {
 
     readValues(values) {
       // Read the values field.
-      // Note: We are using field to represent the schema for a field value too.
+      // Note: We are using `Field` to represent the schema for a field value too.
       if (Array.isArray(values)) {
         // If the values field is an array, read each element as a Field.
         return values.map((valueRaw) => new Field(valueRaw));
@@ -43,52 +41,16 @@ $(function () {
     }
   }
 
-  // Each run spec (e.g. ice:subset=JA) specifies a list of groups it belongs
-  // to (e.g. [ "ice_ja"]). A GroupField captures what information should
-  // be displayed for each group (e.g. split, stat_names). For example, for
-  // the ICE scenario, the main stats we want to show come from the "test"
-  // split, while the main stats we want to show is "bits_per_byte".
-  class GroupField extends Field {
-    constructor(raw) {
-      super(raw);
-      this.display = {
-        split: raw.display.split,
-        stat_names: raw.display.stat_names,
-      }
-    }
-  }
-
-  // Metric group corresponds to a logical group of metrics we show in the
-  // group tables that share common characteristics. For example, for the
-  // metrics that belong to the "accuracy" group, the k value we show in the
-  // group tables is 1. For each of these metric, we also show the perturbed
-  // versions specified in the "perturbation_names" field. MetricGroupField
-  // keeps track of all the information related to a metric field.
-  class MetricGroupField extends Field {
-    constructor(raw) {
-      super(raw);
-      this.display_k = raw.display_k;
-      this.stat_names = raw.stat_names;
-      this.perturbation_names = raw.perturbation_names;
-    }
-  }
-
   // Specifies all the information to help us render and understand the fields
   // for adapters and metrics.
   class Schema {
     constructor(raw) {
       this.adapterFields = raw.adapter.map((fieldRaw) => new AdapterField(fieldRaw));
       this.metricsFields = raw.metrics.map((fieldRaw) => new Field(fieldRaw));
-      this.perturbationsFields = raw.perturbations.map((fieldRaw) => new Field(fieldRaw));
-      this.groupsFields = raw.groups.map((fieldRaw) => new GroupField(fieldRaw));
-      this.metricGroupsFields = raw.metric_groups.map((fieldRaw) => new MetricGroupField(fieldRaw));
 
       // Allow convenient access
       this.adapterFieldNames = this.adapterFields.map((field) => field.name);
       this.metricsFieldNames = this.metricsFields.map((field) => field.name);
-      this.perturbationsFieldNames = this.perturbationsFields.map((field) => field.name);
-      this.groupsFieldNames = this.groupsFields.map((field) => field.name);
-      this.metricGroupsFieldNames = this.metricGroupsFields.map((field) => field.name);
     }
 
     adapterField(name) {
@@ -102,54 +64,37 @@ $(function () {
       const field = this.metricsFields.find((field) => field.name === name);
       return field || new Field({name});
     }
-
-    groupsField(name) {
-      // Return the group field with the given `name`.
-      const field = this.groupsFields.find((field) => field.name === name);
-      return field || new Field({name});
-    }
-
-    metricGroupsField(name) {
-      // Return the group field with the given `name`.
-      const field = this.metricGroupsFields.find((field) => field.name === name);
-      return field || new Field({name});
-    }
-
-    tableSettingsField(name) {
-      // Return the group field with the given `name`.
-      const field = this.tableSettingsFields.find((field) => field.name === name);
-      return field || new Field({name});
-    }
-
-    perturbationsField(name) {
-      // Return the group field with the given `name`.
-      const field = this.perturbationsFields.find((field) => field.name === name);
-      return field || new Field({name});
-    }
-
   }
 
+  /////////////////////////////////// Pages ////////////////////////////////////
+
   function renderModels(models) {
+    // TODO: show better information, perhaps link to ecosystem graphs
     const $table = $('<table>', {class: 'query-table'});
     models.forEach((model) => {
-      const $row = $('<tr>').append($('<td>').append(`${model.description} [${model.name}]`));
+      const $row = $('<tr>').append([
+        $('<td>').append(model.display_name),
+        $('<td>').append(model.description),
+        $('<td>').append(model.name),
+      ]);
       $table.append($row);
     });
     return $table;
   }
-  
+
   function renderGroups(groups) {
     const $table = $('<table>', {class: 'query-table'});
     groups.forEach((group) => {
       const params = encodeUrlParams(Object.assign({}, {group: group.name}));
       const href = `benchmarking.html${params}`;
-      const $row = $('<tr>').append($('<td>').append($('<a>', {href: href}).append(group.name)));
+      const $row = $('<tr>').append([
+        $('<td>').append($('<a>', {href: href}).append(group.display_name)),
+        $('<td>').append(group.description),
+      ]);
       $table.append($row);
     });
     return $table;
   }
-
-  /////////////////////////////////// Pages ////////////////////////////////////
 
   function renderRunsOverview(runSpecs) {
     let query = '';
@@ -170,8 +115,6 @@ $(function () {
       $table.empty();
       const $header = $('<tr>')
           .append($('<td>').append($('<b>').append('Run')))
-          .append($('<td>').append($('<b>').append('Scenario')))
-          .append($('<td>').append($('<b>').append('Model')))
           .append($('<td>').append($('<b>').append('Adaptation method')));
       $table.append($header);
 
@@ -184,8 +127,6 @@ $(function () {
         const href = encodeUrlParams(Object.assign(urlParams, {runSpec: runSpec.name}));
         const $row = $('<tr>')
           .append($('<td>').append($('<a>', {href}).append(runSpec.name)))
-          .append($('<td>').append(renderScenarioSpec(scenario_spec)))
-          .append($('<td>').append(runSpec.adapter_spec.model))
           .append($('<td>').append(runSpec.adapter_spec.method))
         $table.append($row);
       });
@@ -211,7 +152,7 @@ $(function () {
 
     // Paths (parallel arrays corresponding to `runSpecs`)
     const metricsPaths = runSpecs.map((runSpec) => {
-      return `benchmark_output/runs/${suite}/${runSpec.name}/metrics.json`;
+      return `benchmark_output/runs/${suite}/${runSpec.name}/stats.json`;
     });
     const scenarioPaths = runSpecs.map((runSpec) => {
       return `benchmark_output/runs/${suite}/${runSpec.name}/scenario.json`;
@@ -369,33 +310,42 @@ $(function () {
     return $root;
   }
 
-  function renderGroupsPage(runs, groups, models) {
-    // Page showing aggregate stats for the passed groups.
+  function renderLandingPage() {
+    const $intro = $('<div>').append('Welcome to the CRFM benchmarking project!');
+    const $links = $('<ul>').append(
+      $('<li>').append($('<a>', {href: '?models'}).append('Models')),
+      $('<li>').append($('<a>', {href: '?groups'}).append('Scenario groups')),
+      $('<li>').append($('<a>', {href: '?runs'}).append('Runs')),
+    );
+    return $('<div>').append($intro).append($links);
+  }
 
-    // Groups page information panel
-    const $root = $('<div>');
-    const groupsPageTitle = groups.map(s => s.name).join(", ");
-    $root.append($('<h1>').append(groupsPageTitle));
-    
-    // Table column information
-    const columnSpecs = getColumnSpecs(schema, groups);
-    const headerColumnName = 'Model';
+  function renderCell(cell) {
+    const value = $('<span>', {title: cell.description}).append(cell.display_value || cell.value);
+    return $('<td>').append(cell.href ? $('<a>', {href: cell.href}).append(value) : value);
+  }
 
-    // Main table for the groups
-    const mainTableTitle = 'Aggregated Results';
-    const modelRunGroups = groupByModel(models, runs);
-    const $table = renderStatTable(modelRunGroups, columnSpecs, mainTableTitle, headerColumnName);
-    $root.append($table);
+  function renderTable(table) {
+    const $output = $('<div>');
+    $output.append($('<h3>').append(table.title));
+    const $table = $('<table>', {class: 'query-table results-table'});
+    const $header = $('<tr>').append(table.header.map(renderCell));
+    $table.append($header);
 
-    // Individual scenario spec tables
-    const scenarioRunGroups = groupByScenarioSpec(runs);
-    Object.entries(scenarioRunGroups).forEach(([scenarioName, scenarioRuns] = entry) => {
-      const scenarioModelRunGroups = groupByModel(models, scenarioRuns);
-      const $subTableContainer = renderStatTable(scenarioModelRunGroups, columnSpecs, scenarioName, headerColumnName);
-      $root.append($subTableContainer);
+    table.rows.forEach((row) => {
+      const $row = $('<tr>').append(row.map(renderCell));
+      $table.append($row);
     });
+    $output.append($table);
+    return $output;
+  }
 
-    return $root;
+  function renderTables(tables) {
+    const $output = $('<div>');
+    tables.forEach((table) => {
+      $output.append($('<div>', {class: 'table-container'}).append(renderTable(table)));
+    });
+    return $output;
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -403,20 +353,7 @@ $(function () {
   //////////////////////////////////////////////////////////////////////////////
 
   const $main = $('#main');
-  let models, runSpecs, runs, schema;
   $.when(
-    $.getJSON(`benchmark_output/runs/${suite}/models.json`, {}, (response) => {
-      models = response;
-      console.log('models', models);
-    }),
-    $.getJSON(`benchmark_output/runs/${suite}/run_specs.json`, {}, (response) => {
-      runSpecs = response;
-      console.log('runSpecs', runSpecs);
-    }),
-     $.getJSON(`benchmark_output/runs/${suite}/runs.json`, {}, (response) => {
-      runs = response;
-      console.log('runs', runs);
-    }),
     $.get('schema.yaml', {}, (response) => {
       const raw = jsyaml.load(response);
       console.log('schema', raw);
@@ -425,33 +362,43 @@ $(function () {
   ).then(() => {
     $main.empty();
     if (urlParams.models) {
-      $main.append(renderHeader('Models', renderModels(models)));
+      $.getJSON(`benchmark_output/runs/${suite}/models.json`, {}, (response) => {
+        const models = response;
+        console.log('models', models);
+        $main.append(renderHeader('Models', renderModels(models)));
+      });
     } else if (urlParams.runSpec) {
-      const matchedRunSpecs = runSpecs.filter((runSpec) => new RegExp('^' + urlParams.runSpec + '$').test(runSpec.name));
-      if (matchedRunSpecs.length === 0) {
-        $main.append(renderError('No matching runs'));
-      } else {
-        $main.append(renderRunsDetailed(matchedRunSpecs));
-      }
+      // Display a set of run specs
+      $.getJSON(`benchmark_output/runs/${suite}/run_specs.json`, {}, (response) => {
+        const runSpecs = response;
+        console.log('runSpecs', runSpecs);
+        const matchedRunSpecs = runSpecs.filter((runSpec) => new RegExp('^' + urlParams.runSpec + '$').test(runSpec.name));
+        if (matchedRunSpecs.length === 0) {
+          $main.append(renderError('No matching runs'));
+        } else {
+          $main.append(renderRunsDetailed(matchedRunSpecs));
+        }
+      });
+    } else if (urlParams.runs) {
+      // Search over all runs
+      $.getJSON(`benchmark_output/runs/${suite}/run_specs.json`, {}, (response) => {
+        const runSpecs = response;
+        console.log('runSpecs', runSpecs);
+        $main.append(renderHeader('Runs', renderRunsOverview(runSpecs)));
+      });
     } else if (urlParams.groups) {
-      $main.append(renderHeader('Groups', renderGroups(schema.groupsFields)));
+      // All groups
+      $.getJSON(`benchmark_output/runs/${suite}/groups.json`, {}, (response) => {
+        $main.append(renderTable(response));
+      });
     } else if (urlParams.group) {
-      // TODO: We have removed the spaces/() from the group names, so we can
-      // switch back to the RegEx match after the next run, which will allow
-      // us to display multiple groups at the same time, as long as the groups
-      // have compatible display settings.
-      const matchedGroups = schema.groupsFields.filter((group) => urlParams.group === group.name);
-      const matchedGroupNames = matchedGroups.map((group) => group.name);
-      const matchedRuns = filterByGroupNames(runs, matchedGroupNames);
-      if (matchedGroupNames.length === 0) {
-        $main.append(renderError('No matching groups'));
-      } else if (matchedRuns.length === 0) {
-        $main.append(renderError('No matching runs'));
-      } else {
-        $main.append(renderGroupsPage(matchedRuns, matchedGroups, models));
-      }
+      // Specific group
+      $.getJSON(`benchmark_output/runs/${suite}/groups/${urlParams.group}.json`, {}, (tables) => {
+        console.log('group', tables);
+        $main.append(renderTables(tables));
+      });
     } else {
-      $main.append(renderHeader('Runs', renderRunsOverview(runSpecs)));
+      $main.append(renderLandingPage());
     }
   });
 });

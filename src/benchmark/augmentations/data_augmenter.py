@@ -1,6 +1,9 @@
 from dataclasses import dataclass, field
+from concurrent.futures import ThreadPoolExecutor
 from typing import List
+from tqdm import tqdm
 
+from common.hierarchical_logger import htrack, hlog
 from benchmark.augmentations.perturbation import (
     Perturbation,
     PerturbationSpec,
@@ -16,8 +19,13 @@ class DataAugmenter:
     # Perturbations to apply to generate new instances
     perturbations: List[Perturbation]
 
+    @htrack(None)
     def generate(
-        self, instances: List[Instance], include_original: bool = True, skip_unchanged: bool = False
+        self,
+        instances: List[Instance],
+        include_original: bool = True,
+        skip_unchanged: bool = False,
+        parallelism: int = 1,
     ) -> List[Instance]:
         """
         Given a list of Instances, generate a new list of perturbed Instances.
@@ -25,8 +33,8 @@ class DataAugmenter:
         skip_unchanged controls whether we include instances for which the perturbation did not change the input.
         """
 
-        result: List[Instance] = []
-        for instance in instances:
+        def process(instance: Instance) -> List[Instance]:
+            result: List[Instance] = []
             if include_original:
                 #  we want to include the original even when the perturbation does not change the input
                 result.append(IdentityPerturbation().apply(instance))
@@ -37,7 +45,18 @@ class DataAugmenter:
                 if skip_unchanged and perturbed_instance.input == original_input:
                     continue
                 result.append(perturbed_instance)
-        return result
+            return result
+
+        # TODO: SynonymPerturbation isn't thread-safe, so we can't exploit parallelism right now
+        parallelism = 1
+
+        with ThreadPoolExecutor(max_workers=parallelism) as executor:
+            # Run `process` on each instance
+            results: List[List[Instance]] = list(tqdm(executor.map(process, instances), total=len(instances)))
+            output_instances = [instance for result in results for instance in result]
+
+        hlog(f"{len(instances)} instances augmented to {len(output_instances)} instances")
+        return output_instances
 
 
 @dataclass(frozen=True)

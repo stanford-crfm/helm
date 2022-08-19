@@ -375,6 +375,8 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
    `bash scripts/benchmark-present-all.sh --max-eval-instances 1000 --num-threads 1 --priority 2 --local`.
 1. Exit the screen session: `ctrl+ad`.
 1. To check on the screen session: `screen -r benchmarking`.
+1. After the run for all the models have finished, generate JSON files for the frontend and tables for the paper:
+   `benchmark-summarize --suite <Name of the run suite>`.
 
 ### Offline evaluation for `TogetherClient` models
 

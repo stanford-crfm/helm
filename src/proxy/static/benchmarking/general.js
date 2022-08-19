@@ -184,84 +184,9 @@ function toDecimalString(value, numDecimalPlaces) {
   });
 }
 
-function renderRunSpecLink(runs) {
-  // Render a runSpec link for the given `runs`. The string returned will be 
-  // in the following format: 
-  //   '?runSpec={run_spec_name1}|{run_spec_name1}|...'
-  const value = runs.map(r => r.run_spec.name).join('|');
-  const params = encodeUrlParams(Object.assign({}, {runSpec: value}));
-  return `benchmarking.html${params}`;
-}
-
-function checkRunGroupNameMatch(run, groupName) {
-  // Check whether the `run` belongs to a group with the given `groupName`.
-  return run.run_spec.groups.includes(groupName);
-}
-
-function filterByGroup(runs, groupName) {
-  // Filter runs to those that belong to the group specified by `groupName`.
-  return runs.filter(run => checkRunGroupNameMatch(run, groupName));
-}
-
-function filterByGroupNames(runs, possibleGroupNames) {
-  // Filter runs to those that belong to one of the groups specified in `possibleGroupNames`.
-  return runs.filter(run => {
-    var match = false;
-    possibleGroupNames.forEach(groupName => {
-      match = match || checkRunGroupNameMatch(run, groupName);
-    });
-    return match;
-  });
-}
-
-function groupByModel(models, runs) {
-  // Group `runs` by models. Return a dictionary mapping each model name to a list of runs.
-  var modelToRuns = {};
-  for (let run of runs) {
-    // The filtered models list must have exactly 1 element.
-    const filteredModels = models.filter(model => model.name === run.run_spec.adapter_spec.model);
-    const modelDisplayName = filteredModels[0].display_name;
-    modelToRuns[modelDisplayName] = (modelToRuns[modelDisplayName] || []).concat([run]);
-  }
-  return modelToRuns;
-}
-
-function groupByScenarioSpec(runs) {
-  // Group `runs` by scenario specs. Return a dictionary mapping each scenario spec string to a list of runs.
-  return runs.reduce((acc, run) => {
-    // To maintain backward compatibility, as `scenario` in `run_spec` was renamed to `scenario_spec`.
-    // TODO: Remove the fallback option once we run all the run specs again.
-    const scenarioSpec = renderScenarioSpec(
-        run.run_spec.hasOwnProperty('scenario_spec') ? run.run_spec.scenario_spec : run.run_spec.scenario
-    );
-    acc[scenarioSpec] = acc[scenarioSpec] || [];
-    acc[scenarioSpec].push(run);
-    return acc;
-  }, {});
-}
-
 function getUniqueValue(arr, messageType) {
   const arrUnique = new Set(arr);
   // TODO: Double check that the assert statement is throwing an error as expected.
   assert(arrUnique.size == 1, `The groups have incompatible ${messageType}.`);
   return arr[0];
-}
-
-function getTableSetting(schema, groups) {
-  const tableSettingNames = groups.map(group => group.tableSetting || 'default');
-  const tableSettingsName = getUniqueValue(tableSettingNames, 'table settings');
-  const tableSetting = schema.tableSettingsField(tableSettingsName);
-  return tableSetting;
-}
-
-function getDisplaySplit(groups) {
-  const displaySplitArr = groups.map(group => group.display.split);
-  const displaySplit = getUniqueValue(displaySplitArr, 'display k');
-  return displaySplit;
-}
-
-function getStatNames(groups) {
-  const statNamesArr = groups.map(group => group.display.stat_names);
-  const statNames = [].concat(...statNamesArr);
-  return statNames;
 }
