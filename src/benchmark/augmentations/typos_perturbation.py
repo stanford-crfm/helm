@@ -26,7 +26,7 @@ class TyposPerturbation(Perturbation):
     class Description(PerturbationDescription):
         prob: float = 0.0
 
-    name: str = "TyposPerturbation"
+    name: str = "typos"
 
     def __init__(self, prob: float):
         self.prob: float = prob

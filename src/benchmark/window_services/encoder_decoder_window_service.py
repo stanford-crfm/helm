@@ -1,10 +1,11 @@
 from abc import ABC
 
-from .huggingface_window_service import HuggingFaceWindowService
+from common.hierarchical_logger import hlog
+from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
 
 
-class EncoderDecoderWindowService(HuggingFaceWindowService, ABC):
+class EncoderDecoderWindowService(LocalWindowService, ABC):
     def __init__(self, service: TokenizerService):
         super().__init__(service)
 
@@ -30,21 +31,21 @@ class EncoderDecoderWindowService(HuggingFaceWindowService, ABC):
         Since the encoder-decoder models have separate maximum context lengths for the input prompts
         vs. the completions, we check the two values separately.
         """
-        assert expected_completion_token_length <= self.max_output_length, (
-            f"The expected completion token length ({expected_completion_token_length}) exceeds the "
-            f"max output length ({self.max_output_length})."
-        )
+        if expected_completion_token_length > self.max_output_length:
+            hlog(
+                f"WARNING: The expected completion token length ({expected_completion_token_length}) "
+                f"exceeds the max output length ({self.max_output_length})."
+            )
         return self.get_num_tokens(text) <= self.max_request_length
 
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
         Truncates text from the right to left to fit within the maximum context length given
-        by `max_request_length`. Removes the "</s>" that was added when encoding after decoding.
+        by `max_request_length`. Does not take into expected completion length because the
+        the encoder-decoder models have separate max context lengths for the input prompts
+        and completions.
         """
         result: str = self.decode(self.encode(text, truncation=True, max_length=self.max_request_length).tokens)
-        if result.endswith("</s>"):
-            # Remove the added "</s>"
-            result = result[:-4]
 
         # HACK: For the vast majority of cases, the above logic works, but there are a few where the
         # token count exceeds `max_length` by 1.

@@ -3,7 +3,7 @@ import json
 import random
 from typing import List, Tuple
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, PassageQuestionInput
 
 
 class NewsQAScenario(Scenario):
@@ -62,11 +62,10 @@ class NewsQAScenario(Scenario):
         Given an sample from the dataset, create the prompt and the list of
         correct references.
         """
-        prompt: str = ""
-        prompt += f"{sample['text']}\n\n"
+        passage = sample["text"]
         all_questions = sample["questions"]
         question = random.sample(all_questions, 1)[0]
-        prompt += f"Question: {question['q']}"
+        prompt = PassageQuestionInput(passage=passage, question=question["q"]).to_text(separator="\n\n")
         # generate set of valid answers
         answers = []
 

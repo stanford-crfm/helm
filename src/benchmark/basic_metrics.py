@@ -2,6 +2,7 @@ from dataclasses import dataclass, replace
 from typing import List, Callable, Optional, Dict, Tuple, Set, cast
 from urllib.parse import unquote
 from functools import partial
+import math
 
 import json
 import re
@@ -12,11 +13,14 @@ from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
 import numpy as np
 from rouge_score import rouge_scorer
+import scipy
 
 from common.hierarchical_logger import hlog
-from common.request import Token
+from common.request import Token, Sequence
+from common.general import singleton
 from . import code_metrics_helper
 from .adapter import (
+    ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     AdapterSpec,
@@ -25,11 +29,10 @@ from .adapter import (
 from .window_services.window_service import WindowService
 from .window_services.window_service_factory import WindowServiceFactory
 from .window_services.tokenizer_service import TokenizerService
-from .augmentations.perturbation_description import PerturbationDescription
-from .metric import Metric
+from .metric import Metric, get_unique_stat_by_name
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenarios.scenario import CORRECT_TAG
+from .scenarios.scenario import CORRECT_TAG, Instance
 from .scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
 from .scenarios.code_scenario import CodeReference
 from .statistic import Stat
@@ -250,6 +253,30 @@ def code_eval(gold: Tuple[str, Optional[Dict]], pred: str) -> float:
     return float(code_metrics_helper.check_correctness(gold[1], pred, 3.0)["passed"])  # type: ignore
 
 
+def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
+    # TODO: find out the root cause and undo num_X > 0 check
+    #       https://github.com/stanford-crfm/benchmarking/issues/350
+    derived_stats: List[Stat] = []
+
+    logprob_stat = get_unique_stat_by_name(stats.values(), "logprob")
+    num_tokens_stat = get_unique_stat_by_name(stats.values(), "num_perplexity_tokens")
+    num_bytes_stat = get_unique_stat_by_name(stats.values(), "num_bytes")
+
+    if logprob_stat is None:
+        return []
+
+    if num_tokens_stat is not None and num_tokens_stat.sum > 0:
+        derived_stats.append(Stat(MetricName("perplexity")).add(math.e ** (-logprob_stat.sum / num_tokens_stat.sum)))
+
+    if num_bytes_stat is not None and num_bytes_stat.sum > 0:
+        derived_stats.append(
+            Stat(MetricName("bits_per_byte")).add(-logprob_stat.sum / num_bytes_stat.sum / math.log(2))
+        )
+        derived_stats.append(Stat(MetricName("logprob_per_byte")).add(logprob_stat.sum / num_bytes_stat.sum))
+
+    return derived_stats
+
+
 class BasicMetric(Metric):
     """
     Defines basic metrics which don't require domain knowledge.  This should be
@@ -326,10 +353,10 @@ class BasicMetric(Metric):
                 score_1 = max(score_func(gold.output, preds[0]) for gold in golds)
                 score_k = max(score_func(gold.output, pred) for gold in golds for pred in preds)
 
-            return [
-                Stat(name).add(score_1),
-                Stat(replace(name, k=adapter_spec.num_outputs)).add(score_k),
-            ]
+            metrics = [Stat(name).add(score_1)]  # score_1 corresponds using one prediction
+            if adapter_spec.num_outputs != 1:
+                metrics.append(Stat(replace(name, name=f"{name.name}@{adapter_spec.num_outputs}")).add(score_k))
+            return metrics
 
         # maps each string metric name to its associated function
         metric_fn_mapping: Dict[str, Callable] = {
@@ -353,31 +380,33 @@ class BasicMetric(Metric):
         }
 
         reference_metrics = []
+        # Gold outputs
+        golds = [reference for reference in request_state.instance.references if reference.is_correct]
+        assert len(golds) > 0
+
+        # Predicted outputs
+        assert request_state.result is not None
+        # TODO: Sort the predictions, or take them from the top tokens of the first completion
+        #       https://github.com/stanford-crfm/benchmarking/issues/42
+        preds = [completion.text.strip() for completion in request_state.result.completions]
+
+        # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
+        # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
+        # sometimes predict a random letter like 'M'.
+        if request_state.output_mapping is not None:
+            preds = [request_state.output_mapping.get(pred) for pred in preds]
+
+        # Add calibration metrics for ADAPT_MULTIPLE_CHOICE_JOINT.
+        if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
+            max_prob = np.exp(singleton(request_state.result.completions).logprob)
+            reference_metrics.append(Stat(MetricName("max_prob")).add(max_prob))
+
+        # Add other metrics.
         for metric_name in self.names:
             if metric_name in metric_fn_mapping:
-                # Gold outputs
-                golds = [reference for reference in request_state.instance.references if reference.is_correct]
-                assert len(golds) > 0
-
-                # Predicted outputs
-                assert request_state.result is not None
-                # TODO: Sort the predictions, or take them from the top tokens of the first completion
-                #       https://github.com/stanford-crfm/benchmarking/issues/42
-                preds = [completion.text.strip() for completion in request_state.result.completions]
-
-                # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
-                # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
-                # sometimes predict a random letter like 'M'.
-                if request_state.output_mapping is not None:
-                    preds = [request_state.output_mapping.get(pred) for pred in preds]
-
-                perturbation: Optional[PerturbationDescription] = request_state.instance.perturbation
                 reference_metrics.extend(
-                    compute_metrics_helper(
-                        MetricName(metric_name, perturbation=perturbation), metric_fn_mapping[metric_name]
-                    )
+                    compute_metrics_helper(MetricName(metric_name), metric_fn_mapping[metric_name])
                 )
-
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics
@@ -458,14 +487,24 @@ class BasicMetric(Metric):
 
         # Compute efficiency metrics for training.
         training_co2_cost: Optional[float]
-        if request_state.request.model in self.training_efficiency_dict:
-            training_co2_cost = self.training_efficiency_dict[request_state.request.model]
+        if request_state.request.model in self.training_efficiency_dict["carbon"]:
+            training_co2_cost = self.training_efficiency_dict["carbon"][request_state.request.model]["value"]
         else:
             hlog(
                 f"WARNING: tried to estimate training CO2 emissions for model {request_state.request.model} "
-                "that is not in training_efficiency_dict"
+                "that is not in training_efficiency_dict['carbon']"
             )
             training_co2_cost = None
+
+        training_energy_cost: Optional[float]
+        if request_state.request.model in self.training_efficiency_dict["energy"]:
+            training_energy_cost = self.training_efficiency_dict["energy"][request_state.request.model]["value"]
+        else:
+            hlog(
+                f"WARNING: tried to estimate training energy cost for model {request_state.request.model} "
+                "that is not in training_efficiency_dict['energy']"
+            )
+            training_energy_cost = None
 
         return [
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
@@ -473,6 +512,7 @@ class BasicMetric(Metric):
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
             Stat(MetricName("inference_runtime_discrepancy")).add(runtime_discrepancy),
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
+            Stat(MetricName("training_energy_cost")).add(training_energy_cost),
         ]
 
     def compute_finish_reason_metrics(
@@ -501,6 +541,12 @@ class BasicMetric(Metric):
     ) -> List[Stat]:
         """Record the number of in-context examples used in the prompt."""
         return [Stat(MetricName("num_in_context_examples")).add(request_state.num_in_context_examples)]
+
+    def compute_input_truncated(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    ) -> List[Stat]:
+        """Record whether the input was truncated to fit the context window."""
+        return [Stat(MetricName("input_truncated")).add(request_state.input_truncated)]
 
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -549,8 +595,8 @@ class BasicMetric(Metric):
         metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_num_in_context_examples(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_input_truncated(adapter_spec, request_state, metric_service))
 
-        # Future: add F1, BLEU, etc.
         return metrics
 
     def evaluate_references(
@@ -584,8 +630,8 @@ class BasicMetric(Metric):
             assert len(request_state.result.completions) == 1
 
             reference_index = request_state.reference_index
-            sequence = request_state.result.completions[0]
-            reference = request_state.instance.references[reference_index].output
+            sequence: Sequence = request_state.result.completions[0]
+            reference: str = request_state.instance.references[reference_index].output
 
             # Find the span of the completion that matches the reference.
             answer_length = 0
@@ -595,9 +641,13 @@ class BasicMetric(Metric):
                     break
                 answer_tokens.insert(0, token)
                 answer_length += len(token.text)
-            assert (
-                "".join([token.text for token in answer_tokens]).lstrip() == reference
-            )  # make sure the span finding is correct (TODO: whether using the detokenizer function rather than join)
+
+            # Sanity check
+            span: str = "".join([token.text for token in answer_tokens]).lstrip()
+            alphanumeric_chars: str = string.digits + string.ascii_lowercase + string.ascii_uppercase
+            filtered_span: str = "".join(list(filter(lambda x: x in alphanumeric_chars, span)))
+            filtered_reference: str = "".join(list(filter(lambda x: x in alphanumeric_chars, reference)))
+            assert filtered_span == filtered_reference, f"Expected: {filtered_reference}, Actual: {filtered_span}"
 
             logprob = sum(token.logprob for token in answer_tokens)
             num_tokens = len(answer_tokens)
@@ -636,6 +686,43 @@ class BasicMetric(Metric):
 
         answer_scores = [reference_scores[i] for i in answers]
 
+        max_prob = np.max(scipy.special.softmax(reference_scores))
+        # TODO: fix the accuracy calculation---it is currently incorrect when there are ties.
+        # For example, in binary classification if the model's predicted probabilities are
+        # [0.5, 0.5], then this code will say we got the example correct, regardless of what
+        # the answer is, because the calculation max(reference_scores) == max(answer_scores)
+        # will always return True.
         return [
-            Stat(MetricName("accuracy")).add(float(max(reference_scores) == max(answer_scores))),
+            Stat(MetricName("max_prob")).add(max_prob),
+            Stat(MetricName("exact_match")).add(float(max(reference_scores) == max(answer_scores))),
         ]
+
+    def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
+        """Derive perplexity metrics if applicable. We don't worry about splits and perturbations here."""
+        derived_stats: List[Stat] = []
+        derived_stats.extend(compute_perplexity_metrics(stats_dict))
+        return derived_stats
+
+    def derive_per_instance_stats(self, per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
+        """Derive calibration metrics if applicable. We don't worry about splits and perturbations here."""
+        derived_stats: List[Stat] = []
+        derived_stats.extend(compute_calibration_metrics(per_instance_stats))
+        return derived_stats
+
+
+def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
+    max_probs = []
+    correct = []
+    for instance_stats in per_instance_stats.values():
+        max_prob_stat = get_unique_stat_by_name(instance_stats, "max_prob")
+        correct_stat = get_unique_stat_by_name(instance_stats, "exact_match")
+        if correct_stat is not None and max_prob_stat is not None:
+            max_probs.append(max_prob_stat.mean)
+            correct.append(correct_stat.mean)
+
+    calibration_metrics: List[Stat] = []
+    assert len(max_probs) == len(correct)
+    if len(max_probs) > 0:
+        ece_1_bin = np.abs(np.mean(max_probs) - np.mean(correct))
+        calibration_metrics.append(Stat(MetricName("ece_1_bin")).add(ece_1_bin))
+    return calibration_metrics

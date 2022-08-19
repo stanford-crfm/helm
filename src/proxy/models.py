@@ -135,16 +135,16 @@ ALL_MODELS = [
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-davinci-002",
-        display_name="Instruct GPT-3 (175B, 4000 max tokens)",
-        description="GPT-3 from Instruct series 2nd generation (175B parameters) - 4000 max tokens",
+        display_name="Instruct GPT-3 v2 (175B)",
+        description="GPT-3 from Instruct series, 2nd generation (175B parameters) - 4000 max tokens",
         tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-davinci-001",
-        display_name="Instruct GPT-3 (175B)",
-        description="GPT-3 from Instruct series (175B parameters)",
+        display_name="Instruct GPT-3 v1 (175B)",
+        description="GPT-3 from Instruct series, 1st generation (175B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -230,7 +230,6 @@ ALL_MODELS = [
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # Anthropic
-    # TODO: The API for the Anthropic LM is not production-ready. Update with the official name.
     Model(
         group="anthropic",
         creator_organization="Anthropic",
@@ -266,6 +265,16 @@ ALL_MODELS = [
         # From https://bigscience.huggingface.co/blog/bloom
         description="BLOOM (176B parameters) is an autoregressive model similar to GPT-3 trained "
         "on 46 natural languages and 13 programming languages.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Tsinghua KEG",
+        name="together/glm",
+        display_name="GLM (130B)",
+        # From https://github.com/THUDM/GLM-130B
+        description="GLM-130B is an open bilingual (English & Chinese) bidirectional dense model with 130 billion "
+        "parameters, pre-trained using the algorithm of General Language Model (GLM).",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(

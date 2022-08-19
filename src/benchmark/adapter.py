@@ -1,8 +1,8 @@
 import random
-import time
+from tqdm import tqdm
 from dataclasses import dataclass, field, replace
 from itertools import cycle
-from typing import List, Dict, Tuple, Optional, Union
+from typing import List, Dict, Tuple, Optional
 from collections import defaultdict, OrderedDict
 
 import numpy as np
@@ -117,6 +117,10 @@ class RequestState:
     # The number of in-context examples used
     num_in_context_examples: int
 
+    # Whether the input of the corresponding Instance was truncated to fit the model's context window for this Request
+    # (input_truncated == True implies num_in_context_examples == 0)
+    input_truncated: bool
+
     # The number of initial tokens that will be ignored when computing language modeling metrics
     num_conditioning_tokens: int = 0
 
@@ -201,6 +205,10 @@ class Prompt:
 
     # Number of in-context examples in the prompt
     num_in_context_examples: int
+
+    # Whether the input of the corresponding Instance was truncated to fit the model's context window for this Request
+    # (input_truncated == True implies num_in_context_examples == 0)
+    input_truncated: bool
 
 
 class Adapter:
@@ -330,9 +338,7 @@ class Adapter:
                 train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
 
                 # Create request_states
-                for eval_index, eval_instance in enumerate(eval_instances):
-                    start_time: float = time.time()
-
+                for eval_index, eval_instance in tqdm(enumerate(eval_instances), total=len(eval_instances)):
                     # Define the request
                     method = self.adapter_spec.method
 
@@ -359,6 +365,7 @@ class Adapter:
                                 request=request,
                                 result=None,
                                 num_in_context_examples=prompt.num_in_context_examples,
+                                input_truncated=prompt.input_truncated,
                             )
                         ]
                     elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
@@ -389,6 +396,7 @@ class Adapter:
                                 request=request,
                                 result=None,
                                 num_in_context_examples=prompt.num_in_context_examples,
+                                input_truncated=prompt.input_truncated,
                             )
                         ]
                     elif self.adapter_spec.method in [
@@ -450,19 +458,11 @@ class Adapter:
                                     request=request,
                                     result=None,
                                     num_in_context_examples=prompt.num_in_context_examples,
+                                    input_truncated=prompt.input_truncated,
                                 )
                                 request_states.append(request_state)
                     else:
                         raise ValueError(f"Invalid method: {method}")
-
-                    construct_requests_elapsed_time: float = time.time() - start_time
-
-                    hlog(
-                        f"trial {train_trial_index}: construct_requests {eval_index} (total {len(eval_instances)}): "
-                        f"len(requests) = {len(request_states)}, len(prompts) = "
-                        f"{[len(request_state.request.prompt) for request_state in request_states]} "
-                        f"({construct_requests_elapsed_time:.3f}s)"
-                    )
 
                     # Just print out prompts for one instance (useful for debugging)
                     if train_trial_index == 0 and eval_index == 0:
@@ -591,7 +591,7 @@ class Adapter:
             if self.window_service.fits_within_context_window(
                 text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
             ):
-                return Prompt(prompt, num_in_context_examples=len(train_instances))
+                return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=False)
 
             train_instances = train_instances[:-1]
             prompt = construct_prompt_helper(train_instances)
@@ -605,8 +605,10 @@ class Adapter:
 
         # If removing the in-context example is still not enough, we simply truncate the prompt.
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
+        original_length = len(prompt)
         prompt = self.window_service.truncate_from_right(prompt, self.adapter_spec.max_tokens)
-        return Prompt(prompt, num_in_context_examples=len(train_instances))
+        input_truncated = len(prompt) < original_length
+        return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=input_truncated)
 
     def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
@@ -647,11 +649,11 @@ class Adapter:
 
     def fits_tokens_within_context_window(
         self,
-        conditioning_tokens: List[Union[int, TokenizationToken]],
-        pred_tokens: List[Union[int, TokenizationToken]],
+        conditioning_tokens: List[TokenizationToken],
+        pred_tokens: List[TokenizationToken],
         max_req_len: int,
         text: Optional[str] = None,
-    ) -> Tuple[str, List]:
+    ) -> Tuple[str, List[TokenizationToken]]:
         """
         This method is used for adapting instances for language modeling scenarios.
         For some tokenizers (e.g. AI21), decoding then encoding k tokens may result
@@ -685,8 +687,8 @@ class Adapter:
 
     def construct_language_modeling_prompt(
         self,
-        conditioning_tokens: List[Union[int, TokenizationToken]],
-        pred_tokens: List[Union[int, TokenizationToken]],
+        conditioning_tokens: List[TokenizationToken],
+        pred_tokens: List[TokenizationToken],
         max_req_len: int,
         text: str,
     ) -> Tuple[str, int]:
@@ -741,11 +743,12 @@ class Adapter:
         max_request_length: int = self.window_service.max_request_length
         prefix_token: str = self.window_service.prefix_token
 
-        for instance in instances:
+        for instance in tqdm(instances):
             encode_result: EncodeResult = self.window_service.encode(instance.input)
-            tokens, text = encode_result.tokens, encode_result.text
+            tokens: List[TokenizationToken] = encode_result.tokens
+            text: str = encode_result.text
 
-            num_predicted_tokens = 0
+            num_predicted_tokens: int = 0
 
             # Special handling for first window: predict all tokens
             # Example for GPT-3:
@@ -761,7 +764,7 @@ class Adapter:
 
             # Uses `max_sequence_length` instead of `max_request_length` here because `prefix_token` will be prepended
             # to the sequence later. This is the only place where `max_sequence_length` is used.
-            first_seq_len = min(max_sequence_length, len(tokens))
+            first_seq_len: int = min(max_sequence_length, len(tokens))
             prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
                 self.window_service.encode(prefix_token).tokens, tokens[:first_seq_len], max_request_length, text
             )
@@ -785,6 +788,7 @@ class Adapter:
                 result=None,
                 num_conditioning_tokens=1 if len(prefix_token) > 0 else 0,
                 num_in_context_examples=self.adapter_spec.max_train_instances,
+                input_truncated=False,
             )
             request_states.append(request_state)
             num_predicted_tokens += first_seq_len
@@ -802,10 +806,12 @@ class Adapter:
                 # prompt="Excuse me", num_conditioning_tokens = 1
 
                 # The upper bound is `max_req_len - 1` because there will be at least 1 conditioning tokens.
-                window_pred_len = min(len(tokens) - num_predicted_tokens, max_request_length - 1)
-                window_end = num_predicted_tokens + window_pred_len
-                conditioning_tokens = tokens[window_end - max_request_length : num_predicted_tokens]
-                pred_tokens = tokens[num_predicted_tokens:window_end]
+                window_pred_len: int = min(len(tokens) - num_predicted_tokens, max_request_length - 1)
+                window_end: int = num_predicted_tokens + window_pred_len
+                conditioning_tokens: List[TokenizationToken] = tokens[
+                    window_end - max_request_length : num_predicted_tokens
+                ]
+                pred_tokens: List[TokenizationToken] = tokens[num_predicted_tokens:window_end]
                 prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
                     conditioning_tokens, pred_tokens, max_request_length, text
                 )
@@ -829,6 +835,7 @@ class Adapter:
                     result=None,
                     num_conditioning_tokens=num_conditioning_tokens,
                     num_in_context_examples=self.adapter_spec.max_train_instances,
+                    input_truncated=False,
                 )
                 request_states.append(request_state)
                 num_predicted_tokens += window_pred_len

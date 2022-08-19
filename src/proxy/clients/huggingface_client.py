@@ -171,7 +171,11 @@ class HuggingFaceClient(Client):
             completions.append(completion)
 
         return RequestResult(
-            success=True, cached=cached, request_time=response["request_time"], completions=completions
+            success=True,
+            cached=cached,
+            request_time=response["request_time"],
+            request_datetime=response.get("request_datetime"),
+            completions=completions,
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
@@ -184,10 +188,13 @@ class HuggingFaceClient(Client):
                 if request.encode:
                     if request.truncation:
                         tokens = tokenizer.encode(
-                            request.text, truncation=request.truncation, max_length=request.max_length
+                            request.text,
+                            truncation=request.truncation,
+                            max_length=request.max_length,
+                            add_special_tokens=False,
                         )
                     else:
-                        tokens = tokenizer.encode(request.text)
+                        tokens = tokenizer.encode(request.text, add_special_tokens=False)
                 else:
                     tokens = tokenizer.tokenize(request.text)
                 return {"tokens": tokens}

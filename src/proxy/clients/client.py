@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
 import time
+from abc import ABC, abstractmethod
 from typing import Callable, Any, Dict
 
 from common.request import Request, RequestResult
@@ -46,6 +46,7 @@ def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:
         response = compute()
         end_time = time.time()
         response["request_time"] = end_time - start_time
+        response["request_datetime"] = int(start_time)
         return response
 
     return wrapped_compute

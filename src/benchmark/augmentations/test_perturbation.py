@@ -4,7 +4,6 @@ from benchmark.scenarios.scenario import Instance, Reference
 
 from .data_augmenter import DataAugmenter
 from .extra_space_perturbation import ExtraSpacePerturbation
-from .identity_perturbation import IdentityPerturbation
 from .misspelling_perturbation import MisspellingPerturbation
 from .contraction_expansion_perturbation import ContractionPerturbation, ExpansionPerturbation
 from .typos_perturbation import TyposPerturbation
@@ -15,15 +14,6 @@ from .space_perturbation import SpacePerturbation
 from .dialect_perturbation import DialectPerturbation
 from .person_name_perturbation import PersonNamePerturbation
 from .gender_perturbation import GenderPerturbation
-
-
-def test_identity_perturbation():
-    instance: Instance = Instance(id="id0", input="Hello my name is", references=[])
-    perturbation = IdentityPerturbation()
-    clean_instance: Instance = perturbation.apply(instance)
-
-    assert clean_instance.id == "id0"
-    assert clean_instance.perturbation.name == "identity"
 
 
 def test_extra_space_perturbation():
@@ -106,7 +96,7 @@ def test_typos_perturbation():
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
-    assert instances[1].perturbation.name == "TyposPerturbation"
+    assert instances[1].perturbation.name == "typos"
     assert instances[1].perturbation.prob == 0.1
     assert instances[1].input == "After their marrjage, she started a close collaborwtion with Karvelas."
 
@@ -119,7 +109,7 @@ def test_synonym_perturbation():
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
     assert len(instances) == 2
-    assert instances[1].perturbation.name == "SynonymPerturbation"
+    assert instances[1].perturbation.name == "synonym"
     assert instances[1].perturbation.prob == 1.0
     assert instances[1].input == "This was a serious film, would learn once more."
 

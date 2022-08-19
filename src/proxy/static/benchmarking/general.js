@@ -83,11 +83,9 @@ function describeMetricName(field, name) {
 }
 
 function renderStatName(schema, statName) {
-  // TODO: Should we ensure all stats have a display name?
-  // TODO: Should display name be a default field in schemas? (Rather than being a part of the values)
   const metric = schema.metricsField(statName);
-  if (metric.values && metric.values.display_name) {
-    return metric.values.display_name;
+  if (metric.display_name) {
+    return metric.display_name;
   } else {
     const formattedName = statName.replaceAll('_', ' ');
     const capitalizedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1);
@@ -96,7 +94,7 @@ function renderStatName(schema, statName) {
 }
 
 function renderPerturbationName(schema, perturbationName) {
-  return schema.perturbationsField(perturbationName).values.display_name;
+  return schema.perturbationsField(perturbationName).display_name;
 }
 
 function getLast(l) {
@@ -186,84 +184,9 @@ function toDecimalString(value, numDecimalPlaces) {
   });
 }
 
-function renderRunSpecLink(runs) {
-  // Render a runSpec link for the given `runs`. The string returned will be 
-  // in the following format: 
-  //   '?runSpec={run_spec_name1}|{run_spec_name1}|...'
-  const value = runs.map(r => r.run_spec.name).join('|');
-  const params = encodeUrlParams(Object.assign({}, {runSpec: value}));
-  return `benchmarking.html${params}`;
-}
-
-function checkRunGroupNameMatch(run, groupName) {
-  // Check whether the `run` belongs to a group with the given `groupName`.
-  return run.run_spec.groups.includes(groupName);
-}
-
-function filterByGroup(runs, groupName) {
-  // Filter runs to those that belong to the group specified by `groupName`.
-  return runs.filter(run => checkRunGroupNameMatch(run, groupName));
-}
-
-function filterByGroupNames(runs, possibleGroupNames) {
-  // Filter runs to those that belong to one of the groups specified in `possibleGroupNames`.
-  return runs.filter(run => {
-    var match = false;
-    possibleGroupNames.forEach(groupName => {
-      match = match || checkRunGroupNameMatch(run, groupName);
-    });
-    return match;
-  });
-}
-
-function groupByModel(runs) {
-  // Group `runs` by models. Return a dictionary mapping each model name to a list of runs.
-  var modelToRuns = {};
-  for (let run of runs) {
-    const model = run.run_spec.adapter_spec.model;
-    modelToRuns[model] = (modelToRuns[model] || []).concat([run]);
-  }
-  return modelToRuns;
-}
-
-function groupByScenarioSpec(runs) {
-  // Group `runs` by scenario specs. Return a dictionary mapping each scenario spec string to a list of runs.
-  return runs.reduce((acc, run) => {
-    const scenarioSpec = renderScenarioSpec(run.run_spec.scenario);
-    acc[scenarioSpec] = acc[scenarioSpec] || [];
-    acc[scenarioSpec].push(run);
-    return acc;
-  }, {});
-}
-
 function getUniqueValue(arr, messageType) {
   const arrUnique = new Set(arr);
   // TODO: Double check that the assert statement is throwing an error as expected.
   assert(arrUnique.size == 1, `The groups have incompatible ${messageType}.`);
   return arr[0];
-}
-
-function getTableSetting(schema, groups) {
-  const tableSettingNames = groups.map(group => group.values.tableSetting || 'default');
-  const tableSettingsName = getUniqueValue(tableSettingNames, 'table settings');
-  const tableSetting = schema.tableSettingsField(tableSettingsName);
-  return tableSetting;
-}
-
-function getDisplayK(groups) {
-  const displayKArr = groups.map(group => group.values.display.k);
-  const displayK = getUniqueValue(displayKArr, 'display k');
-  return displayK;
-}
-
-function getDisplaySplit(groups) {
-  const displaySplitArr = groups.map(group => group.values.display.split);
-  const displaySplit = getUniqueValue(displaySplitArr, 'display k');
-  return displaySplit;
-}
-
-function getStatNames(groups) {
-  const statNamesArr = groups.map(group => group.values.display.stat_names);
-  const statNames = [].concat(...statNamesArr);
-  return statNames;
 }

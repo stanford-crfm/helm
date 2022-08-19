@@ -45,11 +45,14 @@ models=(
   "gooseai/gpt-j-6b"
   "gooseai/gpt-neo-20b"
   "anthropic/stanford-online-all-v4-s3"
-  "microsoft/TNLGv2_530B"
-  "microsoft/TNLGv2_7B"
+  # "microsoft/TNLGv2_530B"
+  # "microsoft/TNLGv2_7B"
   "together/gpt-j-6b"
   "together/gpt-neox-20b"
   "together/opt-66b"
+  "together/t0pp"
+  "together/t5-11b"
+  "together/ul2"
 )
 
 for model in "${models[@]}"

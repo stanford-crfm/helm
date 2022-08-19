@@ -1,13 +1,7 @@
 from setuptools import setup, find_packages
-from setuptools.command.install import install
-
-import os
-import sys
 
 
 def get_requirements(path: str):
-    # TODO: don't include all the dev packages
-    #       https://github.com/stanford-crfm/benchmarking/issues/41
     requirements = []
     for line in open(path):
         if not line.startswith('-r'):
@@ -39,6 +33,7 @@ setup(
         "console_scripts": [
             "benchmark-run=benchmark.run:main",
             "benchmark-present=benchmark.presentation.present:main",
+            "benchmark-summarize=benchmark.presentation.summarize:main",
             "proxy-server=proxy.server:main",
             "proxy-cli=proxy.cli:main",
         ]

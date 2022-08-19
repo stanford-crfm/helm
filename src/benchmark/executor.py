@@ -110,9 +110,5 @@ class Executor:
                 tqdm(executor.map(process, scenario_state.request_states), total=len(scenario_state.request_states))
             )
 
-        # Output instances and their predictions
-        for i, request_state in enumerate(request_states):
-            hlog(f"{i+1}/{len(scenario_state.request_states)}: {render_request_state(request_state)}")
-
         hlog(f"Processed {len(request_states)} requests")
         return ScenarioState(scenario_state.adapter_spec, request_states)

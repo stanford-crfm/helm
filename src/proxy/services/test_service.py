@@ -201,8 +201,6 @@ def helper_prod_test_service(request: Request, expected_text: str):
         # Consistency of log probs
         assert completion.logprob == sum(token.logprob for token in completion.tokens)
 
-        # TODO: OpenAI's API returns null for the first token, so skip checking it; investigate this
-        #       https://github.com/stanford-crfm/benchmarking/issues/54
         for token in completion.tokens[1:]:
             assert len(token.top_logprobs) == request.top_k_per_token
 

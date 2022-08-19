@@ -98,6 +98,7 @@ def do_create_update_command(service: RemoteService, auth: Authentication, args)
         account = service.create_account(auth)
     elif args.command == "update":
         # TODO: add additional arguments to `get_accounts` to select a single account based on api key
+        # https://github.com/stanford-crfm/benchmarking/issues/693
         accounts = [account for account in service.get_accounts(auth) if account.api_key == args.api_key]
         if len(accounts) == 0:
             hlog(f"No account found with API key {args.api_key}")

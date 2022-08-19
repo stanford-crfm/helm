@@ -1,7 +1,7 @@
 import shutil
 import tempfile
 
-from .test_utils import get_tokenizer_service, TEST_PROMPT, GPT2_TEST_TOKENS, GPT2_TEST_TOKEN_IDS
+from .test_utils import get_tokenizer_service, TEST_PROMPT
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
 
@@ -16,13 +16,117 @@ class TestYaLMWindowService:
         shutil.rmtree(self.path)
 
     def test_encode(self):
-        assert self.window_service.encode(TEST_PROMPT).tokens == GPT2_TEST_TOKEN_IDS
+        assert self.window_service.encode(TEST_PROMPT).token_values == [
+            496,
+            7229,
+            388,
+            10166,
+            397,
+            9922,
+            64981,
+            356,
+            4082,
+            30020,
+            127611,
+            360,
+            302,
+            1330,
+            60504,
+            25067,
+            9006,
+            799,
+            306,
+            272,
+            40069,
+            10771,
+            388,
+            15069,
+            127602,
+            31892,
+            2833,
+            91312,
+            32939,
+            356,
+            15839,
+            127615,
+            127611,
+            407,
+            21317,
+            312,
+            1460,
+            16738,
+            27632,
+            305,
+            272,
+            2262,
+            127585,
+            3706,
+            127585,
+            321,
+            29667,
+            306,
+            20999,
+            7214,
+            127581,
+        ]
 
     def test_decode(self):
-        assert self.window_service.decode(GPT2_TEST_TOKEN_IDS) == TEST_PROMPT
+        assert self.window_service.decode(self.window_service.encode(TEST_PROMPT).tokens) == TEST_PROMPT
 
     def test_tokenize(self):
-        assert self.window_service.tokenize(TEST_PROMPT) == GPT2_TEST_TOKENS
+        assert self.window_service.tokenize(TEST_PROMPT) == [
+            "▁The",
+            "▁Center",
+            "▁for",
+            "▁Research",
+            "▁on",
+            "▁Foundation",
+            "▁Models",
+            "▁(",
+            "CR",
+            "FM",
+            ")",
+            "▁is",
+            "▁an",
+            "▁inter",
+            "disciplinary",
+            "▁initiative",
+            "▁born",
+            "▁out",
+            "▁of",
+            "▁the",
+            "▁Stanford",
+            "▁Institute",
+            "▁for",
+            "▁Human",
+            "-",
+            "Cent",
+            "ered",
+            "▁Artificial",
+            "▁Intelligence",
+            "▁(",
+            "HA",
+            "I",
+            ")",
+            "▁that",
+            "▁aims",
+            "▁to",
+            "▁make",
+            "▁fundamental",
+            "▁advances",
+            "▁in",
+            "▁the",
+            "▁study",
+            ",",
+            "▁development",
+            ",",
+            "▁and",
+            "▁deployment",
+            "▁of",
+            "▁foundation",
+            "▁models",
+            ".",
+        ]
 
     def test_fits_within_context_window(self):
         # Should fit in the context window since we subtracted the number of tokens of the test prompt

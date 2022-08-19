@@ -7,7 +7,7 @@ from common.hierarchical_logger import htrack_block, hlog
 from typing import List, Tuple
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, PassageQuestionInput
 
 
 class NaturalQAScenario(Scenario):
@@ -126,7 +126,7 @@ class NaturalQAScenario(Scenario):
 
     def __init__(self, mode: str):
         self.context_mode = mode
-        assert self.context_mode in ["openbook-wiki", "openbook-longans", "closedbook"]
+        assert self.context_mode in ["openbook_wiki", "openbook_longans", "closedbook"]
 
     @staticmethod
     def _clean_token(token: dict):
@@ -171,23 +171,24 @@ class NaturalQAScenario(Scenario):
                 short_answers.append(short_ans)
                 long_answers.append(long_ans)
 
-        prompt = ""
-        ans_idx = random.randint(0, len(short_answers) - 1)
-
-        if self.context_mode != "closedbook":
-            if self.context_mode == "openbook-wiki":
-                context = document
-                prompt += f"Title: {sample['document_title']}\n\n"
-            elif self.context_mode == "openbook-longans":
-                context = long_answers[ans_idx]
-
-            prompt += f"Passage: {context}\n\n"
-            prompt += "Question: "
-
         question = sample["question_text"].capitalize()
         if question[-1] != "?":
             question += "?"
-        prompt += f"{question}"
+
+        prompt = ""
+        ans_idx = random.randint(0, len(short_answers) - 1)
+        if self.context_mode == "closedbook":
+            prompt = question
+        else:
+            if self.context_mode == "openbook_wiki":
+                context = document
+            else:  # self.context_mode == "openbook_longans":
+                context = long_answers[ans_idx]
+            prompt = PassageQuestionInput(passage=context, question=question).to_text(
+                passage_prefix="Passage: ", separator="\n\n"
+            )
+            if self.context_mode == "openbook_wiki":
+                prompt = f"Title: {sample['document_title']}\n\n" + prompt
 
         if split == "train":
             answers = short_answers[ans_idx : ans_idx + 1]
