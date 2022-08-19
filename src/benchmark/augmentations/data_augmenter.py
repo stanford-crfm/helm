@@ -10,7 +10,6 @@ from benchmark.augmentations.perturbation import (
     create_perturbation,
 )
 from benchmark.scenarios.scenario import Instance
-from .identity_perturbation import IdentityPerturbation
 
 
 @dataclass(frozen=True)
@@ -37,12 +36,11 @@ class DataAugmenter:
             result: List[Instance] = []
             if include_original:
                 #  we want to include the original even when the perturbation does not change the input
-                result.append(IdentityPerturbation().apply(instance))
+                result.append(instance)
 
-            original_input: str = instance.input
             for perturbation in self.perturbations:
                 perturbed_instance: Instance = perturbation.apply(instance)
-                if skip_unchanged and perturbed_instance.input == original_input:
+                if skip_unchanged and perturbed_instance.input == instance.input:
                     continue
                 result.append(perturbed_instance)
             return result
