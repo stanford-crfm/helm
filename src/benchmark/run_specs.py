@@ -1533,7 +1533,7 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
 
 
 def get_med_qa_spec(prompt_answer_choices: str) -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.med_qa_scenario.MedQAScenario", args={})
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.med_qa_scenario.MedQAScenario", args={})
 
     # We are trying to reproduce the Instruct-GPT3's zero-shot performance of 46.0% from
     # "Can large language models reason about medical questions?" (Liévin et al.).
@@ -1568,15 +1568,15 @@ def get_med_qa_spec(prompt_answer_choices: str) -> RunSpec:
     )
     return RunSpec(
         name=f"med_qa:prompt_answer_choices={prompt_answer_choices}",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_basic_metrics({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["MedQA"],
     )
 
 
 def get_med_paragraph_simplification_spec() -> RunSpec:
-    scenario = ScenarioSpec(
+    scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.med_paragraph_simplification_scenario.MedParagraphSimplificationScenario",
         args={},
     )
@@ -1599,15 +1599,15 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
 
     return RunSpec(
         name="med_paragraph_simplification",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_summarization_metrics(),
+        metric_specs=get_summarization_metric_specs(),
         groups=["MedParagraphSimplification"],
     )
 
 
 def get_covid_dialog_spec() -> RunSpec:
-    scenario = ScenarioSpec(class_name="benchmark.scenarios.covid_dialog_scenario.COVIDDialogScenario", args={},)
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.covid_dialog_scenario.COVIDDialogScenario", args={},)
 
     # TODO: double check this -Tony
     adapter_spec = AdapterSpec(
@@ -1627,9 +1627,9 @@ def get_covid_dialog_spec() -> RunSpec:
 
     return RunSpec(
         name="covid_dialog",
-        scenario=scenario,
+        scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metrics=get_summarization_metrics(),
+        metric_specs=get_summarization_metric_specs(),
         groups=["COVIDDialog"],
     )
 
