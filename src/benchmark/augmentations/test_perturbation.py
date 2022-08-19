@@ -4,7 +4,6 @@ from benchmark.scenarios.scenario import Instance, Reference
 
 from .data_augmenter import DataAugmenter
 from .extra_space_perturbation import ExtraSpacePerturbation
-from .identity_perturbation import IdentityPerturbation
 from .misspelling_perturbation import MisspellingPerturbation
 from .contraction_expansion_perturbation import ContractionPerturbation, ExpansionPerturbation
 from .typos_perturbation import TyposPerturbation
@@ -15,15 +14,6 @@ from .space_perturbation import SpacePerturbation
 from .dialect_perturbation import DialectPerturbation
 from .person_name_perturbation import PersonNamePerturbation
 from .gender_perturbation import GenderPerturbation
-
-
-def test_identity_perturbation():
-    instance: Instance = Instance(id="id0", input="Hello my name is", references=[])
-    perturbation = IdentityPerturbation()
-    clean_instance: Instance = perturbation.apply(instance)
-
-    assert clean_instance.id == "id0"
-    assert clean_instance.perturbation.name == "identity"
 
 
 def test_extra_space_perturbation():

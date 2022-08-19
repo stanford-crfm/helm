@@ -3,7 +3,7 @@ import os
 import shlex
 import subprocess
 import zstandard
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import pyhocon
 from dataclasses import asdict, dataclass
@@ -14,7 +14,7 @@ from common.hierarchical_logger import htrack, hlog
 def singleton(items: List):
     """Ensure there's only one item in `items` and return it."""
     if len(items) != 1:
-        raise ValueError(f"Expected 1 item, got {len(items)}")
+        raise ValueError(f"Expected 1 item, got {len(items)} items: {items}")
     return items[0]
 
 
@@ -119,6 +119,10 @@ def format_tags(tags: List[str]) -> str:
 def format_split(split: str) -> str:
     """Format split"""
     return f"|{split}|"
+
+
+def asdict_without_nones(obj: dataclass) -> Dict[str, Any]:
+    return asdict(obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
 
 
 def serialize(obj: dataclass) -> List[str]:

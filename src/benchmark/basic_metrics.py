@@ -353,9 +353,9 @@ class BasicMetric(Metric):
                 score_1 = max(score_func(gold.output, preds[0]) for gold in golds)
                 score_k = max(score_func(gold.output, pred) for gold in golds for pred in preds)
 
-            metrics = [Stat(replace(name, k=1)).add(score_1)]  # score_1 corresponds to k=1, i.e., using one prediction
+            metrics = [Stat(name).add(score_1)]  # score_1 corresponds using one prediction
             if adapter_spec.num_outputs != 1:
-                metrics.append(Stat(replace(name, k=adapter_spec.num_outputs)).add(score_k))
+                metrics.append(Stat(replace(name, name=f"{name.name}@{adapter_spec.num_outputs}")).add(score_k))
             return metrics
 
         # maps each string metric name to its associated function
@@ -399,7 +399,7 @@ class BasicMetric(Metric):
         # Add calibration metrics for ADAPT_MULTIPLE_CHOICE_JOINT.
         if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
             max_prob = np.exp(singleton(request_state.result.completions).logprob)
-            reference_metrics.append(Stat(MetricName("max_prob", k=1)).add(max_prob))
+            reference_metrics.append(Stat(MetricName("max_prob")).add(max_prob))
 
         # Add other metrics.
         for metric_name in self.names:
@@ -693,8 +693,8 @@ class BasicMetric(Metric):
         # the answer is, because the calculation max(reference_scores) == max(answer_scores)
         # will always return True.
         return [
-            Stat(MetricName("max_prob", k=1)).add(max_prob),
-            Stat(MetricName("exact_match", k=1)).add(float(max(reference_scores) == max(answer_scores))),
+            Stat(MetricName("max_prob")).add(max_prob),
+            Stat(MetricName("exact_match")).add(float(max(reference_scores) == max(answer_scores))),
         ]
 
     def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
@@ -714,8 +714,8 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
     max_probs = []
     correct = []
     for instance_stats in per_instance_stats.values():
-        max_prob_stat = get_unique_stat_by_name(instance_stats, "max_prob", k=1)
-        correct_stat = get_unique_stat_by_name(instance_stats, "exact_match", k=1)
+        max_prob_stat = get_unique_stat_by_name(instance_stats, "max_prob")
+        correct_stat = get_unique_stat_by_name(instance_stats, "exact_match")
         if correct_stat is not None and max_prob_stat is not None:
             max_probs.append(max_prob_stat.mean)
             correct.append(correct_stat.mean)

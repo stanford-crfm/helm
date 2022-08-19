@@ -1,4 +1,5 @@
 from typing import List, Dict
+from tqdm import tqdm
 
 from common.request import Request
 from .adapter import ScenarioState
@@ -37,7 +38,7 @@ class TokensMetric(Metric):
         per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
         stats: Dict[MetricName, Stat] = {}
 
-        for request_state in scenario_state.request_states:
+        for request_state in tqdm(scenario_state.request_states):
             request: Request = request_state.request
             instance: Instance = request_state.instance
 

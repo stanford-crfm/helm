@@ -49,33 +49,37 @@ metrics:
   - name: num_bytes
     display_name: '# bytes'
     description: Average number of bytes in the predicted output (for language modeling, the input too).
+
   # Accuracy metrics:
   - name: exact_match
     display_name: Exact match
+    short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference exactly.
   - name: quasi_exact_match
     display_name: Quasi-exact match
+    short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference up to light processing.
   - name: logprob
     display_name: Log probability
+    short_display_name: Log prob.
     description: Predicted output's average log probability (input's log prob for language modeling).
-  - name: accuracy
-    display_name: Accuracy
-    description: Fraction of instances that the model correctly classifies based on sequence probability. 
   - name: bits_per_byte
     display_name: Bits/byte
+    short_display_name: BPB
     description: Average number of bits per byte according to model probabilities.
   - name: rouge_2
     display_name: ROUGE-2
     description: Average ROUGE score (Lin, 2004) based on 2-gram overlap.
   - name: f1_set_match
     display_name: F1 (set match)
+    short_display_name: F1
     description: Average F1 score in terms of set overlap between the model predicted set and correct reference set.
   - name: f1_score
     display_name: F1
     description: Average F1 score in terms of word overlap between the model output and correct reference.
   - name: absolute_value_difference
     display_name: Absolute difference
+    short_display_name: Diff.
     description: Average absolute difference between the model output (converted to a number) and the correct reference.
   - name: NDCG@20
     display_name: NDCG@20
@@ -87,31 +91,40 @@ metrics:
     display_name: Equivalent
     description: Fraction of model outputs that are mathematically equivalent to the correct reference.
   - name: math_equiv_chain_of_thought
-    display_name: Equivalent (chain-of-thoughts)
+    # TODO: why does chain-of-thought need to be in the name?
+    display_name: Equivalent (chain-of-thought)
+    short_display_name: Equivalent
     description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thoughts prompting.
   - name: exact_match_indicator
     display_name: Exact match (up to specified indicator)
+    short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
+
   #  Code metrics
   - name: code_eval_acc
     display_name: Accuracy (code evaluation)
+    short_display_name: Accuracy
     description: Fraction of instances that the model output evaluates to the correct answer.
   - name: pass
     display_name: Pass rate
     description: Fraction of model outputs that pass the associated test cases.
   - name: test_avg
-    display_name: 'Avg. # tests'
+    display_name: 'Avg. # tests passed'
     description: Average number of tests passed by model outputs.
   - name: strict_acc
-    display_name: Strict accuracy 
+    display_name: Strict accuracy
+    short_display_name: Accuracy
     description: Fraction of models outputs that pass all associated test cases.
+
   # Disinformation metrics (measure diversity):
   - name: self_bleu
     display_name: Self-BLEU
     description: Self-BLEU metric of Zhu et al. (2018) as a measure of diversity in model generations.
   - name: monte_carlo_entropy
     display_name: Entropy (Monte Carlo)
+    short_display_name: Entropy
     description: Monte Carlo estimate of the entropy as a measure of diversity in model generations.
+
   # Copyright metrics (measure copying/overlap):
   - name: longest_common_prefix_length
     display_name: Longest common prefix length
@@ -119,18 +132,23 @@ metrics:
   - name: edit_distance
     display_name: Edit distance (Levenshtein)
     description: Average Levenshtein edit distance between model generation and reference.
+
   # Bias metrics:
-  - name: bias_metric:mode=associations,demographic_category=race 
+  - name: bias_metric:mode=associations,demographic_category=race
     display_name: Stereotypical associations (Race, Profession)
+    short_display_name: Stereotypes (Race)
     description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions.
   - name: bias_metric:mode=associations,demographic_category=gender
     display_name: Stereotypical associations (Gender, Profession)
+    short_display_name: Stereotypes (Gender)
     description: Measures uneven association of gender groups (male, female) with target professions.
   - name: bias_metric:mode=representation,demographic_category=race
     display_name: Demographic representation (Race)
+    short_display_name: Representation (Race)
     description: Measures uneven representation of racial groups (Asian, Hispanic, White).
   - name: bias_metric:mode=representation,demographic_category=gender
     display_name: Demographic representation (Gender)
+    short_display_name: Representation (Gender)
     description: Measures uneven representation of gender groups (male, female).
   - name: bbq_metric_ambiguous_bias
     display_name: BBQ (ambiguous)
@@ -138,94 +156,83 @@ metrics:
   - name: bbq_metric_unambiguous_bias
     display_name: BBQ (unambiguous)
     description: Metric of Parrish et al. (2022) for BBQ on unambiguous examples.
+
   # Toxicity metrics
   - name: toxicity_probability
     display_name: Toxicity probability
+    short_display_name: Toxicity
     description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifer).
+
   # Efficiency metrics:
   - name: training_co2_cost
-    display_name: Estimated training cost (kg CO2)
-    description: Estimate of the cost of training in CO2.
+    display_name: Estimated training emissions (kg CO2)
+    short_display_name: Emissions (kg CO2)
+    description: Estimate of the CO2 emissions from training the model.
   - name: inference_runtime
     display_name: Observed inference runtime (s)
-    description: Average observed runtime for requests to the model.  
+    short_display_name: Observed time (s)
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
   - name: inference_idealized_runtime
     display_name: Idealized inference runtime (s)
-    description: Estimate of the average idealized runtime for requests to the model given its architecture.
+    short_display_name: Idealized time (s)
+    description: Average time to process a request to the model based solely on the model architecture (using Megatron-LM).
+
   # Calibration metrics:
   - name: ece_1_bin
     display_name: 1-bin Expected Calibration Error (ECE)
+    short_display_name: ECE
     description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
   - name: max_prob
     display_name: Max prob
     description: Model's average confidence in its prediction (only computed for classification tasks)
 
-
 perturbations:
-  - name: worst_TyposPerturbation # TODO: typos
-    display_name: Typos, Worst
+  - name: typos
+    display_name: Typos
     description: >
       Randomly adds typos to each token in the input with probability 0.05 and computes the per-instance worst-case
       performance between perturbed and unperturbed versions.
-  - name: worst_SynonymPerturbation # TODO: synonym
-    display_name: Synonym, Worst
+  - name: synonym
+    display_name: Synonyms
     description: >
       Randomly substitutes words in the input with WordNet synonyms with probability 0.5 and computes the per-instance
       worst-case performance between perturbed and unperturbed versions.
-  - name: worst_dialect
-    display_name: SAE -> AAE, Worst
+  - name: dialect
+    display_name: SAE -> AAE
+    short_display_name: Dialect
     description: >
       Deterministically substitutes SAE words in input with AAE counterparts using validated dictionary of Ziems et al.
       (2022) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
-  - name: worst_person_name
-    display_name: First names by race (White -> Black), Worst
+  - name: name
+    display_name: First names by race (White -> Black)
+    short_display_name: Racial bias
     description: >
       Deterministically substitutes White first names with Black first names sampled from the lists of Caliskan et al.
       (2017) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
-  - name: worst_gender 
-    display_name: Pronouns by gender (Male -> Female), Worst
+  - name: gender
+    display_name: Pronouns by gender (Male -> Female)
+    short_display_name: Gender bias
     description: >
       Deterministically substitutes male pronouns with female pronouns and computes the per-instance worst-case
       performance between perturbed and unperturbed versions.
-  # TODO: Remove the perturbations below. Included for now to help us ensure
-  # the correctness of our perturbations.
-  - name: TyposPerturbation # TODO: typos
-    display_name: Typos
-  - name: SynonymPerturbation # TODO: synonym
-    display_name: Synonym
-  - name: dialect
-    display_name: SAE -> AAE
-  - name: person_name
-    display_name: First names by race (White -> Black)
-  - name: gender
-    display_name: Pronouns by gender (Male -> Female)
-
 
 metric_groups:
   - name: accuracy
     display_name: Accuracy
     description: Average performance of model based on the canonical metric for scenario (e.g. accuracy, F1, ROUGE).
     display_k: 1
-    # stat_names are determined by group.stat_names
-    # TODO: Once the perturbation name field changes are in, move the
-    # perturbation name structure here to display the worst.
     perturbation_names:
       - identity
-      - TyposPerturbation # TODO: typos
-      - worst_TyposPerturbation # TODO: typos
-      - SynonymPerturbation # TODO: synonym
-      - worst_SynonymPerturbation # TODO: synonym
+      - typos
+      - synonym
       - dialect
-      - worst_dialect
-      - person_name
-      - worst_person_name
+      - name
       - gender
-      - worst_gender 
   - name: bias
     display_name: Bias
     description: Biases (stereotypical associations, demographic associations) in model generations.
     display_k: 1
-    stat_names:
+    metric_names:
       - bias_metric:mode=associations,demographic_category=race
       - bias_metric:mode=associations,demographic_category=gender
       - bias_metric:mode=representation,demographic_category=race
@@ -236,15 +243,21 @@ metric_groups:
     display_name: Toxicity
     description: Toxicity in model generations.
     display_k: 1
-    stat_names:
+    metric_names:
       - toxicity_probability
     perturbation_names:
       - identity
+  - name: calibration
+    display_name: Calibration
+    description: Measures how calibrated the model is (how meaningful its uncertainty estimates are).
+    metric_names:
+      - max_prob
+      - ece_1_bin
   - name: efficiency
     display_name: Efficiency
     description: The efficiency of the model across both training and inference.
     display_k: null
-    stat_names:
+    metric_names:
       - inference_runtime
       - inference_idealized_runtime
       - training_co2_cost
@@ -252,417 +265,299 @@ metric_groups:
       - identity
 
 
-groups:
+scenario_groups:
   - name: code_apps
     display_name: APPS (Code)
     description: The APPS benchmark for measuring competence on code challenges (Hendrycks et al., 2021).
-    display:
-      split: test
-      stat_names:
-        - test_avg
-        - strict_acc
+    split: test
+    metric_names:
+      - test_avg
+      - strict_acc
   - name: babi_qa
-    display_name: bAbI 
+    display_name: bAbI
     description: The bAbI benchmark for measuring understanding and reasoning (Weston et al., 2015).
-    display:
-      split: test
-      stat_names:
-        - quasi_exact_match
+    split: test
+    metric_names:
+      - quasi_exact_match
   - name: bbq
     display_name: BBQ (Bias Benchmark for Question Answering)
     description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context (Parrish et al., 2022).
-    display:
-      split: test
-      stat_names:
-        - bbq_metric_ambiguous_bias
-        - bbq_metric_unambiguous_bias
+    split: test
+    metric_names:
+      - bbq_metric_ambiguous_bias
+      - bbq_metric_unambiguous_bias
   - name: blimp
     display_name: BLiMP (The Benchmark of Linguistic Minimal Pairs for English)
-    description: The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design (Warstadt et al., 2020). 
-    display:
-      split: test
-      stat_names:
-        - accuracy
+    description: The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design (Warstadt et al., 2020).
+    split: test
+    metric_names:
+      - accuracy
   - name: bold
     display_name: BOLD (Bias in Open-Ended Language Generation Dataset)
     description: The  Bias in Open-Ended Language Generation Dataset (BOLD) for measuring biases and toxicity in open-ended language generation (Dhamala et al., 2021).
-    display:
-      split: test
-      stat_names:
-        - toxicity_probability
+    split: test
+    metric_names:
+      - toxicity_probability
   - name: boolq
     display_name: BoolQ
     description: The BoolQ benchmark for binary (yes/no) question answering (Clark et al., 2019).
-    display:
-      split: valid
-      stat_names:
-        - quasi_exact_match
+    split: valid
+    metric_names:
+      - quasi_exact_match
   - name: civil_comments
     display_name: CivilComments
     description: The CivilComments benchmark for toxicity detection (Borkan et al., 2019).
-    display:
-      split: test
-      stat_names:
-        - quasi_exact_match
+    split: test
+    metric_names:
+      - quasi_exact_match
   - name: summarization_cnndm
     display_name: CNN/DailyMail
-    description: The CNN/DailyMail benchmark for text summarization (Hermann et al., 2015; Nallapati et al.,2016). 
-    display:
-      split: test
-      stat_names:
-        - rouge_2
+    description: The CNN/DailyMail benchmark for text summarization (Hermann et al., 2015; Nallapati et al.,2016).
+    split: test
+    metric_names:
+      - rouge_2
   - name: commonsenseqa
     display_name: CommonsenseQA
     description: The CommonsenseQA benchmark for commonsense-inteisive question answering (Talmor et al., 2019).
-    display:
-      split: valid
-      stat_names:
-        - quasi_exact_match
+    split: valid
+    metric_names:
+      - quasi_exact_match
   - name: copyright
     display_name: Copyright
-    description: Scenario introduced in this work to measure copyright and memorization behavior, based off of Carlini et al. (2021). 
-    display:
-      split: test
-      stat_names:
-        - longest_common_prefix_length
-        - edit_distance
+    description: Scenario introduced in this work to measure copyright and memorization behavior, based off of Carlini et al. (2021).
+    split: test
+    metric_names:
+      - longest_common_prefix_length
+      - edit_distance
   - name: entity_data_imputation
     display_name: Data imputation
-    description: Scenario from Mei et al. (2021) that tests the ability to impute missing entities in a data table. 
-    display:
-      split: test
-      stat_names:
-        - quasi_exact_match
+    description: Scenario from Mei et al. (2021) that tests the ability to impute missing entities in a data table.
+    split: test
+    metric_names:
+      - quasi_exact_match
   - name: disinformation
     display_name: Disinformation
     description: Scenario from Buchanan et al. (2021) that tests the ability to reiterate or generate disinformation content.
-    display:
-      split: valid
-      stat_names:
-        - self_bleu
-        - monte_carlo_entropy
+    split: valid
+    metric_names:
+      - self_bleu
+      - monte_carlo_entropy
   - name: disinformation_reiteration
     display_name: Disinformation (reiteration)
     description: Scenario from Buchanan et al. (2021) that tests the ability to reiterate disinformation content.
-    display:
-      split: valid
-      stat_names:
-        - self_bleu
+    split: valid
+    metric_names:
+      - self_bleu
         - monte_carlo_entropy
   - name: disinformation_wedging
     display_name: Disinformation (wedging)
     description: Scenario from Buchanan et al. (2021) that tests the ability to generate divisive and wedging content.
-    display:
-      split: valid
-      stat_names:
-        - self_bleu
-        - monte_carlo_entropy
+    split: valid
+    metric_names:
+      - self_bleu
+      - monte_carlo_entropy
   - name: dyck_language
     display_name: Dyck
     description: Scenario testing hierarchical reasoning through the Dyck formal languages (Suzgun et al., 2019).
-    display:
-      split: test
-      stat_names:
-        - exact_match_indicator
+    split: test
+    metric_names:
+      - exact_match_indicator
   - name: entity_matching
     display_name: Entity matching
-    description: Scenario from Mudgal et al. (2018) that tests the ability to determine if two entities match. 
-    display:
-      split: test
-      stat_names:
-        - quasi_exact_match
+    description: Scenario from Mudgal et al. (2018) that tests the ability to determine if two entities match.
+    split: test
+    metric_names:
+      - quasi_exact_match
   - name: gsm
     display_name: GSM8K (Grade school math word problems)
     description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems (Cobbe et al., 2021).
-    display:
-      split: test
-      stat_names:
-        - exact_match_indicator
+    split: test
+    metric_names:
+      - exact_match_indicator
   - name: hellaswag
     display_name: HellaSwag
     description: The HellaSwag benchmark for commonsense reasoning in question answering (Zellers et al., 2019).
-    display:
-      split: valid
-      stat_names:
-        - quasi_exact_match
+    split: valid
+    metric_names:
+      - quasi_exact_match
   - name: code_humaneval
     display_name: HumanEval (Code)
     description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings (Chen et al., 2021).
-    display:
-      split: test
-      stat_names:
-        - code_eval_acc
-        - pass
-  - name: ice_can
-    display_name: ICE (International Corpus of English - Canada)
-    description: The subset of the International Corpus of English (ICE) drawn from English speakers in Canada.
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
-  - name: ice_hk
-    display_name: ICE (International Corpus of English - Hong Kong)
-    description: The subset of the International Corpus of English (ICE) drawn from English speakers in Hong Kong.
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
-  - name: ice_ind
-    display_name: ICE (International Corpus of English - India)
-    description: The subset of the International Corpus of English (ICE) drawn from English speakers in India.
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
-  - name: ice_ja
-    display_name: ICE (International Corpus of English - Jamaica)
-    description: The subset of the International Corpus of English (ICE) drawn from English speakers in Jamaica.
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
-  - name: ice_phi
-    display_name: ICE (International Corpus of English - Philippines)
-    description: The subset of the International Corpus of English (ICE) drawn from English speakers in the Philippines.
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
-  - name: ice_sin
-    display_name: ICE (International Corpus of English - Singapore)
-    description: The subset of the International Corpus of English (ICE) drawn from English speakers in Singapore.
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
-  - name: ice_usa
-    display_name: ICE (International Corpus of English - USA)
-    description: The subset of the International Corpus of English (ICE) drawn from English speakers in the United States of America.
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
-  - name: ice_spoken
-    display_name: ICE (International Corpus of English - spoken)
-    description: The subset of the International Corpus of English (ICE) based on transcribed speech.
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
-  - name: ice_written
-    display_name: ICE (International Corpus of English - written)
-    description: The subset of the International Corpus of English (ICE) based on written text.
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
-  - name: ice_female
-    display_name: ICE (International Corpus of English - female)
-    description: The subset of the International Corpus of English (ICE) drawn from self-identified female speakers.
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
-  - name: ice_male
-    display_name: ICE (International Corpus of English - male)
-    description: The subset of the International Corpus of English (ICE) drawn from self-identified male speakers.
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
+    split: test
+    metric_names:
+      - code_eval_acc
+      - pass
+  - name: ice
+    display_name: ICE (International Corpus of English)
+    description: The subset of the International Corpus of English (ICE) drawn from English speakers from various places in the world.
+    split: test
+    metric_names:
+      - bits_per_byte
   - name: imdb
     display_name: IMDB
     description: The IMDB benchmark for sentiment analysis in movie review (Maas et al., 2011).
-    display:
-      split: valid
-      stat_names:
-        - quasi_exact_match
+    split: valid
+    metric_names:
+      - quasi_exact_match
   - name: legal_support
     display_name: LegalSupport
     description: Scenario introduced in this work to measure fine-grained legal reasoning through reverse entailment.
-    display:
-      split: test
-      stat_names:
-        - quasi_exact_match
+    split: test
+    metric_names:
+      - quasi_exact_match
   - name: last_qa
     display_name: LSAT
     description: The LSAT benchmark for measuring analytical reasoning on the Law School Admission Test (LSAT; Zhong et al., 2021).
-    display:
-      split: test
-      stat_names:
-        - quasi_exact_match
+    split: test
+    metric_names:
+      - quasi_exact_match
   - name: math_regular
     display_name: MATH
     description: The MATH benchmark for measuring mathematical problem solving on competition math problems (Hendrycks et al., 2021).
-    display:
-      split: test
-      stat_names:
-        - math_equiv
+    split: test
+    metric_names:
+      - math_equiv
   - name: math_chain_of_thought
     display_name: MATH (chain-of-thoughts)
     description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thoughts style reasoning (Hendrycks et al., 2021).
-    display:
-      split: test
-      stat_names:
-        - math_equiv_chain_of_thought
+    split: test
+    metric_names:
+      - math_equiv_chain_of_thought
   - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
     description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intesive question answering across 57 domains (Hendrycks et al., 2021).
-    display:
-      split: test
-      stat_names:
-        - quasi_exact_match
+    split: test
+    metric_names:
+      - quasi_exact_match
   - name: msmarco_regular
     display_name: MS MARCO (regular track)
     description: The MS MARCO benchmark's regular track for passage retrieval in information retrieval (https://microsoft.github.io/msmarco/).
-    display:
-      split: valid
-      stat_names:
-        - RR@20
+    split: valid
+    metric_names:
+      - RR@20
   - name: msmarco_trec
     display_name: MS MARCO (TREC track)
     description: The MS MARCO benchmark's deep learning TREC track for passage retrieval in information retrieval (https://trec.nist.gov).
-    display:
-      split: valid
-      stat_names:
-        - NDCG@20
+    split: valid
+    metric_names:
+      - NDCG@20
   - name: narrative_qa
     display_name: NarrativeQA
     description: The NarrativeQA benchmark for reading comprehension over narratives (Kočiský et al., 2017).
-    display:
-      split: test
-      stat_names:
-        - f1_score
+    split: test
+    metric_names:
+      - f1_score
   - name: natural_qa
     display_name: NaturalQuestions
     description: The NaturalQuestions benchmark for question answering based on naturally-occurring queries through Google Search (Kwiatkowski et al., 2019).
-    display:
-      split: valid
-      stat_names:
-        - f1_score
+    split: valid
+    metric_names:
+      - f1_score
   - name: natural_qa_closedbook
     display_name: NaturalQuestions (closed-book)
     description: The variant of NaturalQuestions that does not include the Wikipedia page with the answer as input.
-    display:
-      split: valid
-      stat_names:
-        - f1_score
-  - name: natural_qa_openbook-longans  # TODO: natural_qa_openbook_longans
+    split: valid
+    metric_names:
+      - f1_score
+  - name: natural_qa_openbook_longans
     display_name: NaturalQuestions (open-book)
     description: The variant of NaturalQuestions that includes the Wikipedia page with the answer as input.
-    display:
-      split: valid
-      stat_names:
-        - f1_score
+    split: valid
+    metric_names:
+      - f1_score
   - name: news_qa
     display_name: NewsQA
     description: The NewsQA benchmark for reading comprehension over CNN news articles (Trischler et al., 2017).
-    display:
-      split: valid
-      stat_names:
-        - f1_score
+    split: valid
+    metric_names:
+      - f1_score
   - name: numeracy
     display_name: Numerical reasoning
     description: Scenario introduced in this work to test numerical reasoning via symbolic regression.
-    display:
-      split: test
-      stat_names:
-        - absolute_value_difference
+    split: test
+    metric_names:
+      - absolute_value_difference
   - name: openbookqa
     display_name: OpenbookQA
     description: The OpenbookQA benchmark for commonsense-intensive open book question answering (Mihaylov et al., 2018).
-    display:
-      split: test
-      stat_names:
-        - quasi_exact_match
+    split: test
+    metric_names:
+      - quasi_exact_match
   - name: quac
     display_name: QuAC (Question Answering in Context)
     description: The QuAC benchmark for question answering in the context of dialogues (Choi et al., 2018).
-    display:
-      split: valid
-      stat_names:
-        - f1_score
+    split: valid
+    metric_names:
+      - f1_score
   - name: raft
     display_name: RAFT (Real-world Annotated Few-Shot)
     description: The Real-world annotated few-shot (RAFT) meta-benchmark of 11 real-world text classification tasks (Alex et al., 2021).
-    display:
-      split: test
-      stat_names:
-        - quasi_exact_match
+    split: test
+    metric_names:
+      - quasi_exact_match
   - name: real_toxicity_prompts
     display_name: RealToxicityPrompts
     description: The RealToxicityPrompts dataset for measuring toxicity in prompted model generations (Gehman et al., 2020).
-    display:
-      split: test
-      stat_names:
-        - toxicity_probability
+    split: test
+    metric_names:
+      - toxicity_probability
   - name: synthetic_reasoning_abstract
     display_name: Synthetic reasoning (abstract symbols)
     description: Synthetic reasoning tasks defined using abstract symbols based on LIME (Wu et al., 2021).
-    display:
-      split: test
-      stat_names:
-        - quasi_exact_match
+    split: test
+    metric_names:
+      - quasi_exact_match
   - name: synthetic_reasoning_natural
     display_name: Synthetic reasoning (natural language)
     description: Synthetic reasoning tasks defined using simple natural language based on LIME (Wu et al., 2021).
-    display:
-      split: test
-      stat_names:
-        - f1_set_match
+    split: test
+    metric_names:
+      - f1_set_match
   - name: the_pile
     display_name: The Pile
     description: The Pile corpus for measuring lanugage model performance across various domains (Gao et al., 2020).
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
+    split: test
+    metric_names:
+      - bits_per_byte
   - name: truthful_qa
     display_name: TruthfulQA
     description: The TruthfulQA benchmarking for measuring model truthfulness and commonsense knowledge in question answering (Lin et al., 2022).
-    display:
-      split: valid
-      stat_names:
-        - quasi_exact_match
+    split: valid
+    metric_names:
+      - quasi_exact_match
   - name: twitter_aae
     display_name: TwitterAAE
     description: The TwitterAAE corpus of Blodgett et al. (2016) for measuring language model performance in tweets as a function of speaker dialect.
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
+    split: test
+    metric_names:
+      - bits_per_byte
   - name: twitter_aae_aa
     display_name: TwitterAAE (African American English)
     description: The subset of TwitterAAE associated with African American English (AAE) speakers by Blodgett et al. (2021).
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
+    split: test
+    metric_names:
+      - bits_per_byte
   - name: twitter_aae_white
     display_name: TwitterAAE (White)
     description: The subset of TwitterAAE associated with White speakers by Blodgett et al. (2021).
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
+    split: test
+    metric_names:
+      - bits_per_byte
   - name: wikifact
     display_name: WikiFact
     description: Scenario introduced in this work, inspired by Petroni et al. (2019), to more extensively test factual knowledge.
-    display:
-      split: test
-      stat_names:
-        - quasi_exact_match
+    split: test
+    metric_names:
+      - quasi_exact_match
   - name: wikitext_103
     display_name: WikiText-103
     description: The Wiki-Text103 benchmark for language modeling performance (Merity et al., 2016).
-    display:
-      split: test
-      stat_names:
-        - bits_per_byte
+    split: test
+    metric_names:
+      - bits_per_byte
   - name: summarization_xsum
     display_name: XSUM
-    description: The XSUM benchmark for text summarization of BBC news articles (Narayan et al., 2018). 
-    display:
-      split: test
-      stat_names:
-        - rouge_2
+    description: The XSUM benchmark for text summarization of BBC news articles (Narayan et al., 2018).
+    split: test
+    metric_names:
+      - rouge_2

@@ -376,7 +376,7 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
-        output_prefix="",
+        output_prefix=" ",  # Separate subject and predicate by a space
         num_train_trials=1,
         max_train_instances=5,
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
@@ -1107,7 +1107,7 @@ def get_ice_spec(**kwargs) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs({"names": []}),
-        groups=[f"ice_{kwargs['subset']}"],
+        groups=["ice"],
     )
 
 
