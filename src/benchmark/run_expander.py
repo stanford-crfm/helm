@@ -270,15 +270,6 @@ def gender(
 # - r1: with perturbations [a, b]
 # - r2: with perturbations [c, d, e]
 ROBUSTNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [synonym(prob=0.5), typo(prob=0.05)]
-ROBUSTNESS_ALL_PERTURBATION_SPECS: List[PerturbationSpec] = [
-    *contract_and_expand(),
-    filler(0.3),
-    lower(),
-    misspelling(prob=0.20),
-    space(max_spaces=3),
-    synonym(prob=0.5),
-    typo(prob=0.1),
-]
 
 FAIRNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [
     dialect(prob=1.0, source_class="SAE", target_class="AAVE"),
@@ -417,7 +408,6 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
         ]
     },
     "robustness": {"robustness": ROBUSTNESS_PERTURBATION_SPECS},
-    "robustness_all": {"robustness_all": ROBUSTNESS_ALL_PERTURBATION_SPECS},
     "fairness": {"fairness": FAIRNESS_PERTURBATION_SPECS},
     "canonical": {"canonical": ROBUSTNESS_PERTURBATION_SPECS + FAIRNESS_PERTURBATION_SPECS},
 }
