@@ -51,7 +51,6 @@ class MisspellingPerturbation(Perturbation):
         return super().apply(instance)
 
     def perturb(self, text: str) -> str:
-
         def mispell(match: re.Match) -> str:
             word = match.group(1)
             if np.random.rand() < self.prob:
