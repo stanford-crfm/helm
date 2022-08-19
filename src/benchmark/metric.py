@@ -7,7 +7,7 @@ from tqdm import tqdm
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
 from .statistic import Stat, merge_stat
-from .augmentations.perturbation_description import PerturbationDescription
+from .augmentations.perturbation_description import PerturbationDescription, PERTURBATION_ORIGINAL, PERTURBATION_WORST
 from .adapter import (
     AdapterSpec,
     ScenarioState,
@@ -295,13 +295,13 @@ class Metric(ABC):
                 if original_stat is not None:
                     stat.merge(original_stat)
                     if perturbation.name not in ["robustness", "fairness"]:
-                        before = replace(perturbation, computed_on="original")
+                        before = replace(perturbation, computed_on=PERTURBATION_ORIGINAL)
                         merge_stat(
                             derived_stats_dict, Stat(replace(stat.name, perturbation=before)).merge(original_stat)
                         )
 
                 # keep the minimum performance for each input
-                worst = replace(perturbation, computed_on="worst")
+                worst = replace(perturbation, computed_on=PERTURBATION_WORST)
                 if stat.count > 0:
                     merge_stat(derived_stats_dict, Stat(replace(stat.name, perturbation=worst)).add(stat.min))
         return list(derived_stats_dict.values())
