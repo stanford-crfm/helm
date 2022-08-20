@@ -37,7 +37,12 @@ class SummarizationMetric(Metric):
             "rouge-l": get_rouge_function("rougeL"),
         }
         self.data_stats_metric = DataStatsMetric()
-        self.summac = SummaCZS(granularity="sentence", model_name="vitc", imager_load_cache=False)
+
+        if device == "cpu":
+            self.compute_faithfulness = False
+        else:
+            self.compute_faithfulness = True
+            self.summac = SummaCZS(granularity="sentence", model_name="vitc", imager_load_cache=False, device=device)
 
     def _compute_rouge(self, refs: Sequence[Reference], pred: str) -> Dict[str, float]:
         metrics: Dict[str, float] = {}
@@ -61,18 +66,7 @@ class SummarizationMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        """Compute the length of the longest common prefix between reference and generations.
 
-        Result is based on number of tokens produced with `nltk.tokenize.TreebankWordTokenizer`.
-        When there are multiple generations, return the length of the longest.
-
-        Example:
-            input: A
-            generations: [A A B C, A M D]
-            reference: A A D
-            returns: 2
-            explanation: The longest common prefix is A A (between A A B C and A A D).
-        """
         refs: Sequence[Reference] = request_state.instance.references
         inp: str = request_state.instance.input
 
@@ -90,11 +84,12 @@ class SummarizationMetric(Metric):
         )
 
         # Compute faithfulness metric(s)
-        result.extend(
-            [
-                Stat(MetricName(name)).add(float(val))
-                for name, val in self._compute_faithfulness_scores(inp, pred).items()
-            ]
-        )
+        if self.compute_faithfulness:
+            result.extend(
+                [
+                    Stat(MetricName(name)).add(float(val))
+                    for name, val in self._compute_faithfulness_scores(inp, pred).items()
+                ]
+            )
 
         return result

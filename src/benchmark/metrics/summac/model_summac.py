@@ -45,7 +45,9 @@ def get_neutral_idx(ent_idx, con_idx):
 
 
 class SummaCImager:
-    def __init__(self, model_name="mnli", granularity="paragraph", use_cache=True, max_doc_sents=100, **kwargs):
+    def __init__(
+        self, model_name="mnli", granularity="paragraph", use_cache=True, max_doc_sents=100, device="cuda", **kwargs
+    ):
 
         self.grans = granularity.split("-")
 
@@ -68,7 +70,7 @@ class SummaCImager:
 
         self.max_doc_sents = max_doc_sents
         self.max_input_length = 500
-        self.device = "cuda"
+        self.device = device
         self.cache = {}
         self.model = None  # Lazy loader
 
@@ -403,12 +405,13 @@ class SummaCZS:
         use_ent=True,
         use_con=True,
         imager_load_cache=True,
+        device="cuda",
         **kwargs
     ):
         assert op2 in ["min", "mean", "max"], "Unrecognized `op2`"
         assert op1 in ["max", "mean", "min"], "Unrecognized `op1`"
 
-        self.imager = SummaCImager(model_name=model_name, granularity=granularity, **kwargs)
+        self.imager = SummaCImager(model_name=model_name, granularity=granularity, device=device, **kwargs)
         if imager_load_cache:
             self.imager.load_cache()
         self.op2 = op2

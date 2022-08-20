@@ -1256,7 +1256,7 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
     )
 
 
-def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
+def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
@@ -1269,7 +1269,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
         output_prefix="\nSummary: {",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-jumbo",
+        model="openai/davinci",
         max_eval_instances=None,
         num_outputs=1,
         max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
@@ -1281,12 +1281,12 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_xsum:temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"device": "cuda"}),
+        metric_specs=get_summarization_metric_specs({"device": device}),
         groups=["summarization_xsum"],
     )
 
 
-def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
+def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={
@@ -1304,7 +1304,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
         output_prefix="\nSummary: {",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-jumbo",
+        model="openai/davinci",
         max_eval_instances=None,
         num_outputs=1,
         max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
@@ -1316,12 +1316,12 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_xsum:temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"device": "cuda"}),
+        metric_specs=get_summarization_metric_specs({"device": device}),
         groups=["summarization_xsum"],
     )
 
 
-def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
+def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
@@ -1334,7 +1334,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
         output_prefix="\nSummary: {",
         num_train_trials=1,
         max_train_instances=5,
-        model="ai21/j1-jumbo",
+        model="openai/davinci",
         max_eval_instances=None,
         num_outputs=1,
         max_tokens=128,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
@@ -1346,7 +1346,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_cnndm:temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"device": "cuda"}),
+        metric_specs=get_summarization_metric_specs({"device": device}),
         groups=["summarization_cnndm"],
     )
 
