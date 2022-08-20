@@ -1553,7 +1553,8 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
         instructions=big_bench_task.get("task_prefix", ""),
         input_prefix=big_bench_task.get("example_input_prefix", "\nQ: "),
         output_prefix=big_bench_task.get("example_output_prefix", "\nA: "),
-        reference_prefix=big_bench_task.get("choice_prefix", "\n choice: "),
+        # Use our default for multiple choice: A., B., ...
+        # reference_prefix=big_bench_task.get("choice_prefix", "\n choice: "),
         stop_sequences=[big_bench_task["stop_string"]] if "stop_string" in big_bench_task else [],
     )
     return RunSpec(

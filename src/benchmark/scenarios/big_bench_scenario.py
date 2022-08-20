@@ -93,15 +93,15 @@ class BIGBenchScenario(Scenario):
         # BIG-bench split the data according to
         # https://github.com/google/BIG-bench/blob/main/bigbench/bbseqio/README.md#splits:
         # all: This contains all the examples.
-        # validation: This contains 20% of the examples, or at least 16 examples.
+        # validation: This contains 20% of the examples or at least 16 examples.
         # train: All examples that are not in the validation split (generally 80% of the examples)
         # For few-shot eval, use the all split.
         #
         # I'm not sure what they mean by "for few-shot eval, use the all split."
         # We split the data as follows:
-        # test: This contains 20% of the examples, or at least 16 examples.
+        # test: This contains 20% of the examples or at least 16 examples.
         # validation: Same size as the test split.
-        # train: Remaining examples not in the test and validation split.
+        # train: Remaining examples, not in the test and validation split.
         total_examples = len(examples)
         num_test_examples: int = max(int(0.2 * total_examples), BIGBenchScenario.MIN_TEST_EXAMPLES)
         num_train_examples: int = total_examples - num_test_examples * 2

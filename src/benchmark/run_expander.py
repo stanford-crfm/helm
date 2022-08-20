@@ -95,7 +95,10 @@ class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
     """For getting learning curves."""
 
     name = "max_train_instances"
-    values_dict = {"all": [0, 1, 2, 4, 8, 16]}
+    values_dict = {
+        "all": [0, 1, 2, 4, 8, 16],
+        "BIG_bench_few_shot_setting": [0, 1, 2, 3],
+    }
 
 
 class NumOutputsRunExpander(ReplaceValueRunExpander):
