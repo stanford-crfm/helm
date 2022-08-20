@@ -330,6 +330,7 @@ class BasicMetric(Metric):
         num_prompt_tokens: int,
         num_output_tokens: int,
     ) -> Optional[float]:
+        estimated_runtime: Optional[float]
         if request_state.request.model in inference_runtimes_dict:
             inference_runtimes_dict_for_model = inference_runtimes_dict[request_state.request.model]
             runtime_per_output_token: float = inference_runtimes_dict_for_model["runtime_per_output_token"]
