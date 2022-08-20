@@ -97,7 +97,7 @@ class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
     name = "max_train_instances"
     values_dict = {
         "all": [0, 1, 2, 4, 8, 16],
-        "BIG_bench_few_shot_setting": [0, 1, 2, 3],
+        "BIG_bench_few_shot_setting": [0, 1, 2, 3],  # Commonly used few-shot setting in BIG-bench
     }
 
 

@@ -101,7 +101,7 @@ class BIGBenchScenario(Scenario):
         # We split the data as follows:
         # test: This contains 20% of the examples or at least 16 examples.
         # validation: Same size as the test split.
-        # train: Remaining examples, not in the test and validation split.
+        # train: Remaining examples, not in the test and validation splits.
         total_examples = len(examples)
         num_test_examples: int = max(int(0.2 * total_examples), BIGBenchScenario.MIN_TEST_EXAMPLES)
         num_train_examples: int = total_examples - num_test_examples * 2
@@ -112,18 +112,22 @@ class BIGBenchScenario(Scenario):
             # Build references.
             references: List[Reference]
 
-            # Each example has "input" and either "target" or "target_scores".
-            if "target" in example:
-                # All the outputs in "target" are correct e.g., {"input": "1 + 1 = ", "target": ["two","2"]}.
-                references = [Reference(output, tags=[CORRECT_TAG]) for output in example["target"]]
-            elif "target_scores" in example:
+            # Each example has "input" and either "target_scores" or "target".
+            if "target_scores" in example:
                 # For "target_scores", BIG-bench compares target scores against the model's predicted probabilities.
-                # For now, `Reference`s that have the highest target score are considered correct.
+                # It seems almost all BIG-bench Lite tasks with target scores either have a target score
+                # of 0 (incorrect answer) or 1 (correct answer).
+                # So, for now, `Reference`s with the highest target score are correct.
                 highest_score = max(example["target_scores"].values())
                 references = [
                     Reference(output, tags=[CORRECT_TAG] if score == highest_score else [])
                     for output, score in example["target_scores"].items()
                 ]
+            elif "target" in example:
+                # All the outputs in "target" are correct e.g., {"input": "1 + 1 = ", "target": ["two","2"]}.
+                # "target" can either be a list of correct values or a single correct value.
+                targets: List = example["target"] if type(example["target"]) == list else [example["target"]]
+                references = [Reference(output, tags=[CORRECT_TAG]) for output in targets]
             else:
                 raise ValueError(f"Invalid example that doesn't have `target` or `target_scores` field: {example}")
 
