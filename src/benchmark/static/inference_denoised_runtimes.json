@@ -1,0 +1,29 @@
+{
+  "ai21/j1-large": {
+    "runtime_per_output_token": 0.016,
+    "runtime_for_input_tokens": {
+      "1": 0.264,
+      "512": 0.435,
+      "1024": 0.565,
+      "1536": 0.667
+    }
+  },
+  "ai21/j1-grande": {
+    "runtime_per_output_token": 0.022,
+    "runtime_for_input_tokens": {
+      "1": 0.289,
+      "512": 0.467,
+      "1024": 0.632,
+      "1536": 0.786
+    }
+  },
+  "ai21/j1-jumbo": {
+    "runtime_per_output_token": 0.042,
+    "runtime_for_input_tokens": {
+      "1": 0.318,
+      "512": 0.553,
+      "1024": 0.695,
+      "1536": 0.924
+    }
+  }
+}
