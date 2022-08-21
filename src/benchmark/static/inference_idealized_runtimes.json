@@ -1,7 +1,7 @@
 {
   "openai/ada": {
     "runtime_per_output_token": 0.019,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.02,
       "16": 0.021,
       "32": 0.02,
@@ -33,7 +33,7 @@
   },
   "openai/text-ada-001": {
     "runtime_per_output_token": 0.019,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.02,
       "16": 0.021,
       "32": 0.02,
@@ -65,7 +65,7 @@
   },
   "openai/davinci": {
     "runtime_per_output_token": 0.081,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.087,
       "16": 0.089,
       "32": 0.091,
@@ -97,7 +97,7 @@
   },
   "openai/text-davinci-001": {
     "runtime_per_output_token": 0.081,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.087,
       "16": 0.089,
       "32": 0.091,
@@ -129,7 +129,7 @@
   },
   "openai/text-davinci-002": {
     "runtime_per_output_token": 0.081,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.087,
       "16": 0.089,
       "32": 0.091,
@@ -161,7 +161,7 @@
   },
   "together/opt-175b": {
     "runtime_per_output_token": 0.081,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.087,
       "16": 0.089,
       "32": 0.091,
@@ -193,7 +193,7 @@
   },
   "ai21/j1-large": {
     "runtime_per_output_token": 0.024,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.026,
       "16": 0.027,
       "32": 0.025,
@@ -225,7 +225,7 @@
   },
   "openai/curie": {
     "runtime_per_output_token": 0.024,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.026,
       "16": 0.027,
       "32": 0.025,
@@ -257,7 +257,7 @@
   },
   "openai/text-curie-001": {
     "runtime_per_output_token": 0.024,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.026,
       "16": 0.027,
       "32": 0.025,
@@ -289,7 +289,7 @@
   },
   "ai21/j1-jumbo": {
     "runtime_per_output_token": 0.064,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.07,
       "16": 0.071,
       "32": 0.073,
@@ -321,7 +321,7 @@
   },
   "huggingface/gptj_6b": {
     "runtime_per_output_token": 0.021,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.023,
       "16": 0.024,
       "32": 0.022,
@@ -353,7 +353,7 @@
   },
   "gooseai/gpt-j-6b": {
     "runtime_per_output_token": 0.021,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.023,
       "16": 0.024,
       "32": 0.022,
@@ -385,7 +385,7 @@
   },
   "together/gpt-j-6b": {
     "runtime_per_output_token": 0.021,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.023,
       "16": 0.024,
       "32": 0.022,
@@ -417,7 +417,7 @@
   },
   "gooseai/gpt-neo-20b": {
     "runtime_per_output_token": 0.033,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.035,
       "16": 0.037,
       "32": 0.034,
@@ -449,7 +449,7 @@
   },
   "together/gpt-neox-20b": {
     "runtime_per_output_token": 0.033,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.035,
       "16": 0.037,
       "32": 0.034,
@@ -481,7 +481,7 @@
   },
   "microsoft/TNLGv2_530B": {
     "runtime_per_output_token": 0.123,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.129,
       "16": 0.135,
       "32": 0.141,
@@ -513,7 +513,7 @@
   },
   "anthropic/stanford-online-all-v4-s3": {
     "runtime_per_output_token": 0.054,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.057,
       "16": 0.06,
       "32": 0.057,
@@ -545,7 +545,7 @@
   },
   "together/bloom": {
     "runtime_per_output_token": 0.061,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.068,
       "16": 0.069,
       "32": 0.07,
@@ -577,7 +577,7 @@
   },
   "together/opt-66b": {
     "runtime_per_output_token": 0.055,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.059,
       "16": 0.061,
       "32": 0.062,
@@ -609,7 +609,7 @@
   },
   "together/yalm": {
     "runtime_per_output_token": 0.068,
-    "runtime_for_input_tokens": {
+    "runtime_for_prompt_tokens": {
       "1": 0.072,
       "16": 0.074,
       "32": 0.07,

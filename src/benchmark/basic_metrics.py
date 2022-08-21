@@ -58,36 +58,40 @@ def compute_estimated_time_from_prompt_size_and_num_output_tokens(
     if request_state.request.model in inference_runtimes_dict:
         inference_runtimes_dict_for_model = inference_runtimes_dict[request_state.request.model]
         runtime_per_output_token: float = inference_runtimes_dict_for_model["runtime_per_output_token"]
-        raw_runtimes_for_input_tokens: Dict[str, float] = inference_runtimes_dict_for_model["runtime_for_input_tokens"]
-        runtimes_for_input_tokens: Dict[int, float] = {int(k): v for (k, v) in raw_runtimes_for_input_tokens.items()}
-        runtime_for_input_tokens: Optional[float] = None
-        largest_num_tokens_in_efficiency_dict: int = max(runtimes_for_input_tokens.keys())
-        # Find the smallest num_input_tokens larger than the number of tokens in the given prompt,
-        # then scale runtime in dict by (num_prompt_tokens / num_input_tokens) to get more accurate
+        raw_runtimes_for_prompt_tokens: Dict[str, float] = inference_runtimes_dict_for_model[
+            "runtime_for_prompt_tokens"
+        ]
+        runtimes_for_prompt_tokens: Dict[int, float] = {int(k): v for (k, v) in raw_runtimes_for_prompt_tokens.items()}
+        runtime_for_prompt_tokens: Optional[float] = None
+        largest_num_tokens_in_efficiency_dict: int = max(runtimes_for_prompt_tokens.keys())
+        # Find the smallest num_prompt_tokens larger than the number of tokens in the given prompt,
+        # then scale runtime in dict by (num_prompt_tokens / key) to get more accurate
         # estimate: we assume that we can encode the prompt at the same throughput as the smallest
-        # num_input_tokens larger than num_prompt_tokens, and number of compute operations scales
+        # key larger than num_prompt_tokens, and number of compute operations scales
         # linearly with num_prompt_tokens.
-        for num_input_tokens in sorted(runtimes_for_input_tokens.keys()):
-            if num_prompt_tokens <= num_input_tokens:
-                runtime_for_input_tokens = runtimes_for_input_tokens[num_input_tokens] * (
-                    num_prompt_tokens / num_input_tokens
-                )
+        for key in sorted(runtimes_for_prompt_tokens.keys()):
+            if num_prompt_tokens <= key:
+                runtime_for_prompt_tokens = runtimes_for_prompt_tokens[key] * (num_prompt_tokens / key)
                 break
+        overhead: Optional[float] = inference_runtimes_dict_for_model.get("overhead")
 
         # If number of tokens in the prompt exceeds the largest key in the efficiency dict, then
         # estimate the prompt encoding time by linearly scaling up the runtime for the largest
         # key (this is reasonably accurate under certain simplifying assumptions).
-        if runtime_for_input_tokens is None:
-            runtime_for_input_tokens = runtimes_for_input_tokens[largest_num_tokens_in_efficiency_dict] * (
+        if runtime_for_prompt_tokens is None:
+            runtime_for_prompt_tokens = runtimes_for_prompt_tokens[largest_num_tokens_in_efficiency_dict] * (
                 num_prompt_tokens / largest_num_tokens_in_efficiency_dict
             )
 
         # Idealized runtime is sum of the runtime of encoding the input tokens, and the
         # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
-        # if number of output tokens is greater than 0, otherwise just `runtime_for_input_tokens`.
-        estimated_runtime = runtime_for_input_tokens
+        # if number of output tokens is greater than 0, otherwise just `runtime_for_prompt_tokens`.
+        estimated_runtime = runtime_for_prompt_tokens
         if num_output_tokens > 0:
             estimated_runtime += runtime_per_output_token * (num_output_tokens - 1)
+        # Add overhead if it is available.
+        if overhead is not None:
+            estimated_runtime += overhead
     else:
         hlog(
             f"WARNING: tried to estimate idealized inference time for model {request_state.request.model} "
@@ -343,22 +347,22 @@ class BasicMetric(Metric):
         # For Efficiency metrics:
         # The `inference_efficiency.json` file contains a `runtime_per_output_token` value
         # (the estimated runtime of generating one output token) and a
-        # `runtime_for_input_tokens` dict (a mapping from various num_input_token values to
-        # the estimated runtime of processing that many input tokens).
+        # `runtime_for_prompt_tokens` dict (a mapping from various num_prompt_tokens values to
+        # the estimated runtime of encoding a prompt with that many tokens).
         # For example:
         # "openai/davinci": {
-        #   "runtime_per_output_token": 0.08002311153903935,
-        #   "runtime_for_input_tokens": {
-        #     "1": 0.01592031502388136,
-        #     "16": 0.01764758775115406,
-        #     "32": 0.020374860478426838,
+        #   "runtime_per_output_token": 0.080,
+        #   "runtime_for_prompt_tokens": {
+        #     "1": 0.016,
+        #     "16": 0.018,
+        #     "32": 0.020,
         #     ...
         #
         # These runtimes are generated by initializing Megatron with a model of the right
-        # size, obtaining end-to-end generation times for different numbers of input
+        # size, obtaining end-to-end generation times for different numbers of prompt
         # and output tokens, and then fitting a linear regression model to the
         # runtimes (slope is the runtime_per_output_token, processing time for generating
-        # one token is the runtime_per_input_tokens for the corresponding num_input_tokens
+        # one token is the runtime_for_prompt_tokens for the corresponding num_prompt_tokens
         # value). Profiling code and logs, and code to fit the regression model is available
         # here: https://github.com/stanford-crfm/benchmarking_efficiency.
         with open(INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH, "r") as f:
@@ -478,7 +482,7 @@ class BasicMetric(Metric):
         # Compute efficiency metrics for inference.
         runtime: float = request_state.result.request_time
 
-        # Compute total number of input and output tokens (in first sequence).
+        # Compute total number of prompt and output tokens (in first sequence).
         # Fetch the right `Tokenizer` depending on the model defined in `AdapterSpec`
         # and calculate the number of tokens in the prompt.
         tokenizer_service: TokenizerService = metric_service

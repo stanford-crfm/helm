@@ -1,29 +1,32 @@
 {
   "ai21/j1-large": {
     "runtime_per_output_token": 0.016,
-    "runtime_for_input_tokens": {
-      "1": 0.264,
-      "512": 0.435,
-      "1024": 0.565,
-      "1536": 0.667
-    }
+    "runtime_for_prompt_tokens": {
+      "1": 0.016,
+      "512": 0.187,
+      "1024": 0.317,
+      "1536": 0.419
+    },
+    "overhead": 0.248
   },
   "ai21/j1-grande": {
     "runtime_per_output_token": 0.022,
-    "runtime_for_input_tokens": {
-      "1": 0.289,
-      "512": 0.467,
-      "1024": 0.632,
-      "1536": 0.786
-    }
+    "runtime_for_prompt_tokens": {
+      "1": 0.022,
+      "512": 0.2,
+      "1024": 0.365,
+      "1536": 0.519
+    },
+    "overhead": 0.267
   },
   "ai21/j1-jumbo": {
     "runtime_per_output_token": 0.042,
-    "runtime_for_input_tokens": {
-      "1": 0.318,
-      "512": 0.553,
-      "1024": 0.695,
-      "1536": 0.924
-    }
+    "runtime_for_prompt_tokens": {
+      "1": 0.042,
+      "512": 0.277,
+      "1024": 0.419,
+      "1536": 0.648
+    },
+    "overhead": 0.276
   }
 }
