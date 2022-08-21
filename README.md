@@ -4,7 +4,7 @@ project, which includes the following features:
 - Collection of datasets in a standard format (e.g., NaturalQuestions)
 - Collection of models accessible via a unified API (e.g., GPT-3, MT-NLG, OPT, BLOOM)
 - Collection of metrics beyond accuracy (efficiency, bias, toxicity, etc.)
-- Collection of perturbations for evaluating robustness and fairness (e.g., typos, race)
+- Collection of perturbations for evaluating robustness and fairness (e.g., typos, dialect)
 - Modular framework for constructing prompts from datasets
 - Proxy server for managing accounts and providing unified interface to access models
 

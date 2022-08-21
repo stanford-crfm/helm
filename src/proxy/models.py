@@ -275,7 +275,9 @@ ALL_MODELS = [
         # From https://github.com/THUDM/GLM-130B
         description="GLM-130B is an open bilingual (English & Chinese) bidirectional dense model with 130 billion "
         "parameters, pre-trained using the algorithm of General Language Model (GLM).",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        # Inference with echo=True is not feasible -- in the prompt encoding phase, they use
+        # bidirectional attention and do not perform predictions on them.
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
