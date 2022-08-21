@@ -74,15 +74,13 @@ class BIGBenchScenario(Scenario):
 
         # From https://github.com/google/BIG-bench/blob/main/docs/doc.md#json-schema,
         # "keywords", "description" and "examples" are all required fields for a BIG-bench task.
-
         # keywords: "A list of strings, where each string contains a separate keyword describing the task"
         self.tags = big_bench_task["keywords"]
 
         # description: "A plaintext description of the task, suitable for a non-expert to perform the task and
         #              potentially generate new examples."
         # Append the task-specific description from BIG-bench to the `description`.
-        task_description: str = big_bench_task["description"]
-        self.description = f"{self.description} Task description: {task_description}"
+        self.description = f"{self.description} Task description: {big_bench_task['description']}"
 
         # examples: "A list of dicts"
         examples: List[Dict] = big_bench_task["examples"]
@@ -102,7 +100,7 @@ class BIGBenchScenario(Scenario):
         # test: This contains 20% of the examples or at least 16 examples.
         # validation: Same size as the test split.
         # train: Remaining examples, not in the test and validation splits.
-        total_examples = len(examples)
+        total_examples: int = len(examples)
         num_test_examples: int = max(int(0.2 * total_examples), BIGBenchScenario.MIN_TEST_EXAMPLES)
         num_train_examples: int = total_examples - num_test_examples * 2
 
@@ -115,7 +113,7 @@ class BIGBenchScenario(Scenario):
             # Each example has "input" and either "target_scores" or "target".
             if "target_scores" in example:
                 # For "target_scores", BIG-bench compares target scores against the model's predicted probabilities.
-                # It seems almost all BIG-bench Lite tasks with target scores either have a target score
+                # It seems all BIG-bench Lite tasks with target scores either have a target score
                 # of 0 (incorrect answer) or 1 (correct answer).
                 # So, for now, `Reference`s with the highest target score are correct.
                 highest_score = max(example["target_scores"].values())
