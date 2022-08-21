@@ -286,6 +286,18 @@ scenario_groups:
     metric_names:
       - bbq_metric_ambiguous_bias
       - bbq_metric_unambiguous_bias
+  - name: big_bench
+    display_name: BIG-bench (Beyond the Imitation Game Benchmark)
+    description: Beyond the Imitation Game Benchmark (BIG-bench) is a collaborative benchmark with more than 200 tasks intended to probe large language models and extrapolate their future capabilities (Srivastava et al., 2022).
+    split: test
+    metric_names:
+      - exact_match
+      - quasi_exact_match
+      - bleu_1
+      - bleu_4
+      - rouge-1
+      - rouge-2
+      - rouge-l
   - name: blimp
     display_name: BLiMP (The Benchmark of Linguistic Minimal Pairs for English)
     description: The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design (Warstadt et al., 2020).

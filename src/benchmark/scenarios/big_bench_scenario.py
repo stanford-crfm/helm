@@ -12,8 +12,8 @@ class BIGBenchScenario(Scenario):
     """
     From Beyond the Imitation Game: Quantifying and extrapolating the capabilities of language models
     (https://arxiv.org/abs/2206.04615), the Beyond the Imitation Game Benchmark (BIG-bench) is a
-    collaborative benchmark intended to probe large language models and extrapolate their future capabilities.
-    More than 200 tasks included in BIG-bench.
+    collaborative benchmark with more than 200 tasks intended to probe large language models and extrapolate
+    their future capabilities.
 
     @misc{https://doi.org/10.48550/arxiv.2206.04615,
       doi = {10.48550/ARXIV.2206.04615},
@@ -28,7 +28,8 @@ class BIGBenchScenario(Scenario):
 
     name = "big_bench"
 
-    # Append the task-specific description after loading the task definition from BIG-bench
+    # This is a general description of BIG-Bench. Append the task-specific description
+    # after loading the task definition from BIG-bench.
     description = (
         "The Beyond the Imitation Game Benchmark (BIG-bench) is a collaborative benchmark intended to "
         "probe large language models and extrapolate their future capabilities."
@@ -79,8 +80,12 @@ class BIGBenchScenario(Scenario):
 
         # description: "A plaintext description of the task, suitable for a non-expert to perform the task and
         #              potentially generate new examples."
-        # Append the task-specific description from BIG-bench to the `description`.
-        self.description = f"{self.description} Task description: {big_bench_task['description']}"
+        # Append the task, subtask and task-specific description from BIG-bench to `description`.
+        self.description = (
+            f"{self.description} Task: {self.task} "
+            f"{f'Subtask: {self.subtask} ' if self.subtask else ''} "
+            f"Description: {big_bench_task['description']}"
+        )
 
         # examples: "A list of dicts"
         examples: List[Dict] = big_bench_task["examples"]
