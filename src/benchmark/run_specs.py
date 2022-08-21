@@ -1516,7 +1516,10 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
         metric_names: Set[str] = set()
 
         for big_bench_metric_name in big_bench_metrics:
-            if big_bench_metric_name in ["multiple_choice_grade", "exact_str_match"]:
+            if big_bench_metric_name == "multiple_choice_grade":
+                # `exact_match` and `quasi_exact_match` is all we need for multiple-choice QA tasks
+                return get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+            elif big_bench_metric_name == "exact_str_match":
                 metric_names.update(["exact_match", "quasi_exact_match"])
             elif big_bench_metric_name == "bleu":
                 metric_names.update(["bleu_1", "bleu_4"])
@@ -1556,7 +1559,7 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
         # Use our default for multiple choice: A., B., C., D.,...
         # reference_prefix=big_bench_task.get("choice_prefix", "\n choice: "),
         # The default value for "stop_string" in BIG-bench is None.
-        stop_sequences=[big_bench_task["stop_string"]] if "stop_string" in big_bench_task else [],
+        stop_sequences=[str(big_bench_task.get("stop_string"))] if big_bench_task.get("stop_string", None) else [],
     )
     return RunSpec(
         name=f"big_bench:task={task}{f',subtask={subtask}' if subtask else ''}",
