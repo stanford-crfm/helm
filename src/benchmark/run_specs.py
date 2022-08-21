@@ -1517,7 +1517,7 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
 
         for big_bench_metric_name in big_bench_metrics:
             if big_bench_metric_name == "multiple_choice_grade":
-                # `exact_match` and `quasi_exact_match` is all we need for multiple-choice tasks
+                # `exact_match` and `quasi_exact_match` is all we need for multiple choice tasks
                 return get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
             elif big_bench_metric_name == "exact_str_match":
                 metric_names.update(["exact_match", "quasi_exact_match"])
