@@ -50,7 +50,7 @@ class BIGBenchScenario(Scenario):
     @staticmethod
     def download_and_get_task(output_path: str, task: str, subtask: str) -> Dict:
         """
-        Downloads the task folder from https://github.com/google/BIG-bench/tree/main/bigbench/benchmark_tasks
+        Downloads the task JSON from https://github.com/google/BIG-bench/tree/main/bigbench/benchmark_tasks
         if it doesn't already exist. Then, loads the BIG-bench task definition from task.json.
         """
         ensure_directory_exists(output_path)
