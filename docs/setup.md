@@ -10,6 +10,10 @@ Optionally, install git commit hooks:
 
 ## Tests
 
+First activate the virtualenv:
+
+    source venv/bin/activate
+
 To run all unit tests:
 
     python -m pytest
