@@ -15,6 +15,8 @@ class BIGBenchScenario(Scenario):
     collaborative benchmark with more than 200 tasks intended to probe large language models and extrapolate
     their future capabilities.
 
+    Note: `BigBenchScenario` currently only supports JSON tasks and not programmatic tasks.
+
     @misc{https://doi.org/10.48550/arxiv.2206.04615,
       doi = {10.48550/ARXIV.2206.04615},
       url = {https://arxiv.org/abs/2206.04615},
@@ -117,7 +119,11 @@ class BIGBenchScenario(Scenario):
 
             # Each example has "input" and either "target_scores" or "target".
             if "target_scores" in example:
-                # For "target_scores", BIG-bench compares target scores against the model's predicted probabilities.
+                # For "target_scores", BIG-bench compares target scores against the model's predicted probabilities:
+                # "The example score is then the target score (as specified in the target_scores dict) of the target
+                # that received the highest probability. Scores are averaged across examples. Conventional
+                # multiple-choice accuracy can be achieved by assigning the correct target a score of 1, and
+                # all incorrect targets a score of 0."
                 # It seems all BIG-bench Lite tasks with target scores either have a target score
                 # of 0 (incorrect answer) or 1 (correct answer).
                 # So, for now, `Reference`s with the highest target score are correct.
