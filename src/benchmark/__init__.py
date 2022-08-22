@@ -44,6 +44,7 @@ from .scenarios import pubmed_qa_scenario  # noqa
 from .scenarios import med_qa_scenario  # noqa
 from .scenarios import med_paragraph_simplification_scenario  # noqa
 from .scenarios import covid_dialog_scenario  # noqa
+from .scenarios import me_q_sum_scenario  # noqa
 
 # Metrics
 from . import basic_metrics  # noqa

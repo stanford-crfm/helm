@@ -1,11 +1,7 @@
 import os
-import random
-import re
 from typing import List
 
-import cleantext
-
-from common.general import ensure_directory_exists, ensure_file_downloaded, hlog
+from common.general import ensure_directory_exists, ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, ALL_SPLITS, CORRECT_TAG, VALID_SPLIT
 
 
@@ -13,6 +9,8 @@ class MeQSumScenario(Scenario):
     """
     From "On the Summarization of Consumer Health Questions" (Abacha et al.), MeQSum is a corpus of 1,000 summarized
     consumer health questions.
+
+    TODO: Follow up with @michi and document the splits for MeQSum were generated.
 
     The following is an example from the dataset:
 
@@ -34,12 +32,11 @@ class MeQSumScenario(Scenario):
     """
 
     name = "me_q_sum"
-    description = "Medical dialogue dataset "
+    description = "MeQSum is a corpus of 1,000 summarized consumer health questions."
     tags = ["summarization", "biomedical"]
 
-    # TODO: use our clean version -Tony
-    DOWNLOAD_URL: str = (
-        "https://raw.githubusercontent.com/UCSD-AI4H/COVID-Dialogue/master/COVID-Dialogue-Dataset-English.txt"
+    SOURCE_URL_TEMPLATE: str = (
+        "https://worksheets.codalab.org/rest/bundles/0xd98a53314314445b96b4d703bb2d8c8c/contents/blob/{file_name}"
     )
 
     def __init__(self):
@@ -47,52 +44,36 @@ class MeQSumScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         """
-        Adapted from the official download script in the GitHub repository:
-        https://github.com/UCSD-AI4H/COVID-Dialogue.
+        Build `Instance`s using the consumer health questions and their summarized versions.
         """
+
+        def download_and_read_lines(file_name: str) -> List[str]:
+            file_path: str = os.path.join(data_path, file_name)
+            ensure_file_downloaded(
+                source_url=MeQSumScenario.SOURCE_URL_TEMPLATE.format(file_name=file_name),
+                target_path=file_path,
+                unpack=False,
+            )
+
+            with open(file_path) as f:
+                return f.read().splitlines()
+
         data_path: str = os.path.join(self.output_path, "data")
         ensure_directory_exists(data_path)
-        dataset_path: str = os.path.join(data_path, "COVID-Dialogue-Dataset-English.txt")
-        ensure_file_downloaded(source_url=MeQSumScenario.DOWNLOAD_URL, target_path=dataset_path)
 
-        dialogues = []
-        for text in open(dataset_path).read().split("id="):
-            text = text[text.find("Description") :].strip()
-            description: str = text[len("Description\n") : text.find("\nDialogue")]
-            if description:
-                description = cleantext.clean(description, extra_spaces=True, lowercase=True)
-
-            text = text[text.find("\nPatient:") :]
-
-            utterances, last_person, valid = [], "None", True
-            for x in re.finditer("Doctor:|Patient:", text):
-                if x.group() == last_person:
-                    valid = False
-                    break
-                else:
-                    last_person = x.group()
-
-                utterance = text[x.end() :].split("Patient:")[0].split("Doctor:")[0]
-                utterances.append(cleantext.clean(utterance, extra_spaces=True, lowercase=True))
-
-            if valid and utterances:
-                dialogues.append({"description": description, "utterances": utterances})
-
-        hlog(f"Number of dialogs: {len(dialogues)}")
-
-        # Used the exact same seed value in the official download script
-        random.seed(11111)
-        random.shuffle(dialogues)
-
-        train_size = int(0.8 * len(dialogues))
-        dev_size = int(0.1 * len(dialogues))
-        train_split = dialogues[:train_size]
-        dev_split = dialogues[train_size : train_size + dev_size]
-        test_split = dialogues[train_size + dev_size :]
-
-        import pdb
-
-        pdb.set_trace()
         instances: List[Instance] = []
+        for split in ALL_SPLITS:
+            dataset_split: str = "val" if split == VALID_SPLIT else split
+
+            # The files with the questions end with ".source"
+            questions: List[str] = download_and_read_lines(f"{dataset_split}.source")
+
+            # The files with the summaries end with ".target"
+            summaries: List[str] = download_and_read_lines(f"{dataset_split}.target")
+
+            for question, summary in zip(questions, summaries):
+                instances.append(
+                    Instance(input=question, references=[Reference(output=summary, tags=[CORRECT_TAG])], split=split)
+                )
 
         return instances

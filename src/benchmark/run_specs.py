@@ -1520,8 +1520,6 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
         temperature=0,
         input_prefix="",
         output_prefix=output_prefix,
-        # Following the examples in https://vlievin.github.io/medical-reasoning/samples/pubmedqa.html
-        reference_prefix="\nA) ",
     )
     return RunSpec(
         name=f"pubmed_qa:prompt_answer_choices={prompt_answer_choices}",
@@ -1563,8 +1561,6 @@ def get_med_qa_spec(prompt_answer_choices: str) -> RunSpec:
         temperature=0,
         input_prefix="Question: ",
         output_prefix=output_prefix,
-        # Following the examples in https://vlievin.github.io/medical-reasoning/samples/pubmedqa.html
-        reference_prefix="\nA) ",
     )
     return RunSpec(
         name=f"med_qa:prompt_answer_choices={prompt_answer_choices}",
@@ -1580,8 +1576,6 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
         class_name="benchmark.scenarios.med_paragraph_simplification_scenario.MedParagraphSimplificationScenario",
         args={},
     )
-
-    # TODO: double check this -Tony
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="Summarize the given documents.",
@@ -1590,13 +1584,11 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
         num_train_trials=1,
         max_train_instances=5,
         model="openai/text-davinci-002",
-        max_eval_instances=None,
         num_outputs=1,
         max_tokens=128,
-        temperature=0.3,  # TODO: why did we do this for summarization?
-        stop_sequences=["}"],
+        temperature=0.3,  # TODO: why did we do this for summarization? They compared 0.3, 0.7, vs 1.0
+        stop_sequences=["\n"],
     )
-
     return RunSpec(
         name="med_paragraph_simplification",
         scenario_spec=scenario_spec,
@@ -1607,30 +1599,52 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
 
 
 def get_covid_dialog_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.covid_dialog_scenario.COVIDDialogScenario", args={},)
-
-    # TODO: double check this -Tony
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.covid_dialog_scenario.COVIDDialogScenario", args={})
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Summarize the given documents.",
-        input_prefix="Document: ",
-        output_prefix="\nSummary: ",
+        instructions="Generate a response given a patient's questions and concerns.",
+        input_prefix="Patient: ",
+        output_prefix="\nDoctor: ",
         num_train_trials=1,
         max_train_instances=5,
         model="openai/text-davinci-002",
-        max_eval_instances=None,
         num_outputs=1,
         max_tokens=128,
-        temperature=0.3,  # TODO: why did we do this for summarization?
-        stop_sequences=["}"],
+        temperature=0.0,
+        stop_sequences=["\n"],
     )
-
     return RunSpec(
         name="covid_dialog",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(),
+        metric_specs=get_basic_metric_specs(
+            {"names": ["exact_match", "quasi_exact_match", "rouge-l", "bleu_1", "bleu_4"]}
+        ),
         groups=["COVIDDialog"],
+    )
+
+
+def get_me_q_sum_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.me_q_sum_scenario.MeQSumScenario", args={})
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Summarize the consumer health questions.",
+        input_prefix="Question: ",
+        output_prefix="\nSummary: ",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/text-davinci-002",
+        num_outputs=1,
+        max_tokens=128,
+        temperature=0.3,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name="me_q_sum",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(),
+        groups=["MeQSum"],
     )
 
 
@@ -1682,6 +1696,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "med_qa": get_med_qa_spec,
     "med_paragraph_simplification": get_med_paragraph_simplification_spec,
     "covid_dialog": get_covid_dialog_spec,
+    "me_q_sum": get_me_q_sum_spec,
 }
 
 
