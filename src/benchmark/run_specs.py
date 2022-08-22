@@ -1648,6 +1648,31 @@ def get_me_q_sum_spec() -> RunSpec:
     )
 
 
+def get_bioleaflets_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.me_q_sum_scenario.MeQSumScenario", args={})
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        # TODO: update this -Tony
+        instructions="Summarize the consumer health questions.",
+        input_prefix="Question: ",
+        output_prefix="\nSummary: ",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/text-davinci-002",
+        num_outputs=1,
+        max_tokens=128,
+        temperature=0.3,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name="bioleaflets",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(),
+        groups=["BioLeaflets"],
+    )
+
+
 ############################################################
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {

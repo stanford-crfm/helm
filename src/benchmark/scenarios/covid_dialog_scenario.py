@@ -12,11 +12,6 @@ class COVIDDialogScenario(Scenario):
     COVID-19 or other pneumonia consult doctors and doctors provide advice. There are 603 consultations. Each
     consultation consists of ID, URL, Description of patient’s medical condition and Dialogue."
 
-    TODO: Follow up with @michi and document how this version of COVIDDialogue was built:
-          - all text is lower cased
-          - in the original dataset, there was sometimes a conversation between patient and doctor
-          - how the splits were generated
-
     The following is an example a patient-doctor interaction from the dataset:
 
     patient: i have all the symptoms except fever, i went to medicross and dr said i can get tested if i want to i'm

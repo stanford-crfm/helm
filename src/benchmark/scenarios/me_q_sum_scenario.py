@@ -10,8 +10,6 @@ class MeQSumScenario(Scenario):
     From "On the Summarization of Consumer Health Questions" (Abacha et al.), MeQSum is a corpus of 1,000 summarized
     consumer health questions.
 
-    TODO: Follow up with @michi and document the splits for MeQSum were generated.
-
     The following is an example from the dataset:
 
     @Inproceedings{MeQSum,
