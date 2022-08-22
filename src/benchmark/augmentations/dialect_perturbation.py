@@ -92,6 +92,13 @@ class DialectPerturbation(Perturbation):
             self.mapping_file_path = self.retrieve_mapping_dict()
         self.mapping_dict: Dict[str, List[str]] = self.load_mapping_dict()
 
+        # Pattern capturing any occurence of the given words in the text, surrounded by characters other than
+        # alphanumeric characters and '-'. We use re.escape since the words in our dictionary may
+        # contain special RegEx characters.
+        words = [re.escape(w) for w in self.mapping_dict.keys()]
+        words_string = "|".join(words)
+        self.pattern = f"[^\\w-]({words_string})[^\\w-]"
+
     @property
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
@@ -125,13 +132,6 @@ class DialectPerturbation(Perturbation):
     def substitute_dialect(self, text: str) -> str:
         """ Substitute the source dialect in text with the target dialect with probability self.prob. """
 
-        # Pattern capturing any occurence of the given words in the text, surrounded by characters other than
-        # alphanumeric characters and '-'. We use re.escape since the words in our dictionary may
-        # contain special RegEx characters.
-        words = [re.escape(w) for w in self.mapping_dict.keys()]
-        words_string = "|".join(words)
-        pattern = f"[^\\w-]({words_string})[^\\w-]"
-
         # Substitution function
         def sub_func(m: re.Match):
             match_str = m.group(0)  # The full match (e.g. " With ", " With,", " With.")
@@ -146,7 +146,7 @@ class DialectPerturbation(Perturbation):
             return match_str
 
         # Execute the RegEx
-        return re.sub(pattern, sub_func, text, flags=re.IGNORECASE)
+        return re.sub(self.pattern, sub_func, text, flags=re.IGNORECASE)
 
     def apply(self, instance: Instance) -> Instance:
         """ Apply the perturbation to the provided instance. """
