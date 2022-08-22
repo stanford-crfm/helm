@@ -21,7 +21,7 @@ from .metrics.summac.model_summac import SummaCZS
 
 
 class SummarizationMetric(Metric):
-    """Summarizaitron Metrics
+    """Summarization Metrics
 
     This class computes the following standard summarization metrcis
         1. Rouge (1,2,L)
@@ -41,6 +41,7 @@ class SummarizationMetric(Metric):
         if device == "cpu":
             self.compute_faithfulness = False
         else:
+            # Need GPU for faithfulness metrics since they are model-based.
             self.compute_faithfulness = True
             self.summac = SummaCZS(granularity="sentence", model_name="vitc", imager_load_cache=False, device=device)
 
