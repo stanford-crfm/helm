@@ -1557,7 +1557,7 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
         # "all model outputs were sampled greedily (with zero temperature), unless otherwise noted."
         temperature=0,
         instructions=big_bench_task.get("task_prefix", ""),
-        # Big-bench's default value for "example_input_prefix" and "example_output_prefix" was "\nQ: " and "\nA: ".
+        # BIG-bench's default value for "example_input_prefix" and "example_output_prefix" was "\nQ: " and "\nA: ".
         # Instead, use our defaults for multiple choice tasks: "Question: " and "\nAnswer: ".
         input_prefix=big_bench_task.get("example_input_prefix", "Question: "),
         output_prefix=big_bench_task.get("example_output_prefix", "\nAnswer: "),
