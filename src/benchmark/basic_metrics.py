@@ -53,6 +53,7 @@ def compute_estimated_time_from_prompt_size_and_num_output_tokens(
     inference_runtimes_dict: Dict[str, Dict],
     num_prompt_tokens: int,
     num_output_tokens: int,
+    time_type: str,
 ) -> Optional[float]:
     estimated_runtime: Optional[float]
     if request_state.request.model in inference_runtimes_dict:
@@ -62,19 +63,17 @@ def compute_estimated_time_from_prompt_size_and_num_output_tokens(
             "runtime_for_prompt_tokens"
         ]
         runtimes_for_prompt_tokens: Dict[int, float] = {int(k): v for (k, v) in raw_runtimes_for_prompt_tokens.items()}
+
         runtime_for_prompt_tokens: Optional[float] = None
         largest_num_tokens_in_efficiency_dict: int = max(runtimes_for_prompt_tokens.keys())
         # Find the smallest num_prompt_tokens larger than the number of tokens in the given prompt,
-        # then scale runtime in dict by (num_prompt_tokens / key) to get more accurate
-        # estimate: we assume that we can encode the prompt at the same throughput as the smallest
-        # key larger than num_prompt_tokens, and number of compute operations scales
-        # linearly with num_prompt_tokens.
+        # then scale runtime in dict by (num_prompt_tokens / key) to get more accurate estimate: we
+        # assume that we can encode the prompt at the same throughput as the smallest key larger than
+        # num_prompt_tokens, and number of compute operations scales linearly with num_prompt_tokens.
         for key in sorted(runtimes_for_prompt_tokens.keys()):
             if num_prompt_tokens <= key:
                 runtime_for_prompt_tokens = runtimes_for_prompt_tokens[key] * (num_prompt_tokens / key)
                 break
-        overhead: Optional[float] = inference_runtimes_dict_for_model.get("overhead")
-
         # If number of tokens in the prompt exceeds the largest key in the efficiency dict, then
         # estimate the prompt encoding time by linearly scaling up the runtime for the largest
         # key (this is reasonably accurate under certain simplifying assumptions).
@@ -82,10 +81,12 @@ def compute_estimated_time_from_prompt_size_and_num_output_tokens(
             runtime_for_prompt_tokens = runtimes_for_prompt_tokens[largest_num_tokens_in_efficiency_dict] * (
                 num_prompt_tokens / largest_num_tokens_in_efficiency_dict
             )
+        overhead: Optional[float] = inference_runtimes_dict_for_model.get("overhead")
 
-        # Idealized runtime is sum of the runtime of encoding the input tokens, and the
-        # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
-        # if number of output tokens is greater than 0, otherwise just `runtime_for_prompt_tokens`.
+        # Idealized runtime is sum of the runtime of encoding the input tokens, the runtime of
+        # generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
+        # if number of output tokens is greater than 0, otherwise just `runtime_for_prompt_tokens`,
+        # and the overhead if available.
         estimated_runtime = runtime_for_prompt_tokens
         if num_output_tokens > 0:
             estimated_runtime += runtime_per_output_token * (num_output_tokens - 1)
@@ -94,8 +95,8 @@ def compute_estimated_time_from_prompt_size_and_num_output_tokens(
             estimated_runtime += overhead
     else:
         hlog(
-            f"WARNING: tried to estimate idealized inference time for model {request_state.request.model} "
-            "that is not in inference_idealized_runtimes_dict"
+            f"WARNING: tried to estimate {time_type} inference time for model {request_state.request.model} "
+            f"that is not in inference_{time_type}_runtimes_dict"
         )
         estimated_runtime = None
 
@@ -501,11 +502,19 @@ class BasicMetric(Metric):
             num_output_tokens -= num_prompt_tokens
 
         idealized_runtime: Optional[float] = compute_estimated_time_from_prompt_size_and_num_output_tokens(
-            request_state, self.inference_idealized_runtimes_dict, num_prompt_tokens, num_output_tokens
+            request_state,
+            self.inference_idealized_runtimes_dict,
+            num_prompt_tokens,
+            num_output_tokens,
+            time_type="idealized",
         )
 
         denoised_runtime: Optional[float] = compute_estimated_time_from_prompt_size_and_num_output_tokens(
-            request_state, self.inference_denoised_runtimes_dict, num_prompt_tokens, num_output_tokens
+            request_state,
+            self.inference_denoised_runtimes_dict,
+            num_prompt_tokens,
+            num_output_tokens,
+            time_type="denoised",
         )
 
         # Compute efficiency metrics for training.
