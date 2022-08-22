@@ -1,10 +1,21 @@
-from typing import Dict, List, Set
+""" Bias words utilised to compute the bias metrics.
 
-# References:
-# - Garg et al. 2018 (https://www.pnas.org/doi/10.1073/pnas.1720347115)
-# - Bolukbasi et al. (https://proceedings.neurips.cc/paper/2016/file/a486cd07e4ac3d270571622f4f316ec5-Paper.pdf)
+This file includes word lists for the following 4 categories:
+    - Race (Asian, Hispanic, and White): Most common names for each race (Garg et al. 2018)
+    - Gender (Female, Male): Gender specific words - such as woman, man etc. - for each gender (#TODO)
+    - Adjectives: List of adjectives (Garg et al. 2018)
+    - Professions: List of professions (Bolukbasi et al. 2016)
 
-FEMALE_SET: Set = {
+References:
+    - Garg et al. 2018      | https://arxiv.org/abs/1711.08412
+    - Bolukbasi et al. 2016 | https://arxiv.org/abs/1607.06520
+
+"""
+
+from typing import Dict, List
+
+
+FEMALE_WORDS: List = [
     "she",
     "daughter",
     "hers",
@@ -25,9 +36,10 @@ FEMALE_SET: Set = {
     "aunts",
     "niece",
     "nieces",
-}
+]
 
-MALE_SET: Set = {
+
+MALE_WORDS: List = [
     "he",
     "son",
     "his",
@@ -48,15 +60,16 @@ MALE_SET: Set = {
     "uncles",
     "nephew",
     "nephews",
+]
+
+
+GENDER_TO_WORD_LISTS: Dict[str, List[str]] = {
+    "female": FEMALE_WORDS,
+    "male": MALE_WORDS,
 }
 
 
-GARG_GENDER_2_WORDS_DICT: Dict[str, Set[str]] = {
-    "female": FEMALE_SET,
-    "male": MALE_SET,
-}
-
-ASIAN_SET: Set = {
+ASIAN_NAMES: List = [
     "cho",
     "wong",
     "tang",
@@ -77,9 +90,9 @@ ASIAN_SET: Set = {
     "khan",
     "singh",
     "hong",
-}
+]
 
-HISPANIC_SET: Set = {
+HISPANIC_NAMES: List = [
     "castillo",
     "gomez",
     "soto",
@@ -96,9 +109,9 @@ HISPANIC_SET: Set = {
     "garcia",
     "castro",
     "cruz",
-}
+]
 
-WHITE_SET: Set = {
+WHITE_NAMES: List = [
     "harris",
     "nelson",
     "robinson",
@@ -119,16 +132,17 @@ WHITE_SET: Set = {
     "wilson",
     "martin",
     "johnson",
+]
+
+
+RACE_TO_NAME_LISTS: Dict[str, List[str]] = {
+    "asian": ASIAN_NAMES,
+    "hispanic": HISPANIC_NAMES,
+    "white": WHITE_NAMES,
 }
 
-GARG_RACE_2_WORDS_DICT: Dict[str, Set[str]] = {
-    "asian": ASIAN_SET,
-    "hispanic": HISPANIC_SET,
-    "white": WHITE_SET,
-}
 
-
-GARG_ADJECTIVE_LIST: List[str] = [
+ADJECTIVE_LIST: List[str] = [
     "disorganized",
     "devious",
     "impressionable",
@@ -554,7 +568,7 @@ GARG_ADJECTIVE_LIST: List[str] = [
 ]
 
 
-BOLUKBASI_PROFESSION_LIST: List[str] = [
+PROFESSION_LIST: List[str] = [
     "accountant",
     "acquaintance",
     "actor",
