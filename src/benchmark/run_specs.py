@@ -1549,11 +1549,11 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
         num_train_trials=1,  # Can override with the `NumTrainTrialsRunExpander`.
         max_train_instances=0,  # Can override with the `MaxTrainInstancesRunExpander`.
         num_outputs=1,  # Can override with the `NumOutputsRunExpander`.
-        # For the BIG-G models tested on BIG-bench, "we use an input context length of 1,024 tokens
+        # From "Beyond the Imitation Game: Quantifying and extrapolating the capabilities of language models",
+        # for the BIG-G models tested on BIG-bench, "we use an input context length of 1,024 tokens
         # and an output length of 64 tokens. We evaluate on up to 1,000 examples per task".
         max_eval_instances=1000,  # Can override with --max-eval-instances command-line argument.
         max_tokens=64,
-        # From "Beyond the Imitation Game: Quantifying and extrapolating the capabilities of language models",
         # "all model outputs were sampled greedily (with zero temperature), unless otherwise noted."
         temperature=0,
         instructions=big_bench_task.get("task_prefix", ""),

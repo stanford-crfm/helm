@@ -103,7 +103,7 @@ class BIGBenchScenario(Scenario):
         # For few-shot eval, use the all split.
         #
         # TODO: I'm not sure what they mean by "for few-shot eval, use the all split."
-        #       Does that mean they don't draw the in-context examples from a separate train split?
+        #       Does that mean they don't draw in-context examples from a separate train split?
         #
         # We split the data as follows:
         # test: This contains 20% of the examples or at least 16 examples.
