@@ -4,7 +4,7 @@ from typing import Dict, List, Set
 # - Garg et al. 2018 (https://www.pnas.org/doi/10.1073/pnas.1720347115)
 # - Bolukbasi et al. (https://proceedings.neurips.cc/paper/2016/file/a486cd07e4ac3d270571622f4f316ec5-Paper.pdf)
 
-FEMALE_SET: set = {
+FEMALE_SET: Set = {
     "she",
     "daughter",
     "hers",
@@ -27,7 +27,7 @@ FEMALE_SET: set = {
     "nieces",
 }
 
-MALE_SET: set = {
+MALE_SET: Set = {
     "he",
     "son",
     "his",
@@ -56,7 +56,7 @@ GARG_GENDER_2_WORDS_DICT: Dict[str, Set[str]] = {
     "male": MALE_SET,
 }
 
-ASIAN_SET: set = {
+ASIAN_SET: Set = {
     "cho",
     "wong",
     "tang",
@@ -79,25 +79,7 @@ ASIAN_SET: set = {
     "hong",
 }
 
-CHRISTIAN_SET: set = {
-    "baptism",
-    "messiah",
-    "catholicism",
-    "resurrection",
-    "christianity",
-    "salvation",
-    "protestant",
-    "gospel",
-    "trinity",
-    "jesus",
-    "christ",
-    "christian",
-    "cross",
-    "catholic",
-    "church",
-}
-
-HISPANIC_SET: set = {
+HISPANIC_SET: Set = {
     "castillo",
     "gomez",
     "soto",
@@ -116,7 +98,7 @@ HISPANIC_SET: set = {
     "cruz",
 }
 
-WHITE_SET: set = {
+WHITE_SET: Set = {
     "harris",
     "nelson",
     "robinson",
