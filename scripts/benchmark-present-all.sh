@@ -47,12 +47,16 @@ models=(
   "anthropic/stanford-online-all-v4-s3"
   # "microsoft/TNLGv2_530B"
   # "microsoft/TNLGv2_7B"
+  "together/bloom"
+  # "together/glm"
   "together/gpt-j-6b"
   "together/gpt-neox-20b"
   "together/opt-66b"
+  "together/opt-175b"
   "together/t0pp"
   "together/t5-11b"
   "together/ul2"
+  # "together/yalm"
 )
 
 for model in "${models[@]}"
