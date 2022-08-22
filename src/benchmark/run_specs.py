@@ -2,7 +2,7 @@ import itertools
 import os
 from typing import Any, Callable, List, Dict, Optional, Set
 
-from common.hierarchical_logger import hlog
+from common.hierarchical_logger import hlog, htrack
 from common.object_spec import ObjectSpec
 from .adapter import (
     AdapterSpec,
@@ -16,6 +16,7 @@ from .metric import MetricSpec
 from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenarios.scenario import ScenarioSpec
+from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .scenarios.raft_scenario import get_raft_instructions
@@ -1490,9 +1491,8 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
     )
 
 
+@htrack("Extracting adaptation parameters from the BIG-bench task definition and building the RunSpec")
 def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
-    from .scenarios.big_bench_scenario import BIGBenchScenario
-
     def get_adaptation_method(big_bench_metrics: List[str]) -> str:
         """
         From BIG-bench, "there are three types of BIG-bench JSON tasks - generative and scoring
@@ -1557,15 +1557,21 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
         # "all model outputs were sampled greedily (with zero temperature), unless otherwise noted."
         temperature=0,
         instructions=big_bench_task.get("task_prefix", ""),
-        input_prefix=big_bench_task.get("example_input_prefix", "\nQ: "),
-        output_prefix=big_bench_task.get("example_output_prefix", "\nA: "),
+        # Big-bench's default value for "example_input_prefix" and "example_output_prefix" was "\nQ: " and "\nA: ".
+        # Instead, use our defaults for multiple choice tasks: "Question: " and "\nAnswer: ".
+        input_prefix=big_bench_task.get("example_input_prefix", "Question: "),
+        output_prefix=big_bench_task.get("example_output_prefix", "\nAnswer: "),
         # Use our default for multiple choice: A., B., C., D.,...
         # reference_prefix=big_bench_task.get("choice_prefix", "\n choice: "),
         # The default value for "stop_string" in BIG-bench is None.
         stop_sequences=[str(big_bench_task.get("stop_string"))] if big_bench_task.get("stop_string", None) else [],
     )
+
+    run_spec_name: str = f"big_bench:task={task}"
+    if subtask:
+        run_spec_name += f",subtask={subtask}"
     return RunSpec(
-        name=f"big_bench:task={task}{f',subtask={subtask}' if subtask else ''}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_metric_specs(big_bench_task["metrics"]),
