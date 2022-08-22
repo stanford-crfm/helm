@@ -102,7 +102,9 @@ class BIGBenchScenario(Scenario):
         # train: All examples that are not in the validation split (generally 80% of the examples)
         # For few-shot eval, use the all split.
         #
-        # I'm not sure what they mean by "for few-shot eval, use the all split."
+        # TODO: I'm not sure what they mean by "for few-shot eval, use the all split."
+        #       Does that mean they don't draw the in-context examples from a separate train split?
+        #
         # We split the data as follows:
         # test: This contains 20% of the examples or at least 16 examples.
         # validation: Same size as the test split.
