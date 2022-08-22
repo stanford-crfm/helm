@@ -1661,6 +1661,47 @@ def get_med_qa_spec(prompt_answer_choices: str) -> RunSpec:
     )
 
 
+def get_med_mcqa_spec(prompt_answer_choices: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.med_mcqa_scenario.MedMCQAScenario", args={})
+
+    # We are trying to reproduce the Instruct-GPT3's zero-shot performance of 44.0% on the validation set
+    # from "Can large language models reason about medical questions?" (Liévin et al.).
+    # Therefore, specify the values of the fields of `AdapterSpec` based on experiment details of the paper.
+    # Set `output_prefix` based on Table 1 (titled "Prompt templates") of the paper.
+    output_prefix: str = "\nAnswer: "
+    if prompt_answer_choices.lower() == "true":
+        # There are 4 possible answer choices for MedMCQA
+        output_prefix += "among A through D, the answer is "
+
+    # Liévin et al. followed what Kojima et al. did in "Large Language Models are Zero-Shot Reasoners."
+    # to extract answers from completions: set the max completion length to a large number and
+    # "...pick up the first large letter encountered in the text." Then they set "'Q:'...as a customized stop
+    # sequence for all the models except for Instruct-GPT3 to stop the models from repeating questions and
+    # answers by themselves." We don't need to do this since our framework has a "multiple_choice_joint"
+    # adaptation method that handles the prompt construction for multiple-choice QA for us.
+    adapter_spec = AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        num_train_trials=1,
+        max_eval_instances=10_333,  # From Pal et al., there are 6,150 dev and 4,183 test questions
+        # "We applied the largest human-aligned GPT-3 (InstructGPT, text-davinci-002, Ouyang et al.
+        # (2022), 175B parameters) to answering medical questions in a zero-shot setting..."
+        model="openai/text-davinci-002",
+        max_train_instances=0,  # We want to reproduce the zero-shot performance.
+        # "We sampled one completion per prompt with a temperature of zero..."
+        num_outputs=1,
+        temperature=0,
+        input_prefix="Question: ",
+        output_prefix=output_prefix,
+    )
+    return RunSpec(
+        name=f"med_mcqa:prompt_answer_choices={prompt_answer_choices}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        groups=["MedMCQA"],
+    )
+
+
 def get_med_paragraph_simplification_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.med_paragraph_simplification_scenario.MedParagraphSimplificationScenario",
@@ -1810,6 +1851,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "big_bench": get_big_bench_spec,
     "pubmed_qa": get_pubmed_qa_spec,
     "med_qa": get_med_qa_spec,
+    "med_mcqa": get_med_mcqa_spec,
     "med_paragraph_simplification": get_med_paragraph_simplification_spec,
     "covid_dialog": get_covid_dialog_spec,
     "me_q_sum": get_me_q_sum_spec,
