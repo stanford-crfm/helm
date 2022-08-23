@@ -14,6 +14,7 @@ from nltk.translate.bleu_score import sentence_bleu
 import numpy as np
 from rouge_score import rouge_scorer
 import scipy
+import calibration as cal
 
 from common.hierarchical_logger import hlog
 from common.request import Token, Sequence
@@ -757,12 +758,22 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
         max_prob_stat = get_unique_stat_by_name(instance_stats, "max_prob")
         correct_stat = get_unique_stat_by_name(instance_stats, "exact_match")
         if correct_stat is not None and max_prob_stat is not None:
+            assert max_prob_stat.mean is not None
+            assert correct_stat.mean is not None
             max_probs.append(max_prob_stat.mean)
-            correct.append(correct_stat.mean)
+            cur_correct = float(correct_stat.mean)
+            # For a single example, we either get it correct or not.
+            assert np.isclose(cur_correct, 1.0) or np.isclose(cur_correct, 0.0)
+            correct.append(int(cur_correct))
 
     calibration_metrics: List[Stat] = []
     assert len(max_probs) == len(correct)
     if len(max_probs) > 0:
-        ece_1_bin = np.abs(np.mean(max_probs) - np.mean(correct))
+        ece = cal.get_ece_em(max_probs, correct, num_bins=15)
+        calibration_metrics.append(Stat(MetricName("ece")).add(ece))
+        ece_1_bin = cal.get_ece(max_probs, correct, num_bins=1)
         calibration_metrics.append(Stat(MetricName("ece_1_bin")).add(ece_1_bin))
+        coverage_acc_area, acc_top_10_percentile = cal.get_selective_stats(max_probs, correct)
+        calibration_metrics.append(Stat(MetricName("selective_cov_acc_area")).add(coverage_acc_area))
+        calibration_metrics.append(Stat(MetricName("selective_acc@10")).add(acc_top_10_percentile))
     return calibration_metrics
