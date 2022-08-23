@@ -1741,7 +1741,7 @@ def get_covid_dialog_spec() -> RunSpec:
         model="openai/text-davinci-002",
         num_outputs=1,
         max_tokens=128,
-        temperature=0.0,
+        temperature=0.3,
         stop_sequences=["\n"],
     )
     return RunSpec(
@@ -1752,6 +1752,32 @@ def get_covid_dialog_spec() -> RunSpec:
             {"names": ["exact_match", "quasi_exact_match", "rouge-l", "bleu_1", "bleu_4"]}
         ),
         groups=["COVIDDialog"],
+    )
+
+
+def get_med_dialog_spec(subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="benchmark.scenarios.med_dialog_scenario.MedDialogScenario", args={"subset": subset}
+    )
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Summarize given a conversation between a patient and a doctor.",
+        input_prefix="Conversation:",
+        output_prefix="\nSummary: ",
+        num_train_trials=1,
+        max_train_instances=5,
+        model="openai/text-davinci-002",
+        num_outputs=1,
+        max_tokens=128,
+        temperature=0.3,
+        stop_sequences=["\n"],
+    )
+    return RunSpec(
+        name=f"med_dialog,subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_summarization_metric_specs(),
+        groups=["MedDialog"],
     )
 
 
@@ -1854,6 +1880,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "med_mcqa": get_med_mcqa_spec,
     "med_paragraph_simplification": get_med_paragraph_simplification_spec,
     "covid_dialog": get_covid_dialog_spec,
+    "med_dialog": get_med_dialog_spec,
     "me_q_sum": get_me_q_sum_spec,
 }
 
