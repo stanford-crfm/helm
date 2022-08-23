@@ -10,6 +10,7 @@ contamination:
     - summarization_xsum
     - summarization_cnndm
     - imdb
+    level: strong
     description: The T0++ model is explicitly trained on these datasets. See Table 5 on page 24 of https://arxiv.org/pdf/2110.08207.pdf.
   - models:
     - openai/davinci
@@ -35,4 +36,5 @@ contamination:
     - openbookqa
     - boolq
     - quac
+    level: weak
     description: Brown et al. perform an analysis of the contamination for GPT-3 and its derivatives. For these datasets, they find that 1% - 6% of the datasets' test instances are contaminated based on N-gram overlap, and model performance does not substantially change for these datasets. See Table C.1 on page 45 of https://arxiv.org/pdf/2005.14165.pdf.
