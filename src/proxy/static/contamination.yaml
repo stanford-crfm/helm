@@ -3,14 +3,14 @@
 contamination:
   - models:
     - together/t0pp
-    scenarios:
+    scenario_groups:
     - hellaswag
     - openbookqa
     - boolq
     - summarization_xsum
     - summarization_cnndm
     - imdb
-    source: Table 5 on page 24 of https://arxiv.org/pdf/2110.08207.pdf.
+    description: The T0++ model is explicitly trained on these datasets. See Table 5 on page 24 of https://arxiv.org/pdf/2110.08207.pdf.
   - models:
     - openai/davinci
     - openai/curie
@@ -27,7 +27,7 @@ contamination:
     - openai/code-davinci-002
     - openai/code-davinci-001
     - openai/code-cushman-001
-    scenarios:
+    scenario_groups:
     - natural_qa
     - natural_qa_closedbook
     - natural_qa_openbook_longans
@@ -35,4 +35,4 @@ contamination:
     - openbookqa
     - boolq
     - quac
-    source: Table C.1 on page 45 of https://arxiv.org/pdf/2005.14165.pdf.
+    description: Brown et al. perform an analysis of the contamination for GPT-3 and its derivatives. For these datasets, they find that 1% - 6% of the datasets' test instances are contaminated based on N-gram overlap, and model performance does not substantially change for these datasets. See Table C.1 on page 45 of https://arxiv.org/pdf/2005.14165.pdf.
