@@ -2,7 +2,7 @@ import json
 import os
 from typing import Dict, List
 
-from common.general import ensure_directory_exists, ensure_file_downloaded
+from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, ALL_SPLITS, CORRECT_TAG, VALID_SPLIT
 
 
@@ -58,7 +58,6 @@ class MedQAScenario(Scenario):
         pass
 
     def get_instances(self) -> List[Instance]:
-        ensure_directory_exists(self.output_path)
         data_path: str = os.path.join(self.output_path, "data")
         ensure_file_downloaded(
             source_url="https://drive.google.com/u/0/uc?id=1ImYUSLk9JbgHXOemfvyiDiirluZHPeQw",
