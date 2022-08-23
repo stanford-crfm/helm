@@ -6,7 +6,6 @@ import numpy as np
 import tqdm
 import os
 import time
-import requests
 
 # GPU-related business
 
