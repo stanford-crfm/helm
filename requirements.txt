@@ -43,5 +43,5 @@ pysocks==1.7.1
 pytrec_eval==0.5
 
 # For calibration metrics
-uncertainty-calibration==0.1.0
+uncertainty-calibration==0.1.1
 

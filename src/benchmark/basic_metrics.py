@@ -762,9 +762,9 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
     calibration_metrics: List[Stat] = []
     assert len(max_probs) == len(correct)
     if len(max_probs) > 0:
-        ece = cal.get_ece(max_probs, correct)
+        ece = cal.get_ece_em(max_probs, correct, num_bins=15)
         calibration_metrics.append(Stat(MetricName("ece")).add(ece))
-        ece_1_bin = np.abs(np.mean(max_probs) - np.mean(correct))
+        ece_1_bin = cal.get_ece(max_probs, correct, num_bins=1)
         calibration_metrics.append(Stat(MetricName("ece_1_bin")).add(ece_1_bin))
         coverage_acc_area, acc_top_10_percentile = cal.get_selective_stats(max_probs, correct)
         calibration_metrics.append(Stat(MetricName("selective_cov_acc_area")).add(coverage_acc_area))
