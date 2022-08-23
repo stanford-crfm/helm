@@ -12,6 +12,14 @@ class MeQSumScenario(Scenario):
 
     The following is an example from the dataset:
 
+    Question:
+    SUBJECT: inversion of long arm chromasome7 MESSAGE: My son has been diagnosed with inversion of long arm
+    chromasome 7 and down syndrome . please could you give me information on the chromasome 7 please because
+    our doctors have not yet mentioned it
+
+    Summary:
+    Where can I find information on chromosome 7?
+
     @Inproceedings{MeQSum,
     author = {Asma {Ben Abacha} and Dina Demner-Fushman},
     title = {On the Summarization of Consumer Health Questions},

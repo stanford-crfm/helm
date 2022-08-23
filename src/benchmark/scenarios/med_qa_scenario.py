@@ -17,9 +17,6 @@ class MedQAScenario(Scenario):
     right option and three wrong options".
     We use the 4-options, English subset ("US") of the dataset, which contains 12,723 questions.
 
-    Paper: https://arxiv.org/abs/2009.13081
-    Code: https://github.com/jind11/MedQA
-
     The following is an example from the dataset:
 
     {
@@ -40,6 +37,9 @@ class MedQAScenario(Scenario):
       "meta_info": "step2&3",
       "answer_idx": "E"
     }
+
+    Paper: https://arxiv.org/abs/2009.13081
+    Code: https://github.com/jind11/MedQA
 
     @article{jin2020disease,
       title={What Disease does this Patient Have? A Large-scale Open Domain Question Answering Dataset

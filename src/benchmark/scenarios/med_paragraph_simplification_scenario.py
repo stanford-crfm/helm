@@ -13,9 +13,6 @@ class MedParagraphSimplificationScenario(Scenario):
 
     The author generated train/val/test splits, which are available in the GitHub repository linked in the paper.
 
-    Paper: http://arxiv.org/abs/2104.05767
-    Code: https://github.com/AshOlogn/Paragraph-level-Simplification-of-Medical-Texts
-
     The following is an example from the dataset:
 
     {
@@ -57,6 +54,9 @@ class MedParagraphSimplificationScenario(Scenario):
     },
 
     where "pls" stands for "plain-language summary".
+
+    Paper: http://arxiv.org/abs/2104.05767
+    Code: https://github.com/AshOlogn/Paragraph-level-Simplification-of-Medical-Texts
 
     @inproceedings{devaraj-etal-2021-paragraph,
         title = "Paragraph-level Simplification of Medical Texts",

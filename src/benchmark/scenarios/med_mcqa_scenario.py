@@ -14,9 +14,6 @@ class MedMCQAScenario(Scenario):
     entrance exam MCQs covering 2.4k healthcare topics and 21 medical subjects are collected with an average
     token length of 12.77 and high topical diversity."
 
-    Paper: https://arxiv.org/abs/2203.14371
-    Code: https://github.com/MedMCQA/MedMCQA
-
     The following is an example from the dataset:
 
     Question: In a patient of heart disease antibiotic prophylaxis for dental extraction is:
@@ -27,6 +24,9 @@ class MedMCQAScenario(Scenario):
     Answer: among A through D, the answer is
 
     Expected output: A
+
+    Paper: https://arxiv.org/abs/2203.14371
+    Code: https://github.com/MedMCQA/MedMCQA
 
     @InProceedings{pmlr-v174-pal22a,
       title = 	  {MedMCQA: A Large-scale Multi-Subject Multi-Choice Dataset for Medical domain Question Answering},
