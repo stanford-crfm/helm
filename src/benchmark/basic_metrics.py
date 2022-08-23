@@ -14,6 +14,7 @@ from nltk.translate.bleu_score import sentence_bleu
 import numpy as np
 from rouge_score import rouge_scorer
 import scipy
+import calibration as cal
 
 from common.hierarchical_logger import hlog
 from common.request import Token, Sequence
@@ -483,6 +484,12 @@ class BasicMetric(Metric):
         assert request_state.result is not None
         # Compute efficiency metrics for inference.
         runtime: float = request_state.result.request_time
+        batch_size: int = 1
+        # For models that perform offline batch inference, effective runtime is batch_request_time, but also
+        # record batch_size to provide nuance.
+        if request_state.result.batch_request_time is not None and request_state.result.batch_size is not None:
+            runtime = request_state.result.batch_request_time
+            batch_size = request_state.result.batch_size
 
         # Compute total number of prompt and output tokens (in first sequence).
         # Fetch the right `Tokenizer` depending on the model defined in `AdapterSpec`
@@ -542,6 +549,7 @@ class BasicMetric(Metric):
         return [
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
             Stat(MetricName("inference_runtime")).add(runtime),
+            Stat(MetricName("batch_size")).add(batch_size),
             Stat(MetricName("inference_denoised_runtime")).add(denoised_runtime),
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
@@ -750,12 +758,22 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
         max_prob_stat = get_unique_stat_by_name(instance_stats, "max_prob")
         correct_stat = get_unique_stat_by_name(instance_stats, "exact_match")
         if correct_stat is not None and max_prob_stat is not None:
+            assert max_prob_stat.mean is not None
+            assert correct_stat.mean is not None
             max_probs.append(max_prob_stat.mean)
-            correct.append(correct_stat.mean)
+            cur_correct = float(correct_stat.mean)
+            # For a single example, we either get it correct or not.
+            assert np.isclose(cur_correct, 1.0) or np.isclose(cur_correct, 0.0)
+            correct.append(int(cur_correct))
 
     calibration_metrics: List[Stat] = []
     assert len(max_probs) == len(correct)
     if len(max_probs) > 0:
-        ece_1_bin = np.abs(np.mean(max_probs) - np.mean(correct))
+        ece = cal.get_ece_em(max_probs, correct, num_bins=15)
+        calibration_metrics.append(Stat(MetricName("ece")).add(ece))
+        ece_1_bin = cal.get_ece(max_probs, correct, num_bins=1)
         calibration_metrics.append(Stat(MetricName("ece_1_bin")).add(ece_1_bin))
+        coverage_acc_area, acc_top_10_percentile = cal.get_selective_stats(max_probs, correct)
+        calibration_metrics.append(Stat(MetricName("selective_cov_acc_area")).add(coverage_acc_area))
+        calibration_metrics.append(Stat(MetricName("selective_acc@10")).add(acc_top_10_percentile))
     return calibration_metrics

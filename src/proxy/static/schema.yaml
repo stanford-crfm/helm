@@ -180,11 +180,23 @@ metrics:
   # Calibration metrics:
   - name: ece_1_bin
     display_name: 1-bin Expected Calibration Error (ECE)
-    short_display_name: ECE
+    short_display_name: ECE (1-bin)
     description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
   - name: max_prob
     display_name: Max prob
     description: Model's average confidence in its prediction (only computed for classification tasks)
+  - name: ece
+    display_name: Expected Calibration Error (ECE)
+    short_display_name: ECE
+    description: The average difference between the model's confidence and accuracy, averaged across 15 bins where each bin contains an equal number of points (only computed for classification tasks). Warning: not reliable for small datasets (e.g., with < 150 examples) because each bin will have very few examples.
+  - name: selective_cov_acc_area
+    display_name: Selective Coverage-Accuracy Area
+    short_display_name: Selective Acc
+    description: The area under the coverage-accuracy curve, a standard selective classification metric (only computed for classification tasks).
+  - name: selective_acc@10
+    display_name: Accuracy at 10% coverage
+    short_display_name: Acc@10%
+    description: The accuracy for the 10% of predictions that the model is most confident on (only computed for classification tasks).
 
 perturbations:
   - name: typos
@@ -253,6 +265,9 @@ metric_groups:
     metric_names:
       - max_prob
       - ece_1_bin
+      - ece
+      - selective_cov_acc_area
+      - selective_acc@10
   - name: efficiency
     display_name: Efficiency
     description: The efficiency of the model across both training and inference.
