@@ -337,6 +337,7 @@ $(function () {
       $table.append($row);
     });
     $output.append($table);
+    $output.append($('<a>', {href: '?tex=' + table.title.replaceAll(" ", "_").replace("/", "_")}).append('tex'));
     return $output;
   }
 
@@ -345,6 +346,11 @@ $(function () {
     tables.forEach((table) => {
       $output.append($('<div>', {class: 'table-container'}).append(renderTable(table)));
     });
+    return $output;
+  }
+
+  function renderTex(tex) {
+    const $output = $('<div>', {class: 'tex'}).append(tex);
     return $output;
   }
 
@@ -396,6 +402,12 @@ $(function () {
       $.getJSON(`benchmark_output/runs/${suite}/groups/${urlParams.group}.json`, {}, (tables) => {
         console.log('group', tables);
         $main.append(renderTables(tables));
+      });
+    } else if (urlParams.tex) {
+      // Tex corresponding to a group
+      $.get(`benchmark_output/runs/${suite}/groups/tex/${urlParams.tex}.tex`, {}, (tex) => {
+        console.log('tex', tex);
+        $main.append(renderTex(tex));
       });
     } else {
       $main.append(renderLandingPage());

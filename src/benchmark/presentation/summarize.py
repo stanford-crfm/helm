@@ -15,6 +15,7 @@ from benchmark.statistic import Stat
 from benchmark.scenarios.scenario import TEST_SPLIT
 from benchmark.runner import RunSpec
 from benchmark.metric_name import MetricName
+from benchmark.augmentations.perturbation_description import PERTURBATION_WORST
 from proxy.models import ALL_MODELS, get_model
 
 """
@@ -156,8 +157,6 @@ class MetricNameMatcher:
     def matches(self, metric_name: MetricName) -> bool:
         if self.name != metric_name.name:
             return False
-        if self.k != metric_name.k:
-            return False
         if self.split != metric_name.split:
             return False
         metric_perturbation_name = (metric_name.perturbation and metric_name.perturbation.name) or "identity"
@@ -165,9 +164,7 @@ class MetricNameMatcher:
             return False
         # By default, want includes_perturbed=True AND includes_identity=True
         if metric_perturbation_name != "identity":
-            if metric_name.perturbation and not (
-                metric_name.perturbation.includes_perturbed and metric_name.perturbation.includes_identity
-            ):
+            if metric_name.perturbation and metric_name.perturbation.computed_on != PERTURBATION_WORST:
                 return False
         return True
 
@@ -278,6 +275,23 @@ class Summarizer:
             json.dumps(list(map(asdict_without_nones, self.runs)), indent=2),
         )
 
+    def write_tables_to_tex(self, tables: List[Table], save_path: str, skip_blank_columns=True):
+        ensure_directory_exists(save_path)
+        for table in tables:
+            columns_shown = list(range(len(table.header)))
+            # TODO: should we skip blank columns even earlier?
+            if skip_blank_columns:
+                columns_shown = [i for i in columns_shown if not all(row[i].value is None for row in table.rows)]
+            tex = "\\begin{tabular}{l" + "r" * (len(columns_shown) - 1) + "}\n"
+            tex += "\\toprule\n"
+            tex += " & ".join(str(cell.value) for i, cell in enumerate(table.header) if i in columns_shown) + " \\\\\n"
+            tex += "\\midrule\n"
+            for row in table.rows:
+                tex += " & ".join(str(cell.value or "") for i, cell in enumerate(row) if i in columns_shown) + " \\\\\n"
+            tex += "\\bottomrule\n"
+            tex += "\\end{tabular}\n"
+            write(os.path.join(save_path, table.title.replace(" ", "_").replace("/", "_") + ".tex"), tex)
+
     def create_index_table(self) -> Table:
         header = [
             Cell("Scenario"),
@@ -317,8 +331,10 @@ class Summarizer:
         if aggregate_stat is None:
             return Cell(None)
         value = aggregate_stat.mean
+        if value:
+            value = round(value, 3)
         description = aggregate_stat.bare_str()  # Show more information
-        return Cell(value=value, display_value=round(value, 3), description=description)
+        return Cell(value=value, display_value=value, description=description)
 
     def create_group_table(
         self, title: str, scenario_group: ScenarioGroup, model_to_runs: Dict[str, List[Run]], link_to_runs: bool
@@ -434,6 +450,7 @@ class Summarizer:
             write(
                 os.path.join(groups_path, group.name + ".json"), json.dumps(list(map(asdict_without_nones, tables))),
             )
+            self.write_tables_to_tex(tables, os.path.join(groups_path, "tex"))
 
 
 @htrack(None)
