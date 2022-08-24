@@ -280,6 +280,7 @@ metric_groups:
     metric_names:
       - inference_runtime
       - inference_idealized_runtime
+      - inference_denoised_runtime
       - training_co2_cost
     perturbation_names:
       - null
@@ -593,3 +594,11 @@ scenario_groups:
     split: test
     metric_names:
       - rouge_2
+  - name: synthetic_efficiency
+    display_name: Synthetic efficiency
+    description: Scenario introduced in this work to better understand inference runtime performance of various models.
+    split: test
+    metric_names:
+      - inference_runtime
+      - inference_idealized_runtime
+      - inference_denoised_runtime
