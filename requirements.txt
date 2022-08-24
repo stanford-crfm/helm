@@ -8,7 +8,7 @@ pyhocon==0.3.58
 pyOpenSSL==21.0.0
 sqlitedict==1.7.0
 sentencepiece==0.1.96   # Necessary for some of the HuggingFace tokenizers
-torch==1.12.1
+torch==1.12.1+cu113
 transformers==4.20.1
 zstandard==0.17.0
 jsonlines==3.0.0
@@ -32,6 +32,7 @@ numpy
 pandas
 sklearn
 pyext
+summ-eval
 datasets>=1.18.3
 spacy==3.2.3
 sympy==1.10
