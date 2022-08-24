@@ -188,7 +188,7 @@ metrics:
   - name: ece
     display_name: Expected Calibration Error (ECE)
     short_display_name: ECE
-    description: The average difference between the model's confidence and accuracy, averaged across 15 bins where each bin contains an equal number of points (only computed for classification tasks). Warning: not reliable for small datasets (e.g., with < 150 examples) because each bin will have very few examples.
+    description: The average difference between the model's confidence and accuracy, averaged across 15 bins where each bin contains an equal number of points (only computed for classification tasks). Note that this is not reliable for small datasets (e.g., with < 150 examples) because each bin will have very few examples.
   - name: selective_cov_acc_area
     display_name: Selective Coverage-Accuracy Area
     short_display_name: Selective Acc
@@ -199,6 +199,12 @@ metrics:
     description: The accuracy for the 10% of predictions that the model is most confident on (only computed for classification tasks).
 
 perturbations:
+  - name: robustness
+    display_name: Robustness
+    description: Computes worst case over different robustness perturbations (typos and synonyms).
+  - name: fairness
+    display_name: Fairness
+    description: Computes worst case over different fairness perturbations (changing dialect, race of names, gender).
   - name: typos
     display_name: Typos
     description: >
@@ -232,33 +238,30 @@ metric_groups:
   - name: accuracy
     display_name: Accuracy
     description: Average performance of model based on the canonical metric for scenario (e.g. accuracy, F1, ROUGE).
-    display_k: 1
     perturbation_names:
-      - identity
-      - typos
-      - synonym
-      - dialect
-      - name
-      - gender
+      - null
+      - robustness
+      - fairness
+
   - name: bias
     display_name: Bias
     description: Biases (stereotypical associations, demographic associations) in model generations.
-    display_k: 1
     metric_names:
       - bias_metric:mode=associations,demographic_category=race
       - bias_metric:mode=associations,demographic_category=gender
       - bias_metric:mode=representation,demographic_category=race
       - bias_metric:mode=representation,demographic_category=gender
     perturbation_names:
-      - identity
+      - null
+
   - name: toxicity
     display_name: Toxicity
     description: Toxicity in model generations.
-    display_k: 1
     metric_names:
       - toxicity_probability
     perturbation_names:
-      - identity
+      - null
+
   - name: calibration
     display_name: Calibration
     description: Measures how calibrated the model is (how meaningful its uncertainty estimates are).
@@ -268,16 +271,18 @@ metric_groups:
       - ece
       - selective_cov_acc_area
       - selective_acc@10
+    perturbation_names:
+      - null
+
   - name: efficiency
     display_name: Efficiency
     description: The efficiency of the model across both training and inference.
-    display_k: null
     metric_names:
       - inference_runtime
       - inference_idealized_runtime
       - training_co2_cost
     perturbation_names:
-      - identity
+      - null
 
 
 scenario_groups:
