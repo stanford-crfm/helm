@@ -236,80 +236,101 @@ perturbations:
 
 metric_groups:
   - name: accuracy
-    display_name: Accuracy
-    description: Average performance of model based on the canonical metric for scenario (e.g. accuracy, F1, ROUGE).
-    perturbation_names:
-      - null
-      - robustness
-      - fairness
+    metrics:
+      - metric_name: $default_metric_name
+        split: $default_split
 
-  - name: bias
-    display_name: Bias
-    description: Biases (stereotypical associations, demographic associations) in model generations.
-    metric_names:
-      - bias_metric:mode=associations,demographic_category=race
-      - bias_metric:mode=associations,demographic_category=gender
-      - bias_metric:mode=representation,demographic_category=race
-      - bias_metric:mode=representation,demographic_category=gender
-    perturbation_names:
-      - null
+  - name: classification_extended
+    metrics:
+      # Robustness
+      - metric_name: $default_metric_name
+        perturbation_name: robustness
+        split: $default_split
+      # Fairness
+      - metric_name: $default_metric_name
+        perturbation_name: fairness
+        split: $default_split
+      # Calibration
+      - metric_name: ece
+        split: $default_split
 
-  - name: toxicity
-    display_name: Toxicity
-    description: Toxicity in model generations.
-    metric_names:
-      - toxicity_probability
-    perturbation_names:
-      - null
+  - name: generation_extended
+    metrics:
+    - metric_name: bias_metric:mode=associations,demographic_category=race
+      split: $default_split
+    - metric_name: bias_metric:mode=associations,demographic_category=gender
+      split: $default_split
+    - metric_name: bias_metric:mode=representation,demographic_category=race
+      split: $default_split
+    - metric_name: bias_metric:mode=representation,demographic_category=gender
+      split: $default_split
+    - metric_name: toxicity_probability
+      split: $default_split
 
-  - name: calibration
+  - name: calibration_detailed
     display_name: Calibration
     description: Measures how calibrated the model is (how meaningful its uncertainty estimates are).
-    metric_names:
-      - max_prob
-      - ece_1_bin
-      - ece
-      - selective_cov_acc_area
-      - selective_acc@10
-    perturbation_names:
-      - null
+    metrics:
+      - metric_name: max_prob
+      - metric_name: ece_1_bin
+      - metric_name: ece
+      - metric_name: selective_cov_acc_area
+      - metric_name: selective_acc@10
 
-  - name: efficiency
+  - name: efficiency_detailed
     display_name: Efficiency
     description: The efficiency of the model across both training and inference.
     metric_names:
       - inference_runtime
       - inference_idealized_runtime
       - training_co2_cost
-    perturbation_names:
-      - null
 
+  # "Accuracy" metrics
+  - name: code
+    metrics:
+      - metric_name: test_avg
+      - metric_name: strict_acc
+
+  - name: bbq
+    metrics:
+      - metric_name: bbq_metric_ambiguous_bias
+      - metric_name: bbq_metric_unambiguous_bias
 
 scenario_groups:
   - name: code_apps
     display_name: APPS (Code)
     description: The APPS benchmark for measuring competence on code challenges (Hendrycks et al., 2021).
-    split: test
-    metric_names:
-      - test_avg
-      - strict_acc
+    metric_groups:
+      - code
+      - classification_extended
+    environment:
+      metric_name: test_avg
+      split: test
+
   - name: babi_qa
     display_name: bAbI
     description: The bAbI benchmark for measuring understanding and reasoning (Weston et al., 2015).
-    split: test
-    metric_names:
-      - quasi_exact_match
+    metric_groups:
+      - classification
+    environment:
+      metric_name: quasi_exact_match
+      split: test
+
   - name: bbq
     display_name: BBQ (Bias Benchmark for Question Answering)
     description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context (Parrish et al., 2022).
-    split: test
-    metric_names:
-      - bbq_metric_ambiguous_bias
-      - bbq_metric_unambiguous_bias
+    metric_groups:
+      - bbq
+    environment:
+      metric_name: quasi_exact_match
+      split: test
+
+  # TODO: refactor these
   - name: big_bench
     display_name: BIG-bench (Beyond the Imitation Game Benchmark)
     description: Beyond the Imitation Game Benchmark (BIG-bench) is a collaborative benchmark with more than 200 tasks intended to probe large language models and extrapolate their future capabilities (Srivastava et al., 2022).
     split: test
+    # TODO: the metrics need to apply to all the runs in this scenario group, so either we define a performance metric and/or we break this group up
     metric_names:
       - exact_match
       - quasi_exact_match
@@ -318,42 +339,49 @@ scenario_groups:
       - rouge-1
       - rouge-2
       - rouge-l
+
   - name: blimp
     display_name: BLiMP (The Benchmark of Linguistic Minimal Pairs for English)
     description: The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design (Warstadt et al., 2020).
     split: test
     metric_names:
-      - accuracy
+      - exact_match
+
   - name: bold
     display_name: BOLD (Bias in Open-Ended Language Generation Dataset)
     description: The  Bias in Open-Ended Language Generation Dataset (BOLD) for measuring biases and toxicity in open-ended language generation (Dhamala et al., 2021).
     split: test
     metric_names:
       - toxicity_probability
+
   - name: boolq
     display_name: BoolQ
     description: The BoolQ benchmark for binary (yes/no) question answering (Clark et al., 2019).
     split: valid
-    metric_names:
-      - quasi_exact_match
+    metric_groups:
+      - quasi_exact_match_default
+
   - name: civil_comments
     display_name: CivilComments
     description: The CivilComments benchmark for toxicity detection (Borkan et al., 2019).
     split: test
     metric_names:
       - quasi_exact_match
+
   - name: summarization_cnndm
     display_name: CNN/DailyMail
     description: The CNN/DailyMail benchmark for text summarization (Hermann et al., 2015; Nallapati et al.,2016).
     split: test
     metric_names:
       - rouge_2
+
   - name: commonsenseqa
     display_name: CommonsenseQA
     description: The CommonsenseQA benchmark for commonsense-inteisive question answering (Talmor et al., 2019).
     split: valid
     metric_names:
       - quasi_exact_match
+
   - name: copyright
     display_name: Copyright
     description: Scenario introduced in this work to measure copyright and memorization behavior, based off of Carlini et al. (2021).
@@ -361,12 +389,14 @@ scenario_groups:
     metric_names:
       - longest_common_prefix_length
       - edit_distance
+
   - name: entity_data_imputation
     display_name: Data imputation
     description: Scenario from Mei et al. (2021) that tests the ability to impute missing entities in a data table.
     split: test
     metric_names:
       - quasi_exact_match
+
   - name: disinformation
     display_name: Disinformation
     description: Scenario from Buchanan et al. (2021) that tests the ability to reiterate or generate disinformation content.
@@ -374,13 +404,15 @@ scenario_groups:
     metric_names:
       - self_bleu
       - monte_carlo_entropy
+
   - name: disinformation_reiteration
     display_name: Disinformation (reiteration)
     description: Scenario from Buchanan et al. (2021) that tests the ability to reiterate disinformation content.
     split: valid
     metric_names:
       - self_bleu
-        - monte_carlo_entropy
+      - monte_carlo_entropy
+
   - name: disinformation_wedging
     display_name: Disinformation (wedging)
     description: Scenario from Buchanan et al. (2021) that tests the ability to generate divisive and wedging content.
@@ -388,18 +420,21 @@ scenario_groups:
     metric_names:
       - self_bleu
       - monte_carlo_entropy
+
   - name: dyck_language
     display_name: Dyck
     description: Scenario testing hierarchical reasoning through the Dyck formal languages (Suzgun et al., 2019).
     split: test
     metric_names:
       - exact_match_indicator
+
   - name: entity_matching
     display_name: Entity matching
     description: Scenario from Mudgal et al. (2018) that tests the ability to determine if two entities match.
     split: test
     metric_names:
       - quasi_exact_match
+
   - name: gsm
     display_name: GSM8K (Grade school math word problems)
     description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems (Cobbe et al., 2021).
