@@ -1,7 +1,8 @@
 import itertools
 import os
-from typing import List, Dict, Optional, Any, Callable
+from typing import Any, Callable, List, Dict, Optional, Set
 
+from common.hierarchical_logger import hlog, htrack
 from common.object_spec import ObjectSpec
 from .adapter import (
     AdapterSpec,
@@ -15,6 +16,7 @@ from .metric import MetricSpec
 from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenarios.scenario import ScenarioSpec
+from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .scenarios.raft_scenario import get_raft_instructions
@@ -121,8 +123,10 @@ def get_generative_harms_metric_specs() -> List[MetricSpec]:
     return get_toxicity_metric_specs() + get_bias_metric_specs() + get_basic_metric_specs({"names": []})
 
 
-def get_summarization_metric_specs() -> List[MetricSpec]:
-    return get_basic_metric_specs({"names": ["rouge-1", "rouge-2", "rouge-l"]}) + get_generative_harms_metric_specs()
+def get_summarization_metric_specs(args: Dict[str, Any]) -> List[MetricSpec]:
+    return [
+        MetricSpec(class_name="benchmark.summarization_metrics.SummarizationMetric", args=args)
+    ] + get_generative_harms_metric_specs()
 
 
 def get_srn_metric_specs() -> List[MetricSpec]:
@@ -1254,7 +1258,7 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
     )
 
 
-def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
+def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
@@ -1279,12 +1283,12 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_xsum:temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"device": device}),
         groups=["summarization_xsum"],
     )
 
 
-def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
+def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={
@@ -1314,12 +1318,12 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_xsum:temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"device": device}),
         groups=["summarization_xsum"],
     )
 
 
-def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
+def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
@@ -1344,7 +1348,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_cnndm:temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"device": device}),
         groups=["summarization_cnndm"],
     )
 
@@ -1489,6 +1493,94 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
     )
 
 
+@htrack("Extracting adaptation parameters from the BIG-bench task definition and building the RunSpec")
+def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
+    def get_adaptation_method(big_bench_metrics: List[str]) -> str:
+        """
+        From BIG-bench, "there are three types of BIG-bench JSON tasks - generative and scoring
+        (e.g. simple_arithmetic_json), and multiple-choice (e.g. simple_arithmetic_json_multiple_choice)."
+
+        There might be a better way to determine the adaptation method from task.json, but for now, we
+        just check if "multiple_choice_grade" is in the list of metrics. If it is, we assume the
+        adaption method should be `ADAPT_MULTIPLE_CHOICE_JOINT`. Otherwise, the adaptation method is
+        `ADAPT_GENERATION`.
+        """
+        return ADAPT_MULTIPLE_CHOICE_JOINT if "multiple_choice_grade" in big_bench_metrics else ADAPT_GENERATION
+
+    def get_metric_specs(big_bench_metrics: List[str]) -> List[MetricSpec]:
+        """
+        Gets the corresponding `BasicMetric` metric names for the name of the metrics
+        provided by BIG-bench and constructs the `MetricSpec`.
+
+        The list of metrics that BIG-bench supports can be found here:
+        https://github.com/google/BIG-bench/blob/main/docs/doc.md#available-metrics.
+        """
+        metric_names: Set[str] = set()
+
+        for big_bench_metric_name in big_bench_metrics:
+            if big_bench_metric_name == "multiple_choice_grade":
+                # `exact_match` and `quasi_exact_match` is all we need for multiple choice tasks
+                return get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+            elif big_bench_metric_name == "exact_str_match":
+                metric_names.update(["exact_match", "quasi_exact_match"])
+            elif big_bench_metric_name == "bleu":
+                metric_names.update(["bleu_1", "bleu_4"])
+            elif big_bench_metric_name == "rouge":
+                metric_names.update(["rouge-1", "rouge-2", "rouge-l"])
+            else:
+                hlog(f"Unhandled BIG-bench metric: {big_bench_metric_name}")
+                continue
+
+        return get_basic_metric_specs({"names": list(metric_names)})
+
+    scenario_spec = ScenarioSpec(
+        class_name="benchmark.scenarios.big_bench_scenario.BIGBenchScenario", args={"task": task, "subtask": subtask}
+    )
+
+    # Get BIG-bench task definition.
+    # TODO: get `output_path` here without hardcoding
+    output_path: str = "benchmark_output/scenarios/big_bench"
+    big_bench_task: Dict = BIGBenchScenario.download_and_get_task(output_path, task, subtask)
+
+    # The JSON schema for BIG-bench can be found here:
+    # https://github.com/google/BIG-bench/blob/main/docs/doc.md#json-schema.
+    # "metrics" is a required field. The default values were populated using the link above.
+    adapter_spec = AdapterSpec(
+        method=get_adaptation_method(big_bench_task["metrics"]),
+        model="openai/text-curie-001",  # Can override with the `ModelRunExpander`.
+        num_train_trials=1,  # Can override with the `NumTrainTrialsRunExpander`.
+        max_train_instances=0,  # Can override with the `MaxTrainInstancesRunExpander`.
+        num_outputs=1,  # Can override with the `NumOutputsRunExpander`.
+        # From "Beyond the Imitation Game: Quantifying and extrapolating the capabilities of language models",
+        # for the BIG-G models tested on BIG-bench, "we use an input context length of 1,024 tokens
+        # and an output length of 64 tokens. We evaluate on up to 1,000 examples per task".
+        max_eval_instances=1000,  # Can override with --max-eval-instances command-line argument.
+        max_tokens=64,
+        # "all model outputs were sampled greedily (with zero temperature), unless otherwise noted."
+        temperature=0,
+        instructions=big_bench_task.get("task_prefix", ""),
+        # BIG-bench's default value for "example_input_prefix" and "example_output_prefix" was "\nQ: " and "\nA: ".
+        # Instead, use our defaults for multiple choice tasks: "Question: " and "\nAnswer: ".
+        input_prefix=big_bench_task.get("example_input_prefix", "Question: "),
+        output_prefix=big_bench_task.get("example_output_prefix", "\nAnswer: "),
+        # Use our default for multiple choice: A., B., C., D.,...
+        # reference_prefix=big_bench_task.get("choice_prefix", "\n choice: "),
+        # The default value for "stop_string" in BIG-bench is None.
+        stop_sequences=[str(big_bench_task.get("stop_string"))] if big_bench_task.get("stop_string", None) else [],
+    )
+
+    run_spec_name: str = f"big_bench:task={task}"
+    if subtask:
+        run_spec_name += f",subtask={subtask}"
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_metric_specs(big_bench_task["metrics"]),
+        groups=["BIG-bench"],
+    )
+
+
 def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.pubmed_qa_scenario.PubMedQAScenario", args={})
 
@@ -1575,6 +1667,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "entity_matching": get_entity_matching_spec,
     "entity_data_imputation": get_entity_data_imputation_spec,
     "ice": get_ice_spec,
+    "big_bench": get_big_bench_spec,
     "pubmed_qa": get_pubmed_qa_spec,
 }
 

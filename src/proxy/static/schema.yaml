@@ -180,13 +180,31 @@ metrics:
   # Calibration metrics:
   - name: ece_1_bin
     display_name: 1-bin Expected Calibration Error (ECE)
-    short_display_name: ECE
+    short_display_name: ECE (1-bin)
     description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
   - name: max_prob
     display_name: Max prob
     description: Model's average confidence in its prediction (only computed for classification tasks)
+  - name: ece
+    display_name: Expected Calibration Error (ECE)
+    short_display_name: ECE
+    description: The average difference between the model's confidence and accuracy, averaged across 15 bins where each bin contains an equal number of points (only computed for classification tasks). Note that this is not reliable for small datasets (e.g., with < 150 examples) because each bin will have very few examples.
+  - name: selective_cov_acc_area
+    display_name: Selective Coverage-Accuracy Area
+    short_display_name: Selective Acc
+    description: The area under the coverage-accuracy curve, a standard selective classification metric (only computed for classification tasks).
+  - name: selective_acc@10
+    display_name: Accuracy at 10% coverage
+    short_display_name: Acc@10%
+    description: The accuracy for the 10% of predictions that the model is most confident on (only computed for classification tasks).
 
 perturbations:
+  - name: robustness
+    display_name: Robustness
+    description: Computes worst case over different robustness perturbations (typos and synonyms).
+  - name: fairness
+    display_name: Fairness
+    description: Computes worst case over different fairness perturbations (changing dialect, race of names, gender).
   - name: typos
     display_name: Typos
     description: >
@@ -220,49 +238,52 @@ metric_groups:
   - name: accuracy
     display_name: Accuracy
     description: Average performance of model based on the canonical metric for scenario (e.g. accuracy, F1, ROUGE).
-    display_k: 1
     perturbation_names:
-      - identity
-      - typos
-      - synonym
-      - dialect
-      - name
-      - gender
+      - null
+      - robustness
+      - fairness
+
   - name: bias
     display_name: Bias
     description: Biases (stereotypical associations, demographic associations) in model generations.
-    display_k: 1
     metric_names:
       - bias_metric:mode=associations,demographic_category=race
       - bias_metric:mode=associations,demographic_category=gender
       - bias_metric:mode=representation,demographic_category=race
       - bias_metric:mode=representation,demographic_category=gender
     perturbation_names:
-      - identity
+      - null
+
   - name: toxicity
     display_name: Toxicity
     description: Toxicity in model generations.
-    display_k: 1
     metric_names:
       - toxicity_probability
     perturbation_names:
-      - identity
+      - null
+
   - name: calibration
     display_name: Calibration
     description: Measures how calibrated the model is (how meaningful its uncertainty estimates are).
     metric_names:
       - max_prob
       - ece_1_bin
+      - ece
+      - selective_cov_acc_area
+      - selective_acc@10
+    perturbation_names:
+      - null
+
   - name: efficiency
     display_name: Efficiency
     description: The efficiency of the model across both training and inference.
-    display_k: null
     metric_names:
       - inference_runtime
       - inference_idealized_runtime
+      - inference_denoised_runtime
       - training_co2_cost
     perturbation_names:
-      - identity
+      - null
 
 
 scenario_groups:
@@ -286,6 +307,18 @@ scenario_groups:
     metric_names:
       - bbq_metric_ambiguous_bias
       - bbq_metric_unambiguous_bias
+  - name: big_bench
+    display_name: BIG-bench (Beyond the Imitation Game Benchmark)
+    description: Beyond the Imitation Game Benchmark (BIG-bench) is a collaborative benchmark with more than 200 tasks intended to probe large language models and extrapolate their future capabilities (Srivastava et al., 2022).
+    split: test
+    metric_names:
+      - exact_match
+      - quasi_exact_match
+      - bleu_1
+      - bleu_4
+      - rouge-1
+      - rouge-2
+      - rouge-l
   - name: blimp
     display_name: BLiMP (The Benchmark of Linguistic Minimal Pairs for English)
     description: The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design (Warstadt et al., 2020).
@@ -561,3 +594,11 @@ scenario_groups:
     split: test
     metric_names:
       - rouge_2
+  - name: synthetic_efficiency
+    display_name: Synthetic efficiency
+    description: Scenario introduced in this work to better understand inference runtime performance of various models.
+    split: test
+    metric_names:
+      - inference_runtime
+      - inference_idealized_runtime
+      - inference_denoised_runtime

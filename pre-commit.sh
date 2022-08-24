@@ -8,7 +8,7 @@ if ! [ -e venv ]; then
   python3 -m virtualenv -p python3 venv
 fi
 
-venv/bin/pip install -e .
+venv/bin/pip install -e . --find-links https://download.pytorch.org/whl/torch_stable.html
 # Issue + workaround described here: https://github.com/protocolbuffers/protobuf/issues/6550
 venv/bin/pip uninstall -y protobuf && venv/bin/pip install --no-binary=protobuf protobuf
 venv/bin/pip check
