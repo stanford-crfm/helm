@@ -270,22 +270,27 @@ class Summarizer:
             json.dumps(list(map(asdict_without_nones, self.runs)), indent=2),
         )
 
-    def write_tables_to_tex(self, tables: List[Table], save_path: str, skip_blank_columns=True):
+    def write_tables_to_latex(self, tables: List[Table], save_path: str, skip_blank_columns=True):
         ensure_directory_exists(save_path)
         for table in tables:
+            table_name = table.title.replace(" ", "_").replace("/", "_")
             columns_shown = list(range(len(table.header)))
             # TODO: should we skip blank columns even earlier?
             if skip_blank_columns:
                 columns_shown = [i for i in columns_shown if not all(row[i].value is None for row in table.rows)]
-            tex = "\\begin{tabular}{l" + "r" * (len(columns_shown) - 1) + "}\n"
-            tex += "\\toprule\n"
-            tex += " & ".join(str(cell.value) for i, cell in enumerate(table.header) if i in columns_shown) + " \\\\\n"
-            tex += "\\midrule\n"
+            latex = "\\begin{table}[htp]\n"
+            latex += "\\begin{tabular}{l" + "r" * (len(columns_shown) - 1) + "}\n"
+            latex += "\\toprule\n"
+            latex += " & ".join(str(table.header[i].value) for i in columns_shown) + " \\\\\n"
+            latex += "\\midrule\n"
             for row in table.rows:
-                tex += " & ".join(str(cell.value or "") for i, cell in enumerate(row) if i in columns_shown) + " \\\\\n"
-            tex += "\\bottomrule\n"
-            tex += "\\end{tabular}\n"
-            write(os.path.join(save_path, table.title.replace(" ", "_").replace("/", "_") + ".tex"), tex)
+                latex += " & ".join(str(row[i].display_value or row[i].value or "") for i in columns_shown) + " \\\\\n"
+            latex += "\\bottomrule\n"
+            latex += "\\end{tabular}\n"
+            latex += "\\caption{Results for group " + table.title + "}\n"
+            latex += "\\label{fig:" + table_name + "}\n"
+            latex += "\\end{table}\n"
+            write(os.path.join(save_path, f"{table_name}.tex"), latex.replace("%", "\\%"))
 
     def create_index_table(self) -> Table:
         header = [
@@ -326,10 +331,9 @@ class Summarizer:
         if aggregate_stat is None:
             return Cell(None)
         value = aggregate_stat.mean
-        if value:
-            value = round(value, 3)
+        display_value = round(value, 3) if value else value
         description = aggregate_stat.bare_str()  # Show more information
-        return Cell(value=value, display_value=value, description=description)
+        return Cell(value=value, display_value=display_value, description=description)
 
     def create_group_table(
         self, title: str, scenario_group: ScenarioGroup, model_to_runs: Dict[str, List[Run]], link_to_runs: bool
@@ -444,7 +448,7 @@ class Summarizer:
             write(
                 os.path.join(groups_path, group.name + ".json"), json.dumps(list(map(asdict_without_nones, tables))),
             )
-            self.write_tables_to_tex(tables, os.path.join(groups_path, "tex"))
+            self.write_tables_to_latex(tables, os.path.join(groups_path, "latex"))
 
 
 @htrack(None)

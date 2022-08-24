@@ -337,7 +337,7 @@ $(function () {
       $table.append($row);
     });
     $output.append($table);
-    $output.append($('<a>', {href: '?tex=' + table.title.replaceAll(" ", "_").replace("/", "_")}).append('tex'));
+    $output.append($('<a>', {href: '?latex=' + table.title.replaceAll(" ", "_").replace("/", "_")}).append('latex'));
     return $output;
   }
 
@@ -349,8 +349,8 @@ $(function () {
     return $output;
   }
 
-  function renderTex(tex) {
-    const $output = $('<div>', {class: 'tex'}).append(tex);
+  function renderLatex(latex) {
+    const $output = $('<div>', {class: 'latex'}).append(latex);
     return $output;
   }
 
@@ -403,11 +403,11 @@ $(function () {
         console.log('group', tables);
         $main.append(renderTables(tables));
       });
-    } else if (urlParams.tex) {
+    } else if (urlParams.latex) {
       // Tex corresponding to a group
-      $.get(`benchmark_output/runs/${suite}/groups/tex/${urlParams.tex}.tex`, {}, (tex) => {
-        console.log('tex', tex);
-        $main.append(renderTex(tex));
+      $.get(`benchmark_output/runs/${suite}/groups/latex/${urlParams.latex}.tex`, {}, (latex) => {
+        console.log('latex', latex);
+        $main.append(renderLatex(latex));
       });
     } else {
       $main.append(renderLandingPage());
