@@ -162,7 +162,6 @@ class EmpatheticDialoguesScenario(Scenario):
                         Utterance(speaker=speakers[row["speaker_idx"]], text=row["utterance"].strip())
                         for idx, row in grouped_df.iterrows()
                     ]
-
                     # For training set (examples that will be used for in-context learning)
                     # use conversations with at least 6 turns (maximum length in the dataset)
                     if splits[split] == TRAIN_SPLIT and len(utterances) < 6:
@@ -182,6 +181,7 @@ class EmpatheticDialoguesScenario(Scenario):
                         input=prompt_cols[0], references=references, split=splits[split], sub_split=prompt_cols[1],
                     )
                 )
+
         return instances
 
     def get_instances(self) -> List[Instance]:
@@ -210,7 +210,7 @@ class WizardOfWikipediaScenario(Scenario):
         self.data_path: str = os.path.join(
             self.output_path, "data/"
         ) 
-        self.whitelist_path: str = os.path.join(self.output_path, "data/wizard/whitelisted_prompts.csv")
+        self.whitelist_path: str = os.path.join(self.output_path, "data/whitelisted_prompts.csv")
         wizard_path = os.path.join(self.data_path, "wizard")
 
         self.train_path = os.path.join(wizard_path, "train.json")
@@ -248,22 +248,18 @@ class WizardOfWikipediaScenario(Scenario):
 
         # Iterate through conversations in the df
         for split in splits:
-            
             # Break down steps to handle reading large file on GCP machine
             data = json.load(open(split_to_path[split], "r"))
             df = pd.DataFrame.from_dict(data)
 
             # Group dataframe by topic
             grouped_data_df = df.groupby(by=["chosen_topic"])
-
             for topic_cols, topic_df in grouped_data_df:
                 topic = topic_cols
 
                 # For the test set, only use manually whitelisted prompts (for sensitivity)
                 if splits[split] in EVAL_SPLITS and not is_whitelisted(topic, whitelisted_prompts):
-                    print(topic)
                     continue
-                
                 # Create list of references for topic
                 references = []
 
@@ -288,9 +284,11 @@ class WizardOfWikipediaScenario(Scenario):
                     # Iterate through dialogue
                     utterances = []
                     dialog = row["dialog"]
+                    if len(dialog) > 6:
+                        continue
                     for utterance in dialog:
                         # Create Utterance object
-                        utterance_text = '<span class="conversation_utterance">"' + utterance["text"] + '"</span>'
+                        utterance_text = '<span class="conversation_utterance">"' + utterance["text"].strip() + '"</span>'
                         utterances.append(Utterance(speaker=speakers[utterance["speaker"]], text=utterance_text))
 
                     # Join utterances into an output
@@ -299,7 +297,7 @@ class WizardOfWikipediaScenario(Scenario):
                     # Create a reference from the output
                     references.append(Reference(output=output, tags=[CORRECT_TAG]))
                 instances.append(Instance(input=topic, references=references, split=splits[split]))
-                
+
         return instances
 
     def filter_instances(self, instances):
