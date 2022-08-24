@@ -123,8 +123,10 @@ def get_generative_harms_metric_specs() -> List[MetricSpec]:
     return get_toxicity_metric_specs() + get_bias_metric_specs() + get_basic_metric_specs({"names": []})
 
 
-def get_summarization_metric_specs() -> List[MetricSpec]:
-    return get_basic_metric_specs({"names": ["rouge-1", "rouge-2", "rouge-l"]}) + get_generative_harms_metric_specs()
+def get_summarization_metric_specs(args: Dict[str, Any]) -> List[MetricSpec]:
+    return [
+        MetricSpec(class_name="benchmark.summarization_metrics.SummarizationMetric", args=args)
+    ] + get_generative_harms_metric_specs()
 
 
 def get_srn_metric_specs() -> List[MetricSpec]:
@@ -1256,7 +1258,7 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
     )
 
 
-def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
+def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
@@ -1281,12 +1283,12 @@ def get_xsum_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_xsum:temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"device": device}),
         groups=["summarization_xsum"],
     )
 
 
-def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
+def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={
@@ -1316,12 +1318,12 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_xsum:temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"device": device}),
         groups=["summarization_xsum"],
     )
 
 
-def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
+def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
@@ -1346,7 +1348,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3) -> RunSpec:
         name=f"summarization_cnndm:temperature={temperature}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"device": device}),
         groups=["summarization_cnndm"],
     )
 

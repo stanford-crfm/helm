@@ -61,6 +61,7 @@ from . import disinformation_metrics  # noqa
 from . import code_metrics  # noqa
 from . import bbq_metrics  # noqa
 from . import bias_metrics  # noqa
+from . import summarization_metrics  # noqa
 
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa

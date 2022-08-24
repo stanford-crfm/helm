@@ -15,6 +15,7 @@ from benchmark.statistic import Stat
 from benchmark.scenarios.scenario import TEST_SPLIT
 from benchmark.runner import RunSpec
 from benchmark.metric_name import MetricName
+from benchmark.augmentations.perturbation_description import PERTURBATION_WORST
 from proxy.models import ALL_MODELS, get_model
 
 """
@@ -76,9 +77,6 @@ class MetricGroup(Field):
     The columns are defined by the cross product of `metric_names` and
     `perturbation_names`.
     """
-
-    # Which k value to use
-    display_k: Optional[int] = None
 
     # If not specified, then use the ScenarioGroup's default metric_names.
     metric_names: Optional[List[str]] = field(default_factory=list)
@@ -149,26 +147,20 @@ class MetricNameMatcher:
     """
 
     name: str
-    k: Optional[int]
     split: str
     perturbation_name: str
 
     def matches(self, metric_name: MetricName) -> bool:
         if self.name != metric_name.name:
             return False
-        if self.k != metric_name.k:
-            return False
         if self.split != metric_name.split:
             return False
-        metric_perturbation_name = (metric_name.perturbation and metric_name.perturbation.name) or "identity"
+        metric_perturbation_name = metric_name.perturbation and metric_name.perturbation.name
         if self.perturbation_name != metric_perturbation_name:
             return False
-        # By default, want includes_perturbed=True AND includes_identity=True
-        if metric_perturbation_name != "identity":
-            if metric_name.perturbation and not (
-                metric_name.perturbation.includes_perturbed and metric_name.perturbation.includes_identity
-            ):
-                return False
+        # If there is a perturbation, only return the worst
+        if metric_name.perturbation and metric_name.perturbation.computed_on != PERTURBATION_WORST:
+            return False
         return True
 
 
@@ -341,7 +333,6 @@ class Summarizer:
         header.append(Cell("Model"))
         for metric_group in self.schema.metric_groups:
             # Get stat names and perturbations
-            k = metric_group.display_k
             split = scenario_group.split
             metric_names = metric_group.metric_names or scenario_group.metric_names
             perturbation_names = metric_group.perturbation_names
@@ -353,7 +344,7 @@ class Summarizer:
                     header_name = header_field.get_short_display_name()
                     description = header_field.display_name + ": " + header_field.description
 
-                    if perturbation_name != "identity":
+                    if perturbation_name is not None:
                         perturbation_field = self.schema.name_to_perturbation[perturbation_name]
                         header_name += " (" + perturbation_field.get_short_display_name() + ")"
                         description += (
@@ -365,7 +356,7 @@ class Summarizer:
 
                     header.append(Cell(header_name, description=description))
                     matchers.append(
-                        MetricNameMatcher(name=metric_name, k=k, split=split, perturbation_name=perturbation_name)
+                        MetricNameMatcher(name=metric_name, split=split, perturbation_name=perturbation_name)
                     )
 
         # Populate the contents of the table
@@ -443,7 +434,7 @@ def main():
         "-o", "--output-path", type=str, help="Where the benchmarking output lives", default="benchmark_output"
     )
     parser.add_argument(
-        "--suite", type=str, help="Name of the suite this run belongs to (default is today's date).", default="latest",
+        "--suite", type=str, help="Name of the suite this run belongs to (default is today's date).", required=True,
     )
     args = parser.parse_args()
 

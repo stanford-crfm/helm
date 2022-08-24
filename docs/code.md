@@ -80,6 +80,8 @@ In order to implement new scenarios:
     `venv/bin/benchmark-run -r yourscenarioname:arg=value` where 
     `yourscenarioname` matches the `name` specified in YourScenario
 14. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `run_specs.py`.
+15. Update `src/proxy/static/contamination.yaml` with models that we trained on your scenario (i.e. contaminated).
+
 
 ## Adding new metrics
 
