@@ -16,7 +16,6 @@ from rouge_score import rouge_scorer
 import scipy
 import calibration as cal
 
-from common.hierarchical_logger import hlog
 from common.request import Token, Sequence
 from common.general import singleton
 from . import code_metrics_helper
@@ -54,7 +53,6 @@ def compute_estimated_time_from_prompt_size_and_num_output_tokens(
     inference_runtimes_dict: Dict[str, Dict],
     num_prompt_tokens: int,
     num_output_tokens: int,
-    time_type: str,
 ) -> Optional[float]:
     estimated_runtime: Optional[float]
     if request_state.request.model in inference_runtimes_dict:
@@ -95,10 +93,6 @@ def compute_estimated_time_from_prompt_size_and_num_output_tokens(
         if overhead is not None:
             estimated_runtime += overhead
     else:
-        hlog(
-            f"WARNING: tried to estimate {time_type} inference time for model {request_state.request.model} "
-            f"that is not in inference_{time_type}_runtimes_dict"
-        )
         estimated_runtime = None
 
     return estimated_runtime
@@ -510,19 +504,11 @@ class BasicMetric(Metric):
             num_output_tokens -= num_prompt_tokens
 
         idealized_runtime: Optional[float] = compute_estimated_time_from_prompt_size_and_num_output_tokens(
-            request_state,
-            self.inference_idealized_runtimes_dict,
-            num_prompt_tokens,
-            num_output_tokens,
-            time_type="idealized",
+            request_state, self.inference_idealized_runtimes_dict, num_prompt_tokens, num_output_tokens
         )
 
         denoised_runtime: Optional[float] = compute_estimated_time_from_prompt_size_and_num_output_tokens(
-            request_state,
-            self.inference_denoised_runtimes_dict,
-            num_prompt_tokens,
-            num_output_tokens,
-            time_type="denoised",
+            request_state, self.inference_denoised_runtimes_dict, num_prompt_tokens, num_output_tokens
         )
 
         # Compute efficiency metrics for training.
@@ -530,20 +516,12 @@ class BasicMetric(Metric):
         if request_state.request.model in self.training_efficiency_dict["carbon"]:
             training_co2_cost = self.training_efficiency_dict["carbon"][request_state.request.model]["value"]
         else:
-            hlog(
-                f"WARNING: tried to estimate training CO2 emissions for model {request_state.request.model} "
-                "that is not in training_efficiency_dict['carbon']"
-            )
             training_co2_cost = None
 
         training_energy_cost: Optional[float]
         if request_state.request.model in self.training_efficiency_dict["energy"]:
             training_energy_cost = self.training_efficiency_dict["energy"][request_state.request.model]["value"]
         else:
-            hlog(
-                f"WARNING: tried to estimate training energy cost for model {request_state.request.model} "
-                "that is not in training_efficiency_dict['energy']"
-            )
             training_energy_cost = None
 
         return [
