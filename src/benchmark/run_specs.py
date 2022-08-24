@@ -1726,7 +1726,7 @@ def get_med_paragraph_simplification_spec() -> RunSpec:
         name="med_paragraph_simplification",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"device": "cpu"}),
         groups=["MedParagraphSimplification"],
     )
 
@@ -1778,7 +1778,7 @@ def get_med_dialog_spec(subset: str) -> RunSpec:
         name=f"med_dialog,subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"device": "cpu"}),
         groups=["MedDialog"],
     )
 
@@ -1802,7 +1802,7 @@ def get_me_q_sum_spec() -> RunSpec:
         name="me_q_sum",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"device": "cpu"}),
         groups=["MeQSum"],
     )
 
@@ -1827,7 +1827,7 @@ def get_bioleaflets_spec() -> RunSpec:
         name="bioleaflets",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"device": "cpu"}),
         groups=["BioLeaflets"],
     )
 
