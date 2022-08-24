@@ -3,25 +3,25 @@
 Examples of running the benchmark:
 
     venv/bin/benchmark-run
-    venv/bin/benchmark-run -r mmlu:subject=philosophy
-    venv/bin/benchmark-run -r synthetic_reasoning_natural:difficulty=easy
-    venv/bin/benchmark-run -r twitter_aae:demographic=aa
-    venv/bin/benchmark-run -r copyright:datatag=pilot
-    venv/bin/benchmark-run -r disinformation:capability=reiteration
-    venv/bin/benchmark-run -r wikifact:k=2,subject=P31
-    venv/bin/benchmark-run -r code:dataset=APPS
-    venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles
-    venv/bin/benchmark-run -r wikifact:subject=P31
-    venv/bin/benchmark-run -r raft:subset=ade_corpus_v2
-    venv/bin/benchmark-run -r natural_qa:mode=closedbook
-    venv/bin/benchmark-run -r natural_qa:mode=openbook-longans
-    venv/bin/benchmark-run -r quac
-    venv/bin/benchmark-run -r wikitext_103
-    venv/bin/benchmark-run -r blimp:phenomenon=irregular_forms
-    venv/bin/benchmark-run -r narrative_qa
-    venv/bin/benchmark-run -r news_qa
-    venv/bin/benchmark-run -r imdb
-    venv/bin/benchmark-run -r twitter_aae:demographic=aa
+    venv/bin/benchmark-run -r mmlu:subject=philosophy --suite SUITE_NAME
+    venv/bin/benchmark-run -r synthetic_reasoning_natural:difficulty=easy --suite SUITE_NAME
+    venv/bin/benchmark-run -r twitter_aae:demographic=aa --suite SUITE_NAME
+    venv/bin/benchmark-run -r copyright:datatag=pilot --suite SUITE_NAME
+    venv/bin/benchmark-run -r disinformation:capability=reiteration --suite SUITE_NAME
+    venv/bin/benchmark-run -r wikifact:k=2,subject=P31 --suite SUITE_NAME
+    venv/bin/benchmark-run -r code:dataset=APPS --suite SUITE_NAME
+    venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles --suite SUITE_NAME
+    venv/bin/benchmark-run -r wikifact:subject=P31 --suite SUITE_NAME
+    venv/bin/benchmark-run -r raft:subset=ade_corpus_v2 --suite SUITE_NAME
+    venv/bin/benchmark-run -r natural_qa:mode=closedbook --suite SUITE_NAME
+    venv/bin/benchmark-run -r natural_qa:mode=openbook-longans --suite SUITE_NAME
+    venv/bin/benchmark-run -r quac --suite SUITE_NAME
+    venv/bin/benchmark-run -r wikitext_103 --suite SUITE_NAME
+    venv/bin/benchmark-run -r blimp:phenomenon=irregular_forms --suite SUITE_NAME
+    venv/bin/benchmark-run -r narrative_qa --suite SUITE_NAME
+    venv/bin/benchmark-run -r news_qa --suite SUITE_NAME
+    venv/bin/benchmark-run -r imdb --suite SUITE_NAME
+    venv/bin/benchmark-run -r twitter_aae:demographic=aa --suite SUITE_NAME
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
