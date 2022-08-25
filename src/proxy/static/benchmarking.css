@@ -32,3 +32,9 @@ tr {
 .results-table tr:first-child {
   background-color: #f9f9f9;
 }
+
+.latex {
+  white-space: pre-wrap;
+  font-family: monospace;
+  background-color: #f9f9f9
+}
