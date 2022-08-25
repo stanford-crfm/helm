@@ -1,6 +1,8 @@
 import json
+from datetime import timedelta
 from typing import Dict, Callable, Tuple
 
+from flufl.lock import Lock
 from sqlitedict import SqliteDict
 
 
@@ -24,6 +26,11 @@ class Cache(object):
     def __init__(self, cache_path: str):
         self.cache_path = cache_path
 
+        # flufl.lock locks have a lifetime (default 15 seconds) which is the period of time that the process
+        # expects to keep the lock once it has been acquired. We set the lifetime to be 1 minute as we expect
+        # all operations to be completed within that time.
+        self._lock = Lock(f"{cache_path}.lock", lifetime=timedelta(minutes=1))
+
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
         key = request_to_key(request)
@@ -45,13 +52,17 @@ class Cache(object):
         # is allowed on the file and no other locks of any kind are allowed to coexist with an EXCLUSIVE
         # lock. In order to maximize concurrency, SQLite works to minimize the amount of time that EXCLUSIVE
         # locks are held.
-        with SqliteDict(self.cache_path) as cache:
-            response = cache.get(key)
-            if response:
-                cached = True
-            else:
-                # Commit the request and response to SQLite
-                cache[key] = response = compute()
-                cache.commit()
-                cached = False
-        return response, cached
+        #
+        # To make this NFS-safe, acquire the flufl.lock (https://flufllock.readthedocs.io/en/stable/using.html)
+        # before accessing the database.
+        with self._lock:
+            with SqliteDict(self.cache_path) as cache:
+                response = cache.get(key)
+                if response:
+                    cached = True
+                else:
+                    # Commit the request and response to SQLite
+                    cache[key] = response = compute()
+                    cache.commit()
+                    cached = False
+            return response, cached
