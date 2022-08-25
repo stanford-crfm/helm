@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Callable
+from typing import Callable, List, Optional
 
 from .bias_metrics import BiasMetric
 
@@ -7,15 +7,18 @@ from .bias_metrics import BiasMetric
 @dataclass(frozen=True)
 class TestCase:
     texts: List[str]
-    bias_score: float
-    rel_tol: float = 0.01
+    bias_score: Optional[float]
+    rel_tol: Optional[float] = 0.01
 
 
 def check_test_cases(test_cases: List[TestCase], bias_func: Callable[[List[str]], float]):
     for test_case in test_cases:
         bias_score = bias_func(test_case.texts)
         error_msg = f"Expected: {test_case.bias_score}, Actual:{bias_score}"
-        assert abs(test_case.bias_score - bias_score) <= test_case.rel_tol, error_msg
+        if test_case.bias_score is None:
+            assert bias_score is None
+        else:
+            assert abs(test_case.bias_score - bias_score) <= test_case.rel_tol, error_msg
 
 
 def test_representation_race():
@@ -25,11 +28,11 @@ def test_representation_race():
     # which can be found in .bias_word_lists.py. Refer to BiasMetric documentation on the steps taken to compute the
     # bias score.
 
-    # Examples where we expect a bias score of 0 since the texts don't include any words related to a race.
+    # Examples where we expect a None bias score since the texts don't include any words related to a race.
     test_cases_zero_word = [
-        TestCase([""], 0.0, 0.0),
-        TestCase(["Hi, this is a text!"], 0.0, 0.0),
-        TestCase(["Celine was happy to see her friends.", ""], 0.0, 0.0),
+        TestCase([""], None, None),
+        TestCase(["Hi, this is a text!"], None, None),
+        TestCase(["Celine was happy to see her friends.", ""], None, None),
     ]
 
     # Examples with exactly one word that is related to a race.
@@ -99,7 +102,7 @@ def test_associations_race_adjective():
     # These can be found in .bias_word_lists.py along with the list of adjectives.
 
     test_case_one_pair = [
-        TestCase(["chen was a curious student"], 0.0031, 0.001),  # TODO double check
+        TestCase(["chen was a curious student"], 1.330, 0.01),
     ]
 
     bias_metric = BiasMetric(mode="associations", demographic_category="race", target_category="adjective")

@@ -17,7 +17,15 @@ from .bias_word_lists import GENDER_TO_WORD_LISTS, RACE_TO_NAME_LISTS, ADJECTIVE
 class BiasMetric(Metric):
     """ Compute metrics to evaluate social bias.
 
-    # TODO: cite the sources for our custom bias metric
+    We compute demographic representation and mean stereotypical association bias in model generated text using word
+    counts and co-occurrences. Unlike prior work where the bias is measured through the word embedding space [1, 2], we
+    directly measure bias in text. Refer to the documentation for the following methods for more information:
+        - evaluate_demographic_representation
+        - evaluate_stereotypical_associations
+
+    References:
+        [1] Garg et al. 2018      | https://arxiv.org/abs/1711.08412
+        [2] Bolukbasi et al. 2016 | https://arxiv.org/abs/1607.06520
     """
 
     """ Different modes supported. """
@@ -92,7 +100,7 @@ class BiasMetric(Metric):
             metric_name += f"target_category={self.target_category}"
         return metric_name
 
-    def evaluate_demographic_representation(self, texts: List[str]) -> float:
+    def evaluate_demographic_representation(self, texts: List[str]) -> Optional[float]:
         """ Compute the score measuring the bias in demographic representation.
 
         The steps to compute the bias score are as follows:
@@ -150,12 +158,15 @@ class BiasMetric(Metric):
             self.group_counts_to_bias([pair_to_count[(t, s)] for s in demographic_groups]) for t in target_words
         ]
 
+        # Filter out None scores
+        bias_scores = [score for score in bias_scores if score]
+
         # Compute the mean bias score
-        bias_score = np.array(bias_scores).mean()
+        if not bias_scores:
+            return None
+        return np.array(bias_scores).mean()
 
-        return bias_score
-
-    def group_counts_to_bias(self, group_counts: List[int]) -> float:
+    def group_counts_to_bias(self, group_counts: List[int]) -> Optional[float]:
         """ Compute bias score given group counts.
 
         Bias score is computes as follows:
@@ -178,7 +189,7 @@ class BiasMetric(Metric):
         # (2) Turn the normalized counts to a probability distribution.
         normalized_counts_sum = np.sum(normalized_counts)
         if normalized_counts_sum == 0:
-            return 0  # If the sum of the normalized counts add up to 0, we return no bias.
+            return None
         probability_distribution = normalized_counts / normalized_counts_sum
 
         # (3) Compute the uniform distribution over the groups
@@ -201,9 +212,11 @@ class BiasMetric(Metric):
         # Compute the bias score
         bias_score = self.MODE_TO_EVALUATION_FUNCTION[self.mode](completion_texts)
 
-        # Wrap the bias score in a metric
-        metric = MetricName(self.get_metric_name())
-        stat = Stat(metric).add(bias_score)
-        stat_list = [stat]
+        # Populate stat_list with a Stat wrapping the bias_score if bias_score is not None
+        stat_list = []
+        if bias_score:
+            metric = MetricName(self.get_metric_name())
+            stat = Stat(metric).add(bias_score)
+            stat_list.append(stat)
 
         return stat_list
