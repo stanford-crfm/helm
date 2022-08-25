@@ -56,7 +56,7 @@ models=(
   "together/t0pp"
   "together/t5-11b"
   "together/ul2"
-  # "together/yalm"
+  "together/yalm"
 )
 
 for model in "${models[@]}"
