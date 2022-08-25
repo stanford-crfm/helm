@@ -1,19 +1,16 @@
-: '
+: "
 Run RunSpecs in parallel on the Stanford NLP cluster with Slurm.
 To bypass the proxy server and run in root mode, append --local.
 
 Usage:
 
-  bash scripts/run-all-stanford.sh --suite <Name of suite> <Any additional CLI arguments for benchmark-present>
-
-  e.g.,
-  bash scripts/run-all-stanford.sh --suite v1 --max-eval-instances 1000 --num-threads 8 --priority 2 --local
+  bash scripts/run-all-stanford.sh <Suite name>
 
 To kill one of the Slurm jobs:
 
-  squeue -u <>
+  squeue -u $USER
   scancel <Slurm Job ID>
-'
+"
 
 function execute {
    # Prints and executes command
@@ -21,13 +18,14 @@ function execute {
    # eval "time $1"
 }
 
+cpus=4
+num_threads=8
+work_dir="/u/scr/nlp/crfm/benchmarking/benchmarking"
+
 models=(
   "ai21/j1-jumbo"
   "ai21/j1-grande"
   "ai21/j1-large"
-  # Not enough OpenAI credits at the moment
-  # To conserve OpenAI credits evaluate code-davinci-002 and text-davinci-002
-  # instead of code-davinci-001 and text-davinci-001
   # "openai/davinci"
   # "openai/curie"
   # "openai/babbage"
@@ -54,18 +52,37 @@ models=(
   "together/ul2"
   "together/yalm"
 )
+all_models=""
+log_paths=()
 
 for model in "${models[@]}"
 do
-    job="${model//\//-}"  # Replace slashes
-    job="${job// /_}"   # Replace spaces
+    all_models="${all_models} ${model}"  # Builds a string like ai21/j1-jumbo ai21/j1-grande ai21/j1-large ...
+    job="$1-${model//\//-}"  # Replace slashes and prepend suite nam  e.g., openai/curie => <Suite name>-openai-curie
 
     # Override with passed-in CLI arguments
     # By default, the command will run the RunSpecs listed in src/benchmark/presentation/run_specs.conf
-    execute "nlprun --job-name $job --priority high -a crfm_benchmarking -c 4 -g 0 --memory 16g -w /u/scr/nlp/crfm/benchmarking/benchmarking
-    'benchmark-present --models-to-run $model $* > $job.log 2>&1'"
+    log_file=$job.log
+    execute "nlprun --job-name $job --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 16g -w $work_dir
+    'benchmark-present --max-eval-instances 1000 -n $num_threads --priority 2 --local --models-to-run $model --suite $1 > $log_file 2>&1'"
+    log_paths+=("$work_dir/$log_file")
 
     # Run RunSpecs that require a GPU
-    execute "nlprun --job-name $job-gpu --priority high -a crfm_benchmarking -c 4 -g 1 --memory 16g -w /u/scr/nlp/crfm/benchmarking/benchmarking
-    'benchmark-present --models-to-run $model --conf-path src/benchmark/presentation/run_specs_gpu.conf $* > $job.gpu.log 2>&1'"
+    log_file=$job.gpu.log
+    execute "nlprun --job-name $job-gpu --priority high -a crfm_benchmarking -c $cpus -g 1 --memory 16g -w $work_dir
+    'benchmark-present --max-eval-instances 1000 -n $num_threads --priority 2 --local
+    --models-to-run $model --conf-path src/benchmark/presentation/run_specs_gpu.conf --suite $1 > $log_file 2>&1'"
+    log_paths+=("$work_dir/$log_file")
 done
+
+printf "\nTo monitor the runs:\n"
+for log_path in "${log_paths[@]}"
+do
+  echo "tail -f $log_path"
+done
+
+# Print out what to run next
+printf "\nRun the following commands once the runs complete:\n"
+command="benchmark-present --max-eval-instances 1000 --ski-instance --priority 2 --local --models-to-run $all_models --suite $1"
+echo "nlprun --job-name generate-run-specs-json-$1 --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 8g -w $work_dir '$command'"
+echo "nlprun --job-name summarize-$1 --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 8g -w $work_dir 'benchmark-summarize --suite $1'"
