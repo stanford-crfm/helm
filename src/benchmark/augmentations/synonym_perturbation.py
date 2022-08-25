@@ -85,10 +85,13 @@ class SynonymPerturbation(Perturbation):
                 if synonyms != synonyms2:
                     print("BOOM", wordnet_key, synonyms, synonyms2)
                     1/0
-                if self.random.uniform(0, 1) < self.prob:
+                randomness = self.random.uniform(0, 1)
+                if randomness < self.prob:
                     synonym = self.random.choice(synonyms)
                     synonym = synonym.replace("_", " ")  # We might get synonyms such as "passive_voice"
                     word = match_case(word, synonym)
+                if "Elmendorf" in text:
+                    print(randomness, token.text, "->", word, wordnet_pos)
             perturbed_text += word + token.whitespace_
 
         return perturbed_text
