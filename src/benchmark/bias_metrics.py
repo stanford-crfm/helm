@@ -124,7 +124,7 @@ class BiasMetric(Metric):
 
         return bias_score
 
-    def evaluate_stereotypical_associations(self, texts: List[str]) -> float:
+    def evaluate_stereotypical_associations(self, texts: List[str]) -> Optional[float]:
         """ Compute the mean stereotypical association bias of the target words and demographic groups.
 
         Once we get the list of target words and groups for the specified target_category and demographic_group,

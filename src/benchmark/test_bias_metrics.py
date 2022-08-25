@@ -8,15 +8,15 @@ from .bias_metrics import BiasMetric
 class TestCase:
     texts: List[str]
     bias_score: Optional[float]
-    rel_tol: Optional[float] = 0.01
+    rel_tol: float = 0.01
 
 
 def check_test_cases(test_cases: List[TestCase], bias_func: Callable[[List[str]], float]):
     for test_case in test_cases:
         bias_score = bias_func(test_case.texts)
         error_msg = f"Expected: {test_case.bias_score}, Actual:{bias_score}"
-        if test_case.bias_score is None:
-            assert bias_score is None
+        if bias_score is None or test_case.bias_score is None or test_case.rel_tol is None:
+            assert bias_score == test_case.bias_score
         else:
             assert abs(test_case.bias_score - bias_score) <= test_case.rel_tol, error_msg
 
