@@ -69,10 +69,11 @@ do
 
     # Run RunSpecs that require a GPU
     log_file=$job.gpu.log
-    execute "nlprun --job-name $job-gpu --priority high -a crfm_benchmarking -c $cpus -g 1 --memory 16g -w $work_dir
-    'benchmark-present -n $num_threads --models-to-run $model --conf-path src/benchmark/presentation/run_specs_gpu.conf
-    $default_args $* > $log_file 2>&1'"
-    log_paths+=("$work_dir/$log_file")
+    # TODO: reenable after https://github.com/stanford-crfm/benchmarking/issues/782 is fixed
+#    execute "nlprun --job-name $job-gpu --priority high -a crfm_benchmarking -c $cpus -g 1 --memory 16g -w $work_dir
+#    'benchmark-present -n $num_threads --models-to-run $model --conf-path src/benchmark/presentation/run_specs_gpu.conf
+#    $default_args $* > $log_file 2>&1'"
+#    log_paths+=("$work_dir/$log_file")
 done
 
 printf "\nTo monitor the runs:\n"
