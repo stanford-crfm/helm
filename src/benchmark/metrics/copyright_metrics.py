@@ -2,7 +2,7 @@ from common.request import RequestResult
 from nltk.tokenize.treebank import TreebankWordTokenizer
 from typing import List, Optional
 
-from .adapter import AdapterSpec, RequestState
+from benchmark.adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService

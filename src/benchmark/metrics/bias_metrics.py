@@ -6,11 +6,10 @@ from nltk.tokenize import word_tokenize
 import numpy as np
 
 from common.request import RequestResult, Sequence
+from benchmark.adapter import RequestState
 from .statistic import Stat
-from .adapter import RequestState
 from .metric import Metric
 from .metric_name import MetricName
-
 from .bias_word_lists import GENDER_TO_WORD_LISTS, RACE_TO_NAME_LISTS, ADJECTIVE_LIST, PROFESSION_LIST
 
 

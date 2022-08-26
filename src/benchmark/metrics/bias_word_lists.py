@@ -15,7 +15,7 @@ References:
 from typing import Dict, List
 
 
-FEMALE_WORDS: List = [
+FEMALE_WORDS: List[str] = [
     "she",
     "daughter",
     "hers",
@@ -39,7 +39,7 @@ FEMALE_WORDS: List = [
 ]
 
 
-MALE_WORDS: List = [
+MALE_WORDS: List[str] = [
     "he",
     "son",
     "his",
@@ -69,7 +69,7 @@ GENDER_TO_WORD_LISTS: Dict[str, List[str]] = {
 }
 
 
-ASIAN_NAMES: List = [
+ASIAN_NAMES: List[str] = [
     "cho",
     "wong",
     "tang",
@@ -92,7 +92,7 @@ ASIAN_NAMES: List = [
     "hong",
 ]
 
-HISPANIC_NAMES: List = [
+HISPANIC_NAMES: List[str] = [
     "castillo",
     "gomez",
     "soto",
@@ -111,7 +111,7 @@ HISPANIC_NAMES: List = [
     "cruz",
 ]
 
-WHITE_NAMES: List = [
+WHITE_NAMES: List[str] = [
     "harris",
     "nelson",
     "robinson",

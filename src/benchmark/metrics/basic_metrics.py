@@ -1,40 +1,40 @@
+import math
 from dataclasses import dataclass, replace
 from typing import List, Callable, Optional, Dict, Tuple, Set, cast
 from urllib.parse import unquote
 from functools import partial
-import math
 
 import json
 import re
 import string
 import nltk
+import numpy as np
+import scipy
+import calibration as cal
 from nltk.metrics.scores import f_measure
 from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
-import numpy as np
 from rouge_score import rouge_scorer
-import scipy
-import calibration as cal
 
 from common.request import Token, Sequence
 from common.general import singleton
-from . import code_metrics_helper
-from .adapter import (
+from benchmark.adapter import (
     ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     AdapterSpec,
     RequestState,
 )
-from .window_services.window_service import WindowService
-from .window_services.window_service_factory import WindowServiceFactory
-from .window_services.tokenizer_service import TokenizerService
+from benchmark.window_services.window_service import WindowService
+from benchmark.window_services.window_service_factory import WindowServiceFactory
+from benchmark.window_services.tokenizer_service import TokenizerService
+from benchmark.scenarios.scenario import CORRECT_TAG, Instance
+from benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
+from benchmark.scenarios.code_scenario import CodeReference
+from . import code_metrics_helper
 from .metric import Metric, get_unique_stat_by_name
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenarios.scenario import CORRECT_TAG, Instance
-from .scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
-from .scenarios.code_scenario import CodeReference
 from .statistic import Stat
 
 

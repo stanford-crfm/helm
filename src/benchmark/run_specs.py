@@ -12,7 +12,7 @@ from .adapter import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_GENERATION,
 )
-from .metric import MetricSpec
+from .metrics.metric import MetricSpec
 from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenarios.scenario import ScenarioSpec

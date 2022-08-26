@@ -1,6 +1,6 @@
 from typing import Dict
 
-from benchmark.metric_service import MetricService
+from benchmark.metrics.metric_service import MetricService
 from common.request import Request
 from .ai21_token_cost_estimator import AI21TokenCostEstimator
 from .free_token_cost_estimator import FreeTokenCostEstimator
