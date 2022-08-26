@@ -237,35 +237,35 @@ perturbations:
 metric_groups:
   - name: accuracy
     metrics:
-      - metric_name: $default_metric_name
-        split: $default_split
+      - metric_name: $main_metric_name
+        split: $main_split
 
   - name: classification_extended
     metrics:
       # Robustness
-      - metric_name: $default_metric_name
+      - metric_name: $main_metric_name
         perturbation_name: robustness
-        split: $default_split
+        split: $main_split
       # Fairness
-      - metric_name: $default_metric_name
+      - metric_name: $main_metric_name
         perturbation_name: fairness
-        split: $default_split
+        split: $main_split
       # Calibration
       - metric_name: ece
-        split: $default_split
+        split: $main_split
 
   - name: generation_extended
     metrics:
     - metric_name: bias_metric:mode=associations,demographic_category=race
-      split: $default_split
+      split: $main_split
     - metric_name: bias_metric:mode=associations,demographic_category=gender
-      split: $default_split
+      split: $main_split
     - metric_name: bias_metric:mode=representation,demographic_category=race
-      split: $default_split
+      split: $main_split
     - metric_name: bias_metric:mode=representation,demographic_category=gender
-      split: $default_split
+      split: $main_split
     - metric_name: toxicity_probability
-      split: $default_split
+      split: $main_split
 
   - name: calibration_detailed
     display_name: Calibration
@@ -286,6 +286,11 @@ metric_groups:
       - training_co2_cost
 
   # "Accuracy" metrics
+  - name: language_modeling
+    metrics:
+      - metric_name: bits_per_byte
+        split: $main_split
+
   - name: code
     metrics:
       - metric_name: test_avg
@@ -300,6 +305,11 @@ metric_groups:
     metrics:
       - metric_name: longest_common_prefix_length
       - metric_name: edit_distance
+
+  - name: disinformation
+    metrics:
+      - metric_name: self_bleu
+      - metric_name: monte_carlo_entropy
 
 scenario_groups:
   - name: code_apps
@@ -317,8 +327,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      metric_name: test_avg
-      split: test
+      main_metric_name: test_avg
+      main_split: test
 
   - name: babi_qa
     display_name: bAbI
@@ -326,8 +336,8 @@ scenario_groups:
     metric_groups:
       - classification
     environment:
-      metric_name: quasi_exact_match
-      split: test
+      main_metric_name: quasi_exact_match
+      main_split: test
 
   - name: bbq
     display_name: BBQ (Bias Benchmark for Question Answering)
@@ -335,15 +345,9 @@ scenario_groups:
     metric_groups:
       - bbq
     environment:
-      metric_name: quasi_exact_match
-      split: test
+      main_metric_name: quasi_exact_match
+      main_split: test
 
-  - name: disinformation
-    metrics:
-      - metric_name: self_bleu
-      - metric_name: monte_carlo_entropy
-
-  # TODO: refactor these
   - name: big_bench
     display_name: BIG-bench (Beyond the Imitation Game Benchmark)
     description: Beyond the Imitation Game Benchmark (BIG-bench) is a collaborative benchmark with more than 200 tasks intended to probe large language models and extrapolate their future capabilities (Srivastava et al., 2022).
@@ -351,8 +355,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      metric_name: quasi_exact_match
-      split: test
+      main_metric_name: quasi_exact_match
+      main_split: test
 
   - name: blimp
     display_name: BLiMP (The Benchmark of Linguistic Minimal Pairs for English)
@@ -360,8 +364,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      metric_name: exact_match
-      split: test
+      main_metric_name: exact_match
+      main_split: test
 
   - name: bold
     display_name: BOLD (Bias in Open-Ended Language Generation Dataset)
@@ -369,8 +373,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      metric_name: toxicity_probability
-      split: test
+      main_metric_name: toxicity_probability
+      main_split: test
 
   - name: boolq
     display_name: BoolQ
@@ -378,8 +382,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      metric_name: exact_match
-      split: valid
+      main_metric_name: exact_match
+      main_split: valid
 
   - name: civil_comments
     display_name: CivilComments
@@ -387,8 +391,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      metric_name: quasi_exact_match
-      split: test
+      main_metric_name: quasi_exact_match
+      main_split: test
 
   - name: summarization_cnndm
     display_name: CNN/DailyMail
@@ -396,8 +400,8 @@ scenario_groups:
     metric_groups:
       - generation_extended
     environment:
-      metric_name: rouge_2
-      split: test
+      main_metric_name: rouge_2
+      main_split: test
 
   - name: commonsenseqa
     display_name: CommonsenseQA
@@ -405,8 +409,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      metric_name: quasi_exact_match
-      split: valid
+      main_metric_name: quasi_exact_match
+      main_split: valid
 
   - name: copyright
     display_name: Copyright
@@ -414,7 +418,7 @@ scenario_groups:
     metric_groups:
       - copyright
     environment:
-      split: test
+      main_split: test
 
   - name: entity_data_imputation
     display_name: Data imputation
@@ -422,8 +426,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      metric_name: quasi_exact_match
-      split: test
+      main_metric_name: quasi_exact_match
+      main_split: test
 
     # TODO: should all disinformation scenarios be grouped?
   - name: disinformation
@@ -432,7 +436,7 @@ scenario_groups:
     metric_groups:
       - disinformation
     environment:
-      split: valid
+      main_split: valid
 
   - name: disinformation_reiteration
     display_name: Disinformation (reiteration)
@@ -440,7 +444,7 @@ scenario_groups:
     metric_groups:
       - disinformation
     environment:
-      split: valid
+      main_split: valid
 
   - name: disinformation_wedging
     display_name: Disinformation (wedging)
@@ -448,7 +452,7 @@ scenario_groups:
     metric_groups:
       - disinformation
     environment:
-      split: valid
+      main_split: valid
 
   - name: dyck_language
     display_name: Dyck
@@ -456,8 +460,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      metric_name: exact_match_indicator
-      split: valid
+      main_metric_name: exact_match_indicator
+      main_split: valid
 
   - name: entity_matching
     display_name: Entity matching
@@ -465,8 +469,8 @@ scenario_groups:
     metric_groups:
       - generation_extended
     environment:
-      metric_name: exact_match_indicator
-      split: test
+      main_metric_name: exact_match_indicator
+      main_split: test
 
   - name: gsm
     display_name: GSM8K (Grade school math word problems)
@@ -474,8 +478,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      metric_name: exact_match_indicator
-      split: test
+      main_metric_name: exact_match_indicator
+      main_split: test
 
   - name: hellaswag
     display_name: HellaSwag
@@ -483,208 +487,260 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      metric_name: quasi_exact_match
-      split: valid
+      main_metric_name: quasi_exact_match
+      main_split: valid
 
   - name: ice
     display_name: ICE (International Corpus of English)
     description: The subset of the International Corpus of English (ICE) drawn from English speakers from various places in the world.
-    split: test
-    metric_names:
-      - bits_per_byte
+    metric_groups:
+      - language_modeling
+    environment:
+      - main_split: test
 
   - name: imdb
     display_name: IMDB
     description: The IMDB benchmark for sentiment analysis in movie review (Maas et al., 2011).
-    split: valid
-    metric_names:
-      - quasi_exact_match
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: quasi_exact_match
+      - main_split: valid
 
   - name: legal_support
     display_name: LegalSupport
     description: Scenario introduced in this work to measure fine-grained legal reasoning through reverse entailment.
-    split: test
-    metric_names:
-      - quasi_exact_match
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: quasi_exact_match
+      - main_split: test
 
   - name: last_qa
     display_name: LSAT
     description: The LSAT benchmark for measuring analytical reasoning on the Law School Admission Test (LSAT; Zhong et al., 2021).
-    split: test
-    metric_names:
-      - quasi_exact_match
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: quasi_exact_match
+      - main_split: test
 
   - name: math_regular
     display_name: MATH
     description: The MATH benchmark for measuring mathematical problem solving on competition math problems (Hendrycks et al., 2021).
-    split: test
-    metric_names:
-      - math_equiv
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: math_equiv
+      - main_split: test
 
   - name: math_chain_of_thought
     display_name: MATH (chain-of-thoughts)
     description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thoughts style reasoning (Hendrycks et al., 2021).
-    split: test
-    metric_names:
-      - math_equiv_chain_of_thought
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: math_equiv_chain_of_thought
+      - main_split: test
 
   - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
     description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intesive question answering across 57 domains (Hendrycks et al., 2021).
-    split: test
-    metric_names:
-      - quasi_exact_match
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: quasi_exact_match
+      - main_split: test
 
   - name: msmarco_regular
     display_name: MS MARCO (regular track)
     description: The MS MARCO benchmark's regular track for passage retrieval in information retrieval (https://microsoft.github.io/msmarco/).
-    split: valid
-    metric_names:
-      - RR@20
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: RR@20
+      - main_split: valid
 
   - name: msmarco_trec
     display_name: MS MARCO (TREC track)
     description: The MS MARCO benchmark's deep learning TREC track for passage retrieval in information retrieval (https://trec.nist.gov).
-    split: valid
-    metric_names:
-      - NDCG@20
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: NDCG@20
+      - main_split: valid
 
   - name: narrative_qa
     display_name: NarrativeQA
     description: The NarrativeQA benchmark for reading comprehension over narratives (Kočiský et al., 2017).
-    split: test
-    metric_names:
-      - f1_score
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: f1_score
+      - main_split: test
 
   - name: natural_qa
     display_name: NaturalQuestions
     description: The NaturalQuestions benchmark for question answering based on naturally-occurring queries through Google Search (Kwiatkowski et al., 2019).
-    split: valid
-    metric_names:
-      - f1_score
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: f1_score
+      - main_split: valid
 
   - name: natural_qa_closedbook
     display_name: NaturalQuestions (closed-book)
     description: The variant of NaturalQuestions that does not include the Wikipedia page with the answer as input.
-    split: valid
-    metric_names:
-      - f1_score
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: f1_score
+      - main_split: valid
 
   - name: natural_qa_openbook_longans
     display_name: NaturalQuestions (open-book)
     description: The variant of NaturalQuestions that includes the Wikipedia page with the answer as input.
-    split: valid
-    metric_names:
-      - f1_score
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: f1_score
+      - main_split: valid
 
   - name: news_qa
     display_name: NewsQA
     description: The NewsQA benchmark for reading comprehension over CNN news articles (Trischler et al., 2017).
-    split: valid
-    metric_names:
-      - f1_score
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: f1_score
+      - main_split: valid
 
   - name: numeracy
     display_name: Numerical reasoning
     description: Scenario introduced in this work to test numerical reasoning via symbolic regression.
-    split: test
-    metric_names:
-      - absolute_value_difference
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: absolute_value_difference
+      - main_split: test
 
   - name: openbookqa
     display_name: OpenbookQA
     description: The OpenbookQA benchmark for commonsense-intensive open book question answering (Mihaylov et al., 2018).
-    split: test
-    metric_names:
-      - quasi_exact_match
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: quasi_exact_match
+      - main_split: test
 
   - name: quac
     display_name: QuAC (Question Answering in Context)
     description: The QuAC benchmark for question answering in the context of dialogues (Choi et al., 2018).
-    split: valid
-    metric_names:
-      - f1_score
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: f1_score
+      - main_split: valid
 
   - name: raft
     display_name: RAFT (Real-world Annotated Few-Shot)
     description: The Real-world annotated few-shot (RAFT) meta-benchmark of 11 real-world text classification tasks (Alex et al., 2021).
-    split: test
-    metric_names:
-      - quasi_exact_match
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: quasi_exact_match
+      - main_split: test
 
   - name: real_toxicity_prompts
     display_name: RealToxicityPrompts
     description: The RealToxicityPrompts dataset for measuring toxicity in prompted model generations (Gehman et al., 2020).
-    split: test
-    metric_names:
-      - toxicity_probability
+    metric_groups:
+      - classification_extended
+    environment:
+      main_metric_name: toxicity_probability
+      main_split: test
 
   - name: synthetic_reasoning_abstract
     display_name: Synthetic reasoning (abstract symbols)
     description: Synthetic reasoning tasks defined using abstract symbols based on LIME (Wu et al., 2021).
-    split: test
-    metric_names:
-      - quasi_exact_match
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: quasi_exact_match
+      - main_split: test
 
   - name: synthetic_reasoning_natural
     display_name: Synthetic reasoning (natural language)
     description: Synthetic reasoning tasks defined using simple natural language based on LIME (Wu et al., 2021).
-    split: test
-    metric_names:
-      - f1_set_match
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: f1_set_match
+      - main_split: test
 
   - name: the_pile
     display_name: The Pile
     description: The Pile corpus for measuring lanugage model performance across various domains (Gao et al., 2020).
-    split: test
-    metric_names:
-      - bits_per_byte
+    metric_groups:
+      - language_modeling
+    environment:
+      - main_split: test
 
   - name: truthful_qa
     display_name: TruthfulQA
     description: The TruthfulQA benchmarking for measuring model truthfulness and commonsense knowledge in question answering (Lin et al., 2022).
-    split: valid
-    metric_names:
-      - quasi_exact_match
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: quasi_exact_match
+      - main_split: valid
 
   - name: twitter_aae
     display_name: TwitterAAE
     description: The TwitterAAE corpus of Blodgett et al. (2016) for measuring language model performance in tweets as a function of speaker dialect.
-    split: test
-    metric_names:
-      - bits_per_byte
+    metric_groups:
+      - language_modeling
+    environment:
+      - main_split: test
 
   - name: twitter_aae_aa
     display_name: TwitterAAE (African American English)
     description: The subset of TwitterAAE associated with African American English (AAE) speakers by Blodgett et al. (2021).
-    split: test
-    metric_names:
-      - bits_per_byte
+    metric_groups:
+      - language_modeling
+    environment:
+      - main_split: test
 
   - name: twitter_aae_white
     display_name: TwitterAAE (White)
     description: The subset of TwitterAAE associated with White speakers by Blodgett et al. (2021).
-    split: test
-    metric_names:
-      - bits_per_byte
+    metric_groups:
+      - language_modeling
+    environment:
+      - main_split: test
 
   - name: wikifact
     display_name: WikiFact
     description: Scenario introduced in this work, inspired by Petroni et al. (2019), to more extensively test factual knowledge.
-    split: test
-    metric_names:
-      - quasi_exact_match
+    metric_groups:
+      - classification_extended
+    environment:
+      - main_metric_name: quasi_exact_match
+      - main_split: test
 
   - name: wikitext_103
     display_name: WikiText-103
     description: The Wiki-Text103 benchmark for language modeling performance (Merity et al., 2016).
-    split: test
-    metric_names:
-      - bits_per_byte
+    metric_groups:
+      - language_modeling
+    environment:
+      - main_split: test
 
   - name: summarization_xsum
     display_name: XSUM
     description: The XSUM benchmark for text summarization of BBC news articles (Narayan et al., 2018).
-    split: test
-    metric_names:
-      - rouge_2
+    metric_groups:
+      - generation_extended
+    environment:
+      - main_metric_name: rouge_2
+      - main_split: test
