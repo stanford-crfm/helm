@@ -3,7 +3,9 @@ import json
 from pathlib import Path
 import random
 from typing import Dict, List
+import os
 
+import nltk
 from nltk.corpus import wordnet
 import spacy
 
@@ -50,6 +52,16 @@ class SynonymPerturbation(Perturbation):
             spacy.cli.download("en_core_web_sm")  # type: ignore
             self.spacy_model = spacy.load("en_core_web_sm")
 
+        try:
+            _ = wordnet._morphy("test", "n")
+        except LookupError:
+            out_dir = "nltk_data"
+            nltk.data.path.append(out_dir)
+            if not os.path.exists(os.path.join(out_dir, "corpora/wordnet")):
+                nltk.download("wordnet", download_dir=out_dir)
+            if not os.path.exists(os.path.join(out_dir, "corpora/omw-1.4")):
+                nltk.download("omw-1.4", download_dir=out_dir)
+
         wordnet_synonyms_path = Path(__file__).resolve().expanduser().parent / "wordnet_synonyms.json"
         with open(wordnet_synonyms_path) as f:
             self.wordnet_synonyms: Dict[str, List[str]] = json.load(f)
@@ -72,26 +84,16 @@ class SynonymPerturbation(Perturbation):
         for token in doc:
             word = token.text
             wordnet_pos = spacy_to_wordnet_pos.get(token.pos_)
-            wordnet_key = f"{word}:{wordnet_pos}"
-            assert wordnet_pos or (wordnet_key not in self.wordnet_synonyms)
-            if wordnet_key in self.wordnet_synonyms:
-                synonyms = self.wordnet_synonyms[wordnet_key]
-                assert synonyms
-                assert wordnet_pos
-                synsets = wordnet.synsets(word, pos=wordnet_pos)
-                synonyms2 = [lemma.name() for synset in synsets for lemma in synset.lemmas()]
-                synonyms2 = [s for s in synonyms2 if s != word.lower()]
-                synonyms2 = list(dict.fromkeys(synonyms2)) 
-                if synonyms != synonyms2:
-                    print("BOOM", wordnet_key, synonyms, synonyms2)
-                    1/0
-                randomness = self.random.uniform(0, 1)
-                if randomness < self.prob:
+            synonyms = []
+            if wordnet_pos:
+                for base in wordnet._morphy(word.lower(), wordnet_pos):  # _morphy returns the base form of a word
+                    synonyms.extend(self.wordnet_synonyms.get(f"{base}:{wordnet_pos}", []))
+            synonyms = [s for s in synonyms if s != word.lower()]
+            synonyms = list(dict.fromkeys(synonyms))  # Make the list unique while preserving the order
+            if synonyms:
+                if self.random.uniform(0, 1) < self.prob:
                     synonym = self.random.choice(synonyms)
-                    synonym = synonym.replace("_", " ")  # We might get synonyms such as "passive_voice"
                     word = match_case(word, synonym)
-                if "Elmendorf" in text:
-                    print(randomness, token.text, "->", word, wordnet_pos)
             perturbed_text += word + token.whitespace_
 
         return perturbed_text
