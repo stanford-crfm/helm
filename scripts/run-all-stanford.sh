@@ -15,7 +15,7 @@ To kill one of the Slurm jobs:
 function execute {
    # Prints and executes command
    echo $1
-   eval "time $1"
+   eval $1
 }
 
 cpus=4
