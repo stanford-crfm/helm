@@ -11,10 +11,10 @@ import json
 
 from common.general import write, ensure_directory_exists, asdict_without_nones, singleton
 from common.hierarchical_logger import hlog, htrack
-from benchmark.statistic import Stat
+from benchmark.metrics.statistic import Stat
 from benchmark.scenarios.scenario import TEST_SPLIT
 from benchmark.runner import RunSpec
-from benchmark.metric_name import MetricName
+from benchmark.metrics.metric_name import MetricName
 from benchmark.augmentations.perturbation_description import PERTURBATION_WORST
 from proxy.models import ALL_MODELS, get_model
 

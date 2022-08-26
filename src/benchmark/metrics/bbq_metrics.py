@@ -1,7 +1,7 @@
 from typing import List
 
 from common.request import RequestResult
-from .adapter import RequestState
+from benchmark.adapter import RequestState
 from .metric import Metric
 from .metric_name import MetricName
 from .statistic import Stat

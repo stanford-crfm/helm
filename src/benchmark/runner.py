@@ -7,13 +7,13 @@ from typing import Dict, List
 from common.general import ensure_directory_exists, write, write_lines, asdict_without_nones
 from common.hierarchical_logger import hlog, htrack_block
 from .augmentations.data_augmenter import DataAugmenterSpec
-from .metric_service import MetricService
+from benchmark.metrics.metric_service import MetricService
 from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance
 from .adapter import AdapterSpec, Adapter, ScenarioState
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
-from .metric import Metric, MetricSpec, MetricResult, PerInstanceStatsKey, create_metric, Stat
-from .tokens_metric import TokensMetric
+from benchmark.metrics.metric import Metric, MetricSpec, MetricResult, PerInstanceStatsKey, create_metric, Stat
+from benchmark.metrics.tokens_metric import TokensMetric
 from .window_services.tokenizer_service import TokenizerService
 
 

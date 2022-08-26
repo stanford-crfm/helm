@@ -9,7 +9,7 @@ from sacrebleu.metrics import BLEU
 
 from common.general import ensure_file_downloaded
 from common.request import RequestResult, Sequence
-from .adapter import AdapterSpec, RequestState
+from benchmark.adapter import AdapterSpec, RequestState
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
