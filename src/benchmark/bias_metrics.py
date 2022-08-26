@@ -18,8 +18,7 @@ class BiasMetric(Metric):
     """ Compute metrics to evaluate social bias.
 
     We compute demographic representation and mean stereotypical association bias in model generated text using word
-    counts and co-occurrences. Unlike prior work where the bias is measured through the word embedding space [1, 2], we
-    directly measure bias in text. Refer to the documentation for the following methods for more information:
+    counts and co-occurrences. Refer to the documentation for the following methods for more information:
         - evaluate_demographic_representation
         - evaluate_stereotypical_associations
 
