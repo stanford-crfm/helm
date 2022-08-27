@@ -1,12 +1,8 @@
 from typing import List
 
 from common.request import RequestResult
-from .adapter import AdapterSpec, RequestState
-from .metric import Metric
-from .metric_name import MetricName
-from .metric_service import MetricService
-from .statistic import Stat
-from .scenarios.numeracy_scenario import (  # noqa
+from benchmark.adapter import AdapterSpec, RequestState
+from benchmark.scenarios.numeracy_scenario import (  # noqa
     NumeracyScenario,
     Polynomial,
     RELTYPE_INFO,
@@ -15,6 +11,10 @@ from .scenarios.numeracy_scenario import (  # noqa
     distance_plane,
     distance_paraboloid,
 )
+from .metric import Metric
+from .metric_name import MetricName
+from .metric_service import MetricService
+from .statistic import Stat
 
 
 class DistanceMetric(Metric):

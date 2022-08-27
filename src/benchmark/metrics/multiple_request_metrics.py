@@ -1,16 +1,16 @@
+import os
 from collections import defaultdict, OrderedDict
 from dataclasses import dataclass
-import os
 from typing import Any, Callable, Dict, List, Tuple, Optional, cast
 
 import pytrec_eval
 
-from benchmark.statistic import Stat, merge_stat
-from .adapter import ScenarioState, RequestState
+from benchmark.adapter import ScenarioState, RequestState
+from benchmark.scenarios.scenario import VALID_SPLIT, MultipleRequestInstance
 from .metric_service import MetricService
 from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
-from .scenarios.scenario import VALID_SPLIT, MultipleRequestInstance
+from .statistic import Stat, merge_stat
 
 
 ################################################################################

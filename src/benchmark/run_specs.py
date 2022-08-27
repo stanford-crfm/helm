@@ -12,7 +12,7 @@ from .adapter import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_GENERATION,
 )
-from .metric import MetricSpec
+from .metrics.metric import MetricSpec
 from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenarios.scenario import ScenarioSpec
@@ -1280,7 +1280,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
     )
 
     return RunSpec(
-        name=f"summarization_xsum:temperature={temperature}",
+        name=f"summarization_xsum:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"device": device}),
@@ -1315,7 +1315,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = 
     )
 
     return RunSpec(
-        name=f"summarization_xsum:temperature={temperature}",
+        name=f"summarization_xsum:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"device": device}),
@@ -1345,7 +1345,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") 
     )
 
     return RunSpec(
-        name=f"summarization_cnndm:temperature={temperature}",
+        name=f"summarization_cnndm:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"device": device}),

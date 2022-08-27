@@ -6,17 +6,21 @@ from tqdm import tqdm
 
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
-from .statistic import Stat, merge_stat
-from .augmentations.perturbation_description import PerturbationDescription, PERTURBATION_ORIGINAL, PERTURBATION_WORST
-from .adapter import (
+from benchmark.augmentations.perturbation_description import (
+    PerturbationDescription,
+    PERTURBATION_ORIGINAL,
+    PERTURBATION_WORST,
+)
+from benchmark.adapter import (
     AdapterSpec,
     ScenarioState,
     RequestState,
     ADAPT_LANGUAGE_MODELING,
 )
+from benchmark.scenarios.scenario import Instance
 from .metric_name import MetricName, MetricContext
 from .metric_service import MetricService
-from .scenarios.scenario import Instance
+from .statistic import Stat, merge_stat
 
 
 @dataclass(unsafe_hash=True)

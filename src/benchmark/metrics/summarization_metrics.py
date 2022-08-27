@@ -2,22 +2,22 @@ import numpy as np
 import spacy
 import subprocess
 import sys
+from typing import List, Sequence, Dict
 
-# Need to check spacy module is downlaoded before importing DataStatsMetric
+# Need to check spacy module is downloaded before importing DataStatsMetric
 if not spacy.util.is_package("en_core_web_sm"):
     subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
 
-from .statistic import Stat
-from typing import List, Sequence, Dict
 from summ_eval.data_stats_metric import DataStatsMetric
 
-from .adapter import AdapterSpec, RequestState
-from .scenarios.scenario import Reference
+from benchmark.adapter import AdapterSpec, RequestState
+from benchmark.scenarios.scenario import Reference
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .basic_metrics import get_rouge_function
-from .metrics.summac.model_summac import SummaCZS
+from .statistic import Stat
+from .summac.model_summac import SummaCZS
 
 
 class SummarizationMetric(Metric):

@@ -44,17 +44,17 @@ from .scenarios import big_bench_scenario  # noqa
 from .scenarios import pubmed_qa_scenario  # noqa
 
 # Metrics
-from . import basic_metrics  # noqa
-from . import multiple_request_metrics  # noqa
-from . import toxicity_metrics  # noqa
-from . import tokens_metric  # noqa
-from . import copyright_metrics  # noqa
-from . import numeracy_metrics  # noqa
-from . import disinformation_metrics  # noqa
-from . import code_metrics  # noqa
-from . import bbq_metrics  # noqa
-from . import bias_metrics  # noqa
-from . import summarization_metrics  # noqa
+from .metrics import basic_metrics  # noqa
+from .metrics import bbq_metrics  # noqa
+from .metrics import bias_metrics  # noqa
+from .metrics import code_metrics  # noqa
+from .metrics import copyright_metrics  # noqa
+from .metrics import disinformation_metrics  # noqa
+from .metrics import numeracy_metrics  # noqa
+from .metrics import multiple_request_metrics  # noqa
+from .metrics import summarization_metrics  # noqa
+from .metrics import toxicity_metrics  # noqa
+from .metrics import tokens_metric  # noqa
 
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa

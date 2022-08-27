@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Callable
 
-from .scenarios.numeracy_scenario import (
+from benchmark.scenarios.numeracy_scenario import (
     distance_linear,
     distance_parabola,
     distance_plane,

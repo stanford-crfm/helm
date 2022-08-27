@@ -1,4 +1,4 @@
-from benchmark.metric_service import MetricService
+from benchmark.metrics.metric_service import MetricService
 from common.request import Request
 from .token_cost_estimator import TokenCostEstimator
 

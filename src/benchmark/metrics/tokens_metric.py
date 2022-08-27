@@ -2,15 +2,15 @@ from typing import List, Dict
 from tqdm import tqdm
 
 from common.request import Request
-from .adapter import ScenarioState
-from .metrics.tokens.auto_token_cost_estimator import AutoTokenCostEstimator
+from benchmark.adapter import ScenarioState
+from benchmark.scenarios.scenario import Instance
+from benchmark.metrics.statistic import Stat, merge_stat
+from benchmark.window_services.window_service import WindowService
+from benchmark.window_services.window_service_factory import WindowServiceFactory
 from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenarios.scenario import Instance
-from .statistic import Stat, merge_stat
-from .window_services.window_service import WindowService
-from .window_services.window_service_factory import WindowServiceFactory
+from .tokens.auto_token_cost_estimator import AutoTokenCostEstimator
 
 
 class TokensMetric(Metric):

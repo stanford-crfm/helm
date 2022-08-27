@@ -303,6 +303,8 @@ metric_groups:
         split: ${main_split}
       - name: inference_idealized_runtime
         split: ${main_split}
+      - name: inference_denoised_runtime
+        split: ${main_split}
       - name: training_co2_cost
         split: ${main_split}
 
@@ -339,6 +341,15 @@ metric_groups:
         split: ${main_split}
       - name: monte_carlo_entropy
         split: ${main_split}
+
+  - name: efficiency
+    metrics:
+      - name: inference_runtime
+        split: test
+      - name: inference_idealized_runtime
+        split: test
+      - name: inference_denoised_runtime
+        split: test
 
 scenario_groups:
   - name: code_apps
@@ -772,3 +783,8 @@ scenario_groups:
     environment:
       main_name: rouge_2
       main_split: test
+  - name: synthetic_efficiency
+    display_name: Synthetic efficiency
+    description: Scenario introduced in this work to better understand inference runtime performance of various models.
+    metric_groups:
+      - efficiency

@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 from transformers import GPT2TokenizerFast
 
-from benchmark.metric_service import MetricService
+from benchmark.metrics.metric_service import MetricService
 from common.authentication import Authentication
 from common.request import Request
 from common.tokenization_request import TokenizationRequestResult, TokenizationToken
