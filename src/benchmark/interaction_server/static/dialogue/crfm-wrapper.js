@@ -6,6 +6,11 @@ const ChatBox = {
 		var questions =
 			[	
 				{
+					tag: "email",
+					text: "What is your email address?",
+					type: "freeForm",
+				},
+				{
 					tag: "experience",
 					text: "How would you describe your experience chatting with this bot?",
 					type: "freeForm",
