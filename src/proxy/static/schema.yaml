@@ -237,79 +237,108 @@ perturbations:
 metric_groups:
   - name: accuracy
     metrics:
-      - metric_name: $main_metric_name
-        split: $main_split
+      - name: ${main_name}
+        split: ${main_split}
 
   - name: classification_extended
     metrics:
+      # Accuracy
+      - name: ${main_name}
+        split: ${main_split}
       # Robustness
-      - metric_name: $main_metric_name
+      - name: ${main_name}
+        split: ${main_split}
         perturbation_name: robustness
-        split: $main_split
       # Fairness
-      - metric_name: $main_metric_name
+      - name: ${main_name}
+        split: ${main_split}
         perturbation_name: fairness
-        split: $main_split
       # Calibration
-      - metric_name: ece
-        split: $main_split
+      - name: ece
+        split: ${main_split}
+      # Efficiency
+      - name: inference_idealized_runtime
+        split: ${main_split}
 
   - name: generation_extended
     metrics:
-    - metric_name: bias_metric:mode=associations,demographic_category=race
-      split: $main_split
-    - metric_name: bias_metric:mode=associations,demographic_category=gender
-      split: $main_split
-    - metric_name: bias_metric:mode=representation,demographic_category=race
-      split: $main_split
-    - metric_name: bias_metric:mode=representation,demographic_category=gender
-      split: $main_split
-    - metric_name: toxicity_probability
-      split: $main_split
+    - name: ${main_name}
+      split: ${main_split}
+    # Bias
+    - name: bias_metric:mode=associations,demographic_category=race
+      split: ${main_split}
+    - name: bias_metric:mode=associations,demographic_category=gender
+      split: ${main_split}
+    - name: bias_metric:mode=representation,demographic_category=race
+      split: ${main_split}
+    - name: bias_metric:mode=representation,demographic_category=gender
+      split: ${main_split}
+    # Toxicity
+    - name: toxicity_probability
+      split: ${main_split}
+    # Efficiency
+    - name: inference_idealized_runtime
+      split: ${main_split}
 
   - name: calibration_detailed
     display_name: Calibration
     description: Measures how calibrated the model is (how meaningful its uncertainty estimates are).
     metrics:
-      - metric_name: max_prob
-      - metric_name: ece_1_bin
-      - metric_name: ece
-      - metric_name: selective_cov_acc_area
-      - metric_name: selective_acc@10
+      - name: max_prob
+        split: ${main_split}
+      - name: ece_1_bin
+        split: ${main_split}
+      - name: ece
+        split: ${main_split}
+      - name: selective_cov_acc_area
+        split: ${main_split}
+      - name: selective_acc@10
+        split: ${main_split}
 
   - name: efficiency_detailed
     display_name: Efficiency
     description: The efficiency of the model across both training and inference.
-    metric_names:
-      - inference_runtime
-      - inference_idealized_runtime
-      - training_co2_cost
+    metrics:
+      - name: inference_runtime
+        split: ${main_split}
+      - name: inference_idealized_runtime
+        split: ${main_split}
+      - name: training_co2_cost
+        split: ${main_split}
 
   # "Accuracy" metrics
   - name: language_modeling
     metrics:
-      - metric_name: bits_per_byte
-        split: $main_split
+      - name: bits_per_byte
+        split: ${main_split}
 
   - name: code
     metrics:
-      - metric_name: test_avg
-      - metric_name: strict_acc
+      - name: test_avg
+        split: ${main_split}
+      - name: strict_acc
+        split: ${main_split}
 
   - name: bbq
     metrics:
-      - metric_name: bbq_metric_ambiguous_bias
-      - metric_name: bbq_metric_unambiguous_bias
+      - name: bbq_metric_ambiguous_bias
+        split: ${main_split}
+      - name: bbq_metric_unambiguous_bias
+        split: ${main_split}
 
   - name: copyright
     metrics:
-      - metric_name: longest_common_prefix_length
-      - metric_name: edit_distance
+      - name: longest_common_prefix_length
+        split: ${main_split}
+      - name: edit_distance
+        split: ${main_split}
 
   - name: disinformation
     metrics:
-      - metric_name: self_bleu
-      - metric_name: monte_carlo_entropy
+      - name: self_bleu
+        split: ${main_split}
+      - name: monte_carlo_entropy
+        split: ${main_split}
 
 scenario_groups:
   - name: code_apps
@@ -318,8 +347,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      metric_name: test_avg
-      split: test
+      main_name: test_avg
+      main_split: test
 
   - name: code_humaneval
     display_name: HumanEval (Code)
@@ -327,7 +356,7 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      main_metric_name: test_avg
+      main_name: test_avg
       main_split: test
 
   - name: babi_qa
@@ -336,7 +365,7 @@ scenario_groups:
     metric_groups:
       - classification
     environment:
-      main_metric_name: quasi_exact_match
+      main_name: quasi_exact_match
       main_split: test
 
   - name: bbq
@@ -345,7 +374,7 @@ scenario_groups:
     metric_groups:
       - bbq
     environment:
-      main_metric_name: quasi_exact_match
+      main_name: quasi_exact_match
       main_split: test
 
   - name: big_bench
@@ -355,7 +384,7 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      main_metric_name: quasi_exact_match
+      main_name: quasi_exact_match
       main_split: test
 
   - name: blimp
@@ -364,16 +393,16 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      main_metric_name: exact_match
+      main_name: exact_match
       main_split: test
 
   - name: bold
     display_name: BOLD (Bias in Open-Ended Language Generation Dataset)
     description: The Bias in Open-Ended Language Generation Dataset (BOLD) for measuring biases and toxicity in open-ended language generation (Dhamala et al., 2021).
     metric_groups:
-      - classification_extended
+      - generation_extended
     environment:
-      main_metric_name: toxicity_probability
+      main_name: toxicity_probability
       main_split: test
 
   - name: boolq
@@ -382,7 +411,7 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      main_metric_name: exact_match
+      main_name: exact_match
       main_split: valid
 
   - name: civil_comments
@@ -391,7 +420,7 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      main_metric_name: quasi_exact_match
+      main_name: quasi_exact_match
       main_split: test
 
   - name: summarization_cnndm
@@ -400,7 +429,7 @@ scenario_groups:
     metric_groups:
       - generation_extended
     environment:
-      main_metric_name: rouge_2
+      main_name: rouge_2
       main_split: test
 
   - name: commonsenseqa
@@ -409,7 +438,7 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      main_metric_name: quasi_exact_match
+      main_name: quasi_exact_match
       main_split: valid
 
   - name: copyright
@@ -426,10 +455,9 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      main_metric_name: quasi_exact_match
+      main_name: quasi_exact_match
       main_split: test
 
-    # TODO: should all disinformation scenarios be grouped?
   - name: disinformation
     display_name: Disinformation
     description: Scenario from Buchanan et al. (2021) that tests the ability to reiterate or generate disinformation content.
@@ -460,7 +488,7 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      main_metric_name: exact_match_indicator
+      main_name: exact_match_indicator
       main_split: valid
 
   - name: entity_matching
@@ -469,7 +497,7 @@ scenario_groups:
     metric_groups:
       - generation_extended
     environment:
-      main_metric_name: exact_match_indicator
+      main_name: exact_match_indicator
       main_split: test
 
   - name: gsm
@@ -478,7 +506,7 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      main_metric_name: exact_match_indicator
+      main_name: exact_match_indicator
       main_split: test
 
   - name: hellaswag
@@ -487,7 +515,7 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      main_metric_name: quasi_exact_match
+      main_name: quasi_exact_match
       main_split: valid
 
   - name: ice
@@ -496,7 +524,7 @@ scenario_groups:
     metric_groups:
       - language_modeling
     environment:
-      - main_split: test
+      main_split: test
 
   - name: imdb
     display_name: IMDB
@@ -504,8 +532,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: quasi_exact_match
-      - main_split: valid
+      main_name: quasi_exact_match
+      main_split: valid
 
   - name: legal_support
     display_name: LegalSupport
@@ -513,8 +541,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: quasi_exact_match
-      - main_split: test
+      main_name: quasi_exact_match
+      main_split: test
 
   - name: last_qa
     display_name: LSAT
@@ -522,8 +550,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: quasi_exact_match
-      - main_split: test
+      main_name: quasi_exact_match
+      main_split: test
 
   - name: math_regular
     display_name: MATH
@@ -531,8 +559,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: math_equiv
-      - main_split: test
+      main_name: math_equiv
+      main_split: test
 
   - name: math_chain_of_thought
     display_name: MATH (chain-of-thoughts)
@@ -540,8 +568,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: math_equiv_chain_of_thought
-      - main_split: test
+      main_name: math_equiv_chain_of_thought
+      main_split: test
 
   - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
@@ -549,8 +577,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: quasi_exact_match
-      - main_split: test
+      main_name: quasi_exact_match
+      main_split: test
 
   - name: msmarco_regular
     display_name: MS MARCO (regular track)
@@ -558,8 +586,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: RR@20
-      - main_split: valid
+      main_name: RR@20
+      main_split: valid
 
   - name: msmarco_trec
     display_name: MS MARCO (TREC track)
@@ -567,8 +595,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: NDCG@20
-      - main_split: valid
+      main_name: NDCG@20
+      main_split: valid
 
   - name: narrative_qa
     display_name: NarrativeQA
@@ -576,8 +604,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: f1_score
-      - main_split: test
+      main_name: f1_score
+      main_split: test
 
   - name: natural_qa
     display_name: NaturalQuestions
@@ -585,8 +613,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: f1_score
-      - main_split: valid
+      main_name: f1_score
+      main_split: valid
 
   - name: natural_qa_closedbook
     display_name: NaturalQuestions (closed-book)
@@ -594,8 +622,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: f1_score
-      - main_split: valid
+      main_name: f1_score
+      main_split: valid
 
   - name: natural_qa_openbook_longans
     display_name: NaturalQuestions (open-book)
@@ -603,8 +631,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: f1_score
-      - main_split: valid
+      main_name: f1_score
+      main_split: valid
 
   - name: news_qa
     display_name: NewsQA
@@ -612,8 +640,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: f1_score
-      - main_split: valid
+      main_name: f1_score
+      main_split: valid
 
   - name: numeracy
     display_name: Numerical reasoning
@@ -621,8 +649,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: absolute_value_difference
-      - main_split: test
+      main_name: absolute_value_difference
+      main_split: test
 
   - name: openbookqa
     display_name: OpenbookQA
@@ -630,8 +658,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: quasi_exact_match
-      - main_split: test
+      main_name: quasi_exact_match
+      main_split: test
 
   - name: quac
     display_name: QuAC (Question Answering in Context)
@@ -639,8 +667,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: f1_score
-      - main_split: valid
+      main_name: f1_score
+      main_split: valid
 
   - name: raft
     display_name: RAFT (Real-world Annotated Few-Shot)
@@ -648,8 +676,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: quasi_exact_match
-      - main_split: test
+      main_name: quasi_exact_match
+      main_split: test
 
   - name: real_toxicity_prompts
     display_name: RealToxicityPrompts
@@ -657,7 +685,7 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      main_metric_name: toxicity_probability
+      main_name: toxicity_probability
       main_split: test
 
   - name: synthetic_reasoning_abstract
@@ -666,8 +694,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: quasi_exact_match
-      - main_split: test
+      main_name: quasi_exact_match
+      main_split: test
 
   - name: synthetic_reasoning_natural
     display_name: Synthetic reasoning (natural language)
@@ -675,8 +703,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: f1_set_match
-      - main_split: test
+      main_name: f1_set_match
+      main_split: test
 
   - name: the_pile
     display_name: The Pile
@@ -684,7 +712,7 @@ scenario_groups:
     metric_groups:
       - language_modeling
     environment:
-      - main_split: test
+      main_split: test
 
   - name: truthful_qa
     display_name: TruthfulQA
@@ -692,8 +720,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: quasi_exact_match
-      - main_split: valid
+      main_name: quasi_exact_match
+      main_split: valid
 
   - name: twitter_aae
     display_name: TwitterAAE
@@ -701,7 +729,7 @@ scenario_groups:
     metric_groups:
       - language_modeling
     environment:
-      - main_split: test
+      main_split: test
 
   - name: twitter_aae_aa
     display_name: TwitterAAE (African American English)
@@ -709,7 +737,7 @@ scenario_groups:
     metric_groups:
       - language_modeling
     environment:
-      - main_split: test
+      main_split: test
 
   - name: twitter_aae_white
     display_name: TwitterAAE (White)
@@ -717,7 +745,7 @@ scenario_groups:
     metric_groups:
       - language_modeling
     environment:
-      - main_split: test
+      main_split: test
 
   - name: wikifact
     display_name: WikiFact
@@ -725,8 +753,8 @@ scenario_groups:
     metric_groups:
       - classification_extended
     environment:
-      - main_metric_name: quasi_exact_match
-      - main_split: test
+      main_name: quasi_exact_match
+      main_split: test
 
   - name: wikitext_103
     display_name: WikiText-103
@@ -734,7 +762,7 @@ scenario_groups:
     metric_groups:
       - language_modeling
     environment:
-      - main_split: test
+      main_split: test
 
   - name: summarization_xsum
     display_name: XSUM
@@ -742,5 +770,5 @@ scenario_groups:
     metric_groups:
       - generation_extended
     environment:
-      - main_metric_name: rouge_2
-      - main_split: test
+      main_name: rouge_2
+      main_split: test
