@@ -614,7 +614,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_srn_metric_specs(),
-        groups=["synthetic_reasoning", "synthetic_reasoning_natural)"],
+        groups=["synthetic_reasoning", "synthetic_reasoning_natural"],
     )
 
 

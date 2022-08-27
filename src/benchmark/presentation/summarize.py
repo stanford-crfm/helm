@@ -1,5 +1,6 @@
 import argparse
 from dataclasses import dataclass, field, replace
+import mako.template
 import os
 import yaml
 from collections import defaultdict
@@ -12,7 +13,6 @@ import json
 from common.general import write, ensure_directory_exists, asdict_without_nones, singleton
 from common.hierarchical_logger import hlog, htrack
 from benchmark.metrics.statistic import Stat
-from benchmark.scenarios.scenario import TEST_SPLIT
 from benchmark.runner import RunSpec
 from benchmark.metrics.metric_name import MetricName
 from benchmark.augmentations.perturbation_description import PERTURBATION_WORST
@@ -70,19 +70,53 @@ class Field:
 
 
 @dataclass(frozen=True)
+class MetricNameMatcher:
+    """
+    The schema file specifies information about what metrics we want to specify,
+    but it doesn't specify full `MetricName`s.  Instead, it specifies enough
+    information in a `MetricNameMatcher` to pull out the relevant
+    `MetricName`s.
+    """
+
+    # Name of the metric
+    name: str
+
+    # Which data split to report numbers on (e.g., TEST_SPLIT)
+    split: str
+
+    # Which perturbation to show (e.g., robustness)
+    perturbation_name: Optional[str] = None
+
+    def matches(self, metric_name: MetricName) -> bool:
+        if self.name != metric_name.name:
+            return False
+        if self.split != metric_name.split:
+            return False
+        metric_perturbation_name = metric_name.perturbation and metric_name.perturbation.name
+        if self.perturbation_name != metric_perturbation_name:
+            return False
+        # If there is a perturbation, only return the worst
+        if metric_name.perturbation and metric_name.perturbation.computed_on != PERTURBATION_WORST:
+            return False
+        return True
+
+    def substitute(self, environment: Dict[str, str]) -> "MetricNameMatcher":
+        return MetricNameMatcher(
+            name=mako.template.Template(self.name).render(**environment),
+            split=mako.template.Template(self.split).render(**environment),
+            perturbation_name=mako.template.Template(self.perturbation_name).render(**environment)
+            if self.perturbation_name is not None
+            else None,
+        )
+
+
+@dataclass(frozen=True)
 class MetricGroup(Field):
     """
-    Expands to a set of columns that correspond to a set of coherent metrics
-    (e.g., all bias metrics).
-    The columns are defined by the cross product of `metric_names` and
-    `perturbation_names`.
+    A list of metrics (which are presumably logically grouped).
     """
 
-    # If not specified, then use the ScenarioGroup's default metric_names.
-    metric_names: Optional[List[str]] = field(default_factory=list)
-
-    # Which perturbations to show (e.g., typos)
-    perturbation_names: List[Optional[str]] = field(default_factory=list)
+    metrics: List[MetricNameMatcher] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -92,27 +126,36 @@ class ScenarioGroup(Field):
     share the same scenario) are displayed.
     """
 
-    # Which data split to report numbers on
-    split: str = TEST_SPLIT
+    # What groups (by name) to show
+    metric_groups: List[str] = field(default_factory=list)
 
-    # What are the metric names to display first (e.g., exact_match)
-    # This should be the main accuracy-like metric.
-    metric_names: List[str] = field(default_factory=list)
+    # Defines variables that are substituted in any of the metrics
+    environment: Dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
 class Schema:
     """Specifies information about what to display."""
 
+    # Adapter fields (e.g., temperature)
     adapter: List[Field]
+
+    # Information about each field
     metrics: List[Field]
+
+    # Information about each perturbation
     perturbations: List[Field]
+
+    # Group the metrics
     metric_groups: List[MetricGroup]
+
+    # Group the scenarios
     scenario_groups: List[ScenarioGroup]
 
     def __post_init__(self):
         self.name_to_metric = {metric.name: metric for metric in self.metrics}
         self.name_to_perturbation = {perturbation.name: perturbation for perturbation in self.perturbations}
+        self.name_to_metric_group = {metric_group.name: metric_group for metric_group in self.metric_groups}
 
 
 @dataclass(frozen=True)
@@ -135,33 +178,6 @@ class Table:
     title: str
     header: List[Cell]
     rows: List[List[Cell]]
-
-
-@dataclass(frozen=True)
-class MetricNameMatcher:
-    """
-    The schema file specifies information about what metrics we want to specify,
-    but it doesn't specify full `MetricName`s.  Instead, it specifies enough
-    information in a `MetricNameMatcher` to pull out the relevant
-    `MetricName`s.
-    """
-
-    name: str
-    split: str
-    perturbation_name: str
-
-    def matches(self, metric_name: MetricName) -> bool:
-        if self.name != metric_name.name:
-            return False
-        if self.split != metric_name.split:
-            return False
-        metric_perturbation_name = metric_name.perturbation and metric_name.perturbation.name
-        if self.perturbation_name != metric_perturbation_name:
-            return False
-        # If there is a perturbation, only return the worst
-        if metric_name.perturbation and metric_name.perturbation.computed_on != PERTURBATION_WORST:
-            return False
-        return True
 
 
 def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) -> Optional[Stat]:
@@ -351,41 +367,33 @@ class Summarizer:
         # Figure out what the columns of the table are.
         # Create header (cells to display) and the list of metric name filters
         # (to pull out information later).
-        header = []
-        matchers = []
+        header: List[Cell] = []
+        matchers: List[MetricNameMatcher] = []
         header.append(Cell("Model"))
-        for metric_group in self.schema.metric_groups:
-            # Get stat names and perturbations
-            split = scenario_group.split
-            metric_names = metric_group.metric_names or scenario_group.metric_names
-            perturbation_names = metric_group.perturbation_names
+        for metric_group_name in scenario_group.metric_groups:
+            metric_group = self.schema.name_to_metric_group[metric_group_name]
+            for metric in metric_group.metrics:
+                matcher = metric.substitute(scenario_group.environment)
+                header_field = self.schema.name_to_metric[matcher.name]
 
-            for metric_name in metric_names:
-                header_field = self.schema.name_to_metric[metric_name]
-                for perturbation_name in perturbation_names:
+                header_name = header_field.get_short_display_name()
+                description = header_field.display_name + ": " + header_field.description
 
-                    header_name = header_field.get_short_display_name()
-                    description = header_field.display_name + ": " + header_field.description
-
-                    if perturbation_name is not None:
-                        perturbation_field = self.schema.name_to_perturbation[perturbation_name]
-                        header_name += " (" + perturbation_field.get_short_display_name() + ")"
-                        description += (
-                            "\n- Perturbation "
-                            + perturbation_field.display_name
-                            + ": "
-                            + (perturbation_field.description or "???")
-                        )
-
-                    header.append(Cell(header_name, description=description))
-                    matchers.append(
-                        MetricNameMatcher(name=metric_name, split=split, perturbation_name=perturbation_name)
+                if matcher.perturbation_name is not None:
+                    perturbation_field = self.schema.name_to_perturbation[matcher.perturbation_name]
+                    header_name += " (" + perturbation_field.get_short_display_name() + ")"
+                    description += (
+                        "\n- Perturbation "
+                        + perturbation_field.display_name
+                        + ": "
+                        + (perturbation_field.description or "???")
                     )
+
+                header.append(Cell(header_name, description=description))
+                matchers.append(matcher)
 
         # Populate the contents of the table
         rows = []
-        # TODO: need to average over scenarios (which themselves have a list of runs) instead of runs?
-        # The two are the same if there are the same number of random seeds
         for model_name, runs in model_to_runs.items():
             model = get_model(model_name)
             # Link to all the runs under this model
@@ -398,7 +406,7 @@ class Summarizer:
                 [Cell(model.display_name, href=href)] + [self.create_cell(runs, matcher) for matcher in matchers]
             )
 
-        return Table(title=title, header=header, rows=rows,)
+        return Table(title=title, header=header, rows=rows)
 
     def write_groups(self):
         """
