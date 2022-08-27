@@ -374,7 +374,6 @@ class Summarizer:
             metric_group = self.schema.name_to_metric_group[metric_group_name]
             for metric in metric_group.metrics:
                 matcher = metric.substitute(scenario_group.environment)
-                print(matcher, scenario_group.environment)
                 header_field = self.schema.name_to_metric[matcher.name]
 
                 header_name = header_field.get_short_display_name()
