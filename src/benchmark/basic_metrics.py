@@ -762,7 +762,7 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
     calibration_metrics: List[Stat] = []
     assert len(max_probs) == len(correct)
     if len(max_probs) > 0:
-        ece = cal.get_ece_em(max_probs, correct, num_bins=15)
+        ece = cal.get_ece_em(max_probs, correct, num_bins=10)
         calibration_metrics.append(Stat(MetricName("ece")).add(ece))
         ece_1_bin = cal.get_ece(max_probs, correct, num_bins=1)
         calibration_metrics.append(Stat(MetricName("ece_1_bin")).add(ece_1_bin))
