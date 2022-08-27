@@ -16,7 +16,6 @@ jsonlines==3.0.0
 retrying==1.3.3
 websocket-client==1.3.2
 icetk==0.0.4
-flufl.lock==7.0
 
 # For development
 click==8.0.3
