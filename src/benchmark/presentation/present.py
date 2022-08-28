@@ -152,7 +152,7 @@ class AllRunner:
         for model in models:
             for group in groups:
                 # TODO: match the arguments passed in better
-                lines.append(f"sbatch --partition john --cpus 8 `dirname $0`/benchmark-present.sh --local --conf {self.conf_path} --suite {self.suite} --models-to-run {model} --scenario-groups-to-run {group}")
+                lines.append(f"sbatch --partition john --cpus 8 {suite_dir}/benchmark-present.sh --local --conf {self.conf_path} --suite {self.suite} --models-to-run {model} --scenario-groups-to-run {group}")
         lines.append(f"benchmark-present --local --suite {self.suite} --skip-instances")
         lines.append(f"benchmark-summarize --suite {self.suite}")
         write_lines(os.path.join(suite_dir, "run-all.sh"), lines)
