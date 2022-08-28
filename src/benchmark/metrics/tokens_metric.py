@@ -5,7 +5,6 @@ from concurrent.futures import ThreadPoolExecutor
 from common.hierarchical_logger import hlog
 from common.request import Request
 from benchmark.adapter import ScenarioState, RequestState
-from benchmark.scenarios.scenario import Instance
 from benchmark.metrics.statistic import Stat, merge_stat
 from benchmark.window_services.window_service import WindowService
 from benchmark.window_services.window_service_factory import WindowServiceFactory
