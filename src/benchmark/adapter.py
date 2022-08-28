@@ -4,6 +4,7 @@ from dataclasses import dataclass, field, replace
 from itertools import cycle
 from typing import List, Dict, Tuple, Optional
 from collections import defaultdict, OrderedDict
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 
@@ -278,7 +279,7 @@ class Adapter:
         )
 
     @htrack(None)
-    def adapt(self, instances: List[Instance]) -> ScenarioState:
+    def adapt(self, instances: List[Instance], parallelism: int) -> ScenarioState:
         """
         Takes a a list of `Instance`s and builds a list of corresponding `RequestState`s.
         The reason we don't do this per eval instance is that we create a common set of
@@ -337,20 +338,22 @@ class Adapter:
             for train_trial_index in range(self.adapter_spec.num_train_trials):
                 with htrack_block(f"Adapting with train_trial_index={train_trial_index}"):
                     all_request_states.extend(
-                        self.adapt_trial_index(all_train_instances, train_trial_index, eval_instances)
+                        self.adapt_trial_index(all_train_instances, train_trial_index, eval_instances, parallelism)
                     )
 
         hlog(f"{len(all_request_states)} requests")
         return ScenarioState(self.adapter_spec, all_request_states)
 
     def adapt_trial_index(
-        self, all_train_instances: List[Instance], train_trial_index: int, eval_instances: List[Instance]
+        self,
+        all_train_instances: List[Instance],
+        train_trial_index: int,
+        eval_instances: List[Instance],
+        parallelism: int,
     ) -> List[RequestState]:
         train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
-        all_request_states: List[RequestState] = []
 
-        # Create request_states
-        for eval_index, eval_instance in tqdm(enumerate(eval_instances), total=len(eval_instances)):
+        def process(eval_instance: Instance) -> List[RequestState]:
             # Define the request
             method = self.adapter_spec.method
 
@@ -470,20 +473,31 @@ class Adapter:
             else:
                 raise ValueError(f"Invalid method: {method}")
 
-            # Just print out prompts for one instance (useful for debugging)
-            if train_trial_index == 0 and eval_index == 0:
-                with htrack_block("Sample prompts"):
-                    for request_state in request_states:
-                        with htrack_block(
-                            f"reference index = {request_state.reference_index}, "
-                            f"request_mode = {request_state.request_mode}"
-                        ):
-                            for line in request_state.request.prompt.split("\n"):
-                                hlog(line)
+            return request_states
 
-            all_request_states.extend(request_states)
+        # Create request_states
+        hlog(f"Parallelizing across {parallelism} threads")
+        with ThreadPoolExecutor(max_workers=parallelism) as executor:
+            results: List[List[RequestState]] = list(
+                tqdm(executor.map(process, eval_instances), total=len(eval_instances))
+            )
 
-        return all_request_states
+        # Just print out prompts for one instance (useful for debugging)
+        if train_trial_index == 0 and len(results) > 0:
+            with htrack_block("Sample prompts"):
+                for request_state in results[0]:
+                    with htrack_block(
+                        f"reference index = {request_state.reference_index}, "
+                        f"request_mode = {request_state.request_mode}"
+                    ):
+                        for line in request_state.request.prompt.split("\n"):
+                            hlog(line)
+
+        # Flatten and return
+        all_request_states: List[RequestState] = []
+        for result_index, result in enumerate(results):
+            all_request_states.extend(result)
+        return [request_state for result in results for request_state in result]
 
     def sample_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
         """

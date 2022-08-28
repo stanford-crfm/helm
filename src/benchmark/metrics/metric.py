@@ -1,9 +1,11 @@
 from abc import ABC
 from dataclasses import dataclass, replace
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from typing import List, Dict, Tuple, Optional, Iterable, Set
 from tqdm import tqdm
 
+from common.hierarchical_logger import hlog
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton
 from benchmark.augmentations.perturbation_description import (
@@ -61,7 +63,7 @@ class Metric(ABC):
     """
 
     def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
         """
         Main entry point for a `Metric`.  This function groups the single
@@ -79,12 +81,9 @@ class Metric(ABC):
         all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
 
         for train_trial_index in range(adapter_spec.num_train_trials):
-            trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
-            per_instance_stats: Dict[Instance, List[Stat]] = defaultdict(list)  # Stats for individual instances
 
-            for instance in tqdm(scenario_state.instances):
-                instance_stats = []
-
+            def process(instance: Instance) -> List[Stat]:
+                instance_stats: List[Stat] = []
                 # Evaluate generated request_state
                 request_states = scenario_state.get_request_states(train_trial_index, instance, None)
                 if len(request_states) != 0:
@@ -109,13 +108,24 @@ class Metric(ABC):
                 for i, stat in enumerate(instance_stats):
                     instance_stats[i] = add_context(stat, MetricContext.from_instance(instance))
 
-                per_instance_stats[instance] = instance_stats
+                return instance_stats
 
-                # Merge these statistics back.
+            hlog(f"Parallelizing across {parallelism} threads")
+            with ThreadPoolExecutor(max_workers=parallelism) as executor:
+                results: List[List[Stat]] = list(
+                    tqdm(executor.map(process, scenario_state.instances), total=len(scenario_state.instances))
+                )
+
+            # Per-instance stats
+            per_instance_stats: Dict[Instance, List[Stat]] = dict(zip(scenario_state.instances, results))
+
+            # Aggregate these stats
+            trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
+            for instance_stats in results:
                 for stat in instance_stats:
                     merge_stat(trial_stats, stat)
 
-            # group stats according to the context (e.g., split, perturbation), i.e., non-name part of the MetricName,
+            # Group stats according to the context (e.g., split, perturbation), i.e., non-name part of the MetricName,
             # and call derive_stats on each grouping
             grouped_trial_stats: Dict[MetricContext, Dict[MetricName, Stat]] = defaultdict(dict)
             for metric_name, stat in trial_stats.items():
@@ -125,7 +135,7 @@ class Metric(ABC):
                     # we could potentially allow derive_stats to overwrite context, but this feels more robust
                     merge_stat(trial_stats, add_context(stat, context))  # add correct context
 
-            # same for per_instance_stats
+            # Same for per_instance_stats
             grouped_per_instance_stats: Dict[MetricContext, Dict[Instance, List[Stat]]] = defaultdict(
                 lambda: defaultdict(list)
             )

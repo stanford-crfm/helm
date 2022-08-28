@@ -1,8 +1,10 @@
 from typing import List, Dict
 from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor
 
+from common.hierarchical_logger import hlog
 from common.request import Request
-from benchmark.adapter import ScenarioState
+from benchmark.adapter import ScenarioState, RequestState
 from benchmark.scenarios.scenario import Instance
 from benchmark.metrics.statistic import Stat, merge_stat
 from benchmark.window_services.window_service import WindowService
@@ -21,41 +23,50 @@ class TokensMetric(Metric):
     def __init__(self):
         self.token_cost_estimator = AutoTokenCostEstimator()
 
+    def __repr__(self):
+        return "TokensMetric()"
+
     def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int,
     ) -> MetricResult:
         """
         Add up all the estimated number of tokens used for each request.
         """
 
-        def merge_stat_helper(stat: Stat, instance: Instance):
-            """Merges "stat" to `stats` and `per_instance_stats` dictionaries."""
-            merge_stat(stats, stat)
-            # Call take_mean to make a copy of the stat, so that merge_stat updates do
-            # not change what is in per_instance_stats.
-            per_instance_stats[PerInstanceStatsKey(instance, 0)] = [stat.take_mean()]
-
-        per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
-        stats: Dict[MetricName, Stat] = {}
-
-        for request_state in tqdm(scenario_state.request_states):
+        def process(request_state: RequestState) -> List[Stat]:
             request: Request = request_state.request
-            instance: Instance = request_state.instance
+            stats: List[Stat] = []
 
             # Estimated cost in terms of number of tokens
             estimate_num_tokens_cost: int = self.token_cost_estimator.estimate_tokens(request, metric_service)
-            stat = Stat(MetricName("estimated_num_tokens_cost")).add(estimate_num_tokens_cost)
-            merge_stat_helper(stat, instance)
+            stats.append(Stat(MetricName("estimated_num_tokens_cost")).add(estimate_num_tokens_cost))
 
             # Number of tokens in the prompt
             window_service: WindowService = WindowServiceFactory.get_window_service(request.model, metric_service)
             num_prompt_tokens: int = window_service.get_num_tokens(text=request.prompt)
-            stat = Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens)
-            merge_stat_helper(stat, instance)
+            stats.append(Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens))
 
             # Maximum number of tokens in the completions
-            stat = Stat(MetricName("max_num_output_tokens")).add(request.num_completions * request.max_tokens)
-            merge_stat_helper(stat, instance)
+            stats.append(Stat(MetricName("max_num_output_tokens")).add(request.num_completions * request.max_tokens))
+
+            return stats
+
+        hlog(f"Parallelizing across {parallelism} threads")
+        with ThreadPoolExecutor(max_workers=parallelism) as executor:
+            results: List[List[Stat]] = list(
+                tqdm(executor.map(process, scenario_state.request_states), total=len(scenario_state.request_states))
+            )
+
+        # Per instance
+        keys = [PerInstanceStatsKey(instance, 0) for instance in scenario_state.instances]
+        per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = dict(zip(keys, results))
+
+        # Aggregate
+        stats: Dict[MetricName, Stat] = {}
+        for instance_stats in results:
+            for stat in instance_stats:
+                merge_stat(stats, stat)
 
         merge_stat(stats, Stat(MetricName("num_requests")).add(len(scenario_state.request_states)))
+
         return MetricResult(list(stats.values()), per_instance_stats)

@@ -46,8 +46,10 @@ class DataAugmenter:
             return result
 
         # TODO: SynonymPerturbation isn't thread-safe, so we can't exploit parallelism right now
+        hlog(f"Setting parallelism from {parallelism} to 1, since parallelism in SynonymPerturbation isn't supported")
         parallelism = 1
 
+        hlog(f"Parallelizing across {parallelism} threads")
         with ThreadPoolExecutor(max_workers=parallelism) as executor:
             # Run `process` on each instance
             results: List[List[Instance]] = list(tqdm(executor.map(process, instances), total=len(instances)))

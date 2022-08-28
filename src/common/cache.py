@@ -1,5 +1,4 @@
 import json
-from datetime import timedelta
 from typing import Dict, Callable, Tuple
 
 from sqlitedict import SqliteDict
