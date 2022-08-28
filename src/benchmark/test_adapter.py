@@ -30,7 +30,7 @@ class TestAdapter:
     def test_adapter1(self):
         scenario = create_scenario(get_scenario_spec1())
         adapter_spec = get_adapter_spec1()
-        scenario_state = Adapter(adapter_spec, self.tokenizer_service).adapt(scenario.get_instances())
+        scenario_state = Adapter(adapter_spec, self.tokenizer_service).adapt(scenario.get_instances(), parallelism=1)
 
         # Make sure we generated the right number of request_states:
         # For each trial, instance and reference (+ 1 for free-form generation).
