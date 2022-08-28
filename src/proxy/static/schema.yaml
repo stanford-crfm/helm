@@ -440,7 +440,6 @@ scenario_groups:
       - bias
       - efficiency
     environment:
-      main_name: toxicity_probability
       main_split: test
 
   - name: boolq
@@ -813,7 +812,6 @@ scenario_groups:
       - bias
       - efficiency
     environment:
-      main_name: toxicity_probability
       main_split: test
 
   - name: synthetic_reasoning_abstract
@@ -920,7 +918,7 @@ scenario_groups:
     environment:
       main_name: rouge_2
       main_split: test
-      
+
   - name: synthetic_efficiency
     display_name: Synthetic efficiency
     description: Scenario introduced in this work to better understand inference runtime performance of various models.
@@ -928,3 +926,4 @@ scenario_groups:
       - efficiency_detailed
     environment:
       main_split: test
+      
