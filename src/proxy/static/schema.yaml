@@ -100,8 +100,8 @@ metrics:
 
   #  Code metrics
   - name: code_eval_acc
-    display_name: Accuracy
-    short_display_name: Accuracy
+    display_name: Correctness
+    short_display_name: Correctness
     description: Fraction of instances that the model output evaluates to the correct answer.
   - name: pass
     display_name: Pass rate
@@ -110,8 +110,8 @@ metrics:
     display_name: 'Avg. # tests passed'
     description: Average number of tests passed by model outputs.
   - name: strict_acc
-    display_name: Strict accuracy
-    short_display_name: Accuracy
+    display_name: Strict correctness
+    short_display_name: Strict correctness
     description: Fraction of models outputs that pass all associated test cases.
 
   # Disinformation metrics (measure diversity):
@@ -130,7 +130,7 @@ metrics:
     description: Average length of longest common prefix between model generation and reference.
   - name: edit_distance
     display_name: Edit distance (Levenshtein)
-    short_display_name: Edit distance
+    short_display_name: Edit dist.
     description: Average Levenshtein edit distance between model generation and reference.
 
   # Bias metrics:
@@ -217,19 +217,19 @@ perturbations:
       worst-case performance between perturbed and unperturbed versions.
   - name: dialect
     display_name: SAE -> AAE
-    short_display_name: Dialect unfairness
+    short_display_name: Dialect 
     description: >
       Deterministically substitutes SAE words in input with AAE counterparts using validated dictionary of Ziems et al.
       (2022) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
   - name: race
     display_name: First names by race (White -> Black)
-    short_display_name: Racial unfairness
+    short_display_name: Race 
     description: >
       Deterministically substitutes White first names with Black first names sampled from the lists of Caliskan et al.
       (2017) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
   - name: gender
     display_name: Pronouns by gender (Male -> Female)
-    short_display_name: Gender unfairness
+    short_display_name: Gender
     description: >
       Deterministically substitutes male pronouns with female pronouns and computes the per-instance worst-case
       performance between perturbed and unperturbed versions.
@@ -334,35 +334,35 @@ metric_groups:
         split: ${main_split}
 
   # Special metrics for scenarios with more than 1 main metric
-  - name: apps
+  - name: apps_metrics
     metrics:
       - name: test_avg
         split: ${main_split}
       - name: strict_acc
         split: ${main_split}
 
-  - name: humaneval
+  - name: humaneval_metrics
     metrics:
       - name: code_eval_acc
         split: ${main_split}
       - name: pass
         split: ${main_split}
 
-  - name: bbq
+  - name: bbq_metrics
     metrics:
       - name: bbq_metric_ambiguous_bias
         split: ${main_split}
       - name: bbq_metric_unambiguous_bias
         split: ${main_split}
 
-  - name: copyright
+  - name: copyright_metrics
     metrics:
       - name: longest_common_prefix_length
         split: ${main_split}
       - name: edit_distance
         split: ${main_split}
 
-  - name: disinformation
+  - name: disinformation_metrics
     metrics:
       - name: self_bleu
         split: ${main_split}
@@ -374,9 +374,10 @@ scenario_groups:
     display_name: APPS (Code)
     description: The APPS benchmark for measuring competence on code challenges (Hendrycks et al., 2021).
     metric_groups:
-      - apps
+      - apps_metrics
       - efficiency
     environment:
+      # We do not include accuracy as it is subsumed by apps
       main_name: test_avg
       main_split: test
 
@@ -384,7 +385,8 @@ scenario_groups:
     display_name: HumanEval (Code)
     description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings (Chen et al., 2021).
     metric_groups:
-      - humaneval
+      # We do not include accuracy as it is subsumed by humaneval
+      - humaneval_metrics
       - efficiency
     environment:
       main_name: code_eval_acc
@@ -405,7 +407,7 @@ scenario_groups:
     description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context (Parrish et al., 2022).
     metric_groups:
       - accuracy
-      - bbq
+      - bbq_metrics
       - efficiency
     environment:
       main_name: quasi_exact_match
@@ -497,7 +499,7 @@ scenario_groups:
     display_name: Copyright
     description: Scenario introduced in this work to measure copyright and memorization behavior, based off of Carlini et al. (2021).
     metric_groups:
-      - copyright
+      - copyright_metrics
       - bias
       - toxicity
       - efficiency
@@ -518,7 +520,7 @@ scenario_groups:
     display_name: Disinformation
     description: Scenario from Buchanan et al. (2021) that tests the ability to reiterate or generate disinformation content.
     metric_groups:
-      - disinformation
+      - disinformation_metrics
       - bias
       - toxicity
       - efficiency
@@ -529,7 +531,7 @@ scenario_groups:
     display_name: Disinformation (reiteration)
     description: Scenario from Buchanan et al. (2021) that tests the ability to reiterate disinformation content.
     metric_groups:
-      - disinformation
+      - disinformation_metrics
       - bias
       - toxicity
       - efficiency
@@ -540,7 +542,7 @@ scenario_groups:
     display_name: Disinformation (wedging)
     description: Scenario from Buchanan et al. (2021) that tests the ability to generate divisive and wedging content.
     metric_groups:
-      - disinformation
+      - disinformation_metrics
       - bias
       - toxicity
       - efficiency
