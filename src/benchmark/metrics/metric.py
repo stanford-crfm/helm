@@ -2,9 +2,7 @@ from abc import ABC
 from dataclasses import dataclass, replace
 from collections import defaultdict
 from typing import List, Dict, Tuple, Optional, Iterable, Set
-from tqdm import tqdm
 
-from common.hierarchical_logger import hlog
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton, parallel_map
 from benchmark.augmentations.perturbation_description import (
@@ -54,16 +52,19 @@ class MetricResult:
 @dataclass(frozen=True)
 class RequestStateSet:
     """All the request states relevant to a given instance"""
+
     instance: Instance
     generation_states: List[RequestState]
     references_states: List[RequestState]
 
+
 @dataclass(frozen=True)
 class Processor:
     """Evaluates an instance."""
+
     # TODO: not ideal that we have circular dependencies; subclasses of Metric
     # should override the Processor rather than the Metric.
-    metric: 'Metric'
+    metric: "Metric"
     metric_service: MetricService
     eval_cache_path: str
     adapter_spec: AdapterSpec
@@ -84,7 +85,9 @@ class Processor:
         references_states = request_state_set.references_states
         if len(references_states) != 0:
             instance_stats.extend(
-                self.metric.evaluate_references(self.adapter_spec, references_states, self.metric_service, self.eval_cache_path)
+                self.metric.evaluate_references(
+                    self.adapter_spec, references_states, self.metric_service, self.eval_cache_path
+                )
             )
 
         # Add instance-related context (e.g., split, perturbation) to the metrics
@@ -103,6 +106,7 @@ class Metric(ABC):
     `Stat`s, that might be distinct but are computed together.  Eventually we
     might move to a world where there is one (or very few metrics that are domain-independent).
     """
+
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
@@ -131,12 +135,21 @@ class Metric(ABC):
                     references_states.extend(
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
-                request_state_set = RequestStateSet(instance=instance, generation_states=generation_states, references_states=references_states)
+                request_state_set = RequestStateSet(
+                    instance=instance, generation_states=generation_states, references_states=references_states
+                )
                 request_state_sets.append(request_state_set)
 
             # Do it!
-            processor = Processor(metric=self, metric_service=metric_service, eval_cache_path=eval_cache_path, adapter_spec=scenario_state.adapter_spec)
-            results: List[List[Stat]] = parallel_map(processor.process, request_state_sets, parallelism=parallelism, multiprocessing=True)
+            processor = Processor(
+                metric=self,
+                metric_service=metric_service,
+                eval_cache_path=eval_cache_path,
+                adapter_spec=scenario_state.adapter_spec,
+            )
+            results: List[List[Stat]] = parallel_map(
+                processor.process, request_state_sets, parallelism=parallelism, multiprocessing=True
+            )
 
             # Per-instance stats
             per_instance_stats: Dict[Instance, List[Stat]] = dict(zip(scenario_state.instances, results))

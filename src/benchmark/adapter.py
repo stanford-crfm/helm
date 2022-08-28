@@ -6,7 +6,7 @@ from collections import defaultdict, OrderedDict
 
 import numpy as np
 
-from common.general import serialize, indent_lines, format_text_lines, parallel_map
+from common.general import serialize, indent_lines, format_text_lines, parallel_map, flatten_list
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationToken
@@ -209,9 +209,11 @@ class Prompt:
     # (input_truncated == True implies num_in_context_examples == 0)
     input_truncated: bool
 
+
 @dataclass(frozen=True)
 class Processor:
     """Constructs a prompt for each example."""
+
     adapter_spec: AdapterSpec
     window_service: WindowService
 
@@ -240,7 +242,7 @@ class Processor:
                     instance=eval_instance,
                     reference_index=None,
                     request_mode=None,
-                    train_trial_index=train_trial_index,
+                    train_trial_index=self.train_trial_index,
                     output_mapping=None,
                     request=request,
                     result=None,
@@ -327,7 +329,7 @@ class Processor:
                         instance=eval_instance,
                         reference_index=reference_index,
                         request_mode=request_mode,
-                        train_trial_index=train_trial_index,
+                        train_trial_index=self.train_trial_index,
                         output_mapping=None,
                         request=request,
                         result=None,
@@ -594,7 +596,9 @@ class Adapter:
             train_instances=train_instances,
             train_trial_index=train_trial_index,
         )
-        results: List[List[RequestState]] = parallel_map(processor.process, eval_instances, parallelism=parallelism, multiprocessing=True)
+        results: List[List[RequestState]] = parallel_map(
+            processor.process, eval_instances, parallelism=parallelism, multiprocessing=True
+        )
 
         # Print out prompts for one instance (useful for debugging)
         if train_trial_index == 0 and len(results) > 0:

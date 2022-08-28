@@ -1,9 +1,7 @@
 from typing import List, Dict
-from tqdm import tqdm
 from dataclasses import dataclass
 
 from common.general import parallel_map
-from common.hierarchical_logger import hlog
 from common.request import Request
 from benchmark.adapter import ScenarioState, RequestState
 from benchmark.metrics.statistic import Stat, merge_stat
@@ -15,9 +13,11 @@ from .metric_service import MetricService
 from .tokens.auto_token_cost_estimator import AutoTokenCostEstimator
 from .tokens.token_cost_estimator import TokenCostEstimator
 
+
 @dataclass
 class Processor:
     """Processes a single example."""
+
     token_cost_estimator: TokenCostEstimator
     metric_service: MetricService
 
@@ -40,6 +40,7 @@ class Processor:
 
         return stats
 
+
 class TokensMetric(Metric):
     """
     Estimates the total number of tokens that will be used based on the requests.
@@ -58,7 +59,9 @@ class TokensMetric(Metric):
         Add up all the estimated number of tokens used for each request.
         """
         processor = Processor(token_cost_estimator=self.token_cost_estimator, metric_service=metric_service)
-        results: List[List[Stat]] = parallel_map(processor.process, scenario_state.request_states, parallelism=parallelism, multiprocessing=True)
+        results: List[List[Stat]] = parallel_map(
+            processor.process, scenario_state.request_states, parallelism=parallelism, multiprocessing=True
+        )
 
         # Per instance
         keys = [PerInstanceStatsKey(instance, 0) for instance in scenario_state.instances]

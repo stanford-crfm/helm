@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from typing import List
-from tqdm import tqdm
 
 from common.hierarchical_logger import htrack, hlog
 from common.general import parallel_map

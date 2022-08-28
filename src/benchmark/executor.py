@@ -1,6 +1,5 @@
 from typing import Optional
 from dataclasses import dataclass, replace
-from tqdm import tqdm
 
 from common.general import format_text, parallel_map
 from common.hierarchical_logger import htrack, hlog
@@ -95,7 +94,12 @@ class Executor:
             )
 
         # Do it!
-        request_states = parallel_map(self.process, scenario_state.request_states, parallelism=self.execution_spec.parallelism, multiprocessing=True)
+        request_states = parallel_map(
+            self.process,
+            scenario_state.request_states,
+            parallelism=self.execution_spec.parallelism,
+            multiprocessing=True,
+        )
 
         hlog(f"Processed {len(request_states)} requests")
         return ScenarioState(scenario_state.adapter_spec, request_states)
@@ -105,4 +109,3 @@ class Executor:
         if not result.success:
             raise ExecutorError(result.error + f"Request: {state.request}")
         return replace(state, result=result)
-

@@ -2,8 +2,6 @@ import json
 from typing import Dict, Callable, Tuple
 from sqlitedict import SqliteDict
 
-from common.hierarchical_logger import hlog
-
 
 def request_to_key(request: Dict) -> str:
     """Normalize a `request` into a `key` so that we can hash using it."""
