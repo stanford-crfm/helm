@@ -8,7 +8,7 @@ from typing import List, Optional
 import json
 
 from common.authentication import Authentication
-from common.general import parse_hocon, write
+from common.general import parse_hocon, write, write_lines
 from common.hierarchical_logger import hlog, htrack
 from benchmark.run import run_benchmarking, add_run_args, validate_args, LATEST_SYMLINK
 from benchmark.runner import RunSpec
@@ -137,6 +137,25 @@ class AllRunner:
                 groups.add(group)
         hlog(f"{len(models)} models: {' '.join(models)}")
         hlog(f"{len(groups)} scenario groups: {' '.join(groups)}")
+
+        # Write wrapper for benchmark-present that can be used through Slurm
+        lines = [
+            "#!/bin/bash",
+            "",
+            ". venv/bin/activate",
+            "benchmark-present \"$@\"",
+        ]
+        write_lines(os.path.join(suite_dir, "benchmark-present.sh"), lines)
+
+        # Write out bash script for launching the entire benchmark
+        lines = []
+        for model in models:
+            for group in groups:
+                # TODO: match the arguments passed in better
+                lines.append(f"sbatch --partition john --cpus 8 `dirname $0`/benchmark-present.sh --local --conf {self.conf_path} --suite {self.suite} --models-to-run {model} --scenario-groups-to-run {group}")
+        lines.append(f"benchmark-present --local --suite {self.suite} --skip-instances")
+        lines.append(f"benchmark-summarize --suite {self.suite}")
+        write_lines(os.path.join(suite_dir, "run-all.sh"), lines)
 
         # Create a symlink runs/latest -> runs/<name_of_suite>,
         # so runs/latest always points to the latest run suite.
