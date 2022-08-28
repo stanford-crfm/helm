@@ -1,7 +1,8 @@
 from typing import List, Dict
 from tqdm import tqdm
-from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 
+from common.general import parallel_map
 from common.hierarchical_logger import hlog
 from common.request import Request
 from benchmark.adapter import ScenarioState, RequestState
@@ -12,7 +13,32 @@ from .metric import Metric, MetricResult, PerInstanceStatsKey
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .tokens.auto_token_cost_estimator import AutoTokenCostEstimator
+from .tokens.token_cost_estimator import TokenCostEstimator
 
+@dataclass
+class Processor:
+    """Processes a single example."""
+    token_cost_estimator: TokenCostEstimator
+    metric_service: MetricService
+
+    def process(self, request_state: RequestState) -> List[Stat]:
+        request: Request = request_state.request
+        stats: List[Stat] = []
+
+        # Estimated cost in terms of number of tokens
+        estimate_num_tokens_cost: int = self.token_cost_estimator.estimate_tokens(request, self.metric_service)
+        stats.append(Stat(MetricName("estimated_num_tokens_cost")).add(estimate_num_tokens_cost))
+
+        # Number of tokens in the prompt
+        window_service: WindowService = WindowServiceFactory.get_window_service(request.model, self.metric_service)
+        num_prompt_tokens: int = window_service.get_num_tokens(text=request.prompt)
+        stats.append(Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens))
+
+        # Maximum number of tokens in the completions
+        # TODO: this is an overestimate since stop sequences can cause early termination.
+        stats.append(Stat(MetricName("max_num_output_tokens")).add(request.num_completions * request.max_tokens))
+
+        return stats
 
 class TokensMetric(Metric):
     """
@@ -31,30 +57,8 @@ class TokensMetric(Metric):
         """
         Add up all the estimated number of tokens used for each request.
         """
-
-        def process(request_state: RequestState) -> List[Stat]:
-            request: Request = request_state.request
-            stats: List[Stat] = []
-
-            # Estimated cost in terms of number of tokens
-            estimate_num_tokens_cost: int = self.token_cost_estimator.estimate_tokens(request, metric_service)
-            stats.append(Stat(MetricName("estimated_num_tokens_cost")).add(estimate_num_tokens_cost))
-
-            # Number of tokens in the prompt
-            window_service: WindowService = WindowServiceFactory.get_window_service(request.model, metric_service)
-            num_prompt_tokens: int = window_service.get_num_tokens(text=request.prompt)
-            stats.append(Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens))
-
-            # Maximum number of tokens in the completions
-            stats.append(Stat(MetricName("max_num_output_tokens")).add(request.num_completions * request.max_tokens))
-
-            return stats
-
-        hlog(f"Parallelizing across {parallelism} threads")
-        with ThreadPoolExecutor(max_workers=parallelism) as executor:
-            results: List[List[Stat]] = list(
-                tqdm(executor.map(process, scenario_state.request_states), total=len(scenario_state.request_states))
-            )
+        processor = Processor(token_cost_estimator=self.token_cost_estimator, metric_service=metric_service)
+        results: List[List[Stat]] = parallel_map(processor.process, scenario_state.request_states, parallelism=parallelism, multiprocessing=True)
 
         # Per instance
         keys = [PerInstanceStatsKey(instance, 0) for instance in scenario_state.instances]

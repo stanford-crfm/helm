@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
-from concurrent.futures import ThreadPoolExecutor
 from typing import List
 from tqdm import tqdm
 
 from common.hierarchical_logger import htrack, hlog
+from common.general import parallel_map
 from benchmark.augmentations.perturbation import (
     Perturbation,
     PerturbationSpec,
@@ -49,11 +49,8 @@ class DataAugmenter:
         hlog(f"Setting parallelism from {parallelism} to 1, since parallelism in SynonymPerturbation isn't supported")
         parallelism = 1
 
-        hlog(f"Parallelizing across {parallelism} threads")
-        with ThreadPoolExecutor(max_workers=parallelism) as executor:
-            # Run `process` on each instance
-            results: List[List[Instance]] = list(tqdm(executor.map(process, instances), total=len(instances)))
-            output_instances = [instance for result in results for instance in result]
+        results: List[List[Instance]] = parallel_map(process, instances, parallelism=parallelism, multiprocessing=True)
+        output_instances = [instance for result in results for instance in result]
 
         hlog(f"{len(instances)} instances augmented to {len(output_instances)} instances")
         return output_instances

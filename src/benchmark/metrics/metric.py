@@ -1,13 +1,12 @@
 from abc import ABC
 from dataclasses import dataclass, replace
 from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor
 from typing import List, Dict, Tuple, Optional, Iterable, Set
 from tqdm import tqdm
 
 from common.hierarchical_logger import hlog
 from common.object_spec import ObjectSpec, create_object
-from common.general import singleton
+from common.general import singleton, parallel_map
 from benchmark.augmentations.perturbation_description import (
     PerturbationDescription,
     PERTURBATION_ORIGINAL,
@@ -52,6 +51,49 @@ class MetricResult:
     per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]]
 
 
+@dataclass(frozen=True)
+class RequestStateSet:
+    """All the request states relevant to a given instance"""
+    instance: Instance
+    generation_states: List[RequestState]
+    references_states: List[RequestState]
+
+@dataclass(frozen=True)
+class Processor:
+    """Evaluates an instance."""
+    # TODO: not ideal that we have circular dependencies; subclasses of Metric
+    # should override the Processor rather than the Metric.
+    metric: 'Metric'
+    metric_service: MetricService
+    eval_cache_path: str
+    adapter_spec: AdapterSpec
+
+    def process(self, request_state_set: RequestStateSet) -> List[Stat]:
+        instance_stats: List[Stat] = []
+
+        # Evaluate generated request_state
+        generation_states = request_state_set.generation_states
+        if len(generation_states) != 0:
+            instance_stats.extend(
+                self.metric.evaluate_generation(
+                    self.adapter_spec, singleton(generation_states), self.metric_service, self.eval_cache_path
+                )
+            )
+
+        # Evaluate the references
+        references_states = request_state_set.references_states
+        if len(references_states) != 0:
+            instance_stats.extend(
+                self.metric.evaluate_references(self.adapter_spec, references_states, self.metric_service, self.eval_cache_path)
+            )
+
+        # Add instance-related context (e.g., split, perturbation) to the metrics
+        for i, stat in enumerate(instance_stats):
+            instance_stats[i] = add_context(stat, MetricContext.from_instance(request_state_set.instance))
+
+        return instance_stats
+
+
 class Metric(ABC):
     """
     A `Metric` takes the results of execution and produces `Stat`s for a
@@ -61,7 +103,6 @@ class Metric(ABC):
     `Stat`s, that might be distinct but are computed together.  Eventually we
     might move to a world where there is one (or very few metrics that are domain-independent).
     """
-
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
@@ -81,40 +122,21 @@ class Metric(ABC):
         all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
 
         for train_trial_index in range(adapter_spec.num_train_trials):
-
-            def process(instance: Instance) -> List[Stat]:
-                instance_stats: List[Stat] = []
-                # Evaluate generated request_state
-                request_states = scenario_state.get_request_states(train_trial_index, instance, None)
-                if len(request_states) != 0:
-                    instance_stats.extend(
-                        self.evaluate_generation(
-                            adapter_spec, singleton(request_states), metric_service, eval_cache_path
-                        )
-                    )
-
-                # Evaluate the references
-                request_states = []
+            # Construct inputs
+            request_state_sets = []
+            for instance in scenario_state.instances:
+                generation_states = scenario_state.get_request_states(train_trial_index, instance, None)
+                references_states = []
                 for reference_index in range(len(instance.references)):
-                    request_states.extend(
+                    references_states.extend(
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
-                if len(request_states) != 0:
-                    instance_stats.extend(
-                        self.evaluate_references(adapter_spec, request_states, metric_service, eval_cache_path)
-                    )
+                request_state_set = RequestStateSet(instance=instance, generation_states=generation_states, references_states=references_states)
+                request_state_sets.append(request_state_set)
 
-                # Add instance-related context (e.g., split, perturbation) to the metrics
-                for i, stat in enumerate(instance_stats):
-                    instance_stats[i] = add_context(stat, MetricContext.from_instance(instance))
-
-                return instance_stats
-
-            hlog(f"Parallelizing across {parallelism} threads")
-            with ThreadPoolExecutor(max_workers=parallelism) as executor:
-                results: List[List[Stat]] = list(
-                    tqdm(executor.map(process, scenario_state.instances), total=len(scenario_state.instances))
-                )
+            # Do it!
+            processor = Processor(metric=self, metric_service=metric_service, eval_cache_path=eval_cache_path, adapter_spec=scenario_state.adapter_spec)
+            results: List[List[Stat]] = parallel_map(processor.process, request_state_sets, parallelism=parallelism, multiprocessing=True)
 
             # Per-instance stats
             per_instance_stats: Dict[Instance, List[Stat]] = dict(zip(scenario_state.instances, results))

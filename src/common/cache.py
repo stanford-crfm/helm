@@ -1,7 +1,8 @@
 import json
 from typing import Dict, Callable, Tuple
-
 from sqlitedict import SqliteDict
+
+from common.hierarchical_logger import hlog
 
 
 def request_to_key(request: Dict) -> str:
@@ -23,9 +24,13 @@ class Cache(object):
 
     def __init__(self, cache_path: str):
         self.cache_path = cache_path
+        # Counters to keep track of progress
+        self.num_queries = 0
+        self.num_misses = 0
 
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
+        self.num_queries += 1
         key = request_to_key(request)
 
         with SqliteDict(self.cache_path) as cache:
@@ -33,6 +38,7 @@ class Cache(object):
             if response:
                 cached = True
             else:
+                self.num_misses += 1
                 # Commit the request and response to SQLite
                 cache[key] = response = compute()
                 cache.commit()

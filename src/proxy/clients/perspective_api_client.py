@@ -58,7 +58,7 @@ class PerspectiveAPIClient:
         self.cache = Cache(os.path.join(cache_path, "perspectiveapi.sqlite"))
 
         # httplib2 is not thread-safe. Acquire this lock when sending requests to PerspectiveAPI
-        self.request_lock = threading.RLock()
+        self.request_lock = None #threading.RLock()  # TODO: temporary hack
 
     def _get_or_initialize_client(self) -> discovery.Resource:
         if not self.client:

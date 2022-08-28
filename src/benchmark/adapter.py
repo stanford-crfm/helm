@@ -1,14 +1,12 @@
 import random
-from tqdm import tqdm
 from dataclasses import dataclass, field, replace
 from itertools import cycle
 from typing import List, Dict, Tuple, Optional
 from collections import defaultdict, OrderedDict
-from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 
-from common.general import serialize, indent_lines, format_text_lines
+from common.general import serialize, indent_lines, format_text_lines, parallel_map
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationToken
@@ -211,6 +209,242 @@ class Prompt:
     # (input_truncated == True implies num_in_context_examples == 0)
     input_truncated: bool
 
+@dataclass(frozen=True)
+class Processor:
+    """Constructs a prompt for each example."""
+    adapter_spec: AdapterSpec
+    window_service: WindowService
+
+    train_instances: List[Instance]
+    train_trial_index: int
+
+    def process(self, eval_instance: Instance) -> List[RequestState]:
+        # Define the request
+        method = self.adapter_spec.method
+
+        if method == ADAPT_GENERATION:
+            prompt = self.construct_prompt(
+                self.train_instances, eval_instance, include_output=False, reference_index=None
+            )
+            request = Request(
+                model=self.adapter_spec.model,
+                prompt=prompt.text,
+                num_completions=self.adapter_spec.num_outputs,
+                temperature=self.adapter_spec.temperature,
+                max_tokens=self.adapter_spec.max_tokens,
+                stop_sequences=self.adapter_spec.stop_sequences,
+                random=self.adapter_spec.random,
+            )
+            request_states = [
+                RequestState(
+                    instance=eval_instance,
+                    reference_index=None,
+                    request_mode=None,
+                    train_trial_index=train_trial_index,
+                    output_mapping=None,
+                    request=request,
+                    result=None,
+                    num_in_context_examples=prompt.num_in_context_examples,
+                    input_truncated=prompt.input_truncated,
+                )
+            ]
+        elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
+            prompt = self.construct_prompt(
+                self.train_instances, eval_instance, include_output=False, reference_index=None
+            )
+            output_mapping = dict(
+                (self.get_reference_prefix("A", reference_index), reference.output)
+                for reference_index, reference in enumerate(eval_instance.references)
+            )
+            request = Request(
+                model=self.adapter_spec.model,
+                prompt=prompt.text,
+                num_completions=1,
+                top_k_per_token=self.adapter_spec.num_outputs,
+                temperature=0,
+                max_tokens=1,
+                stop_sequences=[],
+                random=self.adapter_spec.random,
+            )
+            request_states = [
+                RequestState(
+                    instance=eval_instance,
+                    reference_index=None,
+                    request_mode=None,
+                    train_trial_index=self.train_trial_index,
+                    output_mapping=output_mapping,
+                    request=request,
+                    result=None,
+                    num_in_context_examples=prompt.num_in_context_examples,
+                    input_truncated=prompt.input_truncated,
+                )
+            ]
+        elif self.adapter_spec.method in [
+            ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+            ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+        ]:
+            request_states = []
+            for reference_index, reference in enumerate(eval_instance.references):
+                # Explanation for request_modes:
+                # - ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL: each answer choice sentence is
+                # scored independently, where the score is the sentence probability
+                # normalized by sentence length.
+                # - ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED: each answer choice sentence is
+                # scored independently, where the score is the sentence probability
+                # normalized by the unconditional sentence probability.
+                # Details refer to Section 2.4 of GPT-3 paper (https://arxiv.org/pdf/2005.14165.pdf))
+                if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
+                    request_modes = ["original"]
+                elif self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED:
+                    request_modes = ["original", "calibration"]
+                else:
+                    raise ValueError(f"Unknown adapter method: {self.adapter_spec.method}")
+
+                for request_mode in request_modes:
+                    if request_mode == "original":
+                        prompt = self.construct_prompt(
+                            self.train_instances, eval_instance, include_output=True, reference_index=reference_index,
+                        )
+                    elif request_mode == "calibration":
+                        # For calibration purpose, we compute the logprobs of the reference
+                        # without train instances and the input question.
+                        eval_instance_calibration = replace(eval_instance, input="Answer:")
+                        prompt = self.construct_prompt(
+                            [], eval_instance_calibration, include_output=True, reference_index=reference_index,
+                        )
+                    else:
+                        raise ValueError(f"Unknown request mode: {request_mode}")
+                    request = Request(
+                        model=self.adapter_spec.model,
+                        prompt=prompt.text,
+                        num_completions=1,
+                        temperature=0,
+                        max_tokens=0,
+                        stop_sequences=[],
+                        echo_prompt=True,
+                    )
+                    request_state = RequestState(
+                        instance=eval_instance,
+                        reference_index=reference_index,
+                        request_mode=request_mode,
+                        train_trial_index=train_trial_index,
+                        output_mapping=None,
+                        request=request,
+                        result=None,
+                        num_in_context_examples=prompt.num_in_context_examples,
+                        input_truncated=prompt.input_truncated,
+                    )
+                    request_states.append(request_state)
+        else:
+            raise ValueError(f"Invalid method: {method}")
+
+        return request_states
+
+    def construct_prompt(
+        self,
+        train_instances: List[Instance],
+        eval_instance: Instance,
+        include_output: bool,
+        reference_index: Optional[int],
+    ) -> Prompt:
+        """
+        Returns a prompt (string) given:
+        - the `self.adapter_spec.instructions`
+        - the `train_instances` (in-context training examples)
+        - the input part of the `eval_instance`
+        - the `reference` if `include_output` is true (if reference_index is not None, the reference
+        at the given index; otherwise, the first correct reference)
+
+        Fits the prompt within the context window by removing in-context training examples.
+        """
+        assert include_output or reference_index is None
+
+        def construct_prompt_helper(train_instances: List[Instance]) -> str:
+            # Instructions
+            blocks = []
+
+            if self.adapter_spec.instructions:
+                blocks.append(self.adapter_spec.instructions)
+
+            # In-context training instances
+            for instance in train_instances:
+                blocks.append(self.construct_example_prompt(instance, include_output=True, reference_index=None))
+
+            blocks.append(
+                self.construct_example_prompt(
+                    eval_instance, include_output=include_output, reference_index=reference_index
+                )
+            )
+
+            return self.adapter_spec.instance_prefix.join(blocks)
+
+        orig_train_instances_count: int = len(train_instances)
+        prompt: str = construct_prompt_helper(train_instances)
+
+        # Following what was done for MMLU (https://arxiv.org/abs/2009.03300) to handle prompts that
+        # exceed the max context length (https://github.com/hendrycks/test/blob/master/evaluate.py#L58),
+        # we remove train instances one by one until it fits within the context window or
+        # until we run out of train instances to remove.
+        while len(train_instances) > 0:
+            if self.window_service.fits_within_context_window(
+                text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
+            ):
+                return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=False)
+
+            train_instances = train_instances[:-1]
+            prompt = construct_prompt_helper(train_instances)
+
+        removed_train_instances_count: int = orig_train_instances_count - len(train_instances)
+        if removed_train_instances_count > 0:
+            hlog(
+                f"The original constructed prompt exceeded the max context length. Removed "
+                f"{removed_train_instances_count} in-context examples to fit it within the context window."
+            )
+
+        # If removing the in-context example is still not enough, we simply truncate the prompt.
+        # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
+        original_length = len(prompt)
+        prompt = self.window_service.truncate_from_right(prompt, self.adapter_spec.max_tokens)
+        input_truncated = len(prompt) < original_length
+        return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=input_truncated)
+
+    def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
+        """Return a list of lines corresponding to this example (part of the prompt)."""
+
+        # Input
+        result = self.adapter_spec.input_prefix + instance.input
+
+        # References (optionally) and output
+        if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
+            # If multiple choice, include the references
+            output = "n/a"
+            for reference_index, reference in enumerate(instance.references):
+                prefix = self.get_reference_prefix(self.adapter_spec.reference_prefix, reference_index)
+                result += prefix + reference.output
+                if reference.is_correct and output == "n/a":
+                    output = self.get_reference_prefix("A", reference_index)
+        else:
+            if reference_index is None:
+                # Put only the correct reference as the output
+                correct_reference = instance.first_correct_reference
+                output = correct_reference.output if correct_reference is not None else "n/a"
+            else:
+                reference = instance.references[reference_index]
+                output = reference.output
+
+        if include_output:
+            result += self.adapter_spec.output_prefix + output
+        else:
+            result += self.adapter_spec.output_prefix.rstrip()
+
+        return result
+
+    def get_reference_prefix(self, prefix: str, i: int) -> str:
+        """
+        Example: prefix = "\nA. ", i = 2, return "\nC. "
+        """
+        return prefix.replace("A", chr(ord("A") + i))
+
 
 class Adapter:
     """
@@ -333,7 +567,7 @@ class Adapter:
 
         if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
             # Use the LM-specific method to adapt LM scenarios
-            all_request_states = self.adapt_language_modeling(eval_instances)
+            all_request_states = self.adapt_language_modeling(eval_instances, parallelism)
         else:
             for train_trial_index in range(self.adapter_spec.num_train_trials):
                 with htrack_block(f"Adapting with train_trial_index={train_trial_index}"):
@@ -353,136 +587,16 @@ class Adapter:
     ) -> List[RequestState]:
         train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
 
-        def process(eval_instance: Instance) -> List[RequestState]:
-            # Define the request
-            method = self.adapter_spec.method
-
-            if method == ADAPT_GENERATION:
-                prompt = self.construct_prompt(
-                    train_instances, eval_instance, include_output=False, reference_index=None
-                )
-                request = Request(
-                    model=self.adapter_spec.model,
-                    prompt=prompt.text,
-                    num_completions=self.adapter_spec.num_outputs,
-                    temperature=self.adapter_spec.temperature,
-                    max_tokens=self.adapter_spec.max_tokens,
-                    stop_sequences=self.adapter_spec.stop_sequences,
-                    random=self.adapter_spec.random,
-                )
-                request_states = [
-                    RequestState(
-                        instance=eval_instance,
-                        reference_index=None,
-                        request_mode=None,
-                        train_trial_index=train_trial_index,
-                        output_mapping=None,
-                        request=request,
-                        result=None,
-                        num_in_context_examples=prompt.num_in_context_examples,
-                        input_truncated=prompt.input_truncated,
-                    )
-                ]
-            elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
-                prompt = self.construct_prompt(
-                    train_instances, eval_instance, include_output=False, reference_index=None
-                )
-                output_mapping = dict(
-                    (self.get_reference_prefix("A", reference_index), reference.output)
-                    for reference_index, reference in enumerate(eval_instance.references)
-                )
-                request = Request(
-                    model=self.adapter_spec.model,
-                    prompt=prompt.text,
-                    num_completions=1,
-                    top_k_per_token=self.adapter_spec.num_outputs,
-                    temperature=0,
-                    max_tokens=1,
-                    stop_sequences=[],
-                    random=self.adapter_spec.random,
-                )
-                request_states = [
-                    RequestState(
-                        instance=eval_instance,
-                        reference_index=None,
-                        request_mode=None,
-                        train_trial_index=train_trial_index,
-                        output_mapping=output_mapping,
-                        request=request,
-                        result=None,
-                        num_in_context_examples=prompt.num_in_context_examples,
-                        input_truncated=prompt.input_truncated,
-                    )
-                ]
-            elif self.adapter_spec.method in [
-                ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
-                ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
-            ]:
-                request_states = []
-                for reference_index, reference in enumerate(eval_instance.references):
-                    # Explanation for request_modes:
-                    # - ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL: each answer choice sentence is
-                    # scored independently, where the score is the sentence probability
-                    # normalized by sentence length.
-                    # - ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED: each answer choice sentence is
-                    # scored independently, where the score is the sentence probability
-                    # normalized by the unconditional sentence probability.
-                    # Details refer to Section 2.4 of GPT-3 paper (https://arxiv.org/pdf/2005.14165.pdf))
-                    if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
-                        request_modes = ["original"]
-                    elif self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED:
-                        request_modes = ["original", "calibration"]
-                    else:
-                        raise ValueError(f"Unknown adapter method: {self.adapter_spec.method}")
-
-                    for request_mode in request_modes:
-                        if request_mode == "original":
-                            prompt = self.construct_prompt(
-                                train_instances, eval_instance, include_output=True, reference_index=reference_index,
-                            )
-                        elif request_mode == "calibration":
-                            # For calibration purpose, we compute the logprobs of the reference
-                            # without train instances and the input question.
-                            eval_instance_calibration = replace(eval_instance, input="Answer:")
-                            prompt = self.construct_prompt(
-                                [], eval_instance_calibration, include_output=True, reference_index=reference_index,
-                            )
-                        else:
-                            raise ValueError(f"Unknown request mode: {request_mode}")
-                        request = Request(
-                            model=self.adapter_spec.model,
-                            prompt=prompt.text,
-                            num_completions=1,
-                            temperature=0,
-                            max_tokens=0,
-                            stop_sequences=[],
-                            echo_prompt=True,
-                        )
-                        request_state = RequestState(
-                            instance=eval_instance,
-                            reference_index=reference_index,
-                            request_mode=request_mode,
-                            train_trial_index=train_trial_index,
-                            output_mapping=None,
-                            request=request,
-                            result=None,
-                            num_in_context_examples=prompt.num_in_context_examples,
-                            input_truncated=prompt.input_truncated,
-                        )
-                        request_states.append(request_state)
-            else:
-                raise ValueError(f"Invalid method: {method}")
-
-            return request_states
-
         # Create request_states
-        hlog(f"Parallelizing across {parallelism} threads")
-        with ThreadPoolExecutor(max_workers=parallelism) as executor:
-            results: List[List[RequestState]] = list(
-                tqdm(executor.map(process, eval_instances), total=len(eval_instances))
-            )
+        processor = Processor(
+            adapter_spec=self.adapter_spec,
+            window_service=self.window_service,
+            train_instances=train_instances,
+            train_trial_index=train_trial_index,
+        )
+        results: List[List[RequestState]] = parallel_map(processor.process, eval_instances, parallelism=parallelism, multiprocessing=True)
 
-        # Just print out prompts for one instance (useful for debugging)
+        # Print out prompts for one instance (useful for debugging)
         if train_trial_index == 0 and len(results) > 0:
             with htrack_block("Sample prompts"):
                 for request_state in results[0]:
@@ -560,111 +674,6 @@ class Adapter:
         # the pool of Instances without any References
         examples += random.sample(unlabeled_instances, num_instances_to_sample)
         return examples
-
-    def construct_prompt(
-        self,
-        train_instances: List[Instance],
-        eval_instance: Instance,
-        include_output: bool,
-        reference_index: Optional[int],
-    ) -> Prompt:
-        """
-        Returns a prompt (string) given:
-        - the `self.adapter_spec.instructions`
-        - the `train_instances` (in-context training examples)
-        - the input part of the `eval_instance`
-        - the `reference` if `include_output` is true (if reference_index is not None, the reference
-        at the given index; otherwise, the first correct reference)
-
-        Fits the prompt within the context window by removing in-context training examples.
-        """
-        assert include_output or reference_index is None
-
-        def construct_prompt_helper(train_instances: List[Instance]) -> str:
-            # Instructions
-            blocks = []
-
-            if self.adapter_spec.instructions:
-                blocks.append(self.adapter_spec.instructions)
-
-            # In-context training instances
-            for instance in train_instances:
-                blocks.append(self.construct_example_prompt(instance, include_output=True, reference_index=None))
-
-            blocks.append(
-                self.construct_example_prompt(
-                    eval_instance, include_output=include_output, reference_index=reference_index
-                )
-            )
-
-            return self.adapter_spec.instance_prefix.join(blocks)
-
-        orig_train_instances_count: int = len(train_instances)
-        prompt: str = construct_prompt_helper(train_instances)
-
-        # Following what was done for MMLU (https://arxiv.org/abs/2009.03300) to handle prompts that
-        # exceed the max context length (https://github.com/hendrycks/test/blob/master/evaluate.py#L58),
-        # we remove train instances one by one until it fits within the context window or
-        # until we run out of train instances to remove.
-        while len(train_instances) > 0:
-            if self.window_service.fits_within_context_window(
-                text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
-            ):
-                return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=False)
-
-            train_instances = train_instances[:-1]
-            prompt = construct_prompt_helper(train_instances)
-
-        removed_train_instances_count: int = orig_train_instances_count - len(train_instances)
-        if removed_train_instances_count > 0:
-            hlog(
-                f"The original constructed prompt exceeded the max context length. Removed "
-                f"{removed_train_instances_count} in-context examples to fit it within the context window."
-            )
-
-        # If removing the in-context example is still not enough, we simply truncate the prompt.
-        # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
-        original_length = len(prompt)
-        prompt = self.window_service.truncate_from_right(prompt, self.adapter_spec.max_tokens)
-        input_truncated = len(prompt) < original_length
-        return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=input_truncated)
-
-    def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
-        """Return a list of lines corresponding to this example (part of the prompt)."""
-
-        # Input
-        result = self.adapter_spec.input_prefix + instance.input
-
-        # References (optionally) and output
-        if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
-            # If multiple choice, include the references
-            output = "n/a"
-            for reference_index, reference in enumerate(instance.references):
-                prefix = self.get_reference_prefix(self.adapter_spec.reference_prefix, reference_index)
-                result += prefix + reference.output
-                if reference.is_correct and output == "n/a":
-                    output = self.get_reference_prefix("A", reference_index)
-        else:
-            if reference_index is None:
-                # Put only the correct reference as the output
-                correct_reference = instance.first_correct_reference
-                output = correct_reference.output if correct_reference is not None else "n/a"
-            else:
-                reference = instance.references[reference_index]
-                output = reference.output
-
-        if include_output:
-            result += self.adapter_spec.output_prefix + output
-        else:
-            result += self.adapter_spec.output_prefix.rstrip()
-
-        return result
-
-    def get_reference_prefix(self, prefix: str, i: int) -> str:
-        """
-        Example: prefix = "\nA. ", i = 2, return "\nC. "
-        """
-        return prefix.replace("A", chr(ord("A") + i))
 
     def fits_tokens_within_context_window(
         self,
@@ -751,22 +760,21 @@ class Adapter:
                 num_conditioning_tokens = len(conditioning_tokens) - num_leading_byte_tokens
         return prompt, num_conditioning_tokens
 
-    def adapt_language_modeling(self, instances: List[Instance]) -> List[RequestState]:
+    def adapt_language_modeling(self, instances: List[Instance], parallelism: int) -> List[RequestState]:
         """ Code is adapted from:
 
         https://github.com/EleutherAI/lm_perplexity/blob/main/lm_perplexity/utils.py
         """
-        request_states: List[RequestState] = []
-
         max_sequence_length: int = self.window_service.max_sequence_length
         max_request_length: int = self.window_service.max_request_length
         prefix_token: str = self.window_service.prefix_token
 
-        for instance in tqdm(instances):
+        def process(instance: Instance) -> List[RequestState]:
             encode_result: EncodeResult = self.window_service.encode(instance.input)
             tokens: List[TokenizationToken] = encode_result.tokens
             text: str = encode_result.text
 
+            request_states: List[RequestState] = []
             num_predicted_tokens: int = 0
 
             # Special handling for first window: predict all tokens
@@ -859,4 +867,7 @@ class Adapter:
                 request_states.append(request_state)
                 num_predicted_tokens += window_pred_len
 
-        return request_states
+            return request_states
+
+        results: List[List[RequestState]] = parallel_map(process, instances, parallelism, multiprocessing=True)
+        return flatten_list(results)
