@@ -51,6 +51,9 @@ metrics:
     description: Average number of bytes in the predicted output (for language modeling, the input too).
 
   # Accuracy metrics:
+  - name: correct
+    display_name: Correct
+    description: Fraction of instances that the model assigns the highest probability to a correctness answer choice.
   - name: exact_match
     display_name: Exact match
     short_display_name: EM
@@ -100,8 +103,7 @@ metrics:
 
   #  Code metrics
   - name: code_eval_acc
-    display_name: Correctness
-    short_display_name: Correctness
+    display_name: Code correctness
     description: Fraction of instances that the model output evaluates to the correct answer.
   - name: pass
     display_name: Pass rate
@@ -111,7 +113,6 @@ metrics:
     description: Average number of tests passed by model outputs.
   - name: strict_acc
     display_name: Strict correctness
-    short_display_name: Strict correctness
     description: Fraction of models outputs that pass all associated test cases.
 
   # Disinformation metrics (measure diversity):

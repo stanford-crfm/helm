@@ -713,7 +713,7 @@ class BasicMetric(Metric):
         # will always return True.
         return [
             Stat(MetricName("max_prob")).add(max_prob),
-            Stat(MetricName("exact_match")).add(float(max(reference_scores) == max(answer_scores))),
+            Stat(MetricName("correct")).add(float(max(reference_scores) == max(answer_scores))),
         ]
 
     def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
@@ -734,13 +734,17 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
     correct = []
     for instance_stats in per_instance_stats.values():
         max_prob_stat = get_unique_stat_by_name(instance_stats, "max_prob")
-        correct_stat = get_unique_stat_by_name(instance_stats, "exact_match")
+        # Depending on the adaptation method, check for correct, then for exact match
+        correct_stat = get_unique_stat_by_name(instance_stats, "correct")
+        if correct_stat is None:
+            correct_stat = get_unique_stat_by_name(instance_stats, "exact_match")
         if correct_stat is not None and max_prob_stat is not None:
             assert max_prob_stat.mean is not None
             assert correct_stat.mean is not None
             max_probs.append(max_prob_stat.mean)
             cur_correct = float(correct_stat.mean)
             # For a single example, we either get it correct or not.
+            # Note: If we have partial correctness (e.g. Big-Bench), may need to update.
             assert np.isclose(cur_correct, 1.0) or np.isclose(cur_correct, 0.0)
             correct.append(int(cur_correct))
 
