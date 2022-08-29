@@ -1,4 +1,4 @@
-from .models import get_model, get_model_group, get_all_code_models, Model
+from .models import get_model, get_model_group, get_models_by_organization, get_all_code_models, Model
 
 
 def test_get_model():
@@ -17,6 +17,10 @@ def test_get_model_with_invalid_model_name():
 
 def test_get_model_group():
     assert get_model_group("openai/text-curie-001") == "gpt3"
+
+
+def test_get_models_by_organization():
+    assert get_models_by_organization("cohere") == ["cohere/xlarge", "cohere/large", "cohere/medium", "cohere/small"]
 
 
 def test_all_code_models():

@@ -51,6 +51,9 @@ class Request:
     # request but with different values for `random`.
     random: Optional[str] = None
 
+    # Some services support versioning for their API (e.g., Cohere: https://docs.cohere.ai/versioning-reference)
+    api_version: Optional[str] = None
+
     @property
     def model_organization(self) -> str:
         """Example: 'openai/davinci' => 'openai'"""

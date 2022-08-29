@@ -195,6 +195,41 @@ ALL_MODELS = [
         description="Codex (for natural language to code) - 2048 max tokens",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
+    # Cohere models
+    # TODO: find out the number of parameters
+    # TODO: do they have model versioning too?
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/xlarge",
+        display_name="Cohere xlarge",
+        description="Cohere xlarge",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/large",
+        display_name="Cohere large",
+        description="Cohere large",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/medium",
+        display_name="Cohere medium",
+        description="Cohere medium",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/small",
+        display_name="Cohere small",
+        description="Cohere small",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
     # GooseAI supported models
     Model(
         group="gooseai",
@@ -391,6 +426,13 @@ def get_model_group(model_name: str) -> str:
 def get_all_models() -> List[str]:
     """Get all model names."""
     return list(MODEL_NAME_TO_MODEL.keys())
+
+
+def get_models_by_organization(organization: str) -> List[str]:
+    """
+    Gets models by organization e.g., ai21 => ai21/j1-jumbo, ai21/j1-grande, ai21-large.
+    """
+    return [model.name for model in ALL_MODELS if model.organization == organization]
 
 
 def get_model_names_with_tag(tag: str) -> List[str]:
