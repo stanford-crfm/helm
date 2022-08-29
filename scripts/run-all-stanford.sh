@@ -44,7 +44,7 @@ models=(
   # "microsoft/TNLGv2_530B"
   # "microsoft/TNLGv2_7B"
   "together/bloom"
-  # "together/glm"
+  "together/glm"
   "together/gpt-j-6b"
   "together/gpt-neox-20b"
   "together/opt-66b"
