@@ -431,7 +431,7 @@ scenario_groups:
       - accuracy
       - efficiency
     environment:
-      main_name: exact_match # TODO: This seems incorrect; we need to add the BLiMP metric
+      main_name: exact_match
       main_split: test
 
   - name: bold
