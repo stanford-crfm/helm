@@ -196,12 +196,14 @@ ALL_MODELS = [
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # Cohere models
+    # Model versioning and the possible versions are are not documented here:
+    # https://docs.cohere.ai/generate-reference#model-optional.
+    # We got the names of the models from the Cohere Playground.
     # TODO: find out the number of parameters
-    # TODO: how does model versioning work?
     Model(
         group="cohere",
         creator_organization="Cohere",
-        name="cohere/xlarge",
+        name="cohere/xlarge-20220609",
         display_name="Cohere xlarge",
         description="Cohere xlarge",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
@@ -209,7 +211,7 @@ ALL_MODELS = [
     Model(
         group="cohere",
         creator_organization="Cohere",
-        name="cohere/large",
+        name="cohere/large-20220720",
         display_name="Cohere large",
         description="Cohere large",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
@@ -217,7 +219,7 @@ ALL_MODELS = [
     Model(
         group="cohere",
         creator_organization="Cohere",
-        name="cohere/medium",
+        name="cohere/medium-20220720",
         display_name="Cohere medium",
         description="Cohere medium",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
@@ -225,7 +227,7 @@ ALL_MODELS = [
     Model(
         group="cohere",
         creator_organization="Cohere",
-        name="cohere/small",
+        name="cohere/small-20220720",
         display_name="Cohere small",
         description="Cohere small",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],

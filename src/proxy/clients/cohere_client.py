@@ -88,7 +88,6 @@ class CohereClient(Client):
             "stop_sequences": request.stop_sequences,
             "return_likelihoods": return_likelihoods,
         }
-        api_version: str = request.api_version or CohereClient.DEFAULT_API_VERSION
 
         try:
 
@@ -116,7 +115,7 @@ class CohereClient(Client):
                     headers={
                         "Authorization": f"BEARER {self.api_key}",
                         "Content-Type": "application/json",
-                        "Cohere-Version": api_version,
+                        "Cohere-Version": CohereClient.DEFAULT_API_VERSION,
                     },
                     data=json.dumps(raw_request),
                 )
@@ -127,9 +126,7 @@ class CohereClient(Client):
                 assert "generations" in result, f"Invalid response: {result}"
                 return result
 
-            # Include the API version in the cache key
-            cache_key = Client.make_cache_key({"api_version": api_version, **raw_request}, request)
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
         except (requests.exceptions.RequestException, AssertionError) as e:
             error: str = f"CohereClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[])
