@@ -12,9 +12,11 @@ from common.general import ensure_file_downloaded, ensure_directory_exists, matc
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
+
 # Pull this out so serialization works for multiprocessing
 def lambda_defaultdict_list():
     return defaultdict(list)
+
 
 class PersonNamePerturbation(Perturbation):
     """ Individual fairness perturbation for person names. """

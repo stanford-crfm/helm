@@ -712,22 +712,22 @@ class NumeracyScenario(Scenario):
         def generate_datasets(num_instances: int, split: str):
             # TODO: construct_prompt is no longer part of adapter, and this function neds to be rewritten
             return []
-            #spec = get_numeracy_adapter_spec(self.num_train, self.num_test, self.dim, self.delimiter)
-            #service = get_test_tokenizer_service()
+            # spec = get_numeracy_adapter_spec(self.num_train, self.num_test, self.dim, self.delimiter)
+            # service = get_test_tokenizer_service()
             ## TODO: we should not instantiate Adapter. construct_prompt of Adapter will be called downstream
             ##       https://github.com/stanford-crfm/benchmarking/issues/569
-            #adapter = Adapter(spec, service)
-            #outer_spec = get_numeracy_adapter_spec(
+            # adapter = Adapter(spec, service)
+            # outer_spec = get_numeracy_adapter_spec(
             #    self.num_train,
             #    self.num_test,
             #    self.dim,
             #    instructions="",
             #    instance_prefix="\n\n",
             #    delimiter=self.delimiter,
-            #)
-            #outer_adapter = Adapter(outer_spec, service)
-            #instances = []
-            #for idx in range(num_instances):
+            # )
+            # outer_adapter = Adapter(outer_spec, service)
+            # instances = []
+            # for idx in range(num_instances):
             #    datapoint_instances = generate_dataset()
             #    train_instances = datapoint_instances[: self.num_train]
             #    eval_instances = datapoint_instances[self.num_train :]
@@ -750,7 +750,7 @@ class NumeracyScenario(Scenario):
             #    instance = Instance(input=input, references=references, split=split)
             #    instances.append(instance)
 
-            #return instances
+            # return instances
 
         def generate_instances():
             generate_func = globals()[f"generate_{self.relation_type}"]

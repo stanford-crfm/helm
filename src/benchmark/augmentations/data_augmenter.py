@@ -10,6 +10,7 @@ from benchmark.augmentations.perturbation import (
 )
 from benchmark.scenarios.scenario import Instance
 
+
 @dataclass(frozen=True)
 class Processor:
     include_original: bool
@@ -28,6 +29,7 @@ class Processor:
                 continue
             result.append(perturbed_instance)
         return result
+
 
 @dataclass(frozen=True)
 class DataAugmenter:
@@ -52,8 +54,12 @@ class DataAugmenter:
         hlog(f"Setting parallelism from {parallelism} to 1, since parallelism in SynonymPerturbation isn't supported")
         parallelism = 1
 
-        processor = Processor(include_original=include_original, skip_unchanged=skip_unchanged, perturbations=self.perturbations)
-        results: List[List[Instance]] = parallel_map(processor.process, instances, parallelism=parallelism, multiprocessing=True)
+        processor = Processor(
+            include_original=include_original, skip_unchanged=skip_unchanged, perturbations=self.perturbations
+        )
+        results: List[List[Instance]] = parallel_map(
+            processor.process, instances, parallelism=parallelism, multiprocessing=True
+        )
         output_instances = [instance for result in results for instance in result]
 
         hlog(f"{len(instances)} instances augmented to {len(output_instances)} instances")
