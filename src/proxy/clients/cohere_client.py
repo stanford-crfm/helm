@@ -175,7 +175,11 @@ class CohereClient(Client):
                 response = requests.request(
                     method="POST",
                     url=CohereClient.get_url(CohereClient.TOKENIZE_ENDPOINT),
-                    headers={"Authorization": f"BEARER {self.api_key}", "Content-Type": "application/json"},
+                    headers={
+                        "Authorization": f"BEARER {self.api_key}",
+                        "Content-Type": "application/json",
+                        "Cohere-Version": CohereClient.DEFAULT_API_VERSION,
+                    },
                     data=json.dumps(raw_request),
                 )
                 result = json.loads(response.text)
