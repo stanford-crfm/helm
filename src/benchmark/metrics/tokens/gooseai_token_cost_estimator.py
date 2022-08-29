@@ -1,4 +1,4 @@
-from benchmark.metric_service import MetricService
+from benchmark.metrics.metric_service import MetricService
 from benchmark.window_services.window_service import WindowService
 from benchmark.window_services.window_service_factory import WindowServiceFactory
 from common.request import Request

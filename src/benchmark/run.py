@@ -1,6 +1,5 @@
 import argparse
 from dataclasses import replace
-from datetime import datetime
 from typing import List, Optional
 
 from common.hierarchical_logger import hlog, htrack, htrack_block
@@ -87,10 +86,7 @@ def add_run_args(parser: argparse.ArgumentParser):
         help="Maximum number of instances to evaluate on, overrides adapter spec (for piloting)",
     )
     parser.add_argument(
-        "--suite",
-        type=str,
-        help="Name of the suite this run belongs to (default is today's date).",
-        default=datetime.today().strftime("%m-%d-%Y"),
+        "--suite", type=str, help="Name of the suite this run belongs to (default is today's date).", required=True,
     )
     parser.add_argument(
         "--local", action="store_true", help="If true, bypasses the proxy server and runs everything locally",

@@ -354,9 +354,11 @@ ALL_MODELS = [
         creator_organization="Yandex",
         name="together/yalm",
         display_name="YaLM (1OOB)",
-        # From hhttps://github.com/yandex/YaLM-100B
+        # From https://github.com/yandex/YaLM-100B
         description="YaLM (100B parameters) is an autoregressive language model trained on English and Russian text.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        # TODO: change to `FULL_FUNCTIONALITY_TEXT_MODEL_TAG` when we fix the infinite loop in L.M. adaptation
+        #       https://github.com/stanford-crfm/benchmarking/issues/738
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # For debugging
     Model(

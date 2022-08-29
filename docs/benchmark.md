@@ -3,25 +3,25 @@
 Examples of running the benchmark:
 
     venv/bin/benchmark-run
-    venv/bin/benchmark-run -r mmlu:subject=philosophy
-    venv/bin/benchmark-run -r synthetic_reasoning_natural:difficulty=easy
-    venv/bin/benchmark-run -r twitter_aae:demographic=aa
-    venv/bin/benchmark-run -r copyright:datatag=pilot
-    venv/bin/benchmark-run -r disinformation:capability=reiteration
-    venv/bin/benchmark-run -r wikifact:k=2,subject=P31
-    venv/bin/benchmark-run -r code:dataset=APPS
-    venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles
-    venv/bin/benchmark-run -r wikifact:subject=P31
-    venv/bin/benchmark-run -r raft:subset=ade_corpus_v2
-    venv/bin/benchmark-run -r natural_qa:mode=closedbook
-    venv/bin/benchmark-run -r natural_qa:mode=openbook-longans
-    venv/bin/benchmark-run -r quac
-    venv/bin/benchmark-run -r wikitext_103
-    venv/bin/benchmark-run -r blimp:phenomenon=irregular_forms
-    venv/bin/benchmark-run -r narrative_qa
-    venv/bin/benchmark-run -r news_qa
-    venv/bin/benchmark-run -r imdb
-    venv/bin/benchmark-run -r twitter_aae:demographic=aa
+    venv/bin/benchmark-run -r mmlu:subject=philosophy --suite SUITE_NAME
+    venv/bin/benchmark-run -r synthetic_reasoning_natural:difficulty=easy --suite SUITE_NAME
+    venv/bin/benchmark-run -r twitter_aae:demographic=aa --suite SUITE_NAME
+    venv/bin/benchmark-run -r copyright:datatag=pilot --suite SUITE_NAME
+    venv/bin/benchmark-run -r disinformation:capability=reiteration --suite SUITE_NAME
+    venv/bin/benchmark-run -r wikifact:k=2,subject=P31 --suite SUITE_NAME
+    venv/bin/benchmark-run -r code:dataset=APPS --suite SUITE_NAME
+    venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles --suite SUITE_NAME
+    venv/bin/benchmark-run -r wikifact:subject=P31 --suite SUITE_NAME
+    venv/bin/benchmark-run -r raft:subset=ade_corpus_v2 --suite SUITE_NAME
+    venv/bin/benchmark-run -r natural_qa:mode=closedbook --suite SUITE_NAME
+    venv/bin/benchmark-run -r natural_qa:mode=openbook-longans --suite SUITE_NAME
+    venv/bin/benchmark-run -r quac --suite SUITE_NAME
+    venv/bin/benchmark-run -r wikitext_103 --suite SUITE_NAME
+    venv/bin/benchmark-run -r blimp:phenomenon=irregular_forms --suite SUITE_NAME
+    venv/bin/benchmark-run -r narrative_qa --suite SUITE_NAME
+    venv/bin/benchmark-run -r news_qa --suite SUITE_NAME
+    venv/bin/benchmark-run -r imdb --suite SUITE_NAME
+    venv/bin/benchmark-run -r twitter_aae:demographic=aa --suite SUITE_NAME
 
 You can also run the benchmark using a local proxy, in which case you have to
 first start a local server (see instructions above for more details).
@@ -49,19 +49,14 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 ## Final benchmarking (Infrastructure team only)
 
 1. `ssh sc`.
-1. Create a screen session: `screen -S benchmarking`.
-1. Use a john to run the suite: `nlprun --priority high -c 8 -g 0 --memory 64g`.
 1. Go to the source code directory: `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
    We have 700 GB of disk space total on `/u/scr/nlp/crfm`.
 1. Pull the latest changes: `git pull`.
 1. Activate the Conda environment: `conda activate crfm_benchmarking`
    1. Run `./pre-commit.sh` if there are new dependencies to install.
-1. Run `benchmark-present-all.sh`: 
-   `bash scripts/benchmark-present-all.sh --max-eval-instances 1000 --num-threads 1 --priority 2 --local`.
-1. Exit the screen session: `ctrl+ad`.
-1. To check on the screen session: `screen -r benchmarking`.
-1. After the run for all the models have finished, generate JSON files for the frontend and tables for the paper:
-   `benchmark-summarize --suite <Name of the run suite>`.
+1. Run `bash scripts/run-all-stanford.sh --suite <Suite name>` e.g.,
+   `bash scripts/run-all-stanford.sh --suite v1`.
+1. After the run for all the models has finished, run the remaining commands the script outputs.
 
 ## Offline evaluation for `TogetherClient` models
 
@@ -69,13 +64,12 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 
 1. `ssh sc`.
 1. Create a screen session: `screen -S together`.
-1. Use a john to run the suite: `nlprun --priority high -c 8 -g 0 --memory 64g`.
-1. `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
-1. Activate the Conda environment: `conda activate crfm_benchmarking`.
+1. Use a john to run the suite: 
+   `nlprun --job-name queriestogether --priority high -a crfm_benchmarking -c 8 -g 0 --memory 64g -w /u/scr/nlp/crfm/benchmarking/benchmarking`.
 1. Do a dry run to generate `RequestState`s for all the Together models: 
    `bash scripts/generate-together-requests.sh --max-eval-instances 1000 --priority 2 --local`.
 1. Exit the screen session: `ctrl+ad`.
-1. Check on the dry run by streaming the logs: `tail -f dryrun_<Namne of together model>.log`.
+1. Check on the dry run by streaming the logs: `tail -f dryrun_<Name of together model>.log`.
 1. The dry run results will be outputted to `benchmark_output/runs/together`.
 1. Once the dry run is done, run
    `python3 scripts/together/together_export_requests.py benchmark_output/runs/together prod_env/cache/together.sqlite --output-path requests.jsonl`.
