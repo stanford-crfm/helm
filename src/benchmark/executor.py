@@ -98,7 +98,6 @@ class Executor:
             self.process,
             scenario_state.request_states,
             parallelism=self.execution_spec.parallelism,
-            multiprocessing=True,
         )
 
         hlog(f"Processed {len(request_states)} requests")

@@ -58,7 +58,7 @@ class DataAugmenter:
             include_original=include_original, skip_unchanged=skip_unchanged, perturbations=self.perturbations
         )
         results: List[List[Instance]] = parallel_map(
-            processor.process, instances, parallelism=parallelism, multiprocessing=True
+            processor.process, instances, parallelism=parallelism,
         )
         output_instances = [instance for result in results for instance in result]
 

@@ -60,7 +60,7 @@ class TokensMetric(Metric):
         """
         processor = Processor(token_cost_estimator=self.token_cost_estimator, metric_service=metric_service)
         results: List[List[Stat]] = parallel_map(
-            processor.process, scenario_state.request_states, parallelism=parallelism, multiprocessing=True
+            processor.process, scenario_state.request_states, parallelism=parallelism,
         )
 
         # Per instance

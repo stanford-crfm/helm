@@ -148,7 +148,7 @@ class Metric(ABC):
                 adapter_spec=scenario_state.adapter_spec,
             )
             results: List[List[Stat]] = parallel_map(
-                processor.process, request_state_sets, parallelism=parallelism, multiprocessing=True
+                processor.process, request_state_sets, parallelism=parallelism,
             )
 
             # Per-instance stats

@@ -597,7 +597,7 @@ class Adapter:
             train_trial_index=train_trial_index,
         )
         results: List[List[RequestState]] = parallel_map(
-            processor.process, eval_instances, parallelism=parallelism, multiprocessing=True
+            processor.process, eval_instances, parallelism=parallelism,
         )
 
         # Print out prompts for one instance (useful for debugging)
@@ -873,5 +873,5 @@ class Adapter:
 
             return request_states
 
-        results: List[List[RequestState]] = parallel_map(process, instances, parallelism, multiprocessing=True)
+        results: List[List[RequestState]] = parallel_map(process, instances, parallelism)
         return flatten_list(results)
