@@ -19,10 +19,10 @@ from .client import Client, wrap_request_time
 class CohereClient(Client):
 
     # From "https://docs.cohere.ai/versioning-reference",
-    # "This version [2021-11-08] introduces multiple generations, meaning that the generations endpoint will
+    # "this version [2021-11-08] introduces multiple generations, meaning that the generations endpoint will
     # now accept a num_generations argument in the JSON and will always return an array of generations"
-    # Note that this is the API version and not the model version.
-    DEFAULT_VERSION: str = "2021-11-08"
+    # Note that the API version is decoupled from the model version.
+    DEFAULT_API_VERSION: str = "2021-11-08"
 
     GENERATE_ENDPOINT: str = "generate"
     TOKENIZE_ENDPOINT: str = "tokenize"
@@ -88,7 +88,7 @@ class CohereClient(Client):
             "stop_sequences": request.stop_sequences,
             "return_likelihoods": return_likelihoods,
         }
-        api_version: str = request.api_version or CohereClient.DEFAULT_VERSION
+        api_version: str = request.api_version or CohereClient.DEFAULT_API_VERSION
 
         try:
 

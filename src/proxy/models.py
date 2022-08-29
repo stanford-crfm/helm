@@ -197,7 +197,7 @@ ALL_MODELS = [
     ),
     # Cohere models
     # TODO: find out the number of parameters
-    # TODO: do they have model versioning too?
+    # TODO: how does model versioning work?
     Model(
         group="cohere",
         creator_organization="Cohere",
