@@ -172,9 +172,11 @@ def parallel_map(process: Callable[[List], List], items: List, parallelism: int,
     A wrapper for applying `process` to all `items`.
     """
     units = "processes" if multiprocessing else "threads"
-    multiprocessing = False
+    multiprocessing = True
     with htrack_block(f"Parallelizing computation on {len(items)} items over {parallelism} {units}"):
-        if multiprocessing:
+        if parallelism == 1:
+            results: List = list(tqdm(map(process, items), total=len(items)))
+        elif multiprocessing:
             with ProcessPoolExecutor(max_workers=parallelism) as executor:
                 results: List = list(tqdm(executor.map(process, items), total=len(items)))
         else:
