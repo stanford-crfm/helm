@@ -59,7 +59,7 @@ class PerspectiveAPIClient:
 
         # httplib2 is not thread-safe. Acquire this lock when sending requests to PerspectiveAPI
         self.request_lock: Optional[threading.RLock] = threading.RLock()
-        self.request_lock = None  # TODO: temporary hack to get multiprocessing to work for now
+        # self.request_lock = None  # TODO: temporary hack to get multiprocessing to work for now
 
     def _get_or_initialize_client(self) -> discovery.Resource:
         if not self.client:

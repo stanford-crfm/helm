@@ -95,9 +95,7 @@ class Executor:
 
         # Do it!
         request_states = parallel_map(
-            self.process,
-            scenario_state.request_states,
-            parallelism=self.execution_spec.parallelism,
+            self.process, scenario_state.request_states, parallelism=self.execution_spec.parallelism,
         )
 
         hlog(f"Processed {len(request_states)} requests")
