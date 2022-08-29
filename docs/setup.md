@@ -4,10 +4,6 @@ To install any dependencies (creates into `venv`):
 
     ./pre-commit.sh
 
-Note that you will need to make sure that python3 is at least version 3.8 (the default version in the NLP cluster is 3.6, so you will need to create a custom conda environment). To check your python version:
-    
-    python3 --version
-
 Optionally, install git commit hooks:
 
     pre-commit install
