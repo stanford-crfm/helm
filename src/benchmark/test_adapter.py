@@ -14,6 +14,7 @@ from .adapter import (
     Adapter,
     AdapterSpec,
     Prompt,
+    Processor,
 )
 from .window_services.tokenizer_service import TokenizerService
 
@@ -42,10 +43,11 @@ class TestAdapter:
             model="openai/davinci", method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=100
         )
         adapter = Adapter(adapter_spec, self.tokenizer_service)
+        processor = Processor(adapter_spec, adapter.window_service, train_instances=[], train_trial_index=0)
         correct_reference = Reference(output="", tags=[CORRECT_TAG])
         train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(2049)]
         eval_instances = Instance(input="eval", references=[])
-        prompt: Prompt = adapter.construct_prompt(
+        prompt: Prompt = processor.construct_prompt(
             train_instances, eval_instances, include_output=False, reference_index=None
         )
         prompt_text: str = prompt.text
@@ -61,10 +63,11 @@ class TestAdapter:
             model="openai/davinci", method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=100
         )
         adapter = Adapter(adapter_spec, self.tokenizer_service)
+        processor = Processor(adapter_spec, adapter.window_service, train_instances=[], train_trial_index=0)
         correct_reference = Reference(output="", tags=[CORRECT_TAG])
         train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(100)]
         eval_instances = Instance(input="eval" * 2049, references=[])
-        prompt: Prompt = adapter.construct_prompt(
+        prompt: Prompt = processor.construct_prompt(
             train_instances, eval_instances, include_output=False, reference_index=None
         )
         prompt_text: str = prompt.text

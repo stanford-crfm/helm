@@ -773,6 +773,7 @@ class Adapter:
         max_request_length: int = self.window_service.max_request_length
         prefix_token: str = self.window_service.prefix_token
 
+        # TODO: does not support multiprocessing
         def process(instance: Instance) -> List[RequestState]:
             encode_result: EncodeResult = self.window_service.encode(instance.input)
             tokens: List[TokenizationToken] = encode_result.tokens
