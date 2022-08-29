@@ -20,7 +20,7 @@ def test_get_model_group():
 
 
 def test_get_models_by_organization():
-    assert get_models_by_organization("cohere") == ["cohere/xlarge", "cohere/large", "cohere/medium", "cohere/small"]
+    assert get_models_by_organization("simple") == ["simple/model1"]
 
 
 def test_all_code_models():
