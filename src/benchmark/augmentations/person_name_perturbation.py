@@ -12,6 +12,10 @@ from common.general import ensure_file_downloaded, ensure_directory_exists, matc
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
+# Pull this out so serialization works for multiprocessing
+def lambda_defaultdict_list():
+    return defaultdict(list)
+
 class PersonNamePerturbation(Perturbation):
     """ Individual fairness perturbation for person names. """
 
@@ -225,7 +229,7 @@ class PersonNamePerturbation(Perturbation):
 
     def load_name_file(self, file_path) -> Dict[str, Dict[str, List[str]]]:
         """ Load the name file """
-        mapping_dict: Dict[str, Dict[str, List[str]]] = defaultdict(lambda: defaultdict(dict))
+        mapping_dict: Dict[str, Dict[str, List[str]]] = defaultdict(lambda_defaultdict_list)
         delimiter = ","
         with open(file_path, encoding="utf-8") as f:
             for line in f.readlines():
