@@ -16,6 +16,7 @@ from proxy.retry import retry_request
 from .client import Client
 from .ai21_client import AI21Client
 from .anthropic_client import AnthropicClient
+from .cohere_client import CohereClient
 from .together_client import TogetherClient
 from .goose_ai_client import GooseAIClient
 from .huggingface_client import HuggingFaceClient
@@ -50,6 +51,8 @@ class AutoClient(Client):
                 )
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
+            elif organization == "cohere":
+                client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_path=client_cache_path)
             elif organization == "gooseai":
                 org_id = self.credentials.get("gooseaiOrgId", None)
                 client = GooseAIClient(
@@ -122,6 +125,8 @@ class AutoClient(Client):
                 client = YaLMTokenizerClient(cache_path=client_cache_path)
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
+            elif organization == "cohere":
+                client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_path=client_cache_path)
             elif organization == "simple":
                 client = SimpleClient(cache_path=client_cache_path)
             else:
