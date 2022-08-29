@@ -199,7 +199,7 @@ ALL_MODELS = [
     # Model versioning and the possible versions are are not documented here:
     # https://docs.cohere.ai/generate-reference#model-optional.
     # We got the names of the models from the Cohere Playground.
-    # TODO: find out the number of parameters
+    # TODO: find out the number of parameters and update descriptions
     Model(
         group="cohere",
         creator_organization="Cohere",
