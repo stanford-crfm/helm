@@ -1141,11 +1141,11 @@ def get_narrativeqa_spec() -> RunSpec:
 
 
 def get_synthetic_efficiency_spec(
-    num_input_tokens: int, num_output_tokens: int, tokenizer: str, random: Optional[str] = None
+    num_prompt_tokens: int, num_output_tokens: int, tokenizer: str, random: Optional[str] = None
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
-        args={"num_input_tokens": num_input_tokens, "num_instances": 10, "tokenizer": tokenizer},
+        args={"num_prompt_tokens": num_prompt_tokens, "num_instances": 10, "tokenizer": tokenizer},
     )
 
     adapter_spec = AdapterSpec(
@@ -1165,7 +1165,7 @@ def get_synthetic_efficiency_spec(
     )
 
     return RunSpec(
-        name=f"synthetic_efficiency:tokenizer={tokenizer},num_input_tokens={num_input_tokens},"
+        name=f"synthetic_efficiency:tokenizer={tokenizer},num_prompt_tokens={num_prompt_tokens},"
         f"num_output_tokens={num_output_tokens},random={random}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
