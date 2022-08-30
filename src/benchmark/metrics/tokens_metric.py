@@ -53,6 +53,10 @@ class TokensMetric(Metric):
             stat = Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens)
             merge_stat_helper(stat, instance)
 
+            # Number of characters in the prompt
+            stat = Stat(MetricName("num_prompt_characters")).add(len(request.prompt))
+            merge_stat_helper(stat, instance)
+
             # Maximum number of tokens in the completions
             stat = Stat(MetricName("max_num_output_tokens")).add(request.num_completions * request.max_tokens)
             merge_stat_helper(stat, instance)
