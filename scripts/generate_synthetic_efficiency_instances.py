@@ -26,7 +26,7 @@ def _count_prompt_tokens(client: AutoClient, prompt: str, tokenizer: str):
 
 def generate_synthetic_efficiency_instances(
     num_instances: int,
-    num_input_tokens: int,
+    num_prompt_tokens: int,
     tokenizer: str,
     output_path: str = "synthetic_efficiency_instances",
     base_path: str = "prod_env",
@@ -70,7 +70,7 @@ def generate_synthetic_efficiency_instances(
         batch_size = 2048
         # Skip intro text
         text = raw_text.split(" ")[batch_size:]
-        num_total_tokens_per_book = (num_instances * num_input_tokens) // len(books)
+        num_total_tokens_per_book = (num_instances * num_prompt_tokens) // len(books)
         i = 0
         tokens[book] = []
         text_chunks[book] = []
@@ -100,10 +100,10 @@ def generate_synthetic_efficiency_instances(
             # Initialize
             if huggingface_tokenizer:
                 per_instance_tokens = [
-                    token.value for token in tokens[books[j]][i * num_input_tokens : (i + 1) * num_input_tokens]
+                    token.value for token in tokens[books[j]][i * num_prompt_tokens : (i + 1) * num_prompt_tokens]
                 ]
             else:
-                per_instance_tokens = text_chunks[books[j]][i * num_input_tokens : (i + 1) * num_input_tokens]
+                per_instance_tokens = text_chunks[books[j]][i * num_prompt_tokens : (i + 1) * num_prompt_tokens]
 
             # Iterate until we get the right number of tokens
             success = False
@@ -117,11 +117,11 @@ def generate_synthetic_efficiency_instances(
                     prompt = "".join(per_instance_tokens)
 
                 num_generated_tokens = _count_prompt_tokens(client, prompt, tokenizer)
-                if num_generated_tokens != num_input_tokens:
+                if num_generated_tokens != num_prompt_tokens:
                     temp_num_tokens = num_generated_tokens
-                    while temp_num_tokens < num_input_tokens:
+                    while temp_num_tokens < num_prompt_tokens:
                         if len(per_instance_tokens) == 0:
-                            assert num_input_tokens == 1
+                            assert num_prompt_tokens == 1
                             if huggingface_tokenizer:
                                 per_instance_tokens = tokens[books[j]][:2]
                             else:
@@ -129,7 +129,7 @@ def generate_synthetic_efficiency_instances(
                         else:
                             per_instance_tokens.append(per_instance_tokens[-1])
                         temp_num_tokens += 1
-                    while temp_num_tokens > num_input_tokens:
+                    while temp_num_tokens > num_prompt_tokens:
                         per_instance_tokens = per_instance_tokens[:-1]
                         temp_num_tokens -= 1
                 else:
@@ -138,19 +138,19 @@ def generate_synthetic_efficiency_instances(
                 num_iters += 1
             if not success:
                 raise RuntimeError(
-                    f"Requested {num_input_tokens}, got {num_generated_tokens} for "
+                    f"Requested {num_prompt_tokens}, got {num_generated_tokens} for "
                     f"book {books[j]}, instance #{i}, tokenizer={tokenizer}"
                 )
             prompts.append(prompt)
 
     for i, prompt in enumerate(prompts):
-        name = f"input_tokens={num_input_tokens}," f"tokenizer={tokenizer.replace('/', '_')}," f"id={i}.txt"
+        name = f"num_prompt_tokens={num_prompt_tokens}," f"tokenizer={tokenizer.replace('/', '_')}," f"id={i}.txt"
         write(os.path.join(output_path, name), prompt)
 
 
 if __name__ == "__main__":
-    for num_input_tokens in NUM_INPUT_TOKENS:
-        for tokenizer in ["huggingface/gpt2_tokenizer_fast", "ai21"]:
+    for num_prompt_tokens in NUM_INPUT_TOKENS:
+        for tokenizer in ["huggingface/gpt2", "ai21/j1"]:
             generate_synthetic_efficiency_instances(
-                num_instances=10, num_input_tokens=num_input_tokens, tokenizer=tokenizer,
+                num_instances=10, num_prompt_tokens=num_prompt_tokens, tokenizer=tokenizer,
             )

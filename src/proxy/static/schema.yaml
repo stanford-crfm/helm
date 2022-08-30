@@ -431,7 +431,7 @@ scenario_groups:
       - accuracy
       - efficiency
     environment:
-      main_name: exact_match # TODO: This seems incorrect; we need to add the BLiMP metric
+      main_name: exact_match
       main_split: test
 
   - name: bold
@@ -816,6 +816,14 @@ scenario_groups:
     environment:
       main_split: test
 
+  - name: synthetic_efficiency
+    display_name: Synthetic efficiency
+    description: Scenario introduced in this work to better understand inference runtime performance of various models.
+    metric_groups:
+      - efficiency_detailed
+    environment:
+      main_split: test
+
   - name: synthetic_reasoning_abstract
     display_name: Synthetic reasoning (abstract symbols)
     description: Synthetic reasoning tasks defined using abstract symbols based on LIME (Wu et al., 2021).
@@ -919,13 +927,5 @@ scenario_groups:
       - efficiency
     environment:
       main_name: rouge_2
-      main_split: test
-
-  - name: synthetic_efficiency
-    display_name: Synthetic efficiency
-    description: Scenario introduced in this work to better understand inference runtime performance of various models.
-    metric_groups:
-      - efficiency_detailed
-    environment:
       main_split: test
       
