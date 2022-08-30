@@ -75,5 +75,6 @@ class CohereWindowService(LocalWindowService):
         """
         The Cohere API does not support decoding, but we're able to recover the original text from the
         values of the tokens by concatenating them.
+        TODO: this does not work for Chinese text. I followed up with them.
         """
         return "".join([token.value for token in tokens])
