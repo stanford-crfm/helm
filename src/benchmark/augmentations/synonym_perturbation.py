@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 import os
-import random
+from random import Random
 
 import nltk
 from nltk.corpus import wordnet
 import spacy
 
-from benchmark.scenarios.scenario import Instance
 from common.general import match_case
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
@@ -38,9 +37,6 @@ class SynonymPerturbation(Perturbation):
         # Assign parameters to instance variables
         self.prob: float = prob
 
-        # Random generator specific to this class, will be set in the apply function
-        self.random: random.Random
-
         # Initialize the model with spaCy: https://spacy.io/models/en
         try:
             self.spacy_model = spacy.load("en_core_web_sm")
@@ -63,7 +59,7 @@ class SynonymPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return SynonymPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
 
-    def synonyms_substitute(self, text: str) -> str:
+    def perturb(self, text: str, rng: Random) -> str:
         spacy_to_wordnet_pos = {
             "VERB": "v",
             "NOUN": "n",
@@ -83,18 +79,10 @@ class SynonymPerturbation(Perturbation):
                 synonyms = [lemma.name() for synset in synsets for lemma in synset.lemmas()]
                 synonyms = [s for s in synonyms if s != word.lower()]
                 synonyms = list(dict.fromkeys(synonyms))  # Make the list unique while preserving the order
-                if synonyms and self.random.uniform(0, 1) < self.prob:
-                    synonym = self.random.choice(synonyms)
+                if synonyms and rng.uniform(0, 1) < self.prob:
+                    synonym = rng.choice(synonyms)
                     synonym = synonym.replace("_", " ")  # We might get synonyms such as "passive_voice"
                     word = match_case(word, synonym)
             perturbed_text += word + token.whitespace_
 
         return perturbed_text
-
-    def apply(self, instance: Instance) -> Instance:
-        assert instance.id is not None
-        self.random = random.Random(int(instance.id[2:]))
-        return super().apply(instance)
-
-    def perturb(self, text: str) -> str:
-        return self.synonyms_substitute(text)
