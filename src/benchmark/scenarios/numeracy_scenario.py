@@ -710,12 +710,11 @@ class NumeracyScenario(Scenario):
             return instances
 
         def generate_datasets(num_instances: int, split: str):
-            # TODO: construct_prompt is no longer part of adapter, and this function neds to be rewritten
+            # TODO: construct_prompt is no longer part of adapter, and this function needs to be rewritten
+            #       https://github.com/stanford-crfm/benchmarking/issues/569
             return []
             # spec = get_numeracy_adapter_spec(self.num_train, self.num_test, self.dim, self.delimiter)
             # service = get_test_tokenizer_service()
-            ## TODO: we should not instantiate Adapter. construct_prompt of Adapter will be called downstream
-            ##       https://github.com/stanford-crfm/benchmarking/issues/569
             # adapter = Adapter(spec, service)
             # outer_spec = get_numeracy_adapter_spec(
             #    self.num_train,
