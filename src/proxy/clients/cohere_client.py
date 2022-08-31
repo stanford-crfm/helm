@@ -133,16 +133,31 @@ class CohereClient(Client):
 
         completions: List[Sequence] = []
         for generation in response["generations"]:
-            completion = Sequence(
-                text=generation["text"],
-                logprob=generation["likelihood"],
-                tokens=[
-                    # Cohere doesn't include the top log probs in the response
-                    Token(text=token_likelihood["token"], logprob=token_likelihood["likelihood"], top_logprobs={})
-                    for token_likelihood in generation["token_likelihoods"]
-                ],
-            )
-            completions.append(completion)
+            # From https://docs.cohere.ai/generate-reference, "the likelihood refers to the average log-likelihood
+            # of the entire specified string..." What we want is the sum of the log probabilities of all tokens.
+            sequence_logprob: float = 0
+            tokens: List[Token] = []
+            for token_likelihood in generation["token_likelihoods"]:
+                # Cohere does not return the log likelihood for the first token
+                # when `echo_prompt=True` or `return_likelihoods` is "ALL".
+                logprob: float = token_likelihood.get("likelihood", 0)
+                sequence_logprob += logprob
+
+                tokens.append(
+                    Token(
+                        text=token_likelihood["token"],
+                        logprob=logprob,
+                        # Cohere does not include the top log probs in the response
+                        top_logprobs={},
+                    )
+                )
+
+            sequence_text: str = generation["text"]
+            if request.echo_prompt and request.max_tokens > 0:
+                # Cohere does not prepend the original prompt to the output sequence when
+                # `return_likelihoods` is "ALL" and `max_tokens` is greater than 0.
+                sequence_text = request.prompt + sequence_text
+            completions.append(Sequence(text=sequence_text, logprob=sequence_logprob, tokens=tokens))
 
         return RequestResult(
             success=True,
