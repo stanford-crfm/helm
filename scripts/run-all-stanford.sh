@@ -84,6 +84,7 @@ done
 
 # Print out what to run next
 printf "\nRun the following commands once the runs complete:\n"
-command="benchmark-present --skip-instances --models-to-run ${models[@]} $default_args $*"
+command="benchmark-present --skip-instances --models-to-run ${models[@]} $default_args $* > run_all_skip_instances.log 2>&1"
 echo "nlprun --job-name generate-run-specs-json-$suite --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 8g -w $work_dir '$command'"
-echo "nlprun --job-name summarize-$suite --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 8g -w $work_dir 'benchmark-summarize --suite $suite'"
+command="benchmark-summarize --suite $suite > summarize.log 2>&1"
+echo "nlprun --job-name summarize-$suite --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 8g -w $work_dir '$command'"
