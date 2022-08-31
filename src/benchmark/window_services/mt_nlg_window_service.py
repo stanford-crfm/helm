@@ -10,7 +10,7 @@ class MTNLGWindowService(GPT2WindowService):
     def max_sequence_length(self) -> int:
         """
         The max length of the model input. MT-NLG does not predict the logprob of the first
-        input token so max_sequence_length is one token shorter than max_request_length.
+        input token so `max_sequence_length` is one token shorter than `max_request_length`.
         """
         return self.max_request_length - 1
 

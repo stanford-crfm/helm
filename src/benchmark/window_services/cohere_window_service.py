@@ -21,9 +21,10 @@ class CohereWindowService(LocalWindowService):
     @property
     def max_sequence_length(self) -> int:
         """
-        The max length of the model input.
+        The max length of the model input. Similar to MT-NLG, Cohere does not predict the logprob of
+        the first input token so `max_sequence_length` is one token shorter than `max_request_length`.
         """
-        return 2048
+        return self.max_request_length - 1
 
     @property
     def max_request_length(self) -> int:
@@ -34,7 +35,7 @@ class CohereWindowService(LocalWindowService):
         Request failed with too many tokens: total number of tokens (prompt and prediction) cannot
         exceed 2048 - received 2049. Try using a shorter prompt or a smaller max_tokens value.
         """
-        return self.max_sequence_length
+        return 2048
 
     @property
     def end_of_text_token(self) -> str:
@@ -48,8 +49,8 @@ class CohereWindowService(LocalWindowService):
         """
         The prefix token. Cohere does not return the log prob for the first token when `echo_prompt` is True.
         """
-        # TODO: figure out the best value for this
-        return "!"
+        # Cohere recommended ":", but we can try out different values
+        return ":"
 
     def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:
         """
@@ -75,6 +76,7 @@ class CohereWindowService(LocalWindowService):
         """
         The Cohere API does not support decoding, but we're able to recover the original text from the
         values of the tokens by concatenating them.
-        TODO: this does not work for Chinese text. I followed up with them.
+
+        Note this logic currently only works with English text.
         """
         return "".join([token.value for token in tokens])
