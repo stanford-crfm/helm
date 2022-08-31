@@ -1,3 +1,4 @@
+# flake8: noqa
 from collections import defaultdict
 from dataclasses import dataclass, InitVar, field
 from itertools import combinations_with_replacement, product
@@ -709,45 +710,46 @@ class NumeracyScenario(Scenario):
             return instances
 
         def generate_datasets(num_instances: int, split: str):
-            spec = get_numeracy_adapter_spec(self.num_train, self.num_test, self.dim, self.delimiter)
-            service = get_test_tokenizer_service()
-            # TODO: we should not instantiate Adapter. construct_prompt of Adapter will be called downstream
+            # TODO: construct_prompt is no longer part of adapter, and this function needs to be rewritten
             #       https://github.com/stanford-crfm/benchmarking/issues/569
-            adapter = Adapter(spec, service)
-            outer_spec = get_numeracy_adapter_spec(
-                self.num_train,
-                self.num_test,
-                self.dim,
-                instructions="",
-                instance_prefix="\n\n",
-                delimiter=self.delimiter,
-            )
-            outer_adapter = Adapter(outer_spec, service)
-            instances = []
-            for idx in range(num_instances):
-                datapoint_instances = generate_dataset()
-                train_instances = datapoint_instances[: self.num_train]
-                eval_instances = datapoint_instances[self.num_train :]
-                dataset_instances = []
-                for idx in range(self.num_test):
-                    eval_instance = eval_instances[idx]
-                    input = adapter.construct_prompt(
-                        train_instances, eval_instance, include_output=False, reference_index=None
-                    ).text
-                    input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
-                    references = eval_instance.references
-                    dataset_instance = Instance(input=input, references=references, split=split)  # split doesn't matter
-                    dataset_instances.append(dataset_instance)
+            return []
+            # spec = get_numeracy_adapter_spec(self.num_train, self.num_test, self.dim, self.delimiter)
+            # service = get_test_tokenizer_service()
+            # adapter = Adapter(spec, service)
+            # outer_spec = get_numeracy_adapter_spec(
+            #    self.num_train,
+            #    self.num_test,
+            #    self.dim,
+            #    instructions="",
+            #    instance_prefix="\n\n",
+            #    delimiter=self.delimiter,
+            # )
+            # outer_adapter = Adapter(outer_spec, service)
+            # instances = []
+            # for idx in range(num_instances):
+            #    datapoint_instances = generate_dataset()
+            #    train_instances = datapoint_instances[: self.num_train]
+            #    eval_instances = datapoint_instances[self.num_train :]
+            #    dataset_instances = []
+            #    for idx in range(self.num_test):
+            #        eval_instance = eval_instances[idx]
+            #        input = adapter.construct_prompt(
+            #            train_instances, eval_instance, include_output=False, reference_index=None
+            #        ).text
+            #        input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
+            #        references = eval_instance.references
+            #        dataset_instance = Instance(input=input, references=references, split=split)  # split doesn't matter
+            #        dataset_instances.append(dataset_instance)
 
-                input = outer_adapter.construct_prompt(
-                    dataset_instances[:-1], dataset_instances[-1], include_output=False, reference_index=None
-                ).text
-                input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
-                references = dataset_instances[-1].references
-                instance = Instance(input=input, references=references, split=split)
-                instances.append(instance)
+            #    input = outer_adapter.construct_prompt(
+            #        dataset_instances[:-1], dataset_instances[-1], include_output=False, reference_index=None
+            #    ).text
+            #    input = input[: -len(spec.output_prefix.rstrip())]  # strip output_prefix
+            #    references = dataset_instances[-1].references
+            #    instance = Instance(input=input, references=references, split=split)
+            #    instances.append(instance)
 
-            return instances
+            # return instances
 
         def generate_instances():
             generate_func = globals()[f"generate_{self.relation_type}"]
