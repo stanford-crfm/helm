@@ -1,37 +1,38 @@
 import os
 import shutil
 import tempfile
-
 from typing import List
 
+from sqlitedict import SqliteDict
+
 from common.general import ensure_directory_exists
+from .test_cohere_window_service_utils import REQUESTS_TO_RESPONSES, TEST_PROMPT, TOKENIZED_PROMPT
 from .tokenizer_service import TokenizerService
 from .window_service_factory import WindowServiceFactory
 from .test_utils import get_tokenizer_service
 
 
 class TestCohereWindowService:
-    # The cohere.test.sqlite file has the minimal set of requests/responses cache necessary to run this test.
-    TEST_SQLITE_PATH: str = "src/benchmark/window_services/cohere.test.sqlite"
-
     @classmethod
     def setup_class(cls):
         cls.path: str = tempfile.mkdtemp()
         cache_path: str = os.path.join(cls.path, "cache")
         ensure_directory_exists(cache_path)
 
-        # Copy the cohere.test.sqlite file to the temp directory.
-        shutil.copy(TestCohereWindowService.TEST_SQLITE_PATH, os.path.join(cache_path, "cohere.sqlite"))
+        # Build the cache with real requests and responses
+        with SqliteDict(os.path.join(cache_path, "cohere.sqlite")) as cache:
+            for request, response in REQUESTS_TO_RESPONSES.items():
+                cache[request] = response
+            cache.commit()
+
         # Requests/responses are already cached. Just write out a fake key to credentials.conf.
         with open(os.path.join(cls.path, "credentials.conf"), "w") as f:
             f.write("cohereApiKey: secret")
 
         service: TokenizerService = get_tokenizer_service(cls.path)
         cls.window_service = WindowServiceFactory.get_window_service("cohere/xlarge-20220609", service)
-
-        # Using the example from the Cohere documentation: https://docs.cohere.ai/tokenize-reference/#usage
-        cls.prompt: str = "tokenize me! :D"
-        cls.tokenized_prompt: List[str] = ["token", "ize", " me", "!", " :", "D"]
+        cls.prompt: str = TEST_PROMPT
+        cls.tokenized_prompt: List[str] = TOKENIZED_PROMPT
 
     @classmethod
     def teardown_class(cls):
