@@ -67,7 +67,7 @@ metrics:
     display_name: Bits/byte
     short_display_name: BPB
     description: Average number of bits per byte according to model probabilities.
-  - name: rouge_2
+  - name: rouge-2
     display_name: ROUGE-2
     description: Average ROUGE score (Lin, 2004) based on 2-gram overlap.
   - name: f1_set_match
@@ -98,6 +98,20 @@ metrics:
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
 
+  # Summarization metrics
+  - name: SummaC
+    display_name: SummaC
+    description: Faithfulness scores based on the SummaC method of Laban et al. (2022).
+  - name: coverage
+    display_name: coverage
+    description: Extent to which the model-generated summaries are extractive fragments from the source document (Grusky et al., 2018).
+  - name: density
+    display_name: density
+    description: Extent to which the model-generated summaries are extractive summaries based on the source document (Grusky et al., 2018).
+  - name: compression
+    display_name: compression
+    description: Extent to which the model-generated summaries are compressed relative to the source document (Grusky et al., 2018).
+    
   #  Code metrics
   - name: code_eval_acc
     display_name: Correctness
@@ -334,7 +348,16 @@ metric_groups:
         split: ${main_split}
 
   # Special metrics for scenarios with more than 1 main metric
-  - name: apps_metrics
+  - name: summarization_metrics
+    metrics:
+      - name: SummaC
+        split: ${main_split}
+      - name: coverage
+        split: ${main_split}
+      - name: compression
+        split: ${main_split}
+
+- name: apps_metrics
     metrics:
       - name: test_avg
         split: ${main_split}
@@ -475,6 +498,7 @@ scenario_groups:
     description: The CNN/DailyMail benchmark for text summarization (Hermann et al., 2015; Nallapati et al.,2016).
     metric_groups:
       - accuracy
+      - summarization_metrics
       - bias
       - toxicity
       - efficiency
@@ -922,6 +946,7 @@ scenario_groups:
     description: The XSUM benchmark for text summarization of BBC news articles (Narayan et al., 2018).
     metric_groups:
       - accuracy
+      - summarization_metrics
       - bias
       - toxicity
       - efficiency
