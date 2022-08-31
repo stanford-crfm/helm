@@ -525,6 +525,7 @@ class BasicMetric(Metric):
             training_energy_cost = None
 
         return [
+            Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens),
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("batch_size")).add(batch_size),
