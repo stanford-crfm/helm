@@ -139,9 +139,9 @@ $(function () {
 
   function renderRunsDetailed(runSpecs) {
     // Render all the `runSpecs`:
-    // - Adapter specification
-    // - Metric
     // - Instances + predictions
+    // - Adapter specification
+    // - Stats
     // For each block, we show a table and each `runSpec` is a column.
     const CORRECT_TAG = 'correct';
 
@@ -170,26 +170,31 @@ $(function () {
     // Setup the basic HTML elements
     const $root = $('<div>');
     const $scenarioInfo = $('<div>', {class: 'scenario-info'});
+    $scenarioInfo.append('Loading...');
     $root.append($scenarioInfo);
 
-    $root.append($('<h5>').append('Adapter specification'));
-    const $adapterSpec = $('<table>', {class: 'table'});
+    // Adapter
+    $root.append($('<a>', {name: 'adapter'}).append($('<h5>').append('Adapter')));
+    const $adapterSpec = $('<table>');
     if (runSpecs.length > 1) {
       $adapterSpec.append($('<tr>').append($('<td>'))
         .append(runDisplayNames.map((name) => $('<td>').append(name))));
     }
-    $root.append($adapterSpec);
+    $root.append($('<div>', {class: 'table-container'}).append($adapterSpec));
 
-    $root.append($('<h5>').append('Metrics'));
-    const $metrics = $('<table>', {class: 'table'});
+    // Instances
+    $root.append($('<a>', {name: 'instances'}).append($('<h5>').append('Instances')));
+    const $instances = $('<div>');
+    $root.append($('<div>', {class: 'table-container'}).append($instances));
+
+    // Metrics
+    $root.append($('<a>', {name: 'metrics'}).append($('<h5>').append('Metrics')));
+    const $metrics = $('<table>');
+    const $metricsSearch = $('<input>', {type: 'text', size: 40, placeholder: 'Enter keywords to filter metrics'});
     if (runSpecs.length > 1) {
       $metrics.append($('<tr>').append($('<td>')).append(runDisplayNames.map((name) => $('<td>').append(name))));
     }
-    $root.append($metrics);
-
-    $root.append($('<h5>').append('Instances'));
-    const $instances = $('<div>');
-    $root.append($instances);
+    $root.append($('<div>', {class: 'table-container'}).append($metricsSearch).append($metrics));
 
     // Render adapter specs
     const keys = canonicalizeList(runSpecs.map((runSpec) => Object.keys(runSpec.adapter_spec)));
@@ -212,21 +217,62 @@ $(function () {
       console.log('metrics', metricsList);
       const keys = canonicalizeList(metricsList.map((metrics) => metrics.map((metric) => metric.name)));
 
-      keys.forEach((key) => {
-        // For each key (MetricName - e.g., {name: 'exact_match', ...})
-        const field = schema.metricsField(key.name);
-        const helpText = describeMetricName(field, key);
-        const $key = $('<td>').append($('<span>').append(helpIcon(helpText)).append(' ').append(renderMetricName(key)));
-        const $row = $('<tr>').append($('<td>').append($key));
-        metricsList.forEach((metrics) => {
-          // metrics is a list of statistics corresponding to one run (column)
-          const metric = metrics.find((metric) => metricNameEquals(metric.name, key));
-          $row.append($('<td>').append(metric ? renderFieldValue(field, round(metric.mean, 3)) : '?'));
-        });
-        $metrics.append($row);
+      // Sort
+      keys.sort((k1, k2) => {
+        const splitCompare = (k1.split || '').localeCompare(k2.split || '');
+        if (splitCompare !== 0) {
+          return splitCompare;
+        }
+        const nameCompare = k1.name.localeCompare(k2.name);
+        if (nameCompare !== 0) {
+          return nameCompare;
+        }
+        const perturbationCompare = (k1.perturbation ? k1.perturbation.name : '').localeCompare(k2.perturbation ? k2.perturbation.name : '');
+        if (perturbationCompare !== 0) {
+          return perturbationCompare;
+        }
+        return 0;
       });
-      $metrics.append($('<tr>').append($('<td>'))
-        .append(metricsPaths.map((metricsPath) => $('<td>').append($('<a>', {href: metricsPath}).append('JSON')))));
+
+      // Filter 
+      let query = '';
+      $metricsSearch.keyup((e) => {
+        query = $metricsSearch.val();
+        renderMetrics();
+      });
+
+      function renderMetrics() {
+        $metrics.empty();
+        keys.forEach((key) => {
+          // For each key (MetricName - e.g., {name: 'exact_match', ...})
+
+          if (key.perturbation && key.perturbation.computed_on !== 'worst') {
+            // Only pay attention to worst (match `summarize.py`)
+            return;
+          }
+
+          const displayKey = renderMetricName(key);
+          if (query !== '' && !query.split(' ').every((q) => displayKey.includes(q))) {
+            return;
+          }
+
+          const field = schema.metricsField(key.name);
+          const helpText = describeMetricName(field, key);
+          const $key = $('<td>').append($('<span>').append(helpIcon(helpText)).append(' ').append(displayKey));
+          const $row = $('<tr>').append($('<td>').append($key));
+          metricsList.forEach((metrics) => {
+            // metrics is a list of statistics corresponding to one run (column)
+            const metric = metrics.find((metric) => metricNameEquals(metric.name, key));
+            $row.append($('<td>').append(metric ? renderFieldValue(field, round(metric.mean, 3)) : '?'));
+          });
+          $metrics.append($row);
+        });
+        $metrics.append($('<tr>').append($('<td>'))
+          .append(metricsPaths.map((metricsPath) => $('<td>').append($('<a>', {href: metricsPath}).append('JSON')))));
+      }
+
+      renderMetrics();
+
     }, []);
 
     // Render scenario instances
@@ -236,11 +282,15 @@ $(function () {
 
       // Only grab the first scenario
       const i = 0;
+      $scenarioInfo.empty();
       $scenarioInfo.append($('<h3>').append(scenarios[i].name));
       $scenarioInfo.append($('<div>').append($('<i>').append(scenarios[i].description)));
       $scenarioInfo.append($('<div>')
         .append($('<a>', {href: scenarios[i].definition_path}).append('[code]'))
         .append(' ').append($('<a>', {href: scenarioPaths[i]}).append('[JSON]'))
+        .append(' ').append($('<a>', {href: '#adapter'}).append('[adapter]'))
+        .append(' ').append($('<a>', {href: '#instances'}).append('[instances]'))
+        .append(' ').append($('<a>', {href: '#metrics'}).append('[metrics]'))
       );
 
       scenarios.forEach((scenario) => {
@@ -253,8 +303,8 @@ $(function () {
           // Render instance
           $instances.append($('<hr>'));
           const $instance = $('<div>');
-          $instance.append($('<b>').append(`Input ${instanceIndex} (${instance.split} - ${instance.id} ${renderPerturbation(instance.perturbation)})`));
-          $instance.append(': ');
+          $instance.append($('<b>').append(`Instance ${instance.id} ${renderPerturbation(instance.perturbation)} (${instance.split})`));
+          $instance.append('<br>');
           $instance.append(multilineHtml(instance.input));
           const $references = $('<ul>');
           instance.references.forEach((reference) => {
@@ -337,7 +387,7 @@ $(function () {
       $table.append($row);
     });
     $output.append($table);
-    $output.append($('<a>', {href: '?latex=' + table.title.replaceAll(" ", "_").replace("/", "_")}).append('latex'));
+    $output.append($('<a>', {href: '?latex=' + table.title.replaceAll(" ", "_").replace("/", "_")}).append('[latex]'));
     return $output;
   }
 

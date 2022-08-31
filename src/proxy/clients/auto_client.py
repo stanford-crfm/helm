@@ -35,6 +35,7 @@ class AutoClient(Client):
         self.cache_path = cache_path
         self.clients: Dict[str, Client] = {}
         self.huggingface_client = HuggingFaceClient(cache_path=os.path.join(self.cache_path, "huggingface.sqlite"))
+        hlog(f"AutoClient: cache_path = {cache_path}")
 
     def get_client(self, organization: str) -> Client:
         """Return a client based on `organization`, creating it if necessary."""

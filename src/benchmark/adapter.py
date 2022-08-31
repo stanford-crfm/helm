@@ -1,5 +1,4 @@
 import random
-from tqdm import tqdm
 from dataclasses import dataclass, field, replace
 from itertools import cycle
 from typing import List, Dict, Tuple, Optional
@@ -7,7 +6,7 @@ from collections import defaultdict, OrderedDict
 
 import numpy as np
 
-from common.general import serialize, indent_lines, format_text_lines
+from common.general import serialize, indent_lines, format_text_lines, parallel_map, flatten_list
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationToken
@@ -211,341 +210,137 @@ class Prompt:
     input_truncated: bool
 
 
-class Adapter:
-    """
-    An `Adapter`, guided by the `AdapterSpec`, takes a `Scenario` and produces
-    a `ScenarioState`.  This is where all the prompt hacking for language
-    models should go.
+@dataclass(frozen=True)
+class Processor:
+    """Constructs a prompt for each example."""
 
-    Recall that each `Instance` in a `Scenario` looks like this:
+    adapter_spec: AdapterSpec
+    window_service: WindowService
 
-        <input> -> <reference1>
-                   <reference2>
-                   <reference3> [correct]
-                   <reference4>
+    train_instances: List[Instance]
+    train_trial_index: int
 
-    There are several ways to adapt:
+    def process(self, eval_instance: Instance) -> List[RequestState]:
+        # Define the request
+        method = self.adapter_spec.method
 
-    1. [language_modeling] We don't use the references (even if they exist), just feed the input:
-
-        <input>
-
-    2. [multiple_choice] We can define a label (e.g., letter) for each reference:
-
-        <instructions>
-
-        <input>                  # train
-        A. <reference>
-        B. <reference>
-        C. <reference>
-        D. <reference>
-        Answer: C
-
-        <input>                  # test
-        A. <reference1>
-        B. <reference2>
-        C. <reference3>
-        D. <reference4>
-        Answer:
-
-        In general, each example is:
-
-            <input_prefix><input><reference_prefixes[0]><reference><output_prefix><output>
-
-    3. [generation] Just let the language model try to generate the output.
-
-        <instructions>
-
-        Input: <input>                  # train
-        Output: <reference>
-
-        Input: <input>                  # test
-        Output:
-
-        In general, each example is:
-
-            <input_prefix><input><output_prefix><output>
-
-    Later, we can create multiple requests, one for each reference and try to
-    score their probabilities to solve multiple choice problems (but have to
-    deal with references being of different lengths).
-    """
-
-    def __init__(self, adapter_spec: AdapterSpec, tokenizer_service: TokenizerService):
-        self.adapter_spec: AdapterSpec = adapter_spec
-        self.window_service: WindowService = WindowServiceFactory.get_window_service(
-            adapter_spec.model, tokenizer_service
-        )
-
-    @htrack(None)
-    def adapt(self, instances: List[Instance]) -> ScenarioState:
-        """
-        Takes a a list of `Instance`s and builds a list of corresponding `RequestState`s.
-        The reason we don't do this per eval instance is that we create a common set of
-        training instances which is shared across all eval instances.
-        """
-        # Pick out training instances
-        all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
-        if len(all_train_instances) < self.adapter_spec.max_train_instances:
-            hlog(
-                f"WARNING: only {len(all_train_instances)} training instances, "
-                f"wanted {self.adapter_spec.max_train_instances}"
+        if method == ADAPT_GENERATION:
+            prompt = self.construct_prompt(
+                self.train_instances, eval_instance, include_output=False, reference_index=None
             )
-
-        # Pick out evaluation instances. This includes both valid and test splits.
-        # We can slice and dice later in defining the metrics.
-        eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
-        if self.adapter_spec.max_eval_instances is not None:
-            np.random.seed(0)
-
-            # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
-            # number of instances, so we can include all the perturbed versions of the instances
-            # we choose in the eval set.
-            id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
-            for instance in eval_instances:
-                if instance.id in id_to_instances:
-                    id_to_instances[instance.id].append(instance)
+            request = Request(
+                model=self.adapter_spec.model,
+                prompt=prompt.text,
+                num_completions=self.adapter_spec.num_outputs,
+                temperature=self.adapter_spec.temperature,
+                max_tokens=self.adapter_spec.max_tokens,
+                stop_sequences=self.adapter_spec.stop_sequences,
+                random=self.adapter_spec.random,
+            )
+            request_states = [
+                RequestState(
+                    instance=eval_instance,
+                    reference_index=None,
+                    request_mode=None,
+                    train_trial_index=self.train_trial_index,
+                    output_mapping=None,
+                    request=request,
+                    result=None,
+                    num_in_context_examples=prompt.num_in_context_examples,
+                    input_truncated=prompt.input_truncated,
+                )
+            ]
+        elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
+            prompt = self.construct_prompt(
+                self.train_instances, eval_instance, include_output=False, reference_index=None
+            )
+            output_mapping = dict(
+                (self.get_reference_prefix("A", reference_index), reference.output)
+                for reference_index, reference in enumerate(eval_instance.references)
+            )
+            request = Request(
+                model=self.adapter_spec.model,
+                prompt=prompt.text,
+                num_completions=1,
+                top_k_per_token=self.adapter_spec.num_outputs,
+                temperature=0,
+                max_tokens=1,
+                stop_sequences=[],
+                random=self.adapter_spec.random,
+            )
+            request_states = [
+                RequestState(
+                    instance=eval_instance,
+                    reference_index=None,
+                    request_mode=None,
+                    train_trial_index=self.train_trial_index,
+                    output_mapping=output_mapping,
+                    request=request,
+                    result=None,
+                    num_in_context_examples=prompt.num_in_context_examples,
+                    input_truncated=prompt.input_truncated,
+                )
+            ]
+        elif self.adapter_spec.method in [
+            ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+            ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+        ]:
+            request_states = []
+            for reference_index, reference in enumerate(eval_instance.references):
+                # Explanation for request_modes:
+                # - ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL: each answer choice sentence is
+                # scored independently, where the score is the sentence probability
+                # normalized by sentence length.
+                # - ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED: each answer choice sentence is
+                # scored independently, where the score is the sentence probability
+                # normalized by the unconditional sentence probability.
+                # Details refer to Section 2.4 of GPT-3 paper (https://arxiv.org/pdf/2005.14165.pdf))
+                if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
+                    request_modes = ["original"]
+                elif self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED:
+                    request_modes = ["original", "calibration"]
                 else:
-                    id_to_instances[instance.id] = [instance]
+                    raise ValueError(f"Unknown adapter method: {self.adapter_spec.method}")
 
-            # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
-            # include all their instances in the final set of eval instances.
-            # The random sampling includes instances monotonically.
-            ids = list(id_to_instances.keys())
-            if len(ids) > self.adapter_spec.max_eval_instances:
-                ids = list(
-                    np.random.choice(ids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
-                )
-            eval_instances = []
-            for id_ in ids:
-                eval_instances.extend(id_to_instances[id_])
-
-        hlog(
-            f"{len(instances)} instances, "
-            f"choosing {self.adapter_spec.max_train_instances}/{len(all_train_instances)} train instances, "
-            f"{len(eval_instances)} eval instances"
-        )
-
-        # Accumulate all the request states due to adaptation
-        all_request_states: List[RequestState] = []
-        prompt: Prompt
-
-        if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
-            # Use the LM-specific method to adapt LM scenarios
-            all_request_states = self.adapt_language_modeling(eval_instances)
-        else:
-            for train_trial_index in range(self.adapter_spec.num_train_trials):
-                with htrack_block(f"Adapting with train_trial_index={train_trial_index}"):
-                    all_request_states.extend(
-                        self.adapt_trial_index(all_train_instances, train_trial_index, eval_instances)
+                for request_mode in request_modes:
+                    if request_mode == "original":
+                        prompt = self.construct_prompt(
+                            self.train_instances, eval_instance, include_output=True, reference_index=reference_index,
+                        )
+                    elif request_mode == "calibration":
+                        # For calibration purpose, we compute the logprobs of the reference
+                        # without train instances and the input question.
+                        eval_instance_calibration = replace(eval_instance, input="Answer:")
+                        prompt = self.construct_prompt(
+                            [], eval_instance_calibration, include_output=True, reference_index=reference_index,
+                        )
+                    else:
+                        raise ValueError(f"Unknown request mode: {request_mode}")
+                    request = Request(
+                        model=self.adapter_spec.model,
+                        prompt=prompt.text,
+                        num_completions=1,
+                        temperature=0,
+                        max_tokens=0,
+                        stop_sequences=[],
+                        echo_prompt=True,
                     )
-
-        hlog(f"{len(all_request_states)} requests")
-        return ScenarioState(self.adapter_spec, all_request_states)
-
-    def adapt_trial_index(
-        self, all_train_instances: List[Instance], train_trial_index: int, eval_instances: List[Instance]
-    ) -> List[RequestState]:
-        train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
-        all_request_states: List[RequestState] = []
-
-        # Create request_states
-        for eval_index, eval_instance in tqdm(enumerate(eval_instances), total=len(eval_instances)):
-            # Define the request
-            method = self.adapter_spec.method
-
-            if method == ADAPT_GENERATION:
-                prompt = self.construct_prompt(
-                    train_instances, eval_instance, include_output=False, reference_index=None
-                )
-                request = Request(
-                    model=self.adapter_spec.model,
-                    prompt=prompt.text,
-                    num_completions=self.adapter_spec.num_outputs,
-                    temperature=self.adapter_spec.temperature,
-                    max_tokens=self.adapter_spec.max_tokens,
-                    stop_sequences=self.adapter_spec.stop_sequences,
-                    random=self.adapter_spec.random,
-                )
-                request_states = [
-                    RequestState(
+                    request_state = RequestState(
                         instance=eval_instance,
-                        reference_index=None,
-                        request_mode=None,
-                        train_trial_index=train_trial_index,
+                        reference_index=reference_index,
+                        request_mode=request_mode,
+                        train_trial_index=self.train_trial_index,
                         output_mapping=None,
                         request=request,
                         result=None,
                         num_in_context_examples=prompt.num_in_context_examples,
                         input_truncated=prompt.input_truncated,
                     )
-                ]
-            elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
-                prompt = self.construct_prompt(
-                    train_instances, eval_instance, include_output=False, reference_index=None
-                )
-                output_mapping = dict(
-                    (self.get_reference_prefix("A", reference_index), reference.output)
-                    for reference_index, reference in enumerate(eval_instance.references)
-                )
-                request = Request(
-                    model=self.adapter_spec.model,
-                    prompt=prompt.text,
-                    num_completions=1,
-                    top_k_per_token=self.adapter_spec.num_outputs,
-                    temperature=0,
-                    max_tokens=1,
-                    stop_sequences=[],
-                    random=self.adapter_spec.random,
-                )
-                request_states = [
-                    RequestState(
-                        instance=eval_instance,
-                        reference_index=None,
-                        request_mode=None,
-                        train_trial_index=train_trial_index,
-                        output_mapping=output_mapping,
-                        request=request,
-                        result=None,
-                        num_in_context_examples=prompt.num_in_context_examples,
-                        input_truncated=prompt.input_truncated,
-                    )
-                ]
-            elif self.adapter_spec.method in [
-                ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
-                ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
-            ]:
-                request_states = []
-                for reference_index, reference in enumerate(eval_instance.references):
-                    # Explanation for request_modes:
-                    # - ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL: each answer choice sentence is
-                    # scored independently, where the score is the sentence probability
-                    # normalized by sentence length.
-                    # - ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED: each answer choice sentence is
-                    # scored independently, where the score is the sentence probability
-                    # normalized by the unconditional sentence probability.
-                    # Details refer to Section 2.4 of GPT-3 paper (https://arxiv.org/pdf/2005.14165.pdf))
-                    if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
-                        request_modes = ["original"]
-                    elif self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED:
-                        request_modes = ["original", "calibration"]
-                    else:
-                        raise ValueError(f"Unknown adapter method: {self.adapter_spec.method}")
+                    request_states.append(request_state)
+        else:
+            raise ValueError(f"Invalid method: {method}")
 
-                    for request_mode in request_modes:
-                        if request_mode == "original":
-                            prompt = self.construct_prompt(
-                                train_instances, eval_instance, include_output=True, reference_index=reference_index,
-                            )
-                        elif request_mode == "calibration":
-                            # For calibration purpose, we compute the logprobs of the reference
-                            # without train instances and the input question.
-                            eval_instance_calibration = replace(eval_instance, input="Answer:")
-                            prompt = self.construct_prompt(
-                                [], eval_instance_calibration, include_output=True, reference_index=reference_index,
-                            )
-                        else:
-                            raise ValueError(f"Unknown request mode: {request_mode}")
-                        request = Request(
-                            model=self.adapter_spec.model,
-                            prompt=prompt.text,
-                            num_completions=1,
-                            temperature=0,
-                            max_tokens=0,
-                            stop_sequences=[],
-                            echo_prompt=True,
-                        )
-                        request_state = RequestState(
-                            instance=eval_instance,
-                            reference_index=reference_index,
-                            request_mode=request_mode,
-                            train_trial_index=train_trial_index,
-                            output_mapping=None,
-                            request=request,
-                            result=None,
-                            num_in_context_examples=prompt.num_in_context_examples,
-                            input_truncated=prompt.input_truncated,
-                        )
-                        request_states.append(request_state)
-            else:
-                raise ValueError(f"Invalid method: {method}")
-
-            # Just print out prompts for one instance (useful for debugging)
-            if train_trial_index == 0 and eval_index == 0:
-                with htrack_block("Sample prompts"):
-                    for request_state in request_states:
-                        with htrack_block(
-                            f"reference index = {request_state.reference_index}, "
-                            f"request_mode = {request_state.request_mode}"
-                        ):
-                            for line in request_state.request.prompt.split("\n"):
-                                hlog(line)
-
-            all_request_states.extend(request_states)
-
-        return all_request_states
-
-    def sample_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
-        """
-        Sample a random set of train instances to use as examples by following the steps below:
-        1. Sort the class labels (correct References) by the number of Instances that belong to the class.
-        2. Keep sampling one train Instance from each class in the order established in step 1, until
-           there are k examples.
-        3. If we run out of examples to sample, sample the rest from the Instances that do not have
-           class labels.
-
-        Example:
-
-            If we had to sample 2 instances from these train instances:
-                Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
-                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
-                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
-
-            The following instances would be selected:
-
-                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])])
-                Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])])
-
-        Returns a new list of randomly sampled train instances.
-        """
-        # Fix the random seed for reproducibility
-        random.seed(seed)
-        num_instances_to_sample: int = min(len(all_train_instances), self.adapter_spec.max_train_instances)
-
-        unlabeled_instances: List[Instance] = []
-        label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
-
-        for instance in all_train_instances:
-            if instance.first_correct_reference:
-                label_to_instances[instance.first_correct_reference.output].append(instance)
-            else:
-                unlabeled_instances.append(instance)
-
-        # Sort the labels by the number of Instances that belong to them
-        sorted_labels: List[str] = [
-            key for key, _ in sorted(label_to_instances.items(), key=lambda x: len(x[1]), reverse=True)
-        ]
-        labels_iterable = cycle(sorted_labels)
-
-        examples: List[Instance] = []
-        while num_instances_to_sample > 0:
-            next_label: Optional[str] = next(labels_iterable, None)
-            if not next_label:
-                break
-
-            instances: List[Instance] = label_to_instances[next_label]
-            # If there are no Instances to sample for this particular label, skip it.
-            if len(instances) == 0:
-                continue
-
-            # Randomly sample without replacement
-            examples.append(instances.pop(random.randrange(len(instances))))
-            num_instances_to_sample -= 1
-
-        # If we ran out of Instances with correct References, sample the rest from
-        # the pool of Instances without any References
-        examples += random.sample(unlabeled_instances, num_instances_to_sample)
-        return examples
+        return request_states
 
     def construct_prompt(
         self,
@@ -652,6 +447,238 @@ class Adapter:
         """
         return prefix.replace("A", chr(ord("A") + i))
 
+
+class Adapter:
+    """
+    An `Adapter`, guided by the `AdapterSpec`, takes a `Scenario` and produces
+    a `ScenarioState`.  This is where all the prompt hacking for language
+    models should go.
+
+    Recall that each `Instance` in a `Scenario` looks like this:
+
+        <input> -> <reference1>
+                   <reference2>
+                   <reference3> [correct]
+                   <reference4>
+
+    There are several ways to adapt:
+
+    1. [language_modeling] We don't use the references (even if they exist), just feed the input:
+
+        <input>
+
+    2. [multiple_choice] We can define a label (e.g., letter) for each reference:
+
+        <instructions>
+
+        <input>                  # train
+        A. <reference>
+        B. <reference>
+        C. <reference>
+        D. <reference>
+        Answer: C
+
+        <input>                  # test
+        A. <reference1>
+        B. <reference2>
+        C. <reference3>
+        D. <reference4>
+        Answer:
+
+        In general, each example is:
+
+            <input_prefix><input><reference_prefixes[0]><reference><output_prefix><output>
+
+    3. [generation] Just let the language model try to generate the output.
+
+        <instructions>
+
+        Input: <input>                  # train
+        Output: <reference>
+
+        Input: <input>                  # test
+        Output:
+
+        In general, each example is:
+
+            <input_prefix><input><output_prefix><output>
+
+    Later, we can create multiple requests, one for each reference and try to
+    score their probabilities to solve multiple choice problems (but have to
+    deal with references being of different lengths).
+    """
+
+    def __init__(self, adapter_spec: AdapterSpec, tokenizer_service: TokenizerService):
+        self.adapter_spec: AdapterSpec = adapter_spec
+        self.window_service: WindowService = WindowServiceFactory.get_window_service(
+            adapter_spec.model, tokenizer_service
+        )
+
+    @htrack(None)
+    def adapt(self, instances: List[Instance], parallelism: int) -> ScenarioState:
+        """
+        Takes a a list of `Instance`s and builds a list of corresponding `RequestState`s.
+        The reason we don't do this per eval instance is that we create a common set of
+        training instances which is shared across all eval instances.
+        """
+        # Pick out training instances
+        all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
+        if len(all_train_instances) < self.adapter_spec.max_train_instances:
+            hlog(
+                f"WARNING: only {len(all_train_instances)} training instances, "
+                f"wanted {self.adapter_spec.max_train_instances}"
+            )
+
+        # Pick out evaluation instances. This includes both valid and test splits.
+        # We can slice and dice later in defining the metrics.
+        eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
+        if self.adapter_spec.max_eval_instances is not None:
+            np.random.seed(0)
+
+            # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
+            # number of instances, so we can include all the perturbed versions of the instances
+            # we choose in the eval set.
+            id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
+            for instance in eval_instances:
+                if instance.id in id_to_instances:
+                    id_to_instances[instance.id].append(instance)
+                else:
+                    id_to_instances[instance.id] = [instance]
+
+            # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
+            # include all their instances in the final set of eval instances.
+            # The random sampling includes instances monotonically.
+            ids = list(id_to_instances.keys())
+            if len(ids) > self.adapter_spec.max_eval_instances:
+                ids = list(
+                    np.random.choice(ids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
+                )
+            eval_instances = []
+            for id_ in ids:
+                eval_instances.extend(id_to_instances[id_])
+
+        hlog(
+            f"{len(instances)} instances, "
+            f"choosing {self.adapter_spec.max_train_instances}/{len(all_train_instances)} train instances, "
+            f"{len(eval_instances)} eval instances"
+        )
+
+        # Accumulate all the request states due to adaptation
+        all_request_states: List[RequestState] = []
+        prompt: Prompt
+
+        if self.adapter_spec.method == ADAPT_LANGUAGE_MODELING:
+            # Use the LM-specific method to adapt LM scenarios
+            all_request_states = self.adapt_language_modeling(eval_instances, parallelism)
+        else:
+            for train_trial_index in range(self.adapter_spec.num_train_trials):
+                with htrack_block(f"Adapting with train_trial_index={train_trial_index}"):
+                    all_request_states.extend(
+                        self.adapt_trial_index(all_train_instances, train_trial_index, eval_instances, parallelism)
+                    )
+
+        hlog(f"{len(all_request_states)} requests")
+        return ScenarioState(self.adapter_spec, all_request_states)
+
+    def adapt_trial_index(
+        self,
+        all_train_instances: List[Instance],
+        train_trial_index: int,
+        eval_instances: List[Instance],
+        parallelism: int,
+    ) -> List[RequestState]:
+        train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
+
+        # Create request_states
+        processor = Processor(
+            adapter_spec=self.adapter_spec,
+            window_service=self.window_service,
+            train_instances=train_instances,
+            train_trial_index=train_trial_index,
+        )
+        results: List[List[RequestState]] = parallel_map(
+            processor.process, eval_instances, parallelism=parallelism,
+        )
+
+        # Print out prompts for one instance (useful for debugging)
+        if train_trial_index == 0 and len(results) > 0:
+            with htrack_block("Sample prompts"):
+                for request_state in results[0]:
+                    with htrack_block(
+                        f"reference index = {request_state.reference_index}, "
+                        f"request_mode = {request_state.request_mode}"
+                    ):
+                        for line in request_state.request.prompt.split("\n"):
+                            hlog(line)
+
+        # Flatten and return
+        all_request_states: List[RequestState] = []
+        for result_index, result in enumerate(results):
+            all_request_states.extend(result)
+        return [request_state for result in results for request_state in result]
+
+    def sample_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
+        """
+        Sample a random set of train instances to use as examples by following the steps below:
+        1. Sort the class labels (correct References) by the number of Instances that belong to the class.
+        2. Keep sampling one train Instance from each class in the order established in step 1, until
+           there are k examples.
+        3. If we run out of examples to sample, sample the rest from the Instances that do not have
+           class labels.
+
+        Example:
+
+            If we had to sample 2 instances from these train instances:
+                Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+
+            The following instances would be selected:
+
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])])
+                Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])])
+
+        Returns a new list of randomly sampled train instances.
+        """
+        # Fix the random seed for reproducibility
+        random.seed(seed)
+        num_instances_to_sample: int = min(len(all_train_instances), self.adapter_spec.max_train_instances)
+
+        unlabeled_instances: List[Instance] = []
+        label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
+
+        for instance in all_train_instances:
+            if instance.first_correct_reference:
+                label_to_instances[instance.first_correct_reference.output].append(instance)
+            else:
+                unlabeled_instances.append(instance)
+
+        # Sort the labels by the number of Instances that belong to them
+        sorted_labels: List[str] = [
+            key for key, _ in sorted(label_to_instances.items(), key=lambda x: len(x[1]), reverse=True)
+        ]
+        labels_iterable = cycle(sorted_labels)
+
+        examples: List[Instance] = []
+        while num_instances_to_sample > 0:
+            next_label: Optional[str] = next(labels_iterable, None)
+            if not next_label:
+                break
+
+            instances: List[Instance] = label_to_instances[next_label]
+            # If there are no Instances to sample for this particular label, skip it.
+            if len(instances) == 0:
+                continue
+
+            # Randomly sample without replacement
+            examples.append(instances.pop(random.randrange(len(instances))))
+            num_instances_to_sample -= 1
+
+        # If we ran out of Instances with correct References, sample the rest from
+        # the pool of Instances without any References
+        examples += random.sample(unlabeled_instances, num_instances_to_sample)
+        return examples
+
     def fits_tokens_within_context_window(
         self,
         conditioning_tokens: List[TokenizationToken],
@@ -737,22 +764,22 @@ class Adapter:
                 num_conditioning_tokens = len(conditioning_tokens) - num_leading_byte_tokens
         return prompt, num_conditioning_tokens
 
-    def adapt_language_modeling(self, instances: List[Instance]) -> List[RequestState]:
+    def adapt_language_modeling(self, instances: List[Instance], parallelism: int) -> List[RequestState]:
         """ Code is adapted from:
 
         https://github.com/EleutherAI/lm_perplexity/blob/main/lm_perplexity/utils.py
         """
-        request_states: List[RequestState] = []
-
         max_sequence_length: int = self.window_service.max_sequence_length
         max_request_length: int = self.window_service.max_request_length
         prefix_token: str = self.window_service.prefix_token
 
-        for instance in tqdm(instances):
+        # TODO: does not support multiprocessing
+        def process(instance: Instance) -> List[RequestState]:
             encode_result: EncodeResult = self.window_service.encode(instance.input)
             tokens: List[TokenizationToken] = encode_result.tokens
             text: str = encode_result.text
 
+            request_states: List[RequestState] = []
             num_predicted_tokens: int = 0
 
             # Special handling for first window: predict all tokens
@@ -845,4 +872,7 @@ class Adapter:
                 request_states.append(request_state)
                 num_predicted_tokens += window_pred_len
 
-        return request_states
+            return request_states
+
+        results: List[List[RequestState]] = parallel_map(process, instances, parallelism)
+        return flatten_list(results)
