@@ -23,6 +23,7 @@ num_threads=8
 work_dir=$PWD
 suite=$2
 suite_path="benchmark_output/runs/$suite"
+mkdir -p $suite_path
 default_args="--max-eval-instances 1000 --priority 2 --local"
 
 models=(
