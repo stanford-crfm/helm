@@ -1,9 +1,7 @@
 from typing import Optional
-from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, replace
-from tqdm import tqdm
 
-from common.general import format_text
+from common.general import format_text, parallel_map
 from common.hierarchical_logger import htrack, hlog
 from common.request import RequestResult
 from common.authentication import Authentication
@@ -95,20 +93,16 @@ class Executor:
                 + f"predicted {format_text(pred_output)} [{correct_str}]"
             )
 
-        def process(state: RequestState) -> RequestState:
-            result: RequestResult = self.service.make_request(self.execution_spec.auth, state.request)
-            if not result.success:
-                raise ExecutorError(result.error + f"Request: {state.request}")
-
-            state = replace(state, result=result)
-            tqdm.write(render_request_state(state))
-            return state
-
-        with ThreadPoolExecutor(max_workers=self.execution_spec.parallelism) as executor:
-            # Run `process` on each request state
-            request_states = list(
-                tqdm(executor.map(process, scenario_state.request_states), total=len(scenario_state.request_states))
-            )
+        # Do it!
+        request_states = parallel_map(
+            self.process, scenario_state.request_states, parallelism=self.execution_spec.parallelism,
+        )
 
         hlog(f"Processed {len(request_states)} requests")
         return ScenarioState(scenario_state.adapter_spec, request_states)
+
+    def process(self, state: RequestState) -> RequestState:
+        result: RequestResult = self.service.make_request(self.execution_spec.auth, state.request)
+        if not result.success:
+            raise ExecutorError(result.error + f"Request: {state.request}")
+        return replace(state, result=result)

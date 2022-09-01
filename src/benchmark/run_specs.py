@@ -1198,7 +1198,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
-        groups=["synthetic_reasoning", "synthetic_reasoning_{mode}"],
+        groups=["synthetic_reasoning", f"synthetic_reasoning_{mode}"],
     )
 
 

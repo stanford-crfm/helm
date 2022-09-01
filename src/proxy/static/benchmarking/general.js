@@ -33,7 +33,6 @@ function perturbationEquals(perturbation1, perturbation2) {
 
 function metricNameEquals(name1, name2) {
   return name1.name === name2.name &&
-         name1.k === name2.k &&
          name1.split === name2.split &&
          name1.sub_split === name2.sub_split &&
          perturbationEquals(name1.perturbation, name2.perturbation);
@@ -44,20 +43,23 @@ function renderPerturbation(perturbation) {
     return 'original';
   }
   // The perturbation field must have the "name" subfield
-  const fields_str = Object.keys(perturbation)
-                     .filter(key => key !== 'name')
-                     .map(key => `${key}=${perturbation[key]}`)
-                     .join(', ');
-  return perturbation.name + (fields_str ? '(' + fields_str + ')' : '');
+  const verbose = false;
+  if (verbose) {
+    const fields_str = Object.keys(perturbation)
+                       .filter(key => key !== 'name')
+                       .map(key => `${key}=${perturbation[key]}`)
+                       .join(', ');
+
+    return perturbation.name + (fields_str ? '(' + fields_str + ')' : '');
+  } else {
+    return perturbation.name;
+  }
 }
 
 function renderMetricName(name) {
   // Return a short name (suitable for a cell of a table)
   // Example: name = {name: 'exact_match'}
   let result = name.name.bold();
-  if (name.k) {
-    result += '@' + name.k;
-  }
   if (name.split) {
     result += ' on ' + name.split + (name.sub_split ? '/' + name.sub_split : '');
   }
@@ -70,14 +72,11 @@ function renderMetricName(name) {
 function describeMetricName(field, name) {
   // Return a longer description that explains the name
   let result = describeField(field);
-  if (name.k) {
-    result += `\n@${name.k}: consider the best over the top ${name.k} predictions`;
-  }
   if (name.split) {
-    result += `\non ${name.split}: evaluated on the subset of ${name.split} instances`;
+    result += `\n* on ${name.split}: evaluated on the subset of ${name.split} instances`;
   }
   if (name.perturbation) {
-    result += `\nwith ${renderPerturbation(name.perturbation)}: applied this perturbation (worst means over all perturbations of an instance)`;
+    result += `\n* with ${renderPerturbation(name.perturbation)}: applied this perturbation`;
   }
   return result;
 }

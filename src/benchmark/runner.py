@@ -110,7 +110,7 @@ class Runner:
 
         # Adaptation
         adapter = Adapter(run_spec.adapter_spec, self.tokenizer_service)
-        scenario_state: ScenarioState = adapter.adapt(instances)
+        scenario_state: ScenarioState = adapter.adapt(instances, self.executor.execution_spec.parallelism)
 
         # Execution
         scenario_state = self.executor.execute(scenario_state)
@@ -127,7 +127,10 @@ class Runner:
             for metric in metrics:
                 with htrack_block(metric):
                     metric_result: MetricResult = metric.evaluate(
-                        scenario_state, self.metric_service, self.eval_cache_path
+                        scenario_state,
+                        self.metric_service,
+                        self.eval_cache_path,
+                        self.executor.execution_spec.parallelism,
                     )
                     stats.extend(metric_result.aggregated_stats)
                     for key in metric_result.per_instance_stats:

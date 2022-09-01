@@ -27,6 +27,10 @@ class CohereClient(Client):
     GENERATE_ENDPOINT: str = "generate"
     TOKENIZE_ENDPOINT: str = "tokenize"
 
+    # According to https://docs.cohere.ai/tokenize-reference#request, for tokenize, text: "the string to
+    # be tokenized, the minimum text length is 1 character, and the maximum text length is 65536 characters."
+    TOKENIZE_MAX_TEXT_LENGTH: int = 65536
+
     @staticmethod
     def get_url(endpoint: str) -> str:
         return urljoin("https://api.cohere.ai", endpoint)
@@ -133,16 +137,31 @@ class CohereClient(Client):
 
         completions: List[Sequence] = []
         for generation in response["generations"]:
-            completion = Sequence(
-                text=generation["text"],
-                logprob=generation["likelihood"],
-                tokens=[
-                    # Cohere doesn't include the top log probs in the response
-                    Token(text=token_likelihood["token"], logprob=token_likelihood["likelihood"], top_logprobs={})
-                    for token_likelihood in generation["token_likelihoods"]
-                ],
-            )
-            completions.append(completion)
+            # From https://docs.cohere.ai/generate-reference, "the likelihood refers to the average log-likelihood
+            # of the entire specified string..." What we want is the sum of the log probabilities of all tokens.
+            sequence_logprob: float = 0
+            tokens: List[Token] = []
+            for token_likelihood in generation["token_likelihoods"]:
+                # Cohere does not return the log likelihood for the first token
+                # when `echo_prompt=True` or `return_likelihoods` is "ALL".
+                logprob: float = token_likelihood.get("likelihood", 0)
+                sequence_logprob += logprob
+
+                tokens.append(
+                    Token(
+                        text=token_likelihood["token"],
+                        logprob=logprob,
+                        # Cohere does not include the top log probs in the response
+                        top_logprobs={},
+                    )
+                )
+
+            sequence_text: str = generation["text"]
+            if request.echo_prompt and request.max_tokens > 0:
+                # Cohere does not prepend the original prompt to the output sequence when
+                # `return_likelihoods` is "ALL" and `max_tokens` is greater than 0.
+                sequence_text = request.prompt + sequence_text
+            completions.append(Sequence(text=sequence_text, logprob=sequence_logprob, tokens=tokens))
 
         return RequestResult(
             success=True,
@@ -153,10 +172,10 @@ class CohereClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        # According to https://docs.cohere.ai/tokenize-reference#request, text: "the string to be tokenized,
-        # the minimum text length is 1 character, and the maximum text length is 65536 characters."
         text: str = request.text
-        assert 1 <= len(text) <= 65536, f"Invalid text length: {len(text)}. Valid length: [1..65,536]"
+        assert (
+            1 <= len(text) <= CohereClient.TOKENIZE_MAX_TEXT_LENGTH
+        ), f"Invalid text length: {len(text)}. Valid length: [1..{CohereClient.TOKENIZE_MAX_TEXT_LENGTH:,d}]"
         raw_request: Dict[str, str] = {"text": text}
 
         try:
