@@ -1,6 +1,7 @@
 from typing import List
 
-from yalm_tokenizer import YaLMTokenizer
+from common.general import singleton
+from .yalm_tokenizer import YaLMTokenizer
 
 
 class TestYaLMTokenizer:
@@ -16,3 +17,10 @@ class TestYaLMTokenizer:
     def test_decode(self):
         text: str = "should be exactly the same"
         assert self.tokenizer.decode(self.tokenizer.tokenize(text)) == text
+
+    def test_tokenize_eos(self):
+        eos_token: str = "</s>"
+        token_ids = self.tokenizer.tokenize(eos_token)
+        assert singleton(token_ids) == 2
+        # TODO: check with Jue - AssertionError: assert '' == '</s>'
+        # assert self.tokenizer.decode(token_ids) == eos_token
