@@ -6,7 +6,7 @@ PERTURBATION_PERTURBED: str = "perturbed"
 PERTURBATION_WORST: str = "worst"
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class PerturbationDescription:
     """DataClass used to describe a Perturbation"""
 

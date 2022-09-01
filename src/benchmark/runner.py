@@ -136,6 +136,9 @@ class Runner:
                     for key in metric_result.per_instance_stats:
                         per_instance_stats[key].extend(metric_result.per_instance_stats[key])
 
+        # Dedupe computed stats
+        stats = list(set(stats))
+
         # Print out stats
         hlog(f"Generated {len(stats)} stats")
 

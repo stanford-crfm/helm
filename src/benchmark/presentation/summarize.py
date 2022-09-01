@@ -188,10 +188,6 @@ def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) ->
     matching_stats = [stat for stat in stats if matcher.matches(stat.name)]
     if len(matching_stats) == 0:
         return None
-    # TODO: remove this check once we dedupe metrics
-    if len(matching_stats) > 1:
-        hlog(f"WARNING: There are more than one matching stat: {matching_stats}")
-        return matching_stats[0]
     return singleton(matching_stats)
 
 
