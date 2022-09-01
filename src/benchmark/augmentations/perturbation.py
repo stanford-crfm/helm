@@ -29,7 +29,7 @@ class Perturbation(ABC):
         passed to perturb and perturb_references.
         """
         assert instance.id is not None
-        rng: Random = Random(int(instance.id[2:]))
+        rng: Random = Random(instance.id)
 
         references: Sequence[Reference] = instance.references
         if self.should_perturb_references:

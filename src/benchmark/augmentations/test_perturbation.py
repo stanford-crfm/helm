@@ -42,7 +42,7 @@ def test_misspelling_perturbation():
     assert instances[1].id == "id0"
     assert instances[1].perturbation.name == "misspellings"
     assert instances[1].perturbation.prob == 1.0
-    assert instances[1].input == "Alreayd, ther new product is nto avaliable."
+    assert instances[1].input == "Alreayd, hten new product is nto avaliable."
 
 
 def test_filler_words_perturbation():
@@ -57,7 +57,7 @@ def test_filler_words_perturbation():
     assert len(instances) == 2
     assert instances[1].id == "id0"
     assert instances[1].perturbation.name == "filler_words"
-    assert instances[1].input == "The quick brown err fox jumps over the lazy dog."
+    assert instances[1].input == "The quick brown fox jumps over like the lazy probably dog."
 
 
 def test_contraction_perturbation():
@@ -98,7 +98,7 @@ def test_typos_perturbation():
     assert len(instances) == 2
     assert instances[1].perturbation.name == "typos"
     assert instances[1].perturbation.prob == 0.1
-    assert instances[1].input == "After their marriage, she started a close cpllaboratoon wigh Karvelas."
+    assert instances[1].input == "After tjeir marriage, she xrwrted a cloae dollabpration with Iarvwlas."
 
 
 def test_synonym_perturbation():
@@ -111,7 +111,7 @@ def test_synonym_perturbation():
     assert len(instances) == 2
     assert instances[1].perturbation.name == "synonym"
     assert instances[1].perturbation.prob == 1.0
-    assert instances[1].input == "This was a serious film, would learn once more."
+    assert instances[1].input == "This was a near motion-picture show, would check once more."
 
 
 def test_lowercase_perturbation():
@@ -135,7 +135,7 @@ def test_space_perturbation():
     print(instances)
     assert len(instances) == 2
     assert instances[1].perturbation.name == "space"
-    assert instances[1].input == "Hello   World!\nQuite   aday,  huh?"
+    assert instances[1].input == "HelloWorld!\nQuite   a  day,  huh?"
 
 
 def test_dialect_perturbation():
@@ -178,10 +178,8 @@ def test_person_name_perturbation():
     print(instances)
     assert len(instances) == 2
     assert instances[1].perturbation.name == "person_name"
-    assert (
-        instances[1].input == "I learned that Jamel, Wardell, and Latoya are siblings! Do you know who is the oldest?"
-    )
-    assert instances[1].references[0].output == "Wardell"
+    assert instances[1].input == "I learned that Lamar, Tyree, and Sharise are siblings! Do you know who is the oldest?"
+    assert instances[1].references[0].output == "Tyree"
 
 
 def test_gender_pronoun_perturbation():
