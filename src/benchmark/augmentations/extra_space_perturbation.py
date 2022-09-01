@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from random import Random
 
 from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
@@ -23,5 +24,5 @@ class ExtraSpacePerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return ExtraSpacePerturbation.Description(name=self.name, robustness=True, num_spaces=self.num_spaces)
 
-    def perturb(self, text: str) -> str:
+    def perturb(self, text: str, rng: Random) -> str:
         return text.replace(" ", " " * self.num_spaces)

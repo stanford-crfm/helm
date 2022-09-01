@@ -1,7 +1,6 @@
 from dataclasses import dataclass
-import random
+from random import Random
 
-from benchmark.scenarios.scenario import Instance
 from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
 
@@ -24,14 +23,9 @@ class SpacePerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return SpacePerturbation.Description(name=self.name, robustness=True, max_spaces=self.max_spaces)
 
-    def apply(self, instance: Instance) -> Instance:
-        assert instance.id is not None
-        random.seed(int(instance.id[2:]))  # set seed based on instance ID
-        return super().apply(instance)
-
-    def perturb(self, text: str) -> str:
+    def perturb(self, text: str, rng: Random) -> str:
         result = []
         for word in text.split(" "):
             result.append(word)
-            result.append(" " * random.randint(0, self.max_spaces))
+            result.append(" " * rng.randint(0, self.max_spaces))
         return "".join(result[:-1])

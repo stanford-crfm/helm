@@ -1,6 +1,8 @@
 from typing import Dict
 import re
 
+from random import Random
+
 from common.general import match_case
 from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
@@ -115,7 +117,7 @@ class ContractionPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return PerturbationDescription(name=self.name, robustness=True)
 
-    def perturb(self, text: str) -> str:
+    def perturb(self, text: str, rng: Random) -> str:
         def cont(possible):
             match = possible.group(1)
             expanded_contraction = self.reverse_contraction_map.get(
@@ -150,7 +152,7 @@ class ExpansionPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return PerturbationDescription(name=self.name, robustness=True)
 
-    def perturb(self, text: str) -> str:
+    def perturb(self, text: str, rng: Random) -> str:
         def expand_match(contraction):
             match = contraction.group(0)
             expanded_contraction = self.contraction_map.get(match, self.contraction_map.get(match.lower()))

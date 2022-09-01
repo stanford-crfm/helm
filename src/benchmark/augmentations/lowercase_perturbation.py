@@ -1,3 +1,5 @@
+from random import Random
+
 from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
 
@@ -13,5 +15,5 @@ class LowerCasePerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return PerturbationDescription(name=self.name, robustness=True)
 
-    def perturb(self, text: str) -> str:
+    def perturb(self, text: str, rng: Random) -> str:
         return text.lower()
