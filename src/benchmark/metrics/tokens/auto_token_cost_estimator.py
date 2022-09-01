@@ -3,6 +3,7 @@ from typing import Dict
 from benchmark.metrics.metric_service import MetricService
 from common.request import Request
 from .ai21_token_cost_estimator import AI21TokenCostEstimator
+from .cohere_token_cost_estimator import CohereTokenCostEstimator
 from .free_token_cost_estimator import FreeTokenCostEstimator
 from .gooseai_token_cost_estimator import GooseAITokenCostEstimator
 from .openai_token_cost_estimator import OpenAITokenCostEstimator
@@ -24,6 +25,8 @@ class AutoTokenCostEstimator(TokenCostEstimator):
                 token_cost_estimator = OpenAITokenCostEstimator()
             elif organization == "ai21":
                 token_cost_estimator = AI21TokenCostEstimator()
+            elif organization == "cohere":
+                token_cost_estimator = CohereTokenCostEstimator()
             elif organization == "gooseai":
                 token_cost_estimator = GooseAITokenCostEstimator()
             else:
