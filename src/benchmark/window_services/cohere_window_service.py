@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from proxy.clients.cohere_client import CohereClient
 from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
 from .window_service import EncodeResult
@@ -80,6 +81,19 @@ class CohereWindowService(LocalWindowService):
         Note this logic currently only works with English text.
         """
         return "".join([token.value for token in tokens])
+
+    def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
+        """
+        Checks if the given text fits within the context window given by `max_request_length`
+        taking to account the expected completion length (defaults to 0).
+
+        According to https://docs.cohere.ai/tokenize-reference#request, for tokenize, text: "the string to
+        be tokenized, the minimum text length is 1 character, and the maximum text length is 65536 characters."
+        """
+        return (
+            len(text) <= CohereClient.TOKENIZE_MAX_TEXT_LENGTH
+            and self.get_num_tokens(text) + expected_completion_token_length <= self.max_request_length
+        )
 
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """

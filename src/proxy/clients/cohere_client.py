@@ -27,6 +27,10 @@ class CohereClient(Client):
     GENERATE_ENDPOINT: str = "generate"
     TOKENIZE_ENDPOINT: str = "tokenize"
 
+    # According to https://docs.cohere.ai/tokenize-reference#request, for tokenize, text: "the string to
+    # be tokenized, the minimum text length is 1 character, and the maximum text length is 65536 characters."
+    TOKENIZE_MAX_TEXT_LENGTH: int = 65536
+
     @staticmethod
     def get_url(endpoint: str) -> str:
         return urljoin("https://api.cohere.ai", endpoint)
@@ -168,10 +172,10 @@ class CohereClient(Client):
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        # According to https://docs.cohere.ai/tokenize-reference#request, text: "the string to be tokenized,
-        # the minimum text length is 1 character, and the maximum text length is 65536 characters."
         text: str = request.text
-        assert 1 <= len(text) <= 65536, f"Invalid text length: {len(text)}. Valid length: [1..65,536]"
+        assert (
+            1 <= len(text) <= CohereClient.TOKENIZE_MAX_TEXT_LENGTH
+        ), f"Invalid text length: {len(text)}. Valid length: [1..{CohereClient.TOKENIZE_MAX_TEXT_LENGTH:,d}]"
         raw_request: Dict[str, str] = {"text": text}
 
         try:
