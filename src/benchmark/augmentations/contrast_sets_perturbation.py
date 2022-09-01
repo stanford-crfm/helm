@@ -62,7 +62,7 @@ class ContrastSetsPerturbation(Perturbation):
         """
 
         assert instance.id is not None
-        rng = Random(int(instance.id[2:]))  # set seed based on instance ID
+        rng = Random(instance.id)  # set seed based on instance ID
 
         perturbed_instance: str = instance.input
         perturbed_references: Sequence[Reference] = instance.references
