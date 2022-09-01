@@ -55,16 +55,17 @@ class SynonymPerturbation(Perturbation):
 
         output_dir = os.path.join("benchmark_output", "perturbations", self.name)
         Path(output_dir).mkdir(parents=True, exist_ok=True)
+        nltk.data.path.append(output_dir)
         try:
             # We cannot use wordnet.synsets directly since it's not thread-safe. So we copy the synsets to
             # wordnet_synonyms.json and use that in combination with _morphy (as done in the original wordnet.synsets).
-            _ = wordnet._morphy("test", "n")
+            wordnet.ensure_loaded()
         except LookupError:
-            nltk.data.path.append(output_dir)
             if not os.path.exists(os.path.join(output_dir, "corpora/wordnet")):
                 nltk.download("wordnet", download_dir=output_dir)
             if not os.path.exists(os.path.join(output_dir, "corpora/omw-1.4")):
                 nltk.download("omw-1.4", download_dir=output_dir)
+        wordnet.ensure_loaded()
 
         target_path = os.path.join(output_dir, self.FILE_NAME)
         ensure_file_downloaded(source_url=self.SOURCE_URI, target_path=target_path)
