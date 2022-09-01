@@ -88,7 +88,8 @@ class CohereWindowService(LocalWindowService):
         taking to account the expected completion length (defaults to 0).
 
         According to https://docs.cohere.ai/tokenize-reference#request, for tokenize, text: "the string to
-        be tokenized, the minimum text length is 1 character, and the maximum text length is 65536 characters."
+        be tokenized, the minimum text length is 1 character, and the maximum text length is 65,536 characters.",
+        so first check if the text has fewer than 65,536 characters.
         """
         return (
             len(text) <= CohereClient.TOKENIZE_MAX_TEXT_LENGTH
