@@ -101,6 +101,9 @@ class CohereWindowService(LocalWindowService):
         Truncates text from the right to fit within the context window given by `max_request_length`
         minus the expected completion length (defaults to 0).
         """
+        # First truncate the text so it's within `CohereClient.TOKENIZE_MAX_TEXT_LENGTH` length.
+        text = text[: CohereClient.TOKENIZE_MAX_TEXT_LENGTH]
+
         max_length: int = self.max_request_length - expected_completion_token_length
         result: str = self.decode(self.encode(text, truncation=True, max_length=max_length).tokens)
 
