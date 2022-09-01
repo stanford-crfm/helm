@@ -25,7 +25,7 @@ Reads the output of the benchmark runs and produces:
 
 Usage:
 
-    venv/bin/benchmark-summarize
+    venv/bin/benchmark-summarize --suite <Name of the suite>
 
 """
 
@@ -84,17 +84,20 @@ class MetricNameMatcher:
     # Which data split to report numbers on (e.g., TEST_SPLIT)
     split: str
 
+    # Which sub split to report numbers on (e.g., toxic, non-toxic)
+    sub_split: Optional[str] = None
+
     # Which perturbation to show (e.g., robustness)
     perturbation_name: Optional[str] = None
 
     def matches(self, metric_name: MetricName) -> bool:
-        if self.name != metric_name.name:
+        if self.name != metric_name.name or self.split != metric_name.split or self.sub_split != metric_name.sub_split:
             return False
-        if self.split != metric_name.split:
-            return False
+
         metric_perturbation_name = metric_name.perturbation and metric_name.perturbation.name
         if self.perturbation_name != metric_perturbation_name:
             return False
+
         # If there is a perturbation, only return the worst
         if metric_name.perturbation and metric_name.perturbation.computed_on != PERTURBATION_WORST:
             return False
@@ -185,6 +188,10 @@ def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) ->
     matching_stats = [stat for stat in stats if matcher.matches(stat.name)]
     if len(matching_stats) == 0:
         return None
+    # TODO: remove this check once we dedupe metrics
+    if len(matching_stats) > 1:
+        hlog(f"WARNING: There are more than one matching stat: {matching_stats}")
+        return matching_stats[0]
     return singleton(matching_stats)
 
 

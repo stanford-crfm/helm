@@ -1,7 +1,6 @@
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, replace
 import math
-import random
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 from .metric_name import MetricName
 
@@ -19,18 +18,6 @@ class Stat:
     mean: Optional[float] = None
     variance: Optional[float] = None
     stddev: Optional[float] = None
-    values: List[float] = field(default_factory=list)
-    values_buffer_size: int = 300
-
-    def _add_to_values(self, x: float):
-        if len(self.values) < self.values_buffer_size:
-            self.values.append(x)
-        else:
-            # Remove existing value from sketch with probability n/n+1.
-            index_to_remove = random.randint(0, self.values_buffer_size)
-            if index_to_remove < self.values_buffer_size:
-                self.values[index_to_remove] = x
-        self._update_mean_variance_stddev()
 
     def add(self, x) -> "Stat":
         # Skip Nones for statistic aggregation.
@@ -43,7 +30,7 @@ class Stat:
         self.min = min(self.min, x) if self.count > 0 else x
         self.max = max(self.max, x) if self.count > 0 else x
         self.count += 1
-        self._add_to_values(x)
+        self._update_mean_variance_stddev()
         return self
 
     def merge(self, other: "Stat") -> "Stat":
@@ -54,8 +41,7 @@ class Stat:
         if other.max is not None:
             self.max = max(self.max, other.max) if self.count > 0 else other.max
         self.count += other.count
-        for x in other.values:
-            self._add_to_values(x)
+        self._update_mean_variance_stddev()
         return self
 
     def __repr__(self):
