@@ -42,7 +42,7 @@ def test_misspelling_perturbation():
     assert instances[1].id == "id0"
     assert instances[1].perturbation.name == "misspellings"
     assert instances[1].perturbation.prob == 1.0
-    assert instances[1].input == "Alreayd, teh new product is nto availaible."
+    assert instances[1].input == "Alreayd, ther new product is nto avaliable."
 
 
 def test_filler_words_perturbation():
@@ -98,7 +98,7 @@ def test_typos_perturbation():
     assert len(instances) == 2
     assert instances[1].perturbation.name == "typos"
     assert instances[1].perturbation.prob == 0.1
-    assert instances[1].input == "After their marrjage, she started a close collaborwtion with Karvelas."
+    assert instances[1].input == "After their marriage, she started a close cpllaboratoon wigh Karvelas."
 
 
 def test_synonym_perturbation():
