@@ -22,6 +22,7 @@ cpus=4
 num_threads=8
 work_dir=$PWD
 suite=$2
+suite_path="benchmark_output/runs/$suite"
 default_args="--max-eval-instances 1000 --priority 2 --local"
 
 models=(
@@ -64,16 +65,16 @@ do
     # By default, the command will run the RunSpecs listed in src/benchmark/presentation/run_specs.conf
     log_file=$job.log
     execute "nlprun --job-name $job --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 16g -w $work_dir
-    'benchmark-present -n $num_threads --models-to-run $model $default_args $* > $log_file 2>&1'"
-    log_paths+=("$work_dir/$log_file")
+    'benchmark-present -n $num_threads --models-to-run $model $default_args $* > $suite_path/$log_file 2>&1'"
+    log_paths+=("$work_dir/$suite_path/$log_file")
 
     # Run RunSpecs that require a GPU
     log_file=$job.gpu.log
     # TODO: reenable after https://github.com/stanford-crfm/benchmarking/issues/782 is fixed
 #    execute "nlprun --job-name $job-gpu --priority high -a crfm_benchmarking -c $cpus -g 1 --memory 16g -w $work_dir
 #    'benchmark-present -n $num_threads --models-to-run $model --conf-path src/benchmark/presentation/run_specs_gpu.conf
-#    $default_args $* > $log_file 2>&1'"
-#    log_paths+=("$work_dir/$log_file")
+#    $default_args $* > $suite_path/$log_file 2>&1'"
+#    log_paths+=("$work_dir/$suite_path/$log_file")
 done
 
 printf "\nTo monitor the runs:\n"
@@ -84,6 +85,7 @@ done
 
 # Print out what to run next
 printf "\nRun the following commands once the runs complete:\n"
-command="benchmark-present --skip-instances --models-to-run ${models[@]} $default_args $*"
+command="benchmark-present --skip-instances --models-to-run ${models[@]} $default_args $* > $suite_path/run_all_skip_instances.log 2>&1"
 echo "nlprun --job-name generate-run-specs-json-$suite --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 8g -w $work_dir '$command'"
-echo "nlprun --job-name summarize-$suite --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 8g -w $work_dir 'benchmark-summarize --suite $suite'"
+command="benchmark-summarize --suite $suite > $suite_path/summarize.log 2>&1"
+echo "nlprun --job-name summarize-$suite --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 8g -w $work_dir '$command'"

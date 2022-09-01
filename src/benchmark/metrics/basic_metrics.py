@@ -374,6 +374,9 @@ class BasicMetric(Metric):
         with open(TRAINING_EFFICIENCY_JSON_FILEPATH, "r") as f:
             self.training_efficiency_dict = json.load(f)
 
+    def __repr__(self):
+        return f"BasicMetric({','.join(self.names)})"
+
     def compute_reference_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
@@ -525,6 +528,7 @@ class BasicMetric(Metric):
             training_energy_cost = None
 
         return [
+            Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens),
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("batch_size")).add(batch_size),
