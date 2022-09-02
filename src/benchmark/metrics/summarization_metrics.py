@@ -32,9 +32,9 @@ class SummarizationMetric(Metric):
 
     def __init__(self, device="cpu"):
         self.rouge_fns = {
-            "rouge-1": get_rouge_function("rouge1"),
-            "rouge-2": get_rouge_function("rouge2"),
-            "rouge-l": get_rouge_function("rougeL"),
+            "rouge_1": get_rouge_function("rouge1"),
+            "rouge_2": get_rouge_function("rouge2"),
+            "rouge_l": get_rouge_function("rougeL"),
         }
         self.data_stats_metric = DataStatsMetric()
 
@@ -55,7 +55,11 @@ class SummarizationMetric(Metric):
 
     def _compute_data_stats(self, inp: str, pred: str) -> Dict[str, float]:
         stats = self.data_stats_metric.evaluate_example(pred, inp)
-        return {"coverage": stats["coverage"], "density": stats["density"], "compression": stats["compression"]}
+        return {
+            "summarization_coverage": stats["coverage"],
+            "summarization_density": stats["density"],
+            "summarization_compression": stats["compression"],
+        }
 
     def _compute_faithfulness_scores(self, inp: str, pred: str) -> Dict[str, float]:
         return {"SummaC": self.summac.score_one(inp, pred)["score"]}
