@@ -184,6 +184,8 @@ class Metric(ABC):
                     merge_stat(trial_stats, add_context(stat, context))
 
                 # keep track of how many instances are in each subset
+                # TODO: `num_instances` will be computed multiple times if there are more than
+                #       one child Metric class that inherits this method.
                 num_instances_stat = Stat(MetricName("num_instances")).add(len(instance_dict))
                 merge_stat(trial_stats, add_context(num_instances_stat, context))
 
