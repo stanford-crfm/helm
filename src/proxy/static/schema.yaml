@@ -102,13 +102,13 @@ metrics:
   - name: SummaC
     display_name: SummaC
     description: Faithfulness scores based on the SummaC method of Laban et al. (2022).
-  - name: coverage
+  - name: summarization_coverage
     display_name: coverage
     description: Extent to which the model-generated summaries are extractive fragments from the source document (Grusky et al., 2018).
-  - name: density
+  - name: summarization_density
     display_name: density
     description: Extent to which the model-generated summaries are extractive summaries based on the source document (Grusky et al., 2018).
-  - name: compression
+  - name: summarization_compression
     display_name: compression
     description: Extent to which the model-generated summaries are compressed relative to the source document (Grusky et al., 2018).
     
@@ -510,19 +510,6 @@ scenario_groups:
       main_name: rouge_2
       main_split: test
 
-  # - name: commonsenseqa
-  #   display_name: CommonsenseQA
-  #   description: The CommonsenseQA benchmark for commonsense-intensive question answering (Talmor et al., 2019).
-  #   metric_groups:
-  #     - accuracy
-  #     - calibration
-  #     - robustness
-  #     - fairness
-  #     - efficiency
-  #   environment:
-  #     main_name: quasi_exact_match
-  #     main_split: valid
-
   - name: copyright
     display_name: Copyright
     description: Scenario introduced in this work to measure copyright and memorization behavior, based off of Carlini et al. (2021).
@@ -772,19 +759,6 @@ scenario_groups:
       main_name: f1_score
       main_split: valid
 
-  # - name: news_qa
-  #   display_name: NewsQA
-  #   description: The NewsQA benchmark for reading comprehension over CNN news articles (Trischler et al., 2017).
-  #   metric_groups:
-  #     - accuracy
-  #     - calibration
-  #     - robustness
-  #     - fairness
-  #     - efficiency
-  #   environment:
-  #     main_name: f1_score
-  #     main_split: valid
-
   - name: numeracy
     display_name: Numerical reasoning
     description: Scenario introduced in this work to test numerical reasoning via symbolic regression.
@@ -914,16 +888,6 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
-
-  # - name: wikitext_103
-  #   display_name: WikiText-103
-  #   description: The Wiki-Text103 benchmark for language modeling performance (Merity et al., 2016).
-  #   metric_groups:
-  #     - accuracy
-  #     - efficiency
-  #   environment:
-  #     main_name: bits_per_byte
-  #     main_split: test
 
   - name: summarization_xsum
     display_name: XSUM
