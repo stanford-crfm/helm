@@ -1,3 +1,4 @@
+from common.general import singleton
 from .huggingface_tokenizer import HuggingFaceTokenizers
 
 
@@ -37,3 +38,10 @@ class TestHuggingFaceTokenizers:
 
     def test_get_tokenizer_ul2(self):
         TestHuggingFaceTokenizers.verify_get_tokenizer("google/ul2", 58)
+
+    def test_gpt2_tokenize_eos(self):
+        eos_token: str = "<|endoftext|>"
+        tokenizer = HuggingFaceTokenizers.get_tokenizer("huggingface/gpt2")
+        token_ids = tokenizer.encode(eos_token)
+        assert singleton(token_ids) == 50256
+        assert tokenizer.decode(token_ids) == eos_token

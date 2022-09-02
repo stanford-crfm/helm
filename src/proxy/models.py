@@ -206,7 +206,7 @@ ALL_MODELS = [
         name="cohere/xlarge-20220609",
         display_name="Cohere xlarge",
         description="Cohere xlarge",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="cohere",
@@ -214,7 +214,7 @@ ALL_MODELS = [
         name="cohere/large-20220720",
         display_name="Cohere large",
         description="Cohere large",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="cohere",
@@ -222,7 +222,7 @@ ALL_MODELS = [
         name="cohere/medium-20220720",
         display_name="Cohere medium",
         description="Cohere medium",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="cohere",
@@ -230,7 +230,7 @@ ALL_MODELS = [
         name="cohere/small-20220720",
         display_name="Cohere small",
         description="Cohere small",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # GooseAI supported models
     Model(

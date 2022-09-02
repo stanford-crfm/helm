@@ -3,6 +3,7 @@
     "runtime_per_output_token": 0.016,
     "runtime_for_prompt_tokens": {
       "1": 0.016,
+      "256": 0.045,
       "512": 0.172,
       "1024": 0.348,
       "1536": 0.441
@@ -10,19 +11,21 @@
     "overhead": 0.28
   },
   "ai21/j1-grande": {
-    "runtime_per_output_token": 0.022,
+    "runtime_per_output_token": 0.023,
     "runtime_for_prompt_tokens": {
-      "1": 0.022,
-      "512": 0.181,
-      "1024": 0.363,
-      "1536": 0.528
+      "1": 0.023,
+      "256": 0.171,
+      "512": 0.182,
+      "1024": 0.364,
+      "1536": 0.529
     },
-    "overhead": 0.297
+    "overhead": 0.296
   },
   "ai21/j1-jumbo": {
     "runtime_per_output_token": 0.043,
     "runtime_for_prompt_tokens": {
       "1": 0.043,
+      "256": 0.097,
       "512": 0.263,
       "1024": 0.442,
       "1536": 0.658
@@ -50,26 +53,37 @@
     },
     "overhead": 0.184
   },
+  "openai/code-cushman-001": {
+    "runtime_per_output_token": 0.008,
+    "runtime_for_prompt_tokens": {
+      "1": 0.008,
+      "256": 0.114,
+      "512": 0.037,
+      "1024": 0.029,
+      "1536": 0.029
+    },
+    "overhead": 0.081
+  },
   "openai/text-davinci-001": {
     "runtime_per_output_token": 0.011,
     "runtime_for_prompt_tokens": {
       "1": 0.011,
-      "256": 0.031,
-      "512": 0.016,
-      "1024": 0.02,
-      "1536": 0.022
+      "256": 0.02,
+      "512": 0.013,
+      "1024": 0.022,
+      "1536": 0.035
     },
-    "overhead": 0.136
+    "overhead": 0.149
   },
   "openai/text-davinci-002": {
-    "runtime_per_output_token": 0.024,
+    "runtime_per_output_token": 0.027,
     "runtime_for_prompt_tokens": {
-      "1": 0.024,
-      "256": 0.072,
-      "512": 0.073,
-      "1024": 0.059,
-      "1536": 0.134
+      "1": 0.027,
+      "256": 0.096,
+      "512": 0.154,
+      "1024": 0.15,
+      "1536": 0.164
     },
-    "overhead": 0.181
+    "overhead": 0.183
   }
 }
