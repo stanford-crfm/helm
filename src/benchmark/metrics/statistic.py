@@ -82,14 +82,6 @@ class Stat:
             return self
         return Stat(self.name).add(self.mean)
 
-    def __hash__(self) -> int:
-        # `MetricName`s are unique so use it to hash.
-        return hash(self.name)
-
-    def __eq__(self, other) -> bool:
-        # All instances with the same `MetricName` are considered equal.
-        return self.name == other.name
-
 
 def merge_stat(stats: Dict[MetricName, Stat], stat: Stat):
     """Mutate the appropriate part of `stats`."""

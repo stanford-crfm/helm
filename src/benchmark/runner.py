@@ -1,9 +1,11 @@
 import json
 import os
-from collections import defaultdict
+import typing
+from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from typing import Dict, List
 
+from benchmark.metrics.metric_name import MetricName
 from common.general import ensure_directory_exists, write, write_lines, asdict_without_nones
 from common.hierarchical_logger import hlog, htrack_block
 from .augmentations.data_augmenter import DataAugmenterSpec
@@ -136,8 +138,11 @@ class Runner:
                     for key in metric_result.per_instance_stats:
                         per_instance_stats[key].extend(metric_result.per_instance_stats[key])
 
-        # Dedupe `Stat`s
-        stats = list(set(stats))
+        # Check that there isn't duplicate `Stat`s
+        metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
+        assert all(
+            count == 1 for count in metric_counts.values()
+        ), f"Found duplicate metrics: {[metric_name for metric_name, count in metric_counts.items() if count > 1]}"
 
         # Print out stats
         hlog(f"Generated {len(stats)} stats")
