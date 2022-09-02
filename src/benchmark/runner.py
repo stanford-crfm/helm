@@ -144,8 +144,8 @@ class Runner:
             count == 1 for count in metric_counts.values()
         ), f"Found duplicate metrics: {[metric_name for metric_name, count in metric_counts.items() if count > 1]}"
 
-        # Print out stats
-        hlog(f"Generated {len(stats)} stats")
+        # Print out the number of stats
+        hlog(f"Generated {len(stats)} stats.")
 
         if self.skip_instances:
             hlog("skip_instances was True. Skipping writing results out.")
