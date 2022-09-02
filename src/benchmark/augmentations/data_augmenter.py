@@ -50,10 +50,6 @@ class DataAugmenter:
         include_original controls whether to include the original Instance in the new list of Instances.
         skip_unchanged controls whether we include instances for which the perturbation did not change the input.
         """
-        # TODO: SynonymPerturbation isn't thread-safe, so we can't exploit parallelism right now
-        hlog(f"Setting parallelism from {parallelism} to 1, since parallelism in SynonymPerturbation isn't supported")
-        parallelism = 1
-
         processor = Processor(
             include_original=include_original, skip_unchanged=skip_unchanged, perturbations=self.perturbations
         )
