@@ -73,6 +73,13 @@ class CohereWindowService(LocalWindowService):
         )
         return EncodeResult(text=text, tokens=response.tokens)
 
+    def get_num_tokens(self, text: str) -> int:
+        """Tokenizes the text and returns the number of tokens."""
+        # We need this check since we can't pass in empty string via the `tokenize` endpoint
+        if len(text) == 0:
+            return 0
+        return len(self.encode(text).tokens)
+
     def decode(self, tokens: List[TokenizationToken], normalized_text: Optional[str] = None) -> str:
         """
         The Cohere API does not support decoding, but we're able to recover the original text from the
