@@ -61,7 +61,9 @@ def get_basic_metric_specs(args: Dict[str, List[str]]) -> List[MetricSpec]:
 def get_bbq_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={}),
-        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
+        MetricSpec(
+            class_name="benchmark.basic_metrics.BasicMetric", args={"names": ["exact_match", "quasi_exact_match"]}
+        ),
     ]
 
 
@@ -165,7 +167,7 @@ def get_copyright_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
             class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_distance"},
         ),
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
-    ]
+    ] + get_generative_harms_metric_specs()
 
 
 def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
@@ -1487,7 +1489,7 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
         name=f"entity_data_imputation:dataset={dataset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["entity_data_imputation"],
     )
 
