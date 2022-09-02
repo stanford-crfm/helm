@@ -138,7 +138,7 @@ class Runner:
                     for key in metric_result.per_instance_stats:
                         per_instance_stats[key].extend(metric_result.per_instance_stats[key])
 
-        # Check that there isn't duplicate `Stat`s
+        # Check that there aren't duplicate `Stat`s
         metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
         assert all(
             count == 1 for count in metric_counts.values()
