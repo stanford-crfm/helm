@@ -55,7 +55,11 @@ class SummarizationMetric(Metric):
 
     def _compute_data_stats(self, inp: str, pred: str) -> Dict[str, float]:
         stats = self.data_stats_metric.evaluate_example(pred, inp)
-        return {"coverage": stats["coverage"], "density": stats["density"], "compression": stats["compression"]}
+        return {
+            "summarization_coverage": stats["coverage"],
+            "summarization_density": stats["density"],
+            "summarization_compression": stats["compression"],
+        }
 
     def _compute_faithfulness_scores(self, inp: str, pred: str) -> Dict[str, float]:
         return {"SummaC": self.summac.score_one(inp, pred)["score"]}
