@@ -22,5 +22,4 @@ class TestYaLMTokenizer:
         eos_token: str = "</s>"
         token_ids = self.tokenizer.tokenize(eos_token)
         assert singleton(token_ids) == 2
-        # TODO: check with Jue - AssertionError: assert '' == '</s>'
-        # assert self.tokenizer.decode(token_ids) == eos_token
+        assert self.tokenizer.decode(token_ids) == eos_token

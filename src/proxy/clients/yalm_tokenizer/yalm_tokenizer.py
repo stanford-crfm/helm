@@ -46,6 +46,8 @@ class YaLMTokenizer:
 
         has_bos = False
         has_eos = False
+
+        # Handle special tokens
         if line.startswith(f"{YaLMTokenizer.BOS_TOKEN} "):
             has_bos = True
             line = line[4:]
@@ -103,7 +105,7 @@ class YaLMTokenizer:
 
     def detokenize(self, token_ids):
         tokens = [self.decoder[idx] for idx in token_ids]
-        text = "".join(tokens).replace("\u2581", " ").replace(self.EOS_TOKEN, "").lstrip()
+        text = "".join(tokens).replace("\u2581", " ").lstrip()
         return text
 
     @property
