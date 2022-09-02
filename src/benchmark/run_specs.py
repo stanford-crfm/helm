@@ -61,7 +61,7 @@ def get_basic_metric_specs(args: Dict[str, List[str]]) -> List[MetricSpec]:
 def get_bbq_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={}),
-        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": ["exact_match", "quasi_exact_match"]},
+        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": ["exact_match", "quasi_exact_match"]})
     ]
 
 
