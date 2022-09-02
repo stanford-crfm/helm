@@ -67,7 +67,7 @@ metrics:
     display_name: Bits/byte
     short_display_name: BPB
     description: Average number of bits per byte according to model probabilities.
-  - name: rouge-2
+  - name: rouge_2
     display_name: ROUGE-2
     description: Average ROUGE score (Lin, 2004) based on 2-gram overlap.
   - name: f1_set_match
@@ -193,14 +193,14 @@ metrics:
 
   # Calibration metrics:
   - name: ece_1_bin
-    display_name: 1-bin Expected Calibration Error (ECE)
+    display_name: 1-bin Expected Calibration Error
     short_display_name: ECE (1-bin)
     description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
   - name: max_prob
     display_name: Max prob
     description: Model's average confidence in its prediction (only computed for classification tasks)
   - name: ece_10_bin
-    display_name: Expected Calibration Error (ECE), 10 bins
+    display_name: 10-bin Expected Calibration Error
     short_display_name: ECE (10-bin)
     description: The average difference between the model's confidence and accuracy, averaged across 10 bins where each bin contains an equal number of points (only computed for classification tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because each bin will have very few examples.
   - name: selective_cov_acc_area
@@ -506,18 +506,18 @@ scenario_groups:
       main_name: rouge_2
       main_split: test
 
-  - name: commonsenseqa
-    display_name: CommonsenseQA
-    description: The CommonsenseQA benchmark for commonsense-intensive question answering (Talmor et al., 2019).
-    metric_groups:
-      - accuracy
-      - calibration
-      - robustness
-      - fairness
-      - efficiency
-    environment:
-      main_name: quasi_exact_match
-      main_split: valid
+  # - name: commonsenseqa
+  #   display_name: CommonsenseQA
+  #   description: The CommonsenseQA benchmark for commonsense-intensive question answering (Talmor et al., 2019).
+  #   metric_groups:
+  #     - accuracy
+  #     - calibration
+  #     - robustness
+  #     - fairness
+  #     - efficiency
+  #   environment:
+  #     main_name: quasi_exact_match
+  #     main_split: valid
 
   - name: copyright
     display_name: Copyright
@@ -590,7 +590,7 @@ scenario_groups:
       - accuracy
       - efficiency
     environment:
-      main_name: exact_match_indicator
+      main_name: quasi_exact_match
       main_split: test
 
   - name: gsm
@@ -649,7 +649,7 @@ scenario_groups:
       main_name: quasi_exact_match
       main_split: test
 
-  - name: last_qa
+  - name: lsat_qa
     display_name: LSAT
     description: The LSAT benchmark for measuring analytical reasoning on the Law School Admission Test (LSAT; Zhong et al., 2021).
     metric_groups:
@@ -768,18 +768,18 @@ scenario_groups:
       main_name: f1_score
       main_split: valid
 
-  - name: news_qa
-    display_name: NewsQA
-    description: The NewsQA benchmark for reading comprehension over CNN news articles (Trischler et al., 2017).
-    metric_groups:
-      - accuracy
-      - calibration
-      - robustness
-      - fairness
-      - efficiency
-    environment:
-      main_name: f1_score
-      main_split: valid
+  # - name: news_qa
+  #   display_name: NewsQA
+  #   description: The NewsQA benchmark for reading comprehension over CNN news articles (Trischler et al., 2017).
+  #   metric_groups:
+  #     - accuracy
+  #     - calibration
+  #     - robustness
+  #     - fairness
+  #     - efficiency
+  #   environment:
+  #     main_name: f1_score
+  #     main_split: valid
 
   - name: numeracy
     display_name: Numerical reasoning
@@ -848,7 +848,7 @@ scenario_groups:
     environment:
       main_split: test
 
-  - name: synthetic_reasoning_abstract
+  - name: synthetic_reasoning
     display_name: Synthetic reasoning (abstract symbols)
     description: Synthetic reasoning tasks defined using abstract symbols based on LIME (Wu et al., 2021).
     metric_groups:
@@ -901,26 +901,6 @@ scenario_groups:
       main_name: bits_per_byte
       main_split: test
 
-  - name: twitter_aae_aa
-    display_name: TwitterAAE (African American English)
-    description: The subset of TwitterAAE associated with African American English (AAE) speakers by Blodgett et al. (2021).
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: bits_per_byte
-      main_split: test
-
-  - name: twitter_aae_white
-    display_name: TwitterAAE (White)
-    description: The subset of TwitterAAE associated with White speakers by Blodgett et al. (2021).
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: bits_per_byte
-      main_split: test
-
   - name: wikifact
     display_name: WikiFact
     description: Scenario introduced in this work, inspired by Petroni et al. (2019), to more extensively test factual knowledge.
@@ -931,15 +911,15 @@ scenario_groups:
       main_name: quasi_exact_match
       main_split: test
 
-  - name: wikitext_103
-    display_name: WikiText-103
-    description: The Wiki-Text103 benchmark for language modeling performance (Merity et al., 2016).
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: bits_per_byte
-      main_split: test
+  # - name: wikitext_103
+  #   display_name: WikiText-103
+  #   description: The Wiki-Text103 benchmark for language modeling performance (Merity et al., 2016).
+  #   metric_groups:
+  #     - accuracy
+  #     - efficiency
+  #   environment:
+  #     main_name: bits_per_byte
+  #     main_split: test
 
   - name: summarization_xsum
     display_name: XSUM
