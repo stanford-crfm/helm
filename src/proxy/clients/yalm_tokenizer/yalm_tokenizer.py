@@ -41,6 +41,9 @@ class YaLMTokenizer:
         return self._tokenizer.encode(line, out_type=out_type)
 
     def tokenize(self, line, out_type=int):
+        line = convert_to_unicode(line)
+        line = line.replace("\n", self.NEW_LINE)
+
         has_bos = False
         has_eos = False
         if line.startswith(f"{YaLMTokenizer.BOS_TOKEN} "):
