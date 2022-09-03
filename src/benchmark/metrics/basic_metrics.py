@@ -646,6 +646,10 @@ class BasicMetric(Metric):
             logprob: float  # sum of logprobs for all tokens in the reference
             num_tokens: int  # number of tokens in the reference
 
+        def alphanumeric_filter(text: str):
+            alphanumeric_chars: str = string.digits + string.ascii_lowercase + string.ascii_uppercase
+            return "".join(list(filter(lambda x: x in alphanumeric_chars, text)))
+
         def compute_logprob_and_length(request_state: RequestState) -> ReferenceStat:
             """Compute the logprob and length for the only completion from the request_state."""
             assert request_state.reference_index is not None
@@ -657,20 +661,16 @@ class BasicMetric(Metric):
             reference: str = request_state.instance.references[reference_index].output
 
             # Find the span of the completion that matches the reference.
-            answer_length = 0
             answer_tokens: List[Token] = []
             for token in sequence.tokens[::-1]:
-                if answer_length >= len(reference):
+                span: str = "".join([token.text for token in answer_tokens])
+                if alphanumeric_filter(span) == alphanumeric_filter(reference):
                     break
                 answer_tokens.insert(0, token)
-                answer_length += len(token.text)
 
             # Sanity check
-            span: str = "".join([token.text for token in answer_tokens]).lstrip()
-            alphanumeric_chars: str = string.digits + string.ascii_lowercase + string.ascii_uppercase
-            filtered_span: str = "".join(list(filter(lambda x: x in alphanumeric_chars, span)))
-            filtered_reference: str = "".join(list(filter(lambda x: x in alphanumeric_chars, reference)))
-            assert filtered_span == filtered_reference, f"Expected: {filtered_reference}, Actual: {filtered_span}"
+            span: str = "".join([token.text for token in answer_tokens])
+            assert alphanumeric_filter(span) == alphanumeric_filter(reference), f"Expected: {reference}, Actual: {span}"
 
             logprob = sum(token.logprob for token in answer_tokens)
             num_tokens = len(answer_tokens)
