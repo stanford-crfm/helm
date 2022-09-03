@@ -899,3 +899,4 @@ scenario_groups:
       - efficiency_detailed
     environment:
       main_split: test
+      
