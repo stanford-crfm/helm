@@ -65,14 +65,14 @@ do
     # Override with passed-in CLI arguments
     # By default, the command will run the RunSpecs listed in src/benchmark/presentation/run_specs.conf
     log_file=$job.log
-    execute "nlprun --job-name $job --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 16g -w $work_dir
+    execute "nlprun --job-name $job --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 24g -w $work_dir
     'benchmark-present -n $num_threads --models-to-run $model $default_args $* > $logs_path/$log_file 2>&1'"
     log_paths+=("$work_dir/$logs_path/$log_file")
 
     # Run RunSpecs that require a GPU
     log_file=$job.gpu.log
     # TODO: reenable after https://github.com/stanford-crfm/benchmarking/issues/782 is fixed
-#    execute "nlprun --job-name $job-gpu --priority high -a crfm_benchmarking -c $cpus -g 1 --memory 16g -w $work_dir
+#    execute "nlprun --job-name $job-gpu --priority high -a crfm_benchmarking -c $cpus -g 1 --memory 24g -w $work_dir
 #    'benchmark-present -n $num_threads --models-to-run $model --conf-path src/benchmark/presentation/run_specs_gpu.conf
 #    $default_args $* > $logs_path/$log_file 2>&1'"
 #    log_paths+=("$work_dir/$logs_path/$log_file")
