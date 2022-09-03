@@ -397,80 +397,8 @@ metric_groups:
         split: ${main_split}
 
 scenario_groups:
-  - name: code_apps
-    display_name: APPS (Code)
-    description: The APPS benchmark for measuring competence on code challenges (Hendrycks et al., 2021).
-    metric_groups:
-      - apps_metrics
-      - efficiency
-    environment:
-      # We do not include accuracy as it is subsumed by apps
-      main_name: test_avg
-      main_split: test
-
-  - name: code_humaneval
-    display_name: HumanEval (Code)
-    description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings (Chen et al., 2021).
-    metric_groups:
-      # We do not include accuracy as it is subsumed by humaneval
-      - humaneval_metrics
-      - efficiency
-    environment:
-      main_name: code_eval_acc
-      main_split: test
-
-  - name: babi_qa
-    display_name: bAbI
-    description: The bAbI benchmark for measuring understanding and reasoning (Weston et al., 2015).
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: quasi_exact_match
-      main_split: test
-
-  - name: bbq
-    display_name: BBQ (Bias Benchmark for Question Answering)
-    description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context (Parrish et al., 2022).
-    metric_groups:
-      - accuracy
-      - bbq_metrics
-      - efficiency
-    environment:
-      main_name: quasi_exact_match
-      main_split: test
-
-  # TODO: the metrics need to apply to all the runs in this scenario group, so either we define a performance metric and/or we break this group up 
-  # - name: big_bench
-  #   display_name: BIG-bench (Beyond the Imitation Game Benchmark)
-  #   description: Beyond the Imitation Game Benchmark (BIG-bench) is a collaborative benchmark with more than 200 tasks intended to probe large language models and extrapolate their future capabilities (Srivastava et al., 2022).
-  #   # TODO: the metrics need to apply to all the runs in this scenario group, so either we define a performance metric and/or we break this group up
-  #   metric_groups:
-  #     - classification_extended
-  #   environment:
-  #     main_name: quasi_exact_match
-  #     main_split: test
-
-  - name: blimp
-    display_name: BLiMP (The Benchmark of Linguistic Minimal Pairs for English)
-    description: The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design (Warstadt et al., 2020).
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: exact_match
-      main_split: test
-
-  - name: bold
-    display_name: BOLD (Bias in Open-Ended Language Generation Dataset)
-    description: The Bias in Open-Ended Language Generation Dataset (BOLD) for measuring biases and toxicity in open-ended language generation (Dhamala et al., 2021).
-    metric_groups:
-      - toxicity
-      - bias
-      - efficiency
-    environment:
-      main_split: test
-
+## Generic scenarios
+# Question answering scenarios
   - name: boolq
     display_name: BoolQ
     description: The BoolQ benchmark for binary (yes/no) question answering (Clark et al., 2019).
@@ -482,229 +410,6 @@ scenario_groups:
       - efficiency
     environment:
       main_name: exact_match
-      main_split: valid
-
-  - name: civil_comments
-    display_name: CivilComments
-    description: The CivilComments benchmark for toxicity detection (Borkan et al., 2019).
-    metric_groups:
-      - accuracy
-      - calibration
-      - robustness
-      - fairness
-      - efficiency
-    environment:
-      main_name: quasi_exact_match
-      main_split: test
-
-  - name: summarization_cnndm
-    display_name: CNN/DailyMail
-    description: The CNN/DailyMail benchmark for text summarization (Hermann et al., 2015; Nallapati et al.,2016).
-    metric_groups:
-      - accuracy
-      - summarization_metrics
-      - bias
-      - toxicity
-      - efficiency
-    environment:
-      main_name: rouge_2
-      main_split: test
-
-  - name: copyright
-    display_name: Copyright
-    description: Scenario introduced in this work to measure copyright and memorization behavior, based off of Carlini et al. (2021).
-    metric_groups:
-      - copyright_metrics
-      - bias
-      - toxicity
-      - efficiency
-    environment:
-      main_split: test
-
-  - name: entity_data_imputation
-    display_name: Data imputation
-    description: Scenario from Mei et al. (2021) that tests the ability to impute missing entities in a data table.
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: quasi_exact_match
-      main_split: test
-
-  - name: disinformation
-    display_name: Disinformation
-    description: Scenario from Buchanan et al. (2021) that tests the ability to reiterate or generate disinformation content.
-    metric_groups:
-      - disinformation_metrics
-      - bias
-      - toxicity
-      - efficiency
-    environment:
-      main_split: valid
-
-  - name: disinformation_reiteration
-    display_name: Disinformation (reiteration)
-    description: Scenario from Buchanan et al. (2021) that tests the ability to reiterate disinformation content.
-    metric_groups:
-      - disinformation_metrics
-      - bias
-      - toxicity
-      - efficiency
-    environment:
-      main_split: valid
-
-  - name: disinformation_wedging
-    display_name: Disinformation (wedging)
-    description: Scenario from Buchanan et al. (2021) that tests the ability to generate divisive and wedging content.
-    metric_groups:
-      - disinformation_metrics
-      - bias
-      - toxicity
-      - efficiency
-    environment:
-      main_split: valid
-
-  - name: dyck_language
-    display_name: Dyck
-    description: Scenario testing hierarchical reasoning through the Dyck formal languages (Suzgun et al., 2019).
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: exact_match_indicator
-      main_split: valid
-
-  - name: entity_matching
-    display_name: Entity matching
-    description: Scenario from Mudgal et al. (2018) that tests the ability to determine if two entities match.
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: quasi_exact_match
-      main_split: test
-
-  - name: gsm
-    display_name: GSM8K (Grade school math word problems)
-    description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems (Cobbe et al., 2021).
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: exact_match_indicator
-      main_split: test
-
-  - name: hellaswag
-    display_name: HellaSwag
-    description: The HellaSwag benchmark for commonsense reasoning in question answering (Zellers et al., 2019).
-    metric_groups:
-      - accuracy
-      - calibration
-      - robustness
-      - fairness
-      - efficiency
-    environment:
-      main_name: quasi_exact_match
-      main_split: valid
-
-  - name: ice
-    display_name: ICE (International Corpus of English)
-    description: The subset of the International Corpus of English (ICE) drawn from English speakers from various places in the world.
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: bits_per_byte
-      main_split: test
-
-  - name: imdb
-    display_name: IMDB
-    description: The IMDB benchmark for sentiment analysis in movie review (Maas et al., 2011).
-    metric_groups:
-      - accuracy
-      - calibration
-      - robustness
-      - fairness
-      - efficiency
-    environment:
-      main_name: quasi_exact_match
-      main_split: valid
-
-  - name: legal_support
-    display_name: LegalSupport
-    description: Scenario introduced in this work to measure fine-grained legal reasoning through reverse entailment.
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: quasi_exact_match
-      main_split: test
-
-  - name: lsat_qa
-    display_name: LSAT
-    description: The LSAT benchmark for measuring analytical reasoning on the Law School Admission Test (LSAT; Zhong et al., 2021).
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: quasi_exact_match
-      main_split: test
-
-  - name: math_regular
-    display_name: MATH
-    description: The MATH benchmark for measuring mathematical problem solving on competition math problems (Hendrycks et al., 2021).
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: math_equiv
-      main_split: test
-
-  - name: math_chain_of_thought
-    display_name: MATH (chain-of-thoughts)
-    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thoughts style reasoning (Hendrycks et al., 2021).
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: math_equiv_chain_of_thought
-      main_split: test
-
-  - name: mmlu
-    display_name: MMLU (Massive Multitask Language Understanding)
-    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intesive question answering across 57 domains (Hendrycks et al., 2021).
-    metric_groups:
-      - accuracy
-      - calibration
-      - robustness
-      - fairness
-      - efficiency
-    environment:
-      main_name: quasi_exact_match
-      main_split: test
-
-  - name: msmarco_regular
-    display_name: MS MARCO (regular track)
-    description: The MS MARCO benchmark's regular track for passage retrieval in information retrieval (https://microsoft.github.io/msmarco/).
-    metric_groups:
-      - accuracy
-      - robustness
-      - fairness
-      - efficiency
-    environment:
-      main_name: RR@20
-      main_split: valid
-
-  - name: msmarco_trec
-    display_name: MS MARCO (TREC track)
-    description: The MS MARCO benchmark's deep learning TREC track for passage retrieval in information retrieval (https://trec.nist.gov).
-    metric_groups:
-      - accuracy
-      - robustness
-      - fairness
-      - efficiency
-    environment:
-      main_name: NDCG@20
       main_split: valid
 
   - name: narrative_qa
@@ -759,15 +464,31 @@ scenario_groups:
       main_name: f1_score
       main_split: valid
 
-  - name: numeracy
-    display_name: Numerical reasoning
-    description: Scenario introduced in this work to test numerical reasoning via symbolic regression.
+  - name: quac
+    display_name: QuAC (Question Answering in Context)
+    description: The QuAC benchmark for question answering in the context of dialogues (Choi et al., 2018).
     metric_groups:
       - accuracy
+      - calibration
+      - robustness
+      - fairness
       - efficiency
     environment:
-      main_name: absolute_value_difference
-      main_split: test
+      main_name: f1_score
+      main_split: valid
+
+  - name: hellaswag
+    display_name: HellaSwag
+    description: The HellaSwag benchmark for commonsense reasoning in question answering (Zellers et al., 2019).
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - efficiency
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
 
   - name: openbookqa
     display_name: OpenbookQA
@@ -782,9 +503,9 @@ scenario_groups:
       main_name: quasi_exact_match
       main_split: test
 
-  - name: quac
-    display_name: QuAC (Question Answering in Context)
-    description: The QuAC benchmark for question answering in the context of dialogues (Choi et al., 2018).
+  - name: truthful_qa
+    display_name: TruthfulQA
+    description: The TruthfulQA benchmarking for measuring model truthfulness and commonsense knowledge in question answering (Lin et al., 2022).
     metric_groups:
       - accuracy
       - calibration
@@ -792,9 +513,89 @@ scenario_groups:
       - fairness
       - efficiency
     environment:
-      main_name: f1_score
+      main_name: quasi_exact_match
       main_split: valid
 
+  - name: mmlu
+    display_name: MMLU (Massive Multitask Language Understanding)
+    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intesive question answering across 57 domains (Hendrycks et al., 2021).
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - efficiency
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+
+# Information retrieval scenarios
+  - name: msmarco_regular
+    display_name: MS MARCO (regular track)
+    description: The MS MARCO benchmark's regular track for passage retrieval in information retrieval (https://microsoft.github.io/msmarco/).
+    metric_groups:
+      - accuracy
+      - robustness
+      - fairness
+      - efficiency
+    environment:
+      main_name: RR@20
+      main_split: valid
+
+  - name: msmarco_trec
+    display_name: MS MARCO (TREC track)
+    description: The MS MARCO benchmark's deep learning TREC track for passage retrieval in information retrieval (https://trec.nist.gov).
+    metric_groups:
+      - accuracy
+      - robustness
+      - fairness
+      - efficiency
+    environment:
+      main_name: NDCG@20
+      main_split: valid
+
+# Summarization scenarios
+  - name: summarization_cnndm
+    display_name: CNN/DailyMail
+    description: The CNN/DailyMail benchmark for text summarization (Hermann et al., 2015; Nallapati et al.,2016).
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+    environment:
+      main_name: rouge_2
+      main_split: test
+
+  - name: summarization_xsum
+    display_name: XSUM
+    description: The XSUM benchmark for text summarization of BBC news articles (Narayan et al., 2018).
+    metric_groups:
+      - accuracy
+      - summarization_metrics
+      - bias
+      - toxicity
+      - efficiency
+    environment:
+      main_name: rouge_2
+      main_split: test
+
+# Sentiment analysis scenarios
+  - name: imdb
+    display_name: IMDB
+    description: The IMDB benchmark for sentiment analysis in movie review (Maas et al., 2011).
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - efficiency
+    environment:
+      main_name: quasi_exact_match
+      main_split: valid
+
+# Text classification scenarios
   - name: raft
     display_name: RAFT (Real-world Annotated Few-Shot)
     description: The Real-world annotated few-shot (RAFT) meta-benchmark of 11 real-world text classification tasks (Alex et al., 2021).
@@ -808,22 +609,105 @@ scenario_groups:
       main_name: quasi_exact_match
       main_split: test
 
-  - name: real_toxicity_prompts
-    display_name: RealToxicityPrompts
-    description: The RealToxicityPrompts dataset for measuring toxicity in prompted model generations (Gehman et al., 2020).
+# Toxicity detection scenarios
+  - name: civil_comments
+    display_name: CivilComments
+    description: The CivilComments benchmark for toxicity detection (Borkan et al., 2019).
     metric_groups:
-      - toxicity
-      - bias
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
       - efficiency
     environment:
+      main_name: quasi_exact_match
       main_split: test
 
-  - name: synthetic_efficiency
-    display_name: Synthetic efficiency
-    description: Scenario introduced in this work to better understand inference runtime performance of various models.
+
+## Language scenarios
+# Language modeling
+  - name: ice
+    display_name: ICE (International Corpus of English)
+    description: The subset of the International Corpus of English (ICE) drawn from English speakers from various places in the world.
     metric_groups:
-      - efficiency_detailed
+      - accuracy
+      - efficiency
     environment:
+      main_name: bits_per_byte
+      main_split: test
+
+  - name: the_pile
+    display_name: The Pile
+    description: The Pile corpus for measuring lanugage model performance across various domains (Gao et al., 2020).
+    metric_groups:
+      - accuracy
+      - efficiency
+    environment:
+      main_name: bits_per_byte
+      main_split: test
+
+  - name: twitter_aae
+    display_name: TwitterAAE
+    description: The TwitterAAE corpus of Blodgett et al. (2016) for measuring language model performance in tweets as a function of speaker dialect.
+    metric_groups:
+      - accuracy
+      - efficiency
+    environment:
+      main_name: bits_per_byte
+      main_split: test
+
+# Minimal pairs
+  - name: blimp
+    display_name: BLiMP (The Benchmark of Linguistic Minimal Pairs for English)
+    description: The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design (Warstadt et al., 2020).
+    metric_groups:
+      - accuracy
+      - efficiency
+    environment:
+      main_name: exact_match
+      main_split: test
+
+## Knowledge scenarios
+  - name: wikifact
+    display_name: WikiFact
+    description: Scenario introduced in this work, inspired by Petroni et al. (2019), to more extensively test factual knowledge.
+    metric_groups:
+      - accuracy
+      - efficiency
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+
+## Reasoning scenarios
+# Primitive-focused reasoning
+  - name: babi_qa
+    display_name: bAbI
+    description: The bAbI benchmark for measuring understanding and reasoning (Weston et al., 2015).
+    metric_groups:
+      - accuracy
+      - efficiency
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+
+  - name: dyck_language
+    display_name: Dyck
+    description: Scenario testing hierarchical reasoning through the Dyck formal languages (Suzgun et al., 2019).
+    metric_groups:
+      - accuracy
+      - efficiency
+    environment:
+      main_name: exact_match_indicator
+      main_split: valid
+
+  - name: numeracy
+    display_name: Numerical reasoning
+    description: Scenario introduced in this work to test numerical reasoning via symbolic regression.
+    metric_groups:
+      - accuracy
+      - efficiency
+    environment:
+      main_name: absolute_value_difference
       main_split: test
 
   - name: synthetic_reasoning
@@ -846,42 +730,72 @@ scenario_groups:
       main_name: f1_set_match
       main_split: test
 
-  - name: the_pile
-    display_name: The Pile
-    description: The Pile corpus for measuring lanugage model performance across various domains (Gao et al., 2020).
+# Realistic reasoning
+  - name: gsm
+    display_name: GSM8K (Grade school math word problems)
+    description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems (Cobbe et al., 2021).
     metric_groups:
       - accuracy
       - efficiency
     environment:
-      main_name: bits_per_byte
+      main_name: exact_match_indicator
       main_split: test
 
-  - name: truthful_qa
-    display_name: TruthfulQA
-    description: The TruthfulQA benchmarking for measuring model truthfulness and commonsense knowledge in question answering (Lin et al., 2022).
+  - name: math_regular
+    display_name: MATH
+    description: The MATH benchmark for measuring mathematical problem solving on competition math problems (Hendrycks et al., 2021).
     metric_groups:
       - accuracy
-      - calibration
-      - robustness
-      - fairness
+      - efficiency
+    environment:
+      main_name: math_equiv
+      main_split: test
+
+  - name: math_chain_of_thought
+    display_name: MATH (chain-of-thoughts)
+    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thoughts style reasoning (Hendrycks et al., 2021).
+    metric_groups:
+      - accuracy
+      - efficiency
+    environment:
+      main_name: math_equiv_chain_of_thought
+      main_split: test
+
+  - name: code_apps
+    display_name: APPS (Code)
+    description: The APPS benchmark for measuring competence on code challenges (Hendrycks et al., 2021).
+    metric_groups:
+      - apps_metrics
+      - efficiency
+    environment:
+      # We do not include accuracy as it is subsumed by apps
+      main_name: test_avg
+      main_split: test
+
+  - name: code_humaneval
+    display_name: HumanEval (Code)
+    description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings (Chen et al., 2021).
+    metric_groups:
+      # We do not include accuracy as it is subsumed by humaneval
+      - humaneval_metrics
+      - efficiency
+    environment:
+      main_name: code_eval_acc
+      main_split: test
+
+  - name: legal_support
+    display_name: LegalSupport
+    description: Scenario introduced in this work to measure fine-grained legal reasoning through reverse entailment.
+    metric_groups:
+      - accuracy
       - efficiency
     environment:
       main_name: quasi_exact_match
-      main_split: valid
-
-  - name: twitter_aae
-    display_name: TwitterAAE
-    description: The TwitterAAE corpus of Blodgett et al. (2016) for measuring language model performance in tweets as a function of speaker dialect.
-    metric_groups:
-      - accuracy
-      - efficiency
-    environment:
-      main_name: bits_per_byte
       main_split: test
 
-  - name: wikifact
-    display_name: WikiFact
-    description: Scenario introduced in this work, inspired by Petroni et al. (2019), to more extensively test factual knowledge.
+  - name: lsat_qa
+    display_name: LSAT
+    description: The LSAT benchmark for measuring analytical reasoning on the Law School Admission Test (LSAT; Zhong et al., 2021).
     metric_groups:
       - accuracy
       - efficiency
@@ -889,16 +803,99 @@ scenario_groups:
       main_name: quasi_exact_match
       main_split: test
 
-  - name: summarization_xsum
-    display_name: XSUM
-    description: The XSUM benchmark for text summarization of BBC news articles (Narayan et al., 2018).
+  - name: entity_data_imputation
+    display_name: Data imputation
+    description: Scenario from Mei et al. (2021) that tests the ability to impute missing entities in a data table.
     metric_groups:
       - accuracy
-      - summarization_metrics
+      - efficiency
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+
+  - name: entity_matching
+    display_name: Entity matching
+    description: Scenario from Mudgal et al. (2018) that tests the ability to determine if two entities match.
+    metric_groups:
+      - accuracy
+      - efficiency
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+
+## Copyright scenarios
+  - name: copyright
+    display_name: Copyright
+    description: Scenario introduced in this work to measure copyright and memorization behavior, based off of Carlini et al. (2021).
+    metric_groups:
+      - copyright_metrics
       - bias
       - toxicity
       - efficiency
     environment:
-      main_name: rouge_2
       main_split: test
-      
+
+## Disinformation scenarios
+  - name: disinformation_reiteration
+    display_name: Disinformation (reiteration)
+    description: Scenario from Buchanan et al. (2021) that tests the ability to reiterate disinformation content.
+    metric_groups:
+      - disinformation_metrics
+      - bias
+      - toxicity
+      - efficiency
+    environment:
+      main_split: valid
+
+  - name: disinformation_wedging
+    display_name: Disinformation (wedging)
+    description: Scenario from Buchanan et al. (2021) that tests the ability to generate divisive and wedging content.
+    metric_groups:
+      - disinformation_metrics
+      - bias
+      - toxicity
+      - efficiency
+    environment:
+      main_split: valid
+
+## Bias scenarios
+  - name: bbq
+    display_name: BBQ (Bias Benchmark for Question Answering)
+    description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context (Parrish et al., 2022).
+    metric_groups:
+      - accuracy
+      - bbq_metrics
+      - efficiency
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+
+## Toxicity scenarios
+  - name: bold
+    display_name: BOLD (Bias in Open-Ended Language Generation Dataset)
+    description: The Bias in Open-Ended Language Generation Dataset (BOLD) for measuring biases and toxicity in open-ended language generation (Dhamala et al., 2021).
+    metric_groups:
+      - toxicity
+      - bias
+      - efficiency
+    environment:
+      main_split: test
+
+  - name: real_toxicity_prompts
+    display_name: RealToxicityPrompts
+    description: The RealToxicityPrompts dataset for measuring toxicity in prompted model generations (Gehman et al., 2020).
+    metric_groups:
+      - toxicity
+      - bias
+      - efficiency
+    environment:
+      main_split: test
+
+## Efficiency scenarios
+  - name: synthetic_efficiency
+    display_name: Synthetic efficiency
+    description: Scenario introduced in this work to better understand inference runtime performance of various models.
+    metric_groups:
+      - efficiency_detailed
+    environment:
+      main_split: test
