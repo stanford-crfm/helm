@@ -16,8 +16,9 @@ from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
 from rouge_score import rouge_scorer
 
-from common.request import Token, Sequence
 from common.general import singleton
+from common.hierarchical_logger import hlog
+from common.request import Token, Sequence
 from benchmark.adapter import (
     ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
@@ -500,11 +501,15 @@ class BasicMetric(Metric):
         num_output_tokens: int = len(sequence.tokens)
         # Don't include prompt in number of generated tokens (e.g., for language modeling).
         if request_state.request.echo_prompt:
-            # This might fail when we get fewer output tokens in the response than the number of tokens in the prompt.
-            assert (
-                num_prompt_tokens <= num_output_tokens
-            ), f"num_prompt_tokens ({num_prompt_tokens}) > num_output_tokens ({num_output_tokens}) for prompt: {prompt}"
-            num_output_tokens -= num_prompt_tokens
+            # num_prompt_tokens > num_output_tokens can happen if tokenizer doesn't round trip.
+            if num_prompt_tokens <= num_output_tokens:
+                num_output_tokens -= num_prompt_tokens
+            else:
+                hlog(
+                    f"WARNING: num_prompt_tokens ({num_prompt_tokens}) > num_output_tokens ({num_output_tokens}) "
+                    f"for prompt: {prompt}"
+                )
+                num_output_tokens = 0
 
         idealized_runtime: Optional[float] = compute_estimated_time_from_prompt_size_and_num_output_tokens(
             request_state, self.inference_idealized_runtimes_dict, num_prompt_tokens, num_output_tokens
