@@ -651,7 +651,7 @@ class BasicMetric(Metric):
             logprob: float  # sum of logprobs for all tokens in the reference
             num_tokens: int  # number of tokens in the reference
 
-        def compute_logprob_and_length(request_state: RequestState) -> ReferenceStat:
+        def compute_logprob_and_length(request_state: RequestState, window_service: WindowService) -> ReferenceStat:
             """Compute the logprob and length for the only completion from the request_state."""
             assert request_state.reference_index is not None
             assert request_state.result is not None
@@ -662,10 +662,6 @@ class BasicMetric(Metric):
             reference: str = request_state.instance.references[reference_index].output
 
             # Find the span of the completion that matches the reference.
-            tokenizer_service: TokenizerService = metric_service
-            window_service: WindowService = WindowServiceFactory.get_window_service(
-                adapter_spec.model, tokenizer_service
-            )
             num_tokens: int = window_service.get_num_tokens(
                 f" {reference}"
             )  # prepend a space because there should always be a space before reference in the prompt
@@ -683,11 +679,13 @@ class BasicMetric(Metric):
         ]
         num_choices = len(references)
 
+        tokenizer_service: TokenizerService = metric_service
+        window_service: WindowService = WindowServiceFactory.get_window_service(adapter_spec.model, tokenizer_service)
         reference_stats: Dict[ReferenceKey, ReferenceStat] = {}
         for request_state in reference_request_states:
             assert request_state.reference_index is not None and request_state.request_mode is not None
             reference_key = ReferenceKey(request_state.reference_index, request_state.request_mode)
-            reference_stats[reference_key] = compute_logprob_and_length(request_state)
+            reference_stats[reference_key] = compute_logprob_and_length(request_state, window_service)
 
         if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
             reference_scores = [
