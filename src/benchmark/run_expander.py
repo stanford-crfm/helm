@@ -197,7 +197,7 @@ def filler(prob: float) -> PerturbationSpec:
 
 def robustness() -> PerturbationSpec:
     return PerturbationSpec(
-        class_name=f"benchmark.augmentations.robustness_perturbation.RobustnessPerturbation", args={},
+        class_name="benchmark.augmentations.robustness_perturbation.RobustnessPerturbation", args={},
     )
 
 

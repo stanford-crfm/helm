@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from random import Random
 import re
 
@@ -8,6 +7,7 @@ from .lowercase_perturbation import LowerCasePerturbation
 from .contraction_expansion_perturbation import ContractionPerturbation
 from .space_perturbation import SpacePerturbation
 from .misspelling_perturbation import MisspellingPerturbation
+
 
 class RobustnessPerturbation(Perturbation):
     """
@@ -36,7 +36,7 @@ class RobustnessPerturbation(Perturbation):
         text = self.misspelling_perturbation.perturb(text, rng)
 
         # TODO: move this out
-        text = re.sub(r'-', lambda x : rng.choice([' ', '']), text)
-        text = re.sub(r'"', '\'', text)
+        text = re.sub(r"-", lambda x: rng.choice([" ", ""]), text)
+        text = re.sub(r'"', "'", text)
 
         return text
