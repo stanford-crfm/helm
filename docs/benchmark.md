@@ -38,6 +38,9 @@ To run everything in parallel:
 
 Go to the [website](http://localhost:1959/static/benchmarking.html) to look at the results.
 
+    # Stanford only: copy website (do this on scdt)
+    rsync -arvz benchmark_output/runs/$SUITE crfm-models:/home/benchmarking/src/proxy/static/benchmarking_output/runs
+
 Examples of running the benchmark:
 
     venv/bin/benchmark-run

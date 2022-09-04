@@ -122,13 +122,30 @@ class AllRunner:
             hlog("There were no RunSpecs or they got filtered out.")
             return
 
-        # Write out all the `RunSpec`s and models to json files
+        # Write out all the `RunSpec`s and models to JSON files
+        # Note: if we are parallelizing over models and scenario groups, this
+        # could get overwritten many times.  Ideally, we would make the file
+        # name specific to models and scenario groups.
         write(
             os.path.join(suite_dir, "run_specs.json"), json.dumps(list(map(dataclasses.asdict, run_specs)), indent=2),
         )
 
-        # Print out all the models and scenario groups available
-        # This makes it easy to select individual ones to run.
+        if self.skip_instances:
+            self.write_parallel_commands(suite_dir, run_specs)
+
+        # Create a symlink runs/latest -> runs/<name_of_suite>,
+        # so runs/latest always points to the latest run suite.
+        symlink_path: str = os.path.abspath(os.path.join(runs_dir, LATEST_SYMLINK))
+        if os.path.islink(symlink_path):
+            # Remove the previous symlink if it exists.
+            os.unlink(symlink_path)
+        os.symlink(os.path.abspath(suite_dir), symlink_path)
+
+    def write_parallel_commands(self, suite_dir: str, run_specs: List[RunSpec]):
+        """
+        Print out scripts to run after.
+        """
+        # Print out all the models and scenario groups that we're touching.
         models = set()
         groups = set()
         for run_spec in run_specs:
@@ -167,14 +184,6 @@ class AllRunner:
         lines.append(f"echo 'benchmark-present --local --suite {self.suite} --skip-instances'")
         lines.append(f"echo 'benchmark-summarize --suite {self.suite}'")
         write_lines(os.path.join(suite_dir, "run-all.sh"), lines)
-
-        # Create a symlink runs/latest -> runs/<name_of_suite>,
-        # so runs/latest always points to the latest run suite.
-        symlink_path: str = os.path.abspath(os.path.join(runs_dir, LATEST_SYMLINK))
-        if os.path.islink(symlink_path):
-            # Remove the previous symlink if it exists.
-            os.unlink(symlink_path)
-        os.symlink(os.path.abspath(suite_dir), symlink_path)
 
 
 def main():
