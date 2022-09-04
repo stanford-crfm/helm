@@ -30,12 +30,12 @@ class RobustnessPerturbation(Perturbation):
         return PerturbationDescription(name=self.name, robustness=True)
 
     def perturb(self, text: str, rng: Random) -> str:
-        ### Preserve word identity
+        # 1) Preserve word identity
 
         # Lowercase the words
         text = self.lowercase_perturbation.perturb(text, rng)
 
-        ### Preserve well-formedness
+        # 2) Preserve well-formedness
 
         # Contractions
         text = self.contraction_perturbation.perturb(text, rng)
@@ -43,7 +43,7 @@ class RobustnessPerturbation(Perturbation):
         # Change quote types
         text = re.sub(r'"', "'", text)
 
-        ### Perturb words (might make things a bit ill-formed)
+        # 3) Perturb words (might make things a bit ill-formed)
 
         # Misspellings
         text = self.misspelling_perturbation.perturb(text, rng)
@@ -51,7 +51,7 @@ class RobustnessPerturbation(Perturbation):
         # Replace hyphenated words ("pro-democracy" => "pro democracy" or "prodemocracy")
         text = re.sub(r"-", lambda x: rng.choice([" ", ""]), text)
 
-        ### Change spaces around words
+        # 4) Change spaces around words
 
         # Insert extra spaces between words
         text = self.space_perturbation.perturb(text, rng)
