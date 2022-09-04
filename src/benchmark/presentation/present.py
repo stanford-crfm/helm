@@ -173,7 +173,7 @@ class AllRunner:
                 present_args = []
                 present_args.append(f"--conf {self.conf_path}")
                 if self.local:
-                    present_args.append(f"--local")
+                    present_args.append("--local")
                 present_args.append(f"--num-threads {self.num_threads}")
                 present_args.append(f"--suite {self.suite}")
                 if self.max_eval_instances is not None:

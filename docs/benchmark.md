@@ -30,7 +30,8 @@ To run everything in parallel:
     # Run everything in parallel over Slurm
     bash benchmark_output/runs/$SUITE/run-all.sh
 
-    # ...Wait for all Slurm jobs to finish...
+    # Wait for all Slurm jobs to finish, monitor the logs
+    # tail benchmark_output/runs/$SUITE/slurm-*.out
 
     # Generate assets for the website
     venv/bin/benchmark-present --local --suite $SUITE --skip-instances
