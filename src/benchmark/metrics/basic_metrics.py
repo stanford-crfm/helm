@@ -662,23 +662,15 @@ class BasicMetric(Metric):
             reference: str = request_state.instance.references[reference_index].output
 
             # Find the span of the completion that matches the reference.
-            answer_length = 0
-            answer_tokens: List[Token] = []
-            for token in sequence.tokens[::-1]:
-                if answer_length >= len(reference):
-                    break
-                answer_tokens.insert(0, token)
-                answer_length += len(token.text)
-
-            # Sanity check
-            span: str = "".join([token.text for token in answer_tokens]).lstrip()
-            alphanumeric_chars: str = string.digits + string.ascii_lowercase + string.ascii_uppercase
-            filtered_span: str = "".join(list(filter(lambda x: x in alphanumeric_chars, span)))
-            filtered_reference: str = "".join(list(filter(lambda x: x in alphanumeric_chars, reference)))
-            assert filtered_span == filtered_reference, f"Expected: {filtered_reference}, Actual: {filtered_span}"
-
+            tokenizer_service: TokenizerService = metric_service
+            window_service: WindowService = WindowServiceFactory.get_window_service(
+                adapter_spec.model, tokenizer_service
+            )
+            num_tokens: int = window_service.get_num_tokens(
+                f" {reference}"
+            )  # prepend a space because there should always be a space before reference in the prompt
+            answer_tokens = sequence.tokens[-num_tokens:]
             logprob = sum(token.logprob for token in answer_tokens)
-            num_tokens = len(answer_tokens)
 
             return ReferenceStat(logprob, num_tokens)
 
