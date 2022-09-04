@@ -37,7 +37,7 @@ class Cache(object):
         self.num_queries += 1
         key = request_to_key(request)
 
-        with SqliteDict(self.cache_path) as cache:
+        with SqliteDict(self.cache_path, autocommit=True) as cache:
             response = cache.get(key)
             if response:
                 cached = True
@@ -49,7 +49,7 @@ class Cache(object):
                 for attempt in range(Cache.MAX_WRITE_ATTEMPTS):
                     try:
                         cache[key] = response
-                        cache.commit()
+                        # cache.commit()
                     except Exception as e:
                         hlog(f"Write attempt #{attempt+1}: {e}")
                         time.sleep(1)
