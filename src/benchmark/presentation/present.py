@@ -158,9 +158,9 @@ class AllRunner:
                     f"--local --conf {self.conf_path} --suite {self.suite} "
                     f"--models-to-run {model} --scenario-groups-to-run {group}"
                 )
-        lines.append("echo # Run these after Slurm jobs terminate")
-        lines.append(f"echo benchmark-present --local --suite {self.suite} --skip-instances")
-        lines.append(f"echo benchmark-summarize --suite {self.suite}")
+        lines.append("echo '# Run these after Slurm jobs terminate'")
+        lines.append(f"echo 'benchmark-present --local --suite {self.suite} --skip-instances'")
+        lines.append(f"echo 'benchmark-summarize --suite {self.suite}'")
         write_lines(os.path.join(suite_dir, "run-all.sh"), lines)
 
         # Create a symlink runs/latest -> runs/<name_of_suite>,

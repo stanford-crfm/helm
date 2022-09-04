@@ -65,7 +65,7 @@ def add_run_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "-o", "--output-path", type=str, help="Where to save all the output", default="benchmark_output"
     )
-    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads to make requests", default=5)
+    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads to make requests", default=4)
     parser.add_argument(
         "--skip-instances",
         action="store_true",

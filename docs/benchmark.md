@@ -1,5 +1,41 @@
 # Running the benchmark
 
+In the following, assume:
+
+    export SUITE=v1
+
+To try to test things out:
+
+    # Just load the config file
+    venv/bin/benchmark-present -c src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE --skip-instances
+
+    # Create the instances and the requests, but don't execute
+    venv/bin/benchmark-present -c src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE --dry-run
+
+    # Execute the requests and compute metrics
+    venv/bin/benchmark-present -c src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE
+
+    # Generate assets for the website
+    venv/bin/benchmark-summarize --suite $SUITE
+
+All the outputs should be in `benchmark_output/runs/$SUITE`.
+
+To run everything in parallel:
+
+    # Generate all the commands to run in parallel
+    venv/bin/benchmark-present --local --suite $SUITE --skip-instances
+
+    # Run everything in parallel over Slurm
+    bash benchmark_output/runs/$SUITE/run-all.sh
+
+    # ...Wait for all Slurm jobs to finish...
+
+    # Generate assets for the website
+    venv/bin/benchmark-present --local --suite $SUITE --skip-instances
+    venv/bin/benchmark-summarize --suite $SUITE
+
+Go to the [website](http://localhost:1959/static/benchmarking.html) to look at the results.
+
 Examples of running the benchmark:
 
     venv/bin/benchmark-run
@@ -64,9 +100,9 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 
 1. `ssh sc`.
 1. Create a screen session: `screen -S together`.
-1. Use a john to run the suite: 
+1. Use a john to run the suite:
    `nlprun --job-name queriestogether --priority high -a crfm_benchmarking -c 8 -g 0 --memory 64g -w /u/scr/nlp/crfm/benchmarking/benchmarking`.
-1. Do a dry run to generate `RequestState`s for all the Together models: 
+1. Do a dry run to generate `RequestState`s for all the Together models:
    `bash scripts/generate-together-requests.sh --max-eval-instances 1000 --priority 2 --local`.
 1. Exit the screen session: `ctrl+ad`.
 1. Check on the dry run by streaming the logs: `tail -f dryrun_<Name of together model>.log`.
