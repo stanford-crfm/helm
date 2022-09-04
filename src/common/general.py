@@ -3,22 +3,24 @@ import os
 import shlex
 import subprocess
 import zstandard
-from typing import List, Optional
+from typing import Any, Callable, Dict, List, Optional
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from tqdm import tqdm
 
 import pyhocon
 from dataclasses import asdict, dataclass
 
-from common.hierarchical_logger import htrack, hlog
+from common.hierarchical_logger import hlog, htrack, htrack_block
 
 
 def singleton(items: List):
     """Ensure there's only one item in `items` and return it."""
     if len(items) != 1:
-        raise ValueError(f"Expected 1 item, got {len(items)}")
+        raise ValueError(f"Expected 1 item, got {len(items)} items: {items}")
     return items[0]
 
 
-def flatten_list(ll: list):
+def flatten_list(ll: List):
     """
     Input: Nested lists
     Output: Flattened input
@@ -121,6 +123,10 @@ def format_split(split: str) -> str:
     return f"|{split}|"
 
 
+def asdict_without_nones(obj: dataclass) -> Dict[str, Any]:
+    return asdict(obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
+
+
 def serialize(obj: dataclass) -> List[str]:
     """Takes in a dataclass and outputs all of its fields and values in a list."""
     return [f"{key}: {json.dumps(value)}" for key, value in asdict(obj).items()]
@@ -159,3 +165,20 @@ def match_case(source_word: str, target_word: str) -> str:
     if source_word and source_word[0].isupper():
         return target_word.capitalize()
     return target_word
+
+
+def parallel_map(process: Callable[[List], List], items: List, parallelism: int, multiprocessing: bool = False) -> List:
+    """
+    A wrapper for applying `process` to all `items`.
+    """
+    units = "processes" if multiprocessing else "threads"
+    with htrack_block(f"Parallelizing computation on {len(items)} items over {parallelism} {units}"):
+        if parallelism == 1:
+            results: List = list(tqdm(map(process, items), total=len(items)))
+        elif multiprocessing:
+            with ProcessPoolExecutor(max_workers=parallelism) as executor:
+                results: List = list(tqdm(executor.map(process, items), total=len(items)))
+        else:
+            with ThreadPoolExecutor(max_workers=parallelism) as executor:
+                results: List = list(tqdm(executor.map(process, items), total=len(items)))
+    return results

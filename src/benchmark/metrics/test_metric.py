@@ -1,5 +1,5 @@
-from .basic_metrics import get_num_bytes, convert_tokens_to_text
 from common.request import Token
+from .basic_metrics import get_num_bytes, convert_tokens_to_text
 
 
 def test_get_num_bytes():

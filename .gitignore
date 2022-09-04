@@ -10,6 +10,7 @@ benchmark_output
 proxy_api_key.txt
 microsoft_client.lock
 *.log
+*.out
 nltk_data/
 
 # Percy's stuff

@@ -1,37 +1,41 @@
+import math
 from dataclasses import dataclass, replace
 from typing import List, Callable, Optional, Dict, Tuple, Set, cast
 from urllib.parse import unquote
 from functools import partial
-import math
 
 import json
 import re
 import string
 import nltk
+import numpy as np
+import scipy
+import calibration as cal
 from nltk.metrics.scores import f_measure
 from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
-import numpy as np
 from rouge_score import rouge_scorer
 
+from common.general import singleton
 from common.hierarchical_logger import hlog
 from common.request import Token, Sequence
-from . import code_metrics_helper
-from .adapter import (
+from benchmark.adapter import (
+    ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     AdapterSpec,
     RequestState,
 )
-from .window_services.window_service import WindowService
-from .window_services.window_service_factory import WindowServiceFactory
-from .window_services.tokenizer_service import TokenizerService
+from benchmark.window_services.window_service import WindowService
+from benchmark.window_services.window_service_factory import WindowServiceFactory
+from benchmark.window_services.tokenizer_service import TokenizerService
+from benchmark.scenarios.scenario import CORRECT_TAG, Instance
+from benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
+from benchmark.scenarios.code_scenario import CodeReference
+from . import code_metrics_helper
 from .metric import Metric, get_unique_stat_by_name
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenarios.scenario import CORRECT_TAG, Instance
-from .scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
-from .scenarios.code_scenario import CodeReference
 from .statistic import Stat
 
 
@@ -40,8 +44,59 @@ try:
 except LookupError:
     nltk.download("punkt")  # Required for rouge
 
-INFERENCE_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/static/inference_efficiency.json"
+INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/static/inference_idealized_runtimes.json"
+INFERENCE_DENOISED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/static/inference_denoised_runtimes.json"
 TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/static/training_efficiency.json"
+
+
+def compute_estimated_time_from_prompt_size_and_num_output_tokens(
+    request_state: RequestState,
+    inference_runtimes_dict: Dict[str, Dict],
+    num_prompt_tokens: int,
+    num_output_tokens: int,
+) -> Optional[float]:
+    estimated_runtime: Optional[float]
+    if request_state.request.model in inference_runtimes_dict:
+        inference_runtimes_dict_for_model = inference_runtimes_dict[request_state.request.model]
+        runtime_per_output_token: float = inference_runtimes_dict_for_model["runtime_per_output_token"]
+        raw_runtimes_for_prompt_tokens: Dict[str, float] = inference_runtimes_dict_for_model[
+            "runtime_for_prompt_tokens"
+        ]
+        runtimes_for_prompt_tokens: Dict[int, float] = {int(k): v for (k, v) in raw_runtimes_for_prompt_tokens.items()}
+
+        runtime_for_prompt_tokens: Optional[float] = None
+        largest_num_tokens_in_efficiency_dict: int = max(runtimes_for_prompt_tokens.keys())
+        # Find the smallest num_prompt_tokens larger than the number of tokens in the given prompt,
+        # then scale runtime in dict by (num_prompt_tokens / key) to get more accurate estimate: we
+        # assume that we can encode the prompt at the same throughput as the smallest key larger than
+        # num_prompt_tokens, and number of compute operations scales linearly with num_prompt_tokens.
+        for key in sorted(runtimes_for_prompt_tokens.keys()):
+            if num_prompt_tokens <= key:
+                runtime_for_prompt_tokens = runtimes_for_prompt_tokens[key] * (num_prompt_tokens / key)
+                break
+        # If number of tokens in the prompt exceeds the largest key in the efficiency dict, then
+        # estimate the prompt encoding time by linearly scaling up the runtime for the largest
+        # key (this is reasonably accurate under certain simplifying assumptions).
+        if runtime_for_prompt_tokens is None:
+            runtime_for_prompt_tokens = runtimes_for_prompt_tokens[largest_num_tokens_in_efficiency_dict] * (
+                num_prompt_tokens / largest_num_tokens_in_efficiency_dict
+            )
+        overhead: Optional[float] = inference_runtimes_dict_for_model.get("overhead")
+
+        # Idealized runtime is sum of the runtime of encoding the input tokens, the runtime of
+        # generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
+        # if number of output tokens is greater than 0, otherwise just `runtime_for_prompt_tokens`,
+        # and the overhead if available.
+        estimated_runtime = runtime_for_prompt_tokens
+        if num_output_tokens > 0:
+            estimated_runtime += runtime_per_output_token * (num_output_tokens - 1)
+        # Add overhead if it is available.
+        if overhead is not None:
+            estimated_runtime += overhead
+    else:
+        estimated_runtime = None
+
+    return estimated_runtime
 
 
 def pass_at_k_estimator(n: int, c: int, k: int) -> float:
@@ -255,9 +310,9 @@ def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
     #       https://github.com/stanford-crfm/benchmarking/issues/350
     derived_stats: List[Stat] = []
 
-    logprob_stat = get_unique_stat_by_name(stats, "logprob")
-    num_tokens_stat = get_unique_stat_by_name(stats, "num_perplexity_tokens")
-    num_bytes_stat = get_unique_stat_by_name(stats, "num_bytes")
+    logprob_stat = get_unique_stat_by_name(stats.values(), "logprob")
+    num_tokens_stat = get_unique_stat_by_name(stats.values(), "num_perplexity_tokens")
+    num_bytes_stat = get_unique_stat_by_name(stats.values(), "num_bytes")
 
     if logprob_stat is None:
         return []
@@ -289,26 +344,29 @@ class BasicMetric(Metric):
         # For Efficiency metrics:
         # The `inference_efficiency.json` file contains a `runtime_per_output_token` value
         # (the estimated runtime of generating one output token) and a
-        # `runtime_for_input_tokens` dict (a mapping from various num_input_token values to
-        # the estimated runtime of processing that many input tokens).
+        # `runtime_for_prompt_tokens` dict (a mapping from various num_prompt_tokens values to
+        # the estimated runtime of encoding a prompt with that many tokens).
         # For example:
         # "openai/davinci": {
-        #   "runtime_per_output_token": 0.08002311153903935,
-        #   "runtime_for_input_tokens": {
-        #     "1": 0.01592031502388136,
-        #     "16": 0.01764758775115406,
-        #     "32": 0.020374860478426838,
+        #   "runtime_per_output_token": 0.080,
+        #   "runtime_for_prompt_tokens": {
+        #     "1": 0.016,
+        #     "16": 0.018,
+        #     "32": 0.020,
         #     ...
         #
-        # These runtimes are generated by initializing Megatron with a model of the right
-        # size, obtaining end-to-end generation times for different numbers of input
-        # and output tokens, and then fitting a linear regression model to the
-        # runtimes (slope is the runtime_per_output_token, processing time for generating
-        # one token is the runtime_per_input_tokens for the corresponding num_input_tokens
-        # value). Profiling code and logs, and code to fit the regression model is available
-        # here: https://github.com/stanford-crfm/benchmarking_efficiency.
-        with open(INFERENCE_EFFICIENCY_JSON_FILEPATH, "r") as f:
-            self.inference_efficiency_dict = json.load(f)
+        # These runtimes are generated by initializing Megatron with a model of the right size,
+        # obtaining end-to-end generation times for different numbers of prompt and output tokens,
+        # and then fitting a linear regression model to the runtimes: the resulting slope is the
+        # runtime_per_output_token, which is the processing time for generating each output token,
+        # and the y-intercept is the runtime_for_prompt_tokens, with different values for different
+        # num_prompt_tokens values.
+        # Profiling code and logs, and code to fit the regression model is available at
+        # https://github.com/stanford-crfm/benchmarking_efficiency.
+        with open(INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH, "r") as f:
+            self.inference_idealized_runtimes_dict = json.load(f)
+        with open(INFERENCE_DENOISED_RUNTIMES_JSON_FILEPATH, "r") as f:
+            self.inference_denoised_runtimes_dict = json.load(f)
 
         # We use estimated emitted CO2 during training (in tons of CO2) as a proxy metric
         # for training efficiency. We use reported metrics where applicable, otherwise
@@ -316,6 +374,9 @@ class BasicMetric(Metric):
         # used, region, etc.
         with open(TRAINING_EFFICIENCY_JSON_FILEPATH, "r") as f:
             self.training_efficiency_dict = json.load(f)
+
+    def __repr__(self):
+        return f"BasicMetric({','.join(self.names)})"
 
     def compute_reference_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -350,9 +411,9 @@ class BasicMetric(Metric):
                 score_1 = max(score_func(gold.output, preds[0]) for gold in golds)
                 score_k = max(score_func(gold.output, pred) for gold in golds for pred in preds)
 
-            metrics = [Stat(replace(name, k=1)).add(score_1)]  # score_1 corresponds to k=1, i.e., using one prediction
+            metrics = [Stat(name).add(score_1)]  # score_1 corresponds using one prediction
             if adapter_spec.num_outputs != 1:
-                metrics.append(Stat(replace(name, k=adapter_spec.num_outputs)).add(score_k))
+                metrics.append(Stat(replace(name, name=f"{name.name}@{adapter_spec.num_outputs}")).add(score_k))
             return metrics
 
         # maps each string metric name to its associated function
@@ -377,28 +438,33 @@ class BasicMetric(Metric):
         }
 
         reference_metrics = []
+        # Gold outputs
+        golds = [reference for reference in request_state.instance.references if reference.is_correct]
+        assert len(golds) > 0
+
+        # Predicted outputs
+        assert request_state.result is not None
+        # TODO: Sort the predictions, or take them from the top tokens of the first completion
+        #       https://github.com/stanford-crfm/benchmarking/issues/42
+        preds = [completion.text.strip() for completion in request_state.result.completions]
+
+        # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
+        # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
+        # sometimes predict a random letter like 'M'.
+        if request_state.output_mapping is not None:
+            preds = [request_state.output_mapping.get(pred) for pred in preds]
+
+        # Add calibration metrics for ADAPT_MULTIPLE_CHOICE_JOINT.
+        if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
+            max_prob = np.exp(singleton(request_state.result.completions).logprob)
+            reference_metrics.append(Stat(MetricName("max_prob")).add(max_prob))
+
+        # Add other metrics.
         for metric_name in self.names:
             if metric_name in metric_fn_mapping:
-                # Gold outputs
-                golds = [reference for reference in request_state.instance.references if reference.is_correct]
-                assert len(golds) > 0
-
-                # Predicted outputs
-                assert request_state.result is not None
-                # TODO: Sort the predictions, or take them from the top tokens of the first completion
-                #       https://github.com/stanford-crfm/benchmarking/issues/42
-                preds = [completion.text.strip() for completion in request_state.result.completions]
-
-                # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
-                # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
-                # sometimes predict a random letter like 'M'.
-                if request_state.output_mapping is not None:
-                    preds = [request_state.output_mapping.get(pred) for pred in preds]
-
                 reference_metrics.extend(
                     compute_metrics_helper(MetricName(metric_name), metric_fn_mapping[metric_name])
                 )
-
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
         return reference_metrics
@@ -408,7 +474,7 @@ class BasicMetric(Metric):
     ) -> List[Stat]:
         """Compute efficiency metrics for both inference and training.
         For inference, we record both the actual runtime and an estimated idealized runtime
-        for the given request with an optimized software implementation run on an A100 GPU,
+        for the given request with an optimized software implementation run on A100 GPU(s),
         taking into account both the number of tokens in the prompt of the request, and the
         number of generated output tokens.
         For training, we report the estimated total metric tons of CO2 emitted to train the
@@ -416,8 +482,14 @@ class BasicMetric(Metric):
         assert request_state.result is not None
         # Compute efficiency metrics for inference.
         runtime: float = request_state.result.request_time
+        batch_size: int = 1
+        # For models that perform offline batch inference, effective runtime is batch_request_time, but also
+        # record batch_size to provide nuance.
+        if request_state.result.batch_request_time is not None and request_state.result.batch_size is not None:
+            runtime = request_state.result.batch_request_time
+            batch_size = request_state.result.batch_size
 
-        # Compute total number of input and output tokens (in first sequence).
+        # Compute total number of prompt and output tokens (in first sequence).
         # Fetch the right `Tokenizer` depending on the model defined in `AdapterSpec`
         # and calculate the number of tokens in the prompt.
         tokenizer_service: TokenizerService = metric_service
@@ -429,71 +501,46 @@ class BasicMetric(Metric):
         num_output_tokens: int = len(sequence.tokens)
         # Don't include prompt in number of generated tokens (e.g., for language modeling).
         if request_state.request.echo_prompt:
-            # This might fail when we get fewer output tokens in the response than the number of tokens in the prompt.
-            assert (
-                num_prompt_tokens <= num_output_tokens
-            ), f"num_prompt_tokens ({num_prompt_tokens}) > num_output_tokens ({num_output_tokens}) for prompt: {prompt}"
-            num_output_tokens -= num_prompt_tokens
-
-        idealized_runtime: Optional[float]
-        runtime_discrepancy: Optional[float]
-        if request_state.request.model in self.inference_efficiency_dict:
-            inference_efficiency_dict_for_model = self.inference_efficiency_dict[request_state.request.model]
-            runtime_per_output_token: float = inference_efficiency_dict_for_model["runtime_per_output_token"]
-            raw_runtimes_for_input_tokens: Dict[str, float] = inference_efficiency_dict_for_model[
-                "runtime_for_input_tokens"
-            ]
-            runtimes_for_input_tokens: Dict[int, float] = {
-                int(k): v for (k, v) in raw_runtimes_for_input_tokens.items()
-            }
-            runtime_for_input_tokens: Optional[float] = None
-            largest_num_tokens_in_efficiency_dict: int = max(runtimes_for_input_tokens.keys())
-            # Find the smallest num_input_tokens larger than the number of tokens in the given prompt.
-            for num_input_tokens in sorted(runtimes_for_input_tokens.keys()):
-                if num_prompt_tokens <= num_input_tokens:
-                    runtime_for_input_tokens = runtimes_for_input_tokens[num_input_tokens]
-                    break
-
-            # If number of tokens in the prompt exceeds the largest key in the efficiency dict, then
-            # estimate the prompt encoding time by linearly scaling up the runtime for the largest
-            # key (this is reasonably accurate under certain simplifying assumptions).
-            if runtime_for_input_tokens is None:
-                runtime_for_input_tokens = runtimes_for_input_tokens[largest_num_tokens_in_efficiency_dict] * (
-                    num_prompt_tokens / largest_num_tokens_in_efficiency_dict
+            # num_prompt_tokens > num_output_tokens can happen if tokenizer doesn't round trip.
+            if num_prompt_tokens <= num_output_tokens:
+                num_output_tokens -= num_prompt_tokens
+            else:
+                hlog(
+                    f"WARNING: num_prompt_tokens ({num_prompt_tokens}) > num_output_tokens ({num_output_tokens}) "
+                    f"for prompt: {prompt}"
                 )
+                num_output_tokens = 0
 
-            # Idealized runtime is sum of the runtime of encoding the input tokens, and the
-            # runtime of generating `num_output_tokens` (`runtime_per_output_token` * (`num_output_tokens` - 1))
-            # if number of output tokens is greater than 0, otherwise just `runtime_for_input_tokens`.
-            idealized_runtime = runtime_for_input_tokens
-            if num_output_tokens > 0:
-                idealized_runtime += runtime_per_output_token * (num_output_tokens - 1)
-            runtime_discrepancy = runtime - idealized_runtime
-        else:
-            hlog(
-                f"WARNING: tried to estimate idealized inference time for model {request_state.request.model} "
-                "that is not in inference_efficiency_dict"
-            )
-            idealized_runtime = None
-            runtime_discrepancy = None
+        idealized_runtime: Optional[float] = compute_estimated_time_from_prompt_size_and_num_output_tokens(
+            request_state, self.inference_idealized_runtimes_dict, num_prompt_tokens, num_output_tokens
+        )
+
+        denoised_runtime: Optional[float] = compute_estimated_time_from_prompt_size_and_num_output_tokens(
+            request_state, self.inference_denoised_runtimes_dict, num_prompt_tokens, num_output_tokens
+        )
 
         # Compute efficiency metrics for training.
         training_co2_cost: Optional[float]
-        if request_state.request.model in self.training_efficiency_dict:
-            training_co2_cost = self.training_efficiency_dict[request_state.request.model]
+        if request_state.request.model in self.training_efficiency_dict["carbon"]:
+            training_co2_cost = self.training_efficiency_dict["carbon"][request_state.request.model]["value"]
         else:
-            hlog(
-                f"WARNING: tried to estimate training CO2 emissions for model {request_state.request.model} "
-                "that is not in training_efficiency_dict"
-            )
             training_co2_cost = None
 
+        training_energy_cost: Optional[float]
+        if request_state.request.model in self.training_efficiency_dict["energy"]:
+            training_energy_cost = self.training_efficiency_dict["energy"][request_state.request.model]["value"]
+        else:
+            training_energy_cost = None
+
         return [
+            Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens),
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
             Stat(MetricName("inference_runtime")).add(runtime),
+            Stat(MetricName("batch_size")).add(batch_size),
+            Stat(MetricName("inference_denoised_runtime")).add(denoised_runtime),
             Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
-            Stat(MetricName("inference_runtime_discrepancy")).add(runtime_discrepancy),
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
+            Stat(MetricName("training_energy_cost")).add(training_energy_cost),
         ]
 
     def compute_finish_reason_metrics(
@@ -522,6 +569,12 @@ class BasicMetric(Metric):
     ) -> List[Stat]:
         """Record the number of in-context examples used in the prompt."""
         return [Stat(MetricName("num_in_context_examples")).add(request_state.num_in_context_examples)]
+
+    def compute_input_truncated(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    ) -> List[Stat]:
+        """Record whether the input was truncated to fit the context window."""
+        return [Stat(MetricName("input_truncated")).add(request_state.input_truncated)]
 
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -570,6 +623,7 @@ class BasicMetric(Metric):
         metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_num_in_context_examples(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_input_truncated(adapter_spec, request_state, metric_service))
 
         return metrics
 
@@ -660,8 +714,15 @@ class BasicMetric(Metric):
 
         answer_scores = [reference_scores[i] for i in answers]
 
+        max_prob = np.max(scipy.special.softmax(reference_scores))
+        # TODO: fix the accuracy calculation---it is currently incorrect when there are ties.
+        # For example, in binary classification if the model's predicted probabilities are
+        # [0.5, 0.5], then this code will say we got the example correct, regardless of what
+        # the answer is, because the calculation max(reference_scores) == max(answer_scores)
+        # will always return True.
         return [
-            Stat(MetricName("accuracy")).add(float(max(reference_scores) == max(answer_scores))),
+            Stat(MetricName("max_prob")).add(max_prob),
+            Stat(MetricName("exact_match")).add(float(max(reference_scores) == max(answer_scores))),
         ]
 
     def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
@@ -673,5 +734,34 @@ class BasicMetric(Metric):
     def derive_per_instance_stats(self, per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
         """Derive calibration metrics if applicable. We don't worry about splits and perturbations here."""
         derived_stats: List[Stat] = []
-        # derived_stats.extend(compute_calibration_metrics(per_instance_stats))
+        derived_stats.extend(compute_calibration_metrics(per_instance_stats))
         return derived_stats
+
+
+def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
+    max_probs = []
+    correct = []
+    for instance_stats in per_instance_stats.values():
+        max_prob_stat = get_unique_stat_by_name(instance_stats, "max_prob")
+        correct_stat = get_unique_stat_by_name(instance_stats, "exact_match")
+        if correct_stat is not None and max_prob_stat is not None:
+            assert max_prob_stat.mean is not None
+            assert correct_stat.mean is not None
+            max_probs.append(max_prob_stat.mean)
+            cur_correct = float(correct_stat.mean)
+            # For a single example, we either get it correct or not.
+            assert np.isclose(cur_correct, 1.0) or np.isclose(cur_correct, 0.0)
+            correct.append(int(cur_correct))
+
+    calibration_metrics: List[Stat] = []
+    assert len(max_probs) == len(correct)
+    if len(max_probs) > 0:
+        # We need at least around 300 examples to compute ece_10_bin reliably.
+        ece_10_bin = cal.get_ece_em(max_probs, correct, num_bins=10)
+        calibration_metrics.append(Stat(MetricName("ece_10_bin")).add(ece_10_bin))
+        ece_1_bin = cal.get_ece(max_probs, correct, num_bins=1)
+        calibration_metrics.append(Stat(MetricName("ece_1_bin")).add(ece_1_bin))
+        coverage_acc_area, acc_top_10_percentile = cal.get_selective_stats(max_probs, correct)
+        calibration_metrics.append(Stat(MetricName("selective_cov_acc_area")).add(coverage_acc_area))
+        calibration_metrics.append(Stat(MetricName("selective_acc@10")).add(acc_top_10_percentile))
+    return calibration_metrics

@@ -1,21 +1,25 @@
 from abc import ABC
 from dataclasses import dataclass, replace
-from typing import List, Dict, Tuple, Optional, Any, Union, Set
 from collections import defaultdict
+from typing import List, Dict, Tuple, Optional, Iterable, Set
 
 from common.object_spec import ObjectSpec, create_object
-from common.general import singleton
-from .statistic import Stat, merge_stat
-from .augmentations.perturbation_description import PerturbationDescription
-from .adapter import (
+from common.general import singleton, parallel_map
+from benchmark.augmentations.perturbation_description import (
+    PerturbationDescription,
+    PERTURBATION_ORIGINAL,
+    PERTURBATION_WORST,
+)
+from benchmark.adapter import (
     AdapterSpec,
     ScenarioState,
     RequestState,
     ADAPT_LANGUAGE_MODELING,
 )
+from benchmark.scenarios.scenario import Instance
 from .metric_name import MetricName, MetricContext
 from .metric_service import MetricService
-from .scenarios.scenario import Instance
+from .statistic import Stat, merge_stat
 
 
 @dataclass(unsafe_hash=True)
@@ -45,6 +49,54 @@ class MetricResult:
     per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]]
 
 
+@dataclass(frozen=True)
+class RequestStateSet:
+    """All the request states relevant to a given instance"""
+
+    instance: Instance
+    generation_states: List[RequestState]
+    references_states: List[RequestState]
+
+
+@dataclass(frozen=True)
+class Processor:
+    """Evaluates an instance."""
+
+    # TODO: not ideal that we have circular dependencies; subclasses of Metric
+    # should override the Processor rather than the Metric.
+    metric: "Metric"
+    metric_service: MetricService
+    eval_cache_path: str
+    adapter_spec: AdapterSpec
+
+    def process(self, request_state_set: RequestStateSet) -> List[Stat]:
+        instance_stats: List[Stat] = []
+
+        # Evaluate generated request_state
+        generation_states = request_state_set.generation_states
+        if len(generation_states) != 0:
+            instance_stats.extend(
+                self.metric.evaluate_generation(
+                    self.adapter_spec, singleton(generation_states), self.metric_service, self.eval_cache_path
+                )
+            )
+
+        # Evaluate the references
+        references_states = request_state_set.references_states
+        if len(references_states) != 0:
+            instance_stats.extend(
+                self.metric.evaluate_references(
+                    self.adapter_spec, references_states, self.metric_service, self.eval_cache_path
+                )
+            )
+
+        # Add instance-related context (e.g., split, perturbation) to the metrics
+        for i, stat in enumerate(instance_stats):
+            instance_stats[i] = add_context(stat, MetricContext.from_instance(request_state_set.instance))
+
+        return instance_stats
+
+
 class Metric(ABC):
     """
     A `Metric` takes the results of execution and produces `Stat`s for a
@@ -56,7 +108,7 @@ class Metric(ABC):
     """
 
     def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
         """
         Main entry point for a `Metric`.  This function groups the single
@@ -71,46 +123,44 @@ class Metric(ABC):
 
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
-        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
+        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
 
         for train_trial_index in range(adapter_spec.num_train_trials):
-            trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
-            per_instance_stats: Dict[Instance, List[Stat]] = defaultdict(list)  # Stats for individual instances
-
+            # Construct inputs
+            request_state_sets = []
             for instance in scenario_state.instances:
-                instance_stats = []
-
-                # Evaluate generated request_state
-                request_states = scenario_state.get_request_states(train_trial_index, instance, None)
-                if len(request_states) != 0:
-                    instance_stats.extend(
-                        self.evaluate_generation(
-                            adapter_spec, singleton(request_states), metric_service, eval_cache_path
-                        )
-                    )
-
-                # Evaluate the references
-                request_states = []
+                generation_states = scenario_state.get_request_states(train_trial_index, instance, None)
+                references_states = []
                 for reference_index in range(len(instance.references)):
-                    request_states.extend(
+                    references_states.extend(
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
-                if len(request_states) != 0:
-                    instance_stats.extend(
-                        self.evaluate_references(adapter_spec, request_states, metric_service, eval_cache_path)
-                    )
+                request_state_set = RequestStateSet(
+                    instance=instance, generation_states=generation_states, references_states=references_states
+                )
+                request_state_sets.append(request_state_set)
 
-                # Add instance-related context (e.g., split, perturbation) to the metrics
-                for i, stat in enumerate(instance_stats):
-                    instance_stats[i] = add_context(stat, MetricContext.from_instance(instance))
+            # Do it!
+            processor = Processor(
+                metric=self,
+                metric_service=metric_service,
+                eval_cache_path=eval_cache_path,
+                adapter_spec=scenario_state.adapter_spec,
+            )
+            results: List[List[Stat]] = parallel_map(
+                processor.process, request_state_sets, parallelism=parallelism,
+            )
 
-                per_instance_stats[instance] = instance_stats
+            # Per-instance stats
+            per_instance_stats: Dict[Instance, List[Stat]] = dict(zip(scenario_state.instances, results))
 
-                # Merge these statistics back.
+            # Aggregate these stats
+            trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
+            for instance_stats in results:
                 for stat in instance_stats:
                     merge_stat(trial_stats, stat)
 
-            # group stats according to the context (e.g., split, perturbation), i.e., non-name part of the MetricName,
+            # Group stats according to the context (e.g., split, perturbation), i.e., non-name part of the MetricName,
             # and call derive_stats on each grouping
             grouped_trial_stats: Dict[MetricContext, Dict[MetricName, Stat]] = defaultdict(dict)
             for metric_name, stat in trial_stats.items():
@@ -120,7 +170,7 @@ class Metric(ABC):
                     # we could potentially allow derive_stats to overwrite context, but this feels more robust
                     merge_stat(trial_stats, add_context(stat, context))  # add correct context
 
-            # same for per_instance_stats
+            # Same for per_instance_stats
             grouped_per_instance_stats: Dict[MetricContext, Dict[Instance, List[Stat]]] = defaultdict(
                 lambda: defaultdict(list)
             )
@@ -134,6 +184,8 @@ class Metric(ABC):
                     merge_stat(trial_stats, add_context(stat, context))
 
                 # keep track of how many instances are in each subset
+                # TODO: `num_instances` will be computed multiple times if there are more than
+                #       one child Metric class that inherits this method.
                 num_instances_stat = Stat(MetricName("num_instances")).add(len(instance_dict))
                 merge_stat(trial_stats, add_context(num_instances_stat, context))
 
@@ -158,7 +210,7 @@ class Metric(ABC):
                 merge_stat(global_stats, stat.take_mean())
 
             for instance, instance_stats in per_instance_stats.items():
-                all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)] = instance_stats
+                all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)].extend(instance_stats)
 
         # Wrap aggregated and per-instance stats in a MetricResult.
         return MetricResult(list(global_stats.values()), all_per_instance_stats)
@@ -202,7 +254,7 @@ class Metric(ABC):
         # The first and only trial
         trial_stats: Dict[MetricName, Stat] = {}
         # Per-instance stats
-        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
+        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
         instance_ids_per_context: Dict[MetricContext, Set[str]] = defaultdict(set)
 
         for request_state in scenario_state.request_states:
@@ -219,7 +271,7 @@ class Metric(ABC):
                 instance_ids_per_context[context].add(request_state.instance.id)
 
             # Use trial index of 0 here since we run only one trial for LM
-            all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)] = request_stats
+            all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)].extend(request_stats)
 
             for stat in request_stats:
                 merge_stat(trial_stats, stat)
@@ -243,9 +295,9 @@ class Metric(ABC):
     def compute_worst_case_metrics(self, per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
         """
         For each instance, we compute the worst case perfomance between each perturbation and the non-perturbed input
-        (identity perturbation). This allows us to reason about the invariances of a model as opposed to just looking
+        (perturbation=None). This allows us to reason about the invariances of a model as opposed to just looking
         at its performance on perturbed inputs. We also compute the worst case performance across all robustness-related
-        and fairness-related perturbations (including identity in both).
+        and fairness-related perturbations (including the original input in both).
 
         For each such worst-case metric, we record a `before_` metric that aggregates the performance on the
         non-perturbed version of the corresponding inputs.
@@ -259,14 +311,13 @@ class Metric(ABC):
         for instance, stats in per_instance_stats.items():
             for stat in stats:
                 assert instance.id is not None
-                # group all perturbations for a specific metric name together
-                if stat.name.perturbation is not None:
-                    per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(stat)
+                # Group all perturbations for a specific metric name together
+                per_instance_perturbation_stats[(replace(stat.name, perturbation=None), instance.id)].append(stat)
 
         # Compute worst perturbation stats
         derived_stats_dict: Dict[MetricName, Stat] = {}
         for (metric_name, instance_id), stats in per_instance_perturbation_stats.items():
-            identity_stat: Optional[Stat] = None
+            original_stat: Optional[Stat] = None
             robustness_stat = Stat(
                 replace(metric_name, perturbation=PerturbationDescription(name="robustness", robustness=True))
             )
@@ -277,10 +328,9 @@ class Metric(ABC):
 
             for stat in stats:  # go through all the perturbations of the instance and merge relevant stats
                 perturbation = stat.name.perturbation
-                assert perturbation is not None
-                if perturbation.name == "identity":
-                    assert identity_stat is None  # we should only have one identity stat
-                    identity_stat = stat
+                if perturbation is None:
+                    assert original_stat is None  # we should only have one original stat
+                    original_stat = stat
                 else:
                     if perturbation.robustness:
                         robustness_stat.merge(stat)
@@ -293,16 +343,16 @@ class Metric(ABC):
                 perturbation = stat.name.perturbation
                 assert perturbation is not None
 
-                if identity_stat is not None:
-                    stat.merge(identity_stat)
+                if original_stat is not None:
+                    stat.merge(original_stat)
                     if perturbation.name not in ["robustness", "fairness"]:
-                        before = replace(perturbation, includes_perturbed=False, includes_identity=True)
+                        before = replace(perturbation, computed_on=PERTURBATION_ORIGINAL)
                         merge_stat(
-                            derived_stats_dict, Stat(replace(stat.name, perturbation=before)).merge(identity_stat)
+                            derived_stats_dict, Stat(replace(stat.name, perturbation=before)).merge(original_stat)
                         )
 
                 # keep the minimum performance for each input
-                worst = replace(perturbation, includes_perturbed=True, includes_identity=True)
+                worst = replace(perturbation, computed_on=PERTURBATION_WORST)
                 if stat.count > 0:
                     merge_stat(derived_stats_dict, Stat(replace(stat.name, perturbation=worst)).add(stat.min))
         return list(derived_stats_dict.values())
@@ -318,17 +368,16 @@ def create_metric(metric_spec: MetricSpec) -> Metric:
     return create_object(metric_spec)
 
 
-def get_all_stats_by_name(stats: Union[List[Stat], Dict[Any, Stat]], name: str) -> List[Stat]:
+def get_all_stats_by_name(stats: Iterable[Stat], name: str) -> List[Stat]:
     """Returns a list of all stats with the specified name."""
-    stats_list: List[Stat] = []
-    if isinstance(stats, list):
-        stats_list = stats
-    else:
-        stats_list = list(stats.values())
-    return [stat for stat in stats_list if stat.name.name == name]
+
+    def matches(stat):
+        return stat.name.name == name
+
+    return list(filter(matches, stats))
 
 
-def get_unique_stat_by_name(stats: Union[List[Stat], Dict[Any, Stat]], name: str) -> Optional[Stat]:
+def get_unique_stat_by_name(stats: Iterable[Stat], name: str) -> Optional[Stat]:
     """Returns the unique stat with the specified name or None if it's not there."""
     matching_stats: List[Stat] = get_all_stats_by_name(stats, name)
     if len(matching_stats) == 0:

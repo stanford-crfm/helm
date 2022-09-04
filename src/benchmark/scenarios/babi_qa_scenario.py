@@ -2,7 +2,16 @@ import os
 from typing import List
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    PassageQuestionInput,
+)
 
 
 class BabiQAScenario(Scenario):
@@ -107,7 +116,7 @@ class BabiQAScenario(Scenario):
                         # Task 19 (path finding) has a non verbal answer format (
                         if self.task == 19:
                             answer = self.process_path(answer)
-                        context = f"{''.join(story)}Question: {question}"
+                        context = PassageQuestionInput(passage="".join(story), question=question).to_text(separator="")
                         instance: Instance = Instance(
                             input=context,
                             references=[Reference(output=answer, tags=[CORRECT_TAG])],

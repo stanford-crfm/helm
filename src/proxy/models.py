@@ -135,40 +135,40 @@ ALL_MODELS = [
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-davinci-002",
-        display_name="Instruct GPT-3 (175B, 4000 max tokens)",
-        description="GPT-3 from Instruct series 2nd generation (175B parameters) - 4000 max tokens",
+        display_name="Davinci Instruct v2",
+        description="Davinci from Instruct series, 2nd generation - 4000 max tokens",
         tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-davinci-001",
-        display_name="Instruct GPT-3 (175B)",
-        description="GPT-3 from Instruct series (175B parameters)",
+        display_name="Davinci Instruct v1",
+        description="Davinci from Instruct series, 1st generation",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-curie-001",
-        display_name="Instruct GPT-3 (6.7B)",
-        description="GPT-3 from Instruct series (6.7B parameters)",
+        display_name="Curie Instruct",
+        description="Curie from Instruct series",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-babbage-001",
-        display_name="Instruct GPT-3 (1.3B)",
-        description="GPT-3 from Instruct series (1.3B parameters)",
+        display_name="Babbage Instruct",
+        description="Babbage from Instruct series",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",
         name="openai/text-ada-001",
-        display_name="Instruct GPT-3 (350M)",
-        description="GPT-3 from Instruct series (350M parameters)",
+        display_name="Ada Instruct",
+        description="Ada from Instruct series",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -176,7 +176,7 @@ ALL_MODELS = [
         creator_organization="OpenAI",
         name="openai/code-davinci-002",
         display_name="Davinci Codex (4000 max tokens)",
-        description="Codex 2nd Generation (for natural language to code) - 4000 max tokens",
+        description="Davinci Codex 2nd Generation (for natural language to code) - 4000 max tokens",
         tags=[CODE_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -184,7 +184,7 @@ ALL_MODELS = [
         creator_organization="OpenAI",
         name="openai/code-davinci-001",
         display_name="Davinci Codex (2048 max tokens)",
-        description="Codex (for natural language to code) - 2048 max tokens",
+        description="Davinci Codex (for natural language to code) - 2048 max tokens",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -192,8 +192,45 @@ ALL_MODELS = [
         creator_organization="OpenAI",
         name="openai/code-cushman-001",
         display_name="Cushman Codex (2048 max tokens)",
-        description="Codex (for natural language to code) - 2048 max tokens",
+        description="Cushman Codex (for natural language to code) - 2048 max tokens",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
+    # Cohere models
+    # Model versioning and the possible versions are are not documented here:
+    # https://docs.cohere.ai/generate-reference#model-optional.
+    # We got the names of the models from the Cohere Playground.
+    # TODO: find out the number of parameters and update descriptions
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/xlarge-20220609",
+        display_name="Cohere xlarge",
+        description="Cohere xlarge",
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/large-20220720",
+        display_name="Cohere large",
+        description="Cohere large",
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/medium-20220720",
+        display_name="Cohere medium",
+        description="Cohere medium",
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/small-20220720",
+        display_name="Cohere small",
+        description="Cohere small",
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # GooseAI supported models
     Model(
@@ -275,7 +312,9 @@ ALL_MODELS = [
         # From https://github.com/THUDM/GLM-130B
         description="GLM-130B is an open bilingual (English & Chinese) bidirectional dense model with 130 billion "
         "parameters, pre-trained using the algorithm of General Language Model (GLM).",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        # Inference with echo=True is not feasible -- in the prompt encoding phase, they use
+        # bidirectional attention and do not perform predictions on them.
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="together",
@@ -351,10 +390,12 @@ ALL_MODELS = [
         group="together",
         creator_organization="Yandex",
         name="together/yalm",
-        display_name="YaLM (1OOB)",
-        # From hhttps://github.com/yandex/YaLM-100B
+        display_name="YaLM (100B)",
+        # From https://github.com/yandex/YaLM-100B
         description="YaLM (100B parameters) is an autoregressive language model trained on English and Russian text.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        # TODO: change to `FULL_FUNCTIONALITY_TEXT_MODEL_TAG` when we fix the infinite loop in L.M. adaptation
+        #       https://github.com/stanford-crfm/benchmarking/issues/738
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # For debugging
     Model(
@@ -387,6 +428,13 @@ def get_model_group(model_name: str) -> str:
 def get_all_models() -> List[str]:
     """Get all model names."""
     return list(MODEL_NAME_TO_MODEL.keys())
+
+
+def get_models_by_organization(organization: str) -> List[str]:
+    """
+    Gets models by organization e.g., ai21 => ai21/j1-jumbo, ai21/j1-grande, ai21-large.
+    """
+    return [model.name for model in ALL_MODELS if model.organization == organization]
 
 
 def get_model_names_with_tag(tag: str) -> List[str]:

@@ -1,13 +1,34 @@
 from dataclasses import dataclass, field
 from typing import List
 
+from common.hierarchical_logger import htrack, hlog
+from common.general import parallel_map
 from benchmark.augmentations.perturbation import (
     Perturbation,
     PerturbationSpec,
     create_perturbation,
 )
 from benchmark.scenarios.scenario import Instance
-from .identity_perturbation import IdentityPerturbation
+
+
+@dataclass(frozen=True)
+class Processor:
+    include_original: bool
+    skip_unchanged: bool
+    perturbations: List[Perturbation]
+
+    def process(self, instance: Instance) -> List[Instance]:
+        result: List[Instance] = []
+        if self.include_original:
+            #  we want to include the original even when the perturbation does not change the input
+            result.append(instance)
+
+        for perturbation in self.perturbations:
+            perturbed_instance: Instance = perturbation.apply(instance)
+            if self.skip_unchanged and perturbed_instance.input == instance.input:
+                continue
+            result.append(perturbed_instance)
+        return result
 
 
 @dataclass(frozen=True)
@@ -16,28 +37,29 @@ class DataAugmenter:
     # Perturbations to apply to generate new instances
     perturbations: List[Perturbation]
 
+    @htrack(None)
     def generate(
-        self, instances: List[Instance], include_original: bool = True, skip_unchanged: bool = False
+        self,
+        instances: List[Instance],
+        include_original: bool = True,
+        skip_unchanged: bool = False,
+        parallelism: int = 1,
     ) -> List[Instance]:
         """
         Given a list of Instances, generate a new list of perturbed Instances.
         include_original controls whether to include the original Instance in the new list of Instances.
         skip_unchanged controls whether we include instances for which the perturbation did not change the input.
         """
+        processor = Processor(
+            include_original=include_original, skip_unchanged=skip_unchanged, perturbations=self.perturbations
+        )
+        results: List[List[Instance]] = parallel_map(
+            processor.process, instances, parallelism=parallelism,
+        )
+        output_instances = [instance for result in results for instance in result]
 
-        result: List[Instance] = []
-        for instance in instances:
-            if include_original:
-                #  we want to include the original even when the perturbation does not change the input
-                result.append(IdentityPerturbation().apply(instance))
-
-            original_input: str = instance.input
-            for perturbation in self.perturbations:
-                perturbed_instance: Instance = perturbation.apply(instance)
-                if skip_unchanged and perturbed_instance.input == original_input:
-                    continue
-                result.append(perturbed_instance)
-        return result
+        hlog(f"{len(instances)} instances augmented to {len(output_instances)} instances")
+        return output_instances
 
 
 @dataclass(frozen=True)

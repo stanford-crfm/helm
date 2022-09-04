@@ -1,6 +1,7 @@
+from datetime import timedelta
 from typing import List, Optional, Dict
 
-from filelock import FileLock
+from flufl.lock import Lock
 from openai.api_resources.abstract import engine_api_resource
 import openai as turing
 
@@ -71,7 +72,7 @@ class MicrosoftClient(Client):
         #
         # Since the model will generate roughly three tokens per second and the max context window
         # is 2048 tokens, we expect the maximum time for a request to be fulfilled to be 700 seconds.
-        self.lock = FileLock(MicrosoftClient._CLIENT_LOCK, timeout=700)
+        self._lock = Lock(MicrosoftClient._CLIENT_LOCK, lifetime=timedelta(seconds=700))
 
     def make_request(self, request: Request) -> RequestResult:
         """
@@ -106,7 +107,7 @@ class MicrosoftClient(Client):
             try:
 
                 def do_it():
-                    with self.lock:
+                    with self._lock:
                         # Following https://beta.openai.com/docs/api-reference/authentication
                         # `organization` can be set to None.
                         turing.organization = self.org_id

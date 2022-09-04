@@ -13,6 +13,7 @@ from .scenario import (
     TRAIN_SPLIT,
     CORRECT_TAG,
     TEST_SPLIT,
+    PassageQuestionInput,
 )
 
 bool_to_response = {
@@ -120,11 +121,12 @@ class CivilCommentsScenario(Scenario):
 
         # Read all instances
         instances: List[Instance] = []
+        question = "Is the passage above severely toxic?"
         for split, subset in dataset_splits.items():
             data_x, data_y = subset
             for (x, y) in zip(data_x, data_y):
                 instance = Instance(
-                    input=f"{x}\nQuestion: Is the passage above severely toxic?",
+                    input=PassageQuestionInput(passage=x, question=question).to_text(),
                     references=[Reference(output=bool_to_response[y >= 0.5], tags=[CORRECT_TAG])],
                     split=split,
                 )

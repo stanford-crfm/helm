@@ -2,15 +2,19 @@ import os.path
 from collections import defaultdict
 from dataclasses import dataclass
 from functools import reduce
-import random
+from random import Random
 import re
 from pathlib import Path
 from typing import Dict, Optional, List, Set
 
-from benchmark.scenarios.scenario import Instance
 from common.general import ensure_file_downloaded, ensure_directory_exists, match_case
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
+
+
+# Pull this out so serialization works for multiprocessing
+def lambda_defaultdict_list():
+    return defaultdict(list)
 
 
 class PersonNamePerturbation(Perturbation):
@@ -153,9 +157,6 @@ class PersonNamePerturbation(Perturbation):
         self.output_path: str = self.OUTPUT_PATH
         Path(self.output_path).mkdir(parents=True, exist_ok=True)
 
-        # Random generator specific to this class, will be set in the apply function
-        self.random: random.Random
-
         # Assign parameters to instance variables
         assert 0 <= prob <= 1
         self.prob = prob
@@ -226,7 +227,7 @@ class PersonNamePerturbation(Perturbation):
 
     def load_name_file(self, file_path) -> Dict[str, Dict[str, List[str]]]:
         """ Load the name file """
-        mapping_dict: Dict[str, Dict[str, List[str]]] = defaultdict(lambda: defaultdict(list))
+        mapping_dict: Dict[str, Dict[str, List[str]]] = defaultdict(lambda_defaultdict_list)
         delimiter = ","
         with open(file_path, encoding="utf-8") as f:
             for line in f.readlines():
@@ -246,7 +247,7 @@ class PersonNamePerturbation(Perturbation):
                 return gender
         return None
 
-    def get_substitute_name(self, token: str) -> Optional[str]:
+    def get_substitute_name(self, token: str, rng: Random) -> Optional[str]:
         """ Get the substitute name for the token.
 
         The lowered version of the token must exist in self.source_names. Return
@@ -262,10 +263,10 @@ class PersonNamePerturbation(Perturbation):
                 if not options:
                     return None  # No substitution exist if we preserve the gender
             # If we don't know the gender for the source names, we randomly pick one of the target names
-        name = self.random.choice(list(options))
+        name = rng.choice(list(options))
         return match_case(token, name)
 
-    def substitute_names(self, text: str) -> str:
+    def perturb(self, text: str, rng: Random) -> str:
         """ Substitute the names in text if there is a matching target_name """
 
         # Tokenize the text
@@ -278,8 +279,8 @@ class PersonNamePerturbation(Perturbation):
             # Find a substitution for the name, if possible
             skip = token_lowered in self.subs_dict or token_lowered in self.skipped_tokens
             if not skip and token_lowered in self.source_names:
-                if self.random.uniform(0, 1) < self.prob:
-                    name = self.get_substitute_name(token)
+                if rng.uniform(0, 1) < self.prob:
+                    name = self.get_substitute_name(token, rng)
                     if name:
                         self.subs_dict[token_lowered] = name
                 else:
@@ -289,13 +290,3 @@ class PersonNamePerturbation(Perturbation):
             new_tokens.append(token)
         new_text = "".join(new_tokens)
         return new_text
-
-    def apply(self, instance: Instance) -> Instance:
-        """ Apply the perturbation to the provided instance. """
-        assert instance.id is not None
-        self.random = random.Random(int(instance.id[2:]))
-        return super().apply(instance)
-
-    def perturb(self, text: str) -> str:
-        """ Perturb the provided text. """
-        return self.substitute_names(text)
