@@ -3,12 +3,12 @@
 from typing import List, Union, Sequence, cast
 import resource
 
-
+from common.hierarchical_logger import hlog
 from common.request import RequestResult
-from benchmark.adapter import AdapterSpec, RequestState
+from benchmark.adapter import AdapterSpec, RequestState, ScenarioState
 from benchmark.scenarios.code_scenario import CodeReference
 from . import code_metrics_helper
-from .metric import Metric
+from .metric import Metric, MetricResult
 from .metric_service import MetricService
 from .metric_name import MetricName
 from .statistic import Stat
@@ -49,6 +49,18 @@ class APPSMetric(Metric):
 
         # Set a memory limit for this process.
         resource.setrlimit(resource.RLIMIT_AS, (MAXIMUM_MEMORY_BYTES, MAXIMUM_MEMORY_BYTES))
+
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+    ) -> MetricResult:
+        # Running with parallelism > 1 causes the run to get stuck.
+        hlog(
+            f"Setting parallelism from {parallelism} to 1, since evaluating code with parallelism > 1 isn't supported."
+        )
+        import pdb
+
+        pdb.set_trace()
+        return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=8)
 
     def evaluate_generation(
         self,
