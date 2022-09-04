@@ -168,15 +168,17 @@ class AllRunner:
         lines = []
         for model in models:
             for group in groups:
+                # Try to match the arguments of `run_benchmarking`
                 lines.append(
                     f"sbatch --partition john "
                     f"--cpus {self.num_threads} "
                     f"-o benchmark_output/runs/{self.suite}/slurm-%j.out "
                     f"{suite_dir}/benchmark-present.sh "
+                    f"--conf {self.conf_path} "
                     f"--local "
                     f"--num-threads {self.num_threads} "
-                    f"--conf {self.conf_path} "
                     f"--suite {self.suite} "
+                    f"--max-eval-instances {self.max_eval_instances} "
                     f"--models-to-run {model} "
                     f"--scenario-groups-to-run {group}"
                 )

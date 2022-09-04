@@ -25,7 +25,7 @@ Notes:
 To run everything in parallel:
 
     # Generate all the commands to run in parallel
-    venv/bin/benchmark-present --local --suite $SUITE --skip-instances
+    venv/bin/benchmark-present --local --suite $SUITE --max-eval-instances 1000 --num-threads 8 --skip-instances
 
     # Run everything in parallel over Slurm
     bash benchmark_output/runs/$SUITE/run-all.sh
