@@ -26,4 +26,4 @@ class SpacePerturbation(Perturbation):
 
     def perturb(self, text: str, rng: Random) -> str:
         # Replace each space with a random number of spaces
-        return re.sub(r"\s+", lambda x: " " * rng.randint(1, self.max_spaces), text)
+        return re.sub(r" +", lambda x: " " * rng.randint(1, self.max_spaces), text)
