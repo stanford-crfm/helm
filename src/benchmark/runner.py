@@ -106,7 +106,7 @@ class Runner:
 
         # Create the instances of the scenario
         with htrack_block("scenario.get_instances"):
-            instances: Sequence[Instance] = scenario.get_instances()
+            instances: List[Instance] = scenario.get_instances()
 
         # Give each instance a unique ID
         instances = [replace(instance, id=f"id{i}") for i, instance in enumerate(instances)]
@@ -116,7 +116,7 @@ class Runner:
 
         # Data preprocessing
         if not self.skip_instances:
-            instances: List[Instance] = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
+            instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
                 instances, self.executor.execution_spec.parallelism
             )
         else:
