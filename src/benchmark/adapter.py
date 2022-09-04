@@ -514,6 +514,33 @@ class Adapter:
             adapter_spec.model, tokenizer_service
         )
 
+    def sample_instances(self, instances: List[Instance]) -> List[Instance]:
+        """
+        Leave the train instances alone.
+        For the eval instances, keep at most `max_eval_instances`.
+        Return the resulting train and eval instances.
+        """
+        all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
+
+        all_eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
+        if self.adapter_spec.max_eval_instances is not None:
+            np.random.seed(0)
+
+            # Pick the first `self.adapter_spec.max_eval_instances`.
+            # The random sampling includes instances monotonically.
+            if len(all_eval_instances) > self.adapter_spec.max_eval_instances:
+                selected_eval_instances = list(
+                    np.random.choice(all_eval_instances, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
+                )
+
+        hlog(
+            f"{len(instances)} instances, "
+            f"{len(all_train_instances)} train instances, "
+            f"{len(selected_eval_instances)}/{len(all_eval_instances)} eval instances"
+        )
+
+        return all_train_instances + selected_eval_instances
+
     @htrack(None)
     def adapt(self, instances: List[Instance], parallelism: int) -> ScenarioState:
         """
@@ -530,32 +557,7 @@ class Adapter:
             )
 
         # Pick out evaluation instances. This includes both valid and test splits.
-        # We can slice and dice later in defining the metrics.
         eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
-        if self.adapter_spec.max_eval_instances is not None:
-            np.random.seed(0)
-
-            # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
-            # number of instances, so we can include all the perturbed versions of the instances
-            # we choose in the eval set.
-            id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
-            for instance in eval_instances:
-                if instance.id in id_to_instances:
-                    id_to_instances[instance.id].append(instance)
-                else:
-                    id_to_instances[instance.id] = [instance]
-
-            # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
-            # include all their instances in the final set of eval instances.
-            # The random sampling includes instances monotonically.
-            ids = list(id_to_instances.keys())
-            if len(ids) > self.adapter_spec.max_eval_instances:
-                ids = list(
-                    np.random.choice(ids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
-                )
-            eval_instances = []
-            for id_ in ids:
-                eval_instances.extend(id_to_instances[id_])
 
         hlog(
             f"{len(instances)} instances, "

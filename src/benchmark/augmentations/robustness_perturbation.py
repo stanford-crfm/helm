@@ -17,7 +17,8 @@ class RobustnessPerturbation(Perturbation):
 
     name: str = "robustness"
 
-    should_perturb_references: bool = True
+    # Don't perturb references because it's not fair to have to generate broken text.
+    should_perturb_references: bool = False
 
     def __init__(self):
         self.lowercase_perturbation = LowerCasePerturbation()

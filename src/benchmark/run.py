@@ -52,6 +52,9 @@ def run_benchmarking(
         and (not scenario_groups_to_run or any(group in scenario_groups_to_run for group in run_spec.groups))
     ]
 
+    if len(run_specs) == 0:
+        return run_specs
+
     with htrack_block("run_specs"):
         for run_spec in run_specs:
             hlog(run_spec.name)

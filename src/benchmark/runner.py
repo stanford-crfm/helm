@@ -2,7 +2,7 @@ import json
 import os
 import typing
 from collections import Counter, defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Dict, List
 
 from benchmark.metrics.metric_name import MetricName
@@ -102,19 +102,30 @@ class Runner:
         run_path: str = os.path.join(self.runs_path, run_spec.name)
         ensure_directory_exists(run_path)
 
+        adapter = Adapter(run_spec.adapter_spec, self.tokenizer_service)
+
+        # Create the instances of the scenario
+        with htrack_block("scenario.get_instances"):
+            instances: Sequence[Instance] = scenario.get_instances()
+
+        # Give each instance a unique ID
+        instances = [replace(instance, id=f"id{i}") for i, instance in enumerate(instances)]
+
+        # Sample only as many as we need
+        instances = adapter.sample_instances(instances)
+
         # Data preprocessing
         if not self.skip_instances:
             instances: List[Instance] = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
-                scenario, self.executor.execution_spec.parallelism
+                instances, self.executor.execution_spec.parallelism
             )
         else:
             instances = []
 
-        # Adaptation
-        adapter = Adapter(run_spec.adapter_spec, self.tokenizer_service)
+        # Adapt (convert to requests)
         scenario_state: ScenarioState = adapter.adapt(instances, self.executor.execution_spec.parallelism)
 
-        # Execution
+        # Execute (fill up results)
         scenario_state = self.executor.execute(scenario_state)
 
         # Apply the metrics
