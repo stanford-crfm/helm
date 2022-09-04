@@ -169,18 +169,24 @@ class AllRunner:
         for model in models:
             for group in groups:
                 # Try to match the arguments of `run_benchmarking`
+                # Build arguments
+                present_args = []
+                present_args.append(f"--conf {self.conf_path}")
+                if self.local:
+                    present_args.append(f"--local")
+                present_args.append(f"--num-threads {self.num_threads}")
+                present_args.append(f"--suite {self.suite}")
+                if self.max_eval_instances is not None:
+                    present_args.append(f"--max-eval-instances {self.max_eval_instances}")
+                present_args.append(f"--models-to-run {model}")
+                present_args.append(f"--scenario-groups-to-run {group}")
+
                 lines.append(
                     f"sbatch --partition john "
                     f"--cpus {self.num_threads} "
                     f"-o benchmark_output/runs/{self.suite}/slurm-%j.out "
                     f"{suite_dir}/benchmark-present.sh "
-                    f"--conf {self.conf_path} "
-                    f"--local "
-                    f"--num-threads {self.num_threads} "
-                    f"--suite {self.suite} "
-                    f"--max-eval-instances {self.max_eval_instances} "
-                    f"--models-to-run {model} "
-                    f"--scenario-groups-to-run {group}"
+                    f"{' '.join(present_args)}"
                 )
         lines.append("echo '# Run these after Slurm jobs terminate'")
         lines.append(f"echo 'benchmark-present --local --suite {self.suite} --skip-instances'")
