@@ -275,6 +275,17 @@ $(function () {
 
     }, []);
 
+    function highlightNewWords(text, origText) {
+      // Render `text`, highlighting any words that don't occur in `origText`
+      // Ideally, we would form an alignment between `text` and `origText` and
+      // show the full diff, but that's too expensive.
+      const origWords = {};
+      origText.split(' ').forEach((word) => {
+        origWords[word] = true;
+      });
+      return text.split(' ').map((word) => origWords[word] ? word : '<u>' + word + '</u>').join(' ');
+    }
+
     // Render scenario instances
     const instanceToDiv = {};
     getJSONList(scenarioPaths, (scenarios) => {
@@ -294,22 +305,47 @@ $(function () {
       );
 
       scenarios.forEach((scenario) => {
+        // Keep track of the original (unperturbed) instances
+        const id2originalInstance = {};
+        scenario.instances.forEach((instance) => {
+          if (!instance.perturbation) {
+            id2originalInstance[instance.id] = instance;
+          }
+        });
+
         scenario.instances.forEach((instance, instanceIndex) => {
           const key = instanceKey(instance);
           if (key in instanceToDiv) {
             return;
           }
 
-          // Render instance
-          $instances.append($('<hr>'));
+          if (!instance.perturbation) {
+            $instances.append($('<hr>'));
+          } else {
+            $instances.append($('<br>'));
+          }
           const $instance = $('<div>');
-          $instance.append($('<b>').append(`Instance ${instance.id} ${renderPerturbation(instance.perturbation)} (${instance.split})`));
+
+          // For perturbations of an instance, highlight the diff between the unperturbed instance with the same ID
+          const originalInstance = id2originalInstance[instance.id];
+
+          let header;
+          if (!instance.perturbation) {
+            header = `Instance ${instance.id} (split: ${instance.split})`;
+          } else {
+            header = '...with perturbation: ' + renderPerturbation(instance.perturbation);
+          }
+
+          $instance.append($('<b>').append(header));
           $instance.append('<br>');
-          $instance.append(multilineHtml(instance.input));
+          const input = instance.perturbation ? highlightNewWords(instance.input, originalInstance.input) : instance.input;
+          $instance.append(multilineHtml(input));
           const $references = $('<ul>');
-          instance.references.forEach((reference) => {
+          instance.references.forEach((reference, referenceIndex) => {
             const isCorrect = reference.tags.includes(CORRECT_TAG);
-            $references.append($('<li>').append($('<span>', {class: isCorrect ? 'correct' : ''}).append(reference.output)));
+            const originalReference = instance.perturbation && originalInstance.references[referenceIndex];
+            const output = instance.perturbation ? highlightNewWords(reference.output, originalReference.output) : reference.output;
+            $references.append($('<li>').append($('<span>', {class: isCorrect ? 'correct' : ''}).append(output)));
           });
           $instance.append($references);
           $instances.append($instance);

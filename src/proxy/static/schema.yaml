@@ -361,7 +361,7 @@ metric_groups:
       - name: compression
         split: ${main_split}
 
-- name: apps_metrics
+  - name: apps_metrics
     metrics:
       - name: test_avg
         split: ${main_split}
@@ -901,4 +901,3 @@ scenario_groups:
     environment:
       main_name: rouge_2
       main_split: test
-      

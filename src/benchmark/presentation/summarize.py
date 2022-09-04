@@ -319,11 +319,14 @@ class Summarizer:
         ]
         rows = []
         for group in self.schema.scenario_groups:
+            num_runs = len(self.group_model_to_runs[group.name])
+            if num_runs == 0:
+                continue
             rows.append(
                 [
                     Cell(group.display_name, href=get_benchmarking_url({"group": group.name})),
                     Cell(group.description),
-                    Cell(len(self.group_model_to_runs[group.name])),
+                    Cell(num_runs),
                 ]
             )
         return Table(title="Overview of results", header=header, rows=rows,)
