@@ -183,7 +183,7 @@ def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricS
 
 
 def get_code_metric_specs(dataset: str) -> List[MetricSpec]:
-    if dataset == "HumanEval":
+    if dataset == "humaneval":
         metric_names = {"names": HUMAN_EVAL_METRIC_NAMES}
         return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
     else:  # APPS.
