@@ -331,7 +331,7 @@ $(function () {
 
           let header;
           if (!instance.perturbation) {
-            header = `Instance ${instance.id} (split: ${instance.split})`;
+            header = `Instance ${instance.id} [split: ${instance.split}]`;
           } else {
             header = '...with perturbation: ' + renderPerturbation(instance.perturbation);
           }
