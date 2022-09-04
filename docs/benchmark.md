@@ -1,24 +1,26 @@
 # Running the benchmark
 
-In the following, assume:
+In the following, assume that the suite (the directory where everything is written) is:
 
     export SUITE=v1
 
-To try to test things out:
+To try to test things out a small subset (defined in `run_specs_small.conf`):
 
     # Just load the config file
-    venv/bin/benchmark-present -c src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE --skip-instances
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE --skip-instances
 
     # Create the instances and the requests, but don't execute
-    venv/bin/benchmark-present -c src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE --dry-run
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE --dry-run
 
     # Execute the requests and compute metrics
-    venv/bin/benchmark-present -c src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE
 
     # Generate assets for the website
     venv/bin/benchmark-summarize --suite $SUITE
 
-All the outputs should be in `benchmark_output/runs/$SUITE`.
+Notes:
+- `--local` means we bypass the proxy server.
+- All the outputs should be in `benchmark_output/runs/$SUITE`.
 
 To run everything in parallel:
 

@@ -151,12 +151,17 @@ class AllRunner:
         lines = []
         for model in models:
             for group in groups:
-                # TODO: match the arguments passed in better
                 lines.append(
-                    f"sbatch --partition john --cpus 8 "
+                    f"sbatch --partition john "
+                    f"--cpus {self.num_threads} "
+                    f"-o benchmark_output/runs/{self.suite}/slurm-%j.out "
                     f"{suite_dir}/benchmark-present.sh "
-                    f"--local --conf {self.conf_path} --suite {self.suite} "
-                    f"--models-to-run {model} --scenario-groups-to-run {group}"
+                    f"--local "
+                    f"--num-threads {self.num_threads} "
+                    f"--conf {self.conf_path} "
+                    f"--suite {self.suite} "
+                    f"--models-to-run {model} "
+                    f"--scenario-groups-to-run {group}"
                 )
         lines.append("echo '# Run these after Slurm jobs terminate'")
         lines.append(f"echo 'benchmark-present --local --suite {self.suite} --skip-instances'")
