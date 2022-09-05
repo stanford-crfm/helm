@@ -1,10 +1,10 @@
 import json
-import time
 from typing import Dict, Callable, Tuple
 
 from sqlitedict import SqliteDict
 
 from common.general import hlog
+from proxy.retry import get_retry_decorator
 
 
 def request_to_key(request: Dict) -> str:
@@ -15,6 +15,28 @@ def request_to_key(request: Dict) -> str:
 def key_to_request(key: str) -> Dict:
     """Convert the normalized version to the request."""
     return json.loads(key)
+
+
+def retry_if_write_failed(success: bool) -> bool:
+    return success
+
+
+retry: Callable = get_retry_decorator(
+    "Write", max_attempts=10, wait_exponential_multiplier_seconds=2, retry_on_result=retry_if_write_failed
+)
+
+
+@retry
+def write_to_cache(cache, key, response) -> bool:
+    """
+    Write to cache with retry. Returns boolean indicating whether the write was successful or not.
+    """
+    try:
+        cache[key] = response
+        return True
+    except Exception as e:
+        hlog(f"Error when writing to cache: {str(e)}")
+        return False
 
 
 class Cache(object):
@@ -37,6 +59,7 @@ class Cache(object):
         self.num_queries += 1
         key = request_to_key(request)
 
+        # TODO: double check autocommit=True
         with SqliteDict(self.cache_path, autocommit=True) as cache:
             response = cache.get(key)
             if response:
@@ -46,11 +69,5 @@ class Cache(object):
                 self.num_misses += 1
                 # Compute and commit the request/response to SQLite
                 response = compute()
-                for attempt in range(Cache.MAX_WRITE_ATTEMPTS):
-                    try:
-                        cache[key] = response
-                        # cache.commit()
-                    except Exception as e:
-                        hlog(f"Write attempt #{attempt+1}: {e}")
-                        time.sleep(1)
+                write_to_cache(cache, key, response)
         return response, cached
