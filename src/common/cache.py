@@ -33,6 +33,7 @@ def write_to_cache(cache, key, response) -> bool:
     """
     try:
         cache[key] = response
+        cache.commit()
         return True
     except Exception as e:
         hlog(f"Error when writing to cache: {str(e)}")
@@ -46,8 +47,6 @@ class Cache(object):
     We use sqlitedict to persist the cache: https://github.com/RaRe-Technologies/sqlitedict.
     """
 
-    MAX_WRITE_ATTEMPTS: int = 5
-
     def __init__(self, cache_path: str):
         self.cache_path = cache_path
         # Counters to keep track of progress
@@ -60,7 +59,7 @@ class Cache(object):
         key = request_to_key(request)
 
         # TODO: double check autocommit=True
-        with SqliteDict(self.cache_path, autocommit=True) as cache:
+        with SqliteDict(self.cache_path) as cache:
             response = cache.get(key)
             if response:
                 cached = True
