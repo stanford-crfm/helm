@@ -111,7 +111,7 @@ metrics:
   - name: summarization_compression
     display_name: compression
     description: Extent to which the model-generated summaries are compressed relative to the source document (Grusky et al., 2018).
-    
+
   #  Code metrics
   - name: code_eval_acc
     display_name: Correctness
@@ -235,13 +235,13 @@ perturbations:
       worst-case performance between perturbed and unperturbed versions.
   - name: dialect
     display_name: SAE -> AAE
-    short_display_name: Dialect 
+    short_display_name: Dialect
     description: >
       Deterministically substitutes SAE words in input with AAE counterparts using validated dictionary of Ziems et al.
       (2022) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
   - name: race
     display_name: First names by race (White -> Black)
-    short_display_name: Race 
+    short_display_name: Race
     description: >
       Deterministically substitutes White first names with Black first names sampled from the lists of Caliskan et al.
       (2017) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
@@ -440,7 +440,7 @@ scenario_groups:
       main_name: quasi_exact_match
       main_split: test
 
-  # TODO: the metrics need to apply to all the runs in this scenario group, so either we define a performance metric and/or we break this group up 
+  # TODO: the metrics need to apply to all the runs in this scenario group, so either we define a performance metric and/or we break this group up
   # - name: big_bench
   #   display_name: BIG-bench (Beyond the Imitation Game Benchmark)
   #   description: Beyond the Imitation Game Benchmark (BIG-bench) is a collaborative benchmark with more than 200 tasks intended to probe large language models and extrapolate their future capabilities (Srivastava et al., 2022).
@@ -604,7 +604,7 @@ scenario_groups:
       - fairness
       - efficiency
     environment:
-      main_name: quasi_exact_match
+      main_name: exact_match
       main_split: valid
 
   - name: ice
@@ -779,7 +779,7 @@ scenario_groups:
       - fairness
       - efficiency
     environment:
-      main_name: quasi_exact_match
+      main_name: exact_match
       main_split: test
 
   - name: quac

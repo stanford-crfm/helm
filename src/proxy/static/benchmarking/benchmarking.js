@@ -361,10 +361,16 @@ $(function () {
       getJSONList(scenarioStatePaths, (scenarioStates) => {
         console.log('scenarioStates', scenarioStates);
         scenarioStates.forEach((scenarioState, index) => {
+          // Go through all the request states
           scenarioState.request_states.forEach((requestState) => {
             const $instance = instanceToDiv[instanceKey(requestState.instance)];
             if (!$instance) {
               console.log('Not found: ' + instanceKey(requestState.instance));
+              return;
+            }
+
+            // For adapter method = separate
+            if (requestState.request_mode === 'calibration') {
               return;
             }
 
@@ -380,18 +386,42 @@ $(function () {
             const href = '/static/index.html' + encodeUrlParams(query);
 
             // Render the prediction
+            let prefix = '';
             let prediction = $('<i>').append('(empty)');
+            const $logProb = $('<span>');
             if (requestState.result) {
-              prediction = requestState.result.completions[0].text.trim();
+              // Assume there is only one completion
+              const completion = requestState.result.completions[0];
+              prediction = completion.text.trim();
               if (requestState.output_mapping) {
                 prediction = requestState.output_mapping[prediction];
               }
+
+              if (requestState.request_mode === 'original') {
+                // For adapter method = separate, prediction starts with the prompt, strip it out
+                if (prediction.startsWith(requestState.instance.input)) {
+                  prefix = '...';
+                  prediction = prediction.substring(requestState.instance.input.length).trim();
+                }
+              }
+
+              $logProb.append(' ').append($('<span>', {class: 'logprob'}).append('(' + round(completion.logprob, 3) + ')'));
             }
+
+            // TODO: this is very strict, use per instance metrics
             const isCorrect = requestState.instance.references.some((reference) => reference.tags.includes(CORRECT_TAG) && reference.output === prediction);
+            let description = '';
+            if (requestState.reference_index !== null) {
+              description += '[' + requestState.reference_index + ']';
+            }
+            if (runSpecs.length > 1) {
+              description += '(' + runDisplayNames[index] + ')';
+            }
             $instance.append($('<div>')
-              .append($('<a>', {href}).append($('<b>').append(runSpecs.length > 1 ? `Prediction (${runDisplayNames[index]})` : 'Prediction')))
+              .append($('<a>', {href}).append($('<b>').append('Prediction' + description)))
               .append(': ')
-              .append($('<span>', {class: isCorrect ? 'correct' : ''}).append(prediction)));
+              .append($('<span>', {class: isCorrect ? 'correct' : ''}).append(prefix + prediction))
+              .append($logProb));
           });
         });
       });
