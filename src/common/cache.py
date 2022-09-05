@@ -49,17 +49,16 @@ class Cache(object):
     """
 
     def __init__(self, cache_path: str):
-        self.cache_path = cache_path
+        self.cache_path: str = cache_path
         # Counters to keep track of progress
-        self.num_queries = 0
-        self.num_misses = 0
+        self.num_queries: int = 0
+        self.num_misses: int = 0
 
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
         self.num_queries += 1
         key = request_to_key(request)
 
-        # TODO: double check autocommit=True
         with SqliteDict(self.cache_path) as cache:
             response = cache.get(key)
             if response:
