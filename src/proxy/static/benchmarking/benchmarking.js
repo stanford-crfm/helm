@@ -337,17 +337,21 @@ $(function () {
           }
 
           $instance.append($('<b>').append(header));
-          $instance.append('<br>');
-          const input = instance.perturbation ? highlightNewWords(instance.input, originalInstance.input) : instance.input;
-          $instance.append(multilineHtml(input));
-          const $references = $('<ul>');
-          instance.references.forEach((reference, referenceIndex) => {
-            const isCorrect = reference.tags.includes(CORRECT_TAG);
-            const originalReference = instance.perturbation && originalInstance.references[referenceIndex];
-            const output = instance.perturbation ? highlightNewWords(reference.output, originalReference.output) : reference.output;
-            $references.append($('<li>').append($('<span>', {class: isCorrect ? 'correct' : ''}).append(output)));
-          });
-          $instance.append($references);
+
+          // We can hide the inputs and outputs to focus on the predictions
+          if (!urlParams.hideInputOutput) {
+            $instance.append('<br>');
+            const input = instance.perturbation ? highlightNewWords(instance.input, originalInstance.input) : instance.input;
+            $instance.append(multilineHtml(input));
+            const $references = $('<ul>');
+            instance.references.forEach((reference, referenceIndex) => {
+              const isCorrect = reference.tags.includes(CORRECT_TAG);
+              const originalReference = instance.perturbation && originalInstance.references[referenceIndex];
+              const output = instance.perturbation ? highlightNewWords(reference.output, originalReference.output) : reference.output;
+              $references.append($('<li>').append($('<span>', {class: isCorrect ? 'correct' : ''}).append(output)));
+            });
+            $instance.append($references);
+          }
           $instances.append($instance);
           instanceToDiv[key] = $instance;
         });
