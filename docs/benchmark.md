@@ -68,14 +68,16 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Activate the Conda environment: `conda activate crfm_benchmarking`
    1. Run `./pre-commit.sh` if there are new dependencies to install.
 1. Run `bash scripts/run-all-stanford.sh --suite <Suite name> --dry-run` e.g.,
-   `bash scripts/run-all-stanford.sh --suite v4dryrun --dry-run`.
+   `bash scripts/run-all-stanford.sh --suite v4-dryrun --dry-run`.
 1. Once the dry run is done, run the following commands:
-    1. `python3 scripts/offline_eval/export_requests.py together benchmark_output/runs/v4dryrun --output-path together_requests.jsonl`
-    1. `python3 scripts/offline_eval/export_requests.py microsoft benchmark_output/runs/v4dryrun --output-path microsoft_requests.jsonl`
+    1. `python3 scripts/offline_eval/export_requests.py together benchmark_output/runs/v4-dryrun 
+       --output-path benchmark_output/runs/v4-dryrun/together_requests.jsonl`
+    1. `python3 scripts/offline_eval/export_requests.py microsoft benchmark_output/runs/v4-dryrun 
+       --output-path benchmark_output/runs/v4-dryrun/microsoft_requests.jsonl`
 1. Upload requests JSONL files to CodaLab:
     1. Log on to CodaLab: `cl work main::0xbd9f3df457854889bda8ac114efa8061`.
-    1. Upload by Together requests: `cl upload together_requests.jsonl`.
-    1. Upload by MT-NLG requests: `cl upload microsoft_requests.jsonl`.
+    1. Upload by Together requests: `cl upload benchmark_output/runs/v4-dryrun/together_requests.jsonl`.
+    1. Upload by MT-NLG requests: `cl upload benchmark_output/runs/v4-dryrun/ microsoft_requests.jsonl`.
 1. Share the link to the CodaLab bundles with our collaborators.
 
 ### Importing results

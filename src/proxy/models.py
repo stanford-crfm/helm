@@ -283,7 +283,7 @@ ALL_MODELS = [
         name="microsoft/TNLGv2_530B",
         display_name="MT-NLG (530B)",
         description="Megatron-Turing NLG (530B parameters)",
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
         group="microsoft",
@@ -291,7 +291,7 @@ ALL_MODELS = [
         name="microsoft/TNLGv2_7B",
         display_name="MT-NLG (7B)",
         description="Megatron-Turing NLG (7B parameters)",
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # Offline models
     Model(

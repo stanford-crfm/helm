@@ -23,13 +23,13 @@ Usage:
 
 
 @htrack("Updating cache with requests and results")
-def import_results(org: str, request_results_path: str, dry_run: bool):
+def import_results(organization: str, request_results_path: str, dry_run: bool):
     """
     Given a jsonl file with request and results, uploads request/result pairs to the cache at `cache_path`.
     We assume each line of the input jsonl file is structured {request: ..., result: ...}.
     """
     count: int = 0
-    cache_path: str = f"prod_env/cache/{org}.sqlite"
+    cache_path: str = f"prod_env/cache/{organization}.sqlite"
 
     # For MT-NLG, we send the same request `num_completions` times because the API does not support the OpenAI
     # parameter 'n'. In our cache, we use `completion_index` to differentiate responses for the same request,
@@ -47,12 +47,13 @@ def import_results(org: str, request_results_path: str, dry_run: bool):
                 request: Dict = request_and_result["request"]
                 result: Dict = request_and_result["result"]
 
-                if org == "together":
-                    # Remove extraneous fields included in the request
+                if organization == "together":
+                    # Remove extraneous fields ("request_type" and "model") included in the request
+                    # and set "engine" to the value of "model".
                     request.pop("request_type", None)
-                    request.pop("model", None)
+                    request["engine"] = request.pop("model")
                     cache[request_to_key(request)] = result
-                elif org == "microsoft":
+                elif organization == "microsoft":
                     # Get the value of `completion_index` which is the current count
                     key: str = request_to_key(request)
                     completion_index: int = request_counts[key]
@@ -78,7 +79,7 @@ def import_results(org: str, request_results_path: str, dry_run: bool):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("org", type=str, help="Org to import results for", choices=["microsoft", "together"])
+    parser.add_argument("organization", type=str, help="Organization to export requests for", choices=["microsoft", "together"])
     parser.add_argument("request_results_path", type=str, help="Path to jsonl file with requests and results.")
     parser.add_argument(
         "-d",
@@ -89,5 +90,5 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    import_results(args.cache_path, args.request_results_path, args.dry_run)
+    import_results(args.organization, args.request_results_path, args.dry_run)
     hlog("Done.")

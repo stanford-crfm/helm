@@ -27,7 +27,7 @@ Usage:
 
 
 @htrack("Generating jsonl file with list of raw requests")
-def export_requests(org: str, run_suite_path: str, output_path: str):
+def export_requests(organization: str, run_suite_path: str, output_path: str):
     """
     Given a run suite folder, generates a jsonl file at `output_path` with raw queries
     where each line represents a single request.
@@ -35,9 +35,9 @@ def export_requests(org: str, run_suite_path: str, output_path: str):
     pending_count: int = 0
     cached_count: int = 0
 
-    # Goes through all the valid run folders, pulls requests from the scenario_state.json files
-    # and writes them out to the jsonl file at path `output_path`.
-    with SqliteDict(f"prod_env/cache/{org}.sqlite") as cache:
+    # Go through all the valid run folders, pull requests from the scenario_state.json files
+    # and write them out to the jsonl file at path `output_path`.
+    with SqliteDict(f"prod_env/cache/{organization}.sqlite") as cache:
         with open(output_path, "w") as out_file:
             for run_dir in os.listdir(run_suite_path):
                 run_path: str = os.path.join(run_suite_path, run_dir)
@@ -56,10 +56,10 @@ def export_requests(org: str, run_suite_path: str, output_path: str):
                     with open(scenario_state_path) as scenario_state_file:
                         scenario_state = json.load(scenario_state_file)
                         model_name: str = scenario_state["adapter_spec"]["model"]
-                        organization: str = model_name.split("/")[0]
+                        current_organization: str = model_name.split("/")[0]
 
-                        if org != organization:
-                            hlog(f"Not generating requests for {organization}.")
+                        if current_organization != organization:
+                            hlog(f"Not generating requests for {current_organization}.")
                             continue
 
                         for request_state in scenario_state["request_states"]:
@@ -67,14 +67,15 @@ def export_requests(org: str, run_suite_path: str, output_path: str):
                             cache_key: str
                             request_json: str
 
-                            if organization == "together":
+                            if current_organization == "together":
                                 raw_request = TogetherClient.convert_to_raw_request(request)
                                 cache_key = request_to_key(raw_request)
 
                                 # Only export requests that we are not in the cache
                                 if cache_key not in cache:
                                     # Following the examples from https://github.com/togethercomputer/open-models-api,
-                                    # add "request_type" and "model" to the request.
+                                    # add "request_type" and "model" to the request and remove "engine".
+                                    raw_request.pop("engine", None)
                                     request_json = request_to_key(
                                         {
                                             "request_type": "language-model-inference",
@@ -86,7 +87,7 @@ def export_requests(org: str, run_suite_path: str, output_path: str):
                                     pending_count += 1
                                 else:
                                     cached_count += 1
-                            elif organization == "microsoft":
+                            elif current_organization == "microsoft":
                                 raw_request = MicrosoftClient.convert_to_raw_request(request)
                                 for completion_index in range(request.num_completions):
                                     # We send the same request `num_completions` times because the MT-NLG API does not
@@ -111,10 +112,10 @@ def export_requests(org: str, run_suite_path: str, output_path: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("org", type=str, help="Org to export requests for", choices=["microsoft", "together"])
+    parser.add_argument("organization", type=str, help="Organization to export requests for", choices=["microsoft", "together"])
     parser.add_argument("run_suite_path", type=str, help="Path to run path.")
     parser.add_argument("--output-path", type=str, default="requests.jsonl", help="Path to jsonl file.")
     args = parser.parse_args()
 
-    export_requests(args.org, args.run_suite_path, args.output_path)
+    export_requests(args.organization, args.run_suite_path, args.output_path)
     hlog("Done.")
