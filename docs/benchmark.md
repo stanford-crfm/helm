@@ -4,6 +4,10 @@ In the following, assume that the suite (the directory where everything is writt
 
     export SUITE=v1
 
+Some of the benchmarks (NewsQA) depend on data that's not public: all such data
+will be stored in the `restricted` directory.  You need to make sure that
+directory exists.
+
 To try to test things out a small subset (defined in `run_specs_small.conf`):
 
     # Just load the config file
