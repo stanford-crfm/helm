@@ -79,7 +79,9 @@ def import_results(organization: str, request_results_path: str, dry_run: bool):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("organization", type=str, help="Organization to export requests for", choices=["microsoft", "together"])
+    parser.add_argument(
+        "organization", type=str, help="Organization to export requests for", choices=["microsoft", "together"]
+    )
     parser.add_argument("request_results_path", type=str, help="Path to jsonl file with requests and results.")
     parser.add_argument(
         "-d",

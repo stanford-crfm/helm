@@ -112,7 +112,9 @@ def export_requests(organization: str, run_suite_path: str, output_path: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("organization", type=str, help="Organization to export requests for", choices=["microsoft", "together"])
+    parser.add_argument(
+        "organization", type=str, help="Organization to export requests for", choices=["microsoft", "together"]
+    )
     parser.add_argument("run_suite_path", type=str, help="Path to run path.")
     parser.add_argument("--output-path", type=str, default="requests.jsonl", help="Path to jsonl file.")
     args = parser.parse_args()
