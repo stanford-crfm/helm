@@ -14,7 +14,7 @@ from .adapter import AdapterSpec, Adapter, ScenarioState
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
 from .metrics.metric_service import MetricService
-from .metrics.metric import Metric, MetricSpec, MetricResult, PerInstanceStatsKey, create_metric, Stat
+from .metrics.metric import Metric, MetricSpec, MetricResult, PerInstanceStats, create_metric, Stat
 from .metrics.tokens_metric import TokensMetric
 from .window_services.tokenizer_service import TokenizerService
 
@@ -135,7 +135,7 @@ class Runner:
             [] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
         ) + [TokensMetric()]
         stats: List[Stat] = []
-        per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
+        per_instance_stats: List[PerInstanceStats] = []
         with htrack_block(f"{len(metrics)} metrics"):
             for metric in metrics:
                 with htrack_block(metric):
@@ -146,8 +146,7 @@ class Runner:
                         self.executor.execution_spec.parallelism,
                     )
                     stats.extend(metric_result.aggregated_stats)
-                    for key in metric_result.per_instance_stats:
-                        per_instance_stats[key].extend(metric_result.per_instance_stats[key])
+                    per_instance_stats.extend(metric_result.per_instance_stats)
 
         # Check that there aren't duplicate `Stat`s
         metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
@@ -183,11 +182,5 @@ class Runner:
         )
         write(
             os.path.join(run_path, "per_instance_stats.json"),
-            json.dumps(
-                {
-                    str(key): [asdict_without_nones(stat) for stat in value]
-                    for (key, value) in per_instance_stats.items()
-                },
-                indent=2,
-            ),
+            json.dumps(list(map(asdict_without_nones, per_instance_stats)), indent=2),
         )

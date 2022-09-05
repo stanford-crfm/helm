@@ -41,12 +41,20 @@ $(function () {
     }
   }
 
+  class ScenarioGroupField extends Field {
+    constructor(raw) {
+      super(raw);
+      this.environment = raw.environment;
+    }
+  }
+
   // Specifies all the information to help us render and understand the fields
   // for adapters and metrics.
   class Schema {
     constructor(raw) {
       this.adapterFields = raw.adapter.map((fieldRaw) => new AdapterField(fieldRaw));
       this.metricsFields = raw.metrics.map((fieldRaw) => new Field(fieldRaw));
+      this.scenarioGroupFields = raw.scenario_groups.map((fieldRaw) => new ScenarioGroupField(fieldRaw));
 
       // Allow convenient access
       this.adapterFieldNames = this.adapterFields.map((field) => field.name);
@@ -137,6 +145,28 @@ $(function () {
     return $('<div>').append([$search, $table]);
   }
 
+  function renderStats(groups, stats) {
+    const $stats = $('<span>');
+
+    // Look for the default metrics for the group
+    schema.scenarioGroupFields.forEach((scenarioGroup) => {
+      if (!groups.includes(scenarioGroup.name)) {
+        return;
+      }
+      const name = scenarioGroup.environment && scenarioGroup.environment.main_name;
+      const split = scenarioGroup.environment && scenarioGroup.environment.main_split;
+
+      for (let stat of stats) {
+        if (stat.name.name === name && stat.name.split === split) {
+          const field = schema.metricsField(name);
+          $stats.append(field.display_name + ': ' + stat.mean);
+        }
+      }
+    });
+
+    return $stats;
+  }
+
   function renderRunsDetailed(runSpecs) {
     // Render all the `runSpecs`:
     // - Instances + predictions
@@ -153,6 +183,9 @@ $(function () {
     // Paths (parallel arrays corresponding to `runSpecs`)
     const metricsPaths = runSpecs.map((runSpec) => {
       return `benchmark_output/runs/${suite}/${runSpec.name}/stats.json`;
+    });
+    const perInstanceStatsPaths = runSpecs.map((runSpec) => {
+      return `benchmark_output/runs/${suite}/${runSpec.name}/per_instance_stats.json`;
     });
     const scenarioPaths = runSpecs.map((runSpec) => {
       return `benchmark_output/runs/${suite}/${runSpec.name}/scenario.json`;
@@ -360,68 +393,84 @@ $(function () {
       // Render the model predictions
       getJSONList(scenarioStatePaths, (scenarioStates) => {
         console.log('scenarioStates', scenarioStates);
-        scenarioStates.forEach((scenarioState, index) => {
-          // Go through all the request states
-          scenarioState.request_states.forEach((requestState) => {
-            const $instance = instanceToDiv[instanceKey(requestState.instance)];
-            if (!$instance) {
-              console.log('Not found: ' + instanceKey(requestState.instance));
-              return;
-            }
+        getJSONList(perInstanceStatsPaths, (perInstanceStats) => {
+          console.log('perInstanceStats', perInstanceStats);
 
-            // For adapter method = separate
-            if (requestState.request_mode === 'calibration') {
-              return;
-            }
+          scenarioStates.forEach((scenarioState, index) => {
+            // Build mapping to stats
+            const instanceTrialToStats = {};
+            perInstanceStats[index].forEach((instanceTrialStats) => {
+              const key = [instanceTrialStats.instance_id, instanceTrialStats.trial_index];
+              instanceTrialToStats[key] = (instanceTrialToStats[key] || []).concat(instanceTrialStats.stats);
+            });
 
-            // Create a link for the request made to the server
-            const request = Object.assign({}, requestState.request);
-            const prompt = request.prompt;
-            delete request.prompt;
-            const query = {
-              prompt,
-              settings: JSON.stringify(request),
-              environments: '',
-            };
-            const href = '/static/index.html' + encodeUrlParams(query);
 
-            // Render the prediction
-            let prefix = '';
-            let prediction = $('<i>').append('(empty)');
-            const $logProb = $('<span>');
-            if (requestState.result) {
-              // Assume there is only one completion
-              const completion = requestState.result.completions[0];
-              prediction = completion.text.trim();
-              if (requestState.output_mapping) {
-                prediction = requestState.output_mapping[prediction];
+            // Go through all the request states
+            scenarioState.request_states.forEach((requestState) => {
+              const $instance = instanceToDiv[instanceKey(requestState.instance)];
+              if (!$instance) {
+                console.log('Not found: ' + instanceKey(requestState.instance));
+                return;
               }
 
-              if (requestState.request_mode === 'original') {
-                // For adapter method = separate, prediction starts with the prompt, strip it out
-                if (prediction.startsWith(requestState.instance.input)) {
-                  prefix = '...';
-                  prediction = prediction.substring(requestState.instance.input.length).trim();
+              // For adapter method = separate, don't show the calibration
+              if (requestState.request_mode === 'calibration') {
+                return;
+              }
+
+              // Print out statistics
+              const stats = instanceTrialToStats[[requestState.instance.id, requestState.train_trial_index]];
+              $instance.append(renderStats(runSpecs[index].groups, stats));
+
+              // Create a link for the request made to the server
+              const request = Object.assign({}, requestState.request);
+              const prompt = request.prompt;
+              delete request.prompt;
+              const query = {
+                prompt,
+                settings: JSON.stringify(request),
+                environments: '',
+              };
+              const href = '/static/index.html' + encodeUrlParams(query);
+
+              // Render the prediction
+              let prefix = '';
+              let prediction = $('<i>').append('(empty)');
+              const $logProb = $('<span>');
+              if (requestState.result) {
+                // Assume there is only one completion
+                const completion = requestState.result.completions[0];
+                prediction = completion.text.trim();
+                if (requestState.output_mapping) {
+                  prediction = requestState.output_mapping[prediction];
                 }
+
+                if (requestState.request_mode === 'original') {
+                  // For adapter method = separate, prediction starts with the prompt, strip it out
+                  if (prediction.startsWith(requestState.instance.input)) {
+                    prefix = '...';
+                    prediction = prediction.substring(requestState.instance.input.length).trim();
+                  }
+                }
+
+                $logProb.append(' ').append($('<span>', {class: 'logprob'}).append('(' + round(completion.logprob, 3) + ')'));
               }
 
-              $logProb.append(' ').append($('<span>', {class: 'logprob'}).append('(' + round(completion.logprob, 3) + ')'));
-            }
-
-            // TODO: this is very strict, use per instance metrics
-            const isCorrect = requestState.instance.references.some((reference) => reference.tags.includes(CORRECT_TAG) && reference.output === prediction);
-            let description = '';
-            if (requestState.reference_index !== null) {
-              description += '[' + requestState.reference_index + ']';
-            }
-            if (runSpecs.length > 1) {
-              description += '(' + runDisplayNames[index] + ')';
-            }
-            $instance.append($('<div>')
-              .append($('<a>', {href}).append($('<b>').append('Prediction' + description)))
-              .append(': ')
-              .append($('<span>', {class: isCorrect ? 'correct' : ''}).append(prefix + prediction))
-              .append($logProb));
+              // TODO: this is very strict, use per instance metrics
+              const isCorrect = requestState.instance.references.some((reference) => reference.tags.includes(CORRECT_TAG) && reference.output === prediction);
+              let description = '';
+              if (requestState.reference_index !== null) {
+                description += '[' + requestState.reference_index + ']';
+              }
+              if (runSpecs.length > 1) {
+                description += '(' + runDisplayNames[index] + ')';
+              }
+              $instance.append($('<div>')
+                .append($('<a>', {href}).append($('<b>').append('Prediction' + description)))
+                .append(': ')
+                .append($('<span>', {class: isCorrect ? 'correct' : ''}).append(prefix + prediction))
+                .append($logProb));
+            });
           });
         });
       });

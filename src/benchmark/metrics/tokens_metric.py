@@ -7,7 +7,7 @@ from benchmark.adapter import ScenarioState, RequestState
 from benchmark.metrics.statistic import Stat, merge_stat
 from benchmark.window_services.window_service import WindowService
 from benchmark.window_services.window_service_factory import WindowServiceFactory
-from .metric import Metric, MetricResult, PerInstanceStatsKey
+from .metric import Metric, MetricResult, PerInstanceStats
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .tokens.auto_token_cost_estimator import AutoTokenCostEstimator
@@ -66,9 +66,8 @@ class TokensMetric(Metric):
             processor.process, scenario_state.request_states, parallelism=parallelism,
         )
 
-        # Per instance
-        keys = [PerInstanceStatsKey(instance, 0) for instance in scenario_state.instances]
-        per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = dict(zip(keys, results))
+        # Per-instance
+        per_instance_stats = [PerInstanceStats(instance.id, 0, stats) for instance, stats in zip(scenario_state.instances, results)]
 
         # Aggregate
         stats: Dict[MetricName, Stat] = {}
