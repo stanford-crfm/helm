@@ -1,6 +1,8 @@
 import argparse
 import json
 import os
+import typing
+from collections import Counter
 from dacite import from_dict
 
 from sqlitedict import SqliteDict
@@ -32,8 +34,44 @@ def export_requests(organization: str, run_suite_path: str, output_path: str):
     Given a run suite folder, generates a jsonl file at `output_path` with raw queries
     where each line represents a single request.
     """
-    pending_count: int = 0
-    cached_count: int = 0
+
+    def process_together_request(request: Request):
+        raw_request: typing.Dict = TogetherClient.convert_to_raw_request(request)
+        cache_key: str = request_to_key(raw_request)
+
+        # Only export requests that we are not in the cache
+        if cache_key not in cache:
+            # Following the examples from https://github.com/togethercomputer/open-models-api,
+            # add "request_type" and "model" to the request and remove "engine".
+            raw_request.pop("engine")
+            request_json: str = request_to_key(
+                {"request_type": "language-model-inference", "model": request.model, **raw_request,}
+            )
+            out_file.write(request_json + "\n")
+            counts["pending_count"] += 1
+        else:
+            counts["cached_count"] += 1
+
+    def process_microsoft_request(request: Request):
+        raw_request: typing.Dict = MicrosoftClient.convert_to_raw_request(request)
+        for completion_index in range(request.num_completions):
+            # We send the same request `num_completions` times because the MT-NLG API does not
+            # support the OpenAI parameter 'n'. In our cache, we use `completion_index` to
+            # differentiate responses for the same request, so we should check if the
+            # request + 'completion_index` is in our cache. However, when we write out the
+            # requests for offline batch evaluation, we should exclude `completion_index`
+            # and write out the JSON for the same request `num_completion` times.
+            cache_key: str = request_to_key({"completion_index": completion_index, **raw_request})
+
+            # Only export requests that we are not in the cache
+            if cache_key not in cache:
+                request_json: str = request_to_key(raw_request)
+                out_file.write(request_json + "\n")
+                counts["pending_count"] += 1
+            else:
+                counts["cached_count"] += 1
+
+    counts: typing.Counter = Counter(pending_count=0, cached_count=0)
 
     # Go through all the valid run folders, pull requests from the scenario_state.json files
     # and write them out to the jsonl file at path `output_path`.
@@ -64,50 +102,19 @@ def export_requests(organization: str, run_suite_path: str, output_path: str):
 
                         for request_state in scenario_state["request_states"]:
                             request: Request = from_dict(Request, request_state["request"])
-                            cache_key: str
-                            request_json: str
-
                             if current_organization == "together":
-                                raw_request = TogetherClient.convert_to_raw_request(request)
-                                cache_key = request_to_key(raw_request)
-
-                                # Only export requests that we are not in the cache
-                                if cache_key not in cache:
-                                    # Following the examples from https://github.com/togethercomputer/open-models-api,
-                                    # add "request_type" and "model" to the request and remove "engine".
-                                    raw_request.pop("engine", None)
-                                    request_json = request_to_key(
-                                        {
-                                            "request_type": "language-model-inference",
-                                            "model": request.model,
-                                            **raw_request,
-                                        }
-                                    )
-                                    out_file.write(request_json + "\n")
-                                    pending_count += 1
-                                else:
-                                    cached_count += 1
+                                process_together_request(request)
                             elif current_organization == "microsoft":
-                                raw_request = MicrosoftClient.convert_to_raw_request(request)
-                                for completion_index in range(request.num_completions):
-                                    # We send the same request `num_completions` times because the MT-NLG API does not
-                                    # support the OpenAI parameter 'n'. In our cache, we use `completion_index` to
-                                    # differentiate responses for the same request, so we should check if the
-                                    # request + 'completion_index` is in our cache. However, when we write out the
-                                    # requests for offline batch evaluation, we should exclude `completion_index`
-                                    # and write out the JSON for the same request `num_completion` times.
-                                    cache_key = request_to_key({"completion_index": completion_index, **raw_request})
+                                process_microsoft_request(request)
+                            else:
+                                raise ValueError(f"Unhandled organization: {current_organization}.")
 
-                                    # Only export requests that we are not in the cache
-                                    if cache_key not in cache:
-                                        request_json = request_to_key(raw_request)
-                                        out_file.write(request_json + "\n")
-                                        pending_count += 1
-                                    else:
-                                        cached_count += 1
-                    hlog(f"Wrote {pending_count} requests so far.")
+                    hlog(f"Wrote {counts['pending_count']} requests so far.")
 
-    hlog(f"Wrote {pending_count} requests to {output_path}. {cached_count} requests already had an entry in the cache.")
+    hlog(
+        f"Wrote {counts['pending_count']} requests to {output_path}. "
+        f"{counts['cached_count']} requests already had an entry in the cache."
+    )
 
 
 if __name__ == "__main__":
