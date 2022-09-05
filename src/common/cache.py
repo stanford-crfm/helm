@@ -18,7 +18,8 @@ def key_to_request(key: str) -> Dict:
 
 
 def retry_if_write_failed(success: bool) -> bool:
-    return success
+    """Retries when the write fails."""
+    return not success
 
 
 retry: Callable = get_retry_decorator(
