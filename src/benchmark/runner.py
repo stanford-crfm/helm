@@ -2,7 +2,7 @@ import json
 import os
 import typing
 from collections import Counter
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 from typing import Dict, List
 
 from benchmark.metrics.metric_name import MetricName
