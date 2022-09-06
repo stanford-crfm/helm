@@ -135,7 +135,7 @@ def test_space_perturbation():
     print(instances)
     assert len(instances) == 2
     assert instances[1].perturbation.name == "space"
-    assert instances[1].input == "HelloWorld!\nQuite   a  day,  huh?"
+    assert instances[1].input == "Hello   World!\nQuite a  day,   huh?"
 
 
 def test_dialect_perturbation():

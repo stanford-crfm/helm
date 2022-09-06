@@ -111,7 +111,7 @@ metrics:
   - name: summarization_compression
     display_name: compression
     description: Extent to which the model-generated summaries are compressed relative to the source document (Grusky et al., 2018).
-    
+
   #  Code metrics
   - name: code_eval_acc
     display_name: Correctness
@@ -175,6 +175,7 @@ metrics:
   - name: toxicity_probability
     display_name: Toxicity probability
     short_display_name: Toxicity
+    lower_is_better: true
     description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifer).
 
   # Efficiency metrics:
@@ -235,13 +236,13 @@ perturbations:
       worst-case performance between perturbed and unperturbed versions.
   - name: dialect
     display_name: SAE -> AAE
-    short_display_name: Dialect 
+    short_display_name: Dialect
     description: >
       Deterministically substitutes SAE words in input with AAE counterparts using validated dictionary of Ziems et al.
       (2022) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
   - name: race
     display_name: First names by race (White -> Black)
-    short_display_name: Race 
+    short_display_name: Race
     description: >
       Deterministically substitutes White first names with Black first names sampled from the lists of Caliskan et al.
       (2017) and computes the per-instance worst-case performance between perturbed and unperturbed versions.
@@ -336,6 +337,7 @@ metric_groups:
   - name: efficiency
     metrics:
     - name: inference_idealized_runtime
+      # TODO: should we use inference_denoised_runtime instead?
       split: ${main_split}
 
   - name: efficiency_detailed
@@ -361,7 +363,7 @@ metric_groups:
       - name: compression
         split: ${main_split}
 
-- name: apps_metrics
+  - name: apps_metrics
     metrics:
       - name: test_avg
         split: ${main_split}
@@ -622,7 +624,6 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
-
 
 ## Language scenarios
 # Language modeling

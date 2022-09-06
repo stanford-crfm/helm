@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
 from random import Random
-from typing import Sequence
+from typing import Sequence, Optional
 
 
 from .perturbation_description import PerturbationDescription
@@ -17,6 +17,9 @@ class Perturbation(ABC):
     # Whether to perturb references
     should_perturb_references: bool = False
 
+    # Random seed
+    seed: Optional[int] = None
+
     @property
     def description(self) -> PerturbationDescription:
         """Description of the perturbation."""
@@ -29,7 +32,8 @@ class Perturbation(ABC):
         passed to perturb and perturb_references.
         """
         assert instance.id is not None
-        rng: Random = Random(instance.id)
+        # If seed exists, use it as part of the random seed
+        rng: Random = Random(instance.id if self.seed is None else str(self.seed) + instance.id)
 
         references: Sequence[Reference] = instance.references
         if self.should_perturb_references:
@@ -43,7 +47,7 @@ class Perturbation(ABC):
 
     def perturb_reference(self, reference: Reference, rng: Random) -> Reference:
         """Generates a new Reference by perturbing the output and tagging the Reference."""
-        return replace(reference, output=self.perturb(reference.output, rng), tags=reference.tags + [self.name])
+        return replace(reference, output=self.perturb(reference.output, rng), tags=reference.tags)
 
     @abstractmethod
     def perturb(self, text: str, rng: Random) -> str:

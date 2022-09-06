@@ -319,11 +319,14 @@ class Summarizer:
         ]
         rows = []
         for group in self.schema.scenario_groups:
+            num_runs = len(self.group_model_to_runs[group.name])
+            if num_runs == 0:
+                continue
             rows.append(
                 [
                     Cell(group.display_name, href=get_benchmarking_url({"group": group.name})),
                     Cell(group.description),
-                    Cell(len(self.group_model_to_runs[group.name])),
+                    Cell(num_runs),
                 ]
             )
         return Table(title="Overview of results", header=header, rows=rows,)
@@ -377,7 +380,10 @@ class Summarizer:
             metric_group = self.schema.name_to_metric_group[metric_group_name]
             for metric in metric_group.metrics:
                 matcher = metric.substitute(scenario_group.environment)
-                header_field = self.schema.name_to_metric[matcher.name]
+                header_field = self.schema.name_to_metric.get(matcher.name)
+                if header_field is None:
+                    hlog(f"WARNING: unknown metric name {matcher.name}, skipping")
+                    continue
 
                 header_name = header_field.get_short_display_name()
                 description = header_field.display_name + ": " + header_field.description
