@@ -9,7 +9,7 @@ from benchmark.metrics.metric_name import MetricName
 from common.general import ensure_directory_exists, write, write_lines, asdict_without_nones
 from common.hierarchical_logger import hlog, htrack_block
 from .augmentations.data_augmenter import DataAugmenterSpec
-from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance
+from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance, with_instance_ids
 from .adapter import AdapterSpec, Adapter, ScenarioState
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
@@ -109,7 +109,7 @@ class Runner:
             instances: List[Instance] = scenario.get_instances()
 
         # Give each instance a unique ID
-        instances = [replace(instance, id=f"id{i}") for i, instance in enumerate(instances)]
+        instances = with_instance_ids(instances)
 
         # Sample only as many as we need
         instances = adapter.sample_instances(instances)
