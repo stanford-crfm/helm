@@ -41,16 +41,10 @@ class RobustnessPerturbation(Perturbation):
         # Contractions
         text = self.contraction_perturbation.perturb(text, rng)
 
-        # Change quote types
-        text = re.sub(r'"', "'", text)
-
         # 3) Perturb words (might make things a bit ill-formed)
 
         # Misspellings
         text = self.misspelling_perturbation.perturb(text, rng)
-
-        # Replace hyphenated words ("pro-democracy" => "pro democracy" or "prodemocracy")
-        text = re.sub(r"-", lambda x: rng.choice([" ", ""]), text)
 
         # 4) Change spaces around words
 
