@@ -57,10 +57,7 @@ class APPSMetric(Metric):
         hlog(
             f"Setting parallelism from {parallelism} to 1, since evaluating code with parallelism > 1 isn't supported."
         )
-        import pdb
-
-        pdb.set_trace()
-        return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=8)
+        return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=1)
 
     def evaluate_generation(
         self,

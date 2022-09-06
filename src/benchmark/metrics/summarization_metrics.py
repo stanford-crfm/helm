@@ -10,9 +10,10 @@ if not spacy.util.is_package("en_core_web_sm"):
 
 from summ_eval.data_stats_metric import DataStatsMetric
 
-from benchmark.adapter import AdapterSpec, RequestState
+from benchmark.adapter import AdapterSpec, RequestState, ScenarioState
 from benchmark.scenarios.scenario import Reference
-from .metric import Metric
+from common.hierarchical_logger import hlog
+from .metric import Metric, MetricResult
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .basic_metrics import get_rouge_function
@@ -44,6 +45,21 @@ class SummarizationMetric(Metric):
             # Need GPU for faithfulness metrics since they are model-based.
             self.compute_faithfulness = True
             self.summac = SummaCZS(granularity="sentence", model_name="vitc", imager_load_cache=False, device=device)
+
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+    ) -> MetricResult:
+        if self.compute_faithfulness:
+            # Errors with "...in layer_norm
+            # return torch.layer_norm(input, normalized_shape, weight, bias, eps, torch.backends.cudnn.enabled)
+            # RuntimeError: expected scalar type Float but found Half".
+            hlog(
+                f"Setting parallelism from {parallelism} to 1, since "
+                f"evaluating faithfulness with parallelism > 1 errors."
+            )
+            parallelism = 1
+
+        return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=parallelism)
 
     def _compute_rouge(self, refs: Sequence[Reference], pred: str) -> Dict[str, float]:
         metrics: Dict[str, float] = {}
