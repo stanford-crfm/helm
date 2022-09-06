@@ -187,8 +187,8 @@ def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
         metric_names = {"names": HUMAN_EVAL_METRIC_NAMES}
         return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
     else:  # APPS.
-        metric_names = {"names": APPS_METRIC_NAMES, "timeout": timeout}
-        return [MetricSpec(class_name="benchmark.code_metrics.APPSMetric", args=metric_names)]
+        args: Dict[str, Any] = {"names": APPS_METRIC_NAMES, "timeout": timeout}
+        return [MetricSpec(class_name="benchmark.code_metrics.APPSMetric", args=args)]
 
 
 def get_simple1_spec() -> RunSpec:
