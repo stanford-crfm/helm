@@ -9,7 +9,7 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r copyright:datatag=pilot --suite SUITE_NAME
     venv/bin/benchmark-run -r disinformation:capability=reiteration --suite SUITE_NAME
     venv/bin/benchmark-run -r wikifact:k=2,subject=P31 --suite SUITE_NAME
-    venv/bin/benchmark-run -r code:dataset=APPS --suite SUITE_NAME
+    venv/bin/benchmark-run -r code:dataset=apps --suite SUITE_NAME
     venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles --suite SUITE_NAME
     venv/bin/benchmark-run -r wikifact:subject=P31 --suite SUITE_NAME
     venv/bin/benchmark-run -r raft:subset=ade_corpus_v2 --suite SUITE_NAME
