@@ -50,7 +50,7 @@ class SummarizationMetric(Metric):
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
         if self.compute_faithfulness:
-            # Errors with "...in layer_norm
+            # When running with a GPU and parallelism > 1, errors with "...in layer_norm
             # return torch.layer_norm(input, normalized_shape, weight, bias, eps, torch.backends.cudnn.enabled)
             # RuntimeError: expected scalar type Float but found Half".
             hlog(
