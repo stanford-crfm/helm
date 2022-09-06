@@ -979,7 +979,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
     )
 
 
-def get_code_spec(dataset: str, timeout=4) -> RunSpec:
+def get_code_spec(dataset: str, timeout=3) -> RunSpec:
     # `timeout` trades accuracy for time. Used exclusively for APPS. Default from original APPS codebase.
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.code_scenario.CodeScenario", args={"dataset": dataset})
 
