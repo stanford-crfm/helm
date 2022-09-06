@@ -1,7 +1,7 @@
 from retrying import RetryError
 
 from common.request import RequestResult
-from .retry import retry_request, get_retry_decorator
+from .retry import retry_request, get_retry_decorator, retry_if_request_failed
 
 
 def test_retry_for_successful_request():
@@ -14,7 +14,12 @@ def test_retry_for_successful_request():
 
 
 def test_retry_for_failed_request():
-    retry_fail_fast = get_retry_decorator(max_attempts=1, wait_exponential_multiplier_seconds=1)
+    retry_fail_fast = get_retry_decorator(
+        operation="Request",
+        max_attempts=1,
+        wait_exponential_multiplier_seconds=1,
+        retry_on_result=retry_if_request_failed,
+    )
 
     @retry_fail_fast
     def make_request() -> RequestResult:
