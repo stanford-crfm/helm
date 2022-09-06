@@ -50,7 +50,7 @@ def timeout_handler(signum, frame):
 
 
 signal.signal(signal.SIGALRM, timeout_handler)
-timeout = 4  # seconds
+timeout = 2  # seconds
 
 
 # used to capture stdout as a list
