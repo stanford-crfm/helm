@@ -212,6 +212,7 @@ def with_instance_ids(instances: List[Instance]) -> List[Instance]:
     """Return the instances with an ID.  Note: order of instances matters."""
     return [replace(instance, id=f"id{i}") for i, instance in enumerate(instances)]
 
+
 class ScenarioSpec(ObjectSpec):
     pass
 
