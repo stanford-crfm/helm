@@ -2,6 +2,10 @@
   background-color: #dfffdf;
 }
 
+.wrong {
+  background-color: #ffdfdf;
+}
+
 .scenario-info {
   margin-top: 30px;
   margin-bottom: 30px;

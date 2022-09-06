@@ -41,20 +41,15 @@ $(function () {
     }
   }
 
-  class ScenarioGroupField extends Field {
-    constructor(raw) {
-      super(raw);
-      this.environment = raw.environment;
-    }
-  }
-
   // Specifies all the information to help us render and understand the fields
   // for adapters and metrics.
   class Schema {
     constructor(raw) {
       this.adapterFields = raw.adapter.map((fieldRaw) => new AdapterField(fieldRaw));
       this.metricsFields = raw.metrics.map((fieldRaw) => new Field(fieldRaw));
-      this.scenarioGroupFields = raw.scenario_groups.map((fieldRaw) => new ScenarioGroupField(fieldRaw));
+
+      this.scenario_groups = raw.scenario_groups;
+      this.metric_groups = raw.metric_groups;
 
       // Allow convenient access
       this.adapterFieldNames = this.adapterFields.map((field) => field.name);
@@ -71,6 +66,10 @@ $(function () {
       // Return the metrics field with the given `name`.
       const field = this.metricsFields.find((field) => field.name === name);
       return field || new Field({name});
+    }
+
+    metricGroup(name) {
+      return this.metric_groups.find((group) => group.name === name);
     }
   }
 
@@ -145,24 +144,83 @@ $(function () {
     return $('<div>').append([$search, $table]);
   }
 
+  function substitute(str, environment) {
+    if (!str) {
+      return str;
+    }
+    for (let key in environment) {
+      str = str.replace('${' + key + '}', environment[key]);
+    }
+    return str;
+  }
+
+  // Look at logic in `summarize.py`.
+  function getMetricNames(scenarioGroup) {
+    // A scenario group defines a list of metric groups, each of which defines the metrics.
+    // Just pull the names from those metrics.
+    const names = [];
+    scenarioGroup.metric_groups.forEach((metricGroupName) => {
+      const metricGroup = schema.metricGroup(metricGroupName);
+      metricGroup.metrics.forEach((metric) => {
+        names.push(substitute(metric.name, scenarioGroup.environment));
+      });
+    });
+    return names;
+  }
+
+  function getStatClass(name, value) {
+    // Return the CSS class to use if a stat has `value`.
+
+    // Based on `name` determine whether smaller or larger is better.
+    // Assume larger is better for now.
+    if (value === 0) {
+      return 'wrong';
+    }
+    if (value === 1) {
+      return 'correct';
+    }
+    return '';
+  }
+
   function renderStats(groups, stats) {
-    const $stats = $('<span>');
+    // This is used to render per-instance stats (which is why we only care
+    // about the metric name).
+    // Groups specifies which metric names we should display.
+    // Pull these out from stats and render them.
+    const list = [];
 
     // Look for the default metrics for the group
-    schema.scenarioGroupFields.forEach((scenarioGroup) => {
+    schema.scenario_groups.forEach((scenarioGroup) => {
       if (!groups.includes(scenarioGroup.name)) {
         return;
       }
-      const name = scenarioGroup.environment && scenarioGroup.environment.main_name;
-      const split = scenarioGroup.environment && scenarioGroup.environment.main_split;
 
+      const metricNames = getMetricNames(scenarioGroup);
+
+      // Keep only the stats that match the name
       for (let stat of stats) {
-        if (stat.name.name === name && stat.name.split === split) {
-          const field = schema.metricsField(name);
-          $stats.append(field.display_name + ': ' + stat.mean);
+        if (!metricNames.includes(stat.name.name)) {
+          continue;
         }
+
+        const field = schema.metricsField(stat.name.name);
+        list.push($('<span>', {class: getStatClass(stat.name.name, stat.mean)}).append(field.display_name + ': ' + stat.mean));
       }
     });
+
+    // String the metrics together
+    const $stats = $('<div>');
+    //$stats.append('Metrics: ');
+    if (list.length == 0) {
+      $stats.append(' (none)');
+    } else {
+      list.forEach((item, index) => {
+        if (index > 0) {
+          $stats.append(', ');
+        }
+        $stats.append(item);
+      });
+    }
 
     return $stats;
   }
@@ -378,10 +436,10 @@ $(function () {
             $instance.append(multilineHtml(input));
             const $references = $('<ul>');
             instance.references.forEach((reference, referenceIndex) => {
-              const isCorrect = reference.tags.includes(CORRECT_TAG);
               const originalReference = instance.perturbation && originalInstance.references[referenceIndex];
               const output = instance.perturbation ? highlightNewWords(reference.output, originalReference.output) : reference.output;
-              $references.append($('<li>').append($('<span>', {class: isCorrect ? 'correct' : ''}).append(output)));
+              const suffix = reference.tags.length > 0 ? ' ' + ('[' + reference.tags.join(',') + ']').bold() : '';
+              $references.append($('<li>').append(output + suffix));
             });
             $instance.append($references);
           }
@@ -404,7 +462,6 @@ $(function () {
               instanceTrialToStats[key] = (instanceTrialToStats[key] || []).concat(instanceTrialStats.stats);
             });
 
-
             // Go through all the request states
             scenarioState.request_states.forEach((requestState) => {
               const $instance = instanceToDiv[instanceKey(requestState.instance)];
@@ -419,8 +476,15 @@ $(function () {
               }
 
               // Print out statistics
-              const stats = instanceTrialToStats[[requestState.instance.id, requestState.train_trial_index]];
-              $instance.append(renderStats(runSpecs[index].groups, stats));
+              if (requestState.reference_index == null || requestState.reference_index === 0) {
+                // Keep only stats that match instance ID, train trial index, and perturbatation
+                const stats = instanceTrialToStats[[requestState.instance.id, requestState.train_trial_index]].filter((stat) => {
+                  const p1 = requestState.instance.perturbation;
+                  const p2 = stat.name.perturbation;
+                  return (p1 && p1.name) === (p2 && p2.name);
+                });
+                $instance.append(renderStats(runSpecs[index].groups, stats));
+              }
 
               // Create a link for the request made to the server
               const request = Object.assign({}, requestState.request);
@@ -456,8 +520,6 @@ $(function () {
                 $logProb.append(' ').append($('<span>', {class: 'logprob'}).append('(' + round(completion.logprob, 3) + ')'));
               }
 
-              // TODO: this is very strict, use per instance metrics
-              const isCorrect = requestState.instance.references.some((reference) => reference.tags.includes(CORRECT_TAG) && reference.output === prediction);
               let description = '';
               if (requestState.reference_index !== null) {
                 description += '[' + requestState.reference_index + ']';
@@ -468,7 +530,7 @@ $(function () {
               $instance.append($('<div>')
                 .append($('<a>', {href}).append($('<b>').append('Prediction' + description)))
                 .append(': ')
-                .append($('<span>', {class: isCorrect ? 'correct' : ''}).append(prefix + prediction))
+                .append(prefix + prediction)
                 .append($logProb));
             });
           });
