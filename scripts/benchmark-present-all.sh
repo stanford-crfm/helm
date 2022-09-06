@@ -56,6 +56,10 @@ models=(
   "together/t5-11b"
   "together/ul2"
   "together/yalm"
+  "cohere/xlarge-20220609"
+  "cohere/large-20220720"
+  "cohere/medium-20220720"
+  "cohere/small-20220720"
 )
 
 for model in "${models[@]}"
