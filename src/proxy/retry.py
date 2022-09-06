@@ -7,7 +7,7 @@ from common.tokenization_request import TokenizationRequestResult
 from common.hierarchical_logger import hlog
 
 """
-Decorator that will retry  after a failure with exponential backoff.
+Decorator that will retry after a failure with exponential backoff.
 Throws a `RetryError` when the limit of retries is reached.
 
 Example usage:

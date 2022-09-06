@@ -28,7 +28,7 @@ retry: Callable = get_retry_decorator(
 
 
 @retry
-def write_to_cache(cache, key, response) -> bool:
+def write_to_cache(cache: SqliteDict, key: str, response: Dict) -> bool:
     """
     Write to cache with retry. Returns boolean indicating whether the write was successful or not.
     """
