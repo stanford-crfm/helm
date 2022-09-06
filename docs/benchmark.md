@@ -26,10 +26,11 @@ Notes:
 - `--local` means we bypass the proxy server.
 - All the outputs should be in `benchmark_output/runs/$SUITE`.
 
-To run everything in parallel:
+To run everything (note we're restricting the number of instances and
+scenarios) in parallel:
 
     # Generate all the commands to run in parallel
-    venv/bin/benchmark-present --local --suite $SUITE --max-eval-instances 1000 --num-threads 8 --skip-instances
+    venv/bin/benchmark-present --local --suite $SUITE --max-eval-instances 1000 --priority 2 --num-threads 8 --skip-instances
 
     # Run everything in parallel over Slurm
     bash benchmark_output/runs/$SUITE/run-all.sh

@@ -523,15 +523,16 @@ class Adapter:
         all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
 
         all_eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
-        if self.adapter_spec.max_eval_instances is not None:
-            np.random.seed(0)
-
+        if (
+            self.adapter_spec.max_eval_instances is not None
+            and len(all_eval_instances) > self.adapter_spec.max_eval_instances
+        ):
             # Pick the first `self.adapter_spec.max_eval_instances`.
             # The random sampling includes instances monotonically.
-            if len(all_eval_instances) > self.adapter_spec.max_eval_instances:
-                selected_eval_instances = list(
-                    np.random.choice(all_eval_instances, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
-                )
+            np.random.seed(0)
+            selected_eval_instances = list(
+                np.random.choice(all_eval_instances, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
+            )
         else:
             selected_eval_instances = all_eval_instances
 
