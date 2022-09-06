@@ -3,44 +3,100 @@
     "runtime_per_output_token": 0.016,
     "runtime_for_prompt_tokens": {
       "1": 0.016,
-      "256": 0.045,
-      "512": 0.172,
-      "1024": 0.348,
-      "1536": 0.441
+      "256": 0.054,
+      "512": 0.167,
+      "1024": 0.306,
+      "1536": 0.431
     },
-    "overhead": 0.28
+    "overhead": 0.271
   },
   "ai21/j1-grande": {
     "runtime_per_output_token": 0.023,
     "runtime_for_prompt_tokens": {
       "1": 0.023,
-      "256": 0.171,
-      "512": 0.182,
-      "1024": 0.364,
-      "1536": 0.529
+      "256": 0.142,
+      "512": 0.18,
+      "1024": 0.36,
+      "1536": 0.511
     },
-    "overhead": 0.296
+    "overhead": 0.293
   },
   "ai21/j1-jumbo": {
-    "runtime_per_output_token": 0.043,
+    "runtime_per_output_token": 0.042,
     "runtime_for_prompt_tokens": {
-      "1": 0.043,
+      "1": 0.042,
       "256": 0.097,
-      "512": 0.263,
-      "1024": 0.442,
-      "1536": 0.658
+      "512": 0.257,
+      "1024": 0.447,
+      "1536": 0.646
     },
     "overhead": 0.284
   },
   "anthropic/stanford-online-all-v4-s3": {
-    "runtime_per_output_token": 0.066,
+    "runtime_per_output_token": 0.074,
     "runtime_for_prompt_tokens": {
-      "1": 0.066,
-      "512": 0.215,
-      "1024": 0.24,
-      "1536": 0.466
+      "1": 0.074,
+      "256": 0.327,
+      "512": 0.223,
+      "1024": 0.248,
+      "1536": 0.474
     },
-    "overhead": 0.464
+    "overhead": 0.456
+  },
+  "openai/ada": {
+    "runtime_per_output_token": 0.007,
+    "runtime_for_prompt_tokens": {
+      "1": 0.007,
+      "256": 0.007,
+      "512": 0.007,
+      "1024": 0.007,
+      "1536": 0.033
+    },
+    "overhead": 0.16
+  },
+  "openai/text-ada-001": {
+    "runtime_per_output_token": 0.006,
+    "runtime_for_prompt_tokens": {
+      "1": 0.006,
+      "256": 0.013,
+      "512": 0.009,
+      "1024": 0.02,
+      "1536": 0.036
+    },
+    "overhead": 0.08
+  },
+  "openai/text-babbage-001": {
+    "runtime_per_output_token": 0.007,
+    "runtime_for_prompt_tokens": {
+      "1": 0.007,
+      "256": 0.016,
+      "512": 0.007,
+      "1024": 0.013,
+      "1536": 0.028
+    },
+    "overhead": 0.137
+  },
+  "openai/text-curie-001": {
+    "runtime_per_output_token": 0.008,
+    "runtime_for_prompt_tokens": {
+      "1": 0.008,
+      "256": 0.026,
+      "512": 0.015,
+      "1024": 0.034,
+      "1536": 0.035
+    },
+    "overhead": 0.116
+  },
+  "openai/code-cushman-001": {
+    "runtime_per_output_token": 0.008,
+    "runtime_for_prompt_tokens": {
+      "1": 0.008,
+      "256": 0.032,
+      "512": 0.032,
+      "1024": 0.027,
+      "1536": 0.029
+    },
+    "overhead": 0.081
   },
   "openai/davinci": {
     "runtime_per_output_token": 0.031,
@@ -52,17 +108,6 @@
       "1536": 0.122
     },
     "overhead": 0.184
-  },
-  "openai/code-cushman-001": {
-    "runtime_per_output_token": 0.008,
-    "runtime_for_prompt_tokens": {
-      "1": 0.008,
-      "256": 0.114,
-      "512": 0.037,
-      "1024": 0.029,
-      "1536": 0.029
-    },
-    "overhead": 0.081
   },
   "openai/text-davinci-001": {
     "runtime_per_output_token": 0.011,
