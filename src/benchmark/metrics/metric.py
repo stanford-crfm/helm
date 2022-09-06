@@ -329,7 +329,7 @@ class Metric(ABC):
                         robustness_stat.merge(stat)
                     if perturbation.fairness:
                         fairness_stat.merge(stat)
-                    assert perturbation not in individual_perturbation_stats
+                    assert perturbation not in individual_perturbation_stats, perturbation
                     individual_perturbation_stats[perturbation] = Stat(stat.name).merge(stat)  # copy
 
             for stat in [robustness_stat, fairness_stat, *individual_perturbation_stats.values()]:

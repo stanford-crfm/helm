@@ -20,7 +20,8 @@ class RobustnessPerturbation(Perturbation):
     # Don't perturb references because it's not fair to have to generate broken text.
     should_perturb_references: bool = False
 
-    def __init__(self):
+    def __init__(self, seed: int):
+        self.seed = seed
         self.lowercase_perturbation = LowerCasePerturbation()
         self.contraction_perturbation = ContractionPerturbation()
         self.space_perturbation = SpacePerturbation(max_spaces=3)
