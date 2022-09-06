@@ -2,11 +2,11 @@ import csv
 import os
 import random
 from collections import defaultdict
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, cast
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, MultipleRequestInstance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, MultipleRequestInstance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
 
 
 class MSMARCOScenario(Scenario):
@@ -607,7 +607,7 @@ class MSMARCOScenario(Scenario):
             instances += [self.make_instance(qid, pid, split) for pid in set(pids)]
         return instances
 
-    def get_instances(self) -> List[MultipleRequestInstance]:
+    def get_instances(self) -> List[Instance]:
         """ Return the instances for this scenario.
 
         Refer to the documentation of the following methods for details on how
@@ -625,4 +625,4 @@ class MSMARCOScenario(Scenario):
         instances = train_instances + valid_instances
         hlog("MS MARCO Scenario: Done preparing all the instances.")
 
-        return instances
+        return cast(List[Instance], instances)

@@ -1,5 +1,5 @@
 from random import Random
-import re
+from typing import Optional
 
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
@@ -20,7 +20,7 @@ class RobustnessPerturbation(Perturbation):
     # Don't perturb references because it's not fair to have to generate broken text.
     should_perturb_references: bool = False
 
-    def __init__(self, seed: int):
+    def __init__(self, seed: Optional[int]):
         self.seed = seed
         self.lowercase_perturbation = LowerCasePerturbation()
         self.contraction_perturbation = ContractionPerturbation()

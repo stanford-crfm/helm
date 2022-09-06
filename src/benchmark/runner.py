@@ -1,7 +1,7 @@
 import json
 import os
 import typing
-from collections import Counter, defaultdict
+from collections import Counter
 from dataclasses import dataclass, field, replace
 from typing import Dict, List
 

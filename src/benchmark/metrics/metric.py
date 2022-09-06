@@ -1,7 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass, replace
 from collections import defaultdict
-from typing import List, Dict, Tuple, Optional, Iterable, Set
+from typing import List, Dict, Tuple, Optional, Iterable, Set, cast
 
 from common.object_spec import ObjectSpec, create_object
 from common.general import singleton, parallel_map
@@ -143,8 +143,9 @@ class Metric(ABC):
             )
 
             # Per-instance stats
+            assert instance.id is not None
             per_instance_stats: List[PerInstanceStats] = [
-                PerInstanceStats(instance.id, train_trial_index, stats)
+                PerInstanceStats(cast(str, instance.id), train_trial_index, stats)
                 for instance, stats in zip(scenario_state.instances, results)
             ]
 
@@ -264,7 +265,8 @@ class Metric(ABC):
                 instance_ids_per_context[context].add(request_state.instance.id)
 
             # Use trial index of 0 here since we run only one trial for LM
-            all_per_instance_stats.extend(PerInstanceStats(request_state.instance.id, 0, request_stats))
+            assert request_state.instance.id is not None
+            all_per_instance_stats.append(PerInstanceStats(request_state.instance.id, 0, request_stats))
 
             for stat in request_stats:
                 merge_stat(trial_stats, stat)

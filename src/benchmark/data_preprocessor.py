@@ -1,14 +1,12 @@
-from typing import Sequence, List
-from common.hierarchical_logger import htrack, htrack_block
+from typing import List
+from common.hierarchical_logger import htrack
 from .augmentations.data_augmenter import create_data_augmenter, DataAugmenterSpec, DataAugmenter
-from .scenarios.scenario import Scenario, Instance, TRAIN_SPLIT, EVAL_SPLITS
+from .scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 
 
 class DataPreprocessor:
     """
-    Gets the `Instance`s for a given `Scenario` and preprocesses them by:
-    - Giving all the `Instance`s a unique ID.
-    - Applying data augmentation according to `DataAugmenterSpec`.
+    Applying data augmentation according to `DataAugmenterSpec`.
     """
 
     def __init__(self, data_augmenter_spec: DataAugmenterSpec):

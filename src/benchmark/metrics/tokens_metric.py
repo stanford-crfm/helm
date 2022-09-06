@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, cast
 from dataclasses import dataclass
 
 from common.general import parallel_map
@@ -68,7 +68,8 @@ class TokensMetric(Metric):
 
         # Per-instance
         per_instance_stats = [
-            PerInstanceStats(instance.id, 0, stats) for instance, stats in zip(scenario_state.instances, results)
+            PerInstanceStats(cast(str, instance.id), 0, stats)
+            for instance, stats in zip(scenario_state.instances, results)
         ]
 
         # Aggregate

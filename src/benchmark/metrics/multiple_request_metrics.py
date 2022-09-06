@@ -13,9 +13,9 @@
 # from .statistic import Stat, merge_stat
 #
 #
-#################################################################################
-## Dataclass definitions                                                        #
-#################################################################################
+################################################################################
+# Dataclass definitions                                                        #
+################################################################################
 #
 #
 # @dataclass(frozen=True, eq=False)
@@ -32,20 +32,20 @@
 #    request_states: List[RequestState]
 #
 #
-#################################################################################
-## MultipleRequestMetric Functions                                              #
-##                                                                              #
-## Instructions for adding new functions operating on multiple request          #
-## instances:                                                                   #
-## > Ensure that the scenario you are writing your metric for uses the          #
-##   MultipleRequestInstance instanve class instead of the vanilla instance     #
-##   class.                                                                     #
-## > Follow the signature for aggregated_runtime if adding new metric functions.#
-## > Define MultipleRequestMetrics.{NEW_METRIC_NAME}_METRIC_NAME to be the name #
-##   your function's name.                                                      #
-## > Add "{NEW_METRIC_NAME}_METRIC_NAME": new_metric_function to                #
-##   MultipleRequestMetrics.METRIC_NAME_TO_FUNCTION dictionary.                 #
-#################################################################################
+################################################################################
+# MultipleRequestMetric Functions                                              #
+#                                                                              #
+# Instructions for adding new functions operating on multiple request          #
+# instances:                                                                   #
+# > Ensure that the scenario you are writing your metric for uses the          #
+#   MultipleRequestInstance instanve class instead of the vanilla instance     #
+#   class.                                                                     #
+# > Follow the signature for aggregated_runtime if adding new metric functions.#
+# > Define MultipleRequestMetrics.{NEW_METRIC_NAME}_METRIC_NAME to be the name #
+#   your function's name.                                                      #
+# > Add "{NEW_METRIC_NAME}_METRIC_NAME": new_metric_function to                #
+#   MultipleRequestMetrics.METRIC_NAME_TO_FUNCTION dictionary.                 #
+################################################################################
 #
 #
 # def aggregated_runtime(
@@ -61,9 +61,9 @@
 #    return per_instance_stats
 #
 #
-#################################################################################
-## Metric Classes                                                               #
-#################################################################################
+################################################################################
+# Metric Classes                                                               #
+################################################################################
 #
 #
 # class MultipleRequestMetrics(Metric):
@@ -130,7 +130,8 @@
 #        per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
 #        # Loop through train trials
 #        for train_trial_index in range(scenario_state.adapter_spec.num_train_trials):
-#            validation_request_states = [rs for rs in scenario_state.request_states if rs.instance.split == VALID_SPLIT]
+#            validation_request_states = [rs for rs in scenario_state.request_states \
+#                if rs.instance.split == VALID_SPLIT]
 #            request_state_groups = self.group_request_states(validation_request_states)
 #            # Run the request_state_groups through all metrics
 #            for metric_name in self.metric_names:
