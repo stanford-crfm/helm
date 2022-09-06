@@ -67,7 +67,9 @@ class TokensMetric(Metric):
         )
 
         # Per-instance
-        per_instance_stats = [PerInstanceStats(instance.id, 0, stats) for instance, stats in zip(scenario_state.instances, results)]
+        per_instance_stats = [
+            PerInstanceStats(instance.id, 0, stats) for instance, stats in zip(scenario_state.instances, results)
+        ]
 
         # Aggregate
         stats: Dict[MetricName, Stat] = {}

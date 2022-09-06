@@ -175,6 +175,7 @@ metrics:
   - name: toxicity_probability
     display_name: Toxicity probability
     short_display_name: Toxicity
+    lower_is_better: true
     description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifer).
 
   # Efficiency metrics:

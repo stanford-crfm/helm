@@ -1,16 +1,16 @@
-#import os
-#from collections import defaultdict, OrderedDict
-#from dataclasses import dataclass
-#from typing import Any, Callable, Dict, List, Tuple, Optional, cast
+# import os
+# from collections import defaultdict, OrderedDict
+# from dataclasses import dataclass
+# from typing import Any, Callable, Dict, List, Tuple, Optional, cast
 #
-#import pytrec_eval
+# import pytrec_eval
 #
-#from benchmark.adapter import ScenarioState, RequestState
-#from benchmark.scenarios.scenario import VALID_SPLIT, MultipleRequestInstance
-#from .metric_service import MetricService
-#from .metric import Metric, MetricResult, PerInstanceStatsKey
-#from .metric_name import MetricName
-#from .statistic import Stat, merge_stat
+# from benchmark.adapter import ScenarioState, RequestState
+# from benchmark.scenarios.scenario import VALID_SPLIT, MultipleRequestInstance
+# from .metric_service import MetricService
+# from .metric import Metric, MetricResult, PerInstanceStatsKey
+# from .metric_name import MetricName
+# from .statistic import Stat, merge_stat
 #
 #
 #################################################################################
@@ -18,8 +18,8 @@
 #################################################################################
 #
 #
-#@dataclass(frozen=True, eq=False)
-#class RequestStateGroup:
+# @dataclass(frozen=True, eq=False)
+# class RequestStateGroup:
 #    """ Class representing a group of request states. """
 #
 #    """ Unique ID for the request state group.  """
@@ -48,9 +48,9 @@
 #################################################################################
 #
 #
-#def aggregated_runtime(
+# def aggregated_runtime(
 #    request_state_groups: List[RequestStateGroup], train_trial_index
-#) -> Dict[PerInstanceStatsKey, List[Stat]]:
+# ) -> Dict[PerInstanceStatsKey, List[Stat]]:
 #    """ Compute and return the aggregate runtime of running all the requests per group. """
 #    per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = {}
 #    for group in request_state_groups:
@@ -66,7 +66,7 @@
 #################################################################################
 #
 #
-#class MultipleRequestMetrics(Metric):
+# class MultipleRequestMetrics(Metric):
 #    """ Metrics for scenarios using the MultipleRequestInstance class.
 #
 #    MultipleRequestInstance should be used when a scenario requires creating
@@ -147,7 +147,7 @@
 #        )
 #
 #
-#class InformationRetrievalMetric(MultipleRequestMetrics):
+# class InformationRetrievalMetric(MultipleRequestMetrics):
 #    """ Information retrieval metrics. """
 #
 #    """ Modes supported by this metric.

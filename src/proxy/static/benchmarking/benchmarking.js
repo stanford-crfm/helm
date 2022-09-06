@@ -168,10 +168,14 @@ $(function () {
     return names;
   }
 
-  function getStatClass(name, value) {
+  function getStatClass(name, value, lowerIsBetter) {
     // Return the CSS class to use if a stat has `value`.
 
     // Based on `name` determine whether smaller or larger is better.
+    if (lowerIsBetter) {
+      value = 1 - value;
+    }
+
     // Assume larger is better for now.
     if (value === 0) {
       return 'wrong';
@@ -203,8 +207,10 @@ $(function () {
           continue;
         }
 
+        console.log(stat);
+
         const field = schema.metricsField(stat.name.name);
-        list.push($('<span>', {class: getStatClass(stat.name.name, stat.mean)}).append(field.display_name + ': ' + stat.mean));
+        list.push($('<span>', {class: getStatClass(stat.name.name, stat.mean, field.lower_is_better)}).append(field.display_name + ': ' + round(stat.mean, 3)));
       }
     });
 
@@ -521,7 +527,7 @@ $(function () {
               }
 
               let description = '';
-              if (requestState.reference_index !== null) {
+              if (requestState.reference_index != null) {
                 description += '[' + requestState.reference_index + ']';
               }
               if (runSpecs.length > 1) {

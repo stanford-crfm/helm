@@ -144,8 +144,8 @@ class Metric(ABC):
 
             # Per-instance stats
             per_instance_stats: List[PerInstanceStats] = [
-                PerInstanceStats(instance.id, train_trial_index, stats) \
-                for instance, stats in zip(scenario_state.instances, results) \
+                PerInstanceStats(instance.id, train_trial_index, stats)
+                for instance, stats in zip(scenario_state.instances, results)
             ]
 
             # Aggregate these stats
