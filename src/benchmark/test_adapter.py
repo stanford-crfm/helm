@@ -48,7 +48,7 @@ class TestAdapter:
         train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(2049)]
         eval_instances = Instance(input="eval", references=[])
         prompt: Prompt = processor.construct_prompt(
-            train_instances, eval_instances, include_output=False, reference_index=None
+            train_instances, eval_instances, include_output=False, eval_reference_index=None
         )
         prompt_text: str = prompt.text
 
@@ -68,7 +68,7 @@ class TestAdapter:
         train_instances: List[Instance] = [Instance(input="train", references=[correct_reference]) for _ in range(100)]
         eval_instances = Instance(input="eval" * 2049, references=[])
         prompt: Prompt = processor.construct_prompt(
-            train_instances, eval_instances, include_output=False, reference_index=None
+            train_instances, eval_instances, include_output=False, eval_reference_index=None
         )
         prompt_text: str = prompt.text
 
