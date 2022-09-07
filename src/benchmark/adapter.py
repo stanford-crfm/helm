@@ -1,7 +1,7 @@
 import random
 from dataclasses import dataclass, field, replace
 from itertools import cycle
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, cast
 from collections import defaultdict, OrderedDict
 
 import numpy as np
@@ -10,7 +10,7 @@ from common.general import serialize, indent_lines, format_text_lines, parallel_
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationToken
-from .scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
+from .scenarios.scenario import Instance, InformationRetrievalReference, TRAIN_SPLIT, EVAL_SPLITS
 from .window_services.window_service import WindowService, EncodeResult
 from .window_services.window_service_factory import WindowServiceFactory
 from .window_services.tokenizer_service import TokenizerService
@@ -370,7 +370,7 @@ class Processor:
 
             # In-context training instances
             for instance in train_instances:
-                blocks.append(self.construct_example_prompt(instance, include_output=True, reference_index=None))
+                blocks.append(self.construct_example_prompt(instance, include_output=True, reference_index=reference_index))  # TODO: Double check if this is the right approach.
 
             blocks.append(
                 self.construct_example_prompt(
@@ -433,6 +433,13 @@ class Processor:
             else:
                 reference = instance.references[reference_index]
                 output = reference.output
+
+                # If we have an InformationRetrieval reference:
+                # - Prepend the passage to the result text
+                # - Append the question prompt
+                if isinstance(reference, InformationRetrievalReference):
+                    reference = cast(InformationRetrievalReference, reference)
+                    result = f"Passage: {reference.input}\n" + result + "\nPrompt: Does the passage above answer the question?"
 
         if include_output:
             result += self.adapter_spec.output_prefix + output

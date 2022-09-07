@@ -89,9 +89,7 @@ def get_msmarco_metric_specs(task: str, track: str, qrels_path: str, topk: Optio
         MetricSpec(
             class_name="benchmark.multiple_request_metrics.MultipleRequestMetrics", args={"use_basic_metrics": True}
         ),
-        # The line below is commented out because efficiency metrics are taking a long time to compute
-        # @TODO Uncomment the line below when we have the efficiency computations for all the models
-        # MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
+        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
 
 
@@ -234,6 +232,7 @@ def get_bbq_spec(subject: str) -> RunSpec:
 
 
 def get_msmarco_spec(
+    method,
     task,
     track,
     use_qrels_passages="False",
@@ -242,6 +241,8 @@ def get_msmarco_spec(
     num_valid_queries=None,
     num_train_queries="1000",
 ) -> RunSpec:
+    # Ensure that a valid adapter method is passed in
+    assert method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]
 
     # Get ScenarioSpec
     use_qrels_passages = use_qrels_passages.lower() == "true"
@@ -264,9 +265,9 @@ def get_msmarco_spec(
 
     # Get AdapterSpec
     adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
+        method=method,
         instructions="",
-        input_prefix="Passage: ",
+        input_prefix="Question: ",
         output_prefix="\nAnswer: ",
         max_train_instances=4,  # Needs to be even to ensure equal number of correct and wrong examples
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,

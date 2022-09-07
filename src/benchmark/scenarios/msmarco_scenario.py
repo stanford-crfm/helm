@@ -6,7 +6,16 @@ from typing import Dict, List, Tuple, Optional, cast
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, MultipleRequestInstance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
+from .scenario import (
+    Scenario,
+    Instance,
+    InformationRetrievalInstance,
+    Reference,
+    InformationRetrievalReference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    CORRECT_TAG,
+)
 
 
 class MSMARCOScenario(Scenario):
@@ -521,27 +530,26 @@ class MSMARCOScenario(Scenario):
                 qids.append(qid)
         return qids
 
-    @staticmethod
-    def make_context(passage: str, question: str) -> str:
-        """ Make and return the instance context given the provided passage and query. """
-        prompt = "Does the passage above answer the question?"
-        return "\n".join([passage, f"Question: {question}", f"Prompt: {prompt}"])
-
-    def make_instance(self, qid: int, pid: int, split: str) -> MultipleRequestInstance:
+    def make_instance(self, qid: int, pids: List[int], split: str) -> InformationRetrievalInstance:
         """ Create and return an instance made using the provided parameters. """
-        object_text = self.object_dict[pid]
+        # Construct references
+        references = []
+        for pid in pids:
+            rel = None if pid not in self.qrels_dicts[split][qid] else self.qrels_dicts[split][qid][pid]
+            is_relevant = rel in self.gold_relations[split]
+            output = self.RELEVANCE_TO_OUTPUT[is_relevant]
+            tags = [CORRECT_TAG] if is_relevant else []
+            object_text = self.object_dict[pid]
+            reference = InformationRetrievalReference(
+                input=object_text, output=output, tags=tags, object_id=str(pid), relevance=rel
+            )
+            references.append(cast(Reference, reference))  # TODO: Is there another way we can satisfy the type checker?
+        # Construct instance
         query_text = self.query_dicts[split][qid]
-        context = self.make_context(object_text, query_text)
-        rel = None if pid not in self.qrels_dicts[split][qid] else self.qrels_dicts[split][qid][pid]
-        is_relevant = rel in self.gold_relations[split]
-        reference = Reference(output=self.RELEVANCE_TO_OUTPUT[is_relevant], tags=[CORRECT_TAG])
-        # Create instance
-        instance = MultipleRequestInstance(
-            input=context, references=[reference], split=split, group_id=str(qid), request_id=str(pid), relevance=rel
-        )
+        instance = InformationRetrievalInstance(input=query_text, references=references, split=split, query_id=str(qid))
         return instance
 
-    def get_train_instances(self) -> List[MultipleRequestInstance]:
+    def get_train_instances(self) -> List[InformationRetrievalInstance]:
         """ Create and return the instances for the training set.
 
         For a random set of self.num_train_queries in the training set:
@@ -559,7 +567,6 @@ class MSMARCOScenario(Scenario):
             # Get correct pids
             sorted_qrels = sorted(self.qrels_dicts[split][qid].items(), key=lambda x: x[1], reverse=True)
             correct_pids = [pid for (pid, rel) in sorted_qrels if rel in self.gold_relations[split]]
-            instances.append(self.make_instance(qid, correct_pids[0], split))  # Only use the top correct pid
 
             # Get wrong pids
             filtered_pids = [
@@ -573,11 +580,14 @@ class MSMARCOScenario(Scenario):
                 if pid not in self.qrels_dicts[split][qid]
                 or self.qrels_dicts[split][qid][pid] not in self.gold_relations[split]
             ]
-            instances.append(self.make_instance(qid, wrong_pids[0], split))  # Only use the top wrong pid
+
+            # We only use the top correct and wrong pids
+            pids = [correct_pids[0], wrong_pids[0]]
+            instances.append(self.make_instance(qid, pids, split))
 
         return instances
 
-    def get_valid_instances(self) -> List[MultipleRequestInstance]:
+    def get_valid_instances(self) -> List[InformationRetrievalInstance]:
         """ Create and return the instances for the validation set.
 
         For a random set of self.num_valid_queries in the validation set:
@@ -604,7 +614,7 @@ class MSMARCOScenario(Scenario):
             if self.use_topk_passages and self.valid_topk:
                 pids += [pid for k, pid in self.topk_dicts[split][qid].items() if k <= self.valid_topk]
             # Create instances
-            instances += [self.make_instance(qid, pid, split) for pid in set(pids)]
+            instances.append(self.make_instance(qid, pids, split))
         return instances
 
     def get_instances(self) -> List[Instance]:

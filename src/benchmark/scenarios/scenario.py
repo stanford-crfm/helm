@@ -82,6 +82,20 @@ class Reference:
 
 
 @dataclass(frozen=True, eq=False)
+class InformationRetrievalReference(Reference):
+    """ Reference subclass for Informational Retrieval """
+
+    """ Object ID. """
+    object_id: Optional[str] = None
+
+    """ Object text. """
+    input: Optional[str] = None
+
+    """ Relevance of the reference. """
+    relevance: Optional[int] = None
+
+
+@dataclass(frozen=True, eq=False)
 class Instance:
     """
     An `Instance` represents one data point that we're evaluating on (e.g., one
@@ -137,14 +151,14 @@ class Instance:
 
 
 @dataclass(frozen=True, eq=False)
-class MultipleRequestInstance(Instance):
-    """ Instance """
+class InformationRetrievalInstance(Instance):
+    """ Instance subclass for Informational Retrieval """
 
-    """ Unique ID for the request group this instance is a part of.  """
-    group_id: Optional[str] = None
+    """ Query ID.  """
+    query_id: Optional[str] = None
 
-    """ ID for this request, unique in the group of instances with the same group_id. """
-    request_id: Optional[str] = None
+    """ Object ID. """
+    object_id: Optional[str] = None
 
     """ Relevance of this request instance for the group. """
     relevance: Optional[int] = None
