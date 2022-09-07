@@ -232,7 +232,7 @@ class Processor:
 
         if method == ADAPT_GENERATION:
             prompt = self.construct_prompt(
-                self.train_instances, eval_instance, include_output=False, reference_index=None
+                self.train_instances, eval_instance, include_output=False, eval_reference_index=None
             )
             request = Request(
                 model=self.adapter_spec.model,
@@ -258,7 +258,7 @@ class Processor:
             ]
         elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
             prompt = self.construct_prompt(
-                self.train_instances, eval_instance, include_output=False, reference_index=None
+                self.train_instances, eval_instance, include_output=False, eval_reference_index=None
             )
             output_mapping = dict(
                 (self.get_reference_prefix("A", reference_index), reference.output)
@@ -379,8 +379,11 @@ class Processor:
 
             # In-context training instances
             for instance in train_instances:
+                # If we have an InformationRetrievalInstance, we need the reference index information to construct
+                # the prompts.
                 if isinstance(instance, InformationRetrievalInstance):
                     for reference_index, _ in enumerate(instance.references):
+                        # TODO: Should we shuffle the ordering of the Yes and No requests?
                         blocks.append(
                             self.construct_example_prompt(
                                 instance, include_output=True, reference_index=reference_index
@@ -456,11 +459,7 @@ class Processor:
                 # - Append the question prompt
                 if isinstance(reference, InformationRetrievalReference):
                     reference = cast(InformationRetrievalReference, reference)
-                    result = (
-                        f"Passage: {reference.input}\n"
-                        + result
-                        + "\nPrompt: Does the passage above answer the question?"
-                    )
+                    result = self.adapter_spec.reference_prefix + reference.input + result
 
         if include_output:
             result += self.adapter_spec.output_prefix + output

@@ -267,8 +267,9 @@ def get_msmarco_spec(
     adapter_spec = AdapterSpec(
         method=method,
         instructions="",
-        input_prefix="Question: ",
-        output_prefix="\nAnswer: ",
+        reference_prefix="Passage: ",
+        input_prefix="\nQuestion: ",
+        output_prefix="\nPrompt: Does the passage above answer the question?\nAnswer: ",
         max_train_instances=2,  # Each train instance results in 2 requests, and hence we end up with 4 train requests.
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
