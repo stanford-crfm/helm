@@ -157,12 +157,6 @@ class InformationRetrievalInstance(Instance):
     """ Query ID.  """
     query_id: Optional[str] = None
 
-    """ Object ID. """
-    object_id: Optional[str] = None
-
-    """ Relevance of this request instance for the group. """
-    relevance: Optional[int] = None
-
 
 @dataclass  # type: ignore
 class Scenario(ABC):
