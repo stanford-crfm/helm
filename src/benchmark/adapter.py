@@ -459,6 +459,7 @@ class Processor:
                 # - Append the question prompt
                 if isinstance(reference, InformationRetrievalReference):
                     reference = cast(InformationRetrievalReference, reference)
+                    assert reference.input
                     result = self.adapter_spec.reference_prefix + reference.input + result
 
         if include_output:
