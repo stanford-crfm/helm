@@ -10,7 +10,13 @@ from common.general import serialize, indent_lines, format_text_lines, parallel_
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationToken
-from .scenarios.scenario import Instance, InformationRetrievalReference, TRAIN_SPLIT, EVAL_SPLITS
+from .scenarios.scenario import (
+    Instance,
+    InformationRetrievalInstance,
+    InformationRetrievalReference,
+    TRAIN_SPLIT,
+    EVAL_SPLITS,
+)
 from .window_services.window_service import WindowService, EncodeResult
 from .window_services.window_service_factory import WindowServiceFactory
 from .window_services.tokenizer_service import TokenizerService
@@ -305,14 +311,17 @@ class Processor:
                 for request_mode in request_modes:
                     if request_mode == "original":
                         prompt = self.construct_prompt(
-                            self.train_instances, eval_instance, include_output=True, reference_index=reference_index,
+                            self.train_instances,
+                            eval_instance,
+                            include_output=True,
+                            eval_reference_index=reference_index,
                         )
                     elif request_mode == "calibration":
                         # For calibration purpose, we compute the logprobs of the reference
                         # without train instances and the input question.
                         eval_instance_calibration = replace(eval_instance, input="Answer:")
                         prompt = self.construct_prompt(
-                            [], eval_instance_calibration, include_output=True, reference_index=reference_index,
+                            [], eval_instance_calibration, include_output=True, eval_reference_index=reference_index,
                         )
                     else:
                         raise ValueError(f"Unknown request mode: {request_mode}")
@@ -347,7 +356,7 @@ class Processor:
         train_instances: List[Instance],
         eval_instance: Instance,
         include_output: bool,
-        reference_index: Optional[int],
+        eval_reference_index: Optional[int],
     ) -> Prompt:
         """
         Returns a prompt (string) given:
@@ -359,7 +368,7 @@ class Processor:
 
         Fits the prompt within the context window by removing in-context training examples.
         """
-        assert include_output or reference_index is None
+        assert include_output or eval_reference_index is None
 
         def construct_prompt_helper(train_instances: List[Instance]) -> str:
             # Instructions
@@ -370,11 +379,19 @@ class Processor:
 
             # In-context training instances
             for instance in train_instances:
-                blocks.append(self.construct_example_prompt(instance, include_output=True, reference_index=reference_index))  # TODO: Double check if this is the right approach.
+                if isinstance(instance, InformationRetrievalInstance):
+                    for reference_index, _ in enumerate(instance.references):
+                        blocks.append(
+                            self.construct_example_prompt(
+                                instance, include_output=True, reference_index=reference_index
+                            )
+                        )
+                else:
+                    blocks.append(self.construct_example_prompt(instance, include_output=True, reference_index=None))
 
             blocks.append(
                 self.construct_example_prompt(
-                    eval_instance, include_output=include_output, reference_index=reference_index
+                    eval_instance, include_output=include_output, reference_index=eval_reference_index
                 )
             )
 
@@ -439,7 +456,11 @@ class Processor:
                 # - Append the question prompt
                 if isinstance(reference, InformationRetrievalReference):
                     reference = cast(InformationRetrievalReference, reference)
-                    result = f"Passage: {reference.input}\n" + result + "\nPrompt: Does the passage above answer the question?"
+                    result = (
+                        f"Passage: {reference.input}\n"
+                        + result
+                        + "\nPrompt: Does the passage above answer the question?"
+                    )
 
         if include_output:
             result += self.adapter_spec.output_prefix + output

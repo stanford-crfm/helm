@@ -269,7 +269,7 @@ def get_msmarco_spec(
         instructions="",
         input_prefix="Question: ",
         output_prefix="\nAnswer: ",
-        max_train_instances=4,  # Needs to be even to ensure equal number of correct and wrong examples
+        max_train_instances=2,  # Each train instance results in 2 requests, and hence we end up with 4 train requests.
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
