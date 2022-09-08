@@ -23,7 +23,7 @@ Usage:
 
     Example:
 
-      python3 scripts/offline_eval/export_requests.py together benchmark_output/runs/v4dryrun
+      python3 scripts/offline_eval/export_requests.py together benchmark_output/runs/v4-dryrun
 
 """
 

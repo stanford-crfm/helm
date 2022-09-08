@@ -1,6 +1,10 @@
 import json
 from typing import Dict, Callable, Tuple
+
 from sqlitedict import SqliteDict
+
+from common.general import hlog
+from proxy.retry import get_retry_decorator
 
 
 def request_to_key(request: Dict) -> str:
@@ -13,6 +17,30 @@ def key_to_request(key: str) -> Dict:
     return json.loads(key)
 
 
+def retry_if_write_failed(success: bool) -> bool:
+    """Retries when the write fails."""
+    return not success
+
+
+retry: Callable = get_retry_decorator(
+    "Write", max_attempts=10, wait_exponential_multiplier_seconds=2, retry_on_result=retry_if_write_failed
+)
+
+
+@retry
+def write_to_cache(cache: SqliteDict, key: str, response: Dict) -> bool:
+    """
+    Write to cache with retry. Returns boolean indicating whether the write was successful or not.
+    """
+    try:
+        cache[key] = response
+        cache.commit()
+        return True
+    except Exception as e:
+        hlog(f"Error when writing to cache: {str(e)}")
+        return False
+
+
 class Cache(object):
     """
     A cache for request/response pairs.
@@ -21,10 +49,10 @@ class Cache(object):
     """
 
     def __init__(self, cache_path: str):
-        self.cache_path = cache_path
+        self.cache_path: str = cache_path
         # Counters to keep track of progress
-        self.num_queries = 0
-        self.num_misses = 0
+        self.num_queries: int = 0
+        self.num_misses: int = 0
 
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
@@ -36,9 +64,9 @@ class Cache(object):
             if response:
                 cached = True
             else:
-                self.num_misses += 1
-                # Commit the request and response to SQLite
-                cache[key] = response = compute()
-                cache.commit()
                 cached = False
+                self.num_misses += 1
+                # Compute and commit the request/response to SQLite
+                response = compute()
+                write_to_cache(cache, key, response)
         return response, cached

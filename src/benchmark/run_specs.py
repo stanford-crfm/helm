@@ -166,6 +166,9 @@ def get_copyright_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
         MetricSpec(
             class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_distance"},
         ),
+        MetricSpec(
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_similarity"},
+        ),
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ] + get_generative_harms_metric_specs()
 
@@ -182,13 +185,13 @@ def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricS
     ]
 
 
-def get_code_metric_specs(dataset: str) -> List[MetricSpec]:
+def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
     if dataset == "humaneval":
         metric_names = {"names": HUMAN_EVAL_METRIC_NAMES}
         return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
     else:  # APPS.
-        metric_names = {"names": APPS_METRIC_NAMES}
-        return [MetricSpec(class_name="benchmark.code_metrics.APPSMetric", args=metric_names)]
+        args: Dict[str, Any] = {"names": APPS_METRIC_NAMES, "timeout": timeout}
+        return [MetricSpec(class_name="benchmark.code_metrics.APPSMetric", args=args)]
 
 
 def get_simple1_spec() -> RunSpec:
@@ -979,7 +982,8 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
     )
 
 
-def get_code_spec(dataset: str) -> RunSpec:
+def get_code_spec(dataset: str, timeout=3) -> RunSpec:
+    # `timeout` trades accuracy for time. Used exclusively for APPS. Default from original APPS codebase.
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.code_scenario.CodeScenario", args={"dataset": dataset})
 
     if dataset == "humaneval":
@@ -1025,7 +1029,7 @@ def get_code_spec(dataset: str) -> RunSpec:
         name=f"code:dataset={dataset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_code_metric_specs(dataset),
+        metric_specs=get_code_metric_specs(dataset, timeout),
         groups=[f"code_{dataset}"],
     )
 

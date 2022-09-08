@@ -1,5 +1,52 @@
 # Running the benchmark
 
+In the following, assume that the suite (the directory where everything is written) is:
+
+    export SUITE=v1
+
+Some of the benchmarks (NewsQA) depend on data that's not public: all such data
+will be stored in the `restricted` directory.  You need to make sure that
+directory exists.
+
+To try to test things out a small subset (defined in `run_specs_small.conf`):
+
+    # Just load the config file
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE --skip-instances
+
+    # Create the instances and the requests, but don't execute
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE --dry-run
+
+    # Execute the requests and compute metrics
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE
+
+    # Generate assets for the website
+    venv/bin/benchmark-summarize --suite $SUITE
+
+Notes:
+- `--local` means we bypass the proxy server.
+- All the outputs should be in `benchmark_output/runs/$SUITE`.
+
+To run everything (note we're restricting the number of instances and
+scenarios) in parallel:
+
+    # Generate all the commands to run in parallel
+    venv/bin/benchmark-present --local --suite $SUITE --max-eval-instances 1000 --priority 2 --num-threads 8 --skip-instances
+
+    # Run everything in parallel over Slurm
+    bash benchmark_output/runs/$SUITE/run-all.sh
+
+    # Wait for all Slurm jobs to finish, monitor the logs
+    # tail benchmark_output/runs/$SUITE/slurm-*.out
+
+    # Generate assets for the website
+    venv/bin/benchmark-present --local --suite $SUITE --skip-instances
+    venv/bin/benchmark-summarize --suite $SUITE
+
+Go to the [website](http://localhost:1959/static/benchmarking.html) to look at the results.
+
+    # Stanford only: copy website (do this on scdt)
+    rsync -arvz benchmark_output/runs/$SUITE crfm-models:/home/benchmarking/src/proxy/static/benchmarking_output/runs
+
 Examples of running the benchmark:
 
     venv/bin/benchmark-run
@@ -9,7 +56,7 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r copyright:datatag=pilot --suite SUITE_NAME
     venv/bin/benchmark-run -r disinformation:capability=reiteration --suite SUITE_NAME
     venv/bin/benchmark-run -r wikifact:k=2,subject=P31 --suite SUITE_NAME
-    venv/bin/benchmark-run -r code:dataset=APPS --suite SUITE_NAME
+    venv/bin/benchmark-run -r code:dataset=apps --suite SUITE_NAME
     venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles --suite SUITE_NAME
     venv/bin/benchmark-run -r wikifact:subject=P31 --suite SUITE_NAME
     venv/bin/benchmark-run -r raft:subset=ade_corpus_v2 --suite SUITE_NAME
@@ -77,7 +124,7 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Upload requests JSONL files to CodaLab:
     1. Log on to CodaLab: `cl work main::0xbd9f3df457854889bda8ac114efa8061`.
     1. Upload by Together requests: `cl upload benchmark_output/runs/v4-dryrun/together_requests.jsonl`.
-    1. Upload by MT-NLG requests: `cl upload benchmark_output/runs/v4-dryrun/ microsoft_requests.jsonl`.
+    1. Upload by MT-NLG requests: `cl upload benchmark_output/runs/v4-dryrun/microsoft_requests.jsonl`.
 1. Share the link to the CodaLab bundles with our collaborators.
 
 ### Importing results

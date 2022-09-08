@@ -1,7 +1,6 @@
-from datetime import timedelta
 from typing import List, Optional, Dict
 
-from flufl.lock import Lock
+from filelock import FileLock
 from openai.api_resources.abstract import engine_api_resource
 import openai as turing
 
@@ -18,8 +17,6 @@ from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
 
 class MicrosoftClient(Client):
-    _CLIENT_LOCK = "microsoft_client.lock"
-
     """
     Client for the Microsoft's Megatron-Turing NLG models (https://arxiv.org/abs/2201.11990).
 
@@ -72,7 +69,7 @@ class MicrosoftClient(Client):
         #
         # Since the model will generate roughly three tokens per second and the max context window
         # is 2048 tokens, we expect the maximum time for a request to be fulfilled to be 700 seconds.
-        self._lock = Lock(MicrosoftClient._CLIENT_LOCK, lifetime=timedelta(seconds=700))
+        self._lock = FileLock(f"{cache_path}.lock", timeout=700)
 
     def make_request(self, request: Request) -> RequestResult:
         """

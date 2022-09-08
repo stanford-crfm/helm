@@ -9,7 +9,7 @@ from .metric_service import MetricService
 from .statistic import Stat
 
 
-def _longest_common_prefix_length(s1: List[str], s2: List[str], previous_best: Optional[int] = None) -> int:
+def _longest_common_prefix_length(s1: List[str], s2: List[str], previous_best: Optional[float] = None) -> float:
     result = min_len = min(len(s1), len(s2))
     for i in range(min_len):
         if s1[i] != s2[i]:
@@ -20,7 +20,7 @@ def _longest_common_prefix_length(s1: List[str], s2: List[str], previous_best: O
     return result
 
 
-def _edit_distance(s1: List[str], s2: List[str], previous_best: Optional[int] = None) -> int:
+def _edit_distance(s1: List[str], s2: List[str], previous_best: Optional[float] = None) -> float:
     """Compute the Levenshtein distance between two sequences of tokens.
 
     Edit distance is really an umbrella term. We focus on the Levenshtein distance.
@@ -50,9 +50,17 @@ def _edit_distance(s1: List[str], s2: List[str], previous_best: Optional[int] = 
     return distance_grid[l1][l2]
 
 
+def _edit_similarity(s1: List[str], s2: List[str], previous_best: Optional[float] = None) -> float:
+    """"""
+    edist = _edit_distance(s1, s2)  # Don't feed `previous_best`!
+    esim = 1.0 - edist / max(len(s1), len(s2))
+    return max(esim, previous_best) if previous_best is not None else esim
+
+
 metric_fns = {
     "longest_common_prefix_length": _longest_common_prefix_length,
     "edit_distance": _edit_distance,
+    "edit_similarity": _edit_similarity,
 }
 
 
@@ -100,7 +108,7 @@ class BasicCopyrightMetric(Metric):
         prefix: str = request_state.instance.input
         reference: str = references[0].output[len(prefix) :]
 
-        result: Optional[int] = None
+        result: Optional[float] = None
         request_result: RequestResult = request_state.result
         for completion in request_result.completions:
             completion = completion.text.strip()
