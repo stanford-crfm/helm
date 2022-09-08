@@ -249,7 +249,7 @@ class NaturalQAScenario(Scenario):
         splits = {"train": TRAIN_SPLIT, "val": VALID_SPLIT}
         for file in file_list:
             source_url: str = f"{base_url}/{file}"
-            target_path: str = os.path.join(data_path, file)
+            target_path: str = os.path.join(data_path, file.rstrip(".gz"))
             ensure_file_downloaded(source_url=source_url, target_path=target_path)
 
             instances.extend(self.get_file_instances(target_path, splits=splits))
