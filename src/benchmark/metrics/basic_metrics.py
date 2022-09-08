@@ -444,9 +444,8 @@ class BasicMetric(Metric):
 
         # Predicted outputs
         assert request_state.result is not None
-        # TODO: Sort the predictions, or take them from the top tokens of the first completion
-        #       https://github.com/stanford-crfm/benchmarking/issues/42
-        preds = [completion.text.strip() for completion in request_state.result.completions]
+        preds = sorted(request_state.result.completions, key=lambda x: -x.logprob)
+        preds = [completion.text.strip() for completion in preds]
 
         # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
         # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
@@ -651,7 +650,7 @@ class BasicMetric(Metric):
             logprob: float  # sum of logprobs for all tokens in the reference
             num_tokens: int  # number of tokens in the reference
 
-        def compute_logprob_and_length(request_state: RequestState) -> ReferenceStat:
+        def compute_logprob_and_length(request_state: RequestState, window_service: WindowService) -> ReferenceStat:
             """Compute the logprob and length for the only completion from the request_state."""
             assert request_state.reference_index is not None
             assert request_state.result is not None
@@ -662,23 +661,18 @@ class BasicMetric(Metric):
             reference: str = request_state.instance.references[reference_index].output
 
             # Find the span of the completion that matches the reference.
-            answer_length = 0
-            answer_tokens: List[Token] = []
-            for token in sequence.tokens[::-1]:
-                if answer_length >= len(reference):
-                    break
-                answer_tokens.insert(0, token)
-                answer_length += len(token.text)
-
-            # Sanity check
-            span: str = "".join([token.text for token in answer_tokens]).lstrip()
-            alphanumeric_chars: str = string.digits + string.ascii_lowercase + string.ascii_uppercase
-            filtered_span: str = "".join(list(filter(lambda x: x in alphanumeric_chars, span)))
-            filtered_reference: str = "".join(list(filter(lambda x: x in alphanumeric_chars, reference)))
-            assert filtered_span == filtered_reference, f"Expected: {filtered_reference}, Actual: {filtered_span}"
-
-            logprob = sum(token.logprob for token in answer_tokens)
-            num_tokens = len(answer_tokens)
+            # Prepend a space because there should always be a space before reference in the prompt.
+            reference_tokens: List[str] = window_service.tokenize(f" {reference}")
+            num_tokens: int = len(reference_tokens)
+            answer_tokens: List[Token] = sequence.tokens[-num_tokens:]
+            if (len(answer_tokens) != len(reference_tokens)) or (
+                not all(
+                    answer_token.text == reference_token
+                    for answer_token, reference_token in zip(answer_tokens, reference_tokens)
+                )
+            ):
+                hlog(f"WARNING: Expected {reference_tokens} but got {[token.text for token in answer_tokens]}")
+            logprob: float = sum(token.logprob for token in answer_tokens)
 
             return ReferenceStat(logprob, num_tokens)
 
@@ -691,11 +685,13 @@ class BasicMetric(Metric):
         ]
         num_choices = len(references)
 
+        tokenizer_service: TokenizerService = metric_service
+        window_service: WindowService = WindowServiceFactory.get_window_service(adapter_spec.model, tokenizer_service)
         reference_stats: Dict[ReferenceKey, ReferenceStat] = {}
         for request_state in reference_request_states:
             assert request_state.reference_index is not None and request_state.request_mode is not None
             reference_key = ReferenceKey(request_state.reference_index, request_state.request_mode)
-            reference_stats[reference_key] = compute_logprob_and_length(request_state)
+            reference_stats[reference_key] = compute_logprob_and_length(request_state, window_service)
 
         if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
             reference_scores = [
@@ -735,6 +731,7 @@ class BasicMetric(Metric):
         """Derive calibration metrics if applicable. We don't worry about splits and perturbations here."""
         derived_stats: List[Stat] = []
         derived_stats.extend(compute_calibration_metrics(per_instance_stats))
+        derived_stats.append(Stat(MetricName("num_instances")).add(len(per_instance_stats)))
         return derived_stats
 
 
