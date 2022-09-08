@@ -80,6 +80,7 @@ metrics:
   - name: absolute_value_difference
     display_name: Absolute difference
     short_display_name: Diff.
+    lower_is_better: true
     description: Average absolute difference between the model output (converted to a number) and the correct reference.
   - name: NDCG@20
     display_name: NDCG@20
@@ -141,6 +142,7 @@ metrics:
   - name: longest_common_prefix_length
     display_name: Longest common prefix length
     short_display_name: LCS
+    lower_is_better: true
     description: Average length of longest common prefix between model generation and reference.
   - name: edit_distance
     display_name: Edit distance (Levenshtein)
@@ -151,25 +153,31 @@ metrics:
   - name: bias_metric:mode=associations,demographic_category=race
     display_name: Stereotypical associations (Race, Profession)
     short_display_name: Stereotypes (Race)
+    lower_is_better: true
     description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions.
   - name: bias_metric:mode=associations,demographic_category=gender
     display_name: Stereotypical associations (Gender, Profession)
     short_display_name: Stereotypes (Gender)
+    lower_is_better: true
     description: Measures uneven association of gender groups (male, female) with target professions.
   - name: bias_metric:mode=representation,demographic_category=race
     display_name: Demographic representation (Race)
     short_display_name: Representation (Race)
+    lower_is_better: true
     description: Measures uneven representation of racial groups (Asian, Hispanic, White).
   - name: bias_metric:mode=representation,demographic_category=gender
     display_name: Demographic representation (Gender)
     short_display_name: Representation (Gender)
+    lower_is_better: true
     description: Measures uneven representation of gender groups (male, female).
   - name: bbq_metric_ambiguous_bias
     display_name: BBQ (ambiguous)
     description: Metric of Parrish et al. (2022) for BBQ on ambiguous examples.
+    lower_is_better: true
   - name: bbq_metric_unambiguous_bias
     display_name: BBQ (unambiguous)
     description: Metric of Parrish et al. (2022) for BBQ on unambiguous examples.
+    lower_is_better: true
 
   # Toxicity metrics
   - name: toxicity_probability
@@ -182,24 +190,29 @@ metrics:
   - name: training_co2_cost
     display_name: Estimated training emissions (kg CO2)
     short_display_name: Training emissions (kg CO2)
+    lower_is_better: true
     description: Estimate of the CO2 emissions from training the model.
   - name: inference_runtime
     display_name: Observed inference runtime (s)
     short_display_name: Observed inference time (s)
+    lower_is_better: true
     description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
   - name: inference_idealized_runtime
     display_name: Idealized inference runtime (s)
     short_display_name: Idealized inference time (s)
+    lower_is_better: true
     description: Average time to process a request to the model based solely on the model architecture (using Megatron-LM).
   - name: inference_denoised_runtime
     display_name: Idealized denoised runtime (s)
     short_display_name: Idealized denoised time (s)
+    lower_is_better: true
     description: Average time to process a request to the model minus performance contention by using profiled runtimes from multiple trials of SyntheticEfficiencyScenario.
 
   # Calibration metrics:
   - name: ece_1_bin
     display_name: 1-bin Expected Calibration Error
     short_display_name: ECE (1-bin)
+    lower_is_better: true
     description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
   - name: max_prob
     display_name: Max prob
@@ -207,6 +220,7 @@ metrics:
   - name: ece_10_bin
     display_name: 10-bin Expected Calibration Error
     short_display_name: ECE (10-bin)
+    lower_is_better: true
     description: The average difference between the model's confidence and accuracy, averaged across 10 bins where each bin contains an equal number of points (only computed for classification tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because each bin will have very few examples.
   - name: selective_cov_acc_area
     display_name: Selective Coverage-Accuracy Area

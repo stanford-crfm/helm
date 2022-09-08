@@ -562,9 +562,12 @@ $(function () {
     return $('<td>').append(cell.href ? $('<a>', {href: cell.href}).append(value) : value);
   }
 
-  function renderTable(table) {
+  function renderTable(table, addLatexLink = false) {
     const $output = $('<div>');
     $output.append($('<h3>').append(table.title));
+    if (addLatexLink) {
+        $output.append($('<a>', {href: '?latex=' + table.title.replaceAll(" ", "_").replace("/", "_")}).append('[latex]'));
+    }
     const $table = $('<table>', {class: 'query-table results-table'});
     const $header = $('<tr>').append(table.header.map(renderCell));
     $table.append($header);
@@ -574,14 +577,13 @@ $(function () {
       $table.append($row);
     });
     $output.append($table);
-    $output.append($('<a>', {href: '?latex=' + table.title.replaceAll(" ", "_").replace("/", "_")}).append('[latex]'));
     return $output;
   }
 
-  function renderTables(tables) {
+  function renderTables(tables, addLatexLink = false) {
     const $output = $('<div>');
     tables.forEach((table) => {
-      $output.append($('<div>', {class: 'table-container'}).append(renderTable(table)));
+      $output.append($('<div>', {class: 'table-container'}).append(renderTable(table, addLatexLink)));
     });
     return $output;
   }
@@ -637,13 +639,15 @@ $(function () {
     } else if (urlParams.group) {
       // Specific group
       $.getJSON(`benchmark_output/runs/${suite}/groups/${urlParams.group}.json`, {}, (tables) => {
+        const addLatexLink = true;
         console.log('group', tables);
-        $main.append(renderTables(tables));
+        $main.append(renderTables(tables, addLatexLink));
       });
     } else if (urlParams.latex) {
       // Tex corresponding to a group
       $.get(`benchmark_output/runs/${suite}/groups/latex/${urlParams.latex}.tex`, {}, (latex) => {
         console.log('latex', latex);
+        $main.append($('<h3>').append(urlParams.latex.replace('___', ' / ').replaceAll('_', ' ')));
         $main.append(renderLatex(latex));
       });
     } else {

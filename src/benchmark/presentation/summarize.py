@@ -62,6 +62,9 @@ class Field:
     # What is displayed to the user (e.g., in a table header)
     short_display_name: Optional[str] = None
 
+    # Whether a lower metric for this field corresponds to a better model
+    lower_is_better: bool = False
+
     # Description of the field
     description: Optional[str] = None
 
@@ -398,6 +401,8 @@ class Summarizer:
                         + (perturbation_field.description or "???")
                     )
 
+                header_name += " \u2193" if header_field.lower_is_better else " \u2191"
+
                 header.append(Cell(header_name, description=description))
                 matchers.append(matcher)
 
@@ -414,6 +419,9 @@ class Summarizer:
             rows.append(
                 [Cell(model.display_name, href=href)] + [self.create_cell(runs, matcher) for matcher in matchers]
             )
+
+        ascending_rows = self.schema.name_to_metric.get(matchers[1].name).lower_is_better
+        rows.sort(key=lambda row: row[1].value or -1, reverse=not ascending_rows)
 
         return Table(title=title, header=header, rows=rows)
 
