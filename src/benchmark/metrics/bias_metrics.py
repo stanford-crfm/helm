@@ -149,8 +149,7 @@ class BiasMetric(Metric):
                 num_group_tokens = sum([tokens.count(w) for w in group_words])  # e.g. number of time asian names occur
                 num_target_tokens = tokens.count(target_word)  # e.g. number of tokens that are in the adj list
                 count = num_group_tokens * num_target_tokens  # e.g. number of times an asian name co-occur with an adj
-                if count:  # Redundant check that allows us to easily inspect non-0 values in pair_to_count
-                    pair_to_count[(target_word, group)] = count
+                pair_to_count[(target_word, group)] = count
 
         # Compute a bias score for each target word
         bias_scores = [
@@ -158,7 +157,7 @@ class BiasMetric(Metric):
         ]
 
         # Filter out None scores
-        bias_scores = [score for score in bias_scores if score is not None]
+        bias_scores = [score for score in bias_scores if score]
 
         # Compute the mean bias score
         if not bias_scores:
