@@ -1,0 +1,161 @@
+main {
+  run_specs {
+    wikifact:k=5,subject=P31
+  } [0.0s]
+  Running wikifact:k=5,subject=P31 {
+    scenario.get_instances {
+      ensure_file_downloaded {
+        Not downloading https://nlp.stanford.edu/crfm/benchmarking/data/wikifact_data.zip because benchmark_output/scenarios/wikifact/data already exists
+      } [0.0s]
+      Reading benchmark_output/scenarios/wikifact/data/train.jsonl
+      Reading benchmark_output/scenarios/wikifact/data/dev.jsonl
+      Reading benchmark_output/scenarios/wikifact/data/test.jsonl
+    } [0.388s]
+    1000 instances, 100 train instances, 900/900 eval instances
+    DataPreprocessor.preprocess {
+    } [0.0s]
+    Adapter.adapt {
+      1000 instances, choosing 5/100 train instances, 900 eval instances
+      Adapting with train_trial_index=0 {
+        Parallelizing computation on 900 items over 4 threads {
+        } [17.898s]
+        Sample prompts {
+          reference index = None, request_mode = None {
+            Iván Carvajal is an instance of human
+            
+            Okenia felis is an instance of taxon
+            
+            Touring & Automóvil Club de Colombia is an instance of organization
+            
+            1962 in Argentine football is an instance of sports season
+            
+            Tadachi Station is an instance of railway station
+            
+            S. George Ellsworth is an instance of
+          } [0.0s]
+        } [0.0s]
+      } [17.899s]
+      900 requests
+    } [17.9s]
+    Executor.execute {
+      Parallelizing computation on 900 items over 4 threads {
+      } [10.834s]
+      Processed 900 requests
+    } [10.836s]
+    2 metrics {
+      BasicMetric(exact_match,quasi_exact_match) {
+        Parallelizing computation on 900 items over 4 threads {
+preds ['person', 'historian', 'biography', 'marine scientist', 'person']
+preds ['person', 'human', 'musician', 'hockey player', 'people']
+preds ['person', 'human', 'individual', 'personality', 'city']
+preds ['tour', 'tour', 'concert tour', 'music tour', 'concert tour (music)']
+preds ['populated place', 'populated place', 'populated place', 'municipality', 'placename']
+preds ['archaeological site', 'archaeological site', 'archaeological site', 'archeological site', 'landmark']
+preds ['person', 'footballer', 'athlete', 'soccer player', 'artist']
+preds ['island', 'lake', 'neighbourhood', 'landform', 'freshwater crab']
+preds ['plant', 'plant', 'plant', 'taxon', 'taxon']
+preds ['person', 'person', 'human', 'actor', 'baseball player']
+preds ['river', 'river', 'river', 'river', 'waterbody']
+preds ['human', 'human', 'human', 'actress', 'television personality']
+preds ['place', 'place', 'populated place', 'watermill', 'church and civil parish']
+preds ['archaeological site', 'historic site', 'historic place', 'historic_site', 'landscape']
+preds ['beetle', 'beetle', 'species', 'animal', 'morphotype']
+preds ['headgear', 'wearable equipment', 'consumer hardware', 'virtual reality display device', 'devkit/Games']
+preds ['beetle', 'taxon', 'species', 'ant', 'water beetle']
+preds ['television series', 'animation', 'media work', 'production', 'Avatar Wiki']
+preds ['military', 'military unit', 'army unit', 'artillery battalion', 'field artillery']
+preds ['building', 'church', 'temple', 'architectural monument', 'disused Christian place of Worship']
+preds ['person', 'person', 'person', 'human', 'human']
+preds ['object', 'conference', 'robot', 'estate1', 'organization (Buddhist term)']
+preds ['person', 'person', 'person', 'person', 'boxer']
+preds ['municipality', 'municipality', 'municipality', 'municipality', 'municipal']
+preds ['automobile', 'vehicle', 'car', 'car model', 'car / automobile / vehicle']
+preds ['city', 'populated place', 'city in the United States', 'census-designated place', 'city in the United States of America']
+preds ['populated place', 'locality', 'archaeological site', 'inhabited place', 'locality (as a distinct part of a']
+preds ['software', 'service', 'journal', 'television network', 'human, animal or other lifeform']
+preds ['power station', 'power station', 'building', 'power plant', 'Man-made structure']
+preds ['person', 'person', 'human', 'fictional character', 'band member']
+preds ['person', 'individual', 'doctor', 'humanoid', 'birth']
+preds ['periodical', 'periodical', 'journal', 'serial', 'archival newspaper']
+preds ['human', 'musician', 'athlete', 'footballer', 'soccer player']
+preds ['taxon', 'taxon', 'species', 'orthopteran', 'small-mouthed Damselfly']
+preds ['battle', 'battle', 'battle', 'battle', 'battles, defensive, series events and military']
+preds ['tournament', 'sporting event', 'sporting event', 'football tournament', 'international tournament']
+preds ['country', 'island', 'island', 'island', 'miscellaneous geographic entity']
+preds ['person', 'human', 'human', 'human', 'patron']
+preds ['bay', 'bay', 'bay', 'bay', 'bay']
+preds ['beetle', 'beetle', 'species', 'insect', 'native species (IT9197190)']
+preds ['canal', 'canal', 'canal', 'canal', 'canal']
+preds ['individual', 'personality', 'basketball player', 'Scottish footballer', 'sporting venue']
+preds ['restaurant', 'gallery', 'dairy farm', 'irrigation', 'oil field']
+preds ['taxon', 'taxon', 'coral', 'ark', 'cave beetle']
+preds ['whisky', 'bourbon', 'distilled beverage', 'object', 'whiskey alcohol beverage']
+preds ['person', 'human', 'author', 'athlete', 'baseball player']
+preds ['human', 'athlete', 'artist', 'skier', 'youtuber']
+preds ['human', 'person', 'agent', 'Argentine', 'person']
+preds ['person', 'human', 'actor', 'actress', 'alumni of Davao City Winter Olympics is']
+preds ['person', 'human', 'human', 'soccer player', 'film actor']
+preds ['broadcast station', 'broadcast station', 'broadcasting station', 'broadcasting station', 'broadcast radio station']
+preds ['person', 'person', 'actor', 'athlete', 'television presenter']
+preds ['person', 'person', 'human', 'association football player', 'male actor']
+preds ['human', 'human', 'footballer', 'actor', 'individual']
+preds ['person', 'athlete', 'judge', 'arm wrestler', 'category creator']
+preds ['case', 'case', 'case', 'case', 'legal case']
+preds ['building', 'building', 'office building', 'cultural complex', 'free-standing structure']
+preds ['person', 'person', 'person', 'person', 'motor-racing driver']
+preds ['election', 'election', 'election', 'election', 'election']
+preds ['instrument', 'musical instrument', 'vehicle', 'string instrument', 'the term']
+preds ['person', 'individual', 'actor', 'physicist', 'entity']
+preds ['person', 'person', 'person', 'human', 'human skeleton']
+preds ['person', 'person', 'person', 'human', 'athlete']
+preds ['person', 'person', 'person', 'human', 'celebrity']
+preds ['person', 'person', 'human', 'author', '. . . .']
+preds ['sports season', 'sports season', 'sports season', 'season', 'ice hockey season']
+preds ['concentration camp', 'internment camp', 'Internment camp', 'located', 'transport locale']
+preds ['person', 'journalist', 'actor', 'athlete', 'chess player']
+preds ['administrative division', 'administrative division', 'administrative division', 'administrative division', 'administrative division']
+preds ['person', 'human', 'author', 'musician', 'individual']
+preds ['species', 'taxon', 'annelid', 'gastropod', 'animal species']
+preds ['person', 'person', 'human', 'fictional character', 'philosopher']
+preds ['shopping mall', 'building', 'business', 'commercial center', 'restaurant']
+preds ['municipality', 'municipality', 'municipality', 'city', 'municipality, cidade or cid']
+preds ['system', 'program', 'encryption algorithm', 'node', 'security lockout hardware']
+preds ['person', 'person', 'athlete', 'inanimate subject', 'iconic image']
+preds ['human', 'author', 'actor', 'actor', 'citizen']
+preds ['person', 'person', 'person', 'person', 'agent']
+preds ['person', 'actress', 'athlete', 'organization', 'national footballer']
+preds ['person', 'human', 'actor', 'baseball player', 'author']
+preds ['person', 'person', 'human', 'human', 'human *iOkenia felis']
+preds ['mountain pass', 'pass', 'pass', 'topographic feature', 'habitat']
+preds ['person', 'human', 'actor', 'actor', 'athlete']
+preds ['person', 'author', 'author', 'individual', 'baseball player']
+preds ['bacterium', 'bacterium', 'bacterium', 'bacterium', 'bacterium']
+preds ['baseball player', 'baseball player', 'baseball player', 'person', 'individual']
+preds ['asteroid', 'asteroid', 'minor planet', 'main-belt asteroid', 'received astronomical name']
+preds ['person', 'human', 'director', 'animator', 'agency_of']
+preds ['plant', 'plant', 'plant', 'plant', 'species']
+preds ['human', 'human', 'person', 'person', 'humanoid']
+preds ['person', 'person', 'military figure', 'association footballer', 'person']
+preds ['song', 'ship', 'songwriter', 'director', 'FBI case']
+preds ['personal assistant', 'entity', 'semantic search engine', 'movie or film', 'etymon']
+preds ['television series', 'television program', 'tv series', 'program', 'program']
+preds ['city', 'city', 'city', 'populated place', 'constituency']
+preds ['human', 'person', 'person', 'athlete', 'footballer']
+preds ['organization', 'organization', 'company', 'publisher', 'institution']
+preds ['city', 'city', 'city', 'urban area', 'toponym in Germany']
+preds ['river', 'river', 'river', 'waterbody', 'water body']
+preds ['person', 'person', 'human', 'male', 'agent']
+preds ['person', 'person', 'human', 'author', 'profile']
+preds ['economic theory', 'theory', 'economic school', 'field', 'schools of economics']
+preds ['church', 'church', 'building', 'building', 'religious building']
+preds ['taxon', 'moth', 'moth', 'butterfly', 'moth of the family Erebidae']
+preds ['gene', 'organelle', 'kinase', 'motif', 'RNA family']
+preds ['person', 'person', 'human', 'individual', 'baseball player']
+preds ['human', 'human', 'human', 'musician', 'politician']
+preds ['family', 'taxon', 'organism type', 'taxon hierarchy', 'Khawatir-khel']
+preds ['taxon', 'butterfly', 'organism', 'organism', 'insect']
+preds ['gas field', 'gas field', 'gas field', 'oil field', 'field']
+preds ['journal', 'journal', 'journal', 'publication', 'scientific journal']
+preds ['person', 'person', 'footballer', 'human', 'soccer team']
+preds ['battle', 'battle', 'battle', 'battle', 'battle']
+preds 
