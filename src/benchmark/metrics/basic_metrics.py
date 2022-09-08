@@ -444,8 +444,6 @@ class BasicMetric(Metric):
 
         # Predicted outputs
         assert request_state.result is not None
-        # TODO: Sort the predictions, or take them from the top tokens of the first completion
-        #       https://github.com/stanford-crfm/benchmarking/issues/42
         preds = sorted(request_state.result.completions, key=lambda x: -x.logprob)
         preds = [completion.text.strip() for completion in preds]
 
