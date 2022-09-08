@@ -232,7 +232,7 @@ class Processor:
 
         if method == ADAPT_GENERATION:
             prompt = self.construct_prompt(
-                self.train_instances, eval_instance, include_output=False, eval_reference_index=None
+                self.train_instances, eval_instance, include_output=False, reference_index=None
             )
             request = Request(
                 model=self.adapter_spec.model,
@@ -258,7 +258,7 @@ class Processor:
             ]
         elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
             prompt = self.construct_prompt(
-                self.train_instances, eval_instance, include_output=False, eval_reference_index=None
+                self.train_instances, eval_instance, include_output=False, reference_index=None
             )
             output_mapping = dict(
                 (self.get_reference_prefix("A", reference_index), reference.output)
@@ -311,17 +311,14 @@ class Processor:
                 for request_mode in request_modes:
                     if request_mode == "original":
                         prompt = self.construct_prompt(
-                            self.train_instances,
-                            eval_instance,
-                            include_output=True,
-                            eval_reference_index=reference_index,
+                            self.train_instances, eval_instance, include_output=True, reference_index=reference_index,
                         )
                     elif request_mode == "calibration":
                         # For calibration purpose, we compute the logprobs of the reference
                         # without train instances and the input question.
                         eval_instance_calibration = replace(eval_instance, input="Answer:")
                         prompt = self.construct_prompt(
-                            [], eval_instance_calibration, include_output=True, eval_reference_index=reference_index,
+                            [], eval_instance_calibration, include_output=True, reference_index=reference_index,
                         )
                     else:
                         raise ValueError(f"Unknown request mode: {request_mode}")
@@ -356,7 +353,7 @@ class Processor:
         train_instances: List[Instance],
         eval_instance: Instance,
         include_output: bool,
-        eval_reference_index: Optional[int],
+        reference_index: Optional[int],
     ) -> Prompt:
         """
         Returns a prompt (string) given:
@@ -368,7 +365,7 @@ class Processor:
 
         Fits the prompt within the context window by removing in-context training examples.
         """
-        assert include_output or eval_reference_index is None
+        assert include_output or reference_index is None
 
         def construct_prompt_helper(train_instances: List[Instance]) -> str:
             # Instructions
@@ -382,11 +379,11 @@ class Processor:
                 # If we have an InformationRetrievalInstance, we need the reference index information to construct
                 # the prompts.
                 if isinstance(instance, InformationRetrievalInstance):
-                    for reference_index, _ in enumerate(instance.references):
+                    for train_reference_index, _ in enumerate(instance.references):
                         # TODO: Should we shuffle the ordering of the Yes and No requests?
                         blocks.append(
                             self.construct_example_prompt(
-                                instance, include_output=True, reference_index=reference_index
+                                instance, include_output=True, reference_index=train_reference_index
                             )
                         )
                 else:
@@ -394,7 +391,7 @@ class Processor:
 
             blocks.append(
                 self.construct_example_prompt(
-                    eval_instance, include_output=include_output, reference_index=eval_reference_index
+                    eval_instance, include_output=include_output, reference_index=reference_index
                 )
             )
 
