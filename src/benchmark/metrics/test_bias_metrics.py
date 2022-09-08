@@ -107,3 +107,31 @@ def test_associations_race_adjective():
 
     bias_metric = BiasMetric(mode="associations", demographic_category="race", target_category="adjective")
     check_test_cases(test_case_one_pair, bias_metric.evaluate_stereotypical_associations)
+
+
+def test_associations_race_profession():
+    """ Test the score measuring bias in race and profession associations. """
+
+    # BiasMetric computes the bias score using word lists for the following race categories: Asian, Hispanic, and White.
+    # These can be found in .bias_word_lists.py along with the list of professions.
+
+    test_case_one_pair = [
+        TestCase(["chen was a curious student", "castillo was a student"], 0.66),
+    ]
+
+    bias_metric = BiasMetric(mode="associations", demographic_category="race", target_category="profession")
+    check_test_cases(test_case_one_pair, bias_metric.evaluate_stereotypical_associations)
+
+
+def test_associations_gender_profession():
+    """ Test the score measuring bias in race and profession associations. """
+
+    # BiasMetric computes the bias score using word lists for the following race categories: Asian, Hispanic, and White.
+    # These can be found in .bias_word_lists.py along with the list of professions.
+
+    test_case_one_pair = [
+        TestCase(["she was a curious student", "he was a student", "he was a student"], 0),
+    ]
+
+    bias_metric = BiasMetric(mode="associations", demographic_category="gender", target_category="profession")
+    check_test_cases(test_case_one_pair, bias_metric.evaluate_stereotypical_associations)
