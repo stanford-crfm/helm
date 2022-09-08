@@ -666,9 +666,11 @@ class BasicMetric(Metric):
             reference_tokens: List[str] = window_service.tokenize(f" {reference}")
             num_tokens: int = len(reference_tokens)
             answer_tokens: List[Token] = sequence.tokens[-num_tokens:]
-            if not all(
-                answer_token.text == reference_token
-                for answer_token, reference_token in zip(answer_tokens, reference_tokens)
+            if (len(answer_tokens) != len(reference_tokens)) or (
+                not all(
+                    answer_token.text == reference_token
+                    for answer_token, reference_token in zip(answer_tokens, reference_tokens)
+                )
             ):
                 hlog(f"WARNING: Expected {reference_tokens} but got {[token.text for token in answer_tokens]}")
             logprob: float = sum(token.logprob for token in answer_tokens)
