@@ -143,7 +143,6 @@ class Metric(ABC):
             )
 
             # Per-instance stats
-            assert instance.id is not None
             per_instance_stats: List[PerInstanceStats] = [
                 PerInstanceStats(cast(str, instance.id), train_trial_index, stats)
                 for instance, stats in zip(scenario_state.instances, results)
