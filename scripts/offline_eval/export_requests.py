@@ -105,7 +105,10 @@ def export_requests(organization: str, run_suite_path: str, output_path: str):
                             if current_organization == "together":
                                 process_together_request(request)
                             elif current_organization == "microsoft":
-                                process_microsoft_request(request)
+                                try:
+                                    process_microsoft_request(request)
+                                except ValueError as e:
+                                    hlog(f"Error while processing Microsoft request: {e}\nRequest: {request}")
                             else:
                                 raise ValueError(f"Unhandled organization: {current_organization}.")
 
