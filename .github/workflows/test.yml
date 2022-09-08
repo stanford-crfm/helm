@@ -53,7 +53,7 @@ jobs:
 #          VERSION: ${{ github.head_ref || 'main' }}
       - name: Run entire pipeline quickly without any data
         # Checking RunSpecs with openai/davinci should be comprehensive enough
-        run: venv/bin/benchmark-present --skip-instances --models-to-run openai/davinci --exit-on-error
+        run: venv/bin/benchmark-present --suite test --skip-instances --models-to-run openai/davinci --exit-on-error
 
   ci:
     name: All CI tasks complete
