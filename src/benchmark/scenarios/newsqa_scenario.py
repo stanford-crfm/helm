@@ -1,7 +1,7 @@
 import os
 import json
 import random
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, PassageQuestionInput
 
@@ -94,7 +94,7 @@ class NewsQAScenario(Scenario):
                     answers.append(answer_text)
         return prompt, answers
 
-    def cleaned_samples(self, samples: List[dict]) -> List[dict]:
+    def cleaned_samples(self, samples: List[Dict]) -> List[Dict]:
         """
         Given the full dataset this function only retains news article and QAs where there are
         at least one question that is valid. The question is valid if all crowdworkers believe that
@@ -118,7 +118,7 @@ class NewsQAScenario(Scenario):
                 clean_samples.append(sample)
         return clean_samples
 
-    def get_file_instances(self, target_file: str, splits: dict) -> List[Instance]:
+    def get_file_instances(self, target_file: str, splits: Dict) -> List[Instance]:
         """
         Helper for generating instances for a split.
         Args:
@@ -128,11 +128,10 @@ class NewsQAScenario(Scenario):
             List[Instance]: Instances from the file for the specified split.
         """
         file_instances: List[Instance] = []
-        all_samples: List = []
-        clean_samples: List = []
         with open(target_file, encoding="utf-8") as f:
-            all_samples = json.load(f)["data"]
-        clean_samples = self.cleaned_samples(all_samples)
+            all_samples: List[Dict] = json.load(f)["data"]
+
+        clean_samples: List[Dict] = self.cleaned_samples(all_samples)
         for sample in clean_samples:
             prompt, answers = self.create_prompt(sample)
             split = "train" if sample["type"] == "train" else "valid"
@@ -145,10 +144,7 @@ class NewsQAScenario(Scenario):
         return file_instances
 
     def get_instances(self) -> List[Instance]:
-        # TODO how to deal with NewsQA file. The dataset cannot be directly downloaded
-        # currently hardcoded a path to a directory with the file
-        data_path: str = "/u/scr/nlp/crfm/benchmarking/newsqa/"
-        file_path = os.path.join(data_path, "combined-newsqa-data-v1.json")
+        file_path: str = os.path.join("restricted", self.name, "combined-newsqa-data-v1.json")
         assert os.path.exists(file_path)
         splits = {"train": TRAIN_SPLIT, "valid": VALID_SPLIT}
         random.seed(0)  # randomness needed to pick question at random

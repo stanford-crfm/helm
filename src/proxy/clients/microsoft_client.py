@@ -17,8 +17,6 @@ from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
 
 class MicrosoftClient(Client):
-    _CLIENT_LOCK = "microsoft_client.lock"
-
     """
     Client for the Microsoft's Megatron-Turing NLG models (https://arxiv.org/abs/2201.11990).
 
@@ -26,6 +24,28 @@ class MicrosoftClient(Client):
     "the model will generate roughly 3 tokens per second. The response will be returned once
     all tokens have been generated."
     """
+
+    @staticmethod
+    def convert_to_raw_request(request: Request) -> Dict:
+        stop_sequence: Optional[str]
+        if len(request.stop_sequences) == 0:
+            stop_sequence = None
+        elif len(request.stop_sequences) == 1:
+            stop_sequence = request.stop_sequences[0]
+        else:
+            raise ValueError("More than one stop sequence is not supported.")
+
+        return {
+            "engine": request.model_engine,
+            "prompt": request.prompt,
+            "temperature": request.temperature,
+            "max_tokens": request.max_tokens,
+            "best_of": request.top_k_per_token,
+            "logprobs": request.top_k_per_token,
+            "stop": stop_sequence,
+            "top_p": request.top_p,
+            "echo": request.echo_prompt,
+        }
 
     def __init__(self, api_key: str, cache_path: str, org_id: Optional[str] = None):
         # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
@@ -49,7 +69,7 @@ class MicrosoftClient(Client):
         #
         # Since the model will generate roughly three tokens per second and the max context window
         # is 2048 tokens, we expect the maximum time for a request to be fulfilled to be 700 seconds.
-        self.lock = FileLock(MicrosoftClient._CLIENT_LOCK, timeout=700)
+        self._lock = FileLock(f"{cache_path}.lock", timeout=700)
 
     def make_request(self, request: Request) -> RequestResult:
         """
@@ -73,27 +93,7 @@ class MicrosoftClient(Client):
             presence_penalty
             frequency_penalty
         """
-        # Only a single "stop" value (str) or None is currently supported.
-        stop_sequence: Optional[str]
-        if len(request.stop_sequences) == 0:
-            stop_sequence = None
-        elif len(request.stop_sequences) == 1:
-            stop_sequence = request.stop_sequences[0]
-        else:
-            raise ValueError("More than one stop sequence is not supported.")
-
-        raw_request = {
-            "engine": request.model_engine,
-            "prompt": request.prompt,
-            "temperature": request.temperature,
-            "max_tokens": request.max_tokens,
-            "best_of": request.top_k_per_token,
-            "logprobs": request.top_k_per_token,
-            "stop": stop_sequence,
-            "top_p": request.top_p,
-            "echo": request.echo_prompt,
-        }
-
+        raw_request = MicrosoftClient.convert_to_raw_request(request)
         completions: List[Sequence] = []
         request_time = 0
         request_datetime: Optional[int] = None
@@ -104,7 +104,7 @@ class MicrosoftClient(Client):
             try:
 
                 def do_it():
-                    with self.lock:
+                    with self._lock:
                         # Following https://beta.openai.com/docs/api-reference/authentication
                         # `organization` can be set to None.
                         turing.organization = self.org_id

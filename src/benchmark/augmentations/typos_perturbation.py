@@ -1,8 +1,6 @@
 from dataclasses import dataclass
+from random import Random
 
-import numpy as np
-
-from benchmark.scenarios.scenario import Instance
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
@@ -35,7 +33,7 @@ class TyposPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return TyposPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
 
-    def butter_finger(self, text):
+    def perturb(self, text: str, rng: Random) -> str:
         key_approx = {}
 
         key_approx["q"] = "was"
@@ -73,8 +71,8 @@ class TyposPerturbation(Perturbation):
             if lcletter not in key_approx.keys():
                 new_letter = lcletter
             else:
-                if np.random.rand() < self.prob:
-                    new_letter = np.random.choice(list(key_approx[lcletter]))
+                if rng.random() < self.prob:
+                    new_letter = rng.choice(list(key_approx[lcletter]))
                 else:
                     new_letter = lcletter
             # go back to original case
@@ -82,11 +80,3 @@ class TyposPerturbation(Perturbation):
                 new_letter = new_letter.upper()
             perturbed_texts += new_letter
         return perturbed_texts
-
-    def apply(self, instance: Instance) -> Instance:
-        assert instance.id is not None
-        np.random.seed(int(instance.id[2:]))  # set seed based on instance ID
-        return super().apply(instance)
-
-    def perturb(self, text: str) -> str:
-        return self.butter_finger(text)

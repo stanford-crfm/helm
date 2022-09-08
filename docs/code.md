@@ -47,12 +47,16 @@ In order to implement new scenarios:
 
 1. Create a new file as a new Python scenario file in the `scenarios` folder.
 2. Within the scenario file, create a `Scenario` class, e.g. `YourScenario`.
-3. `YourScenario` should implement `get_instances`, a method returning a 
-   list of `Instance` objects. Each `Instance` must have a list of (potentially one)
+3. `YourScenario` should implement `get_instances`, a method that downloads the 
+   dataset files if they don't already exist and returns a list of `Instance`s. 
+   Each `Instance` must have a list of (potentially one)
    `Reference` answers: a correct answer may be indicated with a `CORRECT_TAG` in 
    a `Reference` instance's `tags` argument. In addition, you 
    must specify the `split` of the `Instance` as one of `TRAIN_SPLIT`,
    `VALID_SPLIT`, or `TEST_SPLIT` constants as in `scenario.py`.
+   1. For `Scenario`s with datasets that cannot be publicly shared, place a copy of the
+      dataset at path `restricted/<Name of the Scenario>` and read from that path.
+      See `NewsQAScenario` and `ICEScenario` for some examples.
 4. Note that you need not enumerate every possible correct answer (nor must
    there even necessarily be a correct answer). 
 5. Make sure to document your scenario well with a clear docstring. 

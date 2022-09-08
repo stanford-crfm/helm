@@ -32,9 +32,8 @@ class SyntheticEfficiencyScenario(Scenario):
     1. What is the dependence of runtime on number of tokens in the prompt and
        number of generated output tokens? How about number of completions?
     2. How much variance do we observe for each query?
-    3. What's the difference between warm start and cold start inference times?
-    4. How do different models (across providers) behave?
-    5. Can we reverse engineer the hardware used by providers?
+    3. How do different models (across providers) behave?
+    4. Can we reverse engineer the hardware used by providers?
 
     We gather input text from fixed public domain sources and vary various parameters,
     including the model the number of input and output tokens, the number of
@@ -45,8 +44,8 @@ class SyntheticEfficiencyScenario(Scenario):
     description = "Synthetic scenario for benchmarking efficiency metrics"
     tags: List[str] = []
 
-    def __init__(self, num_input_tokens: int, num_instances: int, tokenizer: str):
-        self.num_input_tokens: int = num_input_tokens
+    def __init__(self, num_prompt_tokens: int, num_instances: int, tokenizer: str):
+        self.num_prompt_tokens: int = num_prompt_tokens
         self.num_instances: int = num_instances
         self.tokenizer = tokenizer
         assert self.tokenizer in ["huggingface/gpt2", "ai21/j1"]
@@ -55,7 +54,7 @@ class SyntheticEfficiencyScenario(Scenario):
         data_paths = []
         for instance_id in range(self.num_instances):
             parameters = (
-                f"input_tokens={self.num_input_tokens},"
+                f"num_prompt_tokens={self.num_prompt_tokens},"
                 f"tokenizer={self.tokenizer.replace('/', '_')},"
                 f"id={instance_id}.txt"
             )

@@ -51,17 +51,17 @@ from .scenarios import me_q_sum_scenario  # noqa
 from .scenarios import bioleaflets_scenario  # noqa
 
 # Metrics
-from . import basic_metrics  # noqa
-from . import multiple_request_metrics  # noqa
-from . import toxicity_metrics  # noqa
-from . import tokens_metric  # noqa
-from . import copyright_metrics  # noqa
-from . import numeracy_metrics  # noqa
-from . import disinformation_metrics  # noqa
-from . import code_metrics  # noqa
-from . import bbq_metrics  # noqa
-from . import bias_metrics  # noqa
-from . import summarization_metrics  # noqa
+from .metrics import basic_metrics  # noqa
+from .metrics import bbq_metrics  # noqa
+from .metrics import bias_metrics  # noqa
+from .metrics import code_metrics  # noqa
+from .metrics import copyright_metrics  # noqa
+from .metrics import disinformation_metrics  # noqa
+from .metrics import numeracy_metrics  # noqa
+from .metrics import multiple_request_metrics  # noqa
+from .metrics import summarization_metrics  # noqa
+from .metrics import toxicity_metrics  # noqa
+from .metrics import tokens_metric  # noqa
 
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa
@@ -74,6 +74,7 @@ from .augmentations.synonym_perturbation import SynonymPerturbation  # noqa
 from .augmentations.contrast_sets_perturbation import ContrastSetsPerturbation  # noqa
 from .augmentations.lowercase_perturbation import LowerCasePerturbation  # noqa
 from .augmentations.space_perturbation import SpacePerturbation  # noqa
+from .augmentations.robustness_perturbation import RobustnessPerturbation  # noqa
 from .augmentations.dialect_perturbation import DialectPerturbation  # noqa
 from .augmentations.person_name_perturbation import PersonNamePerturbation  # noqa
 from .augmentations.gender_perturbation import GenderPerturbation  # noqa

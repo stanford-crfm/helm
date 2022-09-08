@@ -1,19 +1,21 @@
 import json
 import os
-from collections import defaultdict
+import typing
+from collections import Counter
 from dataclasses import dataclass, field
 from typing import Dict, List
 
+from benchmark.metrics.metric_name import MetricName
 from common.general import ensure_directory_exists, write, write_lines, asdict_without_nones
 from common.hierarchical_logger import hlog, htrack_block
 from .augmentations.data_augmenter import DataAugmenterSpec
-from .metric_service import MetricService
-from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance
+from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance, with_instance_ids
 from .adapter import AdapterSpec, Adapter, ScenarioState
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
-from .metric import Metric, MetricSpec, MetricResult, PerInstanceStatsKey, create_metric, Stat
-from .tokens_metric import TokensMetric
+from .metrics.metric_service import MetricService
+from .metrics.metric import Metric, MetricSpec, MetricResult, PerInstanceStats, create_metric, Stat
+from .metrics.tokens_metric import TokensMetric
 from .window_services.tokenizer_service import TokenizerService
 
 
@@ -100,19 +102,30 @@ class Runner:
         run_path: str = os.path.join(self.runs_path, run_spec.name)
         ensure_directory_exists(run_path)
 
+        adapter = Adapter(run_spec.adapter_spec, self.tokenizer_service)
+
+        # Create the instances of the scenario
+        with htrack_block("scenario.get_instances"):
+            instances: List[Instance] = scenario.get_instances()
+
+        # Give each instance a unique ID
+        instances = with_instance_ids(instances)
+
+        # Sample only as many as we need
+        instances = adapter.sample_instances(instances)
+
         # Data preprocessing
         if not self.skip_instances:
-            instances: List[Instance] = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
-                scenario, self.executor.execution_spec.parallelism
+            instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
+                instances, self.executor.execution_spec.parallelism
             )
         else:
             instances = []
 
-        # Adaptation
-        adapter = Adapter(run_spec.adapter_spec, self.tokenizer_service)
-        scenario_state: ScenarioState = adapter.adapt(instances)
+        # Adapt (convert to requests)
+        scenario_state: ScenarioState = adapter.adapt(instances, self.executor.execution_spec.parallelism)
 
-        # Execution
+        # Execute (fill up results)
         scenario_state = self.executor.execute(scenario_state)
 
         # Apply the metrics
@@ -122,19 +135,31 @@ class Runner:
             [] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
         ) + [TokensMetric()]
         stats: List[Stat] = []
-        per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
+        per_instance_stats: List[PerInstanceStats] = []
         with htrack_block(f"{len(metrics)} metrics"):
             for metric in metrics:
                 with htrack_block(metric):
                     metric_result: MetricResult = metric.evaluate(
-                        scenario_state, self.metric_service, self.eval_cache_path
+                        scenario_state,
+                        self.metric_service,
+                        self.eval_cache_path,
+                        self.executor.execution_spec.parallelism,
                     )
                     stats.extend(metric_result.aggregated_stats)
-                    for key in metric_result.per_instance_stats:
-                        per_instance_stats[key].extend(metric_result.per_instance_stats[key])
+                    per_instance_stats.extend(metric_result.per_instance_stats)
 
-        # Print out stats
-        hlog(f"Generated {len(stats)} stats")
+        # Check that there aren't duplicate `Stat`s
+        metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
+        duplicate_metrics: Dict[MetricName, int] = {
+            metric_name: count
+            for metric_name, count in metric_counts.items()
+            # TODO: remove the metric_name.name != "num_instances" check. See metric.py.
+            if count > 1 and metric_name.name != "num_instances"
+        }
+        assert len(duplicate_metrics) == 0, f"Found duplicate metrics: {duplicate_metrics}"
+
+        # Print out the number of stats
+        hlog(f"Generated {len(stats)} stats.")
 
         if self.skip_instances:
             hlog("skip_instances was True. Skipping writing results out.")
@@ -157,11 +182,5 @@ class Runner:
         )
         write(
             os.path.join(run_path, "per_instance_stats.json"),
-            json.dumps(
-                {
-                    str(key): [asdict_without_nones(stat) for stat in value]
-                    for (key, value) in per_instance_stats.items()
-                },
-                indent=2,
-            ),
+            json.dumps(list(map(asdict_without_nones, per_instance_stats)), indent=2),
         )

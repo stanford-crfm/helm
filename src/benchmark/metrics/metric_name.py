@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from .augmentations.perturbation_description import PerturbationDescription
-from .scenarios.scenario import Instance
+from benchmark.augmentations.perturbation_description import PerturbationDescription
+from benchmark.scenarios.scenario import Instance
 
 
 @dataclass(frozen=True, eq=True)

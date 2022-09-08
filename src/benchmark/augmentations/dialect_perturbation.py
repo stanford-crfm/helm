@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 import json
 import os
-import random
+from random import Random
 import re
 from pathlib import Path
 from typing import Dict, Optional, List
 
-from benchmark.scenarios.scenario import Instance
 from common.general import match_case, ensure_file_downloaded
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
@@ -77,9 +76,6 @@ class DialectPerturbation(Perturbation):
         self.output_path: str = self.OUTPUT_PATH
         Path(self.output_path).mkdir(parents=True, exist_ok=True)
 
-        # Random generator specific to this class, will be set in the apply function
-        self.random: random.Random
-
         # Assign parameters to instance variables
         assert 0 <= prob <= 1
         self.prob = prob
@@ -129,16 +125,16 @@ class DialectPerturbation(Perturbation):
         with open(self.mapping_file_path, "r") as f:
             return json.load(f)
 
-    def substitute_dialect(self, text: str) -> str:
+    def perturb(self, text: str, rng: Random) -> str:
         """ Substitute the source dialect in text with the target dialect with probability self.prob. """
 
         # Substitution function
         def sub_func(m: re.Match):
             match_str = m.group(0)  # The full match (e.g. " With ", " With,", " With.")
             word = m.group(1)  # Captured group (e.g. "With")
-            if self.random.uniform(0, 1) < self.prob:
+            if rng.uniform(0, 1) < self.prob:
                 synonyms = self.mapping_dict[word.lower()]
-                synonym = self.random.choice(synonyms)  # Synonym (e.g. "wit")
+                synonym = rng.choice(synonyms)  # Synonym (e.g. "wit")
                 synonym = match_case(word, synonym)  # Synoynm with matching case (e.g. "Wit")
                 match_str = match_str.replace(
                     word, synonym
@@ -147,13 +143,3 @@ class DialectPerturbation(Perturbation):
 
         # Execute the RegEx
         return re.sub(self.pattern, sub_func, text, flags=re.IGNORECASE)
-
-    def apply(self, instance: Instance) -> Instance:
-        """ Apply the perturbation to the provided instance. """
-        assert instance.id is not None
-        self.random = random.Random(int(instance.id[2:]))
-        return super().apply(instance)
-
-    def perturb(self, text: str) -> str:
-        """ Perturb the provided text. """
-        return self.substitute_dialect(text)

@@ -1,15 +1,34 @@
 from dataclasses import dataclass, field
-from concurrent.futures import ThreadPoolExecutor
 from typing import List
-from tqdm import tqdm
 
 from common.hierarchical_logger import htrack, hlog
+from common.general import parallel_map
 from benchmark.augmentations.perturbation import (
     Perturbation,
     PerturbationSpec,
     create_perturbation,
 )
 from benchmark.scenarios.scenario import Instance
+
+
+@dataclass(frozen=True)
+class Processor:
+    include_original: bool
+    skip_unchanged: bool
+    perturbations: List[Perturbation]
+
+    def process(self, instance: Instance) -> List[Instance]:
+        result: List[Instance] = []
+        if self.include_original:
+            #  we want to include the original even when the perturbation does not change the input
+            result.append(instance)
+
+        for perturbation in self.perturbations:
+            perturbed_instance: Instance = perturbation.apply(instance)
+            if self.skip_unchanged and perturbed_instance.input == instance.input:
+                continue
+            result.append(perturbed_instance)
+        return result
 
 
 @dataclass(frozen=True)
@@ -31,27 +50,13 @@ class DataAugmenter:
         include_original controls whether to include the original Instance in the new list of Instances.
         skip_unchanged controls whether we include instances for which the perturbation did not change the input.
         """
-
-        def process(instance: Instance) -> List[Instance]:
-            result: List[Instance] = []
-            if include_original:
-                #  we want to include the original even when the perturbation does not change the input
-                result.append(instance)
-
-            for perturbation in self.perturbations:
-                perturbed_instance: Instance = perturbation.apply(instance)
-                if skip_unchanged and perturbed_instance.input == instance.input:
-                    continue
-                result.append(perturbed_instance)
-            return result
-
-        # TODO: SynonymPerturbation isn't thread-safe, so we can't exploit parallelism right now
-        parallelism = 1
-
-        with ThreadPoolExecutor(max_workers=parallelism) as executor:
-            # Run `process` on each instance
-            results: List[List[Instance]] = list(tqdm(executor.map(process, instances), total=len(instances)))
-            output_instances = [instance for result in results for instance in result]
+        processor = Processor(
+            include_original=include_original, skip_unchanged=skip_unchanged, perturbations=self.perturbations
+        )
+        results: List[List[Instance]] = parallel_map(
+            processor.process, instances, parallelism=parallelism,
+        )
+        output_instances = [instance for result in results for instance in result]
 
         hlog(f"{len(instances)} instances augmented to {len(output_instances)} instances")
         return output_instances

@@ -1,36 +1,32 @@
 from abc import ABC
 from dataclasses import dataclass, replace
 from collections import defaultdict
-from typing import List, Dict, Tuple, Optional, Iterable, Set
-from tqdm import tqdm
+from typing import List, Dict, Tuple, Optional, Iterable, Set, cast
 
 from common.object_spec import ObjectSpec, create_object
-from common.general import singleton
-from .statistic import Stat, merge_stat
-from .augmentations.perturbation_description import PerturbationDescription, PERTURBATION_ORIGINAL, PERTURBATION_WORST
-from .adapter import (
+from common.general import singleton, parallel_map
+from benchmark.augmentations.perturbation_description import (
+    PerturbationDescription,
+    PERTURBATION_ORIGINAL,
+    PERTURBATION_WORST,
+)
+from benchmark.adapter import (
     AdapterSpec,
     ScenarioState,
     RequestState,
     ADAPT_LANGUAGE_MODELING,
 )
+from benchmark.scenarios.scenario import Instance
 from .metric_name import MetricName, MetricContext
 from .metric_service import MetricService
-from .scenarios.scenario import Instance
+from .statistic import Stat, merge_stat
 
 
-@dataclass(unsafe_hash=True)
-class PerInstanceStatsKey:
-    """
-    `PerInstanceStatsKey` is a (instance, trial index) tuple.
-    """
-
-    instance: str
+@dataclass(frozen=True)
+class PerInstanceStats:
+    instance_id: str
     trial_index: int
-
-    def __init__(self, instance: Instance, trial_index: int):
-        self.instance = instance.id if instance.id is not None else str(instance)
-        self.trial_index = trial_index
+    stats: List[Stat]
 
 
 @dataclass
@@ -41,9 +37,55 @@ class MetricResult:
     """
 
     aggregated_stats: List[Stat]
+    per_instance_stats: List[PerInstanceStats]
 
-    # Key for per-instance statistics is (instance, trial index), value is list of statistics.
-    per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]]
+
+@dataclass(frozen=True)
+class RequestStateSet:
+    """All the request states relevant to a given instance"""
+
+    instance: Instance
+    generation_states: List[RequestState]
+    references_states: List[RequestState]
+
+
+@dataclass(frozen=True)
+class Processor:
+    """Evaluates an instance."""
+
+    # TODO: not ideal that we have circular dependencies; subclasses of Metric
+    # should override the Processor rather than the Metric.
+    metric: "Metric"
+    metric_service: MetricService
+    eval_cache_path: str
+    adapter_spec: AdapterSpec
+
+    def process(self, request_state_set: RequestStateSet) -> List[Stat]:
+        instance_stats: List[Stat] = []
+
+        # Evaluate generated request_state
+        generation_states = request_state_set.generation_states
+        if len(generation_states) != 0:
+            instance_stats.extend(
+                self.metric.evaluate_generation(
+                    self.adapter_spec, singleton(generation_states), self.metric_service, self.eval_cache_path
+                )
+            )
+
+        # Evaluate the references
+        references_states = request_state_set.references_states
+        if len(references_states) != 0:
+            instance_stats.extend(
+                self.metric.evaluate_references(
+                    self.adapter_spec, references_states, self.metric_service, self.eval_cache_path
+                )
+            )
+
+        # Add instance-related context (e.g., split, perturbation) to the metrics
+        for i, stat in enumerate(instance_stats):
+            instance_stats[i] = add_context(stat, MetricContext.from_instance(request_state_set.instance))
+
+        return instance_stats
 
 
 class Metric(ABC):
@@ -57,7 +99,7 @@ class Metric(ABC):
     """
 
     def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
         """
         Main entry point for a `Metric`.  This function groups the single
@@ -72,46 +114,48 @@ class Metric(ABC):
 
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
-        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
+        all_per_instance_stats: List[PerInstanceStats] = []
 
         for train_trial_index in range(adapter_spec.num_train_trials):
-            trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
-            per_instance_stats: Dict[Instance, List[Stat]] = defaultdict(list)  # Stats for individual instances
-
-            for instance in tqdm(scenario_state.instances):
-                instance_stats = []
-
-                # Evaluate generated request_state
-                request_states = scenario_state.get_request_states(train_trial_index, instance, None)
-                if len(request_states) != 0:
-                    instance_stats.extend(
-                        self.evaluate_generation(
-                            adapter_spec, singleton(request_states), metric_service, eval_cache_path
-                        )
-                    )
-
-                # Evaluate the references
-                request_states = []
+            # Construct inputs
+            request_state_sets = []
+            for instance in scenario_state.instances:
+                generation_states = scenario_state.get_request_states(train_trial_index, instance, None)
+                references_states = []
                 for reference_index in range(len(instance.references)):
-                    request_states.extend(
+                    references_states.extend(
                         scenario_state.get_request_states(train_trial_index, instance, reference_index)
                     )
-                if len(request_states) != 0:
-                    instance_stats.extend(
-                        self.evaluate_references(adapter_spec, request_states, metric_service, eval_cache_path)
-                    )
+                request_state_set = RequestStateSet(
+                    instance=instance, generation_states=generation_states, references_states=references_states
+                )
+                request_state_sets.append(request_state_set)
 
-                # Add instance-related context (e.g., split, perturbation) to the metrics
-                for i, stat in enumerate(instance_stats):
-                    instance_stats[i] = add_context(stat, MetricContext.from_instance(instance))
+            # Do it!
+            processor = Processor(
+                metric=self,
+                metric_service=metric_service,
+                eval_cache_path=eval_cache_path,
+                adapter_spec=scenario_state.adapter_spec,
+            )
+            results: List[List[Stat]] = parallel_map(
+                processor.process, request_state_sets, parallelism=parallelism,
+            )
 
-                per_instance_stats[instance] = instance_stats
+            # Per-instance stats
+            assert instance.id is not None
+            per_instance_stats: List[PerInstanceStats] = [
+                PerInstanceStats(cast(str, instance.id), train_trial_index, stats)
+                for instance, stats in zip(scenario_state.instances, results)
+            ]
 
-                # Merge these statistics back.
+            # Aggregate these stats
+            trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
+            for instance_stats in results:
                 for stat in instance_stats:
                     merge_stat(trial_stats, stat)
 
-            # group stats according to the context (e.g., split, perturbation), i.e., non-name part of the MetricName,
+            # Group stats according to the context (e.g., split, perturbation), i.e., non-name part of the MetricName,
             # and call derive_stats on each grouping
             grouped_trial_stats: Dict[MetricContext, Dict[MetricName, Stat]] = defaultdict(dict)
             for metric_name, stat in trial_stats.items():
@@ -121,11 +165,11 @@ class Metric(ABC):
                     # we could potentially allow derive_stats to overwrite context, but this feels more robust
                     merge_stat(trial_stats, add_context(stat, context))  # add correct context
 
-            # same for per_instance_stats
+            # Same for per_instance_stats
             grouped_per_instance_stats: Dict[MetricContext, Dict[Instance, List[Stat]]] = defaultdict(
                 lambda: defaultdict(list)
             )
-            for instance, stats in per_instance_stats.items():
+            for instance, stats in zip(scenario_state.instances, results):
                 for stat in stats:
                     grouped_per_instance_stats[MetricContext.from_instance(instance)][instance].append(stat)
             for context, instance_dict in grouped_per_instance_stats.items():
@@ -133,10 +177,6 @@ class Metric(ABC):
                 # (instance-level metrics should be computed in the evaluate_{generation,references} anyway).
                 for stat in self.derive_per_instance_stats(instance_dict):
                     merge_stat(trial_stats, add_context(stat, context))
-
-                # keep track of how many instances are in each subset
-                num_instances_stat = Stat(MetricName("num_instances")).add(len(instance_dict))
-                merge_stat(trial_stats, add_context(num_instances_stat, context))
 
             # aggregate request states and call evaluate_instances in case the metric needs it
             grouped_request_states: Dict[MetricContext, List[RequestState]] = defaultdict(list)
@@ -150,7 +190,7 @@ class Metric(ABC):
                     merge_stat(trial_stats, add_context(stat, context))
 
             # This is here since we want these stats for all metrics and they aggregate across contexts (perturbations)
-            worst_case_stats = self.compute_worst_case_metrics(per_instance_stats)
+            worst_case_stats = self.compute_worst_case_metrics(dict(zip(scenario_state.instances, results)))
             for stat in worst_case_stats:
                 merge_stat(trial_stats, stat)
 
@@ -158,8 +198,7 @@ class Metric(ABC):
             for stat in trial_stats.values():
                 merge_stat(global_stats, stat.take_mean())
 
-            for instance, instance_stats in per_instance_stats.items():
-                all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)].extend(instance_stats)
+            all_per_instance_stats.extend(per_instance_stats)
 
         # Wrap aggregated and per-instance stats in a MetricResult.
         return MetricResult(list(global_stats.values()), all_per_instance_stats)
@@ -203,7 +242,7 @@ class Metric(ABC):
         # The first and only trial
         trial_stats: Dict[MetricName, Stat] = {}
         # Per-instance stats
-        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
+        all_per_instance_stats: List[PerInstanceStats] = []
         instance_ids_per_context: Dict[MetricContext, Set[str]] = defaultdict(set)
 
         for request_state in scenario_state.request_states:
@@ -220,7 +259,8 @@ class Metric(ABC):
                 instance_ids_per_context[context].add(request_state.instance.id)
 
             # Use trial index of 0 here since we run only one trial for LM
-            all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)].extend(request_stats)
+            assert request_state.instance.id is not None
+            all_per_instance_stats.append(PerInstanceStats(request_state.instance.id, 0, request_stats))
 
             for stat in request_stats:
                 merge_stat(trial_stats, stat)
@@ -285,7 +325,7 @@ class Metric(ABC):
                         robustness_stat.merge(stat)
                     if perturbation.fairness:
                         fairness_stat.merge(stat)
-                    assert perturbation not in individual_perturbation_stats
+                    assert perturbation not in individual_perturbation_stats, perturbation
                     individual_perturbation_stats[perturbation] = Stat(stat.name).merge(stat)  # copy
 
             for stat in [robustness_stat, fairness_stat, *individual_perturbation_stats.values()]:

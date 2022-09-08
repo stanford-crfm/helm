@@ -8,7 +8,7 @@ from typing import List, Optional
 import json
 
 from common.authentication import Authentication
-from common.general import parse_hocon, write
+from common.general import parse_hocon, write, write_lines
 from common.hierarchical_logger import hlog, htrack
 from benchmark.run import run_benchmarking, add_run_args, validate_args, LATEST_SYMLINK
 from benchmark.runner import RunSpec
@@ -122,13 +122,30 @@ class AllRunner:
             hlog("There were no RunSpecs or they got filtered out.")
             return
 
-        # Write out all the `RunSpec`s and models to json files
+        # Write out all the `RunSpec`s and models to JSON files
+        # Note: if we are parallelizing over models and scenario groups, this
+        # could get overwritten many times.  Ideally, we would make the file
+        # name specific to models and scenario groups.
         write(
             os.path.join(suite_dir, "run_specs.json"), json.dumps(list(map(dataclasses.asdict, run_specs)), indent=2),
         )
 
-        # Print out all the models and scenario groups available
-        # This makes it easy to select individual ones to run.
+        if self.skip_instances:
+            self.write_parallel_commands(suite_dir, run_specs)
+
+        # Create a symlink runs/latest -> runs/<name_of_suite>,
+        # so runs/latest always points to the latest run suite.
+        symlink_path: str = os.path.abspath(os.path.join(runs_dir, LATEST_SYMLINK))
+        if os.path.islink(symlink_path):
+            # Remove the previous symlink if it exists.
+            os.unlink(symlink_path)
+        os.symlink(os.path.abspath(suite_dir), symlink_path)
+
+    def write_parallel_commands(self, suite_dir: str, run_specs: List[RunSpec]):
+        """
+        Print out scripts to run after.
+        """
+        # Print out all the models and scenario groups that we're touching.
         models = set()
         groups = set()
         for run_spec in run_specs:
@@ -138,13 +155,43 @@ class AllRunner:
         hlog(f"{len(models)} models: {' '.join(models)}")
         hlog(f"{len(groups)} scenario groups: {' '.join(groups)}")
 
-        # Create a symlink runs/latest -> runs/<name_of_suite>,
-        # so runs/latest always points to the latest run suite.
-        symlink_path: str = os.path.abspath(os.path.join(runs_dir, LATEST_SYMLINK))
-        if os.path.islink(symlink_path):
-            # Remove the previous symlink if it exists.
-            os.unlink(symlink_path)
-        os.symlink(os.path.abspath(suite_dir), symlink_path)
+        # Write wrapper for benchmark-present that can be used through Slurm
+        lines = [
+            "#!/bin/bash",
+            "",
+            ". venv/bin/activate",
+            'benchmark-present "$@"',
+        ]
+        write_lines(os.path.join(suite_dir, "benchmark-present.sh"), lines)
+
+        # Write out bash script for launching the entire benchmark
+        lines = []
+        for model in models:
+            for group in groups:
+                # Try to match the arguments of `run_benchmarking`
+                # Build arguments
+                present_args = []
+                present_args.append(f"--conf {self.conf_path}")
+                if self.local:
+                    present_args.append("--local")
+                present_args.append(f"--num-threads {self.num_threads}")
+                present_args.append(f"--suite {self.suite}")
+                if self.max_eval_instances is not None:
+                    present_args.append(f"--max-eval-instances {self.max_eval_instances}")
+                present_args.append(f"--models-to-run {model}")
+                present_args.append(f"--scenario-groups-to-run {group}")
+
+                lines.append(
+                    f"sbatch --partition john "
+                    f"--cpus {self.num_threads} "
+                    f"-o benchmark_output/runs/{self.suite}/slurm-%j.out "
+                    f"{suite_dir}/benchmark-present.sh "
+                    f"{' '.join(present_args)}"
+                )
+        lines.append("echo '# Run these after Slurm jobs terminate'")
+        lines.append(f"echo 'benchmark-present --local --suite {self.suite} --skip-instances'")
+        lines.append(f"echo 'benchmark-summarize --suite {self.suite}'")
+        write_lines(os.path.join(suite_dir, "run-all.sh"), lines)
 
 
 def main():

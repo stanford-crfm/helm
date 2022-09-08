@@ -12,7 +12,7 @@ from .adapter import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_GENERATION,
 )
-from .metric import MetricSpec
+from .metrics.metric import MetricSpec
 from .run_expander import RUN_EXPANDERS
 from .runner import RunSpec
 from .scenarios.scenario import ScenarioSpec
@@ -61,7 +61,9 @@ def get_basic_metric_specs(args: Dict[str, List[str]]) -> List[MetricSpec]:
 def get_bbq_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={}),
-        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
+        MetricSpec(
+            class_name="benchmark.basic_metrics.BasicMetric", args={"names": ["exact_match", "quasi_exact_match"]}
+        ),
     ]
 
 
@@ -164,8 +166,11 @@ def get_copyright_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
         MetricSpec(
             class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_distance"},
         ),
+        MetricSpec(
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_similarity"},
+        ),
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
-    ]
+    ] + get_generative_harms_metric_specs()
 
 
 def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
@@ -177,17 +182,16 @@ def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricS
         MetricSpec(
             class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "monte_carlo_entropy"},
         ),
-        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
 
 
-def get_code_metric_specs(dataset: str) -> List[MetricSpec]:
-    if dataset == "HumanEval":
+def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
+    if dataset == "humaneval":
         metric_names = {"names": HUMAN_EVAL_METRIC_NAMES}
         return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=metric_names)]
     else:  # APPS.
-        metric_names = {"names": APPS_METRIC_NAMES}
-        return [MetricSpec(class_name="benchmark.code_metrics.APPSMetric", args=metric_names)]
+        args: Dict[str, Any] = {"names": APPS_METRIC_NAMES, "timeout": timeout}
+        return [MetricSpec(class_name="benchmark.code_metrics.APPSMetric", args=args)]
 
 
 def get_simple1_spec() -> RunSpec:
@@ -614,7 +618,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_srn_metric_specs(),
-        groups=["synthetic_reasoning", "synthetic_reasoning_natural)"],
+        groups=["synthetic_reasoning", "synthetic_reasoning_natural"],
     )
 
 
@@ -978,7 +982,8 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
     )
 
 
-def get_code_spec(dataset: str) -> RunSpec:
+def get_code_spec(dataset: str, timeout=3) -> RunSpec:
+    # `timeout` trades accuracy for time. Used exclusively for APPS. Default from original APPS codebase.
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.code_scenario.CodeScenario", args={"dataset": dataset})
 
     if dataset == "humaneval":
@@ -1024,7 +1029,7 @@ def get_code_spec(dataset: str) -> RunSpec:
         name=f"code:dataset={dataset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_code_metric_specs(dataset),
+        metric_specs=get_code_metric_specs(dataset, timeout),
         groups=[f"code_{dataset}"],
     )
 
@@ -1141,11 +1146,11 @@ def get_narrativeqa_spec() -> RunSpec:
 
 
 def get_synthetic_efficiency_spec(
-    num_input_tokens: int, num_output_tokens: int, tokenizer: str, random: Optional[str] = None
+    num_prompt_tokens: int, num_output_tokens: int, tokenizer: str, random: Optional[str] = None
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
-        args={"num_input_tokens": num_input_tokens, "num_instances": 10, "tokenizer": tokenizer},
+        args={"num_prompt_tokens": num_prompt_tokens, "num_instances": 10, "tokenizer": tokenizer},
     )
 
     adapter_spec = AdapterSpec(
@@ -1165,7 +1170,7 @@ def get_synthetic_efficiency_spec(
     )
 
     return RunSpec(
-        name=f"synthetic_efficiency:tokenizer={tokenizer},num_input_tokens={num_input_tokens},"
+        name=f"synthetic_efficiency:tokenizer={tokenizer},num_prompt_tokens={num_prompt_tokens},"
         f"num_output_tokens={num_output_tokens},random={random}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
@@ -1198,7 +1203,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
-        groups=["synthetic_reasoning", "synthetic_reasoning_{mode}"],
+        groups=["synthetic_reasoning", f"synthetic_reasoning_{mode}"],
     )
 
 
@@ -1280,7 +1285,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
     )
 
     return RunSpec(
-        name=f"summarization_xsum:temperature={temperature}",
+        name=f"summarization_xsum:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"device": device}),
@@ -1315,7 +1320,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = 
     )
 
     return RunSpec(
-        name=f"summarization_xsum:temperature={temperature}",
+        name=f"summarization_xsum:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"device": device}),
@@ -1345,7 +1350,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") 
     )
 
     return RunSpec(
-        name=f"summarization_cnndm:temperature={temperature}",
+        name=f"summarization_cnndm:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_summarization_metric_specs({"device": device}),
@@ -1488,7 +1493,7 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
         name=f"entity_data_imputation:dataset={dataset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["entity_data_imputation"],
     )
 

@@ -1,41 +1,41 @@
+import math
 from dataclasses import dataclass, replace
 from typing import List, Callable, Optional, Dict, Tuple, Set, cast
 from urllib.parse import unquote
 from functools import partial
-import math
 
 import json
 import re
 import string
 import nltk
+import numpy as np
+import scipy
+import calibration as cal
 from nltk.metrics.scores import f_measure
 from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
-import numpy as np
 from rouge_score import rouge_scorer
-import scipy
-import calibration as cal
 
+from common.general import singleton
 from common.hierarchical_logger import hlog
 from common.request import Token, Sequence
-from common.general import singleton
-from . import code_metrics_helper
-from .adapter import (
+from benchmark.adapter import (
     ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     AdapterSpec,
     RequestState,
 )
-from .window_services.window_service import WindowService
-from .window_services.window_service_factory import WindowServiceFactory
-from .window_services.tokenizer_service import TokenizerService
+from benchmark.window_services.window_service import WindowService
+from benchmark.window_services.window_service_factory import WindowServiceFactory
+from benchmark.window_services.tokenizer_service import TokenizerService
+from benchmark.scenarios.scenario import CORRECT_TAG, Instance
+from benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
+from benchmark.scenarios.code_scenario import CodeReference
+from . import code_metrics_helper
 from .metric import Metric, get_unique_stat_by_name
 from .metric_name import MetricName
 from .metric_service import MetricService
-from .scenarios.scenario import CORRECT_TAG, Instance
-from .scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
-from .scenarios.code_scenario import CodeReference
 from .statistic import Stat
 
 
@@ -54,7 +54,6 @@ def compute_estimated_time_from_prompt_size_and_num_output_tokens(
     inference_runtimes_dict: Dict[str, Dict],
     num_prompt_tokens: int,
     num_output_tokens: int,
-    time_type: str,
 ) -> Optional[float]:
     estimated_runtime: Optional[float]
     if request_state.request.model in inference_runtimes_dict:
@@ -95,10 +94,6 @@ def compute_estimated_time_from_prompt_size_and_num_output_tokens(
         if overhead is not None:
             estimated_runtime += overhead
     else:
-        hlog(
-            f"WARNING: tried to estimate {time_type} inference time for model {request_state.request.model} "
-            f"that is not in inference_{time_type}_runtimes_dict"
-        )
         estimated_runtime = None
 
     return estimated_runtime
@@ -380,6 +375,9 @@ class BasicMetric(Metric):
         with open(TRAINING_EFFICIENCY_JSON_FILEPATH, "r") as f:
             self.training_efficiency_dict = json.load(f)
 
+    def __repr__(self):
+        return f"BasicMetric({','.join(self.names)})"
+
     def compute_reference_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
@@ -446,9 +444,8 @@ class BasicMetric(Metric):
 
         # Predicted outputs
         assert request_state.result is not None
-        # TODO: Sort the predictions, or take them from the top tokens of the first completion
-        #       https://github.com/stanford-crfm/benchmarking/issues/42
-        preds = [completion.text.strip() for completion in request_state.result.completions]
+        preds = sorted(request_state.result.completions, key=lambda x: -x.logprob)
+        preds = [completion.text.strip() for completion in preds]
 
         # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
         # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
@@ -503,26 +500,22 @@ class BasicMetric(Metric):
         num_output_tokens: int = len(sequence.tokens)
         # Don't include prompt in number of generated tokens (e.g., for language modeling).
         if request_state.request.echo_prompt:
-            # This might fail when we get fewer output tokens in the response than the number of tokens in the prompt.
-            assert (
-                num_prompt_tokens <= num_output_tokens
-            ), f"num_prompt_tokens ({num_prompt_tokens}) > num_output_tokens ({num_output_tokens}) for prompt: {prompt}"
-            num_output_tokens -= num_prompt_tokens
+            # num_prompt_tokens > num_output_tokens can happen if tokenizer doesn't round trip.
+            if num_prompt_tokens <= num_output_tokens:
+                num_output_tokens -= num_prompt_tokens
+            else:
+                hlog(
+                    f"WARNING: num_prompt_tokens ({num_prompt_tokens}) > num_output_tokens ({num_output_tokens}) "
+                    f"for prompt: {prompt}"
+                )
+                num_output_tokens = 0
 
         idealized_runtime: Optional[float] = compute_estimated_time_from_prompt_size_and_num_output_tokens(
-            request_state,
-            self.inference_idealized_runtimes_dict,
-            num_prompt_tokens,
-            num_output_tokens,
-            time_type="idealized",
+            request_state, self.inference_idealized_runtimes_dict, num_prompt_tokens, num_output_tokens
         )
 
         denoised_runtime: Optional[float] = compute_estimated_time_from_prompt_size_and_num_output_tokens(
-            request_state,
-            self.inference_denoised_runtimes_dict,
-            num_prompt_tokens,
-            num_output_tokens,
-            time_type="denoised",
+            request_state, self.inference_denoised_runtimes_dict, num_prompt_tokens, num_output_tokens
         )
 
         # Compute efficiency metrics for training.
@@ -530,23 +523,16 @@ class BasicMetric(Metric):
         if request_state.request.model in self.training_efficiency_dict["carbon"]:
             training_co2_cost = self.training_efficiency_dict["carbon"][request_state.request.model]["value"]
         else:
-            hlog(
-                f"WARNING: tried to estimate training CO2 emissions for model {request_state.request.model} "
-                "that is not in training_efficiency_dict['carbon']"
-            )
             training_co2_cost = None
 
         training_energy_cost: Optional[float]
         if request_state.request.model in self.training_efficiency_dict["energy"]:
             training_energy_cost = self.training_efficiency_dict["energy"][request_state.request.model]["value"]
         else:
-            hlog(
-                f"WARNING: tried to estimate training energy cost for model {request_state.request.model} "
-                "that is not in training_efficiency_dict['energy']"
-            )
             training_energy_cost = None
 
         return [
+            Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens),
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("batch_size")).add(batch_size),
@@ -664,7 +650,7 @@ class BasicMetric(Metric):
             logprob: float  # sum of logprobs for all tokens in the reference
             num_tokens: int  # number of tokens in the reference
 
-        def compute_logprob_and_length(request_state: RequestState) -> ReferenceStat:
+        def compute_logprob_and_length(request_state: RequestState, window_service: WindowService) -> ReferenceStat:
             """Compute the logprob and length for the only completion from the request_state."""
             assert request_state.reference_index is not None
             assert request_state.result is not None
@@ -675,23 +661,18 @@ class BasicMetric(Metric):
             reference: str = request_state.instance.references[reference_index].output
 
             # Find the span of the completion that matches the reference.
-            answer_length = 0
-            answer_tokens: List[Token] = []
-            for token in sequence.tokens[::-1]:
-                if answer_length >= len(reference):
-                    break
-                answer_tokens.insert(0, token)
-                answer_length += len(token.text)
-
-            # Sanity check
-            span: str = "".join([token.text for token in answer_tokens]).lstrip()
-            alphanumeric_chars: str = string.digits + string.ascii_lowercase + string.ascii_uppercase
-            filtered_span: str = "".join(list(filter(lambda x: x in alphanumeric_chars, span)))
-            filtered_reference: str = "".join(list(filter(lambda x: x in alphanumeric_chars, reference)))
-            assert filtered_span == filtered_reference, f"Expected: {filtered_reference}, Actual: {filtered_span}"
-
-            logprob = sum(token.logprob for token in answer_tokens)
-            num_tokens = len(answer_tokens)
+            # Prepend a space because there should always be a space before reference in the prompt.
+            reference_tokens: List[str] = window_service.tokenize(f" {reference}")
+            num_tokens: int = len(reference_tokens)
+            answer_tokens: List[Token] = sequence.tokens[-num_tokens:]
+            if (len(answer_tokens) != len(reference_tokens)) or (
+                not all(
+                    answer_token.text == reference_token
+                    for answer_token, reference_token in zip(answer_tokens, reference_tokens)
+                )
+            ):
+                hlog(f"WARNING: Expected {reference_tokens} but got {[token.text for token in answer_tokens]}")
+            logprob: float = sum(token.logprob for token in answer_tokens)
 
             return ReferenceStat(logprob, num_tokens)
 
@@ -704,11 +685,13 @@ class BasicMetric(Metric):
         ]
         num_choices = len(references)
 
+        tokenizer_service: TokenizerService = metric_service
+        window_service: WindowService = WindowServiceFactory.get_window_service(adapter_spec.model, tokenizer_service)
         reference_stats: Dict[ReferenceKey, ReferenceStat] = {}
         for request_state in reference_request_states:
             assert request_state.reference_index is not None and request_state.request_mode is not None
             reference_key = ReferenceKey(request_state.reference_index, request_state.request_mode)
-            reference_stats[reference_key] = compute_logprob_and_length(request_state)
+            reference_stats[reference_key] = compute_logprob_and_length(request_state, window_service)
 
         if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
             reference_scores = [
@@ -748,6 +731,7 @@ class BasicMetric(Metric):
         """Derive calibration metrics if applicable. We don't worry about splits and perturbations here."""
         derived_stats: List[Stat] = []
         derived_stats.extend(compute_calibration_metrics(per_instance_stats))
+        derived_stats.append(Stat(MetricName("num_instances")).add(len(per_instance_stats)))
         return derived_stats
 
 
@@ -769,8 +753,9 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
     calibration_metrics: List[Stat] = []
     assert len(max_probs) == len(correct)
     if len(max_probs) > 0:
-        ece = cal.get_ece_em(max_probs, correct, num_bins=15)
-        calibration_metrics.append(Stat(MetricName("ece")).add(ece))
+        # We need at least around 300 examples to compute ece_10_bin reliably.
+        ece_10_bin = cal.get_ece_em(max_probs, correct, num_bins=10)
+        calibration_metrics.append(Stat(MetricName("ece_10_bin")).add(ece_10_bin))
         ece_1_bin = cal.get_ece(max_probs, correct, num_bins=1)
         calibration_metrics.append(Stat(MetricName("ece_1_bin")).add(ece_1_bin))
         coverage_acc_area, acc_top_10_percentile = cal.get_selective_stats(max_probs, correct)

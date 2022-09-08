@@ -10,7 +10,11 @@ benchmark_output
 proxy_api_key.txt
 microsoft_client.lock
 *.log
+*.out
 nltk_data/
+
+# Where data lives (e.g., newsqa)
+restricted
 
 # Percy's stuff
 nav

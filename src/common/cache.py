@@ -3,6 +3,9 @@ from typing import Dict, Callable, Tuple
 
 from sqlitedict import SqliteDict
 
+from common.general import hlog
+from proxy.retry import get_retry_decorator
+
 
 def request_to_key(request: Dict) -> str:
     """Normalize a `request` into a `key` so that we can hash using it."""
@@ -14,6 +17,30 @@ def key_to_request(key: str) -> Dict:
     return json.loads(key)
 
 
+def retry_if_write_failed(success: bool) -> bool:
+    """Retries when the write fails."""
+    return not success
+
+
+retry: Callable = get_retry_decorator(
+    "Write", max_attempts=10, wait_exponential_multiplier_seconds=2, retry_on_result=retry_if_write_failed
+)
+
+
+@retry
+def write_to_cache(cache: SqliteDict, key: str, response: Dict) -> bool:
+    """
+    Write to cache with retry. Returns boolean indicating whether the write was successful or not.
+    """
+    try:
+        cache[key] = response
+        cache.commit()
+        return True
+    except Exception as e:
+        hlog(f"Error when writing to cache: {str(e)}")
+        return False
+
+
 class Cache(object):
     """
     A cache for request/response pairs.
@@ -22,36 +49,24 @@ class Cache(object):
     """
 
     def __init__(self, cache_path: str):
-        self.cache_path = cache_path
+        self.cache_path: str = cache_path
+        # Counters to keep track of progress
+        self.num_queries: int = 0
+        self.num_misses: int = 0
 
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
+        self.num_queries += 1
         key = request_to_key(request)
 
-        # According to https://github.com/RaRe-Technologies/sqlitedict/issues/145:
-        # The code inside the context manager (the with block = one SqliteDict database connection)
-        # is thread-safe within a single process.
-        #
-        # From https://sqlite.org/faq.html#q5:
-        # SQLite uses reader/writer locks to control access to the database.
-        # SQLite allows multiple processes to have the database file open at once, and for multiple
-        # processes to read the database at once. When any process wants to write, it must lock the
-        # entire database file for the duration of its update. But that normally only takes a few
-        # milliseconds. Other processes just wait on the writer to finish then continue about
-        # their business
-        #
-        # Locking is done for us. From https://www.sqlite.org/lockingv3.html:
-        # An EXCLUSIVE lock is needed in order to write to the database file. Only one EXCLUSIVE lock
-        # is allowed on the file and no other locks of any kind are allowed to coexist with an EXCLUSIVE
-        # lock. In order to maximize concurrency, SQLite works to minimize the amount of time that EXCLUSIVE
-        # locks are held.
         with SqliteDict(self.cache_path) as cache:
             response = cache.get(key)
             if response:
                 cached = True
             else:
-                # Commit the request and response to SQLite
-                cache[key] = response = compute()
-                cache.commit()
                 cached = False
+                self.num_misses += 1
+                # Compute and commit the request/response to SQLite
+                response = compute()
+                write_to_cache(cache, key, response)
         return response, cached
