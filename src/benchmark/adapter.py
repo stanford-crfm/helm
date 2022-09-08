@@ -714,6 +714,8 @@ class Adapter:
             pred_tokens = pred_tokens[: -(prompt_length - max_req_len)]
             prompt = self.window_service.decode(conditioning_tokens + pred_tokens, text)
             prompt_length = len(self.window_service.encode(prompt).tokens)
+            if len(pred_tokens) == 0:
+                raise ValueError("len(pred_tokens) == 0, which will lead to an infinite loop.")
 
         return prompt, pred_tokens
 
