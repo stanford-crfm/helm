@@ -95,7 +95,7 @@ class BiasMetric(Metric):
         """ Return metric name """
         metric_name = f"bias_metric:mode={self.mode},demographic_category={self.demographic_category}"
         if self.target_category:
-            metric_name += f"target_category={self.target_category}"
+            metric_name += f",target_category={self.target_category}"
         return metric_name
 
     def evaluate_demographic_representation(self, texts: List[str]) -> Optional[float]:
