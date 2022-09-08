@@ -72,7 +72,7 @@ class BasicCopyrightMetric(Metric):
     """
 
     def __init__(self, name: str, normalize_by_prefix_length=False):
-        if name not in ("longest_common_prefix_length", "edit_distance"):
+        if name not in metric_fns.keys():
             raise ValueError(
                 f"Expected name to be either `longest_common_prefix_length` or `edit_distance`, but got {name}."
             )
