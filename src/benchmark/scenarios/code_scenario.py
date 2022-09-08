@@ -48,7 +48,7 @@ programming competitions), 2) coding solutions, 3) test cases.
 import io
 import json
 import os
-from typing import List, Dict, Iterable, Optional, Sequence
+from typing import List, Dict, Iterable, Optional, cast
 
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
@@ -264,7 +264,7 @@ class CodeScenario(Scenario):
 
         self.human_eval_hparams = dict(num_train_instances=0, num_val_instances=0, num_test_instances=164)
 
-    def get_instances(self) -> Sequence[CodeInstance]:
+    def get_instances(self) -> List[Instance]:
         # By construction, self.output_path == 'benchmark_output/scenarios/code'.
         if self.dataset == "humaneval":
             target_path = os.path.join(self.output_path, "HumanEval.jsonl")
@@ -290,4 +290,4 @@ class CodeScenario(Scenario):
         else:
             raise ValueError(f"Unknown dataset: {self.dataset}")
 
-        return instances
+        return cast(List[Instance], instances)

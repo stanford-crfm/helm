@@ -1,6 +1,7 @@
 from proxy.models import get_model, get_model_names_with_tag, Model, WIDER_CONTEXT_WINDOW_TAG
 from .ai21_window_service import AI21WindowService
 from .anthropic_window_service import AnthropicWindowService
+from .cohere_window_service import CohereWindowService
 from .openai_window_service import OpenAIWindowService
 from .wider_openai_window_service import WiderOpenAIWindowService
 from .mt_nlg_window_service import MTNLGWindowService
@@ -59,6 +60,8 @@ class WindowServiceFactory:
             window_service = UL2WindowService(service)
         elif model_name == "together/yalm":
             window_service = YaLMWindowService(service)
+        elif organization == "cohere":
+            window_service = CohereWindowService(service)
         elif organization == "ai21":
             window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
         else:

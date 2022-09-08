@@ -1,6 +1,8 @@
 from typing import Dict
 import re
 
+from random import Random
+
 from common.general import match_case
 from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
@@ -106,17 +108,16 @@ class ContractionPerturbation(Perturbation):
     def __init__(self):
         self.contraction_map: Dict[str, str] = CONTRACTION_MAP
         self.reverse_contraction_map: Dict[str, str] = {value: key for key, value in self.contraction_map.items()}
+        # Only contract things followed by a space to avoid contract end of sentence
+        self.reverse_contraction_pattern = re.compile(
+            r"\b({})\b ".format("|".join(self.reverse_contraction_map.keys())), flags=re.IGNORECASE | re.DOTALL,
+        )
 
     @property
     def description(self) -> PerturbationDescription:
         return PerturbationDescription(name=self.name, robustness=True)
 
-    def contract(self, sentence: str) -> str:
-        # Only contract things followed by a space to avoid contract end of sentence
-        reverse_contraction_pattern = re.compile(
-            r"\b({})\b ".format("|".join(self.reverse_contraction_map.keys())), flags=re.IGNORECASE | re.DOTALL,
-        )
-
+    def perturb(self, text: str, rng: Random) -> str:
         def cont(possible):
             match = possible.group(1)
             expanded_contraction = self.reverse_contraction_map.get(
@@ -124,10 +125,7 @@ class ContractionPerturbation(Perturbation):
             )
             return match_case(match, expanded_contraction) + " "
 
-        return reverse_contraction_pattern.sub(cont, sentence)
-
-    def perturb(self, text: str) -> str:
-        return self.contract(text)
+        return self.reverse_contraction_pattern.sub(cont, text)
 
 
 class ExpansionPerturbation(Perturbation):
@@ -146,22 +144,18 @@ class ExpansionPerturbation(Perturbation):
 
     def __init__(self):
         self.contraction_map: Dict[str, str] = CONTRACTION_MAP
+        self.contraction_pattern = re.compile(
+            r"\b({})\b".format("|".join(self.contraction_map.keys())), flags=re.IGNORECASE | re.DOTALL,
+        )
 
     @property
     def description(self) -> PerturbationDescription:
         return PerturbationDescription(name=self.name, robustness=True)
 
-    def expand_contractions(self, sentence):
-        contraction_pattern = re.compile(
-            r"\b({})\b".format("|".join(self.contraction_map.keys())), flags=re.IGNORECASE | re.DOTALL,
-        )
-
+    def perturb(self, text: str, rng: Random) -> str:
         def expand_match(contraction):
             match = contraction.group(0)
             expanded_contraction = self.contraction_map.get(match, self.contraction_map.get(match.lower()))
             return match_case(match, expanded_contraction)
 
-        return contraction_pattern.sub(expand_match, sentence)
-
-    def perturb(self, text: str) -> str:
-        return self.expand_contractions(text)
+        return self.contraction_pattern.sub(expand_match, text)

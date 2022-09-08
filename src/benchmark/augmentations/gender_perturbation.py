@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 import json
-import random
+from random import Random
 import re
 from typing import Dict, List, Optional, Tuple
 
-from benchmark.scenarios.scenario import Instance
 from common.general import match_case
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
@@ -138,9 +137,6 @@ class GenderPerturbation(Perturbation):
                 source_class words, we check if it is in the target_class words,
                 and replace it with the corresponding source_class word if so.
         """
-        # Random generator specific to this class, will be set in the apply function
-        self.random: random.Random
-
         # Assign parameters to instance variables
         assert mode in self.MODES
         self.mode = mode
@@ -196,7 +192,7 @@ class GenderPerturbation(Perturbation):
             loaded_json = json.load(f)
             return [tuple([str(e).lower() for e in t]) for t in loaded_json]
 
-    def substitute_word(self, text: str, word: str, synonym: str) -> str:
+    def substitute_word(self, text: str, word: str, synonym: str, rng: Random) -> str:
         """ Substitute the occurences of word in text with its synonym with self.probability """
         # Pattern capturing any occurence of given word in the text, surrounded by non-alphanumeric characters
         pattern = f"[^\\w]({word})[^\\w]"
@@ -205,7 +201,7 @@ class GenderPerturbation(Perturbation):
         def sub_func(m: re.Match):
             match_str = m.group(0)  # The full match (e.g. " Man ", " Man,", " Man.", "-Man.")
             match_word = m.group(1)  # Captured group (e.g. "Man")
-            if self.random.uniform(0, 1) < self.prob:
+            if rng.uniform(0, 1) < self.prob:
                 syn = match_case(match_word, synonym)  # Synoynm with matching case (e.g. "Woman")
                 match_str = match_str.replace(
                     match_word, syn
@@ -215,20 +211,10 @@ class GenderPerturbation(Perturbation):
         # Execute the RegEx
         return re.sub(pattern, sub_func, text, flags=re.IGNORECASE)
 
-    def substitute_gender(self, text: str) -> str:
+    def perturb(self, text: str, rng: Random) -> str:
         """ Perform the perturbations on the provided text. """
         # Substitute the words
         for (word, synonym) in self.word_synonym_pairs:
-            text = self.substitute_word(text, word, synonym)
+            text = self.substitute_word(text, word, synonym, rng)
 
         return text
-
-    def apply(self, instance: Instance) -> Instance:
-        """ Apply the perturbation to the provided instance. """
-        assert instance.id is not None
-        self.random = random.Random(int(instance.id[2:]))
-        return super().apply(instance)
-
-    def perturb(self, text: str) -> str:
-        """ Perturb the provided text. """
-        return self.substitute_gender(text)

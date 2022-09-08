@@ -1,12 +1,10 @@
 import argparse
-from dataclasses import dataclass, replace
-from datetime import datetime
+from dataclasses import replace
 from typing import List, Optional
 
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.authentication import Authentication
 from common.object_spec import parse_object_spec
-from benchmark.statistic import Stat
 from proxy.services.remote_service import create_authentication, add_service_args
 
 from .executor import ExecutionSpec
@@ -15,20 +13,6 @@ from .run_specs import construct_run_specs
 
 
 LATEST_SYMLINK: str = "latest"
-
-
-@dataclass(frozen=True)
-class Run:
-    """ Represents a run with spec and stats. """
-
-    # Directory name of the run
-    run_dir: str
-
-    # Run spec for the run
-    run_spec: RunSpec
-
-    # Statistics for the run
-    stats: List[Stat]
 
 
 def run_benchmarking(
@@ -44,6 +28,7 @@ def run_benchmarking(
     skip_instances: bool,
     max_eval_instances: Optional[int] = None,
     models_to_run: Optional[List[str]] = None,
+    scenario_groups_to_run: Optional[List[str]] = None,
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
 
@@ -63,9 +48,12 @@ def run_benchmarking(
         override(run_spec)
         for description in run_spec_descriptions
         for run_spec in construct_run_specs(parse_object_spec(description))
-        # If no model is specified for `models_to_run`, run everything
-        if not models_to_run or run_spec.adapter_spec.model in models_to_run
+        if (not models_to_run or run_spec.adapter_spec.model in models_to_run)
+        and (not scenario_groups_to_run or any(group in scenario_groups_to_run for group in run_spec.groups))
     ]
+
+    if len(run_specs) == 0:
+        return run_specs
 
     with htrack_block("run_specs"):
         for run_spec in run_specs:
@@ -80,7 +68,7 @@ def add_run_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "-o", "--output-path", type=str, help="Where to save all the output", default="benchmark_output"
     )
-    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads to make requests", default=5)
+    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads to make requests", default=4)
     parser.add_argument(
         "--skip-instances",
         action="store_true",
@@ -101,10 +89,7 @@ def add_run_args(parser: argparse.ArgumentParser):
         help="Maximum number of instances to evaluate on, overrides adapter spec (for piloting)",
     )
     parser.add_argument(
-        "--suite",
-        type=str,
-        help="Name of the suite this run belongs to (default is today's date).",
-        default=datetime.today().strftime("%m-%d-%Y"),
+        "--suite", type=str, help="Name of the suite this run belongs to (default is today's date).", required=True,
     )
     parser.add_argument(
         "--local", action="store_true", help="If true, bypasses the proxy server and runs everything locally",

@@ -8,13 +8,15 @@ pyhocon==0.3.58
 pyOpenSSL==21.0.0
 sqlitedict==1.7.0
 sentencepiece==0.1.96   # Necessary for some of the HuggingFace tokenizers
-torch==1.12.1
+torch==1.12.1+cu113
+torchvision==0.13.1+cu113
 transformers==4.20.1
 zstandard==0.17.0
 jsonlines==3.0.0
 retrying==1.3.3
 websocket-client==1.3.2
 icetk==0.0.4
+filelock==3.8.0
 
 # For development
 click==8.0.3
@@ -23,16 +25,17 @@ flake8==3.8.3
 mypy==0.782
 pre-commit==2.16.0
 pytest==6.2.5
-typed-ast==1.4.3
+typed-ast<1.5.0,>=1.4.0
 
 # For specific scenarios
-nltk==3.7
-sacrebleu==2.0.0
-numpy==1.22.3
-pandas==1.4.1
-sklearn==0.0
-pyext==0.7
-datasets==2.0.0
+nltk>=3.6.7
+sacrebleu
+numpy
+pandas
+sklearn
+pyext
+summ-eval
+datasets>=1.18.3
 spacy==3.2.3
 sympy==1.10
 py-rouge==1.1
@@ -41,3 +44,6 @@ rouge-score==0.0.4
 gdown==4.4.0
 pysocks==1.7.1
 pytrec_eval==0.5
+
+# For calibration metrics
+uncertainty-calibration==0.1.2

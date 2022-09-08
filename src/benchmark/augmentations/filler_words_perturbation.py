@@ -3,8 +3,7 @@ from dataclasses import dataclass
 from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
 
-from benchmark.scenarios.scenario import Instance
-import random
+from random import Random
 
 # ADAPTED FROM
 # https://github.com/GEM-benchmark/NL-Augmenter/blob/main/transformations/filler_word_augmentation/transformation.py
@@ -60,15 +59,10 @@ class FillerWordsPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return FillerWordsPerturbation.Description(name=self.name, robustness=True, insert_prob=self.insert_prob)
 
-    def apply(self, instance: Instance) -> Instance:
-        assert instance.id is not None
-        seed = int(instance.id[2:])
-        # set seed based on instance ID
-        random.seed(seed)
-        return super().apply(instance)
-
     @staticmethod
-    def gen_filled_text(text, insert_prob, max_num_insert=1, speaker_ph=True, uncertain_ph=True, fill_ph=True):
+    def gen_filled_text(
+        text, insert_prob: float, rng: Random, max_num_insert=1, speaker_ph=True, uncertain_ph=True, fill_ph=True
+    ):
         all_fillers = []
         if speaker_ph:
             all_fillers.extend(SPEAKER_PHRASES)
@@ -80,8 +74,8 @@ class FillerWordsPerturbation(Perturbation):
         insert_count = 0
         perturbed_words = []
         for word in text.split(" "):
-            if (max_num_insert is None or insert_count < max_num_insert) and random.random() <= insert_prob:
-                random_filler = random.choice(all_fillers)
+            if (max_num_insert is None or insert_count < max_num_insert) and rng.random() <= insert_prob:
+                random_filler = rng.choice(all_fillers)
                 perturbed_words.append(random_filler)
                 insert_count += 1
             perturbed_words.append(word)
@@ -90,7 +84,7 @@ class FillerWordsPerturbation(Perturbation):
 
         return perturbed_text
 
-    def perturb(self, text: str) -> str:
+    def perturb(self, text: str, rng: Random) -> str:
         return self.gen_filled_text(
-            text, self.insert_prob, self.max_num_insert, self.speaker_ph, self.uncertain_ph, self.fill_ph
+            text, self.insert_prob, rng, self.max_num_insert, self.speaker_ph, self.uncertain_ph, self.fill_ph
         )

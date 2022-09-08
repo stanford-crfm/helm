@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import List, Optional, Sequence
+from dataclasses import dataclass, replace
+from typing import List, Optional
 import re
 import inspect
 
@@ -93,7 +93,7 @@ class Instance:
     input: str  # TODO: eventually, we want to replace this with the Input defined above
 
     # References that helps us evaluate
-    references: Sequence[Reference]
+    references: List[Reference]
 
     # Split (e.g., train, valid, test)
     split: Optional[str] = None
@@ -185,7 +185,7 @@ class Scenario(ABC):
         return path
 
     @abstractmethod
-    def get_instances(self) -> Sequence[Instance]:
+    def get_instances(self) -> List[Instance]:
         """
         Does the main work in the `Scenario` (e.g., download datasets, convert
         it into a list of instances).
@@ -206,6 +206,11 @@ class Scenario(ABC):
             output.extend(indent_lines(instance.render_lines()))
             output.append("}")
         return output
+
+
+def with_instance_ids(instances: List[Instance]) -> List[Instance]:
+    """Return the instances with an ID.  Note: order of instances matters."""
+    return [replace(instance, id=f"id{i}") for i, instance in enumerate(instances)]
 
 
 class ScenarioSpec(ObjectSpec):

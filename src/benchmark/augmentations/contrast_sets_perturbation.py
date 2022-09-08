@@ -1,6 +1,6 @@
 from dataclasses import replace
 
-import random
+from random import Random
 from typing import Sequence
 
 from benchmark.scenarios.scenario import Instance, Reference
@@ -62,13 +62,13 @@ class ContrastSetsPerturbation(Perturbation):
         """
 
         assert instance.id is not None
-        random.seed(int(instance.id[2:]))  # set seed based on instance ID
+        rng = Random(instance.id)  # set seed based on instance ID
 
         perturbed_instance: str = instance.input
         perturbed_references: Sequence[Reference] = instance.references
 
         if instance.contrast_inputs is not None and instance.contrast_references is not None:
-            perturb_index: int = random.choice(range(len(instance.contrast_inputs)))
+            perturb_index: int = rng.choice(range(len(instance.contrast_inputs)))
             perturbed_instance = instance.contrast_inputs[perturb_index]
             perturbed_references = instance.contrast_references[perturb_index]
 
@@ -76,5 +76,5 @@ class ContrastSetsPerturbation(Perturbation):
             instance, input=perturbed_instance, references=perturbed_references, perturbation=self.description,
         )
 
-    def perturb(self, text: str) -> str:  # we need this since parent method is abstract
+    def perturb(self, text: str, rng: Random) -> str:  # we need this since parent method is abstract
         pass

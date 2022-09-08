@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
-from typing import Sequence
+from random import Random
+from typing import Sequence, Optional
 
 
 from .perturbation_description import PerturbationDescription
@@ -16,6 +17,9 @@ class Perturbation(ABC):
     # Whether to perturb references
     should_perturb_references: bool = False
 
+    # Random seed
+    seed: Optional[int] = None
+
     @property
     def description(self) -> PerturbationDescription:
         """Description of the perturbation."""
@@ -24,24 +28,29 @@ class Perturbation(ABC):
     def apply(self, instance: Instance) -> Instance:
         """
         Generates a new Instance by perturbing the input, tagging the Instance and perturbing the References,
-        if should_perturb_references is true.
+        if should_perturb_references is true. Initializes a random number generator based on instance_id that gets
+        passed to perturb and perturb_references.
         """
+        assert instance.id is not None
+        # If seed exists, use it as part of the random seed
+        rng: Random = Random(instance.id if self.seed is None else str(self.seed) + instance.id)
+
         references: Sequence[Reference] = instance.references
         if self.should_perturb_references:
-            references = [self.perturb_reference(reference) for reference in references]
+            references = [self.perturb_reference(reference, rng) for reference in references]
 
         # Don't modify `id` of `Instance` here.
         # All the perturbed Instances generated from a single Instance should have the same ID.
         return replace(
-            instance, input=self.perturb(instance.input), references=references, perturbation=self.description,
+            instance, input=self.perturb(instance.input, rng), references=references, perturbation=self.description,
         )
 
-    def perturb_reference(self, reference: Reference) -> Reference:
+    def perturb_reference(self, reference: Reference, rng: Random) -> Reference:
         """Generates a new Reference by perturbing the output and tagging the Reference."""
-        return replace(reference, output=self.perturb(reference.output), tags=reference.tags + [self.name])
+        return replace(reference, output=self.perturb(reference.output, rng), tags=reference.tags)
 
     @abstractmethod
-    def perturb(self, text: str) -> str:
+    def perturb(self, text: str, rng: Random) -> str:
         """How to perturb the text. """
         pass
 
