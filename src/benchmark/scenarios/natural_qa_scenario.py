@@ -1,5 +1,4 @@
 import json
-import gzip
 import os
 import re
 import html
@@ -214,7 +213,7 @@ class NaturalQAScenario(Scenario):
         all_samples: List[dict] = []
 
         with htrack_block(f"Reading {target_file}"):
-            with gzip.open(target_file) as fp:
+            with open(target_file) as fp:
                 for line in fp:
                     raw = json.loads(line)
                     # Only keep dataset samples with at least one short answer
