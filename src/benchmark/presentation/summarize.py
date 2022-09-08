@@ -420,7 +420,7 @@ class Summarizer:
                 [Cell(model.display_name, href=href)] + [self.create_cell(runs, matcher) for matcher in matchers]
             )
 
-        ascending_rows = self.schema.name_to_metric.get(matchers[1].name).lower_is_better
+        ascending_rows = self.schema.name_to_metric.get(matchers[0].name).lower_is_better
         rows.sort(key=lambda row: row[1].value or -1, reverse=not ascending_rows)
 
         return Table(title=title, header=header, rows=rows)
