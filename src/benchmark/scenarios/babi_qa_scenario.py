@@ -119,7 +119,7 @@ class BabiQAScenario(Scenario):
                         if is_question:
                             question, answer = fact.split("\t")[:2]
                             question, answer = question.strip(), answer.strip()
-                            # All tasks except task 19 have a verbal single-word answer (e.g. "kitchen", "apple", "yes").
+                            # All tasks except task 19 have a verbal single-word answer (e.g. kitchen, apple, yes).
                             # Task 19 (path finding) has a non verbal answer format (
                             if task == 19:
                                 answer = self.process_path(answer)
