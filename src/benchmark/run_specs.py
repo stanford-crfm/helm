@@ -860,6 +860,7 @@ def get_babi_qa_spec(task: str = "all") -> RunSpec:
         model="openai/davinci",
         max_eval_instances=None,
         num_outputs=1,
+        max_tokens=5,  # answers are 1-2 words (1 for all tasks except task 19)
         temperature=0.0,
         stop_sequences=["\n"],
     )
