@@ -77,10 +77,13 @@ class BabiQAScenario(Scenario):
     tags = ["question_answering"]
 
     def __init__(self, task):
+        all_tasks = list(range(1, 21))
         if task == "all":
-            self.tasks = list(range(1, 21))
+            self.tasks = all_tasks
         else:
-            self.tasks = [int(task)]
+            task = int(task)
+            assert task in all_tasks
+            self.tasks = [task]
 
     def process_path(self, path: str) -> str:
         """Turn a path string (task 19) from the original format 's,w' to a verbal model-friendly format 'south west'"""
