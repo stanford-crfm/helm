@@ -1,7 +1,7 @@
 from dataclasses import replace
 
 from random import Random
-from typing import Sequence
+from typing import Sequence, Optional
 
 from benchmark.scenarios.scenario import Instance, Reference
 from .perturbation_description import PerturbationDescription
@@ -55,7 +55,7 @@ class ContrastSetsPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return PerturbationDescription(name=self.name, robustness=True)
 
-    def apply(self, instance: Instance) -> Instance:
+    def apply(self, instance: Instance, seed: Optional[int] = None) -> Instance:
         """
         Generates a new Instance by perturbing the input, tagging the Instance and
         perturbing the References, if `should_perturb_references` is true.
@@ -70,9 +70,8 @@ class ContrastSetsPerturbation(Perturbation):
             perturbed_instance = instance.contrast_inputs[perturb_index]
             perturbed_references = instance.contrast_references[perturb_index]
 
-        return replace(
-            instance, input=perturbed_instance, references=perturbed_references, perturbation=self.description,
-        )
+        description = replace(self.description, seed=seed)
+        return replace(instance, input=perturbed_instance, references=perturbed_references, perturbation=description,)
 
     def perturb(self, text: str, rng: Random) -> str:  # we need this since parent method is abstract
         pass

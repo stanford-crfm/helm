@@ -17,21 +17,12 @@ class Perturbation(ABC):
     # Whether to perturb references
     should_perturb_references: bool = False
 
-    # Random seed
-    seed: Optional[int] = None
-
     @property
     def description(self) -> PerturbationDescription:
         """Description of the perturbation."""
         return PerturbationDescription(name=self.name)
 
-    def get_rng(self, instance: Instance) -> Random:
-        """Creates a random number generator using the `Instance` id and `seed`."""
-        assert instance.id is not None
-        # If seed exists, use it as part of the random seed
-        return Random(instance.id if self.seed is None else str(self.seed) + instance.id)
-
-    def apply(self, instance: Instance) -> Instance:
+    def apply(self, instance: Instance, seed: Optional[int] = None) -> Instance:
         """
         Generates a new Instance by perturbing the input, tagging the Instance and perturbing the References,
         if should_perturb_references is true. Initializes a random number generator based on instance_id that gets
@@ -43,10 +34,12 @@ class Perturbation(ABC):
         if self.should_perturb_references:
             references = [self.perturb_reference(reference, rng) for reference in references]
 
+        description = replace(self.description, seed=seed)
+
         # Don't modify `id` of `Instance` here.
         # All the perturbed Instances generated from a single Instance should have the same ID.
         return replace(
-            instance, input=self.perturb(instance.input, rng), references=references, perturbation=self.description,
+            instance, input=self.perturb(instance.input, rng), references=references, perturbation=description,
         )
 
     def perturb_reference(self, reference: Reference, rng: Random) -> Reference:
