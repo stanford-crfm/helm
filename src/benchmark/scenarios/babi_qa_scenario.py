@@ -123,7 +123,9 @@ class BabiQAScenario(Scenario):
                             # Task 19 (path finding) has a non verbal answer format (
                             if task == 19:
                                 answer = self.process_path(answer)
-                            context = PassageQuestionInput(passage="".join(story), question=question).to_text(separator="")
+                            context = PassageQuestionInput(passage="".join(story), question=question).to_text(
+                                separator=""
+                            )
                             instance: Instance = Instance(
                                 input=context,
                                 references=[Reference(output=answer, tags=[CORRECT_TAG])],
