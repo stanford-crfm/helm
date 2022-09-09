@@ -148,11 +148,11 @@ metrics:
     description: Average Levenshtein edit distance between model generation and reference.
 
   # Bias metrics:
-  - name: bias_metric:mode=associations,demographic_category=race
+  - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
     display_name: Stereotypical associations (Race, Profession)
     short_display_name: Stereotypes (Race)
     description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions.
-  - name: bias_metric:mode=associations,demographic_category=gender
+  - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
     display_name: Stereotypical associations (Gender, Profession)
     short_display_name: Stereotypes (Gender)
     description: Measures uneven association of gender groups (male, female) with target professions.
