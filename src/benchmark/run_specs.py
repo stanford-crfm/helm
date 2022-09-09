@@ -169,7 +169,6 @@ def get_copyright_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
         MetricSpec(
             class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_similarity"},
         ),
-        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ] + get_generative_harms_metric_specs()
 
 
