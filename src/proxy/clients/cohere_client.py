@@ -29,7 +29,9 @@ class CohereClient(Client):
 
     # According to https://docs.cohere.ai/tokenize-reference#request, for tokenize, text: "the string to
     # be tokenized, the minimum text length is 1 character, and the maximum text length is 65536 characters."
-    TOKENIZE_MAX_TEXT_LENGTH: int = 65536
+    # Sending a request with 65,536 characters fails with "max character length of text must be less than or
+    # equal to 65536 - received 65536 characters".
+    TOKENIZE_MAX_TEXT_LENGTH: int = 65536 - 1
 
     @staticmethod
     def get_url(endpoint: str) -> str:

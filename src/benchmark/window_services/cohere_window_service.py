@@ -60,18 +60,31 @@ class CohereWindowService(LocalWindowService):
         if max_length is None:
             max_length = self.max_request_length
 
-        response: TokenizationRequestResult = self.service.tokenize(
-            TokenizationRequest(
-                # The Cohere API does not support decoding, so set `encode` to False to get the value of tokens
-                # as strings so we can simply concatenate them when we need to decode.
-                text,
-                tokenizer=self.tokenizer_name,
-                encode=False,
-                truncation=truncation,
-                max_length=max_length,
+        response: TokenizationRequestResult
+        tokens: List[TokenizationToken] = []
+        if truncation or len(text) <= CohereClient.TOKENIZE_MAX_TEXT_LENGTH:
+            response = self.service.tokenize(
+                TokenizationRequest(
+                    text,
+                    tokenizer=self.tokenizer_name,
+                    # The Cohere API does not support decoding, so set `encode` to False to get the value of tokens
+                    # as strings so we can simply concatenate them when we need to decode.
+                    encode=False,
+                    truncation=truncation,
+                    max_length=max_length,
+                )
             )
-        )
-        return EncodeResult(text=text, tokens=response.tokens)
+            tokens = response.tokens
+        else:
+            chunk_size: int = CohereClient.TOKENIZE_MAX_TEXT_LENGTH
+            for i in range(0, len(text), chunk_size):
+                chunk: str = text[i : chunk_size + i]
+                response = self.service.tokenize(
+                    TokenizationRequest(chunk, tokenizer=self.tokenizer_name, encode=False, truncation=False,)
+                )
+                tokens.extend(response.tokens)
+
+        return EncodeResult(text=text, tokens=tokens)
 
     def get_num_tokens(self, text: str) -> int:
         """Tokenizes the text and returns the number of tokens."""
