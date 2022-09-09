@@ -77,7 +77,10 @@ class BabiQAScenario(Scenario):
     tags = ["question_answering"]
 
     def __init__(self, task):
-        self.task = int(task)
+        if task == 'all':
+            self.tasks = list(range(1, 21))
+        else:
+            self.tasks = [int(task)]
 
     def process_path(self, path: str) -> str:
         """Turn a path string (task 19) from the original format 's,w' to a verbal model-friendly format 'south west'"""
@@ -97,33 +100,34 @@ class BabiQAScenario(Scenario):
         target_path: str = f"{data_path}/tasks_1-20_v1-2"
         ensure_file_downloaded(source_url=url, target_path=target_path, unpack=True)
 
-        for split in splits:
-            split_path: str = f"{data_path}/tasks_1-20_v1-2/en-valid/qa{self.task}_{split}.txt"
-            with open(split_path, "r") as f:
+        for task in self.tasks:
+            for split in splits:
+                split_path: str = f"{data_path}/tasks_1-20_v1-2/en-valid/qa{task}_{split}.txt"
+                with open(split_path, "r") as f:
 
-                facts = list(f)
-                story: List[str] = []
-                for fact in facts:
-                    fid = int(fact.split(" ")[0])
-                    if fid == 1:
-                        story = []
-                    fact = " ".join(fact.split(" ")[1:])
-                    is_question = "?" in fact
-                    if is_question:
-                        question, answer = fact.split("\t")[:2]
-                        question, answer = question.strip(), answer.strip()
-                        # All tasks except task 19 have a verbal single-word answer (e.g. "kitchen", "apple", "yes").
-                        # Task 19 (path finding) has a non verbal answer format (
-                        if self.task == 19:
-                            answer = self.process_path(answer)
-                        context = PassageQuestionInput(passage="".join(story), question=question).to_text(separator="")
-                        instance: Instance = Instance(
-                            input=context,
-                            references=[Reference(output=answer, tags=[CORRECT_TAG])],
-                            split=splits[split],
-                        )
-                        instances.append(instance)
-                    else:
-                        story.append(fact)
+                    facts = list(f)
+                    story: List[str] = []
+                    for fact in facts:
+                        fid = int(fact.split(" ")[0])
+                        if fid == 1:
+                            story = []
+                        fact = " ".join(fact.split(" ")[1:])
+                        is_question = "?" in fact
+                        if is_question:
+                            question, answer = fact.split("\t")[:2]
+                            question, answer = question.strip(), answer.strip()
+                            # All tasks except task 19 have a verbal single-word answer (e.g. "kitchen", "apple", "yes").
+                            # Task 19 (path finding) has a non verbal answer format (
+                            if task == 19:
+                                answer = self.process_path(answer)
+                            context = PassageQuestionInput(passage="".join(story), question=question).to_text(separator="")
+                            instance: Instance = Instance(
+                                input=context,
+                                references=[Reference(output=answer, tags=[CORRECT_TAG])],
+                                split=splits[split],
+                            )
+                            instances.append(instance)
+                        else:
+                            story.append(fact)
 
         return instances
