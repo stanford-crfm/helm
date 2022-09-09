@@ -269,14 +269,13 @@ class ICEScenario(Scenario):
         return selected_texts
 
     def get_instances(self) -> List[Instance]:
-        instances = []
+        instances: List[Instance] = []
 
         for subset in self.subset:
-            data_path = os.path.join(self.output_path, SUBSET_TO_DIRECTORY[subset])
-
             # Currently there is no infrastructure in place to unzip files with passwords
             # (the HTTP requests for the data itself also requires some authorization);
             # therefore we can only assume data is already downloaded and extracted
+            data_path: str = os.path.join("restricted", self.name, SUBSET_TO_DIRECTORY[subset])
             if not os.path.exists(data_path):
                 raise FileNotFoundError(
                     f"Data does not exist at the required location. \

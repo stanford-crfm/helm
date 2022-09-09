@@ -102,7 +102,7 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Activate the Conda environment: `conda activate crfm_benchmarking`
    1. Run `./pre-commit.sh` if there are new dependencies to install.
 1. Run `bash scripts/run-all-stanford.sh --suite <Suite name>` e.g.,
-   `bash scripts/run-all-stanford.sh --suite v1`.
+   `bash scripts/run-all-stanford.sh --suite v4`.
 1. After the run for all the models has finished, run the remaining commands the script outputs.
 
 ## Offline evaluation

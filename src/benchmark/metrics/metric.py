@@ -143,11 +143,10 @@ class Metric(ABC):
             )
 
             # Per-instance stats
-            assert instance.id is not None
-            per_instance_stats: List[PerInstanceStats] = [
-                PerInstanceStats(cast(str, instance.id), train_trial_index, stats)
-                for instance, stats in zip(scenario_state.instances, results)
-            ]
+            per_instance_stats: List[PerInstanceStats] = []
+            for instance, stats in zip(scenario_state.instances, results):
+                assert instance.id is not None, f"id was none for instance: {instance}"
+                per_instance_stats.append(PerInstanceStats(cast(str, instance.id), train_trial_index, stats))
 
             # Aggregate these stats
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
