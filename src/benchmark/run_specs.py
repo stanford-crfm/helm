@@ -860,9 +860,6 @@ def get_babi_qa_spec(task: str = "all") -> RunSpec:
         model="openai/davinci",
         max_eval_instances=None,
         num_outputs=1,
-        # Task 19's answers are two words. All other tasks are one word.
-        max_tokens=2 if task in ["all", "19"] else 1,
-        # setting max 1/2 tokens answers improved performance but indeed makes an assumption about tokenization.
         temperature=0.0,
         stop_sequences=["\n"],
     )
