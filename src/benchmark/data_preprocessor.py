@@ -27,6 +27,7 @@ class DataPreprocessor:
                 train_instances,
                 include_original=self.data_augmenter_spec.should_include_original_train,
                 skip_unchanged=self.data_augmenter_spec.should_skip_unchanged_train,
+                num_perturbations=self.data_augmenter_spec.num_perturbations,
                 parallelism=parallelism,
             )
 
@@ -37,6 +38,7 @@ class DataPreprocessor:
                 eval_instances,
                 include_original=self.data_augmenter_spec.should_include_original_eval,
                 skip_unchanged=self.data_augmenter_spec.should_skip_unchanged_eval,
+                num_perturbations=self.data_augmenter_spec.num_perturbations,
                 parallelism=parallelism,
             )
 

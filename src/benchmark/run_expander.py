@@ -195,9 +195,9 @@ def filler(prob: float) -> PerturbationSpec:
     )
 
 
-def robustness(seed: Optional[int]) -> PerturbationSpec:
+def robustness() -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.robustness_perturbation.RobustnessPerturbation", args={"seed": seed},
+        class_name="benchmark.augmentations.robustness_perturbation.RobustnessPerturbation", args={}
     )
 
 
@@ -279,7 +279,7 @@ def gender(
 # - r1: with perturbations [a, b]
 # - r2: with perturbations [c, d, e]
 
-ROBUSTNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [robustness(seed=None)]
+ROBUSTNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [robustness()]
 
 FAIRNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [
     dialect(prob=1.0, source_class="SAE", target_class="AAVE"),
@@ -459,6 +459,7 @@ class DataAugmentationRunExpander(RunExpander):
                 should_augment_eval_instances=True,
                 should_include_original_eval=True,
                 should_skip_unchanged_eval=True,
+                num_perturbations=1,
             )
             return replace(
                 run_spec,
