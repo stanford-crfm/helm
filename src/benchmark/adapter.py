@@ -714,8 +714,21 @@ class Adapter:
             pred_tokens = pred_tokens[: -(prompt_length - max_req_len)]
             prompt = self.window_service.decode(conditioning_tokens + pred_tokens, text)
             prompt_length = len(self.window_service.encode(prompt).tokens)
+
+            # When the input text contains languages the tokenizer cannot process, the input text
+            # might be inflated so the truncation cannot work properly.
+            # e.g.
+            # With the OpenAI tokenizer:
+            # >>> tokenizer.decode(tokenizer.encode("行星运转"))
+            # '行星运转'
+            # With the YaLM tokenizer:
+            # >>> tokenizer.decode(tokenizer.tokenize("行星运转"))
+            # '行<0xE6><0x98><0x9F><0xE8><0xBF><0x90><0xE8><0xBD><0xAC>'
             if len(pred_tokens) == 0:
-                raise ValueError("len(pred_tokens) == 0, which will lead to an infinite loop.")
+                raise ValueError(
+                    "Truncating pred_tokens to fit them in the context window, \
+                    got len(pred_tokens) == 0, which will lead to an infinite loop."
+                )
 
         return prompt, pred_tokens
 
