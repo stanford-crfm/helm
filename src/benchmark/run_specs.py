@@ -67,11 +67,15 @@ def get_bbq_metric_specs() -> List[MetricSpec]:
     ]
 
 
-def get_msmarco_metric_specs(task: str, track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:
-    measure_names = MSMARCOScenario.MEASURE_NAMES[(task, track)]
-    mode = MSMARCOScenario.BINARY_LOGPROB_MODE
-    correct_output, wrong_output = MSMARCOScenario.CORRECT_OUTPUT, MSMARCOScenario.WRONG_OUTPUT
-    multi_value_qrels = set(MSMARCOScenario.GOLD_RELATIONS[(task, track)]) != {1}
+def get_msmarco_metric_specs(track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:
+    # Names of the measures we want to compute.
+    measure_names = MSMARCOScenario.MEASURE_NAMES[track]
+
+    # TODO: I was hoping to set the correct / wrong output labels on the adapter side, but we need to somehow pass
+    #       the same information to the metric. Setting them here for the time being.
+    correct_output, wrong_output = "Yes", "No"
+
+    multi_value_qrels = set(MSMARCOScenario.GOLD_RELATIONS[track]) != {1}
 
     return [
         MetricSpec(
@@ -79,7 +83,6 @@ def get_msmarco_metric_specs(task: str, track: str, qrels_path: str, topk: Optio
             args={
                 "measure_names": measure_names,
                 "qrels_path": qrels_path,
-                "mode": mode,
                 "correct_output": correct_output,
                 "wrong_output": wrong_output,
                 "topk": topk,
@@ -281,7 +284,7 @@ def get_msmarco_spec(
 
     # Create metrics
     qrels_path: str = os.path.join("benchmark_output", "scenarios", "msmarco", "data", f"{task}_{track}_qrels.tsv")
-    metric_specs: List[MetricSpec] = get_msmarco_metric_specs(task, track, qrels_path, topk=valid_topk)
+    metric_specs: List[MetricSpec] = get_msmarco_metric_specs(track, qrels_path, topk=valid_topk)
 
     # Return RunSpec
     return RunSpec(
