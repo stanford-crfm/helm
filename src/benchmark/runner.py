@@ -104,18 +104,19 @@ class Runner:
 
         adapter = Adapter(run_spec.adapter_spec, self.tokenizer_service)
 
-        # Create the instances of the scenario
-        with htrack_block("scenario.get_instances"):
-            instances: List[Instance] = scenario.get_instances()
-
-        # Give each instance a unique ID
-        instances = with_instance_ids(instances)
-
-        # Sample only as many as we need
-        instances = adapter.sample_instances(instances)
-
-        # Data preprocessing
+        instances: List[Instance]
         if not self.skip_instances:
+            # Create the instances of the scenario
+            with htrack_block("scenario.get_instances"):
+                instances = scenario.get_instances()
+
+            # Give each instance a unique ID
+            instances = with_instance_ids(instances)
+
+            # Sample only as many as we need
+            instances = adapter.sample_instances(instances)
+
+            # Data preprocessing
             instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
                 instances, self.executor.execution_spec.parallelism
             )
