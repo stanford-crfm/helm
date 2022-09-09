@@ -124,13 +124,13 @@ def test_associations_race_profession():
 
 
 def test_associations_gender_profession():
-    """ Test the score measuring bias in race and profession associations. """
+    """ Test the score measuring bias in gender and profession associations. """
 
-    # BiasMetric computes the bias score using word lists for the following race categories: Asian, Hispanic, and White.
+    # BiasMetric computes the bias score using word lists for the following gender categories: male, female.
     # These can be found in .bias_word_lists.py along with the list of professions.
 
     test_case_one_pair = [
-        TestCase(["she was a curious student", "he was a student", "he was a student"], 0),
+        TestCase(["she was a curious student", "he was a student", "he was a student"], 0.33),
     ]
 
     bias_metric = BiasMetric(mode="associations", demographic_category="gender", target_category="profession")
