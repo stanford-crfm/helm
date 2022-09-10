@@ -1,7 +1,6 @@
 import argparse
 from dataclasses import dataclass, replace
 import os
-import yaml
 from collections import defaultdict
 import urllib.parse
 
@@ -15,7 +14,8 @@ from benchmark.metrics.statistic import Stat
 from benchmark.runner import RunSpec
 from proxy.models import ALL_MODELS, get_model
 from .table import Cell, Table
-from .schema import MetricNameMatcher, Schema, ScenarioGroup
+from .schema import MetricNameMatcher, ScenarioGroup, read_schema, SCHEMA_YAML_PATH
+from .contamination import read_contamination, validate_contamination
 
 """
 Reads the output of the benchmark runs and produces:
@@ -27,8 +27,6 @@ Usage:
     venv/bin/benchmark-summarize --suite <Name of the suite>
 
 """
-
-SCHEMA_YAML_PATH: str = "src/proxy/static/schema.yaml"
 
 
 @dataclass(frozen=True)
@@ -63,11 +61,9 @@ class Summarizer:
     def __init__(self, run_suite_path: str):
         self.run_suite_path: str = run_suite_path
 
-    def read_schema(self):
-        hlog(f"Reading schema from {SCHEMA_YAML_PATH}...")
-        with open(SCHEMA_YAML_PATH) as f:
-            raw = yaml.safe_load(f)
-            self.schema = dacite.from_dict(Schema, raw)
+        self.schema = read_schema()
+        self.contamination = read_contamination()
+        validate_contamination(self.contamination, self.schema)
 
     def read_run(self, run_path: str) -> Run:
         """Load the `Run` object from `run_path`."""
@@ -128,9 +124,7 @@ class Summarizer:
             for stat in run.stats:
                 metric_name_to_run_spec_names[stat.name.name].append(run.run_spec.name)
 
-        with open(SCHEMA_YAML_PATH) as f:
-            metrics = yaml.safe_load(f)["metrics"]
-            defined_metric_names = set(entry["name"] for entry in metrics)
+        defined_metric_names = set(entry.name for entry in self.schema.metrics)
 
         for metric_name, run_spec_names in metric_name_to_run_spec_names.items():
             if metric_name not in defined_metric_names:
@@ -193,9 +187,11 @@ class Summarizer:
             )
         return Table(title="Overview of results", header=header, rows=rows,)
 
-    def create_cell(self, runs: List[Run], matcher: MetricNameMatcher) -> Cell:
-        """Use the metric name identified by `matcher` to pull out the stats
-        from `runs` and return a representation of the average."""
+    def create_cell(self, runs: List[Run], matcher: MetricNameMatcher, is_contaminated: bool) -> Cell:
+        """
+        Use the metric name identified by `matcher` to pull out the stats from
+        `runs` and return a representation of the average.
+        """
         if len(runs) == 0:
             return Cell(None)
 
@@ -217,7 +213,8 @@ class Summarizer:
         value = aggregate_stat.mean
         display_value = round(value, 3) if value else value
         description = aggregate_stat.bare_str()  # Show more information
-        return Cell(value=value, display_value=display_value, description=description)
+        style = {"color": "gray"} if is_contaminated else {}
+        return Cell(value=value, display_value=display_value, description=description, style=style)
 
     def create_group_table(
         self, title: str, scenario_group: ScenarioGroup, model_to_runs: Dict[str, List[Run]], link_to_runs: bool
@@ -225,11 +222,6 @@ class Summarizer:
         """
         Create a table for a scenario_group (natural_qa) where each row is a
         model and columns are constructed based on metrics.
-        Here's how the columns are constructed.  For each metric group:
-        - Take the cross product over the list of metric names (e.g.,
-          exact_match) and perturbation names (e.g., typos) defined by the
-          metric group.
-        - In some cases, the scenario group will supply the metric names.
         """
 
         # Figure out what the columns of the table are.
@@ -273,8 +265,14 @@ class Summarizer:
                 href = get_benchmarking_url({"runSpec": "|".join(run_spec_names)})
             else:
                 href = None
+            point = self.contamination.get_point(scenario_group.name, model_name)
+            print('AAAAAAAAA', point)
+            suffix = "☠" if point else ""
+            description = point.description if point else ""
+            is_contaminated = point is not None
             rows.append(
-                [Cell(model.display_name, href=href)] + [self.create_cell(runs, matcher) for matcher in matchers]
+                [Cell(model.display_name + suffix, description=description, href=href)]
+                + [self.create_cell(runs, matcher, is_contaminated) for matcher in matchers]
             )
 
         return Table(title=title, header=header, rows=rows)
@@ -343,7 +341,6 @@ def main():
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(run_suite_path=os.path.join(args.output_path, "runs", args.suite))
-    summarizer.read_schema()
     summarizer.read_runs()
     summarizer.write_models()
     summarizer.write_runs()

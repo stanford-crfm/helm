@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
-import mako.template
-
 from typing import List, Optional, Dict
+import dacite
+import mako.template
+import yaml
 
+from common.general import hlog
 from benchmark.metrics.metric_name import MetricName
 from benchmark.augmentations.perturbation_description import PERTURBATION_WORST
 
@@ -122,3 +124,11 @@ class Schema:
         self.name_to_metric = {metric.name: metric for metric in self.metrics}
         self.name_to_perturbation = {perturbation.name: perturbation for perturbation in self.perturbations}
         self.name_to_metric_group = {metric_group.name: metric_group for metric_group in self.metric_groups}
+        self.name_to_scenario_group = {scenario_group.name: scenario_group for scenario_group in self.scenario_groups}
+
+
+def read_schema():
+    hlog(f"Reading schema from {SCHEMA_YAML_PATH}...")
+    with open(SCHEMA_YAML_PATH) as f:
+        raw = yaml.safe_load(f)
+    return dacite.from_dict(Schema, raw)

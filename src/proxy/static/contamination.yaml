@@ -1,6 +1,6 @@
 ---
 
-contamination:
+points:
   - models:
     - together/t0pp
     scenario_groups:
