@@ -55,6 +55,11 @@ class CacheStats:
 
         self.lock = threading.Lock()
 
+    def reset(self):
+        with self.lock:
+            self.num_queries.clear()
+            self.num_computes.clear()
+
     def increment_query(self, path: str):
         with self.lock:
             self.num_queries[path] += 1
@@ -67,7 +72,7 @@ class CacheStats:
     def print_status(self):
         with self.lock:
             for path in self.num_queries:
-                hlog(f"{path}: {self.num_queries} queries, {self.num_computes} computes")
+                hlog(f"{path}: {self.num_queries[path]} queries, {self.num_computes[path]} computes")
 
 
 cache_stats = CacheStats()
@@ -85,7 +90,7 @@ class Cache(object):
 
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
-        cache_stats.increment_query()
+        cache_stats.increment_query(self.cache_path)
         key = request_to_key(request)
 
         with SqliteDict(self.cache_path) as cache:
@@ -94,7 +99,7 @@ class Cache(object):
                 cached = True
             else:
                 cached = False
-                cache_stats.increment_compute()
+                cache_stats.increment_compute(self.cache_path)
                 # Compute and commit the request/response to SQLite
                 response = compute()
                 write_to_cache(cache, key, response)
