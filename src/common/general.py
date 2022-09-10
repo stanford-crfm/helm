@@ -95,7 +95,8 @@ def ensure_file_downloaded(source_url: str, target_path: str, unpack: bool = Fal
             shell(["mv", tmp2_path, target_path])
         os.unlink(tmp_path)
     else:
-        if source_url.endswith(".gz"):
+        # Don't decompress if desired `target_path` ends with `.gz`.
+        if source_url.endswith(".gz") and not target_path.endswith(".gz"):
             gzip_path = f"{target_path}.gz"
             shell(["mv", tmp_path, gzip_path])
             # gzip writes its output to a file named the same as the input file, omitting the .gz extension
