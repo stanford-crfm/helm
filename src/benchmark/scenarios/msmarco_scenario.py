@@ -526,8 +526,8 @@ class MSMARCOScenario(Scenario):
                         self.train_topk or self.valid_topk passages depending on the
                         specified split.
         """
-        # Retrieve variables for the split
-        qids, query_dict, qrels_dict, topk, topk_dict, gold_relations = self.get_split_variables(split)
+        # Retrieve variables for the split.
+        qids, _, qrels_dict, topk, topk_dict, gold_relations = self.get_split_variables(split)
 
         # (1) Ensure that there is a query relations dictionary for each query.
         filtered_qids = [qid for qid in qids if qid in qrels_dict]
@@ -545,13 +545,14 @@ class MSMARCOScenario(Scenario):
     def create_instance(self, qid: int, pids: List[int], split: str) -> Instance:
         """ Create and return an instance made using the provided parameters. """
         # Retrieve variables for the split.
-        qids, query_dict, qrels_dict, topk, topk_dict, gold_relations = self.get_split_variables(split)
+        _, query_dict, qrels_dict, _, _, gold_relations = self.get_split_variables(split)
 
         # Construct references
         references = []
+        qrels = qrels_dict[qid]
         for pid in pids:
             object_text = self.object_dict[pid]
-            rel = qrels_dict[qid][pid] if pid in qrels_dict[qid] else None
+            rel = qrels[pid] if pid in qrels else None
             tags = [CORRECT_TAG] if rel in gold_relations else []
             reference = InformationRetrievalReference(output=object_text, tags=tags, object_id=str(pid), relevance=rel)
             vanilla_reference = cast(Reference, reference)  # Convert to vanilla Reference to meet the type requirements
@@ -559,7 +560,9 @@ class MSMARCOScenario(Scenario):
 
         # Construct instance
         query_text = query_dict[qid]
-        instance = InformationRetrievalInstance(input=query_text, references=references, split=split, query_id=str(qid))
+        instance = InformationRetrievalInstance(
+            input=query_text, references=references, split=split, query_id=str(qid), qrels=qrels
+        )
         vanilla_instance = cast(Instance, instance)  # Convert to vanilla Instance to meet the type requirements
         return vanilla_instance
 
@@ -573,7 +576,7 @@ class MSMARCOScenario(Scenario):
                corresponds to a non-gold passage for the given train query.
         """
         # Retrieve variables for the split.
-        qids, query_dict, qrels_dict, topk, topk_dict, gold_relations = self.get_split_variables(TRAIN_SPLIT)
+        _, _, qrels_dict, topk, topk_dict, gold_relations = self.get_split_variables(TRAIN_SPLIT)
 
         # Get 1 correct Passage ID.
         # - Retrieve the Passage IDs relevant for the given query.
@@ -597,7 +600,7 @@ class MSMARCOScenario(Scenario):
         #   This ensures that the wrong pids we picked belong to competitive
         #   passages.
         top_pids = list(topk_dict[qid].keys())
-        filtered_pids = [pid for pid in top_pids if self.min_train_wrong_topk <= topk_dict[qid][pid] <= self.train_topk]
+        filtered_pids = [pid for pid in top_pids if self.min_train_wrong_topk <= topk_dict[qid][pid] <= topk]
         wrong_pids = [
             pid for pid in filtered_pids if pid not in qrels_dict[qid] or qrels_dict[qid][pid] not in gold_relations
         ]
@@ -621,7 +624,7 @@ class MSMARCOScenario(Scenario):
                self.valid_topk passages for the given validation query.
         """
         # Retrieve variables for the split.
-        qids, query_dict, qrels_dict, topk, topk_dict, gold_relations = self.get_split_variables(VALID_SPLIT)
+        _, _, qrels_dict, topk, topk_dict, _ = self.get_split_variables(VALID_SPLIT)
 
         # Initialize a list to the selected hold Passage IDs.
         pids = []
@@ -636,7 +639,7 @@ class MSMARCOScenario(Scenario):
         # most relevant passages for the query. __init__ ensures that
         # self.valid_topk is set if use_topk_passages is set.
         if self.use_topk_passages:
-            top_pids = [pid for k, pid in topk_dict[qid].items() if k <= self.valid_topk]
+            top_pids = [pid for k, pid in topk_dict[qid].items() if k <= topk]
             pids += top_pids
 
         # Remove duplicates from the pids list. We don't use set to ensure

@@ -1,5 +1,4 @@
 import itertools
-import os
 from typing import Any, Callable, List, Dict, Optional, Set
 
 from common.hierarchical_logger import hlog, htrack
@@ -67,7 +66,7 @@ def get_bbq_metric_specs() -> List[MetricSpec]:
     ]
 
 
-def get_msmarco_metric_specs(track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:
+def get_msmarco_metric_specs(track: str, topk: Optional[int] = None) -> List[MetricSpec]:
     # Names of the measures we want to compute.
     measure_names = MSMARCOScenario.MEASURE_NAMES[track]
 
@@ -82,7 +81,6 @@ def get_msmarco_metric_specs(track: str, qrels_path: str, topk: Optional[int] = 
             class_name="benchmark.multiple_request_metrics.InformationRetrievalMetric",
             args={
                 "measure_names": measure_names,
-                "qrels_path": qrels_path,
                 "correct_output": correct_output,
                 "wrong_output": wrong_output,
                 "topk": topk,
@@ -235,7 +233,6 @@ def get_bbq_spec(subject: str) -> RunSpec:
 
 
 def get_msmarco_spec(
-    method,
     task,
     track,
     use_qrels_passages="False",
@@ -244,19 +241,15 @@ def get_msmarco_spec(
     num_valid_queries=None,
     num_train_queries="1000",
 ) -> RunSpec:
-    # Ensure that a valid adapter method is passed in
-    assert method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]
-
     # Get ScenarioSpec
     use_qrels_passages = use_qrels_passages.lower() == "true"
     use_topk_passages = use_topk_passages.lower() == "true"
-    valid_topk = int(valid_topk) if valid_topk else valid_topk
-    num_valid_queries = int(num_valid_queries) if num_valid_queries else num_valid_queries
+    valid_topk = int(valid_topk) if valid_topk else None
+    num_valid_queries = int(num_valid_queries) if num_valid_queries else None
     num_train_queries = int(num_train_queries)
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.msmarco_scenario.MSMARCOScenario",
         args={
-            "task": task,
             "track": track,
             "use_qrels_passages": use_qrels_passages,
             "use_topk_passages": use_topk_passages,
@@ -268,7 +261,7 @@ def get_msmarco_spec(
 
     # Get AdapterSpec
     adapter_spec = AdapterSpec(
-        method=method,
+        method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
         instructions="",
         reference_prefix="Passage: ",
         input_prefix="\nQuestion: ",
@@ -282,9 +275,8 @@ def get_msmarco_spec(
         stop_sequences=["\n"],
     )
 
-    # Create metrics
-    qrels_path: str = os.path.join("benchmark_output", "scenarios", "msmarco", "data", f"{task}_{track}_qrels.tsv")
-    metric_specs: List[MetricSpec] = get_msmarco_metric_specs(track, qrels_path, topk=valid_topk)
+    # Get the list of MetricSpecs
+    metric_specs: List[MetricSpec] = get_msmarco_metric_specs(track, topk=valid_topk)
 
     # Return RunSpec
     return RunSpec(

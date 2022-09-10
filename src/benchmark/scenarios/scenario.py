@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
-from typing import List, Optional
+from typing import Dict, List, Optional
 import re
 import inspect
 
@@ -156,6 +156,21 @@ class InformationRetrievalInstance(Instance):
 
     """ Query ID.  """
     query_id: Optional[str] = None
+
+    """ Query relations dictionary.
+
+    Query relations dictionary maps a Passage ID (passage_id) to a value
+    indicating its relevance for the query with the ID query_id. The query
+    relations dictionary is guaranteed to contain entries for the gold
+    passages, but it may or may not contain relevance values for the passages
+    that aren't answering the query. Shared below is the format of the qrels
+    dictionary:
+        {
+            <passage_id>: <relevance>,
+            ...
+        }
+    """
+    qrels: Optional[Dict[int, int]] = None
 
 
 @dataclass  # type: ignore
