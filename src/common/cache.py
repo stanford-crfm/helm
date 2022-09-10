@@ -1,9 +1,11 @@
 import json
 from typing import Dict, Callable, Tuple
+from collections import defaultdict
+import threading
 
 from sqlitedict import SqliteDict
 
-from common.general import hlog
+from common.general import hlog, htrack
 from proxy.retry import get_retry_decorator
 
 
@@ -41,6 +43,36 @@ def write_to_cache(cache: SqliteDict, key: str, response: Dict) -> bool:
         return False
 
 
+class CacheStats:
+    """Allow updates."""
+
+    def __init__(self):
+        # For each path, how many times did I query the cache?
+        self.num_queries: Dict[str, int] = defaultdict(int)
+
+        # For each path, how many times did I miss the cache and have to compute?
+        self.num_computes: Dict[str, int] = defaultdict(int)
+
+        self.lock = threading.Lock()
+
+    def increment_query(self, path: str):
+        with self.lock:
+            self.num_queries[path] += 1
+
+    def increment_compute(self, path: str):
+        with self.lock:
+            self.num_computes[path] += 1
+
+    @htrack(None)
+    def print_status(self):
+        with self.lock:
+            for path in self.num_queries:
+                hlog(f"{path}: {self.num_queries} queries, {self.num_computes} computes")
+
+
+cache_stats = CacheStats()
+
+
 class Cache(object):
     """
     A cache for request/response pairs.
@@ -50,13 +82,10 @@ class Cache(object):
 
     def __init__(self, cache_path: str):
         self.cache_path: str = cache_path
-        # Counters to keep track of progress
-        self.num_queries: int = 0
-        self.num_misses: int = 0
 
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
-        self.num_queries += 1
+        cache_stats.increment_query()
         key = request_to_key(request)
 
         with SqliteDict(self.cache_path) as cache:
@@ -65,7 +94,7 @@ class Cache(object):
                 cached = True
             else:
                 cached = False
-                self.num_misses += 1
+                cache_stats.increment_compute()
                 # Compute and commit the request/response to SQLite
                 response = compute()
                 write_to_cache(cache, key, response)
