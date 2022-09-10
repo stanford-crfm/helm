@@ -477,12 +477,6 @@ $(function () {
             // (instance id, trian trial index, perturbation) => whether we already showed the metrics for it
             const shownStats = {};
 
-            // Display statistics for each instance, trial index, and perturbation
-            // So we need to find the first request_state for eac
-            scenarioState.request_states.forEach((requestState) => {
-            });
-            // TODO
-
             // For each request state (across all instances)...
             scenarioState.request_states.forEach((requestState) => {
               const $instance = instanceToDiv[instanceKey(requestState.instance)];
