@@ -27,6 +27,7 @@ class ContaminationPoint:
     data in each group in `scenario_groups`.
     Note this implicitly represents |models| x |scenario_groups| points.
     """
+
     # Which models
     models: List[str]
 
