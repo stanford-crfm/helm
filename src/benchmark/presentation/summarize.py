@@ -195,9 +195,12 @@ class Summarizer:
         if len(runs) == 0:
             return Cell(None)
 
+        # Ignore the `is_contaminated` numbers
         aggregate_stat: Optional[Stat] = None
         for run in runs:
             stat = get_unique_stat_by_matcher(run.stats, matcher)
+            for stat in run.stats:
+                print("AAAAAA", stat.name)
             if stat is None:
                 hlog(f"WARNING: {matcher} doesn't match {run.run_spec.name}")
                 continue  # TODO: probably should make a note that stats are missing
@@ -266,8 +269,7 @@ class Summarizer:
             else:
                 href = None
             point = self.contamination.get_point(scenario_group.name, model_name)
-            print('AAAAAAAAA', point)
-            suffix = "☠" if point else ""
+            suffix = "☠" if point and point.level == "strong" else ""
             description = point.description if point else ""
             is_contaminated = point is not None
             rows.append(
