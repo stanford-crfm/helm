@@ -323,6 +323,9 @@ class Summarizer:
                     )
                 )
 
+            if len(tables) == 0:
+                continue
+
             # Write it!
             write(
                 os.path.join(groups_path, group.name + ".json"), json.dumps(list(map(asdict_without_nones, tables))),
