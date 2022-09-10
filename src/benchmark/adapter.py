@@ -1,7 +1,7 @@
 import random
 from dataclasses import dataclass, field, replace
 from itertools import cycle
-from typing import List, Dict, Tuple, Optional, cast
+from typing import List, Dict, Tuple, Optional
 from collections import defaultdict, OrderedDict
 
 import numpy as np
@@ -10,13 +10,7 @@ from common.general import serialize, indent_lines, format_text_lines, parallel_
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationToken
-from .scenarios.scenario import (
-    Instance,
-    InformationRetrievalInstance,
-    InformationRetrievalReference,
-    TRAIN_SPLIT,
-    EVAL_SPLITS,
-)
+from .scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 from .window_services.window_service import WindowService, EncodeResult
 from .window_services.window_service_factory import WindowServiceFactory
 from .window_services.tokenizer_service import TokenizerService
@@ -376,18 +370,7 @@ class Processor:
 
             # In-context training instances
             for instance in train_instances:
-                # If we have an InformationRetrievalInstance, we need the reference index information to construct
-                # the prompts.
-                if isinstance(instance, InformationRetrievalInstance):
-                    for train_reference_index, _ in enumerate(instance.references):
-                        # TODO: Should we shuffle the ordering of the Yes and No requests?
-                        blocks.append(
-                            self.construct_example_prompt(
-                                instance, include_output=True, reference_index=train_reference_index
-                            )
-                        )
-                else:
-                    blocks.append(self.construct_example_prompt(instance, include_output=True, reference_index=None))
+                blocks.append(self.construct_example_prompt(instance, include_output=True, reference_index=None))
 
             blocks.append(
                 self.construct_example_prompt(
@@ -450,14 +433,6 @@ class Processor:
             else:
                 reference = instance.references[reference_index]
                 output = reference.output
-
-                # If we have an InformationRetrieval reference:
-                # - Prepend the passage to the result text
-                # - Append the question prompt
-                if isinstance(reference, InformationRetrievalReference):
-                    reference = cast(InformationRetrievalReference, reference)
-                    assert reference.input
-                    result = self.adapter_spec.reference_prefix + reference.input + result
 
         if include_output:
             result += self.adapter_spec.output_prefix + output
