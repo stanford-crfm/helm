@@ -9,6 +9,16 @@ from benchmark.presentation.schema import Schema
 
 CONTAMINATION_YAML_PATH: str = "src/proxy/static/contamination.yaml"
 
+CONTAMINATION_SYMBOLS = {
+    "weak": "⚠",
+    "strong": "☠",
+}
+
+CONTAMINATION_STYLES = {
+    "weak": {"color": "gray"},
+    "strong": {"color": "lightgray"},
+}
+
 
 @dataclass(frozen=True)
 class ContaminationPoint:

@@ -15,7 +15,7 @@ from benchmark.runner import RunSpec
 from proxy.models import ALL_MODELS, get_model
 from .table import Cell, Table
 from .schema import MetricNameMatcher, ScenarioGroup, read_schema, SCHEMA_YAML_PATH
-from .contamination import read_contamination, validate_contamination
+from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
 
 """
 Reads the output of the benchmark runs and produces:
@@ -187,7 +187,7 @@ class Summarizer:
             )
         return Table(title="Overview of results", header=header, rows=rows,)
 
-    def create_cell(self, runs: List[Run], matcher: MetricNameMatcher, is_contaminated: bool) -> Cell:
+    def create_cell(self, runs: List[Run], matcher: MetricNameMatcher, contamination_level: Optional[str]) -> Cell:
         """
         Use the metric name identified by `matcher` to pull out the stats from
         `runs` and return a representation of the average.
@@ -195,12 +195,9 @@ class Summarizer:
         if len(runs) == 0:
             return Cell(None)
 
-        # Ignore the `is_contaminated` numbers
         aggregate_stat: Optional[Stat] = None
         for run in runs:
             stat = get_unique_stat_by_matcher(run.stats, matcher)
-            for stat in run.stats:
-                print("AAAAAA", stat.name)
             if stat is None:
                 hlog(f"WARNING: {matcher} doesn't match {run.run_spec.name}")
                 continue  # TODO: probably should make a note that stats are missing
@@ -213,10 +210,11 @@ class Summarizer:
 
         if aggregate_stat is None:
             return Cell(None)
+
         value = aggregate_stat.mean
         display_value = round(value, 3) if value else value
-        description = aggregate_stat.bare_str()  # Show more information
-        style = {"color": "gray"} if is_contaminated else {}
+        description = aggregate_stat.bare_str()
+        style = CONTAMINATION_STYLES.get(contamination_level, {})
         return Cell(value=value, display_value=display_value, description=description, style=style)
 
     def create_group_table(
@@ -262,19 +260,28 @@ class Summarizer:
         rows = []
         for model_name, runs in model_to_runs.items():
             model = get_model(model_name)
+
             # Link to all the runs under this model
             if link_to_runs:
                 run_spec_names = [run.run_spec.name for run in runs]
                 href = get_benchmarking_url({"runSpec": "|".join(run_spec_names)})
             else:
                 href = None
+
+            # Render contamination information
             point = self.contamination.get_point(scenario_group.name, model_name)
-            suffix = "☠" if point and point.level == "strong" else ""
-            description = point.description if point else ""
-            is_contaminated = point is not None
+            if point is not None:
+                suffix = CONTAMINATION_SYMBOLS[point.level]
+                description = point.description
+                contamination_level = point.level
+            else:
+                suffix = ""
+                description = ""
+                contamination_level = None
+
             rows.append(
                 [Cell(model.display_name + suffix, description=description, href=href)]
-                + [self.create_cell(runs, matcher, is_contaminated) for matcher in matchers]
+                + [self.create_cell(runs, matcher, contamination_level) for matcher in matchers]
             )
 
         return Table(title=title, header=header, rows=rows)

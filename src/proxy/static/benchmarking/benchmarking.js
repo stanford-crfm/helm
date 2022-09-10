@@ -559,6 +559,9 @@ $(function () {
 
   function renderCell(cell) {
     const value = $('<span>', {title: cell.description}).append(cell.display_value || cell.value);
+    if (cell.style) {
+      value.css(cell.style);
+    }
     return $('<td>').append(cell.href ? $('<a>', {href: cell.href}).append(value) : value);
   }
 
