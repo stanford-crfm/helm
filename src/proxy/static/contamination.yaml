@@ -2,12 +2,6 @@
 
 points:
   - models:
-    - openai/davinci
-    scenario_groups:
-    - mmlu
-    level: weak
-    description: bad things happen
-  - models:
     - together/t0pp
     scenario_groups:
     - hellaswag
