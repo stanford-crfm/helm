@@ -8,6 +8,7 @@ from typing import Dict, List
 from benchmark.metrics.metric_name import MetricName
 from common.general import ensure_directory_exists, write, write_lines, asdict_without_nones
 from common.hierarchical_logger import hlog, htrack_block
+from common.cache import cache_stats
 from .augmentations.data_augmenter import DataAugmenterSpec
 from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance, with_instance_ids
 from .adapter import AdapterSpec, Adapter, ScenarioState
@@ -185,3 +186,5 @@ class Runner:
             os.path.join(run_path, "per_instance_stats.json"),
             json.dumps(list(map(asdict_without_nones, per_instance_stats)), indent=2),
         )
+
+        cache_stats.print_status()
