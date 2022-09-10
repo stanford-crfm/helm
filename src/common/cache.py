@@ -44,7 +44,7 @@ def write_to_cache(cache: SqliteDict, key: str, response: Dict) -> bool:
 
 
 class CacheStats:
-    """Allow updates."""
+    """Keeps track of the number of queries and cache misses for various caches."""
 
     def __init__(self):
         # For each path, how many times did I query the cache?
@@ -75,6 +75,9 @@ class CacheStats:
                 hlog(f"{path}: {self.num_queries[path]} queries, {self.num_computes[path]} computes")
 
 
+# Singleton that's updated from everywhere.  Caches are often deep inside
+# various abstractions in the code and inaccessible, so we aggregate statistics
+# at the top-level to be able to print all of them out in one place.
 cache_stats = CacheStats()
 
 
