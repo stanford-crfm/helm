@@ -10,6 +10,7 @@ from .adapter import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_GENERATION,
+    ADAPT_RANKING_BINARY,
 )
 from .metrics.metric import MetricSpec
 from .run_expander import RUN_EXPANDERS
@@ -261,7 +262,7 @@ def get_msmarco_spec(
 
     # Get AdapterSpec
     adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+        method=ADAPT_RANKING_BINARY,
         instructions="",
         reference_prefix="Passage: ",
         input_prefix="\nQuestion: ",

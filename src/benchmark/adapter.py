@@ -21,6 +21,7 @@ ADAPT_MULTIPLE_CHOICE_JOINT = "multiple_choice_joint"
 ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL = "multiple_choice_separate_original"
 ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED = "multiple_choice_separate_calibrated"
 ADAPT_GENERATION = "generation"
+ADAPT_RANKING_BINARY = "ranking_binary"
 
 
 @dataclass(frozen=True)
@@ -231,6 +232,8 @@ class Processor:
             return self.adapt_multiple_choice_joint(eval_instance)
         elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
             return self.adapt_multiple_choice_separate(eval_instance)
+        elif method == ADAPT_RANKING_BINARY:
+            return self.adapt_ranking_binary(eval_instance)
         raise ValueError(f"Invalid method: {method}")
 
     def adapt_generation(self, eval_instance: Instance) -> List[RequestState]:
@@ -341,6 +344,36 @@ class Processor:
                 request_states.append(request_state)
         return request_states
 
+    def adapt_ranking_binary(self, eval_instance: Instance) -> List[RequestState]:
+        """ TODO: Not ready. """
+        request_states = []
+        for reference_index, reference in enumerate(eval_instance.references):
+            prompt = self.construct_prompt(
+                self.train_instances, eval_instance, include_output=True, reference_index=reference_index
+            )  # TODO: This needs to be replaced.
+            request = Request(
+                model=self.adapter_spec.model,
+                prompt=prompt.text,
+                num_completions=self.adapter_spec.num_outputs,
+                temperature=self.adapter_spec.temperature,
+                max_tokens=self.adapter_spec.max_tokens,
+                stop_sequences=self.adapter_spec.stop_sequences,
+                random=self.adapter_spec.random,
+            )
+            request_state = RequestState(
+                instance=eval_instance,
+                reference_index=reference_index,
+                request_mode=None,
+                train_trial_index=self.train_trial_index,
+                output_mapping=None,
+                request=request,
+                result=None,
+                num_in_context_examples=prompt.num_in_context_examples,
+                input_truncated=prompt.input_truncated,
+            )
+            request_states.append(request_state)
+        return request_states
+
     def construct_prompt(
         self,
         train_instances: List[Instance],
@@ -393,7 +426,7 @@ class Processor:
                 return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=False)
 
             train_instances = train_instances[:-1]
-            prompt = construct_prompt_helper(train_instances)
+            prompt = construct_prompt_helper(train_instances)  # TODO: Needs re-factor.
 
         removed_train_instances_count: int = orig_train_instances_count - len(train_instances)
         if removed_train_instances_count > 0:
