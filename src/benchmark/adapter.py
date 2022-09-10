@@ -221,27 +221,116 @@ class Processor:
     train_trial_index: int
 
     def process(self, eval_instance: Instance) -> List[RequestState]:
-        # Define the request
+        # Get adaptation method.
         method = self.adapter_spec.method
 
+        # Generate request states according to the chosen method.
         if method == ADAPT_GENERATION:
-            prompt = self.construct_prompt(
-                self.train_instances, eval_instance, include_output=False, reference_index=None
-            )
-            request = Request(
-                model=self.adapter_spec.model,
-                prompt=prompt.text,
-                num_completions=self.adapter_spec.num_outputs,
-                temperature=self.adapter_spec.temperature,
-                max_tokens=self.adapter_spec.max_tokens,
-                stop_sequences=self.adapter_spec.stop_sequences,
-                random=self.adapter_spec.random,
-            )
-            request_states = [
-                RequestState(
+            return self.adapt_generation(eval_instance)
+        elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
+            return self.adapt_multiple_choice_joint(eval_instance)
+        elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
+            return self.adapt_multiple_choice_separate(eval_instance)
+        raise ValueError(f"Invalid method: {method}")
+
+    def adapt_generation(self, eval_instance: Instance) -> List[RequestState]:
+        prompt = self.construct_prompt(self.train_instances, eval_instance, include_output=False, reference_index=None)
+        request = Request(
+            model=self.adapter_spec.model,
+            prompt=prompt.text,
+            num_completions=self.adapter_spec.num_outputs,
+            temperature=self.adapter_spec.temperature,
+            max_tokens=self.adapter_spec.max_tokens,
+            stop_sequences=self.adapter_spec.stop_sequences,
+            random=self.adapter_spec.random,
+        )
+        request_state = RequestState(
+            instance=eval_instance,
+            reference_index=None,
+            request_mode=None,
+            train_trial_index=self.train_trial_index,
+            output_mapping=None,
+            request=request,
+            result=None,
+            num_in_context_examples=prompt.num_in_context_examples,
+            input_truncated=prompt.input_truncated,
+        )
+        return [request_state]
+
+    def adapt_multiple_choice_joint(self, eval_instance: Instance) -> List[RequestState]:
+        prompt = self.construct_prompt(self.train_instances, eval_instance, include_output=False, reference_index=None)
+        output_mapping = dict(
+            (self.get_reference_prefix("A", reference_index), reference.output)
+            for reference_index, reference in enumerate(eval_instance.references)
+        )
+        request = Request(
+            model=self.adapter_spec.model,
+            prompt=prompt.text,
+            num_completions=1,
+            top_k_per_token=self.adapter_spec.num_outputs,
+            temperature=0,
+            max_tokens=1,
+            stop_sequences=[],
+            random=self.adapter_spec.random,
+        )
+        request_state = RequestState(
+            instance=eval_instance,
+            reference_index=None,
+            request_mode=None,
+            train_trial_index=self.train_trial_index,
+            output_mapping=output_mapping,
+            request=request,
+            result=None,
+            num_in_context_examples=prompt.num_in_context_examples,
+            input_truncated=prompt.input_truncated,
+        )
+        return [request_state]
+
+    def adapt_multiple_choice_separate(self, eval_instance: Instance) -> List[RequestState]:
+        request_states = []
+        for reference_index, reference in enumerate(eval_instance.references):
+            # Explanation for request_modes:
+            # - ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL: each answer choice sentence is
+            # scored independently, where the score is the sentence probability
+            # normalized by sentence length.
+            # - ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED: each answer choice sentence is
+            # scored independently, where the score is the sentence probability
+            # normalized by the unconditional sentence probability.
+            # Details refer to Section 2.4 of GPT-3 paper (https://arxiv.org/pdf/2005.14165.pdf))
+            if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
+                request_modes = ["original"]
+            elif self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED:
+                request_modes = ["original", "calibration"]
+            else:
+                raise ValueError(f"Unknown adapter method: {self.adapter_spec.method}")
+
+            for request_mode in request_modes:
+                if request_mode == "original":
+                    prompt = self.construct_prompt(
+                        self.train_instances, eval_instance, include_output=True, reference_index=reference_index,
+                    )
+                elif request_mode == "calibration":
+                    # For calibration purpose, we compute the logprobs of the reference
+                    # without train instances and the input question.
+                    eval_instance_calibration = replace(eval_instance, input="Answer:")
+                    prompt = self.construct_prompt(
+                        [], eval_instance_calibration, include_output=True, reference_index=reference_index,
+                    )
+                else:
+                    raise ValueError(f"Unknown request mode: {request_mode}")
+                request = Request(
+                    model=self.adapter_spec.model,
+                    prompt=prompt.text,
+                    num_completions=1,
+                    temperature=0,
+                    max_tokens=0,
+                    stop_sequences=[],
+                    echo_prompt=True,
+                )
+                request_state = RequestState(
                     instance=eval_instance,
-                    reference_index=None,
-                    request_mode=None,
+                    reference_index=reference_index,
+                    request_mode=request_mode,
                     train_trial_index=self.train_trial_index,
                     output_mapping=None,
                     request=request,
@@ -249,97 +338,7 @@ class Processor:
                     num_in_context_examples=prompt.num_in_context_examples,
                     input_truncated=prompt.input_truncated,
                 )
-            ]
-        elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
-            prompt = self.construct_prompt(
-                self.train_instances, eval_instance, include_output=False, reference_index=None
-            )
-            output_mapping = dict(
-                (self.get_reference_prefix("A", reference_index), reference.output)
-                for reference_index, reference in enumerate(eval_instance.references)
-            )
-            request = Request(
-                model=self.adapter_spec.model,
-                prompt=prompt.text,
-                num_completions=1,
-                top_k_per_token=self.adapter_spec.num_outputs,
-                temperature=0,
-                max_tokens=1,
-                stop_sequences=[],
-                random=self.adapter_spec.random,
-            )
-            request_states = [
-                RequestState(
-                    instance=eval_instance,
-                    reference_index=None,
-                    request_mode=None,
-                    train_trial_index=self.train_trial_index,
-                    output_mapping=output_mapping,
-                    request=request,
-                    result=None,
-                    num_in_context_examples=prompt.num_in_context_examples,
-                    input_truncated=prompt.input_truncated,
-                )
-            ]
-        elif self.adapter_spec.method in [
-            ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
-            ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
-        ]:
-            request_states = []
-            for reference_index, reference in enumerate(eval_instance.references):
-                # Explanation for request_modes:
-                # - ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL: each answer choice sentence is
-                # scored independently, where the score is the sentence probability
-                # normalized by sentence length.
-                # - ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED: each answer choice sentence is
-                # scored independently, where the score is the sentence probability
-                # normalized by the unconditional sentence probability.
-                # Details refer to Section 2.4 of GPT-3 paper (https://arxiv.org/pdf/2005.14165.pdf))
-                if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
-                    request_modes = ["original"]
-                elif self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED:
-                    request_modes = ["original", "calibration"]
-                else:
-                    raise ValueError(f"Unknown adapter method: {self.adapter_spec.method}")
-
-                for request_mode in request_modes:
-                    if request_mode == "original":
-                        prompt = self.construct_prompt(
-                            self.train_instances, eval_instance, include_output=True, reference_index=reference_index,
-                        )
-                    elif request_mode == "calibration":
-                        # For calibration purpose, we compute the logprobs of the reference
-                        # without train instances and the input question.
-                        eval_instance_calibration = replace(eval_instance, input="Answer:")
-                        prompt = self.construct_prompt(
-                            [], eval_instance_calibration, include_output=True, reference_index=reference_index,
-                        )
-                    else:
-                        raise ValueError(f"Unknown request mode: {request_mode}")
-                    request = Request(
-                        model=self.adapter_spec.model,
-                        prompt=prompt.text,
-                        num_completions=1,
-                        temperature=0,
-                        max_tokens=0,
-                        stop_sequences=[],
-                        echo_prompt=True,
-                    )
-                    request_state = RequestState(
-                        instance=eval_instance,
-                        reference_index=reference_index,
-                        request_mode=request_mode,
-                        train_trial_index=self.train_trial_index,
-                        output_mapping=None,
-                        request=request,
-                        result=None,
-                        num_in_context_examples=prompt.num_in_context_examples,
-                        input_truncated=prompt.input_truncated,
-                    )
-                    request_states.append(request_state)
-        else:
-            raise ValueError(f"Invalid method: {method}")
-
+                request_states.append(request_state)
         return request_states
 
     def construct_prompt(
