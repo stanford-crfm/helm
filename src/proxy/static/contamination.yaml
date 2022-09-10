@@ -12,6 +12,7 @@ points:
     - imdb
     level: strong
     description: The T0++ model is explicitly trained on these datasets. See Table 5 on page 24 of https://arxiv.org/pdf/2110.08207.pdf.
+
   - models:
     - openai/davinci
     - openai/curie

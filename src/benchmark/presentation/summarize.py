@@ -269,7 +269,7 @@ class Summarizer:
                 href = None
 
             # Render contamination information
-            point = self.contamination.get_point(scenario_group.name, model_name)
+            point = self.contamination.get_point(model_name, scenario_group.name)
             if point is not None:
                 suffix = CONTAMINATION_SYMBOLS[point.level]
                 description = point.description
@@ -288,7 +288,7 @@ class Summarizer:
 
     def write_groups(self):
         """
-        Each group selcts out a set of runs.
+        Each group selects out a set of runs.
 
         For each group, output:
         - Main table (model x columns): each row aggregate over all runs that match the (group, model).
