@@ -54,7 +54,8 @@ def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) ->
 
 
 def get_benchmarking_url(params: Dict[str, str]) -> str:
-    return "benchmarking.html?" + urllib.parse.urlencode(params)
+    # Don't encode ' ' as '+'
+    return "benchmarking.html?" + urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
 
 
 class Summarizer:
@@ -270,7 +271,7 @@ class Summarizer:
             # Link to all the runs under this model
             if link_to_runs:
                 run_spec_names = [run.run_spec.name for run in runs]
-                href = get_benchmarking_url({"runSpec": "|".join(run_spec_names)})
+                href = get_benchmarking_url({"runSpecs": json.dumps(run_spec_names)})
             else:
                 href = None
             rows.append(

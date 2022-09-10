@@ -109,7 +109,7 @@ $(function () {
     $search.keyup((e) => {
       // Open up all match specs
       if (e.keyCode === 13) {
-        const href = encodeUrlParams(Object.assign(urlParams, {runSpec: '.*' + query + '.*'}));
+        const href = encodeUrlParams(Object.assign(urlParams, {runSpecRegex: '.*' + query + '.*'}));
         window.open(href);
       }
       query = $search.val();
@@ -129,8 +129,6 @@ $(function () {
         if (!new RegExp(query).test(runSpec.name)) {
           return;
         }
-        // To maintain backward compatibility, as `scenario` in `RunSpec` was renamed to `scenario_spec`.
-        const scenario_spec = runSpec.hasOwnProperty('scenario_spec') ? runSpec.scenario_spec : runSpec.scenario;
         const href = encodeUrlParams(Object.assign(urlParams, {runSpec: runSpec.name}));
         const $row = $('<tr>')
           .append($('<td>').append($('<a>', {href}).append(runSpec.name)))
@@ -605,17 +603,34 @@ $(function () {
   ).then(() => {
     $main.empty();
     if (urlParams.models) {
+      // Show models
       $.getJSON(`benchmark_output/runs/${suite}/models.json`, {}, (response) => {
         const models = response;
         console.log('models', models);
         $main.append(renderHeader('Models', renderModels(models)));
       });
-    } else if (urlParams.runSpec) {
-      // Display a set of run specs
+    } else if (urlParams.runSpec || urlParams.runSpecs || urlParams.runSpecRegex) {
+      // Show a set of run specs (matching a regular expression)
       $.getJSON(`benchmark_output/runs/${suite}/run_specs.json`, {}, (response) => {
         const runSpecs = response;
         console.log('runSpecs', runSpecs);
-        const matchedRunSpecs = runSpecs.filter((runSpec) => new RegExp('^' + urlParams.runSpec + '$').test(runSpec.name));
+        let matcher;
+        if (urlParams.runSpec) {
+          // Exactly one
+          matcher = (runSpec) => runSpec.name === urlParams.runSpec;
+        } else if (urlParams.runSpecs) {
+          // List
+          const selectedRunSpecs = JSON.parse(urlParams.runSpecs);
+          console.log(selectedRunSpecs);
+          matcher = (runSpec) => selectedRunSpecs.includes(runSpec.name);
+        } else if (urlParams.runSpecRegex) {
+          // Regular expression
+          const regex = new RegExp('^' + urlParams.runSpec + '$');
+          matcher = (runSpec) => regex.test(runSpec.name);
+        } else {
+          throw 'Internal error';
+        }
+        const matchedRunSpecs = runSpecs.filter(matcher);
         if (matchedRunSpecs.length === 0) {
           $main.append(renderError('No matching runs'));
         } else {
