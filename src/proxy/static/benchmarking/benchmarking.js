@@ -109,7 +109,7 @@ $(function () {
     $search.keyup((e) => {
       // Open up all match specs
       if (e.keyCode === 13) {
-        const href = encodeUrlParams(Object.assign(urlParams, {runSpec: '.*' + query + '.*'}));
+        const href = encodeUrlParams(Object.assign(urlParams, {runSpecRegex: '.*' + query + '.*'}));
         window.open(href);
       }
       query = $search.val();
@@ -129,8 +129,6 @@ $(function () {
         if (!new RegExp(query).test(runSpec.name)) {
           return;
         }
-        // To maintain backward compatibility, as `scenario` in `RunSpec` was renamed to `scenario_spec`.
-        const scenario_spec = runSpec.hasOwnProperty('scenario_spec') ? runSpec.scenario_spec : runSpec.scenario;
         const href = encodeUrlParams(Object.assign(urlParams, {runSpec: runSpec.name}));
         const $row = $('<tr>')
           .append($('<td>').append($('<a>', {href}).append(runSpec.name)))
@@ -206,8 +204,6 @@ $(function () {
         if (!metricNames.includes(stat.name.name)) {
           continue;
         }
-
-        console.log(stat);
 
         const field = schema.metricsField(stat.name.name);
         list.push($('<span>', {class: getStatClass(stat.name.name, stat.mean, field.lower_is_better)}).append(field.display_name + ': ' + round(stat.mean, 3)));
@@ -388,18 +384,21 @@ $(function () {
     getJSONList(scenarioPaths, (scenarios) => {
       console.log('scenarios', scenarios);
 
-      // Only grab the first scenario
-      const i = 0;
+      function renderScenarioInfo(scenario, scenarioPath) {
+        $scenarioInfo.append($('<h3>').append(urlParams.scenarioDisplayName || renderScenarioDisplayNameArgs(scenario)));
+        $scenarioInfo.append($('<div>').append($('<i>').append(urlParams.scenarioDescription || scenario.description)));
+        $scenarioInfo.append($('<div>')
+          .append($('<a>', {href: scenario.definition_path}).append('[code]'))
+          .append(' ').append($('<a>', {href: scenarioPath}).append('[JSON]'))
+          .append(' ').append($('<a>', {href: '#adapter'}).append('[adapter]'))
+          .append(' ').append($('<a>', {href: '#instances'}).append('[instances]'))
+          .append(' ').append($('<a>', {href: '#metrics'}).append('[metrics]'))
+        );
+      }
+
+      // Only grab the first scenario (assume all of them are the same)
       $scenarioInfo.empty();
-      $scenarioInfo.append($('<h3>').append(scenarios[i].name));
-      $scenarioInfo.append($('<div>').append($('<i>').append(scenarios[i].description)));
-      $scenarioInfo.append($('<div>')
-        .append($('<a>', {href: scenarios[i].definition_path}).append('[code]'))
-        .append(' ').append($('<a>', {href: scenarioPaths[i]}).append('[JSON]'))
-        .append(' ').append($('<a>', {href: '#adapter'}).append('[adapter]'))
-        .append(' ').append($('<a>', {href: '#instances'}).append('[instances]'))
-        .append(' ').append($('<a>', {href: '#metrics'}).append('[metrics]'))
-      );
+      renderScenarioInfo(scenarios[0], scenarioPaths[0]);
 
       scenarios.forEach((scenario) => {
         // Keep track of the original (unperturbed) instances
@@ -439,7 +438,11 @@ $(function () {
           if (!urlParams.hideInputOutput) {
             $instance.append('<br>');
             const input = instance.perturbation ? highlightNewWords(instance.input, originalInstance.input) : instance.input;
+
+            // Input
             $instance.append(multilineHtml(input));
+
+            // References
             const $references = $('<ul>');
             instance.references.forEach((reference, referenceIndex) => {
               const originalReference = instance.perturbation && originalInstance.references[referenceIndex];
@@ -460,7 +463,10 @@ $(function () {
         getJSONList(perInstanceStatsPaths, (perInstanceStats) => {
           console.log('perInstanceStats', perInstanceStats);
 
+          // For each model...
           scenarioStates.forEach((scenarioState, index) => {
+            const adapterSpec = runSpecs[index].adapter_spec;
+
             // Build mapping to stats
             const instanceTrialToStats = {};
             perInstanceStats[index].forEach((instanceTrialStats) => {
@@ -468,7 +474,10 @@ $(function () {
               instanceTrialToStats[key] = (instanceTrialToStats[key] || []).concat(instanceTrialStats.stats);
             });
 
-            // Go through all the request states
+            // (instance id, trian trial index, perturbation) => whether we already showed the metrics for it
+            const shownStats = {};
+
+            // For each request state (across all instances)...
             scenarioState.request_states.forEach((requestState) => {
               const $instance = instanceToDiv[instanceKey(requestState.instance)];
               if (!$instance) {
@@ -481,8 +490,10 @@ $(function () {
                 return;
               }
 
-              // Print out statistics
-              if (requestState.reference_index == null || requestState.reference_index === 0) {
+              // Print out instance-level statistics
+              // We just need to make sure that each (instance id, train trial index and perturbation) only shows up once
+              const key = [requestState.instance.id, requestState.train_trial_index, requestState.instance.perturbation];
+              if (!shownStats[key]) {
                 // Keep only stats that match instance ID, train trial index, and perturbatation
                 const stats = instanceTrialToStats[[requestState.instance.id, requestState.train_trial_index]].filter((stat) => {
                   const p1 = requestState.instance.perturbation;
@@ -490,6 +501,7 @@ $(function () {
                   return (p1 && p1.name) === (p2 && p2.name);
                 });
                 $instance.append(renderStats(runSpecs[index].groups, stats));
+                shownStats[key] = true;
               }
 
               // Create a link for the request made to the server
@@ -511,16 +523,23 @@ $(function () {
                 // Assume there is only one completion
                 const completion = requestState.result.completions[0];
                 prediction = completion.text.trim();
+
+                // For adapter method = joint
                 if (requestState.output_mapping) {
                   prediction = requestState.output_mapping[prediction];
                 }
 
-                if (requestState.request_mode === 'original') {
+                if (adapterSpec.method.startsWith('multiple_choice_separate_')) {
                   // For adapter method = separate, prediction starts with the prompt, strip it out
                   if (prediction.startsWith(requestState.instance.input)) {
                     prefix = '...';
                     prediction = prediction.substring(requestState.instance.input.length).trim();
                   }
+                } else if (adapterSpec.method === 'language_modeling') {
+                  // For adapter method = language modeling, prediction is a
+                  // chunk of the input, so we just need to show the beginning
+                  // and end of the chunk.
+                  prediction = truncateMiddle(prediction, 30);
                 }
 
                 $logProb.append(' ').append($('<span>', {class: 'logprob'}).append('(' + round(completion.logprob, 3) + ')'));
@@ -608,17 +627,33 @@ $(function () {
   ).then(() => {
     $main.empty();
     if (urlParams.models) {
+      // Show models
       $.getJSON(`benchmark_output/runs/${suite}/models.json`, {}, (response) => {
         const models = response;
         console.log('models', models);
         $main.append(renderHeader('Models', renderModels(models)));
       });
-    } else if (urlParams.runSpec) {
-      // Display a set of run specs
+    } else if (urlParams.runSpec || urlParams.runSpecs || urlParams.runSpecRegex) {
+      // Show a set of run specs (matching a regular expression)
       $.getJSON(`benchmark_output/runs/${suite}/run_specs.json`, {}, (response) => {
         const runSpecs = response;
         console.log('runSpecs', runSpecs);
-        const matchedRunSpecs = runSpecs.filter((runSpec) => new RegExp('^' + urlParams.runSpec + '$').test(runSpec.name));
+        let matcher;
+        if (urlParams.runSpec) {
+          // Exactly one
+          matcher = (runSpec) => runSpec.name === urlParams.runSpec;
+        } else if (urlParams.runSpecs) {
+          // List
+          const selectedRunSpecs = JSON.parse(urlParams.runSpecs);
+          matcher = (runSpec) => selectedRunSpecs.includes(runSpec.name);
+        } else if (urlParams.runSpecRegex) {
+          // Regular expression
+          const regex = new RegExp('^' + urlParams.runSpec + '$');
+          matcher = (runSpec) => regex.test(runSpec.name);
+        } else {
+          throw 'Internal error';
+        }
+        const matchedRunSpecs = runSpecs.filter(matcher);
         if (matchedRunSpecs.length === 0) {
           $main.append(renderError('No matching runs'));
         } else {

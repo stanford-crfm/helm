@@ -100,11 +100,15 @@ function getLast(l) {
   return l[l.length - 1];
 }
 
-function renderScenarioSpec(spec) {
-  // Example: benchmark.mmlu_scenario.MMLUScenario => MMLU
-  const name = getLast(spec.class_name.split('.')).replace('Scenario', '');
-  const args = Object.keys(spec.args).length > 0 ? `(${renderDict(spec.args)})` : null;
-  return args ? `${name} ${args}` : name;
+function renderScenarioDisplayName(scenario) {
+  // Describe the scenario
+  const name = scenario.name; // e.g. mmlu
+  const args = scenario.scenario_spec.args; // e.g., {subject: 'philosophy'}
+  if (Object.keys(args).length > 0) {
+    return name + ' (' + renderDict(args) + ')';
+  } else {
+    return name;
+  }
 }
 
 function renderHeader(header, body) {
@@ -188,4 +192,14 @@ function getUniqueValue(arr, messageType) {
   // TODO: Double check that the assert statement is throwing an error as expected.
   assert(arrUnique.size == 1, `The groups have incompatible ${messageType}.`);
   return arr[0];
+}
+
+function truncateMiddle(text, border) {
+  // Return `text` with only `border` characters at the beginning and at the end
+  // Example: "this is a test", border=4 ==> "this...(6 characters)...test"
+  if (text.length <= border * 2) {
+    return text;
+  }
+  const numRemoved = text.length - 2 * border;
+  return text.substring(0, border) + ' <i>...(' + numRemoved + ' characters)...</i> ' + text.substring(text.length - border);
 }

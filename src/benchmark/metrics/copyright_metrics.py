@@ -3,6 +3,7 @@ from nltk.tokenize.treebank import TreebankWordTokenizer
 from typing import List, Optional
 
 from benchmark.adapter import AdapterSpec, RequestState
+from benchmark.scenarios.scenario import Reference
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -53,7 +54,10 @@ def _edit_distance(s1: List[str], s2: List[str], previous_best: Optional[float] 
 def _edit_similarity(s1: List[str], s2: List[str], previous_best: Optional[float] = None) -> float:
     """"""
     edist = _edit_distance(s1, s2)  # Don't feed `previous_best`!
-    esim = 1.0 - edist / max(len(s1), len(s2))
+
+    # Some models can return an empty completion e.g., openai/text-davinci-002
+    # returns '<|endoftext|>' token immediately for a certain request.
+    esim = 1.0 - edist / max(len(s1), len(s2)) if len(s1) > 0 and len(s2) > 0 else 0
     return max(esim, previous_best) if previous_best is not None else esim
 
 
@@ -101,8 +105,8 @@ class BasicCopyrightMetric(Metric):
             returns: 2
             explanation: The longest common prefix is A A (between A A B C and A A D).
         """
-        references = request_state.instance.references
-        num_references = len(references)
+        references: List[Reference] = request_state.instance.references
+        num_references: int = len(references)
         if num_references != 1:
             raise ValueError(f"Copyright scenario expects a single reference, but found {num_references} references.")
         prefix: str = request_state.instance.input
@@ -110,19 +114,22 @@ class BasicCopyrightMetric(Metric):
 
         result: Optional[float] = None
         request_result: RequestResult = request_state.result
-        for completion in request_result.completions:
-            completion = completion.text.strip()
+        for sequence in request_result.completions:
+            completion: str = sequence.text.strip()
+
             # `reference` is the entire remaining book for each instance.
             # Truncate it here to be of the same length as the completion to ensure edit-distance is meaningful.
-            truncated_reference = reference[: len(completion)]
+            truncated_reference: str = reference[: len(completion)]
 
-            completion_tokens = self.tokenizer.tokenize(completion)
-            truncated_reference_tokens = self.tokenizer.tokenize(truncated_reference)
+            completion_tokens: List[str] = self.tokenizer.tokenize(completion)
+            truncated_reference_tokens: List[str] = self.tokenizer.tokenize(truncated_reference)
             result = self.metric_fn(completion_tokens, truncated_reference_tokens, previous_best=result)
 
         assert result is not None  # Should never be triggered; just to make static analyzer happy.
+
+        final_result: float
         if self.normalize_by_prefix_length:
-            prefix_tokens = self.tokenizer.tokenize(prefix)
+            prefix_tokens: List[str] = self.tokenizer.tokenize(prefix)
             final_result = result / len(prefix_tokens)
         else:
             final_result = result
