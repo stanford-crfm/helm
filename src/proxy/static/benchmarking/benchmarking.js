@@ -2,76 +2,52 @@
  * A very simple static way to visualize the scenarios, runs, and metrics from the benchmarking project.
  * This code doesn't really belong in `proxy`, but is there for convenience.
  */
+
+// Specifies all the information to help us render and understand the fields
+// for adapters and metrics.
+// Look at `schema.py` for the actual schema.
+class Schema {
+  constructor(raw) {
+    this.adapter = raw.adapter;
+    this.metrics = raw.metrics;
+    this.perturbations = raw.perturbations;
+    this.scenario_groups = raw.scenario_groups;
+    this.metric_groups = raw.metric_groups;
+
+    // Allow for quick lookup
+    this.adapterFieldNames = this.adapter.map((field) => field.name);
+    this.metricsFieldNames = this.metrics.map((field) => field.name);
+  }
+
+  adapterField(name) {
+    const field = this.adapter.find((field) => field.name === name);
+    if (!field) {
+      console.error(`Adapter field ${name} not found`);
+      return {};
+    }
+    return field;
+  }
+
+  metricsField(name) {
+    const field = this.metrics.find((field) => field.name === name);
+    if (!field) {
+      console.error(`Metrics field ${name} not found`);
+      return {};
+    }
+    return field;
+  }
+
+  metricGroup(name) {
+    return this.metric_groups.find((group) => group.name === name);
+  }
+}
+
 $(function () {
   const urlParams = decodeUrlParams(window.location.search);
+
   // Extract the name of the suite from the URL parameters. Default to "latest" if none is specified.
   const suite = "suite" in urlParams ? urlParams.suite : "latest";
   console.log(`Suite: ${suite}`);
-
-  //////////////////////////////// Schema //////////////////////////////////////
-
-  // Captures information about a field in the schema.
-  class Field {
-    constructor(raw) {
-      this.name = raw.name;
-      this.display_name = raw.display_name;
-      this.description = raw.description;
-    }
-  }
-
-  // Captures information about a field of an adapter (e.g.,
-  // max_train_instances) or a metric name (e.g., exact_match).
-  class AdapterField extends Field {
-    constructor(raw) {
-      super(raw);
-      this.values = this.readValues(raw.values);
-    }
-
-    readValues(values) {
-      // Read the values field.
-      // Note: We are using `Field` to represent the schema for a field value too.
-      if (Array.isArray(values)) {
-        // If the values field is an array, read each element as a Field.
-        return values.map((valueRaw) => new Field(valueRaw));
-      } else if (values === undefined) {
-        return undefined;
-      }
-      // If no matching schema is found, raise an error!
-      console.error(`The values field of ${this.name} should be an array or an object. Instead found: ${values}.`);
-    }
-  }
-
-  // Specifies all the information to help us render and understand the fields
-  // for adapters and metrics.
-  class Schema {
-    constructor(raw) {
-      this.adapterFields = raw.adapter.map((fieldRaw) => new AdapterField(fieldRaw));
-      this.metricsFields = raw.metrics.map((fieldRaw) => new Field(fieldRaw));
-
-      this.scenario_groups = raw.scenario_groups;
-      this.metric_groups = raw.metric_groups;
-
-      // Allow convenient access
-      this.adapterFieldNames = this.adapterFields.map((field) => field.name);
-      this.metricsFieldNames = this.metricsFields.map((field) => field.name);
-    }
-
-    adapterField(name) {
-      // Return the adapter field with the given `name`.
-      const field = this.adapterFields.find((field) => field.name === name);
-      return field || new Field({name});
-    }
-
-    metricsField(name) {
-      // Return the metrics field with the given `name`.
-      const field = this.metricsFields.find((field) => field.name === name);
-      return field || new Field({name});
-    }
-
-    metricGroup(name) {
-      return this.metric_groups.find((group) => group.name === name);
-    }
-  }
 
   /////////////////////////////////// Pages ////////////////////////////////////
 
@@ -294,6 +270,7 @@ $(function () {
     sortListWithReferenceOrder(keys, schema.adapterFieldNames);
     keys.forEach((key) => {
       const field = schema.adapterField(key);
+      console.log(key, field)
       const helpText = describeField(field);
       const $key = $('<td>').append($('<span>').append(helpIcon(helpText)).append(' ').append(key));
       const $row = $('<tr>').append($key);

@@ -16,6 +16,8 @@ adapter:
         description: Given the input, the model assigns the sequence a probability.
   - name: instructions
     description: The description of the task that is included at the very beginning of the prompt.
+  - name: instance_prefix
+    description: The string that is included before each instance (e.g., '\n\n').
   - name: input_prefix
     description: The string that is included before each input (e.g., 'Question:').
   - name: reference_prefix
@@ -38,17 +40,58 @@ adapter:
     description: Maximum number of tokens to generate.
   - name: stop_sequences
     description: List of sequences, where we stop generation if we encounter any of them.
+  - name: random
+    description: Random seed (string), which guarantees reproducibility.
 
 
 metrics:
   # Infrastructure metrics:
-  # TODO
   - name: num_perplexity_tokens
     display_name: '# tokens'
     description: Average number of tokens in the predicted output (for language modeling, the input too).
   - name: num_bytes
     display_name: '# bytes'
     description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '|prompt|'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '|prompt|'
+    description: Number of characters in the prompt.
+  - name: num_output_tokens
+    display_name: '|output|'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max |output|'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# instances'
+    description: Number of instances.
+  - name: num_in_context_examples
+    display_name: '# in-context'
+    description: Number of in-context (training) examples.
+  - name: input_truncated
+    display_name: truncated
+    description: Fraction of instances where the input itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
 
   # Accuracy metrics:
   - name: exact_match
@@ -61,12 +104,19 @@ metrics:
     description: Fraction of instances that the predicted output matches a correct reference up to light processing.
   - name: logprob
     display_name: Log probability
-    short_display_name: Log prob.
+    short_display_name: Logprob
     description: Predicted output's average log probability (input's log prob for language modeling).
+  - name: logprob_per_byte
+    display_name: Log probability / byte
+    short_display_name: Logprob/byte
+    description: Predicted output's average log probability normalized by the number of bytes.
   - name: bits_per_byte
     display_name: Bits/byte
     short_display_name: BPB
     description: Average number of bits per byte according to model probabilities.
+  - name: perplexity
+    display_name: Perplexity
+    description: Perplexity of the output completion (effective branching factor per output token).
   - name: rouge_2
     display_name: ROUGE-2
     description: Average ROUGE score (Lin, 2004) based on 2-gram overlap.
@@ -183,6 +233,10 @@ metrics:
     display_name: Estimated training emissions (kg CO2)
     short_display_name: Training emissions (kg CO2)
     description: Estimate of the CO2 emissions from training the model.
+  - name: training_energy_cost
+    display_name: Estimated training energy cost (MWh)
+    short_display_name: Training energy (MWh)
+    description: Estimate of the amount of energy used to train the model.
   - name: inference_runtime
     display_name: Observed inference runtime (s)
     short_display_name: Observed inference time (s)
@@ -195,6 +249,10 @@ metrics:
     display_name: Idealized denoised runtime (s)
     short_display_name: Idealized denoised time (s)
     description: Average time to process a request to the model minus performance contention by using profiled runtimes from multiple trials of SyntheticEfficiencyScenario.
+  - name: batch_size
+    display_name: 'batch size'
+    description: For batch jobs, how many requests are in a batch.
+
 
   # Calibration metrics:
   - name: ece_1_bin
