@@ -370,11 +370,6 @@ metric_groups:
       - name: strict_acc
         split: ${main_split}
 
-  - name: humaneval_metrics
-    metrics:
-      - name: pass
-        split: ${main_split}
-
   - name: bbq_metrics
     metrics:
       - name: bbq_metric_ambiguous_bias
@@ -775,8 +770,7 @@ scenario_groups:
     display_name: HumanEval (Code)
     description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings (Chen et al., 2021).
     metric_groups:
-      # We do not include accuracy as it is subsumed by humaneval
-      - humaneval_metrics
+      - accuracy
       - efficiency
     environment:
       main_name: pass
