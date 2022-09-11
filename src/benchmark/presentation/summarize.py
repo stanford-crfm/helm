@@ -54,7 +54,8 @@ def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) ->
 
 
 def get_benchmarking_url(params: Dict[str, str]) -> str:
-    return "benchmarking.html?" + urllib.parse.urlencode(params)
+    # Don't encode ' ' as '+'
+    return "benchmarking.html?" + urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
 
 
 class Summarizer:
@@ -215,6 +216,7 @@ class Summarizer:
         # (to pull out information later).
         header: List[Cell] = []
         matchers: List[MetricNameMatcher] = []
+
         header.append(Cell("Model"))
         for metric_group_name in scenario_group.metric_groups:
             metric_group = self.schema.name_to_metric_group[metric_group_name]
@@ -248,7 +250,13 @@ class Summarizer:
             # Link to all the runs under this model
             if link_to_runs:
                 run_spec_names = [run.run_spec.name for run in runs]
-                href = get_benchmarking_url({"runSpec": "|".join(run_spec_names)})
+                href = get_benchmarking_url(
+                    {
+                        "runSpecs": json.dumps(run_spec_names),
+                        "scenarioDisplayName": title,
+                        "scenarioDescription": scenario_group.description,
+                    }
+                )
             else:
                 href = None
             rows.append(
@@ -301,6 +309,9 @@ class Summarizer:
                 )
                 tables.append(table)
                 table_names.append(group.name + "_" + scenario.replace(" ", ""))
+
+            if len(tables) == 0:
+                continue
 
             # Output latex file for each table
             # Add the latex_path to each table (changes `tables`!)
