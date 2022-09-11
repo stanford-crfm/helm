@@ -156,6 +156,8 @@ $(function () {
     // Pull these out from stats and render them.
     const list = [];
 
+    console.log(stats);
+
     // Look for the default metrics for the group
     schema.scenario_groups.forEach((scenarioGroup) => {
       if (!groups.includes(scenarioGroup.name)) {
@@ -177,16 +179,12 @@ $(function () {
 
     // String the metrics together
     const $stats = $('<div>');
-    if (list.length == 0) {
-      $stats.append(' (no metrics)');
-    } else {
-      list.forEach((item, index) => {
-        if (index > 0) {
-          $stats.append(', ');
-        }
-        $stats.append(item);
-      });
-    }
+    list.forEach((item, index) => {
+      if (index > 0) {
+        $stats.append(', ');
+      }
+      $stats.append(item);
+    });
 
     return $stats;
   }
@@ -425,9 +423,20 @@ $(function () {
             prediction = prediction.substring(requestState.instance.input.length).trim();
           }
         } else if (method === 'language_modeling') {
-          // For adapter method = language modeling, prediction is a
-          // chunk of the input, so we just need to show the beginning
-          // and end of the chunk.
+          // For language modeling, first token is just padding, so strip it out
+          const firstToken = completion.tokens[0];
+          if (Object.keys(firstToken.top_logprobs).length === 0) {
+            if (!prediction.startsWith(firstToken.text)) {
+              console.warning("Prediction doesn't start with first token", prediction, firstToken, completion);
+            } else {
+              prediction = prediction.substring(firstToken.text.length);
+            }
+          }
+
+          // Prediction is a chunk of the input that's already rendered above,
+          // so we just need to show the beginning and end of the chunk.
+          // Ideally, we whould show all the tokens and color-code their
+          // probabilities.
           prediction = truncateMiddle(prediction, 30);
         }
 
