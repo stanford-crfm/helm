@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Optional, List
+from typing import Any, Optional, List, Dict
 
 
 @dataclass(frozen=True)
@@ -15,6 +15,9 @@ class Cell:
 
     # If we click on the link for this cell, it takes us somewhere
     href: Optional[str] = None
+
+    # Styling
+    style: Dict[str, Any] = None
 
 
 @dataclass(frozen=True)
