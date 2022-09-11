@@ -191,7 +191,7 @@ function truncateMiddle(text, border) {
     return text;
   }
   const numRemoved = text.length - 2 * border;
-  return text.substring(0, border) + ' <i>...(' + numRemoved + ' characters)...</i> ' + text.substring(text.length - border);
+  return text.substring(0, border) + ' <span style="color: lightgray">...(' + numRemoved + ' characters)...</span> ' + text.substring(text.length - border);
 }
 
 function substitute(str, environment) {
