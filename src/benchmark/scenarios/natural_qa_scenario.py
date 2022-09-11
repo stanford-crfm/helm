@@ -1,3 +1,4 @@
+import gzip
 import json
 import os
 import re
@@ -213,7 +214,7 @@ class NaturalQAScenario(Scenario):
         all_samples: List[dict] = []
 
         with htrack_block(f"Reading {target_file}"):
-            with open(target_file, "rb") as fp:
+            with gzip.open(target_file) as fp:
                 for line in fp:
                     raw = json.loads(line)
                     # Only keep dataset samples with at least one short answer
@@ -249,7 +250,7 @@ class NaturalQAScenario(Scenario):
         splits = {"train": TRAIN_SPLIT, "val": VALID_SPLIT}
         for file in file_list:
             source_url: str = f"{base_url}/{file}"
-            target_path: str = os.path.join(data_path, f"{file}")
+            target_path: str = os.path.join(data_path, file)
             ensure_file_downloaded(source_url=source_url, target_path=target_path)
 
             instances.extend(self.get_file_instances(target_path, splits=splits))

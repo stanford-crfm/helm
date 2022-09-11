@@ -22,18 +22,11 @@ from .metric_service import MetricService
 from .statistic import Stat, merge_stat
 
 
-@dataclass(unsafe_hash=True)
-class PerInstanceStatsKey:
-    """
-    `PerInstanceStatsKey` is a (instance, trial index) tuple.
-    """
-
-    instance: str
+@dataclass(frozen=True)
+class PerInstanceStats:
+    instance_id: str
     trial_index: int
-
-    def __init__(self, instance: Instance, trial_index: int):
-        self.instance = instance.id if instance.id is not None else str(instance)
-        self.trial_index = trial_index
+    stats: List[Stat]
 
 
 @dataclass
@@ -44,9 +37,7 @@ class MetricResult:
     """
 
     aggregated_stats: List[Stat]
-
-    # Key for per-instance statistics is (instance, trial index), value is list of statistics.
-    per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]]
+    per_instance_stats: List[PerInstanceStats]
 
 
 @dataclass(frozen=True)
@@ -123,7 +114,7 @@ class Metric(ABC):
 
         adapter_spec = scenario_state.adapter_spec
         global_stats: Dict[MetricName, Stat] = {}  # MetricName -> Stat
-        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
+        all_per_instance_stats: List[PerInstanceStats] = []
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             # Construct inputs
@@ -152,7 +143,10 @@ class Metric(ABC):
             )
 
             # Per-instance stats
-            per_instance_stats: Dict[Instance, List[Stat]] = dict(zip(scenario_state.instances, results))
+            per_instance_stats: List[PerInstanceStats] = []
+            for instance, stats in zip(scenario_state.instances, results):
+                assert instance.id is not None, f"id was none for instance: {instance}"
+                per_instance_stats.append(PerInstanceStats(instance.id, train_trial_index, stats))
 
             # Aggregate these stats
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
@@ -160,8 +154,10 @@ class Metric(ABC):
                 for stat in instance_stats:
                     merge_stat(trial_stats, stat)
 
-            # Group stats according to the context (e.g., split, perturbation), i.e., non-name part of the MetricName,
-            # and call derive_stats on each grouping
+            # Derive new statistics based on existing stats by calling `derive_stats` (e.g., for perplexity).
+            # Group stats according to the context (e.g., split, perturbation),
+            # i.e., non-name part of the MetricName, and call `derive_stats` on
+            # each grouping.
             grouped_trial_stats: Dict[MetricContext, Dict[MetricName, Stat]] = defaultdict(dict)
             for metric_name, stat in trial_stats.items():
                 grouped_trial_stats[MetricContext.from_metric_name(metric_name)][metric_name] = stat  # group by context
@@ -170,11 +166,13 @@ class Metric(ABC):
                     # we could potentially allow derive_stats to overwrite context, but this feels more robust
                     merge_stat(trial_stats, add_context(stat, context))  # add correct context
 
-            # Same for per_instance_stats
+            # Derive new per-instance statistics by calling `derive_per_instance_stats` (e.g., for calibration).
+            # Again, group stats according to the context before calling
+            # `derive_per_instance_stats`.
             grouped_per_instance_stats: Dict[MetricContext, Dict[Instance, List[Stat]]] = defaultdict(
                 lambda: defaultdict(list)
             )
-            for instance, stats in per_instance_stats.items():
+            for instance, stats in zip(scenario_state.instances, results):
                 for stat in stats:
                     grouped_per_instance_stats[MetricContext.from_instance(instance)][instance].append(stat)
             for context, instance_dict in grouped_per_instance_stats.items():
@@ -183,13 +181,8 @@ class Metric(ABC):
                 for stat in self.derive_per_instance_stats(instance_dict):
                     merge_stat(trial_stats, add_context(stat, context))
 
-                # keep track of how many instances are in each subset
-                # TODO: `num_instances` will be computed multiple times if there are more than
-                #       one child Metric class that inherits this method.
-                num_instances_stat = Stat(MetricName("num_instances")).add(len(instance_dict))
-                merge_stat(trial_stats, add_context(num_instances_stat, context))
-
-            # aggregate request states and call evaluate_instances in case the metric needs it
+            # Compute statistics that depend on all the `RequestStates` (e.g., bias metrics).
+            # Aggregate request states and call evaluate_instances in case the metric needs it.
             grouped_request_states: Dict[MetricContext, List[RequestState]] = defaultdict(list)
             for instance in scenario_state.instances:
                 # TODO: do we need to support reference_index that is not None?
@@ -200,17 +193,18 @@ class Metric(ABC):
                 for stat in self.evaluate_instances(request_states):
                     merge_stat(trial_stats, add_context(stat, context))
 
-            # This is here since we want these stats for all metrics and they aggregate across contexts (perturbations)
-            worst_case_stats = self.compute_worst_case_metrics(per_instance_stats)
+            # Compute worst-case metrics.
+            # This is here since we want these stats for all metrics and they
+            # aggregate across contexts (perturbations).
+            worst_case_stats = self.compute_worst_case_metrics(dict(zip(scenario_state.instances, results)))
             for stat in worst_case_stats:
                 merge_stat(trial_stats, stat)
 
-            # We only take the mean value for each trial
+            # We only take the mean value for each trial.
             for stat in trial_stats.values():
                 merge_stat(global_stats, stat.take_mean())
 
-            for instance, instance_stats in per_instance_stats.items():
-                all_per_instance_stats[PerInstanceStatsKey(instance, train_trial_index)].extend(instance_stats)
+            all_per_instance_stats.extend(per_instance_stats)
 
         # Wrap aggregated and per-instance stats in a MetricResult.
         return MetricResult(list(global_stats.values()), all_per_instance_stats)
@@ -254,7 +248,7 @@ class Metric(ABC):
         # The first and only trial
         trial_stats: Dict[MetricName, Stat] = {}
         # Per-instance stats
-        all_per_instance_stats: Dict[PerInstanceStatsKey, List[Stat]] = defaultdict(list)
+        all_per_instance_stats: List[PerInstanceStats] = []
         instance_ids_per_context: Dict[MetricContext, Set[str]] = defaultdict(set)
 
         for request_state in scenario_state.request_states:
@@ -271,7 +265,8 @@ class Metric(ABC):
                 instance_ids_per_context[context].add(request_state.instance.id)
 
             # Use trial index of 0 here since we run only one trial for LM
-            all_per_instance_stats[PerInstanceStatsKey(request_state.instance, 0)].extend(request_stats)
+            assert request_state.instance.id is not None
+            all_per_instance_stats.append(PerInstanceStats(request_state.instance.id, 0, request_stats))
 
             for stat in request_stats:
                 merge_stat(trial_stats, stat)
@@ -336,7 +331,7 @@ class Metric(ABC):
                         robustness_stat.merge(stat)
                     if perturbation.fairness:
                         fairness_stat.merge(stat)
-                    assert perturbation not in individual_perturbation_stats
+                    assert perturbation not in individual_perturbation_stats, perturbation
                     individual_perturbation_stats[perturbation] = Stat(stat.name).merge(stat)  # copy
 
             for stat in [robustness_stat, fairness_stat, *individual_perturbation_stats.values()]:

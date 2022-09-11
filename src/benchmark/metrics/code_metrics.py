@@ -3,12 +3,12 @@
 from typing import List, Union, Sequence, cast
 import resource
 
-
+from common.hierarchical_logger import hlog
 from common.request import RequestResult
-from benchmark.adapter import AdapterSpec, RequestState
+from benchmark.adapter import AdapterSpec, RequestState, ScenarioState
 from benchmark.scenarios.code_scenario import CodeReference
 from . import code_metrics_helper
-from .metric import Metric
+from .metric import Metric, MetricResult
 from .metric_service import MetricService
 from .metric_name import MetricName
 from .statistic import Stat
@@ -40,15 +40,25 @@ METRICS = {
 
 
 class APPSMetric(Metric):
-    def __init__(self, names):
+    def __init__(self, names, timeout):
         super(APPSMetric, self).__init__()
         for name in names:
             if name not in METRICS.keys():
                 raise ValueError(f"Expected name to be either one of {METRICS.keys()}, but got {name}.")
         self.names = names
+        self.timeout = timeout
 
         # Set a memory limit for this process.
         resource.setrlimit(resource.RLIMIT_AS, (MAXIMUM_MEMORY_BYTES, MAXIMUM_MEMORY_BYTES))
+
+    def evaluate(
+        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
+    ) -> MetricResult:
+        # Running with parallelism > 1 causes the run to get stuck.
+        hlog(
+            f"Setting parallelism from {parallelism} to 1, since evaluating code with parallelism > 1 isn't supported."
+        )
+        return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=1)
 
     def evaluate_generation(
         self,
@@ -71,7 +81,7 @@ class APPSMetric(Metric):
             best_score = 0.0
             for completion in request_result.completions:
                 completion = completion.text.strip()
-                scores = code_metrics_helper.run_test(root=root, test=completion)  # type: ignore
+                scores = code_metrics_helper.run_test(root=root, test=completion, timeout=self.timeout)  # type: ignore
                 scores = _convert_scores(scores)  # Convert list of bool/int to list of ints.
                 this_score = metric_fn(scores)
                 if this_score > best_score:

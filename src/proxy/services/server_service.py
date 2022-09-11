@@ -90,7 +90,6 @@ class ServerService(Service):
         if not request_result.cached:
             # Count the number of tokens used
             count: int = self.token_counter.count_tokens(request, request_result.completions)
-            hlog(f"{request.model_organization}: {count} tokens")
             self.accounts.use(auth.api_key, model_group, count)
 
         return request_result

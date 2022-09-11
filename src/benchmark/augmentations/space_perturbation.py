@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from random import Random
+import re
 
 from .perturbation import Perturbation
 from .perturbation_description import PerturbationDescription
@@ -24,8 +25,5 @@ class SpacePerturbation(Perturbation):
         return SpacePerturbation.Description(name=self.name, robustness=True, max_spaces=self.max_spaces)
 
     def perturb(self, text: str, rng: Random) -> str:
-        result = []
-        for word in text.split(" "):
-            result.append(word)
-            result.append(" " * rng.randint(0, self.max_spaces))
-        return "".join(result[:-1])
+        # Replace each space with a random number of spaces
+        return re.sub(r" +", lambda x: " " * rng.randint(1, self.max_spaces), text)

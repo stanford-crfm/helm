@@ -514,6 +514,36 @@ class Adapter:
             adapter_spec.model, tokenizer_service
         )
 
+    def sample_instances(self, instances: List[Instance]) -> List[Instance]:
+        """
+        Leave the train instances alone.
+        For the eval instances, keep at most `max_eval_instances`.
+        Return the resulting train and eval instances.
+        """
+        all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
+
+        all_eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
+        if (
+            self.adapter_spec.max_eval_instances is not None
+            and len(all_eval_instances) > self.adapter_spec.max_eval_instances
+        ):
+            # Pick the first `self.adapter_spec.max_eval_instances`.
+            # The random sampling includes instances monotonically.
+            np.random.seed(0)
+            selected_eval_instances = list(
+                np.random.choice(all_eval_instances, self.adapter_spec.max_eval_instances, replace=False,)
+            )  # type: ignore
+        else:
+            selected_eval_instances = all_eval_instances
+
+        hlog(
+            f"{len(instances)} instances, "
+            f"{len(all_train_instances)} train instances, "
+            f"{len(selected_eval_instances)}/{len(all_eval_instances)} eval instances"
+        )
+
+        return all_train_instances + selected_eval_instances
+
     @htrack(None)
     def adapt(self, instances: List[Instance], parallelism: int) -> ScenarioState:
         """
@@ -530,32 +560,7 @@ class Adapter:
             )
 
         # Pick out evaluation instances. This includes both valid and test splits.
-        # We can slice and dice later in defining the metrics.
         eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
-        if self.adapter_spec.max_eval_instances is not None:
-            np.random.seed(0)
-
-            # Build a dict of instance IDs to instances before we pick self.adapter_spec.max_eval_instances
-            # number of instances, so we can include all the perturbed versions of the instances
-            # we choose in the eval set.
-            id_to_instances: OrderedDict[Optional[str], List[Instance]] = OrderedDict()
-            for instance in eval_instances:
-                if instance.id in id_to_instances:
-                    id_to_instances[instance.id].append(instance)
-                else:
-                    id_to_instances[instance.id] = [instance]
-
-            # Pick the first `self.adapter_spec.max_eval_instances` instance IDs and
-            # include all their instances in the final set of eval instances.
-            # The random sampling includes instances monotonically.
-            ids = list(id_to_instances.keys())
-            if len(ids) > self.adapter_spec.max_eval_instances:
-                ids = list(
-                    np.random.choice(ids, self.adapter_spec.max_eval_instances, replace=False)  # type: ignore
-                )
-            eval_instances = []
-            for id_ in ids:
-                eval_instances.extend(id_to_instances[id_])
 
         hlog(
             f"{len(instances)} instances, "
@@ -714,6 +719,21 @@ class Adapter:
             pred_tokens = pred_tokens[: -(prompt_length - max_req_len)]
             prompt = self.window_service.decode(conditioning_tokens + pred_tokens, text)
             prompt_length = len(self.window_service.encode(prompt).tokens)
+
+            # When the input text contains languages the tokenizer cannot process, the input text
+            # might be inflated so the truncation cannot work properly.
+            # e.g.
+            # With the OpenAI tokenizer:
+            # >>> tokenizer.decode(tokenizer.encode("行星运转"))
+            # '行星运转'
+            # With the YaLM tokenizer:
+            # >>> tokenizer.decode(tokenizer.tokenize("行星运转"))
+            # '行<0xE6><0x98><0x9F><0xE8><0xBF><0x90><0xE8><0xBD><0xAC>'
+            if len(pred_tokens) == 0:
+                raise ValueError(
+                    "Truncating pred_tokens to fit them in the context window, \
+                    got len(pred_tokens) == 0, which will lead to an infinite loop."
+                )
 
         return prompt, pred_tokens
 

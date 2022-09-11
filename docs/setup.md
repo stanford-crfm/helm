@@ -4,6 +4,11 @@ To install any dependencies (creates into `venv`):
 
     ./pre-commit.sh
 
+If you get the following error during installation, please delete the `venv` folder and re-run the above command:
+
+    Installing build dependencies ... error
+    error: subprocess-exited-with-error
+
 Optionally, install git commit hooks:
 
     pre-commit install

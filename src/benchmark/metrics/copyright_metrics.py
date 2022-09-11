@@ -3,13 +3,14 @@ from nltk.tokenize.treebank import TreebankWordTokenizer
 from typing import List, Optional
 
 from benchmark.adapter import AdapterSpec, RequestState
+from benchmark.scenarios.scenario import Reference
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
 
 
-def _longest_common_prefix_length(s1: List[str], s2: List[str], previous_best: Optional[int] = None) -> int:
+def _longest_common_prefix_length(s1: List[str], s2: List[str], previous_best: Optional[float] = None) -> float:
     result = min_len = min(len(s1), len(s2))
     for i in range(min_len):
         if s1[i] != s2[i]:
@@ -20,7 +21,7 @@ def _longest_common_prefix_length(s1: List[str], s2: List[str], previous_best: O
     return result
 
 
-def _edit_distance(s1: List[str], s2: List[str], previous_best: Optional[int] = None) -> int:
+def _edit_distance(s1: List[str], s2: List[str], previous_best: Optional[float] = None) -> float:
     """Compute the Levenshtein distance between two sequences of tokens.
 
     Edit distance is really an umbrella term. We focus on the Levenshtein distance.
@@ -50,9 +51,20 @@ def _edit_distance(s1: List[str], s2: List[str], previous_best: Optional[int] = 
     return distance_grid[l1][l2]
 
 
+def _edit_similarity(s1: List[str], s2: List[str], previous_best: Optional[float] = None) -> float:
+    """"""
+    edist = _edit_distance(s1, s2)  # Don't feed `previous_best`!
+
+    # Some models can return an empty completion e.g., openai/text-davinci-002
+    # returns '<|endoftext|>' token immediately for a certain request.
+    esim = 1.0 - edist / max(len(s1), len(s2)) if len(s1) > 0 and len(s2) > 0 else 0
+    return max(esim, previous_best) if previous_best is not None else esim
+
+
 metric_fns = {
     "longest_common_prefix_length": _longest_common_prefix_length,
     "edit_distance": _edit_distance,
+    "edit_similarity": _edit_similarity,
 }
 
 
@@ -64,7 +76,7 @@ class BasicCopyrightMetric(Metric):
     """
 
     def __init__(self, name: str, normalize_by_prefix_length=False):
-        if name not in ("longest_common_prefix_length", "edit_distance"):
+        if name not in metric_fns.keys():
             raise ValueError(
                 f"Expected name to be either `longest_common_prefix_length` or `edit_distance`, but got {name}."
             )
@@ -93,28 +105,31 @@ class BasicCopyrightMetric(Metric):
             returns: 2
             explanation: The longest common prefix is A A (between A A B C and A A D).
         """
-        references = request_state.instance.references
-        num_references = len(references)
+        references: List[Reference] = request_state.instance.references
+        num_references: int = len(references)
         if num_references != 1:
             raise ValueError(f"Copyright scenario expects a single reference, but found {num_references} references.")
         prefix: str = request_state.instance.input
         reference: str = references[0].output[len(prefix) :]
 
-        result: Optional[int] = None
+        result: Optional[float] = None
         request_result: RequestResult = request_state.result
-        for completion in request_result.completions:
-            completion = completion.text.strip()
+        for sequence in request_result.completions:
+            completion: str = sequence.text.strip()
+
             # `reference` is the entire remaining book for each instance.
             # Truncate it here to be of the same length as the completion to ensure edit-distance is meaningful.
-            truncated_reference = reference[: len(completion)]
+            truncated_reference: str = reference[: len(completion)]
 
-            completion_tokens = self.tokenizer.tokenize(completion)
-            truncated_reference_tokens = self.tokenizer.tokenize(truncated_reference)
+            completion_tokens: List[str] = self.tokenizer.tokenize(completion)
+            truncated_reference_tokens: List[str] = self.tokenizer.tokenize(truncated_reference)
             result = self.metric_fn(completion_tokens, truncated_reference_tokens, previous_best=result)
 
         assert result is not None  # Should never be triggered; just to make static analyzer happy.
+
+        final_result: float
         if self.normalize_by_prefix_length:
-            prefix_tokens = self.tokenizer.tokenize(prefix)
+            prefix_tokens: List[str] = self.tokenizer.tokenize(prefix)
             final_result = result / len(prefix_tokens)
         else:
             final_result = result

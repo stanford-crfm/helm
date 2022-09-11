@@ -13,6 +13,9 @@ microsoft_client.lock
 *.out
 nltk_data/
 
+# Where data lives (e.g., newsqa)
+restricted
+
 # Percy's stuff
 nav
 tags

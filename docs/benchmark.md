@@ -1,5 +1,52 @@
 # Running the benchmark
 
+In the following, assume that the suite (the directory where everything is written) is:
+
+    export SUITE=v1
+
+Some of the benchmarks (NewsQA) depend on data that's not public: all such data
+will be stored in the `restricted` directory.  You need to make sure that
+directory exists.
+
+To try to test things out a small subset (defined in `run_specs_small.conf`):
+
+    # Just load the config file
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE --skip-instances
+
+    # Create the instances and the requests, but don't execute
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE --dry-run
+
+    # Execute the requests and compute metrics
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE
+
+    # Generate assets for the website
+    venv/bin/benchmark-summarize --suite $SUITE
+
+Notes:
+- `--local` means we bypass the proxy server.
+- All the outputs should be in `benchmark_output/runs/$SUITE`.
+
+To run everything (note we're restricting the number of instances and
+scenarios) in parallel:
+
+    # Generate all the commands to run in parallel
+    venv/bin/benchmark-present --local --suite $SUITE --max-eval-instances 1000 --priority 2 --num-threads 8 --skip-instances
+
+    # Run everything in parallel over Slurm
+    bash benchmark_output/runs/$SUITE/run-all.sh
+
+    # Wait for all Slurm jobs to finish, monitor the logs
+    # tail benchmark_output/runs/$SUITE/slurm-*.out
+
+    # Generate assets for the website
+    venv/bin/benchmark-present --local --suite $SUITE --skip-instances
+    venv/bin/benchmark-summarize --suite $SUITE
+
+Go to the [website](http://localhost:1959/static/benchmarking.html) to look at the results.
+
+    # Stanford only: copy website (do this on scdt)
+    rsync -arvz benchmark_output/runs/$SUITE crfm-models:/home/benchmarking/src/proxy/static/benchmarking_output/runs
+
 Examples of running the benchmark:
 
     venv/bin/benchmark-run
@@ -9,7 +56,7 @@ Examples of running the benchmark:
     venv/bin/benchmark-run -r copyright:datatag=pilot --suite SUITE_NAME
     venv/bin/benchmark-run -r disinformation:capability=reiteration --suite SUITE_NAME
     venv/bin/benchmark-run -r wikifact:k=2,subject=P31 --suite SUITE_NAME
-    venv/bin/benchmark-run -r code:dataset=APPS --suite SUITE_NAME
+    venv/bin/benchmark-run -r code:dataset=apps --suite SUITE_NAME
     venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles --suite SUITE_NAME
     venv/bin/benchmark-run -r wikifact:subject=P31 --suite SUITE_NAME
     venv/bin/benchmark-run -r raft:subset=ade_corpus_v2 --suite SUITE_NAME
@@ -55,36 +102,38 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Activate the Conda environment: `conda activate crfm_benchmarking`
    1. Run `./pre-commit.sh` if there are new dependencies to install.
 1. Run `bash scripts/run-all-stanford.sh --suite <Suite name>` e.g.,
-   `bash scripts/run-all-stanford.sh --suite v1`.
+   `bash scripts/run-all-stanford.sh --suite v4`.
 1. After the run for all the models has finished, run the remaining commands the script outputs.
 
-## Offline evaluation for `TogetherClient` models
+## Offline evaluation
 
 ### Exporting requests
 
 1. `ssh sc`.
-1. Create a screen session: `screen -S together`.
-1. Use a john to run the suite: 
-   `nlprun --job-name queriestogether --priority high -a crfm_benchmarking -c 8 -g 0 --memory 64g -w /u/scr/nlp/crfm/benchmarking/benchmarking`.
-1. Do a dry run to generate `RequestState`s for all the Together models: 
-   `bash scripts/generate-together-requests.sh --max-eval-instances 1000 --priority 2 --local`.
-1. Exit the screen session: `ctrl+ad`.
-1. Check on the dry run by streaming the logs: `tail -f dryrun_<Name of together model>.log`.
-1. The dry run results will be outputted to `benchmark_output/runs/together`.
-1. Once the dry run is done, run
-   `python3 scripts/together/together_export_requests.py benchmark_output/runs/together prod_env/cache/together.sqlite --output-path requests.jsonl`.
-   This command will generate a `requests.jsonl` that contains requests that are not in the cache (`prod_env/cache/together.sqlite`).
-1. Upload `requests.jsonl` to CodaLab:
+1. Go to the source code directory: `cd /u/scr/nlp/crfm/benchmarking/benchmarking`.
+1. Pull the latest changes: `git pull`.
+1. Activate the Conda environment: `conda activate crfm_benchmarking`
+   1. Run `./pre-commit.sh` if there are new dependencies to install.
+1. Run `bash scripts/run-all-stanford.sh --suite <Suite name> --dry-run` e.g.,
+   `bash scripts/run-all-stanford.sh --suite v4-dryrun --dry-run`.
+1. Once the dry run is done, run the following commands:
+    1. `python3 scripts/offline_eval/export_requests.py together benchmark_output/runs/v4-dryrun 
+       --output-path benchmark_output/runs/v4-dryrun/together_requests.jsonl`
+    1. `python3 scripts/offline_eval/export_requests.py microsoft benchmark_output/runs/v4-dryrun 
+       --output-path benchmark_output/runs/v4-dryrun/microsoft_requests.jsonl`
+1. Upload requests JSONL files to CodaLab:
     1. Log on to CodaLab: `cl work main::0xbd9f3df457854889bda8ac114efa8061`.
-    1. Upload by running `cl upload requests.jsonl`.
-1. Share the link to the CodaLab bundle with our collaborators.
+    1. Upload by Together requests: `cl upload benchmark_output/runs/v4-dryrun/together_requests.jsonl`.
+    1. Upload by MT-NLG requests: `cl upload benchmark_output/runs/v4-dryrun/microsoft_requests.jsonl`.
+1. Share the link to the CodaLab bundles with our collaborators.
 
 ### Importing results
 
 1. `ssh scdt`
 1. `cd /u/scr/nlp/crfm/benchmarking/benchmarking`
 1. Download the results from CodaLab: `cl download <UUID of the results bundle>`.
-1. Run: `python3 scripts/together/together_import_results.py <Path to results jsonl file> prod_env/cache/together.sqlite`.
+1. Run: `python3 scripts/offline_eval/import_results.py <Org> <Path to results jsonl file>` e.g.,
+   `python3 scripts/offline_eval/import_results.py together results.jsonl`.
    This will update the cache with requests and their results.
 
 ## To visualize results at crfm-models.stanford.edu
