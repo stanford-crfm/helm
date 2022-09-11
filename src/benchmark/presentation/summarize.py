@@ -13,7 +13,7 @@ from common.hierarchical_logger import hlog, htrack
 from benchmark.metrics.statistic import Stat
 from benchmark.runner import RunSpec
 from proxy.models import ALL_MODELS, get_model
-from .table import Cell, Table, table_to_latex
+from .table import Cell, Table, Hyperlink, table_to_latex
 from .schema import MetricNameMatcher, ScenarioGroup, read_schema, SCHEMA_YAML_PATH
 from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
 
@@ -236,6 +236,15 @@ class Summarizer:
                 header.append(Cell(header_name, description=description))
                 matchers.append(matcher)
 
+        def run_spec_names_to_url(run_spec_names: List[str]) -> str:
+            return get_benchmarking_url(
+                {
+                    "runSpecs": json.dumps(run_spec_names),
+                    "scenarioDisplayName": title,
+                    "scenarioDescription": scenario_group.description,
+                }
+            )
+
         # Populate the contents of the table
         rows = []
         for model_name, runs in model_to_runs.items():
@@ -244,13 +253,7 @@ class Summarizer:
             # Link to all the runs under this model
             if link_to_runs:
                 run_spec_names = [run.run_spec.name for run in runs]
-                href = get_benchmarking_url(
-                    {
-                        "runSpecs": json.dumps(run_spec_names),
-                        "scenarioDisplayName": title,
-                        "scenarioDescription": scenario_group.description,
-                    }
-                )
+                href = run_spec_names_to_url(run_spec_names)
             else:
                 href = None
 
@@ -270,7 +273,14 @@ class Summarizer:
                 + [self.create_cell(runs, matcher, contamination_level) for matcher in matchers]
             )
 
-        return Table(title=title, header=header, rows=rows)
+        # Link to all runs under all models (to compare models)
+        all_run_spec_names = []
+        for runs in model_to_runs.values():
+            for run in runs:
+                all_run_spec_names.append(run.run_spec.name)
+        links = [Hyperlink(text="all models", href=run_spec_names_to_url(all_run_spec_names))]
+
+        return Table(title=title, header=header, rows=rows, links=links)
 
     def write_groups(self):
         """
@@ -324,13 +334,10 @@ class Summarizer:
             # Add the latex_path to each table (changes `tables`!)
             base_path = os.path.join(groups_path, "latex")
             ensure_directory_exists(base_path)
-            new_tables = []
             for table, name in zip(tables, table_names):
                 latex_path = os.path.join(base_path, name + ".tex")
-                table = replace(table, latex_path=latex_path)  # Add path
+                table.links.append(Hyperlink(text="latex", href=latex_path))
                 write(latex_path, table_to_latex(table, name))
-                new_tables.append(table)
-            tables = new_tables
 
             # Write JSON file
             write(

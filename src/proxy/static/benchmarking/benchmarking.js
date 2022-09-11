@@ -150,7 +150,7 @@ $(function () {
     return '';
   }
 
-  function renderPerInstanceStats(groups, stats) {
+  function renderPerInstanceStats(groups, stats, runDisplayName) {
     // This is used to render per-instance stats.
     // Groups specifies which metric names we should display.
     // Pull these out from stats and render them.
@@ -177,6 +177,9 @@ $(function () {
 
     // String the metrics together
     const $stats = $('<div>');
+    if (runDisplayName) {
+      $stats.append('[' + runDisplayName + '] ');
+    }
     list.forEach((item, index) => {
       if (index > 0) {
         $stats.append(', ');
@@ -394,7 +397,7 @@ $(function () {
         if (!stats) {
           console.error("Cannot find stats for", key, instanceKeyTrialToStats);
         }
-        $instance.append(renderPerInstanceStats(runSpec.groups, stats));
+        $instance.append(renderPerInstanceStats(runSpec.groups, stats, runDisplayName));
         shownStats[key] = true;
       }
 
@@ -452,21 +455,26 @@ $(function () {
 
       // Describe the prediction
       let description = '';
+
+      // If there are multiple runs
+      if (runDisplayName) {
+        description += '[' + runDisplayName + '] ';
+      }
+
+      description += 'Prediction';
+
       // Which reference (for multiple_choice_separate_*)
       if (requestState.reference_index != null) {
         description += '[ref ' + requestState.reference_index + ']';
       }
+
       // If there are multiple trials
       if (numTrainTrials > 1) {
         description += '{trial ' + requestState.train_trial_index + '}';
       }
-      // If there are multiple runs
-      if (runDisplayName) {
-        description += '(' + runDisplayName + ')';
-      }
 
       $instance.append($('<div>')
-        .append($('<a>', {href}).append($('<b>').append('Prediction' + description)))
+        .append($('<a>', {href}).append($('<b>').append(description)))
         .append(': ')
         .append(prefix + prediction)
         .append($logProb));
@@ -627,9 +635,9 @@ $(function () {
       $table.append($row);
     });
     $output.append($table);
-    if (table.latex_path) {
-      $output.append($('<a>', {href: table.latex_path}).append('[latex]'));
-    }
+    table.links.forEach((link) => {
+      $output.append(' ').append($('<a>', {href: link.href}).append('[' + link.text + ']'));
+    });
     return $output;
   }
 
