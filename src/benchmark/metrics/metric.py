@@ -27,6 +27,7 @@ class PerInstanceStats:
     """
     Captures a unit of evaluation.
     """
+
     # Uniquely identifies the input instance
     instance_id: str
     perturbation: Optional[PerturbationDescription]
@@ -153,7 +154,9 @@ class Metric(ABC):
             per_instance_stats: List[PerInstanceStats] = []
             for instance, stats in zip(scenario_state.instances, results):
                 assert instance.id is not None, f"id was none for instance: {instance}"
-                per_instance_stats.append(PerInstanceStats(instance.id, instance.perturbation, train_trial_index, stats))
+                per_instance_stats.append(
+                    PerInstanceStats(instance.id, instance.perturbation, train_trial_index, stats)
+                )
 
             # Aggregate these stats
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
