@@ -156,8 +156,6 @@ $(function () {
     // Pull these out from stats and render them.
     const list = [];
 
-    console.log(stats);
-
     // Look for the default metrics for the group
     schema.scenario_groups.forEach((scenarioGroup) => {
       if (!groups.includes(scenarioGroup.name)) {
@@ -269,7 +267,15 @@ $(function () {
 
   function instanceKey(instance) {
     // The (instance id, perturbation) should be enough to uniquely identify the instance.
-    return [instance.id, instance.perturbation];
+    return JSON.stringify([instance.id, instance.perturbation || 'original']);
+  }
+
+  function perInstanceStatsKey(entry) {
+    return JSON.stringify([entry.instance_id, entry.perturbation || 'original', entry.train_trial_index]);
+  }
+
+  function instanceTrialKey(instance, trainTrialIndex) {
+    return JSON.stringify([instance.id, instance.perturbation || 'original', trainTrialIndex]);
   }
 
   function renderScenarioInstances(scenario, $instances) {
@@ -290,7 +296,7 @@ $(function () {
     scenario.instances.forEach((instance) => {
       const key = instanceKey(instance);
       if (key in instanceKeyToDiv) {
-        console.warn(`Two instances with the same key ${key}, skipping`, instanceKeyToDiv[key], instance);
+        console.warn(`Two instances with the same key ${key}, skipping`, instance);
         return;
       }
 
@@ -361,7 +367,7 @@ $(function () {
     // Whether we've already shown the stats
     const shownStats = {};
     perInstanceStats.forEach((entry) => {
-      const key = [entry.instance_id, entry.perturbation, entry.train_trial_index];
+      const key = perInstanceStatsKey(entry);
       instanceKeyTrialToStats[key] = (instanceKeyTrialToStats[key] || []).concat(entry.stats);
     });
 
@@ -380,7 +386,7 @@ $(function () {
 
       // Print out instance-level statistics
       // We just need to make sure that each (instance id, train trial index and perturbation) only shows up once
-      const key = [requestState.instance.id, requestState.instance.perturbation, requestState.train_trial_index];
+      const key = instanceTrialKey(requestState.instance, requestState.train_trial_index);
       if (!shownStats[key]) {
         // Keep only stats that match instance ID, train trial index, and perturbatation
         const stats = instanceKeyTrialToStats[key];
