@@ -118,16 +118,6 @@ $(function () {
     return $('<div>').append([$search, $table]);
   }
 
-  function substitute(str, environment) {
-    if (!str) {
-      return str;
-    }
-    for (let key in environment) {
-      str = str.replace('${' + key + '}', environment[key]);
-    }
-    return str;
-  }
-
   // Look at logic in `summarize.py`.
   function getMetricNames(scenarioGroup) {
     // A scenario group defines a list of metric groups, each of which defines the metrics.
@@ -161,8 +151,7 @@ $(function () {
   }
 
   function renderStats(groups, stats) {
-    // This is used to render per-instance stats (which is why we only care
-    // about the metric name).
+    // This is used to render per-instance stats.
     // Groups specifies which metric names we should display.
     // Pull these out from stats and render them.
     const list = [];
@@ -188,9 +177,8 @@ $(function () {
 
     // String the metrics together
     const $stats = $('<div>');
-    //$stats.append('Metrics: ');
     if (list.length == 0) {
-      $stats.append(' (none)');
+      $stats.append(' (no metrics)');
     } else {
       list.forEach((item, index) => {
         if (index > 0) {
@@ -201,6 +189,70 @@ $(function () {
     }
 
     return $stats;
+  }
+
+  function metricNameCompare(k1, k2) {
+    const splitCompare = (k1.split || '').localeCompare(k2.split || '');
+    if (splitCompare !== 0) {
+      return splitCompare;
+    }
+    const nameCompare = k1.name.localeCompare(k2.name);
+    if (nameCompare !== 0) {
+      return nameCompare;
+    }
+    const perturbationCompare = (k1.perturbation ? k1.perturbation.name : '').localeCompare(k2.perturbation ? k2.perturbation.name : '');
+    if (perturbationCompare !== 0) {
+      return perturbationCompare;
+    }
+    return 0;
+  }
+
+  function renderGlobalStats(query, keys, statsList, statsPaths) {
+    // Render the scenario-level metrics.
+    // keys: list of metric names to render (these are the rows of table)
+    // statsList: for each run, list of stats
+    // statsPath: for each run, list of paths to the stats files
+    const $output = $('<div>');
+    keys.forEach((key) => {
+      // For each key (MetricName - e.g., {name: 'exact_match', ...})
+
+      if (key.perturbation && key.perturbation.computed_on !== 'worst') {
+        // Only pay attention to worst (match `summarize.py`)
+        return;
+      }
+
+      const displayKey = renderMetricName(key);
+      if (query !== '' && !query.split(' ').every((q) => displayKey.includes(q))) {
+        return;
+      }
+
+      const field = schema.metricsField(key.name);
+      const helpText = describeMetricName(field, key);
+      const $key = $('<td>').append($('<span>').append(helpIcon(helpText)).append(' ').append(displayKey));
+      const $row = $('<tr>').append($('<td>').append($key));
+      statsList.forEach((stats) => {
+        // stats: list of statistics corresponding to one run (column)
+        const stat = stats.find((stat) => metricNameEquals(stat.name, key));
+        $row.append($('<td>').append(stat ? renderFieldValue(field, round(stat.mean, 3)) : '?'));
+      });
+      $output.append($row);
+    });
+
+    // Link to the JSON file
+    $output.append($('<tr>').append($('<td>'))
+      .append(statsPaths.map((statsPath) => $('<td>').append($('<a>', {href: statsPath}).append('JSON')))));
+    return $output;
+  }
+
+  function highlightNewWords(text, origText) {
+    // Render `text`, highlighting any words that don't occur in `origText`
+    // Ideally, we would form an alignment between `text` and `origText` and
+    // show the full diff, but that's too expensive.
+    const origWords = {};
+    origText.split(' ').forEach((word) => {
+      origWords[word] = true;
+    });
+    return text.split(' ').map((word) => origWords[word] ? word : '<u>' + word + '</u>').join(' ');
   }
 
   function renderRunsDetailed(runSpecs) {
@@ -217,7 +269,7 @@ $(function () {
     }
 
     // Paths (parallel arrays corresponding to `runSpecs`)
-    const metricsPaths = runSpecs.map((runSpec) => {
+    const statsPaths = runSpecs.map((runSpec) => {
       return `benchmark_output/runs/${suite}/${runSpec.name}/stats.json`;
     });
     const perInstanceStatsPaths = runSpecs.map((runSpec) => {
@@ -258,12 +310,12 @@ $(function () {
 
     // Metrics
     $root.append($('<a>', {name: 'metrics'}).append($('<h5>').append('Metrics')));
-    const $metrics = $('<table>');
-    const $metricsSearch = $('<input>', {type: 'text', size: 40, placeholder: 'Enter keywords to filter metrics'});
+    const $stats = $('<table>');
+    const $statsSearch = $('<input>', {type: 'text', size: 40, placeholder: 'Enter keywords to filter metrics'});
     if (runSpecs.length > 1) {
-      $metrics.append($('<tr>').append($('<td>')).append(runDisplayNames.map((name) => $('<td>').append(name))));
+      $stats.append($('<tr>').append($('<td>')).append(runDisplayNames.map((name) => $('<td>').append(name))));
     }
-    $root.append($('<div>', {class: 'table-container'}).append($metricsSearch).append($metrics));
+    $root.append($('<div>', {class: 'table-container'}).append([$statsSearch, $stats]));
 
     // Render adapter specs
     const keys = canonicalizeList(runSpecs.map((runSpec) => Object.keys(runSpec.adapter_spec)));
@@ -282,79 +334,25 @@ $(function () {
     $adapterSpec.append($('<tr>').append($('<td>'))
       .append(runSpecPaths.map((runSpecPath) => $('<td>').append($('<a>', {href: runSpecPath}).append('JSON')))));
 
-    // Render metrics
-    getJSONList(metricsPaths, (metricsList) => {
-      console.log('metrics', metricsList);
-      const keys = canonicalizeList(metricsList.map((metrics) => metrics.map((metric) => metric.name)));
+    // Render metrics/stats
+    getJSONList(statsPaths, (statsList) => {
+      console.log('metrics', statsList);
+      const keys = canonicalizeList(statsList.map((stats) => stats.map((stat) => stat.name)));
+      keys.sort(metricNameCompare);
 
-      // Sort
-      keys.sort((k1, k2) => {
-        const splitCompare = (k1.split || '').localeCompare(k2.split || '');
-        if (splitCompare !== 0) {
-          return splitCompare;
-        }
-        const nameCompare = k1.name.localeCompare(k2.name);
-        if (nameCompare !== 0) {
-          return nameCompare;
-        }
-        const perturbationCompare = (k1.perturbation ? k1.perturbation.name : '').localeCompare(k2.perturbation ? k2.perturbation.name : '');
-        if (perturbationCompare !== 0) {
-          return perturbationCompare;
-        }
-        return 0;
-      });
+      function update() {
+        $stats.empty().append(renderGlobalStats(query, keys, statsList, statsPaths));
+      }
 
       // Filter 
       let query = '';
-      $metricsSearch.keyup((e) => {
-        query = $metricsSearch.val();
-        renderMetrics();
+      $statsSearch.keyup((e) => {
+        query = $statsSearch.val();
+        update();
       });
 
-      function renderMetrics() {
-        $metrics.empty();
-        keys.forEach((key) => {
-          // For each key (MetricName - e.g., {name: 'exact_match', ...})
-
-          if (key.perturbation && key.perturbation.computed_on !== 'worst') {
-            // Only pay attention to worst (match `summarize.py`)
-            return;
-          }
-
-          const displayKey = renderMetricName(key);
-          if (query !== '' && !query.split(' ').every((q) => displayKey.includes(q))) {
-            return;
-          }
-
-          const field = schema.metricsField(key.name);
-          const helpText = describeMetricName(field, key);
-          const $key = $('<td>').append($('<span>').append(helpIcon(helpText)).append(' ').append(displayKey));
-          const $row = $('<tr>').append($('<td>').append($key));
-          metricsList.forEach((metrics) => {
-            // metrics is a list of statistics corresponding to one run (column)
-            const metric = metrics.find((metric) => metricNameEquals(metric.name, key));
-            $row.append($('<td>').append(metric ? renderFieldValue(field, round(metric.mean, 3)) : '?'));
-          });
-          $metrics.append($row);
-        });
-        $metrics.append($('<tr>').append($('<td>'))
-          .append(metricsPaths.map((metricsPath) => $('<td>').append($('<a>', {href: metricsPath}).append('JSON')))));
-      }
-
-      renderMetrics();
-
+      update();
     }, []);
-
-    function highlightNewWords(text, origText) {
-      // Render `text`, highlighting any words that don't occur in `origText`
-      // Ideally, we would form an alignment between `text` and `origText` and
-      // show the full diff, but that's too expensive.
-      const origWords = {};
-      origText.split(' ').forEach((word) => {
-        origWords[word] = true;
-      });
-      return text.split(' ').map((word) => origWords[word] ? word : '<u>' + word + '</u>').join(' ');
-    }
 
     // Render scenario instances
     const instanceToDiv = {};

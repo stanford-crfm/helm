@@ -1,3 +1,6 @@
+////////////////////////////////////////////////////////////
+// Helper functions for visualizing benchmarking
+
 function describeField(field) {
   let result = field.name + ": " + field.description;
   if (field.values) {
@@ -96,10 +99,6 @@ function renderPerturbationName(schema, perturbationName) {
   return schema.perturbationsField(perturbationName).display_name;
 }
 
-function getLast(l) {
-  return l[l.length - 1];
-}
-
 function renderScenarioDisplayName(scenario) {
   // Describe the scenario
   const name = scenario.name; // e.g. mmlu
@@ -110,6 +109,9 @@ function renderScenarioDisplayName(scenario) {
     return name;
   }
 }
+
+////////////////////////////////////////////////////////////
+// Generic utility functions
 
 function renderHeader(header, body) {
   return $('<div>').append($('<h4>').append(header)).append(body);
@@ -128,6 +130,10 @@ function getJSONList(paths, callback, defaultValue) {
     JSON.parse(error.responseText);
     callback(paths.map((path) => responses[path] || defaultValue));
   });
+}
+
+function getLast(l) {
+  return l[l.length - 1];
 }
 
 function sortListWithReferenceOrder(list, referenceOrder) {
@@ -178,22 +184,6 @@ function renderDict(obj) {
   return Object.entries(obj).map(([key, value]) => `${key}=${value}`).join(',');
 }
 
-function toDecimalString(value, numDecimalPlaces) {
-  // Convert the number in `value` to a decimal string with `numDecimalPlaces`.
-  // The `value` must be of type `number`.
-  return value.toLocaleString("en-US", {
-    maximumFractionDigits: numDecimalPlaces,
-    minimumFractionDigits: numDecimalPlaces
-  });
-}
-
-function getUniqueValue(arr, messageType) {
-  const arrUnique = new Set(arr);
-  // TODO: Double check that the assert statement is throwing an error as expected.
-  assert(arrUnique.size == 1, `The groups have incompatible ${messageType}.`);
-  return arr[0];
-}
-
 function truncateMiddle(text, border) {
   // Return `text` with only `border` characters at the beginning and at the end
   // Example: "this is a test", border=4 ==> "this...(6 characters)...test"
@@ -202,4 +192,14 @@ function truncateMiddle(text, border) {
   }
   const numRemoved = text.length - 2 * border;
   return text.substring(0, border) + ' <i>...(' + numRemoved + ' characters)...</i> ' + text.substring(text.length - border);
+}
+
+function substitute(str, environment) {
+  if (!str) {
+    return str;
+  }
+  for (let key in environment) {
+    str = str.replace('${' + key + '}', environment[key]);
+  }
+  return str;
 }
