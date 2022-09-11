@@ -358,9 +358,11 @@ metric_groups:
     metrics:
       - name: SummaC
         split: ${main_split}
-      - name: coverage
+      - name: summarization_coverage
         split: ${main_split}
-      - name: compression
+      - name: summarization_density
+        split: ${main_split}
+      - name: summarization_compression
         split: ${main_split}
 
   - name: apps_metrics
