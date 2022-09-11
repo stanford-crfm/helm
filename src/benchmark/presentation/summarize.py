@@ -279,7 +279,7 @@ class Summarizer:
             # Render contamination information
             point = self.contamination.get_point(model_name, scenario_group.name)
             if point is not None:
-                suffix = CONTAMINATION_SYMBOLS[point.level]
+                suffix = CONTAMINATION_SYMBOLS[point.level]  # Append to name of model
                 description = point.description
                 contamination_level = point.level
             else:

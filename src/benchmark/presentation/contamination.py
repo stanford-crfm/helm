@@ -9,14 +9,19 @@ from benchmark.presentation.schema import Schema
 
 CONTAMINATION_YAML_PATH: str = "src/proxy/static/contamination.yaml"
 
+# Contamination levels
+CONTAMINATION_LEVEL_WEAK = "weak"
+CONTAMINATION_LEVEL_STRONG = "strong"
+
 CONTAMINATION_SYMBOLS = {
-    "weak": "⚠",
-    "strong": "☠",
+    CONTAMINATION_LEVEL_WEAK: "⚠",
+    CONTAMINATION_LEVEL_STRONG: "☠",
 }
 
+# These are CSS styles applied to cells that have the type of contamination.
 CONTAMINATION_STYLES = {
-    "weak": {"color": "gray"},
-    "strong": {"color": "lightgray"},
+    CONTAMINATION_LEVEL_WEAK: {"color": "gray"},
+    CONTAMINATION_LEVEL_STRONG: {"color": "lightgray"},
 }
 
 
@@ -53,6 +58,8 @@ class Contamination:
         found_points = [
             point for point in self.points if scenario_group in point.scenario_groups and model in point.models
         ]
+        # Note: if more than one found, ideally we should take the strongest
+        # one, but leaving for now.
         assert len(found_points) <= 1
         return found_points[0] if len(found_points) == 1 else None
 
