@@ -699,7 +699,7 @@ scenario_groups:
       - efficiency
     environment:
       main_name: exact_match_indicator
-      main_split: valid
+      main_split: test
 
   - name: numeracy
     display_name: Numerical reasoning
