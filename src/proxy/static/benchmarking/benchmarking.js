@@ -361,6 +361,7 @@ $(function () {
     // - for adapter method = multiple_choice_separate_original, have one request per reference
     // - for adapter method = multiple_choice_separate_calibrated, have two requests per reference
     const method = runSpec.adapter_spec.method;
+    const numTrainTrials = scenarioState.request_states.reduce((m, request_state) => Math.max(m, request_state.train_trial_index), -1) + 1;
 
     // The `perInstanceStats` specifies stats for each instanceKey (instance_id, perturbation) and train_trial_index.
     const instanceKeyTrialToStats = {};
@@ -451,12 +452,19 @@ $(function () {
 
       // Describe the prediction
       let description = '';
+      // Which reference (for multiple_choice_separate_*)
       if (requestState.reference_index != null) {
-        description += '[' + requestState.reference_index + ']';
+        description += '[ref ' + requestState.reference_index + ']';
       }
-      if (runDisplayName) {  // If there are multiple runs
+      // If there are multiple trials
+      if (numTrainTrials > 1) {
+        description += '{trial ' + requestState.train_trial_index + '}';
+      }
+      // If there are multiple runs
+      if (runDisplayName) {
         description += '(' + runDisplayName + ')';
       }
+
       $instance.append($('<div>')
         .append($('<a>', {href}).append($('<b>').append('Prediction' + description)))
         .append(': ')
