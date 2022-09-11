@@ -272,11 +272,13 @@ class Summarizer:
             # Link to all the runs under this model
             if link_to_runs:
                 run_spec_names = [run.run_spec.name for run in runs]
-                href = get_benchmarking_url({
-                    "runSpecs": json.dumps(run_spec_names),
-                    "scenarioDisplayName": title,
-                    "scenarioDescription": scenario_group.description,
-                })
+                href = get_benchmarking_url(
+                    {
+                        "runSpecs": json.dumps(run_spec_names),
+                        "scenarioDisplayName": title,
+                        "scenarioDescription": scenario_group.description,
+                    }
+                )
             else:
                 href = None
             rows.append(
