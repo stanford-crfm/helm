@@ -372,8 +372,6 @@ metric_groups:
 
   - name: humaneval_metrics
     metrics:
-      - name: code_eval_acc
-        split: ${main_split}
       - name: pass
         split: ${main_split}
 
