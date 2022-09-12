@@ -136,7 +136,8 @@ class BabiQAScenario(Scenario):
                         else:
                             story.append(fact)
 
-        # Shuffle instances, especially important for the "all" task.
+        # Shuffle instances, important for the "all" task so that the instances used 
+        # for evaluation are equally likely to be sampled from the different tasks.
         random.seed(0)
         random.shuffle(instances)
         return instances
