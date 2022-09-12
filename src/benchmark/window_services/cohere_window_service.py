@@ -76,11 +76,14 @@ class CohereWindowService(LocalWindowService):
             )
             tokens = response.tokens
         else:
+            # Perform chunk encoding.
+            # This can potentially break up valid tokens at the end of the chunk, but the chunk size
+            # is large enough that this happens infrequently.
             chunk_size: int = CohereClient.TOKENIZE_MAX_TEXT_LENGTH
             for i in range(0, len(text), chunk_size):
                 chunk: str = text[i : chunk_size + i]
                 response = self.service.tokenize(
-                    TokenizationRequest(chunk, tokenizer=self.tokenizer_name, encode=False, truncation=False,)
+                    TokenizationRequest(chunk, tokenizer=self.tokenizer_name, encode=False, truncation=False)
                 )
                 tokens.extend(response.tokens)
 
