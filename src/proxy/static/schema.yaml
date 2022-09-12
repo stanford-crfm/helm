@@ -105,11 +105,11 @@ metrics:
   - name: exact_match@5
     display_name: Exact match @5
     short_display_name: EM@5
-    description: Fraction of instances that at least one predicted output among the top 5 matches a correct reference exactly.
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference exactly.
   - name: quasi_exact_match@5
     display_name: Quasi-exact match @5
     short_display_name: EM@5
-    description: Fraction of instances that at least one predicted output among the top 5 matches a correct reference up to light processing.
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference up to light processing.
   - name: logprob
     display_name: Log probability
     short_display_name: Logprob
