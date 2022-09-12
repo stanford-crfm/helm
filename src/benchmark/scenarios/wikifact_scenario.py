@@ -2,7 +2,7 @@ import os
 from typing import List
 import json
 
-from common.general import ensure_file_downloaded, flatten_list
+from common.general import ensure_directory_exists, ensure_file_downloaded, flatten_list
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
@@ -13,7 +13,7 @@ Pid2name = {
     "P50": "author",
     "P170": "creator",
     "P86": "composer",
-    "P57":	"director",
+    "P57": "director",
     "P1001": "applies_to_jurisdiction",
     "P4006": "overrules",
     "P3014": "laws_applied",
@@ -96,7 +96,7 @@ Pid2name = {
     "P361": "part_of",
 }
 
-name2Pid = {v:k for k, v in Pid2name.items()}
+name2Pid = {v: k for k, v in Pid2name.items()}
 
 
 class WIKIFactScenario(Scenario):
@@ -127,13 +127,9 @@ class WIKIFactScenario(Scenario):
 
     def get_instances(self) -> List[Instance]:
         # Download the raw data
-        data_path = os.path.join(self.output_path, "data")
-        ensure_file_downloaded(
-            source_url="https://nlp.stanford.edu/crfm/benchmarking/data/wikifact_data.zip",
-            target_path=data_path,
-            unpack=True,
-            unpack_type="unzip",
-        )
+        data_path: str = os.path.join(self.output_path, "data")
+        ensure_directory_exists(data_path)
+
         # Read all the instances
         instances: List[Instance] = []
         splits = {
@@ -143,7 +139,14 @@ class WIKIFactScenario(Scenario):
         }
 
         for split in splits:
-            json_path = os.path.join(data_path, f"{split}.jsonl")
+            split_file_name: str = f"{split}.jsonl"
+            json_path: str = os.path.join(data_path, split_file_name)
+            ensure_file_downloaded(
+                source_url="https://worksheets.codalab.org/rest/bundles/0x8c3b60eb7c6b462e822a150f194d3b35/"
+                f"contents/blob/{split_file_name}",
+                target_path=json_path,
+                unpack=False,
+            )
 
             hlog(f"Reading {json_path}")
             with open(json_path) as f:
