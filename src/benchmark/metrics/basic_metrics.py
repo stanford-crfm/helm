@@ -713,16 +713,22 @@ class BasicMetric(Metric):
 
         answer_scores = [reference_scores[i] for i in answers]
 
+        # Compute efficiency metrics.
+        metrics = self.compute_efficiency_metrics(adapter_spec, request_state, metric_service)
+
         max_prob = np.max(scipy.special.softmax(reference_scores))
         # TODO: fix the accuracy calculation---it is currently incorrect when there are ties.
         # For example, in binary classification if the model's predicted probabilities are
         # [0.5, 0.5], then this code will say we got the example correct, regardless of what
         # the answer is, because the calculation max(reference_scores) == max(answer_scores)
         # will always return True.
-        return [
-            Stat(MetricName("max_prob")).add(max_prob),
-            Stat(MetricName("exact_match")).add(float(max(reference_scores) == max(answer_scores))),
-        ]
+        metrics.extend(
+            [
+                Stat(MetricName("max_prob")).add(max_prob),
+                Stat(MetricName("exact_match")).add(float(max(reference_scores) == max(answer_scores))),
+            ]
+        )
+        return metrics
 
     def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
         """Derive perplexity metrics if applicable. We don't worry about splits and perturbations here."""
