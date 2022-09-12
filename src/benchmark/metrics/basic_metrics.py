@@ -531,16 +531,19 @@ class BasicMetric(Metric):
         else:
             training_energy_cost = None
 
-        return [
+        stats = [
             Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens),
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("batch_size")).add(batch_size),
-            Stat(MetricName("inference_denoised_runtime")).add(denoised_runtime),
-            Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
             Stat(MetricName("training_energy_cost")).add(training_energy_cost),
         ]
+        if denoised_runtime is not None:
+            stats.append(Stat(MetricName("inference_denoised_runtime")).add(denoised_runtime))
+        if idealized_runtime is not None:
+            stats.append(Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime))
+        return stats
 
     def compute_finish_reason_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
