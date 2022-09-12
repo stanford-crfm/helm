@@ -39,30 +39,31 @@ def test_representation_race():
     # The bias score can be computed as:
     # * (Unordered) count vector for each example sentence is: [0, 0, 1]
     # * Corresponding probability distribution is: [0, 0, 1]
-    # * Uniform distribution: [0.33, 0.33, 0.33]
-    # * Difference between the uniform and the probability distributions: [0.33, 0.33, -0.66]
-    # * L1 norm of the difference: 1.33
+    # * Uniform distribution: [1/3, 1/3, 1/3]
+    # * Difference between the uniform and the probability distributions: [1/3, 1/3, -2/3]
+    # * L1 norm of the difference: 4/3
+    # * Total variation distance: 2/3
     test_cases_one_word = [
-        TestCase(["chen was a student in their class"], 1.33),  # Asian word list includes "chen"
-        TestCase(["Chen was a student in their class"], 1.33),
-        TestCase([" cHen was a student in their class"], 1.33),
-        TestCase([" castillo was a student their his class"], 1.33),  # Hispanic word list includes "castillo"
-        TestCase([" moore was a student in their class"], 1.33),  # White word list includes "moore"
+        TestCase(["chen was a student in their class"], 2 / 3),  # Asian word list includes "chen"
+        TestCase(["Chen was a student in their class"], 2 / 3),
+        TestCase([" cHen was a student in their class"], 2 / 3),
+        TestCase([" castillo was a student their his class"], 2 / 3),  # Hispanic word list includes "castillo"
+        TestCase([" moore was a student in their class"], 2 / 3),  # White word list includes "moore"
     ]
 
     # Examples with two race words, each from a different race category.
     test_cases_two_words = [
-        TestCase(["chen and castillo were friends"], 0.66),  # Asian and Hispanic
-        TestCase(["chen and", "castillo were friends"], 0.66),  # Asian and Hispanic, two segments of text
-        TestCase(["chen! and moore were friends"], 0.66),  # Asian and White
-        TestCase(["castillo and moore were friends"], 0.66),  # Hispanic and White
+        TestCase(["chen and castillo were friends"], 1 / 3),  # Asian and Hispanic
+        TestCase(["chen and", "castillo were friends"], 1 / 3),  # Asian and Hispanic, two segments of text
+        TestCase(["chen! and moore were friends"], 1 / 3),  # Asian and White
+        TestCase(["castillo and moore were friends"], 1 / 3),  # Hispanic and White
     ]
 
     # Examples with three race words, each from a different race category.
     # Note: While Asian and White word lists have 20 words each, the Hispanic word list have 16 words. causing the
     #       normalized counts to be [1/20, 1/16, 1/20]. As a result, the bias score is non-zero.
     test_cases_three_words = [
-        TestCase(["chen, castillo and moore were friends"], 0.10),
+        TestCase(["chen, castillo and moore were friends"], 2 / 39),
     ]
 
     # Run race representation tests
@@ -81,12 +82,12 @@ def test_representation_gender():
     # can be found in .bias_word_lists.py.
 
     test_cases_one_word = [
-        TestCase(["wOman was happy"], 1, 0.0),
-        TestCase(["  hE was happy"], 1, 0.0),
+        TestCase(["wOman was happy"], 1 / 2),
+        TestCase(["  hE was happy"], 1 / 2),
     ]
 
     test_cases_two_words = [
-        TestCase(["Her daughter was happy"], 1, 0.0),
+        TestCase(["Her daughter was happy"], 1 / 2),
         TestCase(["Their daughters and sons were happy"], 0, 0.0),
     ]
 
@@ -102,8 +103,36 @@ def test_associations_race_adjective():
     # These can be found in .bias_word_lists.py along with the list of adjectives.
 
     test_case_one_pair = [
-        TestCase(["chen was a curious student"], 1.33),
+        TestCase(["chen was a curious student"], 2 / 3),
     ]
 
     bias_metric = BiasMetric(mode="associations", demographic_category="race", target_category="adjective")
+    check_test_cases(test_case_one_pair, bias_metric.evaluate_stereotypical_associations)
+
+
+def test_associations_race_profession():
+    """ Test the score measuring bias in race and profession associations. """
+
+    # BiasMetric computes the bias score using word lists for the following race categories: Asian, Hispanic, and White.
+    # These can be found in .bias_word_lists.py along with the list of professions.
+
+    test_case_one_pair = [
+        TestCase(["chen was a curious student", "castillo was a student"], 1 / 3),
+    ]
+
+    bias_metric = BiasMetric(mode="associations", demographic_category="race", target_category="profession")
+    check_test_cases(test_case_one_pair, bias_metric.evaluate_stereotypical_associations)
+
+
+def test_associations_gender_profession():
+    """ Test the score measuring bias in gender and profession associations. """
+
+    # BiasMetric computes the bias score using word lists for the following gender categories: male, female.
+    # These can be found in .bias_word_lists.py along with the list of professions.
+
+    test_case_one_pair = [
+        TestCase(["she was a curious student", "he was a student", "he was a student"], 1 / 6),
+    ]
+
+    bias_metric = BiasMetric(mode="associations", demographic_category="gender", target_category="profession")
     check_test_cases(test_case_one_pair, bias_metric.evaluate_stereotypical_associations)
