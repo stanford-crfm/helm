@@ -32,7 +32,7 @@ class CohereClient(Client):
     # However, even sending a request with 60,000 characters sometimes fails, so we set the
     # maximum length to 50,000, which is about 8,333 tokens.
     # TODO: followed up with Cohere support with an example of a failure case
-    TOKENIZE_MAX_TEXT_LENGTH: int = 50_000
+    TOKENIZE_API_MAX_TEXT_LENGTH: int = 50_000
 
     @staticmethod
     def get_url(endpoint: str) -> str:
@@ -177,8 +177,8 @@ class CohereClient(Client):
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         text: str = request.text
         assert (
-            1 <= len(text) <= CohereClient.TOKENIZE_MAX_TEXT_LENGTH
-        ), f"Invalid text length: {len(text)}. Valid length: [1..{CohereClient.TOKENIZE_MAX_TEXT_LENGTH:,d}]"
+            1 <= len(text) <= CohereClient.TOKENIZE_API_MAX_TEXT_LENGTH
+        ), f"Invalid text length: {len(text)}. Valid length: [1..{CohereClient.TOKENIZE_API_MAX_TEXT_LENGTH:,d}]"
         raw_request: Dict[str, str] = {"text": text}
 
         try:

@@ -196,7 +196,7 @@ ALL_MODELS = [
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # Cohere models
-    # Cohere does not release the sizes of their models.
+    # Cohere has not release the sizes of their models.
     # Model versioning and the possible versions are not documented here:
     # https://docs.cohere.ai/generate-reference#model-optional.
     # So, instead, we got the names of the models from the Cohere Playground.
