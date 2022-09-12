@@ -394,8 +394,7 @@ metric_groups:
 
   - name: efficiency
     metrics:
-    - name: inference_idealized_runtime
-      # TODO: should we use inference_denoised_runtime instead?
+    - name: inference_denoised_runtime
       split: ${main_split}
 
   - name: efficiency_detailed
