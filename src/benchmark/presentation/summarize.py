@@ -329,6 +329,84 @@ class Summarizer:
             )
             self.write_tables_to_latex(tables, os.path.join(groups_path, "latex"))
 
+    def write_facets(self):
+        """
+        For each facet (e.g., accuracy, robustness, reasoning), we build:
+        - Main table (model x scenario_group): shows the performance of the model on the relevant scenario_groups
+        - An index table
+        """
+
+        facets_path = os.path.join(self.run_suite_path, "facets")
+        ensure_directory_exists(facets_path)
+        # each scenario group can appear in a variety of facets so we will rely on table -> group -> model -> cell dicts
+        table_group_to_header_cell: Dict[str, Dict[str, Cell]] = defaultdict(dict)
+        table_group_model_to_cell: Dict[str, Dict[str, Dict[str, Cell]]] = defaultdict(lambda: defaultdict(dict))
+        tables = set()
+
+        CORE_METRICS = ["accuracy", "robustness", "fairness", "calibration"]
+        for group in self.schema.scenario_groups:
+            facets = group.tags.copy()  # which facets this group is relevant to
+            if "generic" in facets:  # for generic scenarios, look at the core metrics
+                facets.remove("generic")
+                facets.extend(CORE_METRICS)
+            for facet in facets:
+                tables.add(facet)
+                metric_group_name = facet if facet in CORE_METRICS else "accuracy"
+                if metric_group_name not in group.metric_groups:
+                    hlog(f"WARNING: {group.name} has no {metric_group_name}, skipping")
+                    continue
+                metric = singleton(self.schema.name_to_metric_group[metric_group_name].metrics)
+                matcher = metric.substitute(group.environment)
+                header_field = self.schema.name_to_metric.get(matcher.name)
+                header_name = header_field.get_short_display_name()
+                header_name += " \u2193" if header_field.lower_is_better else " \u2191"
+                description = header_field.display_name + ": " + header_field.description
+                table_group_to_header_cell[facet][group.name] = Cell(
+                    f"{group.display_name} ({header_name})", description=description
+                )
+                for model_name, runs in self.group_model_to_runs[group.name].items():
+                    table_group_model_to_cell[facet][group.name][model_name] = self.create_cell(runs, matcher)
+
+        # Write out index file with all the groups and basic stats
+        header = [
+            Cell("Scenario"),
+            Cell("Description"),
+            Cell("# scenario groups"),
+        ]
+        rows = []
+        for table in tables:
+            rows.append(
+                [
+                    Cell(table, href=get_benchmarking_url({"facet": table})),
+                    Cell("todo"),
+                    Cell(len(table_group_model_to_cell[table])),
+                ]
+            )
+        write(
+            os.path.join(self.run_suite_path, "facets.json"),
+            json.dumps(asdict_without_nones(Table(title="Overview of facets", header=header, rows=rows))),
+        )
+        for table in tables:
+            # Populate the contents of the table by creating one row for each model
+            model_to_row: Dict[str, List[Cell]] = {}
+            header = [Cell("Model")]
+            for group_name, model_to_cell in table_group_model_to_cell[table].items():
+                header.append(table_group_to_header_cell[table][group_name])
+                for model_name, cell in model_to_cell.items():
+                    if model_name not in model_to_row:
+                        model_to_row[model_name] = [Cell(get_model(model_name).display_name)]
+                    model_to_row[model_name].append(cell)
+
+            rows = list(model_to_row.values())
+            rows.sort(key=lambda row: row[1].value or -1, reverse=True)  # TODO: better sorting
+            tables = [Table(title=table, header=header, rows=rows)]
+
+            # Write it!
+            write(
+                os.path.join(facets_path, f"{table}.json"), json.dumps(list(map(asdict_without_nones, tables))),
+            )
+            self.write_tables_to_latex(tables, os.path.join(facets_path, "latex"))
+
 
 @htrack(None)
 def main():
@@ -348,4 +426,5 @@ def main():
     summarizer.write_models()
     summarizer.write_runs()
     summarizer.write_groups()
+    summarizer.write_facets()
     summarizer.check_metrics_defined()

@@ -413,6 +413,8 @@ scenario_groups:
     environment:
       main_name: exact_match
       main_split: valid
+    tags:
+        - generic
 
   - name: narrative_qa
     display_name: NarrativeQA
@@ -426,6 +428,8 @@ scenario_groups:
     environment:
       main_name: f1_score
       main_split: test
+    tags:
+        - generic
 
   - name: natural_qa
     display_name: NaturalQuestions
@@ -439,6 +443,8 @@ scenario_groups:
     environment:
       main_name: f1_score
       main_split: valid
+    tags:
+        - generic
 
   - name: natural_qa_closedbook
     display_name: NaturalQuestions (closed-book)
@@ -478,6 +484,8 @@ scenario_groups:
     environment:
       main_name: f1_score
       main_split: valid
+    tags:
+        - generic
 
   - name: hellaswag
     display_name: HellaSwag
@@ -491,6 +499,8 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: valid
+    tags:
+        - generic
 
   - name: openbookqa
     display_name: OpenbookQA
@@ -504,6 +514,8 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    tags:
+        - generic
 
   - name: truthful_qa
     display_name: TruthfulQA
@@ -517,6 +529,8 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: valid
+    tags:
+        - generic
 
   - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
@@ -530,6 +544,9 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    tags:
+        - generic
+        - knowledge
 
 # Information retrieval scenarios
   - name: msmarco_regular
@@ -569,6 +586,8 @@ scenario_groups:
     environment:
       main_name: rouge_2
       main_split: test
+    tags:
+        - generic
 
   - name: summarization_xsum
     display_name: XSUM
@@ -582,6 +601,8 @@ scenario_groups:
     environment:
       main_name: rouge_2
       main_split: test
+    tags:
+        - generic
 
 # Sentiment analysis scenarios
   - name: imdb
@@ -596,6 +617,8 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: valid
+    tags:
+        - generic
 
 # Text classification scenarios
   - name: raft
@@ -610,6 +633,8 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    tags:
+        - generic
 
 # Toxicity detection scenarios
   - name: civil_comments
@@ -624,6 +649,8 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    tags:
+        - generic
 
 ## Language scenarios
 # Language modeling
@@ -636,6 +663,8 @@ scenario_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
+    tags:
+        - language
 
   - name: the_pile
     display_name: The Pile
@@ -646,6 +675,8 @@ scenario_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
+    tags:
+        - language
 
   - name: twitter_aae
     display_name: TwitterAAE
@@ -656,6 +687,8 @@ scenario_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
+    tags:
+        - language
 
 # Minimal pairs
   - name: blimp
@@ -667,6 +700,8 @@ scenario_groups:
     environment:
       main_name: exact_match
       main_split: test
+    tags:
+        - language
 
 ## Knowledge scenarios
   - name: wikifact
@@ -678,6 +713,8 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    tags:
+        - knowledge
 
 ## Reasoning scenarios
 # Primitive-focused reasoning
@@ -690,6 +727,8 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    tags:
+        - reasoning
 
   - name: dyck_language
     display_name: Dyck
@@ -700,6 +739,8 @@ scenario_groups:
     environment:
       main_name: exact_match_indicator
       main_split: valid
+    tags:
+        - reasoning
 
   - name: numeracy
     display_name: Numerical reasoning
@@ -710,6 +751,8 @@ scenario_groups:
     environment:
       main_name: absolute_value_difference
       main_split: test
+    tags:
+        - reasoning
 
   - name: synthetic_reasoning
     display_name: Synthetic reasoning (abstract symbols)
@@ -720,6 +763,8 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    tags:
+        - reasoning
 
   - name: synthetic_reasoning_natural
     display_name: Synthetic reasoning (natural language)
@@ -730,6 +775,8 @@ scenario_groups:
     environment:
       main_name: f1_set_match
       main_split: test
+    tags:
+        - reasoning
 
 # Realistic reasoning
   - name: gsm
@@ -741,6 +788,8 @@ scenario_groups:
     environment:
       main_name: exact_match_indicator
       main_split: test
+    tags:
+        - reasoning
 
   - name: math_regular
     display_name: MATH
@@ -751,6 +800,8 @@ scenario_groups:
     environment:
       main_name: math_equiv
       main_split: test
+    tags:
+        - reasoning
 
   - name: math_chain_of_thought
     display_name: MATH (chain-of-thoughts)
@@ -761,6 +812,8 @@ scenario_groups:
     environment:
       main_name: math_equiv_chain_of_thought
       main_split: test
+    tags:
+        - reasoning
 
   - name: code_apps
     display_name: APPS (Code)
@@ -772,6 +825,8 @@ scenario_groups:
       # We do not include accuracy as it is subsumed by apps
       main_name: test_avg
       main_split: test
+    tags:
+        - reasoning
 
   - name: code_humaneval
     display_name: HumanEval (Code)
@@ -783,6 +838,8 @@ scenario_groups:
     environment:
       main_name: code_eval_acc
       main_split: test
+    tags:
+        - reasoning
 
   - name: legal_support
     display_name: LegalSupport
@@ -793,6 +850,8 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    tags:
+        - reasoning
 
   - name: lsat_qa
     display_name: LSAT
@@ -803,6 +862,8 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    tags:
+        - reasoning
 
   - name: entity_data_imputation
     display_name: Data imputation
@@ -813,6 +874,8 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    tags:
+        - reasoning
 
   - name: entity_matching
     display_name: Entity matching
@@ -823,6 +886,8 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    tags:
+        - reasoning
 
 ## Copyright scenarios
   - name: copyright
@@ -835,6 +900,8 @@ scenario_groups:
       - efficiency
     environment:
       main_split: test
+    tags:
+        - copyright
 
 ## Disinformation scenarios
   - name: disinformation_reiteration
@@ -847,6 +914,8 @@ scenario_groups:
       - efficiency
     environment:
       main_split: valid
+    tags:
+        - disinformation
 
   - name: disinformation_wedging
     display_name: Disinformation (wedging)
@@ -858,6 +927,8 @@ scenario_groups:
       - efficiency
     environment:
       main_split: valid
+    tags:
+        - disinformation
 
 ## Bias scenarios
   - name: bbq
@@ -870,6 +941,8 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    tags:
+        - bias
 
 ## Toxicity scenarios
   - name: bold
@@ -881,6 +954,8 @@ scenario_groups:
       - efficiency
     environment:
       main_split: test
+    tags:
+        - toxicity
 
   - name: real_toxicity_prompts
     display_name: RealToxicityPrompts
@@ -891,6 +966,8 @@ scenario_groups:
       - efficiency
     environment:
       main_split: test
+    tags:
+        - toxicity
 
 ## Efficiency scenarios
   - name: synthetic_efficiency
@@ -900,3 +977,5 @@ scenario_groups:
       - efficiency_detailed
     environment:
       main_split: test
+    tags:
+        - efficiency

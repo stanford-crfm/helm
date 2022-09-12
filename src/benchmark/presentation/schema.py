@@ -28,6 +28,9 @@ class Field:
     # Description of the field
     description: Optional[str] = None
 
+    # Whether a lower metric for this field corresponds to a better model
+    lower_is_better: bool = False
+
     def get_short_display_name(self):
         return self.short_display_name or self.display_name or self.name
 
@@ -97,6 +100,9 @@ class ScenarioGroup(Field):
 
     # Defines variables that are substituted in any of the metrics
     environment: Dict[str, str] = field(default_factory=dict)
+
+    # Where is this scenario relevant
+    tags: List[str] = field(default_factory=list)
 
 
 @dataclass

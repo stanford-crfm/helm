@@ -553,6 +553,7 @@ $(function () {
       $('<li>').append($('<a>', {href: '?models'}).append('Models')),
       $('<li>').append($('<a>', {href: '?groups'}).append('Scenario groups')),
       $('<li>').append($('<a>', {href: '?runs'}).append('Runs')),
+      $('<li>').append($('<a>', {href: '?facets'}).append('Facets')),
     );
     return $('<div>').append($intro).append($links);
   }
@@ -562,9 +563,12 @@ $(function () {
     return $('<td>').append(cell.href ? $('<a>', {href: cell.href}).append(value) : value);
   }
 
-  function renderTable(table) {
+  function renderTable(table, addLatexLink = false) {
     const $output = $('<div>');
     $output.append($('<h3>').append(table.title));
+    if (addLatexLink) {
+        $output.append($('<a>', {href: '?latex=' + table.title.replaceAll(" ", "_").replace("/", "_")}).append('[latex]'));
+    }
     const $table = $('<table>', {class: 'query-table results-table'});
     const $header = $('<tr>').append(table.header.map(renderCell));
     $table.append($header);
@@ -574,14 +578,13 @@ $(function () {
       $table.append($row);
     });
     $output.append($table);
-    $output.append($('<a>', {href: '?latex=' + table.title.replaceAll(" ", "_").replace("/", "_")}).append('[latex]'));
     return $output;
   }
 
-  function renderTables(tables) {
+  function renderTables(tables, addLatexLinks = false) {
     const $output = $('<div>');
     tables.forEach((table) => {
-      $output.append($('<div>', {class: 'table-container'}).append(renderTable(table)));
+      $output.append($('<div>', {class: 'table-container'}).append(renderTable(table, addLatexLinks)));
     });
     return $output;
   }
@@ -638,12 +641,26 @@ $(function () {
       // Specific group
       $.getJSON(`benchmark_output/runs/${suite}/groups/${urlParams.group}.json`, {}, (tables) => {
         console.log('group', tables);
-        $main.append(renderTables(tables));
+        const addLatexLinks = true;
+        $main.append(renderTables(tables, addLatexLinks));
+      });
+    } else if (urlParams.facets) {
+      // All metrics
+      $.getJSON(`benchmark_output/runs/${suite}/facets.json`, {}, (response) => {
+        $main.append(renderTable(response));
+      });
+    } else if (urlParams.facet) {
+      // Specific group
+      $.getJSON(`benchmark_output/runs/${suite}/facets/${urlParams.facet}.json`, {}, (tables) => {
+        console.log('facet', tables);
+        const addLatexLinks = false;
+        $main.append(renderTables(tables, addLatexLinks));
       });
     } else if (urlParams.latex) {
       // Tex corresponding to a group
       $.get(`benchmark_output/runs/${suite}/groups/latex/${urlParams.latex}.tex`, {}, (latex) => {
         console.log('latex', latex);
+        $main.append($('<h3>').append(urlParams.latex.replace('___', ' / ').replaceAll('_', ' ')));
         $main.append(renderLatex(latex));
       });
     } else {
