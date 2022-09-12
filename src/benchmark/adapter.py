@@ -731,8 +731,8 @@ class Adapter:
             # '行<0xE6><0x98><0x9F><0xE8><0xBF><0x90><0xE8><0xBD><0xAC>'
             if len(pred_tokens) == 0:
                 raise ValueError(
-                    "Truncating pred_tokens to fit them in the context window, \
-                    got len(pred_tokens) == 0, which will lead to an infinite loop."
+                    "Truncating pred_tokens to fit them in the context window, "
+                    "got len(pred_tokens) == 0, which will lead to an infinite loop."
                 )
 
         return prompt, pred_tokens
