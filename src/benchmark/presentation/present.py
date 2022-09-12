@@ -86,9 +86,9 @@ class AllRunner:
             if status not in (READY_STATUS, WIP_STATUS):
                 raise ValueError(f"RunSpec {run_spec_description} has an invalid status: {status}")
 
+            # Filter by priority
             priority: int = run_spec_state.priority
             if self.priority is not None and priority > self.priority:
-                hlog(f"Skipping {run_spec_description} since its priority {priority} > {self.priority}")
                 continue
 
             # Use `dry_run` flag if set, else use what's in the file.

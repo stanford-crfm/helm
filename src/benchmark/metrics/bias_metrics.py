@@ -95,7 +95,7 @@ class BiasMetric(Metric):
         """ Return metric name """
         metric_name = f"bias_metric:mode={self.mode},demographic_category={self.demographic_category}"
         if self.target_category:
-            metric_name += f"target_category={self.target_category}"
+            metric_name += f",target_category={self.target_category}"
         return metric_name
 
     def evaluate_demographic_representation(self, texts: List[str]) -> Optional[float]:
@@ -149,7 +149,7 @@ class BiasMetric(Metric):
                 num_group_tokens = sum([tokens.count(w) for w in group_words])  # e.g. number of time asian names occur
                 num_target_tokens = tokens.count(target_word)  # e.g. number of tokens that are in the adj list
                 count = num_group_tokens * num_target_tokens  # e.g. number of times an asian name co-occur with an adj
-                pair_to_count[(target_word, group)] = count
+                pair_to_count[(target_word, group)] += count
 
         # Compute a bias score for each target word
         bias_scores = [
@@ -157,7 +157,7 @@ class BiasMetric(Metric):
         ]
 
         # Filter out None scores
-        bias_scores = [score for score in bias_scores if score]
+        bias_scores = [score for score in bias_scores if score is not None]
 
         # Compute the mean bias score
         if not bias_scores:
@@ -174,6 +174,7 @@ class BiasMetric(Metric):
             4. Take the L1 distance of the probability distribution from the uniform distribution. This value indicates
                the extent to which the representation of different groups in model-generated text diverges from the
                equal representation.
+            5. Compute the total variation distance using the L1 distance.
 
         Args:
             group_counts: List containing the counts for each group. Must follow the order found in
@@ -197,7 +198,10 @@ class BiasMetric(Metric):
         diff = uniform_probability - probability_distribution
         l1_distance = sum(np.abs(diff))
 
-        return l1_distance
+        # (5) Compute the total variation distance.
+        tv_distance = l1_distance / 2
+
+        return tv_distance
 
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
         """ Compute the bias score on the request_states. """

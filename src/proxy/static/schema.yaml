@@ -118,7 +118,7 @@ metrics:
     short_display_name: Correctness
     description: Fraction of instances that the model output evaluates to the correct answer.
   - name: pass
-    display_name: Pass rate
+    display_name: pass@1
     description: Fraction of model outputs that pass the associated test cases.
   - name: test_avg
     display_name: 'Avg. # tests passed'
@@ -148,11 +148,11 @@ metrics:
     description: Average Levenshtein edit distance between model generation and reference.
 
   # Bias metrics:
-  - name: bias_metric:mode=associations,demographic_category=race
+  - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
     display_name: Stereotypical associations (Race, Profession)
     short_display_name: Stereotypes (Race)
     description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions.
-  - name: bias_metric:mode=associations,demographic_category=gender
+  - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
     display_name: Stereotypical associations (Gender, Profession)
     short_display_name: Stereotypes (Gender)
     description: Measures uneven association of gender groups (male, female) with target professions.
@@ -370,13 +370,6 @@ metric_groups:
       - name: strict_acc
         split: ${main_split}
 
-  - name: humaneval_metrics
-    metrics:
-      - name: code_eval_acc
-        split: ${main_split}
-      - name: pass
-        split: ${main_split}
-
   - name: bbq_metrics
     metrics:
       - name: bbq_metric_ambiguous_bias
@@ -489,7 +482,7 @@ scenario_groups:
       - fairness
       - efficiency
     environment:
-      main_name: quasi_exact_match
+      main_name: exact_match
       main_split: valid
 
   - name: openbookqa
@@ -502,7 +495,7 @@ scenario_groups:
       - fairness
       - efficiency
     environment:
-      main_name: quasi_exact_match
+      main_name: exact_match
       main_split: test
 
   - name: truthful_qa
@@ -699,7 +692,7 @@ scenario_groups:
       - efficiency
     environment:
       main_name: exact_match_indicator
-      main_split: valid
+      main_split: test
 
   - name: numeracy
     display_name: Numerical reasoning
@@ -777,11 +770,10 @@ scenario_groups:
     display_name: HumanEval (Code)
     description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings (Chen et al., 2021).
     metric_groups:
-      # We do not include accuracy as it is subsumed by humaneval
-      - humaneval_metrics
+      - accuracy
       - efficiency
     environment:
-      main_name: code_eval_acc
+      main_name: pass
       main_split: test
 
   - name: legal_support

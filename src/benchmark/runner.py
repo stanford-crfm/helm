@@ -8,6 +8,7 @@ from typing import Dict, List
 from benchmark.metrics.metric_name import MetricName
 from common.general import ensure_directory_exists, write, write_lines, asdict_without_nones
 from common.hierarchical_logger import hlog, htrack_block
+from common.cache import cache_stats
 from .augmentations.data_augmenter import DataAugmenterSpec
 from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance, with_instance_ids
 from .adapter import AdapterSpec, Adapter, ScenarioState
@@ -98,24 +99,25 @@ class Runner:
         # This `output_path` will be used when `Adapter` calls `Scenario.get_instances`.
         scenario.output_path = os.path.join(self.scenarios_path, scenario.name)
         ensure_directory_exists(scenario.output_path)
-        scenario.definition_path = scenario.get_definition_path()
+
         run_path: str = os.path.join(self.runs_path, run_spec.name)
         ensure_directory_exists(run_path)
 
         adapter = Adapter(run_spec.adapter_spec, self.tokenizer_service)
 
-        # Create the instances of the scenario
-        with htrack_block("scenario.get_instances"):
-            instances: List[Instance] = scenario.get_instances()
-
-        # Give each instance a unique ID
-        instances = with_instance_ids(instances)
-
-        # Sample only as many as we need
-        instances = adapter.sample_instances(instances)
-
-        # Data preprocessing
+        instances: List[Instance]
         if not self.skip_instances:
+            # Create the instances of the scenario
+            with htrack_block("scenario.get_instances"):
+                instances = scenario.get_instances()
+
+            # Give each instance a unique ID
+            instances = with_instance_ids(instances)
+
+            # Sample only as many as we need
+            instances = adapter.sample_instances(instances)
+
+            # Data preprocessing
             instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
                 instances, self.executor.execution_spec.parallelism
             )
@@ -168,7 +170,10 @@ class Runner:
         # Output benchmarking information and results to files
         write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
 
+        # Write out scenario (along with additional information)
         scenario_dict = asdict_without_nones(scenario)
+        scenario_dict["scenario_spec"] = asdict_without_nones(run_spec.scenario_spec)
+        scenario_dict["definition_path"] = scenario.get_definition_path()
         scenario_dict["instances"] = [asdict_without_nones(instance) for instance in scenario_state.instances]
         write_lines(os.path.join(run_path, "scenario.txt"), scenario.render_lines(scenario_state.instances))
         write(os.path.join(run_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
@@ -184,3 +189,5 @@ class Runner:
             os.path.join(run_path, "per_instance_stats.json"),
             json.dumps(list(map(asdict_without_nones, per_instance_stats)), indent=2),
         )
+
+        cache_stats.print_status()
