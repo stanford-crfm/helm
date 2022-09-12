@@ -1,6 +1,5 @@
 import os
 from typing import List
-import random
 
 from common.general import ensure_file_downloaded, ensure_directory_exists
 from .scenario import (
@@ -136,8 +135,4 @@ class BabiQAScenario(Scenario):
                         else:
                             story.append(fact)
 
-        # Shuffle instances, important for the "all" task so that the instances used
-        # for evaluation are equally likely to be sampled from the different tasks.
-        random.seed(0)
-        random.shuffle(instances)
         return instances
