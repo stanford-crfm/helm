@@ -42,36 +42,15 @@ scenarios) in parallel:
     venv/bin/benchmark-present --local --suite $SUITE --skip-instances
     venv/bin/benchmark-summarize --suite $SUITE
 
-Go to the [website](http://localhost:1959/static/benchmarking.html) to look at the results.
+Go to the [local website](http://localhost:1959/static/benchmarking.html) to look at the results,
+assuming you have run `proxy-server` first.
 
-    # Stanford only: copy website (do this on scdt)
-    rsync -arvz benchmark_output/runs/$SUITE crfm-models:/home/benchmarking/src/proxy/static/benchmarking_output/runs
+    # Copy all website assets to a `www` directory for static serving.
+    sh scripts/create-www.sh $SUITE
 
-Examples of running the benchmark:
+For the final version, push `www` to a GitHub repo.
 
-    venv/bin/benchmark-run
-    venv/bin/benchmark-run -r mmlu:subject=philosophy --suite SUITE_NAME
-    venv/bin/benchmark-run -r synthetic_reasoning_natural:difficulty=easy --suite SUITE_NAME
-    venv/bin/benchmark-run -r twitter_aae:demographic=aa --suite SUITE_NAME
-    venv/bin/benchmark-run -r copyright:datatag=pilot --suite SUITE_NAME
-    venv/bin/benchmark-run -r disinformation:capability=reiteration --suite SUITE_NAME
-    venv/bin/benchmark-run -r wikifact:k=2,subject=P31 --suite SUITE_NAME
-    venv/bin/benchmark-run -r code:dataset=apps --suite SUITE_NAME
-    venv/bin/benchmark-run -r the_pile:subset=OpenSubtitles --suite SUITE_NAME
-    venv/bin/benchmark-run -r wikifact:subject=P31 --suite SUITE_NAME
-    venv/bin/benchmark-run -r raft:subset=ade_corpus_v2 --suite SUITE_NAME
-    venv/bin/benchmark-run -r natural_qa:mode=closedbook --suite SUITE_NAME
-    venv/bin/benchmark-run -r natural_qa:mode=openbook-longans --suite SUITE_NAME
-    venv/bin/benchmark-run -r quac --suite SUITE_NAME
-    venv/bin/benchmark-run -r wikitext_103 --suite SUITE_NAME
-    venv/bin/benchmark-run -r blimp:phenomenon=irregular_forms --suite SUITE_NAME
-    venv/bin/benchmark-run -r narrative_qa --suite SUITE_NAME
-    venv/bin/benchmark-run -r news_qa --suite SUITE_NAME
-    venv/bin/benchmark-run -r imdb --suite SUITE_NAME
-    venv/bin/benchmark-run -r twitter_aae:demographic=aa --suite SUITE_NAME
-
-You can also run the benchmark using a local proxy, in which case you have to
-first start a local server (see instructions above for more details).
+For debugging, go to the [public site](https://nlp.stanford.edu/pliang/benchmarking/).
 
 ## To estimate token usage
 
@@ -117,9 +96,9 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Run `bash scripts/run-all-stanford.sh --suite <Suite name> --dry-run` e.g.,
    `bash scripts/run-all-stanford.sh --suite v4-dryrun --dry-run`.
 1. Once the dry run is done, run the following commands:
-    1. `python3 scripts/offline_eval/export_requests.py together benchmark_output/runs/v4-dryrun 
+    1. `python3 scripts/offline_eval/export_requests.py together benchmark_output/runs/v4-dryrun
        --output-path benchmark_output/runs/v4-dryrun/together_requests.jsonl`
-    1. `python3 scripts/offline_eval/export_requests.py microsoft benchmark_output/runs/v4-dryrun 
+    1. `python3 scripts/offline_eval/export_requests.py microsoft benchmark_output/runs/v4-dryrun
        --output-path benchmark_output/runs/v4-dryrun/microsoft_requests.jsonl`
 1. Upload requests JSONL files to CodaLab:
     1. Log on to CodaLab: `cl work main::0xbd9f3df457854889bda8ac114efa8061`.
