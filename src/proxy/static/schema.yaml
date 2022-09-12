@@ -118,7 +118,7 @@ metrics:
     short_display_name: Correctness
     description: Fraction of instances that the model output evaluates to the correct answer.
   - name: pass
-    display_name: Pass rate
+    display_name: pass@1
     description: Fraction of model outputs that pass the associated test cases.
   - name: test_avg
     display_name: 'Avg. # tests passed'
@@ -368,13 +368,6 @@ metric_groups:
       - name: test_avg
         split: ${main_split}
       - name: strict_acc
-        split: ${main_split}
-
-  - name: humaneval_metrics
-    metrics:
-      - name: code_eval_acc
-        split: ${main_split}
-      - name: pass
         split: ${main_split}
 
   - name: bbq_metrics
@@ -777,11 +770,10 @@ scenario_groups:
     display_name: HumanEval (Code)
     description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings (Chen et al., 2021).
     metric_groups:
-      # We do not include accuracy as it is subsumed by humaneval
-      - humaneval_metrics
+      - accuracy
       - efficiency
     environment:
-      main_name: code_eval_acc
+      main_name: pass
       main_split: test
 
   - name: legal_support
