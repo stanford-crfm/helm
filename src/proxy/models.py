@@ -202,7 +202,7 @@ ALL_MODELS = [
     # So, instead, we got the names of the models from the Cohere Playground.
     #
     # Note that their tokenizer and model were trained on English text and
-    # they do not have a dedicated decode REST endpoint, so the adaptation
+    # they do not have a dedicated decode API endpoint, so the adaptation
     # step for language modeling fails for certain Scenarios:
     # the_pile:subset=ArXiv
     # the_pile:subset=Github
