@@ -388,11 +388,10 @@ $(function () {
         return;
       }
 
-      // Print out instance-level statistics
-      // We just need to make sure that each (instance id, train trial index and perturbation) only shows up once
+      // Print out instance-level statistics.
+      // Show it once for each (instance id, train trial index, perturbation).
       const key = instanceTrialKey(requestState.instance, requestState.train_trial_index);
       if (!shownStats[key]) {
-        // Keep only stats that match instance ID, train trial index, and perturbatation
         const stats = instanceKeyTrialToStats[key];
         if (!stats) {
           console.error("Cannot find stats for", key, instanceKeyTrialToStats);

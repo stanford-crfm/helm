@@ -57,16 +57,16 @@ metrics:
     display_name: 'cost'
     description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
   - name: num_prompt_tokens
-    display_name: '|prompt|'
+    display_name: '# prompt tokens'
     description: Number of tokens in the prompt.
   - name: num_prompt_characters
-    display_name: '|prompt|'
+    display_name: '# prompt chars'
     description: Number of characters in the prompt.
   - name: num_output_tokens
-    display_name: '|output|'
+    display_name: '# output tokens'
     description: Actual number of output tokens.
   - name: max_num_output_tokens
-    display_name: 'Max |output|'
+    display_name: 'Max output tokens'
     description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
   - name: num_requests
     display_name: '# requests'
@@ -116,6 +116,7 @@ metrics:
     description: Average number of bits per byte according to model probabilities.
   - name: perplexity
     display_name: Perplexity
+    short_display_name: PPL
     description: Perplexity of the output completion (effective branching factor per output token).
   - name: rouge_2
     display_name: ROUGE-2
@@ -250,9 +251,8 @@ metrics:
     short_display_name: Idealized denoised time (s)
     description: Average time to process a request to the model minus performance contention by using profiled runtimes from multiple trials of SyntheticEfficiencyScenario.
   - name: batch_size
-    display_name: 'batch size'
+    display_name: Batch size
     description: For batch jobs, how many requests are in a batch.
-
 
   # Calibration metrics:
   - name: ece_1_bin
