@@ -325,7 +325,7 @@ class Summarizer:
                     link_to_runs=True,
                 )
                 tables.append(table)
-                table_names.append(group.name + "_" + scenario.replace(" ", ""))
+                table_names.append(group.name + "_" + scenario.replace(" ", "").replace("/", "_"))
 
             if len(tables) == 0:
                 continue
