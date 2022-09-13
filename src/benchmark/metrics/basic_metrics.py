@@ -444,8 +444,8 @@ class BasicMetric(Metric):
 
         # Predicted outputs
         assert request_state.result is not None
-        preds = sorted(request_state.result.completions, key=lambda x: -x.logprob)
-        preds = [completion.text.strip() for completion in preds]
+        sorted_completions = sorted(request_state.result.completions, key=lambda x: -x.logprob)
+        preds = [completion.text.strip() for completion in sorted_completions]
 
         # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
         # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
@@ -455,9 +455,10 @@ class BasicMetric(Metric):
 
         # Add calibration metrics for ADAPT_MULTIPLE_CHOICE_JOINT.
         if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
-            assert(len(request_state.result.completions) == 1)
-        log_probs = [c.logprob for c in request_state.result.completions]
-        max_prob = np.exp(np.sum(log_probs))
+            assert len(sorted_completions) == 1
+        # Use the log prob of sorted_completions[0], which is the completion with the highest
+        # log_prob. We use this since that's what's used for computing metrics like exact match.
+        max_prob = np.exp(sorted_completions[0].logprob)
         reference_metrics.append(Stat(MetricName("max_prob")).add(max_prob))
 
         # Add other metrics.
