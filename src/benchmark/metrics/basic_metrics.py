@@ -19,7 +19,6 @@ from rouge_score import rouge_scorer
 from common.hierarchical_logger import hlog
 from common.request import Token, Sequence
 from benchmark.adapter import (
-    ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     AdapterSpec,
