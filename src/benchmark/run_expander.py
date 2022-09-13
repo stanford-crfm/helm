@@ -12,6 +12,11 @@ from proxy.models import (
     GPT2_TOKENIZER_TAG,
     AI21_TOKENIZER_TAG,
 )
+from .adapter import (
+    ADAPT_MULTIPLE_CHOICE_JOINT,
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+)
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
@@ -96,8 +101,21 @@ class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
 
     name = "max_train_instances"
     values_dict = {
-        "all": [0, 1, 2, 4, 8, 16],
+        "all": [0, 1, 2, 4, 8, 16, 32],
         "big_bench_few_shot_setting": [0, 1, 2, 3],  # Commonly used few-shot setting in BIG-bench
+    }
+
+
+class MultipleChoiceAdaptationRunExpander(ReplaceValueRunExpander):
+    """For testing adaptation method for multiple choice."""
+
+    name = "method"
+    values_dict = {
+        "all": [
+            ADAPT_MULTIPLE_CHOICE_JOINT,
+            ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+            ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+        ]
     }
 
 
@@ -477,6 +495,7 @@ RUN_EXPANDERS = dict(
     for expander in [
         NumTrainTrialsRunExpander,
         MaxTrainInstancesRunExpander,
+        MultipleChoiceAdaptationRunExpander,
         NumOutputsRunExpander,
         ModelRunExpander,
         DataAugmentationRunExpander,

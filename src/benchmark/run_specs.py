@@ -204,35 +204,58 @@ def get_simple1_spec() -> RunSpec:
     )
 
 
-def get_bbq_spec(subject: str) -> RunSpec:
+def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.bbq_scenario.BBQScenario", args={"subject": subject})
 
-    def format(subject: str):
-        if subject != "all":
-            subject = subject[0].upper() + subject[1:]
-        return subject
+    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
+        adapter_spec = AdapterSpec(
+            method=method,
+            instructions="The following are multiple choice questions (with answers).",
+            input_prefix="Passage: ",
+            output_prefix="\nAnswer: ",
+            max_train_instances=5,
+            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+            num_outputs=1,
+            num_train_trials=1,
+            model="openai/davinci",
+            temperature=0,
+            stop_sequences=["\n"],
+        )
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="The following are multiple choice questions (with answers).",
-        input_prefix="Passage: ",
-        output_prefix="\nAnswer: ",
-        max_train_instances=5,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=1,
-        num_train_trials=1,
-        model="openai/davinci",
-        temperature=0,
-        stop_sequences=["\n"],
-    )
+        run_spec = RunSpec(
+            name=f"bbq:subject={subject},method={method}",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_bbq_metric_specs(),
+            groups=["bbq"],
+        )
 
-    return RunSpec(
-        name=f"bbq:subject={subject}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_bbq_metric_specs(),
-        groups=["bbq"],
-    )
+    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
+        adapter_spec = AdapterSpec(
+            method=method,
+            instructions="",
+            input_prefix="",
+            output_prefix=" ",
+            max_train_instances=0,  # Appropriate for separate approach
+            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+            num_outputs=1,
+            max_tokens=0,
+            num_train_trials=1,
+            model="openai/davinci",
+            temperature=0.0,
+        )
+        run_spec = RunSpec(
+            name=f"bbq:subject={subject},method={method}",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            # We do not compute BBQ metrics when non-standard method is used
+            metric_specs=get_basic_metric_specs({"names": []}),
+            groups=["bbq"],
+        )
+    else:
+        raise ValueError(f"Invalid adaptation method: {method}")
+
+    return run_spec
 
 
 def get_msmarco_spec(
@@ -344,33 +367,60 @@ def get_civil_comments_spec(subject: str) -> RunSpec:
     )
 
 
-def get_mmlu_spec(subject: str) -> RunSpec:
+def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.mmlu_scenario.MMLUScenario", args={"subject": subject})
 
     def format(subject: str):
         return subject.replace("_", " ")
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions=f"The following are multiple choice questions (with answers) about {format(subject)}.",
-        input_prefix="Question: ",
-        output_prefix="\nAnswer: ",
-        max_train_instances=5,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=1,
-        num_train_trials=1,
-        model="openai/davinci",
-        temperature=0.0,
-        stop_sequences=["\n"],
-    )
+    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
+        adapter_spec = AdapterSpec(
+            method=method,
+            instructions=f"The following are multiple choice questions (with answers) about {format(subject)}.",
+            input_prefix="Question: ",
+            output_prefix="\nAnswer: ",
+            max_train_instances=5,
+            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+            num_outputs=1,
+            num_train_trials=1,
+            model="openai/davinci",
+            temperature=0.0,
+            stop_sequences=["\n"],
+        )
 
-    return RunSpec(
-        name=f"mmlu:subject={subject}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
-        groups=["mmlu"],
-    )
+        run_spec = RunSpec(
+            name=f"mmlu:subject={subject}",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+            groups=["mmlu"],
+        )
+    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
+        adapter_spec = AdapterSpec(
+            method=method,
+            instructions="",
+            input_prefix="",
+            output_prefix=" ",
+            max_train_instances=0,  # Appropriate for CLM approach
+            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+            num_outputs=1,
+            max_tokens=0,
+            num_train_trials=1,
+            model="openai/davinci",
+            temperature=0.0,
+        )
+        run_spec = RunSpec(
+            name=f"mmlu:subject={subject}",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_basic_metric_specs({"names": []}),
+            groups=["mmlu"],
+        )
+    else:
+        raise ValueError(f"Invalid adaptation method: {method}")
+
+    return run_spec
+
 
 
 def get_wikifact_spec(k: str, subject: str) -> RunSpec:
@@ -402,7 +452,6 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
 
 
 def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
-
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset},
     )
@@ -450,7 +499,7 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             groups=[dataset],
         )
     else:
-        raise ValueError(f"Unknown commonsense method: {method}")
+        raise ValueError(f"Invalid adaptation method: {method}")
 
     return run_spec
 
@@ -505,34 +554,59 @@ def get_news_qa_spec() -> RunSpec:
     )
 
 
-def get_truthful_qa_spec(task: str) -> RunSpec:
+def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.truthful_qa_scenario.TruthfulQAScenario", args={"task": task},
     )
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="",
-        input_prefix="Question: ",
-        output_prefix="\nAnswer: ",
-        max_train_instances=5,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=1,
-        num_train_trials=1,
-        model="openai/davinci",
-        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
-        temperature=0.0,
-        stop_sequences=["\n"],
-    )
+    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
+        adapter_spec = AdapterSpec(
+            method=method,
+            instructions="",
+            input_prefix="Question: ",
+            output_prefix="\nAnswer: ",
+            max_train_instances=5,
+            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+            num_outputs=1,
+            num_train_trials=1,
+            model="openai/davinci",
+            max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
+            temperature=0.0,
+            stop_sequences=["\n"],
+        )
 
-    return RunSpec(
-        name=f"truthful_qa:task={task}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
-        groups=["truthful_qa"],
-    )
+        run_spec = RunSpec(
+            name=f"truthful_qa:task={task}",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+            groups=["truthful_qa"],
+        )
+    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
+        adapter_spec = AdapterSpec(
+            method=method,
+            instructions="",
+            input_prefix="",
+            output_prefix=" ",
+            max_train_instances=0,  # Appropriate for CLM approach
+            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+            num_outputs=1,
+            max_tokens=0,
+            num_train_trials=1,
+            model="openai/davinci",
+            temperature=0.0,
+        )
+        run_spec = RunSpec(
+            name=f"truthful_qa:task={task}",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_basic_metric_specs({"names": []}),
+            groups=["truthful_qa"],
+        )
+    else:
+        raise ValueError(f"Invalid adaptation method: {method}")
 
+    return run_spec
 
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
 
@@ -802,30 +876,56 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
     )
 
 
-def get_lsat_qa_spec(task: str) -> RunSpec:
+def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.lsat_qa_scenario.LSATScenario", args={"task": task})
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="The following are multiple choice questions (with answers).",
-        input_prefix="Passage: ",
-        output_prefix="\nAnswer: ",
-        max_train_instances=5,
-        model="openai/davinci",
-        max_eval_instances=None,
-        num_outputs=1,
-        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
-        temperature=0.0,
-        stop_sequences=["\n"],
-    )
+    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
+        adapter_spec = AdapterSpec(
+            method=method,
+            instructions="The following are multiple choice questions (with answers).",
+            input_prefix="Passage: ",
+            output_prefix="\nAnswer: ",
+            max_train_instances=5,
+            model="openai/davinci",
+            max_eval_instances=None,
+            num_outputs=1,
+            max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
+            temperature=0.0,
+            stop_sequences=["\n"],
+        )
 
-    return RunSpec(
-        name=f"lsat_qa:task={task}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
-        groups=["lsat_qa"],
-    )
+        run_spec = RunSpec(
+            name=f"lsat_qa:task={task}",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+            groups=["lsat_qa"],
+        )
+    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
+        adapter_spec = AdapterSpec(
+            method=method,
+            instructions="",
+            input_prefix="",
+            output_prefix=" ",
+            max_train_instances=0,  # Appropriate for CLM approach
+            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+            num_outputs=1,
+            max_tokens=0,
+            num_train_trials=1,
+            model="openai/davinci",
+            temperature=0.0,
+        )
+        run_spec = RunSpec(
+            name=f"lsat_qa:task={task}",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_basic_metric_specs({"names": []}),
+            groups=["lsat_qa"],
+        )
+    else:
+        raise ValueError(f"Invalid adaptation method: {method}")
+
+    return run_spec
 
 
 def get_imdb_spec(only_contrast=False) -> RunSpec:
@@ -1232,32 +1332,58 @@ def get_wikitext_103_spec() -> RunSpec:
     )
 
 
-def get_blimp_spec(phenomenon: str) -> RunSpec:
+def get_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon}
     )
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
-        instructions="",
-        input_prefix="",
-        output_prefix=" ",
-        max_train_instances=0,
-        max_eval_instances=None,
-        num_outputs=1,
-        num_train_trials=1,
-        model="openai/davinci",
-        temperature=0.0,
-        max_tokens=0,
-    )
+    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
+        adapter_spec = AdapterSpec(
+            method=method,
+            instructions="",
+            input_prefix="Select the grammatical sentence.",
+            output_prefix="\nAnswer: ",
+            max_train_instances=5,
+            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+            num_outputs=1,
+            num_train_trials=1,
+            model="openai/davinci",
+            temperature=0.0,
+            stop_sequences=["\n"],
+        )
+        run_spec = RunSpec(
+            name=f"blimp:phenomenon={phenomenon}",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+            groups=["blimp"],
+        )
+    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
+        adapter_spec = AdapterSpec(
+            method=method,
+            instructions="",
+            input_prefix="",
+            output_prefix=" ",
+            max_train_instances=0,
+            max_eval_instances=None,
+            num_outputs=1,
+            num_train_trials=1,
+            model="openai/davinci",
+            temperature=0.0,
+            max_tokens=0,
+        )
 
-    return RunSpec(
-        name=f"blimp:phenomenon={phenomenon}",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": []}),
-        groups=["blimp"],
-    )
+        run_spec = RunSpec(
+            name=f"blimp:phenomenon={phenomenon}",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_basic_metric_specs({"names": []}),
+            groups=["blimp"],
+        )
+    else:
+        raise ValueError(f"Invalid adaptation method: {method}")
+
+    return run_spec
 
 
 def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
@@ -1413,30 +1539,55 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
     )
 
 
-def get_legal_support_spec() -> RunSpec:
+def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.legal_support_scenario.LegalSupportScenario", args={})
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Which statement best supports the passage?",
-        input_prefix="Passage: ",
-        output_prefix="\nAnswer: ",
-        model="openai/davinci",
-        temperature=0.0,
-        max_train_instances=3,  # We use 3 because these samples tend to be a bit longer
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=1,
-        stop_sequences=["\n"],
-    )
+    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
+        adapter_spec = AdapterSpec(
+            method=method,
+            instructions="Which statement best supports the passage?",
+            input_prefix="Passage: ",
+            output_prefix="\nAnswer: ",
+            model="openai/davinci",
+            temperature=0.0,
+            max_train_instances=3,  # We use 3 because these samples tend to be a bit longer
+            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+            num_outputs=1,
+            stop_sequences=["\n"],
+        )
 
-    return RunSpec(
-        name="legal_support",
-        scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
-        groups=["legal_support"],
-    )
+        run_spec = RunSpec(
+            name="legal_support",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+            groups=["legal_support"],
+        )
+    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
+        adapter_spec = AdapterSpec(
+            method=method,
+            instructions="",
+            input_prefix="",
+            output_prefix=" ",
+            max_train_instances=0,  # Appropriate for CLM approach
+            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+            num_outputs=1,
+            max_tokens=0,
+            num_train_trials=1,
+            model="openai/davinci",
+            temperature=0.0,
+        )
+        run_spec = RunSpec(
+            name="legal_support",
+            scenario_spec=scenario_spec,
+            adapter_spec=adapter_spec,
+            metric_specs=get_basic_metric_specs({"names": []}),
+            groups=["legal_support"],
+        )
+    else:
+        raise ValueError(f"Invalid adaptation method: {method}")
 
+    return run_spec
 
 def get_entity_matching_spec(dataset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
