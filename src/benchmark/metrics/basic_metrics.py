@@ -16,11 +16,9 @@ from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
 from rouge_score import rouge_scorer
 
-from common.general import singleton
 from common.hierarchical_logger import hlog
 from common.request import Token, Sequence
 from benchmark.adapter import (
-    ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     AdapterSpec,
@@ -444,8 +442,8 @@ class BasicMetric(Metric):
 
         # Predicted outputs
         assert request_state.result is not None
-        preds = sorted(request_state.result.completions, key=lambda x: -x.logprob)
-        preds = [completion.text.strip() for completion in preds]
+        sorted_completions = sorted(request_state.result.completions, key=lambda x: -x.logprob)
+        preds = [completion.text.strip() for completion in sorted_completions]
 
         # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
         # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
@@ -453,10 +451,16 @@ class BasicMetric(Metric):
         if request_state.output_mapping is not None:
             preds = [request_state.output_mapping.get(pred) for pred in preds]
 
-        # Add calibration metrics for ADAPT_MULTIPLE_CHOICE_JOINT.
-        if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
-            max_prob = np.exp(singleton(request_state.result.completions).logprob)
-            reference_metrics.append(Stat(MetricName("max_prob")).add(max_prob))
+        # Compute max_prob, the probability that the model assigns to its generated text.
+        # Use the log prob of sorted_completions[0], which is the completion with the highest
+        # log_prob. We use this since that's what's used for computing metrics like exact_match.
+        # One subtlety is that when computing exact_match, we strip whitespace, so the actual
+        # max_prob is the sum of all the probabilities in the set {x : strip(x) = prediction}.
+        # In practice, we think this may not make much of a difference because models may not place
+        # high probabilities on having additional spaces (should check this). Also, the sum
+        # involves computing the log_prob for many completions which could be intractable.
+        max_prob = np.exp(sorted_completions[0].logprob)
+        reference_metrics.append(Stat(MetricName("max_prob")).add(max_prob))
 
         # Add other metrics.
         for metric_name in self.names:
