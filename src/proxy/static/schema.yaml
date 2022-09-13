@@ -102,6 +102,14 @@ metrics:
     display_name: Quasi-exact match
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+  - name: exact_match@5
+    display_name: Exact match @5
+    short_display_name: EM@5
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference exactly.
+  - name: quasi_exact_match@5
+    display_name: Quasi-exact match @5
+    short_display_name: EM@5
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference up to light processing.
   - name: logprob
     display_name: Log probability
     short_display_name: Logprob
@@ -394,8 +402,7 @@ metric_groups:
 
   - name: efficiency
     metrics:
-    - name: inference_idealized_runtime
-      # TODO: should we use inference_denoised_runtime instead?
+    - name: inference_denoised_runtime
       split: ${main_split}
 
   - name: efficiency_detailed
@@ -416,9 +423,11 @@ metric_groups:
     metrics:
       - name: SummaC
         split: ${main_split}
-      - name: coverage
+      - name: summarization_coverage
         split: ${main_split}
-      - name: compression
+      - name: summarization_density
+        split: ${main_split}
+      - name: summarization_compression
         split: ${main_split}
 
   - name: apps_metrics
