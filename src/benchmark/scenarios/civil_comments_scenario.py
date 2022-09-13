@@ -111,7 +111,7 @@ class CivilCommentsScenario(Scenario):
 
         data = np.stack(df["comment_text"].tolist())
         train_x, test_x, train_y, test_y = train_test_split(
-            data, df["severe_toxicity"], test_size=0.2, random_state=self.random_seed
+            data, df["target"], test_size=0.2, random_state=self.random_seed
         )
 
         dataset_splits = {
@@ -121,7 +121,7 @@ class CivilCommentsScenario(Scenario):
 
         # Read all instances
         instances: List[Instance] = []
-        question = "Is the passage above severely toxic?"
+        question = "Is the passage above toxic?"
         for split, subset in dataset_splits.items():
             data_x, data_y = subset
             for (x, y) in zip(data_x, data_y):
