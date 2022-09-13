@@ -18,7 +18,7 @@ AI21_TOKENIZER_TAG: str = "ai21_tokenizer"
 
 # Models that are used for ablations and fine-grained analyses.
 # These models are selected specifically because of their low marginal cost to evaluate.
-ABLATION_MODEL_TAG: str = "free"
+ABLATION_MODEL_TAG: str = "ablation"
 
 
 @dataclass
