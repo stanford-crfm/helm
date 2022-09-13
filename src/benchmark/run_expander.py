@@ -151,8 +151,8 @@ class ModelRunExpander(ReplaceValueRunExpander):
         if family_name == "ablation_all":
             values_dict["ablation"] = models
         else:
-            values_dict[family_name] = models    
-        
+            values_dict[family_name] = models
+
 
 ############################################################
 

@@ -253,7 +253,7 @@ def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Run
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["bbq"],
-    ) 
+    )
 
 
 def get_msmarco_spec(
@@ -392,13 +392,13 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
 
-    return run_spec = RunSpec(
+    return RunSpec(
         name=f"mmlu:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["mmlu"],
-    ) 
+    )
 
 
 def get_wikifact_spec(k: str, subject: str) -> RunSpec:
@@ -541,7 +541,7 @@ def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
 
-    return run_spec = RunSpec(
+    return RunSpec(
         name=f"truthful_qa:task={task}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
@@ -842,7 +842,7 @@ def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
 
-    return run_spec = RunSpec(
+    return RunSpec(
         name=f"lsat_qa:task={task}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
@@ -1281,7 +1281,7 @@ def get_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
 
-    return run_spec = RunSpec(
+    return RunSpec(
         name=f"blimp:phenomenon={phenomenon}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
@@ -1466,7 +1466,7 @@ def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
 
-    return run_spec = RunSpec(
+    return RunSpec(
         name="legal_support",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
