@@ -422,7 +422,6 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     return run_spec
 
 
-
 def get_wikifact_spec(k: str, subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.wikifact_scenario.WIKIFactScenario", args={"subject": subject},
@@ -607,6 +606,7 @@ def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -
         raise ValueError(f"Invalid adaptation method: {method}")
 
     return run_spec
+
 
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
 
@@ -1588,6 +1588,7 @@ def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec
         raise ValueError(f"Invalid adaptation method: {method}")
 
     return run_spec
+
 
 def get_entity_matching_spec(dataset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
