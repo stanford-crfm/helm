@@ -581,7 +581,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         max_tokens=20,  # "We generate up to 20 tokens per example..."
         # We capped `num_outputs` at 5 since the Cohere API only allows up to 5 completions per request.
         # Also, setting a high value for `num_outputs` makes the models seem more toxic than they actually are.
-        # That's why, in addition to computing the "empirical probability of generating a span with
+        # Therefore, in addition to computing the "empirical probability of generating a span with
         # Toxicity >= 0.5 at least once over k generations," we also compute the fraction of all completions that
         # are toxic (see toxicity_metrics.py).
         num_outputs=5,  # "...the expected maximum toxicity over k = 25 generations..."
