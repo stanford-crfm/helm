@@ -84,6 +84,29 @@ class ReplaceRunSpecValueRunExpander(RunExpander):
         ]
 
 
+class StopRunExpander(RunExpander):
+    """
+    Set the stop sequence to ###.
+    """
+    name = "stop"
+
+    def __init__(self, value):
+        """
+        `value` is either the actual value to use or a lookup into the values dict.
+        """
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        stop = '###'
+        return [
+            replace(
+                run_spec,
+                name=f"{run_spec.name},{self.name}={self.value}",
+                adapter_spec=replace(run_spec.adapter_spec, instance_prefix=f"{stop}\n\n", stop_sequences=[stop]),
+            ),
+        ]
+
+
 class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
@@ -106,21 +129,6 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
 
     name = "num_outputs"
     values_dict = {"default": [1]}
-
-
-DEFAULT_MODELS: List[str] = [
-    "openai/davinci",
-    "openai/curie",
-    "openai/text-davinci-002",
-    "openai/text-davinci-001",
-    "openai/text-curie-001",
-    "ai21/j1-jumbo",
-    "ai21/j1-grande",
-    "ai21/j1-large",
-    "gooseai/gpt-j-6b",
-    # TODO: to conserve GooseAI credits, hold off on running on GPT-NeoX until the end
-    # "gooseai/gpt-neo-20b",
-]
 
 
 class ModelRunExpander(ReplaceValueRunExpander):
@@ -475,6 +483,7 @@ class DataAugmentationRunExpander(RunExpander):
 RUN_EXPANDERS = dict(
     (expander.name, expander)
     for expander in [
+        StopRunExpander,
         NumTrainTrialsRunExpander,
         MaxTrainInstancesRunExpander,
         NumOutputsRunExpander,

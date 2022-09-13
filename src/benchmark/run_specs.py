@@ -790,7 +790,7 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
         stop_sequences=["\n"],
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 6.5k questions
         num_outputs=1,
-        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
+        max_tokens=5,
         temperature=0.0,
     )
     return RunSpec(

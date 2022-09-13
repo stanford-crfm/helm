@@ -109,7 +109,9 @@ class Summarizer:
         )
         for run in self.runs:
             for group in run.run_spec.groups:
+                # TODO: need to include whole adapter spec
                 model = run.run_spec.adapter_spec.model
+
                 # Assume it is sensible to shard by scenario arguments.
                 scenario = ", ".join(f"{k}: {v}" for k, v in run.run_spec.scenario_spec.args.items())
 
