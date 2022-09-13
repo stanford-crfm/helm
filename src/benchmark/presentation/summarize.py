@@ -102,14 +102,17 @@ class Summarizer:
             else:
                 hlog(f"WARNING: {run_path} doesn't have run_spec.json or stats.json, skipping")
 
-        # Build mapping from scenario group (e.g., natural_qa) and model (e.g., openai/davinci) to list of runs
+        # For each scenario group (e.g., natural_qa), map
+        # (i) scenario spec (e.g., subject=philosophy) [optional] and
+        # (ii) adapter spec (e.g., model = openai/davinci)
+        # to list of runs
         self.group_model_to_runs: Dict[str, Dict[str, List[Run]]] = defaultdict(lambda: defaultdict(list))
         self.group_scenario_model_to_runs: Dict[str, Dict[str, List[Run]]] = defaultdict(
             lambda: defaultdict(lambda: defaultdict(list))
         )
         for run in self.runs:
             for group in run.run_spec.groups:
-                # TODO: need to include whole adapter spec
+                # Model
                 model = run.run_spec.adapter_spec.model
 
                 # Assume it is sensible to shard by scenario arguments.

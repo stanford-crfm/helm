@@ -97,7 +97,10 @@ class StopRunExpander(RunExpander):
         self.value = value
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        stop = '###'
+        if self.value == "hash":
+            stop = '###'
+        else:
+            raise Exception("Unknown value: {self.value}")
         return [
             replace(
                 run_spec,

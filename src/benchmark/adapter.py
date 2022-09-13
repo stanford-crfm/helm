@@ -23,7 +23,7 @@ ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED = "multiple_choice_separate_calibrated
 ADAPT_GENERATION = "generation"
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class AdapterSpec:
     """
     Specifies how to take a `Scenario` (a list of `Instance`s) and produce a
@@ -76,8 +76,8 @@ class AdapterSpec:
     # Maximum number of tokens to generate
     max_tokens: int = 100
 
-    # When to stop
-    stop_sequences: List[str] = field(default_factory=list)
+    # When to stop (set hash=False to make `AdapterSpec` hashable)
+    stop_sequences: List[str] = field(default_factory=list, hash=False)
 
     # Random string (used concretely to bypass cache / see diverse results)
     random: Optional[str] = None
