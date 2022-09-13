@@ -11,11 +11,7 @@ from proxy.models import (
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
     GPT2_TOKENIZER_TAG,
     AI21_TOKENIZER_TAG,
-)
-from .adapter import (
-    ADAPT_MULTIPLE_CHOICE_JOINT,
-    ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
-    ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+    FREE_MODEL_TAG,
 )
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
@@ -106,19 +102,6 @@ class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
     }
 
 
-class MultipleChoiceAdaptationRunExpander(ReplaceValueRunExpander):
-    """For testing adaptation method for multiple choice."""
-
-    name = "method"
-    values_dict = {
-        "all": [
-            ADAPT_MULTIPLE_CHOICE_JOINT,
-            ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
-            ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
-        ]
-    }
-
-
 class NumOutputsRunExpander(ReplaceValueRunExpander):
     """For overriding num_outputs."""
 
@@ -159,6 +142,11 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "gpt2_tokenizer": get_model_names_with_tag(GPT2_TOKENIZER_TAG),
         "ai21_tokenizer": get_model_names_with_tag(AI21_TOKENIZER_TAG),
     }
+
+    free_models = set(get_model_names_with_tag(FREE_MODEL_TAG))
+    for family_name, models in values_dict.items():
+        values_dict["free_" + family_name] = list(free_models & models)
+    values_dict["free"] = values_dict.pop("free_all")
 
 
 ############################################################
