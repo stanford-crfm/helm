@@ -54,6 +54,24 @@ def get_adapter_spec1() -> AdapterSpec:
     )
 
 
+def get_multiple_choice_separate_adapter_spec(method: str) -> AdapterSpec:
+    assert method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}
+
+    return AdapterSpec(
+        method=method,
+        instructions="",
+        input_prefix="",
+        output_prefix=" ",
+        max_train_instances=0,  # Appropriate for separate approach
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+        num_outputs=1,
+        max_tokens=0,
+        num_train_trials=1,
+        model="openai/davinci",
+        temperature=0.0,
+    )
+
+
 def get_basic_metric_specs(args: Dict[str, List[str]]) -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args=args)]
 
@@ -221,41 +239,21 @@ def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Run
             temperature=0,
             stop_sequences=["\n"],
         )
-
-        run_spec = RunSpec(
-            name=f"bbq:subject={subject},method={method}",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_bbq_metric_specs(),
-            groups=["bbq"],
-        )
-
-    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
-        adapter_spec = AdapterSpec(
-            method=method,
-            instructions="",
-            input_prefix="",
-            output_prefix=" ",
-            max_train_instances=0,  # Appropriate for separate approach
-            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-            num_outputs=1,
-            max_tokens=0,
-            num_train_trials=1,
-            model="openai/davinci",
-            temperature=0.0,
-        )
-        run_spec = RunSpec(
-            name=f"bbq:subject={subject},method={method}",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            # We do not compute BBQ metrics when non-standard method is used
-            metric_specs=get_basic_metric_specs({"names": []}),
-            groups=["bbq"],
-        )
+        metric_specs = get_bbq_metric_specs()
+    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
+        # We do not compute BBQ metrics when non-standard method is used
+        metric_specs = get_basic_metric_specs({"names": []})
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
 
-    return run_spec
+    return RunSpec(
+        name=f"bbq:subject={subject},method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["bbq"],
+    ) 
 
 
 def get_msmarco_spec(
@@ -387,39 +385,20 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
             temperature=0.0,
             stop_sequences=["\n"],
         )
-
-        run_spec = RunSpec(
-            name=f"mmlu:subject={subject}",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
-            groups=["mmlu"],
-        )
-    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
-        adapter_spec = AdapterSpec(
-            method=method,
-            instructions="",
-            input_prefix="",
-            output_prefix=" ",
-            max_train_instances=0,  # Appropriate for CLM approach
-            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-            num_outputs=1,
-            max_tokens=0,
-            num_train_trials=1,
-            model="openai/davinci",
-            temperature=0.0,
-        )
-        run_spec = RunSpec(
-            name=f"mmlu:subject={subject}",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_basic_metric_specs({"names": []}),
-            groups=["mmlu"],
-        )
+        metric_specs = get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
+        metric_specs = get_basic_metric_specs({"names": []})
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
 
-    return run_spec
+    return run_spec = RunSpec(
+        name=f"mmlu:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["mmlu"],
+    ) 
 
 
 def get_wikifact_spec(k: str, subject: str) -> RunSpec:
@@ -469,38 +448,20 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             temperature=0.0,
             stop_sequences=["\n"],
         )
-        run_spec = RunSpec(
-            name=f"commonsense:dataset={dataset},method={method}",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
-            groups=[dataset],
-        )
-    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
-        adapter_spec = AdapterSpec(
-            method=method,
-            instructions="",
-            input_prefix="",
-            output_prefix=" ",
-            max_train_instances=0,  # Appropriate for CLM approach
-            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-            num_outputs=1,
-            max_tokens=0,
-            num_train_trials=1,
-            model="openai/davinci",
-            temperature=0.0,
-        )
-        run_spec = RunSpec(
-            name=f"commonsense:dataset={dataset},method={method}",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_basic_metric_specs({"names": []}),
-            groups=[dataset],
-        )
+        metric_specs = get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
+        metric_specs = get_basic_metric_specs({"names": []})
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
 
-    return run_spec
+    return RunSpec(
+        name=f"commonsense:dataset={dataset},method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[dataset],
+    )
 
 
 def get_quac_spec() -> RunSpec:
@@ -573,39 +534,20 @@ def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -
             temperature=0.0,
             stop_sequences=["\n"],
         )
-
-        run_spec = RunSpec(
-            name=f"truthful_qa:task={task}",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
-            groups=["truthful_qa"],
-        )
-    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
-        adapter_spec = AdapterSpec(
-            method=method,
-            instructions="",
-            input_prefix="",
-            output_prefix=" ",
-            max_train_instances=0,  # Appropriate for CLM approach
-            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-            num_outputs=1,
-            max_tokens=0,
-            num_train_trials=1,
-            model="openai/davinci",
-            temperature=0.0,
-        )
-        run_spec = RunSpec(
-            name=f"truthful_qa:task={task}",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_basic_metric_specs({"names": []}),
-            groups=["truthful_qa"],
-        )
+        metric_specs = get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
+        metric_specs = get_basic_metric_specs({"names": []})
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
 
-    return run_spec
+    return run_spec = RunSpec(
+        name=f"truthful_qa:task={task}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["truthful_qa"],
+    )
 
 
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
@@ -893,39 +835,20 @@ def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
             temperature=0.0,
             stop_sequences=["\n"],
         )
-
-        run_spec = RunSpec(
-            name=f"lsat_qa:task={task}",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
-            groups=["lsat_qa"],
-        )
-    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
-        adapter_spec = AdapterSpec(
-            method=method,
-            instructions="",
-            input_prefix="",
-            output_prefix=" ",
-            max_train_instances=0,  # Appropriate for CLM approach
-            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-            num_outputs=1,
-            max_tokens=0,
-            num_train_trials=1,
-            model="openai/davinci",
-            temperature=0.0,
-        )
-        run_spec = RunSpec(
-            name=f"lsat_qa:task={task}",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_basic_metric_specs({"names": []}),
-            groups=["lsat_qa"],
-        )
+        metric_specs = get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
+        metric_specs = get_basic_metric_specs({"names": []})
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
 
-    return run_spec
+    return run_spec = RunSpec(
+        name=f"lsat_qa:task={task}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["lsat_qa"],
+    )
 
 
 def get_imdb_spec(only_contrast=False) -> RunSpec:
@@ -1351,39 +1274,20 @@ def get_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE
             temperature=0.0,
             stop_sequences=["\n"],
         )
-        run_spec = RunSpec(
-            name=f"blimp:phenomenon={phenomenon}",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
-            groups=["blimp"],
-        )
-    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
-        adapter_spec = AdapterSpec(
-            method=method,
-            instructions="",
-            input_prefix="",
-            output_prefix=" ",
-            max_train_instances=0,
-            max_eval_instances=None,
-            num_outputs=1,
-            num_train_trials=1,
-            model="openai/davinci",
-            temperature=0.0,
-            max_tokens=0,
-        )
-
-        run_spec = RunSpec(
-            name=f"blimp:phenomenon={phenomenon}",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_basic_metric_specs({"names": []}),
-            groups=["blimp"],
-        )
+        metric_specs = get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
+        metric_specs = get_basic_metric_specs({"names": []})
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
 
-    return run_spec
+    return run_spec = RunSpec(
+        name=f"blimp:phenomenon={phenomenon}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["blimp"],
+    )
 
 
 def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
@@ -1555,39 +1459,20 @@ def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec
             num_outputs=1,
             stop_sequences=["\n"],
         )
-
-        run_spec = RunSpec(
-            name="legal_support",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
-            groups=["legal_support"],
-        )
-    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
-        adapter_spec = AdapterSpec(
-            method=method,
-            instructions="",
-            input_prefix="",
-            output_prefix=" ",
-            max_train_instances=0,  # Appropriate for CLM approach
-            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-            num_outputs=1,
-            max_tokens=0,
-            num_train_trials=1,
-            model="openai/davinci",
-            temperature=0.0,
-        )
-        run_spec = RunSpec(
-            name="legal_support",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_basic_metric_specs({"names": []}),
-            groups=["legal_support"],
-        )
+        metric_specs = get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
+        metric_specs = get_basic_metric_specs({"names": []})
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
 
-    return run_spec
+    return run_spec = RunSpec(
+        name="legal_support",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["legal_support"],
+    )
 
 
 def get_entity_matching_spec(dataset: str) -> RunSpec:
