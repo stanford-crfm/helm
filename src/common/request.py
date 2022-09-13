@@ -16,6 +16,9 @@ class Request:
     # Which model to query
     model: str = "openai/davinci"
 
+    # Whether to query embedding instead of text response
+    embedding: bool = False
+
     # What prompt do condition the language model on
     prompt: str = ""
 
@@ -132,6 +135,10 @@ class RequestResult:
     # Whether the request was successful
     success: bool
 
+    # List of floats
+    # Fixed dimensional embedding corresponding to the entire prompt
+    embedding: List[float]
+
     # List of completion
     completions: List[Sequence]
 
@@ -173,3 +180,8 @@ class RequestResult:
         output.append("}")
 
         return output
+
+
+EMBEDDING_UNAVAILABLE_REQUEST_RESULT = RequestResult(
+    success=False, cached=False, error="Embedding is unavailable in this client", completions=[], embedding=[]
+)

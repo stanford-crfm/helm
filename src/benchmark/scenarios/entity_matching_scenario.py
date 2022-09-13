@@ -85,7 +85,8 @@ class EntityMatchingScenario(Scenario):
             num_pos_classes = sum(merged["label"] == 1)
             num_neg_classes = sum(merged["label"] == 0)
             assert num_pos_classes < num_neg_classes
-            merged = merged.groupby("label", group_keys=False).apply(lambda x: x.sample(num_pos_classes))
+            merged = merged.squeeze().groupby("label", group_keys=False)
+            merged = merged.squeeze().apply(lambda x: x.sample(num_pos_classes))
             num_pos_classes = sum(merged["label"] == 1)
             num_neg_classes = sum(merged["label"] == 0)
         return merged

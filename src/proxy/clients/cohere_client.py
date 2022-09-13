@@ -4,7 +4,7 @@ from typing import List, Dict
 from urllib.parse import urljoin
 
 from common.cache import Cache
-from common.request import Request, RequestResult, Sequence, Token
+from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -43,6 +43,8 @@ class CohereClient(Client):
         self.cache = Cache(cache_path)
 
     def make_request(self, request: Request) -> RequestResult:
+        if request.embedding:
+            return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
         # Validate `Request` according to the rules here: https://docs.cohere.ai/generate-reference.
         # Set `return_likelihoods` based on the value of `echo_prompt`:
         # echo_prompt=True => return_likelihoods="ALL"
@@ -136,7 +138,7 @@ class CohereClient(Client):
             response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
         except (requests.exceptions.RequestException, AssertionError) as e:
             error: str = f"CohereClient error: {e}"
-            return RequestResult(success=False, cached=False, error=error, completions=[])
+            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = []
         for generation in response["generations"]:
@@ -175,6 +177,7 @@ class CohereClient(Client):
             request_time=response["request_time"],
             request_datetime=response["request_datetime"],
             completions=completions,
+            embedding=[],
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
