@@ -8,7 +8,7 @@ import dacite
 from typing import List, Optional, Dict, Any
 import json
 
-from common.general import write, ensure_directory_exists, asdict_without_nones, singleton
+from common.general import write, ensure_directory_exists, asdict_without_nones, singleton, without_common_entries
 from common.hierarchical_logger import hlog, htrack
 from benchmark.scenarios.scenario import ScenarioSpec
 from benchmark.adapter import AdapterSpec
@@ -68,15 +68,6 @@ def get_scenario_name(group: ScenarioGroup, scenario_spec: ScenarioSpec):
 
 def get_scenario_display_name(group: ScenarioGroup, scenario_spec: ScenarioSpec):
     return f"{group.display_name} / {dict_to_str(scenario_spec.args)}"
-
-
-def without_common_entries(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Given `items` (a list of dictionaries), return a corresponding list of
-    dictionaries where all the common entries have been removed.
-    """
-    common_keys = [key for key in items[0] if all(item[key] == items[0][key] for item in items)]
-    return [dict((key, value) for key, value in item.items() if key not in common_keys) for item in items]
 
 
 class Summarizer:

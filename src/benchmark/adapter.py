@@ -23,7 +23,7 @@ ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED = "multiple_choice_separate_calibrated
 ADAPT_GENERATION = "generation"
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True)
 class AdapterSpec:
     """
     Specifies how to take a `Scenario` (a list of `Instance`s) and produce a

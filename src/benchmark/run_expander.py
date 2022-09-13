@@ -86,7 +86,7 @@ class ReplaceRunSpecValueRunExpander(RunExpander):
 
 class StopRunExpander(RunExpander):
     """
-    Set the stop sequence to ###.
+    Set the stop sequence to something (e.g., ###) with new lines.
     """
 
     name = "stop"
