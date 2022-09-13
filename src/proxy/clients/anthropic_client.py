@@ -7,7 +7,7 @@ import websocket
 
 from common.cache import Cache
 from common.hierarchical_logger import htrack_block, hlog
-from common.request import Request, RequestResult, Sequence, Token
+from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -43,6 +43,9 @@ class AnthropicClient(Client):
         self.cache = Cache(cache_path)
 
     def make_request(self, request: Request) -> RequestResult:
+        # Embedding not supported for this model
+        if request.embedding:
+            return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
         # Validate the fields of `Request`
         if request.model != "anthropic/stanford-online-all-v4-s3":
             raise ValueError(f"Invalid model: {request.model}")
@@ -153,7 +156,7 @@ class AnthropicClient(Client):
                 )
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except AnthropicRequestError as e:
-                return RequestResult(success=False, cached=False, error=str(e), completions=[])
+                return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
             token_texts: List[str] = response["tokens"]
             raw_response: Dict = json.loads(response["raw_response"])
@@ -190,6 +193,7 @@ class AnthropicClient(Client):
             request_time=request_time,
             request_datetime=request_datetime,
             completions=completions,
+            embedding=[],
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:

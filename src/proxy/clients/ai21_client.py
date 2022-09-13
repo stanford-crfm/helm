@@ -4,7 +4,7 @@ import requests
 from dacite import from_dict
 
 from common.cache import Cache
-from common.request import Request, RequestResult, Sequence, Token
+from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -43,6 +43,8 @@ class AI21Client(Client):
         self.cache = Cache(cache_path)
 
     def make_request(self, request: Request) -> RequestResult:
+        if request.embedding:
+            return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
         raw_request = {
             "prompt": request.prompt,
             "temperature": request.temperature,
@@ -71,7 +73,7 @@ class AI21Client(Client):
             cache_key = Client.make_cache_key({"engine": request.model_engine, **raw_request}, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except AI21RequestError as e:
-            return RequestResult(success=False, cached=False, error=str(e), completions=[])
+            return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
         def fix_text(x: str, first: bool) -> str:
             x = x.replace("▁", " ")
@@ -129,6 +131,7 @@ class AI21Client(Client):
             request_time=response["request_time"],
             request_datetime=response.get("request_datetime"),
             completions=completions,
+            embedding=[],
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:

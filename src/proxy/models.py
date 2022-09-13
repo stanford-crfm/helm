@@ -4,6 +4,7 @@ from typing import List, Dict, Optional
 # Different modalities
 TEXT_MODEL_TAG: str = "text"
 CODE_MODEL_TAG: str = "code"
+EMBEDDING_MODEL_TAG: str = "embedding"
 
 # Some model APIs have limited functionalities e.g., Anthropic API doesn't support returning log probs
 FULL_FUNCTIONALITY_TEXT_MODEL_TAG: str = "full_functionality_text"
@@ -128,6 +129,14 @@ ALL_MODELS = [
         display_name="GPT-3 (350M)",
         description="GPT-3 (350M parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
+        name="openai/text-search-ada-query-001",
+        display_name="GPT-3 (350M)",
+        description="GPT-3 (350M parameters)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, EMBEDDING_MODEL_TAG],
     ),
     # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
     #       https://github.com/stanford-crfm/benchmarking/issues/359
