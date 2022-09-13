@@ -455,8 +455,10 @@ class BasicMetric(Metric):
 
         # Add calibration metrics for ADAPT_MULTIPLE_CHOICE_JOINT.
         if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
-            max_prob = np.exp(singleton(request_state.result.completions).logprob)
-            reference_metrics.append(Stat(MetricName("max_prob")).add(max_prob))
+            assert(len(request_state.result.completions) == 1)
+        log_probs = [c.logprob for c in request_state.result.completions]
+        max_prob = np.exp(np.sum(log_probs))
+        reference_metrics.append(Stat(MetricName("max_prob")).add(max_prob))
 
         # Add other metrics.
         for metric_name in self.names:
