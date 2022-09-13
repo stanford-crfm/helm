@@ -144,10 +144,15 @@ class ModelRunExpander(ReplaceValueRunExpander):
     }
 
     free_models = set(get_model_names_with_tag(FREE_MODEL_TAG))
+    free_values_dict = {}
     for family_name, models in values_dict.items():
-        values_dict["free_" + family_name] = list(free_models & models)
-    values_dict["free"] = values_dict.pop("free_all")
-
+        free_values_dict["free_" + family_name] = list(free_models & set(models))
+    for family_name, models in free_values_dict.items():
+        if family_name == "free_all":
+            values_dict["free"] = models
+        else:
+            values_dict[family_name] = models    
+        
 
 ############################################################
 
@@ -483,7 +488,6 @@ RUN_EXPANDERS = dict(
     for expander in [
         NumTrainTrialsRunExpander,
         MaxTrainInstancesRunExpander,
-        MultipleChoiceAdaptationRunExpander,
         NumOutputsRunExpander,
         ModelRunExpander,
         DataAugmentationRunExpander,
