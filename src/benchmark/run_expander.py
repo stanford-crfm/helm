@@ -88,6 +88,7 @@ class StopRunExpander(RunExpander):
     """
     Set the stop sequence to ###.
     """
+
     name = "stop"
 
     def __init__(self, value):
@@ -98,7 +99,7 @@ class StopRunExpander(RunExpander):
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         if self.value == "hash":
-            stop = '###'
+            stop = "###"
         else:
             raise Exception("Unknown value: {self.value}")
         return [

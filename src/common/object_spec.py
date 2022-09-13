@@ -12,6 +12,9 @@ class ObjectSpec:
     # Arguments used to construct the scenario
     args: Dict[str, Any]
 
+    def __hash__(self):
+        return hash((self.class_name, tuple((k, self.args[k]) for k in sorted(self.args.keys()))))
+
 
 def create_object(spec: ObjectSpec):
     """Create the actual object given the `spec`."""
