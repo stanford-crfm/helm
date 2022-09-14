@@ -342,7 +342,8 @@ def get_civil_comments_spec(subject: str) -> RunSpec:
         name=f"civil_comments:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["civil_comments"],
     )
 
@@ -399,7 +400,8 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
         name=f"wikifact:k={k},subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["wikifact"],
     )
 
@@ -478,7 +480,8 @@ def get_quac_spec() -> RunSpec:
         name="quac",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]}) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]})
+        + get_generative_harms_metric_specs(),
         groups=["quac"],
     )
 
@@ -503,7 +506,8 @@ def get_news_qa_spec() -> RunSpec:
         name="news_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]}) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]})
+        + get_generative_harms_metric_specs(),
         groups=["news_qa"],
     )
 
@@ -675,7 +679,8 @@ def get_raft_spec(subset: str) -> RunSpec:
         name=f"raft:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["raft"],
     )
 
@@ -804,7 +809,8 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
         name="boolq" + (":only_contrast=True" if only_contrast else ""),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["boolq"],
     )
 
@@ -857,7 +863,8 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
         name="imdb" + (":only_contrast=True" if only_contrast else ""),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["imdb"],
     )
 
@@ -882,7 +889,8 @@ def get_babi_qa_spec(task: str = "all") -> RunSpec:
         name=f"babi_qa:task={task}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["babi_qa"],
     )
 
@@ -910,7 +918,8 @@ def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
         name=f"copyright:datatag={datatag}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_copyright_metric_specs({"normalize_by_prefix_length": True}) + get_generative_harms_metric_specs(),
+        metric_specs=get_copyright_metric_specs({"normalize_by_prefix_length": True})
+        + get_generative_harms_metric_specs(),
         groups=["copyright"],
     )
 
@@ -1062,7 +1071,8 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         name=f"natural_qa:mode={mode}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]}) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]})
+        + get_generative_harms_metric_specs(),
         groups=["natural_qa", f"natural_qa_{mode}"],
     )
 
@@ -1144,7 +1154,8 @@ def get_narrativeqa_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs(
             {"names": ["exact_match", "quasi_exact_match", "f1_score", "rouge-l", "bleu_1", "bleu_4"]}
-        ) + get_generative_harms_metric_specs(),
+        )
+        + get_generative_harms_metric_specs(),
         groups=["narrative_qa"],
     )
 
@@ -1206,7 +1217,8 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         name=f"synthetic_reasoning:mode={mode}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["synthetic_reasoning", f"synthetic_reasoning_{mode}"],
     )
 
@@ -1385,7 +1397,8 @@ def get_empatheticdialogues_spec() -> RunSpec:
         name="empatheticdialogues",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=[],
     )
 
@@ -1468,7 +1481,8 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
         name=f"entity_matching:dataset={dataset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["entity_matching"],
     )
 
@@ -1497,7 +1511,8 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
         name=f"entity_data_imputation:dataset={dataset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}) + get_generative_harms_metric_specs(),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["entity_data_imputation"],
     )
 
