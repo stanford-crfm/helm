@@ -623,12 +623,10 @@ $(function () {
     return $('<td>').append(cell.href ? $('<a>', {href: cell.href}).append(value) : value);
   }
 
-  function renderTable(table, addLatexLink = false) {
+  function renderTable(table) {
     const $output = $('<div>');
     $output.append($('<h3>').append(table.title));
-    if (addLatexLink) {
-        $output.append($('<a>', {href: '?latex=' + table.title.replaceAll(" ", "_").replace("/", "_")}).append('[latex]'));
-    }
+    console.log(table.links)
     const $table = $('<table>', {class: 'query-table results-table'});
     const $header = $('<tr>').append(table.header.map(renderCell));
     $table.append($header);
@@ -644,10 +642,10 @@ $(function () {
     return $output;
   }
 
-  function renderTables(tables, addLatexLinks = false) {
+  function renderTables(tables) {
     const $output = $('<div>');
     tables.forEach((table) => {
-      $output.append($('<div>', {class: 'table-container'}).append(renderTable(table, addLatexLinks)));
+      $output.append($('<div>', {class: 'table-container'}).append(renderTable(table)));
     });
     return $output;
   }
@@ -715,20 +713,18 @@ $(function () {
       // Specific group
       $.getJSON(`benchmark_output/runs/${suite}/groups/${urlParams.group}.json`, {}, (tables) => {
         console.log('group', tables);
-        const addLatexLinks = true;
-        $main.append(renderTables(tables, addLatexLinks));
+        $main.append(renderTables(tables));
       });
     } else if (urlParams.facets) {
-      // All metrics
+      // All facets
       $.getJSON(`benchmark_output/runs/${suite}/facets.json`, {}, (response) => {
         $main.append(renderTable(response));
       });
     } else if (urlParams.facet) {
-      // Specific group
-      $.getJSON(`benchmark_output/runs/${suite}/facets/${urlParams.facet}.json`, {}, (tables) => {
-        console.log('facet', tables);
-        const addLatexLinks = false;
-        $main.append(renderTables(tables, addLatexLinks));
+      // Specific facet
+      $.getJSON(`benchmark_output/runs/${suite}/facets/${urlParams.facet}.json`, {}, (table) => {
+        console.log('facet', table);
+        $main.append(renderTable(table));
       });
     } else {
       $main.append(renderLandingPage());

@@ -9,6 +9,8 @@ from benchmark.metrics.metric_name import MetricName
 from benchmark.augmentations.perturbation_description import PERTURBATION_WORST
 
 SCHEMA_YAML_PATH: str = "src/proxy/static/schema.yaml"
+UP_ARROW = "\u2191"
+DOWN_ARROW = "\u2193"
 
 
 @dataclass(frozen=True)
@@ -30,11 +32,14 @@ class Field:
     # Description of the field
     description: Optional[str] = None
 
-    # Whether a lower metric for this field corresponds to a better model
+    # Whether a lower vaue for this field corresponds to a better model (e.g., False for accuracy, True for perplexity)
     lower_is_better: bool = False
 
-    def get_short_display_name(self):
-        return self.short_display_name or self.display_name or self.name
+    def get_short_display_name(self, arrow=False):
+        name = self.short_display_name or self.display_name or self.name
+        if arrow:
+            name = f"{name} {DOWN_ARROW if self.lower_is_better else UP_ARROW}"
+        return name
 
 
 @dataclass(frozen=True)

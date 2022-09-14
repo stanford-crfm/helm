@@ -353,79 +353,80 @@ class Summarizer:
 
         facets_path = os.path.join(self.run_suite_path, "facets")
         ensure_directory_exists(facets_path)
-        # each scenario group can appear in a variety of facets so we will rely on table -> group -> model -> cell dicts
-        table_group_to_header_cell: Dict[str, Dict[str, Cell]] = defaultdict(dict)
-        table_group_model_to_cell: Dict[str, Dict[str, Dict[str, Cell]]] = defaultdict(lambda: defaultdict(dict))
-        table_names = set()
+        # each scenario group can appear in a variety of facets so we will rely on facet -> model -> group -> cell dicts
+        facet_group_to_header_cell: Dict[str, Dict[str, Cell]] = defaultdict(dict)
+        facet_model_group_to_cell: Dict[str, Dict[str, Dict[str, Cell]]] = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(lambda: Cell("")))
+        )
 
         CORE_METRICS = ["accuracy", "robustness", "fairness", "calibration"]
         for group in self.schema.scenario_groups:
-            facets = group.tags.copy()  # which facets this group is relevant to
-            if "generic" in facets:  # for generic scenarios, look at the core metrics
-                facets.remove("generic")
-                facets.extend(CORE_METRICS)
-            for facet in facets:
-                table_names.add(facet)
-                metric_group_name = facet if facet in CORE_METRICS else "accuracy"
+            facets = []  # which facets this group is relevant to
+            metric_group_names = []  # which metric group to display for each facet
+            for tag in group.tags:
+                if tag == "generic":  # for generic scenarios, look at the core metrics
+                    for metric_group_name in CORE_METRICS:
+                        facets.append(metric_group_name)
+                        metric_group_names.append(metric_group_name)
+                else:
+                    facets.append(tag)
+                    metric_group_names.append("accuracy")
+            for facet, metric_group_name in zip(facets, metric_group_names):
                 if metric_group_name not in group.metric_groups:
                     hlog(f"WARNING: {group.name} has no {metric_group_name}, skipping")
                     continue
                 metric = singleton(self.schema.name_to_metric_group[metric_group_name].metrics)
                 matcher = metric.substitute(group.environment)
-                header_field = self.schema.name_to_metric.get(matcher.name)
-                header_name = header_field.get_short_display_name()
-                header_name += " \u2193" if header_field.lower_is_better else " \u2191"
+                header_field = self.schema.name_to_metric[matcher.name]
+                header_name = header_field.get_short_display_name(arrow=True)
                 description = header_field.display_name + ": " + header_field.description
-                table_group_to_header_cell[facet][group.name] = Cell(
+                facet_group_to_header_cell[facet][group.name] = Cell(
                     f"{group.display_name} ({header_name})", description=description
                 )
                 for model_name, runs in self.group_model_to_runs[group.name].items():
                     point = self.contamination.get_point(model_name, group.name)
                     contamination_level = point.level if point is not None else None
-                    table_group_model_to_cell[facet][group.name][model_name] = self.create_cell(
+                    facet_model_group_to_cell[facet][model_name][group.name] = self.create_cell(
                         runs, matcher, contamination_level
                     )
 
-        # Write out index file with all the groups and basic stats
+        # Write out index file with links to each facet
         header = [
             Cell("Scenario"),
             Cell("Description"),
             Cell("# scenario groups"),
         ]
         rows = []
-        for table in sorted(table_names):
+        facets = sorted(facet_group_to_header_cell.keys())
+        for facet in facets:
             rows.append(
                 [
-                    Cell(table, href=get_benchmarking_url({"facet": table})),
+                    Cell(facet, href=get_benchmarking_url({"facet": facet})),
                     Cell("todo"),
-                    Cell(len(table_group_model_to_cell[table])),
+                    Cell(len(facet_group_to_header_cell[facet])),
                 ]
             )
         write(
             os.path.join(self.run_suite_path, "facets.json"),
             json.dumps(asdict_without_nones(Table(title="Overview of facets", header=header, rows=rows))),
         )
-        for table_name in table_names:
-            # Populate the contents of the table by creating one row for each model
-            model_to_row: Dict[str, List[Cell]] = {}
-            header = [Cell("Model")]
-            for group_name, model_to_cell in table_group_model_to_cell[table_name].items():
-                header.append(table_group_to_header_cell[table_name][group_name])
-                for model_name, cell in model_to_cell.items():
-                    if model_name not in model_to_row:
-                        model_to_row[model_name] = [Cell(get_model(model_name).display_name)]
-                    model_to_row[model_name].append(cell)
+        # Create the table for each facet, where rows are models and columns are the relevant scenarios
+        for facet in facets:
+            rows = []
+            groups = facet_group_to_header_cell[facet].keys()
+            header = [Cell("Model")] + [facet_group_to_header_cell[facet][group] for group in groups]
+            for model_name, group_to_cell in facet_model_group_to_cell[facet].items():
+                rows.append([Cell(get_model(model_name).display_name)] + [group_to_cell[group] for group in groups])
 
-            rows = list(model_to_row.values())
             rows.sort(key=lambda row: row[1].value or -1, reverse=True)  # TODO: better sorting
-            table = Table(title=table_name, header=header, rows=rows)
+            table = Table(title=facet, header=header, rows=rows)
 
             base_path = os.path.join(facets_path, "latex")
             ensure_directory_exists(base_path)
-            latex_path = os.path.join(base_path, table_name + ".tex")
+            latex_path = os.path.join(base_path, facet + ".tex")
             table.links.append(Hyperlink(text="latex", href=latex_path))
-            # write(latex_path, table_to_latex(table, table_name)) TODO: fix
-            write(os.path.join(facets_path, f"{table_name}.json"), json.dumps([asdict_without_nones(table)]))
+            write(latex_path, table_to_latex(table, facet))
+            write(os.path.join(facets_path, f"{facet}.json"), json.dumps(asdict_without_nones(table)))
 
 
 @htrack(None)
