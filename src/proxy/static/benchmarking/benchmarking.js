@@ -394,10 +394,11 @@ $(function () {
       if (!shownStats[key]) {
         const stats = instanceKeyTrialToStats[key];
         if (!stats) {
-          console.error("Cannot find stats for", key, instanceKeyTrialToStats);
+          console.warn("Cannot find stats for", key, instanceKeyTrialToStats);
+        } else {
+          $instance.append(renderPerInstanceStats(runSpec.groups, stats, runDisplayName));
+          shownStats[key] = true;
         }
-        $instance.append(renderPerInstanceStats(runSpec.groups, stats, runDisplayName));
-        shownStats[key] = true;
       }
 
       // Create a link for the request made to the API
@@ -475,7 +476,8 @@ $(function () {
       $instance.append($('<div>')
         .append($('<a>', {href}).append($('<b>').append(description)))
         .append(': ')
-        .append(prefix + prediction)
+        .append(prefix)
+        .append(prediction)
         .append($logProb));
     });
   }

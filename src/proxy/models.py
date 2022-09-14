@@ -386,7 +386,7 @@ ALL_MODELS = [
         group="together",
         creator_organization="BigScience",
         name="together/t0pp",
-        display_name="t0pp (11B)",
+        display_name="T0++ (11B)",
         # From https://huggingface.co/bigscience/T0pp
         description="T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks "
         "specified in natural language prompts.",
