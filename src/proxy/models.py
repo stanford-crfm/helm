@@ -64,17 +64,14 @@ class Model:
 
 
 # For the list of available models, see the following docs:
-#
-# OpenAI: https://help.openai.com/en/articles/5832130-what-s-changed-with-engine-names-and-best-practices
-# AI21: https://studio.ai21.com/docs/jurassic1-language-models/
 ALL_MODELS = [
-    # AI21
+    # AI21: https://studio.ai21.com/pricing
     Model(
         group="jurassic",
         creator_organization="AI21 Labs",
         name="ai21/j1-jumbo",
-        display_name="Jurassic Jumbo (178B)",
-        description="Jurassic J1-Jumbo (178B parameters)",
+        display_name="Jurassic Jumbo (180B)",
+        description="Jurassic J1-Jumbo (180B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     # From AI21: "the new model is a mid-point in terms of size, cost and performance between Jumbo and Large.
