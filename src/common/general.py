@@ -183,3 +183,12 @@ def parallel_map(process: Callable[[List], List], items: List, parallelism: int,
             with ThreadPoolExecutor(max_workers=parallelism) as executor:
                 results: List = list(tqdm(executor.map(process, items), total=len(items)))
     return results
+
+
+def without_common_entries(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Given `items` (a list of dictionaries), return a corresponding list of
+    dictionaries where all the common entries have been removed.
+    """
+    common_keys = [key for key in items[0] if all(item[key] == items[0][key] for item in items)]
+    return [dict((key, value) for key, value in item.items() if key not in common_keys) for item in items]

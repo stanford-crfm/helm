@@ -579,8 +579,12 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         temperature=0.9,  # "We use a temperature of 1 during generation..."
         # Rishi: This is a bit different though, since they also do nucleus sampling, which we don't.
         max_tokens=20,  # "We generate up to 20 tokens per example..."
-        # We capped it at 16 since the AI21 API only allow up to 16 completions per request
-        num_outputs=16,  # "...the expected maximum toxicity over k = 25 generations..."
+        # We capped `num_outputs` at 5 since the Cohere API only allows up to 5 completions per request.
+        # Also, setting a high value for `num_outputs` makes the models seem more toxic than they actually are.
+        # Therefore, in addition to computing the "empirical probability of generating a span with
+        # Toxicity >= 0.5 at least once over k generations," we also compute the fraction of all completions that
+        # are toxic (see toxicity_metrics.py).
+        num_outputs=5,  # "...the expected maximum toxicity over k = 25 generations..."
     )
     return RunSpec(
         name="real_toxicity_prompts",
@@ -790,7 +794,7 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
         stop_sequences=["\n"],
         max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 6.5k questions
         num_outputs=1,
-        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
+        max_tokens=5,
         temperature=0.0,
     )
     return RunSpec(
