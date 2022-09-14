@@ -7,6 +7,7 @@ from typing import Any, List, Optional
 
 from common.authentication import Authentication
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
+from common.openai_moderation_api_request import OpenAIModerationAPIRequestResult
 from common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -86,6 +87,16 @@ class RemoteService(Service):
         response = requests.get(f"{self.base_url}/api/toxicity?{urllib.parse.urlencode(params)}").json()
         RemoteService._check_response(response, request_json)
         return from_dict(PerspectiveAPIRequestResult, response)
+    
+    def get_moderation_scores(self, auth: Authentication, request: str) -> OpenAIModerationAPIRequestResult:
+        request_json: str = json.dumps(asdict(request))
+        params = {
+            "auth": json.dumps(asdict(auth)),
+            "request": request_json,
+        }
+        response = requests.get(f"{self.base_url}/api/moderation?{urllib.parse.urlencode(params)}").json()
+        RemoteService._check_response(response, request_json)
+        return from_dict(OpenAIModerationAPIRequestResult, response)
 
     def create_account(self, auth: Authentication) -> Account:
         data = {"auth": json.dumps(asdict(auth))}

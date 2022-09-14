@@ -5,6 +5,7 @@ from typing import List
 from common.authentication import Authentication
 from common.general import ensure_directory_exists, parse_hocon
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
+from common.openai_moderation_api_request import OpenAIModerationAPIRequestResult
 from common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -17,6 +18,7 @@ from proxy.accounts import Accounts, Account
 from proxy.clients.auto_client import AutoClient
 from proxy.example_queries import example_queries
 from proxy.clients.perspective_api_client import PerspectiveAPIClient
+from proxy.clients.openai_moderation_api_client import OpenAIModerationAPIClient
 from proxy.models import ALL_MODELS, get_model_group
 from proxy.query import Query, QueryResult
 from proxy.retry import retry_request
@@ -55,6 +57,10 @@ class ServerService(Service):
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
         self.perspective_api_client = PerspectiveAPIClient(
             api_key=credentials["perspectiveApiKey"] if "perspectiveApiKey" in credentials else "",
+            cache_path=cache_path,
+        )
+        self.openai_api_client = OpenAIModerationAPIClient(
+            api_key=credentials["OpenaiModerationApiKey"] if "OpenaiModerationApiKey" in credentials else "",
             cache_path=cache_path,
         )
 
@@ -112,6 +118,10 @@ class ServerService(Service):
         self.accounts.authenticate(auth)
         return get_toxicity_scores_with_retry(request)
 
+    def get_moderation_scores(self, auth: Authentication, request: str) -> OpenAIModerationAPIRequestResult:
+        self.accounts.authenticate(auth)
+        return self.openai_api_client.get_moderation_scores(request)
+        
     def create_account(self, auth: Authentication) -> Account:
         """Creates a new account."""
         return self.accounts.create_account(auth)

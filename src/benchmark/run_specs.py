@@ -98,6 +98,9 @@ def get_msmarco_metric_specs(task: str, track: str, qrels_path: str, topk: Optio
 def get_toxicity_metric_specs() -> List[MetricSpec]:
     return [
         MetricSpec(class_name="benchmark.toxicity_metrics.ToxicityMetric", args={}),
+    ] + [
+        MetricSpec(
+            class_name="benchmark.moderation_metrics.ModerationMetric", args={}),
     ]
 
 

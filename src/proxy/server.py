@@ -183,6 +183,15 @@ def handle_toxicity_request():
 
     return safe_call(perform)
 
+@app.get("/api/moderation")
+def handle_moderation_request():
+    def perform(args):
+        auth = Authentication(**json.loads(args["auth"]))
+        request = json.loads(args["request"])
+        return dataclasses.asdict(service.get_moderation_scores(auth, request))
+
+    return safe_call(perform)
+
 
 @app.get("/api/shutdown")
 def handle_shutdown():

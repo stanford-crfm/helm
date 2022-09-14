@@ -5,6 +5,7 @@ from typing import Dict, List, Tuple, Any
 
 from common.general import parse_hocon
 from common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
+from common.openai_moderation_api_request import OpenAIModerationAPIRequestResult
 from common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -99,6 +100,11 @@ class Service(ABC):
     @abstractmethod
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         """Get toxicity scores for a batch of text."""
+        pass
+    
+    @abstractmethod
+    def get_moderation_scores(self, auth: Authentication, request: str) -> OpenAIModerationAPIRequestResult:
+        """Get moderation scores for a piece of text."""
         pass
 
     @abstractmethod

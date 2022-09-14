@@ -236,6 +236,11 @@ metrics:
     short_display_name: Toxicity
     lower_is_better: true
     description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifer).
+  - name: moderation_probability
+    display_name: Moderation probability
+    short_display_name: Moderation
+    lower_is_better: true
+    description: Fraction of model outputs that would be moderated, based on the OpenAI moderation classifier.
 
   # Efficiency metrics:
   - name: training_co2_cost
@@ -398,6 +403,11 @@ metric_groups:
   - name: toxicity
     metrics:
     - name: toxicity_probability
+      split: ${main_split}
+  
+  - name: moderation
+    metrics:
+    - name: moderation_probability
       split: ${main_split}
 
   - name: efficiency
