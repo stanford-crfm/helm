@@ -108,8 +108,11 @@ class ScenarioGroup(Field):
     # Defines variables that are substituted in any of the metrics
     environment: Dict[str, str] = field(default_factory=dict)
 
-    # Where is this scenario relevant
-    tags: List[str] = field(default_factory=list)
+    # Which facets of model performance is this scenario group meant to capture, e.g., `question answering`,
+    # `knowledge`, `language`, `robustness`... For brevity, we allow the value `generic` as a facet, which gets expanded
+    # into the core metrics `["accuracy", "robustness", "fairness", "calibration", "efficiency"]` and is added to
+    # scenarios meant to capture realistic downstream tasks.
+    facets: List[str] = field(default_factory=list)
 
 
 @dataclass

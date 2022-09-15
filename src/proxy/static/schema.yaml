@@ -473,7 +473,7 @@ scenario_groups:
     environment:
       main_name: exact_match
       main_split: valid
-    tags:
+    facets:
         - generic
 
   - name: narrative_qa
@@ -488,7 +488,7 @@ scenario_groups:
     environment:
       main_name: f1_score
       main_split: test
-    tags:
+    facets:
         - generic
 
   - name: natural_qa
@@ -503,7 +503,7 @@ scenario_groups:
     environment:
       main_name: f1_score
       main_split: valid
-    tags:
+    facets:
         - generic
 
   - name: natural_qa_closedbook
@@ -544,7 +544,7 @@ scenario_groups:
     environment:
       main_name: f1_score
       main_split: valid
-    tags:
+    facets:
         - generic
 
   - name: hellaswag
@@ -559,7 +559,7 @@ scenario_groups:
     environment:
       main_name: exact_match
       main_split: valid
-    tags:
+    facets:
         - generic
 
   - name: openbookqa
@@ -574,7 +574,7 @@ scenario_groups:
     environment:
       main_name: exact_match
       main_split: test
-    tags:
+    facets:
         - generic
 
   - name: truthful_qa
@@ -589,7 +589,7 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: valid
-    tags:
+    facets:
         - generic
 
   - name: mmlu
@@ -604,7 +604,7 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
-    tags:
+    facets:
         - generic
         - knowledge
 
@@ -646,7 +646,7 @@ scenario_groups:
     environment:
       main_name: rouge_2
       main_split: test
-    tags:
+    facets:
         - generic
 
   - name: summarization_xsum
@@ -661,7 +661,7 @@ scenario_groups:
     environment:
       main_name: rouge_2
       main_split: test
-    tags:
+    facets:
         - generic
 
 # Sentiment analysis scenarios
@@ -677,7 +677,7 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: valid
-    tags:
+    facets:
         - generic
 
 # Text classification scenarios
@@ -693,7 +693,7 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
-    tags:
+    facets:
         - generic
 
 # Toxicity detection scenarios
@@ -709,7 +709,7 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
-    tags:
+    facets:
         - generic
 
 ## Language scenarios
@@ -723,7 +723,7 @@ scenario_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
-    tags:
+    facets:
         - language
 
   - name: the_pile
@@ -735,7 +735,7 @@ scenario_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
-    tags:
+    facets:
         - language
 
   - name: twitter_aae
@@ -747,7 +747,7 @@ scenario_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
-    tags:
+    facets:
         - language
 
 # Minimal pairs
@@ -760,7 +760,7 @@ scenario_groups:
     environment:
       main_name: exact_match
       main_split: test
-    tags:
+    facets:
         - language
 
 ## Knowledge scenarios
@@ -773,7 +773,7 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
-    tags:
+    facets:
         - knowledge
 
 ## Reasoning scenarios
@@ -787,7 +787,7 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
-    tags:
+    facets:
         - reasoning
 
   - name: dyck_language
@@ -799,7 +799,7 @@ scenario_groups:
     environment:
       main_name: exact_match_indicator
       main_split: test
-    tags:
+    facets:
         - reasoning
 
   - name: numeracy
@@ -811,7 +811,7 @@ scenario_groups:
     environment:
       main_name: absolute_value_difference
       main_split: test
-    tags:
+    facets:
         - reasoning
 
   - name: synthetic_reasoning
@@ -823,7 +823,7 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
-    tags:
+    facets:
         - reasoning
 
   - name: synthetic_reasoning_natural
@@ -835,7 +835,7 @@ scenario_groups:
     environment:
       main_name: f1_set_match
       main_split: test
-    tags:
+    facets:
         - reasoning
 
 # Realistic reasoning
@@ -848,7 +848,7 @@ scenario_groups:
     environment:
       main_name: exact_match_indicator
       main_split: test
-    tags:
+    facets:
         - reasoning
 
   - name: math_regular
@@ -860,7 +860,7 @@ scenario_groups:
     environment:
       main_name: math_equiv
       main_split: test
-    tags:
+    facets:
         - reasoning
 
   - name: math_chain_of_thought
@@ -872,7 +872,7 @@ scenario_groups:
     environment:
       main_name: math_equiv_chain_of_thought
       main_split: test
-    tags:
+    facets:
         - reasoning
 
   - name: code_apps
@@ -885,7 +885,7 @@ scenario_groups:
       # We do not include accuracy as it is subsumed by apps
       main_name: test_avg
       main_split: test
-    tags:
+    facets:
         - reasoning
 
   - name: code_humaneval
@@ -897,7 +897,7 @@ scenario_groups:
     environment:
       main_name: pass
       main_split: test
-    tags:
+    facets:
         - reasoning
 
   - name: legal_support
@@ -909,7 +909,7 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
-    tags:
+    facets:
         - reasoning
 
   - name: lsat_qa
@@ -921,7 +921,7 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
-    tags:
+    facets:
         - reasoning
 
   - name: entity_data_imputation
@@ -933,7 +933,7 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
-    tags:
+    facets:
         - reasoning
 
   - name: entity_matching
@@ -945,7 +945,7 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
-    tags:
+    facets:
         - reasoning
 
 ## Copyright scenarios
@@ -959,7 +959,7 @@ scenario_groups:
       - efficiency
     environment:
       main_split: test
-    tags:
+    facets:
         - copyright
 
 ## Disinformation scenarios
@@ -973,7 +973,7 @@ scenario_groups:
       - efficiency
     environment:
       main_split: valid
-    tags:
+    facets:
         - disinformation
 
   - name: disinformation_wedging
@@ -986,7 +986,7 @@ scenario_groups:
       - efficiency
     environment:
       main_split: valid
-    tags:
+    facets:
         - disinformation
 
 ## Bias scenarios
@@ -1000,7 +1000,7 @@ scenario_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
-    tags:
+    facets:
         - bias
 
 ## Toxicity scenarios
@@ -1013,7 +1013,7 @@ scenario_groups:
       - efficiency
     environment:
       main_split: test
-    tags:
+    facets:
         - toxicity
 
   - name: real_toxicity_prompts
@@ -1025,7 +1025,7 @@ scenario_groups:
       - efficiency
     environment:
       main_split: test
-    tags:
+    facets:
         - toxicity
 
 ## Efficiency scenarios
@@ -1036,5 +1036,5 @@ scenario_groups:
       - efficiency_detailed
     environment:
       main_split: test
-    tags:
+    facets:
         - efficiency

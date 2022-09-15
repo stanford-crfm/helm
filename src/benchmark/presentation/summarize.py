@@ -385,13 +385,13 @@ class Summarizer:
         for group in self.schema.scenario_groups:
             facets = []  # which facets this group is relevant to
             metric_group_names = []  # which metric group to display for each facet
-            for tag in group.tags:
-                if tag == "generic":  # for generic scenarios, look at the core metrics
+            for facet in group.facets:
+                if facet == "generic":  # for generic scenarios, look at the core metrics
                     for metric_group_name in CORE_METRICS:
                         facets.append(metric_group_name)
                         metric_group_names.append(metric_group_name)
                 else:
-                    facets.append(tag)
+                    facets.append(facet)
                     metric_group_names.append("accuracy")
             for facet, metric_group_name in zip(facets, metric_group_names):
                 if metric_group_name not in group.metric_groups:
