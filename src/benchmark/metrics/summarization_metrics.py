@@ -1,5 +1,6 @@
 import numpy as np
 import spacy
+from nltk import sent_tokenize
 import subprocess
 import sys
 from typing import List, Sequence, Dict
@@ -7,6 +8,11 @@ from typing import List, Sequence, Dict
 # Need to check spacy module is downloaded before importing DataStatsMetric
 if not spacy.util.is_package("en_core_web_sm"):
     subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
+try:
+    nltk.data.find('tokenizers/punkt.zip')
+except LookupError:
+    nltk.download('punkt')
+
 
 from summ_eval.data_stats_metric import DataStatsMetric
 
@@ -80,6 +86,15 @@ class SummarizationMetric(Metric):
     def _compute_faithfulness_scores(self, inp: str, pred: str) -> Dict[str, float]:
         return {"SummaC": self.summac.score_one(inp, pred)["score"]}
 
+    def _clean_incomplete_prediction(self, pred: str):
+        sents =sent_tokenize(pred)
+        if len(sents) > 1:
+            last_sentence = sents[-1]
+            if last_sentence.strip()[-1] not in ".?!" and last_sentence.strip()[-2:] not in [".\"", ".\'", "!\'", "!\"", "?\"", "?\'"]:
+                # rule-based checking for complete sentence
+                pred = " ".join(sents[:-1])
+        return pred
+
     def evaluate_generation(
         self,
         adapter_spec: AdapterSpec,
@@ -93,6 +108,7 @@ class SummarizationMetric(Metric):
 
         assert request_state.result is not None
         pred: str = request_state.result.completions[0].text.strip()
+        pred = self._clean_incomplete_prediction(pred)
 
         result: List[Stat] = []
 
