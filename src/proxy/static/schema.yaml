@@ -474,7 +474,8 @@ scenario_groups:
       main_name: exact_match
       main_split: valid
     facets:
-        - generic
+        - core_metrics
+        - question_answering
 
   - name: narrative_qa
     display_name: NarrativeQA
@@ -489,7 +490,8 @@ scenario_groups:
       main_name: f1_score
       main_split: test
     facets:
-        - generic
+        - core_metrics
+        - question_answering
 
   - name: natural_qa
     display_name: NaturalQuestions
@@ -504,7 +506,8 @@ scenario_groups:
       main_name: f1_score
       main_split: valid
     facets:
-        - generic
+        - core_metrics
+        - question_answering
 
   - name: natural_qa_closedbook
     display_name: NaturalQuestions (closed-book)
@@ -545,7 +548,8 @@ scenario_groups:
       main_name: f1_score
       main_split: valid
     facets:
-        - generic
+        - core_metrics
+        - question_answering
 
   - name: hellaswag
     display_name: HellaSwag
@@ -560,7 +564,9 @@ scenario_groups:
       main_name: exact_match
       main_split: valid
     facets:
-        - generic
+        - core_metrics
+        - question_answering
+        - reasoning
 
   - name: openbookqa
     display_name: OpenbookQA
@@ -575,7 +581,8 @@ scenario_groups:
       main_name: exact_match
       main_split: test
     facets:
-        - generic
+        - core_metrics
+        - question_answering
 
   - name: truthful_qa
     display_name: TruthfulQA
@@ -590,7 +597,8 @@ scenario_groups:
       main_name: quasi_exact_match
       main_split: valid
     facets:
-        - generic
+        - core_metrics
+        - question_answering
 
   - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
@@ -605,7 +613,8 @@ scenario_groups:
       main_name: quasi_exact_match
       main_split: test
     facets:
-        - generic
+        - core_metrics
+        - question_answering
         - knowledge
 
 # Information retrieval scenarios
@@ -620,6 +629,8 @@ scenario_groups:
     environment:
       main_name: RR@20
       main_split: valid
+    facets:
+        - information_retrieval
 
   - name: msmarco_trec
     display_name: MS MARCO (TREC track)
@@ -632,6 +643,8 @@ scenario_groups:
     environment:
       main_name: NDCG@20
       main_split: valid
+    facets:
+        - information_retrieval
 
 # Summarization scenarios
   - name: summarization_cnndm
@@ -647,7 +660,8 @@ scenario_groups:
       main_name: rouge_2
       main_split: test
     facets:
-        - generic
+        - core_metrics
+        - summarization
 
   - name: summarization_xsum
     display_name: XSUM
@@ -662,7 +676,8 @@ scenario_groups:
       main_name: rouge_2
       main_split: test
     facets:
-        - generic
+        - core_metrics
+        - summarization
 
 # Sentiment analysis scenarios
   - name: imdb
@@ -678,7 +693,8 @@ scenario_groups:
       main_name: quasi_exact_match
       main_split: valid
     facets:
-        - generic
+        - core_metrics
+        - sentiment_analysis
 
 # Text classification scenarios
   - name: raft
@@ -694,7 +710,8 @@ scenario_groups:
       main_name: quasi_exact_match
       main_split: test
     facets:
-        - generic
+        - core_metrics
+        - classification
 
 # Toxicity detection scenarios
   - name: civil_comments
@@ -710,7 +727,8 @@ scenario_groups:
       main_name: quasi_exact_match
       main_split: test
     facets:
-        - generic
+        - core_metrics
+        - toxicity_detection
 
 ## Language scenarios
 # Language modeling
@@ -960,7 +978,7 @@ scenario_groups:
     environment:
       main_split: test
     facets:
-        - copyright
+        - harms
 
 ## Disinformation scenarios
   - name: disinformation_reiteration
@@ -974,7 +992,7 @@ scenario_groups:
     environment:
       main_split: valid
     facets:
-        - disinformation
+        - harms
 
   - name: disinformation_wedging
     display_name: Disinformation (wedging)
@@ -987,7 +1005,7 @@ scenario_groups:
     environment:
       main_split: valid
     facets:
-        - disinformation
+        - harms
 
 ## Bias scenarios
   - name: bbq
@@ -1001,7 +1019,7 @@ scenario_groups:
       main_name: quasi_exact_match
       main_split: test
     facets:
-        - bias
+        - harms
 
 ## Toxicity scenarios
   - name: bold
@@ -1014,7 +1032,7 @@ scenario_groups:
     environment:
       main_split: test
     facets:
-        - toxicity
+        - harms
 
   - name: real_toxicity_prompts
     display_name: RealToxicityPrompts
@@ -1026,7 +1044,7 @@ scenario_groups:
     environment:
       main_split: test
     facets:
-        - toxicity
+        - harms
 
 ## Efficiency scenarios
   - name: synthetic_efficiency
@@ -1038,3 +1056,82 @@ scenario_groups:
       main_split: test
     facets:
         - efficiency
+
+facets:
+## Metric facets
+  - name: accuracy
+    display_name: Accuracy
+    description: Performance on downstream tasks
+    category: Metric
+
+  - name: calibration
+    display_name: Calibration
+    description: Calibration on downstream tasks
+    category: Metric
+
+  - name: efficiency
+    display_name: Efficiency
+    description: Efficiency on downstream tasks
+    category: Metric
+
+  - name: fairness
+    display_name: Fairness
+    description: Fairness on downstream tasks
+    category: Metric
+
+  - name: robustness
+    display_name: Robustness
+    description: Robustness on downstream tasks
+    category: Metric
+
+  - name: harms
+    display_name: Harms
+    description: Harmful behavior on downstream generative tasks
+    category: Metric
+
+## Task facets
+  - name: question_answering
+    display_name: Question answering
+    description: Performance on downstream question answering tasks
+    category: Task
+
+  - name: summarization
+    display_name: Summarization
+    description: Performance on downstream summarization tasks
+    category: Task
+
+  - name: information_retrieval
+    display_name: Information retrieval
+    description: Performance on downstream information retrieval tasks
+    category: Task
+
+  - name: sentiment_analysis
+    display_name: Sentiment analysis
+    description: Performance on downstream sentiment analysis tasks
+    category: Task
+
+  - name: classification
+    display_name: Classification
+    description: Performance on downstream classification tasks
+    category: Task
+
+  - name: toxicity_detection
+    display_name: Toxicity detection
+    description: Performance on downstream toxicity detection tasks
+    category: Task
+
+## Component facets
+  - name: language
+    display_name: Language modeling
+    description: Ability to model language
+    category: Component
+
+  - name: knowledge
+    display_name: Knowledge
+    description: Knowledge about the world
+    category: Component
+
+  - name: reasoning
+    display_name: Reasoning
+    description: Reasoning capabilities
+    category: Component

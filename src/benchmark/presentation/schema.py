@@ -115,6 +115,17 @@ class ScenarioGroup(Field):
     facets: List[str] = field(default_factory=list)
 
 
+@dataclass(frozen=True)
+class Facet(Field):
+    """
+    Captures a facet of model performance. This might be a family of tasks (e.g., question answering), a metric on
+    downstream tasks (e.g., robustness), or a component (e.g., reasoning) measured by targeted scenarios.
+    """
+
+    # Which broad category this facet corresponds to, e.g., "Metric", "Task", or "Component".
+    category: str = "Metric"
+
+
 @dataclass
 class Schema:
     """Specifies information about what to display on the frontend."""
@@ -128,6 +139,9 @@ class Schema:
     # Information about each perturbation
     perturbations: List[Field]
 
+    # Information about the facets
+    facets: List[Facet]
+
     # Group the metrics
     metric_groups: List[MetricGroup]
 
@@ -137,6 +151,7 @@ class Schema:
     def __post_init__(self):
         self.name_to_metric = {metric.name: metric for metric in self.metrics}
         self.name_to_perturbation = {perturbation.name: perturbation for perturbation in self.perturbations}
+        self.name_to_facet = {facet.name: facet for facet in self.facets}
         self.name_to_metric_group = {metric_group.name: metric_group for metric_group in self.metric_groups}
         self.name_to_scenario_group = {scenario_group.name: scenario_group for scenario_group in self.scenario_groups}
 

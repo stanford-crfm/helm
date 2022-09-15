@@ -628,7 +628,6 @@ $(function () {
   function renderTable(table) {
     const $output = $('<div>');
     $output.append($('<h3>').append(table.title));
-    console.log(table.links)
     const $table = $('<table>', {class: 'query-table results-table'});
     const $header = $('<tr>').append(table.header.map(renderCell));
     $table.append($header);
@@ -719,8 +718,8 @@ $(function () {
       });
     } else if (urlParams.facets) {
       // All facets
-      $.getJSON(`benchmark_output/runs/${suite}/facets.json`, {}, (response) => {
-        $main.append(renderTable(response));
+      $.getJSON(`benchmark_output/runs/${suite}/facets.json`, {}, (tables) => {
+        $main.append(renderTables(tables));
       });
     } else if (urlParams.facet) {
       // Specific facet

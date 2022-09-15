@@ -368,36 +368,42 @@ class Summarizer:
 
     def write_facets(self):
         """
+
         For each facet (e.g., accuracy, robustness, reasoning), we build:
-        - Main table (model x scenario_group): shows the performance of the model on the relevant scenario_groups
+        - Main table (adapter x scenario_group): shows the performance of the model on the relevant scenario_groups
         - An index table
         """
 
         facets_path = os.path.join(self.run_suite_path, "facets")
         ensure_directory_exists(facets_path)
-        # each scenario group can appear in a variety of facets so we will rely on facet -> model -> group -> cell dicts
+        # each scenario group can appear in a variety of facets so we rely on facet -> adapter -> group -> cell dicts
         facet_group_to_header_cell: Dict[str, Dict[str, Cell]] = defaultdict(dict)
-        facet_model_group_to_cell: Dict[str, Dict[str, Dict[str, Cell]]] = defaultdict(
+        facet_adapter_group_to_cell: Dict[str, Dict[str, Dict[str, Cell]]] = defaultdict(
             lambda: defaultdict(lambda: defaultdict(lambda: Cell("")))
         )
 
-        CORE_METRICS = ["accuracy", "robustness", "fairness", "calibration"]
+        # Go through scenario_groups and collect the run results for each facet.
+        # For realistic downstream tasks (e.g., NaturalQA), where we care about multiple aspects (metrics) of model
+        # performance, we use the shorthand "core_metrics" which we expand into the metrics below, along with the
+        # corresponding metric_group.
+        # Otherwise, we consider the first metric of the first metric_group.
+        CORE_METRICS = ["accuracy", "robustness", "fairness", "calibration", "efficiency"]
         for group in self.schema.scenario_groups:
             facets = []  # which facets this group is relevant to
             metric_group_names = []  # which metric group to display for each facet
             for facet in group.facets:
-                if facet == "generic":  # for generic scenarios, look at the core metrics
+                if facet == "core_metrics":  # expand core_metrics
                     for metric_group_name in CORE_METRICS:
                         facets.append(metric_group_name)
                         metric_group_names.append(metric_group_name)
                 else:
                     facets.append(facet)
-                    metric_group_names.append("accuracy")
+                    metric_group_names.append(group.metric_groups[0])
             for facet, metric_group_name in zip(facets, metric_group_names):
                 if metric_group_name not in group.metric_groups:
                     hlog(f"WARNING: {group.name} has no {metric_group_name}, skipping")
                     continue
-                metric = singleton(self.schema.name_to_metric_group[metric_group_name].metrics)
+                metric = self.schema.name_to_metric_group[metric_group_name].metrics[0]
                 matcher = metric.substitute(group.environment)
                 header_field = self.schema.name_to_metric[matcher.name]
                 header_name = header_field.get_short_display_name(arrow=True)
@@ -405,43 +411,53 @@ class Summarizer:
                 facet_group_to_header_cell[facet][group.name] = Cell(
                     f"{group.display_name} ({header_name})", description=description
                 )
-                for model_name, runs in self.group_model_to_runs[group.name].items():
-                    point = self.contamination.get_point(model_name, group.name)
-                    contamination_level = point.level if point is not None else None
-                    facet_model_group_to_cell[facet][model_name][group.name] = self.create_cell(
-                        runs, matcher, contamination_level
-                    )
+                adapter_to_runs = self.group_adapter_to_runs[group.name]
+                if len(adapter_to_runs) > 0:
+                    infos = without_common_entries(list(map(asdict_without_nones, adapter_to_runs.keys())))
+                    for (adapter_spec, runs), info in zip(adapter_to_runs.items(), infos):
+                        model = get_model(adapter_spec.model)
+                        # TODO: ideally, we want to display some of the info, but currently this is too much due to
+                        # different scenarios having different adapter specs (e.g., input prefix)
+                        display_name = get_model(model.name).display_name
+                        point = self.contamination.get_point(model.name, group.name)
+                        contamination_level = point.level if point is not None else None
+                        facet_adapter_group_to_cell[facet][display_name][group.name] = self.create_cell(
+                            runs, matcher, contamination_level
+                        )
 
-        # Write out index file with links to each facet
+        # Write out index file with links to each facet, we will create one table per facet category
         header = [
-            Cell("Scenario"),
+            Cell("Facet"),
             Cell("Description"),
             Cell("# scenario groups"),
         ]
-        rows = []
+        category_to_rows = defaultdict(list)
         facets = sorted(facet_group_to_header_cell.keys())
         for facet in facets:
-            rows.append(
+            facet_field = self.schema.name_to_facet[facet]
+            category_to_rows[facet_field.category].append(
                 [
-                    Cell(facet, href=get_benchmarking_url({"facet": facet})),
-                    Cell("todo"),
+                    Cell(facet_field.display_name, href=get_benchmarking_url({"facet": facet})),
+                    Cell(facet_field.description),
                     Cell(len(facet_group_to_header_cell[facet])),
                 ]
             )
-        write(
-            os.path.join(self.run_suite_path, "facets.json"),
-            json.dumps(asdict_without_nones(Table(title="Overview of facets", header=header, rows=rows))),
-        )
-        # Create the table for each facet, where rows are models and columns are the relevant scenarios
+        tables = []
+        for category, rows in category_to_rows.items():
+            tables.append(asdict_without_nones(Table(title=f"{category} facets", header=header, rows=rows)))
+        write(os.path.join(self.run_suite_path, "facets.json"), json.dumps(tables))
+
+        # Create the table for each facet, where rows are adapters and columns are the relevant scenarios
         for facet in facets:
             rows = []
             groups = facet_group_to_header_cell[facet].keys()
             header = [Cell("Model")] + [facet_group_to_header_cell[facet][group] for group in groups]
-            for model_name, group_to_cell in facet_model_group_to_cell[facet].items():
-                rows.append([Cell(get_model(model_name).display_name)] + [group_to_cell[group] for group in groups])
+            for display_name, group_to_cell in facet_adapter_group_to_cell[facet].items():
+                rows.append([Cell(display_name)] + [group_to_cell[group] for group in groups])
 
             rows.sort(key=lambda row: row[1].value or -1, reverse=True)  # TODO: better sorting
-            table = Table(title=facet, header=header, rows=rows)
+            table_name = self.schema.name_to_facet[facet].display_name
+            table = Table(title=table_name, header=header, rows=rows)
 
             base_path = os.path.join(facets_path, "latex")
             ensure_directory_exists(base_path)
