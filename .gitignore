@@ -7,6 +7,7 @@ pip-wheel-metadata/
 
 prod_env
 benchmark_output
+www
 proxy_api_key.txt
 microsoft_client.lock
 *.log
@@ -17,6 +18,7 @@ nltk_data/
 restricted
 
 # Percy's stuff
+rc
 nav
 tags
 notes.otl

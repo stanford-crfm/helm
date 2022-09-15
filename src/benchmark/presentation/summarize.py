@@ -5,11 +5,13 @@ from collections import defaultdict
 import urllib.parse
 
 import dacite
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 import json
 
-from common.general import write, ensure_directory_exists, asdict_without_nones, singleton
+from common.general import write, ensure_directory_exists, asdict_without_nones, singleton, without_common_entries
 from common.hierarchical_logger import hlog, htrack
+from benchmark.scenarios.scenario import ScenarioSpec
+from benchmark.adapter import AdapterSpec
 from benchmark.metrics.statistic import Stat
 from benchmark.runner import RunSpec
 from proxy.models import ALL_MODELS, get_model
@@ -54,6 +56,18 @@ def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) ->
 def get_benchmarking_url(params: Dict[str, str]) -> str:
     # Don't encode ' ' as '+'
     return "benchmarking.html?" + urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
+
+
+def dict_to_str(d: Dict[str, Any]) -> str:
+    return ", ".join(f"{k}: {v}" for k, v in d.items())
+
+
+def get_scenario_name(group: ScenarioGroup, scenario_spec: ScenarioSpec):
+    return group.name + "_" + dict_to_str(scenario_spec.args).replace(" ", "").replace("/", "_")
+
+
+def get_scenario_display_name(group: ScenarioGroup, scenario_spec: ScenarioSpec):
+    return f"{group.display_name} / {dict_to_str(scenario_spec.args)}"
 
 
 class Summarizer:
@@ -102,19 +116,21 @@ class Summarizer:
             else:
                 hlog(f"WARNING: {run_path} doesn't have run_spec.json or stats.json, skipping")
 
-        # Build mapping from scenario group (e.g., natural_qa) and model (e.g., openai/davinci) to list of runs
-        self.group_model_to_runs: Dict[str, Dict[str, List[Run]]] = defaultdict(lambda: defaultdict(list))
-        self.group_scenario_model_to_runs: Dict[str, Dict[str, List[Run]]] = defaultdict(
+        # For each scenario group (e.g., natural_qa), map
+        # (i) scenario spec (e.g., subject=philosophy) [optional] and
+        # (ii) adapter spec (e.g., model = openai/davinci)
+        # to list of runs
+        self.group_adapter_to_runs: Dict[str, Dict[AdapterSpec, List[Run]]] = defaultdict(lambda: defaultdict(list))
+        self.group_scenario_adapter_to_runs: Dict[ScenarioSpec, Dict[AdapterSpec, List[Run]]] = defaultdict(
             lambda: defaultdict(lambda: defaultdict(list))
         )
         for run in self.runs:
             for group in run.run_spec.groups:
-                model = run.run_spec.adapter_spec.model
-                # Assume it is sensible to shard by scenario arguments.
-                scenario = ", ".join(f"{k}: {v}" for k, v in run.run_spec.scenario_spec.args.items())
+                scenario_spec = run.run_spec.scenario_spec
+                adapter_spec = run.run_spec.adapter_spec
 
-                self.group_model_to_runs[group][model].append(run)
-                self.group_scenario_model_to_runs[group][scenario][model].append(run)
+                self.group_adapter_to_runs[group][adapter_spec].append(run)
+                self.group_scenario_adapter_to_runs[group][scenario_spec][adapter_spec].append(run)
 
     @htrack(None)
     def check_metrics_defined(self):
@@ -154,7 +170,7 @@ class Summarizer:
         ]
         rows = []
         for group in self.schema.scenario_groups:
-            num_runs = len(self.group_model_to_runs[group.name])
+            num_runs = len(self.group_adapter_to_runs[group.name])
             if num_runs == 0:
                 continue
             rows.append(
@@ -197,11 +213,11 @@ class Summarizer:
         return Cell(value=value, display_value=display_value, description=description, style=style)
 
     def create_group_table(
-        self, title: str, scenario_group: ScenarioGroup, model_to_runs: Dict[str, List[Run]], link_to_runs: bool
+        self, title: str, scenario_group: ScenarioGroup, adapter_to_runs: Dict[str, List[Run]], link_to_runs: bool
     ) -> Table:
         """
-        Create a table for a scenario_group (natural_qa) where each row is a
-        model and columns are constructed based on metrics.
+        Create a table for a scenario_group (natural_qa) where each row is an
+        adapter (e.g,  model) and columns are constructed based on metrics.
         """
 
         # Figure out what the columns of the table are.
@@ -210,7 +226,7 @@ class Summarizer:
         header: List[Cell] = []
         matchers: List[MetricNameMatcher] = []
 
-        header.append(Cell("Model"))
+        header.append(Cell("Adapter"))
         for metric_group_name in scenario_group.metric_groups:
             metric_group = self.schema.name_to_metric_group[metric_group_name]
             for metric in metric_group.metrics:
@@ -237,6 +253,7 @@ class Summarizer:
                 matchers.append(matcher)
 
         def run_spec_names_to_url(run_spec_names: List[str]) -> str:
+            # TODO: include display names
             return get_benchmarking_url(
                 {
                     "runSpecs": json.dumps(run_spec_names),
@@ -245,10 +262,14 @@ class Summarizer:
                 }
             )
 
+        # Compute adapter names (TODO: unify with findDiff)
+        infos = without_common_entries(list(map(asdict_without_nones, adapter_to_runs.keys())))
+
         # Populate the contents of the table
         rows = []
-        for model_name, runs in model_to_runs.items():
-            model = get_model(model_name)
+        for (adapter_spec, runs), info in zip(adapter_to_runs.items(), infos):
+            model = get_model(adapter_spec.model)
+            display_name = dict_to_str(info)
 
             # Link to all the runs under this model
             if link_to_runs:
@@ -258,7 +279,7 @@ class Summarizer:
                 href = None
 
             # Render contamination information
-            point = self.contamination.get_point(model_name, scenario_group.name)
+            point = self.contamination.get_point(model.name, scenario_group.name)
             if point is not None:
                 suffix = CONTAMINATION_SYMBOLS[point.level]  # Append to name of model
                 description = point.description
@@ -269,13 +290,13 @@ class Summarizer:
                 contamination_level = None
 
             rows.append(
-                [Cell(model.display_name + suffix, description=description, href=href)]
+                [Cell(display_name + suffix, description=description, href=href)]
                 + [self.create_cell(runs, matcher, contamination_level) for matcher in matchers]
             )
 
         # Link to all runs under all models (to compare models)
         all_run_spec_names = []
-        for runs in model_to_runs.values():
+        for runs in adapter_to_runs.values():
             for run in runs:
                 all_run_spec_names.append(run.run_spec.name)
         links = [Hyperlink(text="all models", href=run_spec_names_to_url(all_run_spec_names))]
@@ -305,27 +326,28 @@ class Summarizer:
             table_names = []
 
             # Show the table aggregating over all the scenarios in this group (e.g., babi-1, babi-2, etc.)
-            if len(self.group_scenario_model_to_runs[group.name]) > 1:
+            if len(self.group_scenario_adapter_to_runs[group.name]) > 1:
                 table = self.create_group_table(
                     title=f"{group.display_name}",
                     scenario_group=group,
-                    model_to_runs=self.group_model_to_runs[group.name],
+                    adapter_to_runs=self.group_adapter_to_runs[group.name],
                     link_to_runs=False,
                 )
                 tables.append(table)
                 table_names.append(group.name)
 
             # Show the table per scenario
-            for scenario in self.group_scenario_model_to_runs[group.name]:
-                scenario_display_name = f"{group.display_name} / {scenario}"
+            for scenario_spec in self.group_scenario_adapter_to_runs[group.name]:
+                scenario_name = get_scenario_name(group, scenario_spec)
+                scenario_display_name = get_scenario_display_name(group, scenario_spec)
                 table = self.create_group_table(
                     title=scenario_display_name,
                     scenario_group=group,
-                    model_to_runs=self.group_scenario_model_to_runs[group.name][scenario],
+                    adapter_to_runs=self.group_scenario_adapter_to_runs[group.name][scenario_spec],
                     link_to_runs=True,
                 )
                 tables.append(table)
-                table_names.append(group.name + "_" + scenario.replace(" ", ""))
+                table_names.append(scenario_name)
 
             if len(tables) == 0:
                 continue

@@ -68,17 +68,14 @@ class Model:
 
 
 # For the list of available models, see the following docs:
-#
-# OpenAI: https://help.openai.com/en/articles/5832130-what-s-changed-with-engine-names-and-best-practices
-# AI21: https://studio.ai21.com/docs/jurassic1-language-models/
 ALL_MODELS = [
-    # AI21
+    # AI21: https://studio.ai21.com/pricing
     Model(
         group="jurassic",
         creator_organization="AI21 Labs",
         name="ai21/j1-jumbo",
-        display_name="Jurassic Jumbo (178B)",
-        description="Jurassic J1-Jumbo (178B parameters)",
+        display_name="Jurassic Jumbo (180B)",
+        description="Jurassic J1-Jumbo (180B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     # From AI21: "the new model is a mid-point in terms of size, cost and performance between Jumbo and Large.
@@ -200,17 +197,24 @@ ALL_MODELS = [
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # Cohere models
-    # Model versioning and the possible versions are are not documented here:
+    # Cohere has not release the sizes of their models.
+    # Model versioning and the possible versions are not documented here:
     # https://docs.cohere.ai/generate-reference#model-optional.
-    # We got the names of the models from the Cohere Playground.
-    # TODO: find out the number of parameters and update descriptions
+    # So, instead, we got the names of the models from the Cohere Playground.
+    #
+    # Note that their tokenizer and model were trained on English text and
+    # they do not have a dedicated decode API endpoint, so the adaptation
+    # step for language modeling fails for certain Scenarios:
+    # the_pile:subset=ArXiv
+    # the_pile:subset=Github
+    # the_pile:subset=PubMed Central
     Model(
         group="cohere",
         creator_organization="Cohere",
         name="cohere/xlarge-20220609",
         display_name="Cohere xlarge",
         description="Cohere xlarge",
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="cohere",
@@ -218,7 +222,7 @@ ALL_MODELS = [
         name="cohere/large-20220720",
         display_name="Cohere large",
         description="Cohere large",
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="cohere",
@@ -226,7 +230,7 @@ ALL_MODELS = [
         name="cohere/medium-20220720",
         display_name="Cohere medium",
         description="Cohere medium",
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="cohere",
@@ -234,7 +238,7 @@ ALL_MODELS = [
         name="cohere/small-20220720",
         display_name="Cohere small",
         description="Cohere small",
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # GooseAI supported models
     Model(
@@ -383,7 +387,7 @@ ALL_MODELS = [
         group="together",
         creator_organization="BigScience",
         name="together/t0pp",
-        display_name="t0pp (11B)",
+        display_name="T0++ (11B)",
         # From https://huggingface.co/bigscience/T0pp
         description="T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks "
         "specified in natural language prompts.",
