@@ -256,7 +256,7 @@ $(function () {
 
   function renderScenarioInfo(scenario, scenarioPath, $scenarioInfo) {
     const $output = $('<div>');
-    $output.append($('<h3>').append(urlParams.scenarioDisplayName || renderScenarioDisplayNameArgs(scenario)));
+    $output.append($('<h3>').append(urlParams.scenarioDisplayName || renderScenarioDisplayName(scenario)));
     $output.append($('<div>').append($('<i>').append(urlParams.scenarioDescription || scenario.description)));
     $output.append($('<div>')
       .append($('<a>', {href: scenario.definition_path}).append('[code]'))

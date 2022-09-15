@@ -386,9 +386,9 @@ metric_groups:
 
   - name: bias
     metrics:
-    - name: bias_metric:mode=associations,demographic_category=race
+    - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
       split: ${main_split}
-    - name: bias_metric:mode=associations,demographic_category=gender
+    - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
       split: ${main_split}
     - name: bias_metric:mode=representation,demographic_category=race
       split: ${main_split}
