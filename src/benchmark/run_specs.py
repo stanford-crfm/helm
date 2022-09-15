@@ -283,8 +283,6 @@ def get_msmarco_spec(
 
     # Create metrics
     qrels_path: str = os.path.join("benchmark_output", "scenarios", "msmarco", "data", f"{task}_{track}_qrels.tsv")
-    metric_specs: List[MetricSpec] = get_msmarco_metric_specs(task, track, qrels_path, topk=valid_topk)
-    metric_specs += get_generative_harms_metric_specs()
 
     # Return RunSpec
     return RunSpec(
@@ -293,7 +291,8 @@ def get_msmarco_spec(
         f"num_train_queries={num_train_queries}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=metric_specs,
+        metric_specs=get_msmarco_metric_specs(task, track, qrels_path, topk=valid_topk)
+        + get_generative_harms_metric_specs(),
         groups=[f"msmarco_{track}"],
     )
 
