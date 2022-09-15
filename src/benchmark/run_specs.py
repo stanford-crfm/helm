@@ -121,14 +121,16 @@ def get_bias_metric_specs() -> List[MetricSpec]:
     ]
 
 
-def get_generative_harms_metric_specs() -> List[MetricSpec]:
-    return get_toxicity_metric_specs() + get_bias_metric_specs() + get_basic_metric_specs({"names": []})
+def get_generative_harms_metric_specs(include_basic_metrics: bool = False) -> List[MetricSpec]:
+    if include_basic_metrics:
+        return get_bias_metric_specs() + get_toxicity_metric_specs() + get_basic_metric_specs({"names": []})
+    return get_bias_metric_specs() + get_toxicity_metric_specs()
 
 
 def get_summarization_metric_specs(args: Dict[str, Any]) -> List[MetricSpec]:
     return [
         MetricSpec(class_name="benchmark.summarization_metrics.SummarizationMetric", args=args)
-    ] + get_generative_harms_metric_specs()
+    ] + get_basic_metric_specs({"names": []})
 
 
 def get_srn_metric_specs() -> List[MetricSpec]:
@@ -169,7 +171,7 @@ def get_copyright_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
         MetricSpec(
             class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_similarity"},
         ),
-    ] + get_generative_harms_metric_specs()
+    ] + get_basic_metric_specs({"names": []})
 
 
 def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
@@ -181,7 +183,7 @@ def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricS
         MetricSpec(
             class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "monte_carlo_entropy"},
         ),
-    ]
+    ] + get_basic_metric_specs({"names": []})
 
 
 def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
@@ -281,7 +283,6 @@ def get_msmarco_spec(
 
     # Create metrics
     qrels_path: str = os.path.join("benchmark_output", "scenarios", "msmarco", "data", f"{task}_{track}_qrels.tsv")
-    metric_specs: List[MetricSpec] = get_msmarco_metric_specs(task, track, qrels_path, topk=valid_topk)
 
     # Return RunSpec
     return RunSpec(
@@ -290,7 +291,8 @@ def get_msmarco_spec(
         f"num_train_queries={num_train_queries}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=metric_specs,
+        metric_specs=get_msmarco_metric_specs(task, track, qrels_path, topk=valid_topk)
+        + get_generative_harms_metric_specs(),
         groups=[f"msmarco_{track}"],
     )
 
@@ -313,7 +315,7 @@ def get_bold_spec(subject: str) -> RunSpec:
         name=f"bold:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_generative_harms_metric_specs(),
+        metric_specs=get_generative_harms_metric_specs(include_basic_metrics=True),
         groups=["bold"],
     )
 
@@ -339,7 +341,8 @@ def get_civil_comments_spec(subject: str) -> RunSpec:
         name=f"civil_comments:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["civil_comments"],
     )
 
@@ -396,7 +399,8 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
         name=f"wikifact:k={k},subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["wikifact"],
     )
 
@@ -475,7 +479,8 @@ def get_quac_spec() -> RunSpec:
         name="quac",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]})
+        + get_generative_harms_metric_specs(),
         groups=["quac"],
     )
 
@@ -500,7 +505,8 @@ def get_news_qa_spec() -> RunSpec:
         name="news_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]})
+        + get_generative_harms_metric_specs(),
         groups=["news_qa"],
     )
 
@@ -590,7 +596,7 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         name="real_toxicity_prompts",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_generative_harms_metric_specs(),
+        metric_specs=get_generative_harms_metric_specs(include_basic_metrics=True),
         groups=["real_toxicity_prompts"],
     )
 
@@ -620,7 +626,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         name=f"synthetic_reasoning_natural:difficulty={difficulty}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_srn_metric_specs(),
+        metric_specs=get_srn_metric_specs() + get_generative_harms_metric_specs(),
         groups=["synthetic_reasoning", "synthetic_reasoning_natural"],
     )
 
@@ -645,7 +651,7 @@ def get_gsm_spec() -> RunSpec:
         name="gsm",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match_indicator"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match_indicator"]}) + get_generative_harms_metric_specs(),
         groups=["gsm"],
     )
 
@@ -672,7 +678,8 @@ def get_raft_spec(subset: str) -> RunSpec:
         name=f"raft:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["raft"],
     )
 
@@ -774,7 +781,7 @@ def get_math_spec(
         f"use_official_examples={use_official_examples},use_chain_of_thought={use_chain_of_thought}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_math_metric_specs(use_chain_of_thought),  # type: ignore
+        metric_specs=get_math_metric_specs(use_chain_of_thought) + get_generative_harms_metric_specs(),  # type: ignore
         groups=groups,
     )
 
@@ -801,7 +808,8 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
         name="boolq" + (":only_contrast=True" if only_contrast else ""),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["boolq"],
     )
 
@@ -854,7 +862,8 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
         name="imdb" + (":only_contrast=True" if only_contrast else ""),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["imdb"],
     )
 
@@ -879,7 +888,8 @@ def get_babi_qa_spec(task: str = "all") -> RunSpec:
         name=f"babi_qa:task={task}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["babi_qa"],
     )
 
@@ -907,7 +917,8 @@ def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
         name=f"copyright:datatag={datatag}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_copyright_metric_specs({"normalize_by_prefix_length": True}),
+        metric_specs=get_copyright_metric_specs({"normalize_by_prefix_length": True})
+        + get_generative_harms_metric_specs(),
         groups=["copyright"],
     )
 
@@ -1030,7 +1041,7 @@ def get_code_spec(dataset: str, timeout=3) -> RunSpec:
         name=f"code:dataset={dataset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_code_metric_specs(dataset, timeout),
+        metric_specs=get_code_metric_specs(dataset, timeout) + get_generative_harms_metric_specs(),
         groups=[f"code_{dataset}"],
     )
 
@@ -1059,7 +1070,8 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         name=f"natural_qa:mode={mode}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match", "f1_score"]})
+        + get_generative_harms_metric_specs(),
         groups=["natural_qa", f"natural_qa_{mode}"],
     )
 
@@ -1141,7 +1153,8 @@ def get_narrativeqa_spec() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs(
             {"names": ["exact_match", "quasi_exact_match", "f1_score", "rouge-l", "bleu_1", "bleu_4"]}
-        ),
+        )
+        + get_generative_harms_metric_specs(),
         groups=["narrative_qa"],
     )
 
@@ -1175,7 +1188,7 @@ def get_synthetic_efficiency_spec(
         f"num_output_tokens={num_output_tokens},random={random}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match"]}) + get_generative_harms_metric_specs(),
         groups=["synthetic_efficiency"],
     )
 
@@ -1203,7 +1216,8 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         name=f"synthetic_reasoning:mode={mode}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["synthetic_reasoning", f"synthetic_reasoning_{mode}"],
     )
 
@@ -1289,7 +1303,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
         name=f"summarization_xsum:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"device": device}),
+        metric_specs=get_summarization_metric_specs({"device": device}) + get_generative_harms_metric_specs(),
         groups=["summarization_xsum"],
     )
 
@@ -1324,7 +1338,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = 
         name=f"summarization_xsum:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"device": device}),
+        metric_specs=get_summarization_metric_specs({"device": device}) + get_generative_harms_metric_specs(),
         groups=["summarization_xsum"],
     )
 
@@ -1354,7 +1368,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") 
         name=f"summarization_cnndm:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"device": device}),
+        metric_specs=get_summarization_metric_specs({"device": device}) + get_generative_harms_metric_specs(),
         groups=["summarization_cnndm"],
     )
 
@@ -1382,7 +1396,8 @@ def get_empatheticdialogues_spec() -> RunSpec:
         name="empatheticdialogues",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=[],
     )
 
@@ -1412,7 +1427,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         name=f"dyck_language_np={int(num_parenthesis_pairs)}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match_indicator"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match_indicator"]}) + get_generative_harms_metric_specs(),
         groups=["dyck_language"],
     )
 
@@ -1465,7 +1480,8 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
         name=f"entity_matching:dataset={dataset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["entity_matching"],
     )
 
@@ -1494,7 +1510,8 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
         name=f"entity_data_imputation:dataset={dataset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+        + get_generative_harms_metric_specs(),
         groups=["entity_data_imputation"],
     )
 
@@ -1582,6 +1599,7 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
         name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
+        # TODO add generative harms when applicable
         metric_specs=get_metric_specs(big_bench_task["metrics"]),
         groups=["BIG-bench"],
     )
