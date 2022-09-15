@@ -11,6 +11,7 @@ from proxy.models import (
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
     GPT2_TOKENIZER_TAG,
     AI21_TOKENIZER_TAG,
+    ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
@@ -115,7 +116,8 @@ class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
     name = "num_train_trials"
-    values_dict = {"default": [3]}
+    # TODO: increase to 3
+    values_dict = {"default": [1]}
 
 
 class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
@@ -123,7 +125,7 @@ class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
 
     name = "max_train_instances"
     values_dict = {
-        "all": [0, 1, 2, 4, 8, 16],
+        "all": [0, 1, 2, 4, 8, 16, 32, 64, 128, 256],
         "big_bench_few_shot_setting": [0, 1, 2, 3],  # Commonly used few-shot setting in BIG-bench
     }
 
@@ -153,6 +155,18 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "gpt2_tokenizer": get_model_names_with_tag(GPT2_TOKENIZER_TAG),
         "ai21_tokenizer": get_model_names_with_tag(AI21_TOKENIZER_TAG),
     }
+
+    # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")
+    # which contains the subset of models with the ablation tag.
+    ablation_models = set(get_model_names_with_tag(ABLATION_MODEL_TAG))
+    ablation_values_dict = {}
+    for family_name, models in values_dict.items():
+        ablation_values_dict["ablation_" + family_name] = list(ablation_models & set(models))
+    for family_name, models in ablation_values_dict.items():
+        if family_name == "ablation_all":
+            values_dict["ablation"] = models
+        else:
+            values_dict[family_name] = models
 
 
 ############################################################
