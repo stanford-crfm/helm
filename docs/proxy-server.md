@@ -9,7 +9,7 @@ To use the web interface, go to https://crfm-models.stanford.edu.
 
 To use the REST API, see [demo.py](demo.py).
 
-## Deploying locally (for developers)
+## Deploying locally
 
 Create `prod_env/credentials.conf` to contain the API keys for any language
 models you have access to.
@@ -20,6 +20,10 @@ models you have access to.
 To start a local server (go to `http://localhost:1959` to try it out):
 
     venv/bin/proxy-server
+
+When starting the server for the first time, the default admin account has the API key: `benchmarking123`.
+If you're deploying the server to production, create a new admin account and delete
+the default admin account.
 
 ### For macOS developers
 
