@@ -112,7 +112,7 @@ def get_scenario_spec_tiny():
 def get_adapter_spec1() -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Please solve the following problem.",
+        instructions="Please solve the following problem.\n",
         max_train_instances=5,
         max_eval_instances=10,
         num_outputs=3,
@@ -637,7 +637,7 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Please solve the following problem.",
+        instructions="Please solve the following problem.\n",
         max_train_instances=3,  # limited by the context length
         num_train_trials=1,
         temperature=0.0,
@@ -1129,7 +1129,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Please solve the following problem.",
+        instructions="Please solve the following problem.\n",
         max_train_instances=5,
         num_train_trials=1,
         temperature=0.0,
@@ -1186,7 +1186,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Summarize the given documents.",
+        instructions="Summarize the given documents.\n",
         input_prefix="Document: ",
         output_prefix="Summary: {",
         # TODO: why } not part of output_suffix?
@@ -1210,7 +1210,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
 def get_summarization_adapter_spec(**kwargs) -> str:
     return AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Summarize the given documents.",
+        instructions="Summarize the given documents.\n",
         input_prefix="Document: {",
         input_suffix="}\n",
         output_prefix="Summary: {",
