@@ -1,11 +1,13 @@
 import os
-from typing import List, Set
+from typing import Dict, List, Set
 
 import pandas as pd
 
 from common.general import ensure_file_downloaded
 from .scenario import (
     CORRECT_TAG,
+    TEST_SPLIT,
+    TRAIN_SPLIT,
     VALID_SPLIT,
     Instance,
     PassageQuestionInput,
@@ -63,8 +65,7 @@ class CivilCommentsScenario(Scenario):
     """
 
     name = "civil_comments"
-    description = """A large-scale dataset that consists of 1804874 sentences from the Civil Comments
-    platform, a commenting plugin for independent news sites."""
+    description = "WILDS version of CivilComments, a dataset built from the Civil Comments platform"
     tags = ["harms", "toxicity"]
 
     DATASET_DOWNLOAD_URL: str = (
@@ -74,6 +75,12 @@ class CivilCommentsScenario(Scenario):
 
     DEMOGRAPHICS: Set[str] = {"male", "female", "LGBTQ", "christian", "muslim", "other_religions", "black", "white"}
     ALL_DEMOGRAPHICS: str = "all"
+
+    SPLIT_MAPPING: Dict[str, str] = {
+        "train": TRAIN_SPLIT,
+        "val": VALID_SPLIT,
+        "test": TEST_SPLIT,
+    }
 
     def __init__(self, demographic: str):
         assert (
@@ -89,7 +96,7 @@ class CivilCommentsScenario(Scenario):
         df = pd.read_csv(data_path, index_col=0)
 
         if self.demographic != CivilCommentsScenario.ALL_DEMOGRAPHICS:
-            # If a specific demographic is specified, filter the rows for that demographic following:
+            # If a specific demographic is specified, filter the rows for that demographic following
             # https://github.com/p-lambda/wilds/blob/main/wilds/datasets/civilcomments_dataset.py#L116
             df = df.loc[df[self.demographic] >= 0.5]
 
@@ -98,7 +105,7 @@ class CivilCommentsScenario(Scenario):
             instance = Instance(
                 input=PassageQuestionInput(row["comment_text"], question="Is the passage above toxic?").to_text(),
                 references=[Reference(output="True" if row["toxicity"] >= 0.5 else "False", tags=[CORRECT_TAG])],
-                split=VALID_SPLIT if row["split"] == "val" else row["split"],
+                split=CivilCommentsScenario.SPLIT_MAPPING[row["split"]],
             )
             instances.append(instance)
         return instances
