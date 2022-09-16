@@ -341,7 +341,6 @@ def get_msmarco_spec(
         output_prefix="Answer: ",
         max_train_instances=4,  # Needs to be even to ensure equal number of correct and wrong examples
         num_outputs=1,
-        num_train_trials=1,
         temperature=0.0,
         stop_sequences=["\n"],
     )
@@ -427,7 +426,6 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
         input_prefix="",
         input_suffix="",
         output_prefix=" ",  # Separate subject and predicate by a space
-        num_train_trials=1,
         max_train_instances=5,
         num_outputs=int(k),  # We will measure accuracy@k
         temperature=1.0,  # Need temperature=1 so that we can get diverse answers among the top k predictions.
@@ -459,7 +457,6 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             output_prefix="Answer: ",
             max_train_instances=5,
             num_outputs=1,
-            num_train_trials=1,
             temperature=0.0,
             stop_sequences=["\n"],
         )
@@ -481,7 +478,6 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             max_train_instances=0,  # Appropriate for CLM approach
             num_outputs=1,
             max_tokens=0,
-            num_train_trials=1,
             temperature=0.0,
         )
         run_spec = RunSpec(
@@ -504,7 +500,6 @@ def get_quac_spec() -> RunSpec:
         method=ADAPT_GENERATION,
         input_prefix="",
         output_prefix="Answer: ",  # make sure this matches the rest of the dialogue
-        num_train_trials=1,
         max_train_instances=5,
         num_outputs=1,
         max_tokens=100,  # answers are at most 30 words
@@ -528,7 +523,6 @@ def get_news_qa_spec() -> RunSpec:
         method=ADAPT_GENERATION,
         input_prefix="Passage: ",
         output_prefix="Answer: ",
-        num_train_trials=1,
         max_train_instances=5,
         num_outputs=1,
         max_tokens=50,  # answers are at most 13 words
@@ -557,7 +551,6 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
         output_prefix="Answer: ",
         max_train_instances=5,
         num_outputs=1,
-        num_train_trials=1,
         max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
         temperature=0.0,
         stop_sequences=["\n"],
@@ -586,7 +579,6 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
         output_prefix="",
         max_train_instances=0,
         num_outputs=1,
-        num_train_trials=1,
         temperature=0.0,
         max_tokens=0,
     )
@@ -610,9 +602,8 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
         input_prefix="",
         input_suffix="",
         output_prefix="",
-        num_train_trials=1,
         max_train_instances=0,
-        max_eval_instances=2,
+        max_eval_instances=2,  # TODO: why is this so low?
         temperature=0.9,  # "We use a temperature of 1 during generation..."
         # Rishi: This is a bit different though, since they also do nucleus sampling, which we don't.
         max_tokens=20,  # "We generate up to 20 tokens per example..."
@@ -642,7 +633,6 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.\n",
         max_train_instances=3,  # limited by the context length
-        num_train_trials=1,
         temperature=0.0,
         stop_sequences=["\n"],
         num_outputs=1,
@@ -669,7 +659,6 @@ def get_gsm_spec() -> RunSpec:
         input_prefix="Q: ",
         input_suffix="",
         output_prefix="A: ",
-        num_train_trials=1,
         max_train_instances=5,  # Due to limited context and long example length
         temperature=0.0,
         stop_sequences=["\n\n"],  # Since answer may contain newlines, we use two as SEP
@@ -694,8 +683,6 @@ def get_raft_spec(subset: str) -> RunSpec:
         input_prefix="",
         output_prefix="Label: ",
         max_train_instances=5,
-        max_eval_instances=None,  # We only have <50 instances per subset
-        num_train_trials=1,
         temperature=0.0,
         stop_sequences=["\n"],
         num_outputs=1,
@@ -727,7 +714,6 @@ def get_numeracy_spec(
         adapter_args: Dict[str, Any] = {
             "max_train_instances": 100,
             "max_eval_instances": 100,
-            # "num_train_trials": 20,
             "dim": RELTYPE_INFO[relation_type].num_variables + 1,
         }
     elif mode == "function":
@@ -795,7 +781,6 @@ def get_math_spec(
         instructions="Given a mathematics problem, determine the answer. Simplify your answer as much as possible.\n",
         max_train_instances=8,
         num_outputs=1,
-        num_train_trials=1,
         temperature=0.0,
         stop_sequences=stop_sequences,
         max_tokens=max_tokens,
@@ -886,9 +871,7 @@ def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
         input_suffix="",
         output_prefix="",
         max_train_instances=0,
-        num_train_trials=1,
         temperature=0.2,
-        max_eval_instances=None,
         num_outputs=1,
         max_tokens=1024,
     )
@@ -919,7 +902,6 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             # Justification: Inspection. max_train_instances = 0 or 1 led to worse generations. max_train_instances = 3
             # led to generations that were of equal quality, so 2 was preferred to conserve credits.
             max_train_instances=2,
-            num_train_trials=1,
             # Justification: The CSET paper uses temperature=0.7 in the equivalent setting in the
             # Pull_Climate_Skepticism.ipynb notebook located at
             # https://github.com/georgetown-cset/GPT3-Disinformation/blob/main/Narrative_Amplification/
@@ -937,7 +919,6 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             input_suffix="",
             output_prefix="",
             max_train_instances=0,
-            num_train_trials=1,
             # Justification: The CSET paper uses temperature=0.7 in the equivalent setting in all notebooks at
             # https://github.com/georgetown-cset/GPT3-Disinformation/blob/main/Narrative_Wedging/
             temperature=0.7,
@@ -979,11 +960,9 @@ def get_code_spec(dataset: str, timeout=3) -> RunSpec:
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
             instructions="",
-            max_train_instances=0,
             # in-context examples are generally too long to fit in the model context window
-            max_eval_instances=10000,
+            max_train_instances=0,
             num_outputs=1,
-            num_train_trials=1,
             temperature=0.2,
             # Taken from the original OpenAI paper to prevent the further generation of irrelevant classes/functions
             stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],
@@ -998,9 +977,7 @@ def get_code_spec(dataset: str, timeout=3) -> RunSpec:
             method=ADAPT_GENERATION,
             instructions="",
             max_train_instances=2,  # Follows the original paper https://arxiv.org/pdf/2105.09938.pdf Appendix D.
-            max_eval_instances=10000,
             num_outputs=1,
-            num_train_trials=1,
             temperature=0.2,
             stop_sequences=[
                 "'''",
@@ -1033,7 +1010,6 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         method=ADAPT_GENERATION,
         input_prefix="Question: " if mode == "closedbook" else "",
         output_prefix="Answer: ",
-        num_train_trials=1,
         max_train_instances=5,
         num_outputs=1,
         max_tokens=300,  # answers are at most 65 words
@@ -1104,7 +1080,6 @@ def get_synthetic_efficiency_spec(
         method=ADAPT_GENERATION,
         instructions="",
         max_train_instances=0,
-        num_train_trials=1,
         temperature=0.0,
         stop_sequences=[],
         num_outputs=1,
@@ -1134,7 +1109,6 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.\n",
         max_train_instances=5,
-        num_train_trials=1,
         temperature=0.0,
         stop_sequences=["\n"],
         num_outputs=1,
@@ -1193,9 +1167,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
         input_prefix="Document: ",
         output_prefix="Summary: {",
         # TODO: why } not part of output_suffix?
-        num_train_trials=1,
         max_train_instances=5,
-        max_eval_instances=None,
         num_outputs=1,
         max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
@@ -1355,9 +1327,7 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
         input_prefix="",
         input_suffix="",
         output_prefix=" ",
-        num_train_trials=1,
         max_train_instances=5,
-        max_eval_instances=None,
         num_outputs=1,
         max_tokens=5,  # answers are generally 1 token (Yes/No)
         temperature=0.0,
@@ -1386,9 +1356,7 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
         input_suffix="",
         output_prefix=" ",
         output_suffix="\n",
-        num_train_trials=1,
         max_train_instances=5,
-        max_eval_instances=None,
         num_outputs=1,
         max_tokens=5,
         temperature=0.0,
@@ -1459,13 +1427,11 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=get_adaptation_method(big_bench_task["metrics"]),
         model="openai/text-curie-001",  # Can override with the `ModelRunExpander`.
-        num_train_trials=1,  # Can override with the `NumTrainTrialsRunExpander`.
         max_train_instances=0,  # Can override with the `MaxTrainInstancesRunExpander`.
         num_outputs=1,  # Can override with the `NumOutputsRunExpander`.
         # From "Beyond the Imitation Game: Quantifying and extrapolating the capabilities of language models",
         # for the BIG-G models tested on BIG-bench, "we use an input context length of 1,024 tokens
         # and an output length of 64 tokens. We evaluate on up to 1,000 examples per task".
-        max_eval_instances=1000,  # Can override with --max-eval-instances command-line argument.
         max_tokens=64,
         # "all model outputs were sampled greedily (with zero temperature), unless otherwise noted."
         temperature=0,
@@ -1512,8 +1478,6 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
     # adaptation method that handles the prompt construction for multiple-choice QA for us.
     adapter_spec = AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        num_train_trials=1,
-        max_eval_instances=550,  # The dev (50 examples) + test (500 examples) split has 550 examples total.
         max_train_instances=0,  # We want to reproduce the zero-shot performance.
         # "We sampled one completion per prompt with a temperature of zero..."
         num_outputs=1,
