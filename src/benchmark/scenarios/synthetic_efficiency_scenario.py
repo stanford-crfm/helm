@@ -1,6 +1,5 @@
 import os
 from typing import List
-import urllib.parse
 
 from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, TEST_SPLIT, CORRECT_TAG
@@ -19,10 +18,6 @@ NUM_INPUT_TOKENS: List[int] = [
 ]
 NUM_OUTPUT_TOKENS: List[int] = [1, 2, 4, 8, 16, 32, 64]
 
-BASE_URL = (
-    "https://raw.githubusercontent.com/stanford-crfm/benchmarking_efficiency/main/synthetic_efficiency_instances/"
-)
-
 
 class SyntheticEfficiencyScenario(Scenario):
     """
@@ -38,6 +33,8 @@ class SyntheticEfficiencyScenario(Scenario):
     We gather input text from fixed public domain sources and vary various parameters,
     including the model the number of input and output tokens, the number of
     input instances, the number of output completions.
+
+    The dataset is stored at https://worksheets.codalab.org/bundles/0x1ee8f5b532fe443db6a9e5b7da0c3b74.
     """
 
     name = "synthetic_efficiency"
@@ -47,30 +44,30 @@ class SyntheticEfficiencyScenario(Scenario):
     def __init__(self, num_prompt_tokens: int, num_instances: int, tokenizer: str):
         self.num_prompt_tokens: int = num_prompt_tokens
         self.num_instances: int = num_instances
-        self.tokenizer = tokenizer
+        self.tokenizer: str = tokenizer
         assert self.tokenizer in ["huggingface/gpt2", "ai21/j1"]
 
     def get_instances(self) -> List[Instance]:
-        data_paths = []
+        instances: List[Instance] = []
         for instance_id in range(self.num_instances):
-            parameters = (
+            file_name: str = (
                 f"num_prompt_tokens={self.num_prompt_tokens},"
                 f"tokenizer={self.tokenizer.replace('/', '_')},"
                 f"id={instance_id}.txt"
             )
-            source_url = f"{BASE_URL}{urllib.parse.quote(parameters)}"
-            data_path = os.path.join(self.output_path, parameters.replace("/", "_"))
+            data_path: str = os.path.join(self.output_path, file_name)
             ensure_file_downloaded(
-                source_url=source_url, target_path=data_path, unpack=False,
+                source_url=f"https://worksheets.codalab.org/rest/bundles/0x1ee8f5b532fe443db6a9e5b7da0c3b74/"
+                f"contents/blob/{file_name}",
+                target_path=data_path,
+                unpack=False,
             )
-            data_paths.append(data_path)
 
-        instances = []
-        for data_path in data_paths:
             with open(data_path, "r") as f:
-                prompt = f.read()
+                prompt: str = f.read()
                 instance = Instance(
                     input=prompt, references=[Reference(output="", tags=[CORRECT_TAG])], split=TEST_SPLIT,
                 )
                 instances.append(instance)
+
         return instances

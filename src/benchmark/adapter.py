@@ -76,8 +76,8 @@ class AdapterSpec:
     # Maximum number of tokens to generate
     max_tokens: int = 100
 
-    # When to stop
-    stop_sequences: List[str] = field(default_factory=list)
+    # When to stop (set hash=False to make `AdapterSpec` hashable)
+    stop_sequences: List[str] = field(default_factory=list, hash=False)
 
     # Random string (used concretely to bypass cache / see diverse results)
     random: Optional[str] = None

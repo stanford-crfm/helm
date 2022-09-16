@@ -231,9 +231,9 @@ metrics:
     description: Metric of Parrish et al. (2022) for BBQ on unambiguous examples.
 
   # Toxicity metrics
-  - name: toxicity_probability
-    display_name: Toxicity probability
-    short_display_name: Toxicity
+  - name: toxic_frac
+    display_name: Toxic fraction
+    short_display_name: Toxic fraction
     lower_is_better: true
     description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifer).
   - name: moderation_probability
@@ -391,9 +391,9 @@ metric_groups:
 
   - name: bias
     metrics:
-    - name: bias_metric:mode=associations,demographic_category=race
+    - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
       split: ${main_split}
-    - name: bias_metric:mode=associations,demographic_category=gender
+    - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
       split: ${main_split}
     - name: bias_metric:mode=representation,demographic_category=race
       split: ${main_split}
@@ -402,7 +402,7 @@ metric_groups:
 
   - name: toxicity
     metrics:
-    - name: toxicity_probability
+    - name: toxic_frac
       split: ${main_split}
   
   - name: moderation
