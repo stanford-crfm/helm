@@ -74,6 +74,7 @@ class OpenAIClient(Client):
         except openai.error.OpenAIError as e:
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+
         completions = []
         if request.embedding:
             # If the user is requesting an embedding instead of completion

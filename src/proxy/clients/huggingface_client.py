@@ -119,6 +119,7 @@ class HuggingFaceClient(Client):
         # Embedding not supported for this model
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
+
         # Only a single stop sequence is supported as we can only pass in a single value for `eos_token_id`
         if len(request.stop_sequences) > 1:
             raise ValueError("More than one stop sequence is not supported.")
