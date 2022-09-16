@@ -41,95 +41,40 @@ class CivilCommentsScenario(Scenario):
     platform, a commenting plugin for independent news sites."""
     tags = ["harms", "toxicity"]
 
-    """ Information needed to retrieve Civil Comments datasets. """
-    CODALAB_URI_TEMPLATE: str = "https://worksheets.codalab.org/rest/bundles/{bundle}/contents/blob/"
-    DATA_URI = CODALAB_URI_TEMPLATE.format(bundle="0x7fb0422153f141de9c9c91148a3694f2")
-    CATEGORIES = [
-        "asian",
-        "atheist",
-        "bisexual",
-        "black",
-        "buddhist",
-        "christian",
-        "female",
-        "heterosexual",
-        "hindu",
-        "homosexual_gay_or_lesbian",
-        "intellectual_or_learning_disability",
-        "jewish",
-        "latino",
-        "male",
-        "muslim",
-        "other_disability",
-        "other_gender",
-        "other_race_or_ethnicity",
-        "other_religion",
-        "other_sexual_orientation",
-        "physical_disability",
-        "psychiatric_or_mental_illness",
-        "transgender",
-        "white",
-    ]
+    # Populated from https://wilds.stanford.edu/datasets/#problem-setting-5
+    DEMOGRAPHICS: List[str] = ["male", "female", "LGBTQ", "Christian", "Muslim", "other religions" "Black", "White"]
+    ALL_DEMOGRAPHICS: str = "all"
 
-    def __init__(self, subject: str = "all", random_seed=42):
-        self.subject = subject
-        self.random_seed = random_seed
-
-    def download_file(self, urlstring: str, target_file_name: str) -> str:
-        """ Download the resource at urlstring and return the absolute path.
-        Downloaded file is saved to a directory named 'data' in self.output_path.
-        """
-        data_path = os.path.join(self.output_path, "data")
-        ensure_directory_exists(data_path)
-        target_file_path = os.path.join(data_path, target_file_name)
-        ensure_file_downloaded(source_url=urlstring, target_path=target_file_path)
-        return target_file_path
-
-    def download_helper(self) -> str:
-        """ Call download_file for self.DATA_URI and return the file path to the downloaded file. """
-
-        if self.subject == "all":
-            # since loading all the examples is too memory-intensive
-            # and since max_eval_instances is typically not more than
-            # 1000 examples, we work with a randomly sampled 10%
-            # subset of the dataset
-            target_file_name = "civil_comments_10pct.csv"
-        else:
-            assert self.subject in self.CATEGORIES
-            target_file_name = f"civil_comments_{self.subject}.csv"
-
-        urlstring = self.DATA_URI + target_file_name
-        file_path = self.download_file(urlstring, target_file_name)
-        return file_path
+    def __init__(self, demographic: str):
+        assert (
+            demographic == CivilCommentsScenario.ALL_DEMOGRAPHICS or demographic in CivilCommentsScenario.DEMOGRAPHICS
+        ), f"Invalid demographic: {demographic}"
+        self.demographic: str = demographic
 
     def get_instances(self) -> List[Instance]:
-        random.seed(self.random_seed)
-
-        file_path = self.download_helper()
-        assert os.path.exists(file_path)
-        df = pd.read_csv(file_path)
-
-        data = np.stack(df["comment_text"].tolist())
-        train_x, test_x, train_y, test_y = train_test_split(
-            data, df["target"], test_size=0.2, random_state=self.random_seed
+        data_path: str = os.path.join(self.output_path, "wilds_civil_comments.csv")
+        ensure_file_downloaded(
+            source_url="https://worksheets.codalab.org/rest/bundles/0x1ee8f5b532fe443db6a9e5b7da0c3b74/"
+            "contents/blob/all_data_with_identities.csv",
+            target_path=data_path,
+            unpack=False,
         )
+        df = pd.read_csv(data_path)
 
-        dataset_splits = {
-            TRAIN_SPLIT: (train_x, train_y),
-            TEST_SPLIT: (test_x, test_y),
-        }
+        if self.demographic != CivilCommentsScenario.ALL_DEMOGRAPHICS:
+            # TODO: filter here
+            pass
 
-        # Read all instances
         instances: List[Instance] = []
-        question = "Is the passage above toxic?"
-        for split, subset in dataset_splits.items():
-            data_x, data_y = subset
-            for (x, y) in zip(data_x, data_y):
-                instance = Instance(
-                    input=PassageQuestionInput(passage=x, question=question).to_text(),
-                    references=[Reference(output=bool_to_response[y >= 0.5], tags=[CORRECT_TAG])],
-                    split=split,
-                )
-                instances.append(instance)
+        for _, row in df.iterrows():
+            import pdb
+
+            pdb.set_trace()
+            instance = Instance(
+                input=PassageQuestionInput(passage=x, question="Is the passage above toxic?").to_text(),
+                references=[Reference(output=bool_to_response[y >= 0.5], tags=[CORRECT_TAG])],
+                split=split,
+            )
+            instances.append(instance)
 
         return instances
