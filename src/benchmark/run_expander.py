@@ -84,17 +84,38 @@ class ReplaceRunSpecValueRunExpander(RunExpander):
         ]
 
 
+class InstructionsRunExpander(RunExpander):
+    """
+    Set the instructions of the prompt.
+    """
+
+    name = "instructions"
+
+    def __init__(self, value):
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec = run_spec.adapter_spec
+        if self.value == "none":
+            adapter_spec = replace(
+                adapter_spec,
+                instructions="",
+            )
+        else:
+            raise Exception("Unknown value: {self.value}")
+        return [
+            replace(run_spec, name=f"{run_spec.name},{self.name}={self.value}", adapter_spec=adapter_spec),
+        ]
+
+
 class PromptRunExpander(RunExpander):
     """
-    Set the prompting (input, output prefix).
+    Set the prompt.
     """
 
     name = "prompt"
 
     def __init__(self, value):
-        """
-        `value` is either the actual value to use or a lookup into the values dict.
-        """
         self.value = value
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
@@ -109,9 +130,11 @@ class PromptRunExpander(RunExpander):
                 stop_sequences=['".'],
             )
         elif self.value == "qa":
-            adapter_spec = replace(adapter_spec, input_prefix="Q: ", output_prefix="A: ",)
+            adapter_spec = replace(adapter_spec, input_prefix="Q: ", output_prefix="A: ")
         elif self.value == "question_answer":
-            adapter_spec = replace(adapter_spec, input_prefix="Question: ", output_prefix="Answer: ",)
+            adapter_spec = replace(adapter_spec, input_prefix="Question: ", output_prefix="Answer: ")
+        elif self.value == "input_output":
+            adapter_spec = replace(adapter_spec, input_prefix="Input: ", output_prefix="Output: ")
         else:
             raise Exception("Unknown value: {self.value}")
         return [
