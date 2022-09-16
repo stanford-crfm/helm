@@ -118,8 +118,8 @@ class ScenarioGroup(Field):
 @dataclass(frozen=True)
 class Facet(Field):
     """
-    Captures a facet of model performance. This might be a family of tasks (e.g., question answering), a metric on
-    downstream tasks (e.g., robustness), or a component (e.g., reasoning) measured by targeted scenarios.
+    Captures a facet of model performance. This might be a _metric_ on downstream tasks (e.g., robustness) or a family
+    of scenarios, grouped by downstream _task_ (e.g., question answering) or _component_ (e.g., reasoning).
     """
 
     # Which broad category this facet corresponds to, e.g., "Metric", "Task", or "Component".

@@ -567,6 +567,7 @@ scenario_groups:
         - core_metrics
         - question_answering
         - reasoning
+        - knowledge
 
   - name: openbookqa
     display_name: OpenbookQA
@@ -583,6 +584,7 @@ scenario_groups:
     facets:
         - core_metrics
         - question_answering
+        - knowledge
 
   - name: truthful_qa
     display_name: TruthfulQA
@@ -599,6 +601,7 @@ scenario_groups:
     facets:
         - core_metrics
         - question_answering
+        - knowledge
 
   - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
@@ -1084,9 +1087,14 @@ facets:
     description: Robustness on downstream tasks
     category: Metric
 
-  - name: harms
-    display_name: Harms
-    description: Harmful behavior on downstream generative tasks
+  - name: bias
+    display_name: Bias
+    description: Bias on downstream generative tasks
+    category: Metric
+
+  - name: toxicity
+    display_name: Toxicity
+    description: Toxic generations on downstream tasks
     category: Metric
 
 ## Task facets
@@ -1122,7 +1130,7 @@ facets:
 
 ## Component facets
   - name: language
-    display_name: Language modeling
+    display_name: Language
     description: Ability to model language
     category: Component
 
@@ -1134,4 +1142,9 @@ facets:
   - name: reasoning
     display_name: Reasoning
     description: Reasoning capabilities
+    category: Component
+
+  - name: harms
+    display_name: Harms
+    description: Harmful behavior
     category: Component

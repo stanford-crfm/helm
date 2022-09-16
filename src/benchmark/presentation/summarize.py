@@ -387,7 +387,7 @@ class Summarizer:
         # performance, we use the shorthand "core_metrics" which we expand into the metrics below, along with the
         # corresponding metric_group.
         # Otherwise, we consider the first metric of the first metric_group.
-        CORE_METRICS = ["accuracy", "robustness", "fairness", "calibration", "efficiency"]
+        CORE_METRICS = ["accuracy", "robustness", "fairness", "calibration", "efficiency", "bias", "toxicity"]
         for group in self.schema.scenario_groups:
             facets = []  # which facets this group is relevant to
             metric_group_names = []  # which metric group to display for each facet
@@ -399,6 +399,9 @@ class Summarizer:
                 else:
                     facets.append(facet)
                     metric_group_names.append(group.metric_groups[0])
+
+            # For each facet, retrieve all the runs where the corresponding metric_group_name is being evaluated and add
+            # cells to the (sparse) table facet_adapter_group_to_cll[facet]: Dict[str, Dict[str, Cell]]
             for facet, metric_group_name in zip(facets, metric_group_names):
                 if metric_group_name not in group.metric_groups:
                     hlog(f"WARNING: {group.name} has no {metric_group_name}, skipping")
@@ -431,7 +434,7 @@ class Summarizer:
             Cell("Description"),
             Cell("# scenario groups"),
         ]
-        category_to_rows = defaultdict(list)
+        category_to_rows: Dict[str, List[Cell]] = defaultdict(list)
         facets = sorted(facet_group_to_header_cell.keys())
         for facet in facets:
             facet_field = self.schema.name_to_facet[facet]
@@ -442,10 +445,14 @@ class Summarizer:
                     Cell(len(facet_group_to_header_cell[facet])),
                 ]
             )
-        tables = []
+        tables: List[Table] = []
         for category, rows in category_to_rows.items():
-            tables.append(asdict_without_nones(Table(title=f"{category} facets", header=header, rows=rows)))
-        write(os.path.join(self.run_suite_path, "facets.json"), json.dumps(tables))
+            tables.append(Table(title=f"{category} facets", header=header, rows=rows))
+
+        write(
+            os.path.join(self.run_suite_path, "facets.json"),
+            json.dumps([asdict_without_nones(table) for table in tables]),
+        )
 
         # Create the table for each facet, where rows are adapters and columns are the relevant scenarios
         for facet in facets:
@@ -455,7 +462,6 @@ class Summarizer:
             for display_name, group_to_cell in facet_adapter_group_to_cell[facet].items():
                 rows.append([Cell(display_name)] + [group_to_cell[group] for group in groups])
 
-            rows.sort(key=lambda row: row[1].value or -1, reverse=True)  # TODO: better sorting
             table_name = self.schema.name_to_facet[facet].display_name
             table = Table(title=table_name, header=header, rows=rows)
 
