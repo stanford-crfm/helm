@@ -542,8 +542,9 @@ class DataAugmentationRunExpander(RunExpander):
 RUN_EXPANDERS = dict(
     (expander.name, expander)
     for expander in [
-        StopRunExpander,
+        InstructionsRunExpander,
         PromptRunExpander,
+        StopRunExpander,
         NumTrainTrialsRunExpander,
         MaxTrainInstancesRunExpander,
         NumOutputsRunExpander,
