@@ -68,6 +68,11 @@ class CivilCommentsScenario(Scenario):
     platform, a commenting plugin for independent news sites."""
     tags = ["harms", "toxicity"]
 
+    DATASET_DOWNLOAD_URL: str = (
+        "https://worksheets.codalab.org/rest/bundles/0x8cd3de0634154aeaad2ee6eb96723c6e/"
+        "contents/blob/all_data_with_identities.csv"
+    )
+
     DEMOGRAPHICS: List[str] = ["male", "female", "LGBTQ", "christian", "muslim", "other_religions", "black", "white"]
     ALL_DEMOGRAPHICS: str = "all"
 
@@ -80,10 +85,7 @@ class CivilCommentsScenario(Scenario):
     def get_instances(self) -> List[Instance]:
         data_path: str = os.path.join(self.output_path, "wilds_civil_comments.csv")
         ensure_file_downloaded(
-            source_url="https://worksheets.codalab.org/rest/bundles/0x8cd3de0634154aeaad2ee6eb96723c6e/"
-            "contents/blob/all_data_with_identities.csv",
-            target_path=data_path,
-            unpack=False,
+            source_url=CivilCommentsScenario.DATASET_DOWNLOAD_URL, target_path=data_path, unpack=False,
         )
         df = pd.read_csv(data_path, index_col=0)
 
