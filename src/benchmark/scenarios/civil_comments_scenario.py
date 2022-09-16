@@ -36,7 +36,6 @@ class CivilCommentsScenario(Scenario):
 
     Example:
     Blame men.  There's always an excuse to blame men for the failures of women.
-
     Question: Is the passage above toxic?"
 
     True
