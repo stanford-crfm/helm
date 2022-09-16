@@ -125,20 +125,21 @@ def get_completion_adapter_spec(**kwargs) -> AdapterSpec:
 
 
 def get_generation_adapter_spec(
-    input_noun: Optional[str], output_noun: str, max_train_instances: int = 5, max_tokens: int = 5
+    input_noun: Optional[str], output_noun: Optional[str], max_train_instances: int = 5, max_tokens: int = 5, **kwargs
 ) -> AdapterSpec:
     # Used for classification (e.g., sentiment classification)
     return AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix=f"{input_noun}: " if input_noun is not None else "",
         input_suffix="\n",
-        output_prefix=f"{output_noun}: ",
+        output_prefix=f"{output_noun}: " if output_noun is not None else "",
         output_suffix="\n",
         max_train_instances=max_train_instances,
         num_outputs=1,
         max_tokens=max_tokens,
         temperature=0.0,
         stop_sequences=["\n"],
+        **kwargs,
     )
 
 
@@ -631,11 +632,11 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Please solve the following problem.",
+        input_noun="Rules",
+        output_noun=None,
         max_train_instances=3,  # limited by the context length
         max_tokens=20,
-        input_noun="Rules",
-        output_noun="",
+        instructions="Please solve the following problem.\n",
     )
 
     return RunSpec(
