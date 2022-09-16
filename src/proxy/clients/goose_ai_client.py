@@ -36,6 +36,7 @@ class GooseAIClient(Client):
         # Embedding not supported for this model
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
+
         raw_request = {
             "engine": request.model_engine,
             "prompt": request.prompt,

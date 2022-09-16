@@ -45,6 +45,7 @@ class CohereClient(Client):
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
+
         # Validate `Request` according to the rules here: https://docs.cohere.ai/generate-reference.
         # Set `return_likelihoods` based on the value of `echo_prompt`:
         # echo_prompt=True => return_likelihoods="ALL"

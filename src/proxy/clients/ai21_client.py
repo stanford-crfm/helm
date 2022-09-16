@@ -45,6 +45,7 @@ class AI21Client(Client):
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
             return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
+
         raw_request = {
             "prompt": request.prompt,
             "temperature": request.temperature,
