@@ -341,9 +341,10 @@ def get_bold_spec(subject: str) -> RunSpec:
     )
 
 
-def get_civil_comments_spec(subject: str) -> RunSpec:
+def get_civil_comments_spec(demographic: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.civil_comments_scenario.CivilCommentsScenario", args={"subject": subject},
+        class_name="benchmark.scenarios.civil_comments_scenario.CivilCommentsScenario",
+        args={"demographic": demographic},
     )
 
     adapter_spec = AdapterSpec(
@@ -359,7 +360,7 @@ def get_civil_comments_spec(subject: str) -> RunSpec:
         stop_sequences=["\n"],
     )
     return RunSpec(
-        name=f"civil_comments:subject={subject}",
+        name=f"civil_comments:demographic={demographic}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})

@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+import dacite
 import gzip
 import json
 import os
@@ -5,10 +7,22 @@ import re
 import html
 import random
 from common.hierarchical_logger import htrack_block, hlog
-from typing import List, Tuple
+from typing import List, Dict
 
-from common.general import ensure_file_downloaded, ensure_directory_exists
+from common.general import ensure_file_downloaded, ensure_directory_exists, asdict_without_nones
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, PassageQuestionInput
+
+
+@dataclass(frozen=True)
+class RawInstance:
+    title: str
+    document: str
+    question: str
+    long_answers: List[str]
+    short_answers: List[str]
+
+
+SPLITS = {"train": TRAIN_SPLIT, "val": VALID_SPLIT}
 
 
 class NaturalQAScenario(Scenario):
@@ -151,14 +165,16 @@ class NaturalQAScenario(Scenario):
         text = raw_text.replace(b"\xc2\xa0", b" ").decode("utf-8")
         return re.sub("<([^>]*)>", "", html.unescape(text))
 
-    def create_prompt(self, sample: dict, split: str) -> Tuple[str, List[str]]:
-
+    def create_raw_instance(self, sample: Dict) -> RawInstance:
         """
         Given an example in dataset format, create the prompt and the list of
         correct references.
         """
+        # TODO: this detokenization is pretty naive, improve
         document = " ".join([self._clean_token(t) for t in sample["document_tokens"]])
         html_bytes = sample["document_html"].encode("utf-8")
+        title = sample["document_title"]
+        question = sample["question_text"]
 
         short_answers, long_answers = [], []
         for ans_json in sample["annotations"]:
@@ -172,34 +188,45 @@ class NaturalQAScenario(Scenario):
                 short_answers.append(short_ans)
                 long_answers.append(long_ans)
 
-        question = sample["question_text"].capitalize()
+        return RawInstance(
+            title=title, document=document, question=question, long_answers=long_answers, short_answers=short_answers,
+        )
+
+    def create_instance(self, instance: RawInstance, split: str) -> Instance:
+        question = instance.question.capitalize()
         if question[-1] != "?":
             question += "?"
 
         prompt = ""
-        ans_idx = random.randint(0, len(short_answers) - 1)
+        ans_idx = random.randint(0, len(instance.short_answers) - 1)
         if self.context_mode == "closedbook":
             prompt = question
         else:
             if self.context_mode == "openbook_wiki":
-                context = document
-            else:  # self.context_mode == "openbook_longans":
-                context = long_answers[ans_idx]
-            prompt = PassageQuestionInput(passage=context, question=question).to_text(
+                context = instance.document
+            elif self.context_mode == "openbook_longans":
+                context = instance.long_answers[ans_idx]
+            else:
+                raise Exception(f"Invalid context mode: {self.context_mode}")
+            prompt = PassageQuestionInput(passage=context, question=instance.question).to_text(
                 passage_prefix="Passage: ", separator="\n\n"
             )
             if self.context_mode == "openbook_wiki":
-                prompt = f"Title: {sample['document_title']}\n\n" + prompt
+                prompt = f"Title: {instance.title}\n\n" + prompt
 
         if split == "train":
-            answers = short_answers[ans_idx : ans_idx + 1]
+            answers = instance.short_answers[ans_idx : ans_idx + 1]
         else:
             # De-duplicate the list with dict.fromkeys, which preserves the list order
-            answers = list(dict.fromkeys(short_answers))
+            answers = list(dict.fromkeys(instance.short_answers))
 
-        return prompt, answers
+        return Instance(
+            input=prompt,
+            references=[Reference(output=ans, tags=[CORRECT_TAG]) for ans in answers],
+            split=SPLITS[split],
+        )
 
-    def get_file_instances(self, target_file: str, splits: dict) -> List[Instance]:
+    def get_file_instances(self, target_file: str) -> List[Instance]:
         """
         Helper for generating instances for the given splits.
         Args:
@@ -209,33 +236,38 @@ class NaturalQAScenario(Scenario):
         Returns:
             List[Instance]: Instances from file partitioned uniformly across splits.
         """
+        raw_instances_path = target_file + "-instances.jsonl"
+
+        # Convert instances to raw instances (which should be relatively stable
+        # and reduces the file size by quite a bit).
+        raw_instances = []
+        if not os.path.exists(raw_instances_path):
+            with htrack_block(f"Reading {target_file}"):
+                with gzip.open(target_file) as fp:
+                    for line in fp:
+                        raw = json.loads(line)
+                        # Only keep dataset samples with at least one short answer
+                        if any([len(anno["short_answers"]) for anno in raw["annotations"]]):
+                            raw_instances.append(self.create_raw_instance(raw))
+                hlog(f"{len(raw_instances)} instances")
+            with htrack_block(f"Writing {raw_instances_path}"):
+                with open(raw_instances_path, "w") as fp:
+                    for raw_instance in raw_instances:
+                        print(json.dumps(asdict_without_nones(raw_instance)), file=fp)
+        else:
+            with htrack_block(f"Reading {raw_instances_path}"):
+                for line in open(raw_instances_path):
+                    raw_instance = dacite.from_dict(RawInstance, json.loads(line))
+                    raw_instances.append(raw_instance)
+
+        # Convert raw instances to instances.
         instances: List[Instance] = []
-
-        all_samples: List[dict] = []
-
-        with htrack_block(f"Reading {target_file}"):
-            with gzip.open(target_file) as fp:
-                for line in fp:
-                    raw = json.loads(line)
-                    # Only keep dataset samples with at least one short answer
-                    if any([len(anno["short_answers"]) for anno in raw["annotations"]]):
-                        all_samples.append(raw)
-            hlog(f"{len(all_samples)} examples")
-
-        for si, sample in enumerate(all_samples):
-
+        for i, raw_instance in enumerate(raw_instances):
             # Assign even/odd samples to the train and val splits respectively
-            split = "train" if si % 2 == 0 else "val"
+            split = "train" if i % 2 == 0 else "val"
 
-            prompt, answers = self.create_prompt(sample, split)
-
-            instance = Instance(
-                input=prompt,
-                references=[Reference(output=ans, tags=[CORRECT_TAG]) for ans in answers],
-                split=splits[split],
-            )
+            instance = self.create_instance(raw_instance, split)
             instances.append(instance)
-
         return instances
 
     def get_instances(self) -> List[Instance]:
@@ -247,12 +279,11 @@ class NaturalQAScenario(Scenario):
         file_list: List[str] = ["nq-dev-%02d.jsonl.gz" % i for i in range(5)]
 
         instances: List[Instance] = []
-        splits = {"train": TRAIN_SPLIT, "val": VALID_SPLIT}
         for file in file_list:
             source_url: str = f"{base_url}/{file}"
             target_path: str = os.path.join(data_path, file)
             ensure_file_downloaded(source_url=source_url, target_path=target_path)
 
-            instances.extend(self.get_file_instances(target_path, splits=splits))
+            instances.extend(self.get_file_instances(target_path))
 
         return instances
