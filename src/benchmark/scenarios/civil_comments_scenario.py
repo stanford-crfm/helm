@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Set
 
 import pandas as pd
 
@@ -72,7 +72,7 @@ class CivilCommentsScenario(Scenario):
         "contents/blob/all_data_with_identities.csv"
     )
 
-    DEMOGRAPHICS: List[str] = ["male", "female", "LGBTQ", "christian", "muslim", "other_religions", "black", "white"]
+    DEMOGRAPHICS: Set[str] = {"male", "female", "LGBTQ", "christian", "muslim", "other_religions", "black", "white"}
     ALL_DEMOGRAPHICS: str = "all"
 
     def __init__(self, demographic: str):
