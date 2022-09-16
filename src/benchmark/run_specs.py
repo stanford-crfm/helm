@@ -456,7 +456,7 @@ def get_civil_comments_spec(demographic: str) -> RunSpec:
         name=f"civil_comments:demographic={demographic}",
         scenario_spec=scenario_spec,
         adapter_spec=get_generation_adapter_spec("Passage", "Answer"),
-        metric_specs=get_basic_metric_specs(["exact_match", "quasi_exact_match"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
         groups=["civil_comments"],
     )
 
@@ -505,7 +505,7 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
         name=f"wikifact:k={k},subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match", "quasi_exact_match"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
         groups=["wikifact"],
     )
 
@@ -689,7 +689,7 @@ def get_raft_spec(subset: str) -> RunSpec:
         name=f"raft:subset={subset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match", "quasi_exact_match"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
         groups=["raft"],
     )
 
@@ -805,7 +805,7 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
         name="boolq" + (":only_contrast=True" if only_contrast else ""),
         scenario_spec=scenario_spec,
         adapter_spec=get_generation_adapter_spec("Passage", "Answer"),
-        metric_specs=get_basic_metric_specs(["exact_match", "quasi_exact_match"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
         groups=["boolq"],
     )
 
@@ -817,7 +817,7 @@ def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
         adapter_spec = get_multiple_choice_joint_adapter_spec(
             "The following are multiple choice questions (with answers).", "Passage", "Answer"
         )
-        metric_specs = get_basic_metric_specs(["exact_match", "quasi_exact_match"])
+        metric_specs = get_exact_match_metric_specs()
     elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
         adapter_spec = get_multiple_choice_separate_adapter_spec(method)
         metric_specs = get_basic_metric_specs([])
@@ -1111,7 +1111,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         name=f"synthetic_reasoning:mode={mode}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match", "quasi_exact_match"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
         groups=["synthetic_reasoning", f"synthetic_reasoning_{mode}"],
     )
 
@@ -1137,7 +1137,7 @@ def get_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE
         adapter_spec = get_multiple_choice_joint_empty_input_adapter_spec(
             "Please select the grammatical sentence.", "Answer"
         )
-        metric_specs = get_basic_metric_specs(["exact_match", "quasi_exact_match"])
+        metric_specs = get_exact_match_metric_specs()
     elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
         adapter_spec = get_multiple_choice_separate_adapter_spec(method)
         metric_specs = get_basic_metric_specs([])
@@ -1261,7 +1261,7 @@ def get_empatheticdialogues_spec() -> RunSpec:
         name="empatheticdialogues",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match", "quasi_exact_match"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
         groups=[],
     )
 
@@ -1306,7 +1306,7 @@ def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec
             "Answer",
             max_train_instances=3,  # We use 3 because these samples tend to be a bit longer
         )
-        metric_specs = get_basic_metric_specs(["exact_match", "quasi_exact_match"])
+        metric_specs = get_exact_match_metric_specs()
     elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
         adapter_spec = get_multiple_choice_separate_adapter_spec(method)
         metric_specs = get_basic_metric_specs([])
@@ -1343,7 +1343,7 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
         name=f"entity_matching:dataset={dataset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match", "quasi_exact_match"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
         groups=["entity_matching"],
     )
 
@@ -1371,7 +1371,7 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
         name=f"entity_data_imputation:dataset={dataset}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match", "quasi_exact_match"]) + get_generative_harms_metric_specs(),
+        metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
         groups=["entity_data_imputation"],
     )
 
@@ -1403,7 +1403,7 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
         for big_bench_metric_name in big_bench_metrics:
             if big_bench_metric_name == "multiple_choice_grade":
                 # `exact_match` and `quasi_exact_match` is all we need for multiple choice tasks
-                return get_basic_metric_specs(["exact_match", "quasi_exact_match"])
+                return get_exact_match_metric_specs()
             elif big_bench_metric_name == "exact_str_match":
                 metric_names.update(["exact_match", "quasi_exact_match"])
             elif big_bench_metric_name == "bleu":
@@ -1495,7 +1495,7 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
         name=f"pubmed_qa:prompt_answer_choices={prompt_answer_choices}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(["exact_match", "quasi_exact_match"]),
+        metric_specs=get_exact_match_metric_specs(),
         groups=["pubmed_qa"],
     )
 
