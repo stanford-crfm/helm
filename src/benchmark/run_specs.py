@@ -29,7 +29,7 @@ APPS_METRIC_NAMES = ("test_avg", "strict_acc")
 # Prototypical adapter specs
 
 
-def get_multiple_choice_adapter_spec(instructions: str, input_noun: str, output_noun: str, **kwargs) -> str:
+def get_multiple_choice_adapter_spec(instructions: str, input_noun: str, output_noun: str, max_train_instances: int = 5, **kwargs) -> str:
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions=f"{instructions}\n",
@@ -37,7 +37,7 @@ def get_multiple_choice_adapter_spec(instructions: str, input_noun: str, output_
         input_suffix="\n",
         output_prefix=f"{output_noun}: ",
         output_suffix="\n",
-        max_train_instances=5,
+        max_train_instances=max_train_instances,
         num_outputs=1,
         max_tokens=5,
         temperature=0.0,
@@ -61,7 +61,7 @@ def get_multiple_completions_adapter_spec():
     )
 
 
-def get_generation_adapter_spec(input_noun: str, output_noun: str) -> str:
+def get_generation_adapter_spec(input_noun: str, output_noun: str, max_tokens: int = 5) -> str:
     # Used for classification (e.g., sentiment classification)
     return AdapterSpec(
         method=ADAPT_GENERATION,
@@ -71,7 +71,7 @@ def get_generation_adapter_spec(input_noun: str, output_noun: str) -> str:
         output_suffix="\n",
         max_train_instances=5,
         num_outputs=1,
-        max_tokens=5,
+        max_tokens=max_tokens,
         temperature=0.0,
         stop_sequences=["\n"],
     )
