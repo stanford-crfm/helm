@@ -42,25 +42,22 @@ class AdapterSpec:
     input_prefix: str = "Input: "
 
     # What goes after the input
-    #input_suffix: str = "\n"
-    input_suffix: str = ""
+    input_suffix: str = "\n"
 
     # What goes before the input (for multiple choice)
     reference_prefix: str = "A. "
 
     # What goes before the input (for multiple choice)
-    reference_suffix: str = ""
+    reference_suffix: str = "\n"
 
     # What goes before the output
     output_prefix: str = "Output: "
 
     # What goes after the output
-    #output_suffix: str = "\n"
-    output_suffix: str = ""
+    output_suffix: str = "\n"
 
     # What goes between instructions and instances in the constructed prompt
-    #instance_prefix: str = "\n"
-    instance_prefix: str = "\n\n"
+    instance_prefix: str = "\n"
 
     # Maximum number of (in-context) training instances to put into the prompt
     max_train_instances: int = 5

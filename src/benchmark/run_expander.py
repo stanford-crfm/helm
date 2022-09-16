@@ -102,33 +102,22 @@ class PromptRunExpander(RunExpander):
         if self.value == "human_assistant":
             adapter_spec = replace(
                 adapter_spec,
-                input_prefix="Human: What is the answer to \"",
-                input_suffix="\"?\n",
-                output_prefix="Assistant: The answer is \"",
-                output_suffix="\".\n",
-                stop_sequences=["\"."],
+                input_prefix='Human: What is the answer to "',
+                input_suffix='"?\n',
+                output_prefix='Assistant: The answer is "',
+                output_suffix='".\n',
+                stop_sequences=['".'],
             )
         elif self.value == "qa":
-            adapter_spec = replace(
-                adapter_spec,
-                input_prefix="Q: ",
-                output_prefix="A: ",
-            )
+            adapter_spec = replace(adapter_spec, input_prefix="Q: ", output_prefix="A: ",)
         elif self.value == "question_answer":
-            adapter_spec = replace(
-                adapter_spec,
-                input_prefix="Question: ",
-                output_prefix="Answer: ",
-            )
+            adapter_spec = replace(adapter_spec, input_prefix="Question: ", output_prefix="Answer: ",)
         else:
             raise Exception("Unknown value: {self.value}")
         return [
-            replace(
-                run_spec,
-                name=f"{run_spec.name},{self.name}={self.value}",
-                adapter_spec=adapter_spec,
-            ),
+            replace(run_spec, name=f"{run_spec.name},{self.name}={self.value}", adapter_spec=adapter_spec,),
         ]
+
 
 class StopRunExpander(RunExpander):
     """

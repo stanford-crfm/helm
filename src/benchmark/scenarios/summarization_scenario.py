@@ -142,8 +142,8 @@ class SummarizationScenario(Scenario):
 
                 instances.append(
                     Instance(
-                        input=f"{{{article}}}",
-                        references=[Reference(output=f"{summary}}}", tags=[CORRECT_TAG])],
+                        input=article,
+                        references=[Reference(output=summary, tags=[CORRECT_TAG])],
                         split=split,
                     )
                 )

@@ -23,7 +23,76 @@ from .scenarios.raft_scenario import get_raft_instructions
 
 HUMAN_EVAL_METRIC_NAMES = ("code_eval_acc", "pass")
 APPS_METRIC_NAMES = ("test_avg", "strict_acc")
-SIMPLE_METRIC_MAX_EVAL_INSTANCES = 1000  # default for scenarios that only use simple metrics (e.g., accuracy, f1)
+
+
+############################################################
+# Prototypical adapter specs
+
+
+def get_multiple_choice_adapter_spec(instructions: str, input_noun: str, output_noun: str, **kwargs) -> str:
+    return AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions=f"{instructions}\n",
+        input_prefix=f"{input_noun}: ",
+        input_suffix="\n",
+        output_prefix=f"{output_noun}: ",
+        output_suffix="\n",
+        max_train_instances=5,
+        num_outputs=1,
+        max_tokens=5,
+        temperature=0.0,
+        stop_sequences=["\n"],
+        **kwargs,
+    )
+
+
+def get_multiple_completions_adapter_spec():
+    return AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+        instructions="",
+        input_prefix="",
+        input_suffix="",
+        output_prefix="",
+        output_suffix="",
+        max_train_instances=0,
+        num_outputs=1,
+        max_tokens=0,
+        temperature=0.0,
+    )
+
+
+def get_generation_adapter_spec(input_noun: str, output_noun: str) -> str:
+    # Used for classification (e.g., sentiment classification)
+    return AdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix=f"{input_noun}: ",
+        input_suffix="\n",
+        output_prefix=f"{output_noun}: ",
+        output_suffix="\n",
+        max_train_instances=5,
+        num_outputs=1,
+        max_tokens=5,
+        temperature=0.0,
+        stop_sequences=["\n"],
+    )
+
+
+def get_language_modeling_adapter_spec() -> str:
+    return AdapterSpec(
+        method=ADAPT_LANGUAGE_MODELING,
+        instructions="",
+        input_prefix="",
+        input_suffix="",
+        output_prefix="",
+        output_suffix="",
+        max_train_instances=0,
+        num_outputs=1,
+        max_tokens=0,
+        temperature=0.0,
+    )
+
+############################################################
+# Concrete adapter specs
 
 
 def get_scenario_spec1() -> ScenarioSpec:
@@ -52,6 +121,10 @@ def get_adapter_spec1() -> AdapterSpec:
         temperature=1,
         stop_sequences=["."],
     )
+
+
+############################################################
+# Metrics
 
 
 def get_basic_metric_specs(args: Dict[str, List[str]]) -> List[MetricSpec]:
@@ -195,6 +268,9 @@ def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
         return [MetricSpec(class_name="benchmark.code_metrics.APPSMetric", args=args)]
 
 
+############################################################
+
+
 def get_simple1_spec() -> RunSpec:
     """An run spec for debugging."""
     return RunSpec(
@@ -214,24 +290,12 @@ def get_bbq_spec(subject: str) -> RunSpec:
             subject = subject[0].upper() + subject[1:]
         return subject
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="The following are multiple choice questions (with answers).",
-        input_prefix="Passage: ",
-        output_prefix="\nAnswer: ",
-        max_train_instances=5,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=1,
-        num_train_trials=1,
-        model="openai/davinci",
-        temperature=0,
-        stop_sequences=["\n"],
-    )
-
     return RunSpec(
         name=f"bbq:subject={subject}",
         scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
+        adapter_spec=get_multiple_choice_adapter_spec(
+            "The following are multiple choice questions (with answers).", "Passage", "Answer"
+        ),
         metric_specs=get_bbq_metric_specs(),
         groups=["bbq"],
     )
@@ -271,12 +335,10 @@ def get_msmarco_spec(
         method=ADAPT_GENERATION,
         instructions="",
         input_prefix="Passage: ",
-        output_prefix="\nAnswer: ",
+        output_prefix="Answer: ",
         max_train_instances=4,  # Needs to be even to ensure equal number of correct and wrong examples
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
-        model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
     )
@@ -304,10 +366,10 @@ def get_bold_spec(subject: str) -> RunSpec:
         method=ADAPT_GENERATION,
         input_prefix="",
         output_prefix="",
+        input_suffix="",
+        output_suffix="",
         max_train_instances=0,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
-        model="openai/davinci",
         temperature=0.9,  # Set to approximate nucleus sampling conditions.
         max_tokens=20,  # See Table 8 of RealToxicityPrompts: https://arxiv.org/pdf/2009.11462.pdf
     )
@@ -325,22 +387,10 @@ def get_civil_comments_spec(subject: str) -> RunSpec:
         class_name="benchmark.scenarios.civil_comments_scenario.CivilCommentsScenario", args={"subject": subject},
     )
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        input_prefix="Passage: ",
-        output_prefix="\nAnswer: ",
-        num_train_trials=1,
-        max_train_instances=5,
-        model="openai/davinci",
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=1,
-        temperature=0.0,
-        stop_sequences=["\n"],
-    )
     return RunSpec(
         name=f"civil_comments:subject={subject}",
         scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
+        adapter_spec=get_generation_adapter_spec("Passage", "Answer"),
         metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
         + get_generative_harms_metric_specs(),
         groups=["civil_comments"],
@@ -353,24 +403,12 @@ def get_mmlu_spec(subject: str) -> RunSpec:
     def format(subject: str):
         return subject.replace("_", " ")
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions=f"The following are multiple choice questions (with answers) about {format(subject)}.",
-        input_prefix="Question: ",
-        output_prefix="\nAnswer: ",
-        max_train_instances=5,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=1,
-        num_train_trials=1,
-        model="openai/davinci",
-        temperature=0.0,
-        stop_sequences=["\n"],
-    )
-
     return RunSpec(
         name=f"mmlu:subject={subject}",
         scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
+        adapter_spec=get_multiple_choice_adapter_spec(
+            f"The following are multiple choice questions (with answers) about {format(subject)}.", "Question", "Answer"
+        ),
         metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["mmlu"],
     )
@@ -384,12 +422,11 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
+        input_suffix="",
         output_prefix=" ",  # Separate subject and predicate by a space
         num_train_trials=1,
         max_train_instances=5,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=int(k),  # We will measure accuracy@k
-        model="openai/davinci",
         temperature=1.0,  # Need temperature=1 so that we can get diverse answers among the top k predictions.
         max_tokens=8,  # Number of tokens for the longest answer in the dataset
         stop_sequences=["\n"],
@@ -416,12 +453,10 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             method=method,
             instructions="The following are multiple choice questions (with answers) about common sense.",
             input_prefix="Question: ",
-            output_prefix="\nAnswer: ",
+            output_prefix="Answer: ",
             max_train_instances=5,
-            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
             num_outputs=1,
             num_train_trials=1,
-            model="openai/davinci",
             temperature=0.0,
             stop_sequences=["\n"],
         )
@@ -437,13 +472,13 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
             method=method,
             instructions="",
             input_prefix="",
+            input_suffix="",
             output_prefix=" ",
+            output_suffix="",
             max_train_instances=0,  # Appropriate for CLM approach
-            max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
             num_outputs=1,
             max_tokens=0,
             num_train_trials=1,
-            model="openai/davinci",
             temperature=0.0,
         )
         run_spec = RunSpec(
@@ -465,11 +500,9 @@ def get_quac_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
-        output_prefix="\nAnswer: ",  # make sure this matches the rest of the dialogue
+        output_prefix="Answer: ",  # make sure this matches the rest of the dialogue
         num_train_trials=1,
         max_train_instances=5,
-        model="openai/davinci",
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # We have a total of 1000 eval instances
         num_outputs=1,
         max_tokens=100,  # answers are at most 30 words
         temperature=0.0,
@@ -491,11 +524,9 @@ def get_news_qa_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="Passage: ",
-        output_prefix="\nAnswer: ",
+        output_prefix="Answer: ",
         num_train_trials=1,
         max_train_instances=5,
-        model="openai/davinci",
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full test set is 1262 eval instances
         num_outputs=1,
         max_tokens=50,  # answers are at most 13 words
         temperature=0.0,
@@ -520,12 +551,10 @@ def get_truthful_qa_spec(task: str) -> RunSpec:
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="",
         input_prefix="Question: ",
-        output_prefix="\nAnswer: ",
+        output_prefix="Answer: ",
         max_train_instances=5,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
-        model="openai/davinci",
         max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
         temperature=0.0,
         stop_sequences=["\n"],
@@ -550,12 +579,11 @@ def get_twitter_aae_spec(demographic: str) -> RunSpec:
         method=ADAPT_LANGUAGE_MODELING,
         instructions="",
         input_prefix="",
+        input_suffix="",
         output_prefix="",
         max_train_instances=0,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
-        model="openai/davinci",
         temperature=0.0,
         max_tokens=0,
     )
@@ -577,11 +605,11 @@ def get_real_toxicity_prompts_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
+        input_suffix="",
         output_prefix="",
         num_train_trials=1,
         max_train_instances=0,
         max_eval_instances=2,
-        model="openai/davinci",  # "...we use the 175B parameter GPT-3 model, also known as DA VINCI in the OpenAI API"
         temperature=0.9,  # "We use a temperature of 1 during generation..."
         # Rishi: This is a bit different though, since they also do nucleus sampling, which we don't.
         max_tokens=20,  # "We generate up to 20 tokens per example..."
@@ -611,14 +639,13 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
         max_train_instances=3,  # limited by the context length
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_train_trials=1,
-        model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
         num_outputs=1,
         max_tokens=20,
         input_prefix="Rules:\n",
+        input_suffix="",
         output_prefix="",
     )
 
@@ -637,11 +664,10 @@ def get_gsm_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="Q: ",
+        input_suffix="",
         output_prefix="A: ",
         num_train_trials=1,
         max_train_instances=5,  # Due to limited context and long example length
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n\n"],  # Since answer may contain newlines, we use two as SEP
         max_tokens=400,  # The paper uses 400 tokens as the max sample length
@@ -661,13 +687,12 @@ def get_raft_spec(subset: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions=get_raft_instructions(subset),
+        instructions=get_raft_instructions(subset) + "\n",
         input_prefix="",
-        output_prefix="\nLabel: ",
+        output_prefix="Label: ",
         max_train_instances=5,
         max_eval_instances=None,  # We only have <50 instances per subset
         num_train_trials=1,
-        model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
         num_outputs=1,
@@ -748,31 +773,33 @@ def get_math_spec(
     )
 
     if use_chain_of_thought:  # Include the solution in the output as per https://arxiv.org/abs/2201.11903
-        output_prefix = "\nAnswer: "  # Don't include LaTeX '$' delimiters
-        instance_prefix = "\n###"  # Don't include LaTeX '$' delimiters
+        output_prefix = "Answer: "  # Don't include LaTeX '$' delimiters
+        output_suffix = "\n"
+        instance_prefix = "###\n"  # Don't include LaTeX '$' delimiters
         max_tokens = 400  # Increase the number of tokens to generate
         stop_sequences = ["###"]  # Break at the next instance; extraneous output will be stripped out
         groups = ["math_chain_of_thought"]
     else:
-        output_prefix = "\nAnswer: $"
-        instance_prefix = "$\n###"
+        output_prefix = "Answer: $"
+        output_suffix = "$\n"
+        instance_prefix = "###\n"
         max_tokens = 20
         stop_sequences = ["$"]  # Break at the nearest LaTeX closing delimiter
         groups = ["math_regular"]
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Given a mathematics problem, determine the answer. Simplify your answer as much as possible.",
+        instructions="Given a mathematics problem, determine the answer. Simplify your answer as much as possible.\n",
         max_train_instances=8,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
-        model="openai/davinci",
         temperature=0.0,
         stop_sequences=stop_sequences,
         max_tokens=max_tokens,
-        input_prefix="\nProblem: ",
+        input_prefix="Problem: ",
+        input_suffix="\n",
         output_prefix=output_prefix,
+        output_suffix=output_suffix,
         instance_prefix=instance_prefix,
     )
 
@@ -791,23 +818,10 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
         class_name="benchmark.scenarios.boolq_scenario.BoolQScenario", args={"only_contrast": only_contrast}
     )
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        input_prefix="Passage: ",
-        output_prefix="\nAnswer: ",
-        num_train_trials=1,
-        max_train_instances=5,
-        model="openai/davinci",
-        stop_sequences=["\n"],
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 6.5k questions
-        num_outputs=1,
-        max_tokens=5,
-        temperature=0.0,
-    )
     return RunSpec(
         name="boolq" + (":only_contrast=True" if only_contrast else ""),
         scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
+        adapter_spec=get_generation_adapter_spec("Passage", "Answer"),
         metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
         + get_generative_harms_metric_specs(),
         groups=["boolq"],
@@ -817,24 +831,12 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
 def get_lsat_qa_spec(task: str) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.lsat_qa_scenario.LSATScenario", args={"task": task})
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="The following are multiple choice questions (with answers).",
-        input_prefix="Passage: ",
-        output_prefix="\nAnswer: ",
-        max_train_instances=5,
-        model="openai/davinci",
-        max_eval_instances=None,
-        num_outputs=1,
-        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
-        temperature=0.0,
-        stop_sequences=["\n"],
-    )
-
     return RunSpec(
         name=f"lsat_qa:task={task}",
         scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
+        adapter_spec=get_multiple_choice_adapter_spec(
+            "The following are multiple choice questions (with answers).", "Passage", "Answer"
+        ),
         metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["lsat_qa"],
     )
@@ -845,23 +847,10 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
         class_name="benchmark.scenarios.imdb_scenario.IMDBScenario", args={"only_contrast": only_contrast}
     )
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        input_prefix="Passage: ",
-        output_prefix="\nSentiment: ",
-        num_train_trials=1,
-        max_train_instances=5,
-        model="openai/davinci",
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full dataset has 25k test inputs
-        num_outputs=1,
-        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
-        temperature=0.0,
-        stop_sequences=["\n"],
-    )
     return RunSpec(
         name="imdb" + (":only_contrast=True" if only_contrast else ""),
         scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
+        adapter_spec=get_generation_adapter_spec("Passage", "Sentiment"),
         metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
         + get_generative_harms_metric_specs(),
         groups=["imdb"],
@@ -871,23 +860,11 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
 def get_babi_qa_spec(task: str = "all") -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.babi_qa_scenario.BabiQAScenario", args={"task": task})
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        input_prefix="Passage: ",
-        output_prefix="\nAnswer: ",
-        num_train_trials=1,
-        max_train_instances=5,
-        model="openai/davinci",
-        max_eval_instances=None,
-        num_outputs=1,
-        max_tokens=5,  # answers are 1-2 words (1 for all tasks except task 19)
-        temperature=0.0,
-        stop_sequences=["\n"],
-    )
     return RunSpec(
         name=f"babi_qa:task={task}",
         scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
+        # Answers are 1-2 words (1 for all tasks except task 19)
+        adapter_spec=get_generation_adapter_spec("Passage", "Answer"),
         metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
         + get_generative_harms_metric_specs(),
         groups=["babi_qa"],
@@ -903,13 +880,13 @@ def get_copyright_spec(datatag="pilot", **unused_kwargs) -> RunSpec:
         method=ADAPT_GENERATION,
         instructions="",
         input_prefix="",
+        input_suffix="",
         output_prefix="",
         max_train_instances=0,
         num_train_trials=1,
         temperature=0.2,
         max_eval_instances=None,
         num_outputs=1,
-        model="openai/davinci",
         max_tokens=1024,
     )
 
@@ -932,12 +909,10 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
     if capability == "reiteration":
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
-            instructions="Write headlines that support the thesis.",
-            input_prefix="",
-            # Note the spacing: Space after Thesis because instance does not begin with a prefix space
-            # No space after "Headline" because spaces are prepended to tokens in openai model tokenizers
-            instance_prefix="\n\nThesis: ",
-            output_prefix="\nHeadline:",
+            instructions="Write headlines that support the thesis.\n",
+            input_prefix="Thesis: ",
+            output_prefix="Headline:",
+            instance_prefix="\n",
             # Justification: Inspection. max_train_instances = 0 or 1 led to worse generations. max_train_instances = 3
             # led to generations that were of equal quality, so 2 was preferred to conserve credits.
             max_train_instances=2,
@@ -946,7 +921,6 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             # Pull_Climate_Skepticism.ipynb notebook located at
             # https://github.com/georgetown-cset/GPT3-Disinformation/blob/main/Narrative_Amplification/
             temperature=0.7,
-            model="openai/text-davinci-001",
             stop_sequences=["\n"],
         )
         metric_specs = get_generative_harms_metric_specs() + get_disinformation_metric_specs(
@@ -957,13 +931,13 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
         adapter_spec = AdapterSpec(
             method=ADAPT_GENERATION,
             input_prefix="",
+            input_suffix="",
             output_prefix="",
             max_train_instances=0,
             num_train_trials=1,
             # Justification: The CSET paper uses temperature=0.7 in the equivalent setting in all notebooks at
             # https://github.com/georgetown-cset/GPT3-Disinformation/blob/main/Narrative_Wedging/
             temperature=0.7,
-            model="openai/davinci",
             # Justification: Inspection. Subsequent generations begin with "Tweet" or "Reason" after a newline
             stop_sequences=["\nTweet", "\nReason"],
             # Justification: The maximum number of tokens in the training prompts is 87
@@ -1007,12 +981,12 @@ def get_code_spec(dataset: str, timeout=3) -> RunSpec:
             max_eval_instances=10000,
             num_outputs=1,
             num_train_trials=1,
-            model="openai/code-davinci-001",
             temperature=0.2,
             # Taken from the original OpenAI paper to prevent the further generation of irrelevant classes/functions
             stop_sequences=["\nclass", "\ndef", "\nif", "\nprint",],
             max_tokens=600,
             input_prefix="",
+            input_suffix="",
             output_prefix="",
         )
     else:  # apps.
@@ -1024,7 +998,6 @@ def get_code_spec(dataset: str, timeout=3) -> RunSpec:
             max_eval_instances=10000,
             num_outputs=1,
             num_train_trials=1,
-            model="openai/code-davinci-001",
             temperature=0.2,
             stop_sequences=[
                 "'''",
@@ -1034,6 +1007,7 @@ def get_code_spec(dataset: str, timeout=3) -> RunSpec:
             ],  # Manually selected by @lxuechen to prevent the further generation of irrelevant classes/functions
             max_tokens=600,
             input_prefix="",
+            input_suffix="",
             output_prefix="",
         )
 
@@ -1055,11 +1029,9 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="Question: " if mode == "closedbook" else "",
-        output_prefix="\nAnswer: ",
+        output_prefix="Answer: ",
         num_train_trials=1,
         max_train_instances=5,
-        model="openai/davinci",
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # We should have half of the dev set (3915) test instances
         num_outputs=1,
         max_tokens=300,  # answers are at most 65 words
         temperature=0.0,
@@ -1081,51 +1053,22 @@ def get_the_pile_spec(subset: str) -> RunSpec:
         class_name="benchmark.scenarios.the_pile_scenario.ThePileScenario", args={"subset": subset}
     )
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_LANGUAGE_MODELING,
-        instructions="",
-        input_prefix="",
-        output_prefix="",
-        max_train_instances=0,
-        max_eval_instances=None,
-        num_outputs=1,
-        num_train_trials=1,
-        model="openai/davinci",
-        temperature=0.0,
-        max_tokens=0,
-    )
-
     return RunSpec(
         name=f"the_pile:subset={subset}",
         scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
+        adapter_spec=get_language_modeling_adapter_spec(),
         metric_specs=get_basic_metric_specs({"names": []}),
         groups=["the_pile"],
     )
 
 
 def get_ice_spec(**kwargs) -> RunSpec:
-
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.ice_scenario.ICEScenario", args=kwargs)
-
-    adapter_spec = AdapterSpec(
-        method=ADAPT_LANGUAGE_MODELING,
-        instructions="",
-        input_prefix="",
-        output_prefix="",
-        reference_prefix="",
-        max_train_instances=0,
-        num_outputs=1,
-        num_train_trials=1,
-        model="openai/davinci",
-        temperature=0.0,
-        max_tokens=0,
-    )
 
     return RunSpec(
         name="ice" + (":" if len(kwargs) > 0 else "") + ",".join(f"{k}={v}" for k, v in kwargs.items()),
         scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
+        adapter_spec=get_language_modeling_adapter_spec(),
         metric_specs=get_basic_metric_specs({"names": []}),
         groups=["ice"],
     )
@@ -1134,23 +1077,10 @@ def get_ice_spec(**kwargs) -> RunSpec:
 def get_narrativeqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.narrativeqa_scenario.NarrativeQAScenario", args=dict())
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        input_prefix="Passage: ",
-        output_prefix="\nAnswer: ",
-        num_train_trials=1,
-        max_train_instances=5,
-        model="openai/davinci",
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,  # full test set is 14018 instances
-        num_outputs=1,
-        max_tokens=100,  # max answer is 30 words
-        temperature=0.0,
-        stop_sequences=["\n"],
-    )
     return RunSpec(
         name="narrative_qa",
         scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
+        adapter_spec=get_generation_adapter_spec("Passage", "Answer", max_tokens=100),  # max 30 words
         metric_specs=get_basic_metric_specs(
             {"names": ["exact_match", "quasi_exact_match", "f1_score", "rouge-l", "bleu_1", "bleu_4"]}
         )
@@ -1171,14 +1101,13 @@ def get_synthetic_efficiency_spec(
         method=ADAPT_GENERATION,
         instructions="",
         max_train_instances=0,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_train_trials=1,
-        model="openai/davinci",
         temperature=0.0,
         stop_sequences=[],
         num_outputs=1,
         max_tokens=num_output_tokens,
         input_prefix="",
+        input_suffix="",
         output_prefix="",
         random=random,
     )
@@ -1202,14 +1131,13 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
         method=ADAPT_GENERATION,
         instructions="Please solve the following problem.",
         max_train_instances=5,
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_train_trials=1,
-        model="openai/davinci",
         temperature=0.0,
         stop_sequences=["\n"],
         num_outputs=1,
         max_tokens=50,  # answer upperbounded by 50 tokens
         input_prefix="",
+        input_suffix="",
         output_prefix="| Target: ",
     )
     return RunSpec(
@@ -1227,24 +1155,10 @@ def get_wikitext_103_spec() -> RunSpec:
         class_name="benchmark.scenarios.wikitext_103_scenario.Wikitext103Scenario", args=dict()
     )
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_LANGUAGE_MODELING,
-        instructions="",
-        input_prefix="",
-        output_prefix="",
-        max_train_instances=0,
-        max_eval_instances=None,
-        num_outputs=1,
-        num_train_trials=1,
-        model="openai/davinci",
-        temperature=0.0,
-        max_tokens=0,
-    )
-
     return RunSpec(
         name="wikitext_103",
         scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
+        adapter_spec=get_language_modeling_adapter_spec(),
         metric_specs=get_basic_metric_specs({"names": []}),
         groups=["wikitext_103"],
     )
@@ -1255,24 +1169,10 @@ def get_blimp_spec(phenomenon: str) -> RunSpec:
         class_name="benchmark.scenarios.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon}
     )
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
-        instructions="",
-        input_prefix="",
-        output_prefix=" ",
-        max_train_instances=0,
-        max_eval_instances=None,
-        num_outputs=1,
-        num_train_trials=1,
-        model="openai/davinci",
-        temperature=0.0,
-        max_tokens=0,
-    )
-
     return RunSpec(
         name=f"blimp:phenomenon={phenomenon}",
         scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
+        adapter_spec=get_multiple_completions_adapter_spec(),
         metric_specs=get_basic_metric_specs({"names": []}),
         groups=["blimp"],
     )
@@ -1288,10 +1188,10 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
         method=ADAPT_GENERATION,
         instructions="Summarize the given documents.",
         input_prefix="Document: ",
-        output_prefix="\nSummary: {",
+        output_prefix="Summary: {",
+        # TODO: why } not part of output_suffix?
         num_train_trials=1,
         max_train_instances=5,
-        model="openai/davinci",
         max_eval_instances=None,
         num_outputs=1,
         max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
@@ -1307,6 +1207,20 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
         groups=["summarization_xsum"],
     )
 
+def get_summarization_adapter_spec(**kwargs) -> str:
+    return AdapterSpec(
+        method=ADAPT_GENERATION,
+        instructions="Summarize the given documents.",
+        input_prefix="Document: {",
+        input_suffix="}\n",
+        output_prefix="Summary: {",
+        output_suffix="}\n",
+        max_train_instances=5,
+        num_outputs=1,
+        stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
+        **kwargs,
+    )
+
 
 def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
@@ -1319,19 +1233,9 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = 
         },
     )
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        instructions="Summarize the given documents.",
-        input_prefix="Document: ",
-        output_prefix="\nSummary: {",
-        num_train_trials=1,
-        max_train_instances=5,
-        model="openai/davinci",
-        max_eval_instances=None,
-        num_outputs=1,
+    adapter_spec = get_summarization_adapter_spec(
         max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
-        stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
     )
 
     return RunSpec(
@@ -1349,19 +1253,9 @@ def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") 
         args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512,},
     )
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_GENERATION,
-        instructions="Summarize the given documents.",
-        input_prefix="Document: ",
-        output_prefix="\nSummary: {",
-        num_train_trials=1,
-        max_train_instances=5,
-        model="openai/davinci",
-        max_eval_instances=None,
-        num_outputs=1,
+    adapter_spec = get_summarization_adapter_spec(
         max_tokens=128,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=temperature,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
-        stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
     )
 
     return RunSpec(
@@ -1381,11 +1275,8 @@ def get_empatheticdialogues_spec() -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         input_prefix="",
-        output_prefix="\nBEGIN DIALOGUE\n",
-        num_train_trials=1,
+        output_prefix="BEGIN DIALOGUE\n",
         max_train_instances=5,
-        model="ai21/j1-large",
-        max_eval_instances=None,
         num_outputs=1,
         max_tokens=50,  # TODO: Justify
         temperature=0.9,  # TODO: Justify
@@ -1411,13 +1302,13 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="Please complete the rest of the following Dyck sequences, "
-        "making sure that the parentheses are closed properly. ",
+        "making sure that the parentheses are closed properly.\n",
         input_prefix="Input: ",
-        output_prefix="",
-        model="openai/davinci",
+        input_suffix="",
+        output_prefix="",  # Note: the instance output has a leading space
+        output_suffix="",
         temperature=0.0,
         max_train_instances=3,  # Determined by looking at average length of examples to see what fits
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         stop_sequences=["\n"],
         max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
         num_outputs=1,
@@ -1435,23 +1326,13 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
 def get_legal_support_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.legal_support_scenario.LegalSupportScenario", args={})
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="Which statement best supports the passage?",
-        input_prefix="Passage: ",
-        output_prefix="\nAnswer: ",
-        model="openai/davinci",
-        temperature=0.0,
-        max_train_instances=3,  # We use 3 because these samples tend to be a bit longer
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
-        num_outputs=1,
-        stop_sequences=["\n"],
-    )
-
     return RunSpec(
         name="legal_support",
         scenario_spec=scenario_spec,
-        adapter_spec=adapter_spec,
+        adapter_spec=get_multiple_choice_adapter_spec(
+            "Which statement best supports the passage?", "Passage", "Answer",
+            max_train_instances=3,  # We use 3 because these samples tend to be a bit longer
+        ),
         metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
         groups=["legal_support"],
     )
@@ -1464,12 +1345,12 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Are Product A and Product B the same? Yes or No?",
+        instructions="Are Product A and Product B the same? Yes or No?\n",
         input_prefix="",
+        input_suffix="",
         output_prefix=" ",
         num_train_trials=1,
         max_train_instances=5,
-        model="openai/davinci",
         max_eval_instances=None,
         num_outputs=1,
         max_tokens=5,  # answers are generally 1 token (Yes/No)
@@ -1494,12 +1375,13 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
 
     adapter_spec = AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="What is the missing value?",
+        instructions="What is the missing value?\n",
         input_prefix="",
+        input_suffix="",
         output_prefix=" ",
+        output_suffix="\n",
         num_train_trials=1,
         max_train_instances=5,
-        model="openai/davinci",
         max_eval_instances=None,
         num_outputs=1,
         max_tokens=5,
@@ -1585,7 +1467,7 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
         # BIG-bench's default value for "example_input_prefix" and "example_output_prefix" was "\nQ: " and "\nA: ".
         # Instead, use our defaults for multiple choice tasks: "Question: " and "\nAnswer: ".
         input_prefix=big_bench_task.get("example_input_prefix", "Question: "),
-        output_prefix=big_bench_task.get("example_output_prefix", "\nAnswer: "),
+        output_prefix=big_bench_task.get("example_output_prefix", "Answer: "),
         # Use our default for multiple choice: A., B., C., D.,...
         # reference_prefix=big_bench_task.get("choice_prefix", "\n choice: "),
         # The default value for "stop_string" in BIG-bench is None.
@@ -1612,7 +1494,7 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
     # "Can large language models reason about medical questions?" (Liévin et al.).
     # Therefore, specify the values of the fields of `AdapterSpec` based on experiment details of the paper.
     # Set `output_prefix` based on Table 1 (titled "Prompt templates") of the paper.
-    output_prefix: str = "\nAnswer: "
+    output_prefix: str = "Answer: "
     if prompt_answer_choices.lower() == "true":
         output_prefix += "among A through C, the answer is "
 
@@ -1626,9 +1508,6 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         num_train_trials=1,
         max_eval_instances=550,  # The dev (50 examples) + test (500 examples) split has 550 examples total.
-        # "We applied the largest human-aligned GPT-3 (InstructGPT, text-davinci-002, Ouyang et al.
-        # (2022), 175B parameters) to answering medical questions in a zero-shot setting..."
-        model="openai/text-davinci-002",
         max_train_instances=0,  # We want to reproduce the zero-shot performance.
         # "We sampled one completion per prompt with a temperature of zero..."
         num_outputs=1,
@@ -1636,7 +1515,7 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
         input_prefix="",
         output_prefix=output_prefix,
         # Following the examples in https://vlievin.github.io/medical-reasoning/samples/pubmedqa.html
-        reference_prefix="\nA) ",
+        reference_prefix="A) ",
     )
     return RunSpec(
         name=f"pubmed_qa:prompt_answer_choices={prompt_answer_choices}",

@@ -71,4 +71,3 @@ class ToxicityMetric(Metric):
         ]
 
         return stats
-
