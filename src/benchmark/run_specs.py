@@ -29,7 +29,9 @@ APPS_METRIC_NAMES = ("test_avg", "strict_acc")
 # Prototypical adapter specs
 
 
-def get_multiple_choice_adapter_spec(instructions: str, input_noun: str, output_noun: str, max_train_instances: int = 5, **kwargs) -> str:
+def get_multiple_choice_adapter_spec(
+    instructions: str, input_noun: str, output_noun: str, max_train_instances: int = 5, **kwargs
+) -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions=f"{instructions}\n",
@@ -46,7 +48,7 @@ def get_multiple_choice_adapter_spec(instructions: str, input_noun: str, output_
     )
 
 
-def get_multiple_completions_adapter_spec():
+def get_multiple_completions_adapter_spec() -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
         instructions="",
@@ -61,7 +63,7 @@ def get_multiple_completions_adapter_spec():
     )
 
 
-def get_generation_adapter_spec(input_noun: str, output_noun: str, max_tokens: int = 5) -> str:
+def get_generation_adapter_spec(input_noun: str, output_noun: str, max_tokens: int = 5) -> AdapterSpec:
     # Used for classification (e.g., sentiment classification)
     return AdapterSpec(
         method=ADAPT_GENERATION,
@@ -77,7 +79,7 @@ def get_generation_adapter_spec(input_noun: str, output_noun: str, max_tokens: i
     )
 
 
-def get_language_modeling_adapter_spec() -> str:
+def get_language_modeling_adapter_spec() -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
         instructions="",
@@ -90,6 +92,7 @@ def get_language_modeling_adapter_spec() -> str:
         max_tokens=0,
         temperature=0.0,
     )
+
 
 ############################################################
 # Concrete adapter specs
@@ -1207,7 +1210,8 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
         groups=["summarization_xsum"],
     )
 
-def get_summarization_adapter_spec(**kwargs) -> str:
+
+def get_summarization_adapter_spec(**kwargs) -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="Summarize the given documents.\n",
@@ -1330,7 +1334,9 @@ def get_legal_support_spec() -> RunSpec:
         name="legal_support",
         scenario_spec=scenario_spec,
         adapter_spec=get_multiple_choice_adapter_spec(
-            "Which statement best supports the passage?", "Passage", "Answer",
+            "Which statement best supports the passage?",
+            "Passage",
+            "Answer",
             max_train_instances=3,  # We use 3 because these samples tend to be a bit longer
         ),
         metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),

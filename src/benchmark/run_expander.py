@@ -97,10 +97,7 @@ class InstructionsRunExpander(RunExpander):
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         adapter_spec = run_spec.adapter_spec
         if self.value == "none":
-            adapter_spec = replace(
-                adapter_spec,
-                instructions="",
-            )
+            adapter_spec = replace(adapter_spec, instructions="",)
         else:
             raise Exception("Unknown value: {self.value}")
         return [

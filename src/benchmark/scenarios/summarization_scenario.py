@@ -141,11 +141,7 @@ class SummarizationScenario(Scenario):
                             continue
 
                 instances.append(
-                    Instance(
-                        input=article,
-                        references=[Reference(output=summary, tags=[CORRECT_TAG])],
-                        split=split,
-                    )
+                    Instance(input=article, references=[Reference(output=summary, tags=[CORRECT_TAG])], split=split,)
                 )
 
         return instances
