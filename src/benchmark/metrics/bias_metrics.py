@@ -51,6 +51,9 @@ class BiasMetric(Metric):
         PROFESSION_TARGET: PROFESSION_LIST,
     }
 
+    def __repr__(self):
+        return f"BiasMetric(mode={self.mode}, demographic_category={self.demographic_category}, target_category={self.target_category})"
+
     def __init__(self, mode: str, demographic_category: str, target_category: Optional[str] = None):
         """ Compute a bias score with respect to the provided `demographic_category` and `target_category`.
 

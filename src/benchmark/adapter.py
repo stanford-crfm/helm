@@ -41,13 +41,25 @@ class AdapterSpec:
     # What goes before the input
     input_prefix: str = "Input: "
 
+    # What goes after the input
+    #input_suffix: str = "\n"
+    input_suffix: str = ""
+
     # What goes before the input (for multiple choice)
-    reference_prefix: str = "\nA. "
+    reference_prefix: str = "A. "
+
+    # What goes before the input (for multiple choice)
+    reference_suffix: str = ""
 
     # What goes before the output
-    output_prefix: str = "\nOutput: "
+    output_prefix: str = "Output: "
 
-    # What goes before each Instance in the constructed prompt
+    # What goes after the output
+    #output_suffix: str = "\n"
+    output_suffix: str = ""
+
+    # What goes between instructions and instances in the constructed prompt
+    #instance_prefix: str = "\n"
     instance_prefix: str = "\n\n"
 
     # Maximum number of (in-context) training instances to put into the prompt
@@ -414,7 +426,7 @@ class Processor:
         """Return a list of lines corresponding to this example (part of the prompt)."""
 
         # Input
-        result = self.adapter_spec.input_prefix + instance.input
+        result = self.adapter_spec.input_prefix + instance.input + self.adapter_spec.input_suffix
 
         # References (optionally) and output
         if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
@@ -422,7 +434,7 @@ class Processor:
             output = "n/a"
             for reference_index, reference in enumerate(instance.references):
                 prefix = self.get_reference_prefix(self.adapter_spec.reference_prefix, reference_index)
-                result += prefix + reference.output
+                result += prefix + reference.output + self.adapter_spec.reference_suffix
                 if reference.is_correct and output == "n/a":
                     output = self.get_reference_prefix("A", reference_index)
         else:
@@ -435,7 +447,7 @@ class Processor:
                 output = reference.output
 
         if include_output:
-            result += self.adapter_spec.output_prefix + output
+            result += self.adapter_spec.output_prefix + output + self.adapter_spec.output_suffix
         else:
             result += self.adapter_spec.output_prefix.rstrip()
 
