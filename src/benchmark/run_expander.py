@@ -540,7 +540,7 @@ class DataAugmentationRunExpander(RunExpander):
                 should_augment_eval_instances=True,
                 should_include_original_eval=True,
                 should_skip_unchanged_eval=True,
-                num_perturbations=1,
+                num_perturbations=5,
             )
             return replace(
                 run_spec,
