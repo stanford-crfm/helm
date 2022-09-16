@@ -1,6 +1,6 @@
 import os
 import re
-from typing import List, Set, Union
+from typing import List, Union
 from enum import Enum
 import pandas as pd
 
@@ -41,7 +41,6 @@ KEEP_TAGS = False
 GENDER_ANNOTATIONS = {"male": {"M", "m", "Male", "male"}, "female": {"F", "f", "Female", "female"}}
 UNSUPPORTED_SUBSETS = {"GB", "NIG", "NZ", "SL"}
 METADATA_FORMAT = {
-    ICESubset.CANADA: HeaderFormat.XLS,
     ICESubset.HONG_KONG: HeaderFormat.XLS,
     ICESubset.INDIA: HeaderFormat.HDR,
     ICESubset.USA: HeaderFormat.HDR,
@@ -175,9 +174,9 @@ class ICEScenario(Scenario):
 
     def __init__(self, subset: Union[str, None] = None, gender: Union[str, None] = None, category="all"):
         if subset:
-            self.subset = {ICESubset(subset)}
+            self.subset = [ICESubset(subset)]
         else:
-            self.subset = set(ICESubset)
+            self.subset = list(ICESubset)
 
         self.gender = "None"
 
@@ -187,7 +186,7 @@ class ICEScenario(Scenario):
                     ICESubset(subset) in METADATA_FORMAT.keys()
                 ), f"Subset {subset} cannot be filtered through metadata."
             else:
-                self.subset = set(METADATA_FORMAT.keys())
+                self.subset = list(METADATA_FORMAT.keys())
 
             self.gender = gender
 
@@ -322,7 +321,7 @@ class ICEScenario(Scenario):
 
         return filename.upper().startswith(self.category.value)
 
-    def filter_by_metadata(self, subset: ICESubset, header_dir: str) -> Set[str]:
+    def filter_by_metadata(self, subset: ICESubset, header_dir: str) -> List[str]:
         """
         Reads through metadata in a folder specified by @param header_dir
         and returns a set of corresponding text filenames (in the Corpus folder)
@@ -368,7 +367,7 @@ class ICEScenario(Scenario):
                 if all([g in GENDER_ANNOTATIONS[self.gender] for g in gen_ann]):
                     selected_texts.add(filename[:-4] + ".txt")
 
-        return selected_texts
+        return sorted(list(selected_texts))
 
     def get_instances(self, debug_cap: Union[int, None] = None) -> List[Instance]:
         instances: List[Instance] = []
