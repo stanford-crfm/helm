@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Optional, List, Dict
 
 
@@ -21,13 +21,19 @@ class Cell:
 
 
 @dataclass(frozen=True)
+class Hyperlink:
+    text: str
+    href: str
+
+
+@dataclass(frozen=True)
 class Table:
     title: str
     header: List[Cell]
     rows: List[List[Cell]]
 
-    # Where to retrieve the .tex path for this table.
-    latex_path: Optional[str] = None
+    # Extra information to show at the bottom
+    links: List[Hyperlink] = field(default_factory=list)
 
 
 def table_to_latex(table: Table, table_name: str, skip_blank_columns=True) -> str:

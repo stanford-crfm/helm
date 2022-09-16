@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List
 
 from benchmark.metrics.metric_name import MetricName
-from common.general import ensure_directory_exists, write, write_lines, asdict_without_nones
+from common.general import ensure_directory_exists, write, asdict_without_nones
 from common.hierarchical_logger import hlog, htrack_block
 from common.cache import cache_stats
 from .augmentations.data_augmenter import DataAugmenterSpec
@@ -175,13 +175,10 @@ class Runner:
         scenario_dict["scenario_spec"] = asdict_without_nones(run_spec.scenario_spec)
         scenario_dict["definition_path"] = scenario.get_definition_path()
         scenario_dict["instances"] = [asdict_without_nones(instance) for instance in scenario_state.instances]
-        write_lines(os.path.join(run_path, "scenario.txt"), scenario.render_lines(scenario_state.instances))
         write(os.path.join(run_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
 
-        write_lines(os.path.join(run_path, "scenario_state.txt"), scenario_state.render_lines())
         write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
 
-        write_lines(os.path.join(run_path, "stats.txt"), [str(stat) for stat in stats])
         write(
             os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in stats], indent=2)
         )

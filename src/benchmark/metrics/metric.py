@@ -24,8 +24,16 @@ from .statistic import Stat, merge_stat
 
 @dataclass(frozen=True)
 class PerInstanceStats:
+    """
+    Captures a unit of evaluation.
+    """
+
+    # Uniquely identifies the input instance
     instance_id: str
-    trial_index: int
+    perturbation: Optional[PerturbationDescription]
+    train_trial_index: int
+
+    # Statistics computed from the predicted output
     stats: List[Stat]
 
 
@@ -146,7 +154,9 @@ class Metric(ABC):
             per_instance_stats: List[PerInstanceStats] = []
             for instance, stats in zip(scenario_state.instances, results):
                 assert instance.id is not None, f"id was none for instance: {instance}"
-                per_instance_stats.append(PerInstanceStats(instance.id, train_trial_index, stats))
+                per_instance_stats.append(
+                    PerInstanceStats(instance.id, instance.perturbation, train_trial_index, stats)
+                )
 
             # Aggregate these stats
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
@@ -266,7 +276,7 @@ class Metric(ABC):
 
             # Use trial index of 0 here since we run only one trial for LM
             assert request_state.instance.id is not None
-            all_per_instance_stats.append(PerInstanceStats(request_state.instance.id, 0, request_stats))
+            all_per_instance_stats.append(PerInstanceStats(request_state.instance.id, None, 0, request_stats))
 
             for stat in request_stats:
                 merge_stat(trial_stats, stat)
