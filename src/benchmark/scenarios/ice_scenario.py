@@ -40,6 +40,7 @@ KEEP_TAGS = False
 GENDER_ANNOTATIONS = {"male": {"M", "m", "Male", "male"}, "female": {"F", "f", "Female", "female"}}
 UNSUPPORTED_SUBSETS = {"GB", "NIG", "NZ", "SL"}
 METADATA_FORMAT = {
+    ICESubset.CANADA: HeaderFormat.XLS,
     ICESubset.HONG_KONG: HeaderFormat.XLS,
     ICESubset.INDIA: HeaderFormat.HDR,
     ICESubset.USA: HeaderFormat.HDR,
