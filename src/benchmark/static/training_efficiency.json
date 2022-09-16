@@ -16,28 +16,12 @@
             "value" : 9.8,
             "description" : "For OpenAI models that are not in Instruct series, we rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model. We assume that InstructGPT models required 1.0165 more compute (and energy/carbon) than baseline models. We arrive at this since authors note that the PPO version used 60 petaflops/s-days on top of 3,640 petaflops/s-days for the GPT-3 base. As such, we estimate the same additional proportion of compute for all models."
         },
-        "openai/text-babbage-001": {
-            "value" : 9.9,
-            "description" : "For OpenAI models that are not in Instruct series, we rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model. We assume that InstructGPT models required 1.0165 more compute (and energy/carbon) than baseline models. We arrive at this since authors note that the PPO version used 60 petaflops/s-days on top of 3,640 petaflops/s-days for the GPT-3 base. As such, we estimate the same additional proportion of compute for all models."
-        },
         "openai/curie": {
             "value" : 49.2,
             "description" : "For OpenAI models that are not in Instruct series, we rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model. We assume that InstructGPT models required 1.0165 more compute (and energy/carbon) than baseline models. We arrive at this since authors note that the PPO version used 60 petaflops/s-days on top of 3,640 petaflops/s-days for the GPT-3 base. As such, we estimate the same additional proportion of compute for all models."
             },
-        "openai/text-curie-001": {
-            "value" : 50.0,
-            "description" : "For OpenAI models that are not in Instruct series, we rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model. We assume that InstructGPT models required 1.0165 more compute (and energy/carbon) than baseline models. We arrive at this since authors note that the PPO version used 60 petaflops/s-days on top of 3,640 petaflops/s-days for the GPT-3 base. As such, we estimate the same additional proportion of compute for all models."
-        },
         "openai/davinci": {
             "value" : 1287.1,
-            "description" : "For OpenAI models that are not in Instruct series, we rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model. We assume that InstructGPT models required 1.0165 more compute (and energy/carbon) than baseline models. We arrive at this since authors note that the PPO version used 60 petaflops/s-days on top of 3,640 petaflops/s-days for the GPT-3 base. As such, we estimate the same additional proportion of compute for all models."
-        },
-        "openai/text-davinci-001": {
-            "value" : 1308.3,
-            "description" : "For OpenAI models that are not in Instruct series, we rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model. We assume that InstructGPT models required 1.0165 more compute (and energy/carbon) than baseline models. We arrive at this since authors note that the PPO version used 60 petaflops/s-days on top of 3,640 petaflops/s-days for the GPT-3 base. As such, we estimate the same additional proportion of compute for all models."
-        },
-        "openai/text-davinci-002": {
-            "value" : 1308.3,
             "description" : "For OpenAI models that are not in Instruct series, we rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model. We assume that InstructGPT models required 1.0165 more compute (and energy/carbon) than baseline models. We arrive at this since authors note that the PPO version used 60 petaflops/s-days on top of 3,640 petaflops/s-days for the GPT-3 base. As such, we estimate the same additional proportion of compute for all models."
         },
         "microsoft/TNLGv2_530B": {
@@ -62,28 +46,12 @@
             "value" : 4.2,
             "description" : "For OpenAI models that are not in Instruct series, we rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model. We assume that InstructGPT models required 1.0165 more compute (and energy/carbon) than baseline models. We arrive at this since authors note that the PPO version used 60 petaflops/s-days on top of 3,640 petaflops/s-days for the GPT-3 base. As such, we estimate the same additional proportion of compute for all models."
         },
-        "openai/text-babbage-001": {
-            "value" : 4.3,
-            "description" : "For OpenAI models that are not in Instruct series, we rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model. We assume that InstructGPT models required 1.0165 more compute (and energy/carbon) than baseline models. We arrive at this since authors note that the PPO version used 60 petaflops/s-days on top of 3,640 petaflops/s-days for the GPT-3 base. As such, we estimate the same additional proportion of compute for all models."
-        },
         "openai/curie": {
             "value" : 21.1,
             "description" : "For OpenAI models that are not in Instruct series, we rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model. We assume that InstructGPT models required 1.0165 more compute (and energy/carbon) than baseline models. We arrive at this since authors note that the PPO version used 60 petaflops/s-days on top of 3,640 petaflops/s-days for the GPT-3 base. As such, we estimate the same additional proportion of compute for all models."
         },
-        "openai/text-curie-001": {
-            "value" : 21.4,
-            "description" : "For OpenAI models that are not in Instruct series, we rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model. We assume that InstructGPT models required 1.0165 more compute (and energy/carbon) than baseline models. We arrive at this since authors note that the PPO version used 60 petaflops/s-days on top of 3,640 petaflops/s-days for the GPT-3 base. As such, we estimate the same additional proportion of compute for all models."
-        },
         "openai/davinci": {
             "value" : 552.1,
-            "description" : "For OpenAI models that are not in Instruct series, we rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model. We assume that InstructGPT models required 1.0165 more compute (and energy/carbon) than baseline models. We arrive at this since authors note that the PPO version used 60 petaflops/s-days on top of 3,640 petaflops/s-days for the GPT-3 base. As such, we estimate the same additional proportion of compute for all models."
-        },
-        "openai/text-davinci-001": {
-            "value" : 561.2,
-            "description" : "For OpenAI models that are not in Instruct series, we rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model. We assume that InstructGPT models required 1.0165 more compute (and energy/carbon) than baseline models. We arrive at this since authors note that the PPO version used 60 petaflops/s-days on top of 3,640 petaflops/s-days for the GPT-3 base. As such, we estimate the same additional proportion of compute for all models."
-        },
-        "openai/text-davinci-002": {
-            "value" : 561.2,
             "description" : "For OpenAI models that are not in Instruct series, we rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model. We assume that InstructGPT models required 1.0165 more compute (and energy/carbon) than baseline models. We arrive at this since authors note that the PPO version used 60 petaflops/s-days on top of 3,640 petaflops/s-days for the GPT-3 base. As such, we estimate the same additional proportion of compute for all models."
         },
         "microsoft/TNLGv2_530B": {

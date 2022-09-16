@@ -46,6 +46,8 @@ def get_retry_decorator(
 
 def retry_if_request_failed(result: Union[RequestResult, TokenizationRequestResult]) -> bool:
     """Fails if `success` of `RequestResult` or `TokenizationRequestResult` is false."""
+    if not result.success:
+        hlog(result.error)
     return not result.success
 
 

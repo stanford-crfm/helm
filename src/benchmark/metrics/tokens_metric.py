@@ -68,7 +68,7 @@ class TokensMetric(Metric):
 
         # Per-instance
         per_instance_stats = [
-            PerInstanceStats(cast(str, instance.id), 0, stats)
+            PerInstanceStats(cast(str, instance.id), None, 0, stats)
             for instance, stats in zip(scenario_state.instances, results)
         ]
 

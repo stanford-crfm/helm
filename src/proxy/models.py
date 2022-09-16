@@ -16,6 +16,10 @@ WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"
 GPT2_TOKENIZER_TAG: str = "gpt2_tokenizer"
 AI21_TOKENIZER_TAG: str = "ai21_tokenizer"
 
+# Models that are used for ablations and fine-grained analyses.
+# These models are selected specifically because of their low marginal cost to evaluate.
+ABLATION_MODEL_TAG: str = "ablation"
+
 
 @dataclass
 class Model:
@@ -64,17 +68,14 @@ class Model:
 
 
 # For the list of available models, see the following docs:
-#
-# OpenAI: https://help.openai.com/en/articles/5832130-what-s-changed-with-engine-names-and-best-practices
-# AI21: https://studio.ai21.com/docs/jurassic1-language-models/
 ALL_MODELS = [
-    # AI21
+    # AI21: https://studio.ai21.com/pricing
     Model(
         group="jurassic",
         creator_organization="AI21 Labs",
         name="ai21/j1-jumbo",
-        display_name="Jurassic Jumbo (178B)",
-        description="Jurassic J1-Jumbo (178B parameters)",
+        display_name="Jurassic Jumbo (180B)",
+        description="Jurassic J1-Jumbo (180B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     # From AI21: "the new model is a mid-point in terms of size, cost and performance between Jumbo and Large.
@@ -196,17 +197,24 @@ ALL_MODELS = [
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # Cohere models
-    # Model versioning and the possible versions are are not documented here:
+    # Cohere has not release the sizes of their models.
+    # Model versioning and the possible versions are not documented here:
     # https://docs.cohere.ai/generate-reference#model-optional.
-    # We got the names of the models from the Cohere Playground.
-    # TODO: find out the number of parameters and update descriptions
+    # So, instead, we got the names of the models from the Cohere Playground.
+    #
+    # Note that their tokenizer and model were trained on English text and
+    # they do not have a dedicated decode API endpoint, so the adaptation
+    # step for language modeling fails for certain Scenarios:
+    # the_pile:subset=ArXiv
+    # the_pile:subset=Github
+    # the_pile:subset=PubMed Central
     Model(
         group="cohere",
         creator_organization="Cohere",
         name="cohere/xlarge-20220609",
         display_name="Cohere xlarge",
         description="Cohere xlarge",
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="cohere",
@@ -214,7 +222,7 @@ ALL_MODELS = [
         name="cohere/large-20220720",
         display_name="Cohere large",
         description="Cohere large",
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="cohere",
@@ -222,7 +230,7 @@ ALL_MODELS = [
         name="cohere/medium-20220720",
         display_name="Cohere medium",
         description="Cohere medium",
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="cohere",
@@ -230,7 +238,7 @@ ALL_MODELS = [
         name="cohere/small-20220720",
         display_name="Cohere small",
         description="Cohere small",
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # GooseAI supported models
     Model(
@@ -274,7 +282,7 @@ ALL_MODELS = [
         display_name="Anthropic-LM (52B)",
         description="Anthropic model (52B parameters)",
         # The Anthropic model has limited functionality
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, ABLATION_MODEL_TAG],
     ),
     # Microsoft
     Model(
@@ -302,7 +310,7 @@ ALL_MODELS = [
         # From https://bigscience.huggingface.co/blog/bloom
         description="BLOOM (176B parameters) is an autoregressive model similar to GPT-3 trained "
         "on 46 natural languages and 13 programming languages.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
     Model(
         group="together",
@@ -314,7 +322,7 @@ ALL_MODELS = [
         "parameters, pre-trained using the algorithm of General Language Model (GLM).",
         # Inference with echo=True is not feasible -- in the prompt encoding phase, they use
         # bidirectional attention and do not perform predictions on them.
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
     Model(
         group="together",
@@ -322,7 +330,7 @@ ALL_MODELS = [
         name="together/gpt-j-6b",
         display_name="GPT-J (6B)",
         description="GPT-J (6B parameters trained by EleutherAI on The Pile)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
     Model(
         group="together",
@@ -330,7 +338,7 @@ ALL_MODELS = [
         name="together/gpt-neox-20b",
         display_name="GPT-NeoX (20B)",
         description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
     Model(
         group="together",
@@ -340,7 +348,7 @@ ALL_MODELS = [
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
         "transformers fully and responsibly shared with interested researchers.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
     Model(
         group="together",
@@ -350,7 +358,7 @@ ALL_MODELS = [
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
         "transformers fully and responsibly shared with interested researchers.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
     Model(
         group="together",
@@ -362,7 +370,7 @@ ALL_MODELS = [
         "unsupervised and supervised tasks and for which each task is converted into a text-to-text "
         "format.",
         # Does not support echo=True
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
     Model(
         group="together",
@@ -373,18 +381,18 @@ ALL_MODELS = [
         description="UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5"
         "but trained with a different objective and slightly different scaling knobs.",
         # Does not support echo=True
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
     Model(
         group="together",
         creator_organization="BigScience",
         name="together/t0pp",
-        display_name="t0pp (11B)",
+        display_name="T0++ (11B)",
         # From https://huggingface.co/bigscience/T0pp
         description="T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks "
         "specified in natural language prompts.",
         # Does not support echo=True
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
     Model(
         group="together",
@@ -395,7 +403,7 @@ ALL_MODELS = [
         description="YaLM (100B parameters) is an autoregressive language model trained on English and Russian text.",
         # TODO: change to `FULL_FUNCTIONALITY_TEXT_MODEL_TAG` when we fix the infinite loop in L.M. adaptation
         #       https://github.com/stanford-crfm/benchmarking/issues/738
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
     ),
     # For debugging
     Model(
