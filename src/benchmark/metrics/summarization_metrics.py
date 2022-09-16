@@ -8,10 +8,8 @@ from typing import List, Sequence, Dict
 # Need to check spacy module is downloaded before importing DataStatsMetric
 if not spacy.util.is_package("en_core_web_sm"):
     subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
-try:
-    nltk.data.find('tokenizers/punkt.zip')
-except LookupError:
-    nltk.download('punkt')
+
+nltk.download("punkt")
 
 
 from summ_eval.data_stats_metric import DataStatsMetric
@@ -87,10 +85,17 @@ class SummarizationMetric(Metric):
         return {"SummaC": self.summac.score_one(inp, pred)["score"]}
 
     def _clean_incomplete_prediction(self, pred: str):
-        sents =sent_tokenize(pred)
+        sents = sent_tokenize(pred)
         if len(sents) > 1:
             last_sentence = sents[-1]
-            if last_sentence.strip()[-1] not in ".?!" and last_sentence.strip()[-2:] not in [".\"", ".\'", "!\'", "!\"", "?\"", "?\'"]:
+            if last_sentence.strip()[-1] not in ".?!" and last_sentence.strip()[-2:] not in [
+                '."',
+                ".'",
+                "!'",
+                '!"',
+                '?"',
+                "?'",
+            ]:
                 # rule-based checking for complete sentence
                 pred = " ".join(sents[:-1])
         return pred
