@@ -22,7 +22,7 @@ To start a local server (go to `http://localhost:1959` to try it out):
     venv/bin/proxy-server
 
 When starting the server for the first time, the server will create an admin account 
-with the API key: `benchmarking123`.
+with the API key: `root`.
 If you're deploying the server to production, make sure to rotate the API key of the
 default admin account.
 

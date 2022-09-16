@@ -116,7 +116,7 @@ class Accounts:
     `path`: Path to sqlite file where the information about accounts is stored.
     """
 
-    DEFAULT_API_KEY: str = "benchmarking123"
+    DEFAULT_API_KEY: str = "root"
 
     def __init__(self, path: str, root_mode=False):
         self.path: str = path
