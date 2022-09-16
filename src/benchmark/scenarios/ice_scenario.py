@@ -1,13 +1,33 @@
 import os
 import re
-import sys  # noqa
-import requests  # noqa
-from typing import List, Set
+from typing import List, Set, Union
 from enum import Enum
 import pandas as pd
 
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, TEST_SPLIT
+
+
+class ICESubset(Enum):
+    CANADA = "can"
+    JAMAICA = "ja"
+    HONG_KONG = "hk"
+    INDIA = "ind"
+    SINGAPORE = "sin"
+    PHILIPPINES = "phi"
+    USA = "usa"
+    EAST_AFRICA = "ea"
+    IRELAND = "irl"
+
+
+class TextCategory(Enum):
+    ALL = "all"
+    S_ALL = "S"
+    W_ALL = "W"
+    S_DIALOGUE = "S1"
+    S_MONOLOGUE = "S2"
+    W_PRIVATE = "W1"
+    W_PUBLIC = "W2"
 
 
 class HeaderFormat(Enum):
@@ -19,17 +39,59 @@ class HeaderFormat(Enum):
 
 KEEP_TAGS = False
 GENDER_ANNOTATIONS = {"male": {"M", "m", "Male", "male"}, "female": {"F", "f", "Female", "female"}}
-ICE_SUBSETS = {"can", "ja", "hk", "ind", "sin", "phi", "usa"}
-UNSUPPORTED_SUBSETS = {"GB", "EA", "IRL", "NZ", "SL", "NG"}  # noqa
-METADATA_FORMAT = {"can": HeaderFormat.XLS, "hk": HeaderFormat.XLS, "ind": HeaderFormat.HDR, "usa": HeaderFormat.HDR}
+UNSUPPORTED_SUBSETS = {"GB", "NIG", "NZ", "SL"}
+METADATA_FORMAT = {
+    ICESubset.CANADA: HeaderFormat.XLS,
+    ICESubset.HONG_KONG: HeaderFormat.XLS,
+    ICESubset.INDIA: HeaderFormat.HDR,
+    ICESubset.USA: HeaderFormat.HDR,
+}
 SUBSET_TO_DIRECTORY = {
-    "ind": "ICE India",
-    "can": "ICE-CAN",
-    "hk": "ICE-HK",
-    "ja": "ICE-JA",
-    "phi": "ICE Philippines",
-    "sin": "ICE SINGAPORE",
-    "usa": "ICE-USA",
+    ICESubset.INDIA: "ICE India",
+    ICESubset.CANADA: "ICE-CAN",
+    ICESubset.HONG_KONG: "ICE-HK",
+    ICESubset.JAMAICA: "ICE-JA",
+    ICESubset.PHILIPPINES: "ICE Philippines",
+    ICESubset.SINGAPORE: "ICE SINGAPORE",
+    ICESubset.USA: "ICE-USA",
+    ICESubset.IRELAND: "ICE-IRL/ICE-Ireland version 1.2#6DAE.2/ICE-Ireland txt",
+    ICESubset.EAST_AFRICA: "ICE-EA/corpus/retagged for wsmith",
+}
+EA_FILENAME_TO_CATEGORY = {
+    "brdisc": TextCategory.S_DIALOGUE,
+    "brint": TextCategory.S_DIALOGUE,
+    "brnews": TextCategory.S_MONOLOGUE,
+    "brtalk": TextCategory.S_MONOLOGUE,
+    "buslet": TextCategory.W_PRIVATE,
+    "clless": TextCategory.S_DIALOGUE,
+    "column": TextCategory.W_PUBLIC,
+    "conv": TextCategory.S_DIALOGUE,
+    "conv1": TextCategory.S_DIALOGUE,
+    "conv2": TextCategory.S_DIALOGUE,
+    "crea": TextCategory.W_PUBLIC,
+    "creat1": TextCategory.W_PUBLIC,
+    "creat2": TextCategory.W_PUBLIC,
+    "crossx": TextCategory.S_DIALOGUE,
+    "editor": TextCategory.W_PUBLIC,
+    "essays": TextCategory.W_PRIVATE,
+    "exam": TextCategory.W_PRIVATE,
+    "feat": TextCategory.W_PUBLIC,
+    "instruct": TextCategory.W_PUBLIC,
+    "judge": TextCategory.W_PRIVATE,
+    "ldhum": TextCategory.W_PUBLIC,
+    "ldnats": TextCategory.W_PUBLIC,
+    "ldsoc": TextCategory.W_PUBLIC,
+    "ldtech": TextCategory.W_PUBLIC,
+    "parlia": TextCategory.S_DIALOGUE,
+    "ppgen": TextCategory.W_PUBLIC,
+    "pphum": TextCategory.W_PUBLIC,
+    "ppnats": TextCategory.W_PUBLIC,
+    "ppsoc": TextCategory.W_PUBLIC,
+    "pptech": TextCategory.W_PUBLIC,
+    "schbr": TextCategory.S_MONOLOGUE,
+    "soclet": TextCategory.W_PRIVATE,
+    "splect": TextCategory.S_MONOLOGUE,
+    "splash": TextCategory.W_PUBLIC,
 }
 
 
@@ -111,24 +173,25 @@ class ICEScenario(Scenario):
     description = "International Corpus of English (ICE)"
     tags = ["language_modeling", "harms", "fairness"]
 
-    def __init__(self, subset: str = None, split: str = "all", gender: str = None):
+    def __init__(self, subset: Union[str, None] = None, gender: Union[str, None] = None, category="all"):
         if subset:
-            assert subset in ICE_SUBSETS
-            self.subset = {subset}
+            self.subset = {ICESubset(subset)}
         else:
-            self.subset = ICE_SUBSETS
+            self.subset = set(ICESubset)
 
-        assert split in {"all", "written", "spoken"}
-        self.split = split
         self.gender = "None"
 
         if gender:
             if subset:
-                assert subset in METADATA_FORMAT.keys()
+                assert (
+                    ICESubset(subset) in METADATA_FORMAT.keys()
+                ), f"Subset {subset} cannot be filtered through metadata."
             else:
                 self.subset = set(METADATA_FORMAT.keys())
 
             self.gender = gender
+
+        self.category = TextCategory(category)
 
     def preprocess_text(self, text: str, keep_tags: bool = False) -> str:
         """
@@ -153,7 +216,7 @@ class ICEScenario(Scenario):
         untag = [
             "I",
             "ICE.+",
-            "[\[\]\{\}]\d*",
+            "[\\[\\]\\{\\}]\\d*",
             "X",
             "@",
             "quote",
@@ -164,30 +227,60 @@ class ICEScenario(Scenario):
             "sb",
             "ss",
             "footnote",
-            ",",
-            ",,",
             "p",
             "h",
             "bold",
             "it",
             "ul",
-            "\+",
-            "\=",
-            "\?",
+            "\\+",
+            "\\=",
+            "\\?",
             "sp",
+            "}",
+            "ea",
+            "slang",
         ]
         remove = ["O", "-", "&", ".", "fnr", "marginalia", "del", "w"]
-        replace = {"<\/*mention>": '"', "<\/*\*>": "<\/*\*>", "<\/*\*\/>": "\*", "&eacute;": "é", " <l> ": ""}
+        delete = [
+            "[WS]\\d[A-F]-\\d{3} *",
+            " <l> ",
+            "<#> ",
+            "BBB\\S+ \\S+RRR *",
+            "BBB\\S+ *",
+            "RRR\\S+ *",
+            "UUU",
+            "III\\S+ *",
+        ]
+        replace = {
+            "<\\/*mention>": '"',
+            "</\\*\\*>": "*",
+            "</\\*\\*/>": "*",
+            "&eacute;": "é",
+            " <,+>": ",",
+            "&ersand;": "&",
+            "&obrack;": "(",
+            "&cbrack;": ")",
+            "&percent;": "%",
+            "&hash;": "#",
+            "&dash": "-",
+            "&ldquo;": '"',
+            "&atsign;": "@",
+            "\\n+[\\n ]+": "\n\n",
+            "\\S+><\\+_(\\S+)>": "\\1",
+        }
 
         text = text.strip()
 
         if keep_tags:
             return text
 
+        for i in delete:
+            text = re.sub(i, "", text)
+
         for k, v in replace.items():
             text = re.sub(k, v, text)
 
-        untag_pattern = "<\/*(" + "|".join(untag) + ")>"
+        untag_pattern = "<\\/*(" + "|".join(untag) + ")>"
         text = re.sub(untag_pattern, "", text)
 
         for tag in remove:
@@ -207,21 +300,29 @@ class ICEScenario(Scenario):
         text = text.strip()
         return text
 
-    def validate_split(self, filename: str) -> bool:
+    def validate_category(self, subset: ICESubset, filename: str) -> bool:
         """
         Returns true if the text specified by @param filename belongs to the
-        split specified in the scenario parameters. In standard ICE formatting,
+        category specified in the scenario parameters. In standard ICE formatting,
         text names begin with W if written and S if spoken.
         """
-        if self.split == "all":
+        if self.category == TextCategory.ALL:
             return True
 
-        if self.split == "written":
-            return filename.startswith(("W", "w"))
+        if subset == ICESubset.EAST_AFRICA:
+            name = filename.replace("-", "")[:-5].lower()
+            category = EA_FILENAME_TO_CATEGORY[name]
 
-        return filename.startswith(("S", "s"))
+            if self.category == TextCategory.S_ALL:
+                return category in [TextCategory.S_DIALOGUE, TextCategory.S_MONOLOGUE]
+            elif self.category == TextCategory.W_ALL:
+                return category in [TextCategory.W_PRIVATE, TextCategory.W_PUBLIC]
+            else:
+                return self.category == category
 
-    def filter_by_metadata(self, subset: str, header_dir: str) -> Set[str]:
+        return filename.upper().startswith(self.category.value)
+
+    def filter_by_metadata(self, subset: ICESubset, header_dir: str) -> Set[str]:
         """
         Reads through metadata in a folder specified by @param header_dir
         and returns a set of corresponding text filenames (in the Corpus folder)
@@ -236,6 +337,8 @@ class ICEScenario(Scenario):
                 files = ["Spoken ICE-CAN metadata.xls", "Written ICE-CAN metadata.xls"]
             elif subset == "hk":
                 files = ["HKRecords.xls"]
+            else:
+                files = []
 
             for fi in files:
                 dfs = pd.read_excel(os.path.join(header_dir, fi), sheet_name=[0] if subset == "can" else None)
@@ -258,17 +361,16 @@ class ICEScenario(Scenario):
                     try:
                         text = f.read()
                     except UnicodeDecodeError:
-                        hlog(str(f"File {filename} skipped (unsupported header encoding)."))
                         continue
 
-                gen_ann = re.findall("(?<=<gender>)\w+(?=<\/gender>)", text)
+                gen_ann = re.findall("(?<=<gender>)\\w+(?=<\\/gender>)", text)
 
                 if all([g in GENDER_ANNOTATIONS[self.gender] for g in gen_ann]):
                     selected_texts.add(filename[:-4] + ".txt")
 
         return selected_texts
 
-    def get_instances(self) -> List[Instance]:
+    def get_instances(self, debug_cap: Union[int, None] = None) -> List[Instance]:
         instances: List[Instance] = []
 
         for subset in self.subset:
@@ -288,26 +390,44 @@ class ICEScenario(Scenario):
                 corpus_name = "Corpus"
             elif "CORPUS" in corpus_contents:
                 corpus_name = "CORPUS"
+            elif subset == ICESubset.IRELAND:
+                corpus_name = "ICE combined running txt"
+            elif subset == ICESubset.EAST_AFRICA:
+                corpus_name = "all east africa"
             else:
                 corpus_name = "corpus"
 
             corpus_path = os.path.join(data_path, corpus_name)
-            header_dir = os.path.join(data_path, "Headers")
+            can_filter = self.subset in list(METADATA_FORMAT.keys()) and self.gender != "None"
             selected_texts = (
-                self.filter_by_metadata(subset, header_dir) if self.gender != "None" else os.listdir(corpus_path)
+                self.filter_by_metadata(subset, os.path.join(data_path, "Headers"))
+                if can_filter
+                else os.listdir(corpus_path)
             )
 
             for filename in selected_texts:
-                if not self.validate_split(filename):
+                if not self.validate_category(subset, filename):
                     continue
 
                 try:
                     with open(os.path.join(corpus_path, filename), "r") as f:
-                        text = self.preprocess_text(f.read(), KEEP_TAGS)
+                        text = f.read()
                 except UnicodeDecodeError:
                     with open(os.path.join(corpus_path, filename), "r", encoding="iso-8859-1") as f:
-                        text = self.preprocess_text(f.read(), KEEP_TAGS)
+                        text = f.read()
 
-                instances.append(Instance(input=text, references=[], split=TEST_SPLIT))
+                preprocessed_texts = []
+
+                if subset == ICESubset.EAST_AFRICA:
+                    texts = re.split("[WS]\\d[A-F]\\d{3}[A-Z]*[KT]\n", text)
+                    preprocessed_texts = [self.preprocess_text(t, KEEP_TAGS) for t in texts if len(t) > 0]
+                else:
+                    preprocessed_texts = [self.preprocess_text(text, KEEP_TAGS)]
+
+                for t in preprocessed_texts:
+                    instances.append(Instance(input=t, references=[], split=TEST_SPLIT))
+
+                    if debug_cap and len(instances) >= debug_cap:
+                        return instances
 
         return instances
