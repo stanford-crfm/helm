@@ -1128,25 +1128,23 @@ def get_the_pile_spec(subset: str) -> RunSpec:
 
 
 def get_ice_spec(**kwargs) -> RunSpec:
-
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.ice_scenario.ICEScenario", args=kwargs)
 
     adapter_spec = AdapterSpec(
         method=ADAPT_LANGUAGE_MODELING,
-        instructions="",
         input_prefix="",
         output_prefix="",
         reference_prefix="",
         max_train_instances=0,
+        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
         num_outputs=1,
         num_train_trials=1,
-        model="openai/davinci",
         temperature=0.0,
         max_tokens=0,
     )
 
     return RunSpec(
-        name="ice" + (":" if len(kwargs) > 0 else "") + ",".join(f"{k}={v}" for k, v in kwargs.items()),
+        name="ice" + (":" if len(kwargs) > 0 else "") + ",".join(f"{k}={v}" for k, v in sorted(kwargs.items())),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs({"names": []}),
