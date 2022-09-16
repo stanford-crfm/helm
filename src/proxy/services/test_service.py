@@ -1,34 +1,23 @@
 import copy
-from dataclasses import asdict
-
-import os
 import pytest
 import shutil
 import tempfile
 
-from sqlitedict import SqliteDict
-
 from common.authentication import Authentication
 from common.request import Request
-from proxy.accounts import AuthenticationError, Account, Usage
+from proxy.accounts import AuthenticationError, Accounts
 from proxy.query import Query
-from .server_service import ServerService, ACCOUNTS_FILE
+from .server_service import ServerService
 
 
 def get_authentication():
-    return Authentication(api_key="crfm")
+    return Authentication(api_key=Accounts.DEFAULT_API_KEY)
 
 
 class TestServerService:
     def setup_method(self, method):
         # Create a temporary admin account to test account creation, updating quotas, etc.
         self.base_path: str = tempfile.mkdtemp()
-        auth: Authentication = get_authentication()
-        with SqliteDict(os.path.join(self.base_path, ACCOUNTS_FILE)) as cache:
-            account: Account = Account(auth.api_key, is_admin=True, usages={"gpt3": {"daily": Usage()}})
-            cache[auth.api_key] = asdict(account)
-            cache.commit()
-
         self.service = ServerService(base_path=self.base_path)
         self.auth = get_authentication()
 
@@ -107,7 +96,7 @@ class TestServerService:
 
     def test_get_account(self):
         account = self.service.get_account(self.auth)
-        assert account.api_key == "crfm"
+        assert account.api_key == Accounts.DEFAULT_API_KEY
 
         # Any user can access their own account
         account = self.service.create_account(self.auth)

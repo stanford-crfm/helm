@@ -29,7 +29,7 @@ APPS_METRIC_NAMES = ("test_avg", "strict_acc")
 # Prototypical adapter specs
 
 
-def get_multiple_choice_adapter_spec(
+def get_multiple_choice_joint_adapter_spec(
     instructions: str, input_noun: str, output_noun: str, max_train_instances: int = 5, **kwargs
 ) -> AdapterSpec:
     return AdapterSpec(
@@ -45,6 +45,40 @@ def get_multiple_choice_adapter_spec(
         temperature=0.0,
         stop_sequences=["\n"],
         **kwargs,
+    )
+
+def get_multiple_choice_joint_empty_input_adapter_spec(
+    input_instructions: str, output_noun: str, max_train_instances: int = 5, **kwargs
+) -> AdapterSpec:
+    return AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="",
+        input_prefix=input_instructions,
+        input_suffix="\n",
+        output_prefix=f"{output_noun}: ",
+        output_suffix="\n",
+        max_train_instances=5,
+        num_outputs=1,
+        temperature=0.0,
+        stop_sequences=["\n"],
+        **kwargs,
+    )
+
+def get_multiple_choice_separate_adapter_spec(method: str) -> AdapterSpec:
+    assert method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}
+
+    return AdapterSpec(
+        method=method,
+        instructions="",
+        input_prefix="",
+        output_prefix="",
+        output_prefix=" ",  # Note the space
+        output_suffix="",
+        # Separate is basically language modeling, so can't easily use in-context learning examples
+        max_train_instances=0,
+        num_outputs=1,
+        max_tokens=0,
+        temperature=0.0,
     )
 
 
@@ -124,6 +158,8 @@ def get_adapter_spec1() -> AdapterSpec:
         temperature=1,
         stop_sequences=["."],
     )
+
+
 
 
 ############################################################
@@ -285,21 +321,24 @@ def get_simple1_spec() -> RunSpec:
     )
 
 
-def get_bbq_spec(subject: str) -> RunSpec:
+def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.bbq_scenario.BBQScenario", args={"subject": subject})
 
-    def format(subject: str):
-        if subject != "all":
-            subject = subject[0].upper() + subject[1:]
-        return subject
+    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
+        adapter_spec = get_multiple_choice_joint_adapter_spec("The following are multiple choice questions (with answers).", "Passage", "Answer")
+        metric_specs = get_bbq_metric_specs()
+    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
+        # We do not compute BBQ metrics when non-standard method is used
+        metric_specs = get_basic_metric_specs({"names": []})
+    else:
+        raise ValueError(f"Invalid adaptation method: {method}")
 
     return RunSpec(
-        name=f"bbq:subject={subject}",
+        name=f"bbq:subject={subject},method={method}",
         scenario_spec=scenario_spec,
-        adapter_spec=get_multiple_choice_adapter_spec(
-            "The following are multiple choice questions (with answers).", "Passage", "Answer"
-        ),
-        metric_specs=get_bbq_metric_specs(),
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
         groups=["bbq"],
     )
 
@@ -384,13 +423,14 @@ def get_bold_spec(subject: str) -> RunSpec:
     )
 
 
-def get_civil_comments_spec(subject: str) -> RunSpec:
+def get_civil_comments_spec(demographic: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.civil_comments_scenario.CivilCommentsScenario", args={"subject": subject},
+        class_name="benchmark.scenarios.civil_comments_scenario.CivilCommentsScenario",
+        args={"demographic": demographic},
     )
 
     return RunSpec(
-        name=f"civil_comments:subject={subject}",
+        name=f"civil_comments:demographic={demographic}",
         scenario_spec=scenario_spec,
         adapter_spec=get_generation_adapter_spec("Passage", "Answer"),
         metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
@@ -399,19 +439,28 @@ def get_civil_comments_spec(subject: str) -> RunSpec:
     )
 
 
-def get_mmlu_spec(subject: str) -> RunSpec:
+def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.mmlu_scenario.MMLUScenario", args={"subject": subject})
 
     def format(subject: str):
         return subject.replace("_", " ")
 
+    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
+        adapter_spec = get_multiple_choice_joint_adapter_spec(
+            f"The following are multiple choice questions (with answers) about {format(subject)}.", "Question", "Answer"
+        )
+        metric_specs = get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
+        metric_specs = get_basic_metric_specs({"names": []})
+    else:
+        raise ValueError(f"Invalid adaptation method: {method}")
+
     return RunSpec(
         name=f"mmlu:subject={subject}",
         scenario_spec=scenario_spec,
-        adapter_spec=get_multiple_choice_adapter_spec(
-            f"The following are multiple choice questions (with answers) about {format(subject)}.", "Question", "Answer"
-        ),
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
         groups=["mmlu"],
     )
 
@@ -444,53 +493,26 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
 
 
 def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
-
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset},
     )
 
     if method == ADAPT_MULTIPLE_CHOICE_JOINT:
-        adapter_spec = AdapterSpec(
-            method=method,
-            instructions="The following are multiple choice questions (with answers) about common sense.",
-            input_prefix="Question: ",
-            output_prefix="Answer: ",
-            max_train_instances=5,
-            num_outputs=1,
-            temperature=0.0,
-            stop_sequences=["\n"],
-        )
-        run_spec = RunSpec(
-            name=f"commonsense:dataset={dataset},method={method}",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
-            groups=[dataset],
-        )
-    elif method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED]:
-        adapter_spec = AdapterSpec(
-            method=method,
-            instructions="",
-            input_prefix="",
-            input_suffix="",
-            output_prefix=" ",
-            output_suffix="",
-            max_train_instances=0,  # Appropriate for CLM approach
-            num_outputs=1,
-            max_tokens=0,
-            temperature=0.0,
-        )
-        run_spec = RunSpec(
-            name=f"commonsense:dataset={dataset},method={method}",
-            scenario_spec=scenario_spec,
-            adapter_spec=adapter_spec,
-            metric_specs=get_basic_metric_specs({"names": []}),
-            groups=[dataset],
-        )
+        adapter_spec = get_multiple_choice_joint_adapter_spec("The following are multiple choice questions (with answers) about common sense.", "Question", "Answer")
+        metric_specs = get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
+        metric_specs = get_basic_metric_specs({"names": []})
     else:
-        raise ValueError(f"Unknown commonsense method: {method}")
+        raise ValueError(f"Invalid adaptation method: {method}")
 
-    return run_spec
+    return RunSpec(
+        name=f"commonsense:dataset={dataset},method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=[dataset],
+    )
 
 
 def get_quac_spec() -> RunSpec:
@@ -539,28 +561,25 @@ def get_news_qa_spec() -> RunSpec:
     )
 
 
-def get_truthful_qa_spec(task: str) -> RunSpec:
+def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.truthful_qa_scenario.TruthfulQAScenario", args={"task": task},
     )
 
-    adapter_spec = AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="",
-        input_prefix="Question: ",
-        output_prefix="Answer: ",
-        max_train_instances=5,
-        num_outputs=1,
-        max_tokens=5,  # answers are generally at most 1 token due to multiple-choice
-        temperature=0.0,
-        stop_sequences=["\n"],
-    )
+    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
+        adapter_spec = get_multiple_choice_joint_adapter_spec("", "Question", "Answer")
+        metric_specs = get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
+        metric_specs = get_basic_metric_specs({"names": []})
+    else:
+        raise ValueError(f"Invalid adaptation method: {method}")
 
     return RunSpec(
         name=f"truthful_qa:task={task}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        metric_specs=metric_specs,
         groups=["truthful_qa"],
     )
 
@@ -816,16 +835,25 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
     )
 
 
-def get_lsat_qa_spec(task: str) -> RunSpec:
+def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.lsat_qa_scenario.LSATScenario", args={"task": task})
+
+    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
+        adapter_spec = get_multiple_choice_joint_adapter_spec(
+            "The following are multiple choice questions (with answers).", "Passage", "Answer"
+        )
+        metric_specs = get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
+        metric_specs = get_basic_metric_specs({"names": []})
+    else:
+        raise ValueError(f"Invalid adaptation method: {method}")
 
     return RunSpec(
         name=f"lsat_qa:task={task}",
         scenario_spec=scenario_spec,
-        adapter_spec=get_multiple_choice_adapter_spec(
-            "The following are multiple choice questions (with answers).", "Passage", "Answer"
-        ),
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
         groups=["lsat_qa"],
     )
 
@@ -1045,7 +1073,7 @@ def get_ice_spec(**kwargs) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.ice_scenario.ICEScenario", args=kwargs)
 
     return RunSpec(
-        name="ice" + (":" if len(kwargs) > 0 else "") + ",".join(f"{k}={v}" for k, v in kwargs.items()),
+        name="ice" + (":" if len(kwargs) > 0 else "") + ",".join(f"{k}={v}" for k, v in sorted(kwargs.items())),
         scenario_spec=scenario_spec,
         adapter_spec=get_language_modeling_adapter_spec(),
         metric_specs=get_basic_metric_specs({"names": []}),
@@ -1141,16 +1169,25 @@ def get_wikitext_103_spec() -> RunSpec:
     )
 
 
-def get_blimp_spec(phenomenon: str) -> RunSpec:
+def get_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon}
     )
 
+    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
+        adapter_spec = get_multiple_choice_joint_empty_input_adapter_spec("Please select the grammatical sentence.", "Answer")
+        metric_specs = get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
+        metric_specs = get_basic_metric_specs({"names": []})
+    else:
+        raise ValueError(f"Invalid adaptation method: {method}")
+
     return RunSpec(
         name=f"blimp:phenomenon={phenomenon}",
         scenario_spec=scenario_spec,
-        adapter_spec=get_multiple_completions_adapter_spec(),
-        metric_specs=get_basic_metric_specs({"names": []}),
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
         groups=["blimp"],
     )
 
@@ -1299,19 +1336,28 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
     )
 
 
-def get_legal_support_spec() -> RunSpec:
+def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.legal_support_scenario.LegalSupportScenario", args={})
 
-    return RunSpec(
-        name="legal_support",
-        scenario_spec=scenario_spec,
-        adapter_spec=get_multiple_choice_adapter_spec(
+    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
+        adapter_spec = get_multiple_choice_joint_adapter_spec(
             "Which statement best supports the passage?",
             "Passage",
             "Answer",
             max_train_instances=3,  # We use 3 because these samples tend to be a bit longer
-        ),
-        metric_specs=get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]}),
+        )
+        metric_specs = get_basic_metric_specs({"names": ["exact_match", "quasi_exact_match"]})
+    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
+        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
+        metric_specs = get_basic_metric_specs({"names": []})
+    else:
+        raise ValueError(f"Invalid adaptation method: {method}")
+
+    return RunSpec(
+        name="legal_support",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
         groups=["legal_support"],
     )
 
