@@ -4,7 +4,6 @@ from typing import List, Union
 from enum import Enum
 import pandas as pd
 
-from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, TEST_SPLIT
 
 
@@ -353,7 +352,6 @@ class ICEScenario(Scenario):
                 header_path = os.path.join(self.output_path, SUBSET_TO_DIRECTORY[subset], "Headers", filename)
 
                 if not os.path.exists(header_path):
-                    hlog(str(f"File {filename} skipped (no header found)."))
                     continue
 
                 with open(header_path, "r") as f:
