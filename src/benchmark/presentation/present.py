@@ -24,9 +24,6 @@ Usage:
 
 """
 
-READY_STATUS = "READY"
-WIP_STATUS = "WIP"
-
 
 class AllRunner:
     """Runs all RunSpecs specified in the configuration file."""
@@ -82,17 +79,11 @@ class AllRunner:
             # https://github.com/chimpler/pyhocon/issues/267
             # We have to manually remove the double quotes from the descriptions.
             run_spec_description = run_spec_description.replace('"', "")
-            status: str = run_spec_state.status
-            if status not in (READY_STATUS, WIP_STATUS):
-                raise ValueError(f"RunSpec {run_spec_description} has an invalid status: {status}")
 
             # Filter by priority
             priority: int = run_spec_state.priority
             if self.priority is not None and priority > self.priority:
                 continue
-
-            # Use `dry_run` flag if set, else use what's in the file.
-            dry_run = self.dry_run if self.dry_run is not None else status == WIP_STATUS
 
             try:
                 new_run_specs = run_benchmarking(
@@ -104,7 +95,7 @@ class AllRunner:
                     num_threads=self.num_threads,
                     output_path=self.output_path,
                     suite=self.suite,
-                    dry_run=dry_run,
+                    dry_run=self.dry_run,
                     skip_instances=self.skip_instances,
                     max_eval_instances=self.max_eval_instances,
                     models_to_run=self.models_to_run,

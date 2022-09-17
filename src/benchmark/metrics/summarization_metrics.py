@@ -4,24 +4,22 @@ import nltk
 from nltk import sent_tokenize
 import subprocess
 import sys
-from typing import List, Sequence, Dict
+from typing import List, Dict
 
 # Need to check spacy module is downloaded before importing DataStatsMetric
 if not spacy.util.is_package("en_core_web_sm"):
     subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
-from .summac.model_summac import SummaCZS
-from .statistic import Stat
-from .basic_metrics import get_rouge_function
-from .metric_service import MetricService
-from .metric_name import MetricName
-from .metric import Metric, MetricResult
-from common.hierarchical_logger import hlog
-from benchmark.scenarios.scenario import Reference
-from benchmark.adapter import AdapterSpec, RequestState, ScenarioState
+
 from summ_eval.data_stats_metric import DataStatsMetric
 
-nltk.download("punkt")
-
+from benchmark.adapter import AdapterSpec, RequestState, ScenarioState
+from common.hierarchical_logger import hlog
+from .metric import Metric, MetricResult
+from .metric_name import MetricName
+from .metric_service import MetricService
+from .basic_metrics import get_rouge_function
+from .statistic import Stat
+from .summac.model_summac import SummaCZS
 
 class SummarizationMetric(Metric):
     """Summarization Metrics
@@ -34,11 +32,14 @@ class SummarizationMetric(Metric):
     """
 
     def __init__(self, device="cpu"):
+        nltk.download("punkt")
+        
         self.rouge_fns = {
             "rouge_1": get_rouge_function("rouge1"),
             "rouge_2": get_rouge_function("rouge2"),
             "rouge_l": get_rouge_function("rougeL"),
         }
+        
         self.data_stats_metric = DataStatsMetric()
 
         if device == "cpu":
@@ -63,11 +64,11 @@ class SummarizationMetric(Metric):
 
         return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=parallelism)
 
-    def _compute_rouge(self, refs: Sequence[Reference], pred: str) -> Dict[str, float]:
+    def _compute_rouge(self, refs: List[str], pred: str) -> Dict[str, float]:
         metrics: Dict[str, float] = {}
 
         for metric, metric_fn in self.rouge_fns.items():
-            metrics[metric] = np.max([metric_fn(ref.output, pred) for ref in refs])
+            metrics[metric] = np.max([metric_fn(ref, pred) for ref in refs])
 
         return metrics
 
@@ -80,7 +81,14 @@ class SummarizationMetric(Metric):
         }
 
     def _compute_faithfulness_scores(self, inp: str, pred: str) -> Dict[str, float]:
-        return {"SummaC": self.summac.score_one(inp, pred)["score"]}
+        return {"summac": self.summac.score_one(inp, pred)["score"]}
+
+    def _remove_braces(self, text):
+        if text.startswith("{"):
+            text = text[1:]
+        if text.endswith("}"):
+            text = text[:-1]
+        return text
 
     def _clean_incomplete_prediction(self, pred: str):
         sents = sent_tokenize(pred)
@@ -106,13 +114,14 @@ class SummarizationMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
 
-        refs: Sequence[Reference] = request_state.instance.references
-        inp: str = request_state.instance.input
+        refs: List[str] = [self._remove_braces(x.output) for x in request_state.instance.references]
+        inp: str = self._remove_braces(request_state.instance.input)
 
         assert request_state.result is not None
-        pred: str = request_state.result.completions[0].text.strip()
+        
+        pred: str = self._remove_braces(request_state.result.completions[0].text.strip())
         pred = self._clean_incomplete_prediction(pred)
-
+        
         result: List[Stat] = []
 
         # Compute rouge metrics
