@@ -754,6 +754,7 @@ def get_gsm_spec() -> RunSpec:
     # Create AdapterSpec based on the GSM8K paper: https://arxiv.org/pdf/2110.14168.pdf
     adapter_spec = get_generation_adapter_spec(
         input_noun="Q",
+        input_append_new_line=True,
         output_noun="A",
         output_append_new_line=True,
         max_train_instances=5,  # Due to limited context and long example length
