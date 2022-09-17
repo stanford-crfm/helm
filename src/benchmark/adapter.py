@@ -56,7 +56,7 @@ class AdapterSpec:
     # What goes after the output
     output_suffix: str = "\n"
 
-    # What goes between instructions and instances in the constructed prompt
+    # What goes between instruction and in-context example blocks in the constructed prompt
     instance_prefix: str = "\n"
 
     # Maximum number of (in-context) training instances to put into the prompt
@@ -386,8 +386,6 @@ class Processor:
                     eval_instance, include_output=include_output, reference_index=reference_index
                 )
             )
-
-            # TODO: should we get rid of instance_prefix? -Tony
             return self.adapter_spec.instance_prefix.join(blocks)
 
         orig_train_instances_count: int = len(train_instances)
