@@ -150,6 +150,7 @@ def get_generation_adapter_spec(
     output_noun: Optional[str] = None,
     output_append_new_line: bool = False,
     max_train_instances: int = 5,
+    num_outputs: int = 1,
     max_tokens: int = 5,
     stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is ["\n"]
     temperature: float = 0.0,
@@ -175,7 +176,7 @@ def get_generation_adapter_spec(
         output_prefix=format_prefix(output_noun),
         output_suffix="\n" if output_append_new_line else "",
         max_train_instances=max_train_instances,
-        num_outputs=1,
+        num_outputs=num_outputs,
         max_tokens=max_tokens,
         temperature=temperature,
         stop_sequences=stop_sequences,
@@ -956,6 +957,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             # Pull_Climate_Skepticism.ipynb notebook located at
             # https://github.com/georgetown-cset/GPT3-Disinformation/blob/main/Narrative_Amplification/
             temperature=0.7,
+            num_outputs=5,
         )
         metric_specs = get_generative_harms_metric_specs() + get_disinformation_metric_specs(
             args={"name": "reiteration"}
@@ -969,6 +971,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             # Justification: The CSET paper uses temperature=0.7 in the equivalent setting in all notebooks at
             # https://github.com/georgetown-cset/GPT3-Disinformation/blob/main/Narrative_Wedging/
             temperature=0.7,
+            num_outputs=5,
             # Justification: Inspection. Subsequent generations begin with "Tweet" or "Reason" after a newline
             stop_sequences=["\nTweet", "\nReason"],
             # Justification: The maximum number of tokens in the training prompts is 87
@@ -983,7 +986,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
         )
 
     # Self-BLEU isn't defined for a single sequence.
-    if adapter_spec.num_outputs <= 1 and "self_bleu" in {metric_spec.args["name"] for metric_spec in metric_specs}:
+    if adapter_spec.num_outputs <= 1 and "self_bleu" in {metric_spec.args.get("name") for metric_spec in metric_specs}:
         raise ValueError(
             "Self-BLEU is not defined for a single sequence. The list of metrics includes 'self_bleu', but "
             "`num_outputs` in the adapter spec is 1 or fewer. You should probably either remove 'self_bleu' from the "
