@@ -159,7 +159,7 @@ metrics:
 
   # Summarization metrics
   - name: summac
-    display_name: summac
+    display_name: SummaC
     description: Faithfulness scores based on the SummaC method of Laban et al. (2022).
   - name: summarization_coverage
     display_name: coverage
