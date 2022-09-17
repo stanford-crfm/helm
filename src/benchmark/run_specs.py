@@ -26,6 +26,12 @@ from .scenarios.raft_scenario import get_raft_instructions
 # Prototypical adapter specs
 
 
+def format_instructions(instructions: str) -> str:
+    if len(instructions) > 0:
+        instructions += "\n"
+    return instructions
+
+
 def get_multiple_choice_joint_adapter_spec(
     instructions: str, input_noun: str, output_noun: str, max_train_instances: int = 5, **kwargs
 ) -> AdapterSpec:
@@ -46,7 +52,7 @@ def get_multiple_choice_joint_adapter_spec(
     """
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions=f"{instructions}\n" if len(instructions) > 0 else "",
+        instructions=format_instructions(instructions),
         input_prefix=f"{input_noun}: ",
         input_suffix="\n",
         output_prefix=f"{output_noun}: ",
@@ -145,6 +151,8 @@ def get_multiple_completions_adapter_spec() -> AdapterSpec:
 
 
 def get_completion_adapter_spec(
+    instructions: str = "",
+    input_prefix: str = "",
     output_prefix: str = "",
     output_suffix: str = "",
     max_train_instances: int = 0,
@@ -164,8 +172,8 @@ def get_completion_adapter_spec(
 
     return AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="",
-        input_prefix="",
+        instructions=format_instructions(instructions),
+        input_prefix=input_prefix,
         input_suffix="",
         output_prefix=output_prefix,
         output_suffix=output_suffix,
@@ -182,12 +190,9 @@ def get_completion_adapter_spec(
 def get_generation_adapter_spec(
     instructions: str = "",
     input_noun: Optional[str] = None,
-    # TODO: if we need both prepend and append, then I think we might as well just use the raw input_prefix,
-    #       output_prefix at this point. I think this is getting too complicated.
-    input_prepend_new_line: bool = False,
-    input_append_new_line: bool = False,
+    newline_after_input_noun: bool = False,
     output_noun: Optional[str] = None,
-    output_append_new_line: bool = False,
+    newline_after_output_noun: bool = False,
     max_train_instances: int = 5,
     num_outputs: int = 1,
     max_tokens: int = 5,
@@ -204,10 +209,18 @@ def get_generation_adapter_spec(
     [output_noun]:
     """
 
-    def format_prefix(noun: Optional[str], new_line: bool = False) -> str:
+    def format_prefix(noun: Optional[str], append_new_line: bool) -> str:
+        """
+        When `append_new_line` is False:
+            [input_noun]: [input]
+
+        When `append_new_line` is True:
+            [input_noun]:
+            [input]
+        """
         prefix: str = f"{noun}:" if noun is not None else ""
         if len(prefix) > 0:
-            prefix += "\n" if new_line else " "
+            prefix += "\n" if append_new_line else " "
         return prefix
 
     if stop_sequences is None:
@@ -215,11 +228,11 @@ def get_generation_adapter_spec(
 
     return AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions=f"{instructions}\n" if len(instructions) > 0 else "",
-        input_prefix=format_prefix(input_noun, new_line=input_prepend_new_line),
-        input_suffix="\n" if input_append_new_line else "",
-        output_prefix=format_prefix(output_noun),
-        output_suffix="\n" if output_append_new_line else "",
+        instructions=format_instructions(instructions),
+        input_prefix=format_prefix(input_noun, append_new_line=newline_after_input_noun),
+        input_suffix="\n",
+        output_prefix=format_prefix(output_noun, append_new_line=newline_after_output_noun),
+        output_suffix="\n",
         max_train_instances=max_train_instances,
         num_outputs=num_outputs,
         max_tokens=max_tokens,
@@ -252,7 +265,7 @@ def get_summarization_adapter_spec(**kwargs) -> AdapterSpec:
     """
     return AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions="Summarize the given documents.\n",
+        instructions=format_instructions("Summarize the given documents"),
         input_prefix="Document: {",
         input_suffix="}\n",
         output_prefix="Summary: {",
@@ -512,9 +525,7 @@ def get_msmarco_spec(
 
     adapter_spec = get_generation_adapter_spec(
         input_noun="Passage",
-        input_append_new_line=True,
         output_noun="Answer",
-        output_append_new_line=True,
         max_train_instances=4,  # Needs to be even to ensure equal number of correct and wrong examples
     )
 
@@ -557,12 +568,12 @@ def get_civil_comments_spec(demographic: str) -> RunSpec:
         args={"demographic": demographic},
     )
 
+    adapter_spec = get_generation_adapter_spec(input_noun="Passage", output_noun="Answer")
+
     return RunSpec(
         name=f"civil_comments:demographic={demographic}",
         scenario_spec=scenario_spec,
-        adapter_spec=get_generation_adapter_spec(
-            input_noun="Passage", input_append_new_line=True, output_noun="Answer", output_append_new_line=True
-        ),
+        adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
         groups=["civil_comments"],
     )
@@ -635,9 +646,7 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
 def get_quac_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.quac_scenario.QuACScenario", args={})
 
-    adapter_spec = get_generation_adapter_spec(
-        input_noun=None, input_append_new_line=True, output_noun="Answer", output_append_new_line=True, max_tokens=100
-    )
+    adapter_spec = get_generation_adapter_spec(input_noun=None, output_noun="Answer", max_tokens=100)
 
     return RunSpec(
         name="quac",
@@ -651,13 +660,8 @@ def get_quac_spec() -> RunSpec:
 def get_news_qa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.newsqa_scenario.NewsQAScenario", args={})
 
-    adapter_spec = get_generation_adapter_spec(
-        input_noun="Passage",
-        input_append_new_line=True,
-        output_noun="Answer",
-        output_append_new_line=True,
-        max_tokens=50,  # Answers are at most 13 words
-    )
+    # max_tokens=50 because answers are at most 13 words
+    adapter_spec = get_generation_adapter_spec(input_noun="Passage", output_noun="Answer", max_tokens=50)
 
     return RunSpec(
         name="news_qa",
@@ -736,9 +740,8 @@ def get_synthetic_reasoning_natural_spec(difficulty: str) -> RunSpec:
     adapter_spec = get_generation_adapter_spec(
         instructions="Please solve the following problem.",
         input_noun="Rules",
-        input_prepend_new_line=True,
+        newline_after_input_noun=True,
         output_noun=None,
-        output_append_new_line=True,
         max_train_instances=3,  # limited by the context length
         max_tokens=20,
     )
@@ -758,9 +761,7 @@ def get_gsm_spec() -> RunSpec:
     # Create AdapterSpec based on the GSM8K paper: https://arxiv.org/pdf/2110.14168.pdf
     adapter_spec = get_generation_adapter_spec(
         input_noun="Q",
-        input_append_new_line=True,
         output_noun="A",
-        output_append_new_line=True,
         max_train_instances=5,  # Due to limited context and long example length
         max_tokens=400,  # The paper uses 400 tokens as the max sample length
         stop_sequences=["\n\n"],  # Since answer may contain newlines, we use two as SEP
@@ -781,9 +782,7 @@ def get_raft_spec(subset: str) -> RunSpec:
     adapter_spec = get_generation_adapter_spec(
         instructions=get_raft_instructions(subset),
         input_noun=None,
-        input_append_new_line=True,
         output_noun="Label",
-        output_append_new_line=True,
         max_tokens=30,  # at most ~50 characters per label
     )
 
@@ -906,9 +905,7 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
         class_name="benchmark.scenarios.boolq_scenario.BoolQScenario", args={"only_contrast": only_contrast}
     )
 
-    adapter_spec = get_generation_adapter_spec(
-        input_noun="Passage", input_append_new_line=True, output_noun="Answer", output_append_new_line=True
-    )
+    adapter_spec = get_generation_adapter_spec(input_noun="Passage", output_noun="Answer")
 
     return RunSpec(
         name="boolq" + (":only_contrast=True" if only_contrast else ""),
@@ -947,9 +944,7 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
         class_name="benchmark.scenarios.imdb_scenario.IMDBScenario", args={"only_contrast": only_contrast}
     )
 
-    adapter_spec = get_generation_adapter_spec(
-        input_noun="Passage", input_append_new_line=True, output_noun="Sentiment", output_append_new_line=True
-    )
+    adapter_spec = get_generation_adapter_spec(input_noun="Passage", output_noun="Sentiment")
 
     return RunSpec(
         name="imdb" + (":only_contrast=True" if only_contrast else ""),
@@ -963,9 +958,7 @@ def get_imdb_spec(only_contrast=False) -> RunSpec:
 def get_babi_qa_spec(task: str = "all") -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.babi_qa_scenario.BabiQAScenario", args={"task": task})
 
-    adapter_spec = get_generation_adapter_spec(
-        input_noun="Passage", input_append_new_line=True, output_noun="Answer", output_append_new_line=True
-    )
+    adapter_spec = get_generation_adapter_spec(input_noun="Passage", output_noun="Answer")
 
     return RunSpec(
         name=f"babi_qa:task={task}",
@@ -1005,9 +998,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
         adapter_spec = get_generation_adapter_spec(
             instructions="Write headlines that support the thesis.",
             input_noun="Thesis",
-            input_append_new_line=True,
             output_noun="Headline",
-            output_append_new_line=True,
             # Justification: Inspection. max_train_instances = 0 or 1 led to worse generations. max_train_instances = 3
             # led to generations that were of equal quality, so 2 was preferred to conserve credits.
             max_train_instances=2,
@@ -1100,9 +1091,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
 
     adapter_spec = get_generation_adapter_spec(
         input_noun="Question" if mode == "closedbook" else None,
-        input_append_new_line=True,
         output_noun="Answer",
-        output_append_new_line=True,
         max_tokens=300,  # answers are at most 65 words
     )
 
@@ -1145,11 +1134,7 @@ def get_narrativeqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.narrativeqa_scenario.NarrativeQAScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
-        input_noun="Passage",
-        input_append_new_line=True,
-        output_noun="Answer",
-        output_append_new_line=True,
-        max_tokens=100,  # max 30 words
+        input_noun="Passage", output_noun="Answer", max_tokens=100,  # max 30 words
     )
 
     return RunSpec(
@@ -1191,8 +1176,7 @@ def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
 
     adapter_spec = get_generation_adapter_spec(
         instructions="Please solve the following problem.",
-        output_noun="| Target",
-        output_append_new_line=True,
+        output_noun="Target",
         max_train_instances=5,
         stop_sequences=["\n"],
         max_tokens=50,  # answer upperbounded by 50 tokens
@@ -1340,12 +1324,10 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         args={"num_parenthesis_pairs": int(num_parenthesis_pairs)},
     )
 
-    adapter_spec = get_generation_adapter_spec(
+    adapter_spec = get_completion_adapter_spec(
         instructions="Please complete the rest of the following Dyck sequences, "
         "making sure that the parentheses are closed properly.",
-        input_noun="Input",
-        output_noun=None,
-        output_append_new_line=True,
+        input_prefix="Input: ",
         max_train_instances=3,  # Determined by looking at average length of examples to see what fits
         stop_sequences=["\n"],
     )
@@ -1391,9 +1373,7 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Are Product A and Product B the same? Yes or No?",
-        input_append_new_line=True,
-        output_append_new_line=True,
+        instructions="Are Product A and Product B the same? Yes or No?", output_noun="Answer",
     )
 
     return RunSpec(
@@ -1411,9 +1391,7 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
         args={"dataset": dataset},
     )
 
-    adapter_spec = get_generation_adapter_spec(
-        instructions="What is the missing value?", input_append_new_line=True, output_append_new_line=True
-    )
+    adapter_spec = get_generation_adapter_spec(instructions="What is the missing value?", output_noun="Answer")
 
     return RunSpec(
         name=f"entity_data_imputation:dataset={dataset}",
