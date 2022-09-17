@@ -1,5 +1,6 @@
 import numpy as np
 import spacy
+import nltk
 from nltk import sent_tokenize
 import subprocess
 import sys
