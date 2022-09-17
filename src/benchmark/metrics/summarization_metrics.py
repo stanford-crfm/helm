@@ -21,6 +21,7 @@ from .basic_metrics import get_rouge_function
 from .statistic import Stat
 from .summac.model_summac import SummaCZS
 
+
 class SummarizationMetric(Metric):
     """Summarization Metrics
 
@@ -33,13 +34,13 @@ class SummarizationMetric(Metric):
 
     def __init__(self, device="cpu"):
         nltk.download("punkt")
-        
+
         self.rouge_fns = {
             "rouge_1": get_rouge_function("rouge1"),
             "rouge_2": get_rouge_function("rouge2"),
             "rouge_l": get_rouge_function("rougeL"),
         }
-        
+
         self.data_stats_metric = DataStatsMetric()
 
         if device == "cpu":
@@ -118,10 +119,10 @@ class SummarizationMetric(Metric):
         inp: str = self._remove_braces(request_state.instance.input)
 
         assert request_state.result is not None
-        
+
         pred: str = self._remove_braces(request_state.result.completions[0].text.strip())
         pred = self._clean_incomplete_prediction(pred)
-        
+
         result: List[Stat] = []
 
         # Compute rouge metrics
