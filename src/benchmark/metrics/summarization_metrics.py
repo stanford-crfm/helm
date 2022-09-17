@@ -1,13 +1,3 @@
-from .summac.model_summac import SummaCZS
-from .statistic import Stat
-from .basic_metrics import get_rouge_function
-from .metric_service import MetricService
-from .metric_name import MetricName
-from .metric import Metric, MetricResult
-from common.hierarchical_logger import hlog
-from benchmark.scenarios.scenario import Reference
-from benchmark.adapter import AdapterSpec, RequestState, ScenarioState
-from summ_eval.data_stats_metric import DataStatsMetric
 import numpy as np
 import spacy
 import nltk
@@ -19,6 +9,16 @@ from typing import List, Sequence, Dict
 # Need to check spacy module is downloaded before importing DataStatsMetric
 if not spacy.util.is_package("en_core_web_sm"):
     subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
+from .summac.model_summac import SummaCZS
+from .statistic import Stat
+from .basic_metrics import get_rouge_function
+from .metric_service import MetricService
+from .metric_name import MetricName
+from .metric import Metric, MetricResult
+from common.hierarchical_logger import hlog
+from benchmark.scenarios.scenario import Reference
+from benchmark.adapter import AdapterSpec, RequestState, ScenarioState
+from summ_eval.data_stats_metric import DataStatsMetric
 
 nltk.download("punkt")
 
