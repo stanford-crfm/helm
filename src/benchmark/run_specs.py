@@ -651,9 +651,12 @@ def get_quac_spec() -> RunSpec:
 def get_news_qa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.newsqa_scenario.NewsQAScenario", args={})
 
-    # Answers are at most 13 words
     adapter_spec = get_generation_adapter_spec(
-        input_noun="Passage", input_append_new_line=True, output_noun="Answer", max_tokens=50
+        input_noun="Passage",
+        input_append_new_line=True,
+        output_noun="Answer",
+        output_append_new_line=True,
+        max_tokens=50,  # Answers are at most 13 words
     )
 
     return RunSpec(
