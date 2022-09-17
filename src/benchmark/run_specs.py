@@ -233,42 +233,26 @@ def get_bbq_spec(subject: str) -> RunSpec:
     )
 
 
-def get_msmarco_spec(
-    task,
-    track,
-    use_qrels_passages="False",
-    use_topk_passages="False",
-    valid_topk=None,
-    num_valid_queries=None,
-    num_train_queries="1000",
-) -> RunSpec:
+def get_msmarco_spec(track, use_topk_objects="False", valid_topk=None,) -> RunSpec:
     # Get ScenarioSpec
-    use_qrels_passages = use_qrels_passages.lower() == "true"
-    use_topk_passages = use_topk_passages.lower() == "true"
+    use_topk_objects = use_topk_objects.lower() == "true"
     valid_topk = int(valid_topk) if valid_topk else None
-    num_valid_queries = int(num_valid_queries) if num_valid_queries else None
-    num_train_queries = int(num_train_queries)
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.msmarco_scenario.MSMARCOScenario",
-        args={
-            "track": track,
-            "use_qrels_passages": use_qrels_passages,
-            "use_topk_passages": use_topk_passages,
-            "valid_topk": valid_topk,
-            "num_valid_queries": num_valid_queries,
-            "num_train_queries": num_train_queries,
-        },
+        args={"track": track, "use_topk_objects": use_topk_objects, "valid_topk": valid_topk,},
     )
 
     # Get AdapterSpec
+    # Limiting the number of total validation instances to 200 due to the large size of the MS MARCO prompts.
+    max_eval_instances = min(200, MSMARCOScenario.MAX_NUM_QUERIES[track])
     adapter_spec = AdapterSpec(
         method=ADAPT_RANKING_BINARY,
         instructions="",
         reference_prefix="Passage: ",
         input_prefix="\nQuestion: ",
         output_prefix="\nPrompt: Does the passage above answer the question?\nAnswer: ",
-        max_train_instances=2,  # Each train instance results in 2 requests, and hence we end up with 4 train requests.
-        max_eval_instances=SIMPLE_METRIC_MAX_EVAL_INSTANCES,
+        max_train_instances=2,  # Each train instance results in 2 requests, which convert to a total of 4 requests.
+        max_eval_instances=max_eval_instances,
         num_outputs=1,
         num_train_trials=1,
         model="openai/davinci",
@@ -281,9 +265,7 @@ def get_msmarco_spec(
 
     # Return RunSpec
     return RunSpec(
-        name=f"msmarco:task={task},track={track},use_qrels_passages={use_qrels_passages},"
-        f"use_topk_passages={use_topk_passages},valid_topk={valid_topk},num_valid_queries={num_valid_queries},"
-        f"num_train_queries={num_train_queries}",
+        name=f"msmarco:track={track},use_topk_objects={use_topk_objects},valid_topk={valid_topk}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
