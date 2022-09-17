@@ -1,3 +1,13 @@
+from .summac.model_summac import SummaCZS
+from .statistic import Stat
+from .basic_metrics import get_rouge_function
+from .metric_service import MetricService
+from .metric_name import MetricName
+from .metric import Metric, MetricResult
+from common.hierarchical_logger import hlog
+from benchmark.scenarios.scenario import Reference
+from benchmark.adapter import AdapterSpec, RequestState, ScenarioState
+from summ_eval.data_stats_metric import DataStatsMetric
 import numpy as np
 import spacy
 import nltk
@@ -11,19 +21,6 @@ if not spacy.util.is_package("en_core_web_sm"):
     subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
 
 nltk.download("punkt")
-
-
-from summ_eval.data_stats_metric import DataStatsMetric
-
-from benchmark.adapter import AdapterSpec, RequestState, ScenarioState
-from benchmark.scenarios.scenario import Reference
-from common.hierarchical_logger import hlog
-from .metric import Metric, MetricResult
-from .metric_name import MetricName
-from .metric_service import MetricService
-from .basic_metrics import get_rouge_function
-from .statistic import Stat
-from .summac.model_summac import SummaCZS
 
 
 class SummarizationMetric(Metric):
