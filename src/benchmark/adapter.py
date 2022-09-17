@@ -387,6 +387,7 @@ class Processor:
                 )
             )
 
+            # TODO: should we get rid of instance_prefix? -Tony
             return self.adapter_spec.instance_prefix.join(blocks)
 
         orig_train_instances_count: int = len(train_instances)
