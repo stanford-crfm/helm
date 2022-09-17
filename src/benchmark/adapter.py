@@ -1,7 +1,7 @@
 import random
 from dataclasses import dataclass, field, replace
 from itertools import cycle
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Callable
 from collections import defaultdict, OrderedDict
 
 import numpy as np
@@ -10,7 +10,7 @@ from common.general import serialize, indent_lines, format_text_lines, parallel_
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationToken
-from .scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
+from .scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS, CORRECT_TAG
 from .window_services.window_service import WindowService, EncodeResult
 from .window_services.window_service_factory import WindowServiceFactory
 from .window_services.tokenizer_service import TokenizerService
@@ -22,6 +22,11 @@ ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL = "multiple_choice_separate_original"
 ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED = "multiple_choice_separate_calibrated"
 ADAPT_GENERATION = "generation"
 ADAPT_RANKING_BINARY = "ranking_binary"
+
+# Information retrieval labels
+# TODO: Reading these from the adapter spec would be more ideal.
+IR_CORRECT_LABEL = "Yes"
+IR_WRONG_LABEL = "No"
 
 
 @dataclass(frozen=True)
@@ -200,15 +205,40 @@ class ScenarioState:
 class Prompt:
     """Result of prompt construction."""
 
-    # The prompt
-    text: str
+    # Instance prefix, carried over from the adapter spec
+    instance_prefix: str
 
-    # Number of in-context examples in the prompt
-    num_in_context_examples: int
+    # Example block for the prompt.
+    example_block: str
 
-    # Whether the input of the corresponding Instance was truncated to fit the model's context window for this Request
+    # In context example blocks for the prompt.
+    in_context_example_blocks: List[str]
+
+    # Instruction block for the prompt, including any instruction prefix.
+    instruction_block: Optional[str] = None
+
+    # Set if the input of the corresponding Instance was truncated to fit the model's context window for this Request
     # (input_truncated == True implies num_in_context_examples == 0)
-    input_truncated: bool
+    truncated_text: Optional[str] = None
+
+    @property
+    def text(self) -> str:
+        # Text for the prompt
+        if self.truncated_text:
+            return self.truncated_text
+        blocks = [self.instruction_block] if self.instruction_block else []
+        blocks += self.in_context_example_blocks + [self.example_block]
+        return self.instance_prefix.join(blocks)
+
+    @property
+    def num_in_context_examples(self) -> int:
+        # Number of in-context examples in the prompt
+        return len(self.in_context_example_blocks)
+
+    @property
+    def input_truncated(self):
+        # Whether the input is truncated
+        return self.truncated_text is not None
 
 
 @dataclass(frozen=True)
@@ -345,12 +375,15 @@ class Processor:
         return request_states
 
     def adapt_ranking_binary(self, eval_instance: Instance) -> List[RequestState]:
-        """ TODO: Not ready. """
         request_states = []
         for reference_index, reference in enumerate(eval_instance.references):
             prompt = self.construct_prompt(
-                self.train_instances, eval_instance, include_output=True, reference_index=reference_index
-            )  # TODO: This needs to be replaced.
+                self.train_instances,
+                eval_instance,
+                include_output=False,
+                reference_index=reference_index,
+                example_constructor=self.example_constructor_ranking_binary,
+            )
             request = Request(
                 model=self.adapter_spec.model,
                 prompt=prompt.text,
@@ -380,9 +413,10 @@ class Processor:
         eval_instance: Instance,
         include_output: bool,
         reference_index: Optional[int],
+        example_constructor: Callable = None,
     ) -> Prompt:
         """
-        Returns a prompt (string) given:
+        Returns a prompt given:
         - the `self.adapter_spec.instructions`
         - the `train_instances` (in-context training examples)
         - the input part of the `eval_instance`
@@ -391,59 +425,69 @@ class Processor:
 
         Fits the prompt within the context window by removing in-context training examples.
         """
-        assert include_output or reference_index is None
+        # TODO: Removing the assert statement wrong as it doesn't hold for the IR tasks. Is this safe?
+        # assert include_output or reference_index is None
+        if not example_constructor:
+            example_constructor = self.example_constructor
 
-        def construct_prompt_helper(train_instances: List[Instance]) -> str:
-            # Instructions
-            blocks = []
+        # Instruction text
+        instruction_block = self.adapter_spec.instructions if self.adapter_spec.instructions else None
 
-            if self.adapter_spec.instructions:
-                blocks.append(self.adapter_spec.instructions)
+        # Text for in-context training instances
+        in_context_blocks = [
+            example_constructor(inst, include_output=True, reference_index=None) for inst in train_instances
+        ]
 
-            # In-context training instances
-            for instance in train_instances:
-                blocks.append(self.construct_example_prompt(instance, include_output=True, reference_index=None))
+        # Example text
+        example_block = example_constructor(
+            eval_instance, include_output=include_output, reference_index=reference_index
+        )
 
-            blocks.append(
-                self.construct_example_prompt(
-                    eval_instance, include_output=include_output, reference_index=reference_index
-                )
-            )
+        # Prompt
+        prompt = Prompt(
+            instruction_block=instruction_block,
+            in_context_example_blocks=in_context_blocks,
+            example_block=example_block,
+            instance_prefix=self.adapter_spec.instance_prefix,
+        )
 
-            return self.adapter_spec.instance_prefix.join(blocks)
+        # Adjust prompt length
+        prompt = self.adjust_prompt_length(prompt)
+        return prompt
 
-        orig_train_instances_count: int = len(train_instances)
-        prompt: str = construct_prompt_helper(train_instances)
-
+    def adjust_prompt_length(self, prompt: Prompt) -> Prompt:
+        """ Adjust the length of the prompt to ensure that it fits in the context window. """
         # Following what was done for MMLU (https://arxiv.org/abs/2009.03300) to handle prompts that
         # exceed the max context length (https://github.com/hendrycks/test/blob/master/evaluate.py#L58),
         # we remove train instances one by one until it fits within the context window or
         # until we run out of train instances to remove.
-        while len(train_instances) > 0:
+        orig_train_instances_count: int = len(prompt.in_context_example_blocks)
+        while len(prompt.in_context_example_blocks) > 0:
             if self.window_service.fits_within_context_window(
-                text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
+                text=prompt.text, expected_completion_token_length=self.adapter_spec.max_tokens,
             ):
-                return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=False)
-
-            train_instances = train_instances[:-1]
-            prompt = construct_prompt_helper(train_instances)  # TODO: Needs re-factor.
-
-        removed_train_instances_count: int = orig_train_instances_count - len(train_instances)
-        if removed_train_instances_count > 0:
-            hlog(
-                f"The original constructed prompt exceeded the max context length. Removed "
-                f"{removed_train_instances_count} in-context examples to fit it within the context window."
-            )
+                removed_train_instances_count: int = orig_train_instances_count - len(prompt.in_context_example_blocks)
+                if removed_train_instances_count > 0:
+                    warning = (
+                        f"The original constructed prompt exceeded the max context length. Removed "
+                        f"{removed_train_instances_count} in-context examples to fit it within the context"
+                        f"window."
+                    )
+                    hlog(warning)
+                return prompt
+            prompt.in_context_example_blocks.pop()
 
         # If removing the in-context example is still not enough, we simply truncate the prompt.
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
-        original_length = len(prompt)
-        prompt = self.window_service.truncate_from_right(prompt, self.adapter_spec.max_tokens)
-        input_truncated = len(prompt) < original_length
-        return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=input_truncated)
+        original_length = len(prompt.text)
+        truncated_text = self.window_service.truncate_from_right(prompt.text, self.adapter_spec.max_tokens)
+        if len(truncated_text) < original_length:
+            prompt.truncated_text = truncated_text
+        return prompt
 
-    def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
+    def example_constructor(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
+        # TODO: The conditions below can be broken down into different "example_constructor" functions.
 
         # Input
         result = self.adapter_spec.input_prefix + instance.input
@@ -472,6 +516,47 @@ class Processor:
             result += self.adapter_spec.output_prefix.rstrip()
 
         return result
+
+    def example_constructor_ranking_binary(
+        self, instance: Instance, include_output: bool, reference_index: Optional[int]
+    ) -> str:
+        """ Return a list of lines corresponding to this example for binary ranking tasks.
+
+        Example prompt:
+            Passage: 10 Acres MOKENA, Will County, Illinois $649,000.
+            Spectacular secluded 10 acres of land surrounded in wooded area with
+            muter trees! 2 Parcels each is 5 acres of land with building in the
+            middle!
+            Question: what county is mokena in?
+            Prompt: Does the passage above answer the question?
+            Answer: No
+        """
+        if instance.split == TRAIN_SPLIT:
+            reference_indices = list(range(len(instance.references)))
+        else:
+            assert reference_index is not None
+            reference_indices = [reference_index]
+
+        # Create request texts
+        request_texts = []
+        for index in reference_indices:
+            # Get reference
+            reference = instance.references[index]
+            # "Passage: ..."
+            reference_text = self.adapter_spec.reference_prefix + reference.output
+            # "\nQuestion: ..."
+            query_text = self.adapter_spec.input_prefix + instance.input
+            # "\nPrompt: Does the passage above answer the question?\nAnswer: ..."
+            ir_label = IR_CORRECT_LABEL if CORRECT_TAG in reference.tags else IR_WRONG_LABEL
+            output = ir_label if include_output else ""
+            answer_text = self.adapter_spec.output_prefix + output
+            # Construct request_text
+            request_text = reference_text + query_text + answer_text
+            request_texts.append(request_text)
+
+        # Combine the request texts and return
+        example_text = self.adapter_spec.instance_prefix.join(request_texts)
+        return example_text
 
     def get_reference_prefix(self, prefix: str, i: int) -> str:
         """
