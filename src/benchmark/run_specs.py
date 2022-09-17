@@ -1296,6 +1296,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         "making sure that the parentheses are closed properly.",
         input_noun="Input",
         output_noun=None,
+        output_append_new_line=True,
         max_train_instances=3,  # Determined by looking at average length of examples to see what fits
         stop_sequences=["\n"],
     )
@@ -1341,7 +1342,9 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Are Product A and Product B the same? Yes or No?", output_append_new_line=True
+        instructions="Are Product A and Product B the same? Yes or No?",
+        input_append_new_line=True,
+        output_append_new_line=True,
     )
 
     return RunSpec(
@@ -1359,7 +1362,9 @@ def get_entity_data_imputation_spec(dataset: str) -> RunSpec:
         args={"dataset": dataset},
     )
 
-    adapter_spec = get_generation_adapter_spec(instructions="What is the missing value?", output_append_new_line=True)
+    adapter_spec = get_generation_adapter_spec(
+        instructions="What is the missing value?", input_append_new_line=True, output_append_new_line=True
+    )
 
     return RunSpec(
         name=f"entity_data_imputation:dataset={dataset}",
