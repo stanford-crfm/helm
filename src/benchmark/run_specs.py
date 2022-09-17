@@ -514,6 +514,7 @@ def get_msmarco_spec(
         input_noun="Passage",
         input_append_new_line=True,
         output_noun="Answer",
+        output_append_new_line=True,
         max_train_instances=4,  # Needs to be even to ensure equal number of correct and wrong examples
     )
 
