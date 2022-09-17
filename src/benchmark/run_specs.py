@@ -515,7 +515,7 @@ def get_civil_comments_spec(demographic: str) -> RunSpec:
         name=f"civil_comments:demographic={demographic}",
         scenario_spec=scenario_spec,
         adapter_spec=get_generation_adapter_spec(
-            input_noun="Passage", input_append_new_line=True, output_noun="Answer",
+            input_noun="Passage", input_append_new_line=True, output_noun="Answer", num_outputs=5,
         ),
         metric_specs=get_exact_match_metric_specs() + get_generative_harms_metric_specs(),
         groups=["civil_comments"],
