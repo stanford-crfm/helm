@@ -29,6 +29,21 @@ from .scenarios.raft_scenario import get_raft_instructions
 def get_multiple_choice_joint_adapter_spec(
     instructions: str, input_noun: str, output_noun: str, max_train_instances: int = 5, **kwargs
 ) -> AdapterSpec:
+    """
+    [instructions]
+
+    [input_noun]: [input]
+    [reference_1]
+    ...
+    [reference_k]
+    [output_noun]: [output]
+
+    [input_noun]: [input]
+    [reference_1]
+    ...
+    [reference_k]
+    [output_noun]:
+    """
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions=f"{instructions}\n" if len(instructions) > 0 else "",
@@ -46,6 +61,9 @@ def get_multiple_choice_joint_adapter_spec(
 
 
 def get_multiple_choice_separate_adapter_spec(method: str) -> AdapterSpec:
+    """
+    [input] [reference_i]
+    """
     assert method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}
 
     return AdapterSpec(
@@ -65,7 +83,7 @@ def get_multiple_choice_adapter_spec(
     method: str, instructions: str, input_noun: str, output_noun: str, max_train_instances: int = 5, **kwargs
 ):
     """
-    Toggle between different adapters.
+    Toggle between joint and separate adapters.
     """
     if method == ADAPT_MULTIPLE_CHOICE_JOINT:
         return get_multiple_choice_joint_adapter_spec(
@@ -80,6 +98,19 @@ def get_multiple_choice_adapter_spec(
 def get_multiple_choice_joint_empty_input_adapter_spec(
     input_instructions: str, output_noun: str, max_train_instances: int = 5, **kwargs
 ) -> AdapterSpec:
+    """
+    [input_instructions]:
+    [reference_1]
+    ...
+    [reference_k]
+    [output_noun]: [output]
+
+    [input_instructions]:
+    [reference_1]
+    ...
+    [reference_k]
+    [output_noun]:
+    """
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions="",
@@ -96,6 +127,9 @@ def get_multiple_choice_joint_empty_input_adapter_spec(
 
 
 def get_multiple_completions_adapter_spec() -> AdapterSpec:
+    """
+    [reference_i]
+    """
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
         instructions="",
@@ -121,7 +155,9 @@ def get_completion_adapter_spec(
     **kwargs,
 ) -> AdapterSpec:
     """
-    Given the input, complete it.
+    [input][output_prefix][output][output_suffix]
+
+    [input][output_prefix]
     """
     if stop_sequences is None:
         stop_sequences = []
@@ -146,6 +182,8 @@ def get_completion_adapter_spec(
 def get_generation_adapter_spec(
     instructions: str = "",
     input_noun: Optional[str] = None,
+    # TODO: if we need both prepend and append, then I think we might as well just use the raw input_prefix, output_prefix at this point
+    # TODO: I think this is getting too complicated
     input_prepend_new_line: bool = False,
     input_append_new_line: bool = False,
     output_noun: Optional[str] = None,
@@ -157,7 +195,13 @@ def get_generation_adapter_spec(
     temperature: float = 0.0,
 ) -> AdapterSpec:
     """
-    Used for classification (e.g., sentiment classification).
+    [instructions]
+
+    [input_noun]: [input]
+    [output_noun]: [output]
+
+    [input_noun]: [input]
+    [output_noun]:
     """
 
     def format_prefix(noun: Optional[str], new_line: bool = False) -> str:
