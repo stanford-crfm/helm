@@ -182,8 +182,8 @@ def get_completion_adapter_spec(
 def get_generation_adapter_spec(
     instructions: str = "",
     input_noun: Optional[str] = None,
-    # TODO: if we need both prepend and append, then I think we might as well just use the raw input_prefix, output_prefix at this point
-    # TODO: I think this is getting too complicated
+    # TODO: if we need both prepend and append, then I think we might as well just use the raw input_prefix,
+    #       output_prefix at this point. I think this is getting too complicated.
     input_prepend_new_line: bool = False,
     input_append_new_line: bool = False,
     output_noun: Optional[str] = None,
