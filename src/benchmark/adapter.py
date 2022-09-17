@@ -539,7 +539,7 @@ class Adapter:
             # The random sampling includes instances monotonically.
             np.random.seed(0)
             selected_eval_instances = list(
-                np.random.choice(all_eval_instances, self.adapter_spec.max_eval_instances, replace=False,)
+                np.random.choice(all_eval_instances, self.adapter_spec.max_eval_instances, replace=False)
             )  # type: ignore
         else:
             selected_eval_instances = all_eval_instances
