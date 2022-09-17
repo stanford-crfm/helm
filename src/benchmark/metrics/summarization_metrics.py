@@ -79,7 +79,7 @@ class SummarizationMetric(Metric):
     def _compute_faithfulness_scores(self, inp: str, pred: str) -> Dict[str, float]:
         return {"summac": self.summac.score_one(inp, pred)["score"]}
 
-    def _remove_brackets(self, text):
+    def _remove_braces(self, text):
         if text.startswith("{"):
             text = text[1:]
         if text.endswith("}"):
@@ -94,11 +94,11 @@ class SummarizationMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
 
-        refs: List[str] = [self._remove_brackets(x.output) for x in request_state.instance.references]
-        inp: str = self._remove_brackets(request_state.instance.input)
+        refs: List[str] = [self._remove_braces(x.output) for x in request_state.instance.references]
+        inp: str = self._remove_braces(request_state.instance.input)
 
         assert request_state.result is not None
-        pred: str = self._remove_brackets(request_state.result.completions[0].text.strip())
+        pred: str = self._remove_braces(request_state.result.completions[0].text.strip())
 
         result: List[Stat] = []
 
