@@ -9,12 +9,12 @@ from common.hierarchical_logger import hlog
 from .scenario import (
     Scenario,
     Instance,
-    InformationRetrievalInstance,
     Reference,
-    InformationRetrievalReference,
     TRAIN_SPLIT,
     VALID_SPLIT,
     CORRECT_TAG,
+    RELEVANCE_TAG_TEMPLATE,
+    RANK_TAG_TEMPLATE,
 )
 
 
@@ -38,12 +38,13 @@ class MSMARCOScenario(Scenario):
         question, the model's job is to predict whether the context includes an
         answer to the question by producing either a correct answer or a wrong
         answer. The specific tokens used for the correct and wrong answers are
-        specified in the adapter spec. Shared below is an example of how we would
-        construct a prompt for a question, using 4 in-context training
-        instances, where the correct and wrong output tokens are respectively
-        specified as `Yes` and `No` in the adapter. Note that the last
-        instance in the example, which is the instance we are evaluating,
-        doesn't have an answer - since we want our model to answer the question.
+        specified in the adapter specification. Shared below is an example of
+        how we would construct a prompt for a question, using 4 in-context
+        training instances, where the correct and wrong output tokens are
+        respectively specified as `Yes` and `No` in the adapter specification.
+        Note that the last instance in the example, which is the instance we
+        are evaluating, doesn't have an answer - since we want our model to
+        answer the question.
 
             Passage: Search for foreclosed homes for sale in Mokena, Will
             County, Illinois.
@@ -99,7 +100,7 @@ class MSMARCOScenario(Scenario):
         Then, in the corresponding metric for our scenario, the contexts are
         ranked using the answer token and its log probability. Specifically, the
         ordering looks like the list given below, from good contexts at the top
-        and bad contexts at the bottom, where UNKNOWN_ANSWER would correspond
+        to bad contexts at the bottom, where UNKNOWN_ANSWER would correspond
         to any token that is not one of correct or wrong answer tokens, using
         case insensitive match excluding whitespace.
 
@@ -148,14 +149,14 @@ class MSMARCOScenario(Scenario):
                 information before instances for the query are created. Because
                 of this filtering, the number of queries in the query file
                 doesn't directly correspond the number of queries for which
-                instances are created.
+                instances can be created.
             qrels: Each query file is accompanied by a qrels file, which
                 specifies the relationship between a query with ID qid and an
-                object with ID oid. The relations values can have different
+                object with ID oid. The relevance values can have different
                 meanings depending on the split and the track. Note that not
-                all queries would have corresponding query relations in the
+                all queries would have corresponding query relevances in the
                 accompanied file. Also note that multiple objects may have the
-                same relation value with a qiven query.
+                same relevance value with a qiven query.
             topk: Each query file is accompanied by a top-k file, which lists
                 the IDs of the top k best objects for a query with their
                 accompanied rank. The top objects for each query were selected
@@ -183,9 +184,9 @@ class MSMARCOScenario(Scenario):
                         cleaned collection is hosted on the Benchmarking CodaLab
                         Worksheet as there is no other reliable publicly hosted
                         copy.
-                    (2) The only relation is 1, which indicates that the object
-                        with the ID the oid is the gold match for the query with
-                        the ID qid.
+                    (2) The only relevance values is 1, which indicates that the
+                        object with the ID the oid is the gold match for the query
+                        with the ID qid.
                     (3) The number of top objects ranked was limited to 20 for
                         the training set as we only generate 2 instances per
                         training query, one corresponding to a gold matching
@@ -197,9 +198,9 @@ class MSMARCOScenario(Scenario):
                         development set ("queries.dev.small.tsv"), which can be
                         found at
                         https://msmarco.blob.core.windows.net/msmarcoranking/collectionandqueries.tar.gz
-                    (5) The relations for the TREC task of the passage track
-                        can be any of [0, 1, 2, 3]. We consider [0, 1] to be
-                        wrong matches and [2, 3] to be gold matches.
+                    (5) The relevance values for the TREC task of the passage
+                        track can be any of [0, 1, 2, 3]. We consider [0, 1] to
+                        be wrong matches and [2, 3] to be gold matches.
 
     IV. Baselines
 
@@ -209,18 +210,18 @@ class MSMARCOScenario(Scenario):
             Baseline | The baseline name.
             #VQ      | Effective number of validation queries, which are the
                        queries for which instances were created.
-            #VI      | Number of validation instances. For each effective
-                       validation query, multiple instances would be created,
+            #VR      | Number of validation requests. For each effective
+                       validation query, multiple requests would be created,
                        governed by the provided parameters.
 
-        | Baseline                | #VQ |  #VI   | Parameters
-        | regular_topk            | 200 | 10,000 | task=passage,track=regular,use_topk_passages=True,valid_topk=50,num_valid_queries=200
-        | regular_topk_with_qrels | 200 | 10,085 | task=passage,track=regular,use_qrels_passages=True,use_topk_passages=True,valid_topk=50,num_valid_queries=200
-        | trec_topk               | 43  | 4300   | task=passage,track=trec,use_topk_passages=True,valid_topk=100
-        | trec_qrels              | 43  | 9260   | task=passage,track=trec,use_qrels_passages=True
+        | Baseline                | #VQ |  #VR   | Parameters
+        | regular_topk            | 200 | 10,000 | track=regular,use_topk_passages=True,valid_topk=50,num_valid_queries=200
+        | regular_topk_with_qrels | 200 | 10,085 | track=regular,use_qrels_passages=True,use_topk_passages=True,valid_topk=50,num_valid_queries=200
+        | trec_topk               | 43  | 4300   | track=trec,use_topk_passages=True,valid_topk=100
+        | trec_qrels              | 43  | 9260   | track=trec,use_qrels_passages=True
 
         On average, the requests for the MS MARCO scenario have ~550 tokens
-        using the GPT-2 tokenizer. Multiplying this number with the #VI column
+        using the GPT-2 tokenizer. Multiplying this number with the #VR column
         gives an estimate on the number of request tokens that would be required
         to run the given baseline on GPT models.
 
@@ -246,7 +247,7 @@ class MSMARCOScenario(Scenario):
     MSMARCO_URI_TEMPLATE: str = "https://msmarco.blob.core.windows.net/msmarcoranking/{file_name}"
 
     DATA_URIS = {
-        ("passages",): CODALAB_URI_TEMPLATE.format(bundle="0x50d32fc56ad04dd89510bf86f9c1c9d3"),
+        ("objects",): CODALAB_URI_TEMPLATE.format(bundle="0x50d32fc56ad04dd89510bf86f9c1c9d3"),
         (TRAIN_SPLIT, "queries"): MSMARCO_URI_TEMPLATE.format(file_name="queries.train.tsv"),
         (TRAIN_SPLIT, "qrels"): MSMARCO_URI_TEMPLATE.format(file_name="qrels.train.tsv"),
         (TRAIN_SPLIT, "topk"): CODALAB_URI_TEMPLATE.format(bundle="0x8c43d4ec02ea48d6a727683a9676b77b"),
@@ -258,11 +259,13 @@ class MSMARCOScenario(Scenario):
         (TREC_TRACK, "topk"): CODALAB_URI_TEMPLATE.format(bundle="0x2e80572f93b748d594b817249013bdac"),
     }
 
-    """ Dictionary mapping the separator for the datasets that don't use "\t" as the separator. """
-    NON_TSV_SEPARATED_DATASETS = {(TREC_TRACK, "qrels"): " "}
+    """ Dictionary mapping dataset files to their separator. """
+    DATASET_SEPARATOR = defaultdict(lambda: "\t")
+    DATASET_SEPARATOR[(TREC_TRACK, "qrels")] = " "
 
     """ Dictionary mapping task track tuples to the number of queries. """
-    NUM_QUERIES = {
+    NUM_TRAIN_QUERIES = 1000
+    MAX_NUM_QUERIES = {
         TRAIN_SPLIT: 808731,
         REGULAR_TRACK: 6980,
         TREC_TRACK: 200,
@@ -270,7 +273,7 @@ class MSMARCOScenario(Scenario):
 
     """ Gold relations for a given task track tuple.
 
-    This is the value that is read from the qrels file for a given
+    These are the values that are read from the qrels file for a given
     configuration.
     """
     GOLD_RELATIONS = {
@@ -305,13 +308,7 @@ class MSMARCOScenario(Scenario):
     MAX_VALID_TOPK: int = 1000
 
     def __init__(
-        self,
-        track: str,
-        use_qrels_passages: bool = False,
-        use_topk_passages: bool = False,
-        valid_topk: Optional[int] = None,
-        num_valid_queries: Optional[int] = None,
-        num_train_queries: int = 1000,
+        self, track: str, use_topk_objects: bool = False, valid_topk: Optional[int] = None,
     ):
         """ The constructor for the MSMARCOScenario.
 
@@ -320,52 +317,33 @@ class MSMARCOScenario(Scenario):
             as follows:
                     "regular": The regular passage track.
                     "trec": The TREC passage track.
-            use_qrels_passages: Flag controlling whether validation instances
-                should be made for the passages in the qrels dictionary for a
-                given validation query.
-            use_topk_passages: Flag controlling whether validation instances
-                should be made for the passages in the top "valid_topk" of the
-                topk dictionary. If use_topk_passages is set, valid_topk must
+            use_topk_objects: Flag controlling whether validation instances
+                should be made for the objects in the top "valid_topk" of the
+                topk dictionary. If use_topk_objects is set, valid_topk must
                 also be set.
-            valid_topk: The number of top passages for which the validation
-                instances will be created if "use_topk_passages" is set. Must
+            valid_topk: The number of top objects for which the validation
+                instances will be created if "use_topk_objects" is set. Must
                 be in the range [self.MIN_TOPK, self.MAX_VALID_TOPK].
-            num_valid_queries: Number of validation queries that will be used to
-                create validation instances. Must be smaller than or equal to
-                self.NUM_QUERIES for the selected track and task.
-            num_train_queries: Number of train queries that will be used to
-                create the train instances. Must be smaller than or equal to
-                self.NUM_QUERIES for the train set of the selected track.
         """
         # Input validation
         assert track in self.TRACK_NAMES
         self.track: str = track
 
-        self.use_qrels_passages: bool = use_qrels_passages
-        self.use_topk_passages: bool = use_topk_passages
+        self.use_topk_objects: bool = use_topk_objects
         self.valid_topk: Optional[int] = valid_topk
-        if self.use_topk_passages:
+        if self.use_topk_objects:
             assert valid_topk and self.MIN_TOPK <= valid_topk <= self.MAX_VALID_TOPK
-        assert self.use_qrels_passages or self.use_topk_passages
-
-        if not num_valid_queries:
-            num_valid_queries = self.NUM_QUERIES[self.track]
-        msg = f"""Number of validation queries for {self.track} should be <= {self.NUM_QUERIES[self.track]}."""
-        assert num_valid_queries <= self.NUM_QUERIES[self.track], msg
-        self.num_valid_queries: int = num_valid_queries
-
-        msg = f"Number of train queries should not be bigger than {self.NUM_QUERIES[TRAIN_SPLIT]}."
-        assert num_train_queries <= self.NUM_QUERIES[TRAIN_SPLIT], msg
-        self.num_train_queries: int = num_train_queries
 
         # Instance level variables we use throughout
         self.random: random.Random = random.Random(1885)
+        self.num_train_queries: int = self.NUM_TRAIN_QUERIES
         self.train_topk: int = self.MAX_TRAIN_TOPK
         self.min_train_wrong_topk = self.MIN_TOPK
         self.gold_relations: Dict[str, List[int]] = {
             TRAIN_SPLIT: self.GOLD_RELATIONS[TRAIN_SPLIT],
             VALID_SPLIT: self.GOLD_RELATIONS[self.track],
         }
+        self.oid_index_dict = Dict[int, int]  # Used to efficiently randomize Object ID lists.
 
         # Data structures that will be populated once the scenario is run.
         self.object_dict: Dict[int, str] = {}
@@ -393,10 +371,11 @@ class MSMARCOScenario(Scenario):
         target_file_name = f"{'_'.join(data_key)}.tsv"
         file_path = self.download_file(urlstring, target_file_name)
 
-        # Convert .txt file with ' ' separated values to .tsv
-        if data_key in self.NON_TSV_SEPARATED_DATASETS:
+        # Ensure that all the files are separated with a tab character.
+        seperator = self.DATASET_SEPARATOR[data_key]
+        if seperator != "\t":
             with open(file_path, "r") as f:
-                tsv_content = f.read().replace(self.NON_TSV_SEPARATED_DATASETS[data_key], "\t")
+                tsv_content = f.read().replace(seperator, "\t")
             with open(file_path, "w") as f:
                 f.write(tsv_content)
 
@@ -471,7 +450,7 @@ class MSMARCOScenario(Scenario):
     def prepare_data(self):
         """ Download and load all the data. """
         # Passages
-        self.object_dict = self.create_id_item_dict(self.download_helper(("object",)))
+        self.object_dict = self.create_id_item_dict(self.download_helper(("objects",)))
         self.oids = list(self.object_dict.keys())
 
         # Train queries
@@ -494,6 +473,7 @@ class MSMARCOScenario(Scenario):
         different user parameters.
         """
         self.random.shuffle(self.oids)
+        self.oid_index_dict = {oid: ind for ind, oid in enumerate(self.oids)}
         self.random.shuffle(self.qids[TRAIN_SPLIT])
         self.random.shuffle(self.qids[VALID_SPLIT])
 
@@ -516,14 +496,14 @@ class MSMARCOScenario(Scenario):
                 this check because the qrels dictionaries provided as part of MS MARCO
                 tasks aren't guaranteed to have an entry for each query.
             (2) The qrels dictionary corresponding to the query must identify at least
-                1 gold passage. This is so that for each instance we create, we ensure
+                1 gold object. This is so that for each instance we create, we ensure
                 that there is at least 1 reference with a correct label.
             (3) If check_topk flag is set:
                     (a) We ensure that there is a corresponding topk dictionary for
-                        the query. The topk dictionary tells us which passages are
+                        the query. The topk dictionary tells us which objects are
                         most likely candidates for a given query.
                     (b) We ensure that the corresponding topk dictionary ranks at least
-                        self.train_topk or self.valid_topk passages depending on the
+                        self.train_topk or self.valid_topk objects depending on the
                         specified split.
         """
         # Retrieve variables for the split.
@@ -531,123 +511,132 @@ class MSMARCOScenario(Scenario):
 
         # (1) Ensure that there is a query relations dictionary for each query.
         filtered_qids = [qid for qid in qids if qid in qrels_dict]
-        # (2) Ensure that the query relations specified include at least 1 gold passage.
+        # (2) Ensure that the query relations specified include at least 1 gold object.
         filtered_qids = [qid for qid in filtered_qids if gold_relations.intersection(set(qrels_dict[qid].values()))]
         # (3) Check topk.
         if check_topk:
             # (3a) Ensure that there is a topk dictionary for each query.
             filtered_qids = [qid for qid in filtered_qids if qid in topk_dict]
-            # (3b) Ensure that there are at least topk passages in the topk dictionary.
+            # (3b) Ensure that there are at least topk objects in the topk dictionary.
             filtered_qids = [qid for qid in filtered_qids if len(topk_dict[qid]) >= topk]
 
         return filtered_qids
 
-    def create_instance(self, qid: int, pids: List[int], split: str) -> Instance:
+    def create_reference(self, oid: int, gold: bool, rel: Optional[int], rank: Optional[int]) -> Reference:
+        """ Create and return a reference made using the provided parameters. """
+        # Create tags
+        tags = [
+            CORRECT_TAG if gold else None,  # Correctness
+            RELEVANCE_TAG_TEMPLATE.format(relevance=rel) if rel else None,  # Relevance
+            RANK_TAG_TEMPLATE.format(rank=rank) if rank else None,  # Rank
+        ]
+        reference_tags: List[str] = [tag for tag in tags if tag is not None]
+
+        # Get object text
+        object_text = self.object_dict[oid]
+
+        # Create the reference
+        reference = Reference(output=object_text, tags=reference_tags)
+        return reference
+
+    def create_instance(self, qid: int, split: str, oids: List[int]) -> Instance:
         """ Create and return an instance made using the provided parameters. """
         # Retrieve variables for the split.
-        _, query_dict, qrels_dict, _, _, gold_relations = self.get_split_variables(split)
+        _, query_dict, qrels_dict, _, topk_dict, gold_relations = self.get_split_variables(split)
 
         # Construct references
         references = []
-        qrels = qrels_dict[qid]
-        for pid in pids:
-            object_text = self.object_dict[pid]
-            rel = qrels[pid] if pid in qrels else None
-            tags = [CORRECT_TAG] if rel in gold_relations else []
-            reference = InformationRetrievalReference(output=object_text, tags=tags, object_id=str(pid), relevance=rel)
-            vanilla_reference = cast(Reference, reference)  # Convert to vanilla Reference to meet the type requirements
-            references.append(vanilla_reference)
+        for oid in oids:
+            rel = qrels_dict[qid][oid] if oid in qrels_dict[qid] else None
+            gold = rel in gold_relations
+            rank = topk_dict[qid].get(oid)  # Get returns None if the value is missing.
+            reference = self.create_reference(oid, gold, rel, rank)
+            references.append(reference)
 
         # Construct instance
         query_text = query_dict[qid]
-        instance = InformationRetrievalInstance(
-            input=query_text, references=references, split=split, query_id=str(qid), qrels=qrels
-        )
-        vanilla_instance = cast(Instance, instance)  # Convert to vanilla Instance to meet the type requirements
+        instance = Instance(input=query_text, references=references, split=split)
+        vanilla_instance = cast(Instance, instance)
         return vanilla_instance
 
     def get_train_instance(self, qid: int) -> Instance:
         """ Create and return a train instance for the given qid.
 
         References are selected as follows:
-            1. We select 1 correct reference, where the passage included
-               corresponds to the best passage for the given train query.
-            2. We create 1 wrong reference, where the passage included
-               corresponds to a non-gold passage for the given train query.
+            1. We select 1 correct reference, where the objects included
+               corresponds to the best object for the given train query.
+            2. We create 1 wrong reference, where the object included
+               corresponds to a non-gold object for the given train query.
         """
         # Retrieve variables for the split.
         _, _, qrels_dict, topk, topk_dict, gold_relations = self.get_split_variables(TRAIN_SPLIT)
 
-        # Get 1 correct Passage ID.
-        # - Retrieve the Passage IDs relevant for the given query.
-        # - Sort the retrieved Passage IDs by their relevance, from the
+        # Get 1 correct Object ID.
+        # - Retrieve the Object IDs relevant for the given query.
+        # - Sort the retrieved Object IDs by their relevance, from the
         #   highest to the lowest.
-        # - Pick the most relevant Passage ID as the correct Passage ID.
-        relevant_pids = list(qrels_dict[qid].keys())
-        relevant_pids = sorted(relevant_pids, key=lambda pid: qrels_dict[qid][pid], reverse=True)
-        correct_pid = relevant_pids[0]
+        # - Pick the most relevant Object ID as the correct Object ID.
+        relevant_oids = list(qrels_dict[qid].keys())
+        relevant_oids = sorted(relevant_oids, key=lambda oid: qrels_dict[qid][oid], reverse=True)
+        correct_oid = relevant_oids[0]
 
-        # Get 1 wrong Passage ID.
-        # - Retrieve all Passage IDs in the topk dictionary for the query.
-        # - Filter the Passage IDs to only contain those with ranks between
+        # Get 1 wrong Object ID.
+        # - Retrieve all Object IDs in the top-k dictionary for the query.
+        # - Filter the Object IDs to only contain those with ranks between
         #   self.min_train_wrong_topk and self.train_topk, inclusive.
-        # - Limit the filtered Passage IDs to:
+        # - Limit the filtered Object IDs to:
         #   * Those that aren't in the qrels dictionary for the query, or;
         #   * Those that are in the qrels dictionary for the query, granted
         #     that their relation to the query is not in the gold_relations
         #     list.
-        # - Select the top Passage ID from the filtered list as the wrong pid.
-        #   This ensures that the wrong pids we picked belong to competitive
-        #   passages.
-        top_pids = list(topk_dict[qid].keys())
-        filtered_pids = [pid for pid in top_pids if self.min_train_wrong_topk <= topk_dict[qid][pid] <= topk]
-        wrong_pids = [
-            pid for pid in filtered_pids if pid not in qrels_dict[qid] or qrels_dict[qid][pid] not in gold_relations
+        # - Select the top Object ID from the filtered list as the wrong one.
+        #   This ensures that the wrong objects we picked are competitive with
+        #   the correct ones.
+        filtered_oids = [oid for k, oid in topk_dict[qid].items() if self.min_train_wrong_topk <= k <= topk]
+        wrong_oids = [
+            oid for oid in filtered_oids if oid not in qrels_dict[qid] or qrels_dict[qid][oid] not in gold_relations
         ]
-        wrong_pid = wrong_pids[0]
+        wrong_oid = wrong_oids[0]
 
-        # Combine the selected pids in a list.
-        pids = [correct_pid, wrong_pid]
+        # Combine the selected oids in a list, then sort the list following the shuffled list order, which ensures
+        # that the order of the correct and wrong references are varied in the prompts. No further modification is
+        # needed on the adapter side.
+        oids = [correct_oid, wrong_oid]
+        oids = sorted(oids, key=self.oid_index_dict.get)  # type: ignore
 
         # Create an instance and return.
-        instance = self.create_instance(qid, pids, TRAIN_SPLIT)
+        instance = self.create_instance(qid, TRAIN_SPLIT, oids)
         return instance
 
     def get_valid_instance(self, qid) -> Instance:
-        """ Create and return the a validation instance for the given qid.
+        """ Create and return the validation instance for the given qid.
 
-            1. If self.use_qrels_passages flag is set, we ensure that an
-               instance is created for all the passages that appear in the
-               corresponding qrels dictionary for the given validation query.
-            2. If self.use_topk_passages flag is set, we ensure that an
-               instance is created for all the passages that appear in top
-               self.valid_topk passages for the given validation query.
+        By default, we create a reference for each Object ID for which there
+        is a judgment with respect to the provided Query ID.
+
+        If self.use_topk_objects flag is set, we ensure that a reference is
+        created for all the objects that appear in top self.valid_topk objects
+        for the given validation query.
         """
         # Retrieve variables for the split.
         _, _, qrels_dict, topk, topk_dict, _ = self.get_split_variables(VALID_SPLIT)
 
-        # Initialize a list to the selected hold Passage IDs.
-        pids = []
+        # Get Object IDs for which there is a judgment.
+        relevant_oids = list(qrels_dict[qid].keys())
 
-        # If the use_qrels_passages flag is set, we retrieve the IDs of the
-        # passages that are relevant for the query.
-        if self.use_qrels_passages:
-            relevant_pids = list(qrels_dict[qid].keys())
-            pids += relevant_pids
+        # If the use_topk_objects flag is set, we retrieve the IDs of the topk
+        # most relevant objects for the query. __init__ ensures that
+        # self.valid_topk is set if use_topk_objects is set.
+        topk_oids = [oid for k, oid in topk_dict[qid].items() if k <= topk] if self.use_topk_objects else []
 
-        # If use_topk_passages flag is set, we retrieve the IDs of the topk
-        # most relevant passages for the query. __init__ ensures that
-        # self.valid_topk is set if use_topk_passages is set.
-        if self.use_topk_passages:
-            top_pids = [pid for k, pid in topk_dict[qid].items() if k <= topk]
-            pids += top_pids
-
-        # Remove duplicates from the pids list. We don't use set to ensure
-        # that the list order is preserved.
-        pids = list(dict.fromkeys(pids))
+        # Combine the list of Object IDs, remove duplicates, and sort the list
+        # based on the order in the previously shuffled Object ID list.
+        oids = relevant_oids + topk_oids
+        oids = list(set(oids))
+        oids = sorted(oids, key=self.oid_index_dict.get)  # type: ignore
 
         # Create instance.
-        instance = self.create_instance(qid, pids, VALID_SPLIT)
+        instance = self.create_instance(qid, VALID_SPLIT, oids)
 
         return instance
 
@@ -659,9 +648,8 @@ class MSMARCOScenario(Scenario):
 
     def get_valid_instances(self) -> List[Instance]:
         """ Get validation instances. """
-        qids = self.filter_qids(VALID_SPLIT, check_topk=self.use_topk_passages)
-        num_queries = min(self.num_valid_queries, len(qids))
-        instances = [self.get_valid_instance(qid) for qid in qids[:num_queries]]
+        qids = self.filter_qids(VALID_SPLIT, check_topk=self.use_topk_objects)
+        instances = [self.get_valid_instance(qid) for qid in qids]
         return instances
 
     def get_instances(self) -> List[Instance]:
@@ -675,16 +663,16 @@ class MSMARCOScenario(Scenario):
         hlog("MS MARCO Scenario: Preparing the datasets.")
         self.prepare_data()
 
-        hlog("MS MARCO Scenario: Shuffling object and query ids.")
+        hlog("MS MARCO Scenario: Shuffling Object and Query IDs.")
         self.shuffle_ids()
 
-        hlog("MS MARCO Scenario: Preparing the training instances.")
+        hlog("MS MARCO Scenario: Preparing training instances.")
         train_instances = self.get_train_instances()
 
-        hlog("MS MARCO Scenario: Preparing the validation instances.")
+        hlog("MS MARCO Scenario: Preparing validation instances.")
         valid_instances = self.get_valid_instances()
 
         instances = train_instances + valid_instances
-        hlog("MS MARCO Scenario: Done preparing all the instances.")
+        hlog("MS MARCO Scenario: Done preparing all instances.")
 
         return instances

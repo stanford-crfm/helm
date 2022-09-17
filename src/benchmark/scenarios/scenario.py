@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
-from typing import Dict, List, Optional
+from typing import List, Optional
 import re
 import inspect
 
@@ -8,19 +8,25 @@ from common.object_spec import ObjectSpec, create_object
 from common.general import format_text, format_split, format_tags, indent_lines
 from benchmark.augmentations.perturbation_description import PerturbationDescription
 
-# Data splits
+""" Data splits """
 TRAIN_SPLIT: str = "train"
 VALID_SPLIT: str = "valid"
 TEST_SPLIT: str = "test"
 EVAL_SPLITS: List[str] = [VALID_SPLIT, TEST_SPLIT]
 ALL_SPLITS: List[str] = [TRAIN_SPLIT] + EVAL_SPLITS
 
+""" Number of examples """
 # We mainly care about having enough test examples to ensure statistical significance;
 # the remaining N-1000 instances become training examples.
 DEFAULT_TEST_SIZE: int = 1000
 
-# Tags for references
+""" Reference tags """
 CORRECT_TAG: str = "correct"
+
+# Tags for references in information retrieval scenarios.
+# @TODO: (For future) Should there be a base InformationRetrievalScenario class?
+RELEVANCE_TAG_TEMPLATE = "relevance={relevance}"
+RANK_TAG_TEMPLATE = "rank={rank}"
 
 
 class Input(ABC):
@@ -148,29 +154,6 @@ class Instance:
             info.extend(reference.render_lines())
 
         return info
-
-
-@dataclass(frozen=True, eq=False)
-class InformationRetrievalInstance(Instance):
-    """ Instance subclass for Informational Retrieval """
-
-    """ Query ID.  """
-    query_id: Optional[str] = None
-
-    """ Query relations dictionary.
-
-    Query relations dictionary maps a Passage ID (passage_id) to a value
-    indicating its relevance for the query with the ID query_id. The query
-    relations dictionary is guaranteed to contain entries for the gold
-    passages, but it may or may not contain relevance values for the passages
-    that aren't answering the query. Shared below is the format of the qrels
-    dictionary:
-        {
-            <passage_id>: <relevance>,
-            ...
-        }
-    """
-    qrels: Optional[Dict[int, int]] = None
 
 
 @dataclass  # type: ignore
