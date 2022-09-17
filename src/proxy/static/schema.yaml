@@ -158,8 +158,8 @@ metrics:
     description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
 
   # Summarization metrics
-  - name: SummaC
-    display_name: SummaC
+  - name: summac
+    display_name: summac
     description: Faithfulness scores based on the SummaC method of Laban et al. (2022).
   - name: summarization_coverage
     display_name: coverage
