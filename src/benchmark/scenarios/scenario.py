@@ -88,20 +88,6 @@ class Reference:
 
 
 @dataclass(frozen=True, eq=False)
-class InformationRetrievalReference(Reference):
-    """ Reference subclass for Informational Retrieval """
-
-    """ Object ID. """
-    object_id: Optional[str] = None
-
-    """ Object text. """
-    input: Optional[str] = None
-
-    """ Relevance of the reference. """
-    relevance: Optional[int] = None
-
-
-@dataclass(frozen=True, eq=False)
 class Instance:
     """
     An `Instance` represents one data point that we're evaluating on (e.g., one

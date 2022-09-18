@@ -224,11 +224,13 @@ class Prompt:
     @property
     def text(self) -> str:
         # Text for the prompt
-        if self.truncated_text:
-            return self.truncated_text
         blocks = [self.instruction_block] if self.instruction_block else []
         blocks += self.in_context_example_blocks + [self.example_block]
         return self.instance_prefix.join(blocks)
+
+    @property
+    def request_text(self) -> str:
+        return self.truncated_text if self.truncated_text else self.text
 
     @property
     def num_in_context_examples(self) -> int:
@@ -236,7 +238,7 @@ class Prompt:
         return len(self.in_context_example_blocks)
 
     @property
-    def input_truncated(self):
+    def input_truncated(self) -> bool:
         # Whether the input is truncated
         return self.truncated_text is not None
 
@@ -270,7 +272,7 @@ class Processor:
         prompt = self.construct_prompt(self.train_instances, eval_instance, include_output=False, reference_index=None)
         request = Request(
             model=self.adapter_spec.model,
-            prompt=prompt.text,
+            prompt=prompt.request_text,
             num_completions=self.adapter_spec.num_outputs,
             temperature=self.adapter_spec.temperature,
             max_tokens=self.adapter_spec.max_tokens,
@@ -298,7 +300,7 @@ class Processor:
         )
         request = Request(
             model=self.adapter_spec.model,
-            prompt=prompt.text,
+            prompt=prompt.request_text,
             num_completions=1,
             top_k_per_token=self.adapter_spec.num_outputs,
             temperature=0,
@@ -353,7 +355,7 @@ class Processor:
                     raise ValueError(f"Unknown request mode: {request_mode}")
                 request = Request(
                     model=self.adapter_spec.model,
-                    prompt=prompt.text,
+                    prompt=prompt.request_text,
                     num_completions=1,
                     temperature=0,
                     max_tokens=0,
@@ -375,6 +377,21 @@ class Processor:
         return request_states
 
     def adapt_ranking_binary(self, eval_instance: Instance) -> List[RequestState]:
+        """ Adaptation strategy for information retrieval tasks, using binary ranking.
+
+        In information retrieval tasks, an instance corresponds to a single query
+        for which objects will be ranked. Each reference of an instance
+        corresponds to a single object. Single example then contains a query and
+        an object, relevance of which with respect to the query will be judged by
+        the model. A request consists of a single example and a number of in-context
+        training examples.
+
+        The success of the scenarios using this adaptation strategy is measured
+        using the InformationRetrievalMetrics in the "binary_ranking" mode.
+
+        Refer to the documentation for self.construct_example_prompt_ranking_binary
+        for details on how the examples are constructed.
+        """
         request_states = []
         for reference_index, reference in enumerate(eval_instance.references):
             prompt = self.construct_prompt(
@@ -382,11 +399,11 @@ class Processor:
                 eval_instance,
                 include_output=False,
                 reference_index=reference_index,
-                example_constructor=self.example_constructor_ranking_binary,
+                example_prompt_constructor=self.construct_example_prompt_ranking_binary,
             )
             request = Request(
                 model=self.adapter_spec.model,
-                prompt=prompt.text,
+                prompt=prompt.request_text,
                 num_completions=self.adapter_spec.num_outputs,
                 temperature=self.adapter_spec.temperature,
                 max_tokens=self.adapter_spec.max_tokens,
@@ -413,7 +430,7 @@ class Processor:
         eval_instance: Instance,
         include_output: bool,
         reference_index: Optional[int],
-        example_constructor: Callable = None,
+        example_prompt_constructor: Callable = None,
     ) -> Prompt:
         """
         Returns a prompt given:
@@ -427,19 +444,19 @@ class Processor:
         """
         # TODO: Removing the assert statement wrong as it doesn't hold for the IR tasks. Is this safe?
         # assert include_output or reference_index is None
-        if not example_constructor:
-            example_constructor = self.example_constructor
+        if not example_prompt_constructor:
+            example_prompt_constructor = self.construct_example_prompt
 
         # Instruction text
         instruction_block = self.adapter_spec.instructions if self.adapter_spec.instructions else None
 
         # Text for in-context training instances
         in_context_blocks = [
-            example_constructor(inst, include_output=True, reference_index=None) for inst in train_instances
+            example_prompt_constructor(inst, include_output=True, reference_index=None) for inst in train_instances
         ]
 
         # Example text
-        example_block = example_constructor(
+        example_block = example_prompt_constructor(
             eval_instance, include_output=include_output, reference_index=reference_index
         )
 
@@ -485,9 +502,9 @@ class Processor:
             prompt.truncated_text = truncated_text
         return prompt
 
-    def example_constructor(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
+    def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
         """Return a list of lines corresponding to this example (part of the prompt)."""
-        # TODO: The conditions below can be broken down into different "example_constructor" functions.
+        # TODO: The conditions below can be broken down into different "construct_example_prompt" functions.
 
         # Input
         result = self.adapter_spec.input_prefix + instance.input
@@ -517,10 +534,15 @@ class Processor:
 
         return result
 
-    def example_constructor_ranking_binary(
+    def construct_example_prompt_ranking_binary(
         self, instance: Instance, include_output: bool, reference_index: Optional[int]
     ) -> str:
-        """ Return a list of lines corresponding to this example for binary ranking tasks.
+        """ Return an example prompt for binary ranking tasks.
+
+        In the binary ranking prompt specification, the model's task is to output
+        IR_CORRECT_LABEL if the object included in the prompt contains an answer
+        to the query. If the object included does not answer the query, the model
+        is expected to output IR_WRONG_LABEL.
 
         Example prompt:
             Passage: 10 Acres MOKENA, Will County, Illinois $649,000.
@@ -533,7 +555,7 @@ class Processor:
         """
         if instance.split == TRAIN_SPLIT:
             reference_indices = list(range(len(instance.references)))
-        else:
+        else:  # EVAL SPLITS
             assert reference_index is not None
             reference_indices = [reference_index]
 
@@ -542,14 +564,18 @@ class Processor:
         for index in reference_indices:
             # Get reference
             reference = instance.references[index]
-            # "Passage: ..."
+
+            # Construct the passage piece: "Passage: ..."
             reference_text = self.adapter_spec.reference_prefix + reference.output
-            # "\nQuestion: ..."
+
+            # Construct the question piece: "\nQuestion: ..."
             query_text = self.adapter_spec.input_prefix + instance.input
-            # "\nPrompt: Does the passage above answer the question?\nAnswer: ..."
+
+            # Construct the prompt/answer piece: "\nPrompt: Does the passage above answer the question?\nAnswer: ..."
             ir_label = IR_CORRECT_LABEL if CORRECT_TAG in reference.tags else IR_WRONG_LABEL
             output = ir_label if include_output else ""
             answer_text = self.adapter_spec.output_prefix + output
+
             # Construct request_text
             request_text = reference_text + query_text + answer_text
             request_texts.append(request_text)
@@ -718,6 +744,8 @@ class Adapter:
             train_instances=train_instances,
             train_trial_index=train_trial_index,
         )
+        # TODO: Type mismatch: process is taking a single instance, but parallel_map is expecting
+        #       it to take in a list.
         results: List[List[RequestState]] = parallel_map(
             processor.process, eval_instances, parallelism=parallelism,
         )
@@ -919,12 +947,12 @@ class Adapter:
             # Uses `max_sequence_length` instead of `max_request_length` here because `prefix_token` will be prepended
             # to the sequence later. This is the only place where `max_sequence_length` is used.
             first_seq_len: int = min(max_sequence_length, len(tokens))
-            prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
+            request_text, num_conditioning_tokens = self.construct_language_modeling_prompt(
                 self.window_service.encode(prefix_token).tokens, tokens[:first_seq_len], max_request_length, text
             )
             request = Request(
                 model=self.adapter_spec.model,
-                prompt=prompt,
+                prompt=request_text,
                 num_completions=1,
                 temperature=0,
                 max_tokens=self.adapter_spec.max_tokens,  # usually this is zero
@@ -966,13 +994,13 @@ class Adapter:
                     window_end - max_request_length : num_predicted_tokens
                 ]
                 pred_tokens: List[TokenizationToken] = tokens[num_predicted_tokens:window_end]
-                prompt, num_conditioning_tokens = self.construct_language_modeling_prompt(
+                request_text, num_conditioning_tokens = self.construct_language_modeling_prompt(
                     conditioning_tokens, pred_tokens, max_request_length, text
                 )
 
                 request = Request(
                     model=self.adapter_spec.model,
-                    prompt=prompt,
+                    prompt=request_text,
                     num_completions=1,
                     temperature=0,
                     max_tokens=self.adapter_spec.max_tokens,  # usually this is zero
@@ -996,5 +1024,7 @@ class Adapter:
 
             return request_states
 
+        # TODO: Type mismatch: process is taking a single instance, but parallel_map is expecting
+        #       it to take in a list.
         results: List[List[RequestState]] = parallel_map(process, instances, parallelism)
         return flatten_list(results)

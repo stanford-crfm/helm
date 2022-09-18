@@ -525,18 +525,19 @@ class MSMARCOScenario(Scenario):
     def create_reference(self, oid: int, gold: bool, rel: Optional[int], rank: Optional[int]) -> Reference:
         """ Create and return a reference made using the provided parameters. """
         # Create tags
-        tags = [
-            CORRECT_TAG if gold else None,  # Correctness
-            RELEVANCE_TAG_TEMPLATE.format(relevance=rel) if rel else None,  # Relevance
-            RANK_TAG_TEMPLATE.format(rank=rank) if rank else None,  # Rank
-        ]
-        reference_tags: List[str] = [tag for tag in tags if tag is not None]
+        tags = []
+        if gold:
+            tags.append(CORRECT_TAG)  # Correctness
+        if rel:
+            tags.append(RELEVANCE_TAG_TEMPLATE.format(relevance=rel))  # Relevance
+        if rank:
+            tags.append(RANK_TAG_TEMPLATE.format(rank=rank))  # Top-k rank
 
         # Get object text
         object_text = self.object_dict[oid]
 
         # Create the reference
-        reference = Reference(output=object_text, tags=reference_tags)
+        reference = Reference(output=object_text, tags=tags)
         return reference
 
     def create_instance(self, qid: int, split: str, oids: List[int]) -> Instance:
