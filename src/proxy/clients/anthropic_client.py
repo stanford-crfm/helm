@@ -124,11 +124,12 @@ class AnthropicClient(Client):
                             break
 
                         completion_text: str = response["completion"]
-                        token_text: str = completion_text.replace(previous_completion_text, "")
+                        assert completion_text.startswith(previous_completion_text)
+                        token_text: str = completion_text[len(previous_completion_text) :]
 
                         # Anthropic is sending us excess tokens beyond the stop sequences,
                         # so we have to stop early ourselves.
-                        if any(token_text == stop for stop in request.stop_sequences):
+                        if any(stop in token_text for stop in request.stop_sequences):
                             hlog(f"Received {repr(token_text)}, which is a stop sequence - early stopping.")
                             stop_reason = AnthropicClient.STOP_SEQUENCE_STOP_REASON
                             break
