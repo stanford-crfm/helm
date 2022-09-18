@@ -269,7 +269,7 @@ class Summarizer:
         rows = []
         for (adapter_spec, runs), info in zip(adapter_to_runs.items(), infos):
             model = get_model(adapter_spec.model)
-            display_name = dict_to_str(info)
+            display_name = model.display_name + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
 
             # Link to all the runs under this model
             if link_to_runs:
