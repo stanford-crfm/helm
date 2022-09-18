@@ -1013,8 +1013,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
         )
         scenario_name += f",topic={topic}"
     elif capability == "wedging":
-        adapter_spec = get_generation_adapter_spec(
-            max_train_instances=0,
+        adapter_spec = get_completion_adapter_spec(
             # Justification: The CSET paper uses temperature=0.7 in the equivalent setting in all notebooks at
             # https://github.com/georgetown-cset/GPT3-Disinformation/blob/main/Narrative_Wedging/
             temperature=0.7,
@@ -1328,6 +1327,7 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
         instructions="Please complete the rest of the following Dyck sequences, "
         "making sure that the parentheses are closed properly.",
         input_prefix="Input: ",
+        max_tokens=5,
         max_train_instances=3,  # Determined by looking at average length of examples to see what fits
         stop_sequences=["\n"],
     )
