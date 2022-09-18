@@ -124,7 +124,12 @@ class AnthropicClient(Client):
                             break
 
                         completion_text: str = response["completion"]
-                        assert completion_text.startswith(previous_completion_text)
+                        assert completion_text.startswith(previous_completion_text), (
+                            f"Could not compute next token:\n"
+                            f"request: {raw_request}\n"
+                            f"previous: {previous_completion_text}\n"
+                            f"completion: {completion_text}"
+                        )
                         token_text: str = completion_text[len(previous_completion_text) :]
 
                         # Anthropic is sending us excess tokens beyond the stop sequences,
