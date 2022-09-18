@@ -76,7 +76,9 @@ def get_multiple_choice_separate_adapter_spec(method: str) -> AdapterSpec:
         method=method,
         instructions="",
         input_prefix="",
+        input_suffix="",
         output_prefix=" ",  # Note the space
+        output_suffix="",
         # Separate is basically language modeling, so can't easily use in-context examples
         max_train_instances=0,
         num_outputs=1,
@@ -472,18 +474,13 @@ def get_simple1_spec() -> RunSpec:
 
 def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.bbq_scenario.BBQScenario", args={"subject": subject})
-
-    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
-        adapter_spec = get_multiple_choice_joint_adapter_spec(
-            "The following are multiple choice questions (with answers).", "Passage", "Answer"
-        )
-        metric_specs = get_bbq_metric_specs()
-    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
-        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
-        # TODO: We do not compute BBQ metrics when non-standard method is used
-        metric_specs = get_basic_metric_specs([])
-    else:
-        raise ValueError(f"Invalid adaptation method: {method}")
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions="The following are multiple choice questions (with answers).",
+        input_noun="Passage",
+        output_noun="Answer",
+    )
+    metric_specs = get_bbq_metric_specs()
 
     return RunSpec(
         name=f"bbq:subject={subject},method={method}",
@@ -919,16 +916,13 @@ def get_boolq_spec(only_contrast=False) -> RunSpec:
 def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.lsat_qa_scenario.LSATScenario", args={"task": task})
 
-    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
-        adapter_spec = get_multiple_choice_joint_adapter_spec(
-            "The following are multiple choice questions (with answers).", "Passage", "Answer"
-        )
-        metric_specs = get_exact_match_metric_specs()
-    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
-        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
-        metric_specs = get_basic_metric_specs([])
-    else:
-        raise ValueError(f"Invalid adaptation method: {method}")
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions="The following are multiple choice questions (with answers).",
+        input_noun="Passage",
+        output_noun="Answer",
+    )
+    metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
         name=f"lsat_qa:task={task}",
@@ -1211,12 +1205,11 @@ def get_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE
         adapter_spec = get_multiple_choice_joint_empty_input_adapter_spec(
             "Please select the grammatical sentence.", "Answer"
         )
-        metric_specs = get_exact_match_metric_specs()
     elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
         adapter_spec = get_multiple_choice_separate_adapter_spec(method)
-        metric_specs = get_basic_metric_specs([])
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
+    metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
         name=f"blimp:phenomenon={phenomenon}",
@@ -1344,19 +1337,14 @@ def get_dyck_language_spec(num_parenthesis_pairs: int) -> RunSpec:
 def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.legal_support_scenario.LegalSupportScenario", args={})
 
-    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
-        adapter_spec = get_multiple_choice_joint_adapter_spec(
-            "Which statement best supports the passage?",
-            "Passage",
-            "Answer",
-            max_train_instances=3,  # We use 3 because these samples tend to be a bit longer
-        )
-        metric_specs = get_exact_match_metric_specs()
-    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
-        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
-        metric_specs = get_basic_metric_specs([])
-    else:
-        raise ValueError(f"Invalid adaptation method: {method}")
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions="Which statement best supports the passage?",
+        input_noun="Passage",
+        output_noun="Answer",
+        max_train_instances=3,  # We use 3 because these samples tend to be a bit longer
+    )
+    metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
         name="legal_support",
