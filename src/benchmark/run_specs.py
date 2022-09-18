@@ -226,7 +226,7 @@ def get_summarization_adapter_spec(**kwargs) -> AdapterSpec:
     """
     return AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions=format_instructions("Summarize the given documents"),
+        instructions=format_instructions("Summarize the given documents."),
         input_prefix="Document: {",
         input_suffix="}\n",
         output_prefix="Summary: {",
