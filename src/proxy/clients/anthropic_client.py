@@ -130,7 +130,7 @@ class AnthropicClient(Client):
                         # Anthropic is sending us excess tokens beyond the stop sequences,
                         # so we have to stop early ourselves.
                         if any(stop in token_text for stop in request.stop_sequences):
-                            hlog(f"Received {repr(token_text)}, which is a stop sequence - early stopping.")
+                            hlog(f"Received {repr(token_text)}, which has a stop sequence - early stopping.")
                             stop_reason = AnthropicClient.STOP_SEQUENCE_STOP_REASON
                             break
 
