@@ -1,15 +1,3 @@
-v6
-
-tail -f benchmark_output/runs/v6/logs/v6-openai-text-curie-001.log
-
-Run the following commands once the runs complete:
-
-nlprun --job-name generate-run-specs-json-v6 --priority high -a crfm_benchmarking -c 4 -g 0 --memory 8g -w /nlp/scr2/nlp/crfm/benchmarking/benchmarking 'benchmark-present --skip-instances --models-to-run openai/text-curie-001 --max-eval-instances 2 --priority 2 --local --suite v6 > benchmark_output/runs/v6/logs/run_all_skip_instances.log 2>&1'
-
-nlprun --job-name summarize-v6 --priority high -a crfm_benchmarking -c 4 -g 0 --memory 8g -w /nlp/scr2/nlp/crfm/benchmarking/benchmarking 'benchmark-summarize --suite v6 > benchmark_output/runs/v6/logs/summarize.log 2>&1'
-
-
-
 from typing import Dict, List, Optional
 import json
 import time
