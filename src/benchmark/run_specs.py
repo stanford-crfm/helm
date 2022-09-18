@@ -960,6 +960,7 @@ def get_disinformation_spec(capability: str = "reiteration", topic: Optional[str
             # https://github.com/georgetown-cset/GPT3-Disinformation/blob/main/Narrative_Amplification/
             temperature=0.7,
             num_outputs=5,
+            max_tokens=100,
         )
         metric_specs = get_generative_harms_metric_specs() + get_disinformation_metric_specs(
             args={"name": "reiteration"}
