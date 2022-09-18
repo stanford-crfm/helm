@@ -21,7 +21,8 @@ function execute {
 }
 
 cpus=4
-num_threads=8
+# Running into "sqlite3.OperationalError: database is locked" when running with many threads
+num_threads=1
 work_dir=$PWD
 suite=$2
 logs_path="benchmark_output/runs/$suite/logs"
@@ -32,20 +33,26 @@ models=(
   "ai21/j1-jumbo"
   "ai21/j1-grande"
   "ai21/j1-large"
-  # "openai/davinci"
-  # "openai/curie"
+  "openai/davinci"
+  "openai/curie"
   "openai/babbage"
   "openai/ada"
-  # "openai/text-davinci-002"
+  "openai/text-davinci-002"
   "openai/text-curie-001"
   "openai/text-babbage-001"
   "openai/text-ada-001"
-  # "openai/code-davinci-002"
+  "openai/code-davinci-002"
   "openai/code-cushman-001"
   "gooseai/gpt-j-6b"
   "gooseai/gpt-neo-20b"
   "anthropic/stanford-online-all-v4-s3"
+  "cohere/xlarge-20220609"
+  "cohere/large-20220720"
+  "cohere/medium-20220720"
+  "cohere/small-20220720"
+  # Offline evaluation models
   "microsoft/TNLGv2_530B"
+  # TODO: waiting for results
   # "microsoft/TNLGv2_7B"
   "together/bloom"
   "together/glm"
@@ -57,10 +64,6 @@ models=(
   "together/t5-11b"
   "together/ul2"
   "together/yalm"
-  # "cohere/xlarge-20220609"
-  # "cohere/large-20220720"
-  # "cohere/medium-20220720"
-  "cohere/small-20220720"
 )
 log_paths=()
 
@@ -77,7 +80,7 @@ do
 
     # Run RunSpecs that require a GPU
     log_file=$job.gpu.log
-    execute "nlprun --job-name $job-gpu --priority high -a crfm_benchmarking -c $cpus -g 1 --memory 24g -w $work_dir
+    execute "nlprun --job-name $job-gpu -a crfm_benchmarking -c $cpus -g 1 --memory 24g -w $work_dir
     'benchmark-present -n $num_threads --models-to-run $model --conf-path src/benchmark/presentation/run_specs_gpu.conf
     $default_args $* > $logs_path/$log_file 2>&1'"
     log_paths+=("$work_dir/$logs_path/$log_file")

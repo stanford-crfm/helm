@@ -46,50 +46,29 @@ class MSMARCOScenario(Scenario):
         are evaluating, doesn't have an answer - since we want our model to
         answer the question.
 
-            Passage: Search for foreclosed homes for sale in Mokena, Will
-            County, Illinois.
-            Question: what county is mokena in?
-            Prompt: Does the passage above answer the question?
+           Passage: Its 25 drops per ml, you guys are all wrong. If it is water, the standard was changed 15 - 20 years ago to make 20 drops = 1mL. The viscosity of most things is temperature dependent, so this would be at room temperature. Hope this helps.
+            Query: how many eye drops per ml
+            Prompt: Does the passage answer the query?
             Answer: Yes
 
-            Passage: 10 Acres MOKENA, Will County, Illinois $649,000.
-            Spectacular secluded 10 acres of land surrounded in wooded area with
-            muter trees! 2 Parcels each is 5 acres of land with building in the
-            middle!
-            Question: what county is mokena in?
-            Prompt: Does the passage above answer the question?
+            Passage: RE: How many eyedrops are there in a 10 ml bottle of Cosopt? My Kaiser pharmacy insists that 2 bottles should last me 100 days but I run out way before that time when I am using 4 drops per day.In the past other pharmacies have given me 3 10-ml bottles for 100 days.E: How many eyedrops are there in a 10 ml bottle of Cosopt? My Kaiser pharmacy insists that 2 bottles should last me 100 days but I run out way before that time when I am using 4 drops per day.
+            Query: how many eye drops per ml
+            Prompt: Does the passage answer the query?
             Answer: No
 
-            Passage: boo is a term that is derived from the French word beau
-            meaning beautiful. In 18th century England it meant an admirer,
-            usually male. It made it's way into Afro-Caribean language perhaps
-            through the French colonisation of some Caribean islands.
-            Now meaning girl or boyfriend.
-            Question: what is boo!
-            Prompt: Does the passage above answer the question?
+            Passage: : You can transfer money to your checking account from other Wells Fargo. accounts through Wells Fargo Mobile Banking with the mobile app, online, at any. Wells Fargo ATM, or at a Wells Fargo branch. 1 Money in — deposits.
+            Query: can you open a wells fargo account online
+            Prompt: Does the passage answer the query?
+            Answer: No
+
+            Passage: You can open a Wells Fargo banking account from your home or even online. It is really easy to do, provided you have all of the appropriate documentation. Wells Fargo has so many bank account options that you will be sure to find one that works for you. They offer free checking accounts with free online banking.
+            Query: can you open a wells fargo account online
+            Prompt: Does the passage answer the query?
             Answer: Yes
 
-            Passage: Original conversation. User: What happens to Bob Ewell at
-            the end of the novel? A. We do not know what happens to him. B.
-            He goes to prison for threatening Scout and Jem. C. He commits
-            suicide. D. He is stabbed by Boo Radley Weegy: A. He is stabbed
-            by Boo Radley cinprincess07|Points 10|User: Which character does
-            the mockingbird best represent?. We do not know what happens to
-            him. B. He goes to prison for threatening Scout and Jem. C. He
-            commits suicide. D. He is stabbed by Boo Radley Weegy: A. He
-            is stabbed by Boo Radley cinprincess07|Points 10|User: Which
-            character does the mockingbird best represent?
-            Question: what is boo!
-            Prompt: Does the passage above answer the question?
-            Answer: No
-
-            Passage: Kaczynski himself has insisted repeatedly that he is
-            sane, and a lawyer who served as an adviser on his case, Michael
-            Mello, wrote a book arguing that the prisoner had been unfairly
-            labeled. In my opinion he is not crazy, Mello wrote in the book,
-            The United States of America Versus Theodore John Kaczynski.
-            Question: who wrote the book ninjago
-            Prompt: Does the passage above answer the question?
+            Passage: SIZE: There are few measurements available for this bear. Adult spectacled bears can weigh between 140 and 385 pounds (63-173 kg). However, the body length of adults is about 150 to 180 centimeters (60 to 72 inches) and males may be 30 to 40 percent larger than females.
+            Query: how much does a spectacled bear weigh
+            Prompt: Does the passage answer the query?
             Answer:
 
         As a result of each request, the model would produce a token or a set

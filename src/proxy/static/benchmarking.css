@@ -37,13 +37,6 @@ tr {
   background-color: #f9f9f9;
 }
 
-.latex {
-  white-space: pre-wrap;
-  font-family: monospace;
-  background-color: #f9f9f9;
-  font-size: 10pt;
-}
-
 .logprob {
   font-size: 8pt;
   font-style: italic;

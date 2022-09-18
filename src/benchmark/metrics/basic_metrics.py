@@ -16,11 +16,9 @@ from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
 from rouge_score import rouge_scorer
 
-from common.general import singleton
 from common.hierarchical_logger import hlog
 from common.request import Token, Sequence
 from benchmark.adapter import (
-    ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     AdapterSpec,
@@ -444,9 +442,8 @@ class BasicMetric(Metric):
 
         # Predicted outputs
         assert request_state.result is not None
-        # TODO: Sort the predictions, or take them from the top tokens of the first completion
-        #       https://github.com/stanford-crfm/benchmarking/issues/42
-        preds = [completion.text.strip() for completion in request_state.result.completions]
+        sorted_completions = sorted(request_state.result.completions, key=lambda x: -x.logprob)
+        preds = [completion.text.strip() for completion in sorted_completions]
 
         # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
         # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
@@ -454,10 +451,16 @@ class BasicMetric(Metric):
         if request_state.output_mapping is not None:
             preds = [request_state.output_mapping.get(pred) for pred in preds]
 
-        # Add calibration metrics for ADAPT_MULTIPLE_CHOICE_JOINT.
-        if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
-            max_prob = np.exp(singleton(request_state.result.completions).logprob)
-            reference_metrics.append(Stat(MetricName("max_prob")).add(max_prob))
+        # Compute max_prob, the probability that the model assigns to its generated text.
+        # Use the log prob of sorted_completions[0], which is the completion with the highest
+        # log_prob. We use this since that's what's used for computing metrics like exact_match.
+        # One subtlety is that when computing exact_match, we strip whitespace, so the actual
+        # max_prob is the sum of all the probabilities in the set {x : strip(x) = prediction}.
+        # In practice, we think this may not make much of a difference because models may not place
+        # high probabilities on having additional spaces (should check this). Also, the sum
+        # involves computing the log_prob for many completions which could be intractable.
+        max_prob = np.exp(sorted_completions[0].logprob)
+        reference_metrics.append(Stat(MetricName("max_prob")).add(max_prob))
 
         # Add other metrics.
         for metric_name in self.names:
@@ -532,16 +535,19 @@ class BasicMetric(Metric):
         else:
             training_energy_cost = None
 
-        return [
+        stats = [
             Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens),
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("batch_size")).add(batch_size),
-            Stat(MetricName("inference_denoised_runtime")).add(denoised_runtime),
-            Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime),
             Stat(MetricName("training_co2_cost")).add(training_co2_cost),
             Stat(MetricName("training_energy_cost")).add(training_energy_cost),
         ]
+        if denoised_runtime is not None:
+            stats.append(Stat(MetricName("inference_denoised_runtime")).add(denoised_runtime))
+        if idealized_runtime is not None:
+            stats.append(Stat(MetricName("inference_idealized_runtime")).add(idealized_runtime))
+        return stats
 
     def compute_finish_reason_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -651,7 +657,7 @@ class BasicMetric(Metric):
             logprob: float  # sum of logprobs for all tokens in the reference
             num_tokens: int  # number of tokens in the reference
 
-        def compute_logprob_and_length(request_state: RequestState) -> ReferenceStat:
+        def compute_logprob_and_length(request_state: RequestState, window_service: WindowService) -> ReferenceStat:
             """Compute the logprob and length for the only completion from the request_state."""
             assert request_state.reference_index is not None
             assert request_state.result is not None
@@ -662,23 +668,18 @@ class BasicMetric(Metric):
             reference: str = request_state.instance.references[reference_index].output
 
             # Find the span of the completion that matches the reference.
-            answer_length = 0
-            answer_tokens: List[Token] = []
-            for token in sequence.tokens[::-1]:
-                if answer_length >= len(reference):
-                    break
-                answer_tokens.insert(0, token)
-                answer_length += len(token.text)
-
-            # Sanity check
-            span: str = "".join([token.text for token in answer_tokens]).lstrip()
-            alphanumeric_chars: str = string.digits + string.ascii_lowercase + string.ascii_uppercase
-            filtered_span: str = "".join(list(filter(lambda x: x in alphanumeric_chars, span)))
-            filtered_reference: str = "".join(list(filter(lambda x: x in alphanumeric_chars, reference)))
-            assert filtered_span == filtered_reference, f"Expected: {filtered_reference}, Actual: {filtered_span}"
-
-            logprob = sum(token.logprob for token in answer_tokens)
-            num_tokens = len(answer_tokens)
+            # Prepend a space because there should always be a space before reference in the prompt.
+            reference_tokens: List[str] = window_service.tokenize(f" {reference}")
+            num_tokens: int = len(reference_tokens)
+            answer_tokens: List[Token] = sequence.tokens[-num_tokens:]
+            if (len(answer_tokens) != len(reference_tokens)) or (
+                not all(
+                    answer_token.text == reference_token
+                    for answer_token, reference_token in zip(answer_tokens, reference_tokens)
+                )
+            ):
+                hlog(f"WARNING: Expected {reference_tokens} but got {[token.text for token in answer_tokens]}")
+            logprob: float = sum(token.logprob for token in answer_tokens)
 
             return ReferenceStat(logprob, num_tokens)
 
@@ -691,11 +692,13 @@ class BasicMetric(Metric):
         ]
         num_choices = len(references)
 
+        tokenizer_service: TokenizerService = metric_service
+        window_service: WindowService = WindowServiceFactory.get_window_service(adapter_spec.model, tokenizer_service)
         reference_stats: Dict[ReferenceKey, ReferenceStat] = {}
         for request_state in reference_request_states:
             assert request_state.reference_index is not None and request_state.request_mode is not None
             reference_key = ReferenceKey(request_state.reference_index, request_state.request_mode)
-            reference_stats[reference_key] = compute_logprob_and_length(request_state)
+            reference_stats[reference_key] = compute_logprob_and_length(request_state, window_service)
 
         if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
             reference_scores = [
@@ -714,16 +717,22 @@ class BasicMetric(Metric):
 
         answer_scores = [reference_scores[i] for i in answers]
 
+        # Compute efficiency metrics.
+        metrics = self.compute_efficiency_metrics(adapter_spec, request_state, metric_service)
+
         max_prob = np.max(scipy.special.softmax(reference_scores))
         # TODO: fix the accuracy calculation---it is currently incorrect when there are ties.
         # For example, in binary classification if the model's predicted probabilities are
         # [0.5, 0.5], then this code will say we got the example correct, regardless of what
         # the answer is, because the calculation max(reference_scores) == max(answer_scores)
         # will always return True.
-        return [
-            Stat(MetricName("max_prob")).add(max_prob),
-            Stat(MetricName("exact_match")).add(float(max(reference_scores) == max(answer_scores))),
-        ]
+        metrics.extend(
+            [
+                Stat(MetricName("max_prob")).add(max_prob),
+                Stat(MetricName("exact_match")).add(float(max(reference_scores) == max(answer_scores))),
+            ]
+        )
+        return metrics
 
     def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
         """Derive perplexity metrics if applicable. We don't worry about splits and perturbations here."""
@@ -735,6 +744,7 @@ class BasicMetric(Metric):
         """Derive calibration metrics if applicable. We don't worry about splits and perturbations here."""
         derived_stats: List[Stat] = []
         derived_stats.extend(compute_calibration_metrics(per_instance_stats))
+        derived_stats.append(Stat(MetricName("num_instances")).add(len(per_instance_stats)))
         return derived_stats
 
 

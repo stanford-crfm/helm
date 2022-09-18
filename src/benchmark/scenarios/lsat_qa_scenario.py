@@ -21,7 +21,7 @@ class LSATScenario(Scenario):
         https://arxiv.org/abs/2104.06598
 
     Original repository can be found at:
-        https://github.com/facebookarchive/bAbI-tasks
+        https://github.com/zhongwanjun/AR-LSAT
 
     This is a multi-choice QA dataset containing question that test analytical reasoning,
     from the Law School Admission Test (LSAT). The questions explore cases of constraint

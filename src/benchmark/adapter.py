@@ -24,7 +24,7 @@ ADAPT_GENERATION = "generation"
 ADAPT_RANKING_BINARY = "ranking_binary"
 
 # Information retrieval labels
-# TODO: Reading these from the adapter spec would be more ideal.
+# TODO: It would be better if we read the following from the adapter spec.
 IR_CORRECT_LABEL = "Yes"
 IR_WRONG_LABEL = "No"
 
@@ -47,19 +47,28 @@ class AdapterSpec:
     # What goes before the input
     input_prefix: str = "Input: "
 
+    # What goes after the input
+    input_suffix: str = "\n"
+
     # What goes before the input (for multiple choice)
-    reference_prefix: str = "\nA. "
+    reference_prefix: str = "A. "
+
+    # What goes before the input (for multiple choice)
+    reference_suffix: str = "\n"
 
     # What goes before the output
-    output_prefix: str = "\nOutput: "
+    output_prefix: str = "Output: "
 
-    # What goes before each Instance in the constructed prompt
-    instance_prefix: str = "\n\n"
+    # What goes after the output
+    output_suffix: str = "\n"
+
+    # What goes between instruction and in-context example blocks in the constructed prompt
+    instance_prefix: str = "\n"
 
     # Maximum number of (in-context) training instances to put into the prompt
     max_train_instances: int = 5
 
-    # Maximum number of evaluation instances.  For getting valid numbers, this
+    # Maximum number of evaluation instances. For getting valid numbers, this
     # should be the entire dataset; only reduce this for piloting.
     max_eval_instances: Optional[int] = None
 
@@ -82,8 +91,8 @@ class AdapterSpec:
     # Maximum number of tokens to generate
     max_tokens: int = 100
 
-    # When to stop
-    stop_sequences: List[str] = field(default_factory=list)
+    # When to stop (set hash=False to make `AdapterSpec` hashable)
+    stop_sequences: List[str] = field(default_factory=list, hash=False)
 
     # Random string (used concretely to bypass cache / see diverse results)
     random: Optional[str] = None
@@ -442,7 +451,7 @@ class Processor:
 
         Fits the prompt within the context window by removing in-context training examples.
         """
-        # TODO: Removing the assert statement wrong as it doesn't hold for the IR tasks. Is this safe?
+        # TODO: Removing the assert statement as it doesn't hold for the IR tasks. Is this safe?
         # assert include_output or reference_index is None
         if not example_prompt_constructor:
             example_prompt_constructor = self.construct_example_prompt
@@ -507,7 +516,7 @@ class Processor:
         # TODO: The conditions below can be broken down into different "construct_example_prompt" functions.
 
         # Input
-        result = self.adapter_spec.input_prefix + instance.input
+        result = self.adapter_spec.input_prefix + instance.input + self.adapter_spec.input_suffix
 
         # References (optionally) and output
         if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
@@ -515,7 +524,7 @@ class Processor:
             output = "n/a"
             for reference_index, reference in enumerate(instance.references):
                 prefix = self.get_reference_prefix(self.adapter_spec.reference_prefix, reference_index)
-                result += prefix + reference.output
+                result += prefix + reference.output + self.adapter_spec.reference_suffix
                 if reference.is_correct and output == "n/a":
                     output = self.get_reference_prefix("A", reference_index)
         else:
@@ -528,7 +537,7 @@ class Processor:
                 output = reference.output
 
         if include_output:
-            result += self.adapter_spec.output_prefix + output
+            result += self.adapter_spec.output_prefix + output + self.adapter_spec.output_suffix
         else:
             result += self.adapter_spec.output_prefix.rstrip()
 
@@ -545,13 +554,10 @@ class Processor:
         is expected to output IR_WRONG_LABEL.
 
         Example prompt:
-            Passage: 10 Acres MOKENA, Will County, Illinois $649,000.
-            Spectacular secluded 10 acres of land surrounded in wooded area with
-            muter trees! 2 Parcels each is 5 acres of land with building in the
-            middle!
-            Question: what county is mokena in?
-            Prompt: Does the passage above answer the question?
-            Answer: No
+            Passage: Its 25 drops per ml, you guys are all wrong. If it is water, the standard was changed 15 - 20 years ago to make 20 drops = 1mL. The viscosity of most things is temperature dependent, so this would be at room temperature. Hope this helps.  # noqa
+            Query: how many eye drops per ml
+            Prompt: Does the passage answer the query?
+            Answer: Yes
         """
         if instance.split == TRAIN_SPLIT:
             reference_indices = list(range(len(instance.references)))
@@ -565,19 +571,21 @@ class Processor:
             # Get reference
             reference = instance.references[index]
 
-            # Construct the passage piece: "Passage: ..."
-            reference_text = self.adapter_spec.reference_prefix + reference.output
+            # Construct the passage piece (e.g. "\nPassage: ...\n")
+            reference_text = self.adapter_spec.reference_prefix + reference.output + self.adapter_spec.reference_suffix
 
-            # Construct the question piece: "\nQuestion: ..."
-            query_text = self.adapter_spec.input_prefix + instance.input
+            # Construct the question piece (e.g. "\nQuery: ...\n")
+            query_text = self.adapter_spec.input_prefix + instance.input + self.adapter_spec.input_suffix
 
-            # Construct the prompt/answer piece: "\nPrompt: Does the passage above answer the question?\nAnswer: ..."
-            ir_label = IR_CORRECT_LABEL if CORRECT_TAG in reference.tags else IR_WRONG_LABEL
-            output = ir_label if include_output else ""
-            answer_text = self.adapter_spec.output_prefix + output
+            # Construct the answer piece (e.g. "\nPrompt: Does the passage above answer the question?\nAnswer: ")
+            # If include_output flag is set, answer is appended (e.g. "...\n")
+            output_text = self.adapter_spec.output_prefix
+            if include_output:
+                ir_label = IR_CORRECT_LABEL if CORRECT_TAG in reference.tags else IR_WRONG_LABEL
+                output_text += ir_label + self.adapter_spec.output_suffix
 
             # Construct request_text
-            request_text = reference_text + query_text + answer_text
+            request_text = reference_text + query_text + output_text
             request_texts.append(request_text)
 
         # Combine the request texts and return
@@ -674,7 +682,7 @@ class Adapter:
             # The random sampling includes instances monotonically.
             np.random.seed(0)
             selected_eval_instances = list(
-                np.random.choice(all_eval_instances, self.adapter_spec.max_eval_instances, replace=False,)
+                np.random.choice(all_eval_instances, self.adapter_spec.max_eval_instances, replace=False)
             )  # type: ignore
         else:
             selected_eval_instances = all_eval_instances
@@ -864,6 +872,21 @@ class Adapter:
             pred_tokens = pred_tokens[: -(prompt_length - max_req_len)]
             prompt = self.window_service.decode(conditioning_tokens + pred_tokens, text)
             prompt_length = len(self.window_service.encode(prompt).tokens)
+
+            # When the input text contains languages the tokenizer cannot process, the input text
+            # might be inflated so the truncation cannot work properly.
+            # e.g.
+            # With the OpenAI tokenizer:
+            # >>> tokenizer.decode(tokenizer.encode("行星运转"))
+            # '行星运转'
+            # With the YaLM tokenizer:
+            # >>> tokenizer.decode(tokenizer.tokenize("行星运转"))
+            # '行<0xE6><0x98><0x9F><0xE8><0xBF><0x90><0xE8><0xBD><0xAC>'
+            if len(pred_tokens) == 0:
+                raise ValueError(
+                    "Truncating pred_tokens to fit them in the context window, "
+                    "got len(pred_tokens) == 0, which will lead to an infinite loop."
+                )
 
         return prompt, pred_tokens
 

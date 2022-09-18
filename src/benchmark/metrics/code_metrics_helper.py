@@ -50,7 +50,11 @@ def timeout_handler(signum, frame):
 
 
 signal.signal(signal.SIGALRM, timeout_handler)
-timeout = 4  # seconds
+
+
+# lxuechen: The default (global) timeout given in the original APPS codebase is 4. But we found this yielded evaluation
+#   runs that are just too slow. We thus make this variable settable in `run_test`.
+# timeout = 4  # seconds
 
 
 # used to capture stdout as a list
@@ -70,12 +74,16 @@ class Capturing(list):
         sys.stdout = self._stdout
 
 
-def run_test(root: str, test: str) -> List[Union[int, bool]]:
+def run_test(root: str, test: str, timeout: float) -> List[Union[int, bool]]:
     """Run a single test.
 
     Args:
         root: Path to the problem folder.
         test: Candidate source code solution in string format.
+        timeout: Timeout in seconds. Reduce to save time at the cost of accuracy.
+            There are two places where timeout can happen:
+                1) runtime function creation based on source code string, and
+                2) evaluation of a test case.
     Returns:
         A list of numbers/booleans, one for each test case. Interpretation for all types of values:
             -3: didn't find the function for evaluation

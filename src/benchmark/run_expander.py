@@ -11,6 +11,7 @@ from proxy.models import (
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
     GPT2_TOKENIZER_TAG,
     AI21_TOKENIZER_TAG,
+    ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
@@ -84,11 +85,94 @@ class ReplaceRunSpecValueRunExpander(RunExpander):
         ]
 
 
+class InstructionsRunExpander(RunExpander):
+    """
+    Set the instructions of the prompt.
+    """
+
+    name = "instructions"
+
+    def __init__(self, value):
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec = run_spec.adapter_spec
+        if self.value == "none":
+            adapter_spec = replace(adapter_spec, instructions="",)
+        else:
+            raise Exception("Unknown value: {self.value}")
+        return [
+            replace(run_spec, name=f"{run_spec.name},{self.name}={self.value}", adapter_spec=adapter_spec),
+        ]
+
+
+class PromptRunExpander(RunExpander):
+    """
+    Set the prompt.
+    """
+
+    name = "prompt"
+
+    def __init__(self, value):
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec = run_spec.adapter_spec
+        if self.value == "human_assistant":
+            adapter_spec = replace(
+                adapter_spec,
+                input_prefix='Human: What is the answer to "',
+                input_suffix='"?\n',
+                output_prefix='Assistant: The answer is "',
+                output_suffix='".\n',
+                stop_sequences=['".'],
+            )
+        elif self.value == "qa":
+            adapter_spec = replace(adapter_spec, input_prefix="Q: ", output_prefix="A: ")
+        elif self.value == "question_answer":
+            adapter_spec = replace(adapter_spec, input_prefix="Question: ", output_prefix="Answer: ")
+        elif self.value == "input_output":
+            adapter_spec = replace(adapter_spec, input_prefix="Input: ", output_prefix="Output: ")
+        else:
+            raise Exception("Unknown value: {self.value}")
+        return [
+            replace(run_spec, name=f"{run_spec.name},{self.name}={self.value}", adapter_spec=adapter_spec,),
+        ]
+
+
+class StopRunExpander(RunExpander):
+    """
+    Set the stop sequence to something (e.g., ###) with new lines.
+    """
+
+    name = "stop"
+
+    def __init__(self, value):
+        """
+        `value` is either the actual value to use or a lookup into the values dict.
+        """
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        if self.value == "hash":
+            stop = "###"
+        else:
+            raise Exception("Unknown value: {self.value}")
+        return [
+            replace(
+                run_spec,
+                name=f"{run_spec.name},{self.name}={self.value}",
+                adapter_spec=replace(run_spec.adapter_spec, instance_prefix=f"{stop}\n\n", stop_sequences=[stop]),
+            ),
+        ]
+
+
 class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
     name = "num_train_trials"
-    values_dict = {"default": [3]}
+    # TODO: increase to 3
+    values_dict = {"default": [1]}
 
 
 class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
@@ -96,7 +180,7 @@ class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
 
     name = "max_train_instances"
     values_dict = {
-        "all": [0, 1, 2, 4, 8, 16],
+        "all": [0, 1, 2, 4, 8, 16, 32, 64, 128, 256],
         "big_bench_few_shot_setting": [0, 1, 2, 3],  # Commonly used few-shot setting in BIG-bench
     }
 
@@ -106,21 +190,6 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
 
     name = "num_outputs"
     values_dict = {"default": [1]}
-
-
-DEFAULT_MODELS: List[str] = [
-    "openai/davinci",
-    "openai/curie",
-    "openai/text-davinci-002",
-    "openai/text-davinci-001",
-    "openai/text-curie-001",
-    "ai21/j1-jumbo",
-    "ai21/j1-grande",
-    "ai21/j1-large",
-    "gooseai/gpt-j-6b",
-    # TODO: to conserve GooseAI credits, hold off on running on GPT-NeoX until the end
-    # "gooseai/gpt-neo-20b",
-]
 
 
 class ModelRunExpander(ReplaceValueRunExpander):
@@ -141,6 +210,18 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "gpt2_tokenizer": get_model_names_with_tag(GPT2_TOKENIZER_TAG),
         "ai21_tokenizer": get_model_names_with_tag(AI21_TOKENIZER_TAG),
     }
+
+    # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")
+    # which contains the subset of models with the ablation tag.
+    ablation_models = set(get_model_names_with_tag(ABLATION_MODEL_TAG))
+    ablation_values_dict = {}
+    for family_name, models in values_dict.items():
+        ablation_values_dict["ablation_" + family_name] = list(ablation_models & set(models))
+    for family_name, models in ablation_values_dict.items():
+        if family_name == "ablation_all":
+            values_dict["ablation"] = models
+        else:
+            values_dict[family_name] = models
 
 
 ############################################################
@@ -475,6 +556,9 @@ class DataAugmentationRunExpander(RunExpander):
 RUN_EXPANDERS = dict(
     (expander.name, expander)
     for expander in [
+        InstructionsRunExpander,
+        PromptRunExpander,
+        StopRunExpander,
         NumTrainTrialsRunExpander,
         MaxTrainInstancesRunExpander,
         NumOutputsRunExpander,

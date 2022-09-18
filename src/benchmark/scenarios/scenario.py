@@ -153,7 +153,7 @@ class Scenario(ABC):
     the heavy lifting.
     """
 
-    # Short unique identifier of the scenario (e.g., RealToxicityPrompts)
+    # Short unique identifier of the scenario
     name: str
 
     # Description of the scenario (task, data)
@@ -163,10 +163,8 @@ class Scenario(ABC):
     tags: List[str]
 
     # Where downloaded data is cached (to be set by the `Runner`)
+    # TODO: ideally would pass this into `get_instances` to not have to mutate.
     output_path: str
-
-    # File where the class exists so we can link to it on GitHub (to be set by the `Runner`)
-    definition_path: str
 
     def get_definition_path(self) -> str:
         """Return where the scenario subclass for `self` is defined."""
@@ -210,4 +208,5 @@ class ScenarioSpec(ObjectSpec):
 
 
 def create_scenario(scenario_spec: ScenarioSpec) -> Scenario:
+    """Construct the scenario and set some fields."""
     return create_object(scenario_spec)

@@ -25,7 +25,7 @@ class TestAdapter:
         service = ServerService(base_path=self.path, root_mode=True)
         self.tokenizer_service = TokenizerService(service, Authentication("test"))
 
-    def teardown_method(self, method):
+    def teardown_method(self, _):
         shutil.rmtree(self.path)
 
     def test_adapter1(self):
@@ -40,7 +40,13 @@ class TestAdapter:
 
     def test_construct_prompt(self):
         adapter_spec = AdapterSpec(
-            model="openai/davinci", method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=100
+            model="openai/davinci",
+            method=ADAPT_GENERATION,
+            input_prefix="",
+            input_suffix="",
+            output_prefix="",
+            output_suffix="",
+            max_tokens=100,
         )
         adapter = Adapter(adapter_spec, self.tokenizer_service)
         processor = Processor(adapter_spec, adapter.window_service, train_instances=[], train_trial_index=0)
