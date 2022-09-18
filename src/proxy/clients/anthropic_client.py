@@ -1,3 +1,15 @@
+v6
+
+tail -f benchmark_output/runs/v6/logs/v6-openai-text-curie-001.log
+
+Run the following commands once the runs complete:
+
+nlprun --job-name generate-run-specs-json-v6 --priority high -a crfm_benchmarking -c 4 -g 0 --memory 8g -w /nlp/scr2/nlp/crfm/benchmarking/benchmarking 'benchmark-present --skip-instances --models-to-run openai/text-curie-001 --max-eval-instances 2 --priority 2 --local --suite v6 > benchmark_output/runs/v6/logs/run_all_skip_instances.log 2>&1'
+
+nlprun --job-name summarize-v6 --priority high -a crfm_benchmarking -c 4 -g 0 --memory 8g -w /nlp/scr2/nlp/crfm/benchmarking/benchmarking 'benchmark-summarize --suite v6 > benchmark_output/runs/v6/logs/summarize.log 2>&1'
+
+
+
 from typing import Dict, List, Optional
 import json
 import time
@@ -37,6 +49,9 @@ class AnthropicClient(Client):
     #       can currently only support a maximum of ~3000 tokens in the completion.
     # TODO: Increase this later when Anthropic supports more.
     MAX_COMPLETION_LENGTH: int = 3000
+
+    # Anthropic returns the following in the response when reaching one of the stop sequences.
+    STOP_SEQUENCE_STOP_REASON: str = "stop_sequence"
 
     def __init__(self, api_key: str, cache_path: str):
         self.api_key = api_key
@@ -122,6 +137,14 @@ class AnthropicClient(Client):
 
                         completion_text: str = response["completion"]
                         token_text: str = completion_text.replace(previous_completion_text, "")
+
+                        # Anthropic is sending us excess tokens beyond the stop sequences,
+                        # so we have to stop early ourselves.
+                        if any(token_text == stop for stop in request.stop_sequences):
+                            hlog(f"Received {repr(token_text)}, which is a stop sequence - early stopping.")
+                            stop_reason = AnthropicClient.STOP_SEQUENCE_STOP_REASON
+                            break
+
                         tokens.append(token_text)
                         previous_completion_text = completion_text
                     ws.close()
@@ -133,6 +156,7 @@ class AnthropicClient(Client):
                 return {
                     "tokens": tokens,
                     "raw_response": raw_response,
+                    "stop_reason": stop_reason,
                 }
 
         # Since Anthropic doesn't support multiple completions, we have to manually call it multiple times,
@@ -167,9 +191,9 @@ class AnthropicClient(Client):
                 sequence_logprob += token_logprob
                 tokens.append(Token(text=token_text, logprob=token_logprob, top_logprobs={}))
 
-            finish_reason: str = raw_response["stop_reason"]
+            finish_reason: str = response["stop_reason"]
             # Maintain uniformity with other APIs
-            if finish_reason == "stop_sequence":
+            if finish_reason == AnthropicClient.STOP_SEQUENCE_STOP_REASON:
                 finish_reason = "stop"
 
             sequence = Sequence(
