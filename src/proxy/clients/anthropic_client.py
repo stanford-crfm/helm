@@ -127,8 +127,8 @@ class AnthropicClient(Client):
                         assert completion_text.startswith(previous_completion_text), (
                             f"Could not compute next token:\n"
                             f"request: {raw_request}\n"
-                            f"previous: {previous_completion_text}\n"
-                            f"completion: {completion_text}"
+                            f"previous: {repr(previous_completion_text)}\n"
+                            f"completion: {repr(completion_text)}"
                         )
                         token_text: str = completion_text[len(previous_completion_text) :]
 
