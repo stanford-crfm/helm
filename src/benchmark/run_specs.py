@@ -33,7 +33,7 @@ def format_instructions(instructions: str) -> str:
 
 
 def get_multiple_choice_joint_adapter_spec(
-    instructions: str, input_noun: str, output_noun: str, max_train_instances: int = 5, **kwargs
+    instructions: str, input_noun: Optional[str], output_noun: str, max_train_instances: int = 5, **kwargs
 ) -> AdapterSpec:
     """
     [instructions]
@@ -53,8 +53,8 @@ def get_multiple_choice_joint_adapter_spec(
     return AdapterSpec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions=format_instructions(instructions),
-        input_prefix=f"{input_noun}: ",
-        input_suffix="\n",
+        input_prefix=f"{input_noun}: " if input_noun is not None else "",
+        input_suffix="\n" if input_noun is not None else "",
         output_prefix=f"{output_noun}: ",
         output_suffix="\n",
         max_train_instances=max_train_instances,
@@ -66,9 +66,11 @@ def get_multiple_choice_joint_adapter_spec(
     )
 
 
-def get_multiple_choice_separate_adapter_spec(method: str) -> AdapterSpec:
+def get_multiple_choice_separate_adapter_spec(method: str, empty_input: bool = False) -> AdapterSpec:
     """
     [input] [reference_i]
+    or
+    [reference_i]
     """
     assert method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}
 
@@ -77,7 +79,7 @@ def get_multiple_choice_separate_adapter_spec(method: str) -> AdapterSpec:
         instructions="",
         input_prefix="",
         input_suffix="",
-        output_prefix=" ",  # Note the space
+        output_prefix=" " if not empty_input else "",
         output_suffix="",
         # Separate is basically language modeling, so can't easily use in-context examples
         max_train_instances=0,
@@ -88,7 +90,13 @@ def get_multiple_choice_separate_adapter_spec(method: str) -> AdapterSpec:
 
 
 def get_multiple_choice_adapter_spec(
-    method: str, instructions: str, input_noun: str, output_noun: str, max_train_instances: int = 5, **kwargs
+    method: str,
+    instructions: str,
+    input_noun: Optional[str],
+    output_noun: str,
+    max_train_instances: int = 5,
+    empty_input: bool = False,
+    **kwargs,
 ):
     """
     Toggle between joint and separate adapters.
@@ -98,58 +106,9 @@ def get_multiple_choice_adapter_spec(
             instructions, input_noun, output_noun, max_train_instances, **kwargs
         )
     elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
-        return get_multiple_choice_separate_adapter_spec(method)
+        return get_multiple_choice_separate_adapter_spec(method, empty_input)
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
-
-
-def get_multiple_choice_joint_empty_input_adapter_spec(
-    input_instructions: str, output_noun: str, max_train_instances: int = 5, **kwargs
-) -> AdapterSpec:
-    """
-    [input_instructions]:
-    [reference_1]
-    ...
-    [reference_k]
-    [output_noun]: [output]
-
-    [input_instructions]:
-    [reference_1]
-    ...
-    [reference_k]
-    [output_noun]:
-    """
-    return AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_JOINT,
-        instructions="",
-        input_prefix=input_instructions,
-        input_suffix="\n",
-        output_prefix=f"{output_noun}: ",
-        output_suffix="\n",
-        max_train_instances=max_train_instances,
-        num_outputs=1,
-        temperature=0.0,
-        stop_sequences=["\n"],
-        **kwargs,
-    )
-
-
-def get_multiple_completions_adapter_spec() -> AdapterSpec:
-    """
-    [reference_i]
-    """
-    return AdapterSpec(
-        method=ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
-        instructions="",
-        input_prefix="",
-        input_suffix="",
-        output_prefix="",
-        output_suffix="",
-        max_train_instances=0,
-        num_outputs=1,
-        max_tokens=0,
-        temperature=0.0,
-    )
 
 
 def get_completion_adapter_spec(
@@ -1200,15 +1159,13 @@ def get_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.blimp_scenario.BLiMPScenario", args={"phenomenon": phenomenon}
     )
-
-    if method == ADAPT_MULTIPLE_CHOICE_JOINT:
-        adapter_spec = get_multiple_choice_joint_empty_input_adapter_spec(
-            "Please select the grammatical sentence.", "Answer"
-        )
-    elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
-        adapter_spec = get_multiple_choice_separate_adapter_spec(method)
-    else:
-        raise ValueError(f"Invalid adaptation method: {method}")
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions="Please select the grammatical sentence.",
+        input_noun=None,
+        output_noun="Answer",
+        empty_input=True,
+    )
     metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
