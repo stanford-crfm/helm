@@ -73,7 +73,7 @@ def get_scenario_display_name(group: ScenarioGroup, scenario_spec: ScenarioSpec)
 class Summarizer:
     """Summarize the benchmark results in JSON files to be displayed in the UI."""
 
-    def __init__(self, output_path: str, suite: str):
+    def __init__(self, suite: str, output_path: str):
         self.suite: str = suite
         self.run_suite_path: str = os.path.join(output_path, "runs", suite)
 
@@ -381,7 +381,7 @@ def main():
     args = parser.parse_args()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
-    summarizer = Summarizer(output_path=args.output_path, suite=args.suite)
+    summarizer = Summarizer(suite=args.suite, output_path=args.output_path)
     summarizer.read_runs()
     summarizer.write_models()
     summarizer.write_runs()
