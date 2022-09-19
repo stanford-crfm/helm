@@ -73,7 +73,8 @@ def truncate_stop_sequences(sequence: Sequence, stop_sequences: List[str], print
                 break
             new_tokens.append(token)
         if len(new_tokens) == len(sequence.tokens):
-            hlog(f"WARNING: Stripped characters from text ({len(sequence.text)} -> {len(new_text)}), but wasn\'t able to strip the tokens")
+            hlog(f"WARNING: Stripped characters from text ({len(sequence.text)} -> {len(new_text)}), "
+                 f"but wasn\'t able to strip the tokens")
 
         # Recompute log probability
         new_logprob = sum(token.logprob for token in new_tokens)
