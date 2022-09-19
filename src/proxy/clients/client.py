@@ -60,13 +60,16 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
     `sequence` as a post-hoc process.
     """
     for stop in request.stop_sequences:
+        # Find `stop` in the text
         try:
             new_text = sequence.text[: sequence.text.index(stop)]
         except ValueError:
-            # Stop sequence doesn't exist
+            # Stop sequence doesn't exist, skip
             continue
 
-        # Strip the part off tokens
+        # At this point, we've stripped out `stop`...
+
+        # Strip `stop` off the tokens
         new_tokens: List[Token] = []
         for token in sequence.tokens:
             # Note: we can only strip at token boundaries
