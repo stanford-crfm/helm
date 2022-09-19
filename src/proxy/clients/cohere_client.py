@@ -13,7 +13,7 @@ from common.tokenization_request import (
     TokenizationToken,
 )
 from proxy.models import get_models_by_organization
-from .client import Client, wrap_request_time
+from .client import Client, wrap_request_time, truncate_stop_sequences
 
 
 class CohereClient(Client):
@@ -164,7 +164,10 @@ class CohereClient(Client):
                 # Cohere does not prepend the original prompt to the output sequence when
                 # `return_likelihoods` is "ALL" and `max_tokens` is greater than 0.
                 sequence_text = request.prompt + sequence_text
-            completions.append(Sequence(text=sequence_text, logprob=sequence_logprob, tokens=tokens))
+
+            copmletion: Sequence = Sequence(text=sequence_text, logprob=sequence_logprob, tokens=tokens)
+            completion = truncate_stop_sequences(completion, request.stop_sequences)
+            completions.append(completion)
 
         return RequestResult(
             success=True,

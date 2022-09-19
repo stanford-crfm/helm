@@ -10,7 +10,7 @@ from common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from .client import Client, wrap_request_time
+from .client import Client, wrap_request_time, truncate_stop_sequences
 
 
 OPENAI_END_OF_TEXT_TOKEN: str = "<|endoftext|>"
@@ -71,14 +71,6 @@ class OpenAIClient(Client):
             for text, logprob, top_logprobs in zip(
                 raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
             ):
-                # Do not include these excess tokens in the response.
-                # TODO: this is a hacky solution until we figure out why
-                #       OpenAI is sending tokens including and past the stop sequences.
-                # TODO: This logic doesn't work when the stop sequences spans multiple tokens.
-                #       https://github.com/stanford-crfm/benchmarking/issues/53
-                if any(stop in text for stop in request.stop_sequences):
-                    break
-
                 tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                 sequence_logprob += logprob or 0
             completion = Sequence(
@@ -87,6 +79,7 @@ class OpenAIClient(Client):
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},
             )
+            completion = truncate_stop_sequences(completion, request.stop_sequences)
             completions.append(completion)
 
         return RequestResult(
