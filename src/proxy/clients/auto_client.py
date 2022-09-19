@@ -83,7 +83,7 @@ class AutoClient(Client):
         Retries if request fails.
         """
 
-        @retry_request
+        # @retry_request
         def make_request_with_retry(client: Client, request: Request) -> RequestResult:
             return client.make_request(request)
 
