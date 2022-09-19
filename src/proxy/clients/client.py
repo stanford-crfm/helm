@@ -2,6 +2,7 @@ import time
 from abc import ABC, abstractmethod
 from typing import Callable, Any, Dict, List
 
+from common.hierarchical_logger import hlog
 from common.request import Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
@@ -65,13 +66,13 @@ def truncate_stop_sequences(sequence: Sequence, stop_sequences: List[str], print
             continue
 
         # Strip the part off tokens
-        new_tokens = []
+        new_tokens: List[Token] = []
         for token in sequence.tokens:
             # Note: we can only strip at token boundaries
             if token.text.startswith(stop):
                 break
             new_tokens.append(token)
-        if len(new_tokens) == len(tokens):
+        if len(new_tokens) == len(sequence.tokens):
             hlog(f"WARNING: Stripped characters from text ({len(sequence.text)} -> {len(new_text)}), but wasn\'t able to strip the tokens")
 
         # Recompute log probability

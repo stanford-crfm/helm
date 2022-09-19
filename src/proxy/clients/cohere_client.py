@@ -165,7 +165,7 @@ class CohereClient(Client):
                 # `return_likelihoods` is "ALL" and `max_tokens` is greater than 0.
                 sequence_text = request.prompt + sequence_text
 
-            copmletion: Sequence = Sequence(text=sequence_text, logprob=sequence_logprob, tokens=tokens)
+            completion: Sequence = Sequence(text=sequence_text, logprob=sequence_logprob, tokens=tokens)
             completion = truncate_stop_sequences(completion, request.stop_sequences)
             completions.append(completion)
 
