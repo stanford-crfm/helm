@@ -409,7 +409,7 @@ $(function () {
 
         // For adapter method = joint
         if (requestState.output_mapping) {
-          prediction = requestState.output_mapping[prediction];
+          prediction = requestState.output_mapping[prediction] || prediction + ' (not mappable)';
         }
 
         if (method.startsWith('multiple_choice_separate_')) {

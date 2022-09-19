@@ -53,12 +53,13 @@ def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:
     return wrapped_compute
 
 
-def truncate_stop_sequences(sequence: Sequence, stop_sequences: List[str], print_warning: bool = True) -> Sequence:
+def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool = True) -> Sequence:
     """
-    Certain providers have bugs where they aren't respecting stop_sequences, so
-    as a hack, we have to manually remove it.
+    Certain providers have bugs where they aren't respecting max_tokens or
+    stop_sequences, so as a hack, we have to manually truncate the suffix of
+    `sequence` as a post-hoc process.
     """
-    for stop in stop_sequences:
+    for stop in request.stop_sequences:
         try:
             new_text = sequence.text[: sequence.text.index(stop)]
         except ValueError:
@@ -73,14 +74,33 @@ def truncate_stop_sequences(sequence: Sequence, stop_sequences: List[str], print
                 break
             new_tokens.append(token)
         if len(new_tokens) == len(sequence.tokens):
-            hlog(f"WARNING: Stripped characters from text ({len(sequence.text)} -> {len(new_text)}), "
-                 f"but wasn\'t able to strip the tokens")
+            hlog(
+                f"WARNING: Stripped characters from text ({len(sequence.text)} -> {len(new_text)}), "
+                f"but wasn't able to strip the tokens"
+            )
 
         # Recompute log probability
         new_logprob = sum(token.logprob for token in new_tokens)
 
         if print_warning:
-            hlog(f"WARNING: need to strip {stop}")
+            hlog(f"WARNING: truncate_sequence needs to strip {stop}")
+
+        sequence = Sequence(text=new_text, logprob=new_logprob, tokens=new_tokens)
+
+    # Truncate based on the max number of tokens
+    if len(sequence.tokens) > request.max_tokens:
+        if print_warning:
+            hlog(f"WARNING: truncate_sequence needs to truncate {len(sequence.tokens)} down to {request.max_tokens}")
+        new_tokens = sequence.tokens[: request.max_tokens]
+
+        # This is imperfect stitching together of tokens, so just to make sure this is okay
+        # TODO: should use the proper detokenizer since T5-style models.
+        # Usually, in our benchmark max_tokens is active when it's 1, so hopefully this isn't an issue.
+        new_text = "".join(token.text for token in new_tokens)
+        if not sequence.text.startswith(new_text):
+            hlog(f"WARNING: {sequence.text} does not start with truncated text {new_text}")
+
+        new_logprob = sum(token.logprob for token in new_tokens)
 
         sequence = Sequence(text=new_text, logprob=new_logprob, tokens=new_tokens)
 

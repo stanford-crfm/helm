@@ -13,7 +13,7 @@ from common.tokenization_request import (
     TokenizationToken,
 )
 from proxy.models import get_models_by_organization
-from .client import Client, wrap_request_time, truncate_stop_sequences
+from .client import Client, wrap_request_time, truncate_sequence
 
 
 class CohereClient(Client):
@@ -166,7 +166,7 @@ class CohereClient(Client):
                 sequence_text = request.prompt + sequence_text
 
             completion: Sequence = Sequence(text=sequence_text, logprob=sequence_logprob, tokens=tokens)
-            completion = truncate_stop_sequences(completion, request.stop_sequences)
+            completion = truncate_sequence(completion, request)
             completions.append(completion)
 
         return RequestResult(

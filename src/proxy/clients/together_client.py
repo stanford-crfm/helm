@@ -8,7 +8,7 @@ from common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from .client import Client, truncate_stop_sequences
+from .client import Client, truncate_sequence
 
 
 class TogetherClient(Client):
@@ -72,7 +72,7 @@ class TogetherClient(Client):
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},
             )
-            completion = truncate_stop_sequences(completion, request.stop_sequences)
+            completion = truncate_sequence(completion, request)
             completions.append(completion)
 
         batch_performance_metadata: Dict = response["request_time"]

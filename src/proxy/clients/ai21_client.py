@@ -13,7 +13,7 @@ from common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from .client import Client, wrap_request_time, truncate_stop_sequences
+from .client import Client, wrap_request_time, truncate_sequence
 
 
 class AI21RequestError(Exception):
@@ -121,7 +121,7 @@ class AI21Client(Client):
         completions = []
         for raw_completion in response["completions"]:
             completion = parse_sequence(raw_completion["data"], False, raw_completion["finishReason"])
-            completion = truncate_stop_sequences(completion, request.stop_sequences)
+            completion = truncate_sequence(completion, request)
             completions.append(prompt + completion if request.echo_prompt else completion)
 
         return RequestResult(
