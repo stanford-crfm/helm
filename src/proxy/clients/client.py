@@ -52,7 +52,7 @@ def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:
     return wrapped_compute
 
 
-def truncate_stop_sequences(sequence: Sequence, stop_sequences: List[str], print_warning: bool = False) -> Sequence:
+def truncate_stop_sequences(sequence: Sequence, stop_sequences: List[str], print_warning: bool = True) -> Sequence:
     """
     Certain providers have bugs where they aren't respecting stop_sequences, so
     as a hack, we have to manually remove it.
