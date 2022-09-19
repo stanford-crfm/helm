@@ -30,33 +30,40 @@ class OpenAIClient(Client):
         self.cache = Cache(cache_path)
 
     def make_request(self, request: Request) -> RequestResult:
-        raw_request = {
-            "engine": request.model_engine,
-            "prompt": request.prompt,
-            "temperature": request.temperature,
-            "n": request.num_completions,
-            "max_tokens": request.max_tokens,
-            "best_of": request.top_k_per_token,
-            "logprobs": request.top_k_per_token,
-            "stop": request.stop_sequences or None,  # API doesn't like empty list
-            "top_p": request.top_p,
-            "presence_penalty": request.presence_penalty,
-            "frequency_penalty": request.frequency_penalty,
-            "echo": request.echo_prompt,
-        }
+        if request.embedding:
+            raw_request = {
+                "input": request.prompt,
+                "engine": request.model_engine,
+            }
+        else:
+            raw_request = {
+                "engine": request.model_engine,
+                "prompt": request.prompt,
+                "temperature": request.temperature,
+                "n": request.num_completions,
+                "max_tokens": request.max_tokens,
+                "best_of": request.top_k_per_token,
+                "logprobs": request.top_k_per_token,
+                "stop": request.stop_sequences or None,  # API doesn't like empty list
+                "top_p": request.top_p,
+                "presence_penalty": request.presence_penalty,
+                "frequency_penalty": request.frequency_penalty,
+                "echo": request.echo_prompt,
+            }
 
-        # OpenAI doesn't let you ask for more completions than the number of
-        # per-token candidates.
-        raw_request["best_of"] = max(raw_request["best_of"], raw_request["n"])
-        raw_request["logprobs"] = max(raw_request["logprobs"], raw_request["n"])
+            # OpenAI doesn't let you ask for more completions than the number of
+            # per-token candidates.
+            raw_request["best_of"] = max(raw_request["best_of"], raw_request["n"])
+            raw_request["logprobs"] = max(raw_request["logprobs"], raw_request["n"])
 
         try:
             if request.embedding:
 
                 def do_it():
-                    return openai.Embedding.create(
-                        input=request.prompt, engine=request.model_engine, api_key=self.api_key
-                    )
+                    openai.organization = self.org_id
+                    openai.api_key = self.api_key
+                    openai.api_base = self.api_base
+                    return openai.Embedding.create(**raw_request)
 
             else:
 

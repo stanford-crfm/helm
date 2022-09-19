@@ -46,4 +46,5 @@ print(f"{text} - toxicity score: {request_result.text_to_toxicity_attributes[tex
 
 # Get-embedding example
 request = Request(model="openai/text-similarity-ada-001", prompt="Life is like a box of", echo_prompt=True, embedding=True)
+request_result: RequestResult = service.make_request(auth, request)
 print(request.embedding)
