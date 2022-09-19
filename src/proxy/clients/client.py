@@ -1,8 +1,8 @@
 import time
 from abc import ABC, abstractmethod
-from typing import Callable, Any, Dict
+from typing import Callable, Any, Dict, List
 
-from common.request import Request, RequestResult
+from common.request import Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -50,3 +50,36 @@ def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:
         return response
 
     return wrapped_compute
+
+
+def truncate_stop_sequences(sequence: Sequence, stop_sequences: List[str], print_warning: bool = False) -> Sequence:
+    """
+    Certain providers have bugs where they aren't respecting stop_sequences, so
+    as a hack, we have to manually remove it.
+    """
+    for stop in stop_sequences:
+        try:
+            new_text = sequence.text[: sequence.text.index(stop)]
+        except ValueError:
+            # Stop sequence doesn't exist
+            continue
+
+        # Strip the part off tokens
+        new_tokens = []
+        for token in sequence.tokens:
+            # Note: we can only strip at token boundaries
+            if token.text.startswith(stop):
+                break
+            new_tokens.append(token)
+        if len(new_tokens) == len(tokens):
+            hlog(f"WARNING: Stripped characters from text ({len(sequence.text)} -> {len(new_text)}), but wasn\'t able to strip the tokens")
+
+        # Recompute log probability
+        new_logprob = sum(token.logprob for token in new_tokens)
+
+        if print_warning:
+            hlog(f"WARNING: need to strip {stop}")
+
+        sequence = Sequence(text=new_text, logprob=new_logprob, tokens=new_tokens)
+
+    return sequence

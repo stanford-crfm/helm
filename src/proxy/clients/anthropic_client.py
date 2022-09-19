@@ -14,7 +14,7 @@ from common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from .client import Client, wrap_request_time
+from .client import Client, wrap_request_time, truncate_stop_sequences
 
 
 class AnthropicRequestError(Exception):
@@ -190,13 +190,14 @@ class AnthropicClient(Client):
             if finish_reason == AnthropicClient.STOP_SEQUENCE_STOP_REASON:
                 finish_reason = "stop"
 
-            sequence = Sequence(
+            completion = Sequence(
                 text=raw_response["completion"],
                 logprob=sequence_logprob,
                 tokens=tokens,
                 finish_reason={"reason": finish_reason},
             )
-            completions.append(sequence)
+            completion = truncate_stop_sequences(completion, request.stop_sequences)
+            completions.append(completion)
             request_time += response["request_time"]
             # Use the datetime from the first completion because that's when the request was fired
             request_datetime = request_datetime or response.get("request_datetime")
