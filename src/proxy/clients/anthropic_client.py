@@ -131,6 +131,10 @@ class AnthropicClient(Client):
                             f"completion: {repr(completion_text)}"
                         )
                         token_text: str = completion_text[len(previous_completion_text) :]
+                        # We sometimes get replacement character as the token, but they seem
+                        # to disappear in the next iteration, so skip these.
+                        if token_text == "�":
+                            continue
 
                         # Anthropic is sending us excess tokens beyond the stop sequences,
                         # so we have to stop early ourselves.
