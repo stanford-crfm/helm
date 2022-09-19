@@ -2,7 +2,7 @@ import numpy as np
 import spacy
 import subprocess
 import sys
-from typing import List, Sequence, Dict
+from typing import List, Dict
 
 # Need to check spacy module is downloaded before importing DataStatsMetric
 if not spacy.util.is_package("en_core_web_sm"):
@@ -11,7 +11,6 @@ if not spacy.util.is_package("en_core_web_sm"):
 from summ_eval.data_stats_metric import DataStatsMetric
 
 from benchmark.adapter import AdapterSpec, RequestState, ScenarioState
-from benchmark.scenarios.scenario import Reference
 from common.hierarchical_logger import hlog
 from .metric import Metric, MetricResult
 from .metric_name import MetricName
@@ -61,11 +60,11 @@ class SummarizationMetric(Metric):
 
         return super().evaluate(scenario_state, metric_service, eval_cache_path, parallelism=parallelism)
 
-    def _compute_rouge(self, refs: Sequence[Reference], pred: str) -> Dict[str, float]:
+    def _compute_rouge(self, refs: List[str], pred: str) -> Dict[str, float]:
         metrics: Dict[str, float] = {}
 
         for metric, metric_fn in self.rouge_fns.items():
-            metrics[metric] = np.max([metric_fn(ref.output, pred) for ref in refs])
+            metrics[metric] = np.max([metric_fn(ref, pred) for ref in refs])
 
         return metrics
 
@@ -78,7 +77,14 @@ class SummarizationMetric(Metric):
         }
 
     def _compute_faithfulness_scores(self, inp: str, pred: str) -> Dict[str, float]:
-        return {"SummaC": self.summac.score_one(inp, pred)["score"]}
+        return {"summac": self.summac.score_one(inp, pred)["score"]}
+
+    def _remove_braces(self, text):
+        if text.startswith("{"):
+            text = text[1:]
+        if text.endswith("}"):
+            text = text[:-1]
+        return text
 
     def evaluate_generation(
         self,
@@ -88,11 +94,11 @@ class SummarizationMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
 
-        refs: Sequence[Reference] = request_state.instance.references
-        inp: str = request_state.instance.input
+        refs: List[str] = [self._remove_braces(x.output) for x in request_state.instance.references]
+        inp: str = self._remove_braces(request_state.instance.input)
 
         assert request_state.result is not None
-        pred: str = request_state.result.completions[0].text.strip()
+        pred: str = self._remove_braces(request_state.result.completions[0].text.strip())
 
         result: List[Stat] = []
 

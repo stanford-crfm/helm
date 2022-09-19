@@ -38,6 +38,9 @@ class AnthropicClient(Client):
     # TODO: Increase this later when Anthropic supports more.
     MAX_COMPLETION_LENGTH: int = 3000
 
+    # Anthropic returns the following in the response when reaching one of the stop sequences.
+    STOP_SEQUENCE_STOP_REASON: str = "stop_sequence"
+
     def __init__(self, api_key: str, cache_path: str):
         self.api_key = api_key
         self.cache = Cache(cache_path)
@@ -121,7 +124,21 @@ class AnthropicClient(Client):
                             break
 
                         completion_text: str = response["completion"]
-                        token_text: str = completion_text.replace(previous_completion_text, "")
+                        assert completion_text.startswith(previous_completion_text), (
+                            f"Could not compute next token:\n"
+                            f"request: {raw_request}\n"
+                            f"previous: {repr(previous_completion_text)}\n"
+                            f"completion: {repr(completion_text)}"
+                        )
+                        token_text: str = completion_text[len(previous_completion_text) :]
+
+                        # Anthropic is sending us excess tokens beyond the stop sequences,
+                        # so we have to stop early ourselves.
+                        if any(stop in token_text for stop in request.stop_sequences):
+                            hlog(f"Received {repr(token_text)}, which has a stop sequence - early stopping.")
+                            stop_reason = AnthropicClient.STOP_SEQUENCE_STOP_REASON
+                            break
+
                         tokens.append(token_text)
                         previous_completion_text = completion_text
                     ws.close()
@@ -133,6 +150,7 @@ class AnthropicClient(Client):
                 return {
                     "tokens": tokens,
                     "raw_response": raw_response,
+                    "stop_reason": stop_reason,
                 }
 
         # Since Anthropic doesn't support multiple completions, we have to manually call it multiple times,
@@ -167,9 +185,9 @@ class AnthropicClient(Client):
                 sequence_logprob += token_logprob
                 tokens.append(Token(text=token_text, logprob=token_logprob, top_logprobs={}))
 
-            finish_reason: str = raw_response["stop_reason"]
+            finish_reason: str = response["stop_reason"]
             # Maintain uniformity with other APIs
-            if finish_reason == "stop_sequence":
+            if finish_reason == AnthropicClient.STOP_SEQUENCE_STOP_REASON:
                 finish_reason = "stop"
 
             sequence = Sequence(
