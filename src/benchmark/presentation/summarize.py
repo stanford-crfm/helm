@@ -73,8 +73,9 @@ def get_scenario_display_name(group: ScenarioGroup, scenario_spec: ScenarioSpec)
 class Summarizer:
     """Summarize the benchmark results in JSON files to be displayed in the UI."""
 
-    def __init__(self, run_suite_path: str):
-        self.run_suite_path: str = run_suite_path
+    def __init__(self, output_path: str, suite: str):
+        self.suite: str = suite
+        self.run_suite_path: str = os.path.join(output_path, "runs", suite)
 
         self.schema = read_schema()
         self.contamination = read_contamination()
@@ -175,7 +176,7 @@ class Summarizer:
                 continue
             rows.append(
                 [
-                    Cell(group.display_name, href=get_benchmarking_url({"group": group.name})),
+                    Cell(group.display_name, href=get_benchmarking_url({"suite": self.suite, "group": group.name})),
                     Cell(group.description),
                     Cell(num_runs),
                 ]
@@ -256,6 +257,7 @@ class Summarizer:
             # TODO: include display names
             return get_benchmarking_url(
                 {
+                    "suite": self.suite,
                     "runSpecs": json.dumps(run_spec_names),
                     "scenarioDisplayName": title,
                     "scenarioDescription": scenario_group.description,
@@ -379,7 +381,7 @@ def main():
     args = parser.parse_args()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
-    summarizer = Summarizer(run_suite_path=os.path.join(args.output_path, "runs", args.suite))
+    summarizer = Summarizer(output_path=args.output_path, suite=args.suite)
     summarizer.read_runs()
     summarizer.write_models()
     summarizer.write_runs()
