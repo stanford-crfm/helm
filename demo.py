@@ -45,4 +45,5 @@ request_result: PerspectiveAPIRequestResult = service.get_toxicity_scores(auth, 
 print(f"{text} - toxicity score: {request_result.text_to_toxicity_attributes[text].toxicity_score}")
 
 # Get-embedding example
-request = Request(model="openai/ada", prompt="Life is like a box of", echo_prompt=True, embedding=True)
+request = Request(model="openai/text-similarity-ada-001", prompt="Life is like a box of", echo_prompt=True, embedding=True)
+print(request.embedding)
