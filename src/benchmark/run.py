@@ -86,7 +86,8 @@ def add_run_args(parser: argparse.ArgumentParser):
         "-m",
         "--max-eval-instances",
         type=int,
-        help="Maximum number of instances to evaluate on, overrides adapter spec (for piloting)",
+        default=100,
+        help="Maximum number of instances to evaluate on, overrides the value in Adapter spec. Default is 100.",
     )
     parser.add_argument(
         "--suite", type=str, help="Name of the suite this run belongs to (default is today's date).", required=True,
