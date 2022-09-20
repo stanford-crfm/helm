@@ -273,7 +273,7 @@ class PersonNamePerturbation(Perturbation):
     def perturb_with_persistency(
         self, text: str, rng: Random, name_substitution_mapping: Dict[str, str], skipped_tokens: Set[str]
     ) -> str:
-        """ Substitute the names in text with persistency across `Instance` and their `Reference`s."""
+        """Substitute the names in text with persistency across `Instance` and their `Reference`s."""
         # Tokenize the text
         sep_pattern = r"([^\w])"
         tokens: List[str] = re.split(sep_pattern, text)
@@ -303,8 +303,7 @@ class PersonNamePerturbation(Perturbation):
     def apply(self, instance: Instance) -> Instance:
         """
         Generates a new Instance by perturbing the input, tagging the Instance and perturbing the References,
-        if should_perturb_references is true. Initializes a random number generator based on instance_id that gets
-        passed to perturb and perturb_references.
+        Ensures substituted names are persistent across `Instance` and their `Reference`s.
         """
 
         assert instance.id is not None
