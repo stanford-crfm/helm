@@ -483,7 +483,7 @@ class DataAugmentationRunExpander(RunExpander):
                 should_augment_eval_instances=True,
                 should_include_original_eval=True,
                 should_skip_unchanged_eval=True,
-                seeds_per_instance=5,
+                seeds_per_instance=1,
             )
             return replace(
                 run_spec,
