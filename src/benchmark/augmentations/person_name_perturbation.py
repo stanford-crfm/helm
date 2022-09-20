@@ -1,12 +1,13 @@
 import os.path
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import reduce
 from random import Random
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
+from benchmark.scenarios.scenario import Instance, Reference
 from common.general import ensure_file_downloaded, ensure_directory_exists, match_case
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
@@ -262,40 +263,74 @@ class PersonNamePerturbation(Perturbation):
         name = rng.choice(list(options))
         return name
 
-    def get_instance_variables(self) -> Dict[str, Any]:
-        kwargs: Dict[str, Any] = {
-            "substitution_dict": {},  # Dict[str, str] - The tokens we have substituted before
-            "skipped_tokens": set(),  # Set[str] - The tokens we have skipped
-        }
-        return kwargs
+    def perturb(self, text: str, rng: Random) -> str:
+        """
+        Perturbing the text is handled in `perturb_with_persistency` to ensure that perturbed names
+        in `Instance`s and `Reference`s match.
+        """
+        pass
 
-    def perturb(self, text: str, rng: Random, **kwargs) -> str:
-        """ Substitute the names in text if there is a matching target_name """
-
-        # Get data structures needed to ensure persistency across the references of an instance.
-        substitution_dict = kwargs["substitution_dict"]
-        skipped_tokens = kwargs["skipped_tokens"]
-
+    def perturb_with_persistency(
+        self, text: str, rng: Random, name_substitution_mapping: Dict[str, str], skipped_tokens: Set[str]
+    ) -> str:
+        """ Substitute the names in text with persistency across `Instance` and their `Reference`s."""
         # Tokenize the text
         sep_pattern = r"([^\w])"
-        tokens = re.split(sep_pattern, text)
+        tokens: List[str] = re.split(sep_pattern, text)
 
-        new_tokens = []
+        new_tokens: List[str] = []
         for token in tokens:
-            token_lowered = token.lower()
+            token_lowered: str = token.lower()
+
             # Find a substitution for the name, if possible
-            skip = token_lowered in substitution_dict or token_lowered in skipped_tokens
+            skip: bool = token_lowered in name_substitution_mapping or token_lowered in skipped_tokens
             if not skip and token_lowered in self.source_names:
                 if rng.uniform(0, 1) < self.prob:
                     name = self.get_substitute_name(token, rng)
                     if name:
-                        substitution_dict[token_lowered] = name
+                        name_substitution_mapping[token_lowered] = name
                 else:
                     skipped_tokens.add(token_lowered)
+
             # Substitute the token if a substitution exist
-            if token_lowered in substitution_dict:
-                substitution = substitution_dict[token_lowered]
+            if token_lowered in name_substitution_mapping:
+                substitution = name_substitution_mapping[token_lowered]
                 token = match_case(token, substitution)
             new_tokens.append(token)
-        new_text = "".join(new_tokens)
-        return new_text
+
+        return "".join(new_tokens)
+
+    def apply(self, instance: Instance) -> Instance:
+        """
+        Generates a new Instance by perturbing the input, tagging the Instance and perturbing the References,
+        if should_perturb_references is true. Initializes a random number generator based on instance_id that gets
+        passed to perturb and perturb_references.
+        """
+
+        assert instance.id is not None
+        # If seed exists, use it as part of the random seed
+        rng: Random = Random(instance.id if self.seed is None else str(self.seed) + instance.id)
+
+        # Use these to ensure persistency across the references of an instance.
+        name_substitution_mapping: Dict[str, str] = {}
+        skipped_tokens: Set[str] = set()
+
+        references: List[Reference] = instance.references
+        if self.should_perturb_references:
+            references = [
+                replace(
+                    reference,
+                    output=self.perturb_with_persistency(
+                        reference.output, rng, name_substitution_mapping, skipped_tokens
+                    ),
+                    tags=reference.tags,
+                )
+                for reference in references
+            ]
+
+        return replace(
+            instance,
+            input=self.perturb_with_persistency(instance.input, rng, name_substitution_mapping, skipped_tokens),
+            references=references,
+            perturbation=self.description,
+        )

@@ -43,7 +43,7 @@ class MisspellingPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return MisspellingPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
 
-    def perturb(self, text: str, rng: Random, **kwargs) -> str:
+    def perturb(self, text: str, rng: Random) -> str:
         def mispell(match: re.Match) -> str:
             word = match.group(1)
             if rng.random() < self.prob:
