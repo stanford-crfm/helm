@@ -12,7 +12,7 @@ from common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from .client import Client, wrap_request_time
+from .client import Client, wrap_request_time, truncate_sequence
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
 
@@ -151,6 +151,7 @@ class MicrosoftClient(Client):
                     tokens=tokens,
                     finish_reason={"reason": raw_completion["finish_reason"]},
                 )
+                completion = truncate_sequence(completion, request)
                 completions.append(completion)
 
             request_time += response["request_time"]
