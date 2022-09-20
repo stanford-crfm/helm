@@ -20,6 +20,10 @@ AI21_TOKENIZER_TAG: str = "ai21_tokenizer"
 # These models are selected specifically because of their low marginal cost to evaluate.
 ABLATION_MODEL_TAG: str = "ablation"
 
+# Some models (e.g., T5) have stripped newlines.
+# So we cannot use \n as a stop sequence for these models.
+NO_NEWLINES_TAG: str = "no_newlines"
+
 
 @dataclass
 class Model:
@@ -322,7 +326,7 @@ ALL_MODELS = [
         "parameters, pre-trained using the algorithm of General Language Model (GLM).",
         # Inference with echo=True is not feasible -- in the prompt encoding phase, they use
         # bidirectional attention and do not perform predictions on them.
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
     Model(
         group="together",
@@ -370,7 +374,7 @@ ALL_MODELS = [
         "unsupervised and supervised tasks and for which each task is converted into a text-to-text "
         "format.",
         # Does not support echo=True
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
     Model(
         group="together",
@@ -381,7 +385,7 @@ ALL_MODELS = [
         description="UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5"
         "but trained with a different objective and slightly different scaling knobs.",
         # Does not support echo=True
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
     Model(
         group="together",
@@ -392,7 +396,7 @@ ALL_MODELS = [
         description="T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks "
         "specified in natural language prompts.",
         # Does not support echo=True
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
     Model(
         group="together",
