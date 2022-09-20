@@ -8,16 +8,16 @@ Some of the benchmarks (NewsQA) depend on data that's not public: all such data
 will be stored in the `restricted` directory.  You need to make sure that
 directory exists.
 
-To try to test things out a small subset (defined in `run_specs_small.conf`):
+To try to test things out a small subset (defined in `run_specs_small.conf`) with just 10 eval instances:
 
     # Just load the config file
-    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --max-eval-instances 100 --suite $SUITE --skip-instances
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --max-eval-instances 10 --suite $SUITE --skip-instances
 
     # Create the instances and the requests, but don't execute
-    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --max-eval-instances 100  --suite $SUITE --dry-run
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --max-eval-instances 10  --suite $SUITE --dry-run
 
     # Execute the requests and compute metrics
-    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --max-eval-instances 100  --suite $SUITE
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --max-eval-instances 10  --suite $SUITE
 
     # Generate assets for the website
     venv/bin/benchmark-summarize --suite $SUITE
