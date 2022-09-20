@@ -84,7 +84,7 @@ class FillerWordsPerturbation(Perturbation):
 
         return perturbed_text
 
-    def perturb(self, text: str, rng: Random) -> str:
+    def perturb(self, text: str, rng: Random, **kwargs) -> str:
         return self.gen_filled_text(
             text, self.insert_prob, rng, self.max_num_insert, self.speaker_ph, self.uncertain_ph, self.fill_ph
         )

@@ -117,7 +117,7 @@ class ContractionPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return PerturbationDescription(name=self.name, robustness=True)
 
-    def perturb(self, text: str, rng: Random) -> str:
+    def perturb(self, text: str, rng: Random, **kwargs) -> str:
         def cont(possible):
             match = possible.group(1)
             expanded_contraction = self.reverse_contraction_map.get(
@@ -152,7 +152,7 @@ class ExpansionPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return PerturbationDescription(name=self.name, robustness=True)
 
-    def perturb(self, text: str, rng: Random) -> str:
+    def perturb(self, text: str, rng: Random, **kwargs) -> str:
         def expand_match(contraction):
             match = contraction.group(0)
             expanded_contraction = self.contraction_map.get(match, self.contraction_map.get(match.lower()))

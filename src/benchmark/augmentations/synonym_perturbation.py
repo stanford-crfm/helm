@@ -76,7 +76,7 @@ class SynonymPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return SynonymPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
 
-    def perturb(self, text: str, rng: Random) -> str:
+    def perturb(self, text: str, rng: Random, **kwargs) -> str:
         spacy_to_wordnet_pos = {
             "VERB": "v",
             "NOUN": "n",
