@@ -25,15 +25,19 @@ class Perturbation(ABC):
         """Description of the perturbation."""
         return PerturbationDescription(name=self.name)
 
+    def get_rng(self, instance: Instance) -> Random:
+        """Creates a random number generator using the `Instance` id and `seed`."""
+        assert instance.id is not None
+        # If seed exists, use it as part of the random seed
+        return Random(instance.id if self.seed is None else str(self.seed) + instance.id)
+
     def apply(self, instance: Instance) -> Instance:
         """
         Generates a new Instance by perturbing the input, tagging the Instance and perturbing the References,
         if should_perturb_references is true. Initializes a random number generator based on instance_id that gets
         passed to perturb and perturb_references.
         """
-        assert instance.id is not None
-        # If seed exists, use it as part of the random seed
-        rng: Random = Random(instance.id if self.seed is None else str(self.seed) + instance.id)
+        rng: Random = self.get_rng(instance)
 
         references: List[Reference] = instance.references
         if self.should_perturb_references:
