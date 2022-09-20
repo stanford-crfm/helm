@@ -68,7 +68,7 @@ from .augmentations.synonym_perturbation import SynonymPerturbation  # noqa
 from .augmentations.contrast_sets_perturbation import ContrastSetsPerturbation  # noqa
 from .augmentations.lowercase_perturbation import LowerCasePerturbation  # noqa
 from .augmentations.space_perturbation import SpacePerturbation  # noqa
-from .augmentations.robustness_perturbation import RobustnessPerturbation  # noqa
+from .augmentations.mild_mix_perturbation import MildMixPerturbation  # noqa
 from .augmentations.dialect_perturbation import DialectPerturbation  # noqa
 from .augmentations.person_name_perturbation import PersonNamePerturbation  # noqa
 from .augmentations.gender_perturbation import GenderPerturbation  # noqa
