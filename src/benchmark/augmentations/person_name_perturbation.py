@@ -305,10 +305,7 @@ class PersonNamePerturbation(Perturbation):
         Generates a new Instance by perturbing the input, tagging the Instance and perturbing the References,
         Ensures substituted names are persistent across `Instance` and their `Reference`s.
         """
-
-        assert instance.id is not None
-        # If seed exists, use it as part of the random seed
-        rng: Random = Random(instance.id if self.seed is None else str(self.seed) + instance.id)
+        rng: Random = self.get_rng(instance)
 
         # Use these to ensure persistency across the references of an instance.
         name_substitution_mapping: Dict[str, str] = {}
