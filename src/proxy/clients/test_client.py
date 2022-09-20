@@ -2,6 +2,7 @@ from .client import truncate_sequence
 from typing import List
 from common.request import Request, RequestResult, Sequence, Token
 
+
 def truncate_sequence_helper(tokens: List[str], request: Request, expected_tokens: List[str]):
     sequence = Sequence(
         text="".join(tokens),
@@ -15,15 +16,16 @@ def truncate_sequence_helper(tokens: List[str], request: Request, expected_token
     assert "".join(expected_tokens) == output_sequence.text
     assert output_sequence.logprob == sum(token.logprob for token in output_sequence.tokens)
 
+
 def test_truncate_sequence():
     # echo_prompt = True, nothing gets truncated
-    truncate_sequence_helper(['a', 'b', 'c'], Request(prompt="abc", echo_prompt=True), ['a', 'b', 'c'])
+    truncate_sequence_helper(["a", "b", "c"], Request(prompt="abc", echo_prompt=True), ["a", "b", "c"])
 
     # Nothing gets truncated
-    truncate_sequence_helper(['hello', ' world'], Request(stop_sequences=["#"]), ['hello', ' world'])
+    truncate_sequence_helper(["hello", " world"], Request(stop_sequences=["#"]), ["hello", " world"])
 
     # Truncate using stop sequences
-    truncate_sequence_helper(['hello', ' world', '\n', 'what'], Request(stop_sequences=["\n"]), ['hello', ' world'])
+    truncate_sequence_helper(["hello", " world", "\n", "what"], Request(stop_sequences=["\n"]), ["hello", " world"])
 
     # Truncate using max tokens
-    truncate_sequence_helper(['a', 'b', 'c'], Request(max_tokens=2), ['a', 'b'])
+    truncate_sequence_helper(["a", "b", "c"], Request(max_tokens=2), ["a", "b"])

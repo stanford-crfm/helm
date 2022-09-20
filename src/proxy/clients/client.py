@@ -80,7 +80,7 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
 
         # Strip `stop` off the tokens
         new_tokens: List[Token] = []
-        # Need to start 
+        # Need to start
         for token in sequence.tokens:
             # Note: we can only strip at token boundaries
             if token.text.startswith(stop):
