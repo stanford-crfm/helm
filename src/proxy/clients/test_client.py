@@ -1,6 +1,6 @@
 from .client import truncate_sequence
 from typing import List
-from common.request import Request, RequestResult, Sequence, Token
+from common.request import Request, Sequence, Token
 
 
 def truncate_sequence_helper(tokens: List[str], request: Request, expected_tokens: List[str]):
