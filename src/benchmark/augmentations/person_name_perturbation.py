@@ -300,7 +300,7 @@ class PersonNamePerturbation(Perturbation):
 
         return "".join(new_tokens)
 
-    def apply(self, instance: Instance) -> Instance:
+    def apply(self, instance: Instance, seed: Optional[int] = None) -> Instance:
         """
         Generates a new Instance by perturbing the input, tagging the Instance and perturbing the References,
         Ensures substituted names are persistent across `Instance` and their `Reference`s.
