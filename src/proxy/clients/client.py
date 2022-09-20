@@ -59,6 +59,15 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
     stop_sequences, so as a hack, we have to manually truncate the suffix of
     `sequence` as a post-hoc process.
     """
+    # TODO: if echo_prompt, then we should only ignore the prompt, but we don't
+    # know how many tokens the prompt takes up.
+    # In the benchmark, usually echo_prompt is only used for language modeling,
+    # where max_tokens = 0, so there's nothing to truncate.
+    if request.echo_prompt:
+        if request.max_tokens != 0:
+            hlog("WARNING: don't know how to handle echo_prompt and max_tokens > 0, not truncating")
+        return sequence
+
     for stop in request.stop_sequences:
         # Find `stop` in the text
         try:
@@ -71,6 +80,7 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
 
         # Strip `stop` off the tokens
         new_tokens: List[Token] = []
+        # Need to start 
         for token in sequence.tokens:
             # Note: we can only strip at token boundaries
             if token.text.startswith(stop):
@@ -90,7 +100,7 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
 
         sequence = Sequence(text=new_text, logprob=new_logprob, tokens=new_tokens)
 
-    # Truncate based on the max number of tokens
+    # Truncate based on the max number of tokens.
     if len(sequence.tokens) > request.max_tokens:
         if print_warning:
             hlog(f"WARNING: truncate_sequence needs to truncate {len(sequence.tokens)} down to {request.max_tokens}")
@@ -98,7 +108,7 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
 
         # This is imperfect stitching together of tokens, so just to make sure this is okay
         # TODO: should use the proper detokenizer since T5-style models.
-        # Usually, in our benchmark max_tokens is active when it's 1, so hopefully this isn't an issue.
+        # Usually, in our benchmark, max_tokens is active when it's 1, so hopefully this isn't an issue.
         new_text = "".join(token.text for token in new_tokens)
         if not sequence.text.startswith(new_text):
             hlog(f"WARNING: {sequence.text} does not start with truncated text {new_text}")

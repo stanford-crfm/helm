@@ -57,9 +57,8 @@ class TestHuggingFaceClient:
                 model="huggingface/gpt2",
                 prompt=prompt,
                 num_completions=3,
-                max_tokens=200,
                 top_k_per_token=5,
-                stop_sequences=["\n"],
+                max_tokens=0,
                 echo_prompt=True,
             )
         )
@@ -75,8 +74,8 @@ class TestHuggingFaceClient:
                 model="huggingface/gpt-j-6b",
                 prompt="I am a computer scientist.",
                 num_completions=3,
-                max_tokens=200,
                 top_k_per_token=5,
+                max_tokens=0,
             )
         )
         assert len(result.completions) == 3
