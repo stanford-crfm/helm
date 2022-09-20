@@ -1,10 +1,10 @@
-import os.path
+import os
+import re
 from collections import defaultdict
 from dataclasses import dataclass, replace
 from functools import reduce
-from random import Random
-import re
 from pathlib import Path
+from random import Random
 from typing import Dict, List, Optional, Set
 
 from benchmark.scenarios.scenario import Instance, Reference
@@ -26,7 +26,7 @@ class PersonNamePerturbation(Perturbation):
 
     should_perturb_references: bool = True
 
-    """ Line seperator character """
+    """ Line separator character """
     LINE_SEP = "\n"
 
     """ Information needed to download person_names.txt """
@@ -96,7 +96,7 @@ class PersonNamePerturbation(Perturbation):
         The first names in our default file come from Caliskan et al. (2017),
         which derives its list from Greenwald (1998). The former removed some
         names from the latter because the corresponding tokens infrequently
-        occured in Common Crawl, which was used as the training corpus for
+        occurred in Common Crawl, which was used as the training corpus for
         GloVe. We include the full list from the latter in our default file.
 
         The last names in our default file and their associated categories come
