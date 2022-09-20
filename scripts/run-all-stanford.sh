@@ -27,7 +27,8 @@ work_dir=$PWD
 suite=$2
 logs_path="benchmark_output/runs/$suite/logs"
 mkdir -p $logs_path
-default_args="--max-eval-instances 1000 --priority 2 --local"
+# TODO: set the default to --max-eval-instances 1000
+default_args="--max-eval-instances 100 --priority 2 --local"
 
 models=(
   "ai21/j1-jumbo"
@@ -50,10 +51,10 @@ models=(
   "cohere/large-20220720"
   "cohere/medium-20220720"
   "cohere/small-20220720"
-  # Offline evaluation models
-  "microsoft/TNLGv2_530B"
-  # TODO: waiting for results
+  # Getting results for the MT-NLG models is too slow.
+  # "microsoft/TNLGv2_530B"
   # "microsoft/TNLGv2_7B"
+  # Offline evaluation models
   "together/bloom"
   "together/glm"
   "together/gpt-j-6b"

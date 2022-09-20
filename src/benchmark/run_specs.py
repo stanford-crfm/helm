@@ -13,13 +13,15 @@ from .adapter import (
     ADAPT_GENERATION,
 )
 from .metrics.metric import MetricSpec
-from .run_expander import RUN_EXPANDERS
+from .run_expander import RUN_EXPANDERS, StopRunExpander
 from .runner import RunSpec
 from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .scenarios.raft_scenario import get_raft_instructions
+from proxy.models import get_model, NO_NEWLINES_TAG
+from common.general import singleton
 
 
 ############################################################
@@ -1544,5 +1546,21 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         run_specs = [
             child_run_spec for parent_run_spec in run_specs for child_run_spec in expander.expand(parent_run_spec)
         ]
+
+    # Model-specific expanders
+    stop_expander = StopRunExpander(value="hash")
+
+    def alter_run_spec(run_spec: RunSpec) -> RunSpec:
+        model = get_model(run_spec.adapter_spec.model)
+        # For models that strip newlines, when we're generating, we need to set
+        # the delimiter to be '###' so we stop properly.
+        if NO_NEWLINES_TAG in model.tags and run_spec.adapter_spec.method in (
+            ADAPT_GENERATION,
+            ADAPT_MULTIPLE_CHOICE_JOINT,
+        ):
+            return singleton(stop_expander.expand(run_spec))
+        return run_spec
+
+    run_specs = [alter_run_spec(run_spec) for run_spec in run_specs]
 
     return run_specs
