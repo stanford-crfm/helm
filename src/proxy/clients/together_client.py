@@ -53,6 +53,10 @@ class TogetherClient(Client):
             error: str = f"TogetherClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[])
 
+        def fix_text(x: str) -> str:
+            x = x.replace("▁", " ")
+            return x
+
         # Expect the result to be structured the same way as a response from OpenAI API.
         completions: List[Sequence] = []
         for raw_completion in response["choices"]:
@@ -63,11 +67,11 @@ class TogetherClient(Client):
             for text, logprob, top_logprobs in zip(
                 raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
             ):
-                tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
+                tokens.append(Token(text=fix_text(text), logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                 sequence_logprob += logprob or 0
 
             completion = Sequence(
-                text=raw_completion["text"],
+                text=fix_text(raw_completion["text"]),
                 logprob=sequence_logprob,
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},
