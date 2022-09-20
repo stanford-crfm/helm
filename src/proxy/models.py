@@ -74,8 +74,8 @@ ALL_MODELS = [
         group="jurassic",
         creator_organization="AI21 Labs",
         name="ai21/j1-jumbo",
-        display_name="Jurassic Jumbo (180B)",
-        description="Jurassic J1-Jumbo (180B parameters)",
+        display_name="Jurassic Jumbo (178B)",
+        description="Jurassic J1-Jumbo (178B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     # From AI21: "the new model is a mid-point in terms of size, cost and performance between Jumbo and Large.
