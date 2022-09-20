@@ -307,7 +307,7 @@ class PersonNamePerturbation(Perturbation):
         """
         rng: Random = self.get_rng(instance)
 
-        # Use these to ensure persistency across the references of an instance.
+        # Use these to ensure that the same name replacements happen in both the instance text and the reference texts
         name_substitution_mapping: Dict[str, str] = {}
         skipped_tokens: Set[str] = set()
 
