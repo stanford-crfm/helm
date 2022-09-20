@@ -33,7 +33,7 @@ class TyposPerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return TyposPerturbation.Description(name=self.name, robustness=True, prob=self.prob)
 
-    def perturb(self, text: str, rng: Random, **kwargs) -> str:
+    def perturb(self, text: str, rng: Random) -> str:
         key_approx = {}
 
         key_approx["q"] = "was"
