@@ -54,7 +54,9 @@ class TogetherClient(Client):
             return RequestResult(success=False, cached=False, error=error, completions=[])
 
         def fix_text(x: str) -> str:
+            # This is for the T5-style models
             x = x.replace("▁", " ")
+            x = x.replace("</s>", "")
             return x
 
         # Expect the result to be structured the same way as a response from OpenAI API.
