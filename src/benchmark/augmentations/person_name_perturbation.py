@@ -258,9 +258,9 @@ class PersonNamePerturbation(Perturbation):
                 options = [n for n in self.target_names if n in gendered_names_dict[name_gender]]
                 if not options:
                     return None  # No substitution exist if we preserve the gender
-            # If we don't know the gender for the source names, we randomly pick one of the target names
+            # If we don't know the gender for the source name, we randomly pick one of the target names
         name = rng.choice(list(options))
-        return match_case(token, name)
+        return name
 
     def get_instance_variables(self) -> Dict[str, Any]:
         kwargs: Dict[str, Any] = {
@@ -293,7 +293,9 @@ class PersonNamePerturbation(Perturbation):
                 else:
                     skipped_tokens.add(token_lowered)
             # Substitute the token if a substitution exist
-            token = substitution_dict.get(token_lowered, token)
+            if token_lowered in substitution_dict:
+                substitution = substitution_dict[token_lowered]
+                token = match_case(token, substitution)
             new_tokens.append(token)
         new_text = "".join(new_tokens)
         return new_text
