@@ -324,7 +324,7 @@ class Metric(ABC):
         for (metric_name, instance_id), stats in per_instance_perturbation_stats.items():
             original_stat: Optional[Stat] = None
             robustness_stat = Stat(
-                replace(metric_name, perturbation=PerturbationDescription(name="robustness_all", robustness=True))
+                replace(metric_name, perturbation=PerturbationDescription(name="robustness", robustness=True))
             )
             fairness_stat = Stat(
                 replace(metric_name, perturbation=PerturbationDescription(name="fairness", fairness=True))
@@ -350,7 +350,7 @@ class Metric(ABC):
 
                 if original_stat is not None:
                     stat.merge(original_stat)
-                    if perturbation.name not in ["robustness_all", "fairness"]:
+                    if perturbation.name not in ["robustness", "fairness"]:
                         before = replace(perturbation, computed_on=PERTURBATION_ORIGINAL)
                         merge_stat(
                             derived_stats_dict, Stat(replace(stat.name, perturbation=before)).merge(original_stat)

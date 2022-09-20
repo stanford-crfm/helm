@@ -16,7 +16,7 @@ class Processor:
     include_original: bool
     skip_unchanged: bool
     perturbations: List[Perturbation]
-    num_perturbations: int
+    seeds_per_instance: int
 
     def process(self, instance: Instance) -> List[Instance]:
         result: List[Instance] = []
@@ -25,7 +25,7 @@ class Processor:
             result.append(instance)
 
         for perturbation in self.perturbations:
-            for i in range(self.num_perturbations):
+            for i in range(self.seeds_per_instance):
                 perturbed_instance: Instance = perturbation.apply(instance, seed=None if i == 0 else i)
                 if self.skip_unchanged and perturbed_instance.input == instance.input:
                     continue
@@ -45,7 +45,7 @@ class DataAugmenter:
         instances: List[Instance],
         include_original: bool = True,
         skip_unchanged: bool = False,
-        num_perturbations: int = 1,
+        seeds_per_instance: int = 1,
         parallelism: int = 1,
     ) -> List[Instance]:
         """
@@ -57,7 +57,7 @@ class DataAugmenter:
             include_original=include_original,
             skip_unchanged=skip_unchanged,
             perturbations=self.perturbations,
-            num_perturbations=num_perturbations,
+            seeds_per_instance=seeds_per_instance,
         )
         results: List[List[Instance]] = parallel_map(
             processor.process, instances, parallelism=parallelism,
@@ -92,8 +92,8 @@ class DataAugmenterSpec:
     # Whether to include val/test instances which were unaffected by the perturbation
     should_skip_unchanged_eval: bool = False
 
-    # How many instances to generate for each perturbation
-    num_perturbations: int = 1
+    # How many different seeds to apply each perturbation with
+    seeds_per_instance: int = 1
 
     @property
     def perturbations(self) -> List[Perturbation]:
