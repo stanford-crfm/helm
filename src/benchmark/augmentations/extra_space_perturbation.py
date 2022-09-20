@@ -24,5 +24,5 @@ class ExtraSpacePerturbation(Perturbation):
     def description(self) -> PerturbationDescription:
         return ExtraSpacePerturbation.Description(name=self.name, robustness=True, num_spaces=self.num_spaces)
 
-    def perturb(self, text: str, rng: Random) -> str:
+    def perturb(self, text: str, rng: Random, **kwargs) -> str:
         return text.replace(" ", " " * self.num_spaces)

@@ -125,7 +125,7 @@ class DialectPerturbation(Perturbation):
         with open(self.mapping_file_path, "r") as f:
             return json.load(f)
 
-    def perturb(self, text: str, rng: Random) -> str:
+    def perturb(self, text: str, rng: Random, **kwargs) -> str:
         """ Substitute the source dialect in text with the target dialect with probability self.prob. """
 
         # Substitution function

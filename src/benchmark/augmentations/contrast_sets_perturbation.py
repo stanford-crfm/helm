@@ -76,5 +76,5 @@ class ContrastSetsPerturbation(Perturbation):
             instance, input=perturbed_instance, references=perturbed_references, perturbation=self.description,
         )
 
-    def perturb(self, text: str, rng: Random) -> str:  # we need this since parent method is abstract
+    def perturb(self, text: str, rng: Random, **kwargs) -> str:  # we need this since parent method is abstract
         pass

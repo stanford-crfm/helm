@@ -5,7 +5,7 @@ from functools import reduce
 from random import Random
 import re
 from pathlib import Path
-from typing import Dict, Optional, List, Set
+from typing import Any, Dict, List, Optional
 
 from common.general import ensure_file_downloaded, ensure_directory_exists, match_case
 from .perturbation_description import PerturbationDescription
@@ -183,10 +183,6 @@ class PersonNamePerturbation(Perturbation):
             assert self.person_name_type == self.FIRST_NAME
             assert self.GENDER_CATEGORY in self.mapping_dict and len(self.mapping_dict[self.GENDER_CATEGORY])
 
-        # Keep track of substitutions and skipped tokens
-        self.subs_dict: Dict[str, str] = {}  # The tokens we have substituted before
-        self.skipped_tokens: Set[str] = set()  # The tokens we have skipped
-
     @property
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
@@ -266,8 +262,19 @@ class PersonNamePerturbation(Perturbation):
         name = rng.choice(list(options))
         return match_case(token, name)
 
-    def perturb(self, text: str, rng: Random) -> str:
+    def get_instance_variables(self) -> Dict[str, Any]:
+        kwargs: Dict[str, Any] = {
+            "substitution_dict": {},  # Dict[str, str] - The tokens we have substituted before
+            "skipped_tokens": set(),  # Set[str] - The tokens we have skipped
+        }
+        return kwargs
+
+    def perturb(self, text: str, rng: Random, **kwargs) -> str:
         """ Substitute the names in text if there is a matching target_name """
+
+        # Get data structures needed to ensure persistency across the references of an instance.
+        substitution_dict = kwargs["substitution_dict"]
+        skipped_tokens = kwargs["skipped_tokens"]
 
         # Tokenize the text
         sep_pattern = r"([^\w])"
@@ -277,16 +284,16 @@ class PersonNamePerturbation(Perturbation):
         for token in tokens:
             token_lowered = token.lower()
             # Find a substitution for the name, if possible
-            skip = token_lowered in self.subs_dict or token_lowered in self.skipped_tokens
+            skip = token_lowered in substitution_dict or token_lowered in skipped_tokens
             if not skip and token_lowered in self.source_names:
                 if rng.uniform(0, 1) < self.prob:
                     name = self.get_substitute_name(token, rng)
                     if name:
-                        self.subs_dict[token_lowered] = name
+                        substitution_dict[token_lowered] = name
                 else:
-                    self.skipped_tokens.add(token_lowered)
+                    skipped_tokens.add(token_lowered)
             # Substitute the token if a substitution exist
-            token = token if token_lowered not in self.subs_dict else self.subs_dict[token_lowered]
+            token = substitution_dict.get(token_lowered, token)
             new_tokens.append(token)
         new_text = "".join(new_tokens)
         return new_text

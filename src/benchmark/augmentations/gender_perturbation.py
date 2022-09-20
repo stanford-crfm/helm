@@ -211,7 +211,7 @@ class GenderPerturbation(Perturbation):
         # Execute the RegEx
         return re.sub(pattern, sub_func, text, flags=re.IGNORECASE)
 
-    def perturb(self, text: str, rng: Random) -> str:
+    def perturb(self, text: str, rng: Random, **kwargs) -> str:
         """ Perform the perturbations on the provided text. """
         # Substitute the words
         for (word, synonym) in self.word_synonym_pairs:
