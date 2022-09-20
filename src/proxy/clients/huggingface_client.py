@@ -13,7 +13,7 @@ from common.tokenization_request import (
     DecodeRequestResult,
     TokenizationToken,
 )
-from .client import Client, wrap_request_time
+from .client import Client, wrap_request_time, truncate_sequence
 from .huggingface_tokenizer import HuggingFaceTokenizers
 
 
@@ -168,6 +168,7 @@ class HuggingFaceClient(Client):
                 sequence_logprob += logprob
 
             completion = Sequence(text=raw_completion["text"], logprob=sequence_logprob, tokens=tokens)
+            completion = truncate_sequence(completion, request)
             completions.append(completion)
 
         return RequestResult(

@@ -208,7 +208,7 @@ class NaturalQAScenario(Scenario):
                 context = instance.long_answers[ans_idx]
             else:
                 raise Exception(f"Invalid context mode: {self.context_mode}")
-            prompt = PassageQuestionInput(passage=context, question=instance.question).to_text(
+            prompt = PassageQuestionInput(passage=context, question=question).to_text(
                 passage_prefix="Passage: ", separator="\n\n"
             )
             if self.context_mode == "openbook_wiki":

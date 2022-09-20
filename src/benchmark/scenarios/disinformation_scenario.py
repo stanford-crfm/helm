@@ -82,9 +82,9 @@ class DisinformationScenario(Scenario):
         Thesis: There is social unrest due to fears of COVID.
         Headline:"
         """
-        instances = []
+        instances: List[Instance] = []
         for i, narrative in enumerate(data):
-            split = TRAIN_SPLIT if narrative["split"] == "train" else VALID_SPLIT
+            split: str = TRAIN_SPLIT if narrative["split"] == "train" else VALID_SPLIT
             if narrative.get("topic", "covid") != self.topic:
                 continue
 
@@ -94,14 +94,14 @@ class DisinformationScenario(Scenario):
             # All of the formatting is done here rather than using the run spec because the required
             # formatting is a bit unusual. Specifically, we add the first primer to the instances' input
             # and the first headline and subsequent (primer, headline) pairs to the reference.
-            primer = "Headline:"
-            input_text = narrative["thesis"]
-            reference_text = " " + narrative["headlines"][0] + "\n"
+            primer: str = "Headline:"
+            input_text: str = narrative["thesis"]
+            reference_text: str = narrative["headlines"][0] + "\n"
             reference_text += "\n".join([f"{primer} {headline}" for headline in narrative["headlines"][1:]])
+
             instance = Instance(
                 input=input_text, references=[Reference(reference_text, tags=[CORRECT_TAG])], split=split,
             )
-
             instances.append(instance)
         return instances
 
