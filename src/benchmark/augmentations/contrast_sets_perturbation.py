@@ -60,9 +60,7 @@ class ContrastSetsPerturbation(Perturbation):
         Generates a new Instance by perturbing the input, tagging the Instance and
         perturbing the References, if `should_perturb_references` is true.
         """
-
-        assert instance.id is not None
-        rng = Random(instance.id)  # set seed based on instance ID
+        rng: Random = self.get_rng(instance)
 
         perturbed_instance: str = instance.input
         perturbed_references: Sequence[Reference] = instance.references

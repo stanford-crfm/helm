@@ -171,7 +171,7 @@ def test_person_name_perturbation():
     instance: Instance = Instance(
         id="id0",
         input="I learned that Jack, Peter, and Lauren are siblings! Do you know who is the oldest?",
-        references=[Reference(output="Peter", tags=[])],
+        references=[Reference(output="Peter and peter were friends.", tags=[])],
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
@@ -179,7 +179,7 @@ def test_person_name_perturbation():
     assert len(instances) == 2
     assert instances[1].perturbation.name == "person_name"
     assert instances[1].input == "I learned that Lamar, Tyree, and Sharise are siblings! Do you know who is the oldest?"
-    assert instances[1].references[0].output == "Tyree"
+    assert instances[1].references[0].output == "Tyree and tyree were friends."
 
 
 def test_gender_pronoun_perturbation():
