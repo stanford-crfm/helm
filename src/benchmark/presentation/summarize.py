@@ -128,7 +128,8 @@ class Summarizer:
         for run in self.runs:
             for group in run.run_spec.groups:
                 scenario_spec = run.run_spec.scenario_spec
-                adapter_spec = run.run_spec.adapter_spec
+                # Abstract away instructions, which might depend on the scenario (e.g., in MMLU)
+                adapter_spec = replace(run.run_spec.adapter_spec, instructions="")
 
                 self.group_adapter_to_runs[group][adapter_spec].append(run)
                 self.group_scenario_adapter_to_runs[group][scenario_spec][adapter_spec].append(run)
@@ -270,6 +271,8 @@ class Summarizer:
         # Populate the contents of the table
         rows = []
         for (adapter_spec, runs), info in zip(adapter_to_runs.items(), infos):
+            info = dict(info)
+            del info["model"]  # Already in the display name
             model = get_model(adapter_spec.model)
             display_name = model.display_name + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
 
