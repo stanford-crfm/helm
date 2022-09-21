@@ -249,7 +249,7 @@ ALL_MODELS = [
         group="gooseai",
         creator_organization="EleutherAI",
         name="gooseai/gpt-neo-20b",
-        display_name="GPT-J (20B, GooseAI)",
+        display_name="GPT-NeoX (20B, GooseAI)",
         description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
