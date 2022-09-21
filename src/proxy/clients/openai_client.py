@@ -10,7 +10,7 @@ from common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from .client import Client, wrap_request_time
+from .client import Client, wrap_request_time, truncate_sequence
 
 
 OPENAI_END_OF_TEXT_TOKEN: str = "<|endoftext|>"

@@ -1,12 +1,13 @@
-import os.path
-from collections import defaultdict
-from dataclasses import dataclass
-from functools import reduce
-from random import Random
+import os
 import re
+from collections import defaultdict
+from dataclasses import dataclass, replace
+from functools import reduce
 from pathlib import Path
-from typing import Dict, Optional, List, Set
+from random import Random
+from typing import Dict, List, Optional, Set
 
+from benchmark.scenarios.scenario import Instance, Reference
 from common.general import ensure_file_downloaded, ensure_directory_exists, match_case
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
@@ -25,7 +26,7 @@ class PersonNamePerturbation(Perturbation):
 
     should_perturb_references: bool = True
 
-    """ Line seperator character """
+    """ Line separator character """
     LINE_SEP = "\n"
 
     """ Information needed to download person_names.txt """
@@ -95,7 +96,7 @@ class PersonNamePerturbation(Perturbation):
         The first names in our default file come from Caliskan et al. (2017),
         which derives its list from Greenwald (1998). The former removed some
         names from the latter because the corresponding tokens infrequently
-        occured in Common Crawl, which was used as the training corpus for
+        occurred in Common Crawl, which was used as the training corpus for
         GloVe. We include the full list from the latter in our default file.
 
         The last names in our default file and their associated categories come
@@ -183,10 +184,6 @@ class PersonNamePerturbation(Perturbation):
             assert self.person_name_type == self.FIRST_NAME
             assert self.GENDER_CATEGORY in self.mapping_dict and len(self.mapping_dict[self.GENDER_CATEGORY])
 
-        # Keep track of substitutions and skipped tokens
-        self.subs_dict: Dict[str, str] = {}  # The tokens we have substituted before
-        self.skipped_tokens: Set[str] = set()  # The tokens we have skipped
-
     @property
     def description(self) -> PerturbationDescription:
         """ Return a perturbation description for this class. """
@@ -262,31 +259,74 @@ class PersonNamePerturbation(Perturbation):
                 options = [n for n in self.target_names if n in gendered_names_dict[name_gender]]
                 if not options:
                     return None  # No substitution exist if we preserve the gender
-            # If we don't know the gender for the source names, we randomly pick one of the target names
+            # If we don't know the gender for the source name, we randomly pick one of the target names
         name = rng.choice(list(options))
-        return match_case(token, name)
+        return name
 
     def perturb(self, text: str, rng: Random) -> str:
-        """ Substitute the names in text if there is a matching target_name """
+        """
+        Perturbing the text is handled in `perturb_with_persistency` to ensure that perturbed names
+        in `Instance`s and `Reference`s match.
+        """
+        pass
 
+    def perturb_with_persistency(
+        self, text: str, rng: Random, name_substitution_mapping: Dict[str, str], skipped_tokens: Set[str]
+    ) -> str:
+        """Substitute the names in text with persistency across `Instance` and their `Reference`s."""
         # Tokenize the text
         sep_pattern = r"([^\w])"
-        tokens = re.split(sep_pattern, text)
+        tokens: List[str] = re.split(sep_pattern, text)
 
-        new_tokens = []
+        new_tokens: List[str] = []
         for token in tokens:
-            token_lowered = token.lower()
+            token_lowered: str = token.lower()
+
             # Find a substitution for the name, if possible
-            skip = token_lowered in self.subs_dict or token_lowered in self.skipped_tokens
+            skip: bool = token_lowered in name_substitution_mapping or token_lowered in skipped_tokens
             if not skip and token_lowered in self.source_names:
                 if rng.uniform(0, 1) < self.prob:
                     name = self.get_substitute_name(token, rng)
                     if name:
-                        self.subs_dict[token_lowered] = name
+                        name_substitution_mapping[token_lowered] = name
                 else:
-                    self.skipped_tokens.add(token_lowered)
+                    skipped_tokens.add(token_lowered)
+
             # Substitute the token if a substitution exist
-            token = token if token_lowered not in self.subs_dict else self.subs_dict[token_lowered]
+            if token_lowered in name_substitution_mapping:
+                substitution = name_substitution_mapping[token_lowered]
+                token = match_case(token, substitution)
             new_tokens.append(token)
-        new_text = "".join(new_tokens)
-        return new_text
+
+        return "".join(new_tokens)
+
+    def apply(self, instance: Instance) -> Instance:
+        """
+        Generates a new Instance by perturbing the input, tagging the Instance and perturbing the References,
+        Ensures substituted names are persistent across `Instance` and their `Reference`s.
+        """
+        rng: Random = self.get_rng(instance)
+
+        # Use these to ensure that the same name replacements happen in both the instance text and the reference texts
+        name_substitution_mapping: Dict[str, str] = {}
+        skipped_tokens: Set[str] = set()
+
+        references: List[Reference] = instance.references
+        if self.should_perturb_references:
+            references = [
+                replace(
+                    reference,
+                    output=self.perturb_with_persistency(
+                        reference.output, rng, name_substitution_mapping, skipped_tokens
+                    ),
+                    tags=reference.tags,
+                )
+                for reference in references
+            ]
+
+        return replace(
+            instance,
+            input=self.perturb_with_persistency(instance.input, rng, name_substitution_mapping, skipped_tokens),
+            references=references,
+            perturbation=self.description,
+        )

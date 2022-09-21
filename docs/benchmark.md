@@ -8,16 +8,16 @@ Some of the benchmarks (NewsQA) depend on data that's not public: all such data
 will be stored in the `restricted` directory.  You need to make sure that
 directory exists.
 
-To try to test things out a small subset (defined in `run_specs_small.conf`):
+To try to test things out a small subset (defined in `run_specs_small.conf`) with just 10 eval instances:
 
     # Just load the config file
-    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE --skip-instances
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --max-eval-instances 10 --suite $SUITE --skip-instances
 
     # Create the instances and the requests, but don't execute
-    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE --dry-run
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --max-eval-instances 10  --suite $SUITE --dry-run
 
     # Execute the requests and compute metrics
-    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --suite $SUITE
+    venv/bin/benchmark-present --conf src/benchmark/presentation/run_specs_small.conf --local --max-eval-instances 10  --suite $SUITE
 
     # Generate assets for the website
     venv/bin/benchmark-summarize --suite $SUITE
@@ -39,7 +39,7 @@ scenarios) in parallel:
     # tail benchmark_output/runs/$SUITE/slurm-*.out
 
     # Generate assets for the website
-    venv/bin/benchmark-present --local --suite $SUITE --skip-instances
+    venv/bin/benchmark-present --local --suite $SUITE --max-eval-instances 1000 --skip-instances
     venv/bin/benchmark-summarize --suite $SUITE
 
 Go to the [local website](http://localhost:1959/static/benchmarking.html) to look at the results,
@@ -56,15 +56,10 @@ For debugging, go to the [public site](https://nlp.stanford.edu/pliang/benchmark
 
 To estimate token usage without making any requests, append the `--dry-run` option:
 
-    venv/bin/benchmark-run -r <RunSpec to estimate token usage> --dry-run
+    venv/bin/benchmark-run -r <RunSpec to estimate token usage> --suite $SUITE --max-eval-instances <Number of eval instances> --dry-run
 
-For example, running `venv/bin/benchmark-run -r real_toxicity_prompts --dry-run` outputs:
+and check the output in `benchmark_output/runs/$SUITE`.
 
-```text
-  Stats {
-    MetricName(name='estimated_num_tokens_cost', k=None, split=None, sub_split=None, perturbation=None)[min=505.000, mean=514.957, max=536.000, sum=514957.000 (1000)]
-  }
-```
 
 where `sum` indicates the estimated total number of tokens used for the specific `RunSpec`.
 
@@ -94,7 +89,7 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Activate the Conda environment: `conda activate crfm_benchmarking`
    1. Run `./pre-commit.sh` if there are new dependencies to install.
 1. Run `bash scripts/run-all-stanford.sh --suite <Suite name> --dry-run` e.g.,
-   `bash scripts/run-all-stanford.sh --suite v4-dryrun --dry-run`.
+   `bash scripts/run-all-stanford.sh --suite v6-dryrun --dry-run`.
 1. Once the dry run is done, run the following commands:
     1. `python3 scripts/offline_eval/export_requests.py together benchmark_output/runs/v6-dryrun
        --output-path benchmark_output/runs/v6-dryrun/together_requests.jsonl`
@@ -102,8 +97,8 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
        --output-path benchmark_output/runs/v6-dryrun/microsoft_requests.jsonl`
 1. Upload requests JSONL files to CodaLab:
     1. Log on to CodaLab: `cl work main::0xbd9f3df457854889bda8ac114efa8061`.
-    1. Upload by Together requests: `cl upload benchmark_output/runs/v4-dryrun/together_requests.jsonl`.
-    1. Upload by MT-NLG requests: `cl upload benchmark_output/runs/v4-dryrun/microsoft_requests.jsonl`.
+    1. Upload by Together requests: `cl upload benchmark_output/runs/v6-dryrun/together_requests.jsonl`.
+    1. Upload by MT-NLG requests: `cl upload benchmark_output/runs/v6-dryrun/microsoft_requests.jsonl`.
 1. Share the link to the CodaLab bundles with our collaborators.
 
 ### Importing results
@@ -114,11 +109,6 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Run: `python3 scripts/offline_eval/import_results.py <Org> <Path to results jsonl file>` e.g.,
    `python3 scripts/offline_eval/import_results.py together results.jsonl`.
    This will update the cache with requests and their results.
-
-## To visualize results at crfm-models.stanford.edu
-
-1. Run `venv/bin/benchmark-present --output-path src/proxy/static/benchmark_output`.
-1. Visit the [benchmarking status page](https://crfm-models.stanford.edu/static/benchmarking.html).
 
 ### To verify that the Scenario construction and generation of prompts are reproducible
 
