@@ -29,6 +29,11 @@ class TextCategory(Enum):
     W_PUBLIC = "W2"
 
 
+class BinaryGender(Enum):
+    MALE = "male"
+    FEMALE = "female"
+
+
 class HeaderFormat(Enum):
     NONE = 0
     HDR = 1
@@ -37,7 +42,10 @@ class HeaderFormat(Enum):
 
 
 KEEP_TAGS = False
-GENDER_ANNOTATIONS = {"male": {"M", "m", "Male", "male"}, "female": {"F", "f", "Female", "female"}}
+GENDER_ANNOTATIONS = {
+    BinaryGender.MALE: {"M", "m", "Male", "male"},
+    BinaryGender.FEMALE: {"F", "f", "Female", "female"},
+}
 UNSUPPORTED_SUBSETS = {"GB", "NIG", "NZ", "SL"}
 METADATA_FORMAT = {
     ICESubset.CANADA: HeaderFormat.XLS,
@@ -178,8 +186,6 @@ class ICEScenario(Scenario):
         else:
             self.subset = list(ICESubset)
 
-        self.gender = "None"
-
         if gender:
             if subset:
                 assert (
@@ -188,7 +194,7 @@ class ICEScenario(Scenario):
             else:
                 self.subset = list(METADATA_FORMAT.keys())
 
-            self.gender = gender
+            self.gender = BinaryGender(gender)
 
         self.category = TextCategory(category)
 
@@ -332,34 +338,40 @@ class ICEScenario(Scenario):
         selected_texts = set()
 
         if METADATA_FORMAT[subset] == HeaderFormat.XLS:
-            if subset == "can":
+            if subset == ICESubset.CANADA:
                 files = ["Spoken ICE-CAN metadata.xls", "Written ICE-CAN metadata.xls"]
-            elif subset == "hk":
+            elif subset == ICESubset.HONG_KONG:
                 files = ["HKRecords.xls"]
             else:
                 files = []
 
             for fi in files:
-                dfs = pd.read_excel(os.path.join(header_dir, fi), sheet_name=[0] if subset == "can" else None)
+                dfs = pd.read_excel(
+                    os.path.join(header_dir, fi), sheet_name=[0] if subset == ICESubset.CANADA else None
+                )
 
                 for df in dfs.values():
                     for i in range(len(df)):
                         if not pd.isna(df.iat[i, 0]) and any(
                             [x in GENDER_ANNOTATIONS[self.gender] for x in df.iloc[i, 1:]]
-                        ):  # currently double counts texts with multiple genders
+                        ):
                             selected_texts.add(df.iat[i, 0] + ".txt")
         elif METADATA_FORMAT[subset] == HeaderFormat.HDR:
             for filename in os.listdir(header_dir):
-                header_path = os.path.join(self.output_path, SUBSET_TO_DIRECTORY[subset], "Headers", filename)
+                if not filename.endswith("hdr"):
+                    continue
+
+                header_path = os.path.join(header_dir, filename)
 
                 if not os.path.exists(header_path):
                     continue
 
-                with open(header_path, "r") as f:
-                    try:
+                try:
+                    with open(header_path, "r") as f:
                         text = f.read()
-                    except UnicodeDecodeError:
-                        continue
+                except UnicodeDecodeError:
+                    with open(header_path, "r", encoding="iso-8859-1") as f:
+                        text = f.read()
 
                 gen_ann = re.findall("(?<=<gender>)\\w+(?=<\\/gender>)", text)
 
@@ -396,7 +408,7 @@ class ICEScenario(Scenario):
                 corpus_name = "corpus"
 
             corpus_path = os.path.join(data_path, corpus_name)
-            can_filter = self.subset in list(METADATA_FORMAT.keys()) and self.gender != "None"
+            can_filter = subset in list(METADATA_FORMAT.keys()) and self.gender
             selected_texts = (
                 self.filter_by_metadata(subset, os.path.join(data_path, "Headers"))
                 if can_filter
