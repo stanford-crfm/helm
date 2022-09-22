@@ -412,6 +412,17 @@ class ICEScenario(Scenario):
                 corpus_name = "corpus"
 
             corpus_path = os.path.join(data_path, corpus_name)
+
+            # some ICE directories save their files in .TXT and not .txt files.
+            # There are other issues such as inconsistent capitalization of the
+            # textcodes themselves. This converts them all to a single
+            # format which looks like 'S1A-001.txt' for example.
+            filenames = [fn for fn in os.listdir(corpus_path)]
+
+            for filename in filenames:
+                standardized_filename = filename[:-4].upper() + ".txt"
+                os.rename(os.path.join(corpus_path, filename), os.path.join(corpus_path, standardized_filename))
+
             can_filter = subset in list(METADATA_FORMAT.keys()) and self.gender
             selected_texts = (
                 self.filter_by_metadata(subset, os.path.join(data_path, "Headers"))
