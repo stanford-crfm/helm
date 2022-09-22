@@ -186,6 +186,8 @@ class ICEScenario(Scenario):
         else:
             self.subset = list(ICESubset)
 
+        self.gender = None
+
         if gender:
             if subset:
                 assert (
@@ -335,6 +337,8 @@ class ICEScenario(Scenario):
         E.g. if gender == "M", the output set will only contain filenames for
         texts with only male authors.
         """
+        assert self.gender, "Tried to filter gender specified!"
+
         selected_texts = set()
 
         if METADATA_FORMAT[subset] == HeaderFormat.XLS:
