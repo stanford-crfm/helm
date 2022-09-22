@@ -183,5 +183,9 @@ class RequestResult:
 
 
 EMBEDDING_UNAVAILABLE_REQUEST_RESULT = RequestResult(
-    success=False, cached=False, error="Embedding is unavailable in this client", completions=[], embedding=[]
+    success=False,
+    cached=False,
+    error="Computing the embedding is unavailable in this client",
+    completions=[],
+    embedding=[],
 )

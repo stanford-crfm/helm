@@ -1,10 +1,10 @@
 import getpass
 
-from src.common.authentication import Authentication
-from src.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
-from src.common.request import Request, RequestResult
-from src.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
-from src.proxy.accounts import Account
+from common.authentication import Authentication
+from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
+from common.request import Request, RequestResult
+from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
+from proxy.accounts import Account
 from proxy.services.remote_service import RemoteService
 
 # An example of how to use the request API.
