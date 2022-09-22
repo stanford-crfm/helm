@@ -337,7 +337,7 @@ class ICEScenario(Scenario):
         E.g. if gender == "M", the output set will only contain filenames for
         texts with only male authors.
         """
-        assert self.gender, "Tried to filter gender specified!"
+        assert self.gender, "Tried to filter without gender specified!"
 
         selected_texts = set()
 
