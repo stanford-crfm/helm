@@ -115,6 +115,7 @@ class OpenAIClient(Client):
                     tokens=tokens,
                     finish_reason={"reason": raw_completion["finish_reason"]},
                 )
+                completion = truncate_sequence(completion, request)
                 completions.append(completion)
 
         return RequestResult(
