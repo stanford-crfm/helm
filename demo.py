@@ -22,7 +22,7 @@ service = RemoteService("https://crfm-models.stanford.edu")
 # Access account and show my current quotas and usages
 account: Account = service.get_account(auth)
 print(account.usages)
-#
+
 # Make a request
 request = Request(model="ai21/j1-large", prompt="Life is like a box of", echo_prompt=True)
 request_result: RequestResult = service.make_request(auth, request)
@@ -34,7 +34,7 @@ request = Request(prompt="Life is like a box of", random="1")
 request_result = service.make_request(auth, request)
 print(request_result.completions[0].text)
 
-# How to get embedding
+# How to get the embedding for some text
 request = Request(model="openai/text-similarity-ada-001", prompt="Life is like a box of", embedding=True)
 request_result = service.make_request(auth, request)
 print(request_result.embedding)
