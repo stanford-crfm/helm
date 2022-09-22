@@ -11,8 +11,8 @@ from proxy.services.remote_service import RemoteService
 api_key = getpass.getpass(prompt="Enter a valid API key: ")
 auth = Authentication(api_key=api_key)
 service = RemoteService("https://crfm-models.stanford.edu")
-#
-# # Access account and show my current quotas and usages
+
+# Access account and show my current quotas and usages
 account: Account = service.get_account(auth)
 print(account.usages)
 #
