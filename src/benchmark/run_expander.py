@@ -499,6 +499,17 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "robustness": {"robustness": ROBUSTNESS_PERTURBATION_SPECS},
     "fairness": {"fairness": FAIRNESS_PERTURBATION_SPECS},
     "canonical": {"canonical": ROBUSTNESS_PERTURBATION_SPECS + FAIRNESS_PERTURBATION_SPECS},
+    "robustness_all": {
+        "robustness_all": [
+            *contract_and_expand(),
+            filler(0.1),
+            lower(),
+            misspelling(prob=0.1),
+            space(max_spaces=3),
+            synonym(prob=0.1),
+            typo(prob=0.01),
+        ]
+    },
 }
 
 
