@@ -339,13 +339,13 @@ class ICEScenario(Scenario):
 
         if METADATA_FORMAT[subset] == HeaderFormat.XLS:
             if subset == ICESubset.CANADA:
-                files = ["Spoken ICE-CAN metadata.xls", "Written ICE-CAN metadata.xls"]
+                files = [("Spoken ICE-CAN metadata.xls", [12]), ("Written ICE-CAN metadata.xls", [12, 19])]
             elif subset == ICESubset.HONG_KONG:
-                files = ["HKRecords.xls"]
+                files = [("HKRecords.xls", [16])]
             else:
-                files = []
+                return []
 
-            for fi in files:
+            for fi, columns in files:
                 dfs = pd.read_excel(
                     os.path.join(header_dir, fi), sheet_name=[0] if subset == ICESubset.CANADA else None
                 )
@@ -353,7 +353,7 @@ class ICEScenario(Scenario):
                 for df in dfs.values():
                     for i in range(len(df)):
                         if not pd.isna(df.iat[i, 0]) and any(
-                            [x in GENDER_ANNOTATIONS[self.gender] for x in df.iloc[i, 1:]]
+                            [df.iat[i, c] in GENDER_ANNOTATIONS[self.gender] for c in columns]
                         ):
                             selected_texts.add(df.iat[i, 0] + ".txt")
         elif METADATA_FORMAT[subset] == HeaderFormat.HDR:
@@ -375,7 +375,7 @@ class ICEScenario(Scenario):
 
                 gen_ann = re.findall("(?<=<gender>)\\w+(?=<\\/gender>)", text)
 
-                if all([g in GENDER_ANNOTATIONS[self.gender] for g in gen_ann]):
+                if len(gen_ann) and all([g in GENDER_ANNOTATIONS[self.gender] for g in gen_ann]):
                     selected_texts.add(filename[:-4] + ".txt")
 
         return sorted(list(selected_texts))
