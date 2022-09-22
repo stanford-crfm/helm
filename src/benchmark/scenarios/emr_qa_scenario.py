@@ -81,6 +81,7 @@ class EmrQAScenario(Scenario):
         random.seed(0)
         random.shuffle(notes)
         # The authors used a 80:20 train-test split
+        # TODO: did they end up releasing official splits?
         num_train_instances = int(len(notes) * 0.8)
 
         instances: List[Instance] = []
