@@ -1475,6 +1475,22 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
     )
 
 
+def get_emr_qa_spec(subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="benchmark.scenarios.emr_qa_scenario.EmrQAScenario", args={"subset": subset}
+    )
+
+    adapter_spec = get_generation_adapter_spec(input_noun="Passage", output_noun="Answer")
+
+    return RunSpec(
+        name=f"emr_qa:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["emr_qa"],
+    )
+
+
 def get_med_qa_spec(prompt_answer_choices: str) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.med_qa_scenario.MedQAScenario", args={})
 
@@ -1603,9 +1619,7 @@ def get_covid_dialog_spec() -> RunSpec:
         name="covid_dialog",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_basic_metric_specs(
-            ["exact_match", "quasi_exact_match", "rouge-l", "bleu_1", "bleu_4"]
-        ),
+        metric_specs=get_basic_metric_specs(["exact_match", "quasi_exact_match", "rouge-l", "bleu_1", "bleu_4"]),
         groups=["COVIDDialog"],
     )
 
@@ -1731,6 +1745,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "ice": get_ice_spec,
     "big_bench": get_big_bench_spec,
     "pubmed_qa": get_pubmed_qa_spec,
+    "emr_qa": get_emr_qa_spec,
     "med_qa": get_med_qa_spec,
     "med_mcqa": get_med_mcqa_spec,
     "med_paragraph_simplification": get_med_paragraph_simplification_spec,
