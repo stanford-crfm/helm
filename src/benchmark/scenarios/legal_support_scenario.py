@@ -2,7 +2,6 @@ import json
 import os
 from typing import List
 
-from common.hierarchical_logger import hlog
 from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
@@ -44,7 +43,7 @@ class LegalSupportScenario(Scenario):
         pass
 
     def get_instances(self) -> List[Instance]:
-        data_path = os.path.join(self.output_path, "data")
+        data_path: str = os.path.join(self.output_path, "data")
         ensure_file_downloaded(
             source_url="https://docs.google.com/uc?export=download&id=1PVoyddrCHChMxYrLhsI-zu7Xzs5S8N77",
             target_path=data_path,
@@ -60,11 +59,10 @@ class LegalSupportScenario(Scenario):
         }
 
         for split in splits:
-            json_path = os.path.join(data_path, f"{split}.jsonl")
-
-            hlog(f"Reading {json_path}")
+            json_path: str = os.path.join(data_path, "legal_support", f"{split}.jsonl")
             with open(json_path) as f:
                 all_raw_data = f.readlines()
+
             for line in all_raw_data:
                 raw_data = json.loads(line)
                 passage = raw_data["context"]

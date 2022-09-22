@@ -16,6 +16,8 @@ adapter:
         description: Given the input, the model assigns the sequence a probability.
   - name: instructions
     description: The description of the task that is included at the very beginning of the prompt.
+  - name: instance_prefix
+    description: The string that is included before each instance (e.g., '\n\n').
   - name: input_prefix
     description: The string that is included before each input (e.g., 'Question:').
   - name: reference_prefix
@@ -38,17 +40,58 @@ adapter:
     description: Maximum number of tokens to generate.
   - name: stop_sequences
     description: List of sequences, where we stop generation if we encounter any of them.
+  - name: random
+    description: Random seed (string), which guarantees reproducibility.
 
 
 metrics:
   # Infrastructure metrics:
-  # TODO
   - name: num_perplexity_tokens
     display_name: '# tokens'
     description: Average number of tokens in the predicted output (for language modeling, the input too).
   - name: num_bytes
     display_name: '# bytes'
     description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# instances'
+    description: Number of instances.
+  - name: num_in_context_examples
+    display_name: '# in-context'
+    description: Number of in-context (training) examples.
+  - name: input_truncated
+    display_name: truncated
+    description: Fraction of instances where the input itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
 
   # Accuracy metrics:
   - name: exact_match
@@ -59,14 +102,30 @@ metrics:
     display_name: Quasi-exact match
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+  - name: exact_match@5
+    display_name: Exact match @5
+    short_display_name: EM@5
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference exactly.
+  - name: quasi_exact_match@5
+    display_name: Quasi-exact match @5
+    short_display_name: EM@5
+    description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference up to light processing.
   - name: logprob
     display_name: Log probability
-    short_display_name: Log prob.
+    short_display_name: Logprob
     description: Predicted output's average log probability (input's log prob for language modeling).
+  - name: logprob_per_byte
+    display_name: Log probability / byte
+    short_display_name: Logprob/byte
+    description: Predicted output's average log probability normalized by the number of bytes.
   - name: bits_per_byte
     display_name: Bits/byte
     short_display_name: BPB
     description: Average number of bits per byte according to model probabilities.
+  - name: perplexity
+    display_name: Perplexity
+    short_display_name: PPL
+    description: Perplexity of the output completion (effective branching factor per output token).
   - name: rouge_2
     display_name: ROUGE-2
     description: Average ROUGE score (Lin, 2004) based on 2-gram overlap.
@@ -99,7 +158,7 @@ metrics:
     description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
 
   # Summarization metrics
-  - name: SummaC
+  - name: summac
     display_name: SummaC
     description: Faithfulness scores based on the SummaC method of Laban et al. (2022).
   - name: summarization_coverage
@@ -118,7 +177,7 @@ metrics:
     short_display_name: Correctness
     description: Fraction of instances that the model output evaluates to the correct answer.
   - name: pass
-    display_name: Pass rate
+    display_name: pass@1
     description: Fraction of model outputs that pass the associated test cases.
   - name: test_avg
     display_name: 'Avg. # tests passed'
@@ -148,11 +207,11 @@ metrics:
     description: Average Levenshtein edit distance between model generation and reference.
 
   # Bias metrics:
-  - name: bias_metric:mode=associations,demographic_category=race
+  - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
     display_name: Stereotypical associations (Race, Profession)
     short_display_name: Stereotypes (Race)
     description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions.
-  - name: bias_metric:mode=associations,demographic_category=gender
+  - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
     display_name: Stereotypical associations (Gender, Profession)
     short_display_name: Stereotypes (Gender)
     description: Measures uneven association of gender groups (male, female) with target professions.
@@ -172,17 +231,21 @@ metrics:
     description: Metric of Parrish et al. (2022) for BBQ on unambiguous examples.
 
   # Toxicity metrics
-  - name: toxicity_probability
-    display_name: Toxicity probability
-    short_display_name: Toxicity
+  - name: toxic_frac
+    display_name: Toxic fraction
+    short_display_name: Toxic fraction
     lower_is_better: true
-    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifer).
+    description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
 
   # Efficiency metrics:
   - name: training_co2_cost
     display_name: Estimated training emissions (kg CO2)
     short_display_name: Training emissions (kg CO2)
     description: Estimate of the CO2 emissions from training the model.
+  - name: training_energy_cost
+    display_name: Estimated training energy cost (MWh)
+    short_display_name: Training energy (MWh)
+    description: Estimate of the amount of energy used to train the model.
   - name: inference_runtime
     display_name: Observed inference runtime (s)
     short_display_name: Observed inference time (s)
@@ -195,6 +258,9 @@ metrics:
     display_name: Idealized denoised runtime (s)
     short_display_name: Idealized denoised time (s)
     description: Average time to process a request to the model minus performance contention by using profiled runtimes from multiple trials of SyntheticEfficiencyScenario.
+  - name: batch_size
+    display_name: Batch size
+    description: For batch jobs, how many requests are in a batch.
 
   # Calibration metrics:
   - name: ece_1_bin
@@ -320,9 +386,9 @@ metric_groups:
 
   - name: bias
     metrics:
-    - name: bias_metric:mode=associations,demographic_category=race
+    - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
       split: ${main_split}
-    - name: bias_metric:mode=associations,demographic_category=gender
+    - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
       split: ${main_split}
     - name: bias_metric:mode=representation,demographic_category=race
       split: ${main_split}
@@ -331,13 +397,12 @@ metric_groups:
 
   - name: toxicity
     metrics:
-    - name: toxicity_probability
+    - name: toxic_frac
       split: ${main_split}
 
   - name: efficiency
     metrics:
-    - name: inference_idealized_runtime
-      # TODO: should we use inference_denoised_runtime instead?
+    - name: inference_denoised_runtime
       split: ${main_split}
 
   - name: efficiency_detailed
@@ -358,9 +423,11 @@ metric_groups:
     metrics:
       - name: SummaC
         split: ${main_split}
-      - name: coverage
+      - name: summarization_coverage
         split: ${main_split}
-      - name: compression
+      - name: summarization_density
+        split: ${main_split}
+      - name: summarization_compression
         split: ${main_split}
 
   - name: apps_metrics
@@ -368,13 +435,6 @@ metric_groups:
       - name: test_avg
         split: ${main_split}
       - name: strict_acc
-        split: ${main_split}
-
-  - name: humaneval_metrics
-    metrics:
-      - name: code_eval_acc
-        split: ${main_split}
-      - name: pass
         split: ${main_split}
 
   - name: bbq_metrics
@@ -489,7 +549,7 @@ scenario_groups:
       - fairness
       - efficiency
     environment:
-      main_name: quasi_exact_match
+      main_name: exact_match
       main_split: valid
 
   - name: openbookqa
@@ -502,7 +562,7 @@ scenario_groups:
       - fairness
       - efficiency
     environment:
-      main_name: quasi_exact_match
+      main_name: exact_match
       main_split: test
 
   - name: truthful_qa
@@ -699,7 +759,7 @@ scenario_groups:
       - efficiency
     environment:
       main_name: exact_match_indicator
-      main_split: valid
+      main_split: test
 
   - name: numeracy
     display_name: Numerical reasoning
@@ -777,11 +837,10 @@ scenario_groups:
     display_name: HumanEval (Code)
     description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings (Chen et al., 2021).
     metric_groups:
-      # We do not include accuracy as it is subsumed by humaneval
-      - humaneval_metrics
+      - accuracy
       - efficiency
     environment:
-      main_name: code_eval_acc
+      main_name: pass
       main_split: test
 
   - name: legal_support

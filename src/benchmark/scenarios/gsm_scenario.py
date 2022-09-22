@@ -43,7 +43,7 @@ class GSM8KScenario(Scenario):
                 for example in reader:  # Each example is a dictionary with a 'question' and 'answer' key
                     instances.append(
                         Instance(
-                            input=example["question"] + "\n",
+                            input=example["question"],
                             references=[
                                 Reference(
                                     output=example["answer"].replace("####", "The answer is").replace("\n", " ") + ".",

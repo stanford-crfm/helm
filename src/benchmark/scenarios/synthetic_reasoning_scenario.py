@@ -173,10 +173,10 @@ class SyntheticReasoningScenario(Scenario):
 
             if self.mode == "induction":
                 result_string_2 = " ".join(result_2)
-                src = f"Two results: {result_string} | {result_string_2} "
+                src = f"Two results: {result_string} | {result_string_2}"
                 tgt = f"Rule: {pattern_string}"
             elif self.mode == "variable_substitution":
-                src = f"Rules: {pattern_string} | Substitutions: {substitute_dict_str} "
+                src = f"Rules: {pattern_string} | Substitutions: {substitute_dict_str}"
                 tgt = " ".join(result)
             elif self.mode == "pattern_match":
                 # we sample 3 other pattern strings as negatives for patterns matching.
@@ -186,7 +186,7 @@ class SyntheticReasoningScenario(Scenario):
                 all_patterns = other_patterns + [pattern_string]
                 self.rng.shuffle(all_patterns)
                 all_pattern_string = " | ".join(all_patterns)
-                src = f"Rules: {all_pattern_string} | Result: {result_string} "
+                src = f"Rules: {all_pattern_string} | Result: {result_string}"
                 tgt = pattern_string
 
             if sample_idx < self.n_train_samples:

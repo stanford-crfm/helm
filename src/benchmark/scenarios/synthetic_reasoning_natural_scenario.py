@@ -4,7 +4,6 @@ from copy import copy
 from typing import List, Dict, Literal, Tuple
 from dataclasses import dataclass
 
-from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 """Synthetic Reasoning Natural Language Scenario.
@@ -227,7 +226,7 @@ def generate_rules(
     attributes_shuffled = list(attribute_groups.keys()).copy()
     random.shuffle(attributes_shuffled)
     rules: List[LanguageRule] = []
-    hlog("Generating language pattern matching examples")
+
     while len(attributes_shuffled) > 2 and len(rules) < max_rules:
         rule_subject = subject if specific_category else random.choice([subject_category, subject])
         n_rule_attributes = random.randint(2, 3)
@@ -350,9 +349,7 @@ class SRNScenario(Scenario):
             question += f"Fact:\n{test_fact}\n"
             if self.include_intermediates:
                 question += "Rule(s) used:\n" + "\n".join(str(test_rule) for test_rule in test_rules_used) + "\n"
-            question += f"The following can be determined about {test_specified_subject}:\n"
-
-            print(question)
+            question += f"The following can be determined about {test_specified_subject}:"
 
             if sample_idx < self.num_train_instances:
                 split = TRAIN_SPLIT

@@ -13,7 +13,7 @@ from common.tokenization_request import (
     TokenizationToken,
 )
 from proxy.models import get_models_by_organization
-from .client import Client, wrap_request_time
+from .client import Client, wrap_request_time, truncate_sequence
 
 
 class CohereClient(Client):
@@ -29,7 +29,10 @@ class CohereClient(Client):
 
     # According to https://docs.cohere.ai/tokenize-reference#request, for tokenize, text: "the string to
     # be tokenized, the minimum text length is 1 character, and the maximum text length is 65536 characters."
-    TOKENIZE_MAX_TEXT_LENGTH: int = 65536
+    # However, even sending a request with 60,000 characters sometimes fails, so we set the
+    # maximum length to 50,000, which is about 8,333 tokens.
+    # TODO: followed up with Cohere support with an example of a failure case
+    TOKENIZE_API_MAX_TEXT_LENGTH: int = 50_000
 
     @staticmethod
     def get_url(endpoint: str) -> str:
@@ -161,7 +164,10 @@ class CohereClient(Client):
                 # Cohere does not prepend the original prompt to the output sequence when
                 # `return_likelihoods` is "ALL" and `max_tokens` is greater than 0.
                 sequence_text = request.prompt + sequence_text
-            completions.append(Sequence(text=sequence_text, logprob=sequence_logprob, tokens=tokens))
+
+            completion: Sequence = Sequence(text=sequence_text, logprob=sequence_logprob, tokens=tokens)
+            completion = truncate_sequence(completion, request)
+            completions.append(completion)
 
         return RequestResult(
             success=True,
@@ -174,8 +180,8 @@ class CohereClient(Client):
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         text: str = request.text
         assert (
-            1 <= len(text) <= CohereClient.TOKENIZE_MAX_TEXT_LENGTH
-        ), f"Invalid text length: {len(text)}. Valid length: [1..{CohereClient.TOKENIZE_MAX_TEXT_LENGTH:,d}]"
+            1 <= len(text) <= CohereClient.TOKENIZE_API_MAX_TEXT_LENGTH
+        ), f"Invalid text length: {len(text)}. Valid length: [1..{CohereClient.TOKENIZE_API_MAX_TEXT_LENGTH:,d}]"
         raw_request: Dict[str, str] = {"text": text}
 
         try:

@@ -9,6 +9,7 @@ from dataclasses import asdict, dataclass, field
 from sqlitedict import SqliteDict
 
 from common.authentication import Authentication
+from common.general import hlog
 
 
 # TODO: Move this to a configuration file (`default_quotas.conf` alongside `accounts.jsonl`)
@@ -115,8 +116,23 @@ class Accounts:
     `path`: Path to sqlite file where the information about accounts is stored.
     """
 
+    DEFAULT_API_KEY: str = "root"
+
     def __init__(self, path: str, root_mode=False):
         self.path: str = path
+
+        with SqliteDict(self.path) as cache:
+            # If there isn't a single account, create a default account with admin access.
+            if len(cache) == 0:
+                account = Account(api_key=Accounts.DEFAULT_API_KEY, is_admin=True)
+                set_default_quotas(account)
+
+                cache[Accounts.DEFAULT_API_KEY] = asdict(account)
+                cache.commit()
+                hlog(f"There were no accounts. Created an admin account with API key: {Accounts.DEFAULT_API_KEY}")
+            else:
+                hlog(f"Found {len(cache)} account(s).")
+
         self.root_mode: bool = root_mode
 
     def authenticate(self, auth: Authentication):

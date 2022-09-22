@@ -41,14 +41,23 @@ class AdapterSpec:
     # What goes before the input
     input_prefix: str = "Input: "
 
+    # What goes after the input
+    input_suffix: str = "\n"
+
     # What goes before the input (for multiple choice)
-    reference_prefix: str = "\nA. "
+    reference_prefix: str = "A. "
+
+    # What goes before the input (for multiple choice)
+    reference_suffix: str = "\n"
 
     # What goes before the output
-    output_prefix: str = "\nOutput: "
+    output_prefix: str = "Output: "
 
-    # What goes before each Instance in the constructed prompt
-    instance_prefix: str = "\n\n"
+    # What goes after the output
+    output_suffix: str = "\n"
+
+    # What goes between instruction and in-context example blocks in the constructed prompt
+    instance_prefix: str = "\n"
 
     # Maximum number of (in-context) training instances to put into the prompt
     max_train_instances: int = 5
@@ -76,8 +85,8 @@ class AdapterSpec:
     # Maximum number of tokens to generate
     max_tokens: int = 100
 
-    # When to stop
-    stop_sequences: List[str] = field(default_factory=list)
+    # When to stop (set hash=False to make `AdapterSpec` hashable)
+    stop_sequences: List[str] = field(default_factory=list, hash=False)
 
     # Random string (used concretely to bypass cache / see diverse results)
     random: Optional[str] = None
@@ -377,7 +386,6 @@ class Processor:
                     eval_instance, include_output=include_output, reference_index=reference_index
                 )
             )
-
             return self.adapter_spec.instance_prefix.join(blocks)
 
         orig_train_instances_count: int = len(train_instances)
@@ -414,7 +422,7 @@ class Processor:
         """Return a list of lines corresponding to this example (part of the prompt)."""
 
         # Input
-        result = self.adapter_spec.input_prefix + instance.input
+        result = self.adapter_spec.input_prefix + instance.input + self.adapter_spec.input_suffix
 
         # References (optionally) and output
         if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
@@ -422,7 +430,7 @@ class Processor:
             output = "n/a"
             for reference_index, reference in enumerate(instance.references):
                 prefix = self.get_reference_prefix(self.adapter_spec.reference_prefix, reference_index)
-                result += prefix + reference.output
+                result += prefix + reference.output + self.adapter_spec.reference_suffix
                 if reference.is_correct and output == "n/a":
                     output = self.get_reference_prefix("A", reference_index)
         else:
@@ -435,7 +443,7 @@ class Processor:
                 output = reference.output
 
         if include_output:
-            result += self.adapter_spec.output_prefix + output
+            result += self.adapter_spec.output_prefix + output + self.adapter_spec.output_suffix
         else:
             result += self.adapter_spec.output_prefix.rstrip()
 
@@ -531,7 +539,7 @@ class Adapter:
             # The random sampling includes instances monotonically.
             np.random.seed(0)
             selected_eval_instances = list(
-                np.random.choice(all_eval_instances, self.adapter_spec.max_eval_instances, replace=False,)
+                np.random.choice(all_eval_instances, self.adapter_spec.max_eval_instances, replace=False)
             )  # type: ignore
         else:
             selected_eval_instances = all_eval_instances
@@ -719,6 +727,21 @@ class Adapter:
             pred_tokens = pred_tokens[: -(prompt_length - max_req_len)]
             prompt = self.window_service.decode(conditioning_tokens + pred_tokens, text)
             prompt_length = len(self.window_service.encode(prompt).tokens)
+
+            # When the input text contains languages the tokenizer cannot process, the input text
+            # might be inflated so the truncation cannot work properly.
+            # e.g.
+            # With the OpenAI tokenizer:
+            # >>> tokenizer.decode(tokenizer.encode("行星运转"))
+            # '行星运转'
+            # With the YaLM tokenizer:
+            # >>> tokenizer.decode(tokenizer.tokenize("行星运转"))
+            # '行<0xE6><0x98><0x9F><0xE8><0xBF><0x90><0xE8><0xBD><0xAC>'
+            if len(pred_tokens) == 0:
+                raise ValueError(
+                    "Truncating pred_tokens to fit them in the context window, "
+                    "got len(pred_tokens) == 0, which will lead to an infinite loop."
+                )
 
         return prompt, pred_tokens
 

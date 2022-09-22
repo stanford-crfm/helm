@@ -95,7 +95,8 @@ def ensure_file_downloaded(source_url: str, target_path: str, unpack: bool = Fal
             shell(["mv", tmp2_path, target_path])
         os.unlink(tmp_path)
     else:
-        if source_url.endswith(".gz"):
+        # Don't decompress if desired `target_path` ends with `.gz`.
+        if source_url.endswith(".gz") and not target_path.endswith(".gz"):
             gzip_path = f"{target_path}.gz"
             shell(["mv", tmp_path, gzip_path])
             # gzip writes its output to a file named the same as the input file, omitting the .gz extension
@@ -182,3 +183,12 @@ def parallel_map(process: Callable[[List], List], items: List, parallelism: int,
             with ThreadPoolExecutor(max_workers=parallelism) as executor:
                 results: List = list(tqdm(executor.map(process, items), total=len(items)))
     return results
+
+
+def without_common_entries(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Given `items` (a list of dictionaries), return a corresponding list of
+    dictionaries where all the common entries have been removed.
+    """
+    common_keys = [key for key in items[0] if all(item[key] == items[0][key] for item in items)]
+    return [dict((key, value) for key, value in item.items() if key not in common_keys) for item in items]
