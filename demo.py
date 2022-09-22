@@ -18,8 +18,8 @@ from proxy.services.remote_service import RemoteService
 api_key = pd.read_csv("prod_env/api_key.csv", header=None)[0].values[0]
 auth = Authentication(api_key=api_key)
 service = RemoteService("https://crfm-models.stanford.edu")
-#
-# # Access account and show my current quotas and usages
+
+# Access account and show my current quotas and usages
 account: Account = service.get_account(auth)
 print(account.usages)
 #
