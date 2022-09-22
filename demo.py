@@ -18,33 +18,34 @@ from proxy.services.remote_service import RemoteService
 api_key = pd.read_csv("prod_env/api_key.csv", header=None)[0].values[0]
 auth = Authentication(api_key=api_key)
 service = RemoteService("https://crfm-models.stanford.edu")
-
-# Access account and show my current quotas and usages
-# account: Account = service.get_account(auth)
-# print(account.usages)
-
-print()
-print("----")
-print()
-
+#
+# # Access account and show my current quotas and usages
+account: Account = service.get_account(auth)
+print(account.usages)
+#
 # Make a request
-request = Request(prompt="Question: What is the numerical probability of \"toss-up\"? Answer: 50%. Question: What is the numerical probability of \"possibly\"? Answer:", temperature=0.7, model="openai/text-davinci-001", num_completions=100, max_tokens=50)
+request = Request(model="ai21/j1-large", prompt="Life is like a box of", echo_prompt=True)
 request_result: RequestResult = service.make_request(auth, request)
-    
-for x in request_result.completions:
-    print(x.text)
-    print("----")
-print()
-print("----")
-print()
+print(request_result.completions[0].text)
+
+# Expect different responses for the same request but with different values for `random`.
+# Passing in the same value for `random` guarantees the same results.
+request = Request(prompt="Life is like a box of", random="1")
+request_result = service.make_request(auth, request)
+print(request_result.completions[0].text)
+
+# How to get embedding
+request = Request(model="openai/text-similarity-ada-001", prompt="Life is like a box of", embedding=True)
+request_result = service.make_request(auth, request)
+print(request_result.embedding)
+
+# Tokenize
+request = TokenizationRequest(tokenizer="ai21/j1-jumbo", text="Tokenize me please.")
+tokenization_request_result: TokenizationRequestResult = service.tokenize(auth, request)
+print(f"Number of tokens: {len(tokenization_request_result.tokens)}")
 
 # Calculate toxicity scores
 text = "you suck."
 request = PerspectiveAPIRequest(text_batch=[text])
-request_result: PerspectiveAPIRequestResult = service.get_toxicity_scores(auth, request)
-print(f"{text} - toxicity score: {request_result.text_to_toxicity_attributes[text].toxicity_score}")
-
-# Get-embedding example
-request = Request(model="openai/text-similarity-ada-001", prompt="Life is like a box of", echo_prompt=True, embedding=True)
-request_result: RequestResult = service.make_request(auth, request)
-print(request.embedding)
+perspective_request_result: PerspectiveAPIRequestResult = service.get_toxicity_scores(auth, request)
+print(f"{text} - toxicity score: {perspective_request_result.text_to_toxicity_attributes[text].toxicity_score}")

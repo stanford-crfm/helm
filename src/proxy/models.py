@@ -135,38 +135,6 @@ ALL_MODELS = [
         description="GPT-3 (350M parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
-    Model(
-        group="gpt3",
-        creator_organization="OpenAI",
-        name="openai/text-similarity-ada-001",
-        display_name="GPT-3 (1024-dimension embeddings)",
-        description="GPT-3 (1024-dimension embeddings)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, EMBEDDING_MODEL_TAG],
-    ),
-    Model(
-        group="gpt3",
-        creator_organization="OpenAI",
-        name="openai/text-similarity-babbage-001",
-        display_name="GPT-3 (2048-dimension embeddings)",
-        description="GPT-3 (2048-dimension embeddings)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, EMBEDDING_MODEL_TAG],
-    ),
-    Model(
-        group="gpt3",
-        creator_organization="OpenAI",
-        name="openai/text-similarity-curie-001",
-        display_name="GPT-3 (4096-dimension embeddings)",
-        description="GPT-3 (4096-dimension embeddings)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, EMBEDDING_MODEL_TAG],
-    ),
-    Model(
-        group="gpt3",
-        creator_organization="OpenAI",
-        name="openai/text-similarity-davinci-001",
-        display_name="GPT-3 (12288-dimension embeddings)",
-        description="GPT-3 (12288-dimension embeddings)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, EMBEDDING_MODEL_TAG],
-    ),
     # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
     #       https://github.com/stanford-crfm/benchmarking/issues/359
     Model(
@@ -232,6 +200,39 @@ ALL_MODELS = [
         display_name="Cushman Codex (2048 max tokens)",
         description="Cushman Codex (for natural language to code) - 2048 max tokens",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
+    # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
+        name="openai/text-similarity-davinci-001",
+        display_name="GPT-3 (12288-dimension embeddings)",
+        description="GPT-3 (12288-dimension embeddings)",
+        tags=[EMBEDDING_MODEL_TAG],
+    ),
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
+        name="openai/text-similarity-curie-001",
+        display_name="GPT-3 (4096-dimension embeddings)",
+        description="GPT-3 (4096-dimension embeddings)",
+        tags=[EMBEDDING_MODEL_TAG],
+    ),
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
+        name="openai/text-similarity-babbage-001",
+        display_name="GPT-3 (2048-dimension embeddings)",
+        description="GPT-3 (2048-dimension embeddings)",
+        tags=[EMBEDDING_MODEL_TAG],
+    ),
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
+        name="openai/text-similarity-ada-001",
+        display_name="GPT-3 (1024-dimension embeddings)",
+        description="GPT-3 (1024-dimension embeddings)",
+        tags=[EMBEDDING_MODEL_TAG],
     ),
     # Cohere models
     # Cohere has not release the sizes of their models.
