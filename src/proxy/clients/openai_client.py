@@ -13,7 +13,6 @@ from common.tokenization_request import (
 from .client import Client, wrap_request_time
 
 
-OPENAI_END_OF_TEXT_TOKEN: str = "<|endoftext|>"
 ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__bases__
 
 
@@ -77,7 +76,8 @@ class OpenAIClient(Client):
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        completions = []
+        completions: List[Sequence] = []
+        embedding: List[float]
         if request.embedding:
             # If the user is requesting an embedding instead of completion
             # then completions would be left as an empty list. The embedding needs to be set.
