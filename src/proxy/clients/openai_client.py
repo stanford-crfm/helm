@@ -76,8 +76,8 @@ class OpenAIClient(Client):
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        completions: List[Sequence] = []
         embedding: List[float]
+        completions: List[Sequence] = []
         if request.embedding:
             # If the user is requesting an embedding instead of completion
             # then completions would be left as an empty list. The embedding needs to be set.
@@ -94,14 +94,6 @@ class OpenAIClient(Client):
                 for text, logprob, top_logprobs in zip(
                     raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
                 ):
-                    # Do not include these excess tokens in the response.
-                    # TODO: this is a hacky solution until we figure out why
-                    #       OpenAI is sending tokens including and past the stop sequences.
-                    # TODO: This logic doesn't work when the stop sequences spans multiple tokens.
-                    #       https://github.com/stanford-crfm/benchmarking/issues/53
-                    if any(stop in text for stop in request.stop_sequences):
-                        break
-
                     tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                     sequence_logprob += logprob or 0
                 completion = Sequence(
