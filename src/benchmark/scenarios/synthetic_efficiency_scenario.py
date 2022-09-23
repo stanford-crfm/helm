@@ -45,7 +45,6 @@ class SyntheticEfficiencyScenario(Scenario):
         self.num_prompt_tokens: int = num_prompt_tokens
         self.num_instances: int = num_instances
         self.tokenizer: str = tokenizer
-        assert self.tokenizer in ["huggingface/gpt2", "ai21/j1"]
 
     def get_instances(self) -> List[Instance]:
         instances: List[Instance] = []
