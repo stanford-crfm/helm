@@ -76,16 +76,15 @@ class OpenAIClient(Client):
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
-        embedding: List[float]
+        # If the user is requesting completions instead of an embedding, then `completions`
+        # needs to be populated, and `embedding` should be an empty list and vice-versa.
+        embedding: List[float] = []
         completions: List[Sequence] = []
         if request.embedding:
             # If the user is requesting an embedding instead of completion
             # then completions would be left as an empty list. The embedding needs to be set.
             embedding = response["data"][0]["embedding"]
         else:
-            # If the user is requesting completion instead of an embedding
-            # then completions needs to be set, but the embedding should left as an empty list.
-            embedding = []
             for raw_completion in response["choices"]:
                 sequence_logprob = 0
                 tokens: List[Token] = []
