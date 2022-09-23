@@ -27,14 +27,6 @@ class MicrosoftClient(Client):
 
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
-        stop_sequence: Optional[str]
-        if len(request.stop_sequences) == 0:
-            stop_sequence = None
-        elif len(request.stop_sequences) == 1:
-            stop_sequence = request.stop_sequences[0]
-        else:
-            raise ValueError("More than one stop sequence is not supported.")
-
         return {
             "engine": request.model_engine,
             "prompt": request.prompt,
@@ -42,7 +34,7 @@ class MicrosoftClient(Client):
             "max_tokens": request.max_tokens,
             "best_of": request.top_k_per_token,
             "logprobs": request.top_k_per_token,
-            "stop": stop_sequence,
+            "stop": None if len(request.stop_sequences) == 0 else request.stop_sequences,
             "top_p": request.top_p,
             "echo": request.echo_prompt,
         }
