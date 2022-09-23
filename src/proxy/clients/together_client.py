@@ -51,7 +51,7 @@ class TogetherClient(Client):
             response, cached = self.cache.get(cache_key, do_it)
         except RuntimeError as e:
             error: str = f"TogetherClient error: {e}"
-            return RequestResult(success=False, cached=False, error=error, completions=[])
+            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         def fix_text(x: str) -> str:
             # This is for the T5-style models
@@ -89,6 +89,7 @@ class TogetherClient(Client):
             completions=completions,
             batch_size=batch_performance_metadata["batch_size"],
             batch_request_time=batch_performance_metadata["batch_time"],
+            embedding=[],
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:

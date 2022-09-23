@@ -51,10 +51,9 @@ models=(
   "cohere/large-20220720"
   "cohere/medium-20220720"
   "cohere/small-20220720"
-  # Getting results for the MT-NLG models is too slow.
-  # "microsoft/TNLGv2_530B"
-  # "microsoft/TNLGv2_7B"
   # Offline evaluation models
+  "microsoft/TNLGv2_530B"
+  "microsoft/TNLGv2_7B"
   "together/bloom"
   "together/glm"
   "together/gpt-j-6b"

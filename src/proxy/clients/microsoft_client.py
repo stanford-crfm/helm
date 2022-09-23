@@ -5,7 +5,7 @@ from openai.api_resources.abstract import engine_api_resource
 import openai as turing
 
 from common.cache import Cache
-from common.request import Request, RequestResult, Sequence, Token
+from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -93,6 +93,10 @@ class MicrosoftClient(Client):
             presence_penalty
             frequency_penalty
         """
+        # Embedding not supported for this model
+        if request.embedding:
+            return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
+
         raw_request = MicrosoftClient.convert_to_raw_request(request)
         completions: List[Sequence] = []
         request_time = 0
@@ -132,7 +136,7 @@ class MicrosoftClient(Client):
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except turing.error.OpenAIError as e:
                 error: str = f"OpenAI (Turing API) error: {e}"
-                return RequestResult(success=False, cached=False, error=error, completions=[])
+                return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
             for raw_completion in response["choices"]:
                 sequence_logprob = 0
@@ -165,6 +169,7 @@ class MicrosoftClient(Client):
             request_time=request_time,
             request_datetime=request_datetime,
             completions=completions,
+            embedding=[],
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
