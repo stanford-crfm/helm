@@ -136,7 +136,8 @@ class AnthropicClient(Client):
                         token_text: str = completion_text[len(previous_completion_text) :]
                         # We sometimes get replacement character as the token, but they seem
                         # to disappear in the next iteration, so skip these.
-                        if token_text == "�":
+                        if "�" in token_text:
+                            hlog(f"Found the replacement character in the token text: {token_text}. Skipping...")
                             continue
 
                         # Anthropic is sending us excess tokens beyond the stop sequences,
