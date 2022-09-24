@@ -34,7 +34,7 @@ class SyntheticEfficiencyScenario(Scenario):
     including the model the number of input and output tokens, the number of
     input instances, the number of output completions.
 
-    The dataset is stored at https://worksheets.codalab.org/bundles/0x1ee8f5b532fe443db6a9e5b7da0c3b74.
+    The dataset is stored at https://worksheets.codalab.org/bundles/0x2114b0c528914911a4106d3fedf8a05d.
     """
 
     name = "synthetic_efficiency"
@@ -57,7 +57,7 @@ class SyntheticEfficiencyScenario(Scenario):
             )
             data_path: str = os.path.join(self.output_path, file_name)
             ensure_file_downloaded(
-                source_url=f"https://worksheets.codalab.org/rest/bundles/0x1ee8f5b532fe443db6a9e5b7da0c3b74/"
+                source_url=f"https://worksheets.codalab.org/rest/bundles/0x2114b0c528914911a4106d3fedf8a05d/"
                 f"contents/blob/{file_name}",
                 target_path=data_path,
                 unpack=False,
