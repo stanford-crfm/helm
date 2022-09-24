@@ -1,3 +1,11 @@
+"""
+This script generates instances for the synthetic efficiency scenario by extracting a substring
+from an input text file (e.g., a book) that has the right number of tokens. This script uses the
+respective tokenizer service to ensure that this happens. A separate set of instances is
+generated for each distinct tokenizer used.
+"""
+
+
 import os
 from typing import Dict, List
 
