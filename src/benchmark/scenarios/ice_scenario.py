@@ -186,6 +186,8 @@ class ICEScenario(Scenario):
         else:
             self.subset = list(ICESubset)
 
+        self.gender = None
+
         if gender:
             if subset:
                 assert (
@@ -327,7 +329,7 @@ class ICEScenario(Scenario):
 
         return filename.upper().startswith(self.category.value)
 
-    def filter_by_metadata(self, subset: ICESubset, header_dir: str) -> List[str]:
+    def filter_by_metadata(self, subset: ICESubset, header_dir: str, all_corpus_filenames: List[str]) -> List[str]:
         """
         Reads through metadata in a folder specified by @param header_dir
         and returns a set of corresponding text filenames (in the Corpus folder)
@@ -335,6 +337,8 @@ class ICEScenario(Scenario):
         E.g. if gender == "M", the output set will only contain filenames for
         texts with only male authors.
         """
+        assert self.gender, "Tried to filter without gender specified!"
+
         selected_texts = set()
 
         if METADATA_FORMAT[subset] == HeaderFormat.XLS:
@@ -355,7 +359,7 @@ class ICEScenario(Scenario):
                         if not pd.isna(df.iat[i, 0]) and any(
                             [df.iat[i, c] in GENDER_ANNOTATIONS[self.gender] for c in columns]
                         ):
-                            selected_texts.add(df.iat[i, 0] + ".txt")
+                            selected_texts.add(df.iat[i, 0])
         elif METADATA_FORMAT[subset] == HeaderFormat.HDR:
             for filename in os.listdir(header_dir):
                 if not filename.endswith("hdr"):
@@ -376,9 +380,11 @@ class ICEScenario(Scenario):
                 gen_ann = re.findall("(?<=<gender>)\\w+(?=<\\/gender>)", text)
 
                 if len(gen_ann) and all([g in GENDER_ANNOTATIONS[self.gender] for g in gen_ann]):
-                    selected_texts.add(filename[:-4] + ".txt")
+                    selected_texts.add(filename[:-4])
 
-        return sorted(list(selected_texts))
+        regexes = [re.compile(code, re.IGNORECASE) for code in selected_texts]
+        corpus_filenames = list(filter(lambda x: any([regex.match(x) for regex in regexes]), all_corpus_filenames))
+        return sorted(corpus_filenames)
 
     def get_instances(self, debug_cap: Union[int, None] = None) -> List[Instance]:
         instances: List[Instance] = []
@@ -408,9 +414,10 @@ class ICEScenario(Scenario):
                 corpus_name = "corpus"
 
             corpus_path = os.path.join(data_path, corpus_name)
+
             can_filter = subset in list(METADATA_FORMAT.keys()) and self.gender
             selected_texts = (
-                self.filter_by_metadata(subset, os.path.join(data_path, "Headers"))
+                self.filter_by_metadata(subset, os.path.join(data_path, "Headers"), os.listdir(corpus_path))
                 if can_filter
                 else os.listdir(corpus_path)
             )
