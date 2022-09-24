@@ -8,12 +8,16 @@ from datetime import datetime
 
 
 def generate_spec(scenario, model, tokenizer, num_prompt_tokens, num_output_tokens, random):
+    random_str: str = ""
+    if random is not None:
+        random_str = f",random={random}"
     return (
         f'"{scenario}:model={model},tokenizer={tokenizer},'
         f"num_prompt_tokens={num_prompt_tokens},"
         f"num_output_tokens={num_output_tokens},"
-        f'random={random}": '
-        '{status: "READY", priority: 1}'
+        f"num_train_trials=default"
+        f'{random_str}": '
+        "{priority: 1}"
     )
 
 
@@ -44,9 +48,11 @@ def main(args):
     for model, tokenizer in all_models_and_tokenizers:
         for num_prompt_tokens in all_num_prompt_tokens:
             for num_output_tokens in all_num_output_tokens:
-                spec = generate_spec(
-                    scenario, model, tokenizer, num_prompt_tokens, num_output_tokens, random=current_date
-                )
+                if args.no_random:
+                    random = None
+                else:
+                    random = current_date
+                spec = generate_spec(scenario, model, tokenizer, num_prompt_tokens, num_output_tokens, random=random)
                 specs.append(spec)
 
     print(f"Writing out {len(specs)} specs...")
@@ -59,5 +65,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--tokenizer_provider", choices=["ai21", "openai", "cohere", "opt", "yandex"], required=True)
     parser.add_argument("--output_path", required=True, type=str)
+    parser.add_argument("--no-random", action="store_true")
     args = parser.parse_args()
     main(args)
