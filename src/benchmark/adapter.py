@@ -25,8 +25,8 @@ ADAPT_RANKING_BINARY = "ranking_binary"
 
 # Information retrieval labels
 # TODO: It would be better if we read the following from the adapter spec.
-IR_CORRECT_LABEL = "Yes"
-IR_WRONG_LABEL = "No"
+RANKING_CORRECT_LABEL = "Yes"
+RANKING_WRONG_LABEL = "No"
 
 
 @dataclass(frozen=True)
@@ -230,26 +230,29 @@ class Prompt:
     # (input_truncated == True implies num_in_context_examples == 0)
     truncated_text: Optional[str] = None
 
-    @property
-    def text(self) -> str:
-        # Text for the prompt
+    def __post_init__(self):
+        # Text for the prompt, not truncated
+        self.text = self.get_text()
+        # Text that should be passed to the request, might be truncated
+        self.request_text = self.get_request_text()
+        # Whether the input is truncated
+        self.input_truncated = self.get_input_truncated()
+        # Number of in-context examples in the prompt
+        self.num_in_context_examples = self.get_num_in_context_examples()
+
+    def get_text(self) -> str:
         blocks = [self.instruction_block] if self.instruction_block else []
         blocks += self.in_context_example_blocks + [self.example_block]
         return self.instance_prefix.join(blocks)
 
-    @property
-    def request_text(self) -> str:
+    def get_request_text(self) -> str:
         return self.truncated_text if self.truncated_text else self.text
 
-    @property
-    def num_in_context_examples(self) -> int:
-        # Number of in-context examples in the prompt
-        return len(self.in_context_example_blocks)
-
-    @property
-    def input_truncated(self) -> bool:
-        # Whether the input is truncated
+    def get_input_truncated(self) -> bool:
         return self.truncated_text is not None
+
+    def get_num_in_context_examples(self) -> int:
+        return len(self.in_context_example_blocks)
 
 
 @dataclass(frozen=True)
@@ -386,11 +389,13 @@ class Processor:
         return request_states
 
     def adapt_ranking_binary(self, eval_instance: Instance) -> List[RequestState]:
-        """ Adaptation strategy for information retrieval tasks, using binary ranking.
+        """ Adaptation strategy for ranking tasks, reduced to binary ranking.
 
-        In information retrieval tasks, an instance corresponds to a single query
-        for which objects will be ranked. Each reference of an instance
-        corresponds to a single object. Single example then contains a query and
+        For tasks that require ranking, such as information retrieval tasks,
+        an instance corresponds to a single query for which objects will be ranked.
+        # TODO reform the use of the word object
+        Each reference of an instance
+        corresponds to a single object. A single example then contains a query and
         an object, relevance of which with respect to the query will be judged by
         the model. A request consists of a single example and a number of in-context
         training examples.
@@ -549,9 +554,9 @@ class Processor:
         """ Return an example prompt for binary ranking tasks.
 
         In the binary ranking prompt specification, the model's task is to output
-        IR_CORRECT_LABEL if the object included in the prompt contains an answer
+        RANKING_CORRECT_LABEL if the object included in the prompt contains an answer
         to the query. If the object included does not answer the query, the model
-        is expected to output IR_WRONG_LABEL.
+        is expected to output RANKING_WRONG_LABEL.
 
         Example prompt:
             Passage: Its 25 drops per ml, you guys are all wrong. If it is water, the standard was changed 15 - 20 years ago to make 20 drops = 1mL. The viscosity of most things is temperature dependent, so this would be at room temperature. Hope this helps.  # noqa
@@ -581,7 +586,7 @@ class Processor:
             # If include_output flag is set, answer is appended (e.g. "...\n")
             output_text = self.adapter_spec.output_prefix
             if include_output:
-                ir_label = IR_CORRECT_LABEL if CORRECT_TAG in reference.tags else IR_WRONG_LABEL
+                ir_label = RANKING_CORRECT_LABEL if CORRECT_TAG in reference.tags else RANKING_WRONG_LABEL
                 output_text += ir_label + self.adapter_spec.output_suffix
 
             # Construct request_text
@@ -947,7 +952,7 @@ class Adapter:
         prefix_token: str = self.window_service.prefix_token
 
         # TODO: does not support multiprocessing
-        def process(instance: Instance) -> List[RequestState]:
+        def process(instance: List[Instance]) -> List[RequestState]:
             encode_result: EncodeResult = self.window_service.encode(instance.input)
             tokens: List[TokenizationToken] = encode_result.tokens
             text: str = encode_result.text
