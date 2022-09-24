@@ -113,6 +113,7 @@ def generate_synthetic_efficiency_instances(
     ai21_tokenizer: bool = tokenizer_organization == "ai21"
     cohere_tokenizer: bool = tokenizer_organization == "cohere"
     opt_tokenizer: bool = tokenizer_organization == "facebook"
+    yandex_tokenizer: bool = tokenizer_organization == "Yandex"
 
     books = list(tokens.keys())
     prompts = []
@@ -181,6 +182,8 @@ def generate_synthetic_efficiency_instances(
         if opt_tokenizer:
             tokenizer = tokenizer.replace("facebook", "meta")
             tokenizer = tokenizer.replace("opt-66b", "opt")
+        elif yandex_tokenizer:
+            tokenizer = tokenizer.replace("Yandex", "yandex")
         name = f"num_prompt_tokens={num_prompt_tokens}," f"tokenizer={tokenizer.replace('/', '_')}," f"id={i}.txt"
         write(os.path.join(output_path, name), prompt)
 

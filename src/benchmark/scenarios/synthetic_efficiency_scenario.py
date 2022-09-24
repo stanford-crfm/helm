@@ -55,7 +55,7 @@ class SyntheticEfficiencyScenario(Scenario):
                 f"tokenizer={self.tokenizer.replace('/', '_')},"
                 f"id={instance_id}.txt"
             )
-            file_name = file_name.replace("facebook", "meta").replace("opt-66b", "opt")
+            file_name = file_name.replace("facebook", "meta").replace("opt-66b", "opt").replace("Yandex", "yandex")
             data_path: str = os.path.join(self.output_path, file_name)
             ensure_file_downloaded(
                 source_url=f"https://worksheets.codalab.org/rest/bundles/0x1ee8f5b532fe443db6a9e5b7da0c3b74/"
