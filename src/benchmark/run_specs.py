@@ -1109,7 +1109,7 @@ def get_synthetic_efficiency_spec(
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
-        args={"num_prompt_tokens": num_prompt_tokens, "num_instances": 5, "tokenizer": tokenizer},
+        args={"num_prompt_tokens": num_prompt_tokens, "num_instances": 10, "tokenizer": tokenizer},
     )
 
     adapter_spec = get_completion_adapter_spec(max_tokens=num_output_tokens, random=random)

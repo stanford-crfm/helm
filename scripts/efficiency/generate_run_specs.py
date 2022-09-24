@@ -25,25 +25,11 @@ def main(args):
     elif args.model == "anthropic":
         all_models_and_tokenizers = [("anthropic/stanford-online-all-v4-s3", "huggingface/gpt2")]
     elif args.model == "openai":
-        all_models_and_tokenizers = [
-            ("openai/davinci", "huggingface/gpt2"),
-            ("openai/text-davinci-001", "huggingface/gpt2"),
-            ("openai/text-davinci-002", "huggingface/gpt2"),
-            ("openai/curie", "huggingface/gpt2"),
-            ("openai/text-curie-001", "huggingface/gpt2"),
-        ]
+        all_models_and_tokenizers = [("gpt2_tokenizer", "huggingface/gpt2")]
     elif args.model == "cohere":
-        all_models_and_tokenizers = [
-            ("cohere/small-20220720", "cohere/cohere"),
-            ("cohere/medium-20220720", "cohere/cohere"),
-            ("cohere/large-20220720", "cohere/cohere"),
-            ("cohere/xlarge-20220609", "cohere/cohere"),
-        ]
+        all_models_and_tokenizers = [("cohere_tokenizer", "cohere/cohere")]
     elif args.model == "opt":
-        all_models_and_tokenizers = [
-            ("together/opt-66b", "facebook/opt-66b"),
-            ("together/opt-175b", "together/opt-66b"),
-        ]
+        all_models_and_tokenizers = [("opt_tokenizer", "facebook/opt-66b")]
 
     specs = []
 

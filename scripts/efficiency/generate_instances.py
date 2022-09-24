@@ -112,6 +112,7 @@ def generate_synthetic_efficiency_instances(
     tokenizer_organization: str = tokenizer.split("/")[0]
     ai21_tokenizer: bool = tokenizer_organization == "ai21"
     cohere_tokenizer: bool = tokenizer_organization == "cohere"
+    opt_tokenizer: bool = tokenizer_organization == "opt"
 
     books = list(tokens.keys())
     prompts = []
@@ -177,6 +178,8 @@ def generate_synthetic_efficiency_instances(
                 prompts.append(prompt)
 
     for i, prompt in enumerate(prompts):
+        if opt_tokenizer:
+            tokenizer = tokenizer.replace("opt", "meta")
         name = f"num_prompt_tokens={num_prompt_tokens}," f"tokenizer={tokenizer.replace('/', '_')}," f"id={i}.txt"
         write(os.path.join(output_path, name), prompt)
 
