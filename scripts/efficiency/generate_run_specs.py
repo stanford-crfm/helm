@@ -27,9 +27,9 @@ def main(args):
     elif args.tokenizer_provider == "cohere":
         all_models_and_tokenizers = [("cohere_tokenizer", "cohere/cohere")]
     elif args.tokenizer_provider == "opt":
-        all_models_and_tokenizers = [("opt_tokenizer", "facebook/opt-66b")]
+        all_models_and_tokenizers = [("opt_tokenizer", "meta/opt")]
     elif args.tokenizer_provider == "yandex":
-        all_models_and_tokenizers = [("together/yalm", "Yandex/yalm")]
+        all_models_and_tokenizers = [("together/yalm", "yandex/yalm")]
 
     specs = []
 
