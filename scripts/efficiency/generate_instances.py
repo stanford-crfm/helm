@@ -52,13 +52,11 @@ def tokenize_text(
         "crime_and_punishment": "https://www.gutenberg.org/files/2554/2554-0.txt",
     }
 
-    books: List[str] = list(sources.keys())
     tokens: Dict = {}
     text_chunks: Dict = {}
 
     tokenizer_organization: str = tokenizer.split("/")[0]
     ai21_tokenizer: bool = tokenizer_organization == "ai21"
-    cohere_tokenizer: bool = tokenizer_organization == "cohere"
 
     # Extract tokens from book sources
     seen_tokens = set()
@@ -72,7 +70,6 @@ def tokenize_text(
         batch_size = 2048
         # Skip intro text
         text = raw_text.split(" ")[batch_size:]
-        # num_total_tokens_per_book = (num_instances * num_prompt_tokens) // len(books)
         i = 0
         tokens[book] = []
         text_chunks[book] = []
@@ -109,7 +106,6 @@ def generate_synthetic_efficiency_instances(
     """Generates the synthetic efficiency instances given the tokenized book sources."""
     tokenizer_organization: str = tokenizer.split("/")[0]
     ai21_tokenizer: bool = tokenizer_organization == "ai21"
-    cohere_tokenizer: bool = tokenizer_organization == "cohere"
     opt_tokenizer: bool = tokenizer_organization == "facebook"
     yandex_tokenizer: bool = tokenizer_organization == "Yandex"
 
