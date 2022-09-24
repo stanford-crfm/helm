@@ -45,7 +45,7 @@ class SyntheticEfficiencyScenario(Scenario):
         self.num_prompt_tokens: int = num_prompt_tokens
         self.num_instances: int = num_instances
         self.tokenizer: str = tokenizer
-        assert self.tokenizer in ["huggingface/gpt2", "ai21/j1", "cohere/cohere", "facebook/opt-66b"]
+        assert self.tokenizer in ["huggingface/gpt2", "ai21/j1", "cohere/cohere", "facebook/opt-66b", "Yandex/yalm"]
 
     def get_instances(self) -> List[Instance]:
         instances: List[Instance] = []
@@ -55,7 +55,7 @@ class SyntheticEfficiencyScenario(Scenario):
                 f"tokenizer={self.tokenizer.replace('/', '_')},"
                 f"id={instance_id}.txt"
             )
-            file_name = file_name.replace("opt", "meta")
+            file_name = file_name.replace("facebook", "meta").replace("opt-66b", "opt")
             data_path: str = os.path.join(self.output_path, file_name)
             ensure_file_downloaded(
                 source_url=f"https://worksheets.codalab.org/rest/bundles/0x1ee8f5b532fe443db6a9e5b7da0c3b74/"

@@ -20,16 +20,16 @@ def main(args):
     all_num_output_tokens = [1, 2, 4, 8, 16, 32, 64]
 
     scenario = "synthetic_efficiency"
-    if args.model == "ai21":
+    if args.tokenizer_provider == "ai21":
         all_models_and_tokenizers = [("ai21_tokenizer", "ai21/j1")]
-    elif args.model == "anthropic":
-        all_models_and_tokenizers = [("anthropic/stanford-online-all-v4-s3", "huggingface/gpt2")]
-    elif args.model == "openai":
+    elif args.tokenizer_provider == "openai":
         all_models_and_tokenizers = [("gpt2_tokenizer", "huggingface/gpt2")]
-    elif args.model == "cohere":
+    elif args.tokenizer_provider == "cohere":
         all_models_and_tokenizers = [("cohere_tokenizer", "cohere/cohere")]
-    elif args.model == "opt":
+    elif args.tokenizer_provider == "opt":
         all_models_and_tokenizers = [("opt_tokenizer", "facebook/opt-66b")]
+    elif args.tokenizer_provider == "yandex":
+        all_models_and_tokenizers = [("together/yalm", "Yandex/yalm")]
 
     specs = []
 
@@ -52,7 +52,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", choices=["ai21", "anthropic", "openai", "cohere", "opt"], required=True)
+    parser.add_argument("--tokenizer_provider", choices=["ai21", "openai", "cohere", "opt", "yandex"], required=True)
     parser.add_argument("--output_path", required=True, type=str)
     args = parser.parse_args()
     main(args)
