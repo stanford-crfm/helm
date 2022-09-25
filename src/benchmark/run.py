@@ -7,6 +7,7 @@ from common.authentication import Authentication
 from common.object_spec import parse_object_spec
 from proxy.services.remote_service import create_authentication, add_service_args
 
+from .adapter import AdapterSpec
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
 from .run_specs import construct_run_specs
@@ -27,6 +28,7 @@ def run_benchmarking(
     dry_run: bool,
     skip_instances: bool,
     max_eval_instances: Optional[int] = None,
+    num_train_trials: Optional[int] = None,
     models_to_run: Optional[List[str]] = None,
     scenario_groups_to_run: Optional[List[str]] = None,
 ) -> List[RunSpec]:
@@ -38,11 +40,12 @@ def run_benchmarking(
 
     def override(run_spec: RunSpec) -> RunSpec:
         """Override parts of `run_spec`."""
+        adapter_spec: AdapterSpec = run_spec.adapter_spec
         if max_eval_instances is not None:
-            run_spec = replace(
-                run_spec, adapter_spec=replace(run_spec.adapter_spec, max_eval_instances=max_eval_instances)
-            )
-        return run_spec
+            adapter_spec = replace(adapter_spec, max_eval_instances=max_eval_instances)
+        if num_train_trials is not None:
+            adapter_spec = replace(adapter_spec, num_train_trials=num_train_trials)
+        return replace(run_spec, adapter_spec=adapter_spec)
 
     run_specs = [
         override(run_spec)
@@ -88,6 +91,12 @@ def add_run_args(parser: argparse.ArgumentParser):
         type=int,
         required=True,
         help="Maximum number of instances to evaluate on, overrides the value in Adapter spec.",
+    )
+    parser.add_argument(
+        "-t",
+        "--num-train-trials",
+        type=int,
+        help="Number of trials where each trial samples a different set of in-context examples.",
     )
     parser.add_argument(
         "--suite", type=str, help="Name of the suite this run belongs to (default is today's date).", required=True,

@@ -174,7 +174,7 @@ class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
 
     name = "num_train_trials"
     # TODO: increase to 3
-    values_dict = {"default": [1]}
+    values_dict = {"default": [3]}
 
 
 class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
