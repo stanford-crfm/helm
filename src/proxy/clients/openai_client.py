@@ -1,6 +1,10 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import openai
+import requests
+from dacite import from_dict
+from googleapiclient.errors import BatchError, HttpError
+from httplib2 import HttpLib2Error
 
 from common.cache import Cache
 from common.request import Request, RequestResult, Sequence, Token
@@ -11,7 +15,7 @@ from common.tokenization_request import (
     DecodeRequestResult,
 )
 from .client import Client, wrap_request_time
-
+from common.openai_moderation_request import ModerationAttributes, OpenAIModerationAPIRequestResult
 
 OPENAI_END_OF_TEXT_TOKEN: str = "<|endoftext|>"
 ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__bases__
@@ -102,3 +106,46 @@ class OpenAIClient(Client):
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         raise NotImplementedError("Use the HuggingFaceClient to decode.")
+
+    def extract_moderation_scores(response: Dict) -> ModerationAttributes:
+        categories = response["results"][0]["categories"].values()
+        category_scores = response["results"][0]["category_scores"].values()
+        category_names = [key.translate(key.maketrans("/-", "__")) + "_score" for key in response["results"][0]["category_scores"].keys()]
+        values = [{"is_moderated": x, "score": y} for x, y in list(zip(categories, category_scores))]
+        
+        all_scores = dict(zip(category_names, values))
+        return from_dict(data_class=ModerationAttributes, data=all_scores)
+
+    # Inputting a single example, but returning a dict -> handle this in moderation_metrics
+    def get_moderation_scores(self, input) -> OpenAIModerationAPIRequestResult: 
+        """
+        Make call to OpenAI Moderation API. 
+        """
+        request = {"input": input}
+        try:
+            def do_it():
+                text_to_response: Dict[str, Dict] = dict()
+
+                auth_string = "Bearer "+self.api_key
+                headers = {'content-type': 'application/json', "Authorization": auth_string}
+                response = requests.post(url = "https://api.openai.com/v1/moderations", json=request, headers=headers)
+                
+                text_to_response[input] = response
+
+                return text_to_response
+
+        except (BatchError, HttpLib2Error, HttpError) as e:
+            return OpenAIModerationAPIRequestResult(
+                success=False, cached=False, error=f"Error was thrown when making a request to OpenAI Moderation API: {e}"
+            )
+            # raise Exception(f"Error was thrown when making a request to OpenAI Moderation API: ", e)
+        
+        response, cached = self.cache.get(request, do_it)
+        response_json = response[input].json()
+        moderation_attributes = OpenAIClient.extract_moderation_scores(response_json)
+        return OpenAIModerationAPIRequestResult(
+            success=True,
+            cached=cached,
+            flagged=response_json["results"][0]["flagged"],
+            moderation_attributes=moderation_attributes
+        )
