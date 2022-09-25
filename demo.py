@@ -2,10 +2,6 @@ import getpass
 import sys
 import pandas as pd
 
-# sys.path.append('/juice/scr/katezhou/benchmarking')
-# sys.path.append('/juice/scr/katezhou/benchmarking/src')
-# sys.path.append('/juice/scr/katezhou/benchmarking/src/common')
-
 from common.authentication import Authentication
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from common.request import Request, RequestResult
