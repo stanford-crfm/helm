@@ -27,8 +27,7 @@ work_dir=$PWD
 suite=$2
 logs_path="benchmark_output/runs/$suite/logs"
 mkdir -p $logs_path
-# TODO: set the default to --max-eval-instances 1000
-default_args="--max-eval-instances 100 --priority 2 --local"
+default_args="--max-eval-instances 1000 --priority 2 --local"
 
 models=(
   "ai21/j1-jumbo"
