@@ -45,13 +45,16 @@ class ModerationAttributes:
 class OpenAIModerationAPIRequestResult:
     """Result after sending an OpenAIModerationAPIRequest."""
 
+    # Whether the request was successful
+    success: bool
+    
     # Whether the request was cached
     cached: bool
 
     # Whether the text was flagged by the API
     flagged: bool
     
-    # Batch of text to calculate toxicity scores.
-    text_to_moderation_attributes: Dict[str, ModerationAttributes] = field(default_factory=dict)
+    # Moderation attributes for input text
+    moderation_attributes: ModerationAttributes 
 
 
