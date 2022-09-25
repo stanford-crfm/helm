@@ -5,16 +5,17 @@ import urllib.parse
 from dataclasses import asdict
 from typing import Any, List, Optional
 
-from common.authentication import Authentication
-from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
-from common.openai_moderation_api_request import OpenAIModerationAPIRequestResult
-from common.tokenization_request import (
+from src.common.authentication import Authentication
+from src.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
+from src.common.request import Request, RequestResult
+
+from src.common.openai_moderation_api_request import OpenAIModerationAPIRequestResult
+from src.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequestResult,
     DecodeRequest,
 )
-from common.request import Request, RequestResult
 from dacite import from_dict
 from proxy.accounts import Account
 from proxy.query import Query, QueryResult
@@ -89,13 +90,12 @@ class RemoteService(Service):
         return from_dict(PerspectiveAPIRequestResult, response)
     
     def get_moderation_scores(self, auth: Authentication, request: str) -> OpenAIModerationAPIRequestResult:
-        request_json: str = json.dumps(asdict(request))
         params = {
             "auth": json.dumps(asdict(auth)),
-            "request": request_json,
+            "request": request,
         }
         response = requests.get(f"{self.base_url}/api/moderation?{urllib.parse.urlencode(params)}").json()
-        RemoteService._check_response(response, request_json)
+        RemoteService._check_response(response, request)
         return from_dict(OpenAIModerationAPIRequestResult, response)
 
     def create_account(self, auth: Authentication) -> Account:
@@ -158,7 +158,7 @@ class RemoteService(Service):
 def add_service_args(parser: argparse.ArgumentParser):
     """Add command-line arguments to enable command-line utilities to specify how to connect to a remote server."""
     parser.add_argument(
-        "--server-url", default="https://crfm-models.stanford.edu", help="URL of proxy server to connect to"
+        "--server-url", default="http://0.0.0.0:1959", help="URL of proxy server to connect to"
     )
     parser.add_argument(
         "--api-key-path", type=str, default="proxy_api_key.txt", help="Path to a file containing the API key"

@@ -3,19 +3,12 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Any
 
-from common.general import parse_hocon
-from common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
-from common.openai_moderation_api_request import OpenAIModerationAPIRequestResult
-from common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-    DecodeRequest,
-    DecodeRequestResult,
-)
-from common.request import Request, RequestResult
-from proxy.models import Model
-from proxy.query import Query, QueryResult
-from proxy.accounts import Authentication, Account
+from src.common.general import parse_hocon
+from src.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
+from src.common.request import Request, RequestResult
+from .models import Model
+from .query import Query, QueryResult
+from .accounts import Authentication, Account
 
 VERSION = "1.0"
 CREDENTIALS_FILE = "credentials.conf"

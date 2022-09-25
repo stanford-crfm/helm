@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-from common.request import Request
+from src.common.request import Request
 
 
 @dataclass(frozen=True)

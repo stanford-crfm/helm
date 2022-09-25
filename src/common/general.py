@@ -10,7 +10,7 @@ from tqdm import tqdm
 import pyhocon
 from dataclasses import asdict, dataclass
 
-from common.hierarchical_logger import hlog, htrack, htrack_block
+from src.common.hierarchical_logger import htrack, hlog
 
 
 def singleton(items: List):
