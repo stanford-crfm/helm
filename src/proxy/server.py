@@ -21,9 +21,9 @@ from common.hierarchical_logger import hlog
 from common.request import Request
 from common.perspective_api_request import PerspectiveAPIRequest
 from common.tokenization_request import TokenizationRequest, DecodeRequest
-from .accounts import Account
-from .services.server_service import ServerService
-from .query import Query
+from accounts import Account
+from services.server_service import ServerService
+from query import Query
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
@@ -187,7 +187,7 @@ def handle_toxicity_request():
 def handle_moderation_request():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
-        request = json.loads(args["request"])
+        request = args["request"]
         return dataclasses.asdict(service.get_moderation_scores(auth, request))
 
     return safe_call(perform)
