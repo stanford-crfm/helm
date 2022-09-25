@@ -11,6 +11,8 @@ from proxy.models import (
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
     GPT2_TOKENIZER_TAG,
     AI21_TOKENIZER_TAG,
+    COHERE_TOKENIZER_TAG,
+    OPT_TOKENIZER_TAG,
     ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
@@ -209,6 +211,8 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
         "gpt2_tokenizer": get_model_names_with_tag(GPT2_TOKENIZER_TAG),
         "ai21_tokenizer": get_model_names_with_tag(AI21_TOKENIZER_TAG),
+        "cohere_tokenizer": get_model_names_with_tag(COHERE_TOKENIZER_TAG),
+        "opt_tokenizer": get_model_names_with_tag(OPT_TOKENIZER_TAG),
     }
 
     # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")

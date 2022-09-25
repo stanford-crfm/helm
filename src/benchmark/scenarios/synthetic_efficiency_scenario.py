@@ -34,7 +34,7 @@ class SyntheticEfficiencyScenario(Scenario):
     including the model the number of input and output tokens, the number of
     input instances, the number of output completions.
 
-    The dataset is stored at https://worksheets.codalab.org/bundles/0x1ee8f5b532fe443db6a9e5b7da0c3b74.
+    The dataset is stored at https://worksheets.codalab.org/bundles/0x2114b0c528914911a4106d3fedf8a05d.
     """
 
     name = "synthetic_efficiency"
@@ -45,7 +45,7 @@ class SyntheticEfficiencyScenario(Scenario):
         self.num_prompt_tokens: int = num_prompt_tokens
         self.num_instances: int = num_instances
         self.tokenizer: str = tokenizer
-        assert self.tokenizer in ["huggingface/gpt2", "ai21/j1"]
+        assert self.tokenizer in ["huggingface/gpt2", "ai21/j1", "cohere/cohere", "meta/opt", "yandex/yalm"]
 
     def get_instances(self) -> List[Instance]:
         instances: List[Instance] = []
@@ -57,7 +57,7 @@ class SyntheticEfficiencyScenario(Scenario):
             )
             data_path: str = os.path.join(self.output_path, file_name)
             ensure_file_downloaded(
-                source_url=f"https://worksheets.codalab.org/rest/bundles/0x1ee8f5b532fe443db6a9e5b7da0c3b74/"
+                source_url=f"https://worksheets.codalab.org/rest/bundles/0x2114b0c528914911a4106d3fedf8a05d/"
                 f"contents/blob/{file_name}",
                 target_path=data_path,
                 unpack=False,

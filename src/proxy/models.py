@@ -16,6 +16,8 @@ WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"
 # To fetch models that use these tokenizers
 GPT2_TOKENIZER_TAG: str = "gpt2_tokenizer"
 AI21_TOKENIZER_TAG: str = "ai21_tokenizer"
+COHERE_TOKENIZER_TAG: str = "cohere_tokenizer"
+OPT_TOKENIZER_TAG: str = "opt_tokenizer"
 
 # Models that are used for ablations and fine-grained analyses.
 # These models are selected specifically because of their low marginal cost to evaluate.
@@ -252,7 +254,7 @@ ALL_MODELS = [
         name="cohere/xlarge-20220609",
         display_name="Cohere xlarge",
         description="Cohere xlarge",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
         group="cohere",
@@ -260,7 +262,7 @@ ALL_MODELS = [
         name="cohere/large-20220720",
         display_name="Cohere large",
         description="Cohere large",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
         group="cohere",
@@ -268,7 +270,7 @@ ALL_MODELS = [
         name="cohere/medium-20220720",
         display_name="Cohere medium",
         description="Cohere medium",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
         group="cohere",
@@ -276,7 +278,7 @@ ALL_MODELS = [
         name="cohere/small-20220720",
         display_name="Cohere small",
         description="Cohere small",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     # GooseAI supported models
     Model(
@@ -386,7 +388,7 @@ ALL_MODELS = [
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
         "transformers fully and responsibly shared with interested researchers.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
     ),
     Model(
         group="together",
@@ -396,7 +398,7 @@ ALL_MODELS = [
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
         "transformers fully and responsibly shared with interested researchers.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
     ),
     Model(
         group="together",
