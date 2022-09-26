@@ -96,7 +96,8 @@ def add_run_args(parser: argparse.ArgumentParser):
         "-t",
         "--num-train-trials",
         type=int,
-        help="Number of trials where each trial samples a different set of in-context examples.",
+        help="Number of trials where each trial samples a different set of in-context examples. "
+        "Overrides the value in Adapter spec.",
     )
     parser.add_argument(
         "--suite", type=str, help="Name of the suite this run belongs to (default is today's date).", required=True,
