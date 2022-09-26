@@ -688,8 +688,8 @@ scenario_groups:
 ## Language scenarios
 # Language modeling
   - name: ice
-    display_name: ICE (International Corpus of English)
-    description: The subset of the International Corpus of English (ICE) drawn from English speakers from various places in the world.
+    display_name: ICE (The International Corpus of English)
+    description: The International Corpus of English (ICE) represents English language varieties from around the world (initated by Greenbaum (1991)).
     metric_groups:
       - accuracy
       - efficiency
