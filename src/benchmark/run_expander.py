@@ -169,6 +169,13 @@ class StopRunExpander(RunExpander):
         ]
 
 
+class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
+    """For estimating variance across runs."""
+
+    name = "num_train_trials"
+    values_dict = {"default": [3]}
+
+
 class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
     """For getting learning curves."""
 
@@ -565,6 +572,7 @@ RUN_EXPANDERS = dict(
         InstructionsRunExpander,
         PromptRunExpander,
         StopRunExpander,
+        NumTrainTrialsRunExpander,
         MaxTrainInstancesRunExpander,
         NumOutputsRunExpander,
         ModelRunExpander,
