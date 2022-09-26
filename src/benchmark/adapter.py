@@ -231,28 +231,22 @@ class Prompt:
     # (input_truncated == True implies num_in_context_examples == 0)
     truncated_input: Optional[str] = None
 
-    def __post_init__(self):
-        # Text for the prompt, not truncated
-        self.text = self.get_text()
-        # Text that should be passed to the request, might be truncated
-        self.request_text = self.get_request_text()
-        # Whether the input is truncated
-        self.input_truncated = self.get_input_truncated()
-        # Number of in-context examples in the prompt
-        self.num_in_context_examples = self.get_num_in_context_examples()
-
-    def get_text(self) -> str:
+    @property
+    def text(self) -> str:
+        # Text for the prompt, might be truncated
         blocks = [self.instruction_block] if self.instruction_block else []
         blocks += self.in_context_example_blocks + [self.example_block]
-        return self.instance_prefix.join(blocks)
+        non_truncated_input = self.instance_prefix.join(blocks)
+        return self.truncated_input if self.truncated_input else non_truncated_input
 
-    def get_request_text(self) -> str:
-        return self.truncated_input if self.truncated_input else self.text
-
-    def get_input_truncated(self) -> bool:
+    @property
+    def input_truncated(self) -> bool:
+        # Whether the input is truncated
         return self.truncated_input is not None
 
-    def get_num_in_context_examples(self) -> int:
+    @property
+    def num_in_context_examples(self) -> int:
+        # Number of in-context examples in the prompt
         return len(self.in_context_example_blocks)
 
 
@@ -285,7 +279,7 @@ class Processor:
         prompt = self.construct_prompt(self.train_instances, eval_instance, include_output=False, reference_index=None)
         request = Request(
             model=self.adapter_spec.model,
-            prompt=prompt.request_text,
+            prompt=prompt.text,
             num_completions=self.adapter_spec.num_outputs,
             temperature=self.adapter_spec.temperature,
             max_tokens=self.adapter_spec.max_tokens,
@@ -313,7 +307,7 @@ class Processor:
         )
         request = Request(
             model=self.adapter_spec.model,
-            prompt=prompt.request_text,
+            prompt=prompt.text,
             num_completions=1,
             top_k_per_token=self.adapter_spec.num_outputs,
             temperature=0,
@@ -368,7 +362,7 @@ class Processor:
                     raise ValueError(f"Unknown request mode: {request_mode}")
                 request = Request(
                     model=self.adapter_spec.model,
-                    prompt=prompt.request_text,
+                    prompt=prompt.text,
                     num_completions=1,
                     temperature=0,
                     max_tokens=0,
@@ -427,7 +421,7 @@ class Processor:
             )
             request = Request(
                 model=self.adapter_spec.model,
-                prompt=prompt.request_text,
+                prompt=prompt.text,
                 num_completions=self.adapter_spec.num_outputs,
                 temperature=self.adapter_spec.temperature,
                 max_tokens=self.adapter_spec.max_tokens,
@@ -579,8 +573,8 @@ class Processor:
             assert reference_index is not None
             reference_indices = [reference_index]
 
-        # Create request texts
-        request_texts = []
+        # Create example blocks
+        example_blocks = []
         for index in reference_indices:
             # Get reference
             reference = instance.references[index]
@@ -598,12 +592,12 @@ class Processor:
                 ir_label = RANKING_CORRECT_LABEL if CORRECT_TAG in reference.tags else RANKING_WRONG_LABEL
                 output_text += ir_label + self.adapter_spec.output_suffix
 
-            # Construct request_text
-            request_text = reference_text + query_text + output_text
-            request_texts.append(request_text)
+            # Construct text blocks
+            example_block = reference_text + query_text + output_text
+            example_blocks.append(example_block)
 
         # Combine the request texts and return
-        example_text = self.adapter_spec.instance_prefix.join(request_texts)
+        example_text = self.adapter_spec.instance_prefix.join(example_blocks)
         return example_text
 
     def get_reference_prefix(self, prefix: str, i: int) -> str:
@@ -984,12 +978,12 @@ class Adapter:
             # Uses `max_sequence_length` instead of `max_request_length` here because `prefix_token` will be prepended
             # to the sequence later. This is the only place where `max_sequence_length` is used.
             first_seq_len: int = min(max_sequence_length, len(tokens))
-            request_text, num_conditioning_tokens = self.construct_language_modeling_prompt(
+            prompt_text, num_conditioning_tokens = self.construct_language_modeling_prompt(
                 self.window_service.encode(prefix_token).tokens, tokens[:first_seq_len], max_request_length, text
             )
             request = Request(
                 model=self.adapter_spec.model,
-                prompt=request_text,
+                prompt=prompt_text,
                 num_completions=1,
                 temperature=0,
                 max_tokens=self.adapter_spec.max_tokens,  # usually this is zero
@@ -1031,13 +1025,13 @@ class Adapter:
                     window_end - max_request_length : num_predicted_tokens
                 ]
                 pred_tokens: List[TokenizationToken] = tokens[num_predicted_tokens:window_end]
-                request_text, num_conditioning_tokens = self.construct_language_modeling_prompt(
+                prompt_text, num_conditioning_tokens = self.construct_language_modeling_prompt(
                     conditioning_tokens, pred_tokens, max_request_length, text
                 )
 
                 request = Request(
                     model=self.adapter_spec.model,
-                    prompt=request_text,
+                    prompt=prompt_text,
                     num_completions=1,
                     temperature=0,
                     max_tokens=self.adapter_spec.max_tokens,  # usually this is zero
