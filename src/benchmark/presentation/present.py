@@ -41,6 +41,7 @@ class AllRunner:
         dry_run: Optional[bool],
         skip_instances: bool,
         max_eval_instances: Optional[int],
+        num_train_trials: Optional[int],
         models_to_run: Optional[List[str]],
         scenario_groups_to_run: Optional[List[str]],
         exit_on_error: bool,
@@ -57,6 +58,7 @@ class AllRunner:
         self.dry_run: Optional[bool] = dry_run
         self.skip_instances: bool = skip_instances
         self.max_eval_instances: Optional[int] = max_eval_instances
+        self.num_train_trials: Optional[int] = num_train_trials
         self.models_to_run: Optional[List[str]] = models_to_run
         self.scenario_groups_to_run: Optional[List[str]] = scenario_groups_to_run
         self.exit_on_error: bool = exit_on_error
@@ -98,6 +100,7 @@ class AllRunner:
                     dry_run=self.dry_run,
                     skip_instances=self.skip_instances,
                     max_eval_instances=self.max_eval_instances,
+                    num_train_trials=self.num_train_trials,
                     models_to_run=self.models_to_run,
                     scenario_groups_to_run=self.scenario_groups_to_run,
                 )
@@ -240,6 +243,7 @@ def main():
         dry_run=args.dry_run,
         skip_instances=args.skip_instances,
         max_eval_instances=args.max_eval_instances,
+        num_train_trials=args.num_train_trials,
         models_to_run=args.models_to_run,
         scenario_groups_to_run=args.scenario_groups_to_run,
         exit_on_error=args.exit_on_error,
