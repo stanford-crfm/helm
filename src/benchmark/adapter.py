@@ -226,9 +226,10 @@ class Prompt:
     # Instruction block for the prompt, including any instruction prefix.
     instruction_block: Optional[str] = None
 
-    # Set if the input of the corresponding Instance was truncated to fit the model's context window for this Request
+    # Set if the input of the corresponding Instance was truncated to fit the
+    # model's context window for this Request
     # (input_truncated == True implies num_in_context_examples == 0)
-    truncated_text: Optional[str] = None
+    truncated_input: Optional[str] = None
 
     def __post_init__(self):
         # Text for the prompt, not truncated
@@ -246,10 +247,10 @@ class Prompt:
         return self.instance_prefix.join(blocks)
 
     def get_request_text(self) -> str:
-        return self.truncated_text if self.truncated_text else self.text
+        return self.truncated_input if self.truncated_input else self.text
 
     def get_input_truncated(self) -> bool:
-        return self.truncated_text is not None
+        return self.truncated_input is not None
 
     def get_num_in_context_examples(self) -> int:
         return len(self.in_context_example_blocks)
@@ -392,19 +393,28 @@ class Processor:
         """ Adaptation strategy for ranking tasks, reduced to binary ranking.
 
         For tasks that require ranking, such as information retrieval tasks,
-        an instance corresponds to a single query for which objects will be ranked.
-        # TODO reform the use of the word object
-        Each reference of an instance
-        corresponds to a single object. A single example then contains a query and
-        an object, relevance of which with respect to the query will be judged by
-        the model. A request consists of a single example and a number of in-context
-        training examples.
+        an instance corresponds to a single query for which documents will be
+        ranked. ach reference of an instance corresponds to a single document.
+        A single example then contains a query and a document, relevance of
+        which with respect to the query will be judged by the model. A request
+        consists of a single example and a number of in-context training
+        examples. That is, given:
+
+            [input], [reference_1], ... [reference_k]
+
+        We construct the prompt:
+
+            Passage: [reference_i]
+            Query: [input]
+            Does the passage answer the query?
+            Answer: Yes | No
 
         The success of the scenarios using this adaptation strategy is measured
-        using the InformationRetrievalMetrics in the "binary_ranking" mode.
+        using the RankingMetric in the "binary_ranking" mode.
 
-        Refer to the documentation for self.construct_example_prompt_ranking_binary
-        for details on how the examples are constructed.
+        Refer to the documentation for
+        self.construct_example_prompt_ranking_binary for details on how the
+        examples are constructed.
         """
         request_states = []
         for reference_index, reference in enumerate(eval_instance.references):
@@ -499,21 +509,20 @@ class Processor:
             ):
                 removed_train_instances_count: int = orig_train_instances_count - len(prompt.in_context_example_blocks)
                 if removed_train_instances_count > 0:
-                    warning = (
-                        f"The original constructed prompt exceeded the max context length. Removed "
-                        f"{removed_train_instances_count} in-context examples to fit it within the context"
-                        f"window."
+                    hlog(
+                        f"The original constructed prompt exceeded the max context length. "
+                        f"Removed {removed_train_instances_count} in-context examples to fit "
+                        f"it within the context window."
                     )
-                    hlog(warning)
                 return prompt
             prompt.in_context_example_blocks.pop()
 
         # If removing the in-context example is still not enough, we simply truncate the prompt.
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
         original_length = len(prompt.text)
-        truncated_text = self.window_service.truncate_from_right(prompt.text, self.adapter_spec.max_tokens)
-        if len(truncated_text) < original_length:
-            prompt.truncated_text = truncated_text
+        truncated_input = self.window_service.truncate_from_right(prompt.text, self.adapter_spec.max_tokens)
+        if len(truncated_input) < original_length:
+            prompt.truncated_input = truncated_input
         return prompt
 
     def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
@@ -553,15 +562,15 @@ class Processor:
     ) -> str:
         """ Return an example prompt for binary ranking tasks.
 
-        In the binary ranking prompt specification, the model's task is to output
-        RANKING_CORRECT_LABEL if the object included in the prompt contains an answer
-        to the query. If the object included does not answer the query, the model
-        is expected to output RANKING_WRONG_LABEL.
+        In the binary ranking prompt specification, the model's task is to
+        output RANKING_CORRECT_LABEL if the document included in the prompt
+        contains an answer to the query. If the document included does not answer
+        the query, the model is expected to output RANKING_WRONG_LABEL.
 
         Example prompt:
             Passage: Its 25 drops per ml, you guys are all wrong. If it is water, the standard was changed 15 - 20 years ago to make 20 drops = 1mL. The viscosity of most things is temperature dependent, so this would be at room temperature. Hope this helps.  # noqa
             Query: how many eye drops per ml
-            Prompt: Does the passage answer the query?
+            Does the passage answer the query?
             Answer: Yes
         """
         if instance.split == TRAIN_SPLIT:

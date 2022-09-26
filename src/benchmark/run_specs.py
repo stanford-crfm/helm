@@ -11,6 +11,8 @@ from .adapter import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_GENERATION,
     ADAPT_RANKING_BINARY,
+    RANKING_CORRECT_LABEL,
+    RANKING_WRONG_LABEL,
 )
 from .metrics.metric import MetricSpec
 from .run_expander import RUN_EXPANDERS
@@ -115,15 +117,13 @@ def get_ranking_binary_adapter_spec(
     instructions: str = "",
     object_noun: str = "Passage",
     query_noun: str = "Query",
-    prompt_noun: str = "Prompt",
-    prompt_content: str = "Does the passage answer the query?",
+    output_prefix: str = "Does the passage answer the query?",
     output_noun: str = "Answer",
     max_train_instances: int = 2,
-    max_eval_instances: Optional[int] = None,
     num_outputs: int = 1,
     num_train_trials: int = 1,
     temperature: float = 0.0,
-    stop_sequences: Optional[List] = None,  # default value of `stop_sequences` is no stop sequence,
+    **kwargs,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -145,9 +145,6 @@ def get_ranking_binary_adapter_spec(
     [prompt_noun]: [prompt_content]
     [output_noun]: [output]
     """
-    if stop_sequences is None:
-        stop_sequences = []
-
     return AdapterSpec(
         method=ADAPT_RANKING_BINARY,
         instructions=format_instructions(instructions),
@@ -155,13 +152,12 @@ def get_ranking_binary_adapter_spec(
         input_suffix="\n",
         reference_prefix=f"{object_noun}: ",
         reference_suffix="\n",
-        output_prefix=f"{prompt_noun}: {prompt_content}\n{output_noun}: ",
+        output_prefix=f"{output_prefix}\n{output_noun}: ",
         max_train_instances=max_train_instances,
-        max_eval_instances=max_eval_instances,
         num_outputs=num_outputs,
         num_train_trials=num_train_trials,
         temperature=temperature,
-        stop_sequences=stop_sequences,
+        **kwargs,
     )
 
 
@@ -344,29 +340,23 @@ def get_bbq_metric_specs() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={})] + get_exact_match_metric_specs()
 
 
-def get_msmarco_metric_specs(track: str, topk: Optional[int] = None) -> List[MetricSpec]:
+def get_msmarco_metric_specs(track: str, rank: Optional[int] = None) -> List[MetricSpec]:
     # Names of the measures we want to compute.
     measure_names = MSMARCOScenario.MEASURE_NAMES[track]
-
-    # TODO: I was hoping to set the correct / wrong output labels on the adapter side, but we need to somehow pass
-    #       the same information to the metric. Setting them here for the time being.
-    correct_output, wrong_output = "Yes", "No"
-
-    multi_value_qrels = set(MSMARCOScenario.GOLD_RELATIONS[track]) != {1}
+    multiple_relevance_values = set(MSMARCOScenario.GOLD_RELATIONS[track]) != {1}
 
     return [
+        # TODO: Double check the metrics with Rishi.
         MetricSpec(
-            class_name="benchmark.multiple_request_metrics.InformationRetrievalMetric",
+            class_name="benchmark.ranking_metrics.RankingMetric",
             args={
+                "mode": ADAPT_RANKING_BINARY,
                 "measure_names": measure_names,
-                "correct_output": correct_output,
-                "wrong_output": wrong_output,
-                "topk": topk,
-                "multi_value_qrels": multi_value_qrels,
+                "correct_output": RANKING_CORRECT_LABEL,
+                "wrong_output": RANKING_WRONG_LABEL,
+                "rank": rank,
+                "multiple_relevance_values": multiple_relevance_values,
             },
-        ),
-        MetricSpec(
-            class_name="benchmark.multiple_request_metrics.MultipleRequestMetrics", args={"use_basic_metrics": True}
         ),
         MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
     ]
@@ -506,21 +496,20 @@ def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Run
 
 def get_msmarco_spec(track, use_topk_objects="False", valid_topk=None,) -> RunSpec:
     # Get ScenarioSpec
-    use_topk_objects = use_topk_objects.lower() == "true"
     valid_topk = int(valid_topk) if valid_topk else None
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.msmarco_scenario.MSMARCOScenario",
-        args={"track": track, "use_topk_objects": use_topk_objects, "valid_topk": valid_topk},
+        args={"track": track, "valid_topk": valid_topk},
     )
 
     # Get AdapterSpec
     # Limiting the number of total validation instances to 200 due to the large size of the MS MARCO prompts.
     max_eval_instances = min(200, MSMARCOScenario.MAX_NUM_QUERIES[track])
-    max_eval_instances = 2  # TODO delete, for testing
+    max_eval_instances = 2  # TODO: Delete, for testing
     adapter_spec = get_ranking_binary_adapter_spec(stop_sequences=["\n"], max_eval_instances=max_eval_instances)
 
     # Get the list of MetricSpecs
-    metric_specs = get_msmarco_metric_specs(track, topk=valid_topk) + get_generative_harms_metric_specs()
+    metric_specs = get_msmarco_metric_specs(track=track, rank=valid_topk) + get_generative_harms_metric_specs()
 
     # Return RunSpec
     return RunSpec(

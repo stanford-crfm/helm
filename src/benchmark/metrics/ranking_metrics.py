@@ -4,7 +4,7 @@ from typing import Dict, List, Tuple, Optional
 import pytrec_eval
 
 from common.request import RequestResult
-from ..adapter import AdapterSpec, RequestState, CORRECT_TAG
+from ..adapter import AdapterSpec, RequestState, CORRECT_TAG, ADAPT_RANKING_BINARY
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -38,7 +38,7 @@ class RankingObject:
 
     """ Model relevance.
 
-    Relevance of this object for the query as determined by the model completion
+    Relevance of this object for the query as determined by the model output
     and logprob.
     """
     model_relevance: Optional[int] = None
@@ -50,13 +50,12 @@ class RankingMetric(Metric):
     """ Modes supported by this metric.
 
     Following modes are supported by this metric:
-        (1) binary_ranking: In binary_ranking mode, the model's task is to
+        (1) ADAPT_RANKING_BINARY: In binary_ranking mode, the model's task is to
             predict whether a given context contains an answer to a given query.
             Different contexts for a query are then sorted using the label
-            outputted by model as well as its confidence in the label.
+            outputted by model as well as the model's confidence in the label.
     """
-    BINARY_RANKING_MODE = "binary_ranking"
-    MODE_LIST = [BINARY_RANKING_MODE]
+    MODE_LIST = [ADAPT_RANKING_BINARY]
 
     """ Measures. """
     RECIP_RANK_MEASURE = "recip_rank"
@@ -76,49 +75,53 @@ class RankingMetric(Metric):
 
     def __init__(
         self,
-        measure_names: List[str],
         mode: str,
+        measure_names: List[str],
         correct_output: str,
         wrong_output: str,
         rank: Optional[int] = None,
-        multi_value_relevance: bool = False,
+        multiple_relevance_values: bool = False,
     ):
         """Constructor for the RankingMetric.
 
-        #TODO
         Args:
+            mode: The adaptation mode used. The mode must exists in
+                self.MODES_LIST.
             measure_names: The trec_eval measure names that will be computed.
                 Measure names must be measure names supported by the official
                 trec_eval measure. List of supported measures can be found in
                 self.SUPPORTED_MEASURES. Note that:
                     (1) We also accept the parametrized versions
                         (e.g. "measure_name.k") of self.SUPPORTED_MEASURES
-                        measures. Finally,
+                        measures.
                     (2) We accept any measure that's in either "measure_name" or
                         "measure_name.k" form, where measure_name is in
                         pytrec_eval.supported_measures, but note that
                         self.BINARY_MEASURES list must be modified to
                         include any new binary measures.
-            mode: The information retrieval problem formulation used in the
-                scenario implementing the information retrieval task. The mode
-                must exists in self.MODES_LIST.
-            correct_output: If the binary_logprob mode is selected, the string
-                that should be outputted if the model predicts that the object
-                given in the instance can answer the question.
-            wrong_output: If the binary_logprob mode is selected, the string
-                that should be outputted if the model predicts that the object
-                given in the instance can not answer the question.
-            rank: The optional number of max top object rankings to keep for
+            correct_output: If the ADAPT_RANKING_BINARY mode is selected,
+                the string that should be outputted if the model predicts that
+                the object given in the instance can answer the question.
+            wrong_output: If the ADAPT_RANKING_BINARY mode is selected, the
+                string that should be outputted if the model predicts that the
+                object given in the instance can not answer the question.
+            rank: The optional number of max top document rankings to keep for
                 evaluation. If None, all the rankings are evaluated. If topk is
-                specified, only the top min(len(rankings), topk) passage
+                specified, only the top min(len(rankings), topk) document
                 rankings are kept and used for evaluation for each query.
-            multi_value_relevance: Flag indicating whether the qrels file read
-                has more than two relevance values. In a binary qrels file, all
-                the non-matching relevance values would have the value 0 and
-                all the matching ones would have value of 1. For multi value
-                qrels files, value of 0 will be interpreted as non-matching,
-                but any other value would be interpreted as matching with
-                differing strengths.
+            multiple_relevance_values: Query relevance values can either be
+                binary or take on multiple values, as explained below. This flag
+                indicates whether the relevance values can take multiple values.
+                    (1) Binary relevance values: If the relevance values are
+                        binary, it means that all the matching relationships
+                        would get assigned a relevance value of 1, while the
+                        known non-matching relationships would get assigned a
+                        relevance value of 0.
+                    (2) Multiple relevance values: In the case of multiple
+                        relevance values, the value of 0 will be interpreted as
+                        non-matching relationship, but any other value would be
+                        interpreted as a matching relationship differing
+                        strengths.
         """
         # Input validation
         assert mode in self.MODE_LIST, f"Mode must be one of {self.MODE_LIST}, instead found {mode}."
@@ -135,7 +138,11 @@ class RankingMetric(Metric):
             assert rank >= 0
         self.rank = rank
 
-        self.multi_value_relevance = multi_value_relevance
+        self.multiple_relevance_values = multiple_relevance_values
+
+        # Decide which model relevance function to use
+        MODE_TO_RELEVANCE_FUNCTION = {ADAPT_RANKING_BINARY: self.compute_model_relevance_binary_ranking}
+        self.model_relevance_fn = MODE_TO_RELEVANCE_FUNCTION[self.mode]
 
     @staticmethod
     def parse_measure_name(measure_name) -> Tuple[str, Optional[int]]:
@@ -171,22 +178,28 @@ class RankingMetric(Metric):
         _, value = tag.split("=")
         return value
 
-    def get_run_relevances(
-        self, ranking_objects: List[RankingObject], rank_limit: Optional[int] = None
-    ) -> Dict[int, int]:
+    def get_run_relevances(self, ranking_objs: List[RankingObject], rank_limit: Optional[int] = None) -> Dict[int, int]:
         """ Get the relevance dictionary for the run. """
+        assert all([r.model_relevance is not None for r in ranking_objs])
         if rank_limit:
-            return {obj.reference_index: obj.model_relevance for obj in ranking_objects if obj.rank <= rank_limit}
-        return {obj.reference_index: obj.model_relevance for obj in ranking_objects}
+            assert all([r.rank is not None for r in ranking_objs])
+            return {r.reference_index: r.model_relevance for r in ranking_objs if r.rank <= rank_limit}  # type: ignore
+        return {r.reference_index: r.model_relevance for r in ranking_objs}  # type: ignore
 
     def get_true_relevances(self, ranking_objects: List[RankingObject]) -> Dict[int, int]:
         """ Get the true relevance dictionary. """
+        assert all([obj.relevance is not None for obj in ranking_objects])
         return {obj.reference_index: obj.relevance for obj in ranking_objects if obj.relevance}
 
-    def object_to_score(self, ranking_object: RankingObject) -> Tuple[int, float]:
+    def object_to_score_binary_ranking(self, ranking_object: RankingObject) -> Tuple[int, float]:
         """ Score the given ranking object. """
+        # Input validation
+        assert ranking_object.model_output is not None
         token = self.standardize(ranking_object.model_output)
+        assert ranking_object.model_logprob is not None
         logprob = ranking_object.model_logprob
+
+        # Score
         if token == self.standardize(self.correct_output):
             return 2, logprob
         elif token == self.standardize(self.wrong_output):
@@ -194,10 +207,10 @@ class RankingMetric(Metric):
         else:
             return 0, -1 * logprob
 
-    def populate_model_relevance(self, ranking_objects: List[RankingObject]) -> List[RankingObject]:
+    def compute_model_relevance_binary_ranking(self, ranking_objects: List[RankingObject]) -> List[RankingObject]:
         """ Populate the model_relevance field for the ranking objects. """
         # Sort the ranking objects
-        ranking_objects_sorted = sorted(ranking_objects, key=self.object_to_score, reverse=True)
+        ranking_objects_sorted = sorted(ranking_objects, key=self.object_to_score_binary_ranking, reverse=True)
 
         # Add model relevance
         for ind, ranking_object in enumerate(ranking_objects_sorted):
@@ -218,7 +231,7 @@ class RankingMetric(Metric):
     def create_ranking_object(self, request_state: RequestState) -> RankingObject:
         """ Create a RankingObject from a RequestState. """
         # Get reference index
-        assert request_state.reference_index
+        assert request_state.reference_index is not None
         reference_index = request_state.reference_index
         reference = request_state.instance.references[request_state.reference_index]
 
@@ -274,7 +287,7 @@ class RankingMetric(Metric):
         parsed_measure_name, k = self.parse_measure_name(evaluator_measure_name)
 
         # If the measure is a binary measure, we binarize the true relevance values.
-        if parsed_measure_name in self.BINARY_MEASURES and self.multi_value_relevance:
+        if parsed_measure_name in self.BINARY_MEASURES and self.multiple_relevance_values:
             true_relevances = self.binarize_relevance_dict(true_relevances)
 
         # pytrec doesn't support parametrization for some measure names. For
@@ -302,8 +315,7 @@ class RankingMetric(Metric):
         for evaluator_measure_name in self.measure_names:
             score = self.compute_measure(true_relevances, run_relevances, evaluator_measure_name)
             metric_name = self.measure_to_metric_name(evaluator_measure_name)
-            metric_name += metric_name_suffix
-            stat = Stat(MetricName(metric_name)).add(score)
+            stat = Stat(MetricName(metric_name + metric_name_suffix)).add(score)
             stats.append(stat)
         return stats
 
@@ -314,12 +326,12 @@ class RankingMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        """ TODO. """
+        """ Assign a score to the ranking of the references of an instance. """
         # Extract relevant data from the request states.
         ranking_objects: List[RankingObject] = [self.create_ranking_object(rs) for rs in reference_request_states]
 
         # Populate the model relevance of the ranking objects.
-        ranking_objects = self.populate_model_relevance(ranking_objects)
+        ranking_objects = self.model_relevance_fn(ranking_objects)
 
         # Get ground truth relevances.
         true_relevances: Dict[int, int] = self.get_true_relevances(ranking_objects)
