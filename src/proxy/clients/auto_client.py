@@ -45,19 +45,21 @@ class AutoClient(Client):
             org_id: Optional[str]
             client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
 
+            # For the organizations for which we access their models through an API, we create a
+            # separate cache for each model since there will be many reads/writes.
             if organization == "openai":
                 org_id = self.credentials.get("openaiOrgId", None)
                 client = OpenAIClient(
-                    api_key=self.credentials["openaiApiKey"], cache_path=client_cache_path, org_id=org_id
+                    api_key=self.credentials["openaiApiKey"], cache_path=self.cache_path, org_id=org_id
                 )
             elif organization == "ai21":
-                client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
+                client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=self.cache_path)
             elif organization == "cohere":
-                client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_path=client_cache_path)
+                client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_path=self.cache_path)
             elif organization == "gooseai":
                 org_id = self.credentials.get("gooseaiOrgId", None)
                 client = GooseAIClient(
-                    api_key=self.credentials["gooseaiApiKey"], cache_path=client_cache_path, org_id=org_id
+                    api_key=self.credentials["gooseaiApiKey"], cache_path=self.cache_path, org_id=org_id
                 )
             elif organization == "huggingface":
                 client = self.huggingface_client
@@ -126,9 +128,9 @@ class AutoClient(Client):
             elif organization == "Yandex":
                 client = YaLMTokenizerClient(cache_path=client_cache_path)
             elif organization == "ai21":
-                client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
+                client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=self.cache_path)
             elif organization == "cohere":
-                client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_path=client_cache_path)
+                client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_path=self.cache_path)
             elif organization == "simple":
                 client = SimpleClient(cache_path=client_cache_path)
             else:

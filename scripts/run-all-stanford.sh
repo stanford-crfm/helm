@@ -43,8 +43,6 @@ models=(
   "openai/text-ada-001"
   "openai/code-davinci-002"
   "openai/code-cushman-001"
-  "gooseai/gpt-j-6b"
-  "gooseai/gpt-neo-20b"
   "anthropic/stanford-online-all-v4-s3"
   "cohere/xlarge-20220609"
   "cohere/large-20220720"

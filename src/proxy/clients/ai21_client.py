@@ -3,7 +3,7 @@ import requests
 
 from dacite import from_dict
 
-from common.cache import Cache
+from common.cache import get_inference_cache, get_tokenizer_cache, Cache
 from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
@@ -40,7 +40,7 @@ class AI21Client(Client):
 
     def __init__(self, api_key: str, cache_path: str):
         self.api_key = api_key
-        self.cache = Cache(cache_path)
+        self.cache_path: str = cache_path
 
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
@@ -72,7 +72,8 @@ class AI21Client(Client):
         try:
             # We need to include the engine's name to differentiate among requests made for different model engines
             cache_key = Client.make_cache_key({"engine": request.model_engine, **raw_request}, request)
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            cache: Cache = get_inference_cache(self.cache_path, request)
+            response, cached = cache.get(cache_key, wrap_request_time(do_it))
         except AI21RequestError as e:
             return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
@@ -156,7 +157,8 @@ class AI21Client(Client):
             return response
 
         try:
-            response, cached = self.cache.get(raw_request, do_it)
+            cache: Cache = get_tokenizer_cache(self.cache_path, request)
+            response, cached = cache.get(raw_request, wrap_request_time(do_it))
         except AI21RequestError:
             return TokenizationRequestResult(success=False, cached=False, text="", tokens=[])
 

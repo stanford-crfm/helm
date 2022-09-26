@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import openai
 
-from common.cache import Cache
+from common.cache import get_inference_cache, Cache
 from common.request import Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
@@ -21,7 +21,7 @@ class OpenAIClient(Client):
         self.org_id: Optional[str] = org_id
         self.api_key: str = api_key
         self.api_base: str = "https://api.openai.com/v1"
-        self.cache = Cache(cache_path)
+        self.cache_path: str = cache_path
 
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
@@ -71,7 +71,8 @@ class OpenAIClient(Client):
                     return openai.Completion.create(**raw_request)
 
             cache_key = Client.make_cache_key(raw_request, request)
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            cache: Cache = get_inference_cache(self.cache_path, request)
+            response, cached = cache.get(cache_key, wrap_request_time(do_it))
         except openai.error.OpenAIError as e:
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])

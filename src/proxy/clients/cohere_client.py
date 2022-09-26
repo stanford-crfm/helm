@@ -3,7 +3,7 @@ import requests
 from typing import List, Dict
 from urllib.parse import urljoin
 
-from common.cache import Cache
+from common.cache import Cache, get_inference_cache, get_tokenizer_cache
 from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
@@ -40,7 +40,7 @@ class CohereClient(Client):
 
     def __init__(self, api_key: str, cache_path: str):
         self.api_key: str = api_key
-        self.cache = Cache(cache_path)
+        self.cache_path: str = cache_path
 
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
@@ -136,7 +136,8 @@ class CohereClient(Client):
                 assert "generations" in result, f"Invalid response: {result}"
                 return result
 
-            response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
+            cache: Cache = get_inference_cache(self.cache_path, request)
+            response, cached = cache.get(raw_request, wrap_request_time(do_it))
         except (requests.exceptions.RequestException, AssertionError) as e:
             error: str = f"CohereClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
@@ -216,7 +217,8 @@ class CohereClient(Client):
                 assert "tokens" in result and "token_strings" in result, f"Invalid response: {result}"
                 return result
 
-            response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
+            cache: Cache = get_tokenizer_cache(self.cache_path, request)
+            response, cached = cache.get(raw_request, wrap_request_time(do_it))
         except (requests.exceptions.RequestException, AssertionError) as e:
             error: str = f"CohereClient error: {e}"
             return TokenizationRequestResult(error=error, success=False, cached=False, text="", tokens=[])

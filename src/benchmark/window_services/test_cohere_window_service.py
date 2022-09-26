@@ -20,7 +20,7 @@ class TestCohereWindowService:
         ensure_directory_exists(cache_path)
 
         # Build the cache with real requests and responses
-        with SqliteDict(os.path.join(cache_path, "cohere.sqlite")) as cache:
+        with SqliteDict(os.path.join(cache_path, "cohere-cohere-tokenizer.sqlite")) as cache:
             for request, response in REQUESTS_TO_RESPONSES.items():
                 cache[request] = response
             cache.commit()

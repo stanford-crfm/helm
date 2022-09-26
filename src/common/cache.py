@@ -1,8 +1,11 @@
 import json
+import os
 from typing import Dict, Callable, Tuple
 from collections import defaultdict
 import threading
 
+from common.request import Request
+from common.tokenization_request import TokenizationRequest
 from sqlitedict import SqliteDict
 
 from common.general import hlog, htrack
@@ -107,3 +110,13 @@ class Cache(object):
                 response = compute()
                 write_to_cache(cache, key, response)
         return response, cached
+
+
+def get_inference_cache(cache_path: str, request: Request) -> Cache:
+    return Cache(os.path.join(cache_path, f"{request.model_organization}-{request.model_engine}.sqlite"))
+
+
+def get_tokenizer_cache(cache_path: str, request: TokenizationRequest) -> Cache:
+    return Cache(
+        os.path.join(cache_path, f"{request.tokenizer_organization}-{request.tokenizer_name}-tokenizer.sqlite")
+    )
