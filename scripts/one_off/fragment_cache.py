@@ -28,6 +28,8 @@ def fragment_cache(organization: str, output_path: str):
             new_cache_file: str
             if "engine" in request:
                 new_cache_file = f"{organization}-{request['engine']}.sqlite"
+            elif "model" in request:
+                new_cache_file = f"{organization}-{request['model']}.sqlite"
             else:
                 tokenizer_name: str
                 if organization == "cohere":
