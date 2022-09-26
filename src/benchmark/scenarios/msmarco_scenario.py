@@ -400,7 +400,6 @@ class MSMARCOScenario(Scenario):
         return qrels_dict
 
     @staticmethod
-    # TODO rename to rank
     def create_topk_dict(file_path: str, delimiter: str = "\t") -> Dict[int, Dict[int, int]]:
         """ Read the provided file as a topk dictionary.
 
@@ -410,7 +409,7 @@ class MSMARCOScenario(Scenario):
         Return a dictionary of the form:
             {
                 <qid>: {
-                    <rank>: <docid>,
+                    <docid>: <rank>,
                     ...
                 },
                 ...
@@ -419,7 +418,7 @@ class MSMARCOScenario(Scenario):
         topk_dict: Dict[int, Dict[int, int]] = defaultdict(dict)
         with open(file_path, encoding="utf-8") as f:
             for qid, docid, rank in csv.reader(f, delimiter=delimiter):
-                topk_dict[int(qid)][int(rank)] = int(docid)
+                topk_dict[int(qid)][int(docid)] = int(rank)
         topk_dict = {k: v for k, v in topk_dict.items()}  # Convert the defaultdict to a regular dict
         return topk_dict
 
@@ -570,7 +569,7 @@ class MSMARCOScenario(Scenario):
         # - Select the top Document ID from the filtered list as the wrong one.
         #   This ensures that the wrong documents we picked are competitive with
         #   the correct ones.
-        filtered_docids = [docid for k, docid in topk_dict[qid].items() if self.min_train_wrong_topk <= k <= topk]
+        filtered_docids = [docid for docid, k in topk_dict[qid].items() if self.min_train_wrong_topk <= k <= topk]
         wrong_docids = [
             docid
             for docid in filtered_docids
@@ -607,7 +606,7 @@ class MSMARCOScenario(Scenario):
 
         # If self.valid_topk is not None, we retrieve the IDs of the topk
         # most relevant documents for the query.
-        topk_docids = [docid for k, docid in topk_dict[qid].items() if k <= topk] if self.valid_topk is not None else []
+        topk_docids = [docid for docid, k in topk_dict[qid].items() if k <= topk] if self.valid_topk is not None else []
 
         # Combine the list of Document IDs, remove duplicates, and sort the list
         # based on the order in the previously shuffled Document ID list.
