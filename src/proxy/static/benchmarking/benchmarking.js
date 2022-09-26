@@ -596,7 +596,7 @@ $(function () {
     const $intro = $('<div>').append('Welcome to the CRFM benchmarking project!');
     const $links = $('<ul>').append(
       $('<li>').append($('<a>', {href: '?models'}).append('Models')),
-      $('<li>').append($('<a>', {href: '?groups'}).append('Scenario groups')),
+      $('<li>').append($('<a>', {href: '?groups'}).append('Groups')),
       $('<li>').append($('<a>', {href: '?runs'}).append('Runs')),
     );
     return $('<div>').append($intro).append($links);
@@ -614,6 +614,7 @@ $(function () {
     const $output = $('<div>');
     $output.append($('<h3>').append(table.title));
     const $table = $('<table>', {class: 'query-table results-table'});
+    console.log(table)
     const $header = $('<tr>').append(table.header.map(renderCell));
     $table.append($header);
 
@@ -630,8 +631,11 @@ $(function () {
 
   function renderTables(tables) {
     const $output = $('<div>');
+    const $links = $('<div>');
+    $output.append($links);
     tables.forEach((table) => {
-      $output.append($('<div>', {class: 'table-container'}).append(renderTable(table)));
+      $output.append($('<div>', {class: 'table-container', id: table.title}).append(renderTable(table)));
+      $links.append($('<a>', {href: '#' + table.title}).append('[' + table.title + ']'));
     });
     return $output;
   }
@@ -693,7 +697,7 @@ $(function () {
     } else if (urlParams.groups) {
       // All groups
       $.getJSON(`benchmark_output/runs/${suite}/groups.json`, {}, (response) => {
-        $main.append(renderTable(response));
+        $main.append(renderTables(response));
       });
     } else if (urlParams.group) {
       // Specific group

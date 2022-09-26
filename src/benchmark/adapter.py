@@ -33,7 +33,7 @@ class AdapterSpec:
     """
 
     # Method of adaptation
-    method: str
+    method: str = "Generation"
 
     # Prompt starts with instructions
     instructions: str = ""

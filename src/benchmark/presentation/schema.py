@@ -9,6 +9,8 @@ from benchmark.metrics.metric_name import MetricName
 from benchmark.augmentations.perturbation_description import PERTURBATION_WORST
 
 SCHEMA_YAML_PATH: str = "src/proxy/static/schema.yaml"
+UP_ARROW = "\u2191"
+DOWN_ARROW = "\u2193"
 
 
 @dataclass(frozen=True)
@@ -30,8 +32,14 @@ class Field:
     # Description of the field
     description: Optional[str] = None
 
-    def get_short_display_name(self):
-        return self.short_display_name or self.display_name or self.name
+    # Whether a lower vaue for this field corresponds to a better model (e.g., False for accuracy, True for perplexity)
+    lower_is_better: bool = False
+
+    def get_short_display_name(self, arrow=False):
+        name = self.short_display_name or self.display_name or self.name
+        if arrow:
+            name += " " + (DOWN_ARROW if self.lower_is_better else UP_ARROW)
+        return name
 
 
 @dataclass(frozen=True)
@@ -88,7 +96,7 @@ class MetricGroup(Field):
 
 
 @dataclass(frozen=True)
-class ScenarioGroup(Field):
+class RunGroup(Field):
     """
     Defines information about how a scenario group (really a list of runs that
     share the same scenario) are displayed.
@@ -97,8 +105,14 @@ class ScenarioGroup(Field):
     # What groups (by name) to show
     metric_groups: List[str] = field(default_factory=list)
 
+    # Which subgroups we have
+    subgroups: List[str] = field(default_factory=list)
+
     # Defines variables that are substituted in any of the metrics
     environment: Dict[str, str] = field(default_factory=dict)
+
+    # Which category these group belongs to (e.g., scenario, task, component)
+    category: str = "Scenarios"
 
 
 @dataclass
@@ -118,13 +132,13 @@ class Schema:
     metric_groups: List[MetricGroup]
 
     # Group the scenarios
-    scenario_groups: List[ScenarioGroup]
+    run_groups: List[RunGroup]
 
     def __post_init__(self):
         self.name_to_metric = {metric.name: metric for metric in self.metrics}
         self.name_to_perturbation = {perturbation.name: perturbation for perturbation in self.perturbations}
         self.name_to_metric_group = {metric_group.name: metric_group for metric_group in self.metric_groups}
-        self.name_to_scenario_group = {scenario_group.name: scenario_group for scenario_group in self.scenario_groups}
+        self.name_to_run_group = {run_group.name: run_group for run_group in self.run_groups}
 
 
 def read_schema():
