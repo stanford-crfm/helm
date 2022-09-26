@@ -3,14 +3,14 @@ from typing import List, Optional
 import openai as gooseai
 
 from common.cache import Cache
-from common.request import Request, RequestResult, Sequence, Token
+from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
 )
-from .client import Client, wrap_request_time
+from .client import Client, wrap_request_time, truncate_sequence
 from .openai_client import ORIGINAL_COMPLETION_ATTRIBUTES
 
 
@@ -33,6 +33,10 @@ class GooseAIClient(Client):
         Request parameters for GooseAI API documented here: https://goose.ai/docs/api/completions
         The only OpenAI API parameter not supported is `best_of`.
         """
+        # Embedding not supported for this model
+        if request.embedding:
+            return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
+
         raw_request = {
             "engine": request.model_engine,
             "prompt": request.prompt,
@@ -62,7 +66,7 @@ class GooseAIClient(Client):
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except gooseai.error.OpenAIError as e:
             error: str = f"OpenAI (GooseAI API) error: {e}"
-            return RequestResult(success=False, cached=False, error=error, completions=[])
+            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = []
         for raw_completion in response["choices"]:
@@ -82,6 +86,7 @@ class GooseAIClient(Client):
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},
             )
+            completion = truncate_sequence(completion, request)
             completions.append(completion)
 
         return RequestResult(
@@ -90,6 +95,7 @@ class GooseAIClient(Client):
             request_time=response["request_time"],
             request_datetime=response.get("request_datetime"),
             completions=completions,
+            embedding=[],
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:

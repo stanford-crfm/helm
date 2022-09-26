@@ -103,9 +103,9 @@ class CivilCommentsScenario(Scenario):
         instances: List[Instance] = []
         for _, row in df.iterrows():
             instance = Instance(
-                input=PassageQuestionInput(row["comment_text"], question="Is the passage above toxic?").to_text(),
+                input=PassageQuestionInput(str(row["comment_text"]), question="Is the passage above toxic?").to_text(),
                 references=[Reference(output="True" if row["toxicity"] >= 0.5 else "False", tags=[CORRECT_TAG])],
-                split=CivilCommentsScenario.SPLIT_MAPPING[row["split"]],
+                split=CivilCommentsScenario.SPLIT_MAPPING[str(row["split"])],
             )
             instances.append(instance)
         return instances

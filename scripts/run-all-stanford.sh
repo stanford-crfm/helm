@@ -27,7 +27,7 @@ work_dir=$PWD
 suite=$2
 logs_path="benchmark_output/runs/$suite/logs"
 mkdir -p $logs_path
-default_args="--max-eval-instances 1000 --priority 2 --local"
+default_args="--num-train-trials 3 --max-eval-instances 1000 --priority 2 --local"
 
 models=(
   "ai21/j1-jumbo"
@@ -52,8 +52,7 @@ models=(
   "cohere/small-20220720"
   # Offline evaluation models
   "microsoft/TNLGv2_530B"
-  # TODO: waiting for results
-  # "microsoft/TNLGv2_7B"
+  "microsoft/TNLGv2_7B"
   "together/bloom"
   "together/glm"
   "together/gpt-j-6b"

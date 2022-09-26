@@ -65,20 +65,6 @@ $(function () {
     return $table;
   }
 
-  function renderGroups(groups) {
-    const $table = $('<table>', {class: 'query-table'});
-    groups.forEach((group) => {
-      const params = encodeUrlParams(Object.assign({}, {group: group.name}));
-      const href = `benchmarking.html${params}`;
-      const $row = $('<tr>').append([
-        $('<td>').append($('<a>', {href: href}).append(group.display_name)),
-        $('<td>').append(group.description),
-      ]);
-      $table.append($row);
-    });
-    return $table;
-  }
-
   function renderRunsOverview(runSpecs) {
     let query = '';
     const $search = $('<input>', {type: 'text', size: 40, placeholder: 'Enter regex query (enter to open all)'});
@@ -423,7 +409,7 @@ $(function () {
 
         // For adapter method = joint
         if (requestState.output_mapping) {
-          prediction = requestState.output_mapping[prediction];
+          prediction = requestState.output_mapping[prediction] || prediction + ' (not mappable)';
         }
 
         if (method.startsWith('multiple_choice_separate_')) {

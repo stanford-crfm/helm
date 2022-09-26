@@ -4,7 +4,7 @@ from typing import List, Dict
 from urllib.parse import urljoin
 
 from common.cache import Cache
-from common.request import Request, RequestResult, Sequence, Token
+from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -13,7 +13,7 @@ from common.tokenization_request import (
     TokenizationToken,
 )
 from proxy.models import get_models_by_organization
-from .client import Client, wrap_request_time
+from .client import Client, wrap_request_time, truncate_sequence
 
 
 class CohereClient(Client):
@@ -43,6 +43,9 @@ class CohereClient(Client):
         self.cache = Cache(cache_path)
 
     def make_request(self, request: Request) -> RequestResult:
+        if request.embedding:
+            return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
+
         # Validate `Request` according to the rules here: https://docs.cohere.ai/generate-reference.
         # Set `return_likelihoods` based on the value of `echo_prompt`:
         # echo_prompt=True => return_likelihoods="ALL"
@@ -136,7 +139,7 @@ class CohereClient(Client):
             response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
         except (requests.exceptions.RequestException, AssertionError) as e:
             error: str = f"CohereClient error: {e}"
-            return RequestResult(success=False, cached=False, error=error, completions=[])
+            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = []
         for generation in response["generations"]:
@@ -164,7 +167,10 @@ class CohereClient(Client):
                 # Cohere does not prepend the original prompt to the output sequence when
                 # `return_likelihoods` is "ALL" and `max_tokens` is greater than 0.
                 sequence_text = request.prompt + sequence_text
-            completions.append(Sequence(text=sequence_text, logprob=sequence_logprob, tokens=tokens))
+
+            completion: Sequence = Sequence(text=sequence_text, logprob=sequence_logprob, tokens=tokens)
+            completion = truncate_sequence(completion, request)
+            completions.append(completion)
 
         return RequestResult(
             success=True,
@@ -172,6 +178,7 @@ class CohereClient(Client):
             request_time=response["request_time"],
             request_datetime=response["request_datetime"],
             completions=completions,
+            embedding=[],
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:

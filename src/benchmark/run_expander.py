@@ -11,6 +11,8 @@ from proxy.models import (
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
     GPT2_TOKENIZER_TAG,
     AI21_TOKENIZER_TAG,
+    COHERE_TOKENIZER_TAG,
+    OPT_TOKENIZER_TAG,
     ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
@@ -171,8 +173,13 @@ class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     """For estimating variance across runs."""
 
     name = "num_train_trials"
-    # TODO: increase to 3
-    values_dict = {"default": [1]}
+    values_dict = {
+        "1": [1],
+        "2": [2],
+        "3": [3],
+        "4": [4],
+        "5": [5],
+    }
 
 
 class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
@@ -209,6 +216,8 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
         "gpt2_tokenizer": get_model_names_with_tag(GPT2_TOKENIZER_TAG),
         "ai21_tokenizer": get_model_names_with_tag(AI21_TOKENIZER_TAG),
+        "cohere_tokenizer": get_model_names_with_tag(COHERE_TOKENIZER_TAG),
+        "opt_tokenizer": get_model_names_with_tag(OPT_TOKENIZER_TAG),
     }
 
     # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")
@@ -276,10 +285,8 @@ def filler(prob: float) -> PerturbationSpec:
     )
 
 
-def robustness(seed: Optional[int]) -> PerturbationSpec:
-    return PerturbationSpec(
-        class_name="benchmark.augmentations.robustness_perturbation.RobustnessPerturbation", args={"seed": seed},
-    )
+def mild_mix() -> PerturbationSpec:
+    return PerturbationSpec(class_name="benchmark.augmentations.mild_mix_perturbation.MildMixPerturbation", args={})
 
 
 def contract_and_expand() -> List[PerturbationSpec]:
@@ -360,7 +367,7 @@ def gender(
 # - r1: with perturbations [a, b]
 # - r2: with perturbations [c, d, e]
 
-ROBUSTNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [robustness(seed=None)]
+ROBUSTNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [mild_mix()]
 
 FAIRNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [
     dialect(prob=1.0, source_class="SAE", target_class="AAVE"),
@@ -501,6 +508,17 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "robustness": {"robustness": ROBUSTNESS_PERTURBATION_SPECS},
     "fairness": {"fairness": FAIRNESS_PERTURBATION_SPECS},
     "canonical": {"canonical": ROBUSTNESS_PERTURBATION_SPECS + FAIRNESS_PERTURBATION_SPECS},
+    "robustness_all": {
+        "robustness_all": [
+            *contract_and_expand(),
+            filler(0.1),
+            lower(),
+            misspelling(prob=0.1),
+            space(max_spaces=3),
+            synonym(prob=0.1),
+            typo(prob=0.01),
+        ]
+    },
 }
 
 
@@ -540,6 +558,7 @@ class DataAugmentationRunExpander(RunExpander):
                 should_augment_eval_instances=True,
                 should_include_original_eval=True,
                 should_skip_unchanged_eval=True,
+                seeds_per_instance=1,
             )
             return replace(
                 run_spec,

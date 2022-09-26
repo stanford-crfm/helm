@@ -82,12 +82,11 @@ class EntityMatchingScenario(Scenario):
         merged = pd.merge(mergedA, tableB, right_on="id", left_on="rtable_id", suffixes=("_A", "_B"))
         # If train, downsample negative rows to make class balanced for prompt sampling
         if split == TRAIN_SPLIT:
-            num_pos_classes = sum(merged["label"] == 1)
-            num_neg_classes = sum(merged["label"] == 0)
+            num_pos_classes: int = sum(merged["label"] == 1)
+            num_neg_classes: int = sum(merged["label"] == 0)
             assert num_pos_classes < num_neg_classes
-            merged = merged.groupby("label", group_keys=False).apply(lambda x: x.sample(num_pos_classes))
-            num_pos_classes = sum(merged["label"] == 1)
-            num_neg_classes = sum(merged["label"] == 0)
+            sample_fn = lambda x: x.sample(num_pos_classes)
+            merged = merged.groupby("label", group_keys=False).apply(sample_fn)  # type: ignore
         return merged
 
     def serialize_row(self, row: pd.core.series.Series, column_map: Dict[str, str]) -> str:

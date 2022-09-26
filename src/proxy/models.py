@@ -4,6 +4,7 @@ from typing import List, Dict, Optional
 # Different modalities
 TEXT_MODEL_TAG: str = "text"
 CODE_MODEL_TAG: str = "code"
+EMBEDDING_MODEL_TAG: str = "embedding"
 
 # Some model APIs have limited functionalities e.g., Anthropic API doesn't support returning log probs
 FULL_FUNCTIONALITY_TEXT_MODEL_TAG: str = "full_functionality_text"
@@ -15,10 +16,16 @@ WIDER_CONTEXT_WINDOW_TAG: str = "wider_context_window"
 # To fetch models that use these tokenizers
 GPT2_TOKENIZER_TAG: str = "gpt2_tokenizer"
 AI21_TOKENIZER_TAG: str = "ai21_tokenizer"
+COHERE_TOKENIZER_TAG: str = "cohere_tokenizer"
+OPT_TOKENIZER_TAG: str = "opt_tokenizer"
 
 # Models that are used for ablations and fine-grained analyses.
 # These models are selected specifically because of their low marginal cost to evaluate.
 ABLATION_MODEL_TAG: str = "ablation"
+
+# Some models (e.g., T5) have stripped newlines.
+# So we cannot use \n as a stop sequence for these models.
+NO_NEWLINES_TAG: str = "no_newlines"
 
 
 @dataclass
@@ -74,8 +81,8 @@ ALL_MODELS = [
         group="jurassic",
         creator_organization="AI21 Labs",
         name="ai21/j1-jumbo",
-        display_name="Jurassic Jumbo (180B)",
-        description="Jurassic J1-Jumbo (180B parameters)",
+        display_name="Jurassic Jumbo (178B)",
+        description="Jurassic J1-Jumbo (178B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     # From AI21: "the new model is a mid-point in terms of size, cost and performance between Jumbo and Large.
@@ -196,6 +203,39 @@ ALL_MODELS = [
         description="Cushman Codex (for natural language to code) - 2048 max tokens",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
+    # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
+        name="openai/text-similarity-davinci-001",
+        display_name="GPT-3 (12288-dimension embeddings)",
+        description="GPT-3 (12288-dimension embeddings)",
+        tags=[EMBEDDING_MODEL_TAG],
+    ),
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
+        name="openai/text-similarity-curie-001",
+        display_name="GPT-3 (4096-dimension embeddings)",
+        description="GPT-3 (4096-dimension embeddings)",
+        tags=[EMBEDDING_MODEL_TAG],
+    ),
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
+        name="openai/text-similarity-babbage-001",
+        display_name="GPT-3 (2048-dimension embeddings)",
+        description="GPT-3 (2048-dimension embeddings)",
+        tags=[EMBEDDING_MODEL_TAG],
+    ),
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
+        name="openai/text-similarity-ada-001",
+        display_name="GPT-3 (1024-dimension embeddings)",
+        description="GPT-3 (1024-dimension embeddings)",
+        tags=[EMBEDDING_MODEL_TAG],
+    ),
     # Cohere models
     # Cohere has not release the sizes of their models.
     # Model versioning and the possible versions are not documented here:
@@ -214,7 +254,7 @@ ALL_MODELS = [
         name="cohere/xlarge-20220609",
         display_name="Cohere xlarge",
         description="Cohere xlarge",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
         group="cohere",
@@ -222,7 +262,7 @@ ALL_MODELS = [
         name="cohere/large-20220720",
         display_name="Cohere large",
         description="Cohere large",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
         group="cohere",
@@ -230,7 +270,7 @@ ALL_MODELS = [
         name="cohere/medium-20220720",
         display_name="Cohere medium",
         description="Cohere medium",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
         group="cohere",
@@ -238,14 +278,14 @@ ALL_MODELS = [
         name="cohere/small-20220720",
         display_name="Cohere small",
         description="Cohere small",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     # GooseAI supported models
     Model(
         group="gooseai",
         creator_organization="EleutherAI",
         name="gooseai/gpt-neo-20b",
-        display_name="GPT-J (20B, GooseAI)",
+        display_name="GPT-NeoX (20B, GooseAI)",
         description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
@@ -322,7 +362,7 @@ ALL_MODELS = [
         "parameters, pre-trained using the algorithm of General Language Model (GLM).",
         # Inference with echo=True is not feasible -- in the prompt encoding phase, they use
         # bidirectional attention and do not perform predictions on them.
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
     Model(
         group="together",
@@ -348,7 +388,7 @@ ALL_MODELS = [
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
         "transformers fully and responsibly shared with interested researchers.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
     ),
     Model(
         group="together",
@@ -358,7 +398,7 @@ ALL_MODELS = [
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
         "transformers fully and responsibly shared with interested researchers.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
     ),
     Model(
         group="together",
@@ -370,7 +410,7 @@ ALL_MODELS = [
         "unsupervised and supervised tasks and for which each task is converted into a text-to-text "
         "format.",
         # Does not support echo=True
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
     Model(
         group="together",
@@ -381,7 +421,7 @@ ALL_MODELS = [
         description="UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5"
         "but trained with a different objective and slightly different scaling knobs.",
         # Does not support echo=True
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
     Model(
         group="together",
@@ -392,7 +432,7 @@ ALL_MODELS = [
         description="T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks "
         "specified in natural language prompts.",
         # Does not support echo=True
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
     Model(
         group="together",

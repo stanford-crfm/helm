@@ -8,7 +8,7 @@ from common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from .client import Client
+from .client import Client, truncate_sequence
 
 
 class TogetherClient(Client):
@@ -51,7 +51,13 @@ class TogetherClient(Client):
             response, cached = self.cache.get(cache_key, do_it)
         except RuntimeError as e:
             error: str = f"TogetherClient error: {e}"
-            return RequestResult(success=False, cached=False, error=error, completions=[])
+            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+
+        def fix_text(x: str) -> str:
+            # This is for the T5-style models
+            x = x.replace("▁", " ")
+            x = x.replace("</s>", "")
+            return x
 
         # Expect the result to be structured the same way as a response from OpenAI API.
         completions: List[Sequence] = []
@@ -63,15 +69,16 @@ class TogetherClient(Client):
             for text, logprob, top_logprobs in zip(
                 raw_data["tokens"], raw_data["token_logprobs"], raw_data["top_logprobs"]
             ):
-                tokens.append(Token(text=text, logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
+                tokens.append(Token(text=fix_text(text), logprob=logprob or 0, top_logprobs=dict(top_logprobs or {})))
                 sequence_logprob += logprob or 0
 
             completion = Sequence(
-                text=raw_completion["text"],
+                text=fix_text(raw_completion["text"]),
                 logprob=sequence_logprob,
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},
             )
+            completion = truncate_sequence(completion, request)
             completions.append(completion)
 
         batch_performance_metadata: Dict = response["request_time"]
@@ -82,6 +89,7 @@ class TogetherClient(Client):
             completions=completions,
             batch_size=batch_performance_metadata["batch_size"],
             batch_request_time=batch_performance_metadata["batch_time"],
+            embedding=[],
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
