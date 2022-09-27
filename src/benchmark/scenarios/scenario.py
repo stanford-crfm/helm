@@ -23,10 +23,30 @@ DEFAULT_TEST_SIZE: int = 1000
 """ Reference tags """
 CORRECT_TAG: str = "correct"
 
-# Tags for references in information retrieval scenarios.
-# @TODO: (For future) Should there be a base InformationRetrievalScenario class?
-RELEVANCE_TAG_TEMPLATE = "relevance={relevance}"
-RANK_TAG_TEMPLATE = "rank={rank}"
+# Reference tag functions for ranking scenarios.
+# @TODO: (For future) Should there be a base RankingScenario class?
+
+
+def make_relevance_tag(relevance: int) -> str:
+    """ Make a relevance tag.
+
+    Relevance value is an integer bigger than or equal to 0.
+    """
+    return f"relevance={relevance}"
+
+
+def make_rank_tag(rank: int) -> str:
+    """ Make a rank tag.
+
+    Rank value is an integer bigger than or equal to 1.
+    """
+    return f"rank={rank}"
+
+
+def unpack_tag(tag: str) -> Tuple[str, str]:
+    """ Unpack the value from the tag. """
+    key, value = tag.split("=")
+    return key, value
 
 
 class Input(ABC):

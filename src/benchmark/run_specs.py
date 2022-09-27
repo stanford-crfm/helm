@@ -117,11 +117,11 @@ def get_multiple_choice_adapter_spec(
 
 def get_ranking_binary_adapter_spec(
     instructions: str = "",
-    object_noun: str = "Passage",
+    document_noun: str = "Passage",
     query_noun: str = "Query",
     output_prefix: str = "Does the passage answer the query?",
     output_noun: str = "Answer",
-    max_train_instances: int = 2,
+    max_train_instances: int = 4,
     num_outputs: int = 1,
     num_train_trials: int = 1,
     temperature: float = 0.0,
@@ -147,12 +147,17 @@ def get_ranking_binary_adapter_spec(
     [prompt_noun]: [prompt_content]
     [output_noun]: [output]
     """
+    msg = "There must be an even number of in-context examples to ensure that" \
+          "an equal number of positive and negative examples are included."
+    assert max_train_instances % 2 == 0, msg
+    max_train_instances = int(max_train_instances / 2)
+
     return AdapterSpec(
         method=ADAPT_RANKING_BINARY,
         instructions=format_instructions(instructions),
         input_prefix=f"{query_noun}: ",
         input_suffix="\n",
-        reference_prefix=f"{object_noun}: ",
+        reference_prefix=f"{document_noun}: ",
         reference_suffix="\n",
         output_prefix=f"{output_prefix}\n{output_noun}: ",
         max_train_instances=max_train_instances,
@@ -348,11 +353,10 @@ def get_msmarco_metric_specs(track: str, rank: Optional[int] = None) -> List[Met
     multiple_relevance_values = set(MSMARCOScenario.GOLD_RELATIONS[track]) != {1}
 
     return [
-        # TODO: Double check the metrics with Rishi.
         MetricSpec(
             class_name="benchmark.ranking_metrics.RankingMetric",
             args={
-                "mode": ADAPT_RANKING_BINARY,
+                "method": ADAPT_RANKING_BINARY,
                 "measure_names": measure_names,
                 "correct_output": RANKING_CORRECT_LABEL,
                 "wrong_output": RANKING_WRONG_LABEL,
@@ -504,13 +508,11 @@ def get_msmarco_spec(track, use_topk_objects="False", valid_topk=None,) -> RunSp
     )
 
     # Get AdapterSpec
-    # Limiting the number of total validation instances to 200 due to the large size of the MS MARCO prompts.
-    max_eval_instances = min(200, MSMARCOScenario.MAX_NUM_QUERIES[track])
-    max_eval_instances = 2  # TODO: Delete, for testing
+    max_eval_instances = MSMARCOScenario.MAX_NUM_QUERIES[track]
     adapter_spec = get_ranking_binary_adapter_spec(stop_sequences=["\n"], max_eval_instances=max_eval_instances)
 
     # Get the list of MetricSpecs
-    metric_specs = get_msmarco_metric_specs(track=track, rank=valid_topk) + get_generative_harms_metric_specs()
+    metric_specs = get_msmarco_metric_specs(track=track, rank=valid_topk)
 
     # Return RunSpec
     return RunSpec(

@@ -13,8 +13,8 @@ from .scenario import (
     TRAIN_SPLIT,
     VALID_SPLIT,
     CORRECT_TAG,
-    RELEVANCE_TAG_TEMPLATE,
-    RANK_TAG_TEMPLATE,
+    make_rank_tag,
+    make_relevance_tag,
 )
 
 
@@ -510,9 +510,9 @@ class MSMARCOScenario(Scenario):
         if gold:
             tags.append(CORRECT_TAG)  # Correctness
         if rel:
-            tags.append(RELEVANCE_TAG_TEMPLATE.format(relevance=rel))  # Relevance
+            tags.append(make_relevance_tag(relevance=rel))  # Relevance
         if rank:
-            tags.append(RANK_TAG_TEMPLATE.format(rank=rank))  # Top-k rank
+            tags.append(make_rank_tag(rank=rank))  # Top-k rank
 
         # Get document text
         document_text = self.document_dict[docid]

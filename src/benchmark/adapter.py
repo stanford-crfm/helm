@@ -217,14 +217,14 @@ class Prompt:
     # Instance prefix, carried over from the adapter spec
     instance_prefix: str
 
-    # Example block for the prompt.
-    example_block: str
-
     # In context example blocks for the prompt.
     in_context_example_blocks: List[str]
 
+    # Evaluation instance
+    eval_instance_block: str
+
     # Instruction block for the prompt, including any instruction prefix.
-    instruction_block: Optional[str] = None
+    instructions_block: Optional[str] = None
 
     # Set if the input of the corresponding Instance was truncated to fit the
     # model's context window for this Request
@@ -234,8 +234,8 @@ class Prompt:
     @property
     def text(self) -> str:
         # Text for the prompt, might be truncated
-        blocks = [self.instruction_block] if self.instruction_block else []
-        blocks += self.in_context_example_blocks + [self.example_block]
+        blocks = [self.instructions_block] if self.instructions_block else []
+        blocks += self.in_context_example_blocks + [self.eval_instance_block]
         non_truncated_input = self.instance_prefix.join(blocks)
         return self.truncated_input if self.truncated_input else non_truncated_input
 
@@ -467,7 +467,7 @@ class Processor:
             example_prompt_constructor = self.construct_example_prompt
 
         # Instruction text
-        instruction_block = self.adapter_spec.instructions if self.adapter_spec.instructions else None
+        instructions_block = self.adapter_spec.instructions if self.adapter_spec.instructions else None
 
         # Text for in-context training instances
         in_context_blocks = [
@@ -475,15 +475,15 @@ class Processor:
         ]
 
         # Example text
-        example_block = example_prompt_constructor(
+        eval_instance_block = example_prompt_constructor(
             eval_instance, include_output=include_output, reference_index=reference_index
         )
 
         # Prompt
         prompt = Prompt(
-            instruction_block=instruction_block,
+            instructions_block=instructions_block,
             in_context_example_blocks=in_context_blocks,
-            example_block=example_block,
+            eval_instance_block=eval_instance_block,
             instance_prefix=self.adapter_spec.instance_prefix,
         )
 

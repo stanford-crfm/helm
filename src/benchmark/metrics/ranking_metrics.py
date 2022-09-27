@@ -4,11 +4,13 @@ from typing import Callable, Dict, List, Tuple, Optional
 import pytrec_eval
 
 from common.request import RequestResult
-from ..adapter import AdapterSpec, RequestState, CORRECT_TAG, ADAPT_RANKING_BINARY
+from common.general import binarize_dict
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
+from ..adapter import AdapterSpec, RequestState, CORRECT_TAG, ADAPT_RANKING_BINARY
+from ..scenarios.scenario import unpack_tag
 
 
 @dataclass
@@ -47,15 +49,16 @@ class RankingObject:
 class RankingMetric(Metric):
     """ Ranking metric. """
 
-    """ Modes supported by this metric.
+    """ Methods supported by this metric.
 
-    Following modes are supported by this metric:
-        (1) ADAPT_RANKING_BINARY: In binary_ranking mode, the model's task is to
-            predict whether a given context contains an answer to a given query.
-            Different contexts for a query are then sorted using the label
-            outputted by model as well as the model's confidence in the label.
+    Following methods are supported by this metric:
+        (1) ADAPT_RANKING_BINARY: In binary_ranking method, the model's task is
+            to predict whether a given context contains an answer to a given
+            query. Different contexts for a query are then sorted using the
+            label outputted by model as well as the model's confidence in the
+            label.
     """
-    MODE_LIST = [ADAPT_RANKING_BINARY]
+    METHODS_LIST = [ADAPT_RANKING_BINARY]
 
     """ Measures. """
     RECIP_RANK_MEASURE = "recip_rank"
@@ -68,14 +71,13 @@ class RankingMetric(Metric):
 
     """ Token used to represent missing results.
 
-    Results may be missing if the RequestState object didn't reach to a
-    completed stage.
+    Results may be missing if the RequestState object didn't complete.
     """
     MISSING_RESULT_TEXT = "missing"
 
     def __init__(
         self,
-        mode: str,
+        method: str,
         measure_names: List[str],
         correct_output: str,
         wrong_output: str,
@@ -85,7 +87,7 @@ class RankingMetric(Metric):
         """Constructor for the RankingMetric.
 
         Args:
-            mode: The adaptation mode used. The mode must exists in
+            method: The adaptation method used. The method must exists in
                 self.MODES_LIST.
             measure_names: The trec_eval measure names that will be computed.
                 Measure names must be measure names supported by the official
@@ -124,8 +126,8 @@ class RankingMetric(Metric):
                         strengths.
         """
         # Input validation
-        assert mode in self.MODE_LIST, f"Mode must be one of {self.MODE_LIST}, instead found {mode}."
-        self.mode = mode
+        assert method in self.METHODS_LIST, f"Mode must be one of {self.METHODS_LIST}, instead found {method}."
+        self.method = method
 
         for measure_name in measure_names:
             assert self.validate_measure_name(measure_name), f"""Measure name {measure_name} isn't supported."""
@@ -141,10 +143,10 @@ class RankingMetric(Metric):
         self.multiple_relevance_values = multiple_relevance_values
 
         # Decide which model relevance function to use
-        MODE_TO_RELEVANCE_FUNCTION: Dict[str, Callable[[List[RankingObject]], List[RankingObject]]] = {
+        METHOD_TO_RELEVANCE_FUNCTION: Dict[str, Callable[[List[RankingObject]], List[RankingObject]]] = {
             ADAPT_RANKING_BINARY: self.compute_model_relevance_binary_ranking
         }
-        self.model_relevance_fn = MODE_TO_RELEVANCE_FUNCTION[self.mode]
+        self.model_relevance_fn = METHOD_TO_RELEVANCE_FUNCTION[self.method]
 
     @staticmethod
     def parse_measure_name(measure_name) -> Tuple[str, Optional[int]]:
@@ -177,7 +179,7 @@ class RankingMetric(Metric):
 
     @staticmethod
     def get_tag_value(tag) -> str:
-        _, value = tag.split("=")
+        _, value = unpack_tag(tag)
         return value
 
     def get_query_string(self, qid):
@@ -276,14 +278,6 @@ class RankingMetric(Metric):
         relevance_dict = {key: relevance_dict[key] for key in list(relevance_dict.keys())[:limit]}
         return relevance_dict
 
-    @staticmethod
-    def binarize_relevance_dict(d: Dict[str, int]) -> Dict[str, int]:
-        """ Binarize the dict by setting the values that are 1 to 0.
-
-        Values greater than 1 stay untouched.
-        """
-        return {k: 0 if v == 1 else v for k, v in d.items()}
-
     def compute_measure(
         self, true_relevances: Dict[str, int], run_relevances: Dict[str, int], evaluator_measure_name: str
     ) -> float:
@@ -296,7 +290,7 @@ class RankingMetric(Metric):
 
         # If the measure is a binary measure, we binarize the true relevance values.
         if parsed_measure_name in self.BINARY_MEASURES and self.multiple_relevance_values:
-            true_relevances = self.binarize_relevance_dict(true_relevances)
+            true_relevances = binarize_dict(true_relevances)
 
         # pytrec doesn't support parametrization for some measure names. For
         # such measures, we achieve parametrization by simply limiting
