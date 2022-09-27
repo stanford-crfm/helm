@@ -31,7 +31,7 @@ from common.general import singleton
 
 
 def format_instructions(instructions: str) -> str:
-    if instructions and len(instructions) > 0:
+    if len(instructions) > 0:
         instructions += "\n"
     return instructions
 
