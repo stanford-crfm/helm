@@ -39,6 +39,20 @@ def main(args):
         all_models_and_tokenizers = [("opt_tokenizer", "meta/opt")]
     elif args.tokenizer_provider == "yandex":
         all_models_and_tokenizers = [("together/yalm", "yandex/yalm")]
+    elif args.tokenizer_provider == "bloom":
+        all_models_and_tokenizers = [("together/bloom", "bigscience/bloom")]
+    elif args.tokenizer_provider == "t5":
+        all_models_and_tokenizers = [("together/t5-11b", "google/t5-11b")]
+    elif args.tokenizer_provider == "t0":
+        all_models_and_tokenizers = [("together/t0pp", "bigscience/T0pp")]
+    elif args.tokenizer_provider == "ul2":
+        all_models_and_tokenizers = [("together/ul2", "google/ul2")]
+    elif args.tokenizer_provider == "glm":
+        all_models_and_tokenizers = [("together/glm", "TsinghuaKEG/ice")]
+    elif args.tokenizer_provider == "gptj":
+        all_models_and_tokenizers = [("together/gpt-j-6b", "EleutherAI/gpt-j-6B")]
+    elif args.tokenizer_provider == "gptneox":
+        all_models_and_tokenizers = [("together/gpt-neox-20b", "EleutherAI/gpt-neox-20b")]
 
     specs = []
 
@@ -63,7 +77,11 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--tokenizer_provider", choices=["ai21", "openai", "cohere", "opt", "yandex"], required=True)
+    parser.add_argument(
+        "--tokenizer_provider",
+        choices=["ai21", "openai", "cohere", "opt", "yandex", "bloom", "t5", "t0", "ul2", "glm", "gptj", "gptneox"],
+        required=True,
+    )
     parser.add_argument("--output_path", required=True, type=str)
     parser.add_argument("--no-random", action="store_true")
     args = parser.parse_args()

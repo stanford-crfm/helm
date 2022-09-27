@@ -71,7 +71,9 @@ def tokenize_text(
     for book, source_url in sources.items():
         data_path = os.path.join(output_path, f"{book}.txt")
         ensure_file_downloaded(
-            source_url=source_url, target_path=data_path, unpack=False,
+            source_url=source_url,
+            target_path=data_path,
+            unpack=False,
         )
         with open(data_path, "r") as f:
             raw_text = f.read()
@@ -173,7 +175,7 @@ def generate_synthetic_efficiency_instances(
                 if not finished:
                     print(
                         f"Requested {num_prompt_tokens}, got {num_generated_tokens} for "
-                        f"book {books[j]}, instance #{i}, tokenizer={tokenizer}, "
+                        f"book {books[j]}, instance #{orig_i}, tokenizer={tokenizer}, "
                         "trying again with a new span of text..."
                     )
                     attempt_num += 1
@@ -197,15 +199,15 @@ if __name__ == "__main__":
         "huggingface/gpt2",
         "ai21/j1",
         "cohere/cohere",
-        # "bigscience/T0pp",
+        "bigscience/T0pp",
         "Yandex/yalm",
         "facebook/opt-66b",
-        # "bigscience/bloom",
-        # "google/t5-11b",
-        # "google/ul2",
-        # "EleutherAI/gpt-neox-20b",
-        # "EleutherAI/gpt-j-6B",
-        # "TsinghuaKEG/ice",
+        "bigscience/bloom",
+        "google/t5-11b",
+        "google/ul2",
+        "EleutherAI/gpt-neox-20b",
+        "EleutherAI/gpt-j-6B",
+        "TsinghuaKEG/ice",
     ]:
         tokens, text_chunks = tokenize_text(tokenizer=tokenizer, client=client)
         for num_prompt_tokens in NUM_INPUT_TOKENS:
