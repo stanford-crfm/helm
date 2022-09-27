@@ -635,7 +635,7 @@ $(function () {
     $output.append($links);
     tables.forEach((table) => {
       $output.append($('<div>', {class: 'table-container', id: table.title}).append(renderTable(table)));
-      $links.append($('<a>', {href: '#' + table.title}).append('[' + table.title + ']'));
+      $links.append($('<a>', {href: '#' + table.title}).append('[' + table.title + '] '));
     });
     return $output;
   }

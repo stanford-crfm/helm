@@ -375,7 +375,9 @@ class Summarizer:
                 for subgroup in subgroups:
                     all_metric_groups.extend(subgroup.metric_groups)
                     for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
-                        adapter_spec = AdapterSpec(model=adapter_spec.model)  # Rows are models
+                        # TODO: different scenarios might have different adapters (e.g., instructions) but we still want
+                        # to visualize them in the same row, so for now we just keep the model part of the spec
+                        adapter_spec = AdapterSpec(model=adapter_spec.model, method="none")
                         adapter_to_runs[adapter_spec].extend(runs)
                 all_metric_groups = list(dict.fromkeys(all_metric_groups))  # deduplicate while preserving order
 
