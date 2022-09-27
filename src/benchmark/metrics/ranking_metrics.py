@@ -141,7 +141,7 @@ class RankingMetric(Metric):
         self.multiple_relevance_values = multiple_relevance_values
 
         # Decide which model relevance function to use
-        MODE_TO_RELEVANCE_FUNCTION: Dict[str, Callable[List[RankingObject]]] = {
+        MODE_TO_RELEVANCE_FUNCTION: Dict[str, Callable[[List[RankingObject]], List[RankingObject]]] = {
             ADAPT_RANKING_BINARY: self.compute_model_relevance_binary_ranking
         }
         self.model_relevance_fn = MODE_TO_RELEVANCE_FUNCTION[self.mode]
@@ -268,7 +268,7 @@ class RankingMetric(Metric):
         return ranking_object
 
     @staticmethod
-    def limit_relevance_dict(relevance_dict: Dict[int, int], k: int) -> Dict[int, int]:
+    def limit_relevance_dict(relevance_dict: Dict[str, int], k: int) -> Dict[str, int]:
         """ Return a dictionary containing the k pairs with the highest relevance values. """
         # Sort the dictionary by the relevance values and limit the number of elements.
         relevance_dict = {k: v for k, v in sorted(relevance_dict.items(), key=lambda item: item[1], reverse=True)}
@@ -277,7 +277,7 @@ class RankingMetric(Metric):
         return relevance_dict
 
     @staticmethod
-    def binarize_relevance_dict(d: Dict[int, int]) -> Dict[int, int]:
+    def binarize_relevance_dict(d: Dict[str, int]) -> Dict[str, int]:
         """ Binarize the dict by setting the values that are 1 to 0.
 
         Values greater than 1 stay untouched.
@@ -285,7 +285,7 @@ class RankingMetric(Metric):
         return {k: 0 if v == 1 else v for k, v in d.items()}
 
     def compute_measure(
-        self, true_relevances: Dict[int, int], run_relevances: Dict[int, int], evaluator_measure_name: str
+        self, true_relevances: Dict[str, int], run_relevances: Dict[str, int], evaluator_measure_name: str
     ) -> float:
         """ Compute measure_name on the true and run relevance values provided.
 
