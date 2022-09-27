@@ -2,8 +2,7 @@ import json
 from typing import Dict, Callable, Tuple
 from collections import defaultdict
 import threading
-
-from sqlitedict import SqliteDict
+from diskcache import Index
 
 from common.general import hlog, htrack
 from proxy.retry import get_retry_decorator
@@ -30,13 +29,12 @@ retry: Callable = get_retry_decorator(
 
 
 @retry
-def write_to_cache(cache: SqliteDict, key: str, response: Dict) -> bool:
+def write_to_cache(cache: Index, key: str, response: Dict) -> bool:
     """
     Write to cache with retry. Returns boolean indicating whether the write was successful or not.
     """
     try:
         cache[key] = response
-        cache.commit()
         return True
     except Exception as e:
         hlog(f"Error when writing to cache: {str(e)}")
@@ -85,25 +83,24 @@ class Cache(object):
     """
     A cache for request/response pairs.
     The request is a dictionary, so we have to normalize it into a key.
-    We use sqlitedict to persist the cache: https://github.com/RaRe-Technologies/sqlitedict.
     """
 
     def __init__(self, cache_path: str):
         self.cache_path: str = cache_path
+        self.cache = Index(self.cache_path)
 
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
         cache_stats.increment_query(self.cache_path)
         key = request_to_key(request)
 
-        with SqliteDict(self.cache_path) as cache:
-            response = cache.get(key)
-            if response:
-                cached = True
-            else:
-                cached = False
-                cache_stats.increment_compute(self.cache_path)
-                # Compute and commit the request/response to SQLite
-                response = compute()
-                write_to_cache(cache, key, response)
+        response = self.cache.get(key)
+        if response:
+            cached = True
+        else:
+            cached = False
+            cache_stats.increment_compute(self.cache_path)
+            # Compute and commit the request/response to SQLite
+            response = compute()
+            write_to_cache(self.cache, key, response)
         return response, cached

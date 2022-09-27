@@ -1,4 +1,3 @@
-import os
 import tempfile
 from typing import List
 
@@ -13,15 +12,15 @@ from .yalm_tokenizer_client import YaLMTokenizerClient
 
 class TestYaLMTokenizerClient:
     def setup_method(self, method):
-        cache_file = tempfile.NamedTemporaryFile(delete=False)
-        self.cache_path: str = cache_file.name
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.cache_path = self.temp_dir.name
         self.client = YaLMTokenizerClient(cache_path=self.cache_path)
 
         self.test_prompt: str = "The model leverages 100 billion parameters."
         self.encoded_test_prompt: List[int] = [496, 3326, 30128, 1602, 1830, 8529, 8071, 127581]
 
     def teardown_method(self, method):
-        os.remove(self.cache_path)
+        self.temp_dir.cleanup()
 
     def test_tokenize(self):
         request = TokenizationRequest(text=self.test_prompt)

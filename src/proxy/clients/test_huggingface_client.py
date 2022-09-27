@@ -1,5 +1,4 @@
 import pytest
-import os
 import tempfile
 
 from common.request import Request, RequestResult
@@ -14,12 +13,12 @@ from .huggingface_client import HuggingFaceClient
 
 class TestHuggingFaceClient:
     def setup_method(self, method):
-        cache_file = tempfile.NamedTemporaryFile(delete=False)
-        self.cache_path: str = cache_file.name
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.cache_path = self.temp_dir.name
         self.client = HuggingFaceClient(cache_path=self.cache_path)
 
     def teardown_method(self, method):
-        os.remove(self.cache_path)
+        self.temp_dir.cleanup()
 
     def test_tokenize(self):
         request = TokenizationRequest(text="I am a computer scientist.")

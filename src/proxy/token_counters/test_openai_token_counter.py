@@ -1,4 +1,3 @@
-import os
 import tempfile
 from typing import List
 
@@ -19,11 +18,12 @@ class TestOpenAITokenCounter:
     )
 
     def setup_method(self, method):
-        self.cache_path: str = tempfile.NamedTemporaryFile(delete=False).name
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.cache_path = self.temp_dir.name
         self.token_counter = OpenAITokenCounter(HuggingFaceClient(self.cache_path))
 
     def teardown_method(self, method):
-        os.remove(self.cache_path)
+        self.temp_dir.cleanup()
 
     def test_count_tokens(self):
         request = Request(prompt=TestOpenAITokenCounter.TEST_PROMPT)

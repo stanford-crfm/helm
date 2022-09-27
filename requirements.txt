@@ -7,6 +7,7 @@ Mako==1.1.5
 pyhocon==0.3.58
 pyOpenSSL==21.0.0
 sqlitedict==1.7.0
+diskcache==5.4.0
 sentencepiece==0.1.96   # Necessary for some of the HuggingFace tokenizers
 torch==1.12.1+cu113
 torchvision==0.13.1+cu113

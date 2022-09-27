@@ -1,4 +1,3 @@
-import os
 import tempfile
 from typing import List
 
@@ -13,8 +12,8 @@ from .ice_tokenizer_client import ICETokenizerClient
 
 class TestICETokenizerClient:
     def setup_method(self, method):
-        cache_file = tempfile.NamedTemporaryFile(delete=False)
-        self.cache_path: str = cache_file.name
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.cache_path = self.temp_dir.name
         self.client = ICETokenizerClient(cache_path=self.cache_path)
 
         # The test cases were created using the examples from https://github.com/THUDM/icetk#tokenization
@@ -22,7 +21,7 @@ class TestICETokenizerClient:
         self.encoded_test_prompt: List[int] = [39316, 20932, 20035, 20115, 20344, 22881, 35955, 20007]
 
     def teardown_method(self, method):
-        os.remove(self.cache_path)
+        self.temp_dir.cleanup()
 
     def test_tokenize(self):
         request = TokenizationRequest(text=self.test_prompt)
