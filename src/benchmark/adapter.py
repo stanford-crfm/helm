@@ -411,6 +411,7 @@ class Processor:
         examples are constructed.
         """
         request_states = []
+        request_mode = "original"
         for reference_index, reference in enumerate(eval_instance.references):
             prompt = self.construct_prompt(
                 self.train_instances,
@@ -431,7 +432,7 @@ class Processor:
             request_state = RequestState(
                 instance=eval_instance,
                 reference_index=reference_index,
-                request_mode=None,
+                request_mode=request_mode,
                 train_trial_index=self.train_trial_index,
                 output_mapping=None,
                 request=request,

@@ -503,6 +503,10 @@ class MSMARCOScenario(Scenario):
         """ Create and return a reference made using the provided parameters. """
         # Create tags
         tags = []
+        # docid is extra information not needed on the metric sode - we are
+        # including it to ensure that MS MARCO documents can be easily located
+        # later on.
+        tags.append(f"docid={docid}")
         if gold:
             tags.append(CORRECT_TAG)  # Correctness
         if rel:

@@ -360,8 +360,7 @@ def get_msmarco_metric_specs(track: str, rank: Optional[int] = None) -> List[Met
                 "multiple_relevance_values": multiple_relevance_values,
             },
         ),
-        MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
-    ]
+    ] + get_basic_metric_specs(names=[])
 
 
 def get_toxicity_metric_specs() -> List[MetricSpec]:

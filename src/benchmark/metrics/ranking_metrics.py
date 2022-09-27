@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Optional
+from typing import Callable, Dict, List, Tuple, Optional
 
 import pytrec_eval
 
@@ -141,7 +141,9 @@ class RankingMetric(Metric):
         self.multiple_relevance_values = multiple_relevance_values
 
         # Decide which model relevance function to use
-        MODE_TO_RELEVANCE_FUNCTION = {ADAPT_RANKING_BINARY: self.compute_model_relevance_binary_ranking}
+        MODE_TO_RELEVANCE_FUNCTION: Dict[str, Callable[List[RankingObject]]] = {
+            ADAPT_RANKING_BINARY: self.compute_model_relevance_binary_ranking
+        }
         self.model_relevance_fn = MODE_TO_RELEVANCE_FUNCTION[self.mode]
 
     @staticmethod
@@ -178,18 +180,24 @@ class RankingMetric(Metric):
         _, value = tag.split("=")
         return value
 
-    def get_run_relevances(self, ranking_objs: List[RankingObject], rank_limit: Optional[int] = None) -> Dict[int, int]:
+    def get_query_string(self, qid):
+        return f"q{qid}"
+
+    def get_run_relevances(self, ranking_objs: List[RankingObject], rank_limit: Optional[int] = None) -> Dict[str, int]:
         """ Get the relevance dictionary for the run. """
         assert all([r.model_relevance is not None for r in ranking_objs])
         if rank_limit:
             assert all([r.rank is not None for r in ranking_objs])
-            return {r.reference_index: r.model_relevance for r in ranking_objs if r.rank <= rank_limit}  # type: ignore
-        return {r.reference_index: r.model_relevance for r in ranking_objs}  # type: ignore
+            return {
+                self.get_query_string(r.reference_index): r.model_relevance
+                for r in ranking_objs
+                if r.rank <= rank_limit
+            }  # type: ignore
+        return {self.get_query_string(r.reference_index): r.model_relevance for r in ranking_objs}  # type: ignore
 
-    def get_true_relevances(self, ranking_objects: List[RankingObject]) -> Dict[int, int]:
+    def get_true_relevances(self, ranking_objects: List[RankingObject]) -> Dict[str, int]:
         """ Get the true relevance dictionary. """
-        assert all([obj.relevance is not None for obj in ranking_objects])
-        return {obj.reference_index: obj.relevance for obj in ranking_objects if obj.relevance}
+        return {self.get_query_string(obj.reference_index): obj.relevance for obj in ranking_objects if obj.relevance}
 
     def object_to_score_binary_ranking(self, ranking_object: RankingObject) -> Tuple[int, float]:
         """ Score the given ranking object. """
@@ -279,7 +287,7 @@ class RankingMetric(Metric):
     def compute_measure(
         self, true_relevances: Dict[int, int], run_relevances: Dict[int, int], evaluator_measure_name: str
     ) -> float:
-        """ Compute measure_name on the true and run relevances provided.
+        """ Compute measure_name on the true and run relevance values provided.
 
         Return a dictionary mapping metric names to the computed values.
         """
@@ -292,7 +300,7 @@ class RankingMetric(Metric):
 
         # pytrec doesn't support parametrization for some measure names. For
         # such measures, we achieve parametrization by simply limiting
-        # run_relevances dictionary to the top k relevances.
+        # run_relevances dictionary to the top k relevance values.
         if parsed_measure_name in self.CUSTOM_PARAMETRIZED_MEASURES and k:
             evaluator_measure_name = parsed_measure_name  # Pass the non-parametrized name to pytrec
             run_relevances = self.limit_relevance_dict(run_relevances, k)
@@ -303,11 +311,11 @@ class RankingMetric(Metric):
         measure_names, true_qrels, run_qrels = {evaluator_measure_name}, {"_": true_relevances}, {"_": run_relevances}
         evaluator = pytrec_eval.RelevanceEvaluator(true_qrels, measure_names)
         evaluations = evaluator.evaluate(run_qrels)
-        score = list(evaluations["_"].values())[0]  # TODO
+        score = list(evaluations["_"].values())[0]
         return score
 
     def compute_measures(
-        self, true_relevances: Dict[int, int], run_relevances: Dict[int, int], metric_name_suffix=""
+        self, true_relevances: Dict[str, int], run_relevances: Dict[str, int], metric_name_suffix=""
     ) -> List[Stat]:
         """ Compute self.measures on the true and run relevances provided. """
         # Loop through the measure names and populate the stats list.
@@ -334,10 +342,10 @@ class RankingMetric(Metric):
         ranking_objects = self.model_relevance_fn(ranking_objects)
 
         # Get ground truth relevances.
-        true_relevances: Dict[int, int] = self.get_true_relevances(ranking_objects)
+        true_relevances: Dict[str, int] = self.get_true_relevances(ranking_objects)
 
         # Get relevance values for each reference based on the model output and compute measures.
-        run_relevances: Dict[int, int] = self.get_run_relevances(ranking_objects)
+        run_relevances: Dict[str, int] = self.get_run_relevances(ranking_objects)
         stats: List[Stat] = self.compute_measures(true_relevances, run_relevances)
 
         # Get relevance values for each reference with rank up to self.rank based on model output and compute measures.
