@@ -679,6 +679,7 @@ class BasicMetric(Metric):
                     for answer_token, reference_token in zip(answer_tokens, reference_tokens)
                 )
             ):
+                # TODO: Why do we expect there to be an overlap between model completion and reference?
                 hlog(f"WARNING: Expected {reference_tokens} but got {[token.text for token in answer_tokens]}")
             logprob: float = sum(token.logprob for token in answer_tokens)
 
