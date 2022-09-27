@@ -34,7 +34,10 @@ class MicrosoftClient(Client):
             "max_tokens": request.max_tokens,
             "best_of": request.top_k_per_token,
             "logprobs": request.top_k_per_token,
-            "stop": None if len(request.stop_sequences) == 0 else request.stop_sequences,
+            # Despite what was stated here: https://github.com/microsoft/turing-academic-TNLG#api-parameters,
+            # their API supports at most one stop sequence. Pass in the first one for now and handle the rest
+            # of the stop sequences during post processing (see `truncate_sequence` below).
+            "stop": None if len(request.stop_sequences) == 0 else request.stop_sequences[0],
             "top_p": request.top_p,
             "echo": request.echo_prompt,
         }
