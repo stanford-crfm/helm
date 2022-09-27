@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
-from typing import List, Optional
+from typing import List, Optional, Tuple
 import re
 import inspect
 

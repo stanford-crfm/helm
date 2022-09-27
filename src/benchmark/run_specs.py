@@ -147,8 +147,10 @@ def get_ranking_binary_adapter_spec(
     [prompt_noun]: [prompt_content]
     [output_noun]: [output]
     """
-    msg = "There must be an even number of in-context examples to ensure that" \
-          "an equal number of positive and negative examples are included."
+    msg = (
+        "There must be an even number of in-context examples to ensure that"
+        "an equal number of positive and negative examples are included."
+    )
     assert max_train_instances % 2 == 0, msg
     max_train_instances = int(max_train_instances / 2)
 
