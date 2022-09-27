@@ -189,10 +189,10 @@ class RankingMetric(Metric):
         if rank_limit:
             assert all([r.rank is not None for r in ranking_objs])
             return {
-                self.get_query_string(r.reference_index): r.model_relevance
+                self.get_query_string(r.reference_index): r.model_relevance  # type: ignore
                 for r in ranking_objs
-                if r.rank <= rank_limit
-            }  # type: ignore
+                if r.rank <= rank_limit  # type: ignore
+            }
         return {self.get_query_string(r.reference_index): r.model_relevance for r in ranking_objs}  # type: ignore
 
     def get_true_relevances(self, ranking_objects: List[RankingObject]) -> Dict[str, int]:
