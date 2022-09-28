@@ -27,6 +27,18 @@ from benchmark.scenarios.synthetic_efficiency_scenario import NUM_INPUT_TOKENS
 MAX_ITERS = 5
 
 
+TOKENIZER_REPLACEMENTS = {
+    "facebook": "meta",
+    "opt-66b": "opt",
+    "Yandex": "yandex",
+    "EleutherAI": "eleutherai",
+    "gpt-j-6B": "gptj",
+    "gpt-neox-20b": "gptneox",
+    "t5-11b": "t5",
+    "T0pp": "t0pp",
+}
+
+
 def _count_prompt_tokens(client: Client, prompt: str, tokenizer: str):
     request: TokenizationRequest = TokenizationRequest(text=prompt, tokenizer=tokenizer)
     result: TokenizationRequestResult = client.tokenize(request)
@@ -114,8 +126,6 @@ def generate_synthetic_efficiency_instances(
     """Generates the synthetic efficiency instances given the tokenized book sources."""
     tokenizer_organization: str = tokenizer.split("/")[0]
     ai21_tokenizer: bool = tokenizer_organization == "ai21"
-    opt_tokenizer: bool = tokenizer_organization == "facebook"
-    yandex_tokenizer: bool = tokenizer_organization == "Yandex"
 
     books = list(tokens.keys())
     prompts = []
@@ -155,7 +165,11 @@ def generate_synthetic_efficiency_instances(
                         temp_num_tokens = num_generated_tokens
                         while temp_num_tokens < num_prompt_tokens:
                             if len(per_instance_tokens) == 0:
-                                assert num_prompt_tokens == 1, num_prompt_tokens
+                                if num_prompt_tokens != 1:
+                                    print(
+                                        f"WARNING: got 0 per_instance_tokens with num_prompt_tokens={num_prompt_tokens}"
+                                    )
+                                    break
                                 if ai21_tokenizer:
                                     per_instance_tokens = text_chunks[books[j]][:2]
                                 else:
@@ -181,11 +195,8 @@ def generate_synthetic_efficiency_instances(
                 prompts.append(prompt)
 
     for i, prompt in enumerate(prompts):
-        if opt_tokenizer:
-            tokenizer = tokenizer.replace("facebook", "meta")
-            tokenizer = tokenizer.replace("opt-66b", "opt")
-        elif yandex_tokenizer:
-            tokenizer = tokenizer.replace("Yandex", "yandex")
+        for k, v in TOKENIZER_REPLACEMENTS.items():
+            tokenizer = tokenizer.replace(k, v)
         name = f"num_prompt_tokens={num_prompt_tokens}," f"tokenizer={tokenizer.replace('/', '_')}," f"id={i}.txt"
         write(os.path.join(output_path, name), prompt)
 
@@ -194,18 +205,18 @@ if __name__ == "__main__":
     client = get_client()
 
     for tokenizer in [
-        "huggingface/gpt2",
-        "ai21/j1",
-        "cohere/cohere",
-        "bigscience/T0pp",
-        "Yandex/yalm",
-        "facebook/opt-66b",
-        "bigscience/bloom",
-        "google/t5-11b",
-        "google/ul2",
-        "EleutherAI/gpt-neox-20b",
-        "EleutherAI/gpt-j-6B",
+        # "huggingface/gpt2",
+        # "ai21/j1",
+        # "cohere/cohere",
+        # "bigscience/T0pp",
+        # "Yandex/yalm",
+        # "facebook/opt-66b",
+        # "bigscience/bloom",
+        # "google/t5-11b",
+        # "google/ul2",
         "TsinghuaKEG/ice",
+        # "EleutherAI/gpt-neox-20b",
+        # "EleutherAI/gpt-j-6B",
     ]:
         tokens, text_chunks = tokenize_text(tokenizer=tokenizer, client=client)
         for num_prompt_tokens in NUM_INPUT_TOKENS:
