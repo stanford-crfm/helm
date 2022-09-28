@@ -58,7 +58,7 @@ class RankingMetric(Metric):
             label outputted by model as well as the model's confidence in the
             label.
     """
-    METHODS_LIST = [ADAPT_RANKING_BINARY]
+    METHOD_LIST = [ADAPT_RANKING_BINARY]
 
     """ Measures. """
     RECIP_RANK_MEASURE = "recip_rank"
@@ -88,7 +88,7 @@ class RankingMetric(Metric):
 
         Args:
             method: The adaptation method used. The method must exists in
-                self.MODES_LIST.
+                self.METHOD_LIST.
             measure_names: The trec_eval measure names that will be computed.
                 Measure names must be measure names supported by the official
                 trec_eval measure. List of supported measures can be found in
@@ -108,9 +108,9 @@ class RankingMetric(Metric):
                 string that should be outputted if the model predicts that the
                 object given in the instance can not answer the question.
             rank: The optional number of max top document rankings to keep for
-                evaluation. If None, all the rankings are evaluated. If topk is
-                specified, only the top min(len(rankings), topk) document
-                rankings are kept and used for evaluation for each query.
+                evaluation. If None, all the rankings are evaluated. If
+                specified, only the documents that have a rank up to and
+                including the specified rank are evaluated.
             multiple_relevance_values: Query relevance values can either be
                 binary or take on multiple values, as explained below. This flag
                 indicates whether the relevance values can take multiple values.
@@ -126,7 +126,7 @@ class RankingMetric(Metric):
                         strengths.
         """
         # Input validation
-        assert method in self.METHODS_LIST, f"Mode must be one of {self.METHODS_LIST}, instead found {method}."
+        assert method in self.METHOD_LIST, f"Mode must be one of {self.METHOD_LIST}, instead found {method}."
         self.method = method
 
         for measure_name in measure_names:
@@ -149,7 +149,7 @@ class RankingMetric(Metric):
         self.model_relevance_fn = METHOD_TO_RELEVANCE_FUNCTION[self.method]
 
     @staticmethod
-    def parse_measure_name(measure_name) -> Tuple[str, Optional[int]]:
+    def parse_measure_name(measure_name: str) -> Tuple[str, Optional[int]]:
         """ Parse measure name of the form 'measure_name' or 'measure_name.k' into its parts. """
         measure_delimiter = "."
         if measure_delimiter in measure_name:
@@ -186,7 +186,13 @@ class RankingMetric(Metric):
         return f"q{qid}"
 
     def get_run_relevances(self, ranking_objs: List[RankingObject], rank_limit: Optional[int] = None) -> Dict[str, int]:
-        """ Get the relevance dictionary for the run. """
+        """ Get the relevance dictionary for the run.
+
+        The run relevance dictionary contains the relevance values of each
+        document as determined by the model. It is compared to the true
+        relevance dictionary, which contains the ground truth relevance
+        values for each document.
+        """
         assert all([r.model_relevance is not None for r in ranking_objs])
         if rank_limit:
             assert all([r.rank is not None for r in ranking_objs])

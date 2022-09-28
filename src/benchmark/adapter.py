@@ -217,14 +217,14 @@ class Prompt:
     # Instance prefix, carried over from the adapter spec
     instance_prefix: str
 
-    # In context example blocks for the prompt.
-    in_context_example_blocks: List[str]
+    # Instructions for the task
+    instructions_block: str
+
+    # Train instance blocks for the prompt
+    train_instance_blocks: List[str]
 
     # Evaluation instance
     eval_instance_block: str
-
-    # Instruction block for the prompt, including any instruction prefix.
-    instructions_block: Optional[str] = None
 
     # Set if the input of the corresponding Instance was truncated to fit the
     # model's context window for this Request
@@ -235,7 +235,7 @@ class Prompt:
     def text(self) -> str:
         # Text for the prompt, might be truncated
         blocks = [self.instructions_block] if self.instructions_block else []
-        blocks += self.in_context_example_blocks + [self.eval_instance_block]
+        blocks += self.train_instance_blocks + [self.eval_instance_block]
         non_truncated_input = self.instance_prefix.join(blocks)
         return self.truncated_input if self.truncated_input else non_truncated_input
 
@@ -245,9 +245,9 @@ class Prompt:
         return self.truncated_input is not None
 
     @property
-    def num_in_context_examples(self) -> int:
+    def num_train_instances(self) -> int:
         # Number of in-context examples in the prompt
-        return len(self.in_context_example_blocks)
+        return len(self.train_instance_blocks)
 
 
 @dataclass(frozen=True)
@@ -294,7 +294,7 @@ class Processor:
             output_mapping=None,
             request=request,
             result=None,
-            num_in_context_examples=prompt.num_in_context_examples,
+            num_in_context_examples=prompt.num_train_instances,
             input_truncated=prompt.input_truncated,
         )
         return [request_state]
@@ -323,7 +323,7 @@ class Processor:
             output_mapping=output_mapping,
             request=request,
             result=None,
-            num_in_context_examples=prompt.num_in_context_examples,
+            num_in_context_examples=prompt.num_train_instances,
             input_truncated=prompt.input_truncated,
         )
         return [request_state]
@@ -377,7 +377,7 @@ class Processor:
                     output_mapping=None,
                     request=request,
                     result=None,
-                    num_in_context_examples=prompt.num_in_context_examples,
+                    num_in_context_examples=prompt.num_train_instances,
                     input_truncated=prompt.input_truncated,
                 )
                 request_states.append(request_state)
@@ -388,20 +388,24 @@ class Processor:
 
         For tasks that require ranking, such as information retrieval tasks,
         an instance corresponds to a single query for which documents will be
-        ranked. ach reference of an instance corresponds to a single document.
-        A single example then contains a query and a document, relevance of
-        which with respect to the query will be judged by the model. A request
-        consists of a single example and a number of in-context training
-        examples. That is, given:
+        ranked. Each reference of an instance corresponds to a single document.
+        A single evaluation instance block then contains a query and a document,
+        relevance of which with respect to the query will be judged by the
+        model. That is, given:
 
             [input], [reference_1], ... [reference_k]
 
-        We construct the prompt:
+        We construct the following evaluation instance block:
 
             Passage: [reference_i]
             Query: [input]
             Does the passage answer the query?
             Answer: Yes | No
+
+        A request consists of a single evaluation instance block and a
+        number of training instance blocks. For each training instance selected,
+        we add two training instance blocks, one containing a relevant passage
+        and another containing a passage that's not relevant.
 
         The success of the scenarios using this adaptation strategy is measured
         using the RankingMetric in the "binary_ranking" mode.
@@ -437,7 +441,7 @@ class Processor:
                 output_mapping=None,
                 request=request,
                 result=None,
-                num_in_context_examples=prompt.num_in_context_examples,
+                num_in_context_examples=prompt.num_train_instances,
                 input_truncated=prompt.input_truncated,
             )
             request_states.append(request_state)
@@ -467,10 +471,10 @@ class Processor:
             example_prompt_constructor = self.construct_example_prompt
 
         # Instruction text
-        instructions_block = self.adapter_spec.instructions if self.adapter_spec.instructions else None
+        instructions_block = self.adapter_spec.instructions
 
         # Text for in-context training instances
-        in_context_blocks = [
+        train_instance_blocks = [
             example_prompt_constructor(inst, include_output=True, reference_index=None) for inst in train_instances
         ]
 
@@ -482,7 +486,7 @@ class Processor:
         # Prompt
         prompt = Prompt(
             instructions_block=instructions_block,
-            in_context_example_blocks=in_context_blocks,
+            train_instance_blocks=train_instance_blocks,
             eval_instance_block=eval_instance_block,
             instance_prefix=self.adapter_spec.instance_prefix,
         )
@@ -497,12 +501,12 @@ class Processor:
         # exceed the max context length (https://github.com/hendrycks/test/blob/master/evaluate.py#L58),
         # we remove train instances one by one until it fits within the context window or
         # until we run out of train instances to remove.
-        orig_train_instances_count: int = len(prompt.in_context_example_blocks)
-        while len(prompt.in_context_example_blocks) > 0:
+        orig_train_instances_count: int = prompt.num_train_instances
+        while prompt.num_train_instances > 0:
             if self.window_service.fits_within_context_window(
                 text=prompt.text, expected_completion_token_length=self.adapter_spec.max_tokens,
             ):
-                removed_train_instances_count: int = orig_train_instances_count - len(prompt.in_context_example_blocks)
+                removed_train_instances_count: int = orig_train_instances_count - prompt.num_train_instances
                 if removed_train_instances_count > 0:
                     hlog(
                         f"The original constructed prompt exceeded the max context length. "
@@ -510,7 +514,7 @@ class Processor:
                         f"it within the context window."
                     )
                 return prompt
-            prompt.in_context_example_blocks.pop()
+            prompt.train_instance_blocks.pop()
 
         # If removing the in-context example is still not enough, we simply truncate the prompt.
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
@@ -570,9 +574,11 @@ class Processor:
         """
         if instance.split == TRAIN_SPLIT:
             reference_indices = list(range(len(instance.references)))
-        else:  # EVAL SPLITS
+        elif instance.split in EVAL_SPLITS:
             assert reference_index is not None
             reference_indices = [reference_index]
+        else:
+            raise ValueError(f"Unknown split, expected one of: {[TRAIN_SPLIT] + EVAL_SPLITS}")
 
         # Create example blocks
         example_blocks = []
