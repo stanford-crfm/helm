@@ -32,6 +32,7 @@ TOKENIZER_REPLACEMENTS = {
     "opt-66b": "opt",
     "Yandex": "yandex",
     "EleutherAI": "eleutherai",
+    "TsinghuaKEG/ice": "tsinghua/glm",
     "gpt-j-6B": "gptj",
     "gpt-neox-20b": "gptneox",
     "t5-11b": "t5",
@@ -205,18 +206,18 @@ if __name__ == "__main__":
     client = get_client()
 
     for tokenizer in [
-        # "huggingface/gpt2",
-        # "ai21/j1",
-        # "cohere/cohere",
-        # "bigscience/T0pp",
-        # "Yandex/yalm",
-        # "facebook/opt-66b",
-        # "bigscience/bloom",
-        # "google/t5-11b",
-        # "google/ul2",
+        "huggingface/gpt2",
+        "ai21/j1",
+        "cohere/cohere",
+        "bigscience/T0pp",
+        "Yandex/yalm",
+        "facebook/opt-66b",
+        "bigscience/bloom",
+        "google/t5-11b",
+        "google/ul2",
         "TsinghuaKEG/ice",
-        # "EleutherAI/gpt-neox-20b",
-        # "EleutherAI/gpt-j-6B",
+        "EleutherAI/gpt-neox-20b",
+        "EleutherAI/gpt-j-6B",
     ]:
         tokens, text_chunks = tokenize_text(tokenizer=tokenizer, client=client)
         for num_prompt_tokens in NUM_INPUT_TOKENS:
