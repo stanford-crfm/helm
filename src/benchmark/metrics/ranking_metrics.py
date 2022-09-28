@@ -32,7 +32,13 @@ class RankingObject:
     """ Top-k rank. """
     rank: Optional[int] = None
 
-    """ Model output for the object. """
+    """ Model output for the object. 
+    
+    Model output can be any string outputted by the model that's used to rank
+    a model's preference on different passages. For example, it can be the
+    string "Yes" or "No" indicating whether a passage answers the given query
+    in the ADAPT_RANKING_BINARY case.
+    """
     model_output: Optional[str] = None
 
     """ Model logprob for the completion. """
