@@ -71,9 +71,7 @@ def tokenize_text(
     for book, source_url in sources.items():
         data_path = os.path.join(output_path, f"{book}.txt")
         ensure_file_downloaded(
-            source_url=source_url,
-            target_path=data_path,
-            unpack=False,
+            source_url=source_url, target_path=data_path, unpack=False,
         )
         with open(data_path, "r") as f:
             raw_text = f.read()

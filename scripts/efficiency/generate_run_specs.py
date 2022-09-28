@@ -29,30 +29,32 @@ def main(args):
     all_num_output_tokens = [1, 2, 4, 8, 16, 32, 64]
 
     scenario = "synthetic_efficiency"
-    if args.tokenizer_provider == "ai21":
-        all_models_and_tokenizers = [("ai21_tokenizer", "ai21/j1")]
-    elif args.tokenizer_provider == "openai":
-        all_models_and_tokenizers = [("gpt2_tokenizer", "huggingface/gpt2")]
-    elif args.tokenizer_provider == "cohere":
-        all_models_and_tokenizers = [("cohere_tokenizer", "cohere/cohere")]
-    elif args.tokenizer_provider == "opt":
-        all_models_and_tokenizers = [("opt_tokenizer", "meta/opt")]
-    elif args.tokenizer_provider == "yandex":
-        all_models_and_tokenizers = [("together/yalm", "yandex/yalm")]
-    elif args.tokenizer_provider == "bloom":
-        all_models_and_tokenizers = [("together/bloom", "bigscience/bloom")]
-    elif args.tokenizer_provider == "t5":
-        all_models_and_tokenizers = [("together/t5-11b", "google/t5-11b")]
-    elif args.tokenizer_provider == "t0":
-        all_models_and_tokenizers = [("together/t0pp", "bigscience/T0pp")]
-    elif args.tokenizer_provider == "ul2":
-        all_models_and_tokenizers = [("together/ul2", "google/ul2")]
-    elif args.tokenizer_provider == "glm":
-        all_models_and_tokenizers = [("together/glm", "TsinghuaKEG/ice")]
-    elif args.tokenizer_provider == "gptj":
-        all_models_and_tokenizers = [("together/gpt-j-6b", "EleutherAI/gpt-j-6B")]
-    elif args.tokenizer_provider == "gptneox":
-        all_models_and_tokenizers = [("together/gpt-neox-20b", "EleutherAI/gpt-neox-20b")]
+    all_models_and_tokenizers = []
+    for tokenizer_provider in args.tokenizer_providers:
+        if tokenizer_provider == "ai21":
+            all_models_and_tokenizers.append(("ai21_tokenizer", "ai21/j1"))
+        elif tokenizer_provider == "openai":
+            all_models_and_tokenizers.append(("gpt2_tokenizer", "huggingface/gpt2"))
+        elif tokenizer_provider == "cohere":
+            all_models_and_tokenizers.append(("cohere_tokenizer", "cohere/cohere"))
+        elif tokenizer_provider == "opt":
+            all_models_and_tokenizers.append(("opt_tokenizer", "meta/opt"))
+        elif tokenizer_provider == "yandex":
+            all_models_and_tokenizers.append(("together/yalm", "yandex/yalm"))
+        elif tokenizer_provider == "bloom":
+            all_models_and_tokenizers.append(("together/bloom", "bigscience/bloom"))
+        elif tokenizer_provider == "t5":
+            all_models_and_tokenizers.append(("together/t5-11b", "google/t5-11b"))
+        elif tokenizer_provider == "t0":
+            all_models_and_tokenizers.append(("together/t0pp", "bigscience/T0pp"))
+        elif tokenizer_provider == "ul2":
+            all_models_and_tokenizers.append(("together/ul2", "google/ul2"))
+        elif tokenizer_provider == "glm":
+            all_models_and_tokenizers.append(("together/glm", "TsinghuaKEG/ice"))
+        elif tokenizer_provider == "gptj":
+            all_models_and_tokenizers.append(("together/gpt-j-6b", "EleutherAI/gpt-j-6B"))
+        elif tokenizer_provider == "gptneox":
+            all_models_and_tokenizers.append(("together/gpt-neox-20b", "EleutherAI/gpt-neox-20b"))
 
     specs = []
 
@@ -78,9 +80,10 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--tokenizer_provider",
+        "--tokenizer_providers",
         choices=["ai21", "openai", "cohere", "opt", "yandex", "bloom", "t5", "t0", "ul2", "glm", "gptj", "gptneox"],
         required=True,
+        nargs="+",
     )
     parser.add_argument("--output_path", required=True, type=str)
     parser.add_argument("--no-random", action="store_true")
