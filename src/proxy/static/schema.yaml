@@ -725,7 +725,7 @@ run_groups:
       - fairness
       - efficiency
     environment:
-      main_name: RR@20
+      main_name: RR@10
       main_split: valid
 
   - name: msmarco_trec
@@ -737,7 +737,7 @@ run_groups:
       - fairness
       - efficiency
     environment:
-      main_name: NDCG@20
+      main_name: NDCG@10
       main_split: valid
 
 # Summarization scenarios
