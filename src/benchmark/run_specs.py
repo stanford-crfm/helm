@@ -222,20 +222,26 @@ def get_language_modeling_adapter_spec() -> AdapterSpec:
     )
 
 
-def get_summarization_adapter_spec(**kwargs) -> AdapterSpec:
+def get_summarization_adapter_spec(num_sents: int, **kwargs) -> AdapterSpec:
     """
     Used for summarization.
     """
+
+    if num_sents == 1:
+        out_pref = "Summarize the above article in 1 sentence.\n"
+    else:
+        out_pref = f"Summarize the above article in {num_sents} sentences.\n"
+
     return AdapterSpec(
         method=ADAPT_GENERATION,
-        instructions=format_instructions("Summarize the given documents."),
-        input_prefix="Document: {",
-        input_suffix="}\n",
-        output_prefix="Summary: {",
-        output_suffix="}\n",
+        instructions="",
+        input_prefix="###\nArticle:",
+        input_suffix="\n\n",
+        output_prefix=out_pref,
+        output_suffix="\n",
         max_train_instances=5,
         num_outputs=1,
-        stop_sequences=["}"],  # Summary is enclosed in curly braces. Worked more reliably than newline.
+        stop_sequences=["###"],  # Separator between few-shot instances.
         **kwargs,
     )
 
@@ -1187,6 +1193,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
     )
 
     adapter_spec = get_summarization_adapter_spec(
+        num_sents=1,
         max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
     )
@@ -1212,6 +1219,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = 
     )
 
     adapter_spec = get_summarization_adapter_spec(
+        num_sents=1,
         max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
     )
@@ -1232,6 +1240,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") 
     )
 
     adapter_spec = get_summarization_adapter_spec(
+        num_sents=3,
         max_tokens=128,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=temperature,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
     )
