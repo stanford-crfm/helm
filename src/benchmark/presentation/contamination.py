@@ -72,7 +72,7 @@ def validate_contamination(contamination: Contamination, schema: Schema):
             if model not in MODEL_NAME_TO_MODEL:
                 hlog(f"WARNING: model {model} not defined in schema")
         for scenario_group in point.scenario_groups:
-            if scenario_group not in schema.name_to_scenario_group:
+            if scenario_group not in schema.name_to_run_group:
                 hlog(f"WARNING: scenario group {scenario_group} not defined in schema")
 
 
