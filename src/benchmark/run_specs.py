@@ -235,7 +235,7 @@ def get_summarization_adapter_spec(num_sents: int, **kwargs) -> AdapterSpec:
     return AdapterSpec(
         method=ADAPT_GENERATION,
         instructions="",
-        input_prefix="###\nArticle:",
+        input_prefix="###\nArticle: ",
         input_suffix="\n\n",
         output_prefix=out_pref,
         output_suffix="\n",
