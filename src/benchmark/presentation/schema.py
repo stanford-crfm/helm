@@ -35,7 +35,7 @@ class Field:
     # Whether a lower vaue for this field corresponds to a better model (e.g., False for accuracy, True for perplexity)
     lower_is_better: bool = False
 
-    def get_short_display_name(self, arrow=False):
+    def get_short_display_name(self, arrow: bool = False) -> str:
         name = self.short_display_name or self.display_name or self.name
         if arrow:
             name += " " + (DOWN_ARROW if self.lower_is_better else UP_ARROW)
@@ -95,23 +95,33 @@ class MetricGroup(Field):
     metrics: List[MetricNameMatcher] = field(default_factory=list)
 
 
+BY_METRIC = "by_metric"
+BY_GROUP = "by_group"
+
+
 @dataclass(frozen=True)
 class RunGroup(Field):
     """
-    Defines information about how a scenario group (really a list of runs that
-    share the same scenario) are displayed.
+    Defines information about how a group of runs is displayed.
     """
 
     # What groups (by name) to show
     metric_groups: List[str] = field(default_factory=list)
 
-    # Which subgroups we have
+    # Names of subgroups which this group contains. That is, when displaying this group, we will also (recursively)
+    # display all of its subgroups. This allows us to aggregate runs in different ways without having to explicitly
+    # annotate each run. For instance, we can display MMLU with the group "QA" by adding it as a subgroup.
     subgroups: List[str] = field(default_factory=list)
+
+    # When displaying the subgroups, should each table show all the metrics for each group (BY_GROUP) or show all the
+    # groups for each metric (BY_METRIC)
+    subgroup_display_mode: str = BY_METRIC
 
     # Defines variables that are substituted in any of the metrics
     environment: Dict[str, str] = field(default_factory=dict)
 
-    # Which category these group belongs to (e.g., scenario, task, component)
+    # Which category this group belongs to. These currently include "Scenarios", "Tasks", "Components" and are used to
+    # clump different groups together for easier website navigation.
     category: str = "Scenarios"
 
 

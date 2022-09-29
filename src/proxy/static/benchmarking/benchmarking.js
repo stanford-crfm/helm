@@ -614,7 +614,6 @@ $(function () {
     const $output = $('<div>');
     $output.append($('<h3>').append(table.title));
     const $table = $('<table>', {class: 'query-table results-table'});
-    console.log(table)
     const $header = $('<tr>').append(table.header.map(renderCell));
     $table.append($header);
 

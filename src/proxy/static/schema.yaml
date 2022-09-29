@@ -459,7 +459,7 @@ metric_groups:
         split: ${main_split}
 
 run_groups:
-## Supergroups
+## Aggregation groups
   - name: question_answering
     display_name: Question answering
     description: Performance on question answering scenarios
