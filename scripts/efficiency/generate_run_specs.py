@@ -14,8 +14,7 @@ def generate_spec(scenario, model, tokenizer, num_prompt_tokens, num_output_toke
     return (
         f'"{scenario}:model={model},tokenizer={tokenizer},'
         f"num_prompt_tokens={num_prompt_tokens},"
-        f"num_output_tokens={num_output_tokens},"
-        f"num_train_trials=default"
+        f"num_output_tokens={num_output_tokens}"
         f'{random_str}": '
         "{priority: 1}"
     )
