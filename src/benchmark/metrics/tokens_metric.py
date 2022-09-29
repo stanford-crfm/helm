@@ -25,21 +25,10 @@ class Processor:
         request: Request = request_state.request
         stats: List[Stat] = []
 
-        # Estimated cost in terms of number of tokens
-        estimate_num_tokens_cost: int = self.token_cost_estimator.estimate_tokens(request, self.metric_service)
-        stats.append(Stat(MetricName("estimated_num_tokens_cost")).add(estimate_num_tokens_cost))
-
         # Number of tokens in the prompt
         window_service: WindowService = WindowServiceFactory.get_window_service(request.model, self.metric_service)
         num_prompt_tokens: int = window_service.get_num_tokens(text=request.prompt)
         stats.append(Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens))
-
-        # Number of characters in the prompt
-        stats.append(Stat(MetricName("num_prompt_characters")).add(len(request.prompt)))
-
-        # Maximum number of tokens in the completions
-        # TODO: this is an overestimate since stop sequences can cause early termination.
-        stats.append(Stat(MetricName("max_num_output_tokens")).add(request.num_completions * request.max_tokens))
 
         return stats
 

@@ -226,17 +226,77 @@ class Processor:
     adapter_spec: AdapterSpec
     window_service: WindowService
 
-    train_instances: List[Instance]
+    all_train_instances: List[Instance]
     train_trial_index: int
+
+    def sample_examples(self, all_train_instances: List[Instance]) -> List[Instance]:
+        """
+        Sample a random set of train instances to use as examples by following the steps below:
+        1. Sort the class labels (correct References) by the number of Instances that belong to the class.
+        2. Keep sampling one train Instance from each class in the order established in step 1, until
+           there are k examples.
+        3. If we run out of examples to sample, sample the rest from the Instances that do not have
+           class labels.
+
+        Example:
+
+            If we had to sample 2 instances from these train instances:
+                Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+
+            The following instances would be selected:
+
+                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])])
+                Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])])
+
+        Returns a new list of randomly sampled train instances.
+        """
+        num_instances_to_sample: int = min(len(all_train_instances), self.adapter_spec.max_train_instances)
+
+        unlabeled_instances: List[Instance] = []
+        label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
+
+        for instance in all_train_instances:
+            if instance.first_correct_reference:
+                label_to_instances[instance.first_correct_reference.output].append(instance)
+            else:
+                unlabeled_instances.append(instance)
+
+        # Sort the labels by the number of Instances that belong to them
+        sorted_labels: List[str] = [
+            key for key, _ in sorted(label_to_instances.items(), key=lambda x: len(x[1]), reverse=True)
+        ]
+        labels_iterable = cycle(sorted_labels)
+
+        examples: List[Instance] = []
+        while num_instances_to_sample > 0:
+            next_label: Optional[str] = next(labels_iterable, None)
+            if not next_label:
+                break
+
+            instances: List[Instance] = label_to_instances[next_label]
+            # If there are no Instances to sample for this particular label, skip it.
+            if len(instances) == 0:
+                continue
+
+            # Randomly sample without replacement
+            examples.append(instances.pop(random.randrange(len(instances))))
+            num_instances_to_sample -= 1
+
+        # If we ran out of Instances with correct References, sample the rest from
+        # the pool of Instances without any References
+        examples += random.sample(unlabeled_instances, num_instances_to_sample)
+        return examples
 
     def process(self, eval_instance: Instance) -> List[RequestState]:
         # Define the request
         method = self.adapter_spec.method
+        train_instances: List[Instance] = self.sample_examples(self.all_train_instances)
 
         if method == ADAPT_GENERATION:
-            prompt = self.construct_prompt(
-                self.train_instances, eval_instance, include_output=False, reference_index=None
-            )
+            # GPT-FewShot: include gold
+            prompt = self.construct_prompt(train_instances, eval_instance, include_output=True, reference_index=None)
             request = Request(
                 model=self.adapter_spec.model,
                 prompt=prompt.text,
@@ -260,9 +320,8 @@ class Processor:
                 )
             ]
         elif method == ADAPT_MULTIPLE_CHOICE_JOINT:
-            prompt = self.construct_prompt(
-                self.train_instances, eval_instance, include_output=False, reference_index=None
-            )
+            # GPT-FewShot: include gold
+            prompt = self.construct_prompt(train_instances, eval_instance, include_output=True, reference_index=None)
             output_mapping = dict(
                 (self.get_reference_prefix("A", reference_index), reference.output)
                 for reference_index, reference in enumerate(eval_instance.references)
@@ -314,7 +373,7 @@ class Processor:
                 for request_mode in request_modes:
                     if request_mode == "original":
                         prompt = self.construct_prompt(
-                            self.train_instances, eval_instance, include_output=True, reference_index=reference_index,
+                            train_instances, eval_instance, include_output=True, reference_index=reference_index,
                         )
                     elif request_mode == "calibration":
                         # For calibration purpose, we compute the logprobs of the reference
@@ -396,9 +455,8 @@ class Processor:
         # we remove train instances one by one until it fits within the context window or
         # until we run out of train instances to remove.
         while len(train_instances) > 0:
-            if self.window_service.fits_within_context_window(
-                text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
-            ):
+            # GPT-FewShot: no output tokens
+            if self.window_service.fits_within_context_window(prompt):
                 return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=False)
 
             train_instances = train_instances[:-1]
@@ -414,7 +472,8 @@ class Processor:
         # If removing the in-context example is still not enough, we simply truncate the prompt.
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
         original_length = len(prompt)
-        prompt = self.window_service.truncate_from_right(prompt, self.adapter_spec.max_tokens)
+        # GPT-FewShot: no output tokens
+        prompt = self.window_service.truncate_from_right(prompt)
         input_truncated = len(prompt) < original_length
         return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=input_truncated)
 
@@ -600,13 +659,14 @@ class Adapter:
         eval_instances: List[Instance],
         parallelism: int,
     ) -> List[RequestState]:
-        train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
+        # Fix the random seed for reproducibility
+        random.seed(train_trial_index)
 
         # Create request_states
         processor = Processor(
             adapter_spec=self.adapter_spec,
             window_service=self.window_service,
-            train_instances=train_instances,
+            all_train_instances=all_train_instances,
             train_trial_index=train_trial_index,
         )
         results: List[List[RequestState]] = parallel_map(
@@ -629,68 +689,6 @@ class Adapter:
         for result_index, result in enumerate(results):
             all_request_states.extend(result)
         return [request_state for result in results for request_state in result]
-
-    def sample_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
-        """
-        Sample a random set of train instances to use as examples by following the steps below:
-        1. Sort the class labels (correct References) by the number of Instances that belong to the class.
-        2. Keep sampling one train Instance from each class in the order established in step 1, until
-           there are k examples.
-        3. If we run out of examples to sample, sample the rest from the Instances that do not have
-           class labels.
-
-        Example:
-
-            If we had to sample 2 instances from these train instances:
-                Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
-                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
-                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
-
-            The following instances would be selected:
-
-                Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])])
-                Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])])
-
-        Returns a new list of randomly sampled train instances.
-        """
-        # Fix the random seed for reproducibility
-        random.seed(seed)
-        num_instances_to_sample: int = min(len(all_train_instances), self.adapter_spec.max_train_instances)
-
-        unlabeled_instances: List[Instance] = []
-        label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
-
-        for instance in all_train_instances:
-            if instance.first_correct_reference:
-                label_to_instances[instance.first_correct_reference.output].append(instance)
-            else:
-                unlabeled_instances.append(instance)
-
-        # Sort the labels by the number of Instances that belong to them
-        sorted_labels: List[str] = [
-            key for key, _ in sorted(label_to_instances.items(), key=lambda x: len(x[1]), reverse=True)
-        ]
-        labels_iterable = cycle(sorted_labels)
-
-        examples: List[Instance] = []
-        while num_instances_to_sample > 0:
-            next_label: Optional[str] = next(labels_iterable, None)
-            if not next_label:
-                break
-
-            instances: List[Instance] = label_to_instances[next_label]
-            # If there are no Instances to sample for this particular label, skip it.
-            if len(instances) == 0:
-                continue
-
-            # Randomly sample without replacement
-            examples.append(instances.pop(random.randrange(len(instances))))
-            num_instances_to_sample -= 1
-
-        # If we ran out of Instances with correct References, sample the rest from
-        # the pool of Instances without any References
-        examples += random.sample(unlabeled_instances, num_instances_to_sample)
-        return examples
 
     def fits_tokens_within_context_window(
         self,

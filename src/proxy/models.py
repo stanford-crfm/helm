@@ -300,6 +300,14 @@ ALL_MODELS = [
     # HuggingFace
     Model(
         group="huggingface",
+        creator_organization="CRFM",
+        name="huggingface/gpt-fewshot",
+        display_name="GPT-FewShot",
+        description="GPT-FewShot",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="huggingface",
         creator_organization="EleutherAI",
         name="huggingface/gpt-j-6b",
         display_name="GPT-J (6B, HuggingFace)",

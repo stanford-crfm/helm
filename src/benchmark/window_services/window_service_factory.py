@@ -17,6 +17,7 @@ from .ul2_window_service import UL2WindowService
 from .yalm_window_service import YaLMWindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
+from .wider_gpt2_window_service import WiderGPT2WindowService
 
 
 class WindowServiceFactory:
@@ -40,6 +41,8 @@ class WindowServiceFactory:
             window_service = AnthropicWindowService(service)
         elif model_name == "huggingface/gpt2":
             window_service = GPT2WindowService(service)
+        elif model_name == "huggingface/gpt-fewshot":
+            window_service = WiderGPT2WindowService(service)
         elif model_name == "together/bloom":
             window_service = BloomWindowService(service)
         elif model_name == "together/glm":
