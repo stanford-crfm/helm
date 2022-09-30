@@ -252,7 +252,9 @@ class Processor:
 
         Returns a new list of randomly sampled train instances.
         """
-        num_instances_to_sample: int = min(len(all_train_instances), self.adapter_spec.max_train_instances)
+        # Sample random number of in-context examples
+        max_in_context_examples: int = random.randint(1, 16)
+        num_instances_to_sample: int = min(len(all_train_instances), max_in_context_examples)
 
         unlabeled_instances: List[Instance] = []
         label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
