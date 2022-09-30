@@ -1,7 +1,7 @@
 import random
 from dataclasses import dataclass, field, replace
 from itertools import cycle
-from typing import List, Dict, Tuple, Optional, Callable
+from typing import List, Dict, Tuple, Optional
 from collections import defaultdict, OrderedDict
 
 import numpy as np
@@ -10,7 +10,7 @@ from common.general import serialize, indent_lines, format_text_lines, parallel_
 from common.hierarchical_logger import hlog, htrack, htrack_block
 from common.request import Request, RequestResult
 from common.tokenization_request import TokenizationToken
-from .scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS, CORRECT_TAG
+from .scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 from .window_services.window_service import WindowService, EncodeResult
 from .window_services.window_service_factory import WindowServiceFactory
 from .window_services.tokenizer_service import TokenizerService

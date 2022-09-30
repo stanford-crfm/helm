@@ -9,8 +9,8 @@ from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
-from ..adapter import AdapterSpec, RequestState, CORRECT_TAG, ADAPT_RANKING_BINARY
-from ..scenarios.scenario import unpack_tag
+from ..adapter import AdapterSpec, RequestState, ADAPT_RANKING_BINARY
+from ..scenarios.scenario import unpack_tag, CORRECT_TAG
 
 
 @dataclass
