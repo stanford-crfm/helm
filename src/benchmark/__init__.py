@@ -51,7 +51,7 @@ from .metrics import code_metrics  # noqa
 from .metrics import copyright_metrics  # noqa
 from .metrics import disinformation_metrics  # noqa
 from .metrics import numeracy_metrics  # noqa
-from .metrics import ranking_metrics  # noqa
+from .metrics import multiple_request_metrics  # noqa
 from .metrics import summarization_metrics  # noqa
 from .metrics import toxicity_metrics  # noqa
 from .metrics import tokens_metric  # noqa
