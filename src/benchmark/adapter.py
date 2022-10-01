@@ -252,8 +252,8 @@ class Processor:
 
         Returns a new list of randomly sampled train instances.
         """
-        # Sample random number of in-context examples
-        max_in_context_examples: int = random.randint(1, 16)
+        # Sample random number (1-5) of in-context examples
+        max_in_context_examples: int = random.randint(1, 5)
         num_instances_to_sample: int = min(len(all_train_instances), max_in_context_examples)
 
         unlabeled_instances: List[Instance] = []
@@ -590,12 +590,12 @@ class Adapter:
         Return the resulting train and eval instances.
         """
         all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
-
         all_eval_instances: List[Instance] = [instance for instance in instances if instance.split in EVAL_SPLITS]
-        if (
-            self.adapter_spec.max_eval_instances is not None
-            and len(all_eval_instances) > self.adapter_spec.max_eval_instances
-        ):
+        num_eval_instances: int = len(all_eval_instances)
+
+        assert self.adapter_spec.max_eval_instances is not None
+
+        if num_eval_instances > self.adapter_spec.max_eval_instances:
             # Pick the first `self.adapter_spec.max_eval_instances`.
             # The random sampling includes instances monotonically.
             np.random.seed(0)
@@ -603,7 +603,12 @@ class Adapter:
                 np.random.choice(all_eval_instances, self.adapter_spec.max_eval_instances, replace=False)
             )  # type: ignore
         else:
-            selected_eval_instances = all_eval_instances
+            # Fill up until there are `max_eval_instances` instances even if there are repeats
+            # since we will sample different in-context examples per instance
+            factor: int = self.adapter_spec.max_eval_instances // num_eval_instances
+            selected_eval_instances = all_eval_instances * factor
+            remainder: int = self.adapter_spec.max_eval_instances - num_eval_instances * factor
+            selected_eval_instances.extend(all_eval_instances[:remainder])
 
         hlog(
             f"{len(instances)} instances, "
