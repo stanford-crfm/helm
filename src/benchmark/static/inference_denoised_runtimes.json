@@ -33,15 +33,15 @@
     "overhead": 0.257
   },
   "anthropic/stanford-online-all-v4-s3": {
-    "runtime_per_output_token": 0.072,
+    "runtime_per_output_token": 0.057,
     "runtime_for_prompt_tokens": {
-      "1": 0.072,
-      "256": 0.326,
-      "512": 0.233,
-      "1024": 0.264,
-      "1536": 0.484
+      "1": 0.057,
+      "256": 0.183,
+      "512": 0.193,
+      "1024": 0.191,
+      "1536": 0.38
     },
-    "overhead": 0.44
+    "overhead": 0.442
   },
   "openai/ada": {
     "runtime_per_output_token": 0.006,
@@ -152,5 +152,38 @@
       "1536": 0.073
     },
     "overhead": 0.157
+  },
+  "cohere/small-20220720": {
+    "runtime_per_output_token": 0.006,
+    "runtime_for_prompt_tokens": {
+      "1": 0.006,
+      "256": 0.03,
+      "512": 0.071,
+      "1024": 0.162,
+      "1536": 0.27
+    },
+    "overhead": 0.213
+  },
+  "cohere/medium-20220720": {
+    "runtime_per_output_token": 0.012,
+    "runtime_for_prompt_tokens": {
+      "1": 0.012,
+      "256": 0.051,
+      "512": 0.108,
+      "1024": 0.187,
+      "1536": 0.261
+    },
+    "overhead": 0.186
+  },
+  "cohere/large-20220720": {
+    "runtime_per_output_token": 0.023,
+    "runtime_for_prompt_tokens": {
+      "1": 0.023,
+      "256": 0.071,
+      "512": 0.127,
+      "1024": 0.243,
+      "1536": 0.369
+    },
+    "overhead": 0.2
   }
 }
