@@ -11,16 +11,19 @@ CONTAMINATION_YAML_PATH: str = "src/proxy/static/contamination.yaml"
 
 # Contamination levels
 CONTAMINATION_LEVEL_WEAK = "weak"
+CONTAMINATION_LEVEL_MEDIUM = "medium"
 CONTAMINATION_LEVEL_STRONG = "strong"
 
 CONTAMINATION_SYMBOLS = {
     CONTAMINATION_LEVEL_WEAK: "⚠",
+    CONTAMINATION_LEVEL_MEDIUM: "💀",
     CONTAMINATION_LEVEL_STRONG: "☠",
 }
 
 # These are CSS styles applied to cells that have the type of contamination.
 CONTAMINATION_STYLES = {
-    CONTAMINATION_LEVEL_WEAK: {"color": "gray"},
+    CONTAMINATION_LEVEL_WEAK: {"color": "darkgray"},
+    CONTAMINATION_LEVEL_MEDIUM: {"color": "gray"},
     CONTAMINATION_LEVEL_STRONG: {"color": "lightgray"},
 }
 
@@ -38,7 +41,7 @@ class ContaminationPoint:
 
     scenario_groups: List[str]
 
-    # How contaminated (strong or weak)
+    # How contaminated (strong, medium, or weak)
     level: str
 
     # Explanation of how we know
