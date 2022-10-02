@@ -354,7 +354,7 @@ $(function () {
         .append($('<td>').append($('<tt>').append(model.group)))
         .append($('<td>').append($('<tt>').append(model.name)))
         .append($('<td>').append(model.description))
-        .append($('<td>').append(model.tags));
+        .append($('<td>').append(model.tags.join(' ')));
       $table.append($row);
     });
     return $table;
