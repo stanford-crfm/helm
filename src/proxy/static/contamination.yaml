@@ -1,6 +1,62 @@
 ---
 
 points:
+
+# Models trained on The Pile
+  - models:
+    - together/bloom
+    scenario_groups:
+    - the_pile
+    level: strong
+    description: BLOOM is explicitly trained on the Pile, i.e. data from the same distribution as the test set. See TODO.
+
+  - models:
+    - together/gpt-j-6b
+    - gooseai/gpt-j-6b
+    scenario_groups:
+    - the_pile
+    level: strong
+    description: GPT-J is explicitly trained on the Pile, i.e. data from the same distribution as the test set. See TODO.
+
+  - models:
+    - together/gpt-neox-20b
+    - gooseai/gpt-neox-20b
+    scenario_groups:
+    - the_pile
+    level: strong
+    description: GPT-NeoX is explicitly trained on the Pile, i.e. data from the same distribution as the test set. See TODO.
+
+  - models:
+    - together/opt-66b
+    - together/opt-175b
+    scenario_groups:
+    - the_pile
+    level: strong
+    description: OPT is explicitly trained on the Pile, i.e. data from the same distribution as the test set. See TODO.
+
+  - models:
+    - microsoft/TNLGv2_7B
+    - microsoft/TNLGv2_530B
+    scenario_groups:
+    - the_pile
+    level: strong
+    description: MT-NLG is explicitly trained on the Pile, i.e. data from the same distribution as the test set. See TODO.
+
+  - models:
+    - anthropic/stanford-online-all-v4-s3
+    scenario_groups:
+    - the_pile
+    level: strong
+    description: Anthropic is explicitly trained on the Pile, i.e. data from the same distribution as the test set. See TODO.
+
+  - models:
+    - together/yalm
+    scenario_groups:
+    - the_pile
+    level: strong
+    description: YaLM is explicitly trained on the Pile, i.e. data from the same distribution as the test set. See TODO.
+
+# Models explicitly trained on specific downstream scenarios
   - models:
     - together/t0pp
     scenario_groups:
@@ -11,21 +67,14 @@ points:
     - summarization_cnndm
     - imdb
     level: strong
-    description: The T0++ model is explicitly trained on these datasets. See Table 5 on page 24 of https://arxiv.org/pdf/2110.08207.pdf.
+    description: T0++ is explicitly trained on these datasets, i.e. data from the same distribution as the test set. See Table 5 on page 24 of https://arxiv.org/pdf/2110.08207.pdf.
 
+# Models with contamination analyses.
   - models:
     - openai/davinci
     - openai/curie
     - openai/babbage
     - openai/ada
-    - openai/text-davinci-001
-    - openai/text-curie-001
-    - openai/text-babbage-001
-    - openai/text-ada-001
-    - openai/text-davinci-002
-    # - openai/text-curie-002
-    # - openai/text-babbage-002
-    # - openai/text-ada-002
     - openai/code-davinci-002
     - openai/code-davinci-001
     - openai/code-cushman-001
