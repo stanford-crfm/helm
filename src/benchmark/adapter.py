@@ -584,12 +584,7 @@ class Adapter:
             # Use the LM-specific method to adapt LM scenarios
             all_request_states = self.adapt_language_modeling(eval_instances, parallelism)
         else:
-            num_train_trials: int = self.adapter_spec.num_train_trials
-            if self.adapter_spec.max_train_instances == 0:
-                hlog("max_train_instances=0, so setting num_train_trials to 1")
-                num_train_trials = 1
-
-            for train_trial_index in range(num_train_trials):
+            for train_trial_index in range(self.adapter_spec.num_train_trials):
                 with htrack_block(f"Adapting with train_trial_index={train_trial_index}"):
                     all_request_states.extend(
                         self.adapt_trial_index(all_train_instances, train_trial_index, eval_instances, parallelism)

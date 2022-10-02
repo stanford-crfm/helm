@@ -45,6 +45,9 @@ def run_benchmarking(
             adapter_spec = replace(adapter_spec, max_eval_instances=max_eval_instances)
         if num_train_trials is not None:
             adapter_spec = replace(adapter_spec, num_train_trials=num_train_trials)
+        if adapter_spec.max_train_instances == 0:
+            hlog("max_train_instances = 0, so setting num_train_trials to 1")
+            adapter_spec = replace(adapter_spec, num_train_trials=1)
         return replace(run_spec, adapter_spec=adapter_spec)
 
     run_specs = [
