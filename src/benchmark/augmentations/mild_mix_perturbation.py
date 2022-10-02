@@ -1,5 +1,4 @@
 from random import Random
-from typing import Optional
 
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
@@ -9,19 +8,18 @@ from .space_perturbation import SpacePerturbation
 from .misspelling_perturbation import MisspellingPerturbation
 
 
-class RobustnessPerturbation(Perturbation):
+class MildMixPerturbation(Perturbation):
     """
     Canonical robustness perturbation that composes several perturbations.
     These perturbations are chosen to be reasonable.
     """
 
-    name: str = "robustness"
+    name: str = "mild_mix"
 
     # Don't perturb references because it's not fair to have to generate broken text.
     should_perturb_references: bool = False
 
-    def __init__(self, seed: Optional[int]):
-        self.seed = seed
+    def __init__(self):
         self.lowercase_perturbation = LowerCasePerturbation()
         self.contraction_perturbation = ContractionPerturbation()
         self.space_perturbation = SpacePerturbation(max_spaces=3)

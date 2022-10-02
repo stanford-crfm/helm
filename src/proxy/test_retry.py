@@ -7,7 +7,7 @@ from .retry import retry_request, get_retry_decorator, retry_if_request_failed
 def test_retry_for_successful_request():
     @retry_request
     def make_request() -> RequestResult:
-        return RequestResult(success=True, completions=[], cached=False)
+        return RequestResult(success=True, completions=[], cached=False, embedding=[])
 
     result: RequestResult = make_request()
     assert result.success
@@ -23,7 +23,7 @@ def test_retry_for_failed_request():
 
     @retry_fail_fast
     def make_request() -> RequestResult:
-        return RequestResult(success=False, completions=[], cached=False)
+        return RequestResult(success=False, completions=[], cached=False, embedding=[])
 
     # Should throw a `RetryError`
     try:

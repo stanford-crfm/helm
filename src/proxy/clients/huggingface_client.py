@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 
 from common.cache import Cache
 from common.hierarchical_logger import htrack_block, hlog
-from common.request import Request, RequestResult, Sequence, Token
+from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -116,6 +116,10 @@ class HuggingFaceClient(Client):
         return self.model_server_instances[model_engine]
 
     def make_request(self, request: Request) -> RequestResult:
+        # Embedding not supported for this model
+        if request.embedding:
+            return EMBEDDING_UNAVAILABLE_REQUEST_RESULT
+
         # Only a single stop sequence is supported as we can only pass in a single value for `eos_token_id`
         if len(request.stop_sequences) > 1:
             raise ValueError("More than one stop sequence is not supported.")
@@ -147,7 +151,7 @@ class HuggingFaceClient(Client):
             import traceback
             traceback.print_exc()
             error: str = f"HuggingFace error: {e}"
-            return RequestResult(success=False, cached=False, error=error, completions=[])
+            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions = []
         for raw_completion in response["completions"]:
@@ -179,6 +183,7 @@ class HuggingFaceClient(Client):
             request_time=response["request_time"],
             request_datetime=response.get("request_datetime"),
             completions=completions,
+            embedding=[],
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:

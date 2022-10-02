@@ -5,7 +5,7 @@ from collections import defaultdict
 import urllib.parse
 
 import dacite
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple, Set
 import json
 
 from common.general import write, ensure_directory_exists, asdict_without_nones, singleton, without_common_entries
@@ -16,7 +16,7 @@ from benchmark.metrics.statistic import Stat
 from benchmark.runner import RunSpec
 from proxy.models import ALL_MODELS, get_model
 from .table import Cell, Table, Hyperlink, table_to_latex
-from .schema import MetricNameMatcher, ScenarioGroup, read_schema, SCHEMA_YAML_PATH
+from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_PATH, BY_GROUP
 from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
 
 """
@@ -62,11 +62,11 @@ def dict_to_str(d: Dict[str, Any]) -> str:
     return ", ".join(f"{k}: {v}" for k, v in d.items())
 
 
-def get_scenario_name(group: ScenarioGroup, scenario_spec: ScenarioSpec):
+def get_scenario_name(group: RunGroup, scenario_spec: ScenarioSpec):
     return group.name + "_" + dict_to_str(scenario_spec.args).replace(" ", "").replace("/", "_")
 
 
-def get_scenario_display_name(group: ScenarioGroup, scenario_spec: ScenarioSpec):
+def get_scenario_display_name(group: RunGroup, scenario_spec: ScenarioSpec):
     return f"{group.display_name} / {dict_to_str(scenario_spec.args)}"
 
 
@@ -164,25 +164,58 @@ class Summarizer:
             json.dumps(list(map(asdict_without_nones, self.runs)), indent=2),
         )
 
-    def create_index_table(self) -> Table:
-        header = [
-            Cell("Scenario"),
-            Cell("Description"),
-            Cell("# models"),
-        ]
-        rows = []
-        for group in self.schema.scenario_groups:
-            num_runs = len(self.group_adapter_to_runs[group.name])
-            if num_runs == 0:
-                continue
-            rows.append(
-                [
-                    Cell(group.display_name, href=get_benchmarking_url({"suite": self.suite, "group": group.name})),
-                    Cell(group.description),
-                    Cell(num_runs),
-                ]
-            )
-        return Table(title="Overview of results", header=header, rows=rows)
+    @htrack(None)
+    def expand_subgroups(self, group: RunGroup) -> List[RunGroup]:
+        """Given a RunGroup, collect a list of its subgroups by traversing the subgroup tree."""
+
+        def expand_subgroups_(group: RunGroup, visited: Set[str]) -> List[RunGroup]:
+            if group.name in visited:
+                return []
+            visited.add(group.name)
+            return [group] + [
+                subsubgroup
+                for subgroup in group.subgroups
+                for subsubgroup in expand_subgroups_(self.schema.name_to_run_group[subgroup], visited)
+            ]
+
+        return expand_subgroups_(group, visited=set())
+
+    def create_index_tables(self) -> List[Table]:
+        """
+        Create a table for each RunGroup category, linking to the pages where each one is displayed.
+        """
+        category_to_groups = defaultdict(list)
+        for group in self.schema.run_groups:
+            category_to_groups[group.category].append(group)
+
+        tables: List[Table] = []
+        for category, groups in category_to_groups.items():
+            header = [
+                Cell("Group"),
+                Cell("Description"),
+                Cell("# models"),
+            ]
+            rows: List[List[Cell]] = []
+            for group in groups:
+                num_models = len(
+                    set(
+                        adapter_spec.model
+                        for subgroup in self.expand_subgroups(group)
+                        for adapter_spec in self.group_adapter_to_runs[subgroup.name].keys()
+                    )
+                )
+                if num_models == 0:
+                    continue
+                rows.append(
+                    [
+                        Cell(group.display_name, href=get_benchmarking_url({"suite": self.suite, "group": group.name})),
+                        Cell(group.description),
+                        Cell(num_models),
+                    ]
+                )
+            tables.append(Table(title=category, header=header, rows=rows))
+
+        return tables
 
     def create_cell(self, runs: List[Run], matcher: MetricNameMatcher, contamination_level: Optional[str]) -> Cell:
         """
@@ -193,6 +226,7 @@ class Summarizer:
             return Cell(None)
 
         aggregate_stat: Optional[Stat] = None
+
         for run in runs:
             stat = get_unique_stat_by_matcher(run.stats, matcher)
             if stat is None:
@@ -215,10 +249,16 @@ class Summarizer:
         return Cell(value=value, display_value=display_value, description=description, style=style)
 
     def create_group_table(
-        self, title: str, scenario_group: ScenarioGroup, adapter_to_runs: Dict[str, List[Run]], link_to_runs: bool
+        self,
+        title: str,
+        adapter_to_runs: Dict[str, List[Run]],
+        link_to_runs: bool,
+        columns: List[Tuple[RunGroup, str]],  # run_group, metric_group
     ) -> Table:
         """
-        Create a table for a scenario_group (natural_qa) where each row is an
+        Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
+        run_group (natural_qa) and metrics (accuracy). This method can be used to either create a table with multiple
+        metrics for a single scenario or a table with multiple scenarios together.
         adapter (e.g,  model) and columns are constructed based on metrics.
         """
 
@@ -227,12 +267,16 @@ class Summarizer:
         # (to pull out information later).
         header: List[Cell] = []
         matchers: List[MetricNameMatcher] = []
+        group_names: List[str] = []  # for each column
+        num_groups = len(set(run_group.name for run_group, _ in columns))  # number of unique groups, determines headers
 
         header.append(Cell("Adapter"))
-        for metric_group_name in scenario_group.metric_groups:
+        for run_group, metric_group_name in columns:
+            if metric_group_name not in run_group.metric_groups:
+                continue
             metric_group = self.schema.name_to_metric_group[metric_group_name]
             for metric in metric_group.metrics:
-                matcher = metric.substitute(scenario_group.environment)
+                matcher = metric.substitute(run_group.environment)
                 header_field = self.schema.name_to_metric.get(matcher.name)
                 if header_field is None:
                     hlog(f"WARNING: unknown metric name {matcher.name}, skipping")
@@ -251,8 +295,12 @@ class Summarizer:
                         + (perturbation_field.description or "???")
                     )
 
+                if num_groups > 1:  # we have multiple groups in the same table, so display the name in the column
+                    header_name = f"{run_group.get_short_display_name()} ({header_field.get_short_display_name()})"
+
                 header.append(Cell(header_name, description=description))
                 matchers.append(matcher)
+                group_names.append(run_group.name)
 
         def run_spec_names_to_url(run_spec_names: List[str]) -> str:
             # TODO: include display names
@@ -261,7 +309,7 @@ class Summarizer:
                     "suite": self.suite,
                     "runSpecs": json.dumps(run_spec_names),
                     "scenarioDisplayName": title,
-                    "scenarioDescription": scenario_group.description,
+                    "scenarioDescription": run_group.description,
                 }
             )
 
@@ -284,7 +332,7 @@ class Summarizer:
                 href = None
 
             # Render contamination information
-            point = self.contamination.get_point(model.name, scenario_group.name)
+            point = self.contamination.get_point(model.name, run_group.name)
             if point is not None:
                 suffix = CONTAMINATION_SYMBOLS[point.level]  # Append to name of model
                 description = point.description
@@ -294,10 +342,12 @@ class Summarizer:
                 description = ""
                 contamination_level = None
 
-            rows.append(
-                [Cell(display_name + suffix, description=description, href=href)]
-                + [self.create_cell(runs, matcher, contamination_level) for matcher in matchers]
-            )
+            cells = [Cell(display_name + suffix, description=description, href=href)]
+            for group_name, matcher in zip(group_names, matchers):
+                group_runs = [run for run in runs if group_name in run.run_spec.groups]
+                cells.append(self.create_cell(group_runs, matcher, contamination_level))
+
+            rows.append(cells)
 
         # Link to all runs under all models (to compare models)
         all_run_spec_names = []
@@ -307,6 +357,56 @@ class Summarizer:
         links = [Hyperlink(text="all models", href=run_spec_names_to_url(all_run_spec_names))]
 
         return Table(title=title, header=header, rows=rows, links=links)
+
+    def create_group_tables_by_metric_group(self, groups: List[RunGroup]) -> Dict[str, Table]:
+        tables: Dict[str, Table] = {}
+        adapter_to_runs: Dict[AdapterSpec, List[Run]] = defaultdict(list)
+        all_metric_groups: List[str] = []
+        for group in groups:
+            all_metric_groups.extend(group.metric_groups)
+            for adapter_spec, runs in self.group_adapter_to_runs[group.name].items():
+                # TODO: different scenarios might have different adapters (e.g., instructions) but we still want
+                # to visualize them in the same row, so for now we just keep the model part of the spec
+                adapter_spec = AdapterSpec(model=adapter_spec.model, method="none")
+                adapter_to_runs[adapter_spec].extend(runs)
+        all_metric_groups = list(dict.fromkeys(all_metric_groups))  # deduplicate while preserving order
+
+        if len(adapter_to_runs) > 0:
+            for metric_group in all_metric_groups:
+                display_name = self.schema.name_to_metric_group[metric_group].get_short_display_name()
+                table = self.create_group_table(
+                    title=display_name,
+                    adapter_to_runs=adapter_to_runs,
+                    columns=[(group, metric_group) for group in groups],
+                    link_to_runs=False,
+                )
+                tables[metric_group] = table
+        return tables
+
+    def create_group_tables_by_scenario(self, group: RunGroup) -> Dict[str, Table]:
+        tables: Dict[str, Table] = {}
+        if len(self.group_scenario_adapter_to_runs[group.name]) > 1:
+            table = self.create_group_table(
+                title=group.display_name,
+                adapter_to_runs=self.group_adapter_to_runs[group.name],
+                columns=[(group, metric_group) for metric_group in group.metric_groups],
+                link_to_runs=False,
+            )
+            tables[group.name] = table
+
+        # Show the table per scenario
+        for scenario_spec in self.group_scenario_adapter_to_runs[group.name]:
+            scenario_name = get_scenario_name(group, scenario_spec)
+            scenario_display_name = get_scenario_display_name(group, scenario_spec)
+            table = self.create_group_table(
+                title=scenario_display_name,
+                adapter_to_runs=self.group_scenario_adapter_to_runs[group.name][scenario_spec],
+                columns=[(group, metric_group) for metric_group in group.metric_groups],
+                link_to_runs=True,
+            )
+            tables[scenario_name] = table
+
+        return tables
 
     def write_groups(self):
         """
@@ -320,40 +420,32 @@ class Summarizer:
         # Write out index file with all the groups and basic stats
         write(
             os.path.join(self.run_suite_path, "groups.json"),
-            json.dumps(asdict_without_nones(self.create_index_table())),
+            json.dumps(list(map(asdict_without_nones, self.create_index_tables()))),
         )
 
         # Write out a separate JSON for each group
         groups_path = os.path.join(self.run_suite_path, "groups")
         ensure_directory_exists(groups_path)
-        for group in self.schema.scenario_groups:
+        for group in self.schema.run_groups:
             tables = []
             table_names = []
 
-            # Show the table aggregating over all the scenarios in this group (e.g., babi-1, babi-2, etc.)
-            if len(self.group_scenario_adapter_to_runs[group.name]) > 1:
-                table = self.create_group_table(
-                    title=f"{group.display_name}",
-                    scenario_group=group,
-                    adapter_to_runs=self.group_adapter_to_runs[group.name],
-                    link_to_runs=False,
-                )
-                tables.append(table)
-                table_names.append(group.name)
+            # Collect all subgroups, by expanding recursively; intermediate nodes in the implicit subgroup tree will not
+            # get visualized if they don't have their own metric_groups
+            subgroups = self.expand_subgroups(group)
 
-            # Show the table per scenario
-            for scenario_spec in self.group_scenario_adapter_to_runs[group.name]:
-                scenario_name = get_scenario_name(group, scenario_spec)
-                scenario_display_name = get_scenario_display_name(group, scenario_spec)
-                table = self.create_group_table(
-                    title=scenario_display_name,
-                    scenario_group=group,
-                    adapter_to_runs=self.group_scenario_adapter_to_runs[group.name][scenario_spec],
-                    link_to_runs=True,
-                )
-                tables.append(table)
-                table_names.append(scenario_name)
-
+            if group.subgroup_display_mode == BY_GROUP or len(subgroups) == 1:
+                # Create table aggregating over all scenarios in each group and then expand each scenario (we always do
+                # this when there are no additional subgroups)
+                for subgroup in subgroups:
+                    for table_name, table in self.create_group_tables_by_scenario(subgroup).items():
+                        tables.append(table)
+                        table_names.append(table_name)
+            else:
+                # Create a table for each metric, showing one subgroup per column for each adapter
+                for table_name, table in self.create_group_tables_by_metric_group(subgroups).items():
+                    tables.append(table)
+                    table_names.append(table_name)
             if len(tables) == 0:
                 continue
 

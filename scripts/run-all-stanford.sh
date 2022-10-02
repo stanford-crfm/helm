@@ -27,7 +27,7 @@ work_dir=$PWD
 suite=$2
 logs_path="benchmark_output/runs/$suite/logs"
 mkdir -p $logs_path
-default_args="--max-eval-instances 1000 --priority 2 --local"
+default_args="--num-train-trials 3 --max-eval-instances 1000 --priority 2 --local"
 
 models=(
   "ai21/j1-jumbo"
@@ -43,8 +43,6 @@ models=(
   "openai/text-ada-001"
   "openai/code-davinci-002"
   "openai/code-cushman-001"
-  "gooseai/gpt-j-6b"
-  "gooseai/gpt-neo-20b"
   "anthropic/stanford-online-all-v4-s3"
   "cohere/xlarge-20220609"
   "cohere/large-20220720"
@@ -52,8 +50,7 @@ models=(
   "cohere/small-20220720"
   # Offline evaluation models
   "microsoft/TNLGv2_530B"
-  # TODO: waiting for results
-  # "microsoft/TNLGv2_7B"
+  "microsoft/TNLGv2_7B"
   "together/bloom"
   "together/glm"
   "together/gpt-j-6b"

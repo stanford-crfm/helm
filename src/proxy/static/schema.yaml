@@ -458,7 +458,131 @@ metric_groups:
       - name: monte_carlo_entropy
         split: ${main_split}
 
-scenario_groups:
+run_groups:
+## Aggregation groups
+  - name: question_answering
+    display_name: Question answering
+    description: Performance on question answering scenarios
+    category: Generic scenarios
+    subgroups:
+      - mmlu
+      - boolq
+      - narrative_qa
+      - natural_qa_closedbook
+      - natural_qa_openbook_longans
+      - quac
+      - hellaswag
+      - openbookqa
+      - truthful_qa
+
+  - name: information_retrieval
+    display_name: Information retrieval
+    description: Performance on downstream information retrieval scenarios
+    category: Generic scenarios
+    subgroups:
+      - msmarco_regular
+      - msmarco_trec
+
+  - name: summarization
+    display_name: Summarization
+    description: Performance on downstream summarization scenarios
+    category: Generic scenarios
+    subgroups:
+      - summarization_cnndm
+      - summarization_xsum
+
+  - name: sentiment_analysis
+    display_name: Sentiment analysis
+    description: Performance on downstream sentiment analysis scenarios
+    category: Generic scenarios
+    subgroups:
+        - imdb
+
+  - name: toxicity_detection
+    display_name: Toxicity detection
+    description: Performance on downstream toxicity detection scenarios
+    category: Generic scenarios
+    subgroups:
+      - civil_comments
+
+  - name: miscellaneous_text_classification
+    display_name: Text classification
+    description: Performance on downstream text classification scenarios
+    category: Generic scenarios
+    subgroups:
+      - raft
+
+  - name: tasks
+    display_name: User-facing tasks
+    description: Performance on various user-facing tasks (e.g., question answering)
+    category: All tasks
+    subgroups:
+      - question_answering
+      - information_retrieval
+      - summarization
+      - sentiment_analysis
+      - toxicity_detection
+      - miscellaneous_text_classification
+
+  - name: language
+    display_name: Language
+    description: Evaluate linguistic understanding
+    category: Components
+    subgroups:
+      - the_pile
+      - twitter_aae
+      - ice
+      - blimp
+
+  - name: knowledge
+    display_name: Knowledge
+    description: Evaluating world and commonsense knowledge
+    category: Components
+    subgroups:
+      - natural_qa_closedbook
+      - hellaswag
+      - openbookqa
+      - truthful_qa
+      - mmlu
+      - wikifact
+
+  - name: reasoning
+    display_name: Reasoning
+    description: Evaluating reasoning capabilities
+    category: Components
+    subgroups:
+      - synthetic_reasoning
+      - synthetic_reasoning_natural
+      - babi_qa
+      - dyck_language
+      - gsm
+      - math_regular
+      - math_chain_of_thought
+      - code_apps
+      - code_humaneval
+      - lsat_qa
+      - legal_support
+      - entity_data_imputation
+      - entity_matching
+
+  - name: harms
+    display_name: Harms
+    description: Evaluating fine-grained social harms
+    category: Components
+    subgroups:
+      - copyright
+      - disinformation_reiteration
+      - disinformation_wedging
+      - bbq
+      - bold
+      - real_toxicity_prompts
+
+  - name: efficiency
+    display_name: Efficiency
+    description: Evaluating fine-grained training and inference efficiency
+    category: Components
+    subgroups:
+      - synthetic_efficiency
 ## Generic scenarios
 # Question answering scenarios
   - name: boolq
@@ -959,3 +1083,4 @@ scenario_groups:
       - efficiency_detailed
     environment:
       main_split: test
+

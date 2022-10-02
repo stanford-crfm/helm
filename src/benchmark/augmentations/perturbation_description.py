@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 # Perturbation-relevant metrics, see computed_on below
 PERTURBATION_ORIGINAL: str = "original"
@@ -22,3 +23,6 @@ class PerturbationDescription:
     # unperturbed version of instances where this perturbation appplies, and, PERTURBATION_WORST means the the minimum
     # metric between the two.
     computed_on: str = PERTURBATION_PERTURBED
+
+    # Seed added to instance_id when generating perturbation
+    seed: Optional[int] = None

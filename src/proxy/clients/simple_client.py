@@ -48,6 +48,7 @@ class SimpleClient(Client):
             request_time=0,
             request_datetime=response.get("request_datetime"),
             completions=completions,
+            embedding=[],
         )
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
