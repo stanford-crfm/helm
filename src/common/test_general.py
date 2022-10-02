@@ -29,15 +29,21 @@ def test_format_split():
 
 def test_unique_simplification():
     assert unique_simplification([{"model": "A"}, {"model": "B"}], []) == [{"model": "A"}, {"model": "B"}]
+
+    # model differs, remove n
     assert unique_simplification([{"model": "A", "n": 3}, {"model": "B", "n": 3}], []) == [
         {"model": "A"},
         {"model": "B"},
     ]
+
+    # model and n differ, remove n
     assert unique_simplification([{"model": "A", "n": 3}, {"model": "B", "n": 4}], ["model"]) == [
         {"model": "A"},
         {"model": "B"},
     ]
+
+    # n differs, remove model
     assert unique_simplification([{"model": "A", "n": 3}, {"model": "A", "n": 4}], ["model"]) == [
-        {"model": "A", "n": 3},
-        {"model": "A", "n": 4},
+        {"n": 3},
+        {"n": 4},
     ]
