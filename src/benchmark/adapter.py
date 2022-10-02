@@ -253,7 +253,8 @@ class Processor:
         Returns a new list of randomly sampled train instances.
         """
         # Sample random number (1-5) of in-context examples
-        max_in_context_examples: int = random.randint(1, 5)
+        max_train_examples: int = min(16, len(all_train_instances))
+        max_in_context_examples: int = random.randint(1, max_train_examples)
         num_instances_to_sample: int = min(len(all_train_instances), max_in_context_examples)
 
         unlabeled_instances: List[Instance] = []
