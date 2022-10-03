@@ -4,10 +4,10 @@
 set -e
 
 # Check that python version is at least 3.8.
-valid_version=$(python3 -c 'import sys; print(sys.version_info[:2] >= (3, 8))')
+valid_version=$(python -c 'import sys; print(sys.version_info[:2] >= (3, 8))')
 if [ "$valid_version" == "False" ]; then
   echo "Python 3 version (python3 --version) must be at least 3.8, but was:"
-  echo "$(python3 --version 2>&1)"
+  echo "$(python --version 2>&1)"
   exit 1
 fi
 

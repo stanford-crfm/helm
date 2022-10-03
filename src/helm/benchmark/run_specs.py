@@ -38,7 +38,8 @@ def format_instructions(instructions: str) -> str:
 
 
 def get_multiple_choice_joint_adapter_spec(
-    instructions: str, input_noun: Optional[str], output_noun: str, max_train_instances: int = 5, **kwargs
+    instructions: str, input_noun: Optional[str], output_noun: str, max_train_instances: int = 5, 
+    num_outputs: int = 5, **kwargs
 ) -> AdapterSpec:
     """
     [instructions]
@@ -63,7 +64,7 @@ def get_multiple_choice_joint_adapter_spec(
         output_prefix=f"{output_noun}: ",
         output_suffix="\n",
         max_train_instances=max_train_instances,
-        num_outputs=1,
+        num_outputs=num_outputs,
         max_tokens=5,
         temperature=0.0,
         stop_sequences=["\n"],
@@ -101,6 +102,7 @@ def get_multiple_choice_adapter_spec(
     output_noun: str,
     max_train_instances: int = 5,
     empty_input: bool = False,
+    num_outputs: int = 5,
     **kwargs,
 ):
     """
@@ -108,7 +110,7 @@ def get_multiple_choice_adapter_spec(
     """
     if method == ADAPT_MULTIPLE_CHOICE_JOINT:
         return get_multiple_choice_joint_adapter_spec(
-            instructions, input_noun, output_noun, max_train_instances, **kwargs
+            instructions, input_noun, output_noun, max_train_instances, num_outputs=num_outputs, **kwargs
         )
     elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
         return get_multiple_choice_separate_adapter_spec(method, empty_input)
@@ -609,6 +611,26 @@ def get_interactive_qa_mmlu_spec(subject: str) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
         groups=["mmlu"],
+    )
+
+def get_pew_spec(k: str, survey: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.pew_scenario.PewScenario", args={"survey": survey})
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions=f"",
+        input_noun="Question",
+        output_noun="Answer",
+        max_train_instances=0,
+        num_outputs=int(k)
+    )
+
+    return RunSpec(
+        name=f"pew:survey={survey}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["pew"],
     )
 
 
@@ -1586,6 +1608,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "boolq": get_boolq_spec,
     "imdb": get_imdb_spec,
     "copyright": get_copyright_spec,
+    "pew": get_pew_spec,
     "mmlu": get_mmlu_spec,
     "interactive_qa_mmlu": get_interactive_qa_mmlu_spec,
     "msmarco": get_msmarco_spec,

@@ -377,6 +377,10 @@ def contrast_sets() -> PerturbationSpec:
         args={},
     )
 
+def option_permutations() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.option_permutations_perturbation.OptionPermutationsPerturbation", args={},
+    )
 
 def typo(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
@@ -629,8 +633,20 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             typo(prob=0.01),
         ]
     },
+    "option_permutations": {"option_permutations": [option_permutations()]},
 }
 
+def get_default_args():
+    return {"should_augment_train_instances": False,
+            "should_include_original_train": True,  # irrelevant
+            "should_skip_unchanged_train": True,  # irrelevant
+            "should_augment_eval_instances": True,
+            "should_include_original_eval": True,
+            "should_skip_unchanged_eval": True,
+            "seeds_per_instance": 1}
+    
+PERTURBATION_ARGS_DICT = defaultdict(get_default_args)
+PERTURBATION_ARGS_DICT["option_permutations"]["seeds_per_instance"] = 2
 
 def get_default_args():
     # Always include original and perturbed instances together so that
