@@ -704,7 +704,7 @@ run_groups:
 
   - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
-    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intesive question answering across 57 domains (Hendrycks et al., 2021).
+    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains (Hendrycks et al., 2021).
     metric_groups:
       - accuracy
       - calibration
