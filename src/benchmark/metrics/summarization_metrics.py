@@ -85,8 +85,8 @@ class SummarizationMetric(Metric):
     def _compute_faithfulness_scores(self, inp: str, pred: str) -> Dict[str, float]:
         return {"summac": self.summac.score_one(inp, pred)["score"]}
 
-    def _compute_bert_score(self, inp: str, pred: str) -> Dict[str, float]:
-        p, r, f = self.bert_scorer.score([inp], [pred])
+    def _compute_bert_score(self, refs: List[str], pred: str) -> Dict[str, float]:
+        p, r, f = self.bert_scorer.score([pred], [refs])
         return {"BERTScore-P": p[0].item(), "BERTScore-R": r[0].item(), "BERTScore-F": f[0].item()}
 
     def _remove_braces(self, text):
@@ -132,7 +132,7 @@ class SummarizationMetric(Metric):
         # Compute BERTScore
         if self.compute_bertscore:
             result.extend(
-                [Stat(MetricName(name)).add(float(val)) for name, val in self._compute_bert_score(inp, pred).items()]
+                [Stat(MetricName(name)).add(float(val)) for name, val in self._compute_bert_score(refs, pred).items()]
             )
 
         return result
