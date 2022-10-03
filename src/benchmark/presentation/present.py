@@ -8,10 +8,11 @@ from typing import List, Optional
 import json
 
 from common.authentication import Authentication
-from common.general import parse_hocon, write, write_lines
+from common.general import write, write_lines
 from common.hierarchical_logger import hlog, htrack
 from benchmark.run import run_benchmarking, add_run_args, validate_args, LATEST_SYMLINK
 from benchmark.runner import RunSpec
+from benchmark.presentation.run_entry import read_run_entries
 from proxy.services.remote_service import add_service_args, create_authentication
 
 """
@@ -66,30 +67,21 @@ class AllRunner:
 
     @htrack(None)
     def run(self):
-        hlog(f"Reading RunSpecs from {self.conf_path}...")
-        with open(self.conf_path) as f:
-            conf = parse_hocon(f.read())
-
-        hlog("Running all RunSpecs...")
         run_specs: List[RunSpec] = []
         runs_dir: str = os.path.join(self.output_path, "runs")
         suite_dir: str = os.path.join(runs_dir, self.suite)
 
-        for run_spec_description, run_spec_state in tqdm(conf.items()):
-            # We placed double quotes around the descriptions since they can have colons or equal signs.
-            # There is a bug with pyhocon. pyhocon keeps the double quote when there is a ".", ":" or "=" in the string:
-            # https://github.com/chimpler/pyhocon/issues/267
-            # We have to manually remove the double quotes from the descriptions.
-            run_spec_description = run_spec_description.replace('"', "")
+        run_entries = read_run_entries(self.conf_path)
 
+        for entry in tqdm(run_entries.entries):
             # Filter by priority
-            priority: int = run_spec_state.priority
+            priority: int = entry.priority
             if self.priority is not None and priority > self.priority:
                 continue
 
             try:
                 new_run_specs = run_benchmarking(
-                    run_spec_descriptions=[run_spec_description],
+                    run_spec_descriptions=[entry.description],
                     auth=self.auth,
                     url=self.url,
                     local=self.local,
@@ -101,6 +93,7 @@ class AllRunner:
                     skip_instances=self.skip_instances,
                     max_eval_instances=self.max_eval_instances,
                     num_train_trials=self.num_train_trials,
+                    groups=entry.groups,
                     models_to_run=self.models_to_run,
                     scenario_groups_to_run=self.scenario_groups_to_run,
                 )
@@ -110,11 +103,13 @@ class AllRunner:
                 if self.exit_on_error:
                     raise e
                 else:
-                    hlog(f"Error when running {run_spec_description}:\n{traceback.format_exc()}")
+                    hlog(f"Error when running {entry.description}:\n{traceback.format_exc()}")
 
         if len(run_specs) == 0:
             hlog("There were no RunSpecs or they got filtered out.")
             return
+
+        hlog(f"{len(run_entries.entries)} entries produced into {len(run_specs)} run specs")
 
         # Write out all the `RunSpec`s and models to JSON files
         # Note: if we are parallelizing over models and scenario groups, this
