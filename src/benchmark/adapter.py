@@ -8,7 +8,7 @@ import numpy as np
 
 from common.general import serialize, indent_lines, format_text_lines, parallel_map, flatten_list
 from common.hierarchical_logger import hlog, htrack, htrack_block
-from common.request import Request, RequestResult
+from common.request import Request, RequestResult, Sequence
 from common.tokenization_request import TokenizationToken
 from .scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS
 from .window_services.window_service import WindowService, EncodeResult
@@ -23,6 +23,7 @@ ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED = "multiple_choice_separate_calibrated
 ADAPT_GENERATION = "generation"
 
 
+# TODO: move into separate file
 @dataclass(frozen=True)
 class AdapterSpec:
     """
@@ -92,6 +93,7 @@ class AdapterSpec:
     random: Optional[str] = None
 
 
+# TODO: move into separate file
 @dataclass(frozen=True)
 class RequestState:
     """
@@ -158,6 +160,7 @@ class RequestState:
         return output
 
 
+# TODO: move into separate file
 @dataclass
 class ScenarioState:
     """
@@ -190,18 +193,24 @@ class ScenarioState:
     ) -> List[RequestState]:
         return self.request_state_map.get((train_trial_index, instance, reference_index), [])
 
-    def render_lines(self) -> List[str]:
-        total: int = len(self.request_states)
-        result = ["adapter_spec {"]
-        result.extend(indent_lines(serialize(self.adapter_spec)))
-        result.append("}")
 
-        for i, request_state in enumerate(self.request_states):
-            result.append(f"request_state {i} ({total} total) {{")
-            result.extend(indent_lines(request_state.render_lines()))
-            result.append("}")
+def slimmed_scenario_state(scenario_state: ScenarioState) -> ScenarioState:
+    """
+    Return a version of `scenario_state` where all `tokens` deep inside have been set to empty to save memory.
+    """
 
-        return result
+    def process_sequence(sequence: Sequence) -> Sequence:
+        return replace(sequence, tokens=[])
+
+    def process_request_result(request_result: RequestResult) -> RequestResult:
+        replace(request_result, completions=list(map(process_sequence, request_result.completions)))
+
+    def process_request_state(request_state: RequestState) -> RequestState:
+        if request_state.result is None:
+            return request_state
+        return replace(request_state, result=process_request_result(request_state.result))
+
+    return replace(scenario_state, request_states=list(map(process_request_state, scenario_state.request_states)))
 
 
 @dataclass

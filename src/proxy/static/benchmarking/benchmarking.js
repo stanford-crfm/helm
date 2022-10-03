@@ -492,7 +492,7 @@ $(function () {
       return `benchmark_output/runs/${suite}/${runSpec.name}/scenario.json`;
     });
     const scenarioStatePaths = runSpecs.map((runSpec) => {
-      return `benchmark_output/runs/${suite}/${runSpec.name}/scenario_state.json`;
+      return `benchmark_output/runs/${suite}/${runSpec.name}/scenario_state_slim.json`;
     });
     const runSpecPaths = runSpecs.map((runSpec) => {
       return `benchmark_output/runs/${suite}/${runSpec.name}/run_spec.json`;

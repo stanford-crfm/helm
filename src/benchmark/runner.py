@@ -11,7 +11,7 @@ from common.hierarchical_logger import hlog, htrack_block
 from common.cache import cache_stats
 from .augmentations.data_augmenter import DataAugmenterSpec
 from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance, with_instance_ids
-from .adapter import AdapterSpec, Adapter, ScenarioState
+from .adapter import AdapterSpec, Adapter, ScenarioState, slimmed_scenario_state
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
 from .metrics.metric_service import MetricService
@@ -177,7 +177,12 @@ class Runner:
         scenario_dict["instances"] = [asdict_without_nones(instance) for instance in scenario_state.instances]
         write(os.path.join(run_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
 
+        # Write scenario state (including a slim version that is much smaller)
         write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
+        write(
+            os.path.join(run_path, "scenario_state_slim.json"),
+            json.dumps(asdict_without_nones(slimmed_scenario_state(scenario_state)), indent=2),
+        )
 
         write(
             os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in stats], indent=2)
