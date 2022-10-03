@@ -45,8 +45,11 @@ def run_benchmarking(
         adapter_spec: AdapterSpec = run_spec.adapter_spec
         if max_eval_instances is not None:
             adapter_spec = replace(adapter_spec, max_eval_instances=max_eval_instances)
-        if num_train_trials is not None:
-            adapter_spec = replace(adapter_spec, num_train_trials=num_train_trials)
+        if num_train_trials is not None or adapter_spec.max_train_instances == 0:
+            adapter_spec = replace(
+                adapter_spec, num_train_trials=1 if adapter_spec.max_train_instances == 0 else num_train_trials
+            )
+
         run_spec = replace(run_spec, adapter_spec=adapter_spec)
 
         # Append groups
