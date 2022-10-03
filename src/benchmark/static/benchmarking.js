@@ -68,10 +68,12 @@ $(function () {
   function renderRunsOverview(runSpecs) {
     let query = '';
     const $search = $('<input>', {type: 'text', size: 40, placeholder: 'Enter regex query (enter to open all)'});
+    console.log(urlParams);
     $search.keyup((e) => {
       // Open up all match specs
       if (e.keyCode === 13) {
-        const href = encodeUrlParams(Object.assign(urlParams, {runSpecRegex: '.*' + query + '.*'}));
+        const href = encodeUrlParams(Object.assign({}, urlParams, {runSpecRegex: '.*' + query + '.*'}));
+        console.log(urlParams, href);
         window.open(href);
       }
       query = $search.val();
@@ -91,7 +93,7 @@ $(function () {
         if (!new RegExp(query).test(runSpec.name)) {
           return;
         }
-        const href = encodeUrlParams(Object.assign(urlParams, {runSpec: runSpec.name}));
+        const href = encodeUrlParams(Object.assign({}, urlParams, {runSpec: runSpec.name}));
         const $row = $('<tr>')
           .append($('<td>').append($('<a>', {href}).append(runSpec.name)))
           .append($('<td>').append(runSpec.adapter_spec.method))
@@ -594,12 +596,8 @@ $(function () {
 
   function renderLandingPage() {
     const $intro = $('<div>').append('Welcome to the CRFM benchmarking project!');
-    const $links = $('<ul>').append(
-      $('<li>').append($('<a>', {href: '?models'}).append('Models')),
-      $('<li>').append($('<a>', {href: '?groups'}).append('Groups')),
-      $('<li>').append($('<a>', {href: '?runs'}).append('Runs')),
-    );
-    return $('<div>').append($intro).append($links);
+    // TODO: put more content here.
+    return $('<div>').append($intro);
   }
 
   function renderCell(cell) {
@@ -674,7 +672,7 @@ $(function () {
           matcher = (runSpec) => selectedRunSpecs.includes(runSpec.name);
         } else if (urlParams.runSpecRegex) {
           // Regular expression
-          const regex = new RegExp('^' + urlParams.runSpec + '$');
+          const regex = new RegExp('^' + urlParams.runSpecRegex + '$');
           matcher = (runSpec) => regex.test(runSpec.name);
         } else {
           throw 'Internal error';

@@ -10,10 +10,9 @@ suite=$1; shift
 
 echo Copying suite $suite into www...
 
-# Copy code (note the renaming)
+# Copy code (note: follow symlinks)
 mkdir -p www || exit 1
-rsync -arvz --exclude=benchmark_output src/proxy/static/* www || exit 1
-ln -sf benchmarking.html www/index.html || exit 1
+rsync -pLrvz --exclude=benchmark_output src/benchmark/static/* www || exit 1
 
 # Copy data
 mkdir -p www/benchmark_output/runs || exit 1
@@ -23,6 +22,6 @@ ln -sf $suite www/benchmark_output/runs/latest || exit 1
 # Set permissions
 chmod -R og=u-w www || exit 1
 
-# Push to server
+# Push to server (https://nlp.stanford.edu/$USER/benchmraking)
 echo Pushing to server...
-rsync -arvz www/* scdt:/u/apache/htdocs/pliang/benchmarking
+rsync -arvz www/* scdt:/u/apache/htdocs/$USER/benchmarking
