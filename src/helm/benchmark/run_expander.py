@@ -635,7 +635,10 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             typo(prob=0.01),
         ]
     },
-    "option_permutations": {"option_permutations": [option_permutations()]},
+    "option_permutations2": {"option_permutations": [option_permutations()]},
+    "option_permutations5": {"option_permutations": [option_permutations()]},
+    "option_permutations10": {"option_permutations": [option_permutations()]},
+    "option_permutations20": {"option_permutations": [option_permutations()]},
 }
 
 
@@ -652,7 +655,10 @@ def get_default_args():
 
 
 PERTURBATION_ARGS_DICT = defaultdict(get_default_args)
-PERTURBATION_ARGS_DICT["option_permutations"]["seeds_per_instance"] = 2
+PERTURBATION_ARGS_DICT["option_permutations2"]["seeds_per_instance"] = 2
+PERTURBATION_ARGS_DICT["option_permutations5"]["seeds_per_instance"] = 5
+PERTURBATION_ARGS_DICT["option_permutations10"]["seeds_per_instance"] = 10
+PERTURBATION_ARGS_DICT["option_permutations20"]["seeds_per_instance"] = 20
 
 def get_default_args():
     # Always include original and perturbed instances together so that
