@@ -92,6 +92,9 @@ metrics:
   - name: finish_reason_unknown
     display_name: finish b/c unknown
     description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
 
   # Accuracy metrics:
   - name: exact_match
@@ -121,14 +124,28 @@ metrics:
   - name: bits_per_byte
     display_name: Bits/byte
     short_display_name: BPB
+    lower_is_better: true
     description: Average number of bits per byte according to model probabilities.
   - name: perplexity
     display_name: Perplexity
     short_display_name: PPL
+    lower_is_better: true
     description: Perplexity of the output completion (effective branching factor per output token).
+  - name: rouge_1
+    display_name: ROUGE-1
+    description: Average ROUGE score (Lin, 2004) based on 1-gram overlap.
   - name: rouge_2
     display_name: ROUGE-2
     description: Average ROUGE score (Lin, 2004) based on 2-gram overlap.
+  - name: rouge_l
+    display_name: ROUGE-L
+    description: Average ROUGE score (Lin, 2004) based on longest common subsequence overlap.
+  - name: bleu_1
+    display_name: BLEU-1
+    description: Average BLEU score (Papineni et al., 2002) based on 1-gram overlap.
+  - name: bleu_4
+    display_name: BLEU-4
+    description: Average BLEU score (Papineni et al., 2002) based on 4-gram overlap.
   - name: f1_set_match
     display_name: F1 (set match)
     short_display_name: F1
@@ -139,7 +156,16 @@ metrics:
   - name: absolute_value_difference
     display_name: Absolute difference
     short_display_name: Diff.
+    lower_is_better: true
     description: Average absolute difference between the model output (converted to a number) and the correct reference.
+  - name: distance
+    display_name: Geometric distance
+    short_display_name: Dist.
+    lower_is_better: true
+    description: Average gometric distance between the model output (as a point) and the correct reference (as a curve).
+  - name: percent_valid
+    display_name: Valid
+    description: Fraction of valid model outputs (as a number).
   - name: NDCG@20
     display_name: NDCG@20
     description: Normalized discounted cumulative gain at 20 in information retrieval.
@@ -156,6 +182,14 @@ metrics:
     display_name: Exact match (up to specified indicator)
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
+  - name: exact_set_match
+    display_name: Exact match (at sets)
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly as sets.
+  - name: iou_set_match
+    display_name: Intersection over union (as sets)
+    short_display_name: IoU
+    description: Intersection over union in terms of set overlap between the model predicted set and correct reference set.
 
   # Summarization metrics
   - name: summac
@@ -170,6 +204,15 @@ metrics:
   - name: summarization_compression
     display_name: compression
     description: Extent to which the model-generated summaries are compressed relative to the source document (Grusky et al., 2018).
+  - name: BERTScore-P
+    display_name: BERTScore (P)
+    description: Average BERTScore precision (Zhang et al., 2020) between model generation and reference summary.
+  - name: BERTScore-R
+    display_name: BERTScore (R)
+    description: Average BERTScore recall (Zhang et al., 2020) between model generation and reference summary.
+  - name: BERTScore-F
+    display_name: BERTScore (F1)
+    description: Average BERTScore F1 (Zhang et al., 2020) between model generation and reference summary.
 
   #  Code metrics
   - name: code_eval_acc
@@ -195,6 +238,32 @@ metrics:
     display_name: Entropy (Monte Carlo)
     short_display_name: Entropy
     description: Monte Carlo estimate of the entropy as a measure of diversity in model generations.
+  # Disinformation wedging metrics (measure quality of disinformation):
+  - name: wedging_eval_address_intended_audience
+    display_name: Address intended audience (human)
+    short_display_name: Intended audience (human)
+    description: Human judgment of fraction of model generations that target the intended audience.
+  - name: wedging_eval_include_intended_goal
+    display_name: Include intended goal (human)
+    short_display_name: Intended goal (human)
+    description: Human judgment of fraction of model generations that support the intended goal.
+  - name: wedging_eval_style
+    display_name: Correct style (human)
+    short_display_name: Style (human)
+    description: Average human judgment of whether model generations are of the specified style.
+  - name: wedging_eval_divisiveness
+    display_name: Divisiveness (human)
+    description: Average human judgment of the extent to which model generations are divisive.
+  - name: wedging_eval_toxicity
+    display_name: Toxicity (human)
+    description: Average human judgment of the extent to which model generations are toxicity.
+  # Disinformation reiteration metrics (measure quality of disinformation):
+  - name: reiteration_eval_support_thesis
+    display_name: Support thesis (human)
+    description: Average human judgment of the extent to which model generations support the stated thesis.
+  - name: reiteration_eval_style
+    display_name: Style (human)
+    description: Average human judgment of whether model generations are of the specified style.
 
   # Copyright metrics (measure copying/overlap):
   - name: longest_common_prefix_length
@@ -205,35 +274,53 @@ metrics:
     display_name: Edit distance (Levenshtein)
     short_display_name: Edit dist.
     description: Average Levenshtein edit distance between model generation and reference.
+  - name: edit_similarity
+    display_name: Edit similarity (Levenshtein)
+    short_display_name: Edit sim.
+    description: Average Levenshtein edit similarity (1 - distance normalized by length of longer sequence) between model generation and reference.
 
   # Bias metrics:
   - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
     display_name: Stereotypical associations (Race, Profession)
     short_display_name: Stereotypes (Race)
+    lower_is_better: true
     description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions.
   - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
     display_name: Stereotypical associations (Gender, Profession)
     short_display_name: Stereotypes (Gender)
+    lower_is_better: true
     description: Measures uneven association of gender groups (male, female) with target professions.
   - name: bias_metric:mode=representation,demographic_category=race
     display_name: Demographic representation (Race)
     short_display_name: Representation (Race)
+    lower_is_better: true
     description: Measures uneven representation of racial groups (Asian, Hispanic, White).
   - name: bias_metric:mode=representation,demographic_category=gender
     display_name: Demographic representation (Gender)
     short_display_name: Representation (Gender)
+    lower_is_better: true
     description: Measures uneven representation of gender groups (male, female).
   - name: bbq_metric_ambiguous_bias
     display_name: BBQ (ambiguous)
+    lower_is_better: true
     description: Metric of Parrish et al. (2022) for BBQ on ambiguous examples.
   - name: bbq_metric_unambiguous_bias
     display_name: BBQ (unambiguous)
+    lower_is_better: true
     description: Metric of Parrish et al. (2022) for BBQ on unambiguous examples.
 
   # Toxicity metrics
+  - name: expected_max_toxicity
+    display_name: Average max toxicity
+    short_display_name: Avg. max toxicity
+    lower_is_better: true
+    description: Average max toxicity score across all completions (based on the PerspectiveAPI toxicity classifier; Gehman et al. (2020)).
+  - name: max_toxicity_probability
+    display_name: max toxicity
+    lower_is_better: true
+    description: Fraction of instances where most toxic completion is above 0.5 toxicity (based on the PerspectiveAPI toxicity classifier; Gehman et al. (2020)).
   - name: toxic_frac
     display_name: Toxic fraction
-    short_display_name: Toxic fraction
     lower_is_better: true
     description: Fraction of model outputs that are toxic (based on the PerspectiveAPI toxicity classifier).
 
@@ -241,22 +328,27 @@ metrics:
   - name: training_co2_cost
     display_name: Estimated training emissions (kg CO2)
     short_display_name: Training emissions (kg CO2)
+    lower_is_better: true
     description: Estimate of the CO2 emissions from training the model.
   - name: training_energy_cost
     display_name: Estimated training energy cost (MWh)
     short_display_name: Training energy (MWh)
+    lower_is_better: true
     description: Estimate of the amount of energy used to train the model.
   - name: inference_runtime
     display_name: Observed inference runtime (s)
     short_display_name: Observed inference time (s)
+    lower_is_better: true
     description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
   - name: inference_idealized_runtime
     display_name: Idealized inference runtime (s)
     short_display_name: Idealized inference time (s)
+    lower_is_better: true
     description: Average time to process a request to the model based solely on the model architecture (using Megatron-LM).
   - name: inference_denoised_runtime
     display_name: Idealized denoised runtime (s)
     short_display_name: Idealized denoised time (s)
+    lower_is_better: true
     description: Average time to process a request to the model minus performance contention by using profiled runtimes from multiple trials of SyntheticEfficiencyScenario.
   - name: batch_size
     display_name: Batch size
