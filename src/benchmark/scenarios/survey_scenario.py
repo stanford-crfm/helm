@@ -12,6 +12,7 @@ from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
+
 class SurveyScenario(Scenario):
     name = "surveys"
     description = "Surveys"
@@ -45,12 +46,12 @@ class SurveyScenario(Scenario):
             hlog(f"{csv_path} doesn't exist, skipping")
 
         hlog(f"Reading {csv_path}")
-        df = pd.read_csv(csv_path, sep='\t')
-        df['options'] = df.apply(lambda x: eval(x['options']), axis=1)
+        df = pd.read_csv(csv_path, sep="\t")
+        df["options"] = df.apply(lambda x: eval(x["options"]), axis=1)
 
         for split in ["test"]:
 
-            for question, answers in zip(df['question'], df['options']):
+            for question, answers in zip(df["question"], df["options"]):
 
                 prefixes = list(string.ascii_uppercase)
                 assert len(prefixes) >= len(answers)

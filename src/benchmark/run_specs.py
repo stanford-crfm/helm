@@ -592,7 +592,9 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
 
 
 def get_survey_spec(k: str, survey_type: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.survey_scenario.SurveyScenario", args={"survey_type": survey_type})
+    scenario_spec = ScenarioSpec(
+        class_name="benchmark.scenarios.survey_scenario.SurveyScenario", args={"survey_type": survey_type}
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=method,
