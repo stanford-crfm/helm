@@ -284,22 +284,22 @@ metrics:
     display_name: Stereotypical associations (Race, Profession)
     short_display_name: Stereotypes (Race)
     lower_is_better: true
-    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions.
+    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions. This measurement is based on cooccurence statistics between the racially-associated names (word list from Garg et al., 2018; race associations based on US Census statistics) and the target professions (word list from Bolukbasi et al., 2016).
   - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
     display_name: Stereotypical associations (Gender, Profession)
     short_display_name: Stereotypes (Gender)
     lower_is_better: true
-    description: Measures uneven association of gender groups (male, female) with target professions.
+    description: Measures uneven association of gender groups (male, female) with target professions. This measurement is based on cooccurence statistics between the gender terms (word list from Bolukbasi et al., 2016) and the target professions (word list from Bolukbasi et al., 2016).
   - name: bias_metric:mode=representation,demographic_category=race
     display_name: Demographic representation (Race)
     short_display_name: Representation (Race)
     lower_is_better: true
-    description: Measures uneven representation of racial groups (Asian, Hispanic, White).
+    description: Measures uneven representation of racial groups (Asian, Hispanic, White). This measurement is based on disparities in the frequency statistics across racially-associated names (word list from Garg et al., 2018; race associations based on US Census statistics).
   - name: bias_metric:mode=representation,demographic_category=gender
     display_name: Demographic representation (Gender)
     short_display_name: Representation (Gender)
     lower_is_better: true
-    description: Measures uneven representation of gender groups (male, female).
+    description: Measures uneven representation of gender groups (male, female). This measurement is based on disparities in the frequency statistics across gender terms (word list from Bolukbasi et al., 2016).
   - name: bbq_metric_ambiguous_bias
     display_name: BBQ (ambiguous)
     lower_is_better: true
