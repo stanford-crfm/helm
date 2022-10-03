@@ -591,8 +591,8 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     )
 
 
-def get_pew_spec(k: str, survey: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.pew_scenario.PewScenario", args={"survey": survey})
+def get_survey_spec(k: str, survey_type: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.survey_scenario.SurveyScenario", args={"survey_type": survey_type})
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=method,
@@ -604,11 +604,11 @@ def get_pew_spec(k: str, survey: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT)
     )
 
     return RunSpec(
-        name=f"pew:survey={survey}",
+        name=f"surveys:survey_type={survey_type}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
-        groups=["pew"],
+        groups=["subjective"],
     )
 
 
@@ -1540,7 +1540,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "boolq": get_boolq_spec,
     "imdb": get_imdb_spec,
     "copyright": get_copyright_spec,
-    "pew": get_pew_spec,
+    "surveys": get_survey_spec,
     "mmlu": get_mmlu_spec,
     "msmarco": get_msmarco_spec,
     "narrative_qa": get_narrativeqa_spec,
