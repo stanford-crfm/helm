@@ -27,7 +27,11 @@ class Processor:
         for perturbation in self.perturbations:
             for i in range(self.seeds_per_instance):
                 perturbed_instance: Instance = perturbation.apply(instance, seed=None if i == 0 else i)
-                if self.skip_unchanged and perturbed_instance.input == instance.input:
+                if (
+                    self.skip_unchanged
+                    and perturbed_instance.input == instance.input
+                    and perturbed_instance.references == instance.references
+                ):
                     continue
                 result.append(perturbed_instance)
         return result
