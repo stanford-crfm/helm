@@ -33,9 +33,9 @@ class OptionPermutationsPerturbation(Perturbation):
         rng: Random = self.get_rng(instance, seed)
 
         perturbed_instance: str = instance.input
-                
+
         outputs = [pr.output for pr in instance.references]
-        if outputs[-1].lower() in ['none', 'refused', 'none of the above', 'all of the above']:
+        if outputs[-1].lower() in ["none", "refused", "none of the above", "all of the above"]:
             last, rest = outputs[-1], outputs[:-1]
             rest = rest[::-1]
             rng.shuffle(rest)
@@ -48,7 +48,6 @@ class OptionPermutationsPerturbation(Perturbation):
             ref = Reference(output=outputs[i], tags=instance.references[i].tags)
             perturbed_references.append(ref)
 
-        
         description = replace(self.description, seed=seed)
         return replace(instance, input=perturbed_instance, references=perturbed_references, perturbation=description,)
 
