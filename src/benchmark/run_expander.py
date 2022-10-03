@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import List, Dict, Optional, Tuple
+from collections import defaultdict
 
 from proxy.models import (
     get_all_code_models,
@@ -271,6 +272,10 @@ def contrast_sets() -> PerturbationSpec:
         class_name="benchmark.augmentations.contrast_sets_perturbation.ContrastSetsPerturbation", args={},
     )
 
+def option_permutations() -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="benchmark.augmentations.option_permutations_perturbation.OptionPermutationsPerturbation", args={},
+    )
 
 def typo(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
@@ -519,8 +524,20 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             typo(prob=0.01),
         ]
     },
+    "option_permutations": {"option_permutations": [option_permutations()]},
 }
 
+def get_default_args():
+    return {"should_augment_train_instances": False,
+            "should_include_original_train": True,  # irrelevant
+            "should_skip_unchanged_train": True,  # irrelevant
+            "should_augment_eval_instances": True,
+            "should_include_original_eval": True,
+            "should_skip_unchanged_eval": True,
+            "seeds_per_instance": 1}
+    
+PERTURBATION_ARGS_DICT = defaultdict(get_default_args)
+PERTURBATION_ARGS_DICT["option_permutations"]["seeds_per_instance"] = 2
 
 class DataAugmentationRunExpander(RunExpander):
     """
@@ -547,18 +564,13 @@ class DataAugmentationRunExpander(RunExpander):
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         """Return `run_spec` with data augmentations."""
 
-        def create_run_spec(aug_name: str, perturbation_specs: List[PerturbationSpec]) -> RunSpec:
+        def create_run_spec(aug_name: str, perturbation_specs: List[PerturbationSpec], 
+                            perturbation_args: dict) -> RunSpec:
             data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
                 perturbation_specs=perturbation_specs,
                 # Always include original and perturbed instances together so that
                 # we can compute the normal and robustness metrics in the same run.
-                should_augment_train_instances=False,
-                should_include_original_train=True,  # irrelevant
-                should_skip_unchanged_train=True,  # irrelevant
-                should_augment_eval_instances=True,
-                should_include_original_eval=True,
-                should_skip_unchanged_eval=True,
-                seeds_per_instance=1,
+                **perturbation_args
             )
             return replace(
                 run_spec,
@@ -567,7 +579,7 @@ class DataAugmentationRunExpander(RunExpander):
             )
 
         return [
-            create_run_spec(aug_name, perturbation_specs)
+            create_run_spec(aug_name, perturbation_specs, PERTURBATION_ARGS_DICT[aug_name])
             for aug_name, perturbation_specs in PERTURBATION_SPECS_DICT[self.value].items()
         ]
 

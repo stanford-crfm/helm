@@ -728,6 +728,7 @@ class BasicMetric(Metric):
         # [0.5, 0.5], then this code will say we got the example correct, regardless of what
         # the answer is, because the calculation max(reference_scores) == max(answer_scores)
         # will always return True.
+        
         metrics.extend(
             [
                 Stat(MetricName("max_prob")).add(max_prob),

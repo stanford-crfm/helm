@@ -42,6 +42,7 @@ from .scenarios import entity_matching_scenario  # noqa
 from .scenarios import entity_data_imputation_scenario  # noqa
 from .scenarios import big_bench_scenario  # noqa
 from .scenarios import pubmed_qa_scenario  # noqa
+from .scenarios import pew_scenario  # noqa
 
 # Metrics
 from .metrics import basic_metrics  # noqa
@@ -71,3 +72,4 @@ from .augmentations.mild_mix_perturbation import MildMixPerturbation  # noqa
 from .augmentations.dialect_perturbation import DialectPerturbation  # noqa
 from .augmentations.person_name_perturbation import PersonNamePerturbation  # noqa
 from .augmentations.gender_perturbation import GenderPerturbation  # noqa
+from .augmentations.option_permutations_perturbation import OptionPermutationsPerturbation  # noqa
