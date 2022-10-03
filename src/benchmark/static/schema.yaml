@@ -358,6 +358,7 @@ metrics:
   - name: ece_1_bin
     display_name: 1-bin Expected Calibration Error
     short_display_name: ECE (1-bin)
+    lower_is_better: true
     description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
   - name: max_prob
     display_name: Max prob
@@ -365,6 +366,7 @@ metrics:
   - name: ece_10_bin
     display_name: 10-bin Expected Calibration Error
     short_display_name: ECE (10-bin)
+    lower_is_better: true
     description: The average difference between the model's confidence and accuracy, averaged across 10 bins where each bin contains an equal number of points (only computed for classification tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because each bin will have very few examples.
   - name: selective_cov_acc_area
     display_name: Selective Coverage-Accuracy Area
