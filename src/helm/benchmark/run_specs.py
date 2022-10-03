@@ -38,8 +38,12 @@ def format_instructions(instructions: str) -> str:
 
 
 def get_multiple_choice_joint_adapter_spec(
-    instructions: str, input_noun: Optional[str], output_noun: str, max_train_instances: int = 5, 
-    num_outputs: int = 5, **kwargs
+    instructions: str,
+    input_noun: Optional[str],
+    output_noun: str,
+    max_train_instances: int = 5,
+    num_outputs: int = 5,
+    **kwargs,
 ) -> AdapterSpec:
     """
     [instructions]
@@ -613,6 +617,7 @@ def get_interactive_qa_mmlu_spec(subject: str) -> RunSpec:
         groups=["mmlu"],
     )
 
+
 def get_pew_spec(k: str, survey: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.pew_scenario.PewScenario", args={"survey": survey})
 
@@ -622,7 +627,7 @@ def get_pew_spec(k: str, survey: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT)
         input_noun="Question",
         output_noun="Answer",
         max_train_instances=0,
-        num_outputs=int(k)
+        num_outputs=int(k),
     )
 
     return RunSpec(
