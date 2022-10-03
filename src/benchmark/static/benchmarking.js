@@ -11,7 +11,7 @@ class Schema {
     this.adapter = raw.adapter;
     this.metrics = raw.metrics;
     this.perturbations = raw.perturbations;
-    this.scenario_groups = raw.scenario_groups;
+    this.run_groups = raw.run_groups;
     this.metric_groups = raw.metric_groups;
 
     // Allow for quick lookup
@@ -143,7 +143,7 @@ $(function () {
     const list = [];
 
     // Look for the default metrics for the group
-    schema.scenario_groups.forEach((scenarioGroup) => {
+    schema.run_groups.forEach((scenarioGroup) => {
       if (!groups.includes(scenarioGroup.name)) {
         return;
       }
@@ -492,7 +492,7 @@ $(function () {
       return `benchmark_output/runs/${suite}/${runSpec.name}/scenario.json`;
     });
     const scenarioStatePaths = runSpecs.map((runSpec) => {
-      return `benchmark_output/runs/${suite}/${runSpec.name}/scenario_state.json`;
+      return `benchmark_output/runs/${suite}/${runSpec.name}/scenario_state_slim.json`;
     });
     const runSpecPaths = runSpecs.map((runSpec) => {
       return `benchmark_output/runs/${suite}/${runSpec.name}/run_spec.json`;
