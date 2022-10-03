@@ -196,11 +196,12 @@ class ScenarioState:
 
 def slimmed_scenario_state(scenario_state: ScenarioState) -> ScenarioState:
     """
-    Return a version of `scenario_state` where all `tokens` deep inside have been set to empty to save memory.
+    Return a version of `scenario_state` where all `tokens` deep inside are truncated to save memory.
     """
 
     def process_sequence(sequence: Sequence) -> Sequence:
-        return replace(sequence, tokens=[])
+        # Keep only first two tokens (useful for language modeling)
+        return replace(sequence, tokens=sequence.tokens[:2])
 
     def process_request_result(request_result: RequestResult) -> RequestResult:
         replace(request_result, completions=list(map(process_sequence, request_result.completions)))
