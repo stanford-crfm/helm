@@ -43,7 +43,7 @@ scenarios) in parallel:
     venv/bin/benchmark-summarize --suite $SUITE
 
     # Run a simple Python server to make sure things work at http://localhost:8000
-    (cd src/benchmark/static; python -m http.server)
+    sh scripts/benchmark-server.sh
 
     # Copy all website assets to a `www` directory for static serving.
     sh scripts/create-www.sh $SUITE
