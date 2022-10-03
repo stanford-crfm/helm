@@ -55,7 +55,7 @@ def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) ->
 
 def get_benchmarking_url(params: Dict[str, str]) -> str:
     # Don't encode ' ' as '+'
-    return "benchmarking.html?" + urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
+    return "?" + urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
 
 
 def dict_to_str(d: Dict[str, Any]) -> str:

@@ -42,15 +42,15 @@ scenarios) in parallel:
     venv/bin/benchmark-present --local --suite $SUITE --max-eval-instances 1000 --skip-instances
     venv/bin/benchmark-summarize --suite $SUITE
 
-Go to the [local website](http://localhost:1959/static/benchmarking.html) to look at the results,
-assuming you have run `proxy-server` first.
+    # Run a simple Python server to make sure things work at http://localhost:8000
+    (cd src/benchmark/static; python -m http.server)
 
     # Copy all website assets to a `www` directory for static serving.
     sh scripts/create-www.sh $SUITE
 
-For the final version, push `www` to a GitHub repo.
+This should push to the [public site](https://nlp.stanford.edu/$USER/benchmarking/).
 
-For debugging, go to the [public site](https://nlp.stanford.edu/pliang/benchmarking/).
+Once everytihng has been sanity checked, push `www` to a GitHub page.
 
 ## To estimate token usage
 

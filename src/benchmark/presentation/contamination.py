@@ -7,7 +7,7 @@ from common.hierarchical_logger import htrack, hlog
 from proxy.models import MODEL_NAME_TO_MODEL
 from benchmark.presentation.schema import Schema
 
-CONTAMINATION_YAML_PATH: str = "src/proxy/static/contamination.yaml"
+CONTAMINATION_YAML_PATH: str = "src/benchmark/static/contamination.yaml"
 
 # Contamination levels
 CONTAMINATION_LEVEL_WEAK = "weak"
