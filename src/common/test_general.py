@@ -1,6 +1,6 @@
 import shutil
 import os
-from common.general import ensure_file_downloaded, format_tags, flatten_list, format_split
+from common.general import ensure_file_downloaded, format_tags, flatten_list, format_split, unique_simplification
 
 
 def test_ensure_file_downloaded():
@@ -25,3 +25,25 @@ def test_flatten_list():
 
 def test_format_split():
     assert format_split("split") == "|split|"
+
+
+def test_unique_simplification():
+    assert unique_simplification([{"model": "A"}, {"model": "B"}], []) == [{"model": "A"}, {"model": "B"}]
+
+    # model differs, remove n
+    assert unique_simplification([{"model": "A", "n": 3}, {"model": "B", "n": 3}], []) == [
+        {"model": "A"},
+        {"model": "B"},
+    ]
+
+    # model and n differ, remove n
+    assert unique_simplification([{"model": "A", "n": 3}, {"model": "B", "n": 4}], ["model"]) == [
+        {"model": "A"},
+        {"model": "B"},
+    ]
+
+    # n differs, remove model
+    assert unique_simplification([{"model": "A", "n": 3}, {"model": "A", "n": 4}], ["model"]) == [
+        {"n": 3},
+        {"n": 4},
+    ]
