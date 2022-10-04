@@ -611,22 +611,9 @@ run_groups:
       main_name: f1_score
       main_split: test
 
-  - name: natural_qa
-    display_name: NaturalQuestions
-    description: The NaturalQuestions benchmark for question answering based on naturally-occurring queries through Google Search (Kwiatkowski et al., 2019).
-    metric_groups:
-      - accuracy
-      - calibration
-      - robustness
-      - fairness
-      - efficiency
-    environment:
-      main_name: f1_score
-      main_split: valid
-
   - name: natural_qa_closedbook
     display_name: NaturalQuestions (closed-book)
-    description: The variant of NaturalQuestions that does not include the Wikipedia page with the answer as input.
+    description: The NaturalQuestions (Kwiatkowski et al., 2019) benchmark for question answering based on naturally-occurring queries through Google Search. The input does not include the Wikipedia page with the answer.
     metric_groups:
       - accuracy
       - calibration
@@ -639,7 +626,7 @@ run_groups:
 
   - name: natural_qa_openbook_longans
     display_name: NaturalQuestions (open-book)
-    description: The variant of NaturalQuestions that includes the Wikipedia page with the answer as input.
+    description: The NaturalQuestions (Kwiatkowski et al., 2019) benchmark for question answering based on naturally-occurring queries through Google Search. The input includes the Wikipedia page with the answer.
     metric_groups:
       - accuracy
       - calibration
