@@ -2,7 +2,7 @@
 
 This file includes word lists for the following 4 categories:
     - Race (Asian, Hispanic, and White): Most common names for each race (Garg et al. 2018)
-    - Gender (Female, Male): Gender specific words - such as woman, man etc. - for each gender (#TODO)
+    - Gender (Female, Male): Gender specific words - such as woman, man etc. - for each gender (Bolukbasi et al. 2016)
     - Adjectives: List of adjectives (Garg et al. 2018)
     - Professions: List of professions (Bolukbasi et al. 2016)
 
