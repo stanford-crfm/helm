@@ -704,22 +704,9 @@ run_groups:
       main_name: f1_score
       main_split: test
 
-  - name: natural_qa
-    display_name: NaturalQuestions
-    description: The NaturalQuestions benchmark for question answering based on naturally-occurring queries through Google Search [(Kwiatkowski et al., 2019).
-    metric_groups:
-      - accuracy
-      - calibration
-      - robustness
-      - fairness
-      - efficiency
-    environment:
-      main_name: f1_score
-      main_split: valid
-
   - name: natural_qa_closedbook
     display_name: NaturalQuestions (closed-book)
-    description: The variant of NaturalQuestions that does not include the Wikipedia page with the answer as input.
+    description: The NaturalQuestions [(Kwiatkowski et al., 2019)](https://aclanthology.org/Q19-1026/) benchmark for question answering based on naturally-occurring queries through Google Search. The input does not include the Wikipedia page with the answer.
     metric_groups:
       - accuracy
       - calibration
@@ -732,7 +719,7 @@ run_groups:
 
   - name: natural_qa_openbook_longans
     display_name: NaturalQuestions (open-book)
-    description: The variant of NaturalQuestions that includes the Wikipedia page with the answer as input.
+    description: The NaturalQuestions [(Kwiatkowski et al., 2019)](https://aclanthology.org/Q19-1026/) benchmark for question answering based on naturally-occurring queries through Google Search. The input includes the Wikipedia page with the answer.
     metric_groups:
       - accuracy
       - calibration
@@ -745,7 +732,7 @@ run_groups:
 
   - name: quac
     display_name: QuAC (Question Answering in Context)
-    description: The QuAC benchmark for question answering in the context of dialogues (Choi et al., 2018).
+    description: The QuAC benchmark for question answering in the context of dialogues [(Choi et al., 2018)](https://aclanthology.org/D18-1241/).
     metric_groups:
       - accuracy
       - calibration
@@ -758,7 +745,7 @@ run_groups:
 
   - name: hellaswag
     display_name: HellaSwag
-    description: The HellaSwag benchmark for commonsense reasoning in question answering (Zellers et al., 2019).
+    description: The HellaSwag benchmark for commonsense reasoning in question answering [(Zellers et al., 2019)](https://aclanthology.org/P19-1472/).
     metric_groups:
       - accuracy
       - calibration
@@ -771,7 +758,7 @@ run_groups:
 
   - name: openbookqa
     display_name: OpenbookQA
-    description: The OpenbookQA benchmark for commonsense-intensive open book question answering (Mihaylov et al., 2018).
+    description: The OpenbookQA benchmark for commonsense-intensive open book question answering [(Mihaylov et al., 2018)](https://aclanthology.org/D18-1260/).
     metric_groups:
       - accuracy
       - calibration
@@ -784,7 +771,7 @@ run_groups:
 
   - name: truthful_qa
     display_name: TruthfulQA
-    description: The TruthfulQA benchmarking for measuring model truthfulness and commonsense knowledge in question answering (Lin et al., 2022).
+    description: The TruthfulQA benchmarking for measuring model truthfulness and commonsense knowledge in question answering [(Lin et al., 2022)](https://aclanthology.org/2022.acl-long.229/).
     metric_groups:
       - accuracy
       - calibration
@@ -797,7 +784,7 @@ run_groups:
 
   - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
-    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains (Hendrycks et al., 2021).
+    description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://openreview.net/forum?id=d7KBjmI3GmQ).
     metric_groups:
       - accuracy
       - calibration
@@ -811,7 +798,7 @@ run_groups:
 # Information retrieval scenarios
   - name: msmarco_regular
     display_name: MS MARCO (regular track)
-    description: The MS MARCO benchmark's regular track for passage retrieval in information retrieval (https://microsoft.github.io/msmarco/).
+    description: The MS MARCO benchmark's regular track for passage retrieval in information retrieval [(https://microsoft.github.io/msmarco/)](https://microsoft.github.io/msmarco/).
     metric_groups:
       - accuracy
       - robustness
@@ -823,7 +810,7 @@ run_groups:
 
   - name: msmarco_trec
     display_name: MS MARCO (TREC track)
-    description: The MS MARCO benchmark's deep learning TREC track for passage retrieval in information retrieval (https://trec.nist.gov).
+    description: The MS MARCO benchmark's deep learning TREC track for passage retrieval in information retrieval [(https://trec.nist.gov)](https://microsoft.github.io/msmarco/).
     metric_groups:
       - accuracy
       - robustness
@@ -836,7 +823,7 @@ run_groups:
 # Summarization scenarios
   - name: summarization_cnndm
     display_name: CNN/DailyMail
-    description: The CNN/DailyMail benchmark for text summarization (Hermann et al., 2015; Nallapati et al.,2016).
+    description: The CNN/DailyMail benchmark for text summarization ([Hermann et al., 2015](https://papers.nips.cc/paper/2015/hash/afdec7005cc9f14302cd0474fd0f3c96-Abstract.html); [Nallapati et al.,2016](https://aclanthology.org/K16-1028/)).
     metric_groups:
       - accuracy
       - summarization_metrics
@@ -849,7 +836,7 @@ run_groups:
 
   - name: summarization_xsum
     display_name: XSUM
-    description: The XSUM benchmark for text summarization of BBC news articles (Narayan et al., 2018).
+    description: The XSUM benchmark for text summarization of BBC news articles [(Narayan et al., 2018)](https://aclanthology.org/D18-1206/).
     metric_groups:
       - accuracy
       - summarization_metrics
@@ -863,7 +850,7 @@ run_groups:
 # Sentiment analysis scenarios
   - name: imdb
     display_name: IMDB
-    description: The IMDB benchmark for sentiment analysis in movie review (Maas et al., 2011).
+    description: The IMDB benchmark for sentiment analysis in movie review [(Maas et al., 2011)](https://aclanthology.org/P11-1015/).
     metric_groups:
       - accuracy
       - calibration
@@ -877,7 +864,7 @@ run_groups:
 # Text classification scenarios
   - name: raft
     display_name: RAFT (Real-world Annotated Few-Shot)
-    description: The Real-world annotated few-shot (RAFT) meta-benchmark of 11 real-world text classification tasks (Alex et al., 2021).
+    description: The Real-world annotated few-shot (RAFT) meta-benchmark of 11 real-world text classification tasks [(Alex et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/ca46c1b9512a7a8315fa3c5a946e8265-Abstract-round2.html).
     metric_groups:
       - accuracy
       - calibration
@@ -891,7 +878,7 @@ run_groups:
 # Toxicity detection scenarios
   - name: civil_comments
     display_name: CivilComments
-    description: The CivilComments benchmark for toxicity detection (Borkan et al., 2019).
+    description: The CivilComments benchmark for toxicity detection [(Borkan et al., 2019)](https://arxiv.org/abs/1903.04561).
     metric_groups:
       - accuracy
       - calibration
@@ -906,7 +893,7 @@ run_groups:
 # Language modeling
   - name: ice
     display_name: ICE (International Corpus of English)
-    description: The subset of the International Corpus of English (ICE) drawn from English speakers from various places in the world.
+    description: The International Corpus of English (ICE) drawn from English speakers from various places in the world, initiated by [Greenbaum (1991)](https://www.cambridge.org/core/journals/english-today/article/abs/ice-the-international-corpus-of-english/47808205394C538393C3FD8E62E5E701).
     metric_groups:
       - accuracy
       - efficiency
@@ -916,7 +903,7 @@ run_groups:
 
   - name: the_pile
     display_name: The Pile
-    description: The Pile corpus for measuring lanugage model performance across various domains (Gao et al., 2020).
+    description: The Pile corpus for measuring lanugage model performance across various domains [(Gao et al., 2020)](https://arxiv.org/abs/2101.00027).
     metric_groups:
       - accuracy
       - efficiency
@@ -926,7 +913,7 @@ run_groups:
 
   - name: twitter_aae
     display_name: TwitterAAE
-    description: The TwitterAAE corpus of Blodgett et al. (2016) for measuring language model performance in tweets as a function of speaker dialect.
+    description: The TwitterAAE corpus of [Blodgett et al. (2016)](https://aclanthology.org/D16-1120/) for measuring language model performance in tweets as a function of speaker dialect.
     metric_groups:
       - accuracy
       - efficiency
@@ -937,7 +924,7 @@ run_groups:
 # Minimal pairs
   - name: blimp
     display_name: BLiMP (The Benchmark of Linguistic Minimal Pairs for English)
-    description: The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design (Warstadt et al., 2020).
+    description: The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design [(Warstadt et al., 2020)](https://aclanthology.org/2020.tacl-1.25/).
     metric_groups:
       - accuracy
       - efficiency
@@ -948,7 +935,7 @@ run_groups:
 ## Knowledge scenarios
   - name: wikifact
     display_name: WikiFact
-    description: Scenario introduced in this work, inspired by Petroni et al. (2019), to more extensively test factual knowledge.
+    description: Scenario introduced in this work, inspired by [Petroni et al. (2019)](https://aclanthology.org/D19-1250/), to more extensively test factual knowledge.
     metric_groups:
       - accuracy
       - efficiency
@@ -960,7 +947,7 @@ run_groups:
 # Primitive-focused reasoning
   - name: babi_qa
     display_name: bAbI
-    description: The bAbI benchmark for measuring understanding and reasoning (Weston et al., 2015).
+    description: The bAbI benchmark for measuring understanding and reasoning [(Weston et al., 2015)](https://arxiv.org/abs/1502.05698).
     metric_groups:
       - accuracy
       - efficiency
@@ -970,7 +957,7 @@ run_groups:
 
   - name: dyck_language
     display_name: Dyck
-    description: Scenario testing hierarchical reasoning through the Dyck formal languages (Suzgun et al., 2019).
+    description: Scenario testing hierarchical reasoning through the Dyck formal languages [(Suzgun et al., 2019)](https://aclanthology.org/W19-3905/).
     metric_groups:
       - accuracy
       - efficiency
@@ -990,7 +977,7 @@ run_groups:
 
   - name: synthetic_reasoning
     display_name: Synthetic reasoning (abstract symbols)
-    description: Synthetic reasoning tasks defined using abstract symbols based on LIME (Wu et al., 2021).
+    description: Synthetic reasoning tasks defined using abstract symbols based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).
     metric_groups:
       - accuracy
       - efficiency
@@ -1000,7 +987,7 @@ run_groups:
 
   - name: synthetic_reasoning_natural
     display_name: Synthetic reasoning (natural language)
-    description: Synthetic reasoning tasks defined using simple natural language based on LIME (Wu et al., 2021).
+    description: Synthetic reasoning tasks defined using simple natural language based on LIME [(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).
     metric_groups:
       - accuracy
       - efficiency
@@ -1011,7 +998,7 @@ run_groups:
 # Realistic reasoning
   - name: gsm
     display_name: GSM8K (Grade school math word problems)
-    description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems (Cobbe et al., 2021).
+    description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems [(Cobbe et al., 2021)](https://arxiv.org/abs/2110.14168).
     metric_groups:
       - accuracy
       - efficiency
@@ -1021,7 +1008,7 @@ run_groups:
 
   - name: math_regular
     display_name: MATH
-    description: The MATH benchmark for measuring mathematical problem solving on competition math problems (Hendrycks et al., 2021).
+    description: The MATH benchmark for measuring mathematical problem solving on competition math problems [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).
     metric_groups:
       - accuracy
       - efficiency
@@ -1031,7 +1018,7 @@ run_groups:
 
   - name: math_chain_of_thought
     display_name: MATH (chain-of-thoughts)
-    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thoughts style reasoning (Hendrycks et al., 2021).
+    description: The MATH benchmark for measuring mathematical problem solving on competition math problems with chain-of-thoughts style reasoning [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).
     metric_groups:
       - accuracy
       - efficiency
@@ -1041,7 +1028,7 @@ run_groups:
 
   - name: code_apps
     display_name: APPS (Code)
-    description: The APPS benchmark for measuring competence on code challenges (Hendrycks et al., 2021).
+    description: The APPS benchmark for measuring competence on code challenges [(Hendrycks et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/c24cd76e1ce41366a4bbe8a49b02a028-Abstract-round2.html).
     metric_groups:
       - apps_metrics
       - efficiency
@@ -1052,7 +1039,7 @@ run_groups:
 
   - name: code_humaneval
     display_name: HumanEval (Code)
-    description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings (Chen et al., 2021).
+    description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings [(Chen et al., 2021)](https://arxiv.org/abs/2107.03374).
     metric_groups:
       - accuracy
       - efficiency
@@ -1072,7 +1059,7 @@ run_groups:
 
   - name: lsat_qa
     display_name: LSAT
-    description: The LSAT benchmark for measuring analytical reasoning on the Law School Admission Test (LSAT; Zhong et al., 2021).
+    description: The LSAT benchmark for measuring analytical reasoning on the Law School Admission Test (LSAT; [Zhong et al., 2021](https://arxiv.org/abs/2104.06598)).
     metric_groups:
       - accuracy
       - efficiency
@@ -1082,7 +1069,7 @@ run_groups:
 
   - name: entity_data_imputation
     display_name: Data imputation
-    description: Scenario from Mei et al. (2021) that tests the ability to impute missing entities in a data table.
+    description: Scenario from [Mei et al. (2021)](https://ieeexplore.ieee.org/document/9458712/) that tests the ability to impute missing entities in a data table.
     metric_groups:
       - accuracy
       - efficiency
@@ -1092,7 +1079,7 @@ run_groups:
 
   - name: entity_matching
     display_name: Entity matching
-    description: Scenario from Mudgal et al. (2018) that tests the ability to determine if two entities match.
+    description: Scenario from Magellan [(Konda et al., 2016)](https://dl.acm.org/doi/10.14778/3007263.3007314) that tests the ability to determine if two entities match.
     metric_groups:
       - accuracy
       - efficiency
@@ -1103,7 +1090,7 @@ run_groups:
 ## Copyright scenarios
   - name: copyright
     display_name: Copyright
-    description: Scenario introduced in this work to measure copyright and memorization behavior, based off of Carlini et al. (2021).
+    description: Scenario introduced in this work to measure copyright and memorization behavior, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).
     metric_groups:
       - copyright_metrics
       - bias
@@ -1115,7 +1102,7 @@ run_groups:
 ## Disinformation scenarios
   - name: disinformation_reiteration
     display_name: Disinformation (reiteration)
-    description: Scenario from Buchanan et al. (2021) that tests the ability to reiterate disinformation content.
+    description: Scenario from [Buchanan et al. (2021)](https://cset.georgetown.edu/publication/truth-lies-and-automation/) that tests the ability to reiterate disinformation content.
     metric_groups:
       - disinformation_metrics
       - bias
@@ -1126,7 +1113,7 @@ run_groups:
 
   - name: disinformation_wedging
     display_name: Disinformation (wedging)
-    description: Scenario from Buchanan et al. (2021) that tests the ability to generate divisive and wedging content.
+    description: Scenario from [Buchanan et al. (2021)](https://cset.georgetown.edu/publication/truth-lies-and-automation/) that tests the ability to generate divisive and wedging content.
     metric_groups:
       - disinformation_metrics
       - bias
@@ -1138,7 +1125,7 @@ run_groups:
 ## Bias scenarios
   - name: bbq
     display_name: BBQ (Bias Benchmark for Question Answering)
-    description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context (Parrish et al., 2022).
+    description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).
     metric_groups:
       - accuracy
       - bbq_metrics
@@ -1150,7 +1137,7 @@ run_groups:
 ## Toxicity scenarios
   - name: bold
     display_name: BOLD (Bias in Open-Ended Language Generation Dataset)
-    description: The Bias in Open-Ended Language Generation Dataset (BOLD) for measuring biases and toxicity in open-ended language generation (Dhamala et al., 2021).
+    description: The Bias in Open-Ended Language Generation Dataset (BOLD) for measuring biases and toxicity in open-ended language generation [(Dhamala et al., 2021)](https://dl.acm.org/doi/10.1145/3442188.3445924).
     metric_groups:
       - toxicity
       - bias
@@ -1160,7 +1147,7 @@ run_groups:
 
   - name: real_toxicity_prompts
     display_name: RealToxicityPrompts
-    description: The RealToxicityPrompts dataset for measuring toxicity in prompted model generations (Gehman et al., 2020).
+    description: The RealToxicityPrompts dataset for measuring toxicity in prompted model generations [(Gehman et al., 2020)](https://aclanthology.org/2020.findings-emnlp.301/).
     metric_groups:
       - toxicity
       - bias
