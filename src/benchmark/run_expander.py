@@ -576,11 +576,12 @@ class DataAugmentationRunExpander(RunExpander):
 
 class NumPromptTokensRunExpander(RunExpander):
     """
-    For specifying number of prompt tokens.
+    Run expander for specifying number of prompt tokens. This is used in the SyntheticEfficiencyScenario
+    to control the size of the prompt (in terms of number of tokens).
     """
 
     name = "num_prompt_tokens"
-    values_dict = {"default": [1, 256, 512, 1024, 1536]}
+    values_dict = {"default_sweep": [1, 256, 512, 1024, 1536]}
 
     def __init__(self, value):
         """
@@ -610,12 +611,13 @@ class NumPromptTokensRunExpander(RunExpander):
 
 class NumOutputTokensRunExpander(RunExpander):
     """
-    For specifying number of output tokens.
+    Run expander for specifying number of output tokens. This is used in the SyntheticEfficiencyScenario
+    to control the number of output tokens.
     """
 
     name = "num_output_tokens"
     adapter_spec_name = "max_tokens"
-    values_dict = {"default": [1, 2, 4, 8, 16, 32, 64]}
+    values_dict = {"default_sweep": [1, 2, 4, 8, 16, 32, 64]}
 
     def __init__(self, value):
         """
