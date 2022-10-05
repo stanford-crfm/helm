@@ -1,5 +1,5 @@
 from benchmark.presentation.schema import read_schema
-from contamination import read_contamination, validate_contamination
+from benchmark.presentation.contamination import read_contamination, validate_contamination
 
 
 def test_contamination_schema():
