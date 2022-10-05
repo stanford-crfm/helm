@@ -16,7 +16,7 @@ from benchmark.metrics.statistic import Stat
 from benchmark.runner import RunSpec
 from proxy.models import ALL_MODELS, Model, get_model
 from .table import Cell, Table, Hyperlink, table_to_latex
-from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_PATH, BY_GROUP
+from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_PATH, BY_GROUP, ALL_GROUPS, THIS_GROUP_ONLY, NO_GROUPS
 from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
 
 """
@@ -158,16 +158,27 @@ class Summarizer:
         # (ii) adapter spec (e.g., model = openai/davinci)
         # to list of runs
         self.group_adapter_to_runs: Dict[str, Dict[AdapterSpec, List[Run]]] = defaultdict(lambda: defaultdict(list))
-        self.group_scenario_adapter_to_runs: Dict[ScenarioSpec, Dict[AdapterSpec, List[Run]]] = defaultdict(
+        self.group_scenario_adapter_to_runs: Dict[str, Dict[ScenarioSpec, Dict[AdapterSpec, List[Run]]]] = defaultdict(
             lambda: defaultdict(lambda: defaultdict(list))
         )
         for run in self.runs:
-            for group in run.run_spec.groups:
-                scenario_spec = run.run_spec.scenario_spec
-                adapter_spec = get_method_adapter_spec(run.run_spec.adapter_spec, scenario_spec)
+            scenario_spec = run.run_spec.scenario_spec
+            adapter_spec = get_method_adapter_spec(run.run_spec.adapter_spec, scenario_spec)
+            group_names_by_visibility: Dict[str, List[str]] = defaultdict(list)
+            for group_name in run.run_spec.groups:
+                group = self.schema.name_to_run_group[group_name]
+                group_names_by_visibility[group.visibility].append(group_name)
 
-                self.group_adapter_to_runs[group][adapter_spec].append(run)
-                self.group_scenario_adapter_to_runs[group][scenario_spec][adapter_spec].append(run)
+            if len(group_names_by_visibility[NO_GROUPS]) > 0:
+                continue  # this run is part of a hidden group, skip
+            elif group_names_by_visibility[THIS_GROUP_ONLY]:  # if it is part of a group with THIS_GROUP_ONLY visibility
+                relevenant_group_names = group_names_by_visibility[THIS_GROUP_ONLY]  # add it to these groups only
+            else:
+                relevenant_group_names = group_names_by_visibility[ALL_GROUPS]  # otherwise add it everywhere
+
+            for group_name in relevant_group_names:
+                self.group_adapter_to_runs[group_name][adapter_spec].append(run)
+                self.group_scenario_adapter_to_runs[group_name][scenario_spec][adapter_spec].append(run)
 
     @htrack(None)
     def check_metrics_defined(self):
@@ -199,6 +210,7 @@ class Summarizer:
             json.dumps(list(map(asdict_without_nones, self.runs)), indent=2),
         )
 
+    @htrack(None)
     def expand_subgroups(self, group: RunGroup) -> List[RunGroup]:
         """Given a RunGroup, collect a list of its subgroups by traversing the subgroup tree."""
 

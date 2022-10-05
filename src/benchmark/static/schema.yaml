@@ -583,6 +583,39 @@ run_groups:
     category: Components
     subgroups:
       - synthetic_efficiency
+
+## Ablation groups
+  - name: ablation_in_context
+    display_name: In-context examples
+    description: Evaluating model performance when varying the number of in-context examples used
+    category: Ablations
+    visibility: this_group_only
+
+  - name: ablation_multiple_choice
+    display_name: Multiple-choice strategy
+    description: Evaluating model performance when changing the way multiple-choice instances are prompted
+    category: Ablations
+    visibility: this_group_only
+
+  - name: ablation_chain_of_thought
+    display_name: Using chain-of-thought
+    description: Evaluating whether model performance improves with chain-of-thought prompting
+    category: Ablations
+    visibility: this_group_only
+
+## Deep dives
+  - name: robustness_contrast_sets
+    display_name: Contrast sets
+    description: Evaluating equivariance to semantics-altering perturbations
+    category: Robustness deep dive
+    visibility: this_group_only
+
+  - name: robustness_individual
+    display_name: Robustness to individual perturbations
+    description: Evaluating robsustness to a single perturbation at a time
+    category: Robustness deep dive
+    visibility: this_group_only
+
 ## Generic scenarios
 # Question answering scenarios
   - name: boolq
