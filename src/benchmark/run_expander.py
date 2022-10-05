@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from dataclasses import replace
 from typing import List, Dict, Optional, Tuple
 
@@ -16,6 +17,7 @@ from proxy.models import (
     ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
+from .scenarios.scenario import ScenarioSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
 
@@ -572,6 +574,72 @@ class DataAugmentationRunExpander(RunExpander):
         ]
 
 
+class NumPromptTokensRunExpander(RunExpander):
+    """
+    For specifying number of prompt tokens.
+    """
+
+    name = "num_prompt_tokens"
+    values_dict = {"default": [1, 256, 512, 1024, 1536]}
+
+    def __init__(self, value):
+        """
+        `value` is either the actual value to use or a lookup into the values dict.
+        """
+        self.name = type(self).name
+        if value in type(self).values_dict:
+            self.values = type(self).values_dict[value]
+        else:
+            self.values = [value]
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        run_specs = []
+        for value in self.values:
+            # Replace num_prompt_tokens argument in SyntheticEfficiencyScenario.
+            scenario_spec: ScenarioSpec = deepcopy(run_spec.scenario_spec)
+            scenario_spec.args[self.name] = value
+            run_specs.append(
+                replace(
+                    run_spec,
+                    name=f"{run_spec.name}{',' if ':' in run_spec.name else ':'}{self.name}={value}",
+                    scenario_spec=scenario_spec,
+                )
+            )
+        return run_specs
+
+
+class NumOutputTokensRunExpander(RunExpander):
+    """
+    For specifying number of output tokens.
+    """
+
+    name = "num_output_tokens"
+    adapter_spec_name = "max_tokens"
+    values_dict = {"default": [1, 2, 4, 8, 16, 32, 64]}
+
+    def __init__(self, value):
+        """
+        `value` is either the actual value to use or a lookup into the values dict.
+        """
+        self.name = type(self).name
+        self.adapter_spec_name = type(self).adapter_spec_name
+        if value in type(self).values_dict:
+            self.values = type(self).values_dict[value]
+        else:
+            self.values = [value]
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        # Change run_spec name (num_output_tokens field), and adapter_spec (max_tokens field).
+        return [
+            replace(
+                run_spec,
+                name=f"{run_spec.name}{',' if ':' in run_spec.name else ':'}{self.name}={value}",
+                adapter_spec=replace(run_spec.adapter_spec, **{self.adapter_spec_name: value}),
+            )
+            for value in self.values
+        ]
+
+
 RUN_EXPANDERS = dict(
     (expander.name, expander)
     for expander in [
@@ -583,5 +651,7 @@ RUN_EXPANDERS = dict(
         NumOutputsRunExpander,
         ModelRunExpander,
         DataAugmentationRunExpander,
+        NumPromptTokensRunExpander,
+        NumOutputTokensRunExpander,
     ]
 )
