@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from tqdm import tqdm
 
 import pyhocon
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, is_dataclass
 
 from common.hierarchical_logger import hlog, htrack, htrack_block
 
@@ -124,12 +124,16 @@ def format_split(split: str) -> str:
     return f"|{split}|"
 
 
-def asdict_without_nones(obj: dataclass) -> Dict[str, Any]:
+def asdict_without_nones(obj: Any) -> Dict[str, Any]:
+    if not is_dataclass(obj):
+        raise ValueError(f"Expected dataclass, got '{obj}'")
     return asdict(obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
 
 
-def serialize(obj: dataclass) -> List[str]:
+def serialize(obj: Any) -> List[str]:
     """Takes in a dataclass and outputs all of its fields and values in a list."""
+    if not is_dataclass(obj):
+        raise ValueError(f"Expected dataclass, got '{obj}'")
     return [f"{key}: {json.dumps(value)}" for key, value in asdict(obj).items()]
 
 
@@ -174,14 +178,15 @@ def parallel_map(process: Callable[[List], List], items: List, parallelism: int,
     """
     units = "processes" if multiprocessing else "threads"
     with htrack_block(f"Parallelizing computation on {len(items)} items over {parallelism} {units}"):
+        results: List
         if parallelism == 1:
-            results: List = list(tqdm(map(process, items), total=len(items)))
+            results = list(tqdm(map(process, items), total=len(items)))
         elif multiprocessing:
             with ProcessPoolExecutor(max_workers=parallelism) as executor:
-                results: List = list(tqdm(executor.map(process, items), total=len(items)))
+                results = list(tqdm(executor.map(process, items), total=len(items)))
         else:
             with ThreadPoolExecutor(max_workers=parallelism) as executor:
-                results: List = list(tqdm(executor.map(process, items), total=len(items)))
+                results = list(tqdm(executor.map(process, items), total=len(items)))
     return results
 
 
@@ -225,7 +230,7 @@ def unique_simplification(items: List[Dict[str, Any]], priority_keys: List[str])
     items = without_common_entries(items)
 
     # Go through and remove more keys
-    new_items: List[str] = []
+    new_items: List[Dict[str, Any]] = []
     for item in items:
         # For each item, go through the keys in order
         keys = get_keys(item)

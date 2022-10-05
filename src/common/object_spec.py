@@ -20,7 +20,7 @@ def create_object(spec: ObjectSpec):
     """Create the actual object given the `spec`."""
     # Adapted from https://stackoverflow.com/questions/547829/how-to-dynamically-load-a-python-class
     components = spec.class_name.split(".")
-    module = __import__(components[0])
+    module: Any = __import__(components[0])
     for component in components[1:]:
         module = getattr(module, component)
     return module(**spec.args)
@@ -38,6 +38,7 @@ def parse_object_spec(description: str) -> ObjectSpec:
     def parse_arg(arg: str) -> Tuple[str, Any]:
         if "=" not in arg:
             raise ValueError(f"Expected <key>=<value>, got '{arg}'")
+        value: Any
         key, value = arg.split("=", 1)
 
         # Try to convert to number
