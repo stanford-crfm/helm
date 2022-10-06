@@ -256,8 +256,8 @@ class NaturalQAScenario(Scenario):
                         print(json.dumps(asdict_without_nones(raw_instance)), file=fp)
         else:
             with htrack_block(f"Reading {raw_instances_path}"):
-                for line in open(raw_instances_path):
-                    raw_instance = dacite.from_dict(RawInstance, json.loads(line))
+                for raw_line in open(raw_instances_path):
+                    raw_instance = dacite.from_dict(RawInstance, json.loads(raw_line))
                     raw_instances.append(raw_instance)
 
         # Convert raw instances to instances.
