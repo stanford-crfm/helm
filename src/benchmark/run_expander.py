@@ -7,6 +7,7 @@ from proxy.models import (
     get_all_models,
     get_all_text_models,
     get_model_names_with_tag,
+    get_models_by_group,
     FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
     LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
     GPT2_TOKENIZER_TAG,
@@ -218,6 +219,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "ai21_tokenizer": get_model_names_with_tag(AI21_TOKENIZER_TAG),
         "cohere_tokenizer": get_model_names_with_tag(COHERE_TOKENIZER_TAG),
         "opt_tokenizer": get_model_names_with_tag(OPT_TOKENIZER_TAG),
+        "together": get_models_by_group("together"),
     }
 
     # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")
