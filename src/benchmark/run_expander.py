@@ -13,6 +13,8 @@ from proxy.models import (
     AI21_TOKENIZER_TAG,
     COHERE_TOKENIZER_TAG,
     OPT_TOKENIZER_TAG,
+    GPTJ_TOKENIZER_TAG,
+    GPTNEO_TOKENIZER_TAG,
     ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
@@ -572,14 +574,11 @@ class DataAugmentationRunExpander(RunExpander):
         ]
 
 
-class NumPromptTokensRunExpander(RunExpander):
+class ScenarioSpecRunExpander(RunExpander):
     """
-    Run expander for specifying number of prompt tokens. This is used in the SyntheticEfficiencyScenario
-    to control the size of the prompt (in terms of number of tokens).
+    Run expander which mutates ScenarioSpec arguments (e.g., can be used to set the prompt size or tokenizer
+    in the SyntheticEfficiencyScenario).
     """
-
-    name = "num_prompt_tokens"
-    values_dict = {"default_sweep": [1, 256, 512, 1024, 1536]}
 
     def __init__(self, value):
         """
@@ -592,17 +591,78 @@ class NumPromptTokensRunExpander(RunExpander):
             self.values = [value]
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        # Change `num_prompt_tokens` field in SyntheticEfficiencyScenario object.
+        def sanitize(value):
+            return str(value).replace("/", "_")
+
+        # Change field in SyntheticEfficiencyScenario object as appropriate.
         return [
             replace(
                 run_spec,
-                name=f"{run_spec.name}{',' if ':' in run_spec.name else ':'}{self.name}={value}",
+                name=f"{run_spec.name}{',' if ':' in run_spec.name else ':'}{self.name}={sanitize(value)}",
                 scenario_spec=replace(
                     run_spec.scenario_spec, args=dict(run_spec.scenario_spec.args, **{self.name: value})
                 ),
             )
             for value in self.values
         ]
+
+
+class TokenizerRunExpander(ScenarioSpecRunExpander):
+    """
+    Run expander for specifying tokenizer for SyntheticEfficiencyScenario.
+    """
+
+    name = "tokenizer"
+    # Compute model-to-tokenizer mapping.
+    model_to_tokenizer_mapping = {
+        "together/yalm": ["yandex/yalm"],
+        "together/bloom": ["bigscience/bloom"],
+        "together/t0pp": ["bigscience/t0pp"],
+        "together/t5-11b": ["google/t5"],
+        "together/ul2": ["google/ul2"],
+        "together/glm": ["tsinghua/glm"],
+    }
+    model_tags_and_tokenizers = [
+        (GPT2_TOKENIZER_TAG, "huggingface/gpt2"),
+        (AI21_TOKENIZER_TAG, "ai21/j1"),
+        (COHERE_TOKENIZER_TAG, "cohere/cohere"),
+        (OPT_TOKENIZER_TAG, "meta/opt"),
+        (GPTJ_TOKENIZER_TAG, "eleutherai/gptj"),
+        (GPTNEO_TOKENIZER_TAG, "eleutherai/gptneox"),
+    ]
+    for model_tag, tokenizer in model_tags_and_tokenizers:
+        for model in get_model_names_with_tag(model_tag):
+            model_to_tokenizer_mapping[model] = [tokenizer]
+    # tokenizer=default will map to using the right tokenizer for a given model.
+    values_dict = {"default": model_to_tokenizer_mapping}
+
+    def __init__(self, value):
+        """
+        `value` is either the actual value to use or a lookup into the values dict.
+        """
+        self.name = type(self).name
+        if value in type(self).values_dict:
+            self.all_values = type(self).values_dict[value]
+        else:
+            self.all_values = [value]
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        # Find right tokenizer given model.
+        if isinstance(self.all_values, dict):
+            self.values = self.all_values[run_spec.adapter_spec.model]
+        else:
+            self.values = self.all_values
+        return super().expand(run_spec)
+
+
+class NumPromptTokensRunExpander(ScenarioSpecRunExpander):
+    """
+    Run expander for specifying number of prompt tokens. This is used in the SyntheticEfficiencyScenario
+    to control the size of the prompt (in terms of number of tokens).
+    """
+
+    name = "num_prompt_tokens"
+    values_dict = {"default_sweep": [1, 256, 512, 1024, 1536]}
 
 
 class NumOutputTokensRunExpander(RunExpander):
@@ -649,6 +709,7 @@ RUN_EXPANDERS = dict(
         NumOutputsRunExpander,
         ModelRunExpander,
         DataAugmentationRunExpander,
+        TokenizerRunExpander,
         NumPromptTokensRunExpander,
         NumOutputTokensRunExpander,
     ]

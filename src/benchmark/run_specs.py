@@ -1125,12 +1125,9 @@ def get_synthetic_efficiency_spec(
         adapter_spec = get_completion_adapter_spec(max_tokens=num_output_tokens, random=random)
     else:
         adapter_spec = get_completion_adapter_spec(random=random)
-    num_prompt_tokens_str = f",num_prompt_tokens={num_prompt_tokens}" if num_prompt_tokens is not None else ""
-    num_output_tokens_str = f",num_output_tokens={num_output_tokens}" if num_output_tokens is not None else ""
 
     return RunSpec(
-        name=f"synthetic_efficiency:tokenizer={tokenizer}{num_prompt_tokens_str}{num_output_tokens_str},"
-        f"random={random}",
+        name=f"synthetic_efficiency:random={random}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs(["exact_match"]) + get_generative_harms_metric_specs(),

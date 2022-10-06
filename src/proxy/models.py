@@ -18,6 +18,8 @@ GPT2_TOKENIZER_TAG: str = "gpt2_tokenizer"
 AI21_TOKENIZER_TAG: str = "ai21_tokenizer"
 COHERE_TOKENIZER_TAG: str = "cohere_tokenizer"
 OPT_TOKENIZER_TAG: str = "opt_tokenizer"
+GPTJ_TOKENIZER_TAG: str = "gptj_tokenizer"
+GPTNEO_TOKENIZER_TAG: str = "gptneo_tokenizer"
 
 # Models that are used for ablations and fine-grained analyses.
 # These models are selected specifically because of their low marginal cost to evaluate.
@@ -287,7 +289,7 @@ ALL_MODELS = [
         name="gooseai/gpt-neo-20b",
         display_name="GPT-NeoX (20B, GooseAI)",
         description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
     ),
     Model(
         group="gooseai",
@@ -295,7 +297,7 @@ ALL_MODELS = [
         name="gooseai/gpt-j-6b",
         display_name="GPT-J (6B, GooseAI)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
     ),
     # HuggingFace
     Model(
@@ -304,7 +306,7 @@ ALL_MODELS = [
         name="huggingface/gpt-j-6b",
         display_name="GPT-J (6B, HuggingFace)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
     ),
     Model(
         group="huggingface",
@@ -370,7 +372,7 @@ ALL_MODELS = [
         name="together/gpt-j-6b",
         display_name="GPT-J (6B)",
         description="GPT-J (6B parameters trained by EleutherAI on The Pile)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTJ_TOKENIZER_TAG],
     ),
     Model(
         group="together",
@@ -378,7 +380,7 @@ ALL_MODELS = [
         name="together/gpt-neox-20b",
         display_name="GPT-NeoX (20B)",
         description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
     ),
     Model(
         group="together",
