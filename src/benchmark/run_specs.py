@@ -1061,7 +1061,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_f1_metric_specs() + get_generative_harms_metric_specs(),
-        groups=["natural_qa", f"natural_qa_{mode}"],
+        groups=[f"natural_qa_{mode}"],
     )
 
 
