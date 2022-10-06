@@ -594,7 +594,7 @@ class ScenarioSpecRunExpander(RunExpander):
         def sanitize(value):
             return str(value).replace("/", "_")
 
-        # Change field in SyntheticEfficiencyScenario object as appropriate.
+        # Change field in scenario_spec object as appropriate.
         return [
             replace(
                 run_spec,
