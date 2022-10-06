@@ -1,10 +1,11 @@
 from typing import List, Optional, Dict
 
 from filelock import FileLock
+import os
 from openai.api_resources.abstract import engine_api_resource
 import openai as turing
 
-from common.cache import Cache
+from common.cache import Cache, CacheConfig
 from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
@@ -25,6 +26,8 @@ class MicrosoftClient(Client):
     all tokens have been generated."
     """
 
+    ORGANIZATION: str = "microsoft"
+
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
         return {
@@ -42,7 +45,7 @@ class MicrosoftClient(Client):
             "echo": request.echo_prompt,
         }
 
-    def __init__(self, api_key: str, cache_path: str, org_id: Optional[str] = None):
+    def __init__(self, api_key: str, cache_config: CacheConfig, org_id: Optional[str] = None):
         # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
         class EngineAPIResource(engine_api_resource.EngineAPIResource):
             @classmethod
@@ -56,7 +59,7 @@ class MicrosoftClient(Client):
         self.api_base: str = "https://turingnlg-turingnlg-mstap-v2.turingase.p.azurewebsites.net"
         self.completion_attributes = (EngineAPIResource,) + ORIGINAL_COMPLETION_ATTRIBUTES[1:]
 
-        self.cache = Cache(cache_path)
+        self.cache = Cache(cache_config)
 
         # The Microsoft Turing server only allows a single request at a time, so acquire a
         # process-safe lock before making a request.
@@ -64,7 +67,7 @@ class MicrosoftClient(Client):
         #
         # Since the model will generate roughly three tokens per second and the max context window
         # is 2048 tokens, we expect the maximum time for a request to be fulfilled to be 700 seconds.
-        self._lock = FileLock(f"{cache_path}.lock", timeout=700)
+        self._lock = FileLock(os.path.join(cache_config.cache_dir, f"{self.ORGANIZATION}.lock"), timeout=700)
 
     def make_request(self, request: Request) -> RequestResult:
         """
