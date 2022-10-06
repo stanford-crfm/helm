@@ -690,12 +690,6 @@ run_groups:
     category: Ablations
     visibility: this_group_only
 
-  - name: ablation_chain_of_thought
-    display_name: Using chain-of-thought
-    description: Evaluating whether model performance improves with chain-of-thought prompting
-    category: Ablations
-    visibility: this_group_only
-
 ## Deep dives
   - name: robustness_contrast_sets
     display_name: Contrast sets
