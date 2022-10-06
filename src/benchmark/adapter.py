@@ -204,7 +204,7 @@ def slimmed_scenario_state(scenario_state: ScenarioState) -> ScenarioState:
         return replace(sequence, tokens=sequence.tokens[:2])
 
     def process_request_result(request_result: RequestResult) -> RequestResult:
-        replace(request_result, completions=list(map(process_sequence, request_result.completions)))
+        return replace(request_result, completions=list(map(process_sequence, request_result.completions)))
 
     def process_request_state(request_state: RequestState) -> RequestState:
         if request_state.result is None:
@@ -549,8 +549,12 @@ class Adapter:
             # The random sampling includes instances monotonically.
             np.random.seed(0)
             selected_eval_instances = list(
-                np.random.choice(all_eval_instances, self.adapter_spec.max_eval_instances, replace=False)
-            )  # type: ignore
+                np.random.choice(
+                    all_eval_instances,  # type: ignore
+                    self.adapter_spec.max_eval_instances,
+                    replace=False,
+                )
+            )
         else:
             selected_eval_instances = all_eval_instances
 
