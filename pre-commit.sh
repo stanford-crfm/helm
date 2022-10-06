@@ -34,7 +34,7 @@ venv/bin/black --check --diff src scripts || (
   exit 1
 )
 
-venv/bin/mypy src scripts
+venv/bin/mypy --install-types --non-interactive src scripts
 venv/bin/flake8 src scripts
 
 echo "Done."
