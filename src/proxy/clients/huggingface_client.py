@@ -3,7 +3,7 @@ from dataclasses import asdict
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from typing import Any, Dict, List
 
-from common.cache import Cache
+from common.cache import Cache, CacheConfig
 from common.hierarchical_logger import htrack_block, hlog
 from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
@@ -101,8 +101,8 @@ class HuggingFaceServer:
 
 
 class HuggingFaceClient(Client):
-    def __init__(self, cache_path: str):
-        self.cache = Cache(cache_path)
+    def __init__(self, cache_config: CacheConfig):
+        self.cache = Cache(cache_config)
         self.model_server_instances: Dict[str, HuggingFaceServer] = {}
 
     def get_model_server_instance(self, model_engine) -> HuggingFaceServer:

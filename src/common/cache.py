@@ -1,5 +1,6 @@
+from dataclasses import dataclass
 import json
-from typing import Dict, Callable, Tuple
+from typing import Dict, Callable, Optional, Tuple
 from collections import defaultdict
 import threading
 
@@ -81,6 +82,12 @@ class CacheStats:
 cache_stats = CacheStats()
 
 
+@dataclass(frozen=True)
+class CacheConfig:
+    cache_path: str
+    follower_cache_path: Optional[str] = None
+
+
 class Cache(object):
     """
     A cache for request/response pairs.
@@ -88,8 +95,9 @@ class Cache(object):
     We use sqlitedict to persist the cache: https://github.com/RaRe-Technologies/sqlitedict.
     """
 
-    def __init__(self, cache_path: str):
-        self.cache_path: str = cache_path
+    def __init__(self, config: CacheConfig):
+        self.cache_path: str = config.cache_path
+        self.follower_cache_path: Optional[str] = config.follower_cache_path
 
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
@@ -106,4 +114,7 @@ class Cache(object):
                 # Compute and commit the request/response to SQLite
                 response = compute()
                 write_to_cache(cache, key, response)
+        if self.follower_cache_path:
+            with SqliteDict(self.follower_cache_path) as follower_cache:
+                write_to_cache(follower_cache, key, response)
         return response, cached

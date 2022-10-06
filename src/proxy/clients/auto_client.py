@@ -4,6 +4,7 @@ from typing import Dict, Optional
 
 from retrying import RetryError, Attempt
 
+from common.cache import CacheConfig
 from common.hierarchical_logger import hlog
 from common.request import Request, RequestResult
 from common.tokenization_request import (
@@ -34,44 +35,48 @@ class AutoClient(Client):
         self.credentials = credentials
         self.cache_path = cache_path
         self.clients: Dict[str, Client] = {}
-        self.huggingface_client = HuggingFaceClient(cache_path=os.path.join(self.cache_path, "huggingface.sqlite"))
+        huggingface_cache_config = self._build_cache_config("huggingface")
+        self.huggingface_client = HuggingFaceClient(huggingface_cache_config)
         hlog(f"AutoClient: cache_path = {cache_path}")
+
+    def _build_cache_config(self, organization: str) -> CacheConfig:
+        client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
+        return CacheConfig(client_cache_path)
 
     def get_client(self, organization: str) -> Client:
         """Return a client based on `organization`, creating it if necessary."""
         client: Optional[Client] = self.clients.get(organization)
 
         if client is None:
-            org_id: Optional[str]
-            client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
+            cache_config: CacheConfig = self._build_cache_config(organization)
 
             if organization == "openai":
                 org_id = self.credentials.get("openaiOrgId", None)
                 client = OpenAIClient(
-                    api_key=self.credentials["openaiApiKey"], cache_path=client_cache_path, org_id=org_id
+                    api_key=self.credentials["openaiApiKey"], cache_config=cache_config, org_id=org_id
                 )
             elif organization == "ai21":
-                client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
+                client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_config=cache_config)
             elif organization == "cohere":
-                client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_path=client_cache_path)
+                client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_config=cache_config)
             elif organization == "gooseai":
                 org_id = self.credentials.get("gooseaiOrgId", None)
                 client = GooseAIClient(
-                    api_key=self.credentials["gooseaiApiKey"], cache_path=client_cache_path, org_id=org_id
+                    api_key=self.credentials["gooseaiApiKey"], cache_config=cache_config, org_id=org_id
                 )
             elif organization == "huggingface":
                 client = self.huggingface_client
             elif organization == "anthropic":
-                client = AnthropicClient(api_key=self.credentials["anthropicApiKey"], cache_path=client_cache_path)
+                client = AnthropicClient(api_key=self.credentials["anthropicApiKey"], cache_config=cache_config)
             elif organization == "microsoft":
                 org_id = self.credentials.get("microsoftOrgId", None)
                 client = MicrosoftClient(
-                    api_key=self.credentials["microsoftApiKey"], cache_path=client_cache_path, org_id=org_id
+                    api_key=self.credentials["microsoftApiKey"], cache_config=cache_config, org_id=org_id
                 )
             elif organization == "together":
-                client = TogetherClient(cache_path=client_cache_path)
+                client = TogetherClient(cache_config=cache_config)
             elif organization == "simple":
-                client = SimpleClient(cache_path=client_cache_path)
+                client = SimpleClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Unknown organization: {organization}")
             self.clients[organization] = client
@@ -108,7 +113,7 @@ class AutoClient(Client):
         client: Optional[Client] = self.clients.get(organization)
 
         if client is None:
-            client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
+            cache_config: CacheConfig = self._build_cache_config(organization)
             if organization in [
                 "anthropic",
                 "bigscience",
@@ -120,17 +125,17 @@ class AutoClient(Client):
                 "microsoft",
                 "openai",
             ]:
-                client = HuggingFaceClient(cache_path=client_cache_path)
+                client = HuggingFaceClient(cache_config=cache_config)
             elif organization == "TsinghuaKEG":
-                client = ICETokenizerClient(cache_path=client_cache_path)
+                client = ICETokenizerClient(cache_config=cache_config)
             elif organization == "Yandex":
-                client = YaLMTokenizerClient(cache_path=client_cache_path)
+                client = YaLMTokenizerClient(cache_config=cache_config)
             elif organization == "ai21":
-                client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_path=client_cache_path)
+                client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_config=cache_config)
             elif organization == "cohere":
-                client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_path=client_cache_path)
+                client = CohereClient(api_key=self.credentials["cohereApiKey"], cache_config=cache_config)
             elif organization == "simple":
-                client = SimpleClient(cache_path=client_cache_path)
+                client = SimpleClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Unknown organization: {organization}")
             self.clients[organization] = client

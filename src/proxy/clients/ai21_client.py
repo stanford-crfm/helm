@@ -3,7 +3,7 @@ import requests
 
 from dacite import from_dict
 
-from common.cache import Cache
+from common.cache import Cache, CacheConfig
 from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
@@ -38,9 +38,9 @@ class AI21Client(Client):
 
         raise AI21RequestError(error_message)
 
-    def __init__(self, api_key: str, cache_path: str):
+    def __init__(self, api_key: str, cache_config: CacheConfig):
         self.api_key = api_key
-        self.cache = Cache(cache_path)
+        self.cache = Cache(cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:
