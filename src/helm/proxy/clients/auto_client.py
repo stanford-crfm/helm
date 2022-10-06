@@ -39,6 +39,7 @@ class AutoClient(Client):
         self.cache_path = cache_path
         self.mongo_uri = mongo_uri
         self.clients: Dict[str, Client] = {}
+        self.tokenizer_client: Dict[str, Client] = {}
         huggingface_cache_config = self._build_cache_config("huggingface")
         self.huggingface_client = HuggingFaceClient(huggingface_cache_config)
         hlog(f"AutoClient: cache_path = {cache_path}")
@@ -141,7 +142,7 @@ class AutoClient(Client):
 
     def get_tokenizer_client(self, organization: str) -> Client:
         """Return a client based on `organization`, creating it if necessary."""
-        client: Optional[Client] = self.clients.get(organization)
+        client: Optional[Client] = self.tokenizer_clients.get(organization)
 
         if client is None:
             cache_config: CacheConfig = self._build_cache_config(organization)
@@ -171,7 +172,7 @@ class AutoClient(Client):
                 client = SimpleClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Unknown organization: {organization}")
-            self.clients[organization] = client
+            self.tokenizer_clients[organization] = client
         return client
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
