@@ -108,13 +108,11 @@
         },
         "together/yalm": {
             "value" : 196.0,
-            "description": "800 A100 GPUs were used for training for 65 days in Yandex ru-central1-a. We use a PUE of 1.1, 400W TDP for A100 GPUs, and an average carbon in
-tensity of 0.357 kCO2/kWh."
+            "description": "800 A100 GPUs were used for training for 65 days in Yandex ru-central1-a. We use a PUE of 1.1, 400W TDP for A100 GPUs, and an average carbon intensity of 0.357 kCO2/kWh."
         },
         "together/bloom": {
             "value" : 30.4,
-            "description": "384 A100 GPUs were used for training for 117 days in France. We use a PUE of 1.1, 400W TDP for A100 GPUs, and an average carbon intensity of 0.
-064 kCO2/kWh."
+            "description": "384 A100 GPUs were used for training for 117 days in France. We use a PUE of 1.1, 400W TDP for A100 GPUs, and an average carbon intensity of 0.064 kCO2/kWh."
         }
     }
 }
