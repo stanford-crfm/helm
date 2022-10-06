@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from copy import deepcopy
 from dataclasses import replace
 from typing import List, Dict, Optional, Tuple
 
@@ -17,7 +16,6 @@ from proxy.models import (
     ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
-from .scenarios.scenario import ScenarioSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
 
@@ -594,19 +592,17 @@ class NumPromptTokensRunExpander(RunExpander):
             self.values = [value]
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        run_specs = []
-        for value in self.values:
-            # Replace num_prompt_tokens argument in SyntheticEfficiencyScenario.
-            scenario_spec: ScenarioSpec = deepcopy(run_spec.scenario_spec)
-            scenario_spec.args[self.name] = value
-            run_specs.append(
-                replace(
-                    run_spec,
-                    name=f"{run_spec.name}{',' if ':' in run_spec.name else ':'}{self.name}={value}",
-                    scenario_spec=scenario_spec,
-                )
+        # Change `num_prompt_tokens` field in SyntheticEfficiencyScenario object.
+        return [
+            replace(
+                run_spec,
+                name=f"{run_spec.name}{',' if ':' in run_spec.name else ':'}{self.name}={value}",
+                scenario_spec=replace(
+                    run_spec.scenario_spec, args=dict(run_spec.scenario_spec.args, **{self.name: value})
+                ),
             )
-        return run_specs
+            for value in self.values
+        ]
 
 
 class NumOutputTokensRunExpander(RunExpander):
