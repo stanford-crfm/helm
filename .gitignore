@@ -5,6 +5,7 @@ __pycache__
 .mypy_cache
 pip-wheel-metadata/
 
+build
 prod_env
 benchmark_output
 www

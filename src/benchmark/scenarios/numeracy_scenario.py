@@ -79,12 +79,11 @@ class Polynomial:
 
     degree: int
     num_variables: int
-    coeffs: InitVar[Union[List[int], npt.NDArray[np.int64]]] = None
+    coeffs: npt.NDArray[np.int64]
     terms: List[List[int]] = field(init=False)
 
-    def __post_init__(self, coeffs: List[int]):
+    def __post_init__(self):
         self.terms = generate_terms(self.degree, self.num_variables)
-        self.coeffs = np.array(coeffs)  # type: ignore
 
     def eval(self, vals: List[int]):
         return np.dot(self.coeffs, np.array(list(map(lambda _: np.prod(np.array(vals).__getitem__(_)), self.terms))))
@@ -116,7 +115,7 @@ def sympy_poly_to_poly(poly: Poly, degree: int, num_variables: int) -> Polynomia
     all_powers = get_powers(all_terms)
     coeffs_dict = defaultdict(int, {tuple(sympy_power_to_power(power)): coeff for power, coeff in terms})
     coeffs = [coeffs_dict[tuple(_)] for _ in all_powers]
-    return Polynomial(degree=degree, num_variables=num_variables, coeffs=coeffs)
+    return Polynomial(degree=degree, num_variables=num_variables, coeffs=np.array(coeffs))
 
 
 def generate_polynomial(
@@ -167,7 +166,7 @@ def generate_polynomial(
                 "Failed to sample valid polynomial equation within "
                 + f"{MAX_ATTEMPTS} attempts from ranges {str(range_coeffs)}."
             )
-    return Polynomial(degree=degree, num_variables=num_variables, coeffs=coeffs)
+    return Polynomial(degree=degree, num_variables=num_variables, coeffs=np.array(coeffs))
 
 
 def generate_linear(range_coeffs: Range) -> Polynomial:
