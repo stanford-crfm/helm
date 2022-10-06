@@ -89,8 +89,8 @@ class Executor:
             if pred_output is not None:
                 pred_output = pred_output[:100]
             return (
-                f"{format_instance(instance)} => {format_text(gold_output)}, "
-                + f"predicted {format_text(pred_output)} [{correct_str}]"
+                f"{format_instance(instance)} => {format_text(str(gold_output))}, "
+                + f"predicted {format_text(str(pred_output))} [{correct_str}]"
             )
 
         # Do it!
@@ -104,5 +104,5 @@ class Executor:
     def process(self, state: RequestState) -> RequestState:
         result: RequestResult = self.service.make_request(self.execution_spec.auth, state.request)
         if not result.success:
-            raise ExecutorError(result.error + f"Request: {state.request}")
+            raise ExecutorError(f"{str(result.error)} Request: {state.request}")
         return replace(state, result=result)
