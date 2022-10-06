@@ -1570,6 +1570,6 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             return singleton(stop_expander.expand(run_spec))
         return run_spec
 
-    run_specs = [alter_run_spec(run_spec) for run_spec in run_specs]
+    #run_specs = [alter_run_spec(run_spec) for run_spec in run_specs]
 
     return run_specs

@@ -10,7 +10,7 @@ from sqlitedict import SqliteDict
 from common.request import Request
 from common.cache import request_to_key
 from common.hierarchical_logger import hlog, htrack, htrack_block
-from proxy.clients.together_client import TogetherClient
+from proxy.clients.together_client import TogetherClient, prepare_text
 from proxy.clients.microsoft_client import MicrosoftClient
 
 
@@ -43,6 +43,7 @@ def export_requests(organization: str, run_suite_path: str, output_path: str):
         if cache_key not in cache:
             # Following the examples from https://github.com/togethercomputer/open-models-api,
             # add "request_type" and "model" to the request and remove "engine".
+            raw_request["prompt"] = prepare_text(raw_request["prompt"], "together/" + raw_request["engine"])
             raw_request["model"] = raw_request.pop("engine")
             raw_request["request_type"] = "language-model-inference"
             request_json: str = request_to_key(raw_request)
