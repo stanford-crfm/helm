@@ -84,7 +84,14 @@ cache_stats = CacheStats()
 
 @dataclass(frozen=True)
 class CacheConfig:
+    """Configuration for a cache."""
+
+    # Path to the Sqlite file that backs the main cache.
     cache_path: str
+
+    # Path to the Sqlite file that backs the follower cache.
+    # The follower cache is a write-only cache, and responses will not be served from it.
+    # Every request and response from the main cache will be written to the follower cache.
     follower_cache_path: Optional[str] = None
 
 

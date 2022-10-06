@@ -41,6 +41,7 @@ class AutoClient(Client):
 
     def _build_cache_config(self, organization: str) -> CacheConfig:
         client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
+        # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return CacheConfig(client_cache_path)
 
     def get_client(self, organization: str) -> Client:
