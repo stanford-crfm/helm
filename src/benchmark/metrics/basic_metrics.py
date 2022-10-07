@@ -42,9 +42,9 @@ try:
 except LookupError:
     nltk.download("punkt")  # Required for rouge
 
-INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/inference_data/inference_idealized_runtimes.json"
-INFERENCE_DENOISED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/inference_data/inference_denoised_runtimes.json"
-TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/inference_data/training_efficiency.json"
+INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/efficiency_data/inference_idealized_runtimes.json"
+INFERENCE_DENOISED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/efficiency_data/inference_denoised_runtimes.json"
+TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/efficiency_data/training_efficiency.json"
 
 
 def compute_estimated_time_from_prompt_size_and_num_output_tokens(
