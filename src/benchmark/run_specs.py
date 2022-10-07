@@ -931,12 +931,12 @@ def get_babi_qa_spec(task: str = "all") -> RunSpec:
     )
 
 
-def get_copyright_spec(datatag="pilot") -> RunSpec:
+def get_copyright_spec(datatag="pilot", temperature=0.2, max_tokens=1024, num_outputs=1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.copyright_scenario.CopyrightScenario", args=dict(datatag=datatag)
     )
 
-    adapter_spec = get_completion_adapter_spec(temperature=0.2, max_tokens=1024)
+    adapter_spec = get_completion_adapter_spec(temperature=temperature, max_tokens=max_tokens, num_outputs=num_outputs)
 
     return RunSpec(
         name=f"copyright:datatag={datatag}",
