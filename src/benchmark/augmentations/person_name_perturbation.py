@@ -19,7 +19,7 @@ def lambda_defaultdict_list():
 
 
 class PersonNamePerturbation(Perturbation):
-    """ Individual fairness perturbation for person names. """
+    """Individual fairness perturbation for person names."""
 
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "person_name"
@@ -50,7 +50,7 @@ class PersonNamePerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        """ Description for the PersonNamePerturbation class.
+        """Description for the PersonNamePerturbation class.
 
         Explanation for the fields are provided in the docstring of
         PersonNamePerturbation.__init__, except source_class and target_class
@@ -74,7 +74,7 @@ class PersonNamePerturbation(Perturbation):
         person_name_type: str = FIRST_NAME,
         preserve_gender: bool = True,
     ):
-        """ Initialize the person name perturbation.
+        """Initialize the person name perturbation.
 
         If name_file_path isn't provided, we use our default name mapping
         file, which can be found at:
@@ -186,7 +186,7 @@ class PersonNamePerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        """ Return a perturbation description for this class. """
+        """Return a perturbation description for this class."""
         source_str = ",".join([f"{k}={v}" for k, v in self.source_class.items()])
         target_str = ",".join([f"{k}={v}" for k, v in self.target_class.items()])
         return PersonNamePerturbation.Description(
@@ -202,11 +202,11 @@ class PersonNamePerturbation(Perturbation):
 
     @staticmethod
     def lower_dictionary(d: Dict[str, str]) -> Dict[str, str]:
-        """ Lower the keys and values of a dictionary """
+        """Lower the keys and values of a dictionary"""
         return dict((k.lower(), v.lower()) for k, v in d.items())
 
     def get_possible_names(self, selected_class: Dict[str, str]) -> List[str]:
-        """ Return possible names given a selected class, using self.mapping_dict """
+        """Return possible names given a selected class, using self.mapping_dict"""
         selected_names = []
         for cat, val in selected_class.items():
             assert self.mapping_dict[cat][val]
@@ -215,7 +215,7 @@ class PersonNamePerturbation(Perturbation):
         return possible_names
 
     def download_name_file(self) -> str:
-        """ Download the name file from CodaLab """
+        """Download the name file from CodaLab"""
         data_path = os.path.join(self.output_path, "data")
         file_path: str = os.path.join(data_path, self.FILE_NAME)
         ensure_directory_exists(data_path)
@@ -223,7 +223,7 @@ class PersonNamePerturbation(Perturbation):
         return file_path
 
     def load_name_file(self, file_path) -> Dict[str, Dict[str, List[str]]]:
-        """ Load the name file """
+        """Load the name file"""
         mapping_dict: Dict[str, Dict[str, List[str]]] = defaultdict(lambda_defaultdict_list)
         delimiter = ","
         with open(file_path, encoding="utf-8") as f:
@@ -236,7 +236,7 @@ class PersonNamePerturbation(Perturbation):
         return mapping_dict
 
     def get_name_gender(self, name: str) -> Optional[str]:
-        """ Get the gender of the word and return one of FEMALE, MALE, and NEUTRAL. """
+        """Get the gender of the word and return one of FEMALE, MALE, and NEUTRAL."""
         gender_dict = self.mapping_dict[self.GENDER_CATEGORY]
         genders = (self.FEMALE, self.MALE, self.NEUTRAL)
         for gender in genders:
@@ -245,7 +245,7 @@ class PersonNamePerturbation(Perturbation):
         return None
 
     def get_substitute_name(self, token: str, rng: Random) -> Optional[str]:
-        """ Get the substitute name for the token.
+        """Get the substitute name for the token.
 
         The lowered version of the token must exist in self.source_names. Return
         None if self.preserve_gender tag is set, but there is no corresponding

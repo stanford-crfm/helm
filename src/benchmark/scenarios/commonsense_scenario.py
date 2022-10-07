@@ -111,7 +111,8 @@ class CommonSenseScenario(Scenario):
             url = "https://raw.githubusercontent.com/rowanz/hellaswag/master/data/hellaswag_{}.jsonl"
             for split in ["train", "val", "test"]:
                 ensure_file_downloaded(
-                    source_url=url.format(split), target_path=os.path.join(data_path, f"hellaswag_{split}.jsonl"),
+                    source_url=url.format(split),
+                    target_path=os.path.join(data_path, f"hellaswag_{split}.jsonl"),
                 )
         elif self.dataset == "openbookqa":
             ensure_file_downloaded(
@@ -248,7 +249,9 @@ class CommonSenseScenario(Scenario):
 
         for question_id, (question, answers, correct_answer, split) in enumerate(data):
             instance = Instance(
-                input=question, references=list(map(answer_to_reference, answers)), split=splits[split],
+                input=question,
+                references=list(map(answer_to_reference, answers)),
+                split=splits[split],
             )
             instances.append(instance)
         return instances

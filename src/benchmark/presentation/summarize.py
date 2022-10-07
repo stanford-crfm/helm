@@ -42,7 +42,7 @@ Usage:
 
 @dataclass(frozen=True)
 class Run:
-    """ Represents a run with spec and stats. """
+    """Represents a run with spec and stats."""
 
     # Directory name of the run (used by frontend to find the actual instances to load)
     run_path: str
@@ -135,10 +135,14 @@ class Summarizer:
         with open(os.path.join(run_path, "stats.json")) as f:
             stats = [dacite.from_dict(Stat, raw) for raw in json.load(f)]
 
-        return Run(run_path=run_path, run_spec=run_spec, stats=stats,)
+        return Run(
+            run_path=run_path,
+            run_spec=run_spec,
+            stats=stats,
+        )
 
     def read_runs(self):
-        """ Load the corresponding runs for the run specs in run_specs.json. """
+        """Load the corresponding runs for the run specs in run_specs.json."""
 
         run_specs_path: str = os.path.join(self.run_suite_path, "run_specs.json")
         if not os.path.exists(run_specs_path):
@@ -524,7 +528,8 @@ class Summarizer:
 
             # Write JSON file
             write(
-                os.path.join(groups_path, group.name + ".json"), json.dumps(list(map(asdict_without_nones, tables))),
+                os.path.join(groups_path, group.name + ".json"),
+                json.dumps(list(map(asdict_without_nones, tables))),
             )
 
 
@@ -535,7 +540,10 @@ def main():
         "-o", "--output-path", type=str, help="Where the benchmarking output lives", default="benchmark_output"
     )
     parser.add_argument(
-        "--suite", type=str, help="Name of the suite this run belongs to (default is today's date).", required=True,
+        "--suite",
+        type=str,
+        help="Name of the suite this run belongs to (default is today's date).",
+        required=True,
     )
     args = parser.parse_args()
 

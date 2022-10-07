@@ -84,7 +84,11 @@ class ReplaceRunSpecValueRunExpander(RunExpander):
             return str(value).replace("/", "_")
 
         return [
-            replace(run_spec, name=f"{run_spec.name},{self.name}={sanitize(value)}", metrics=value,)
+            replace(
+                run_spec,
+                name=f"{run_spec.name},{self.name}={sanitize(value)}",
+                metrics=value,
+            )
             for value in self.values
         ]
 
@@ -102,7 +106,10 @@ class InstructionsRunExpander(RunExpander):
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         adapter_spec = run_spec.adapter_spec
         if self.value == "none":
-            adapter_spec = replace(adapter_spec, instructions="",)
+            adapter_spec = replace(
+                adapter_spec,
+                instructions="",
+            )
         else:
             raise Exception("Unknown value: {self.value}")
         return [
@@ -140,7 +147,11 @@ class PromptRunExpander(RunExpander):
         else:
             raise Exception("Unknown value: {self.value}")
         return [
-            replace(run_spec, name=f"{run_spec.name},{self.name}={self.value}", adapter_spec=adapter_spec,),
+            replace(
+                run_spec,
+                name=f"{run_spec.name},{self.name}={self.value}",
+                adapter_spec=adapter_spec,
+            ),
         ]
 
 
@@ -248,7 +259,8 @@ def extra_space(num_spaces: int) -> PerturbationSpec:
 
 def space(max_spaces: int) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.space_perturbation.SpacePerturbation", args={"max_spaces": max_spaces},
+        class_name="benchmark.augmentations.space_perturbation.SpacePerturbation",
+        args={"max_spaces": max_spaces},
     )
 
 
@@ -258,25 +270,29 @@ def lower() -> PerturbationSpec:
 
 def misspelling(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.misspelling_perturbation.MisspellingPerturbation", args={"prob": prob},
+        class_name="benchmark.augmentations.misspelling_perturbation.MisspellingPerturbation",
+        args={"prob": prob},
     )
 
 
 def synonym(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.synonym_perturbation.SynonymPerturbation", args={"prob": prob},
+        class_name="benchmark.augmentations.synonym_perturbation.SynonymPerturbation",
+        args={"prob": prob},
     )
 
 
 def contrast_sets() -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.contrast_sets_perturbation.ContrastSetsPerturbation", args={},
+        class_name="benchmark.augmentations.contrast_sets_perturbation.ContrastSetsPerturbation",
+        args={},
     )
 
 
 def typo(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.typos_perturbation.TyposPerturbation", args={"prob": prob},
+        class_name="benchmark.augmentations.typos_perturbation.TyposPerturbation",
+        args={"prob": prob},
     )
 
 
@@ -294,7 +310,8 @@ def mild_mix() -> PerturbationSpec:
 def contract_and_expand() -> List[PerturbationSpec]:
     return [
         PerturbationSpec(
-            class_name=f"benchmark.augmentations.contraction_expansion_perturbation.{mode}Perturbation", args={},
+            class_name=f"benchmark.augmentations.contraction_expansion_perturbation.{mode}Perturbation",
+            args={},
         )
         for mode in ["Contraction", "Expansion"]
     ]

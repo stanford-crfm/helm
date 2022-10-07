@@ -34,7 +34,9 @@ def test_extra_space_perturbation():
 def test_misspelling_perturbation():
     data_augmenter = DataAugmenter(perturbations=[MisspellingPerturbation(prob=1.0)])
     instance: Instance = Instance(
-        id="id0", input="Already, the new product is not available.", references=[],
+        id="id0",
+        input="Already, the new product is not available.",
+        references=[],
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
@@ -91,7 +93,9 @@ def test_expansion_perturbation():
 def test_typos_perturbation():
     data_augmenter = DataAugmenter(perturbations=[TyposPerturbation(prob=0.1)])
     instance: Instance = Instance(
-        id="id0", input="After their marriage, she started a close collaboration with Karvelas.", references=[],
+        id="id0",
+        input="After their marriage, she started a close collaboration with Karvelas.",
+        references=[],
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
@@ -104,7 +108,9 @@ def test_typos_perturbation():
 def test_synonym_perturbation():
     data_augmenter = DataAugmenter(perturbations=[SynonymPerturbation(prob=1.0)])
     instance: Instance = Instance(
-        id="id0", input="This was a good movie, would watch again.", references=[],
+        id="id0",
+        input="This was a good movie, would watch again.",
+        references=[],
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 
@@ -117,7 +123,9 @@ def test_synonym_perturbation():
 def test_lowercase_perturbation():
     data_augmenter = DataAugmenter(perturbations=[LowerCasePerturbation()])
     instance: Instance = Instance(
-        id="id0", input="Hello World!\nQuite a day, huh?", references=[Reference(output="Yes!", tags=[])],
+        id="id0",
+        input="Hello World!\nQuite a day, huh?",
+        references=[Reference(output="Yes!", tags=[])],
     )
     instances: List[Instance] = data_augmenter.generate([instance], include_original=True)
 

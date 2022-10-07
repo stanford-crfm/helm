@@ -35,8 +35,7 @@ SYMPY_TRANSFORMATIONS = standard_transformations + (implicit_multiplication_appl
 
 
 def generate_terms(degree: int, num_variables: int) -> List[List[int]]:
-    """Lists out multisets corresponding to all possible terms up to degree `degree` and `num_variables` variables.
-    """
+    """Lists out multisets corresponding to all possible terms up to degree `degree` and `num_variables` variables."""
     return sum(
         [
             list(map(lambda _: list(_), combinations_with_replacement(range(num_variables), d)))
@@ -55,12 +54,10 @@ def sympy_power_to_power(power: Tuple[int, ...]) -> List[Tuple[int, int]]:
 
 
 def stringify_terms(terms: List[List[int]], variable_names: List[str] = list("xyz")) -> List[str]:
-    """Formatting utility for multisets.
-    """
+    """Formatting utility for multisets."""
 
     def stringify_power(index: int, degree: int) -> str:
-        """Helper formatting utility for powers.
-        """
+        """Helper formatting utility for powers."""
         var = variable_names[index]
         if degree == 0:
             return ""
@@ -74,8 +71,7 @@ def stringify_terms(terms: List[List[int]], variable_names: List[str] = list("xy
 
 @dataclass
 class Polynomial:
-    """A simple polynomial class over the integers that supports evaluation and pretty-printing.
-    """
+    """A simple polynomial class over the integers that supports evaluation and pretty-printing."""
 
     degree: int
     num_variables: int
@@ -214,20 +210,24 @@ def generate_paraboloid(range_coeffs: Range) -> Polynomial:
 
 
 def generate_rotated_translated_paraboloid(range_coeffs: Range) -> Polynomial:
-    """Unused.
-    """
+    """Unused."""
     do_sample = True
     while do_sample:
         coeffs_0 = generate_plane(range_coeffs).coeffs
         coeffs_1 = generate_plane(range_coeffs).coeffs
-        mat = np.array([coeffs_0, coeffs_1,])
+        mat = np.array(
+            [
+                coeffs_0,
+                coeffs_1,
+            ]
+        )
         if np.linalg.matrix_rank(mat) == 2:
             do_sample = False
     x = Symbol("x")
     y = Symbol("y")
     xprime = coeffs_0[0] * x + coeffs_0[1] * y + coeffs_0[2]
     yprime = coeffs_1[0] * x + coeffs_1[1] * y + coeffs_1[2]
-    expr = xprime ** 2 + yprime ** 2
+    expr = xprime**2 + yprime**2
     poly = Poly(expr, [x, y])
     return sympy_poly_to_poly(poly, 2, 2)
 
@@ -245,7 +245,7 @@ def distance_linear(point: List[int], rel_str: str):
     B = -1
     C = rel.coeffs[1]
     x, y = point
-    return float(abs((A * x + B * y + C)) / (math.sqrt(A ** 2 + B ** 2)))
+    return float(abs((A * x + B * y + C)) / (math.sqrt(A**2 + B**2)))
 
 
 def distance_parabola(point: List[int], rel_str: str, TOL: float = 1e-10):
@@ -294,7 +294,7 @@ def distance_plane(point: List[int], rel_str: str):
     D = rel.coeffs[2]
     x, y, z = point
     d = abs((A * x + B * y + C * z + D))
-    e = math.sqrt(A ** 2 + B ** 2 + C ** 2)
+    e = math.sqrt(A**2 + B**2 + C**2)
     return float(d / e)
 
 
@@ -495,8 +495,18 @@ RELTYPE_INFO: Dict[str, RelationTypeInfo] = {
 
 
 MODE_INFO = {
-    "example": {"num_function_train": 1, "num_function_test": 1, "num_train": 100, "num_test": 100,},
-    "standard": {"num_function_train": 1, "num_function_test": 1, "num_train": 100, "num_test": 100,},
+    "example": {
+        "num_function_train": 1,
+        "num_function_test": 1,
+        "num_train": 100,
+        "num_test": 100,
+    },
+    "standard": {
+        "num_function_train": 1,
+        "num_function_test": 1,
+        "num_train": 100,
+        "num_test": 100,
+    },
     "function": {
         "num_function_train": 1000,
         "num_function_test": 1000,  # don't bother excluding from train set

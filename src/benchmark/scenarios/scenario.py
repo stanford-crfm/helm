@@ -138,7 +138,7 @@ class Instance:
 
 @dataclass(frozen=True, eq=False)
 class MultipleRequestInstance(Instance):
-    """ Instance """
+    """Instance"""
 
     """ Unique ID for the request group this instance is a part of.  """
     group_id: Optional[str] = None
