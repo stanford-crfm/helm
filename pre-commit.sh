@@ -16,7 +16,7 @@ if ! [ -e venv ]; then
   python3 -m virtualenv -p python3 venv
 fi
 
-venv/bin/pip install -e .
+venv/bin/pip install -e . --find-links https://download.pytorch.org/whl/torch_stable.html
 venv/bin/pip check
 
 # Python style checks and linting

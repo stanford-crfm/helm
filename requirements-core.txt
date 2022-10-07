@@ -38,7 +38,6 @@ google-api-python-client
 datasets  # For math scenarios
 jsonlines  # Not really needed
 sympy  # For math scenarios
-torch  # Needed by the YaLMTokenizer
 sentencepiece
 
 # Metrics
@@ -50,3 +49,5 @@ pyext
 sacrebleu
 spacy
 summ-eval
+torch==1.12.1+cu113  # Summarization metrics
+torchvision==0.13.1+cu113
