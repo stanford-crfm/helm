@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import openai
 
-from common.cache import Cache
+from common.cache import Cache, CacheConfig
 from common.request import Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
@@ -17,11 +17,13 @@ ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__ba
 
 
 class OpenAIClient(Client):
-    def __init__(self, api_key: str, cache_path: str, org_id: Optional[str] = None):
+    ORGANIZATION: str = "openai"
+
+    def __init__(self, api_key: str, cache_config: CacheConfig, org_id: Optional[str] = None):
         self.org_id: Optional[str] = org_id
         self.api_key: str = api_key
         self.api_base: str = "https://api.openai.com/v1"
-        self.cache = Cache(cache_path)
+        self.cache = Cache(cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:

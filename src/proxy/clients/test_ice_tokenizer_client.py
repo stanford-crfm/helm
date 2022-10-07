@@ -2,6 +2,7 @@ import os
 import tempfile
 from typing import List
 
+from common.cache import CacheConfig
 from common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
@@ -15,7 +16,7 @@ class TestICETokenizerClient:
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name
-        self.client = ICETokenizerClient(cache_path=self.cache_path)
+        self.client = ICETokenizerClient(CacheConfig(self.cache_path))
 
         # The test cases were created using the examples from https://github.com/THUDM/icetk#tokenization
         self.test_prompt: str = "Hello World! I am icetk."

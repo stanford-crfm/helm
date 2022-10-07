@@ -5,7 +5,7 @@ import urllib.parse
 
 import websocket
 
-from common.cache import Cache
+from common.cache import Cache, CacheConfig
 from common.hierarchical_logger import htrack_block, hlog
 from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
@@ -41,9 +41,11 @@ class AnthropicClient(Client):
     # Anthropic returns the following in the response when reaching one of the stop sequences.
     STOP_SEQUENCE_STOP_REASON: str = "stop_sequence"
 
-    def __init__(self, api_key: str, cache_path: str):
+    ORGANIZATION: str = "anthropic"
+
+    def __init__(self, api_key: str, cache_config: CacheConfig):
         self.api_key = api_key
-        self.cache = Cache(cache_path)
+        self.cache = Cache(cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model

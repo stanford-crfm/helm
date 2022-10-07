@@ -3,7 +3,7 @@ import os
 import shlex
 import subprocess
 import zstandard
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, TypeVar
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from tqdm import tqdm
 
@@ -172,7 +172,13 @@ def match_case(source_word: str, target_word: str) -> str:
     return target_word
 
 
-def parallel_map(process: Callable[[List], List], items: List, parallelism: int, multiprocessing: bool = False) -> List:
+InT = TypeVar("InT")
+OutT = TypeVar("OutT")
+
+
+def parallel_map(
+    process: Callable[[InT], OutT], items: List[InT], parallelism: int, multiprocessing: bool = False
+) -> List[OutT]:
     """
     A wrapper for applying `process` to all `items`.
     """

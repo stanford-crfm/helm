@@ -1,4 +1,3 @@
-import os
 import threading
 from dataclasses import asdict
 from typing import List, Dict, Optional
@@ -9,7 +8,7 @@ from googleapiclient.errors import BatchError, HttpError
 from googleapiclient.http import BatchHttpRequest
 from httplib2 import HttpLib2Error
 
-from common.cache import Cache
+from common.cache import Cache, CacheConfig
 from common.perspective_api_request import ToxicityAttributes, PerspectiveAPIRequest, PerspectiveAPIRequestResult
 
 
@@ -27,6 +26,8 @@ class PerspectiveAPIClient:
 
     Source: https://developers.perspectiveapi.com/s/docs
     """
+
+    ORGANIZATION = "perspectiveapi"
 
     @staticmethod
     def create_request_body(text: str, attributes: List[str], languages: List[str]) -> Dict:
@@ -47,7 +48,7 @@ class PerspectiveAPIClient:
         }
         return from_dict(data_class=ToxicityAttributes, data=all_scores)
 
-    def __init__(self, api_key: str, cache_path: str):
+    def __init__(self, api_key: str, cache_config: CacheConfig):
         # API key obtained from GCP that works with PerspectiveAPI
         self.api_key = api_key
 
@@ -55,7 +56,7 @@ class PerspectiveAPIClient:
         self.client: Optional[discovery.Resource] = None
 
         # Cache requests and responses from Perspective API
-        self.cache = Cache(os.path.join(cache_path, "perspectiveapi.sqlite"))
+        self.cache = Cache(cache_config)
 
         # httplib2 is not thread-safe. Acquire this lock when sending requests to PerspectiveAPI
         self.request_lock: Optional[threading.RLock] = threading.RLock()
