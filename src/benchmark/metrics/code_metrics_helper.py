@@ -512,7 +512,10 @@ def check_correctness(problem: Dict, completion: str, timeout: float, completion
         result.append("timed out")
 
     return dict(
-        task_id=problem["task_id"], passed=result[0] == "passed", result=result[0], completion_id=completion_id,
+        task_id=problem["task_id"],
+        passed=result[0] == "passed",
+        result=result[0],
+        completion_id=completion_id,
     )
 
 
@@ -630,7 +633,7 @@ class TimeoutException(Exception):
 
 
 class WriteOnlyStringIO(io.StringIO):
-    """ StringIO that throws an exception when it's read from """
+    """StringIO that throws an exception when it's read from"""
 
     def read(self, *args, **kwargs):
         raise IOError
@@ -642,7 +645,7 @@ class WriteOnlyStringIO(io.StringIO):
         raise IOError
 
     def readable(self, *args, **kwargs):
-        """ Returns True if the IO object can be read. """
+        """Returns True if the IO object can be read."""
         return False
 
 

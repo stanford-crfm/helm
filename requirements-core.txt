@@ -1,0 +1,51 @@
+# This file includes the minimal list of (unpinned) dependencies.
+# Only edit this file, not requirements.txt directly.
+# After editing, run the following to pin the dependencies to particular
+# versions:
+#   pip freeze | xargs pip uninstall -y
+#   pip install -r requirements-core.txt
+#   pip freeze > requirements.txt
+#
+# Check that everything works because the versions might be upgraded.
+
+# Development
+pytest
+black
+mypy
+flake8
+
+# Common
+zstandard
+tqdm
+pyhocon
+dacite
+
+# Proxy
+bottle
+gunicorn
+mako
+sqlitedict
+retrying
+websocket  # For Anthropic
+openai
+transformers  # For HuggingFace tokenizer
+icetk
+protobuf==3.20.1  # Can't use 4.21.0 due to backward incompatibility
+google-api-python-client
+
+# Scenarios
+datasets  # For math scenarios
+jsonlines  # Not really needed
+sympy  # For math scenarios
+torch  # Needed by the YaLMTokenizer
+sentencepiece
+
+# Metrics
+nltk
+scipy
+uncertainty-calibration
+rouge-score
+pyext
+sacrebleu
+spacy
+summ-eval

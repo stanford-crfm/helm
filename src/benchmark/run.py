@@ -111,13 +111,21 @@ def add_run_args(parser: argparse.ArgumentParser):
         "Overrides the value in Adapter spec.",
     )
     parser.add_argument(
-        "--suite", type=str, help="Name of the suite this run belongs to (default is today's date).", required=True,
+        "--suite",
+        type=str,
+        help="Name of the suite this run belongs to (default is today's date).",
+        required=True,
     )
     parser.add_argument(
-        "--local", action="store_true", help="If true, bypasses the proxy server and runs everything locally",
+        "--local",
+        action="store_true",
+        help="If true, bypasses the proxy server and runs everything locally",
     )
     parser.add_argument(
-        "--local-path", type=str, help="If running locally, the path for `ServerService`.", default="prod_env",
+        "--local-path",
+        type=str,
+        help="If running locally, the path for `ServerService`.",
+        default="prod_env",
     )
 
 

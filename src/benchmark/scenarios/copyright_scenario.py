@@ -68,7 +68,9 @@ class CopyrightScenario(Scenario):
         for prefix, prefix_to_end in tqdm.tqdm(data["data"].items(), desc="load instances"):
             instances.append(
                 Instance(
-                    input=prefix, references=[Reference(output=prefix_to_end, tags=[CORRECT_TAG])], split=TEST_SPLIT,
+                    input=prefix,
+                    references=[Reference(output=prefix_to_end, tags=[CORRECT_TAG])],
+                    split=TEST_SPLIT,
                 ),
             )
         return instances

@@ -10,7 +10,7 @@ from .scenario import Scenario, Instance, MultipleRequestInstance, Reference, TR
 
 
 class MSMARCOScenario(Scenario):
-    """ Scenario implementing MS MARCO challenge tasks.
+    """Scenario implementing MS MARCO challenge tasks.
 
     I. Overview
 
@@ -322,7 +322,7 @@ class MSMARCOScenario(Scenario):
         num_valid_queries: Optional[int] = None,
         num_train_queries: int = 1000,
     ):
-        """ The constructor for the MSMARCOScenario.
+        """The constructor for the MSMARCOScenario.
 
         Args:
             task: Name of the task, which should be one of self.TASK_NAMES.
@@ -392,7 +392,7 @@ class MSMARCOScenario(Scenario):
         self.topk_dicts: Dict[str, Dict[int, Dict[int, int]]] = {TRAIN_SPLIT: {}, VALID_SPLIT: {}}
 
     def download_file(self, urlstring: str, target_file_name: str) -> str:
-        """ Download the resource at urlstring and return the absolute path.
+        """Download the resource at urlstring and return the absolute path.
 
         Downloaded file is saved to a directory named 'data' in self.output_path.
         """
@@ -404,7 +404,7 @@ class MSMARCOScenario(Scenario):
 
     @staticmethod
     def create_id_item_dict(file_path: str, delimiter: str = "\t") -> Dict[int, str]:
-        """ Read the provided file as an id to item dictionary.
+        """Read the provided file as an id to item dictionary.
 
         Given a file with rows in the following format:
             <id>   <item>
@@ -423,7 +423,7 @@ class MSMARCOScenario(Scenario):
 
     @staticmethod
     def create_qrels_dict(file_path: str, delimiter: str = "\t") -> Dict[int, Dict[int, int]]:
-        """ Read the provided file as a qrels dictionary.
+        """Read the provided file as a qrels dictionary.
 
         Given a file with rows in the following format:
             <qid>   0   <pid>   <rel>
@@ -446,7 +446,7 @@ class MSMARCOScenario(Scenario):
 
     @staticmethod
     def create_topk_dict(file_path: str, delimiter: str = "\t") -> Dict[int, Dict[int, int]]:
-        """ Read the provided file as a topk dictionary.
+        """Read the provided file as a topk dictionary.
 
         Given a file with rows in the following format:
             <qid>   <pid>   <rank>
@@ -468,7 +468,7 @@ class MSMARCOScenario(Scenario):
         return topk_dict
 
     def download_helper(self, data_key: Tuple[str, str, str]) -> str:
-        """ Call download_file for self.DATA_URIS[data_key] and return the file path to the downloaded file. """
+        """Call download_file for self.DATA_URIS[data_key] and return the file path to the downloaded file."""
         # Download the file
         urlstring = self.DATA_URIS[data_key]
         target_file_name = f"{'_'.join(data_key)}.tsv"
@@ -485,7 +485,7 @@ class MSMARCOScenario(Scenario):
         return file_path
 
     def prepare_data_dicts(self):
-        """ Download and load the data for all the data dictionaries. """
+        """Download and load the data for all the data dictionaries."""
         self.object_dict = self.create_id_item_dict(self.download_helper((self.task, "object")))
         self.query_dicts[TRAIN_SPLIT] = self.create_id_item_dict(
             self.download_helper((self.task, TRAIN_SPLIT, "queries"))
@@ -499,7 +499,7 @@ class MSMARCOScenario(Scenario):
         self.topk_dicts[VALID_SPLIT] = self.create_topk_dict(self.download_helper((self.task, self.track, "topk")))
 
     def filter_qids(self, split: str, check_topk: bool = True) -> List[int]:
-        """ Return the filtered Query IDs for TRAIN_SPLIT or VALID_SPLIT, as specified by the split parameter.
+        """Return the filtered Query IDs for TRAIN_SPLIT or VALID_SPLIT, as specified by the split parameter.
 
         All the query IDs included satisfy the following conditions:
             (1) Corresponding qrels dictionary exists and contains at least 1
@@ -523,12 +523,12 @@ class MSMARCOScenario(Scenario):
 
     @staticmethod
     def make_context(passage: str, question: str) -> str:
-        """ Make and return the instance context given the provided passage and query. """
+        """Make and return the instance context given the provided passage and query."""
         prompt = "Does the passage above answer the question?"
         return "\n".join([passage, f"Question: {question}", f"Prompt: {prompt}"])
 
     def make_instance(self, qid: int, pid: int, split: str) -> MultipleRequestInstance:
-        """ Create and return an instance made using the provided parameters. """
+        """Create and return an instance made using the provided parameters."""
         object_text = self.object_dict[pid]
         query_text = self.query_dicts[split][qid]
         context = self.make_context(object_text, query_text)
@@ -542,7 +542,7 @@ class MSMARCOScenario(Scenario):
         return instance
 
     def get_train_instances(self) -> List[MultipleRequestInstance]:
-        """ Create and return the instances for the training set.
+        """Create and return the instances for the training set.
 
         For a random set of self.num_train_queries in the training set:
             1. We create 1 correct instance, where the passage included
@@ -578,7 +578,7 @@ class MSMARCOScenario(Scenario):
         return instances
 
     def get_valid_instances(self) -> List[MultipleRequestInstance]:
-        """ Create and return the instances for the validation set.
+        """Create and return the instances for the validation set.
 
         For a random set of self.num_valid_queries in the validation set:
             1. If self.use_qrels_passages flag is set, we ensure that an
@@ -608,7 +608,7 @@ class MSMARCOScenario(Scenario):
         return instances
 
     def get_instances(self) -> List[Instance]:
-        """ Return the instances for this scenario.
+        """Return the instances for this scenario.
 
         Refer to the documentation of the following methods for details on how
         the instances are created:

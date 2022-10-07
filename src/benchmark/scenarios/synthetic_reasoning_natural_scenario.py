@@ -217,7 +217,7 @@ def generate_rules(
     max_rules: int = 5,
     specific_category: bool = False,
 ) -> List[LanguageRule]:
-    """ Generates a random set of rules about a subject as dictionaries,
+    """Generates a random set of rules about a subject as dictionaries,
     given a list of potential attributes and the category (e.g. person) of the subject (e.g. Alice)
 
     These rules are guaranteed to not contradict one another, and attributes implied by a single rule will
@@ -255,7 +255,7 @@ def generate_test(
     use_specific_attributes: bool,
     p_consequenceless=0.1,
 ) -> Tuple[LanguageFact, List[LanguageRule], LanguageFact]:
-    """ Generates a test case given a set of rules, i.e. a statement about the subject from which something
+    """Generates a test case given a set of rules, i.e. a statement about the subject from which something
     can be potentially deduced given the rules. We include an argument, p_consequenceless, to re-roll with
     some probability if the generated fact does not allow anything to be determined.
     """
@@ -294,7 +294,9 @@ def generate_test(
     )
 
     target_fact: LanguageFact = dataclasses.replace(
-        test_fact, specific_attributes=test_consequents, generic_attributes=test_consequents,
+        test_fact,
+        specific_attributes=test_consequents,
+        generic_attributes=test_consequents,
     )
 
     return test_fact, test_rules_used, target_fact
@@ -358,7 +360,9 @@ class SRNScenario(Scenario):
             else:
                 split = TEST_SPLIT
             instance = Instance(
-                input=question, references=[Reference(output=str(target_fact), tags=[CORRECT_TAG])], split=split,
+                input=question,
+                references=[Reference(output=str(target_fact), tags=[CORRECT_TAG])],
+                split=split,
             )
             instances.append(instance)
 

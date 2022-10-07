@@ -79,7 +79,9 @@ class SyntheticEfficiencyScenario(Scenario):
             with open(data_path, "r") as f:
                 prompt: str = f.read()
                 instance = Instance(
-                    input=prompt, references=[Reference(output="", tags=[CORRECT_TAG])], split=TEST_SPLIT,
+                    input=prompt,
+                    references=[Reference(output="", tags=[CORRECT_TAG])],
+                    split=TEST_SPLIT,
                 )
                 instances.append(instance)
 

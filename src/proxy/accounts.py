@@ -297,7 +297,10 @@ class Accounts:
         """Check if the given `api_key` can use `model_group`.  Throw exceptions if not."""
 
         def granular_check_can_use(
-            account: Account, model_group: str, granularity: str, compute_period: Callable[[], str],
+            account: Account,
+            model_group: str,
+            granularity: str,
+            compute_period: Callable[[], str],
         ):
             """Helper that checks the usage at a certain granularity (e.g., daily, monthly, total)."""
 
@@ -331,7 +334,10 @@ class Accounts:
         """
 
         def granular_use(
-            account: Account, model_group: str, granularity: str, compute_period: Callable[[], str],
+            account: Account,
+            model_group: str,
+            granularity: str,
+            compute_period: Callable[[], str],
         ):
             """Helper that checks the usage at a certain granularity (e.g., daily, monthly, total)."""
             # Even if usages don't exist, still keep track.

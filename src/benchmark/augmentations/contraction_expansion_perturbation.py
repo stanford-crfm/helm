@@ -110,7 +110,8 @@ class ContractionPerturbation(Perturbation):
         self.reverse_contraction_map: Dict[str, str] = {value: key for key, value in self.contraction_map.items()}
         # Only contract things followed by a space to avoid contract end of sentence
         self.reverse_contraction_pattern = re.compile(
-            r"\b({})\b ".format("|".join(self.reverse_contraction_map.keys())), flags=re.IGNORECASE | re.DOTALL,
+            r"\b({})\b ".format("|".join(self.reverse_contraction_map.keys())),
+            flags=re.IGNORECASE | re.DOTALL,
         )
 
     @property
@@ -145,7 +146,8 @@ class ExpansionPerturbation(Perturbation):
     def __init__(self):
         self.contraction_map: Dict[str, str] = CONTRACTION_MAP
         self.contraction_pattern = re.compile(
-            r"\b({})\b".format("|".join(self.contraction_map.keys())), flags=re.IGNORECASE | re.DOTALL,
+            r"\b({})\b".format("|".join(self.contraction_map.keys())),
+            flags=re.IGNORECASE | re.DOTALL,
         )
 
     @property
