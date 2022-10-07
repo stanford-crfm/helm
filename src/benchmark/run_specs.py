@@ -1103,7 +1103,7 @@ def get_narrativeqa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs(
-            ["exact_match", "quasi_exact_match", "f1_score", "rouge-l", "bleu_1", "bleu_4"]
+            ["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4"]
         )
         + get_generative_harms_metric_specs(),
         groups=["narrative_qa"],
@@ -1392,7 +1392,7 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
             elif big_bench_metric_name == "bleu":
                 metric_names.update(["bleu_1", "bleu_4"])
             elif big_bench_metric_name == "rouge":
-                metric_names.update(["rouge-1", "rouge-2", "rouge-l"])
+                metric_names.update(["rouge_1", "rouge_2", "rouge_l"])
             else:
                 hlog(f"Unhandled BIG-bench metric: {big_bench_metric_name}")
                 continue
