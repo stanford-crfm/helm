@@ -261,20 +261,20 @@ ALL_MODELS = [
     Model(
         group="together",
         creator_organization="Meta",
-        name="together/opt-66b",
-        display_name="OPT (66B)",
+        name="together/opt-175b",
+        display_name="OPT (175B)",
         # From https://arxiv.org/pdf/2205.01068.pdf
-        description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
+        description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
         "transformers fully and responsibly shared with interested researchers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
     ),
     Model(
         group="together",
         creator_organization="Meta",
-        name="together/opt-175b",
-        display_name="OPT (175B)",
+        name="together/opt-66b",
+        display_name="OPT (66B)",
         # From https://arxiv.org/pdf/2205.01068.pdf
-        description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
+        description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
         "transformers fully and responsibly shared with interested researchers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
     ),

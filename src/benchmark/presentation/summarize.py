@@ -173,7 +173,9 @@ class Summarizer:
             scenario_spec = run.run_spec.scenario_spec
             adapter_spec = get_method_adapter_spec(run.run_spec.adapter_spec, scenario_spec)
 
-            # organize the groups of the run by visibility in order to decide which groups we should add it to
+            # organize the groups of the run by visibility in order to decide which groups we should add it to,
+            # for each visibility value (ALL_GROUPS, NO_GROUPS, THIS_GROUP_ONLY) we collect the RunGroups with that
+            # visibility in a list
             group_names_by_visibility: Dict[str, List[str]] = defaultdict(list)
             for group_name in run.run_spec.groups:
                 if group_name not in self.schema.name_to_run_group:

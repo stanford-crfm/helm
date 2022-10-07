@@ -129,9 +129,12 @@ class RunGroup(Field):
 
     # Whether runs in this group should be displayed as part of other groups they belong to
     # If ALL_GROUPS (default), we include the run in all groups it belongs to
-    # If NO_GROUPS, we don't include the run in any of the groups
+    # If NO_GROUPS, don't include any of this group's runs
     # If THIS_GROUP_ONLY, we include the run in this specific group but not to others (this is useful for ablations
     # where we want to display a run for the ablation group but not for the more general groups it belongs to).
+    # Example: If a run has the groups ["imdb", "ablation_in_context"] and "imdb" has visibility ALL_GROUPS, while
+    # "ablation_in_context" has visiblity THIS_GROUP_ONLY, then this run is displayed under "ablation_in_context", but
+    # not under "imdb" (and thus is not aggregated with the canonical runs with groups ["imdb"].
     visibility: str = ALL_GROUPS
 
 
