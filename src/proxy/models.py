@@ -485,10 +485,6 @@ def get_models_by_organization(organization: str) -> List[str]:
     return [model.name for model in ALL_MODELS if model.organization == organization]
 
 
-def get_models_by_group(group: str) -> List[str]:
-    return [model.name for model in ALL_MODELS if model.group == group]
-
-
 def get_model_names_with_tag(tag: str) -> List[str]:
     """Get all the name of the models with tag `tag`."""
     return [model.name for model in ALL_MODELS if tag in model.tags]
