@@ -1,6 +1,8 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import json
-from typing import Dict, Callable, Optional, Tuple
+from typing import Any, Dict, Callable, Optional, Tuple
+from urllib.parse import urlparse
 from collections import defaultdict
 import threading
 
@@ -30,14 +32,66 @@ retry: Callable = get_retry_decorator(
 )
 
 
+class _KeyValueStore(ABC):
+    def __init__(self, path: str):
+        self._path = path
+
+    @property
+    def path(self):
+        return self._path
+
+    def __enter__(self) -> "_KeyValueStore":
+        pass
+
+    def __exit__(self, *exc_details) -> "_KeyValueStore":
+        pass
+
+    @abstractmethod
+    def get(self, key: str) -> Optional[Any]:
+        pass
+
+    @abstractmethod
+    def put(self, key: str, value: Any) -> None:
+        pass
+
+
+class _SqliteKeyValueStore(_KeyValueStore):
+    def __init__(self, path: str):
+        self._sqlite_dict = SqliteDict(path)
+        super().__init__(path)
+
+    def __enter__(self) -> "_SqliteKeyValueStore":
+        self._sqlite_dict.__enter__()
+        return self
+
+    def __exit__(self, *exc_details) -> "_SqliteKeyValueStore":
+        self._sqlite_dict.__exit__(*exc_details)
+        return self
+
+    def get(self, key: str) -> Optional[Any]:
+        result = self._sqlite_dict.get(key)
+        return result
+
+    def put(self, key: str, value: Any) -> None:
+        self._sqlite_dict[key] = value
+        self._sqlite_dict.commit()
+
+
+def _create_key_value_store(path: str) -> _KeyValueStore:
+    parse_result = urlparse(path)
+    if parse_result.scheme == "" or parse_result.scheme == "file":
+        return _SqliteKeyValueStore(parse_result.path)
+    else:
+        raise ValueError(f"Cache path contained unsupported scheme: {parse_result.scheme}")
+
+
 @retry
-def write_to_cache(cache: SqliteDict, key: str, response: Dict) -> bool:
+def write_to_key_value_store(key_value_store: _KeyValueStore, key: str, response: Dict) -> bool:
     """
-    Write to cache with retry. Returns boolean indicating whether the write was successful or not.
+    Write to the key value store with retry. Returns boolean indicating whether the write was successful or not.
     """
     try:
-        cache[key] = response
-        cache.commit()
+        key_value_store.put(key, response)
         return True
     except Exception as e:
         hlog(f"Error when writing to cache: {str(e)}")
@@ -103,25 +157,27 @@ class Cache(object):
     """
 
     def __init__(self, config: CacheConfig):
-        self.cache_path: str = config.cache_path
-        self.follower_cache_path: Optional[str] = config.follower_cache_path
+        self._key_value_store: _KeyValueStore = _create_key_value_store(config.cache_path)
+        self._follower_key_value_store: Optional[_KeyValueStore] = None
+        if config.follower_cache_path:
+            self._follower_key_value_store = _create_key_value_store(config.follower_cache_path)
 
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
-        cache_stats.increment_query(self.cache_path)
+        cache_stats.increment_query(self._key_value_store.path)
         key = request_to_key(request)
 
-        with SqliteDict(self.cache_path) as cache:
-            response = cache.get(key)
+        with self._key_value_store as key_value_store:
+            response = key_value_store.get(key)
             if response:
                 cached = True
             else:
                 cached = False
-                cache_stats.increment_compute(self.cache_path)
+                cache_stats.increment_compute(key_value_store.path)
                 # Compute and commit the request/response to SQLite
                 response = compute()
-                write_to_cache(cache, key, response)
-        if self.follower_cache_path:
-            with SqliteDict(self.follower_cache_path) as follower_cache:
-                write_to_cache(follower_cache, key, response)
+                write_to_key_value_store(key_value_store, key, response)
+        if self._follower_key_value_store is not None:
+            with self._follower_key_value_store as follower_key_value_store:
+                write_to_key_value_store(follower_key_value_store, key, response)
         return response, cached
