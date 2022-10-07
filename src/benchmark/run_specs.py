@@ -936,11 +936,7 @@ def get_copyright_spec(datatag="pilot", temperature=0.2, max_tokens=1024, num_ou
         class_name="benchmark.scenarios.copyright_scenario.CopyrightScenario", args=dict(datatag=datatag)
     )
 
-    adapter_spec = get_completion_adapter_spec(
-        temperature=temperature,
-        max_tokens=max_tokens,
-        num_outputs=num_outputs
-    )
+    adapter_spec = get_completion_adapter_spec(temperature=temperature, max_tokens=max_tokens, num_outputs=num_outputs)
 
     return RunSpec(
         name=f"copyright:datatag={datatag}",
