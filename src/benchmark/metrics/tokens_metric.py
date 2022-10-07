@@ -56,14 +56,20 @@ class TokensMetric(Metric):
         return "TokensMetric()"
 
     def evaluate(
-        self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int,
+        self,
+        scenario_state: ScenarioState,
+        metric_service: MetricService,
+        eval_cache_path: str,
+        parallelism: int,
     ) -> MetricResult:
         """
         Add up all the estimated number of tokens used for each request.
         """
         processor = Processor(token_cost_estimator=self.token_cost_estimator, metric_service=metric_service)
         results: List[List[Stat]] = parallel_map(
-            processor.process, scenario_state.request_states, parallelism=parallelism,
+            processor.process,
+            scenario_state.request_states,
+            parallelism=parallelism,
         )
 
         # Per-instance

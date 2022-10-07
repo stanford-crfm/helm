@@ -47,8 +47,15 @@ class HuggingFaceServer:
             del raw_request["stop_sequences"]
             raw_request["eos_token_id"] = stop_sequence_ids.input_ids[0][0]
 
+        # Strip out irrelevant parameters
+        relevant_raw_request = {
+            key: raw_request[key]
+            for key in raw_request
+            if key not in ["engine", "prompt", "echo_prompt", "stop_sequences"]
+        }
+
         # Use HuggingFace's `generate` method.
-        output = self.model.generate(**encoded_input, **raw_request)
+        output = self.model.generate(**encoded_input, **relevant_raw_request)
         sequences = output.sequences
         scores = output.scores
 

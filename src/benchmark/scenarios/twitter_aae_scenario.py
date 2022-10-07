@@ -38,7 +38,9 @@ class TwitterAAEScenario(Scenario):
         # Download the raw data
         data_path: str = os.path.join(self.output_path, f"{self.demographic}_tweets.csv")
         ensure_file_downloaded(
-            source_url=CODALAB_URI_TEMPLATE.format(demographic=self.demographic), target_path=data_path, unpack=False,
+            source_url=CODALAB_URI_TEMPLATE.format(demographic=self.demographic),
+            target_path=data_path,
+            unpack=False,
         )
 
         # Read all the instances

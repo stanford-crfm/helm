@@ -66,7 +66,7 @@ class Stat:
         self._update_mean()
         if self.mean is None:
             return None
-        pvariance = self.sum_squared / self.count - self.mean ** 2
+        pvariance = self.sum_squared / self.count - self.mean**2
         self.variance = 0 if pvariance < 0 else pvariance
 
     def _update_stddev(self):

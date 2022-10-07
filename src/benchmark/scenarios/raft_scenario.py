@@ -35,7 +35,8 @@ def get_raft_prompt_settings(subset: str, cache_dir=None):
     prompt_construction_settings_path = os.path.join(cache_dir, "prompt_construction_settings.json")
     ensure_directory_exists(cache_dir)
     ensure_file_downloaded(
-        source_url=PROMPT_SETTINGS_URL, target_path=prompt_construction_settings_path,
+        source_url=PROMPT_SETTINGS_URL,
+        target_path=prompt_construction_settings_path,
     )
     with open(prompt_construction_settings_path, "r") as f:
         field_ordering, instructions = map(json.loads, f.read().strip().split("\n"))

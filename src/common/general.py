@@ -159,7 +159,7 @@ def indent_lines(lines: List[str], count: int = 2) -> List[str]:
 
 
 def match_case(source_word: str, target_word: str) -> str:
-    """ Return a version of the target_word where the case matches the source_word. """
+    """Return a version of the target_word where the case matches the source_word."""
     # Check for all lower case source_word
     if all(letter.islower() for letter in source_word):
         return target_word.lower()

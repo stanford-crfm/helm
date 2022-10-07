@@ -163,7 +163,9 @@ class WIKIFactScenario(Scenario):
                     return Reference(output=answer.strip(), tags=[CORRECT_TAG])
 
                 instance = Instance(
-                    input=question, references=list(map(answer_to_reference, answers)), split=splits[split],
+                    input=question,
+                    references=list(map(answer_to_reference, answers)),
+                    split=splits[split],
                 )
                 instances.append(instance)
 
