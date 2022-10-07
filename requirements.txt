@@ -131,7 +131,6 @@ tqdm==4.64.1
 transformers==4.22.2
 typer==0.4.2
 types-pytz==2022.4.0.0
-typing==3.7.4.3
 typing-extensions==4.4.0
 uncertainty-calibration==0.1.2
 uritemplate==4.1.1

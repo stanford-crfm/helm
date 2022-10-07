@@ -4,7 +4,8 @@
 # versions:
 #   pip freeze | xargs pip uninstall -y
 #   pip install -r requirements-core.txt
-#   pip freeze > requirements.txt
+#   pip uninstall typing  # To get rid of error: https://stackoverflow.com/questions/55833509/attributeerror-type-object-callable-has-no-attribute-abc-registry
+#   pip freeze | grep -v en-core-web-sm > requirements.txt
 #
 # Check that everything works because the versions might be upgraded.
 
