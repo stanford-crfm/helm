@@ -614,6 +614,7 @@ class TokenizerRunExpander(ScenarioSpecRunExpander):
 
     name = "tokenizer"
     # Compute model-to-tokenizer mapping.
+    # TODO: Consider moving this to Model class.
     model_to_tokenizer_mapping = {
         "together/yalm": ["yandex/yalm"],
         "together/bloom": ["bigscience/bloom"],
