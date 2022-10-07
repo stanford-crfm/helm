@@ -521,6 +521,10 @@ class BasicMetric(Metric):
         denoised_runtime: Optional[float] = compute_estimated_time_from_prompt_size_and_num_output_tokens(
             request_state, self.inference_denoised_runtimes_dict, num_prompt_tokens, num_output_tokens
         )
+        # Denoised runtime for together models is just runtime, since together models are run in batch
+        # setting. We divide by batch_size to get approximate per-input runtime.
+        if adapter_spec.model.startswith("together"):
+            denoised_runtime = runtime / batch_size
 
         # Compute efficiency metrics for training.
         training_co2_cost: Optional[float]
