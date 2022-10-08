@@ -42,9 +42,9 @@ try:
 except LookupError:
     nltk.download("punkt")  # Required for rouge
 
-INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/inference_data/inference_idealized_runtimes.json"
-INFERENCE_DENOISED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/inference_data/inference_denoised_runtimes.json"
-TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/inference_data/training_efficiency.json"
+INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/efficiency_data/inference_idealized_runtimes.json"
+INFERENCE_DENOISED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/efficiency_data/inference_denoised_runtimes.json"
+TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/efficiency_data/training_efficiency.json"
 
 
 def compute_estimated_time_from_prompt_size_and_num_output_tokens(
@@ -233,7 +233,10 @@ def bleu_4(gold: str, pred: str) -> float:
 
 
 def extract_set_from_text(
-    set_str: str, set_start_str: str = " is ", set_separator: str = " and ", empty_set_str: str = "Nothing.",
+    set_str: str,
+    set_start_str: str = " is ",
+    set_separator: str = " and ",
+    empty_set_str: str = "Nothing.",
 ) -> Set[str]:
     """
     Given a string, extract the set of strings implied by that string.
@@ -391,7 +394,11 @@ class BasicMetric(Metric):
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
 
-        def compute_metrics_helper(name: MetricName, score_func: Callable, group: Optional[str] = None,) -> List[Stat]:
+        def compute_metrics_helper(
+            name: MetricName,
+            score_func: Callable,
+            group: Optional[str] = None,
+        ) -> List[Stat]:
             if name.name == "pass":  # Calculate pass@k for HumanEval from CodeScenario.
                 score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
                 code_golds = cast(List[CodeReference], golds)
@@ -427,9 +434,9 @@ class BasicMetric(Metric):
             "code_eval_acc": code_eval,
             "pass": code_eval,
             "f1_score": f1_score,
-            "rouge-1": get_rouge_function("rouge1"),
-            "rouge-2": get_rouge_function("rouge2"),
-            "rouge-l": get_rouge_function("rougeL"),
+            "rouge_1": get_rouge_function("rouge1"),
+            "rouge_2": get_rouge_function("rouge2"),
+            "rouge_l": get_rouge_function("rougeL"),
             "bleu_1": bleu_1,
             "bleu_4": bleu_4,
             "absolute_value_difference": absolute_value_difference,

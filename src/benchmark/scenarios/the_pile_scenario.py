@@ -78,7 +78,9 @@ class ThePileScenario(Scenario):
         # Download the raw data
         data_path = os.path.join(self.output_path, "data")
         ensure_file_downloaded(
-            source_url="https://mystic.the-eye.eu/public/AI/pile/test.jsonl.zst", target_path=data_path, unpack=True,
+            source_url="https://mystic.the-eye.eu/public/AI/pile/test.jsonl.zst",
+            target_path=data_path,
+            unpack=True,
         )
 
         subset_path = os.path.join(self.output_path, self.subset + ".csv")
@@ -94,7 +96,11 @@ class ThePileScenario(Scenario):
             csv.field_size_limit(sys.maxsize)
             reader = csv.reader(f)
             for row in reader:
-                instance = Instance(input=row[0], references=[], split=TEST_SPLIT,)
+                instance = Instance(
+                    input=row[0],
+                    references=[],
+                    split=TEST_SPLIT,
+                )
                 instances.append(instance)
 
         # Load the subsample indices

@@ -120,8 +120,8 @@ class BBQScenario(Scenario):
         # "The grandfather", "ans1": "The grandson", "ans2": "Can't be determined", "label": 2}
 
         for (idx, (loaded_line, category)) in enumerate(loaded_lines):
-            is_negative: bool = (loaded_line["question_polarity"] == "neg")
-            is_ambiguous: bool = (loaded_line["context_condition"] == "ambig")
+            is_negative: bool = loaded_line["question_polarity"] == "neg"
+            is_ambiguous: bool = loaded_line["context_condition"] == "ambig"
             context: str = loaded_line["context"]
             question: str = loaded_line["question"]
             ans0: str = loaded_line["ans0"]

@@ -204,7 +204,7 @@ def slimmed_scenario_state(scenario_state: ScenarioState) -> ScenarioState:
         return replace(sequence, tokens=sequence.tokens[:2])
 
     def process_request_result(request_result: RequestResult) -> RequestResult:
-        replace(request_result, completions=list(map(process_sequence, request_result.completions)))
+        return replace(request_result, completions=list(map(process_sequence, request_result.completions)))
 
     def process_request_state(request_state: RequestState) -> RequestState:
         if request_state.result is None:
@@ -324,14 +324,20 @@ class Processor:
                 for request_mode in request_modes:
                     if request_mode == "original":
                         prompt = self.construct_prompt(
-                            self.train_instances, eval_instance, include_output=True, reference_index=reference_index,
+                            self.train_instances,
+                            eval_instance,
+                            include_output=True,
+                            reference_index=reference_index,
                         )
                     elif request_mode == "calibration":
                         # For calibration purpose, we compute the logprobs of the reference
                         # without train instances and the input question.
                         eval_instance_calibration = replace(eval_instance, input="Answer:")
                         prompt = self.construct_prompt(
-                            [], eval_instance_calibration, include_output=True, reference_index=reference_index,
+                            [],
+                            eval_instance_calibration,
+                            include_output=True,
+                            reference_index=reference_index,
                         )
                     else:
                         raise ValueError(f"Unknown request mode: {request_mode}")
@@ -407,7 +413,8 @@ class Processor:
         # until we run out of train instances to remove.
         while len(train_instances) > 0:
             if self.window_service.fits_within_context_window(
-                text=prompt, expected_completion_token_length=self.adapter_spec.max_tokens,
+                text=prompt,
+                expected_completion_token_length=self.adapter_spec.max_tokens,
             ):
                 return Prompt(prompt, num_in_context_examples=len(train_instances), input_truncated=False)
 
@@ -549,8 +556,12 @@ class Adapter:
             # The random sampling includes instances monotonically.
             np.random.seed(0)
             selected_eval_instances = list(
-                np.random.choice(all_eval_instances, self.adapter_spec.max_eval_instances, replace=False)
-            )  # type: ignore
+                np.random.choice(
+                    all_eval_instances,  # type: ignore
+                    self.adapter_spec.max_eval_instances,
+                    replace=False,
+                )
+            )
         else:
             selected_eval_instances = all_eval_instances
 
@@ -620,7 +631,9 @@ class Adapter:
             train_trial_index=train_trial_index,
         )
         results: List[List[RequestState]] = parallel_map(
-            processor.process, eval_instances, parallelism=parallelism,
+            processor.process,
+            eval_instances,
+            parallelism=parallelism,
         )
 
         # Print out prompts for one instance (useful for debugging)
@@ -803,7 +816,7 @@ class Adapter:
         return prompt, num_conditioning_tokens
 
     def adapt_language_modeling(self, instances: List[Instance], parallelism: int) -> List[RequestState]:
-        """ Code is adapted from:
+        """Code is adapted from:
 
         https://github.com/EleutherAI/lm_perplexity/blob/main/lm_perplexity/utils.py
         """

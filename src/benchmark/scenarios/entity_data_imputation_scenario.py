@@ -113,7 +113,9 @@ class EntityDataImputationScenario(Scenario):
         data_path = Path(self.output_path) / "data" / self.dataset
         data_path.parent.mkdir(parents=True, exist_ok=True)
         ensure_file_downloaded(
-            source_url=self.datasets_paths[self.dataset], target_path=str(data_path), unpack=True,
+            source_url=self.datasets_paths[self.dataset],
+            target_path=str(data_path),
+            unpack=True,
         )
         # Read in structured table
         table = self.read_tables(data_path)

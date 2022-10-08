@@ -3,7 +3,7 @@ import requests
 from typing import List, Dict
 from urllib.parse import urljoin
 
-from common.cache import Cache
+from common.cache import Cache, CacheConfig
 from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
@@ -17,6 +17,7 @@ from .client import Client, wrap_request_time, truncate_sequence
 
 
 class CohereClient(Client):
+    ORGANIZATION: str = "cohere"
 
     # From "https://docs.cohere.ai/versioning-reference",
     # "this version [2021-11-08] introduces multiple generations, meaning that the generations endpoint will
@@ -38,9 +39,9 @@ class CohereClient(Client):
     def get_url(endpoint: str) -> str:
         return urljoin("https://api.cohere.ai", endpoint)
 
-    def __init__(self, api_key: str, cache_path: str):
+    def __init__(self, api_key: str, cache_config: CacheConfig):
         self.api_key: str = api_key
-        self.cache = Cache(cache_path)
+        self.cache = Cache(cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
         if request.embedding:

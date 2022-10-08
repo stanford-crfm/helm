@@ -21,7 +21,7 @@ def jsonl_generator(fname: str) -> Iterator[Dict[str, str]]:
 
 
 def batch_line_generator(fname, batch_size):
-    """ Returns generator for jsonl file with batched lines """
+    """Returns generator for jsonl file with batched lines"""
     res = []
     batch_id = 0
     for line in open(fname, "r"):
@@ -41,7 +41,7 @@ def batch_line_generator(fname, batch_size):
 
 
 def append_to_jsonl_file(data, file):
-    """ Appends json dictionary as new line to file """
+    """Appends json dictionary as new line to file"""
     with open(file, "a+") as out_file:
         for x in data:
             out_file.write(json.dumps(x, ensure_ascii=False) + "\n")
@@ -60,7 +60,7 @@ def get_batch_files(fdir: Path) -> List[str]:
 
 
 def create_dir(out_dir):
-    """ Creates new directory if it doesn't already exist """
+    """Creates new directory if it doesn't already exist"""
     if not os.path.exists(out_dir):
         print(f"Creating {out_dir}")
         os.makedirs(out_dir)

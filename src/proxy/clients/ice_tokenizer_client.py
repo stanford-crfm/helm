@@ -2,7 +2,7 @@ from dataclasses import asdict
 
 from icetk import icetk as tokenizer
 
-from common.cache import Cache
+from common.cache import Cache, CacheConfig
 from common.request import Request, RequestResult
 from common.tokenization_request import (
     TokenizationRequest,
@@ -20,8 +20,8 @@ class ICETokenizerClient(Client):
     Source: https://github.com/THUDM/icetk
     """
 
-    def __init__(self, cache_path: str):
-        self.cache = Cache(cache_path)
+    def __init__(self, cache_config: CacheConfig):
+        self.cache = Cache(cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
         raise NotImplementedError

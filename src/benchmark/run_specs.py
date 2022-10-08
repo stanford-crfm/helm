@@ -396,10 +396,12 @@ def get_copyright_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
             args={**args, "name": "longest_common_prefix_length"},
         ),
         MetricSpec(
-            class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_distance"},
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric",
+            args={**args, "name": "edit_distance"},
         ),
         MetricSpec(
-            class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_similarity"},
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric",
+            args={**args, "name": "edit_similarity"},
         ),
     ] + get_basic_metric_specs([])
 
@@ -411,7 +413,8 @@ def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricS
         MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationHumanEvalMetrics", args={**args}),
         MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "self_bleu"}),
         MetricSpec(
-            class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "monte_carlo_entropy"},
+            class_name="benchmark.disinformation_metrics.DisinformationMetric",
+            args={"name": "monte_carlo_entropy"},
         ),
     ] + get_basic_metric_specs([])
 
@@ -564,7 +567,8 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
 
 def get_wikifact_spec(k: str, subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.wikifact_scenario.WIKIFactScenario", args={"subject": subject},
+        class_name="benchmark.scenarios.wikifact_scenario.WIKIFactScenario",
+        args={"subject": subject},
     )
 
     adapter_spec = get_completion_adapter_spec(
@@ -588,7 +592,8 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
 
 def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset},
+        class_name="benchmark.scenarios.commonsense_scenario.CommonSenseScenario",
+        args={"dataset": dataset},
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -638,7 +643,8 @@ def get_news_qa_spec() -> RunSpec:
 
 def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.truthful_qa_scenario.TruthfulQAScenario", args={"task": task},
+        class_name="benchmark.scenarios.truthful_qa_scenario.TruthfulQAScenario",
+        args={"task": task},
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -656,7 +662,8 @@ def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -
 
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
+        class_name="benchmark.scenarios.twitter_aae_scenario.TwitterAAEScenario",
+        args={"demographic": demographic},
     )
 
     return RunSpec(
@@ -808,7 +815,10 @@ def get_numeracy_spec(
 
 
 def get_math_spec(
-    subject: str, level: str, use_official_examples: str = "False", use_chain_of_thought: str = "False",
+    subject: str,
+    level: str,
+    use_official_examples: str = "False",
+    use_chain_of_thought: str = "False",
 ) -> RunSpec:
     use_official_examples: bool = use_official_examples == "True"  # type: ignore
     use_chain_of_thought: bool = use_chain_of_thought == "True"  # type: ignore
@@ -931,12 +941,12 @@ def get_babi_qa_spec(task: str = "all") -> RunSpec:
     )
 
 
-def get_copyright_spec(datatag="pilot") -> RunSpec:
+def get_copyright_spec(datatag="pilot", temperature=0.2, max_tokens=1024, num_outputs=1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.copyright_scenario.CopyrightScenario", args=dict(datatag=datatag)
     )
 
-    adapter_spec = get_completion_adapter_spec(temperature=0.2, max_tokens=1024)
+    adapter_spec = get_completion_adapter_spec(temperature=temperature, max_tokens=max_tokens, num_outputs=num_outputs)
 
     return RunSpec(
         name=f"copyright:datatag={datatag}",
@@ -1095,7 +1105,9 @@ def get_narrativeqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.narrativeqa_scenario.NarrativeQAScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
-        input_noun="Passage", output_noun="Answer", max_tokens=100,  # max 30 words
+        input_noun="Passage",
+        output_noun="Answer",
+        max_tokens=100,  # max 30 words
     )
 
     return RunSpec(
@@ -1103,7 +1115,7 @@ def get_narrativeqa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs(
-            ["exact_match", "quasi_exact_match", "f1_score", "rouge-l", "bleu_1", "bleu_4"]
+            ["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4"]
         )
         + get_generative_harms_metric_specs(),
         groups=["narrative_qa"],
@@ -1111,18 +1123,23 @@ def get_narrativeqa_spec() -> RunSpec:
 
 
 def get_synthetic_efficiency_spec(
-    num_prompt_tokens: int, num_output_tokens: int, tokenizer: str, random: Optional[str] = None
+    num_prompt_tokens: Optional[int] = None,
+    num_output_tokens: Optional[int] = None,
+    tokenizer: Optional[str] = None,
+    random: Optional[str] = None,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
         args={"num_prompt_tokens": num_prompt_tokens, "num_instances": 10, "tokenizer": tokenizer},
     )
 
-    adapter_spec = get_completion_adapter_spec(max_tokens=num_output_tokens, random=random)
+    if num_output_tokens is not None:
+        adapter_spec = get_completion_adapter_spec(max_tokens=num_output_tokens, random=random)
+    else:
+        adapter_spec = get_completion_adapter_spec(random=random)
 
     return RunSpec(
-        name=f"synthetic_efficiency:tokenizer={tokenizer},num_prompt_tokens={num_prompt_tokens},"
-        f"num_output_tokens={num_output_tokens},random={random}",
+        name=f"synthetic_efficiency:random={random}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs(["exact_match"]) + get_generative_harms_metric_specs(),
@@ -1132,7 +1149,8 @@ def get_synthetic_efficiency_spec(
 
 def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.synthetic_reasoning_scenario.SyntheticReasoningScenario", args={"mode": mode},
+        class_name="benchmark.scenarios.synthetic_reasoning_scenario.SyntheticReasoningScenario",
+        args={"mode": mode},
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -1330,7 +1348,8 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Are Product A and Product B the same? Yes or No?", output_noun="Answer",
+        instructions="Are Product A and Product B the same? Yes or No?",
+        output_noun="Answer",
     )
 
     return RunSpec(
@@ -1392,7 +1411,7 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
             elif big_bench_metric_name == "bleu":
                 metric_names.update(["bleu_1", "bleu_4"])
             elif big_bench_metric_name == "rouge":
-                metric_names.update(["rouge-1", "rouge-2", "rouge-l"])
+                metric_names.update(["rouge_1", "rouge_2", "rouge_l"])
             else:
                 hlog(f"Unhandled BIG-bench metric: {big_bench_metric_name}")
                 continue

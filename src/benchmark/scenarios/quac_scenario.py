@@ -154,7 +154,9 @@ class QuACScenario(Scenario):
             prompt, answers = self.create_prompt(sample)
 
             instance = Instance(
-                input=prompt, references=[Reference(output=ans, tags=[CORRECT_TAG]) for ans in answers], split=split,
+                input=prompt,
+                references=[Reference(output=ans, tags=[CORRECT_TAG]) for ans in answers],
+                split=split,
             )
             split_instances.append(instance)
 

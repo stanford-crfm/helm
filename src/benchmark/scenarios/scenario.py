@@ -138,7 +138,7 @@ class Instance:
 
 @dataclass(frozen=True, eq=False)
 class MultipleRequestInstance(Instance):
-    """ Instance """
+    """Instance"""
 
     """ Unique ID for the request group this instance is a part of.  """
     group_id: Optional[str] = None
@@ -200,7 +200,7 @@ class Scenario(ABC):
         ]
 
         for i, instance in enumerate(instances):
-            output.append(f"instance {i} ({total} total) {format_split(instance.split)} {{")
+            output.append(f"instance {i} ({total} total) {format_split(str(instance.split))} {{")
             output.extend(indent_lines(instance.render_lines()))
             output.append("}")
         return output

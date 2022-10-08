@@ -3,7 +3,7 @@ import time
 import requests
 from dataclasses import replace
 
-from common.cache import Cache
+from common.cache import Cache, CacheConfig
 from common.request import Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
@@ -37,6 +37,8 @@ class TogetherClient(Client):
     checks if the request/result is cached. We return the result if it's in the cache. Otherwise, we return an error.
     """
 
+    ORGANIZATION: str = "together"
+
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
         # Uses the same parameter names as the OpenAI API: https://beta.openai.com/docs/api-reference/completions
@@ -53,8 +55,8 @@ class TogetherClient(Client):
             "top_p": request.top_p,
         }
 
-    def __init__(self, cache_path: str):
-        self.cache = Cache(cache_path)
+    def __init__(self, cache_config: CacheConfig):
+        self.cache = Cache(cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
         raw_request = TogetherClient.convert_to_raw_request(request)
