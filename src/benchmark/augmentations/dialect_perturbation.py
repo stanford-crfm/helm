@@ -12,7 +12,7 @@ from .perturbation import Perturbation
 
 
 class DialectPerturbation(Perturbation):
-    """ Individual fairness perturbation for dialect. """
+    """Individual fairness perturbation for dialect."""
 
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "dialect"
@@ -44,7 +44,7 @@ class DialectPerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        """ Description for the DialectPerturbation class. """
+        """Description for the DialectPerturbation class."""
 
         prob: float = 0.0
         source_class: str = ""
@@ -52,7 +52,7 @@ class DialectPerturbation(Perturbation):
         mapping_file_path: Optional[str] = None
 
     def __init__(self, prob: float, source_class: str, target_class: str, mapping_file_path: Optional[str] = None):
-        """ Initialize the dialect perturbation.
+        """Initialize the dialect perturbation.
 
         If mapping_file_path is not provided, (source_class, target_class)
         should be ("SAE", "AAVE").
@@ -97,7 +97,7 @@ class DialectPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        """ Return a perturbation description for this class. """
+        """Return a perturbation description for this class."""
         return DialectPerturbation.Description(
             name=self.name,
             fairness=True,
@@ -108,7 +108,7 @@ class DialectPerturbation(Perturbation):
         )
 
     def retrieve_mapping_dict(self) -> str:
-        """ Download the mapping dict for self.source_class to self.target_class, if available. """
+        """Download the mapping dict for self.source_class to self.target_class, if available."""
         mapping_tuple = (self.source_class, self.target_class)
         if mapping_tuple not in self.MAPPING_DICT_URIS:
             msg = f"""The mapping from the source class {self.source_class} to the
@@ -121,12 +121,12 @@ class DialectPerturbation(Perturbation):
         return target_file_path
 
     def load_mapping_dict(self) -> Dict[str, List[str]]:
-        """ Load the mapping dict. """
+        """Load the mapping dict."""
         with open(self.mapping_file_path, "r") as f:
             return json.load(f)
 
     def perturb(self, text: str, rng: Random) -> str:
-        """ Substitute the source dialect in text with the target dialect with probability self.prob. """
+        """Substitute the source dialect in text with the target dialect with probability self.prob."""
 
         # Substitution function
         def sub_func(m: re.Match):

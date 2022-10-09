@@ -91,7 +91,9 @@ class CivilCommentsScenario(Scenario):
     def get_instances(self) -> List[Instance]:
         data_path: str = os.path.join(self.output_path, "wilds_civil_comments.csv")
         ensure_file_downloaded(
-            source_url=CivilCommentsScenario.DATASET_DOWNLOAD_URL, target_path=data_path, unpack=False,
+            source_url=CivilCommentsScenario.DATASET_DOWNLOAD_URL,
+            target_path=data_path,
+            unpack=False,
         )
         df = pd.read_csv(data_path, index_col=0)
 

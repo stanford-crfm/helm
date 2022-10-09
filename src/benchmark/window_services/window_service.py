@@ -25,7 +25,7 @@ class WindowService(ABC):
     @property
     @abstractmethod
     def max_sequence_length(self) -> int:
-        """ The max length of the model input."""
+        """The max length of the model input."""
         pass
 
     @property

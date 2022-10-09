@@ -189,7 +189,11 @@ class NaturalQAScenario(Scenario):
                 long_answers.append(long_ans)
 
         return RawInstance(
-            title=title, document=document, question=question, long_answers=long_answers, short_answers=short_answers,
+            title=title,
+            document=document,
+            question=question,
+            long_answers=long_answers,
+            short_answers=short_answers,
         )
 
     def create_instance(self, instance: RawInstance, split: str) -> Instance:

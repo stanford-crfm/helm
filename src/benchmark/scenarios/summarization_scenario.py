@@ -8,23 +8,23 @@ from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, T
 
 class SummarizationScenario(Scenario):
     """
-        Scenario for single document text summarization.
-        Currently supports the following datasets:
-            1. XSum (https://arxiv.org/pdf/1808.08745.pdf)
-            2. CNN/DailyMail non-anonymized (https://arxiv.org/pdf/1704.04368.pdf)
+    Scenario for single document text summarization.
+    Currently supports the following datasets:
+        1. XSum (https://arxiv.org/pdf/1808.08745.pdf)
+        2. CNN/DailyMail non-anonymized (https://arxiv.org/pdf/1704.04368.pdf)
 
-        Task prompt structure:
-            Summarize the given document.
-            Document: {tok_1 ... tok_n}
-            Summary: {tok_1 ... tok_m}
+    Task prompt structure:
+        Summarize the given document.
+        Document: {tok_1 ... tok_n}
+        Summary: {tok_1 ... tok_m}
 
-        Example from XSum dataset:
-            Document: {Part of the Broad Road was closed to traffic on Sunday at about 18:00 GMT.
-                       The three adults and three children have been taken to Altnagelvin Hospital
-                       with non life-threatening injuries. The Fire Service, Northern Ireland Ambulance Service
-                       and police attended the crash. The Broad Road has since been reopened.}
-            Summary: {Three adults and three children have been taken to hospital following a crash involving
-                      a tractor and a campervan in Limavady, County Londonderry}
+    Example from XSum dataset:
+        Document: {Part of the Broad Road was closed to traffic on Sunday at about 18:00 GMT.
+                   The three adults and three children have been taken to Altnagelvin Hospital
+                   with non life-threatening injuries. The Fire Service, Northern Ireland Ambulance Service
+                   and police attended the crash. The Broad Road has since been reopened.}
+        Summary: {Three adults and three children have been taken to hospital following a crash involving
+                  a tractor and a campervan in Limavady, County Londonderry}
     """
 
     name = "summarization"
@@ -39,24 +39,24 @@ class SummarizationScenario(Scenario):
         doc_max_length: Optional[int] = None,
     ):
         """
-            Initializes summarization scenario.
-            Args:
-                dataset_name: String identifier for dataset. Currently
-                              supported options ["Xsum", "cnn-dm"].
-                sampling_min_length: Int indicating minimum length for training
-                                     documents. Training examples smaller than
-                                     sampling_min_length will be filtered out.
-                                     Useful for preventing the adapter from sampling
-                                     really small documents.
-                sampling_max_length: Int indicating maximum length for training
-                                     documents. Training examples larger than
-                                     sampling_max_length will be filtered out.
-                                     Useful for preventing the adapter from
-                                     sampling really large documents.
-                doc_max_length: Int indicating the maximum length to truncate
-                                documents. Documents in all splits will be
-                                truncated to doc_max_length tokens.
-                                NOTE: Currently uses whitespace tokenization.
+        Initializes summarization scenario.
+        Args:
+            dataset_name: String identifier for dataset. Currently
+                          supported options ["Xsum", "cnn-dm"].
+            sampling_min_length: Int indicating minimum length for training
+                                 documents. Training examples smaller than
+                                 sampling_min_length will be filtered out.
+                                 Useful for preventing the adapter from sampling
+                                 really small documents.
+            sampling_max_length: Int indicating maximum length for training
+                                 documents. Training examples larger than
+                                 sampling_max_length will be filtered out.
+                                 Useful for preventing the adapter from
+                                 sampling really large documents.
+            doc_max_length: Int indicating the maximum length to truncate
+                            documents. Documents in all splits will be
+                            truncated to doc_max_length tokens.
+                            NOTE: Currently uses whitespace tokenization.
         """
         if dataset_name not in ["xsum", "xsum-sampled", "cnn-dm"]:
             raise Exception(f"Uknown dataset_name: {dataset_name}")

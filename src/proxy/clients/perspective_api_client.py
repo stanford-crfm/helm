@@ -116,7 +116,9 @@ class PerspectiveAPIClient:
 
         except (BatchError, HttpLib2Error, HttpError) as e:
             return PerspectiveAPIRequestResult(
-                success=False, cached=False, error=f"Error was thrown when making a request to Perspective API: {e}",
+                success=False,
+                cached=False,
+                error=f"Error was thrown when making a request to Perspective API: {e}",
             )
 
         return PerspectiveAPIRequestResult(

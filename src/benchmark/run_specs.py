@@ -396,10 +396,12 @@ def get_copyright_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
             args={**args, "name": "longest_common_prefix_length"},
         ),
         MetricSpec(
-            class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_distance"},
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric",
+            args={**args, "name": "edit_distance"},
         ),
         MetricSpec(
-            class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_similarity"},
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric",
+            args={**args, "name": "edit_similarity"},
         ),
     ] + get_basic_metric_specs([])
 
@@ -411,7 +413,8 @@ def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricS
         MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationHumanEvalMetrics", args={**args}),
         MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "self_bleu"}),
         MetricSpec(
-            class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "monte_carlo_entropy"},
+            class_name="benchmark.disinformation_metrics.DisinformationMetric",
+            args={"name": "monte_carlo_entropy"},
         ),
     ] + get_basic_metric_specs([])
 
@@ -564,7 +567,8 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
 
 def get_wikifact_spec(k: str, subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.wikifact_scenario.WIKIFactScenario", args={"subject": subject},
+        class_name="benchmark.scenarios.wikifact_scenario.WIKIFactScenario",
+        args={"subject": subject},
     )
 
     adapter_spec = get_completion_adapter_spec(
@@ -588,7 +592,8 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
 
 def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset},
+        class_name="benchmark.scenarios.commonsense_scenario.CommonSenseScenario",
+        args={"dataset": dataset},
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -638,7 +643,8 @@ def get_news_qa_spec() -> RunSpec:
 
 def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.truthful_qa_scenario.TruthfulQAScenario", args={"task": task},
+        class_name="benchmark.scenarios.truthful_qa_scenario.TruthfulQAScenario",
+        args={"task": task},
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -656,7 +662,8 @@ def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -
 
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
+        class_name="benchmark.scenarios.twitter_aae_scenario.TwitterAAEScenario",
+        args={"demographic": demographic},
     )
 
     return RunSpec(
@@ -808,7 +815,10 @@ def get_numeracy_spec(
 
 
 def get_math_spec(
-    subject: str, level: str, use_official_examples: str = "False", use_chain_of_thought: str = "False",
+    subject: str,
+    level: str,
+    use_official_examples: str = "False",
+    use_chain_of_thought: str = "False",
 ) -> RunSpec:
     use_official_examples: bool = use_official_examples == "True"  # type: ignore
     use_chain_of_thought: bool = use_chain_of_thought == "True"  # type: ignore
@@ -1061,7 +1071,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_f1_metric_specs() + get_generative_harms_metric_specs(),
-        groups=["natural_qa", f"natural_qa_{mode}"],
+        groups=[f"natural_qa_{mode}"],
     )
 
 
@@ -1095,7 +1105,9 @@ def get_narrativeqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.narrativeqa_scenario.NarrativeQAScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
-        input_noun="Passage", output_noun="Answer", max_tokens=100,  # max 30 words
+        input_noun="Passage",
+        output_noun="Answer",
+        max_tokens=100,  # max 30 words
     )
 
     return RunSpec(
@@ -1137,7 +1149,8 @@ def get_synthetic_efficiency_spec(
 
 def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.synthetic_reasoning_scenario.SyntheticReasoningScenario", args={"mode": mode},
+        class_name="benchmark.scenarios.synthetic_reasoning_scenario.SyntheticReasoningScenario",
+        args={"mode": mode},
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -1335,7 +1348,8 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Are Product A and Product B the same? Yes or No?", output_noun="Answer",
+        instructions="Are Product A and Product B the same? Yes or No?",
+        output_noun="Answer",
     )
 
     return RunSpec(

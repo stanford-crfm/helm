@@ -88,7 +88,11 @@ class TestAdapter:
     def test_construct_language_modeling_prompt(self):
         model: str = "openai/davinci"
         adapter_spec = AdapterSpec(
-            method=ADAPT_LANGUAGE_MODELING, input_prefix="", model=model, output_prefix="", max_tokens=0,
+            method=ADAPT_LANGUAGE_MODELING,
+            input_prefix="",
+            model=model,
+            output_prefix="",
+            max_tokens=0,
         )
         adapter = Adapter(adapter_spec, self.tokenizer_service)
 
@@ -158,7 +162,11 @@ class TestAdapter:
     def test_fits_tokens_within_context_window(self):
         model: str = "openai/davinci"
         adapter_spec = AdapterSpec(
-            method=ADAPT_LANGUAGE_MODELING, input_prefix="", model=model, output_prefix="", max_tokens=0,
+            method=ADAPT_LANGUAGE_MODELING,
+            input_prefix="",
+            model=model,
+            output_prefix="",
+            max_tokens=0,
         )
         adapter = Adapter(adapter_spec, self.tokenizer_service)
 

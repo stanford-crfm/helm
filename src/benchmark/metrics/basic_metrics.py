@@ -233,7 +233,10 @@ def bleu_4(gold: str, pred: str) -> float:
 
 
 def extract_set_from_text(
-    set_str: str, set_start_str: str = " is ", set_separator: str = " and ", empty_set_str: str = "Nothing.",
+    set_str: str,
+    set_start_str: str = " is ",
+    set_separator: str = " and ",
+    empty_set_str: str = "Nothing.",
 ) -> Set[str]:
     """
     Given a string, extract the set of strings implied by that string.
@@ -391,7 +394,11 @@ class BasicMetric(Metric):
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
 
-        def compute_metrics_helper(name: MetricName, score_func: Callable, group: Optional[str] = None,) -> List[Stat]:
+        def compute_metrics_helper(
+            name: MetricName,
+            score_func: Callable,
+            group: Optional[str] = None,
+        ) -> List[Stat]:
             if name.name == "pass":  # Calculate pass@k for HumanEval from CodeScenario.
                 score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
                 code_golds = cast(List[CodeReference], golds)
@@ -521,6 +528,10 @@ class BasicMetric(Metric):
         denoised_runtime: Optional[float] = compute_estimated_time_from_prompt_size_and_num_output_tokens(
             request_state, self.inference_denoised_runtimes_dict, num_prompt_tokens, num_output_tokens
         )
+        # Denoised runtime for offline models is just runtime.
+        # We divide by batch_size to get approximate per-input runtime.
+        if request_state.result.batch_size is not None:
+            denoised_runtime = runtime / request_state.result.batch_size
 
         # Compute efficiency metrics for training.
         training_co2_cost: Optional[float]
