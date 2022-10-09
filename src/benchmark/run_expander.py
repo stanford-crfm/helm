@@ -200,7 +200,7 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
     name = "num_outputs"
     values_dict = {
         "default": [1],
-        "copyright_sweep": [1, 10, 100],
+        "copyright_sweep": [1, 10],
     }
 
 
