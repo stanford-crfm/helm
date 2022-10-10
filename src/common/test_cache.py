@@ -45,11 +45,11 @@ class TestCache(unittest.TestCase):
         num_items = 10  # TODO: Inrcrease to 100
         num_iterations = 5  # TODO: Inrcrease to 20
         requests = [{"name": "request%d" % i} for i in range(num_items)]
-        responses = ["response%d" % i for i in range(num_items)]
+        responses = [{"response": "response%d" % i} for i in range(num_items)]
         for iteration in range(num_iterations):
             for i in range(num_items):
-                response, cached = cache.get(requests[i], lambda: {responses[i]})
-                assert response == {responses[i]}
+                response, cached = cache.get(requests[i], lambda: responses[i])
+                assert response == responses[i]
                 assert cached == (iteration > 0)
         assert cache_stats.num_queries[self.cache_path] == num_items * num_iterations
         assert cache_stats.num_computes[self.cache_path] == num_items
@@ -58,12 +58,12 @@ class TestCache(unittest.TestCase):
         num_items = 10  # TODO: Inrcrease to 100
         num_caches = 5  # TODO: Inrcrease to 20
         requests = [{"name": "request%d" % i} for i in range(num_items)]
-        responses = ["response%d" % i for i in range(num_items)]
+        responses = [{"response": "response%d" % i} for i in range(num_items)]
         for cache_index in range(num_caches):
             cache = Cache(CacheConfig(self.cache_path))
             for i in range(num_items):
-                response, cached = cache.get(requests[i], lambda: {responses[i]})
-                assert response == {responses[i]}
+                response, cached = cache.get(requests[i], lambda: responses[i])
+                assert response == responses[i]
                 assert cached == (cache_index > 0)
         assert cache_stats.num_queries[self.cache_path] == num_items * num_caches
         assert cache_stats.num_computes[self.cache_path] == num_items
@@ -73,12 +73,12 @@ class TestCache(unittest.TestCase):
         num_items = 10  # TODO: Inrcrease to 100
         num_threads = 5  # TODO: Inrcrease to 20
         requests = [{"name": "request%d" % i} for i in range(num_items)]
-        responses = ["response%d" % i for i in range(num_items)]
+        responses = [{"response": "response%d" % i} for i in range(num_items)]
 
         def run():
             for i in range(num_items):
-                response, _ = cache.get(requests[i], lambda: {responses[i]})
-                assert response == {responses[i]}
+                response, _ = cache.get(requests[i], lambda: responses[i])
+                assert response == responses[i]
 
         threads = [threading.Thread(target=run) for _ in range(num_threads)]
         for thread in threads:

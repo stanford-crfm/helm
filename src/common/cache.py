@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import json
 from typing import Dict, Callable, Optional, Tuple
@@ -5,7 +6,6 @@ from collections import defaultdict
 import threading
 
 from sqlitedict import SqliteDict
-
 from common.general import hlog, htrack
 from proxy.retry import get_retry_decorator
 
@@ -30,14 +30,69 @@ retry: Callable = get_retry_decorator(
 )
 
 
+class _KeyValueStore(ABC):
+    def __init__(self, path: str):
+        self._path = path
+
+    @property
+    def path(self):
+        return self._path
+
+    def __enter__(self) -> "_KeyValueStore":
+        pass
+
+    def __exit__(self, exc_type, exc_value, traceback) -> "_KeyValueStore":
+        pass
+
+    @abstractmethod
+    def get(self, key: Dict) -> Optional[Dict]:
+        pass
+
+    @abstractmethod
+    def put(self, key: Dict, value: Dict) -> None:
+        pass
+
+
+class _SqliteKeyValueStore(_KeyValueStore):
+    def __init__(self, path: str):
+        self._sqlite_dict = SqliteDict(path)
+        super().__init__(path)
+
+    def __enter__(self) -> "_SqliteKeyValueStore":
+        self._sqlite_dict.__enter__()
+        super().__enter__()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> "_SqliteKeyValueStore":
+        super().__exit__(exc_type, exc_value, traceback)
+        self._sqlite_dict.__exit__(exc_type, exc_value, traceback)
+        return self
+
+    def get(self, key: Dict) -> Optional[Dict]:
+        key_string = request_to_key(key)
+        result = self._sqlite_dict.get(key_string)
+        if result is not None:
+            assert isinstance(result, dict)
+            return result
+        return None
+
+    def put(self, key: Dict, value: Dict) -> None:
+        key_string = request_to_key(key)
+        self._sqlite_dict[key_string] = value
+        self._sqlite_dict.commit()
+
+
+def _create_key_value_store(path: str) -> _KeyValueStore:
+    return _SqliteKeyValueStore(path)
+
+
 @retry
-def write_to_cache(cache: SqliteDict, key: str, response: Dict) -> bool:
+def write_to_key_value_store(key_value_store: _KeyValueStore, key: Dict, response: Dict) -> bool:
     """
-    Write to cache with retry. Returns boolean indicating whether the write was successful or not.
+    Write to the key value store with retry. Returns boolean indicating whether the write was successful or not.
     """
     try:
-        cache[key] = response
-        cache.commit()
+        key_value_store.put(key, response)
         return True
     except Exception as e:
         hlog(f"Error when writing to cache: {str(e)}")
@@ -109,10 +164,10 @@ class Cache(object):
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
         cache_stats.increment_query(self.cache_path)
-        key = request_to_key(request)
 
-        with SqliteDict(self.cache_path) as cache:
-            response = cache.get(key)
+        # TODO: Initialize key_value_store in constructor
+        with _create_key_value_store(self.cache_path) as key_value_store:
+            response = key_value_store.get(request)
             if response:
                 cached = True
             else:
@@ -120,8 +175,10 @@ class Cache(object):
                 cache_stats.increment_compute(self.cache_path)
                 # Compute and commit the request/response to SQLite
                 response = compute()
-                write_to_cache(cache, key, response)
-        if self.follower_cache_path:
-            with SqliteDict(self.follower_cache_path) as follower_cache:
-                write_to_cache(follower_cache, key, response)
+
+                write_to_key_value_store(key_value_store, request, response)
+        if self.follower_cache_path is not None:
+            # TODO: Initialize follower_key_value_store in constructor
+            with _create_key_value_store(self.follower_cache_path) as follower_key_value_store:
+                write_to_key_value_store(follower_key_value_store, request, response)
         return response, cached
