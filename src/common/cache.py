@@ -8,6 +8,8 @@ import threading
 from sqlitedict import SqliteDict
 from common.general import hlog, htrack
 from proxy.retry import get_retry_decorator
+from bson.son import SON
+from pymongo import MongoClient
 
 
 def request_to_key(request: Dict) -> str:
@@ -31,6 +33,8 @@ retry: Callable = get_retry_decorator(
 
 
 class _KeyValueStore(ABC):
+    """Key value store that persists writes."""
+
     def __init__(self, path: str):
         self._path = path
 
@@ -54,6 +58,8 @@ class _KeyValueStore(ABC):
 
 
 class _SqliteKeyValueStore(_KeyValueStore):
+    """Key value store backed by a SQLite file."""
+
     def __init__(self, path: str):
         self._sqlite_dict = SqliteDict(path)
         super().__init__(path)
@@ -82,7 +88,61 @@ class _SqliteKeyValueStore(_KeyValueStore):
         self._sqlite_dict.commit()
 
 
+@dataclass(frozen=True)
+class MongoConfig:
+    """Key value store backed by a MongoDB database."""
+
+    # URI of the MongoDB database.
+    # See: https://www.mongodb.com/docs/manual/reference/connection-string/
+    uri: str
+
+    # Name of the MongoDB database to use.
+    database_name: str
+
+    # Name of the MongoDB collection to use.
+    collection_name: str
+
+
+class _MongoKeyValueStore(_KeyValueStore):
+    """Key value store backed by a MongoDB database."""
+
+    _REQUEST_KEY = "request"
+    _RESPONSE_KEY = "response"
+
+    def __init__(self, config: MongoConfig):
+        # TODO: Create client in __enter__ and clean up client in __exit__
+        self._mongodb_client: MongoClient = MongoClient(config.uri)
+        self._database = self._mongodb_client.get_database(config.database_name)
+        self._collection = self._database.get_collection(config.collection_name)
+        super().__init__(f"{self._mongodb_client}/f{self._database}/f{self._collection}")
+
+    def __enter__(self) -> "_MongoKeyValueStore":
+        super().__enter__()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> "_MongoKeyValueStore":
+        super().__exit__(exc_type, exc_value, traceback)
+        return self
+
+    def _canonicalize_key(self, key: Dict) -> SON:
+        serialized = json.dumps(key, sort_keys=True)
+        return json.loads(serialized, object_pairs_hook=SON)
+
+    def get(self, key: Dict) -> Optional[Dict]:
+        query = {self._REQUEST_KEY: self._canonicalize_key(key)}
+        request = self._collection.find_one(query)
+        if request is not None:
+            return request[self._RESPONSE_KEY]
+        return None
+
+    def put(self, key: Dict, value: Dict) -> None:
+        document = SON([(self._REQUEST_KEY, self._canonicalize_key(key)), (self._RESPONSE_KEY, value)])
+        self._collection.insert_one(document)
+
+
 def _create_key_value_store(path: str) -> _KeyValueStore:
+    """Create a key value store from the given configuration."""
+    # TODO: Support creating _MongoKeyValueStore
     return _SqliteKeyValueStore(path)
 
 
