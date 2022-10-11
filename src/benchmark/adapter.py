@@ -241,6 +241,11 @@ class Prompt:
     # (input_truncated == True implies num_in_context_examples == 0)
     truncated_input: Optional[str] = None
 
+    # TODO: Remove when we ensure that the changes this PR introduce don't
+    #       affect the cache.
+    # Whether the input it truncated.
+    input_truncated: bool = False
+
     @property
     def text(self) -> str:
         # Text for the prompt, might be truncated
@@ -249,10 +254,13 @@ class Prompt:
         non_truncated_input = self.instance_prefix.join(blocks)
         return self.truncated_input if self.truncated_input else non_truncated_input
 
-    @property
-    def input_truncated(self) -> bool:
-        # Whether the input is truncated
-        return self.truncated_input is not None
+    # TODO: Uncomment when we ensure that the changes this PR introduce don't
+    #       affect the cache. This flag is a nicer definition of input
+    #       truncated because it will be set to true if the text is altered.
+    # @property
+    # def input_truncated(self) -> bool:
+    #     # Whether the input is truncated
+    #     return self.truncated_input is not None
 
     @property
     def num_train_instances(self) -> int:
@@ -528,7 +536,16 @@ class Processor:
 
         # If removing the in-context example is still not enough, we simply truncate the prompt.
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
+        # TODO: ERROR: Input truncated flag is ill defined. See class Prompt for
+        #       suggestions.
+        # TODO: Truncate from right changes the passed text even if it fits
+        #       within the specified number of tokens due to tokenization/
+        #       de-tokenization. Ideally, we should have an if condition here
+        #       that checks whether truncation is required. We can't add it now
+        #       since it messes up the cache.
+        original_length = len(prompt.text)
         prompt.truncated_input = self.window_service.truncate_from_right(prompt.text, self.adapter_spec.max_tokens)
+        prompt.input_truncated = len(prompt.text) < original_length
         return prompt
 
     def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
