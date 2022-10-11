@@ -71,7 +71,7 @@ class AutoClient(Client):
                 client = AnthropicClient(api_key=self.credentials["anthropicApiKey"], cache_config=cache_config)
             elif organization == "microsoft":
                 org_id = self.credentials.get("microsoftOrgId", None)
-                lock_file_path = os.path.join(self.cache_path, "microsoft.lock")
+                lock_file_path = os.path.join(self.cache_path, f"{organization}.lock")
                 client = MicrosoftClient(
                     api_key=self.credentials["microsoftApiKey"],
                     lock_file_path=lock_file_path,
