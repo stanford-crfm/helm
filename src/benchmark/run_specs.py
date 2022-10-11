@@ -1,5 +1,4 @@
 import itertools
-import os
 from typing import Any, Callable, List, Dict, Optional, Set
 
 from common.hierarchical_logger import hlog, htrack
@@ -11,6 +10,9 @@ from .adapter import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_GENERATION,
+    ADAPT_RANKING_BINARY,
+    RANKING_CORRECT_LABEL,
+    RANKING_WRONG_LABEL,
 )
 from .metrics.metric import MetricSpec
 from .run_expander import RUN_EXPANDERS, StopRunExpander
@@ -111,6 +113,61 @@ def get_multiple_choice_adapter_spec(
         return get_multiple_choice_separate_adapter_spec(method, empty_input)
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
+
+
+def get_ranking_binary_adapter_spec(
+    instructions: str = "",
+    document_noun: str = "Passage",
+    query_noun: str = "Query",
+    output_prefix: str = "Does the passage answer the query?",
+    output_noun: str = "Answer",
+    max_train_instances: int = 4,
+    num_outputs: int = 1,
+    num_train_trials: int = 1,
+    temperature: float = 0.0,
+    **kwargs,
+) -> AdapterSpec:
+    """
+    [instructions]
+
+    [object_noun]: [object]
+    [query_noun]: [query]
+    [prompt_noun]: [prompt_content]
+    [output_noun]: [output]
+
+    ...
+
+    [object_noun]: [object]
+    [query_noun]: [query]
+    [prompt_noun]: [prompt_content]
+    [output_noun]: [output]
+
+    [object_noun]: [object]
+    [query_noun]: [query]
+    [prompt_noun]: [prompt_content]
+    [output_noun]: [output]
+    """
+    msg = (
+        "There must be an even number of in-context examples to ensure that"
+        "an equal number of positive and negative examples are included."
+    )
+    assert max_train_instances % 2 == 0, msg
+    max_train_instances = int(max_train_instances / 2)
+
+    return AdapterSpec(
+        method=ADAPT_RANKING_BINARY,
+        instructions=format_instructions(instructions),
+        input_prefix=f"{query_noun}: ",
+        input_suffix="\n",
+        reference_prefix=f"{document_noun}: ",
+        reference_suffix="\n",
+        output_prefix=f"{output_prefix}\n{output_noun}: ",
+        max_train_instances=max_train_instances,
+        num_outputs=num_outputs,
+        num_train_trials=num_train_trials,
+        temperature=temperature,
+        **kwargs,
+    )
 
 
 def get_completion_adapter_spec(
@@ -298,32 +355,24 @@ def get_bbq_metric_specs() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={})] + get_exact_match_metric_specs()
 
 
-def get_msmarco_metric_specs(task: str, track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:
-    measure_names = MSMARCOScenario.MEASURE_NAMES[(task, track)]
-    mode = MSMARCOScenario.BINARY_LOGPROB_MODE
-    correct_output, wrong_output = MSMARCOScenario.CORRECT_OUTPUT, MSMARCOScenario.WRONG_OUTPUT
-    multi_value_qrels = set(MSMARCOScenario.GOLD_RELATIONS[(task, track)]) != {1}
+def get_msmarco_metric_specs(track: str, rank: Optional[int] = None) -> List[MetricSpec]:
+    # Names of the measures we want to compute.
+    measure_names = MSMARCOScenario.MEASURE_NAMES[track]
+    multiple_relevance_values = set(MSMARCOScenario.GOLD_RELATIONS[track]) != {1}
 
     return [
         MetricSpec(
-            class_name="benchmark.multiple_request_metrics.InformationRetrievalMetric",
+            class_name="benchmark.ranking_metrics.RankingMetric",
             args={
+                "method": ADAPT_RANKING_BINARY,
                 "measure_names": measure_names,
-                "qrels_path": qrels_path,
-                "mode": mode,
-                "correct_output": correct_output,
-                "wrong_output": wrong_output,
-                "topk": topk,
-                "multi_value_qrels": multi_value_qrels,
+                "correct_output": RANKING_CORRECT_LABEL,
+                "wrong_output": RANKING_WRONG_LABEL,
+                "rank": rank,
+                "multiple_relevance_values": multiple_relevance_values,
             },
         ),
-        MetricSpec(
-            class_name="benchmark.multiple_request_metrics.MultipleRequestMetrics", args={"use_basic_metrics": True}
-        ),
-        # The line below is commented out because efficiency metrics are taking a long time to compute
-        # @TODO Uncomment the line below when we have the efficiency computations for all the models
-        # MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
-    ]
+    ] + get_basic_metric_specs(names=[])
 
 
 def get_toxicity_metric_specs() -> List[MetricSpec]:
@@ -458,53 +507,27 @@ def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Run
     )
 
 
-def get_msmarco_spec(
-    task,
-    track,
-    use_qrels_passages="False",
-    use_topk_passages="False",
-    valid_topk=None,
-    num_valid_queries=None,
-    num_train_queries="1000",
-) -> RunSpec:
-
+def get_msmarco_spec(track: str, valid_topk: Optional[int] = None, num_valid_queries: int = 200) -> RunSpec:
     # Get ScenarioSpec
-    use_qrels_passages = use_qrels_passages.lower() == "true"
-    use_topk_passages = use_topk_passages.lower() == "true"
-    valid_topk = int(valid_topk) if valid_topk else valid_topk
-    num_valid_queries = int(num_valid_queries) if num_valid_queries else num_valid_queries
-    num_train_queries = int(num_train_queries)
+    valid_topk = None if valid_topk is None else int(valid_topk)
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.msmarco_scenario.MSMARCOScenario",
-        args={
-            "task": task,
-            "track": track,
-            "use_qrels_passages": use_qrels_passages,
-            "use_topk_passages": use_topk_passages,
-            "valid_topk": valid_topk,
-            "num_valid_queries": num_valid_queries,
-            "num_train_queries": num_train_queries,
-        },
+        args={"track": track, "valid_topk": valid_topk, "num_valid_queries": num_valid_queries},
     )
 
-    adapter_spec = get_generation_adapter_spec(
-        input_noun="Passage",
-        output_noun="Answer",
-        max_train_instances=4,  # Needs to be even to ensure equal number of correct and wrong examples
-    )
+    # Get AdapterSpec
+    max_eval_instances = MSMARCOScenario.MAX_NUM_QUERIES[track]
+    adapter_spec = get_ranking_binary_adapter_spec(stop_sequences=["\n"], max_eval_instances=max_eval_instances)
 
-    # Create metrics
-    qrels_path: str = os.path.join("benchmark_output", "scenarios", "msmarco", "data", f"{task}_{track}_qrels.tsv")
+    # Get the list of MetricSpecs
+    metric_specs = get_msmarco_metric_specs(track=track, rank=valid_topk)
 
     # Return RunSpec
     return RunSpec(
-        name=f"msmarco:task={task},track={track},use_qrels_passages={use_qrels_passages},"
-        f"use_topk_passages={use_topk_passages},valid_topk={valid_topk},num_valid_queries={num_valid_queries},"
-        f"num_train_queries={num_train_queries}",
+        name=f"msmarco:track={track},valid_topk={valid_topk},num_valid_queries={num_valid_queries}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_msmarco_metric_specs(task, track, qrels_path, topk=valid_topk)
-        + get_generative_harms_metric_specs(),
+        metric_specs=metric_specs,
         groups=[f"msmarco_{track}"],
     )
 
