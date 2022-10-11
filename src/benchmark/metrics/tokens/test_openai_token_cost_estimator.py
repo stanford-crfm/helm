@@ -43,7 +43,10 @@ class TestOpenAITokenCostEstimator:
 
     def test_estimate_tokens_with_echo_prompt(self):
         request = Request(
-            prompt=TestOpenAITokenCostEstimator.TEST_PROMPT, echo_prompt=True, num_completions=1, max_tokens=0,
+            prompt=TestOpenAITokenCostEstimator.TEST_PROMPT,
+            echo_prompt=True,
+            num_completions=1,
+            max_tokens=0,
         )
 
         # Prompt + Prompt (echoed) = 51 + 51

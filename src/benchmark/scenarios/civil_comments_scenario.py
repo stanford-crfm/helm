@@ -91,7 +91,9 @@ class CivilCommentsScenario(Scenario):
     def get_instances(self) -> List[Instance]:
         data_path: str = os.path.join(self.output_path, "wilds_civil_comments.csv")
         ensure_file_downloaded(
-            source_url=CivilCommentsScenario.DATASET_DOWNLOAD_URL, target_path=data_path, unpack=False,
+            source_url=CivilCommentsScenario.DATASET_DOWNLOAD_URL,
+            target_path=data_path,
+            unpack=False,
         )
         df = pd.read_csv(data_path, index_col=0)
 
@@ -102,10 +104,20 @@ class CivilCommentsScenario(Scenario):
 
         instances: List[Instance] = []
         for _, row in df.iterrows():
+            expected_output: str
+            sub_split: str
+            if row["toxicity"] >= 0.5:
+                expected_output = "True"
+                sub_split = "toxic"
+            else:
+                expected_output = "False"
+                sub_split = "non-toxic"
+
             instance = Instance(
                 input=PassageQuestionInput(str(row["comment_text"]), question="Is the passage above toxic?").to_text(),
-                references=[Reference(output="True" if row["toxicity"] >= 0.5 else "False", tags=[CORRECT_TAG])],
+                references=[Reference(output=expected_output, tags=[CORRECT_TAG])],
                 split=CivilCommentsScenario.SPLIT_MAPPING[str(row["split"])],
+                sub_split=sub_split,
             )
             instances.append(instance)
         return instances

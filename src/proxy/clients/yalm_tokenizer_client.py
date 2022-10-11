@@ -1,6 +1,6 @@
 from dataclasses import asdict
 
-from common.cache import Cache
+from common.cache import Cache, CacheConfig
 from common.request import Request, RequestResult
 from common.tokenization_request import (
     TokenizationRequest,
@@ -19,8 +19,8 @@ class YaLMTokenizerClient(Client):
     Source: https://github.com/yandex/YaLM-100B
     """
 
-    def __init__(self, cache_path: str):
-        self.cache = Cache(cache_path)
+    def __init__(self, cache_config: CacheConfig):
+        self.cache = Cache(cache_config)
         self.tokenizer = YaLMTokenizer()
 
     def make_request(self, request: Request) -> RequestResult:

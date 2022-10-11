@@ -195,7 +195,11 @@ class SyntheticReasoningScenario(Scenario):
                 split = VALID_SPLIT
             else:
                 split = TEST_SPLIT
-            instance = Instance(input=src, references=[Reference(output=str(tgt), tags=[CORRECT_TAG])], split=split,)
+            instance = Instance(
+                input=src,
+                references=[Reference(output=str(tgt), tags=[CORRECT_TAG])],
+                split=split,
+            )
             instances.append(instance)
 
         return instances

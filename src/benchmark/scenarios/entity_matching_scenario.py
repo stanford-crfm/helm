@@ -129,7 +129,11 @@ class EntityMatchingScenario(Scenario):
                 input = f"Product A is {resA}. Product B is {resB}. Are A and B the same?"
                 label = "Yes" if pair["label"] else "No"
 
-                instance = Instance(input=input, references=[Reference(output=label, tags=[CORRECT_TAG])], split=split,)
+                instance = Instance(
+                    input=input,
+                    references=[Reference(output=label, tags=[CORRECT_TAG])],
+                    split=split,
+                )
 
                 instances.append(instance)
 

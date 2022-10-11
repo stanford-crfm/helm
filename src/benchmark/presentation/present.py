@@ -116,7 +116,8 @@ class AllRunner:
         # could get overwritten many times.  Ideally, we would make the file
         # name specific to models and scenario groups.
         write(
-            os.path.join(suite_dir, "run_specs.json"), json.dumps(list(map(dataclasses.asdict, run_specs)), indent=2),
+            os.path.join(suite_dir, "run_specs.json"),
+            json.dumps(list(map(dataclasses.asdict, run_specs)), indent=2),
         )
 
         if self.skip_instances:

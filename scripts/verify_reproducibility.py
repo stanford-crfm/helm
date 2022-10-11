@@ -111,7 +111,11 @@ def verify_reproducibility(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-m", "--max-eval-instances", type=int, default=1000, help="Maximum number of eval instances.",
+        "-m",
+        "--max-eval-instances",
+        type=int,
+        default=1000,
+        help="Maximum number of eval instances.",
     )
     parser.add_argument(
         "-c",

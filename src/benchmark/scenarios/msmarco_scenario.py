@@ -19,7 +19,7 @@ from .scenario import (
 
 
 class MSMARCOScenario(Scenario):
-    """ Scenario implementing MS MARCO challenge tasks.
+    """Scenario implementing MS MARCO challenge tasks.
 
     I. Overview
 
@@ -287,7 +287,7 @@ class MSMARCOScenario(Scenario):
     MAX_VALID_TOPK: int = 1000
 
     def __init__(self, track: str, valid_topk: Optional[int] = None, num_valid_queries: int = 200):
-        """ The constructor for the MSMARCOScenario.
+        """The constructor for the MSMARCOScenario.
 
         Args:
             track: Name of the passage track. Currently, available values are
@@ -331,7 +331,7 @@ class MSMARCOScenario(Scenario):
         self.qids: Dict[str, List[int]] = {TRAIN_SPLIT: [], VALID_SPLIT: []}
 
     def download_file(self, urlstring: str, target_file_name: str) -> str:
-        """ Download the resource at urlstring and return the absolute path.
+        """Download the resource at urlstring and return the absolute path.
 
         Downloaded file is saved to a directory named 'data' in
         self.output_path.
@@ -343,7 +343,7 @@ class MSMARCOScenario(Scenario):
         return target_file_path
 
     def download_helper(self, data_key: Tuple[str, str]) -> str:
-        """ Call download_file for self.DATA_URIS[data_key] and return the file path to the downloaded file. """
+        """Call download_file for self.DATA_URIS[data_key] and return the file path to the downloaded file."""
         # Download the file
         urlstring = self.DATA_URIS[data_key]
         target_file_name = f"{'_'.join(data_key)}.tsv"
@@ -362,7 +362,7 @@ class MSMARCOScenario(Scenario):
 
     @staticmethod
     def create_id_item_dict(file_path: str, delimiter: str = "\t") -> Dict[int, str]:
-        """ Read the provided file as an id to item dictionary.
+        """Read the provided file as an id to item dictionary.
 
         Given a file with rows in the following format:
             <id>   <item>
@@ -381,7 +381,7 @@ class MSMARCOScenario(Scenario):
 
     @staticmethod
     def create_qrels_dict(file_path: str, delimiter: str = "\t") -> Dict[int, Dict[int, int]]:
-        """ Read the provided file as a qrels dictionary.
+        """Read the provided file as a qrels dictionary.
 
         Given a file with rows in the following format:
             <qid>   0   <docid>   <rel>
@@ -404,7 +404,7 @@ class MSMARCOScenario(Scenario):
 
     @staticmethod
     def create_topk_dict(file_path: str, delimiter: str = "\t") -> Dict[int, Dict[int, int]]:
-        """ Read the provided file as a topk dictionary.
+        """Read the provided file as a topk dictionary.
 
         Given a file with rows in the following format:
             <qid>   <docid>   <rank>
@@ -426,7 +426,7 @@ class MSMARCOScenario(Scenario):
         return topk_dict
 
     def prepare_data(self):
-        """ Download and load all the data. """
+        """Download and load all the data. """
         # Passages
         self.document_dict = self.create_id_item_dict(self.download_helper(("documents",)))
         self.docids = list(self.document_dict.keys())
@@ -444,7 +444,7 @@ class MSMARCOScenario(Scenario):
         self.qids[VALID_SPLIT] = list(self.query_dicts[VALID_SPLIT].keys())
 
     def shuffle_ids(self):
-        """ Shuffle Document and Query ID lists.
+        """Shuffle Document and Query ID lists.
 
         This is the only place we perform shuffling throughout the scenario,
         which allows us to make use of caching even if the scenario is run with
@@ -456,7 +456,7 @@ class MSMARCOScenario(Scenario):
         self.random.shuffle(self.qids[VALID_SPLIT])
 
     def get_split_variables(self, split):
-        """ Return variables storing data for the given split. """
+        """Return variables storing data for the given split."""
         qids = self.qids[split]
         query_dict = self.query_dicts[split]
         qrels_dict = self.qrels_dicts[split]
@@ -466,7 +466,7 @@ class MSMARCOScenario(Scenario):
         return qids, query_dict, qrels_dict, topk, topk_dict, gold_relations
 
     def filter_qids(self, split: str, check_topk: bool = True) -> List[int]:
-        """ Return filtered Query IDs for the provided split.
+        """Return filtered Query IDs for the provided split.
 
         We filter each query based on the following conditions:
             (1) A query must have a corresponding query relations (qrels)
@@ -503,7 +503,7 @@ class MSMARCOScenario(Scenario):
         return filtered_qids
 
     def create_reference(self, docid: int, gold: bool, rel: Optional[int], rank: Optional[int]) -> Reference:
-        """ Create and return a reference made using the provided parameters. """
+        """Create and return a reference made using the provided parameters."""
         # Create tags
         tags = []
         # docid is extra information not needed on the metric sode - we are
@@ -525,7 +525,7 @@ class MSMARCOScenario(Scenario):
         return reference
 
     def create_instance(self, qid: int, split: str, docids: List[int]) -> Instance:
-        """ Create and return an instance made using the provided parameters. """
+        """Create and return an instance made using the provided parameters."""
         # Retrieve variables for the split.
         _, query_dict, qrels_dict, _, topk_dict, gold_relations = self.get_split_variables(split)
 
@@ -544,7 +544,7 @@ class MSMARCOScenario(Scenario):
         return instance
 
     def get_train_instance(self, qid: int) -> Instance:
-        """ Create and return a train instance for the given qid.
+        """Create and return a train instance for the given qid.
 
         References are selected as follows:
             1. We select 1 correct reference, where the documents included
@@ -596,7 +596,7 @@ class MSMARCOScenario(Scenario):
         return instance
 
     def get_valid_instance(self, qid) -> Instance:
-        """ Create and return the validation instance for the given qid.
+        """Create and return the validation instance for the given qid.
 
         By default, we create a reference for each Document ID for which there
         is a judgment with respect to the provided Query ID.
@@ -627,20 +627,20 @@ class MSMARCOScenario(Scenario):
         return instance
 
     def get_train_instances(self) -> List[Instance]:
-        """ Get training instances. """
+        """Get training instances."""
         qids = self.filter_qids(TRAIN_SPLIT, check_topk=True)
         instances = [self.get_train_instance(qid) for qid in qids[: self.num_train_queries]]
         return instances
 
     def get_valid_instances(self) -> List[Instance]:
-        """ Get validation instances. """
+        """Get validation instances."""
         qids = self.filter_qids(VALID_SPLIT, check_topk=self.valid_topk is not None)
         qids = qids[: self.num_valid_queries]
         instances = [self.get_valid_instance(qid) for qid in qids]
         return instances
 
     def get_instances(self) -> List[Instance]:
-        """ Get instances for this scenario.
+        """Get instances for this scenario.
 
         Refer to the documentation of the following methods for details on how
         the instances are created:

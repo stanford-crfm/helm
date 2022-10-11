@@ -109,7 +109,9 @@ def _compute_wedging_human_eval(
 
 
 def _compute_reiteration_human_eval(
-    adapter_spec: AdapterSpec, request_state: RequestState, eval_cache_path: str,
+    adapter_spec: AdapterSpec,
+    request_state: RequestState,
+    eval_cache_path: str,
 ) -> List[Stat]:
     """
     Reads the file with the human evaluation results for the narrative reiteration scenario, finds the annotations
@@ -231,15 +233,24 @@ if __name__ == "__main__":
         print(separator)
 
     run_test(
-        "Self-BLEU with self", [test_1, test_1], lambda score: np.isclose(score, 100), _self_bleu,
+        "Self-BLEU with self",
+        [test_1, test_1],
+        lambda score: np.isclose(score, 100),
+        _self_bleu,
     )
 
     run_test(
-        "Self-BLEU with other", [test_1, test_2], lambda score: 0 < score < 100, _self_bleu,
+        "Self-BLEU with other",
+        [test_1, test_2],
+        lambda score: 0 < score < 100,
+        _self_bleu,
     )
 
     run_test(
-        "Self-BLEU with one sequence", [test_1], lambda score: score == 0, _self_bleu,
+        "Self-BLEU with one sequence",
+        [test_1],
+        lambda score: score == 0,
+        _self_bleu,
     )
 
     run_test(
@@ -265,7 +276,10 @@ if __name__ == "__main__":
     )
 
     run_test(
-        "MC Entropy with one sequence", [test_1], lambda score: score == -test_1.logprob, _monte_carlo_entropy,
+        "MC Entropy with one sequence",
+        [test_1],
+        lambda score: score == -test_1.logprob,
+        _monte_carlo_entropy,
     )
 
     run_test(
@@ -276,5 +290,8 @@ if __name__ == "__main__":
     )
 
     run_test(
-        "MC Entropy with sequence with no tokens", [test_empty], lambda score: np.isnan(score), _monte_carlo_entropy,
+        "MC Entropy with sequence with no tokens",
+        [test_empty],
+        lambda score: np.isnan(score),
+        _monte_carlo_entropy,
     )
