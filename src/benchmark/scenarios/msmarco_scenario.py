@@ -426,7 +426,7 @@ class MSMARCOScenario(Scenario):
         return topk_dict
 
     def prepare_data(self):
-        """Download and load all the data. """
+        """Download and load all the data."""
         # Passages
         self.document_dict = self.create_id_item_dict(self.download_helper(("documents",)))
         self.docids = list(self.document_dict.keys())

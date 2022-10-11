@@ -367,14 +367,20 @@ class Processor:
             for request_mode in request_modes:
                 if request_mode == "original":
                     prompt = self.construct_prompt(
-                        self.train_instances, eval_instance, include_output=True, reference_index=reference_index,
+                        self.train_instances,
+                        eval_instance,
+                        include_output=True,
+                        reference_index=reference_index,
                     )
                 elif request_mode == "calibration":
                     # For calibration purpose, we compute the logprobs of the reference
                     # without train instances and the input question.
                     eval_instance_calibration = replace(eval_instance, input="Answer:")
                     prompt = self.construct_prompt(
-                        [], eval_instance_calibration, include_output=True, reference_index=reference_index,
+                        [],
+                        eval_instance_calibration,
+                        include_output=True,
+                        reference_index=reference_index,
                     )
                 else:
                     raise ValueError(f"Unknown request mode: {request_mode}")
@@ -403,7 +409,7 @@ class Processor:
         return request_states
 
     def adapt_ranking_binary(self, eval_instance: Instance) -> List[RequestState]:
-        """ Adaptation strategy for ranking tasks, reduced to binary ranking.
+        """Adaptation strategy for ranking tasks, reduced to binary ranking.
 
         For tasks that require ranking, such as information retrieval tasks,
         an instance corresponds to a single query for which documents will be
@@ -515,7 +521,7 @@ class Processor:
         return prompt
 
     def adjust_prompt_length(self, prompt: Prompt) -> Prompt:
-        """ Adjust the length of the prompt to ensure that it fits in the context window. """
+        """Adjust the length of the prompt to ensure that it fits in the context window."""
         # Following what was done for MMLU (https://arxiv.org/abs/2009.03300) to handle prompts that
         # exceed the max context length (https://github.com/hendrycks/test/blob/master/evaluate.py#L58),
         # we remove train instances one by one until it fits within the context window or
@@ -523,7 +529,8 @@ class Processor:
         orig_train_instances_count: int = prompt.num_train_instances
         while prompt.num_train_instances > 0:
             if self.window_service.fits_within_context_window(
-                text=prompt.text, expected_completion_token_length=self.adapter_spec.max_tokens,
+                text=prompt.text,
+                expected_completion_token_length=self.adapter_spec.max_tokens,
             ):
                 removed_train_instances_count: int = orig_train_instances_count - prompt.num_train_instances
                 if removed_train_instances_count > 0:
@@ -584,7 +591,7 @@ class Processor:
     def construct_example_prompt_ranking_binary(
         self, instance: Instance, include_output: bool, reference_index: Optional[int]
     ) -> str:
-        """ Return an example prompt for binary ranking tasks.
+        """Return an example prompt for binary ranking tasks.
 
         In the binary ranking prompt specification, the model's task is to
         output RANKING_CORRECT_LABEL if the document included in the prompt
@@ -797,7 +804,9 @@ class Adapter:
             train_trial_index=train_trial_index,
         )
         results: List[List[RequestState]] = parallel_map(
-            processor.process, eval_instances, parallelism=parallelism,
+            processor.process,
+            eval_instances,
+            parallelism=parallelism,
         )
 
         # Print out prompts for one instance (useful for debugging)

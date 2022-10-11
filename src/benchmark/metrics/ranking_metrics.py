@@ -15,7 +15,7 @@ from ..scenarios.scenario import unpack_tag
 
 @dataclass
 class RankingObject:
-    """ Simple dataclass used to store features used for ranking objects. """
+    """Simple dataclass used to store features used for ranking objects."""
 
     """ Reference index corresponding to this object. """
     reference_index: int
@@ -53,7 +53,7 @@ class RankingObject:
 
 
 class RankingMetric(Metric):
-    """ Ranking metric. """
+    """Ranking metric."""
 
     """ Methods supported by this metric.
 
@@ -156,7 +156,7 @@ class RankingMetric(Metric):
 
     @staticmethod
     def parse_measure_name(measure_name: str) -> Tuple[str, Optional[int]]:
-        """ Parse measure name of the form 'measure_name' or 'measure_name.k' into its parts. """
+        """Parse measure name of the form 'measure_name' or 'measure_name.k' into its parts."""
         measure_delimiter = "."
         if measure_delimiter in measure_name:
             measure_name, k = measure_name.split(measure_delimiter)
@@ -164,14 +164,14 @@ class RankingMetric(Metric):
         return measure_name, None
 
     def validate_measure_name(self, measure_name: str) -> bool:
-        """ Check if the provided measure_name is a valid measure name. """
+        """Check if the provided measure_name is a valid measure name."""
         measure_name, k = self.parse_measure_name(measure_name)
         if measure_name in self.SUPPORTED_MEASURES + list(pytrec_eval.supported_measures):
             return True
         return False
 
     def measure_to_metric_name(self, measure_name: str) -> str:
-        """ Convert the measure name to an easier to read metric name. """
+        """Convert the measure name to an easier to read metric name."""
         MEASURE_TO_METRIC_NAME = {"ndcg_cut": "NDCG", "recip_rank": "RR"}
         parsed_measure_name, k = self.parse_measure_name(measure_name)
         metric_name_str = MEASURE_TO_METRIC_NAME.get(parsed_measure_name, parsed_measure_name.capitalize())
@@ -180,7 +180,7 @@ class RankingMetric(Metric):
 
     @staticmethod
     def standardize(text: str) -> str:
-        """ Strip and lower the given text. """
+        """Strip and lower the given text."""
         return text.strip().lower()
 
     @staticmethod
@@ -192,7 +192,7 @@ class RankingMetric(Metric):
         return f"q{qid}"
 
     def get_run_relevances(self, ranking_objs: List[RankingObject], rank_limit: Optional[int] = None) -> Dict[str, int]:
-        """ Get the relevance dictionary for the run.
+        """Get the relevance dictionary for the run.
 
         The run relevance dictionary contains the relevance values of each
         document as determined by the model. It is compared to the true
@@ -210,11 +210,11 @@ class RankingMetric(Metric):
         return {self.get_query_string(r.reference_index): r.model_relevance for r in ranking_objs}  # type: ignore
 
     def get_true_relevances(self, ranking_objects: List[RankingObject]) -> Dict[str, int]:
-        """ Get the true relevance dictionary. """
+        """Get the true relevance dictionary."""
         return {self.get_query_string(obj.reference_index): obj.relevance for obj in ranking_objects if obj.relevance}
 
     def object_to_score_binary_ranking(self, ranking_object: RankingObject) -> Tuple[int, float]:
-        """ Score the given ranking object. """
+        """Score the given ranking object."""
         # Input validation
         assert ranking_object.model_output is not None
         token = self.standardize(ranking_object.model_output)
@@ -230,7 +230,7 @@ class RankingMetric(Metric):
             return 0, -1 * logprob
 
     def compute_model_relevance_binary_ranking(self, ranking_objects: List[RankingObject]) -> List[RankingObject]:
-        """ Populate the model_relevance field for the ranking objects. """
+        """Populate the model_relevance field for the ranking objects."""
         # Sort the ranking objects
         ranking_objects_sorted = sorted(ranking_objects, key=self.object_to_score_binary_ranking, reverse=True)
 
@@ -241,7 +241,7 @@ class RankingMetric(Metric):
         return ranking_objects_sorted
 
     def get_model_output_logprob(self, result: RequestResult) -> Tuple[str, float]:
-        """ Get model's completion and the relevant logprob from a request state. """
+        """Get model's completion and the relevant logprob from a request state."""
         model_output, model_logprob = self.MISSING_RESULT_TEXT, 0.0
         if result and result.completions:
             # TODO: Decide how to pick between multiple completions.
@@ -251,7 +251,7 @@ class RankingMetric(Metric):
         return model_output, model_logprob
 
     def create_ranking_object(self, request_state: RequestState) -> RankingObject:
-        """ Create a RankingObject from a RequestState. """
+        """Create a RankingObject from a RequestState."""
         # Get reference index
         assert request_state.reference_index is not None
         reference_index = request_state.reference_index
@@ -283,7 +283,7 @@ class RankingMetric(Metric):
 
     @staticmethod
     def limit_relevance_dict(relevance_dict: Dict[str, int], k: int) -> Dict[str, int]:
-        """ Return a dictionary containing the k pairs with the highest relevance values. """
+        """Return a dictionary containing the k pairs with the highest relevance values."""
         # Sort the dictionary by the relevance values and limit the number of elements.
         relevance_dict = {k: v for k, v in sorted(relevance_dict.items(), key=lambda item: item[1], reverse=True)}
         limit = min(len(relevance_dict), k)  # Limit the dictionary
@@ -293,7 +293,7 @@ class RankingMetric(Metric):
     def compute_measure(
         self, true_relevances: Dict[str, int], run_relevances: Dict[str, int], evaluator_measure_name: str
     ) -> float:
-        """ Compute measure_name on the true and run relevance values provided.
+        """Compute measure_name on the true and run relevance values provided.
 
         Return a dictionary mapping metric names to the computed values.
         """
@@ -323,7 +323,7 @@ class RankingMetric(Metric):
     def compute_measures(
         self, true_relevances: Dict[str, int], run_relevances: Dict[str, int], metric_name_suffix=""
     ) -> List[Stat]:
-        """ Compute self.measures on the true and run relevances provided. """
+        """Compute self.measures on the true and run relevances provided."""
         # Loop through the measure names and populate the stats list.
         stats: List[Stat] = []
         for evaluator_measure_name in self.measure_names:
@@ -340,7 +340,7 @@ class RankingMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        """ Assign a score to the ranking of the references of an instance. """
+        """Assign a score to the ranking of the references of an instance."""
         # Extract relevant data from the request states.
         ranking_objects: List[RankingObject] = [self.create_ranking_object(rs) for rs in reference_request_states]
 

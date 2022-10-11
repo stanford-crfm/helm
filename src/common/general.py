@@ -131,7 +131,7 @@ def asdict_without_nones(obj: Any) -> Dict[str, Any]:
 
 
 def binarize_dict(d: Dict[str, int]) -> Dict[str, int]:
-    """ Binarize the dict by setting the values that are 1 to 0.
+    """Binarize the dict by setting the values that are 1 to 0.
 
     Values greater than 1 stay untouched.
     """

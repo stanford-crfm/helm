@@ -28,7 +28,7 @@ CORRECT_TAG: str = "correct"
 
 
 def make_relevance_tag(relevance: int) -> str:
-    """ Make a relevance tag.
+    """Make a relevance tag.
 
     Relevance value is an integer bigger than or equal to 0.
     """
@@ -36,7 +36,7 @@ def make_relevance_tag(relevance: int) -> str:
 
 
 def make_rank_tag(rank: int) -> str:
-    """ Make a rank tag.
+    """Make a rank tag.
 
     Rank value is an integer bigger than or equal to 1.
     """
@@ -44,7 +44,7 @@ def make_rank_tag(rank: int) -> str:
 
 
 def unpack_tag(tag: str) -> Tuple[str, str]:
-    """ Unpack the value from the tag. """
+    """Unpack the value from the tag."""
     key, value = tag.split("=")
     return key, value
 

@@ -61,11 +61,15 @@ def verify_reproducibility(
     priority: int,
     models: Optional[List[str]],
 ):
-    output_path1: str = OUTPUT_PATH_TEMPLATE.format(suite=source_suite) if source_suite else do_dry_run(
-        DRYRUN_SUITE1, conf_path, max_eval_instances, priority, models
+    output_path1: str = (
+        OUTPUT_PATH_TEMPLATE.format(suite=source_suite)
+        if source_suite
+        else do_dry_run(DRYRUN_SUITE1, conf_path, max_eval_instances, priority, models)
     )
-    output_path2: str = OUTPUT_PATH_TEMPLATE.format(suite=target_suite) if target_suite else do_dry_run(
-        DRYRUN_SUITE2, conf_path, max_eval_instances, priority, models
+    output_path2: str = (
+        OUTPUT_PATH_TEMPLATE.format(suite=target_suite)
+        if target_suite
+        else do_dry_run(DRYRUN_SUITE2, conf_path, max_eval_instances, priority, models)
     )
 
     hlog(f"Comparing results in {output_path1} vs. {output_path2}")
@@ -134,10 +138,18 @@ if __name__ == "__main__":
         "--priority", type=int, default=2, help="Run RunSpecs with priority less than or equal to this number."
     )
     parser.add_argument(
-        "-s", "--source-suite", type=str, default=None, help="Source suite that will be compared.",
+        "-s",
+        "--source-suite",
+        type=str,
+        default=None,
+        help="Source suite that will be compared.",
     )
     parser.add_argument(
-        "-t", "--target-suite", type=str, default=None, help="Target suite that will be compared.",
+        "-t",
+        "--target-suite",
+        type=str,
+        default=None,
+        help="Target suite that will be compared.",
     )
     args = parser.parse_args()
 
