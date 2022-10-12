@@ -25,8 +25,6 @@ class MicrosoftClient(Client):
     all tokens have been generated."
     """
 
-    ORGANIZATION: str = "microsoft"
-
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
         return {
