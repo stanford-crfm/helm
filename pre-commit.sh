@@ -26,7 +26,7 @@ black --check --diff src scripts || (
   echo "The code formatting check failed. To fix the formatting, run:"
   echo ""
   echo ""
-  echo -e "\tblack src"
+  echo -e "\tblack src scripts"
   echo ""
   echo ""
   exit 1
