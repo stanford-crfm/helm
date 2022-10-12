@@ -217,14 +217,14 @@ class RankingMetric(Metric):
         """Score the given ranking object."""
         # Input validation
         assert ranking_object.model_output is not None
-        token = self.standardize(ranking_object.model_output)
+        model_output = self.standardize(ranking_object.model_output)
         assert ranking_object.model_logprob is not None
         logprob = ranking_object.model_logprob
 
         # Score
-        if token == self.standardize(self.correct_output):
+        if model_output == self.standardize(self.correct_output):
             return 2, logprob
-        elif token == self.standardize(self.wrong_output):
+        elif model_output == self.standardize(self.wrong_output):
             return 1, -1 * logprob
         else:
             return 0, -1 * logprob
@@ -245,9 +245,8 @@ class RankingMetric(Metric):
         model_output, model_logprob = self.MISSING_RESULT_TEXT, 0.0
         if result and result.completions:
             # TODO: Decide how to pick between multiple completions.
-            if result.completions[0].tokens:
-                token = result.completions[0].tokens[0]
-                model_output, model_logprob = token.text, token.logprob
+            model_output = result.completions[0].text  # Model completion, which might contain whitespace
+            model_logprob = result.completions[0].logprob
         return model_output, model_logprob
 
     def create_ranking_object(self, request_state: RequestState) -> RankingObject:
@@ -362,6 +361,12 @@ class RankingMetric(Metric):
             stats += stats_with_rank_limit
 
         # Add reference ranks as stats
-        stats += [Stat(MetricName(f"ref{r.reference_index}_rank")).add(r.model_relevance) for r in ranking_objects]
+        # - Ranking objects with higher model relevance should have a better
+        #   ranking, which is why we are setting the ranking of an object to be
+        #   len(ranking_objects) minus its relevance.
+        stats += [
+            Stat(MetricName(f"ref{r.reference_index}_rank")).add(len(ranking_objects) - r.model_relevance)
+            for r in ranking_objects
+        ]
 
         return stats
