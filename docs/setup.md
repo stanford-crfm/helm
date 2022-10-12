@@ -1,5 +1,30 @@
 # Setup
 
+## Set up the Python virtual environment
+
+First, create a Python virtual environment with Python version >= 3.8 and activate it.
+
+Using [Virtualenv](https://docs.python.org/3/library/venv.html#creating-virtual-environments):
+
+    # Create a virtual environment.
+    # Only run this the first time.
+    python3 -m pip install virtualenv
+    python3 -m virtualenv -p python3 venv
+
+    # Activate the virtual environment.
+    source venv/bin/activate
+
+Using [Anaconda](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html):
+
+    # Create a virtual environment.
+    # Only run this the first time.
+    conda create -n crfm-benchmarking python=3.8 pip
+
+    # Activate the virtual environment.
+    conda activate crfm-benchmarking
+
+## Install dependencies
+
 To install any dependencies (creates into `venv`):
 
     ./pre-commit.sh
@@ -13,11 +38,9 @@ Optionally, install git commit hooks:
 
     pre-commit install
 
-## Tests
+## Run tests
 
-First activate the virtualenv:
-
-    source venv/bin/activate
+First, follow the earlier instructions to activate the virtual environment.
 
 To run all unit tests:
 
