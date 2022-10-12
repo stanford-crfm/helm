@@ -17,7 +17,7 @@ from .statistic import Stat
 
 
 HUMAN_EVAL_CODALAB_LINK: str = (
-    "https://worksheets.codalab.org/rest/bundles/0xdfdada26ef514fa79402749f1256c7b3/contents/blob/{file_name}"
+    "https://worksheets.codalab.org/rest/bundles/0xd8c577022f584f27aead3f00aa771da5/contents/blob/{file_name}"
 )
 REITERATION_HUMAN_EVAL_FILE: str = "disinformation_reiteration_human_eval.json"
 WEDGING_HUMAN_EVAL_FILE: str = "disinformation_wedging_human_eval.json"
