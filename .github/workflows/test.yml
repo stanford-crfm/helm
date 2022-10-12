@@ -44,7 +44,9 @@ jobs:
           restore-keys: |
             pip-
       # Installs dependencies and performs static code checks
-      - run: ./pre-commit-venv.sh
+      # Check for which script to run for backwards compatibility with old branches
+      # TODO: Switch this to just run pre-commit-venv.sh after 2022-11-01
+      - run:  if [ -f pre-commit-venv.sh ]; then ./pre-commit-venv.sh; else ./pre-commit.sh; fi
       - name: Run tests
         # Skip ICE tokenizer tests. GHA is having trouble downloading ice_text.model.
         run: venv/bin/pytest --ignore src/benchmark/window_services/test_ice_window_service.py --ignore src/proxy/clients/test_ice_tokenizer_client.py
