@@ -125,6 +125,7 @@ def get_ranking_binary_adapter_spec(
     num_outputs: int = 1,
     num_train_trials: int = 1,
     temperature: float = 0.0,
+    max_tokens: int = 5,
     **kwargs,
 ) -> AdapterSpec:
     """
@@ -166,6 +167,7 @@ def get_ranking_binary_adapter_spec(
         num_outputs=num_outputs,
         num_train_trials=num_train_trials,
         temperature=temperature,
+        max_tokens=max_tokens,
         **kwargs,
     )
 
