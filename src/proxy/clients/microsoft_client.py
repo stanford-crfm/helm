@@ -1,7 +1,6 @@
 from typing import List, Optional, Dict
 
 from filelock import FileLock
-import os
 from openai.api_resources.abstract import engine_api_resource
 import openai as turing
 
@@ -26,8 +25,6 @@ class MicrosoftClient(Client):
     all tokens have been generated."
     """
 
-    ORGANIZATION: str = "microsoft"
-
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
         return {
@@ -45,7 +42,7 @@ class MicrosoftClient(Client):
             "echo": request.echo_prompt,
         }
 
-    def __init__(self, api_key: str, cache_config: CacheConfig, org_id: Optional[str] = None):
+    def __init__(self, api_key: str, lock_file_path: str, cache_config: CacheConfig, org_id: Optional[str] = None):
         # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
         class EngineAPIResource(engine_api_resource.EngineAPIResource):
             @classmethod
@@ -67,7 +64,7 @@ class MicrosoftClient(Client):
         #
         # Since the model will generate roughly three tokens per second and the max context window
         # is 2048 tokens, we expect the maximum time for a request to be fulfilled to be 700 seconds.
-        self._lock = FileLock(os.path.join(cache_config.cache_dir, f"{self.ORGANIZATION}.lock"), timeout=700)
+        self._lock = FileLock(lock_file_path, timeout=700)
 
     def make_request(self, request: Request) -> RequestResult:
         """
