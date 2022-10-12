@@ -44,8 +44,8 @@ class TestCache(unittest.TestCase):
         cache = Cache(CacheConfig(self.cache_path))
         num_items = 10  # TODO: Inrcrease to 100
         num_iterations = 5  # TODO: Inrcrease to 20
-        requests = [{"name": "request%d" % i} for i in range(num_items)]
-        responses = [{"response": "response%d" % i} for i in range(num_items)]
+        requests = [{"name": f"request{i}"} for i in range(num_items)]
+        responses = [{"response": f"response{i}"} for i in range(num_items)]
         for iteration in range(num_iterations):
             for i in range(num_items):
                 response, cached = cache.get(requests[i], lambda: responses[i])
@@ -57,8 +57,8 @@ class TestCache(unittest.TestCase):
     def test_many_caches(self):
         num_items = 10  # TODO: Inrcrease to 100
         num_caches = 5  # TODO: Inrcrease to 20
-        requests = [{"name": "request%d" % i} for i in range(num_items)]
-        responses = [{"response": "response%d" % i} for i in range(num_items)]
+        requests = [{"name": f"request{i}"} for i in range(num_items)]
+        responses = [{"response": f"response{i}"} for i in range(num_items)]
         for cache_index in range(num_caches):
             cache = Cache(CacheConfig(self.cache_path))
             for i in range(num_items):
@@ -72,8 +72,8 @@ class TestCache(unittest.TestCase):
         cache = Cache(CacheConfig(self.cache_path))
         num_items = 10  # TODO: Inrcrease to 100
         num_threads = 5  # TODO: Inrcrease to 20
-        requests = [{"name": "request%d" % i} for i in range(num_items)]
-        responses = [{"response": "response%d" % i} for i in range(num_items)]
+        requests = [{"name": f"request{i}"} for i in range(num_items)]
+        responses = [{"response": f"response{i}"} for i in range(num_items)]
 
         def run():
             for i in range(num_items):
