@@ -361,4 +361,7 @@ class RankingMetric(Metric):
             stats_with_rank_limit = self.compute_measures(true_relevances, run_relevances, metric_name_suffix=mn_suffix)
             stats += stats_with_rank_limit
 
+        # Add reference ranks as stats
+        stats += [Stat(MetricName(f"ref{r.reference_index}_rank")).add(r.model_relevance) for r in ranking_objects]
+
         return stats
