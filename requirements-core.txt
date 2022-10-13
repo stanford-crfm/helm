@@ -29,7 +29,7 @@ dacite~=1.6.0
 bottle~=0.12.23
 gunicorn~=20.1.0
 Mako~=1.2.3
-# sqlitedict==2.0.0 is slow!
+# sqlitedict==2.0.0 is slow! Pin the version to 1.7.0.
 sqlitedict~=1.7.0
 pymongo~=4.2.0
 retrying~=1.3.3
