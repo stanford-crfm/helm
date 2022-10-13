@@ -512,27 +512,20 @@ def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Run
     )
 
 
-def get_msmarco_spec(track: str, valid_topk: Optional[int] = None, num_valid_queries: int = 200) -> RunSpec:
-    # Get ScenarioSpec
+def get_msmarco_spec(track: str, valid_topk: Optional[int] = None) -> RunSpec:
     valid_topk = None if valid_topk is None else int(valid_topk)
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.msmarco_scenario.MSMARCOScenario",
-        args={"track": track, "valid_topk": valid_topk, "num_valid_queries": num_valid_queries},
+        args={"track": track, "valid_topk": valid_topk},
     )
 
-    # Get AdapterSpec
-    max_eval_instances = MSMARCOScenario.MAX_NUM_QUERIES[track]
-    adapter_spec = get_ranking_binary_adapter_spec(stop_sequences=["\n"], max_eval_instances=max_eval_instances)
+    adapter_spec: AdapterSpec = get_ranking_binary_adapter_spec(stop_sequences=["\n"])
 
-    # Get the list of MetricSpecs
-    metric_specs = get_msmarco_metric_specs(track=track, rank=valid_topk)
-
-    # Return RunSpec
     return RunSpec(
-        name=f"msmarco:track={track},valid_topk={valid_topk},num_valid_queries={num_valid_queries}",
+        name=f"msmarco:track={track},valid_topk={valid_topk}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=metric_specs,
+        metric_specs=get_msmarco_metric_specs(track=track, rank=valid_topk),
         groups=[f"msmarco_{track}"],
     )
 
