@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import json
-from typing import Dict, Callable, Optional, Tuple
+from typing import Dict, Callable, Optional, Tuple, Union
 from collections import defaultdict
 import threading
 
@@ -35,9 +35,6 @@ retry: Callable = get_retry_decorator(
 class _KeyValueStore(ABC):
     """Key value store that persists writes."""
 
-    def __init__(self, path: str):
-        self._path = path
-
     @property
     def path(self):
         return self._path
@@ -62,7 +59,7 @@ class _SqliteKeyValueStore(_KeyValueStore):
 
     def __init__(self, path: str):
         self._sqlite_dict = SqliteDict(path)
-        super().__init__(path)
+        super().__init__()
 
     def __enter__(self) -> "_SqliteKeyValueStore":
         self._sqlite_dict.__enter__()
@@ -92,12 +89,10 @@ class _SqliteKeyValueStore(_KeyValueStore):
 class MongoConfig:
     """Key value store backed by a MongoDB database."""
 
-    # URI of the MongoDB database.
-    # See: https://www.mongodb.com/docs/manual/reference/connection-string/
+    # URL to the MongoDB database.
+    # Example format: mongodb://[username:password@]host1[:port1]/[dbname]
+    # For full format, see: https://www.mongodb.com/docs/manual/reference/connection-string/
     uri: str
-
-    # Name of the MongoDB database to use.
-    database_name: str
 
     # Name of the MongoDB collection to use.
     collection_name: str
@@ -112,9 +107,9 @@ class _MongoKeyValueStore(_KeyValueStore):
     def __init__(self, config: MongoConfig):
         # TODO: Create client in __enter__ and clean up client in __exit__
         self._mongodb_client: MongoClient = MongoClient(config.uri)
-        self._database = self._mongodb_client.get_database(config.database_name)
+        self._database = self._mongodb_client.get_default_database()
         self._collection = self._database.get_collection(config.collection_name)
-        super().__init__(f"{self._mongodb_client}/f{self._database}/f{self._collection}")
+        super().__init__()
 
     def __enter__(self) -> "_MongoKeyValueStore":
         super().__enter__()
@@ -140,10 +135,13 @@ class _MongoKeyValueStore(_KeyValueStore):
         self._collection.insert_one(document)
 
 
-def _create_key_value_store(path: str) -> _KeyValueStore:
+def _create_key_value_store(path: Union[str, MongoConfig]) -> _KeyValueStore:
     """Create a key value store from the given configuration."""
     # TODO: Support creating _MongoKeyValueStore
-    return _SqliteKeyValueStore(path)
+    if isinstance(path, MongoConfig):
+        return _MongoKeyValueStore(path)
+    else:
+        return _SqliteKeyValueStore(path)
 
 
 @retry
@@ -201,13 +199,22 @@ cache_stats = CacheStats()
 class CacheConfig:
     """Configuration for a cache."""
 
-    # Path to the Sqlite file that backs the main cache.
-    cache_path: str
+    # Either a string path to the Sqlite file that backs the main cache,
+    # or a MongoConfig that specifies a MongoDB database will be used for the main cache
+    # instead of SQLite.
+    cache_path: Union[str, MongoConfig]
 
     # Path to the Sqlite file that backs the follower cache.
     # The follower cache is a write-only cache, and responses will not be served from it.
     # Every request and response from the main cache will be written to the follower cache.
     follower_cache_path: Optional[str] = None
+
+    @property
+    def cache_stats_key(self):
+        if isinstance(self.cache_path, str):
+            return self.cache_path
+        elif isinstance(self.cache_path, MongoConfig):
+            return f"{self.cache_path.uri}/{self.cache_path.collection_name}"
 
 
 class Cache(object):
@@ -218,12 +225,14 @@ class Cache(object):
     """
 
     def __init__(self, config: CacheConfig):
-        self.cache_path: str = config.cache_path
+        hlog(f"Created cache with config: {config}")
+        self.cache_path: Union[str, MongoConfig] = config.cache_path
         self.follower_cache_path: Optional[str] = config.follower_cache_path
+        self.cache_stats_key: str = config.cache_stats_key
 
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
-        cache_stats.increment_query(self.cache_path)
+        cache_stats.increment_query(self.cache_stats_key)
 
         # TODO: Initialize key_value_store in constructor
         with _create_key_value_store(self.cache_path) as key_value_store:
@@ -232,7 +241,7 @@ class Cache(object):
                 cached = True
             else:
                 cached = False
-                cache_stats.increment_compute(self.cache_path)
+                cache_stats.increment_compute(self.cache_stats_key)
                 # Compute and commit the request/response to SQLite
                 response = compute()
 

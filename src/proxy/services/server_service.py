@@ -39,7 +39,7 @@ class ServerService(Service):
     Main class that supports various functionality for the server.
     """
 
-    def __init__(self, base_path: str = ".", root_mode=False):
+    def __init__(self, base_path: str = ".", root_mode=False, mongo_uri: str = ""):
         credentials_path = os.path.join(base_path, CREDENTIALS_FILE)
         cache_path = os.path.join(base_path, CACHE_DIR)
         ensure_directory_exists(cache_path)
@@ -51,7 +51,7 @@ class ServerService(Service):
         else:
             credentials = {}
 
-        self.client = AutoClient(credentials, cache_path)
+        self.client = AutoClient(credentials, cache_path, mongo_uri)
         self.token_counter = AutoTokenCounter(self.client.huggingface_client)
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
         self.perspective_api_client = PerspectiveAPIClient(
