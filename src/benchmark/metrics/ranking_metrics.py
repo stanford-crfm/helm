@@ -201,11 +201,10 @@ class RankingMetric(Metric):
         """
         assert all([r.model_relevance is not None for r in ranking_objs])
         if rank_limit:
-            assert all([r.rank is not None for r in ranking_objs])
             return {
-                self.get_query_string(r.reference_index): r.model_relevance  # type: ignore
+                self.get_query_string(r.reference_index): r.model_relevance
                 for r in ranking_objs
-                if r.rank <= rank_limit  # type: ignore
+                if r.rank and r.rank <= rank_limit
             }
         return {self.get_query_string(r.reference_index): r.model_relevance for r in ranking_objs}  # type: ignore
 
