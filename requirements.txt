@@ -121,7 +121,7 @@ smart-open==5.2.1
 spacy==3.2.4
 spacy-legacy==3.0.10
 spacy-loggers==1.0.3
-sqlitedict==2.0.0
+sqlitedict==1.7.0
 srsly==2.4.4
 stanza==1.4.2
 summ-eval==0.892
