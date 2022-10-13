@@ -4,7 +4,7 @@ from typing import Dict, Optional
 
 from retrying import RetryError, Attempt
 
-from common.cache import CacheConfig, MongoConfig
+from common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
 from common.hierarchical_logger import hlog
 from common.request import Request, RequestResult
 from common.tokenization_request import (
@@ -43,10 +43,10 @@ class AutoClient(Client):
 
     def _build_cache_config(self, organization: str) -> CacheConfig:
         if self.mongo_uri:
-            return CacheConfig(MongoConfig(self.mongo_uri, collection_name=organization))
+            return MongoCacheConfig(self.mongo_uri, collection_name=organization)
         client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
-        return CacheConfig(client_cache_path)
+        return SqliteCacheConfig(client_cache_path)
 
     def get_client(self, organization: str) -> Client:
         """Return a client based on `organization`, creating it if necessary."""

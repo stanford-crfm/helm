@@ -3,7 +3,7 @@ import tempfile
 import unittest
 import threading
 
-from common.cache import Cache, CacheConfig, cache_stats
+from common.cache import Cache, SqliteCacheConfig, WithFollowerCacheConfig, cache_stats
 
 from sqlitedict import SqliteDict
 
@@ -18,7 +18,7 @@ class TestCache(unittest.TestCase):
         os.remove(self.cache_path)
 
     def test_get(self):
-        cache = Cache(CacheConfig(self.cache_path))
+        cache = Cache(SqliteCacheConfig(self.cache_path))
 
         request = {"name": "request1"}
         compute = lambda: {"response": "response1"}
@@ -41,7 +41,7 @@ class TestCache(unittest.TestCase):
         assert cache_stats.num_computes[self.cache_path] == 0
 
     def test_many_requests(self):
-        cache = Cache(CacheConfig(self.cache_path))
+        cache = Cache(SqliteCacheConfig(self.cache_path))
         num_items = 10  # TODO: Inrcrease to 100
         num_iterations = 5  # TODO: Inrcrease to 20
         requests = [{"name": f"request{i}"} for i in range(num_items)]
@@ -60,7 +60,7 @@ class TestCache(unittest.TestCase):
         requests = [{"name": f"request{i}"} for i in range(num_items)]
         responses = [{"response": f"response{i}"} for i in range(num_items)]
         for cache_index in range(num_caches):
-            cache = Cache(CacheConfig(self.cache_path))
+            cache = Cache(SqliteCacheConfig(self.cache_path))
             for i in range(num_items):
                 response, cached = cache.get(requests[i], lambda: responses[i])
                 assert response == responses[i]
@@ -69,7 +69,7 @@ class TestCache(unittest.TestCase):
         assert cache_stats.num_computes[self.cache_path] == num_items
 
     def test_many_threads(self):
-        cache = Cache(CacheConfig(self.cache_path))
+        cache = Cache(SqliteCacheConfig(self.cache_path))
         num_items = 10  # TODO: Inrcrease to 100
         num_threads = 5  # TODO: Inrcrease to 20
         requests = [{"name": f"request{i}"} for i in range(num_items)]
@@ -90,7 +90,7 @@ class TestCache(unittest.TestCase):
         assert cache_stats.num_computes[self.cache_path] <= num_items * num_threads
 
     def test_follower(self):
-        cache = Cache(CacheConfig(self.cache_path))
+        cache = Cache(SqliteCacheConfig(self.cache_path))
         request_1 = {"name": "request1"}
         compute_1 = lambda: {"response": "response1"}
 
@@ -103,8 +103,9 @@ class TestCache(unittest.TestCase):
         follower_cache_file = tempfile.NamedTemporaryFile(delete=False)
         follower_cache_path = follower_cache_file.name
         with follower_cache_file:
-            cache_with_follower_config = CacheConfig(
-                cache_path=self.cache_path, follower_cache_path=follower_cache_path
+            cache_with_follower_config = WithFollowerCacheConfig(
+                main=SqliteCacheConfig(self.cache_path),
+                follower=SqliteCacheConfig(follower_cache_path),
             )
             cache_with_follower = Cache(cache_with_follower_config)
 
