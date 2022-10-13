@@ -639,19 +639,16 @@ class MSMARCOScenario(Scenario):
             * self.get_train_instances
             * self.get_valid_instances
         """
-        hlog("MS MARCO Scenario: Preparing the datasets.")
+        hlog("Preparing the datasets.")
         self.prepare_data()
 
-        hlog("MS MARCO Scenario: Shuffling Document and Query IDs.")
+        hlog("Shuffling Document and Query IDs.")
         self.shuffle_ids()
 
-        hlog("MS MARCO Scenario: Preparing training instances.")
+        hlog("Preparing training instances.")
         train_instances = self.get_train_instances()
 
-        hlog("MS MARCO Scenario: Preparing validation instances.")
+        hlog("Preparing validation instances.")
         valid_instances = self.get_valid_instances()
 
-        instances = train_instances + valid_instances
-        hlog("MS MARCO Scenario: Done preparing all instances.")
-
-        return instances
+        return train_instances + valid_instances
