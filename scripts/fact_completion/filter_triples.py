@@ -63,7 +63,7 @@ def main() -> None:
     aliases_fpath = benchmark_folder / "aliases.jsonl"
     print(f"Loading aliases from {aliases_fpath}.")
     qid2alias = defaultdict(list)
-    for item in jsonl_generator(aliases_fpath):
+    for item in jsonl_generator(str(aliases_fpath)):
         qid = item["qid"]
         alias = item["alias"]
         qid2alias[qid].append(alias)
@@ -84,7 +84,7 @@ def main() -> None:
     triples_file = benchmark_folder / "triples.jsonl"
     print(f"Loading triples from {triples_file}. Filtering based on alias quality...")
     filtered_triples = []
-    for triple in tqdm(jsonl_generator(triples_file), total=215288006):
+    for triple in tqdm(jsonl_generator(str(triples_file)), total=215288006):
         q1 = triple["qid"]
         q2 = triple["value"]
         if bad_alias(qid2alias[q1]) or bad_alias(qid2alias[q2]):
