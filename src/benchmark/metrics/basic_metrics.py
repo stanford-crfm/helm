@@ -21,6 +21,7 @@ from common.request import Token, Sequence
 from benchmark.adapter import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+    ADAPT_RANKING_BINARY,
     AdapterSpec,
     RequestState,
 )
@@ -711,7 +712,7 @@ class BasicMetric(Metric):
             reference_key = ReferenceKey(request_state.reference_index, request_state.request_mode)
             reference_stats[reference_key] = compute_logprob_and_length(request_state, window_service)
 
-        if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
+        if adapter_spec.method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_RANKING_BINARY]:
             reference_scores = [
                 reference_stats[ReferenceKey(i, "original")].logprob
                 / reference_stats[ReferenceKey(i, "original")].num_tokens

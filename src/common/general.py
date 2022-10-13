@@ -130,6 +130,14 @@ def asdict_without_nones(obj: Any) -> Dict[str, Any]:
     return asdict(obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
 
 
+def binarize_dict(d: Dict[str, int]) -> Dict[str, int]:
+    """Binarize the dict by setting the values that are 1 to 0.
+
+    Values greater than 1 stay untouched.
+    """
+    return {k: 0 if v == 1 else v for k, v in d.items()}
+
+
 def serialize(obj: Any) -> List[str]:
     """Takes in a dataclass and outputs all of its fields and values in a list."""
     if not is_dataclass(obj):
