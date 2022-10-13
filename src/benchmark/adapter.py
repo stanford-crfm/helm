@@ -613,6 +613,8 @@ class Processor:
             if include_output:
                 ir_label = RANKING_CORRECT_LABEL if CORRECT_TAG in reference.tags else RANKING_WRONG_LABEL
                 output_text += ir_label + self.adapter_spec.output_suffix
+            else:
+                output_text = output_text.rstrip()
 
             # Construct text blocks
             example_block = reference_text + query_text + output_text
