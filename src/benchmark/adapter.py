@@ -61,6 +61,9 @@ class AdapterSpec:
 
     # What goes after the output
     output_suffix: str = "\n"
+        
+    # Whether to list options as part of the output suffix for mcqs
+    list_options_suffix: bool = False
 
     # What goes between instruction and in-context example blocks in the constructed prompt
     instance_prefix: str = "\n"
@@ -535,8 +538,11 @@ class Processor:
         if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
             # If multiple choice, include the references
             output = "n/a"
+            prefix_key = []
             for reference_index, reference in enumerate(instance.references):
                 prefix = self.get_reference_prefix(self.adapter_spec.reference_prefix, reference_index)
+                prefix_key.append(prefix.replace('.', '').strip())
+                
                 result += prefix + reference.output + self.adapter_spec.reference_suffix
                 if reference.is_correct and output == "n/a":
                     output = self.get_reference_prefix("A", reference_index)
@@ -553,7 +559,10 @@ class Processor:
             result += self.adapter_spec.output_prefix + output + self.adapter_spec.output_suffix
         else:
             result += self.adapter_spec.output_prefix.rstrip()
-
+            
+        if self.adapter_spec.list_options_suffix:
+            result += f" (among the options {prefix_key[0]} through {prefix_key[-1]}):"
+            
         return result
 
     def construct_example_prompt_ranking_binary(

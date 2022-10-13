@@ -42,6 +42,7 @@ def get_multiple_choice_joint_adapter_spec(
     output_noun: str,
     max_train_instances: int = 5,
     num_outputs: int = 5,
+    list_options_suffix: bool = False,
     **kwargs,
 ) -> AdapterSpec:
     """
@@ -64,13 +65,14 @@ def get_multiple_choice_joint_adapter_spec(
         instructions=format_instructions(instructions),
         input_prefix=f"{input_noun}: " if input_noun is not None else "",
         input_suffix="\n" if input_noun is not None else "",
-        output_prefix=f"{output_noun}: ",
+        output_prefix=f"{output_noun}: " if not list_options_suffix else f"{output_noun} ",
         output_suffix="\n",
         max_train_instances=max_train_instances,
         num_outputs=num_outputs,
         max_tokens=5,
         temperature=0.0,
         stop_sequences=["\n"],
+        list_options_suffix=list_options_suffix,
         **kwargs,
     )
 
@@ -106,6 +108,7 @@ def get_multiple_choice_adapter_spec(
     max_train_instances: int = 5,
     empty_input: bool = False,
     num_outputs: int = 5,
+    list_options_suffix: bool = False,
     **kwargs,
 ):
     """
@@ -113,7 +116,8 @@ def get_multiple_choice_adapter_spec(
     """
     if method == ADAPT_MULTIPLE_CHOICE_JOINT:
         return get_multiple_choice_joint_adapter_spec(
-            instructions, input_noun, output_noun, max_train_instances, num_outputs=num_outputs, **kwargs
+            instructions, input_noun, output_noun, max_train_instances, 
+            num_outputs=num_outputs, list_options_suffix=list_options_suffix, **kwargs
         )
     elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
         return get_multiple_choice_separate_adapter_spec(method, empty_input)
@@ -591,7 +595,7 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     )
 
 
-def get_survey_spec(k: str, survey_type: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_survey_spec(k: str, survey_type: str, list_options: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.survey_scenario.SurveyScenario", args={"survey_type": survey_type}
     )
@@ -603,10 +607,11 @@ def get_survey_spec(k: str, survey_type: str, method: str = ADAPT_MULTIPLE_CHOIC
         output_noun="Answer",
         max_train_instances=0,
         num_outputs=int(k),
+        list_options_suffix=(list_options=='True')
     )
 
     return RunSpec(
-        name=f"surveys:survey_type={survey_type}",
+        name=f"surveys:survey_type={survey_type},k={k},list_options={list_options}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
