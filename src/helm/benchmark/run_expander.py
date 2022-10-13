@@ -635,10 +635,10 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
             typo(prob=0.01),
         ]
     },
-    "option_permutations2": {"option_permutations": [option_permutations()]},
-    "option_permutations5": {"option_permutations": [option_permutations()]},
-    "option_permutations10": {"option_permutations": [option_permutations()]},
-    "option_permutations20": {"option_permutations": [option_permutations()]},
+    "option_permutations2": {"option_permutations2": [option_permutations()]},
+    "option_permutations5": {"option_permutations5": [option_permutations()]},
+    "option_permutations10": {"option_permutations10": [option_permutations()]},
+    "option_permutations20": {"option_permutations20": [option_permutations()]},
 }
 
 
