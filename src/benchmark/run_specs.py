@@ -519,7 +519,7 @@ def get_msmarco_spec(track: str, valid_topk: Optional[int] = None) -> RunSpec:
         args={"track": track, "valid_topk": valid_topk},
     )
 
-    adapter_spec: AdapterSpec = get_ranking_binary_adapter_spec(max_train_instances=2, stop_sequences=["\n"])
+    adapter_spec: AdapterSpec = get_ranking_binary_adapter_spec(max_train_instances=4, stop_sequences=["\n"])
 
     return RunSpec(
         name=f"msmarco:track={track},valid_topk={valid_topk}",
