@@ -375,7 +375,7 @@ class Summarizer:
                     "runSpecs": json.dumps(run_spec_names),
                     "scenarioDisplayName": title,
                     # TODO: was run_group.description before. Fix run_group logic
-                    "scenarioDescription": columns[0][0].description,
+                    "scenarioDescription": "",
                 }
             )
 
