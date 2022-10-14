@@ -187,17 +187,15 @@ class MSMARCOScenario(Scenario):
         which are summarized in the table below.
 
             Baseline | The baseline name.
-            #VQ      | Effective number of validation queries, which are the
-                       queries for which instances were created.
             #VR      | Number of validation requests. For each effective
                        validation query, multiple requests would be created,
                        governed by the provided parameters.
 
-        | Baseline                | #VQ |  #VR   | Parameters
-        | regular_topk            | 200 | 10,000 | track=regular,use_topk_passages=True,valid_topk=50,num_valid_queries=200
-        | regular_topk_with_qrels | 200 | 10,085 | track=regular,use_qrels_passages=True,use_topk_passages=True,valid_topk=50,num_valid_queries=200
-        | trec_topk               | 43  | 4300   | track=trec,use_topk_passages=True,valid_topk=100
-        | trec_qrels              | 43  | 9260   | track=trec,use_qrels_passages=True
+        | Baseline                |  #VR   | Parameters
+        | regular_topk            | 10,000 | track=regular,use_topk_passages=True,valid_topk=50
+        | regular_topk_with_qrels | 10,085 | track=regular,use_qrels_passages=True,use_topk_passages=True,valid_topk=50
+        | trec_topk               | 4300   | track=trec,use_topk_passages=True,valid_topk=100
+        | trec_qrels              | 9260   | track=trec,use_qrels_passages=True
 
         On average, the requests for the MS MARCO scenario have ~550 tokens
         using the GPT-2 tokenizer. Multiplying this number with the #VR column
@@ -286,7 +284,7 @@ class MSMARCOScenario(Scenario):
     MAX_TRAIN_TOPK: int = 20
     MAX_VALID_TOPK: int = 1000
 
-    def __init__(self, track: str, valid_topk: Optional[int] = None, num_valid_queries: int = 200):
+    def __init__(self, track: str, valid_topk: Optional[int] = None):
         """The constructor for the MSMARCOScenario.
 
         Args:
@@ -297,8 +295,6 @@ class MSMARCOScenario(Scenario):
             valid_topk: If set, specifies the number of top documents for which the
                 validation instances will be created. Must be in the range
                 [self.MIN_TOPK, self.MAX_VALID_TOPK].
-            num_valid_queries: Number of validation queries for which instances
-                will be created.
         """
         # Input validation
         assert track in self.TRACK_NAMES
@@ -307,9 +303,6 @@ class MSMARCOScenario(Scenario):
         self.valid_topk: Optional[int] = valid_topk
         if self.valid_topk is not None:
             assert valid_topk and self.MIN_TOPK <= valid_topk <= self.MAX_VALID_TOPK
-
-        assert num_valid_queries <= self.MAX_NUM_QUERIES[self.track]
-        self.num_valid_queries = num_valid_queries
 
         # Instance level variables we use throughout
         self.random: random.Random = random.Random(1885)
@@ -635,7 +628,6 @@ class MSMARCOScenario(Scenario):
     def get_valid_instances(self) -> List[Instance]:
         """Get validation instances."""
         qids = self.filter_qids(VALID_SPLIT, check_topk=self.valid_topk is not None)
-        qids = qids[: self.num_valid_queries]
         instances = [self.get_valid_instance(qid) for qid in qids]
         return instances
 
@@ -647,19 +639,16 @@ class MSMARCOScenario(Scenario):
             * self.get_train_instances
             * self.get_valid_instances
         """
-        hlog("MS MARCO Scenario: Preparing the datasets.")
+        hlog("Preparing the datasets.")
         self.prepare_data()
 
-        hlog("MS MARCO Scenario: Shuffling Document and Query IDs.")
+        hlog("Shuffling Document and Query IDs.")
         self.shuffle_ids()
 
-        hlog("MS MARCO Scenario: Preparing training instances.")
+        hlog("Preparing training instances.")
         train_instances = self.get_train_instances()
 
-        hlog("MS MARCO Scenario: Preparing validation instances.")
+        hlog("Preparing validation instances.")
         valid_instances = self.get_valid_instances()
 
-        instances = train_instances + valid_instances
-        hlog("MS MARCO Scenario: Done preparing all instances.")
-
-        return instances
+        return train_instances + valid_instances
