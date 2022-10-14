@@ -6,7 +6,7 @@ TEXT_MODEL_TAG: str = "text"
 CODE_MODEL_TAG: str = "code"
 EMBEDDING_MODEL_TAG: str = "embedding"
 
-# Some model APIs have limited functionalities e.g., Anthropic API doesn't support returning log probs
+# Some model APIs have limited functionalities
 FULL_FUNCTIONALITY_TEXT_MODEL_TAG: str = "full_functionality_text"
 LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "limited_functionality_text"
 
@@ -113,8 +113,7 @@ ALL_MODELS = [
         name="anthropic/stanford-online-all-v4-s3",
         display_name="Anthropic-LM (52B)",
         description="Anthropic model (52B parameters)",
-        # The Anthropic model has limited functionality
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, ABLATION_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, ABLATION_MODEL_TAG],
     ),
     # BigScience
     Model(

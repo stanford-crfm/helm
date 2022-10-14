@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional
 import json
+import requests
 import time
 import urllib.parse
 
@@ -43,6 +44,8 @@ class AnthropicClient(Client):
 
     ORGANIZATION: str = "anthropic"
 
+    BASE_ENDPOINT: str = "feedback-frontend-v2.he.anthropic.com"
+
     def __init__(self, api_key: str, cache_config: CacheConfig):
         self.api_key = api_key
         self.cache = Cache(cache_config)
@@ -54,13 +57,6 @@ class AnthropicClient(Client):
         # Validate the fields of `Request`
         if request.model != "anthropic/stanford-online-all-v4-s3":
             raise ValueError(f"Invalid model: {request.model}")
-        # `Request` field values that Anthropic currently does not support
-        if request.echo_prompt:
-            raise ValueError("Echoing the original prompt is not supported.")
-        if request.top_k_per_token > 1:
-            raise ValueError(
-                "top_k_per_token > 1 is not supported. The Anthropic API only gives a single token at a time."
-            )
         if request.max_tokens > AnthropicClient.MAX_COMPLETION_LENGTH:
             raise ValueError(
                 "The value for `max_tokens` exceeds the currently supported maximum "
@@ -70,8 +66,7 @@ class AnthropicClient(Client):
         raw_request = {
             "q": request.prompt,  # Prompt
             "t": request.temperature,  # Temperature
-            # TODO: Recommended to hardcode this to -1 for now
-            "k": -1,  # k: ony the top k possibilities
+            "k": request.top_k_per_token,  # k: ony the top k possibilities
             "p": request.top_p,  # Top p
             "n": request.max_tokens,  # Max tokens
             # There was a bug recently introduced (07/2022) where the API breaks when a user specifies stop=[]
@@ -90,7 +85,7 @@ class AnthropicClient(Client):
                     start: float = time.time()
                     auth: Dict[str, str] = {"key": f"Bearer {self.api_key}"}
                     endpoint: str = (
-                        f"wss://feedback-frontend-v2.he.anthropic.com/model/{request.model_engine}/sample"
+                        f"wss://{AnthropicClient.BASE_ENDPOINT}/model/{request.model_engine}/sample"
                         f"?{urllib.parse.urlencode(auth)}"
                     )
                     ws = websocket.create_connection(endpoint, header=auth)
@@ -156,16 +151,17 @@ class AnthropicClient(Client):
                     hlog(str(e))
                     raise AnthropicRequestError(f"Anthropic error: {str(e)}")
 
-                # Instead of caching all the responses, just cache what we need
+                text: str = request.prompt + response["completion"] if request.echo_prompt else completion_text
+                logprobs_response: str = self.make_logprobs_request(text, request.top_k_per_token, request.model_engine)
                 return {
-                    "tokens": tokens,
-                    "raw_response": raw_response,
+                    "text": text,
+                    "logprobs_response": logprobs_response,
                     "stop_reason": stop_reason,
                 }
 
         # Since Anthropic doesn't support multiple completions, we have to manually call it multiple times,
         # and aggregate the results into `completions` and `request_time`.
-        completions = []
+        completions: List[Sequence] = []
         all_cached = True
         request_time = 0
         request_datetime: Optional[int] = None
@@ -176,24 +172,31 @@ class AnthropicClient(Client):
                 # engines since the engine name is not included in the request itself.
                 # In addition, we want to make `request.num_completions` fresh
                 # requests, cache key should contain the completion_index.
+                # Echoing the original prompt is not officially supported by Anthropic. We instead prepend the
+                # completion with the prompt when `echo_prompt` is true, so keep track of it in the cache key.
                 cache_key = Client.make_cache_key(
-                    {"engine": request.model_engine, "completion_index": completion_index, **raw_request}, request
+                    {
+                        "engine": request.model_engine,
+                        "echo_prompt": request.echo_prompt,
+                        "completion_index": completion_index,
+                        **raw_request,
+                    },
+                    request,
                 )
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except AnthropicRequestError as e:
                 return RequestResult(success=False, cached=False, error=str(e), completions=[], embedding=[])
 
-            token_texts: List[str] = response["tokens"]
-            raw_response: Dict = json.loads(response["raw_response"])
-
             sequence_logprob: float = 0
             tokens: List[Token] = []
+            log_probs: Dict = json.loads(response["logprobs_response"])
 
-            for token_text in token_texts:
-                # Anthropic currently doesn't support logprob. Just set logprob to 0 for now.
-                token_logprob: float = 0
+            for text, token_logprob, all_logprobs, all_tokens in zip(
+                log_probs["tokens"], log_probs["logprobs"], log_probs["topk_logprobs"], log_probs["topk_tokens"]
+            ):
+                top_logprobs: Dict[str, float] = {text: logprob for text, logprob in zip(all_tokens, all_logprobs)}
+                tokens.append(Token(text=text, logprob=token_logprob, top_logprobs=top_logprobs))
                 sequence_logprob += token_logprob
-                tokens.append(Token(text=token_text, logprob=token_logprob, top_logprobs={}))
 
             finish_reason: str = response["stop_reason"]
             # Maintain uniformity with other APIs
@@ -201,7 +204,7 @@ class AnthropicClient(Client):
                 finish_reason = "stop"
 
             completion = Sequence(
-                text=raw_response["completion"],
+                text=response["text"],
                 logprob=sequence_logprob,
                 tokens=tokens,
                 finish_reason={"reason": finish_reason},
@@ -221,6 +224,23 @@ class AnthropicClient(Client):
             completions=completions,
             embedding=[],
         )
+
+    def make_logprobs_request(self, text: str, top_k_per_token: int, model_engine: str) -> str:
+        """Top log probs is available through another endpoint."""
+        try:
+            logprobs_response = requests.request(
+                method="POST",
+                url=f"https://{AnthropicClient.BASE_ENDPOINT}/model/{model_engine}/topk_logprobs",
+                headers={
+                    "Authorization": f"BEARER {self.api_key}",
+                    "Content-Type": "application/json",
+                },
+                data=json.dumps({"q": text, "k": top_k_per_token, "is_replicated": True}),
+            )
+            return logprobs_response.text
+        except requests.exceptions.RequestException as e:
+            hlog(str(e))
+            raise AnthropicRequestError(f"Anthropic topk_logprobs error: {str(e)}")
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         raise NotImplementedError("Use the HuggingFaceClient to tokenize.")

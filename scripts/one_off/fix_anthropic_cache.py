@@ -7,7 +7,14 @@ from common.cache import key_to_request
 from common.hierarchical_logger import hlog, htrack
 
 """
-Remove entries in the Anthropic cache with `stop=[]`.
+request:
+K=-1 => k=1
+echo_prompt=False
+
+response:
+extract `text` from raw_request
+include logprobs_response
+remove tokens
 
 Usage:
 
