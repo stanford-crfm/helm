@@ -45,6 +45,7 @@ class AnthropicClient(Client):
     ORGANIZATION: str = "anthropic"
 
     BASE_ENDPOINT: str = "feedback-frontend-v2.he.anthropic.com"
+    TOP_K_LOGPROBS_ENDPOINT: str = "topk_logprobs"
 
     def __init__(self, api_key: str, cache_config: CacheConfig):
         self.api_key = api_key
@@ -62,6 +63,8 @@ class AnthropicClient(Client):
                 "The value for `max_tokens` exceeds the currently supported maximum "
                 f"({request.max_tokens} > {AnthropicClient.MAX_COMPLETION_LENGTH})."
             )
+        if request.max_tokens == 0 and not request.echo_prompt:
+            raise ValueError("echo_prompt must be True when max_tokens=0.")
 
         raw_request = {
             "q": request.prompt,  # Prompt
@@ -80,6 +83,16 @@ class AnthropicClient(Client):
         }
 
         def do_it():
+            # Anthropic throws an error when `max_tokens` or `n` is 0, so only make the logprobs request
+            if request.max_tokens == 0:
+                return {
+                    "text": request.prompt,
+                    "logprobs_response": self.make_logprobs_request(
+                        request.prompt, request.top_k_per_token, request.model_engine
+                    ),
+                    "stop_reason": "length",  # Set `stop_reason` to "length" because max_tokens is 0
+                }
+
             with htrack_block("Creating WebSocket connection with Anthropic"):
                 try:
                     start: float = time.time()
@@ -151,11 +164,14 @@ class AnthropicClient(Client):
                     hlog(str(e))
                     raise AnthropicRequestError(f"Anthropic error: {str(e)}")
 
+                # Anthropic doesn't support echoing the prompt, so we have to manually prepend the completion
+                # with the prompt when `echo_prompt` is True.
                 text: str = request.prompt + response["completion"] if request.echo_prompt else completion_text
-                logprobs_response: str = self.make_logprobs_request(text, request.top_k_per_token, request.model_engine)
                 return {
                     "text": text,
-                    "logprobs_response": logprobs_response,
+                    "logprobs_response": self.make_logprobs_request(
+                        text, request.top_k_per_token, request.model_engine
+                    ),
                     "stop_reason": stop_reason,
                 }
 
@@ -226,11 +242,14 @@ class AnthropicClient(Client):
         )
 
     def make_logprobs_request(self, text: str, top_k_per_token: int, model_engine: str) -> str:
-        """Top log probs is available through another endpoint."""
+        """
+        Getting top log probs for a given text is available through a separate endpoint: topk_logprobs.
+        """
         try:
             logprobs_response = requests.request(
                 method="POST",
-                url=f"https://{AnthropicClient.BASE_ENDPOINT}/model/{model_engine}/topk_logprobs",
+                url=f"https://{AnthropicClient.BASE_ENDPOINT}/model/{model_engine}/"
+                f"{AnthropicClient.TOP_K_LOGPROBS_ENDPOINT}",
                 headers={
                     "Authorization": f"BEARER {self.api_key}",
                     "Content-Type": "application/json",
@@ -240,7 +259,7 @@ class AnthropicClient(Client):
             return logprobs_response.text
         except requests.exceptions.RequestException as e:
             hlog(str(e))
-            raise AnthropicRequestError(f"Anthropic topk_logprobs error: {str(e)}")
+            raise AnthropicRequestError(f"Anthropic {AnthropicClient.TOP_K_LOGPROBS_ENDPOINT} error: {str(e)}")
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
