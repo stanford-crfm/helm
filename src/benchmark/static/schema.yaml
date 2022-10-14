@@ -713,6 +713,8 @@ run_groups:
       - calibration
       - robustness
       - fairness
+      - bias
+      - toxicity
       - efficiency
     environment:
       main_name: exact_match
@@ -726,6 +728,8 @@ run_groups:
       - calibration
       - robustness
       - fairness
+      - bias
+      - toxicity
       - efficiency
     environment:
       main_name: f1_score
@@ -739,6 +743,8 @@ run_groups:
       - calibration
       - robustness
       - fairness
+      - bias
+      - toxicity
       - efficiency
     environment:
       main_name: f1_score
@@ -752,6 +758,8 @@ run_groups:
       - calibration
       - robustness
       - fairness
+      - bias
+      - toxicity
       - efficiency
     environment:
       main_name: f1_score
@@ -765,6 +773,8 @@ run_groups:
       - calibration
       - robustness
       - fairness
+      - bias
+      - toxicity
       - efficiency
     environment:
       main_name: f1_score
@@ -830,6 +840,8 @@ run_groups:
       - accuracy
       - robustness
       - fairness
+      - bias
+      - toxicity
       - efficiency
     environment:
       main_name: RR@10
@@ -842,6 +854,8 @@ run_groups:
       - accuracy
       - robustness
       - fairness
+      - bias
+      - toxicity
       - efficiency
     environment:
       main_name: NDCG@10
@@ -883,6 +897,8 @@ run_groups:
       - calibration
       - robustness
       - fairness
+      - bias
+      - toxicity
       - efficiency
     environment:
       main_name: quasi_exact_match
@@ -897,6 +913,8 @@ run_groups:
       - calibration
       - robustness
       - fairness
+      - bias
+      - toxicity
       - efficiency
     environment:
       main_name: quasi_exact_match
@@ -911,6 +929,8 @@ run_groups:
       - calibration
       - robustness
       - fairness
+      - bias
+      - toxicity
       - efficiency
     environment:
       main_name: quasi_exact_match
