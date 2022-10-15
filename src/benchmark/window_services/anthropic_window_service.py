@@ -18,6 +18,8 @@ class AnthropicWindowService(GPT2WindowService):
 
     @property
     def max_request_length(self) -> int:
-        """Return the max request length of the Anthropic model."""
-        # TODO: double check this once the model supports returning lob probs
-        return 8192
+        """
+        Return the max request length of the Anthropic model.
+        Anthropic does not include the start of sequence token
+        """
+        return self.max_sequence_length
