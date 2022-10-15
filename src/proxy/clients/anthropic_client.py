@@ -243,7 +243,7 @@ class AnthropicClient(Client):
 
     def make_logprobs_request(self, text: str, top_k_per_token: int, model_engine: str) -> str:
         """
-        Getting top log probs for a given text is available through a separate endpoint: topk_logprobs.
+        Get the token log probs and top candidates for a given text using the endpoint: topk_logprobs.
         """
         try:
             logprobs_response = requests.request(
