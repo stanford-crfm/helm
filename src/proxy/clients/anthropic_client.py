@@ -83,7 +83,7 @@ class AnthropicClient(Client):
         }
 
         def do_it():
-            # Anthropic throws an error when `max_tokens` or `n` is 0, so only make the logprobs request
+            # Anthropic throws an error when `max_tokens` or `n` is 0, so only send the logprobs request
             if request.max_tokens == 0:
                 return {
                     "text": request.prompt,

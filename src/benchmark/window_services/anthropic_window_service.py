@@ -20,6 +20,6 @@ class AnthropicWindowService(GPT2WindowService):
     def max_request_length(self) -> int:
         """
         Return the max request length of the Anthropic model.
-        Anthropic does not include the start of sequence token
+        Anthropic does not include the start of sequence token.
         """
         return self.max_sequence_length

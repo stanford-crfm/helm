@@ -53,12 +53,12 @@ def fix(cache_path: str, credentials_path: str):
             del response["tokens"]
             del response["raw_response"]
 
-            # Make and time the logprobs request and add the execution time to `request_time`
+            # Send and time how long the logprobs request takes. Add the time to `request_time`.
             start: float = time.time()
             response["logprobs_response"] = client.make_logprobs_request(completion, DEFAULT_TOP_K, request["engine"])
-            execution_time: float = time.time() - start
-            response["request_time"] += execution_time
-            hlog(f"Entry #{i+1} out of {num_entries} ({execution_time:.2f}s)")
+            request_time: float = time.time() - start
+            response["request_time"] += request_time
+            hlog(f"Entry #{i+1} out of {num_entries} ({request_time:.2f}s)")
 
             # Add the updated entry
             new_cache[new_key] = response
