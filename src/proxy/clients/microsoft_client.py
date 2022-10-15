@@ -42,7 +42,13 @@ class MicrosoftClient(Client):
             "echo": request.echo_prompt,
         }
 
-    def __init__(self, api_key: str, lock_file_path: str, cache_config: CacheConfig, org_id: Optional[str] = None):
+    def __init__(
+        self,
+        lock_file_path: str,
+        cache_config: CacheConfig,
+        api_key: Optional[str] = None,
+        org_id: Optional[str] = None,
+    ):
         # Adapted from their documentation: https://github.com/microsoft/turing-academic-TNLG
         class EngineAPIResource(engine_api_resource.EngineAPIResource):
             @classmethod
@@ -52,7 +58,7 @@ class MicrosoftClient(Client):
                 return f"/{engine}/inference"
 
         self.org_id: Optional[str] = org_id
-        self.api_key: str = api_key
+        self.api_key: Optional[str] = api_key
         self.api_base: str = "https://turingnlg-turingnlg-mstap-v2.turingase.p.azurewebsites.net"
         self.completion_attributes = (EngineAPIResource,) + ORIGINAL_COMPLETION_ATTRIBUTES[1:]
 
@@ -125,10 +131,16 @@ class MicrosoftClient(Client):
 
                         return response
 
+                def fail():
+                    raise RuntimeError(
+                        f"The result has not been uploaded to the cache ({self.cache.cache_path}) "
+                        f"for the following request: {cache_key}"
+                    )
+
                 # We want to make `request.num_completions` fresh requests,
                 # cache key should contain the completion_index.
                 cache_key = Client.make_cache_key({"completion_index": completion_index, **raw_request}, request)
-                response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+                response, cached = self.cache.get(cache_key, wrap_request_time(do_it if self.api_key else fail))
             except turing.error.OpenAIError as e:
                 error: str = f"OpenAI (Turing API) error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])

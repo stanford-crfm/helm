@@ -73,7 +73,7 @@ class AutoClient(Client):
                 org_id = self.credentials.get("microsoftOrgId", None)
                 lock_file_path: str = os.path.join(self.cache_path, f"{organization}.lock")
                 client = MicrosoftClient(
-                    api_key=self.credentials["microsoftApiKey"],
+                    api_key=self.credentials.get("microsoftApiKey", None),
                     lock_file_path=lock_file_path,
                     cache_config=cache_config,
                     org_id=org_id,
