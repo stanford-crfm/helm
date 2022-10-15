@@ -330,6 +330,9 @@ class Summarizer:
         # Figure out what the columns of the table are.
         # Create header (cells to display) and the list of metric name filters
         # (to pull out information later).
+        if not columns:
+            return Table("empty", [], [])
+
         header: List[Cell] = []
         matchers: List[MetricNameMatcher] = []
         group_names: List[str] = []  # for each column
@@ -367,6 +370,9 @@ class Summarizer:
                 matchers.append(matcher)
                 group_names.append(run_group.name)
 
+        # TODO: Fix run_group logic
+        run_group = columns[0][0]
+
         def run_spec_names_to_url(run_spec_names: List[str]) -> str:
             # TODO: make the runs load the group file to avoid passing this information around
             return get_benchmarking_url(
@@ -374,8 +380,7 @@ class Summarizer:
                     "suite": self.suite,
                     "runSpecs": json.dumps(run_spec_names),
                     "scenarioDisplayName": title,
-                    # TODO: was run_group.description before. Fix run_group logic
-                    "scenarioDescription": "",
+                    "scenarioDescription": run_group.description,
                 }
             )
 
