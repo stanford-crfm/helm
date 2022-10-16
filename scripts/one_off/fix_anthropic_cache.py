@@ -1,7 +1,7 @@
 import argparse
 import json
 import time
-from typing import Dict
+from typing import Dict, List
 
 from sqlitedict import SqliteDict
 
@@ -12,10 +12,11 @@ from proxy.clients.anthropic_client import AnthropicClient
 
 """
 Updates the entries of an old Anthropic cache with logprobs.
+Running with `--light` skips making logprobs request.
 
 Usage:
 
-    python3 scripts/one_off/fix_anthropic_cache.py
+    python3 scripts/one_off/fix_anthropic_cache.py --light
 
 """
 
@@ -23,7 +24,7 @@ DEFAULT_TOP_K: int = 1
 
 
 @htrack("Updating Anthropic cache with logprobs.")
-def fix(cache_path: str, credentials_path: str):
+def fix(cache_path: str, credentials_path: str, light: bool):
     with open(credentials_path) as f:
         credentials: Dict[str, str] = parse_hocon(f.read())
         api_key: str = credentials["anthropicApiKey"]
@@ -46,19 +47,35 @@ def fix(cache_path: str, credentials_path: str):
             # Handle responses:
             # - Extract completion and set `text` to it
             # - remove `tokens` and `raw_response`
-            # - Make top k logprobs request and save it as `logprobs_response`
+            # - Make top k logprobs request and save it as `logprobs_response` if not light
             completion_response = json.loads(response["raw_response"])
             completion: str = completion_response["completion"]
             response["text"] = completion
+            tokens: List[str] = response["tokens"]
             del response["tokens"]
             del response["raw_response"]
 
-            # Send and time how long the logprobs request takes. Add the time to `request_time`.
-            start: float = time.time()
-            response["logprobs_response"] = client.make_logprobs_request(completion, DEFAULT_TOP_K, request["engine"])
-            request_time: float = time.time() - start
-            response["request_time"] += request_time
-            hlog(f"Entry #{i+1} out of {num_entries} ({request_time:.2f}s)")
+            if light:
+                response["skipped_logprobs_request"] = True
+                num_tokens: int = len(tokens)
+                logprobs_response = {
+                    "tokens": tokens,
+                    # These are just placeholders
+                    "logprobs": [0] * num_tokens,
+                    "topk_logprobs": [[]] * num_tokens,
+                    "topk_tokens": [[]] * num_tokens,
+                }
+                response["logprobs_response"] = json.dumps(logprobs_response)
+                hlog(f"Entry #{i + 1} out of {num_entries}")
+            else:
+                # Send and time how long the logprobs request takes. Add the time to `request_time`
+                start: float = time.time()
+                response["logprobs_response"] = client.make_logprobs_request(
+                    completion, top_k_per_token=DEFAULT_TOP_K, model_engine=request["engine"]
+                )
+                request_time: float = time.time() - start
+                response["request_time"] += request_time
+                hlog(f"Entry #{i+1} out of {num_entries} ({request_time:.2f}s)")
 
             # Add the updated entry
             new_cache[new_key] = response
@@ -75,7 +92,7 @@ def fix(cache_path: str, credentials_path: str):
 
 
 def main():
-    fix(args.cache_path, args.credentials_path)
+    fix(args.cache_path, args.credentials_path, args.light)
     hlog("Done.")
 
 
@@ -86,6 +103,12 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-c", "--credentials-path", type=str, default="prod_env/credentials.conf", help="Path to credentials."
+    )
+    parser.add_argument(
+        "--light",
+        action="store_true",
+        default=None,
+        help="Skips making logprobs request",
     )
     args = parser.parse_args()
 
