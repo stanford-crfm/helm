@@ -56,7 +56,7 @@ class ServerService(Service):
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
         self.perspective_api_client = PerspectiveAPIClient(
             api_key=credentials["perspectiveApiKey"] if "perspectiveApiKey" in credentials else "",
-            cache_config=CacheConfig(cache_path),
+            cache_config=CacheConfig(os.path.join(base_path, "perspectiveapi.sqlite")),
         )
 
     def get_general_info(self) -> GeneralInfo:

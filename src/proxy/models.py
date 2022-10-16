@@ -6,7 +6,7 @@ TEXT_MODEL_TAG: str = "text"
 CODE_MODEL_TAG: str = "code"
 EMBEDDING_MODEL_TAG: str = "embedding"
 
-# Some model APIs have limited functionalities e.g., Anthropic API doesn't support returning log probs
+# Some model APIs have limited functionalities
 FULL_FUNCTIONALITY_TEXT_MODEL_TAG: str = "full_functionality_text"
 LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG: str = "limited_functionality_text"
 
@@ -105,6 +105,194 @@ ALL_MODELS = [
         display_name="Jurassic Large (7.5B)",
         description="Jurassic J1-Large (7.5B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+    ),
+    # Anthropic
+    Model(
+        group="anthropic",
+        creator_organization="Anthropic",
+        name="anthropic/stanford-online-all-v4-s3",
+        display_name="Anthropic-LM (52B)",
+        description="Anthropic model (52B parameters)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, ABLATION_MODEL_TAG],
+    ),
+    # BigScience
+    Model(
+        group="together",
+        creator_organization="BigScience",
+        name="together/bloom",
+        display_name="BLOOM (176B)",
+        # From https://bigscience.huggingface.co/blog/bloom
+        description="BLOOM (176B parameters) is an autoregressive model similar to GPT-3 trained "
+        "on 46 natural languages and 13 programming languages.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="BigScience",
+        name="together/t0pp",
+        display_name="T0++ (11B)",
+        # From https://huggingface.co/bigscience/T0pp
+        description="T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks "
+        "specified in natural language prompts.",
+        # Does not support echo=True
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
+    ),
+    # Cohere models
+    # Cohere has not release the sizes of their models.
+    # Model versioning and the possible versions are not documented here:
+    # https://docs.cohere.ai/generate-reference#model-optional.
+    # So, instead, we got the names of the models from the Cohere Playground.
+    #
+    # Note that their tokenizer and model were trained on English text and
+    # they do not have a dedicated decode API endpoint, so the adaptation
+    # step for language modeling fails for certain Scenarios:
+    # the_pile:subset=ArXiv
+    # the_pile:subset=Github
+    # the_pile:subset=PubMed Central
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/xlarge-20220609",
+        display_name="Cohere xlarge",
+        description="Cohere xlarge",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+    ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/large-20220720",
+        display_name="Cohere large",
+        description="Cohere large",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+    ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/medium-20220720",
+        display_name="Cohere medium",
+        description="Cohere medium",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+    ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
+        name="cohere/small-20220720",
+        display_name="Cohere small",
+        description="Cohere small",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+    ),
+    # EleutherAI
+    Model(
+        group="together",
+        creator_organization="EleutherAI",
+        name="together/gpt-j-6b",
+        display_name="GPT-J (6B)",
+        description="GPT-J (6B parameters trained by EleutherAI on The Pile)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="EleutherAI",
+        name="together/gpt-neox-20b",
+        display_name="GPT-NeoX (20B)",
+        description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
+    ),
+    # GooseAI supported models
+    Model(
+        group="gooseai",
+        creator_organization="EleutherAI",
+        name="gooseai/gpt-neo-20b",
+        display_name="GPT-NeoX (20B, GooseAI)",
+        description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
+    ),
+    Model(
+        group="gooseai",
+        creator_organization="EleutherAI",
+        name="gooseai/gpt-j-6b",
+        display_name="GPT-J (6B, GooseAI)",
+        description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+    ),
+    # HuggingFace
+    Model(
+        group="huggingface",
+        creator_organization="EleutherAI",
+        name="huggingface/gpt-j-6b",
+        display_name="GPT-J (6B, HuggingFace)",
+        description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+    ),
+    # Google
+    Model(
+        group="together",
+        creator_organization="Google",
+        name="together/t5-11b",
+        display_name="T5 (11B)",
+        # From https://huggingface.co/docs/transformers/v4.20.1/en/model_doc/t5
+        description="T5 (11B parameters) is an encoder-decoder model pre-trained on a multi-task mixture of "
+        "unsupervised and supervised tasks and for which each task is converted into a text-to-text "
+        "format.",
+        # Does not support echo=True
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Google",
+        name="together/ul2",
+        display_name="UL2 (20B)",
+        # From https://huggingface.co/google/ul2
+        description="UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5"
+        "but trained with a different objective and slightly different scaling knobs.",
+        # Does not support echo=True
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
+    ),
+    Model(
+        group="huggingface",
+        creator_organization="OpenAI",
+        name="huggingface/gpt2",
+        display_name="GPT-2 (1.5B)",
+        description="GPT-2 (1.5B parameters)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
+    # OPT
+    Model(
+        group="together",
+        creator_organization="Meta",
+        name="together/opt-175b",
+        display_name="OPT (175B)",
+        # From https://arxiv.org/pdf/2205.01068.pdf
+        description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
+        "transformers fully and responsibly shared with interested researchers.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
+    ),
+    Model(
+        group="together",
+        creator_organization="Meta",
+        name="together/opt-66b",
+        display_name="OPT (66B)",
+        # From https://arxiv.org/pdf/2205.01068.pdf
+        description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
+        "transformers fully and responsibly shared with interested researchers.",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
+    ),
+    # Microsoft
+    Model(
+        group="microsoft",
+        creator_organization="Microsoft",
+        name="microsoft/TNLGv2_530B",
+        display_name="MT-NLG (530B)",
+        description="Megatron-Turing NLG (530B parameters)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
+    Model(
+        group="microsoft",
+        creator_organization="Microsoft",
+        name="microsoft/TNLGv2_7B",
+        display_name="MT-NLG (7B)",
+        description="Megatron-Turing NLG (7B parameters)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # OpenAI: https://beta.openai.com/docs/engines/gpt-3
     Model(
@@ -238,122 +426,7 @@ ALL_MODELS = [
         description="GPT-3 (1024-dimension embeddings)",
         tags=[EMBEDDING_MODEL_TAG],
     ),
-    # Cohere models
-    # Cohere has not release the sizes of their models.
-    # Model versioning and the possible versions are not documented here:
-    # https://docs.cohere.ai/generate-reference#model-optional.
-    # So, instead, we got the names of the models from the Cohere Playground.
-    #
-    # Note that their tokenizer and model were trained on English text and
-    # they do not have a dedicated decode API endpoint, so the adaptation
-    # step for language modeling fails for certain Scenarios:
-    # the_pile:subset=ArXiv
-    # the_pile:subset=Github
-    # the_pile:subset=PubMed Central
-    Model(
-        group="cohere",
-        creator_organization="Cohere",
-        name="cohere/xlarge-20220609",
-        display_name="Cohere xlarge",
-        description="Cohere xlarge",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
-    ),
-    Model(
-        group="cohere",
-        creator_organization="Cohere",
-        name="cohere/large-20220720",
-        display_name="Cohere large",
-        description="Cohere large",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
-    ),
-    Model(
-        group="cohere",
-        creator_organization="Cohere",
-        name="cohere/medium-20220720",
-        display_name="Cohere medium",
-        description="Cohere medium",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
-    ),
-    Model(
-        group="cohere",
-        creator_organization="Cohere",
-        name="cohere/small-20220720",
-        display_name="Cohere small",
-        description="Cohere small",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
-    ),
-    # GooseAI supported models
-    Model(
-        group="gooseai",
-        creator_organization="EleutherAI",
-        name="gooseai/gpt-neo-20b",
-        display_name="GPT-NeoX (20B, GooseAI)",
-        description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
-    ),
-    Model(
-        group="gooseai",
-        creator_organization="EleutherAI",
-        name="gooseai/gpt-j-6b",
-        display_name="GPT-J (6B, GooseAI)",
-        description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
-    ),
-    # HuggingFace
-    Model(
-        group="huggingface",
-        creator_organization="EleutherAI",
-        name="huggingface/gpt-j-6b",
-        display_name="GPT-J (6B, HuggingFace)",
-        description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
-    ),
-    Model(
-        group="huggingface",
-        creator_organization="OpenAI",
-        name="huggingface/gpt2",
-        display_name="GPT-2 (1.5B)",
-        description="GPT-2 (1.5B parameters)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
-    ),
-    # Anthropic
-    Model(
-        group="anthropic",
-        creator_organization="Anthropic",
-        name="anthropic/stanford-online-all-v4-s3",
-        display_name="Anthropic-LM (52B)",
-        description="Anthropic model (52B parameters)",
-        # The Anthropic model has limited functionality
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, ABLATION_MODEL_TAG],
-    ),
-    # Microsoft
-    Model(
-        group="microsoft",
-        creator_organization="Microsoft",
-        name="microsoft/TNLGv2_530B",
-        display_name="MT-NLG (530B)",
-        description="Megatron-Turing NLG (530B parameters)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
-    ),
-    Model(
-        group="microsoft",
-        creator_organization="Microsoft",
-        name="microsoft/TNLGv2_7B",
-        display_name="MT-NLG (7B)",
-        description="Megatron-Turing NLG (7B parameters)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
-    ),
     # Offline models
-    Model(
-        group="together",
-        creator_organization="BigScience",
-        name="together/bloom",
-        display_name="BLOOM (176B)",
-        # From https://bigscience.huggingface.co/blog/bloom
-        description="BLOOM (176B parameters) is an autoregressive model similar to GPT-3 trained "
-        "on 46 natural languages and 13 programming languages.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
-    ),
     Model(
         group="together",
         creator_organization="Tsinghua KEG",
@@ -364,76 +437,6 @@ ALL_MODELS = [
         "parameters, pre-trained using the algorithm of General Language Model (GLM).",
         # Inference with echo=True is not feasible -- in the prompt encoding phase, they use
         # bidirectional attention and do not perform predictions on them.
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
-    ),
-    Model(
-        group="together",
-        creator_organization="EleutherAI",
-        name="together/gpt-j-6b",
-        display_name="GPT-J (6B)",
-        description="GPT-J (6B parameters trained by EleutherAI on The Pile)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTJ_TOKENIZER_TAG],
-    ),
-    Model(
-        group="together",
-        creator_organization="EleutherAI",
-        name="together/gpt-neox-20b",
-        display_name="GPT-NeoX (20B)",
-        description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
-    ),
-    Model(
-        group="together",
-        creator_organization="Meta",
-        name="together/opt-66b",
-        display_name="OPT (66B)",
-        # From https://arxiv.org/pdf/2205.01068.pdf
-        description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
-        "transformers fully and responsibly shared with interested researchers.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
-    ),
-    Model(
-        group="together",
-        creator_organization="Meta",
-        name="together/opt-175b",
-        display_name="OPT (175B)",
-        # From https://arxiv.org/pdf/2205.01068.pdf
-        description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
-        "transformers fully and responsibly shared with interested researchers.",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
-    ),
-    Model(
-        group="together",
-        creator_organization="Google",
-        name="together/t5-11b",
-        display_name="T5 (11B)",
-        # From https://huggingface.co/docs/transformers/v4.20.1/en/model_doc/t5
-        description="T5 (11B parameters) is an encoder-decoder model pre-trained on a multi-task mixture of "
-        "unsupervised and supervised tasks and for which each task is converted into a text-to-text "
-        "format.",
-        # Does not support echo=True
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
-    ),
-    Model(
-        group="together",
-        creator_organization="Google",
-        name="together/ul2",
-        display_name="UL2 (20B)",
-        # From https://huggingface.co/google/ul2
-        description="UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5"
-        "but trained with a different objective and slightly different scaling knobs.",
-        # Does not support echo=True
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
-    ),
-    Model(
-        group="together",
-        creator_organization="BigScience",
-        name="together/t0pp",
-        display_name="T0++ (11B)",
-        # From https://huggingface.co/bigscience/T0pp
-        description="T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks "
-        "specified in natural language prompts.",
-        # Does not support echo=True
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
     Model(

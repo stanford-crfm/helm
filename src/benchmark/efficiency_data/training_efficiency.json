@@ -37,8 +37,8 @@
             "description" : "We rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model."
         },
         "microsoft/TNLGv2_530B": {
-            "value" : 1111.8,
-            "description" : "280 8-A100 servers were used for training for an estimated 47 days in Selene located in California. We use a PUE of 1.1, 400W TDP for A100 GPUs, and an average Califonira carbon intensity of 0.238 kCO2/kWh."
+            "value" : 1703.1,
+            "description" : "560 8-A100 servers were used for training for an estimated 36 days in Selene located in California. We use a PUE of 1.1, 400W TDP for A100 GPUs, and an average California carbon intensity of 0.238 kCO2/kWh."
         },
         "together/opt-175b": {
             "value" : 345.7,
@@ -95,8 +95,8 @@
             "description" : "We rely on estimates from Patterson et al. (2021) and Brown et al. (2020). In particular, Patterson et al. (2021) explicitly reports estimates for GPT-3 (175B); for other model variants, we scale the number of floating-point operations by the size of the model."
         },
         "microsoft/TNLGv2_530B": {
-            "value" : 265.1,
-            "description" : "280 8-A100 servers were used for training for an estimated 47 days in Selene located in California. We use a PUE of 1.1, 400W TDP for A100 GPUs, and an average Califonira carbon intensity of 0.238 kCO2/kWh."
+            "value" : 405.3,
+            "description" : "560 8-A100 servers were used for training for an estimated 36 days in Selene located in California. We use a PUE of 1.1, 400W TDP for A100 GPUs, and an average California carbon intensity of 0.238 kCO2/kWh."
         },
         "together/opt-175b": {
             "value" : 127.2,
