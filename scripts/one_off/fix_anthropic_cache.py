@@ -5,7 +5,7 @@ from typing import Dict, List
 
 from sqlitedict import SqliteDict
 
-from common.cache import key_to_request, request_to_key, CacheConfig
+from common.cache import key_to_request, request_to_key, SqliteCacheConfig
 from common.general import parse_hocon
 from common.hierarchical_logger import hlog, htrack
 from proxy.clients.anthropic_client import AnthropicClient
@@ -30,7 +30,7 @@ def fix(cache_path: str, credentials_path: str, light: bool):
         api_key: str = credentials["anthropicApiKey"]
 
     new_cache: Dict[str, Dict] = dict()
-    client = AnthropicClient(api_key, CacheConfig(cache_path))
+    client = AnthropicClient(api_key, SqliteCacheConfig(cache_path))
     with SqliteDict(cache_path) as cache:
         num_entries: int = len(cache)
         hlog(f"Found {num_entries} entries at {cache_path}.")
