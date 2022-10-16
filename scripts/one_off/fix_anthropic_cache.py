@@ -12,7 +12,7 @@ from proxy.clients.anthropic_client import AnthropicClient
 
 """
 Updates the entries of an old Anthropic cache with logprobs.
-Running with `--light` skips making logprobs request.
+Running with `--light` skips making logprobs requests.
 
 Usage:
 
@@ -56,6 +56,7 @@ def fix(cache_path: str, credentials_path: str, light: bool):
             del response["raw_response"]
 
             if light:
+                # Mark this entry, so we can add logprobs later
                 response["skipped_logprobs_request"] = True
                 num_tokens: int = len(tokens)
                 logprobs_response = {
