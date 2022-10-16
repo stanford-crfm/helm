@@ -106,7 +106,7 @@ class _KeyValueStore(ABC):
     def __enter__(self) -> "_KeyValueStore":
         pass
 
-    def __exit__(self, exc_type, exc_value, traceback) -> "_KeyValueStore":
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         pass
 
     @abstractmethod
@@ -130,10 +130,9 @@ class _SqliteKeyValueStore(_KeyValueStore):
         super().__enter__()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> "_SqliteKeyValueStore":
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         super().__exit__(exc_type, exc_value, traceback)
         self._sqlite_dict.__exit__(exc_type, exc_value, traceback)
-        return self
 
     def get(self, key: Dict) -> Optional[Dict]:
         key_string = request_to_key(key)
@@ -166,9 +165,8 @@ class _MongoKeyValueStore(_KeyValueStore):
         super().__enter__()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> "_MongoKeyValueStore":
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         super().__exit__(exc_type, exc_value, traceback)
-        return self
 
     def _canonicalize_key(self, key: Dict) -> SON:
         serialized = json.dumps(key, sort_keys=True)
