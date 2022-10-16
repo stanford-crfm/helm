@@ -47,6 +47,7 @@ class AllRunner:
         scenario_groups_to_run: Optional[List[str]],
         exit_on_error: bool,
         priority: Optional[int],
+        mongo_uri: str,
     ):
         self.auth: Authentication = auth
         self.conf_path: str = conf_path
@@ -64,6 +65,7 @@ class AllRunner:
         self.scenario_groups_to_run: Optional[List[str]] = scenario_groups_to_run
         self.exit_on_error: bool = exit_on_error
         self.priority: Optional[int] = priority
+        self.mongo_uri = mongo_uri
 
     @htrack(None)
     def run(self):
@@ -96,6 +98,7 @@ class AllRunner:
                     groups=entry.groups,
                     models_to_run=self.models_to_run,
                     scenario_groups_to_run=self.scenario_groups_to_run,
+                    mongo_uri=self.mongo_uri,
                 )
                 run_specs.extend(new_run_specs)
 
@@ -244,6 +247,7 @@ def main():
         scenario_groups_to_run=args.scenario_groups_to_run,
         exit_on_error=args.exit_on_error,
         priority=args.priority,
+        mongo_uri=args.mongo_uri,
     )
 
     # Run the benchmark!

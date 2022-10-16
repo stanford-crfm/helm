@@ -32,11 +32,18 @@ def run_benchmarking(
     groups: Optional[List[str]] = None,
     models_to_run: Optional[List[str]] = None,
     scenario_groups_to_run: Optional[List[str]] = None,
+    mongo_uri: str = "",
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
 
     execution_spec = ExecutionSpec(
-        auth=auth, url=url, local=local, local_path=local_path, parallelism=num_threads, dry_run=dry_run
+        auth=auth,
+        url=url,
+        local=local,
+        local_path=local_path,
+        parallelism=num_threads,
+        dry_run=dry_run,
+        mongo_uri=mongo_uri,
     )
 
     def override(run_spec: RunSpec) -> RunSpec:
@@ -127,6 +134,12 @@ def add_run_args(parser: argparse.ArgumentParser):
         help="If running locally, the path for `ServerService`.",
         default="prod_env",
     )
+    parser.add_argument(
+        "--mongo-uri",
+        type=str,
+        help="If non-empty, the URL of the MongoDB database that will be used for caching instead of SQLite",
+        default="",
+    )
 
 
 def validate_args(args):
@@ -158,4 +171,9 @@ def main():
         dry_run=args.dry_run,
         skip_instances=args.skip_instances,
         max_eval_instances=args.max_eval_instances,
+        mongo_uri=args.mongo_uri,
     )
+
+
+if __name__ == "__main__":
+    main()

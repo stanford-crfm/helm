@@ -39,6 +39,12 @@ class ExecutionSpec:
     # Whether to skip execution
     dry_run: bool = False
 
+    # URL to the MongoDB database.
+    # If non-empty, the MongoDB database will be used for caching instead of SQLite.
+    # Example format: mongodb://[username:password@]host1[:port1]/[dbname]
+    # For full format, see: https://www.mongodb.com/docs/manual/reference/connection-string/
+    mongo_uri: str = ""
+
 
 class Executor:
     """
@@ -53,7 +59,9 @@ class Executor:
         if execution_spec.local:
             assert execution_spec.local_path, "local=True. Need to specify a value for `local_path`."
             hlog(f"Running locally in root mode with local path: {execution_spec.local_path}")
-            self.service = ServerService(base_path=execution_spec.local_path, root_mode=True)
+            self.service = ServerService(
+                base_path=execution_spec.local_path, root_mode=True, mongo_uri=execution_spec.mongo_uri
+            )
         else:
             assert execution_spec.url, "local=False. Need to specify the URL of proxy server (`url`)."
             self.service = RemoteService(self.execution_spec.url)
