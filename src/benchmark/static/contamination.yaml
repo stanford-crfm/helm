@@ -75,6 +75,10 @@ points:
     - openai/curie
     - openai/babbage
     - openai/ada
+    - openai/text-curie-001
+    - openai/text-babbage-001
+    - openai/text-ada-001
+    - openai/text-davinci-002
     - openai/code-davinci-002
     - openai/code-davinci-001
     - openai/code-cushman-001
