@@ -49,7 +49,12 @@ class OptionPermutationsPerturbation(Perturbation):
             perturbed_references.append(ref)
 
         description = replace(self.description, seed=seed)
-        return replace(instance, input=perturbed_instance, references=perturbed_references, perturbation=description,)
+        return replace(
+            instance,
+            input=perturbed_instance,
+            references=perturbed_references,
+            perturbation=description,
+        )
 
     def perturb(self, text: str, rng: Random) -> str:  # we need this since parent method is abstract
         pass

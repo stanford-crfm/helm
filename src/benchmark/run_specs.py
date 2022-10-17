@@ -116,8 +116,13 @@ def get_multiple_choice_adapter_spec(
     """
     if method == ADAPT_MULTIPLE_CHOICE_JOINT:
         return get_multiple_choice_joint_adapter_spec(
-            instructions, input_noun, output_noun, max_train_instances, 
-            num_outputs=num_outputs, list_options_suffix=list_options_suffix, **kwargs
+            instructions,
+            input_noun,
+            output_noun,
+            max_train_instances,
+            num_outputs=num_outputs,
+            list_options_suffix=list_options_suffix,
+            **kwargs,
         )
     elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
         return get_multiple_choice_separate_adapter_spec(method, empty_input)
@@ -593,16 +598,23 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     )
 
 
-def get_survey_spec(k: str, survey_type: str, list_options: str, instruction_type: str = "None",
-                    method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+def get_survey_spec(
+    k: str,
+    survey_type: str,
+    list_options: str,
+    instruction_type: str = "None",
+    method: str = ADAPT_MULTIPLE_CHOICE_JOINT,
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.survey_scenario.SurveyScenario", args={"survey_type": survey_type}
     )
-    
+
     if instruction_type == "None":
         instruction = f""
     elif instruction_type == "Simple":
-        instruction = f"Please read the following multiple-choice question carefully and select ONE of the listed options."
+        instruction = (
+            f"Please read the following multiple-choice question carefully and select ONE of the listed options."
+        )
     elif instruction_type == "Templatel":
         instruction = f"Please read the multiple-choice question below carefully and select ONE of the listed options. Here is an examples of the format:\n\n"
         instruction += "Question: Question_1\nA. Option_1\nB. Option_2\nC. Option_3\nAnswer: C\n\n"
@@ -618,7 +630,7 @@ def get_survey_spec(k: str, survey_type: str, list_options: str, instruction_typ
         output_noun="Answer",
         max_train_instances=0,
         num_outputs=int(k),
-        list_options_suffix=(list_options=='True')
+        list_options_suffix=(list_options == "True"),
     )
 
     return RunSpec(
