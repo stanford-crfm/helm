@@ -17,8 +17,8 @@ Fix the Anthropic cache with one of two commands:
 
 Example usage:
 
-    python3 scripts/one_off/fix_anthropic_cache.py logprobs --light
-    python3 scripts/one_off/fix_anthropic_cache.py remove_invalid
+    python3 scripts/cache/fix_anthropic_cache.py logprobs --light
+    python3 scripts/cache/fix_anthropic_cache.py remove_invalid
 
 """
 
