@@ -62,7 +62,9 @@ class SurveyScenario(Scenario):
                     return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
 
                 instance = Instance(
-                    input=question, references=list(map(answer_to_reference, answers)), split=splits[split],
+                    input=question,
+                    references=list(map(answer_to_reference, answers)),
+                    split=splits[split],
                 )
                 instances.append(instance)
 

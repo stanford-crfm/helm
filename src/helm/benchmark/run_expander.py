@@ -380,7 +380,8 @@ def contrast_sets() -> PerturbationSpec:
 
 def option_permutations() -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.option_permutations_perturbation.OptionPermutationsPerturbation", args={},
+        class_name="benchmark.augmentations.option_permutations_perturbation.OptionPermutationsPerturbation",
+        args={},
     )
 
 
@@ -712,13 +713,19 @@ class DataAugmentationRunExpander(RunExpander):
         ) -> RunSpec:
             data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
 <<<<<<< HEAD:src/helm/benchmark/run_expander.py
+<<<<<<< HEAD:src/helm/benchmark/run_expander.py
                 perturbation_specs=perturbation_specs, **perturbation_args
 =======
+=======
+>>>>>>> Merge main:src/benchmark/run_expander.py
                 perturbation_specs=perturbation_specs,
                 # Always include original and perturbed instances together so that
                 # we can compute the normal and robustness metrics in the same run.
                 **perturbation_args,
+<<<<<<< HEAD:src/helm/benchmark/run_expander.py
 >>>>>>> Fix formatting:src/benchmark/run_expander.py
+=======
+>>>>>>> Merge main:src/benchmark/run_expander.py
             )
             return replace(
                 run_spec,
