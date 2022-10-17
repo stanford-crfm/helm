@@ -75,10 +75,6 @@ def get_scenario_name(group: RunGroup, scenario_spec: ScenarioSpec):
     return group.name + "_" + dict_to_str(scenario_spec.args).replace(" ", "").replace("/", "_")
 
 
-def get_scenario_display_name(group: RunGroup, scenario_spec: ScenarioSpec):
-    return f"{group.display_name} / {dict_to_str(scenario_spec.args)}"
-
-
 def get_method_adapter_spec(adapter_spec: AdapterSpec, scenario_spec: ScenarioSpec) -> AdapterSpec:
     """
     Return an abstraction of an AdapterSpec that corresponds to the method
@@ -281,6 +277,18 @@ class Summarizer:
 
         return tables
 
+    def create_groups_metadata(self) -> List[Table]:
+        """
+        Create a table for each RunGroup category, linking to the pages where each one is displayed.
+        """
+        metadata = {}
+        for group in self.schema.run_groups:
+            metadata[group.name] = {
+                "displayName": group.display_name,
+                "description": group.description,
+            }
+        return metadata
+
     def create_cell(self, runs: List[Run], matcher: MetricNameMatcher, contamination_level: Optional[str]) -> Cell:
         """
         Use the metric name identified by `matcher` to pull out the stats from
@@ -374,13 +382,12 @@ class Summarizer:
         run_group = columns[0][0]
 
         def run_spec_names_to_url(run_spec_names: List[str]) -> str:
-            # TODO: make the runs load the group file to avoid passing this information around
             return get_benchmarking_url(
                 {
                     "suite": self.suite,
+                    "group": run_group.name,
+                    "subgroup": title,
                     "runSpecs": json.dumps(run_spec_names),
-                    "scenarioDisplayName": title,
-                    "scenarioDescription": run_group.description,
                 }
             )
 
@@ -471,7 +478,7 @@ class Summarizer:
         # Show the table per scenario
         for scenario_spec in self.group_scenario_adapter_to_runs[group.name]:
             scenario_name = get_scenario_name(group, scenario_spec)
-            scenario_display_name = get_scenario_display_name(group, scenario_spec)
+            scenario_display_name = dict_to_str(scenario_spec.args)
             table = self.create_group_table(
                 title=scenario_display_name,
                 adapter_to_runs=self.group_scenario_adapter_to_runs[group.name][scenario_spec],
@@ -495,6 +502,12 @@ class Summarizer:
         write(
             os.path.join(self.run_suite_path, "groups.json"),
             json.dumps(list(map(asdict_without_nones, self.create_index_tables()))),
+        )
+
+        # Write out metadata file for all groups
+        write(
+            os.path.join(self.run_suite_path, "groups_metadata.json"),
+            json.dumps(self.create_groups_metadata()),
         )
 
         # Write out a separate JSON for each group
@@ -560,3 +573,7 @@ def main():
     summarizer.write_runs()
     summarizer.write_groups()
     summarizer.check_metrics_defined()
+
+
+if __name__ == "__main__":
+    main()

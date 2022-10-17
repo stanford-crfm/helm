@@ -242,17 +242,41 @@ $(function () {
     return text.split(' ').map((word) => origWords[word] ? word : '<u>' + word + '</u>').join(' ');
   }
 
-  function renderScenarioInfo(scenario, scenarioPath, $scenarioInfo) {
+  function renderRunsHeader(scenario, scenarioPath) {
     const $output = $('<div>');
-    $output.append($('<h3>').append(urlParams.scenarioDisplayName || renderScenarioDisplayName(scenario)));
-    $output.append($('<div>').append($('<i>').append(urlParams.scenarioDescription || scenario.description)));
-    $output.append($('<div>')
-      .append($('<a>', {href: scenario.definition_path}).append('[code]'))
-      .append(' ').append($('<a>', {href: scenarioPath}).append('[JSON]'))
+    $output.append(renderGroupHeader(scenario));
+    $links = $('<div>')
+    if (scenario) {
+      $links.append(' ').append($('<a>', {href: scenario.definition_path}).append('[code]'))
+    }
+    if (scenarioPath) {
+      $links.append(' ').append($('<a>', {href: scenarioPath}).append('[json]'))
+    }
+    $links
       .append(' ').append($('<a>', {href: '#adapter'}).append('[adapter]'))
       .append(' ').append($('<a>', {href: '#instances'}).append('[instances]'))
-      .append(' ').append($('<a>', {href: '#metrics'}).append('[metrics]'))
-    );
+      .append(' ').append($('<a>', {href: '#metrics'}).append('[metrics]'));
+    $output.append($links);
+    return $output;
+  }
+
+  function renderGroupHeader(scenario) {
+    const $output = $('<div>');
+    if (urlParams.group) {
+      $.getJSON(`benchmark_output/runs/${suite}/groups_metadata.json`, {}, (response) => {
+        if (response[urlParams.group]) {
+          let groupName = response[urlParams.group].displayName;
+          if (urlParams.subgroup) {
+            groupName += " / " + urlParams.subgroup;
+          }
+          $output.append($('<h3>').append(groupName));
+          $output.append($('<div>').append($('<i>').append(response[urlParams.group].description)));
+        }
+      });
+    } else if (scenario) {
+      $output.append($('<h3>').append(renderScenarioDisplayName(scenario)));
+      $output.append($('<div>').append($('<i>').append(scenario.description)));
+    }
     return $output;
   }
 
@@ -573,9 +597,12 @@ $(function () {
     getJSONList(scenarioPaths, (scenarios) => {
       console.log('scenarios', scenarios);
 
-      // Only grab the first scenario (assume all runs have the same scenario)
+      const onlyOneScenario = scenarios.length && scenarios.every((scenario) => scenario.definition_path === scenarios[0].definition_path);
+      const scenario = onlyOneScenario ? scenarios[0] : null;
+      const scenarioPath = onlyOneScenario ? scenarioPaths[0] : null;
       $scenarioInfo.empty();
-      $scenarioInfo.append(renderScenarioInfo(scenarios[0], scenarioPaths[0]));
+      $scenarioInfo.append(renderRunsHeader(scenario, scenarioPath));
+
       const instanceKeyToDiv = renderScenarioInstances(scenarios[0], $instances);
 
       // Render the model predictions
@@ -700,6 +727,7 @@ $(function () {
       // Specific group
       $.getJSON(`benchmark_output/runs/${suite}/groups/${urlParams.group}.json`, {}, (tables) => {
         console.log('group', tables);
+        $main.append(renderGroupHeader(urlParams.group));
         $main.append(renderTables(tables));
       });
     } else {
