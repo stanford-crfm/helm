@@ -41,7 +41,7 @@ class TestCache(unittest.TestCase):
         assert cache_stats.num_computes[self.cache_path] == 0
 
     def test_raise(self):
-        cache = Cache(CacheConfig(self.cache_path))
+        cache = Cache(SqliteCacheConfig(self.cache_path))
         request = {"name": "request1"}
 
         def compute():
