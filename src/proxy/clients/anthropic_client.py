@@ -59,7 +59,7 @@ class AnthropicClient(Client):
                     return False
             return True
         except json.decoder.JSONDecodeError:
-            hlog(f"Invalid JSON string: {raw_response}")
+            hlog(f"Invalid logprobs response: {raw_response}")
             return False
 
     def __init__(self, api_key: str, cache_config: CacheConfig):
