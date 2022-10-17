@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import json
-from typing import Dict, Callable, Optional, Tuple
+from typing import Dict, Callable, List, Optional, Tuple
 from collections import defaultdict
 import threading
 
@@ -9,7 +9,7 @@ from sqlitedict import SqliteDict
 from common.general import hlog, htrack
 from proxy.retry import get_retry_decorator
 from bson.son import SON
-from pymongo import MongoClient
+from pymongo import MongoClient, ReplaceOne
 
 
 def request_to_key(request: Dict) -> str:
@@ -117,6 +117,10 @@ class _KeyValueStore(ABC):
     def put(self, key: Dict, value: Dict) -> None:
         pass
 
+    @abstractmethod
+    def multi_put(self, pairs: List[Tuple[Dict, Dict]]) -> None:
+        pass
+
 
 class _SqliteKeyValueStore(_KeyValueStore):
     """Key value store backed by a SQLite file."""
@@ -146,6 +150,10 @@ class _SqliteKeyValueStore(_KeyValueStore):
         key_string = request_to_key(key)
         self._sqlite_dict[key_string] = value
         self._sqlite_dict.commit()
+
+    def multi_put(self, pairs: List[Tuple[Dict, Dict]]) -> None:
+        for key, value in pairs:
+            self.put(key, value)
 
 
 class _MongoKeyValueStore(_KeyValueStore):
@@ -180,8 +188,18 @@ class _MongoKeyValueStore(_KeyValueStore):
         return None
 
     def put(self, key: Dict, value: Dict) -> None:
-        document = SON([(self._REQUEST_KEY, self._canonicalize_key(key)), (self._RESPONSE_KEY, value)])
-        self._collection.insert_one(document)
+        request = self._canonicalize_key(key)
+        document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
+        # The MongoDB collection should have a unique indexed on "request"
+        self._collection.replace_one(filter={"request": request}, replacement=document, upsert=True)
+
+    def multi_put(self, pairs: List[Tuple[Dict, Dict]]) -> None:
+        operations = []
+        for key, value in pairs:
+            request = self._canonicalize_key(key)
+            document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
+            operations.append(ReplaceOne({"request": request}, document))
+        self._collection.bulk_write(operations)
 
 
 def _create_key_value_store(config: KeyValueStoreCacheConfig) -> _KeyValueStore:
