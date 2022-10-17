@@ -40,6 +40,16 @@ class TestCache(unittest.TestCase):
         assert cache_stats.num_queries[self.cache_path] == 0
         assert cache_stats.num_computes[self.cache_path] == 0
 
+    def test_raise(self):
+        cache = Cache(SqliteCacheConfig(self.cache_path))
+        request = {"name": "request1"}
+
+        def compute():
+            raise ValueError("test error")
+
+        with self.assertRaisesRegex(ValueError, "test error"):
+            cache.get(request, compute)
+
     def test_many_requests(self):
         cache = Cache(SqliteCacheConfig(self.cache_path))
         num_items = 10  # TODO: Inrcrease to 100
