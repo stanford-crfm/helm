@@ -51,12 +51,16 @@ class AnthropicClient(Client):
 
     @staticmethod
     def is_valid_logprobs_response(raw_response: str) -> bool:
-        response: Dict = json.loads(raw_response)
-        for key in AnthropicClient.LOGPROBS_RESPONSE_KEYS:
-            if key not in response:
-                hlog(f"Invalid logprobs response: {raw_response}. Missing key: {key}")
-                return False
-        return True
+        try:
+            response: Dict = json.loads(raw_response)
+            for key in AnthropicClient.LOGPROBS_RESPONSE_KEYS:
+                if key not in response:
+                    hlog(f"Invalid logprobs response: {raw_response}. Missing key: {key}")
+                    return False
+            return True
+        except json.decoder.JSONDecodeError:
+            hlog(f"Invalid JSON string: {raw_response}")
+            return False
 
     def __init__(self, api_key: str, cache_config: CacheConfig):
         self.api_key = api_key
