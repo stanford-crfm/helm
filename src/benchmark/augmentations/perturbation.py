@@ -45,7 +45,10 @@ class Perturbation(ABC):
         # Don't modify `id` of `Instance` here.
         # All the perturbed Instances generated from a single Instance should have the same ID.
         return replace(
-            instance, input=self.perturb(instance.input, rng), references=references, perturbation=description,
+            instance,
+            input=self.perturb(instance.input, rng),
+            references=references,
+            perturbation=description,
         )
 
     def perturb_reference(self, reference: Reference, rng: Random) -> Reference:
@@ -54,7 +57,7 @@ class Perturbation(ABC):
 
     @abstractmethod
     def perturb(self, text: str, rng: Random) -> str:
-        """How to perturb the text. """
+        """How to perturb the text."""
         pass
 
 

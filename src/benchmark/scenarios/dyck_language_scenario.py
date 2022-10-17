@@ -7,47 +7,47 @@ from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CO
 
 class DyckLanguageScenario(Scenario):
     """
-        "Memory-Augmented Recurrent Neural Networks Can Learn Generalized Dyck Languages" (Suzgun et al., 2019)
-            (https://arxiv.org/abs/1911.03329)
+    "Memory-Augmented Recurrent Neural Networks Can Learn Generalized Dyck Languages" (Suzgun et al., 2019)
+        (https://arxiv.org/abs/1911.03329)
 
-        Disclaimer:
-            A similar version of this generation was used in the generation of the following BigBench task:
-            https://github.com/google/BIG-bench/tree/main/bigbench/benchmark_tasks/dyck_languages.
+    Disclaimer:
+        A similar version of this generation was used in the generation of the following BigBench task:
+        https://github.com/google/BIG-bench/tree/main/bigbench/benchmark_tasks/dyck_languages.
 
-            The `dyck_languages` task in BigBench is formulated as a multiple choice task and contains 1K distinct
-            Dyck-4 sequences, whose lengths are bounded to [4, 100]. In this version of the task, however, we are
-            allowing the user to specify the sizes and lengths of the training and test sets, as well as the
-            types/numbers of parenthesis-pairs used.
+        The `dyck_languages` task in BigBench is formulated as a multiple choice task and contains 1K distinct
+        Dyck-4 sequences, whose lengths are bounded to [4, 100]. In this version of the task, however, we are
+        allowing the user to specify the sizes and lengths of the training and test sets, as well as the
+        types/numbers of parenthesis-pairs used.
 
-        Task:
-            Predict the sequence of the closing parentheses of a Dyck-n word without its last few closing parentheses.
+    Task:
+        Predict the sequence of the closing parentheses of a Dyck-n word without its last few closing parentheses.
 
-        Args:
-            seed: Numpy random seed.
-            num_parenthesis_pairs: Total number of parenthesis pairs.
-            parenthesis_pairs: List of parenthesis pairs (if it is None, it is automatically generated).
+    Args:
+        seed: Numpy random seed.
+        num_parenthesis_pairs: Total number of parenthesis pairs.
+        parenthesis_pairs: List of parenthesis pairs (if it is None, it is automatically generated).
 
-            prob_p: The "p" value used in the PCFG for Dyck-n (see below).
-            prob_q: The "q" value used in the PCFG for Dyck-n (see below).
+        prob_p: The "p" value used in the PCFG for Dyck-n (see below).
+        prob_q: The "q" value used in the PCFG for Dyck-n (see below).
 
-            max_recursive_depth: Maximum recursive depth that can be reached while genereating a sequence.
+        max_recursive_depth: Maximum recursive depth that can be reached while genereating a sequence.
 
-            min_seq_train_length: Minimum length that a sequence in the training set can have.
-            max_seq_train_length: Maximum length that a sequence in the training set can have.
-            min_seq_test_length: Minimum length that a sequence in the test set can have.
-            max_seq_test_length: Maximum length that a sequence in the test set can have.
+        min_seq_train_length: Minimum length that a sequence in the training set can have.
+        max_seq_train_length: Maximum length that a sequence in the training set can have.
+        min_seq_test_length: Minimum length that a sequence in the test set can have.
+        max_seq_test_length: Maximum length that a sequence in the test set can have.
 
-            max_output_size: Maximum allowed length of the output.
+        max_output_size: Maximum allowed length of the output.
 
-        I/O examples:
-            -- Input : ( ( [
-            -- Output: ] ) )
+    I/O examples:
+        -- Input : ( ( [
+        -- Output: ] ) )
 
-            -- Input: < { } [ ]
-            -- Output: >
+        -- Input: < { } [ ]
+        -- Output: >
 
-            -- Input : { < > } [ < > ] ( [ ] {
-            -- Output: } )
+        -- Input : { < > } [ < > ] ( [ ] {
+        -- Output: } )
     """
 
     name = "dyck_language"
@@ -138,7 +138,7 @@ class DyckLanguageScenario(Scenario):
         return []
 
     def get_input(self, sequence: List[str], max_n: int) -> List[str]:
-        """ Creates an input. """
+        """Creates an input."""
         depth_counter = np.zeros(self.num_parenthesis_pairs)
         for i in range(len(sequence) - 1, -1, -1):
             if sequence[i] in self.opening_parentheses:
@@ -153,7 +153,7 @@ class DyckLanguageScenario(Scenario):
         return []
 
     def get_output(self, input_seq: List[str]) -> List[str]:
-        """ Given an input sequence, creates the output. """
+        """Given an input sequence, creates the output."""
         stack = []
         for i, elt in enumerate(input_seq):
             if elt in self.opening_parentheses:
@@ -184,7 +184,7 @@ class DyckLanguageScenario(Scenario):
     def create_corpus(
         self, split, corpus_size: int, min_length: int = 1, max_length: int = 100, not_allowed: List[str] = []
     ) -> Tuple[List[str], List[Instance]]:
-        """ Creates a corpus of Dyck-n sequences. """
+        """Creates a corpus of Dyck-n sequences."""
         inputs = []
         i = 0
 
@@ -196,7 +196,9 @@ class DyckLanguageScenario(Scenario):
                 output = " " + output
                 i += 1
                 instance = Instance(
-                    input=input, references=[Reference(output=output, tags=[CORRECT_TAG])], split=split,
+                    input=input,
+                    references=[Reference(output=output, tags=[CORRECT_TAG])],
+                    split=split,
                 )
                 instances.append(instance)
         return inputs, instances

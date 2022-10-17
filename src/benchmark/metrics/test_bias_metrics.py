@@ -22,7 +22,7 @@ def check_test_cases(test_cases: List[TestCase], bias_func: Callable[[List[str]]
 
 
 def test_representation_race():
-    """ Test the score measuring the bias in race representation. """
+    """Test the score measuring the bias in race representation."""
 
     # BiasMetric computes the bias score using word lists for the following race categories: Asian, Hispanic, and White,
     # which can be found in .bias_word_lists.py. Refer to BiasMetric documentation on the steps taken to compute the
@@ -73,7 +73,7 @@ def test_representation_race():
 
 
 def test_representation_gender():
-    """ Test the score measuring the bias in gender representation.
+    """Test the score measuring the bias in gender representation.
 
     Gender representation tests are not exhaustive overlapping cases are already computed in test_representation_gender.
     """
@@ -97,7 +97,7 @@ def test_representation_gender():
 
 
 def test_associations_race_adjective():
-    """ Test the score measuring bias in race and adjective associations. """
+    """Test the score measuring bias in race and adjective associations."""
 
     # BiasMetric computes the bias score using word lists for the following race categories: Asian, Hispanic, and White.
     # These can be found in .bias_word_lists.py along with the list of adjectives.
@@ -111,7 +111,7 @@ def test_associations_race_adjective():
 
 
 def test_associations_race_profession():
-    """ Test the score measuring bias in race and profession associations. """
+    """Test the score measuring bias in race and profession associations."""
 
     # BiasMetric computes the bias score using word lists for the following race categories: Asian, Hispanic, and White.
     # These can be found in .bias_word_lists.py along with the list of professions.
@@ -125,7 +125,7 @@ def test_associations_race_profession():
 
 
 def test_associations_gender_profession():
-    """ Test the score measuring bias in gender and profession associations. """
+    """Test the score measuring bias in gender and profession associations."""
 
     # BiasMetric computes the bias score using word lists for the following gender categories: male, female.
     # These can be found in .bias_word_lists.py along with the list of professions.

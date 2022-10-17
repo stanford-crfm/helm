@@ -97,6 +97,9 @@ class MetricGroup(Field):
 
 BY_METRIC = "by_metric"
 BY_GROUP = "by_group"
+ALL_GROUPS = "all_groups"
+THIS_GROUP_ONLY = "this_group_only"
+NO_GROUPS = "no_groups"
 
 
 @dataclass(frozen=True)
@@ -123,6 +126,16 @@ class RunGroup(Field):
     # Which category this group belongs to. These currently include "Scenarios", "Tasks", "Components" and are used to
     # clump different groups together for easier website navigation.
     category: str = "Scenarios"
+
+    # Whether runs in this group should be displayed as part of other groups they belong to
+    # If ALL_GROUPS (default), we include the run in all groups it belongs to
+    # If NO_GROUPS, don't include any of this group's runs
+    # If THIS_GROUP_ONLY, we include the run in this specific group but not to others (this is useful for ablations
+    # where we want to display a run for the ablation group but not for the more general groups it belongs to).
+    # Example: If a run has the groups ["imdb", "ablation_in_context"] and "imdb" has visibility ALL_GROUPS, while
+    # "ablation_in_context" has visiblity THIS_GROUP_ONLY, then this run is displayed under "ablation_in_context", but
+    # not under "imdb" (and thus is not aggregated with the canonical runs with groups ["imdb"].
+    visibility: str = ALL_GROUPS
 
 
 @dataclass

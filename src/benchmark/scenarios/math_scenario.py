@@ -272,8 +272,7 @@ def is_equiv(str1: Optional[str], str2: Optional[str]) -> float:
 
 
 def is_equiv_chain_of_thought(str1: str, str2: str) -> float:
-    """Strips the solution first before calling `is_equiv`.
-    """
+    """Strips the solution first before calling `is_equiv`."""
     ans1 = get_answer(str1)
     ans2 = get_answer(str2)
 
@@ -409,7 +408,9 @@ class MATHScenario(Scenario):
 
             for ex in dataset[split]:
                 instance = Instance(
-                    input=ex["problem"], references=[Reference(output=ex["answer"], tags=[CORRECT_TAG])], split=split,
+                    input=ex["problem"],
+                    references=[Reference(output=ex["answer"], tags=[CORRECT_TAG])],
+                    split=split,
                 )
                 instances.append(instance)
 

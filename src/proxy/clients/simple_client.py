@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-from common.cache import Cache
+from common.cache import Cache, CacheConfig
 from common.request import Request, RequestResult, Sequence, Token
 from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
 from .client import Client, wrap_request_time
@@ -9,8 +9,8 @@ from .client import Client, wrap_request_time
 class SimpleClient(Client):
     """Implements some "models" that just generate silly things quickly just to debug the infrastructure."""
 
-    def __init__(self, cache_path: str):
-        self.cache = Cache(cache_path)
+    def __init__(self, cache_config: CacheConfig):
+        self.cache = Cache(cache_config)
 
     @staticmethod
     def tokenize_by_space(text: str) -> List[str]:

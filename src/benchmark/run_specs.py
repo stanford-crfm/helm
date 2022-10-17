@@ -1,5 +1,4 @@
 import itertools
-import os
 from typing import Any, Callable, List, Dict, Optional, Set
 
 from common.hierarchical_logger import hlog, htrack
@@ -11,6 +10,9 @@ from .adapter import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_GENERATION,
+    ADAPT_RANKING_BINARY,
+    RANKING_CORRECT_LABEL,
+    RANKING_WRONG_LABEL,
 )
 from .metrics.metric import MetricSpec
 from .run_expander import RUN_EXPANDERS, StopRunExpander
@@ -121,6 +123,63 @@ def get_multiple_choice_adapter_spec(
         return get_multiple_choice_separate_adapter_spec(method, empty_input)
     else:
         raise ValueError(f"Invalid adaptation method: {method}")
+
+
+def get_ranking_binary_adapter_spec(
+    instructions: str = "",
+    document_noun: str = "Passage",
+    query_noun: str = "Query",
+    output_prefix: str = "Does the passage answer the query?",
+    output_noun: str = "Answer",
+    max_train_instances: int = 4,
+    num_outputs: int = 1,
+    num_train_trials: int = 1,
+    temperature: float = 0.0,
+    max_tokens: int = 5,
+    **kwargs,
+) -> AdapterSpec:
+    """
+    [instructions]
+
+    [object_noun]: [object]
+    [query_noun]: [query]
+    [prompt_noun]: [prompt_content]
+    [output_noun]: [output]
+
+    ...
+
+    [object_noun]: [object]
+    [query_noun]: [query]
+    [prompt_noun]: [prompt_content]
+    [output_noun]: [output]
+
+    [object_noun]: [object]
+    [query_noun]: [query]
+    [prompt_noun]: [prompt_content]
+    [output_noun]: [output]
+    """
+    msg = (
+        "There must be an even number of in-context examples to ensure that"
+        "an equal number of positive and negative examples are included."
+    )
+    assert max_train_instances % 2 == 0, msg
+    max_train_instances = int(max_train_instances / 2)
+
+    return AdapterSpec(
+        method=ADAPT_RANKING_BINARY,
+        instructions=format_instructions(instructions),
+        input_prefix=f"{query_noun}: ",
+        input_suffix="\n",
+        reference_prefix=f"{document_noun}: ",
+        reference_suffix="\n",
+        output_prefix=f"{output_prefix}\n{output_noun}: ",
+        max_train_instances=max_train_instances,
+        num_outputs=num_outputs,
+        num_train_trials=num_train_trials,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        **kwargs,
+    )
 
 
 def get_completion_adapter_spec(
@@ -308,32 +367,24 @@ def get_bbq_metric_specs() -> List[MetricSpec]:
     return [MetricSpec(class_name="benchmark.bbq_metrics.BBQMetric", args={})] + get_exact_match_metric_specs()
 
 
-def get_msmarco_metric_specs(task: str, track: str, qrels_path: str, topk: Optional[int] = None) -> List[MetricSpec]:
-    measure_names = MSMARCOScenario.MEASURE_NAMES[(task, track)]
-    mode = MSMARCOScenario.BINARY_LOGPROB_MODE
-    correct_output, wrong_output = MSMARCOScenario.CORRECT_OUTPUT, MSMARCOScenario.WRONG_OUTPUT
-    multi_value_qrels = set(MSMARCOScenario.GOLD_RELATIONS[(task, track)]) != {1}
+def get_msmarco_metric_specs(track: str, rank: Optional[int] = None) -> List[MetricSpec]:
+    # Names of the measures we want to compute.
+    measure_names = MSMARCOScenario.MEASURE_NAMES[track]
+    multiple_relevance_values = set(MSMARCOScenario.GOLD_RELATIONS[track]) != {1}
 
     return [
         MetricSpec(
-            class_name="benchmark.multiple_request_metrics.InformationRetrievalMetric",
+            class_name="benchmark.ranking_metrics.RankingMetric",
             args={
+                "method": ADAPT_RANKING_BINARY,
                 "measure_names": measure_names,
-                "qrels_path": qrels_path,
-                "mode": mode,
-                "correct_output": correct_output,
-                "wrong_output": wrong_output,
-                "topk": topk,
-                "multi_value_qrels": multi_value_qrels,
+                "correct_output": RANKING_CORRECT_LABEL,
+                "wrong_output": RANKING_WRONG_LABEL,
+                "rank": rank,
+                "multiple_relevance_values": multiple_relevance_values,
             },
         ),
-        MetricSpec(
-            class_name="benchmark.multiple_request_metrics.MultipleRequestMetrics", args={"use_basic_metrics": True}
-        ),
-        # The line below is commented out because efficiency metrics are taking a long time to compute
-        # @TODO Uncomment the line below when we have the efficiency computations for all the models
-        # MetricSpec(class_name="benchmark.basic_metrics.BasicMetric", args={"names": []}),
-    ]
+    ] + get_basic_metric_specs(names=[])
 
 
 def get_toxicity_metric_specs() -> List[MetricSpec]:
@@ -406,10 +457,12 @@ def get_copyright_metric_specs(args: Optional[Dict] = None) -> List[MetricSpec]:
             args={**args, "name": "longest_common_prefix_length"},
         ),
         MetricSpec(
-            class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_distance"},
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric",
+            args={**args, "name": "edit_distance"},
         ),
         MetricSpec(
-            class_name="benchmark.copyright_metrics.BasicCopyrightMetric", args={**args, "name": "edit_similarity"},
+            class_name="benchmark.copyright_metrics.BasicCopyrightMetric",
+            args={**args, "name": "edit_similarity"},
         ),
     ] + get_basic_metric_specs([])
 
@@ -421,7 +474,8 @@ def get_disinformation_metric_specs(args: Optional[Dict] = None) -> List[MetricS
         MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationHumanEvalMetrics", args={**args}),
         MetricSpec(class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "self_bleu"}),
         MetricSpec(
-            class_name="benchmark.disinformation_metrics.DisinformationMetric", args={"name": "monte_carlo_entropy"},
+            class_name="benchmark.disinformation_metrics.DisinformationMetric",
+            args={"name": "monte_carlo_entropy"},
         ),
     ] + get_basic_metric_specs([])
 
@@ -468,53 +522,20 @@ def get_bbq_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Run
     )
 
 
-def get_msmarco_spec(
-    task,
-    track,
-    use_qrels_passages="False",
-    use_topk_passages="False",
-    valid_topk=None,
-    num_valid_queries=None,
-    num_train_queries="1000",
-) -> RunSpec:
-
-    # Get ScenarioSpec
-    use_qrels_passages = use_qrels_passages.lower() == "true"
-    use_topk_passages = use_topk_passages.lower() == "true"
-    valid_topk = int(valid_topk) if valid_topk else valid_topk
-    num_valid_queries = int(num_valid_queries) if num_valid_queries else num_valid_queries
-    num_train_queries = int(num_train_queries)
+def get_msmarco_spec(track: str, valid_topk: Optional[int] = None) -> RunSpec:
+    valid_topk = None if valid_topk is None else int(valid_topk)
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.msmarco_scenario.MSMARCOScenario",
-        args={
-            "task": task,
-            "track": track,
-            "use_qrels_passages": use_qrels_passages,
-            "use_topk_passages": use_topk_passages,
-            "valid_topk": valid_topk,
-            "num_valid_queries": num_valid_queries,
-            "num_train_queries": num_train_queries,
-        },
+        args={"track": track, "valid_topk": valid_topk},
     )
 
-    adapter_spec = get_generation_adapter_spec(
-        input_noun="Passage",
-        output_noun="Answer",
-        max_train_instances=4,  # Needs to be even to ensure equal number of correct and wrong examples
-    )
+    adapter_spec: AdapterSpec = get_ranking_binary_adapter_spec(max_train_instances=4, stop_sequences=["\n"])
 
-    # Create metrics
-    qrels_path: str = os.path.join("benchmark_output", "scenarios", "msmarco", "data", f"{task}_{track}_qrels.tsv")
-
-    # Return RunSpec
     return RunSpec(
-        name=f"msmarco:task={task},track={track},use_qrels_passages={use_qrels_passages},"
-        f"use_topk_passages={use_topk_passages},valid_topk={valid_topk},num_valid_queries={num_valid_queries},"
-        f"num_train_queries={num_train_queries}",
+        name=f"msmarco:track={track},valid_topk={valid_topk}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_msmarco_metric_specs(task, track, qrels_path, topk=valid_topk)
-        + get_generative_harms_metric_specs(),
+        metric_specs=get_msmarco_metric_specs(track=track, rank=valid_topk),
         groups=[f"msmarco_{track}"],
     )
 
@@ -611,7 +632,8 @@ def get_survey_spec(k: str, survey_type: str, list_options: str, instruction_typ
 
 def get_wikifact_spec(k: str, subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.wikifact_scenario.WIKIFactScenario", args={"subject": subject},
+        class_name="benchmark.scenarios.wikifact_scenario.WIKIFactScenario",
+        args={"subject": subject},
     )
 
     adapter_spec = get_completion_adapter_spec(
@@ -635,7 +657,8 @@ def get_wikifact_spec(k: str, subject: str) -> RunSpec:
 
 def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.commonsense_scenario.CommonSenseScenario", args={"dataset": dataset},
+        class_name="benchmark.scenarios.commonsense_scenario.CommonSenseScenario",
+        args={"dataset": dataset},
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -685,7 +708,8 @@ def get_news_qa_spec() -> RunSpec:
 
 def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.truthful_qa_scenario.TruthfulQAScenario", args={"task": task},
+        class_name="benchmark.scenarios.truthful_qa_scenario.TruthfulQAScenario",
+        args={"task": task},
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
@@ -703,7 +727,8 @@ def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -
 
 def get_twitter_aae_spec(demographic: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.twitter_aae_scenario.TwitterAAEScenario", args={"demographic": demographic},
+        class_name="benchmark.scenarios.twitter_aae_scenario.TwitterAAEScenario",
+        args={"demographic": demographic},
     )
 
     return RunSpec(
@@ -855,7 +880,10 @@ def get_numeracy_spec(
 
 
 def get_math_spec(
-    subject: str, level: str, use_official_examples: str = "False", use_chain_of_thought: str = "False",
+    subject: str,
+    level: str,
+    use_official_examples: str = "False",
+    use_chain_of_thought: str = "False",
 ) -> RunSpec:
     use_official_examples: bool = use_official_examples == "True"  # type: ignore
     use_chain_of_thought: bool = use_chain_of_thought == "True"  # type: ignore
@@ -978,12 +1006,12 @@ def get_babi_qa_spec(task: str = "all") -> RunSpec:
     )
 
 
-def get_copyright_spec(datatag="pilot") -> RunSpec:
+def get_copyright_spec(datatag="pilot", temperature=0.2, max_tokens=1024, num_outputs=1) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.copyright_scenario.CopyrightScenario", args=dict(datatag=datatag)
     )
 
-    adapter_spec = get_completion_adapter_spec(temperature=0.2, max_tokens=1024)
+    adapter_spec = get_completion_adapter_spec(temperature=temperature, max_tokens=max_tokens, num_outputs=num_outputs)
 
     return RunSpec(
         name=f"copyright:datatag={datatag}",
@@ -1108,7 +1136,7 @@ def get_natural_qa_spec(mode: str) -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_f1_metric_specs() + get_generative_harms_metric_specs(),
-        groups=["natural_qa", f"natural_qa_{mode}"],
+        groups=[f"natural_qa_{mode}"],
     )
 
 
@@ -1142,7 +1170,9 @@ def get_narrativeqa_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.narrativeqa_scenario.NarrativeQAScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
-        input_noun="Passage", output_noun="Answer", max_tokens=100,  # max 30 words
+        input_noun="Passage",
+        output_noun="Answer",
+        max_tokens=100,  # max 30 words
     )
 
     return RunSpec(
@@ -1150,7 +1180,7 @@ def get_narrativeqa_spec() -> RunSpec:
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs(
-            ["exact_match", "quasi_exact_match", "f1_score", "rouge-l", "bleu_1", "bleu_4"]
+            ["exact_match", "quasi_exact_match", "f1_score", "rouge_l", "bleu_1", "bleu_4"]
         )
         + get_generative_harms_metric_specs(),
         groups=["narrative_qa"],
@@ -1158,18 +1188,23 @@ def get_narrativeqa_spec() -> RunSpec:
 
 
 def get_synthetic_efficiency_spec(
-    num_prompt_tokens: int, num_output_tokens: int, tokenizer: str, random: Optional[str] = None
+    num_prompt_tokens: Optional[int] = None,
+    num_output_tokens: Optional[int] = None,
+    tokenizer: Optional[str] = None,
+    random: Optional[str] = None,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.synthetic_efficiency_scenario.SyntheticEfficiencyScenario",
         args={"num_prompt_tokens": num_prompt_tokens, "num_instances": 10, "tokenizer": tokenizer},
     )
 
-    adapter_spec = get_completion_adapter_spec(max_tokens=num_output_tokens, random=random)
+    if num_output_tokens is not None:
+        adapter_spec = get_completion_adapter_spec(max_tokens=num_output_tokens, random=random)
+    else:
+        adapter_spec = get_completion_adapter_spec(random=random)
 
     return RunSpec(
-        name=f"synthetic_efficiency:tokenizer={tokenizer},num_prompt_tokens={num_prompt_tokens},"
-        f"num_output_tokens={num_output_tokens},random={random}",
+        name=f"synthetic_efficiency:random={random}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_basic_metric_specs(["exact_match"]) + get_generative_harms_metric_specs(),
@@ -1179,7 +1214,8 @@ def get_synthetic_efficiency_spec(
 
 def get_synthetic_reasoning_spec(mode: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.synthetic_reasoning_scenario.SyntheticReasoningScenario", args={"mode": mode},
+        class_name="benchmark.scenarios.synthetic_reasoning_scenario.SyntheticReasoningScenario",
+        args={"mode": mode},
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -1377,7 +1413,8 @@ def get_entity_matching_spec(dataset: str) -> RunSpec:
     )
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Are Product A and Product B the same? Yes or No?", output_noun="Answer",
+        instructions="Are Product A and Product B the same? Yes or No?",
+        output_noun="Answer",
     )
 
     return RunSpec(
@@ -1439,7 +1476,7 @@ def get_big_bench_spec(task: str, subtask: str) -> RunSpec:
             elif big_bench_metric_name == "bleu":
                 metric_names.update(["bleu_1", "bleu_4"])
             elif big_bench_metric_name == "rouge":
-                metric_names.update(["rouge-1", "rouge-2", "rouge-l"])
+                metric_names.update(["rouge_1", "rouge_2", "rouge_l"])
             else:
                 hlog(f"Unhandled BIG-bench metric: {big_bench_metric_name}")
                 continue

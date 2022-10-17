@@ -125,7 +125,11 @@ class TruthfulQAScenario(Scenario):
 
                     # Prepare the instance
                     references = get_references(best_answer, incorrect_answers)
-                    instance = Instance(input=question, references=references, split=split,)
+                    instance = Instance(
+                        input=question,
+                        references=references,
+                        split=split,
+                    )
                     instances.append(instance)
             return instances
 

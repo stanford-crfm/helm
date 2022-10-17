@@ -71,7 +71,12 @@ class ContrastSetsPerturbation(Perturbation):
             perturbed_references = instance.contrast_references[perturb_index]
 
         description = replace(self.description, seed=seed)
-        return replace(instance, input=perturbed_instance, references=perturbed_references, perturbation=description,)
+        return replace(
+            instance,
+            input=perturbed_instance,
+            references=perturbed_references,
+            perturbation=description,
+        )
 
     def perturb(self, text: str, rng: Random) -> str:  # we need this since parent method is abstract
         pass

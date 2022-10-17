@@ -14,6 +14,8 @@ from proxy.models import (
     AI21_TOKENIZER_TAG,
     COHERE_TOKENIZER_TAG,
     OPT_TOKENIZER_TAG,
+    GPTJ_TOKENIZER_TAG,
+    GPTNEO_TOKENIZER_TAG,
     ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
@@ -83,7 +85,11 @@ class ReplaceRunSpecValueRunExpander(RunExpander):
             return str(value).replace("/", "_")
 
         return [
-            replace(run_spec, name=f"{run_spec.name},{self.name}={sanitize(value)}", metrics=value,)
+            replace(
+                run_spec,
+                name=f"{run_spec.name},{self.name}={sanitize(value)}",
+                metrics=value,
+            )
             for value in self.values
         ]
 
@@ -101,7 +107,10 @@ class InstructionsRunExpander(RunExpander):
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         adapter_spec = run_spec.adapter_spec
         if self.value == "none":
-            adapter_spec = replace(adapter_spec, instructions="",)
+            adapter_spec = replace(
+                adapter_spec,
+                instructions="",
+            )
         else:
             raise Exception("Unknown value: {self.value}")
         return [
@@ -139,7 +148,11 @@ class PromptRunExpander(RunExpander):
         else:
             raise Exception("Unknown value: {self.value}")
         return [
-            replace(run_spec, name=f"{run_spec.name},{self.name}={self.value}", adapter_spec=adapter_spec,),
+            replace(
+                run_spec,
+                name=f"{run_spec.name},{self.name}={self.value}",
+                adapter_spec=adapter_spec,
+            ),
         ]
 
 
@@ -197,7 +210,10 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
     """For overriding num_outputs."""
 
     name = "num_outputs"
-    values_dict = {"default": [1]}
+    values_dict = {
+        "default": [1],
+        "copyright_sweep": [1, 10],
+    }
 
 
 class ModelRunExpander(ReplaceValueRunExpander):
@@ -247,7 +263,8 @@ def extra_space(num_spaces: int) -> PerturbationSpec:
 
 def space(max_spaces: int) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.space_perturbation.SpacePerturbation", args={"max_spaces": max_spaces},
+        class_name="benchmark.augmentations.space_perturbation.SpacePerturbation",
+        args={"max_spaces": max_spaces},
     )
 
 
@@ -257,19 +274,22 @@ def lower() -> PerturbationSpec:
 
 def misspelling(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.misspelling_perturbation.MisspellingPerturbation", args={"prob": prob},
+        class_name="benchmark.augmentations.misspelling_perturbation.MisspellingPerturbation",
+        args={"prob": prob},
     )
 
 
 def synonym(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.synonym_perturbation.SynonymPerturbation", args={"prob": prob},
+        class_name="benchmark.augmentations.synonym_perturbation.SynonymPerturbation",
+        args={"prob": prob},
     )
 
 
 def contrast_sets() -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.contrast_sets_perturbation.ContrastSetsPerturbation", args={},
+        class_name="benchmark.augmentations.contrast_sets_perturbation.ContrastSetsPerturbation",
+        args={},
     )
 
 
@@ -281,7 +301,8 @@ def option_permutations() -> PerturbationSpec:
 
 def typo(prob: float) -> PerturbationSpec:
     return PerturbationSpec(
-        class_name="benchmark.augmentations.typos_perturbation.TyposPerturbation", args={"prob": prob},
+        class_name="benchmark.augmentations.typos_perturbation.TyposPerturbation",
+        args={"prob": prob},
     )
 
 
@@ -299,7 +320,8 @@ def mild_mix() -> PerturbationSpec:
 def contract_and_expand() -> List[PerturbationSpec]:
     return [
         PerturbationSpec(
-            class_name=f"benchmark.augmentations.contraction_expansion_perturbation.{mode}Perturbation", args={},
+            class_name=f"benchmark.augmentations.contraction_expansion_perturbation.{mode}Perturbation",
+            args={},
         )
         for mode in ["Contraction", "Expansion"]
     ]
@@ -534,6 +556,8 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
 
 
 def get_default_args():
+    # Always include original and perturbed instances together so that
+    # we can compute the normal and robustness metrics in the same run.
     return {
         "should_augment_train_instances": False,
         "should_include_original_train": True,  # irrelevant
@@ -581,10 +605,14 @@ class DataAugmentationRunExpander(RunExpander):
             aug_name: str, perturbation_specs: List[PerturbationSpec], perturbation_args: dict
         ) -> RunSpec:
             data_augmenter_spec: DataAugmenterSpec = DataAugmenterSpec(
+<<<<<<< HEAD
                 perturbation_specs=perturbation_specs,
                 # Always include original and perturbed instances together so that
                 # we can compute the normal and robustness metrics in the same run.
                 **perturbation_args,
+=======
+                perturbation_specs=perturbation_specs, **perturbation_args
+>>>>>>> main
             )
             return replace(
                 run_spec,
@@ -595,6 +623,131 @@ class DataAugmentationRunExpander(RunExpander):
         return [
             create_run_spec(aug_name, perturbation_specs, PERTURBATION_ARGS_DICT[aug_name])
             for aug_name, perturbation_specs in PERTURBATION_SPECS_DICT[self.value].items()
+        ]
+
+
+class ScenarioSpecRunExpander(RunExpander):
+    """
+    Run expander which mutates ScenarioSpec arguments (e.g., can be used to set the prompt size or tokenizer
+    in the SyntheticEfficiencyScenario).
+    """
+
+    def __init__(self, value):
+        """
+        `value` is either the actual value to use or a lookup into the values dict.
+        """
+        self.name = type(self).name
+        if value in type(self).values_dict:
+            self.values = type(self).values_dict[value]
+        else:
+            self.values = [value]
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        def sanitize(value):
+            return str(value).replace("/", "_")
+
+        # Change field in scenario_spec object as appropriate.
+        return [
+            replace(
+                run_spec,
+                name=f"{run_spec.name}{',' if ':' in run_spec.name else ':'}{self.name}={sanitize(value)}",
+                scenario_spec=replace(
+                    run_spec.scenario_spec, args=dict(run_spec.scenario_spec.args, **{self.name: value})
+                ),
+            )
+            for value in self.values
+        ]
+
+
+class TokenizerRunExpander(ScenarioSpecRunExpander):
+    """
+    Run expander for specifying tokenizer for SyntheticEfficiencyScenario.
+    """
+
+    name = "tokenizer"
+    # Compute model-to-tokenizer mapping.
+    # TODO: Consider moving this to Model class.
+    model_to_tokenizer_mapping = {
+        "together/yalm": ["yandex/yalm"],
+        "together/bloom": ["bigscience/bloom"],
+        "together/t0pp": ["bigscience/t0pp"],
+        "together/t5-11b": ["google/t5"],
+        "together/ul2": ["google/ul2"],
+        "together/glm": ["tsinghua/glm"],
+    }
+    model_tags_and_tokenizers = [
+        (GPT2_TOKENIZER_TAG, "huggingface/gpt2"),
+        (AI21_TOKENIZER_TAG, "ai21/j1"),
+        (COHERE_TOKENIZER_TAG, "cohere/cohere"),
+        (OPT_TOKENIZER_TAG, "meta/opt"),
+        (GPTJ_TOKENIZER_TAG, "eleutherai/gptj"),
+        (GPTNEO_TOKENIZER_TAG, "eleutherai/gptneox"),
+    ]
+    for model_tag, tokenizer in model_tags_and_tokenizers:
+        for model in get_model_names_with_tag(model_tag):
+            model_to_tokenizer_mapping[model] = [tokenizer]
+    # tokenizer=default will map to using the right tokenizer for a given model.
+    values_dict = {"default": model_to_tokenizer_mapping}
+
+    def __init__(self, value):
+        """
+        `value` is either the actual value to use or a lookup into the values dict.
+        """
+        self.name = type(self).name
+        if value in type(self).values_dict:
+            self.all_values = type(self).values_dict[value]
+        else:
+            self.all_values = [value]
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        # Find right tokenizer given model.
+        if isinstance(self.all_values, dict):
+            self.values = self.all_values[run_spec.adapter_spec.model]
+        else:
+            self.values = self.all_values
+        return super().expand(run_spec)
+
+
+class NumPromptTokensRunExpander(ScenarioSpecRunExpander):
+    """
+    Run expander for specifying number of prompt tokens. This is used in the SyntheticEfficiencyScenario
+    to control the size of the prompt (in terms of number of tokens).
+    """
+
+    name = "num_prompt_tokens"
+    values_dict = {"default_sweep": [1, 256, 512, 1024, 1536]}
+
+
+class NumOutputTokensRunExpander(RunExpander):
+    """
+    Run expander for specifying number of output tokens. This is used in the SyntheticEfficiencyScenario
+    to control the number of output tokens.
+    """
+
+    name = "num_output_tokens"
+    adapter_spec_name = "max_tokens"
+    values_dict = {"default_sweep": [1, 2, 4, 8, 16, 32, 64]}
+
+    def __init__(self, value):
+        """
+        `value` is either the actual value to use or a lookup into the values dict.
+        """
+        self.name = type(self).name
+        self.adapter_spec_name = type(self).adapter_spec_name
+        if value in type(self).values_dict:
+            self.values = type(self).values_dict[value]
+        else:
+            self.values = [value]
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        # Change run_spec name (num_output_tokens field), and adapter_spec (max_tokens field).
+        return [
+            replace(
+                run_spec,
+                name=f"{run_spec.name}{',' if ':' in run_spec.name else ':'}{self.name}={value}",
+                adapter_spec=replace(run_spec.adapter_spec, **{self.adapter_spec_name: value}),
+            )
+            for value in self.values
         ]
 
 
@@ -609,5 +762,8 @@ RUN_EXPANDERS = dict(
         NumOutputsRunExpander,
         ModelRunExpander,
         DataAugmentationRunExpander,
+        TokenizerRunExpander,
+        NumPromptTokensRunExpander,
+        NumOutputTokensRunExpander,
     ]
 )

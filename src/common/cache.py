@@ -1,12 +1,15 @@
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
 import json
-from typing import Dict, Callable, Tuple
+from typing import Dict, Callable, Optional, Tuple
 from collections import defaultdict
 import threading
 
 from sqlitedict import SqliteDict
-
 from common.general import hlog, htrack
 from proxy.retry import get_retry_decorator
+from bson.son import SON
+from pymongo import MongoClient
 
 
 def request_to_key(request: Dict) -> str:
@@ -29,14 +32,176 @@ retry: Callable = get_retry_decorator(
 )
 
 
+class CacheConfig:
+    """Configuration for a cache."""
+
+    pass
+
+    @property
+    def cache_stats_key(self) -> str:
+        """The string key used by CacheStats to identify this cache."""
+        return "unknown"
+
+
+class KeyValueStoreCacheConfig(CacheConfig):
+    """Configuration for a cache backed by a key-value store."""
+
+    pass
+
+
+@dataclass(frozen=True)
+class SqliteCacheConfig(KeyValueStoreCacheConfig):
+    """Configuration for a cache backed by SQLite."""
+
+    # Path for the Sqlite file that backs the cache.
+    path: str
+
+    @property
+    def cache_stats_key(self) -> str:
+        return self.path
+
+
+@dataclass(frozen=True)
+class MongoCacheConfig(KeyValueStoreCacheConfig):
+    """Configuration for a cache backed by a MongoDB collection."""
+
+    # URL for the MongoDB database that contains the collection.
+    # Example format: mongodb://[username:password@]host1[:port1]/[dbname]
+    # For full format, see: https://www.mongodb.com/docs/manual/reference/connection-string/
+    uri: str
+
+    # Name of the MongoDB collection.
+    collection_name: str
+
+    @property
+    def cache_stats_key(self) -> str:
+        return f"{self.uri}/{self.collection_name}"
+
+
+@dataclass(frozen=True)
+class WithFollowerCacheConfig(CacheConfig):
+    """Configuration of a cache backed by a main cache and a follower cache."""
+
+    # Configuration for the main cache.
+    # Responses will be written to and served out of this cache.
+    main: KeyValueStoreCacheConfig
+
+    # Configuration for the follower cache.
+    # The follower cache is a write-only cache. Responses will be written to this cache,
+    # but not served out of this cache.
+    follower: KeyValueStoreCacheConfig
+
+    @property
+    def cache_stats_key(self) -> str:
+        return self.main.cache_stats_key
+
+
+class _KeyValueStore(ABC):
+    """Key value store that persists writes."""
+
+    @property
+    def path(self):
+        return self._path
+
+    def __enter__(self) -> "_KeyValueStore":
+        pass
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        pass
+
+    @abstractmethod
+    def get(self, key: Dict) -> Optional[Dict]:
+        pass
+
+    @abstractmethod
+    def put(self, key: Dict, value: Dict) -> None:
+        pass
+
+
+class _SqliteKeyValueStore(_KeyValueStore):
+    """Key value store backed by a SQLite file."""
+
+    def __init__(self, path: str):
+        self._sqlite_dict = SqliteDict(path)
+        super().__init__()
+
+    def __enter__(self) -> "_SqliteKeyValueStore":
+        self._sqlite_dict.__enter__()
+        super().__enter__()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        super().__exit__(exc_type, exc_value, traceback)
+        self._sqlite_dict.__exit__(exc_type, exc_value, traceback)
+
+    def get(self, key: Dict) -> Optional[Dict]:
+        key_string = request_to_key(key)
+        result = self._sqlite_dict.get(key_string)
+        if result is not None:
+            assert isinstance(result, dict)
+            return result
+        return None
+
+    def put(self, key: Dict, value: Dict) -> None:
+        key_string = request_to_key(key)
+        self._sqlite_dict[key_string] = value
+        self._sqlite_dict.commit()
+
+
+class _MongoKeyValueStore(_KeyValueStore):
+    """Key value store backed by a MongoDB database."""
+
+    _REQUEST_KEY = "request"
+    _RESPONSE_KEY = "response"
+
+    def __init__(self, uri: str, collection_name: str):
+        # TODO: Create client in __enter__ and clean up client in __exit__
+        self._mongodb_client: MongoClient = MongoClient(uri)
+        self._database = self._mongodb_client.get_default_database()
+        self._collection = self._database.get_collection(collection_name)
+        super().__init__()
+
+    def __enter__(self) -> "_MongoKeyValueStore":
+        super().__enter__()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        super().__exit__(exc_type, exc_value, traceback)
+
+    def _canonicalize_key(self, key: Dict) -> SON:
+        serialized = json.dumps(key, sort_keys=True)
+        return json.loads(serialized, object_pairs_hook=SON)
+
+    def get(self, key: Dict) -> Optional[Dict]:
+        query = {self._REQUEST_KEY: self._canonicalize_key(key)}
+        request = self._collection.find_one(query)
+        if request is not None:
+            return request[self._RESPONSE_KEY]
+        return None
+
+    def put(self, key: Dict, value: Dict) -> None:
+        document = SON([(self._REQUEST_KEY, self._canonicalize_key(key)), (self._RESPONSE_KEY, value)])
+        self._collection.insert_one(document)
+
+
+def _create_key_value_store(config: KeyValueStoreCacheConfig) -> _KeyValueStore:
+    """Create a key value store from the given configuration."""
+    # TODO: Support creating _MongoKeyValueStore
+    if isinstance(config, MongoCacheConfig):
+        return _MongoKeyValueStore(config.uri, config.collection_name)
+    elif isinstance(config, SqliteCacheConfig):
+        return _SqliteKeyValueStore(config.path)
+    else:
+        raise ValueError(f"KeyValueStoreCacheConfig with unknown type: {config}")
+
+
 @retry
-def write_to_cache(cache: SqliteDict, key: str, response: Dict) -> bool:
+def write_to_key_value_store(key_value_store: _KeyValueStore, key: Dict, response: Dict) -> bool:
     """
-    Write to cache with retry. Returns boolean indicating whether the write was successful or not.
+    Write to the key value store with retry. Returns boolean indicating whether the write was successful or not.
     """
     try:
-        cache[key] = response
-        cache.commit()
+        key_value_store.put(key, response)
         return True
     except Exception as e:
         hlog(f"Error when writing to cache: {str(e)}")
@@ -88,22 +253,37 @@ class Cache(object):
     We use sqlitedict to persist the cache: https://github.com/RaRe-Technologies/sqlitedict.
     """
 
-    def __init__(self, cache_path: str):
-        self.cache_path: str = cache_path
+    def __init__(self, config: CacheConfig):
+        hlog(f"Created cache with config: {config}")
+        self.config: KeyValueStoreCacheConfig
+        self.follower_config: Optional[KeyValueStoreCacheConfig]
+        if isinstance(config, KeyValueStoreCacheConfig):
+            self.config = config
+            self.follower_config = None
+        elif isinstance(config, WithFollowerCacheConfig):
+            self.config = config.main
+            self.follower_config = config.follower
+        else:
+            raise ValueError(f"CacheConfig with unknown type: {config}")
 
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
-        cache_stats.increment_query(self.cache_path)
-        key = request_to_key(request)
+        cache_stats.increment_query(self.config.cache_stats_key)
 
-        with SqliteDict(self.cache_path) as cache:
-            response = cache.get(key)
+        # TODO: Initialize key_value_store in constructor
+        with _create_key_value_store(self.config) as key_value_store:
+            response = key_value_store.get(request)
             if response:
                 cached = True
             else:
                 cached = False
-                cache_stats.increment_compute(self.cache_path)
+                cache_stats.increment_compute(self.config.cache_stats_key)
                 # Compute and commit the request/response to SQLite
                 response = compute()
-                write_to_cache(cache, key, response)
+
+                write_to_key_value_store(key_value_store, request, response)
+        if self.follower_config is not None:
+            # TODO: Initialize follower_key_value_store in constructor
+            with _create_key_value_store(self.follower_config) as follower_key_value_store:
+                write_to_key_value_store(follower_key_value_store, request, response)
         return response, cached

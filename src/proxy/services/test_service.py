@@ -25,7 +25,11 @@ class TestServerService:
         shutil.rmtree(self.base_path)
 
     def test_expand_query(self):
-        query = Query(prompt="8 5 4 ${x} ${y}", settings="", environments="x: [1, 2, 3]\ny: [4, 5]",)
+        query = Query(
+            prompt="8 5 4 ${x} ${y}",
+            settings="",
+            environments="x: [1, 2, 3]\ny: [4, 5]",
+        )
         assert len(self.service.expand_query(query).requests) == 3 * 2
 
     def test_make_request(self):

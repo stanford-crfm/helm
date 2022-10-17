@@ -19,7 +19,7 @@ setup(
     author_email="contact-crfm@stanford.edu",
     license="Apache License 2.0",
     keywords="language models benchmarking",
-    packages=find_packages(exclude=["tests*"]),
+    packages=find_packages("src", exclude=["tests*"]),
     classifiers=[
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.8",
