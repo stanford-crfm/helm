@@ -35,6 +35,9 @@ class Table:
     # Extra information to show at the bottom
     links: List[Hyperlink] = field(default_factory=list)
 
+    # Optional descrition to show at the top
+    description: Optional[str] = None
+
 
 def table_to_latex(table: Table, table_name: str, skip_blank_columns=True) -> str:
     """Return a string representing the latex version of the table."""
