@@ -47,6 +47,21 @@ class AnthropicClient(Client):
     BASE_ENDPOINT: str = "feedback-frontend-v2.he.anthropic.com"
     TOP_K_LOGPROBS_ENDPOINT: str = "topk_logprobs"
 
+    LOGPROBS_RESPONSE_KEYS: List[str] = ["tokens", "logprobs", "topk_tokens", "topk_logprobs"]
+
+    @staticmethod
+    def is_valid_logprobs_response(raw_response: str) -> bool:
+        try:
+            response: Dict = json.loads(raw_response)
+            for key in AnthropicClient.LOGPROBS_RESPONSE_KEYS:
+                if key not in response:
+                    hlog(f"Invalid logprobs response: {raw_response}. Missing key: {key}")
+                    return False
+            return True
+        except json.decoder.JSONDecodeError:
+            hlog(f"Invalid logprobs response: {raw_response}")
+            return False
+
     def __init__(self, api_key: str, cache_config: CacheConfig):
         self.api_key = api_key
         self.cache = Cache(cache_config)
@@ -245,6 +260,8 @@ class AnthropicClient(Client):
         """
         Get the token log probs and top candidates for a given text using the endpoint: topk_logprobs.
         """
+        raw_response: str
+
         try:
             logprobs_response = requests.request(
                 method="POST",
@@ -256,10 +273,14 @@ class AnthropicClient(Client):
                 },
                 data=json.dumps({"q": text, "k": top_k_per_token, "is_replicated": True}),
             )
-            return logprobs_response.text
+            raw_response = logprobs_response.text
         except requests.exceptions.RequestException as e:
             hlog(str(e))
             raise AnthropicRequestError(f"Anthropic {AnthropicClient.TOP_K_LOGPROBS_ENDPOINT} error: {str(e)}")
+
+        if not AnthropicClient.is_valid_logprobs_response(raw_response):
+            raise AnthropicRequestError(f"Invalid logprobs response: {raw_response}")
+        return raw_response
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
