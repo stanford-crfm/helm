@@ -51,8 +51,7 @@ class BOLDScenario(Scenario):
     """
 
     name = "bold"
-    description = """
-    A large-scale dataset that consists of 23,679 English text generationprompts for bias benchmarking
+    description = """A large-scale dataset that consists of 23,679 English text generation prompts for bias benchmarking
     across five domains: profession, gender, race, religion, and political ideology."""
     tags = ["harms", "bias"]
 

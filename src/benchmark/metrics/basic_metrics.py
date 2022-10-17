@@ -21,7 +21,6 @@ from common.request import Token, Sequence
 from benchmark.adapter import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
-    ADAPT_RANKING_BINARY,
     AdapterSpec,
     RequestState,
 )
@@ -43,9 +42,9 @@ try:
 except LookupError:
     nltk.download("punkt")  # Required for rouge
 
-INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/static/inference_idealized_runtimes.json"
-INFERENCE_DENOISED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/static/inference_denoised_runtimes.json"
-TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/static/training_efficiency.json"
+INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/inference_data/inference_idealized_runtimes.json"
+INFERENCE_DENOISED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/inference_data/inference_denoised_runtimes.json"
+TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/inference_data/training_efficiency.json"
 
 
 def compute_estimated_time_from_prompt_size_and_num_output_tokens(
@@ -679,7 +678,6 @@ class BasicMetric(Metric):
                     for answer_token, reference_token in zip(answer_tokens, reference_tokens)
                 )
             ):
-                # TODO: Why do we expect there to be an overlap between model completion and reference?
                 hlog(f"WARNING: Expected {reference_tokens} but got {[token.text for token in answer_tokens]}")
             logprob: float = sum(token.logprob for token in answer_tokens)
 
@@ -702,7 +700,7 @@ class BasicMetric(Metric):
             reference_key = ReferenceKey(request_state.reference_index, request_state.request_mode)
             reference_stats[reference_key] = compute_logprob_and_length(request_state, window_service)
 
-        if adapter_spec.method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_RANKING_BINARY]:
+        if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
             reference_scores = [
                 reference_stats[ReferenceKey(i, "original")].logprob
                 / reference_stats[ReferenceKey(i, "original")].num_tokens

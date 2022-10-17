@@ -18,6 +18,7 @@ from .metric_service import MetricService
 from .basic_metrics import get_rouge_function
 from .statistic import Stat
 from .summac.model_summac import SummaCZS
+from bert_score import BERTScorer
 
 
 class SummarizationMetric(Metric):
@@ -40,7 +41,12 @@ class SummarizationMetric(Metric):
 
         if device == "cpu":
             self.compute_faithfulness = False
+            self.compute_bertscore = False
         else:
+            self.compute_bertscore = True
+            self.bert_scorer = BERTScorer(
+                model_type="microsoft/deberta-large-mnli", lang="en", rescale_with_baseline=True, device=device
+            )
             # Need GPU for faithfulness metrics since they are model-based.
             self.compute_faithfulness = True
             self.summac = SummaCZS(granularity="sentence", model_name="vitc", imager_load_cache=False, device=device)
@@ -78,6 +84,10 @@ class SummarizationMetric(Metric):
 
     def _compute_faithfulness_scores(self, inp: str, pred: str) -> Dict[str, float]:
         return {"summac": self.summac.score_one(inp, pred)["score"]}
+
+    def _compute_bert_score(self, refs: List[str], pred: str) -> Dict[str, float]:
+        p, r, f = self.bert_scorer.score([pred], [refs])
+        return {"BERTScore-P": p[0].item(), "BERTScore-R": r[0].item(), "BERTScore-F": f[0].item()}
 
     def _remove_braces(self, text):
         if text.startswith("{"):
@@ -117,6 +127,12 @@ class SummarizationMetric(Metric):
                     Stat(MetricName(name)).add(float(val))
                     for name, val in self._compute_faithfulness_scores(inp, pred).items()
                 ]
+            )
+
+        # Compute BERTScore
+        if self.compute_bertscore:
+            result.extend(
+                [Stat(MetricName(name)).add(float(val)) for name, val in self._compute_bert_score(refs, pred).items()]
             )
 
         return result

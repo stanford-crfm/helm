@@ -128,14 +128,6 @@ def asdict_without_nones(obj: dataclass) -> Dict[str, Any]:
     return asdict(obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
 
 
-def binarize_dict(d: Dict[str, int]) -> Dict[str, int]:
-    """ Binarize the dict by setting the values that are 1 to 0.
-
-    Values greater than 1 stay untouched.
-    """
-    return {k: 0 if v == 1 else v for k, v in d.items()}
-
-
 def serialize(obj: dataclass) -> List[str]:
     """Takes in a dataclass and outputs all of its fields and values in a list."""
     return [f"{key}: {json.dumps(value)}" for key, value in asdict(obj).items()]
@@ -200,3 +192,51 @@ def without_common_entries(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     common_keys = [key for key in items[0] if all(item[key] == items[0][key] for item in items)]
     return [dict((key, value) for key, value in item.items() if key not in common_keys) for item in items]
+
+
+def unique_simplification(items: List[Dict[str, Any]], priority_keys: List[str]) -> List[Dict[str, Any]]:
+    """
+    Given `items` (a list of dictionaries), remove any (key, value) pairs that
+    aren't necessary to distinguish the items, removing the keys not in
+    `priority_keys` and then from the end of `priority_keys` first.
+
+    Example:
+        items = [{"model": "M1", stop: "#", n: 3}, {"model": "M1", stop: "\n", n: 3}, {"model": "M2", stop: "\n", n: 3}]
+        priority_keys = ["model"]
+    Return:
+        [{"model": "M1", stop: "#"}, {"model": "M1", stop: "\n"}, {"model": "M2"}]
+    """
+
+    def get_subitem(item: Dict[str, Any], subkeys: List[str]) -> Dict[str, Any]:
+        return {key: item.get(key) for key in subkeys}
+
+    def get_keys(item: Dict[str, Any]) -> List[str]:
+        """Return the keys of `item`, putting `priority_keys` first."""
+        keys = []
+        for key in priority_keys:
+            if key in item:
+                keys.append(key)
+        for key in item:
+            if key not in priority_keys:
+                keys.append(key)
+        return keys
+
+    # Strip out common entries first
+    items = without_common_entries(items)
+
+    # Go through and remove more keys
+    new_items: List[str] = []
+    for item in items:
+        # For each item, go through the keys in order
+        keys = get_keys(item)
+
+        for i in range(len(keys)):
+            # For each prefix of the keys, keep it if it uniquely identifies
+            # this item.
+            subkeys = keys[: i + 1]
+            subitem = get_subitem(item, subkeys)
+            if sum(1 if get_subitem(item2, subkeys) == subitem else 0 for item2 in items) == 1:
+                new_items.append(subitem)
+                break
+
+    return new_items

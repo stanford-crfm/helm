@@ -8,7 +8,7 @@ from common.general import hlog
 from benchmark.metrics.metric_name import MetricName
 from benchmark.augmentations.perturbation_description import PERTURBATION_WORST
 
-SCHEMA_YAML_PATH: str = "src/proxy/static/schema.yaml"
+SCHEMA_YAML_PATH: str = "src/benchmark/static/schema.yaml"
 UP_ARROW = "\u2191"
 DOWN_ARROW = "\u2193"
 

@@ -8,13 +8,13 @@ import dacite
 from typing import List, Optional, Dict, Any, Tuple, Set
 import json
 
-from common.general import write, ensure_directory_exists, asdict_without_nones, singleton, without_common_entries
+from common.general import write, ensure_directory_exists, asdict_without_nones, singleton, unique_simplification
 from common.hierarchical_logger import hlog, htrack
 from benchmark.scenarios.scenario import ScenarioSpec
 from benchmark.adapter import AdapterSpec
 from benchmark.metrics.statistic import Stat
 from benchmark.runner import RunSpec
-from proxy.models import ALL_MODELS, get_model
+from proxy.models import ALL_MODELS, Model, get_model
 from .table import Cell, Table, Hyperlink, table_to_latex
 from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_PATH, BY_GROUP
 from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
@@ -55,7 +55,7 @@ def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) ->
 
 def get_benchmarking_url(params: Dict[str, str]) -> str:
     # Don't encode ' ' as '+'
-    return "benchmarking.html?" + urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
+    return "?" + urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
 
 
 def dict_to_str(d: Dict[str, Any]) -> str:
@@ -68,6 +68,42 @@ def get_scenario_name(group: RunGroup, scenario_spec: ScenarioSpec):
 
 def get_scenario_display_name(group: RunGroup, scenario_spec: ScenarioSpec):
     return f"{group.display_name} / {dict_to_str(scenario_spec.args)}"
+
+
+def get_method_adapter_spec(adapter_spec: AdapterSpec, scenario_spec: ScenarioSpec) -> AdapterSpec:
+    """
+    Return an abstraction of an AdapterSpec that corresponds to the method
+    (e.g., model, decoding parameters), and not the part that contains
+    scenario-specific things like instructions.
+    This is not an easy thing to disentangle, so just try our best
+    in a necessarily scenario-specific way.
+    """
+    # Sometimes the instructions contain information about the scenario.
+    if scenario_spec.class_name.endswith(".MMLUScenario"):
+        # MMLU: Sync up with logic in `get_mmlu_spec` for constructing the instructions.
+        subject = scenario_spec.args["subject"].replace("_", " ")
+        instructions = adapter_spec.instructions.replace(subject, "___")
+    elif scenario_spec.class_name.endswith(".RAFTScenario"):
+        # RAFT scenario has arbitrary instructions, so impossible to remove
+        # the scenario information, so remove all of it.
+        instructions = ""
+    else:
+        instructions = adapter_spec.instructions
+    return replace(adapter_spec, instructions=instructions)
+
+
+def get_method_display_name(model: Model, info: Dict[str, Any]) -> str:
+    """
+    Return a nice name to display for `adapter_spec` which denotes a method.
+    `info` contains the decoding parameters.
+
+    Format: Model (info...)
+    """
+    info = dict(info)
+    if "model" in info:
+        del info["model"]
+
+    return model.display_name + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
 
 
 class Summarizer:
@@ -128,7 +164,7 @@ class Summarizer:
         for run in self.runs:
             for group in run.run_spec.groups:
                 scenario_spec = run.run_spec.scenario_spec
-                adapter_spec = run.run_spec.adapter_spec
+                adapter_spec = get_method_adapter_spec(run.run_spec.adapter_spec, scenario_spec)
 
                 self.group_adapter_to_runs[group][adapter_spec].append(run)
                 self.group_scenario_adapter_to_runs[group][scenario_spec][adapter_spec].append(run)
@@ -163,7 +199,6 @@ class Summarizer:
             json.dumps(list(map(asdict_without_nones, self.runs)), indent=2),
         )
 
-    @htrack(None)
     def expand_subgroups(self, group: RunGroup) -> List[RunGroup]:
         """Given a RunGroup, collect a list of its subgroups by traversing the subgroup tree."""
 
@@ -302,7 +337,7 @@ class Summarizer:
                 group_names.append(run_group.name)
 
         def run_spec_names_to_url(run_spec_names: List[str]) -> str:
-            # TODO: include display names
+            # TODO: make the runs load the group file to avoid passing this information around
             return get_benchmarking_url(
                 {
                     "suite": self.suite,
@@ -312,14 +347,15 @@ class Summarizer:
                 }
             )
 
-        # Compute adapter names (TODO: unify with findDiff)
-        infos = without_common_entries(list(map(asdict_without_nones, adapter_to_runs.keys())))
+        # Pull out only the keys of the method adapter_spec that is needed to
+        # uniquely identify the method.
+        infos = unique_simplification(list(map(asdict_without_nones, adapter_to_runs.keys())), ["model"])
 
         # Populate the contents of the table
         rows = []
         for (adapter_spec, runs), info in zip(adapter_to_runs.items(), infos):
             model = get_model(adapter_spec.model)
-            display_name = model.display_name + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
+            display_name = get_method_display_name(model, info)
 
             # Link to all the runs under this model
             if link_to_runs:
@@ -362,9 +398,7 @@ class Summarizer:
         for group in groups:
             all_metric_groups.extend(group.metric_groups)
             for adapter_spec, runs in self.group_adapter_to_runs[group.name].items():
-                # TODO: different scenarios might have different adapters (e.g., instructions) but we still want
-                # to visualize them in the same row, so for now we just keep the model part of the spec
-                adapter_spec = AdapterSpec(model=adapter_spec.model, method="none")
+                adapter_spec = get_method_adapter_spec(adapter_spec, runs[0].run_spec.scenario_spec)
                 adapter_to_runs[adapter_spec].extend(runs)
         all_metric_groups = list(dict.fromkeys(all_metric_groups))  # deduplicate while preserving order
 

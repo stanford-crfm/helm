@@ -29,6 +29,7 @@ def run_benchmarking(
     skip_instances: bool,
     max_eval_instances: Optional[int] = None,
     num_train_trials: Optional[int] = None,
+    groups: Optional[List[str]] = None,
     models_to_run: Optional[List[str]] = None,
     scenario_groups_to_run: Optional[List[str]] = None,
 ) -> List[RunSpec]:
@@ -40,12 +41,22 @@ def run_benchmarking(
 
     def override(run_spec: RunSpec) -> RunSpec:
         """Override parts of `run_spec`."""
+        # Modify AdapterSpec
         adapter_spec: AdapterSpec = run_spec.adapter_spec
         if max_eval_instances is not None:
             adapter_spec = replace(adapter_spec, max_eval_instances=max_eval_instances)
-        if num_train_trials is not None:
-            adapter_spec = replace(adapter_spec, num_train_trials=num_train_trials)
-        return replace(run_spec, adapter_spec=adapter_spec)
+        if num_train_trials is not None or adapter_spec.max_train_instances == 0:
+            adapter_spec = replace(
+                adapter_spec, num_train_trials=1 if adapter_spec.max_train_instances == 0 else num_train_trials
+            )
+
+        run_spec = replace(run_spec, adapter_spec=adapter_spec)
+
+        # Append groups
+        if groups is not None:
+            run_spec = replace(run_spec, groups=run_spec.groups + groups)
+
+        return run_spec
 
     run_specs = [
         override(run_spec)
