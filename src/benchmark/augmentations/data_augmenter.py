@@ -64,7 +64,9 @@ class DataAugmenter:
             seeds_per_instance=seeds_per_instance,
         )
         results: List[List[Instance]] = parallel_map(
-            processor.process, instances, parallelism=parallelism,
+            processor.process,
+            instances,
+            parallelism=parallelism,
         )
         output_instances = [instance for result in results for instance in result]
 

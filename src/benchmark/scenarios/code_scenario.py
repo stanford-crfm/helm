@@ -94,7 +94,9 @@ def _read_and_preprocess_human_eval(
             input=problems[task_id]["prompt"],
             references=[
                 CodeReference(
-                    output=problems[task_id]["canonical_solution"], test_cases=problems[task_id], tags=[CORRECT_TAG],
+                    output=problems[task_id]["canonical_solution"],
+                    test_cases=problems[task_id],
+                    tags=[CORRECT_TAG],
                 ),
             ],
             split=split,
@@ -200,7 +202,11 @@ def _read_and_preprocess_apps(target_path: str) -> List[CodeInstance]:
                 solutions = [""]
 
             # Create overall prompt.
-            prompt = _make_input_for_apps(question=question, starter_code=starter_code, answer_type=answer_type,)
+            prompt = _make_input_for_apps(
+                question=question,
+                starter_code=starter_code,
+                answer_type=answer_type,
+            )
             instance = CodeInstance(
                 input=prompt,
                 references=[

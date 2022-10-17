@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import openai as gooseai
 
-from common.cache import Cache
+from common.cache import Cache, CacheConfig
 from common.request import EMBEDDING_UNAVAILABLE_REQUEST_RESULT, Request, RequestResult, Sequence, Token
 from common.tokenization_request import (
     TokenizationRequest,
@@ -21,12 +21,12 @@ class GooseAIClient(Client):
     - Supported models: https://goose.ai/docs/models
     """
 
-    def __init__(self, api_key: str, cache_path: str, org_id: Optional[str] = None):
+    def __init__(self, api_key: str, cache_config: CacheConfig, org_id: Optional[str] = None):
         self.org_id: Optional[str] = org_id
         self.api_key: str = api_key
         self.api_base: str = "https://api.goose.ai/v1"
 
-        self.cache = Cache(cache_path)
+        self.cache = Cache(cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
         """

@@ -21,6 +21,7 @@ from common.request import Token, Sequence
 from benchmark.adapter import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+    ADAPT_RANKING_BINARY,
     AdapterSpec,
     RequestState,
 )
@@ -42,9 +43,9 @@ try:
 except LookupError:
     nltk.download("punkt")  # Required for rouge
 
-INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/inference_data/inference_idealized_runtimes.json"
-INFERENCE_DENOISED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/inference_data/inference_denoised_runtimes.json"
-TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/inference_data/training_efficiency.json"
+INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/efficiency_data/inference_idealized_runtimes.json"
+INFERENCE_DENOISED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/efficiency_data/inference_denoised_runtimes.json"
+TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/efficiency_data/training_efficiency.json"
 
 
 def compute_estimated_time_from_prompt_size_and_num_output_tokens(
@@ -233,7 +234,10 @@ def bleu_4(gold: str, pred: str) -> float:
 
 
 def extract_set_from_text(
-    set_str: str, set_start_str: str = " is ", set_separator: str = " and ", empty_set_str: str = "Nothing.",
+    set_str: str,
+    set_start_str: str = " is ",
+    set_separator: str = " and ",
+    empty_set_str: str = "Nothing.",
 ) -> Set[str]:
     """
     Given a string, extract the set of strings implied by that string.
@@ -391,7 +395,11 @@ class BasicMetric(Metric):
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
 
-        def compute_metrics_helper(name: MetricName, score_func: Callable, group: Optional[str] = None,) -> List[Stat]:
+        def compute_metrics_helper(
+            name: MetricName,
+            score_func: Callable,
+            group: Optional[str] = None,
+        ) -> List[Stat]:
             if name.name == "pass":  # Calculate pass@k for HumanEval from CodeScenario.
                 score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
                 code_golds = cast(List[CodeReference], golds)
@@ -427,9 +435,9 @@ class BasicMetric(Metric):
             "code_eval_acc": code_eval,
             "pass": code_eval,
             "f1_score": f1_score,
-            "rouge-1": get_rouge_function("rouge1"),
-            "rouge-2": get_rouge_function("rouge2"),
-            "rouge-l": get_rouge_function("rougeL"),
+            "rouge_1": get_rouge_function("rouge1"),
+            "rouge_2": get_rouge_function("rouge2"),
+            "rouge_l": get_rouge_function("rougeL"),
             "bleu_1": bleu_1,
             "bleu_4": bleu_4,
             "absolute_value_difference": absolute_value_difference,
@@ -521,6 +529,10 @@ class BasicMetric(Metric):
         denoised_runtime: Optional[float] = compute_estimated_time_from_prompt_size_and_num_output_tokens(
             request_state, self.inference_denoised_runtimes_dict, num_prompt_tokens, num_output_tokens
         )
+        # Denoised runtime for offline models is just runtime.
+        # We divide by batch_size to get approximate per-input runtime.
+        if request_state.result.batch_size is not None:
+            denoised_runtime = runtime / request_state.result.batch_size
 
         # Compute efficiency metrics for training.
         training_co2_cost: Optional[float]
@@ -672,13 +684,6 @@ class BasicMetric(Metric):
             reference_tokens: List[str] = window_service.tokenize(f" {reference}")
             num_tokens: int = len(reference_tokens)
             answer_tokens: List[Token] = sequence.tokens[-num_tokens:]
-            if (len(answer_tokens) != len(reference_tokens)) or (
-                not all(
-                    answer_token.text == reference_token
-                    for answer_token, reference_token in zip(answer_tokens, reference_tokens)
-                )
-            ):
-                hlog(f"WARNING: Expected {reference_tokens} but got {[token.text for token in answer_tokens]}")
             logprob: float = sum(token.logprob for token in answer_tokens)
 
             return ReferenceStat(logprob, num_tokens)
@@ -700,7 +705,7 @@ class BasicMetric(Metric):
             reference_key = ReferenceKey(request_state.reference_index, request_state.request_mode)
             reference_stats[reference_key] = compute_logprob_and_length(request_state, window_service)
 
-        if adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL:
+        if adapter_spec.method in [ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_RANKING_BINARY]:
             reference_scores = [
                 reference_stats[ReferenceKey(i, "original")].logprob
                 / reference_stats[ReferenceKey(i, "original")].num_tokens

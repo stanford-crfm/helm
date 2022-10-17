@@ -20,7 +20,7 @@ function execute {
    eval $1
 }
 
-cpus=4
+cpus=1
 # Running into "sqlite3.OperationalError: database is locked" when running with many threads
 num_threads=1
 work_dir=$PWD

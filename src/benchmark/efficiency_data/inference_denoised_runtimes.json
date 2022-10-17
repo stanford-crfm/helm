@@ -185,5 +185,16 @@
       "1536": 0.369
     },
     "overhead": 0.2
+  },
+  "cohere/xlarge-20220609": {
+    "runtime_per_output_token": 0.04,
+    "runtime_for_prompt_tokens": {
+      "1": 0.04,
+      "256": 0.138,
+      "512": 0.219,
+      "1024": 0.318,
+      "1536": 0.477
+    },
+    "overhead": 0.311
   }
 }

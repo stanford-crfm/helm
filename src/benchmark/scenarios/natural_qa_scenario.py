@@ -189,7 +189,11 @@ class NaturalQAScenario(Scenario):
                 long_answers.append(long_ans)
 
         return RawInstance(
-            title=title, document=document, question=question, long_answers=long_answers, short_answers=short_answers,
+            title=title,
+            document=document,
+            question=question,
+            long_answers=long_answers,
+            short_answers=short_answers,
         )
 
     def create_instance(self, instance: RawInstance, split: str) -> Instance:
@@ -256,8 +260,8 @@ class NaturalQAScenario(Scenario):
                         print(json.dumps(asdict_without_nones(raw_instance)), file=fp)
         else:
             with htrack_block(f"Reading {raw_instances_path}"):
-                for line in open(raw_instances_path):
-                    raw_instance = dacite.from_dict(RawInstance, json.loads(line))
+                for raw_line in open(raw_instances_path):
+                    raw_instance = dacite.from_dict(RawInstance, json.loads(raw_line))
                     raw_instances.append(raw_instance)
 
         # Convert raw instances to instances.

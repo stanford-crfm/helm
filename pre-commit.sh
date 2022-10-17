@@ -11,30 +11,28 @@ if [ "$valid_version" == "False" ]; then
   exit 1
 fi
 
-if ! [ -e venv ]; then
-  python3 -m pip install virtualenv
-  python3 -m virtualenv -p python3 venv
-fi
-
-# protobuf issue + workaround described here: https://github.com/protocolbuffers/protobuf/issues/6550
-venv/bin/pip install --no-binary=protobuf protobuf
-
-venv/bin/pip install -e . --find-links https://download.pytorch.org/whl/torch_stable.html
-venv/bin/pip check
+# Manually install pytorch to avoid pip getting killed: https://stackoverflow.com/a/54329850
+pip install --no-cache-dir --find-links https://download.pytorch.org/whl/torch_stable.html torch==1.12.1+cu113 torchvision==0.13.1+cu113
+# Manually install protobuf to workaround issue: https://github.com/protocolbuffers/protobuf/issues/6550
+pip install --no-binary=protobuf protobuf==3.20.1
+# Install all pinned dependencies
+pip install -r requirements.txt
+pip install -e .
+pip check
 
 # Python style checks and linting
-venv/bin/black --check --diff src scripts || (
+black --check --diff src scripts || (
   echo ""
   echo "The code formatting check failed. To fix the formatting, run:"
   echo ""
   echo ""
-  echo -e "\tvenv/bin/black src"
+  echo -e "\tblack src scripts"
   echo ""
   echo ""
   exit 1
 )
 
-venv/bin/mypy src scripts
-venv/bin/flake8 src scripts
+mypy --install-types --non-interactive src scripts
+flake8 src scripts
 
 echo "Done."

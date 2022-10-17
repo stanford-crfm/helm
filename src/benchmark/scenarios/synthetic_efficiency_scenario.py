@@ -4,20 +4,6 @@ from typing import List
 from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, TEST_SPLIT, CORRECT_TAG
 
-NUM_INPUT_TOKENS: List[int] = [
-    1,
-    16,
-    32,
-    64,
-    256,
-    512,
-    768,
-    1024,
-    1536,
-    1920,
-]
-NUM_OUTPUT_TOKENS: List[int] = [1, 2, 4, 8, 16, 32, 64]
-
 
 class SyntheticEfficiencyScenario(Scenario):
     """
@@ -45,6 +31,9 @@ class SyntheticEfficiencyScenario(Scenario):
         self.num_prompt_tokens: int = num_prompt_tokens
         self.num_instances: int = num_instances
         self.tokenizer: str = tokenizer
+
+    def get_instances(self) -> List[Instance]:
+        instances: List[Instance] = []
         assert self.tokenizer in [
             "huggingface/gpt2",
             "ai21/j1",
@@ -59,9 +48,6 @@ class SyntheticEfficiencyScenario(Scenario):
             "eleutherai/gptj",
             "eleutherai/gptneox",
         ]
-
-    def get_instances(self) -> List[Instance]:
-        instances: List[Instance] = []
         for instance_id in range(self.num_instances):
             file_name: str = (
                 f"num_prompt_tokens={self.num_prompt_tokens},"
@@ -79,7 +65,9 @@ class SyntheticEfficiencyScenario(Scenario):
             with open(data_path, "r") as f:
                 prompt: str = f.read()
                 instance = Instance(
-                    input=prompt, references=[Reference(output="", tags=[CORRECT_TAG])], split=TEST_SPLIT,
+                    input=prompt,
+                    references=[Reference(output="", tags=[CORRECT_TAG])],
+                    split=TEST_SPLIT,
                 )
                 instances.append(instance)
 

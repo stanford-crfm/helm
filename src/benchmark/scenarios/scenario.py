@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
-from typing import List, Optional
+from typing import List, Optional, Tuple
 import re
 import inspect
 
@@ -8,19 +8,45 @@ from common.object_spec import ObjectSpec, create_object
 from common.general import format_text, format_split, format_tags, indent_lines
 from benchmark.augmentations.perturbation_description import PerturbationDescription
 
-# Data splits
+""" Data splits """
 TRAIN_SPLIT: str = "train"
 VALID_SPLIT: str = "valid"
 TEST_SPLIT: str = "test"
 EVAL_SPLITS: List[str] = [VALID_SPLIT, TEST_SPLIT]
 ALL_SPLITS: List[str] = [TRAIN_SPLIT] + EVAL_SPLITS
 
+""" Number of examples """
 # We mainly care about having enough test examples to ensure statistical significance;
 # the remaining N-1000 instances become training examples.
 DEFAULT_TEST_SIZE: int = 1000
 
-# Tags for references
+""" Reference tags """
 CORRECT_TAG: str = "correct"
+
+# Reference tag functions for ranking scenarios.
+# @TODO: (For future) Should there be a base RankingScenario class?
+
+
+def make_relevance_tag(relevance: int) -> str:
+    """Make a relevance tag.
+
+    Relevance value is an integer bigger than or equal to 0.
+    """
+    return f"relevance={relevance}"
+
+
+def make_rank_tag(rank: int) -> str:
+    """Make a rank tag.
+
+    Rank value is an integer bigger than or equal to 1.
+    """
+    return f"rank={rank}"
+
+
+def unpack_tag(tag: str) -> Tuple[str, str]:
+    """Unpack the value from the tag."""
+    key, value = tag.split("=")
+    return key, value
 
 
 class Input(ABC):
@@ -136,20 +162,6 @@ class Instance:
         return info
 
 
-@dataclass(frozen=True, eq=False)
-class MultipleRequestInstance(Instance):
-    """ Instance """
-
-    """ Unique ID for the request group this instance is a part of.  """
-    group_id: Optional[str] = None
-
-    """ ID for this request, unique in the group of instances with the same group_id. """
-    request_id: Optional[str] = None
-
-    """ Relevance of this request instance for the group. """
-    relevance: Optional[int] = None
-
-
 @dataclass  # type: ignore
 class Scenario(ABC):
     """
@@ -200,7 +212,7 @@ class Scenario(ABC):
         ]
 
         for i, instance in enumerate(instances):
-            output.append(f"instance {i} ({total} total) {format_split(instance.split)} {{")
+            output.append(f"instance {i} ({total} total) {format_split(str(instance.split))} {{")
             output.extend(indent_lines(instance.render_lines()))
             output.append("}")
         return output

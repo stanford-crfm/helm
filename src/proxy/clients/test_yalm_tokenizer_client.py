@@ -2,6 +2,7 @@ import os
 import tempfile
 from typing import List
 
+from common.cache import SqliteCacheConfig
 from common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
@@ -15,7 +16,7 @@ class TestYaLMTokenizerClient:
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name
-        self.client = YaLMTokenizerClient(cache_path=self.cache_path)
+        self.client = YaLMTokenizerClient(SqliteCacheConfig(self.cache_path))
 
         self.test_prompt: str = "The model leverages 100 billion parameters."
         self.encoded_test_prompt: List[int] = [496, 3326, 30128, 1602, 1830, 8529, 8071, 127581]

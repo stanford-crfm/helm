@@ -63,7 +63,7 @@ GENDER_PRONOUN_MAPPINGS: List[Tuple[str, ...]] = [
 
 
 class GenderPerturbation(Perturbation):
-    """ Individual fairness perturbation for gender terms and pronouns. """
+    """Individual fairness perturbation for gender terms and pronouns."""
 
     """ Short unique identifier of the perturbation (e.g., extra_space) """
     name: str = "gender"
@@ -84,7 +84,7 @@ class GenderPerturbation(Perturbation):
 
     @dataclass(frozen=True)
     class Description(PerturbationDescription):
-        """ Description for the GenderPerturbation class. """
+        """Description for the GenderPerturbation class."""
 
         mode: str = ""
         prob: float = 0.0
@@ -102,7 +102,7 @@ class GenderPerturbation(Perturbation):
         mapping_file_genders: List[str] = None,
         bidirectional: bool = False,
     ):
-        """ Initialize the gender perturbation.
+        """Initialize the gender perturbation.
 
         Args:
             mode: The mode of the gender perturbation, must be one of
@@ -174,7 +174,7 @@ class GenderPerturbation(Perturbation):
 
     @property
     def description(self) -> PerturbationDescription:
-        """ Return a perturbation description for this class. """
+        """Return a perturbation description for this class."""
         return GenderPerturbation.Description(
             name=self.name,
             mode=self.mode,
@@ -187,13 +187,13 @@ class GenderPerturbation(Perturbation):
 
     @staticmethod
     def load_mappings(mapping_file_path: str) -> List[Tuple[str, ...]]:
-        """ Load mappings as a list. """
+        """Load mappings as a list."""
         with open(mapping_file_path, "r") as f:
             loaded_json = json.load(f)
             return [tuple([str(e).lower() for e in t]) for t in loaded_json]
 
     def substitute_word(self, text: str, word: str, synonym: str, rng: Random) -> str:
-        """ Substitute the occurences of word in text with its synonym with self.probability """
+        """Substitute the occurences of word in text with its synonym with self.probability"""
         # Pattern capturing any occurence of given word in the text, surrounded by non-alphanumeric characters
         pattern = f"[^\\w]({word})[^\\w]"
 
@@ -212,7 +212,7 @@ class GenderPerturbation(Perturbation):
         return re.sub(pattern, sub_func, text, flags=re.IGNORECASE)
 
     def perturb(self, text: str, rng: Random) -> str:
-        """ Perform the perturbations on the provided text. """
+        """Perform the perturbations on the provided text."""
         # Substitute the words
         for (word, synonym) in self.word_synonym_pairs:
             text = self.substitute_word(text, word, synonym, rng)

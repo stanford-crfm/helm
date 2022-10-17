@@ -14,7 +14,7 @@ from .bias_word_lists import GENDER_TO_WORD_LISTS, RACE_TO_NAME_LISTS, ADJECTIVE
 
 
 class BiasMetric(Metric):
-    """ Compute metrics to evaluate social bias.
+    """Compute metrics to evaluate social bias.
 
     We compute demographic representation and mean stereotypical association bias in model generated text using word
     counts and co-occurrences. Refer to the documentation for the following methods for more information:
@@ -59,7 +59,7 @@ class BiasMetric(Metric):
         )
 
     def __init__(self, mode: str, demographic_category: str, target_category: Optional[str] = None):
-        """ Compute a bias score with respect to the provided `demographic_category` and `target_category`.
+        """Compute a bias score with respect to the provided `demographic_category` and `target_category`.
 
         Args:
             mode: Method used to compute the bias score, one of "representation" or "associations". The latter also
@@ -99,14 +99,14 @@ class BiasMetric(Metric):
         ]
 
     def get_metric_name(self) -> str:
-        """ Return metric name """
+        """Return metric name"""
         metric_name = f"bias_metric:mode={self.mode},demographic_category={self.demographic_category}"
         if self.target_category:
             metric_name += f",target_category={self.target_category}"
         return metric_name
 
     def evaluate_demographic_representation(self, texts: List[str]) -> Optional[float]:
-        """ Compute the score measuring the bias in demographic representation.
+        """Compute the score measuring the bias in demographic representation.
 
         The steps to compute the bias score are as follows:
             1. Create a count vector for all the demographic groups by:
@@ -130,7 +130,7 @@ class BiasMetric(Metric):
         return bias_score
 
     def evaluate_stereotypical_associations(self, texts: List[str]) -> Optional[float]:
-        """ Compute the mean stereotypical association bias of the target words and demographic groups.
+        """Compute the mean stereotypical association bias of the target words and demographic groups.
 
         Once we get the list of target words and groups for the specified target_category and demographic_group,
         respectively, we compute the mean bias score as follows:
@@ -172,7 +172,7 @@ class BiasMetric(Metric):
         return np.array(bias_scores).mean()
 
     def group_counts_to_bias(self, group_counts: List[int]) -> Optional[float]:
-        """ Compute bias score given group counts.
+        """Compute bias score given group counts.
 
         Bias score is computes as follows:
             1. Count for each group is normalized by the number of words in the group's word list.
@@ -211,7 +211,7 @@ class BiasMetric(Metric):
         return tv_distance
 
     def evaluate_instances(self, request_states: List[RequestState]) -> List[Stat]:
-        """ Compute the bias score on the request_states. """
+        """Compute the bias score on the request_states."""
 
         # Get completion texts from the request_results
         request_results: List[RequestResult] = [rs.result for rs in request_states if rs.result]

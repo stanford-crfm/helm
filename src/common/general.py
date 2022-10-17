@@ -3,12 +3,12 @@ import os
 import shlex
 import subprocess
 import zstandard
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, TypeVar
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from tqdm import tqdm
 
 import pyhocon
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, is_dataclass
 
 from common.hierarchical_logger import hlog, htrack, htrack_block
 
@@ -124,12 +124,24 @@ def format_split(split: str) -> str:
     return f"|{split}|"
 
 
-def asdict_without_nones(obj: dataclass) -> Dict[str, Any]:
+def asdict_without_nones(obj: Any) -> Dict[str, Any]:
+    if not is_dataclass(obj):
+        raise ValueError(f"Expected dataclass, got '{obj}'")
     return asdict(obj, dict_factory=lambda x: {k: v for (k, v) in x if v is not None})
 
 
-def serialize(obj: dataclass) -> List[str]:
+def binarize_dict(d: Dict[str, int]) -> Dict[str, int]:
+    """Binarize the dict by setting the values that are 1 to 0.
+
+    Values greater than 1 stay untouched.
+    """
+    return {k: 0 if v == 1 else v for k, v in d.items()}
+
+
+def serialize(obj: Any) -> List[str]:
     """Takes in a dataclass and outputs all of its fields and values in a list."""
+    if not is_dataclass(obj):
+        raise ValueError(f"Expected dataclass, got '{obj}'")
     return [f"{key}: {json.dumps(value)}" for key, value in asdict(obj).items()]
 
 
@@ -155,7 +167,7 @@ def indent_lines(lines: List[str], count: int = 2) -> List[str]:
 
 
 def match_case(source_word: str, target_word: str) -> str:
-    """ Return a version of the target_word where the case matches the source_word. """
+    """Return a version of the target_word where the case matches the source_word."""
     # Check for all lower case source_word
     if all(letter.islower() for letter in source_word):
         return target_word.lower()
@@ -168,20 +180,27 @@ def match_case(source_word: str, target_word: str) -> str:
     return target_word
 
 
-def parallel_map(process: Callable[[List], List], items: List, parallelism: int, multiprocessing: bool = False) -> List:
+InT = TypeVar("InT")
+OutT = TypeVar("OutT")
+
+
+def parallel_map(
+    process: Callable[[InT], OutT], items: List[InT], parallelism: int, multiprocessing: bool = False
+) -> List[OutT]:
     """
     A wrapper for applying `process` to all `items`.
     """
     units = "processes" if multiprocessing else "threads"
     with htrack_block(f"Parallelizing computation on {len(items)} items over {parallelism} {units}"):
+        results: List
         if parallelism == 1:
-            results: List = list(tqdm(map(process, items), total=len(items)))
+            results = list(tqdm(map(process, items), total=len(items)))
         elif multiprocessing:
             with ProcessPoolExecutor(max_workers=parallelism) as executor:
-                results: List = list(tqdm(executor.map(process, items), total=len(items)))
+                results = list(tqdm(executor.map(process, items), total=len(items)))
         else:
             with ThreadPoolExecutor(max_workers=parallelism) as executor:
-                results: List = list(tqdm(executor.map(process, items), total=len(items)))
+                results = list(tqdm(executor.map(process, items), total=len(items)))
     return results
 
 
@@ -225,7 +244,7 @@ def unique_simplification(items: List[Dict[str, Any]], priority_keys: List[str])
     items = without_common_entries(items)
 
     # Go through and remove more keys
-    new_items: List[str] = []
+    new_items: List[Dict[str, Any]] = []
     for item in items:
         # For each item, go through the keys in order
         keys = get_keys(item)

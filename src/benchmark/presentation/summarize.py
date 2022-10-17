@@ -16,7 +16,16 @@ from benchmark.metrics.statistic import Stat
 from benchmark.runner import RunSpec
 from proxy.models import ALL_MODELS, Model, get_model
 from .table import Cell, Table, Hyperlink, table_to_latex
-from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_PATH, BY_GROUP
+from .schema import (
+    MetricNameMatcher,
+    RunGroup,
+    read_schema,
+    SCHEMA_YAML_PATH,
+    BY_GROUP,
+    ALL_GROUPS,
+    THIS_GROUP_ONLY,
+    NO_GROUPS,
+)
 from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
 
 """
@@ -33,7 +42,7 @@ Usage:
 
 @dataclass(frozen=True)
 class Run:
-    """ Represents a run with spec and stats. """
+    """Represents a run with spec and stats."""
 
     # Directory name of the run (used by frontend to find the actual instances to load)
     run_path: str
@@ -126,11 +135,14 @@ class Summarizer:
         with open(os.path.join(run_path, "stats.json")) as f:
             stats = [dacite.from_dict(Stat, raw) for raw in json.load(f)]
 
-        return Run(run_path=run_path, run_spec=run_spec, stats=stats,)
+        return Run(
+            run_path=run_path,
+            run_spec=run_spec,
+            stats=stats,
+        )
 
-    @htrack(None)
     def read_runs(self):
-        """ Load the corresponding runs for the run specs in run_specs.json. """
+        """Load the corresponding runs for the run specs in run_specs.json."""
 
         run_specs_path: str = os.path.join(self.run_suite_path, "run_specs.json")
         if not os.path.exists(run_specs_path):
@@ -158,16 +170,34 @@ class Summarizer:
         # (ii) adapter spec (e.g., model = openai/davinci)
         # to list of runs
         self.group_adapter_to_runs: Dict[str, Dict[AdapterSpec, List[Run]]] = defaultdict(lambda: defaultdict(list))
-        self.group_scenario_adapter_to_runs: Dict[ScenarioSpec, Dict[AdapterSpec, List[Run]]] = defaultdict(
+        self.group_scenario_adapter_to_runs: Dict[str, Dict[ScenarioSpec, Dict[AdapterSpec, List[Run]]]] = defaultdict(
             lambda: defaultdict(lambda: defaultdict(list))
         )
         for run in self.runs:
-            for group in run.run_spec.groups:
-                scenario_spec = run.run_spec.scenario_spec
-                adapter_spec = get_method_adapter_spec(run.run_spec.adapter_spec, scenario_spec)
+            scenario_spec = run.run_spec.scenario_spec
+            adapter_spec = get_method_adapter_spec(run.run_spec.adapter_spec, scenario_spec)
 
-                self.group_adapter_to_runs[group][adapter_spec].append(run)
-                self.group_scenario_adapter_to_runs[group][scenario_spec][adapter_spec].append(run)
+            # organize the groups of the run by visibility in order to decide which groups we should add it to,
+            # for each visibility value (ALL_GROUPS, NO_GROUPS, THIS_GROUP_ONLY) we collect the RunGroups with that
+            # visibility in a list
+            group_names_by_visibility: Dict[str, List[str]] = defaultdict(list)
+            for group_name in run.run_spec.groups:
+                if group_name not in self.schema.name_to_run_group:
+                    hlog(f"WARNING: group {group_name} undefined in {SCHEMA_YAML_PATH}")
+                    continue
+                group = self.schema.name_to_run_group[group_name]
+                group_names_by_visibility[group.visibility].append(group_name)
+
+            if len(group_names_by_visibility[NO_GROUPS]) > 0:
+                continue  # this run is part of a hidden group, skip
+            elif group_names_by_visibility[THIS_GROUP_ONLY]:  # if it is part of a group with THIS_GROUP_ONLY visibility
+                relevant_group_names = group_names_by_visibility[THIS_GROUP_ONLY]  # add it to these groups only
+            else:
+                relevant_group_names = group_names_by_visibility[ALL_GROUPS]  # otherwise add it everywhere
+
+            for group_name in relevant_group_names:
+                self.group_adapter_to_runs[group_name][adapter_spec].append(run)
+                self.group_scenario_adapter_to_runs[group_name][scenario_spec][adapter_spec].append(run)
 
     @htrack(None)
     def check_metrics_defined(self):
@@ -285,9 +315,10 @@ class Summarizer:
     def create_group_table(
         self,
         title: str,
-        adapter_to_runs: Dict[str, List[Run]],
+        adapter_to_runs: Dict[AdapterSpec, List[Run]],
         link_to_runs: bool,
         columns: List[Tuple[RunGroup, str]],  # run_group, metric_group
+        sort_by_model_order: bool = True,
     ) -> Table:
         """
         Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
@@ -299,6 +330,9 @@ class Summarizer:
         # Figure out what the columns of the table are.
         # Create header (cells to display) and the list of metric name filters
         # (to pull out information later).
+        if not columns:
+            return Table("empty", [], [])
+
         header: List[Cell] = []
         matchers: List[MetricNameMatcher] = []
         group_names: List[str] = []  # for each column
@@ -336,6 +370,9 @@ class Summarizer:
                 matchers.append(matcher)
                 group_names.append(run_group.name)
 
+        # TODO: Fix run_group logic
+        run_group = columns[0][0]
+
         def run_spec_names_to_url(run_spec_names: List[str]) -> str:
             # TODO: make the runs load the group file to avoid passing this information around
             return get_benchmarking_url(
@@ -347,14 +384,20 @@ class Summarizer:
                 }
             )
 
+        adapter_specs = adapter_to_runs.keys()
+        if sort_by_model_order:
+            model_order = [model.name for model in ALL_MODELS]
+            adapter_specs = sorted(adapter_specs, key=lambda spec: model_order.index(spec.model))
+
         # Pull out only the keys of the method adapter_spec that is needed to
         # uniquely identify the method.
-        infos = unique_simplification(list(map(asdict_without_nones, adapter_to_runs.keys())), ["model"])
+        infos = unique_simplification(list(map(asdict_without_nones, adapter_specs)), ["model"])
 
         # Populate the contents of the table
         rows = []
-        for (adapter_spec, runs), info in zip(adapter_to_runs.items(), infos):
+        for adapter_spec, info in zip(adapter_specs, infos):
             model = get_model(adapter_spec.model)
+            runs = adapter_to_runs[adapter_spec]
             display_name = get_method_display_name(model, info)
 
             # Link to all the runs under this model
@@ -484,14 +527,15 @@ class Summarizer:
             # Add the latex_path to each table (changes `tables`!)
             base_path = os.path.join(groups_path, "latex")
             ensure_directory_exists(base_path)
-            for table, name in zip(tables, table_names):
-                latex_path = os.path.join(base_path, name + ".tex")
+            for table, table_name in zip(tables, table_names):
+                latex_path = os.path.join(base_path, f"{group.name}_{table_name}.tex")
                 table.links.append(Hyperlink(text="latex", href=latex_path))
-                write(latex_path, table_to_latex(table, name))
+                write(latex_path, table_to_latex(table, f"{table_name} ({group.name})"))
 
             # Write JSON file
             write(
-                os.path.join(groups_path, group.name + ".json"), json.dumps(list(map(asdict_without_nones, tables))),
+                os.path.join(groups_path, group.name + ".json"),
+                json.dumps(list(map(asdict_without_nones, tables))),
             )
 
 
@@ -502,7 +546,10 @@ def main():
         "-o", "--output-path", type=str, help="Where the benchmarking output lives", default="benchmark_output"
     )
     parser.add_argument(
-        "--suite", type=str, help="Name of the suite this run belongs to (default is today's date).", required=True,
+        "--suite",
+        type=str,
+        help="Name of the suite this run belongs to (default is today's date).",
+        required=True,
     )
     args = parser.parse_args()
 

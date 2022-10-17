@@ -43,7 +43,8 @@ def table_to_latex(table: Table, table_name: str, skip_blank_columns=True) -> st
         columns_shown = [i for i in columns_shown if not all(row[i].value is None for row in table.rows)]
 
     lines = []
-    lines.append("\\begin{table}[htp]")
+    lines.append("\\begin{table*}[htp]")
+    lines.append("\\resizebox{\\textwidth}{!}{")
     lines.append("\\begin{tabular}{l" + "r" * (len(columns_shown) - 1) + "}")
     lines.append("\\toprule")
     lines.append(" & ".join(str(table.header[i].value) for i in columns_shown) + " \\\\")
@@ -51,10 +52,10 @@ def table_to_latex(table: Table, table_name: str, skip_blank_columns=True) -> st
     for row in table.rows:
         lines.append(" & ".join(str(row[i].display_value or row[i].value or "") for i in columns_shown) + " \\\\")
     lines.append("\\bottomrule")
-    lines.append("\\end{tabular}")
-    lines.append("\\caption{Results for group " + table.title + "}")
+    lines.append("\\end{tabular}}")
+    lines.append("\\caption{Results for " + table_name + "}")
     lines.append("\\label{fig:" + table_name + "}")
-    lines.append("\\end{table}")
+    lines.append("\\end{table*}")
 
     latex = "\n".join(lines).replace("%", "\\%")
     return latex
