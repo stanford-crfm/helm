@@ -40,8 +40,8 @@ def copy_cache(cache_dir: str, mongo_host: str, organization: str, dry_run: bool
 
 def main():
     parser = argparse.ArgumentParser(description="Copy items from Sqlite to mongo")
-    parser.add_argument("cache-dir", type=str, help="Directory for the .sqlite files")
-    parser.add_argument("mongo-host", type=str, help="Mongo host to copy items to")
+    parser.add_argument("cache_dir", type=str, help="Directory for the .sqlite files")
+    parser.add_argument("mongo_host", type=str, help="Mongo host to copy items to")
     parser.add_argument("--organization", type=str, help="Organization to copy cache for")
     parser.add_argument(
         "--all",
