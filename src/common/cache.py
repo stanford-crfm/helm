@@ -180,8 +180,10 @@ class _MongoKeyValueStore(_KeyValueStore):
         return None
 
     def put(self, key: Dict, value: Dict) -> None:
-        document = SON([(self._REQUEST_KEY, self._canonicalize_key(key)), (self._RESPONSE_KEY, value)])
-        self._collection.insert_one(document)
+        request = self._canonicalize_key(key)
+        document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
+        # The MongoDB collection should have a unique indexed on "request"
+        self._collection.replace_one(filter={"request": request}, replacement=document, upsert=True)
 
 
 def _create_key_value_store(config: KeyValueStoreCacheConfig) -> _KeyValueStore:
