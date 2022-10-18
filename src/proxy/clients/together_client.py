@@ -75,7 +75,7 @@ class TogetherClient(Client):
 
             def do_it():
                 # Submit job
-                response = requests.post("https://planetd.shift.ml/jobs", json={
+                response = requests.post("https://api.together.xyz/jobs/jobs", json={
                     "type": "general",
                     "payload": tweak_request(raw_request),
                     "returned_payload": {},
@@ -84,15 +84,16 @@ class TogetherClient(Client):
                 }).json()
 
                 # Poll and wait for job to be finished
+                print('REPSONSE', response)
                 job_id = response['id']
                 for t in range(10000000):
-                    response = requests.get(f"https://planetd.shift.ml/job/{job_id}").json()
+                    response = requests.get(f"https://api.together.xyz/jobs/job/{job_id}").json()
                     status = response["status"]
                     hlog(f"TogetherClient: Waiting for job {job_id}, status is {status}, waited {t} seconds")
                     if status == 'finished':
                         return response["returned_payload"]["result"]
                     elif status == 'failed':
-                        raise Exception("TogetherClient request failed: {json.dumps(result)}")
+                        raise Exception(f"TogetherClient request failed: {json.dumps(result)}")
                     time.sleep(1)
 
 
