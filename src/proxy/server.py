@@ -202,9 +202,15 @@ def main():
     parser.add_argument("-b", "--base-path", help="What directory has credentials, etc.", default="prod_env")
     parser.add_argument("-w", "--workers", type=int, help="Number of worker processes to handle requests", default=8)
     parser.add_argument("-t", "--timeout", type=int, help="Request timeout in seconds", default=5 * 60)
+    parser.add_argument(
+        "--mongo-uri",
+        type=str,
+        help="If non-empty, the URL of the MongoDB database that will be used for caching instead of SQLite",
+        default="",
+    )
     args = parser.parse_args()
 
-    service = ServerService(base_path=args.base_path)
+    service = ServerService(base_path=args.base_path, mongo_uri=args.mongo_uri)
 
     gunicorn_args = {
         "workers": args.workers,

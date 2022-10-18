@@ -3,7 +3,7 @@ import signal
 from typing import List
 
 from common.authentication import Authentication
-from common.cache import CacheConfig
+from common.cache import SqliteCacheConfig
 from common.general import ensure_directory_exists, parse_hocon
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from common.tokenization_request import (
@@ -39,7 +39,7 @@ class ServerService(Service):
     Main class that supports various functionality for the server.
     """
 
-    def __init__(self, base_path: str = ".", root_mode=False):
+    def __init__(self, base_path: str = ".", root_mode=False, mongo_uri: str = ""):
         credentials_path = os.path.join(base_path, CREDENTIALS_FILE)
         cache_path = os.path.join(base_path, CACHE_DIR)
         ensure_directory_exists(cache_path)
@@ -51,12 +51,12 @@ class ServerService(Service):
         else:
             credentials = {}
 
-        self.client = AutoClient(credentials, cache_path)
+        self.client = AutoClient(credentials, cache_path, mongo_uri)
         self.token_counter = AutoTokenCounter(self.client.huggingface_client)
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
         self.perspective_api_client = PerspectiveAPIClient(
             api_key=credentials["perspectiveApiKey"] if "perspectiveApiKey" in credentials else "",
-            cache_config=CacheConfig(os.path.join(base_path, "perspectiveapi.sqlite")),
+            cache_config=SqliteCacheConfig(os.path.join(base_path, "perspectiveapi.sqlite")),
         )
 
     def get_general_info(self) -> GeneralInfo:

@@ -32,11 +32,72 @@ retry: Callable = get_retry_decorator(
 )
 
 
+class CacheConfig:
+    """Configuration for a cache."""
+
+    pass
+
+    @property
+    def cache_stats_key(self) -> str:
+        """The string key used by CacheStats to identify this cache."""
+        return "unknown"
+
+
+class KeyValueStoreCacheConfig(CacheConfig):
+    """Configuration for a cache backed by a key-value store."""
+
+    pass
+
+
+@dataclass(frozen=True)
+class SqliteCacheConfig(KeyValueStoreCacheConfig):
+    """Configuration for a cache backed by SQLite."""
+
+    # Path for the Sqlite file that backs the cache.
+    path: str
+
+    @property
+    def cache_stats_key(self) -> str:
+        return self.path
+
+
+@dataclass(frozen=True)
+class MongoCacheConfig(KeyValueStoreCacheConfig):
+    """Configuration for a cache backed by a MongoDB collection."""
+
+    # URL for the MongoDB database that contains the collection.
+    # Example format: mongodb://[username:password@]host1[:port1]/[dbname]
+    # For full format, see: https://www.mongodb.com/docs/manual/reference/connection-string/
+    uri: str
+
+    # Name of the MongoDB collection.
+    collection_name: str
+
+    @property
+    def cache_stats_key(self) -> str:
+        return f"{self.uri}/{self.collection_name}"
+
+
+@dataclass(frozen=True)
+class WithFollowerCacheConfig(CacheConfig):
+    """Configuration of a cache backed by a main cache and a follower cache."""
+
+    # Configuration for the main cache.
+    # Responses will be written to and served out of this cache.
+    main: KeyValueStoreCacheConfig
+
+    # Configuration for the follower cache.
+    # The follower cache is a write-only cache. Responses will be written to this cache,
+    # but not served out of this cache.
+    follower: KeyValueStoreCacheConfig
+
+    @property
+    def cache_stats_key(self) -> str:
+        return self.main.cache_stats_key
+
+
 class _KeyValueStore(ABC):
     """Key value store that persists writes."""
-
-    def __init__(self, path: str):
-        self._path = path
 
     @property
     def path(self):
@@ -45,7 +106,7 @@ class _KeyValueStore(ABC):
     def __enter__(self) -> "_KeyValueStore":
         pass
 
-    def __exit__(self, exc_type, exc_value, traceback) -> "_KeyValueStore":
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         pass
 
     @abstractmethod
@@ -62,17 +123,16 @@ class _SqliteKeyValueStore(_KeyValueStore):
 
     def __init__(self, path: str):
         self._sqlite_dict = SqliteDict(path)
-        super().__init__(path)
+        super().__init__()
 
     def __enter__(self) -> "_SqliteKeyValueStore":
         self._sqlite_dict.__enter__()
         super().__enter__()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> "_SqliteKeyValueStore":
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         super().__exit__(exc_type, exc_value, traceback)
         self._sqlite_dict.__exit__(exc_type, exc_value, traceback)
-        return self
 
     def get(self, key: Dict) -> Optional[Dict]:
         key_string = request_to_key(key)
@@ -88,41 +148,25 @@ class _SqliteKeyValueStore(_KeyValueStore):
         self._sqlite_dict.commit()
 
 
-@dataclass(frozen=True)
-class MongoConfig:
-    """Key value store backed by a MongoDB database."""
-
-    # URI of the MongoDB database.
-    # See: https://www.mongodb.com/docs/manual/reference/connection-string/
-    uri: str
-
-    # Name of the MongoDB database to use.
-    database_name: str
-
-    # Name of the MongoDB collection to use.
-    collection_name: str
-
-
 class _MongoKeyValueStore(_KeyValueStore):
     """Key value store backed by a MongoDB database."""
 
     _REQUEST_KEY = "request"
     _RESPONSE_KEY = "response"
 
-    def __init__(self, config: MongoConfig):
+    def __init__(self, uri: str, collection_name: str):
         # TODO: Create client in __enter__ and clean up client in __exit__
-        self._mongodb_client: MongoClient = MongoClient(config.uri)
-        self._database = self._mongodb_client.get_database(config.database_name)
-        self._collection = self._database.get_collection(config.collection_name)
-        super().__init__(f"{self._mongodb_client}/f{self._database}/f{self._collection}")
+        self._mongodb_client: MongoClient = MongoClient(uri)
+        self._database = self._mongodb_client.get_default_database()
+        self._collection = self._database.get_collection(collection_name)
+        super().__init__()
 
     def __enter__(self) -> "_MongoKeyValueStore":
         super().__enter__()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> "_MongoKeyValueStore":
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         super().__exit__(exc_type, exc_value, traceback)
-        return self
 
     def _canonicalize_key(self, key: Dict) -> SON:
         serialized = json.dumps(key, sort_keys=True)
@@ -136,14 +180,21 @@ class _MongoKeyValueStore(_KeyValueStore):
         return None
 
     def put(self, key: Dict, value: Dict) -> None:
-        document = SON([(self._REQUEST_KEY, self._canonicalize_key(key)), (self._RESPONSE_KEY, value)])
-        self._collection.insert_one(document)
+        request = self._canonicalize_key(key)
+        document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
+        # The MongoDB collection should have a unique indexed on "request"
+        self._collection.replace_one(filter={"request": request}, replacement=document, upsert=True)
 
 
-def _create_key_value_store(path: str) -> _KeyValueStore:
+def _create_key_value_store(config: KeyValueStoreCacheConfig) -> _KeyValueStore:
     """Create a key value store from the given configuration."""
     # TODO: Support creating _MongoKeyValueStore
-    return _SqliteKeyValueStore(path)
+    if isinstance(config, MongoCacheConfig):
+        return _MongoKeyValueStore(config.uri, config.collection_name)
+    elif isinstance(config, SqliteCacheConfig):
+        return _SqliteKeyValueStore(config.path)
+    else:
+        raise ValueError(f"KeyValueStoreCacheConfig with unknown type: {config}")
 
 
 @retry
@@ -197,19 +248,6 @@ class CacheStats:
 cache_stats = CacheStats()
 
 
-@dataclass(frozen=True)
-class CacheConfig:
-    """Configuration for a cache."""
-
-    # Path to the Sqlite file that backs the main cache.
-    cache_path: str
-
-    # Path to the Sqlite file that backs the follower cache.
-    # The follower cache is a write-only cache, and responses will not be served from it.
-    # Every request and response from the main cache will be written to the follower cache.
-    follower_cache_path: Optional[str] = None
-
-
 class Cache(object):
     """
     A cache for request/response pairs.
@@ -218,27 +256,36 @@ class Cache(object):
     """
 
     def __init__(self, config: CacheConfig):
-        self.cache_path: str = config.cache_path
-        self.follower_cache_path: Optional[str] = config.follower_cache_path
+        hlog(f"Created cache with config: {config}")
+        self.config: KeyValueStoreCacheConfig
+        self.follower_config: Optional[KeyValueStoreCacheConfig]
+        if isinstance(config, KeyValueStoreCacheConfig):
+            self.config = config
+            self.follower_config = None
+        elif isinstance(config, WithFollowerCacheConfig):
+            self.config = config.main
+            self.follower_config = config.follower
+        else:
+            raise ValueError(f"CacheConfig with unknown type: {config}")
 
     def get(self, request: Dict, compute: Callable[[], Dict]) -> Tuple[Dict, bool]:
         """Get the result of `request` (by calling `compute` as needed)."""
-        cache_stats.increment_query(self.cache_path)
+        cache_stats.increment_query(self.config.cache_stats_key)
 
         # TODO: Initialize key_value_store in constructor
-        with _create_key_value_store(self.cache_path) as key_value_store:
+        with _create_key_value_store(self.config) as key_value_store:
             response = key_value_store.get(request)
             if response:
                 cached = True
             else:
                 cached = False
-                cache_stats.increment_compute(self.cache_path)
+                cache_stats.increment_compute(self.config.cache_stats_key)
                 # Compute and commit the request/response to SQLite
                 response = compute()
 
                 write_to_key_value_store(key_value_store, request, response)
-        if self.follower_cache_path is not None:
+        if self.follower_config is not None:
             # TODO: Initialize follower_key_value_store in constructor
-            with _create_key_value_store(self.follower_cache_path) as follower_key_value_store:
+            with _create_key_value_store(self.follower_config) as follower_key_value_store:
                 write_to_key_value_store(follower_key_value_store, request, response)
         return response, cached

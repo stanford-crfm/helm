@@ -2,7 +2,7 @@ import os
 import pytest
 import tempfile
 
-from common.cache import CacheConfig
+from common.cache import SqliteCacheConfig
 from common.request import Request, RequestResult
 from common.tokenization_request import (
     DecodeRequest,
@@ -17,7 +17,7 @@ class TestHuggingFaceClient:
     def setup_method(self, method):
         cache_file = tempfile.NamedTemporaryFile(delete=False)
         self.cache_path: str = cache_file.name
-        self.client = HuggingFaceClient(CacheConfig(self.cache_path))
+        self.client = HuggingFaceClient(SqliteCacheConfig(self.cache_path))
 
     def teardown_method(self, method):
         os.remove(self.cache_path)

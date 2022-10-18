@@ -56,6 +56,7 @@ def get_client(base_path: str = "prod_env"):
     else:
         credentials = {}
 
+    # TODO: Pass mongo_uri to AutoClient
     client = AutoClient(credentials, cache_path)
 
     return client

@@ -5,18 +5,20 @@ from typing import Dict, List
 
 from sqlitedict import SqliteDict
 
-from common.cache import key_to_request, request_to_key, CacheConfig
+from common.cache import key_to_request, request_to_key, SqliteCacheConfig
 from common.general import parse_hocon
 from common.hierarchical_logger import hlog, htrack
 from proxy.clients.anthropic_client import AnthropicClient
 
 """
-Updates the entries of an old Anthropic cache with logprobs.
-Running with `--light` skips making logprobs requests.
+Fix the Anthropic cache with one of two commands:
+- "logprobs": Adds logprobs to responses. Running with `--light` skips making logprobs requests.
+- "remove_invalid": Removes invalid entries in the cache.
 
-Usage:
+Example usage:
 
-    python3 scripts/one_off/fix_anthropic_cache.py --light
+    python3 scripts/cache/fix_anthropic_cache.py logprobs --light
+    python3 scripts/cache/fix_anthropic_cache.py remove_invalid
 
 """
 
@@ -24,13 +26,13 @@ DEFAULT_TOP_K: int = 1
 
 
 @htrack("Updating Anthropic cache with logprobs.")
-def fix(cache_path: str, credentials_path: str, light: bool):
+def add_logprobs(cache_path: str, credentials_path: str, light: bool):
     with open(credentials_path) as f:
         credentials: Dict[str, str] = parse_hocon(f.read())
         api_key: str = credentials["anthropicApiKey"]
 
     new_cache: Dict[str, Dict] = dict()
-    client = AnthropicClient(api_key, CacheConfig(cache_path))
+    client = AnthropicClient(api_key, SqliteCacheConfig(cache_path))
     with SqliteDict(cache_path) as cache:
         num_entries: int = len(cache)
         hlog(f"Found {num_entries} entries at {cache_path}.")
@@ -92,13 +94,39 @@ def fix(cache_path: str, credentials_path: str, light: bool):
         hlog(f"Updated {len(cache)} entries.")
 
 
+@htrack("Removing invalid entries")
+def remove_invalid_entries(cache_path: str):
+    count: int = 0
+    with SqliteDict(cache_path) as cache:
+        num_entries: int = len(cache)
+        hlog(f"Found {num_entries} entries at {cache_path}.")
+
+        for i, (key, response) in enumerate(cache.items()):
+            if not AnthropicClient.is_valid_logprobs_response(response["logprobs_response"]):
+                del cache[key]
+                count += 1
+
+            if (i + 1) % 100_000 == 0:
+                hlog(f"Processed {i+1} entries.")
+
+        cache.commit()
+        hlog(f"Removed {count} entries.")
+
+
 def main():
-    fix(args.cache_path, args.credentials_path, args.light)
+    if args.command == "logprobs":
+        add_logprobs(args.cache_path, args.credentials_path, args.light)
+    elif args.command == "remove_invalid":
+        remove_invalid_entries(args.cache_path)
+    else:
+        raise ValueError(f"Invalid command: {args.command}")
+
     hlog("Done.")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("command", type=str, choices=["logprobs", "remove_invalid"])
     parser.add_argument(
         "-p", "--cache-path", type=str, default="prod_env/cache/anthropic.sqlite", help="Path to cache."
     )
