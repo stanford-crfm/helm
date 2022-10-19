@@ -46,6 +46,7 @@ def copy_cache(
     num_items = 0
     num_written = 0
     num_skipped = 0
+    num_failed = 0
     cache_path = os.path.join(cache_dir, f"{organization}.sqlite")
     hlog(f"Opening Sqlite cache {cache_path}")
     with SqliteDict(cache_path) as source_cache:
@@ -56,16 +57,23 @@ def copy_cache(
                     if bulk_write:
                         bulk_write_pairs.append((key, value))
                     else:
-                        target_cache.put(json.loads(key), value)
-                        num_written += 1
+                        try:
+                            target_cache.put(json.loads(key), value)
+                            num_written += 1
+                        except Exception:
+                            num_failed += 1
                 else:
                     num_skipped += 1
                 num_items += 1
                 if num_items % 1000 == 0:
                     if bulk_write:
-                        target_cache.multi_put(bulk_write_pairs)
-                        hlog(f"Bulk wrote {len(bulk_write_pairs)} items")
-                        num_written += len(bulk_write_pairs)
+                        try:
+                            target_cache.multi_put(bulk_write_pairs)
+                            hlog(f"Bulk wrote {len(bulk_write_pairs)} items")
+                            num_written += len(bulk_write_pairs)
+                        except Exception:
+                            hlog(f"Bulk write failed {len(bulk_write_pairs)} items")
+                            num_failed += len(bulk_write_pairs)
                         bulk_write_pairs = []
                     hlog(f"Processed {num_items} items so far")
                     hlog(f"Copied {num_written} and skipped {num_skipped} items from {cache_path} so far")
@@ -73,12 +81,18 @@ def copy_cache(
                     break
 
             if bulk_write and len(bulk_write_pairs):
-                target_cache.multi_put(bulk_write_pairs)
-                hlog(f"Bulk wrote {len(bulk_write_pairs)} items")
-                num_written += len(bulk_write_pairs)
+                try:
+                    target_cache.multi_put(bulk_write_pairs)
+                    hlog(f"Bulk wrote {len(bulk_write_pairs)} items")
+                    num_written += len(bulk_write_pairs)
+                except Exception:
+                    hlog(f"Bulk write failed {len(bulk_write_pairs)} items")
+                    num_failed += len(bulk_write_pairs)
                 bulk_write_pairs = []
             hlog(f"Processed {num_items} total items from {cache_path}")
-            hlog(f"Copied {num_written} and skipped {num_skipped} total items from {cache_path}")
+            hlog(
+                f"Copied {num_written} and skipped {num_skipped} and failed {num_failed} total items from {cache_path}"
+            )
     hlog(f"Finished with Sqlite cache {cache_path}")
 
 
