@@ -1,7 +1,7 @@
 from typing import List, Dict, Any, Union
+import json
 import time
 import requests
-from dataclasses import replace
 
 from common.cache import Cache, CacheConfig
 from common.request import Request, RequestResult, Sequence, Token
@@ -16,11 +16,13 @@ from .client import Client, wrap_request_time, truncate_sequence
 
 NO_NEWLINE_MODELS = ["together/t5", "together/t0pp", "together/glm"]
 
+
 def prepare_text(x: str, model: str) -> str:
     """Process text before sending to API."""
     if model in NO_NEWLINE_MODELS:
         x = x.replace("\n", "<br>")
     return x
+
 
 def fix_text(x: str, model: str) -> str:
     """Fix text that comes back from the API."""
@@ -66,7 +68,6 @@ class TogetherClient(Client):
             # TODO: unify with the logic in export_requests.py
             raw_request = dict(raw_request)
             raw_request["prompt"] = prepare_text(raw_request["prompt"], request.model)
-            raw_request["prompt"] = [raw_request["prompt"]]  # In the interactive API only for now
             raw_request["model"] = raw_request.pop("engine")
             raw_request["request_type"] = "language-model-inference"
             return raw_request
@@ -74,28 +75,32 @@ class TogetherClient(Client):
         try:
 
             def do_it():
+                # base_url = "https://api.together.xyz/jobs"  # Eventually, move to this
+                base_url = "https://planetd.shift.ml"
+
                 # Submit job
-                response = requests.post("https://api.together.xyz/jobs/jobs", json={
-                    "type": "general",
-                    "payload": tweak_request(raw_request),
-                    "returned_payload": {},
-                    "status": "submitted",
-                    "source": "dalle",
-                }).json()
+                response = requests.post(
+                    f"{base_url}/jobs",
+                    json={
+                        "type": "general",
+                        "payload": tweak_request(raw_request),
+                        "returned_payload": {},
+                        "status": "submitted",
+                        "source": "dalle",
+                    },
+                ).json()
 
                 # Poll and wait for job to be finished
-                print('REPSONSE', response)
-                job_id = response['id']
+                job_id = response["id"]
                 for t in range(10000000):
-                    response = requests.get(f"https://api.together.xyz/jobs/job/{job_id}").json()
+                    response = requests.get(f"{base_url}/job/{job_id}").json()
                     status = response["status"]
                     hlog(f"TogetherClient: Waiting for job {job_id}, status is {status}, waited {t} seconds")
-                    if status == 'finished':
-                        return response["returned_payload"]["result"]
-                    elif status == 'failed':
-                        raise Exception(f"TogetherClient request failed: {json.dumps(result)}")
+                    if status == "finished":
+                        return response["returned_payload"]["result"]["inference_result"][0]
+                    elif status == "failed":
+                        raise Exception(f"TogetherClient request failed: {json.dumps(response)}")
                     time.sleep(1)
-
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as e:
@@ -108,7 +113,9 @@ class TogetherClient(Client):
             sequence_logprob = 0
             tokens: List[Token] = []
 
-            # TODO: take this out when "logprobs" is supported
+            # TODO: take this out when "logprobs" is supported properly in batch/offline mode
+            # Currently, token_logprobs is provided in interactive/online mode but it has a different format
+            # Waiting for a fix.
             if "logprobs" in raw_completion:
                 raw_data = raw_completion["logprobs"]
                 for text, logprob, top_logprobs in zip(
@@ -131,7 +138,6 @@ class TogetherClient(Client):
             completion = truncate_sequence(completion, request)
             completions.append(completion)
 
-        print(response)
         request_time: Union[float, Dict[str, Any]] = response["request_time"]
         if isinstance(request_time, dict):
             batch_performance_metadata: Dict = response["request_time"]
