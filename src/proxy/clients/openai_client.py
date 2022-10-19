@@ -103,7 +103,9 @@ class OpenAIClient(Client):
                     tokens=tokens,
                     finish_reason={"reason": raw_completion["finish_reason"]},
                 )
-                completion = truncate_sequence(completion, request)
+                # OpenAI sends us back tokens past the end of text token,
+                # so we need to manually truncate the list of tokens.
+                completion = truncate_sequence(completion, request, "<|endoftext|>")
                 completions.append(completion)
 
         return RequestResult(
