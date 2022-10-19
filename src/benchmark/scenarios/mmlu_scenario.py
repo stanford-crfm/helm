@@ -64,7 +64,7 @@ class MMLUScenario(Scenario):
         "nutrition",
         "us_foreign_policy",
     ]
-    INTERACTIVE_QA_DIR_NAME: str = "interactive_qa"
+    INTERACTIVE_QA_DIR: str = "interactive_qa"
 
     def __init__(self, subject: str, for_interactive_qa: bool = False):
         if for_interactive_qa:
@@ -87,7 +87,7 @@ class MMLUScenario(Scenario):
             ensure_file_downloaded(
                 source_url="https://worksheets.codalab.org/rest/bundles/0x4d49146fe16c4559bc64af6cbc04992d/"
                 "contents/blob/",
-                target_path=os.path.join(data_path, "test", MMLUScenario.INTERACTIVE_QA_DIR_NAME),
+                target_path=os.path.join(data_path, "test", MMLUScenario.INTERACTIVE_QA_DIR),
                 unpack=True,
                 unpack_type="untar",
             )
@@ -107,7 +107,7 @@ class MMLUScenario(Scenario):
 
             split_path: str = os.path.join(data_path, split)
             if self.for_interactive_qa and split == "test":
-                split_path = os.path.join(split_path, MMLUScenario.INTERACTIVE_QA_DIR_NAME)
+                split_path = os.path.join(split_path, MMLUScenario.INTERACTIVE_QA_DIR)
 
             csv_path: str = os.path.join(split_path, f"{self.subject}_{split}.csv")
             if not os.path.exists(csv_path):
