@@ -564,8 +564,11 @@ def get_civil_comments_spec(demographic: str) -> RunSpec:
     )
 
 
-def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.mmlu_scenario.MMLUScenario", args={"subject": subject})
+def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT, for_interactive_qa: bool = False) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="benchmark.scenarios.mmlu_scenario.MMLUScenario",
+        args={"subject": subject, "for_interactive_qa": for_interactive_qa},
+    )
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=method,
@@ -573,9 +576,12 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
         input_noun="Question",
         output_noun="Answer",
     )
+    run_spec_name: str = f"mmlu:subject={subject}"
+    if for_interactive_qa:
+        run_spec_name = f"{run_spec_name},for_interactive_qa={for_interactive_qa}"
 
     return RunSpec(
-        name=f"mmlu:subject={subject}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),

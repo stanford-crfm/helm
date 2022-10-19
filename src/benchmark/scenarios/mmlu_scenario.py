@@ -57,8 +57,21 @@ class MMLUScenario(Scenario):
     description = "Massive Multitask Language Understanding"
     tags = ["knowledge", "multiple_choice"]
 
-    def __init__(self, subject: str):
+    INTERACTIVE_QA_SUBJECTS: List[str] = [
+        "college_chemistry",
+        "global_facts",
+        "miscellaneous",
+        "nutrition",
+        "us_foreign_policy",
+    ]
+    INTERACTIVE_QA_DIR_NAME: str = "interactive_qa"
+
+    def __init__(self, subject: str, for_interactive_qa: bool = False):
+        if for_interactive_qa:
+            assert subject in MMLUScenario.INTERACTIVE_QA_SUBJECTS, f"Invalid subject for Interactive QA: {subject}"
+
         self.subject: str = subject
+        self.for_interactive_qa: bool = for_interactive_qa
 
     def get_instances(self) -> List[Instance]:
         # Download the raw data
@@ -69,6 +82,15 @@ class MMLUScenario(Scenario):
             unpack=True,
             unpack_type="untar",
         )
+        if self.for_interactive_qa:
+            # For Interactive QA, we used a small subset of the original test set
+            ensure_file_downloaded(
+                source_url="https://worksheets.codalab.org/rest/bundles/0x4d49146fe16c4559bc64af6cbc04992d/"
+                "contents/blob/",
+                target_path=os.path.join(data_path, "test", MMLUScenario.INTERACTIVE_QA_DIR_NAME),
+                unpack=True,
+                unpack_type="untar",
+            )
 
         # Read all the instances
         instances: List[Instance] = []
@@ -79,7 +101,15 @@ class MMLUScenario(Scenario):
             "test": TEST_SPLIT,
         }
         for split in splits:
-            csv_path: str = os.path.join(data_path, split, f"{self.subject}_{split}.csv")
+            if self.for_interactive_qa and split == "val":
+                # We don't need the validation set for Interactive QA
+                continue
+
+            split_path: str = os.path.join(data_path, split)
+            if self.for_interactive_qa and split == "test":
+                split_path = os.path.join(split_path, MMLUScenario.INTERACTIVE_QA_DIR_NAME)
+
+            csv_path: str = os.path.join(split_path, f"{self.subject}_{split}.csv")
             if not os.path.exists(csv_path):
                 hlog(f"{csv_path} doesn't exist, skipping")
                 continue
