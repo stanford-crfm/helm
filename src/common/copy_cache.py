@@ -12,13 +12,19 @@ _SQLITE_FILE_SUFFIX = ".sqlite"
 
 
 @htrack("Copying all caches")
-def copy_all_caches(cache_dir: str, mongo_host: str, dry_run: bool):
+def copy_all_caches(cache_dir: str, mongo_host: str, bulk_write: bool, dry_run: bool):
     hlog(f"Opening Sqlite dir {cache_dir}")
     with os.scandir(cache_dir) as it:
         for entry in it:
             if entry.name.endswith(_SQLITE_FILE_SUFFIX) and entry.is_file():
                 organization = entry.name[: -len(_SQLITE_FILE_SUFFIX)]
-                copy_cache(cache_dir, mongo_host, organization, dry_run)
+                copy_cache(
+                    cache_dir=cache_dir,
+                    mongo_host=mongo_host,
+                    organization=organization,
+                    bulk_write=bulk_write,
+                    dry_run=dry_run,
+                )
 
 
 @htrack("Copying single cache")
@@ -26,9 +32,10 @@ def copy_cache(
     cache_dir: str,
     mongo_host: str,
     organization: str,
+    bulk_write: bool,
     dry_run: bool,
-    range_start: Optional[int],
-    range_end: Optional[int],
+    range_start: Optional[int] = None,
+    range_end: Optional[int] = None,
 ):
     if dry_run:
         hlog("Dry run mode, skipping writing to mongo")
@@ -38,26 +45,40 @@ def copy_cache(
         hlog(f"End of range: {range_end}")
     num_items = 0
     num_written = 0
-    num_copied = 0
+    num_skipped = 0
     cache_path = os.path.join(cache_dir, f"{organization}.sqlite")
     hlog(f"Opening Sqlite cache {cache_path}")
     with SqliteDict(cache_path) as source_cache:
         with _MongoKeyValueStore(mongo_host, collection_name=organization) as target_cache:
+            bulk_write_pairs = []
             for key, value in source_cache.items():
                 if not dry_run and (not range_start or num_items >= range_start):
-                    target_cache.put(json.loads(key), value)
-                    num_written += 1
+                    if bulk_write:
+                        bulk_write_pairs.append((key, value))
+                    else:
+                        target_cache.put(json.loads(key), value)
+                        num_written += 1
                 else:
-                    num_copied += 1
+                    num_skipped += 1
                 num_items += 1
                 if num_items % 1000 == 0:
+                    if bulk_write:
+                        target_cache.multi_put(bulk_write_pairs)
+                        hlog(f"Bulk wrote {len(bulk_write_pairs)} items")
+                        num_written += len(bulk_write_pairs)
+                        bulk_write_pairs = []
                     hlog(f"Processed {num_items} items so far")
-                    hlog(f"Copied {num_written} and skipped {num_copied} items from {cache_path} so far")
+                    hlog(f"Copied {num_written} and skipped {num_skipped} items from {cache_path} so far")
                 if range_end and num_items >= range_end:
                     break
 
+            if bulk_write and len(bulk_write_pairs):
+                target_cache.multi_put(bulk_write_pairs)
+                hlog(f"Bulk wrote {len(bulk_write_pairs)} items")
+                num_written += len(bulk_write_pairs)
+                bulk_write_pairs = []
             hlog(f"Processed {num_items} total items from {cache_path}")
-            hlog(f"Copied {num_written} and skipped {num_copied} total items from {cache_path}")
+            hlog(f"Copied {num_written} and skipped {num_skipped} total items from {cache_path}")
     hlog(f"Finished with Sqlite cache {cache_path}")
 
 
@@ -75,6 +96,12 @@ def main():
         help="Copy caches for all organizations",
     )
     parser.add_argument(
+        "--bulk-write",
+        action="store_true",
+        default=None,
+        help="Uses bulk writes",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         default=None,
@@ -86,10 +113,21 @@ def main():
         raise ValueError("--range_start and --range_end require --organization to be specified")
 
     if args.all:
-        copy_all_caches(args.cache_dir, args.mongo_host, bool(args.dry_run))
+        copy_all_caches(
+            cache_dir=args.cache_dir,
+            mongo_host=args.mongo_host,
+            bulk_write=bool(args.bulk_write),
+            dry_run=bool(args.dry_run),
+        )
     elif args.organization:
         copy_cache(
-            args.cache_dir, args.mongo_host, args.organization, bool(args.dry_run), args.range_start, args.range_end
+            cache_dir=args.cache_dir,
+            mongo_host=args.mongo_host,
+            organization=args.organization,
+            bulk_write=bool(args.bulk_write),
+            dry_run=bool(args.dry_run),
+            range_start=args.range_start,
+            range_end=args.range_end,
         )
     else:
         raise ValueError("Either --all or --organization must be specified")
