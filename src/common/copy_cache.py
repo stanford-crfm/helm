@@ -66,7 +66,7 @@ def copy_cache(
                     num_skipped += 1
                 num_items += 1
                 if num_items % 1000 == 0:
-                    if bulk_write:
+                    if bulk_write and len(bulk_write_pairs):
                         try:
                             target_cache.multi_put(bulk_write_pairs)
                             hlog(f"Bulk wrote {len(bulk_write_pairs)} items")
