@@ -20,14 +20,13 @@ function execute {
    eval $1
 }
 
-cpus=1
-# Running into "sqlite3.OperationalError: database is locked" when running with many threads
-num_threads=1
+cpus=4
+num_threads=8
 work_dir=$PWD
 suite=$2
 logs_path="benchmark_output/runs/$suite/logs"
 mkdir -p $logs_path
-default_args="--num-train-trials 3 --max-eval-instances 1000 --priority 2 --local"
+default_args="--num-train-trials 3 --max-eval-instances 1000 --priority 2 --local --mongo-uri='mongodb://crfm-benchmarking:kindling-vespers@john13/crfm-models'"
 
 models=(
   "ai21/j1-jumbo"
