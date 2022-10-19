@@ -59,7 +59,7 @@ def truncate_sequence(
     """
     Certain providers have bugs where they aren't respecting max_tokens,
     stop_sequences and the end of text token, so as a hack, we have to manually
-    truncate the suffix of `sequence` as a post-hoc process.
+    truncate the suffix of `sequence` and `tokens` as a post-hoc process.
     """
     # TODO: if echo_prompt, then we should only ignore the prompt, but we don't
     # know how many tokens the prompt takes up.
