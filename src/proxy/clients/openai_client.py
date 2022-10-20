@@ -107,6 +107,7 @@ class OpenAIClient(Client):
                 )
                 # OpenAI sends us back tokens past the end of text token,
                 # so we need to manually truncate the list of tokens.
+                # TODO: filed an issue with their support to check what the expected behavior here is.
                 completion = truncate_sequence(
                     completion, replace(request, stop_sequences=request.stop_sequences + [OpenAIClient.END_OF_TEXT])
                 )
