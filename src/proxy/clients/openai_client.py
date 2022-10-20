@@ -1,3 +1,4 @@
+from dataclasses import replace
 from typing import List, Optional
 
 import openai
@@ -18,6 +19,7 @@ ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__ba
 
 class OpenAIClient(Client):
     ORGANIZATION: str = "openai"
+    END_OF_TEXT: str = "<|endoftext|>"
 
     def __init__(self, api_key: str, cache_config: CacheConfig, org_id: Optional[str] = None):
         self.org_id: Optional[str] = org_id
@@ -103,7 +105,12 @@ class OpenAIClient(Client):
                     tokens=tokens,
                     finish_reason={"reason": raw_completion["finish_reason"]},
                 )
-                completion = truncate_sequence(completion, request)
+                # OpenAI sends us back tokens past the end of text token,
+                # so we need to manually truncate the list of tokens.
+                # TODO: filed an issue with their support to check what the expected behavior here is.
+                completion = truncate_sequence(
+                    completion, replace(request, stop_sequences=request.stop_sequences + [OpenAIClient.END_OF_TEXT])
+                )
                 completions.append(completion)
 
         return RequestResult(
