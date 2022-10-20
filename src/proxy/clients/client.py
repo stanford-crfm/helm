@@ -1,6 +1,6 @@
 import time
 from abc import ABC, abstractmethod
-from typing import Callable, Any, Dict, List, Optional
+from typing import Callable, Any, Dict, List
 
 from common.hierarchical_logger import hlog
 from common.request import Request, RequestResult, Sequence, Token
@@ -53,9 +53,7 @@ def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:
     return wrapped_compute
 
 
-def truncate_sequence(
-    sequence: Sequence, request: Request, end_of_text_token: Optional[str] = None, print_warning: bool = True
-) -> Sequence:
+def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool = True) -> Sequence:
     """
     Certain providers have bugs where they aren't respecting max_tokens,
     stop_sequences and the end of text token, so as a hack, we have to manually
@@ -70,15 +68,12 @@ def truncate_sequence(
             hlog("WARNING: don't know how to handle echo_prompt and max_tokens > 0, not truncating")
         return sequence
 
-    stop_sequences: List[str] = (
-        request.stop_sequences + [end_of_text_token] if end_of_text_token else request.stop_sequences
-    )
-    for stop in stop_sequences:
+    for stop in request.stop_sequences:
         # Find `stop` in the text
         try:
             new_text = sequence.text[: sequence.text.index(stop)]
         except ValueError:
-            # Stop sequence doesn't exist
+            # The stop sequence doesn't exist, but it might exist in the list of tokens.
             new_text = sequence.text
 
         # Strip `stop` off the tokens
