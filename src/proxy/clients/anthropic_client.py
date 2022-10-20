@@ -181,7 +181,7 @@ class AnthropicClient(Client):
 
                 # Anthropic doesn't support echoing the prompt, so we have to manually prepend the completion
                 # with the prompt when `echo_prompt` is True.
-                text: str = request.prompt + response["completion"] if request.echo_prompt else completion_text
+                text: str = request.prompt + response["completion"] if request.echo_prompt else response["completion"]
                 return {
                     "text": text,
                     "logprobs_response": self.make_logprobs_request(
