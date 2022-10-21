@@ -191,14 +191,14 @@ class _MongoKeyValueStore(_KeyValueStore):
         request = self._canonicalize_key(key)
         document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
         # The MongoDB collection should have a unique indexed on "request"
-        self._collection.replace_one(filter={"request": request}, replacement=document, upsert=True)
+        self._collection.replace_one(filter={self._REQUEST_KEY: request}, replacement=document, upsert=True)
 
     def multi_put(self, pairs: List[Tuple[Dict, Dict]]) -> None:
         operations = []
         for key, value in pairs:
             request = self._canonicalize_key(key)
             document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
-            operations.append(ReplaceOne({"request": request}, document))
+            operations.append(ReplaceOne({self._REQUEST_KEY: request}, document, upsert=True))
         self._collection.bulk_write(operations)
 
 
