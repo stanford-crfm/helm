@@ -77,7 +77,7 @@ def copy_cache(
                         bulk_write_pairs = []
                     hlog(f"Processed {num_items} items so far")
                     hlog(f"Copied {num_written} and skipped {num_skipped} items from {cache_path} so far")
-                if range_end and num_items > range_end:
+                if range_end and num_items >= range_end:
                     break
 
             if bulk_write and len(bulk_write_pairs):

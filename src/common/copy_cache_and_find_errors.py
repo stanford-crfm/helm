@@ -66,7 +66,7 @@ def copy_cache(
                 if num_items % 1000 == 0:
                     hlog(f"Processed {num_items} items so far")
                     hlog(f"Copied {num_written} and skipped {num_skipped} items from {cache_path} so far")
-                if range_end and num_items > range_end:
+                if range_end and num_items >= range_end:
                     break
 
             hlog(f"Processed {num_items} total items from {cache_path}")
