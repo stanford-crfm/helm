@@ -281,7 +281,7 @@ def get_language_modeling_adapter_spec() -> AdapterSpec:
     )
 
 
-def get_summarization_adapter_spec(num_sents: int, **kwargs) -> AdapterSpec:
+def get_summarization_adapter_spec(num_sents: int, max_train_instances: int = 5, **kwargs) -> AdapterSpec:
     """
     Used for summarization.
     """
@@ -298,7 +298,7 @@ def get_summarization_adapter_spec(num_sents: int, **kwargs) -> AdapterSpec:
         input_suffix="\n\n",
         output_prefix=out_pref,
         output_suffix="\n",
-        max_train_instances=5,
+        max_train_instances=max_train_instances,
         num_outputs=1,
         stop_sequences=["###"],  # Separator between few-shot instances.
         **kwargs,
@@ -1222,7 +1222,7 @@ def get_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE
     )
 
 
-def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+def get_xsum_summarization_spec(temperature: float = 0.3, max_train_instances: int = 5, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "xsum", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512},
@@ -1230,6 +1230,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
 
     adapter_spec = get_summarization_adapter_spec(
         num_sents=1,
+        max_train_instances=max_train_instances,
         max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
     )
@@ -1243,7 +1244,7 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
     )
 
 
-def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+def get_xsum_sampled_summarization_spec(temperature: float = 0.3, max_train_instances: int = 5, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={
@@ -1256,8 +1257,10 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = 
 
     adapter_spec = get_summarization_adapter_spec(
         num_sents=1,
+        max_train_instances=max_train_instances,
         max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
+        model="openai/davinci"
     )
 
     return RunSpec(
@@ -1269,7 +1272,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = 
     )
 
 
-def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") -> RunSpec:
+def get_cnndm_summarization_spec(temperature: float = 0.3, max_train_instances: int = 5, device: str = "cpu") -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512},
@@ -1277,6 +1280,7 @@ def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") 
 
     adapter_spec = get_summarization_adapter_spec(
         num_sents=3,
+        max_train_instances=max_train_instances,
         max_tokens=128,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=temperature,  # From Wu et al. 2021 (https://arxiv.org/pdf/2109.10862.pdf)
     )
