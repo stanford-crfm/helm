@@ -58,7 +58,7 @@ def copy_cache(
                         num_failed += 1
                         hlog("Found failure")
                         hlog(f"key: {key}")
-                        hlog(f"value: {key}")
+                        hlog(f"value: {value}")
                         raise e
                 else:
                     num_skipped += 1
