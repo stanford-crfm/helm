@@ -1244,7 +1244,9 @@ def get_xsum_summarization_spec(temperature: float = 0.3, max_train_instances: i
     )
 
 
-def get_xsum_sampled_summarization_spec(temperature: float = 0.3, max_train_instances: int = 5, device: str = "cpu") -> RunSpec:
+def get_xsum_sampled_summarization_spec(
+    temperature: float = 0.3, max_train_instances: int = 5, device: str = "cpu"
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={
@@ -1260,7 +1262,7 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, max_train_inst
         max_train_instances=max_train_instances,
         max_tokens=64,  # From Zhang et al. 2020 (https://arxiv.org/pdf/1912.08777.pdf)
         temperature=temperature,  # The default of 0.3 was determined in initial pilots, comparing to 0.7 and 1.0
-        model="openai/davinci"
+        model="openai/davinci",
     )
 
     return RunSpec(
@@ -1272,7 +1274,9 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, max_train_inst
     )
 
 
-def get_cnndm_summarization_spec(temperature: float = 0.3, max_train_instances: int = 5, device: str = "cpu") -> RunSpec:
+def get_cnndm_summarization_spec(
+    temperature: float = 0.3, max_train_instances: int = 5, device: str = "cpu"
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.summarization_scenario.SummarizationScenario",
         args={"dataset_name": "cnn-dm", "sampling_min_length": 50, "sampling_max_length": 150, "doc_max_length": 512},
