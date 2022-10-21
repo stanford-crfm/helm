@@ -48,6 +48,7 @@ class AnthropicClient(Client):
     TOP_K_LOGPROBS_ENDPOINT: str = "topk_logprobs"
 
     LOGPROBS_RESPONSE_KEYS: List[str] = ["tokens", "logprobs", "topk_tokens", "topk_logprobs"]
+    EMPTY_LOGPROBS_RESPONSE = {"tokens": [], "logprobs": [], "topk_logprobs": [], "topk_tokens": []}
 
     @staticmethod
     def is_valid_logprobs_response(raw_response: str) -> bool:
@@ -260,6 +261,10 @@ class AnthropicClient(Client):
         """
         Get the token log probs and top candidates for a given text using the endpoint: topk_logprobs.
         """
+        # Sending an empty string results in 'non cancel Cannot evaluate top logprobs of empty string' error
+        if len(text) == 0:
+            return json.dumps(AnthropicClient.EMPTY_LOGPROBS_RESPONSE)
+
         raw_response: str
 
         try:

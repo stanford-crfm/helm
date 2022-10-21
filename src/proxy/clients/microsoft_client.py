@@ -133,8 +133,7 @@ class MicrosoftClient(Client):
 
                 def fail():
                     raise RuntimeError(
-                        f"The result has not been uploaded to the cache ({self.cache.cache_path}) "
-                        f"for the following request: {cache_key}"
+                        f"The result has not been uploaded to the cache for the following request: {cache_key}"
                     )
 
                 # We want to make `request.num_completions` fresh requests,
