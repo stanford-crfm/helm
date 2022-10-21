@@ -4,61 +4,35 @@ from typing import Dict, List
 
 from common.general import ensure_file_downloaded
 from common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .mmlu_scenario import MMLUScenario
 
 
-class MMLUScenario(Scenario):
+class InteractiveQAMMLUScenario(MMLUScenario):
     """
     The Massive Multitask Language Understanding benchmark from this paper:
 
         https://arxiv.org/pdf/2009.03300.pdf
 
-    Code is adapted from:
-
-        https://github.com/hendrycks/test/blob/master/evaluate.py
-        https://github.com/EleutherAI/lm-evaluation-harness/blob/master/lm_eval/tasks/hendrycks_test.py
-
-    We prompt models using the following format:
-        <input>                  # train
-        A. <reference>
-        B. <reference>
-        C. <reference>
-        D. <reference>
-        Answer: <A/B/C/D>
-
-        x N (N-shot)
-
-        <input>                  # test
-        A. <reference1>
-        B. <reference2>
-        C. <reference3>
-        D. <reference4>
-        Answer:
-
-    For example (from mmlu:anatomy), we have:
-        The pleura
-        A. have no sensory innervation.
-        B. are separated by a 2 mm space.
-        C. extend into the neck.
-        D. are composed of respiratory epithelium.
-        Answer: C
-
-        Which of the following terms describes the body's ability to maintain its normal state?
-        A. Anabolism
-        B. Catabolism
-        C. Tolerance
-        D. Homeostasis
-        Answer:
-
-    Target: D
+    For InteractiveQA, we used a small subset of the original test set.
     """
 
-    name = "mmlu"
-    description = "Massive Multitask Language Understanding"
+    name = "interactive_qa_mmlu"
+    description = "Massive Multitask Language Understanding (InteractiveQA subset)"
     tags = ["knowledge", "multiple_choice"]
 
+    VALID_SUBJECTS: List[str] = [
+        "college_chemistry",
+        "global_facts",
+        "miscellaneous",
+        "nutrition",
+        "us_foreign_policy",
+    ]
+    INTERACTIVE_QA_DIR: str = "interactive_qa"
+
     def __init__(self, subject: str):
-        self.subject: str = subject
+        assert subject in InteractiveQAMMLUScenario.VALID_SUBJECTS, f"Invalid subject for Interactive QA: {subject}"
+        super().__init__(subject)
 
     def get_instances(self) -> List[Instance]:
         # Download the raw data
@@ -69,17 +43,27 @@ class MMLUScenario(Scenario):
             unpack=True,
             unpack_type="untar",
         )
+        ensure_file_downloaded(
+            source_url="https://worksheets.codalab.org/rest/bundles/0x4d49146fe16c4559bc64af6cbc04992d/"
+            "contents/blob/",
+            target_path=os.path.join(data_path, "test", InteractiveQAMMLUScenario.INTERACTIVE_QA_DIR),
+            unpack=True,
+            unpack_type="untar",
+        )
 
         # Read all the instances
         instances: List[Instance] = []
         splits: Dict[str, str] = {
             "auxiliary_train": TRAIN_SPLIT,
             "dev": TRAIN_SPLIT,
-            "val": VALID_SPLIT,
             "test": TEST_SPLIT,
         }
         for split in splits:
-            csv_path: str = os.path.join(data_path, split, f"{self.subject}_{split}.csv")
+            split_path: str = os.path.join(data_path, split)
+            if split == "test":
+                split_path = os.path.join(split_path, InteractiveQAMMLUScenario.INTERACTIVE_QA_DIR)
+
+            csv_path: str = os.path.join(split_path, f"{self.subject}_{split}.csv")
             if not os.path.exists(csv_path):
                 hlog(f"{csv_path} doesn't exist, skipping")
                 continue

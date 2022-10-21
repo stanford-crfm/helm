@@ -564,11 +564,8 @@ def get_civil_comments_spec(demographic: str) -> RunSpec:
     )
 
 
-def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT, for_interactive_qa: bool = False) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.mmlu_scenario.MMLUScenario",
-        args={"subject": subject, "for_interactive_qa": for_interactive_qa},
-    )
+def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="benchmark.scenarios.mmlu_scenario.MMLUScenario", args={"subject": subject})
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=method,
@@ -576,12 +573,30 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT, for_i
         input_noun="Question",
         output_noun="Answer",
     )
-    run_spec_name: str = f"mmlu:subject={subject}"
-    if for_interactive_qa:
-        run_spec_name = f"{run_spec_name},for_interactive_qa={for_interactive_qa}"
 
     return RunSpec(
-        name=run_spec_name,
+        name=f"mmlu:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["mmlu"],
+    )
+
+
+def get_interactive_qa_mmlu_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="benchmark.scenarios.interactive_qa_mmlu_scenario.InteractiveQAMMLUScenario",
+        args={"subject": subject},
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions=f"The following are multiple choice questions (with answers) about {subject.replace('_', ' ')}.",
+        input_noun="Question",
+        output_noun="Answer",
+    )
+    return RunSpec(
+        name=f"interactive_qa_mmlu:subject={subject}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -1534,6 +1549,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "imdb": get_imdb_spec,
     "copyright": get_copyright_spec,
     "mmlu": get_mmlu_spec,
+    "interactive_qa_mmlu": get_interactive_qa_mmlu_spec,
     "msmarco": get_msmarco_spec,
     "narrative_qa": get_narrativeqa_spec,
     "commonsense": get_commonsense_spec,
