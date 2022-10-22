@@ -199,7 +199,7 @@ class _MongoKeyValueStore(_KeyValueStore):
             request = self._canonicalize_key(key)
             document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
             operations.append(ReplaceOne({self._REQUEST_KEY: request}, document, upsert=True))
-        self._collection.bulk_write(operations)
+        self._collection.bulk_write(operations, ordered=False)
 
 
 def _create_key_value_store(config: KeyValueStoreCacheConfig) -> _KeyValueStore:
