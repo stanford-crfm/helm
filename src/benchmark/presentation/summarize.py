@@ -114,6 +114,8 @@ def get_method_display_name(model: Model, info: Dict[str, Any]) -> str:
 class Summarizer:
     """Summarize the benchmark results in JSON files to be displayed in the UI."""
 
+    COST_REPORT_FIELDS: List[str] = ["num_prompt_tokens", "num_completion_tokens", "num_completions", "num_requests"]
+
     def __init__(self, suite: str, output_path: str):
         self.suite: str = suite
         self.run_suite_path: str = os.path.join(output_path, "runs", suite)
@@ -212,6 +214,22 @@ class Summarizer:
                     f"WARNING: metric name {metric_name} undefined in {SCHEMA_YAML_PATH} "
                     f"but appears in {len(run_spec_names)} run specs, including {run_spec_names[0]}"
                 )
+
+    @htrack(None)
+    def write_cost_report(self):
+        """Write out the information we need to calculate costs per model."""
+        models_to_costs: Dict[str, Dict[str]] = defaultdict(lambda: defaultdict(int))
+        for run in self.runs:
+            model: str = run.run_spec.adapter_spec.model
+
+            for stat in run.stats:
+                stat_name = stat.name.name
+                if stat_name in Summarizer.COST_REPORT_FIELDS and not stat.name.split:
+                    models_to_costs[model][stat_name] += stat.sum
+        write(
+            os.path.join(self.run_suite_path, "costs.json"),
+            json.dumps(models_to_costs, indent=2),
+        )
 
     def write_models(self):
         write(
@@ -573,6 +591,7 @@ def main():
     summarizer.write_runs()
     summarizer.write_groups()
     summarizer.check_metrics_defined()
+    summarizer.write_cost_report()
 
 
 if __name__ == "__main__":
