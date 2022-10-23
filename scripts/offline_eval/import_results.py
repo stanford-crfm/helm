@@ -87,10 +87,10 @@ def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, re
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "cache-dir", type=str, help="For a SQLite cache, directory for the .sqlite files containing the cache"
+        "--cache-dir", type=str, help="For a SQLite cache, directory for the .sqlite files containing the cache"
     )
     parser.add_argument(
-        "mongo-uri",
+        "--mongo-uri",
         type=str,
         help=(
             "For a MongoDB cache, Mongo URI to copy items to. "
@@ -110,11 +110,11 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    if (args.sqlite_cache_dir and args.mongo_uri) or (not args.sqlite_cache_dir and not args.mongo_uri):
+    if (args.cache_dir and args.mongo_uri) or (not args.cache_dir and not args.mongo_uri):
         raise ValueError("Exactly one of --cache-dir or --mongo-uri should be specified")
     cache_config: KeyValueStoreCacheConfig
-    if args.sqlite_cache_dir:
-        cache_config = SqliteCacheConfig(os.path.join(args.sqlite_cache_dir, f"{args.organization}.sqlite"))
+    if args.cache_dir:
+        cache_config = SqliteCacheConfig(os.path.join(args.cache_dir, f"{args.organization}.sqlite"))
     elif args.mongo_uri:
         cache_config = MongoCacheConfig(args.mongo_uri, args.organization)
 

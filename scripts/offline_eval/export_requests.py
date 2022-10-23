@@ -42,7 +42,7 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
     def process_together_request(request: Request):
         raw_request: typing.Dict = TogetherClient.convert_to_raw_request(request)
         # Only export requests that we are not in the cache
-        if store.contains(raw_request):
+        if not store.contains(raw_request):
             # Following the examples from https://github.com/togethercomputer/open-models-api,
             # add "request_type" and "model" to the request and remove "engine".
             raw_request["model"] = raw_request.pop("engine")
@@ -65,7 +65,7 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
             cache_key: typing.Dict = {"completion_index": completion_index, **raw_request}
 
             # Only export requests that we are not in the cache
-            if store.contains(cache_key):
+            if not store.contains(cache_key):
                 request_json: str = request_to_key(raw_request)
                 out_file.write(request_json + "\n")
                 counts["pending_count"] += 1
@@ -124,10 +124,10 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "cache-dir", type=str, help="For a SQLite cache, directory for the .sqlite files containing the cache"
+        "--cache-dir", type=str, help="For a SQLite cache, directory for the .sqlite files containing the cache"
     )
     parser.add_argument(
-        "mongo-uri",
+        "--mongo-uri",
         type=str,
         help=(
             "For a MongoDB cache, Mongo URI to copy items to. "
@@ -141,11 +141,11 @@ if __name__ == "__main__":
     parser.add_argument("--output-path", type=str, default="requests.jsonl", help="Path to jsonl file.")
     args = parser.parse_args()
 
-    if (args.sqlite_cache_dir and args.mongo_uri) or (not args.sqlite_cache_dir and not args.mongo_uri):
+    if (args.cache_dir and args.mongo_uri) or (not args.cache_dir and not args.mongo_uri):
         raise ValueError("Exactly one of --cache-dir or --mongo-uri should be specified")
     cache_config: KeyValueStoreCacheConfig
-    if args.sqlite_cache_dir:
-        cache_config = SqliteCacheConfig(os.path.join(args.sqlite_cache_dir, f"{args.organization}.sqlite"))
+    if args.cache_dir:
+        cache_config = SqliteCacheConfig(os.path.join(args.cache_dir, f"{args.organization}.sqlite"))
     elif args.mongo_uri:
         cache_config = MongoCacheConfig(args.mongo_uri, args.organization)
 
