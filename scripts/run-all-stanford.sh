@@ -20,12 +20,15 @@ function execute {
    eval $1
 }
 
+conda_environment="crfm_benchmarking"
 cpus=4
 num_threads=8
 work_dir=$PWD
 suite=$2
 logs_path="benchmark_output/runs/$suite/logs"
 mkdir -p $logs_path
+
+default_nlp_run_args="-a $conda_environment -c $cpus -w $work_dir --mail-user $USER --mail-type END"
 default_args="--num-train-trials 3 --max-eval-instances 1000 --priority 2 --local --mongo-uri='mongodb://crfm-benchmarking:kindling-vespers@john13/crfm-models'"
 
 models=(
@@ -70,13 +73,13 @@ do
     # Override with passed-in CLI arguments
     # By default, the command will run the RunSpecs listed in src/benchmark/presentation/run_specs.conf
     log_file=$job.log
-    execute "nlprun --job-name $job --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 24g -w $work_dir
+    execute "nlprun $default_nlp_run_args --job-name $job --priority high -g 0 --memory 24g
     'benchmark-present -n $num_threads --models-to-run $model $default_args $* > $logs_path/$log_file 2>&1'"
     log_paths+=("$work_dir/$logs_path/$log_file")
 
     # Run RunSpecs that require a GPU
     log_file=$job.gpu.log
-    execute "nlprun --job-name $job-gpu -a crfm_benchmarking -c $cpus -g 1 --memory 24g -w $work_dir
+    execute "nlprun $default_nlp_run_args --job-name $job-gpu -g 1 --memory 24g
     'benchmark-present -n $num_threads --models-to-run $model --conf-path src/benchmark/presentation/run_specs_gpu.conf
     $default_args $* > $logs_path/$log_file 2>&1'"
     log_paths+=("$work_dir/$logs_path/$log_file")
@@ -91,6 +94,6 @@ done
 # Print out what to run next
 printf "\nRun the following commands once the runs complete:\n"
 command="benchmark-present --skip-instances --models-to-run ${models[@]} $default_args $* > $logs_path/run_all_skip_instances.log 2>&1"
-echo "nlprun --job-name generate-run-specs-json-$suite --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 8g -w $work_dir '$command'"
+echo "nlprun $default_nlp_run_args --job-name generate-run-specs-json-$suite --priority high -g 0 --memory 8g '$command'"
 command="benchmark-summarize --suite $suite > $logs_path/summarize.log 2>&1"
-echo "nlprun --job-name summarize-$suite --priority high -a crfm_benchmarking -c $cpus -g 0 --memory 8g -w $work_dir '$command'"
+echo "nlprun $default_nlp_run_args --job-name summarize-$suite --priority high -g 0 --memory 8g '$command'"

@@ -91,10 +91,8 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. Run `bash scripts/run-all-stanford.sh --suite <Suite name> --dry-run` e.g.,
    `bash scripts/run-all-stanford.sh --suite v6-dryrun --dry-run`.
 1. Once the dry run is done, run the following commands:
-    1. `python3 scripts/offline_eval/export_requests.py together benchmark_output/runs/v6-dryrun
-       --output-path benchmark_output/runs/v6-dryrun/together_requests.jsonl`
-    1. `python3 scripts/offline_eval/export_requests.py microsoft benchmark_output/runs/v6-dryrun
-       --output-path benchmark_output/runs/v6-dryrun/microsoft_requests.jsonl`
+    1. `python3 -m scripts.offline_eval.export_requests --mongo-uri mongodb://username:password@host/crfm-models --output-path benchmark_output/runs/v6-dryrun/together_requests.jsonl together benchmark_output/runs/v6-dryrun`
+    1. `python3 -m scripts.offline_eval.export_requests --mongo-uri mongodb://username:password@host/crfm-models --output-path benchmark_output/runs/v6-dryrun/microsoft_requests.jsonl microsoft benchmark_output/runs/v6-dryrun`
 1. Upload requests JSONL files to CodaLab:
     1. Log on to CodaLab: `cl work main::0xbd9f3df457854889bda8ac114efa8061`.
     1. Upload by Together requests: `cl upload benchmark_output/runs/v6-dryrun/together_requests.jsonl`.
@@ -106,9 +104,9 @@ to estimate the token usage. The tokenizer will be downloaded and cached when ru
 1. `ssh scdt`
 1. `cd /nlp/scr2/nlp/crfm/benchmarking/benchmarking`
 1. Download the results from CodaLab: `cl download <UUID of the results bundle>`.
-1. Run: `python3 scripts/offline_eval/import_results.py <Org> <Path to results jsonl file>` e.g.,
-   `python3 scripts/offline_eval/import_results.py together results.jsonl`.
-   This will update the cache with requests and their results.
+1. Run: `python3 -m scripts.offline_eval.import_results --mongo-uri mongodb://username:password@host/crfm-models <Org> <Path to results jsonl file>` to update the cache with requests and their results, e.g.:
+   1. `python3 -m scripts.offline_eval.import_results --mongo-uri mongodb://username:password@host/crfm-models together results.jsonl`
+   1. `python3 -m scripts.offline_eval.import_results --mongo-uri mongodb://username:password@host/crfm-models microsoft results.jsonl`
 
 ### To verify that the Scenario construction and generation of prompts are reproducible
 

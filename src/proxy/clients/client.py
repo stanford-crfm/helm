@@ -56,9 +56,9 @@ def wrap_request_time(compute: Callable[[], Any]) -> Callable[[], Any]:
 
 def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool = True) -> Sequence:
     """
-    Certain providers have bugs where they aren't respecting max_tokens or
-    stop_sequences, so as a hack, we have to manually truncate the suffix of
-    `sequence` as a post-hoc process.
+    Certain providers have bugs where they aren't respecting max_tokens,
+    stop_sequences and the end of text token, so as a hack, we have to manually
+    truncate the suffix of `sequence` and `tokens` as a post-hoc process.
     """
     # TODO: if echo_prompt, then we should only ignore the prompt, but we don't
     # know how many tokens the prompt takes up.
@@ -74,10 +74,8 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
         try:
             new_text = sequence.text[: sequence.text.index(stop)]
         except ValueError:
-            # Stop sequence doesn't exist, skip
-            continue
-
-        # At this point, we've stripped out `stop`...
+            # The stop sequence doesn't exist, but it might exist in the list of tokens.
+            new_text = sequence.text
 
         # Strip `stop` off the tokens
         new_tokens: List[Token] = []
@@ -87,7 +85,8 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
             if token.text.startswith(stop):
                 break
             new_tokens.append(token)
-        if len(new_tokens) == len(sequence.tokens):
+
+        if len(new_text) < len(sequence.text) and len(new_tokens) == len(sequence.tokens):
             hlog(
                 f"WARNING: Stripped characters from text ({len(sequence.text)} -> {len(new_text)}), "
                 f"but wasn't able to strip the tokens"

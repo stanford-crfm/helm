@@ -60,15 +60,40 @@ class MMLUScenario(Scenario):
     def __init__(self, subject: str):
         self.subject: str = subject
 
-    def get_instances(self) -> List[Instance]:
-        # Download the raw data
-        data_path: str = os.path.join(self.output_path, "data")
+    def download_mmlu(self, path: str):
         ensure_file_downloaded(
             source_url="https://people.eecs.berkeley.edu/~hendrycks/data.tar",
-            target_path=data_path,
+            target_path=path,
             unpack=True,
             unpack_type="untar",
         )
+
+    def process_csv(self, csv_path: str, split: str) -> List[Instance]:
+        instances: List[Instance] = []
+        hlog(f"Reading {csv_path}")
+        with open(csv_path) as f:
+            reader = csv.reader(f, delimiter=",")
+            for row in reader:
+                # Example: ["What color is the sky?", "red", "blue", "green", "B"]
+                question, answers, correct_choice = row[0], row[1:-1], row[-1]
+                answers_dict = dict(zip(["A", "B", "C", "D", "E"], answers))
+                correct_answer = answers_dict[correct_choice]
+
+                def answer_to_reference(answer):
+                    return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
+
+                instance = Instance(
+                    input=question,
+                    references=list(map(answer_to_reference, answers)),
+                    split=split,
+                )
+                instances.append(instance)
+        return instances
+
+    def get_instances(self) -> List[Instance]:
+        # Download the raw data
+        data_path: str = os.path.join(self.output_path, "data")
+        self.download_mmlu(data_path)
 
         # Read all the instances
         instances: List[Instance] = []
@@ -83,24 +108,6 @@ class MMLUScenario(Scenario):
             if not os.path.exists(csv_path):
                 hlog(f"{csv_path} doesn't exist, skipping")
                 continue
-
-            hlog(f"Reading {csv_path}")
-            with open(csv_path) as f:
-                reader = csv.reader(f, delimiter=",")
-                for row in reader:
-                    # Example: ["What color is the sky?", "red", "blue", "green", "B"]
-                    question, answers, correct_choice = row[0], row[1:-1], row[-1]
-                    answers_dict = dict(zip(["A", "B", "C", "D", "E"], answers))
-                    correct_answer = answers_dict[correct_choice]
-
-                    def answer_to_reference(answer):
-                        return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
-
-                    instance = Instance(
-                        input=question,
-                        references=list(map(answer_to_reference, answers)),
-                        split=splits[split],
-                    )
-                    instances.append(instance)
+            instances.extend(self.process_csv(csv_path, splits[split]))
 
         return instances

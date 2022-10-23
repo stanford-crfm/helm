@@ -583,6 +583,27 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     )
 
 
+def get_interactive_qa_mmlu_spec(subject: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="benchmark.scenarios.interactive_qa_mmlu_scenario.InteractiveQAMMLUScenario",
+        args={"subject": subject},
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions=f"The following are multiple choice questions (with answers) about {subject.replace('_', ' ')}.",
+        input_noun="Question",
+        output_noun="Answer",
+    )
+    return RunSpec(
+        name=f"interactive_qa_mmlu:subject={subject}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["mmlu"],
+    )
+
+
 def get_wikifact_spec(k: str, subject: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.wikifact_scenario.WIKIFactScenario",
@@ -1528,6 +1549,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "imdb": get_imdb_spec,
     "copyright": get_copyright_spec,
     "mmlu": get_mmlu_spec,
+    "interactive_qa_mmlu": get_interactive_qa_mmlu_spec,
     "msmarco": get_msmarco_spec,
     "narrative_qa": get_narrativeqa_spec,
     "commonsense": get_commonsense_spec,

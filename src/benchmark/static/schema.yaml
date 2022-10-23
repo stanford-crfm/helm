@@ -717,7 +717,7 @@ run_groups:
       - toxicity
       - efficiency
     environment:
-      main_name: exact_match
+      main_name: quasi_exact_match
       main_split: valid
 
   - name: narrative_qa
@@ -816,7 +816,7 @@ run_groups:
       - fairness
       - efficiency
     environment:
-      main_name: quasi_exact_match
+      main_name: exact_match
       main_split: valid
 
   - name: mmlu
@@ -829,7 +829,7 @@ run_groups:
       - fairness
       - efficiency
     environment:
-      main_name: quasi_exact_match
+      main_name: exact_match
       main_split: test
 
 # Information retrieval scenarios
