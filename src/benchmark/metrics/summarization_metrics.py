@@ -1,8 +1,12 @@
+import pandas
 import numpy as np
 import spacy
 import subprocess
 import sys
+import os
 from typing import List, Dict
+from collections import defaultdict
+from common.general import ensure_file_downloaded
 
 # Need to check spacy module is downloaded before importing DataStatsMetric
 if not spacy.util.is_package("en_core_web_sm"):
@@ -19,7 +23,6 @@ from .basic_metrics import get_rouge_function
 from .statistic import Stat
 from .summac.model_summac import SummaCZS
 from bert_score import BERTScorer
-
 
 class SummarizationMetric(Metric):
     """Summarization Metrics
@@ -136,3 +139,131 @@ class SummarizationMetric(Metric):
             )
 
         return result
+
+HUMAN_EVAL_CODALAB_LINK: str = (
+    "https://worksheets.codalab.org/rest/bundles/0x8c5eeb13c0bd47b1b4a74791f4a38425/contents/blob/summ_humaneval/{file_name}"
+)
+
+def _paired_bootstrap_test(treatment, control, nboot=10000):
+    treatment = np.array(treatment)
+    control = np.array(control)
+    delta = treatment.mean() - control.mean()
+    sample_idx = np.random.choice(np.arange(len(treatment)), size=(nboot, len(treatment)))
+    boot_treatment = treatment[sample_idx]
+    boot_control = control[sample_idx]
+    diff = boot_treatment.mean(axis=1) - boot_control.mean(axis=1)
+    return (diff > 2 * delta).mean()
+
+
+class SummarizationHumanEvalAnalyzer():
+    """
+    Analyzes the human evaluation data of on summarization datasets
+
+    1. loads humaneval data from codaalb
+    2. averages and report {faithfulness, relevance, coherence} scores
+    3. compute paired bootstrap test for all pairwise model comparison
+    """
+
+    def __init__(self, dataset:str, eval_download_path:str):
+        self.dataset = dataset
+        self.eval_download_path = eval_download_path
+        os.makedirs(eval_download_path, exist_ok=True)
+        self.faithfulness, self.coherence, self.relevance = None, None, None
+
+    def load_humaneval_data(self):
+        filenames = [
+            f'Batch_{self.dataset}_small_results.csv',
+            f'Batch_{self.dataset}_large_results.csv'
+        ]
+
+        tasks_by_id = defaultdict(list)
+
+        for filename in filenames:
+            download_filename = HUMAN_EVAL_CODALAB_LINK.format(file_name=filename)
+            filename = os.path.join(self.eval_download_path, filename)
+            ensure_file_downloaded(source_url=download_filename, target_path=filename)
+            mturk_data = pandas.read_csv(filename)
+            for i, row in mturk_data.iterrows():
+                tasks_by_id[row.HITId].append(row)
+
+        self.faithfulness = defaultdict(list)
+        for idx, tasks in tasks_by_id.items():
+            scores = []
+            for task in tasks:
+                scores.append(1 if task['Answer.consistency.consistent'] else 0)
+            self.faithfulness[task['Input.model_name']].append(np.mean(scores))
+
+        self.coherence = defaultdict(list)
+        for idx, tasks in tasks_by_id.items():
+            scores = []
+            for task in tasks:
+                for i in range(1, 6):
+                    if task[f'Answer.coherence.cohere_{i}']:
+                        scores.append(i)
+                        break
+            self.coherence[task['Input.model_name']].append(np.mean(scores))
+
+        self.relevance = defaultdict(list)
+        for idx, tasks in tasks_by_id.items():
+            scores = []
+            for task in tasks:
+                for i in range(1, 6):
+                    if task[f'Answer.relevance.rel_{i}']:
+                        scores.append(i)
+                        break
+            self.relevance[task['Input.model_name']].append(np.mean(scores))
+
+    def _compute_average(self, scores: dict):
+        return [(x, np.mean(y)) for x, y in scores.items()]
+
+    def print_summary(self):
+        assert self.faithfulness
+        assert self.coherence
+        assert self.relevance
+
+        print("FAITHFULNESS")
+        for model, score in self._compute_average(self.faithfulness):
+            print(f"{model:40}: {score:.4f}")
+        print("="*40)
+
+        print("RELEVANCE")
+        for model, score in self._compute_average(self.relevance):
+            print(f"{model:40}: {score:.4f}")
+        print("="*40)
+
+        print("COHERENCE")
+        for model, score in self._compute_average(self.relevance):
+            print(f"{model:40}: {score:.4f}")
+        print("="*40)
+
+    def print_test_result(self):
+        assert self.faithfulness
+        assert self.coherence
+        assert self.relevance
+
+        print("FAITHFULNESS")
+        avg_faithful_scores = self._compute_average(self.faithfulness)
+        sorted_models, _ = zip(*sorted(avg_faithful_scores, key=lambda x:x[1], reverse=True))
+        for i, best_model in enumerate(sorted_models):
+            for other_model in sorted_models[i+1:]:
+                p_value = _paired_bootstrap_test(self.faithfulness[best_model], self.faithfulness[other_model])
+                print(f"{best_model} > {other_model}: p-value {p_value:.3f}")
+        print("="*40)
+
+        print("RELEVANCE")
+        avg_faithful_scores = self._compute_average(self.relevance)
+        sorted_models, _ = zip(*sorted(avg_faithful_scores, key=lambda x: x[1], reverse=True))
+        for i, best_model in enumerate(sorted_models):
+            for other_model in sorted_models[i + 1:]:
+                p_value = _paired_bootstrap_test(self.relevance[best_model], self.relevance[other_model])
+                print(f"{best_model} > {other_model}: p-value {p_value:.3f}")
+        print("=" * 40)
+
+        print("COHERENCE")
+        avg_faithful_scores = self._compute_average(self.coherence)
+        sorted_models, _ = zip(*sorted(avg_faithful_scores, key=lambda x: x[1], reverse=True))
+        for i, best_model in enumerate(sorted_models):
+            for other_model in sorted_models[i + 1:]:
+                p_value = _paired_bootstrap_test(self.coherence[best_model], self.coherence[other_model])
+                print(f"{best_model} > {other_model}: p-value {p_value:.3f}")
+        print("=" * 40)
