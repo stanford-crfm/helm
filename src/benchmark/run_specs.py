@@ -22,7 +22,7 @@ from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .scenarios.raft_scenario import get_raft_instructions
-from proxy.models import get_model, NO_NEWLINES_TAG
+from proxy.models import get_model
 from common.general import singleton
 
 
