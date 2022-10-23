@@ -234,6 +234,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "ai21_tokenizer": get_model_names_with_tag(AI21_TOKENIZER_TAG),
         "cohere_tokenizer": get_model_names_with_tag(COHERE_TOKENIZER_TAG),
         "opt_tokenizer": get_model_names_with_tag(OPT_TOKENIZER_TAG),
+        "summarization_zs": ["openai/davinci", "openai/curie", "openai/text-davinci-002", "openai/text-curie-001"],
     }
 
     # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")
