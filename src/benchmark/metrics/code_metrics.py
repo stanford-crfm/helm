@@ -2,7 +2,7 @@
 
 from typing import List, Union, Sequence, cast
 import resource
-
+import multiprocessing
 from common.hierarchical_logger import hlog
 from common.request import RequestResult
 from benchmark.adapter import AdapterSpec, RequestState, ScenarioState
@@ -37,6 +37,10 @@ METRICS = {
     "test_avg": _test_avg,
     "strict_acc": _strict_acc,
 }
+
+
+def _run_test_wrapper(root: str, test: str, timeout: float, shared_list: list):
+    shared_list.append(code_metrics_helper.run_test(root, test, timeout))
 
 
 class APPSMetric(Metric):
@@ -81,7 +85,25 @@ class APPSMetric(Metric):
             best_score = 0.0
             for completion in request_result.completions:
                 completion = completion.text.strip()
-                scores = code_metrics_helper.run_test(root=root, test=completion, timeout=self.timeout)  # type: ignore
+
+                # Similar to the logic in https://github.com/hendrycks/apps/blob/main/eval/test_one_solution.py
+                # Running the testing code in a forked process prevents against annoying memory issues.
+                shared_list = multiprocessing.Manager().list()  # Create shared object to hold results.
+                p = multiprocessing.Process(
+                    target=_run_test_wrapper,
+                    args=(root, completion, self.timeout, shared_list)
+                )
+                p.start()
+                p.join(timeout=11)  # Same 'global' timeout used in original APPS codebase.
+                if p.is_alive():
+                    p.kill()
+                if len(shared_list) == 0:
+                    # Remark: ideally should consider all tests that failed;
+                    # use the average number of tests here for simplicity
+                    avg_number_tests = 21
+                    shared_list = [[-1] * avg_number_tests]
+                scores = shared_list[0]
+
                 scores = _convert_scores(scores)  # Convert list of bool/int to list of ints.
                 this_score = metric_fn(scores)
                 if this_score > best_score:
