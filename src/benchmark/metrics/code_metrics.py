@@ -90,8 +90,7 @@ class APPSMetric(Metric):
                 # Running the testing code in a forked process prevents against annoying memory issues.
                 shared_list = multiprocessing.Manager().list()  # Create shared object to hold results.
                 p = multiprocessing.Process(
-                    target=_run_test_wrapper,
-                    args=(root, completion, self.timeout, shared_list)
+                    target=_run_test_wrapper, args=(root, completion, self.timeout, shared_list)
                 )
                 p.start()
                 p.join(timeout=11)  # Same 'global' timeout used in original APPS codebase.
