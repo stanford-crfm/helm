@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import replace
 from typing import List, Dict, Optional, Tuple
 
+from .adapter import ADAPT_MULTIPLE_CHOICE_JOINT, ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED
 from proxy.models import (
     get_all_code_models,
     get_all_models,
@@ -213,6 +214,19 @@ class NumOutputsRunExpander(ReplaceValueRunExpander):
     values_dict = {
         "default": [1],
         "copyright_sweep": [1, 10],
+    }
+
+
+class MethodRunExpander(ReplaceValueRunExpander):
+    """For overriding method."""
+
+    name = "method"
+    values_dict = {
+        "multiple_choice": [
+            ADAPT_MULTIPLE_CHOICE_JOINT,
+            ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
+            ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED
+        ]
     }
 
 
@@ -731,6 +745,7 @@ RUN_EXPANDERS = dict(
         NumTrainTrialsRunExpander,
         MaxTrainInstancesRunExpander,
         NumOutputsRunExpander,
+        MethodRunExpander,
         ModelRunExpander,
         DataAugmentationRunExpander,
         TokenizerRunExpander,
