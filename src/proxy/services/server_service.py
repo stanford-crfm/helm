@@ -3,7 +3,6 @@ import signal
 from typing import List
 
 from common.authentication import Authentication
-from common.cache import SqliteCacheConfig
 from common.general import ensure_directory_exists, parse_hocon
 from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from common.tokenization_request import (
@@ -17,7 +16,6 @@ from common.hierarchical_logger import hlog
 from proxy.accounts import Accounts, Account
 from proxy.clients.auto_client import AutoClient
 from proxy.example_queries import example_queries
-from proxy.clients.perspective_api_client import PerspectiveAPIClient
 from proxy.models import ALL_MODELS, get_model_group
 from proxy.query import Query, QueryResult
 from proxy.retry import retry_request
@@ -54,10 +52,7 @@ class ServerService(Service):
         self.client = AutoClient(credentials, cache_path, mongo_uri)
         self.token_counter = AutoTokenCounter(self.client.huggingface_client)
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
-        self.perspective_api_client = PerspectiveAPIClient(
-            api_key=credentials["perspectiveApiKey"] if "perspectiveApiKey" in credentials else "",
-            cache_config=SqliteCacheConfig(os.path.join(base_path, "perspectiveapi.sqlite")),
-        )
+        self.perspective_api_client = self.client.get_toxicity_classifier_client()
 
     def get_general_info(self) -> GeneralInfo:
         return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=ALL_MODELS)
