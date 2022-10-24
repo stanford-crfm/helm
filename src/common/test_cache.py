@@ -3,7 +3,7 @@ import tempfile
 import unittest
 import threading
 
-from common.cache import Cache, SqliteCacheConfig, WithFollowerCacheConfig, cache_stats
+from common.cache import Cache, SqliteCacheConfig, WithFollowerCacheConfig, cache_stats, get_all_sqlite_items
 
 from sqlitedict import SqliteDict
 
@@ -143,3 +143,21 @@ class TestCache(unittest.TestCase):
                 '{"name": "request2"}': {"response": "response2"},
             }
             self.assertCountEqual(SqliteDict(follower_cache_path).items(), expected_dict.items())
+
+    def test_get_all_sqlite_items(self):
+        cache = Cache(SqliteCacheConfig(self.cache_path))
+        num_items = 10  # TODO: Inrcrease to 100
+        requests = [{"name": f"request{i}"} for i in range(num_items)]
+        responses = [{"response": f"response{i}"} for i in range(num_items)]
+        for i in range(num_items):
+            response, cached = cache.get(requests[i], lambda: responses[i])
+            assert response == responses[i]
+            assert not cached
+
+        actual_requests = []
+        actual_responses = []
+        for request, response in get_all_sqlite_items(self.cache_path):
+            actual_requests.append(request)
+            actual_responses.append(response)
+        self.assertCountEqual(actual_requests, requests)
+        self.assertCountEqual(actual_responses, responses)

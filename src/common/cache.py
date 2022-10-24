@@ -1,15 +1,21 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import json
-from typing import Dict, Callable, List, Optional, Tuple
+from typing import Dict, Callable, Generator, List, Optional, Tuple
 from collections import defaultdict
 import threading
+import sqlite3
 
 from sqlitedict import SqliteDict
 from common.general import hlog, htrack
 from proxy.retry import get_retry_decorator
 from bson.son import SON
 from pymongo import MongoClient, ReplaceOne
+
+try:
+    from cPickle import loads
+except ImportError:
+    from pickle import loads
 
 
 def request_to_key(request: Dict) -> str:
@@ -256,6 +262,20 @@ class CacheStats:
         with self.lock:
             for path in self.num_queries:
                 hlog(f"{path}: {self.num_queries[path]} queries, {self.num_computes[path]} computes")
+
+
+def get_all_sqlite_items(path: str) -> Generator[Tuple[Dict, Dict], None, None]:
+    connection = sqlite3.connect(path)
+    cursor = connection.cursor()
+    cursor.execute("SELECT key, value FROM unnamed ORDER BY rowid")
+    while True:
+        row = cursor.fetchone()
+        if not row:
+            break
+        raw_key, raw_value = row
+        key: Dict = json.loads(raw_key)
+        value: Dict = loads(raw_value)
+        yield (key, value)
 
 
 # Singleton that's updated from everywhere.  Caches are often deep inside
