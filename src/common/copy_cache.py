@@ -55,7 +55,7 @@ def copy_cache(
             for key, value in source_cache.items():
                 if not dry_run and (not range_start or num_items >= range_start):
                     if bulk_write:
-                        bulk_write_pairs.append((key, value))
+                        bulk_write_pairs.append((json.loads(key), value))
                     else:
                         try:
                             target_cache.put(json.loads(key), value)
@@ -76,7 +76,10 @@ def copy_cache(
                             num_failed += len(bulk_write_pairs)
                         bulk_write_pairs = []
                     hlog(f"Processed {num_items} items so far")
-                    hlog(f"Copied {num_written} and skipped {num_skipped} items from {cache_path} so far")
+                    hlog(
+                        f"Copied {num_written} and skipped {num_skipped} and "
+                        + f"failed {num_failed} items from {cache_path} so far"
+                    )
                 if range_end and num_items >= range_end:
                     break
 
