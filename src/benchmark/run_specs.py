@@ -21,6 +21,7 @@ from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
+from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
 from proxy.models import get_model, NO_NEWLINES_TAG
 from common.general import singleton
@@ -993,7 +994,7 @@ def get_copyright_spec(datatag="pilot", temperature=0.2, max_tokens=1024, num_ou
         adapter_spec=adapter_spec,
         metric_specs=get_copyright_metric_specs({"normalize_by_prefix_length": True})
         + get_generative_harms_metric_specs(),
-        groups=["copyright"],
+        groups=["copyright_code" if datatag in datatag2hash_code else "copyright_text"],
     )
 
 

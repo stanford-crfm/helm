@@ -1135,9 +1135,20 @@ run_groups:
       main_split: test
 
 ## Copyright scenarios
-  - name: copyright
-    display_name: Copyright
-    description: Scenario introduced in this work to measure copyright and memorization behavior, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).
+  - name: copyright_text
+    display_name: Copyright (text)
+    description: Scenario introduced in this work to measure copyright and memorization behavior for books, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).
+    metric_groups:
+      - copyright_metrics
+      - bias
+      - toxicity
+      - efficiency
+    environment:
+      main_split: test
+
+  - name: copyright_code
+    display_name: Copyright (code)
+    description: Scenario introduced in this work to measure copyright and memorization behavior for code, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).
     metric_groups:
       - copyright_metrics
       - bias
