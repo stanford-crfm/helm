@@ -576,7 +576,7 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     )
 
     return RunSpec(
-        name=f"mmlu:subject={subject}",
+        name=f"mmlu:subject={subject},method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -692,7 +692,7 @@ def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -
     )
 
     return RunSpec(
-        name=f"truthful_qa:task={task}",
+        name=f"truthful_qa:task={task},method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -942,7 +942,7 @@ def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
-        name=f"lsat_qa:task={task}",
+        name=f"lsat_qa:task={task},method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -1236,7 +1236,7 @@ def get_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE
     metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
-        name=f"blimp:phenomenon={phenomenon}",
+        name=f"blimp:phenomenon={phenomenon},method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -1374,7 +1374,7 @@ def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec
     metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
-        name="legal_support",
+        name=f"legal_support,method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
