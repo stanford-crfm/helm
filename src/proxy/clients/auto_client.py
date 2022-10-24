@@ -24,6 +24,7 @@ from .huggingface_client import HuggingFaceClient
 from .ice_tokenizer_client import ICETokenizerClient
 from .openai_client import OpenAIClient
 from .microsoft_client import MicrosoftClient
+from .perspective_api_client import PerspectiveAPIClient
 from .yalm_tokenizer_client import YaLMTokenizerClient
 from .simple_client import SimpleClient
 
@@ -185,3 +186,8 @@ class AutoClient(Client):
             retry_error: str = f"Failed to decode after retrying {last_attempt.attempt_number} times"
             hlog(retry_error)
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
+
+    def get_toxicity_classifier_client(self) -> PerspectiveAPIClient:
+        """Get the toxicity classifier client. We currently only support Perspective API."""
+        cache_config: CacheConfig = self._build_cache_config("perspectiveapi")
+        return PerspectiveAPIClient(self.credentials.get("perspectiveApiKey", ""), cache_config)
