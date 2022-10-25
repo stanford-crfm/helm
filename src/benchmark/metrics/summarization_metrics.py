@@ -255,34 +255,48 @@ class SummarizationHumanEvalAnalyzer:
             print(f"{model:40}: {score:.4f}")
         print("=" * 40)
 
-    def print_test_result(self):
+    def dump_test_result(self, output_file_path: str):
+        """
+        Dumps pair-wise model comparison results (based on paired bootstrap test) into a json file.
+
+        Output format:
+        {
+            "faithfulness":[
+                {"model1": ..., "model2": ..., "p value: ...}
+            ]
+            "relevance": ...,
+            "coherence": ...
+        }
+
+        Args:
+            output_file_path: str, path to the output json file
+        """
         assert self.faithfulness
         assert self.coherence
         assert self.relevance
 
-        print("FAITHFULNESS")
+        output_pvalues = defaultdict(list)
+
         avg_faithful_scores = self._compute_average(self.faithfulness)
-        sorted_models, _ = zip(*sorted(avg_faithful_scores, key=lambda x:x[1], reverse=True))
+        sorted_models, _ = zip(*sorted(avg_faithful_scores, key=lambda x: x[1], reverse=True))
         for i, best_model in enumerate(sorted_models):
-            for other_model in sorted_models[i+1:]:
+            for other_model in sorted_models[i + 1 :]:
                 p_value = _paired_bootstrap_test(self.faithfulness[best_model], self.faithfulness[other_model])
-                print(f"{best_model} > {other_model}: p-value {p_value:.3f}")
-        print("="*40)
+                output_pvalues["faithfulness"].append({"model1": best_model, "model2": other_model, "p value": p_value})
 
-        print("RELEVANCE")
-        avg_faithful_scores = self._compute_average(self.relevance)
-        sorted_models, _ = zip(*sorted(avg_faithful_scores, key=lambda x: x[1], reverse=True))
+        avg_relevance_scores = self._compute_average(self.relevance)
+        sorted_models, _ = zip(*sorted(avg_relevance_scores, key=lambda x: x[1], reverse=True))
         for i, best_model in enumerate(sorted_models):
-            for other_model in sorted_models[i + 1:]:
+            for other_model in sorted_models[i + 1 :]:
                 p_value = _paired_bootstrap_test(self.relevance[best_model], self.relevance[other_model])
-                print(f"{best_model} > {other_model}: p-value {p_value:.3f}")
-        print("=" * 40)
+                output_pvalues["relevance"].append({"model1": best_model, "model2": other_model, "p value": p_value})
 
-        print("COHERENCE")
-        avg_faithful_scores = self._compute_average(self.coherence)
-        sorted_models, _ = zip(*sorted(avg_faithful_scores, key=lambda x: x[1], reverse=True))
+        avg_coherence_scores = self._compute_average(self.coherence)
+        sorted_models, _ = zip(*sorted(avg_coherence_scores, key=lambda x: x[1], reverse=True))
         for i, best_model in enumerate(sorted_models):
-            for other_model in sorted_models[i + 1:]:
+            for other_model in sorted_models[i + 1 :]:
                 p_value = _paired_bootstrap_test(self.coherence[best_model], self.coherence[other_model])
-                print(f"{best_model} > {other_model}: p-value {p_value:.3f}")
-        print("=" * 40)
+                output_pvalues["coherence"].append({"model1": best_model, "model2": other_model, "p value": p_value})
+
+        with open(output_file_path, "w") as f:
+            json.dump(dict(output_pvalues), f)
