@@ -139,6 +139,50 @@ class Summarizer:
             stats=stats,
         )
 
+    def compute_slim_per_instance_stats(self, per_instance_stats: List[Dict]) -> List[Dict]:
+        """Given per instance stats, output a slim version for the frontend."""
+        result = []
+        for instance in per_instance_stats:
+            slim_instance = {}
+            # Unfortunately we can't pre-compute the instance key because
+            # Python's JSON serialization is slightly different from JavaScript's.
+            slim_instance["instance_id"] = instance["instance_id"]
+            if "perturbation" in instance:
+                slim_instance["perturbation"] = instance["perturbation"]
+            slim_instance["train_trial_index"] = instance["train_trial_index"]
+            slim_instance["stats"] = []
+            for stat in instance["stats"]:
+                slim_stat = {}
+                slim_stat["name"] = {"name": stat["name"]["name"]}
+                if "mean" in stat:
+                    slim_stat["mean"] = stat["mean"]
+                slim_instance["stats"].append(slim_stat)
+            result.append(slim_instance)
+        return result
+
+    def write_slim_per_instance_stats(self) -> None:
+        """For each run, load per_instance_stats.json and write per_instance_stats_slim.json."""
+        run_specs_path: str = os.path.join(self.run_suite_path, "run_specs.json")
+        if not os.path.exists(run_specs_path):
+            hlog(f"Summarizer won't run because {run_specs_path} doesn't exist yet. This is expected in a dry run.")
+            return []
+
+        self.runs: List[Run] = []
+        with open(run_specs_path) as f:
+            raw_run_specs = json.load(f)
+        for raw_run_spec in raw_run_specs:
+            run_spec = dacite.from_dict(RunSpec, raw_run_spec)
+            run_path: str = os.path.join(self.run_suite_path, run_spec.name)
+
+            per_instance_stats_path: str = os.path.join(run_path, "per_instance_stats.json")
+            if os.path.exists(per_instance_stats_path):
+                with open(per_instance_stats_path) as input_file:
+                    per_instance_stats = json.load(input_file)
+                per_instance_stats
+                per_instance_stats_slim_path = f"{per_instance_stats_path[:-len('.json')]}_slim.json"
+                with open(per_instance_stats_slim_path, "w") as output_file:
+                    json.dump(self.compute_slim_per_instance_stats(per_instance_stats), output_file)
+
     def read_runs(self):
         """Load the corresponding runs for the run specs in run_specs.json."""
 
@@ -592,6 +636,7 @@ def main():
     summarizer.write_groups()
     summarizer.check_metrics_defined()
     summarizer.write_cost_report()
+    summarizer.write_slim_per_instance_stats()
 
 
 if __name__ == "__main__":
