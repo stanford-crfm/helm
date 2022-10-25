@@ -1,3 +1,4 @@
+import json
 import pandas
 import numpy as np
 import spacy
@@ -23,6 +24,7 @@ from .basic_metrics import get_rouge_function
 from .statistic import Stat
 from .summac.model_summac import SummaCZS
 from bert_score import BERTScorer
+
 
 class SummarizationMetric(Metric):
     """Summarization Metrics
@@ -140,11 +142,19 @@ class SummarizationMetric(Metric):
 
         return result
 
-HUMAN_EVAL_CODALAB_LINK: str = (
-    "https://worksheets.codalab.org/rest/bundles/0x8c5eeb13c0bd47b1b4a74791f4a38425/contents/blob/summ_humaneval/{file_name}"
-)
 
-def _paired_bootstrap_test(treatment, control, nboot=10000):
+HUMAN_EVAL_CODALAB_LINK: str = "https://worksheets.codalab.org/rest/bundles/0x8c5eeb13c0bd47b1b4a74791f4a38425/contents/blob/summ_humaneval/{file_name}"
+
+
+def _paired_bootstrap_test(treatment: list, control: list, nboot: int = 10000):
+    """
+    Computes paired bootstrap test for the Hypothesis: treament > control
+
+    Args:
+        treatment: list of float, representing results of treament (better model results)
+        control: list of float, representing results of control (worse model results)
+        nboot: int, number of bootstraps to perform
+    """
     treatment = np.array(treatment)
     control = np.array(control)
     delta = treatment.mean() - control.mean()
@@ -155,26 +165,23 @@ def _paired_bootstrap_test(treatment, control, nboot=10000):
     return (diff > 2 * delta).mean()
 
 
-class SummarizationHumanEvalAnalyzer():
+class SummarizationHumanEvalAnalyzer:
     """
     Analyzes the human evaluation data of on summarization datasets
 
-    1. loads humaneval data from codaalb
+    1. loads human evaluation data from CodaLab
     2. averages and report {faithfulness, relevance, coherence} scores
     3. compute paired bootstrap test for all pairwise model comparison
     """
 
-    def __init__(self, dataset:str, eval_download_path:str):
+    def __init__(self, dataset: str, eval_download_path: str):
         self.dataset = dataset
         self.eval_download_path = eval_download_path
         os.makedirs(eval_download_path, exist_ok=True)
         self.faithfulness, self.coherence, self.relevance = None, None, None
 
     def load_humaneval_data(self):
-        filenames = [
-            f'Batch_{self.dataset}_small_results.csv',
-            f'Batch_{self.dataset}_large_results.csv'
-        ]
+        filenames = [f"Batch_{self.dataset}_small_results.csv", f"Batch_{self.dataset}_large_results.csv"]
 
         tasks_by_id = defaultdict(list)
 
@@ -190,30 +197,42 @@ class SummarizationHumanEvalAnalyzer():
         for idx, tasks in tasks_by_id.items():
             scores = []
             for task in tasks:
-                scores.append(1 if task['Answer.consistency.consistent'] else 0)
-            self.faithfulness[task['Input.model_name']].append(np.mean(scores))
+                # Faithfulness is evaluated as a binary choice
+                # False -> not Faithful
+                # True -> Faithful
+                scores.append(1 if task["Answer.consistency.consistent"] else 0)
+            self.faithfulness[task["Input.model_name"]].append(np.mean(scores))
 
         self.coherence = defaultdict(list)
         for idx, tasks in tasks_by_id.items():
             scores = []
             for task in tasks:
+                # Coherence is evaluated on a 1 to 5 Likert scale.
+                # 1 -> least coherent
+                # 5 -> most coherent
                 for i in range(1, 6):
-                    if task[f'Answer.coherence.cohere_{i}']:
+                    if task[f"Answer.coherence.cohere_{i}"]:
                         scores.append(i)
                         break
-            self.coherence[task['Input.model_name']].append(np.mean(scores))
+            self.coherence[task["Input.model_name"]].append(np.mean(scores))
 
         self.relevance = defaultdict(list)
         for idx, tasks in tasks_by_id.items():
             scores = []
             for task in tasks:
+                # Coherence is evaluated on a 1 to 5 Likert scale.
+                # 1 -> least relevant
+                # 5 -> most relevant
                 for i in range(1, 6):
-                    if task[f'Answer.relevance.rel_{i}']:
+                    if task[f"Answer.relevance.rel_{i}"]:
                         scores.append(i)
                         break
-            self.relevance[task['Input.model_name']].append(np.mean(scores))
+            self.relevance[task["Input.model_name"]].append(np.mean(scores))
 
     def _compute_average(self, scores: dict):
+        """
+        Computes average for each entry in a {model_name: score_list} dict
+        """
         return [(x, np.mean(y)) for x, y in scores.items()]
 
     def print_summary(self):
@@ -224,17 +243,17 @@ class SummarizationHumanEvalAnalyzer():
         print("FAITHFULNESS")
         for model, score in self._compute_average(self.faithfulness):
             print(f"{model:40}: {score:.4f}")
-        print("="*40)
+        print("=" * 40)
 
         print("RELEVANCE")
         for model, score in self._compute_average(self.relevance):
             print(f"{model:40}: {score:.4f}")
-        print("="*40)
+        print("=" * 40)
 
         print("COHERENCE")
         for model, score in self._compute_average(self.relevance):
             print(f"{model:40}: {score:.4f}")
-        print("="*40)
+        print("=" * 40)
 
     def print_test_result(self):
         assert self.faithfulness
