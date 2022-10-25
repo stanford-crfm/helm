@@ -138,7 +138,6 @@ ALL_MODELS = [
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
     # Cohere models
-    # Cohere has not release the sizes of their models.
     # Model versioning and the possible versions are not documented here:
     # https://docs.cohere.ai/generate-reference#model-optional.
     # So, instead, we got the names of the models from the Cohere Playground.
@@ -153,32 +152,32 @@ ALL_MODELS = [
         group="cohere",
         creator_organization="Cohere",
         name="cohere/xlarge-20220609",
-        display_name="Cohere xlarge",
-        description="Cohere xlarge",
+        display_name="Cohere xlarge (52B)",
+        description="Cohere xlarge (52B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
         group="cohere",
         creator_organization="Cohere",
         name="cohere/large-20220720",
-        display_name="Cohere large",
-        description="Cohere large",
+        display_name="Cohere large (13B)",
+        description="Cohere large (13B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
         group="cohere",
         creator_organization="Cohere",
         name="cohere/medium-20220720",
-        display_name="Cohere medium",
-        description="Cohere medium",
+        display_name="Cohere medium (6B)",
+        description="Cohere medium (6B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
         group="cohere",
         creator_organization="Cohere",
         name="cohere/small-20220720",
-        display_name="Cohere small",
-        description="Cohere small",
+        display_name="Cohere small (350M)",
+        description="Cohere small (350M parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     # EleutherAI
@@ -187,7 +186,7 @@ ALL_MODELS = [
         creator_organization="EleutherAI",
         name="together/gpt-j-6b",
         display_name="GPT-J (6B)",
-        description="GPT-J (6B parameters trained by EleutherAI on The Pile)",
+        description="GPT-J (6B parameters) autoregressive language model trained on The Pile",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTJ_TOKENIZER_TAG],
     ),
     Model(
@@ -264,7 +263,7 @@ ALL_MODELS = [
         display_name="OPT (175B)",
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
-        "transformers fully and responsibly shared with interested researchers.",
+        "transformers that are fully and responsibly shared with interested researchers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
     ),
     Model(
@@ -274,24 +273,24 @@ ALL_MODELS = [
         display_name="OPT (66B)",
         # From https://arxiv.org/pdf/2205.01068.pdf
         description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
-        "transformers fully and responsibly shared with interested researchers.",
+        "transformers that are fully and responsibly shared with interested researchers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
     ),
-    # Microsoft
+    # Microsoft/NVIDIA
     Model(
         group="microsoft",
-        creator_organization="Microsoft",
+        creator_organization="Microsoft/NVIDIA",
         name="microsoft/TNLGv2_530B",
-        display_name="MT-NLG (530B)",
-        description="Megatron-Turing NLG (530B parameters)",
+        display_name="TNLGv2 (530B)",
+        description="TNLGv2 (530B parameters) autoregressive language model trained on a filtered subset of the Pile and CommonCrawl.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
         group="microsoft",
-        creator_organization="Microsoft",
+        creator_organization="Microsoft/NVIDIA",
         name="microsoft/TNLGv2_7B",
-        display_name="MT-NLG (7B)",
-        description="Megatron-Turing NLG (7B parameters)",
+        display_name="TNLGv2 (7B)",
+        description="TNLGv2 (7B parameters) autoregressive language model trained on a filtered subset of the Pile and CommonCrawl.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # OpenAI: https://beta.openai.com/docs/engines/gpt-3
@@ -300,7 +299,7 @@ ALL_MODELS = [
         creator_organization="OpenAI",
         name="openai/davinci",
         display_name="GPT-3 (175B)",
-        description="GPT-3 (175B parameters)",
+        description="GPT-3 (175B parameters) autoregressive language model.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -308,7 +307,7 @@ ALL_MODELS = [
         creator_organization="OpenAI",
         name="openai/curie",
         display_name="GPT-3 (6.7B)",
-        description="GPT-3 (6.7B parameters)",
+        description="GPT-3 (6.7B parameters) autoregressive language model.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -316,7 +315,7 @@ ALL_MODELS = [
         creator_organization="OpenAI",
         name="openai/babbage",
         display_name="GPT-3 (1.3B)",
-        description="GPT-3 (1.3B parameters)",
+        description="GPT-3 (1.3B parameters) autoregressive language model.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -324,7 +323,7 @@ ALL_MODELS = [
         creator_organization="OpenAI",
         name="openai/ada",
         display_name="GPT-3 (350M)",
-        description="GPT-3 (350M parameters)",
+        description="GPT-3 (350M parameters) autoregressive language model.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
