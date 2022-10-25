@@ -663,7 +663,8 @@ run_groups:
     description: Evaluating fine-grained social harms
     category: Components
     subgroups:
-      - copyright
+      - copyright_text
+      - copyright_code
       - disinformation_reiteration
       - disinformation_wedging
       - bbq
