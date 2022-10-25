@@ -14,7 +14,7 @@ from common.tokenization_request import (
 from common.hierarchical_logger import hlog
 from .client import Client, wrap_request_time, truncate_sequence
 
-NO_NEWLINE_MODELS = ["together/t5", "together/t0pp", "together/glm"]
+NO_NEWLINE_MODELS = ["together/t5", "together/t0pp", "together/glm", "together/ul2"]
 
 
 def prepare_text(x: str, model: str) -> str:
