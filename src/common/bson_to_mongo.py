@@ -64,7 +64,9 @@ def copy_cache(
             except Exception as e:
                 hlog(e)
                 num_failed += 1
-            num_items += 1
+        else:
+            num_skipped += 1
+        num_items += 1
         if num_items % 1000 == 0:
             hlog(f"Processed {num_items} items so far")
             hlog(

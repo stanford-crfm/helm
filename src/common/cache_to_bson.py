@@ -55,7 +55,8 @@ def dump_cache(
                     document = {"request": key, "response": value}
                     f.write(bson.encode(document))
                     num_written += 1
-                except Exception:
+                except Exception as e:
+                    hlog(e)
                     num_failed += 1
             else:
                 num_skipped += 1
