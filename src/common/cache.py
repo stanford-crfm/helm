@@ -1,15 +1,22 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import json
-from typing import Dict, Callable, Iterable, Optional, Tuple
+from typing import Dict, Callable, Generator, Iterable, Optional, Tuple
 from collections import defaultdict
+import sqlite3
 import threading
 
 from sqlitedict import SqliteDict
 from common.general import hlog, htrack
 from proxy.retry import get_retry_decorator
 from bson.son import SON
+from bson.errors import InvalidDocument
 from pymongo import MongoClient, ReplaceOne
+
+try:
+    from cPickle import loads
+except ImportError:
+    from pickle import loads
 
 
 def request_to_key(request: Dict) -> str:
@@ -195,14 +202,23 @@ class _MongoKeyValueStore(KeyValueStore):
         query = {self._REQUEST_KEY: self._canonicalize_key(key)}
         request = self._collection.find_one(query)
         if request is not None:
-            return request[self._RESPONSE_KEY]
+            response = request[self._RESPONSE_KEY]
+            if isinstance(response, str):
+                return json.loads(response)
+            else:
+                return response
         return None
 
     def put(self, key: Dict, value: Dict) -> None:
         request = self._canonicalize_key(key)
         document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
         # The MongoDB collection should have a unique indexed on "request"
-        self._collection.replace_one(filter={"request": request}, replacement=document, upsert=True)
+        try:
+            self._collection.replace_one(filter={"request": request}, replacement=document, upsert=True)
+        except InvalidDocument:
+            # If the document is malformed e.g. because of null bytes in keys, instead store the response as a string.
+            alternate_document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, json.dumps(value))])
+            self._collection.replace_one(filter={"request": request}, replacement=alternate_document, upsert=True)
 
     def multi_put(self, pairs: Iterable[Tuple[Dict, Dict]]) -> None:
         operations = []
@@ -210,7 +226,26 @@ class _MongoKeyValueStore(KeyValueStore):
             request = self._canonicalize_key(key)
             document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
             operations.append(ReplaceOne({self._REQUEST_KEY: request}, document, upsert=True))
+        # Note: unlike put, multi_put does not support documents with null bytes in keys.
         self._collection.bulk_write(operations)
+
+
+def get_all_from_sqlite(path: str) -> Generator[Tuple[Dict, Dict], None, None]:
+    """Yields all decoded key, value pairs from the SQLite cache.
+
+    Thread-hostile. Does not load the entire database into memory, unlike SqliteDict.items().
+    """
+    connection = sqlite3.connect(path)
+    cursor = connection.cursor()
+    cursor.execute("SELECT key, value FROM unnamed ORDER BY rowid")
+    while True:
+        row = cursor.fetchone()
+        if not row:
+            break
+        raw_key, raw_value = row
+        key: Dict = json.loads(raw_key)
+        value: Dict = loads(raw_value)
+        yield (key, value)
 
 
 def create_key_value_store(config: KeyValueStoreCacheConfig) -> KeyValueStore:
