@@ -15,7 +15,7 @@ from .adapter import (
     RANKING_WRONG_LABEL,
 )
 from .metrics.metric import MetricSpec
-from .run_expander import RUN_EXPANDERS, StopRunExpander
+from .run_expander import RUN_EXPANDERS, ModeTagExpander, StopRunExpander
 from .runner import RunSpec
 from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
@@ -1616,9 +1616,6 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             child_run_spec for parent_run_spec in run_specs for child_run_spec in expander.expand(parent_run_spec)
         ]
 
-    # Model-specific expanders
-    stop_expander = StopRunExpander(value="hash")
-
     def alter_run_spec(run_spec: RunSpec) -> RunSpec:
         model = get_model(run_spec.adapter_spec.model)
         # For models that strip newlines, when we're generating, we need to set
@@ -1627,7 +1624,13 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             ADAPT_GENERATION,
             ADAPT_MULTIPLE_CHOICE_JOINT,
         ):
-            return singleton(stop_expander.expand(run_spec))
+            stop_expander = StopRunExpander(value="hash")
+            run_spec = singleton(stop_expander.expand(run_spec))
+
+        if model.engine == "ul2":
+            mode_tag_expander = ModeTagExpander(value=model.engine)
+            run_spec = singleton(mode_tag_expander.expand(run_spec))
+
         return run_spec
 
     run_specs = [alter_run_spec(run_spec) for run_spec in run_specs]
