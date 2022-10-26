@@ -96,6 +96,11 @@ class APPSMetric(Metric):
                 p.join(timeout=11)  # Same 'global' timeout used in original APPS codebase.
                 if p.is_alive():
                     p.kill()
+
+                    # TODO: debugging - remove this later -Tony
+                    if p.is_alive():
+                        hlog("WARNING: code process is still alive even after kill!")
+                    p.join(timeout=10)
                 if len(shared_list) == 0:
                     # Remark: ideally should consider all tests that failed;
                     # use the average number of tests here for simplicity
