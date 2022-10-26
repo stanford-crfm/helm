@@ -283,7 +283,7 @@ ALL_MODELS = [
         name="microsoft/TNLGv2_530B",
         display_name="TNLGv2 (530B)",
         description="TNLGv2 (530B parameters) autoregressive language model. "
-        "It is trained on a filtered subset of the Pile and CommonCrawl.,
+        "It is trained on a filtered subset of the Pile and CommonCrawl.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -292,7 +292,7 @@ ALL_MODELS = [
         name="microsoft/TNLGv2_7B",
         display_name="TNLGv2 (7B)",
         description="TNLGv2 (7B parameters) autoregressive language model. "
-        "It is trained on a filtered subset of the Pile and CommonCrawl.,
+        "It is trained on a filtered subset of the Pile and CommonCrawl.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # OpenAI: https://beta.openai.com/docs/engines/gpt-3
