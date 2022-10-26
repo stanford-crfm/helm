@@ -15,7 +15,7 @@ from .adapter import (
     RANKING_WRONG_LABEL,
 )
 from .metrics.metric import MetricSpec
-from .run_expander import RUN_EXPANDERS, ModeTagExpander, StopRunExpander
+from .run_expander import RUN_EXPANDERS, GlobalPrefixExpander, StopRunExpander
 from .runner import RunSpec
 from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
@@ -23,7 +23,7 @@ from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
-from proxy.models import get_model, NO_NEWLINES_TAG
+from proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG
 from common.general import singleton
 
 
@@ -1627,9 +1627,9 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             stop_expander = StopRunExpander(value="hash")
             run_spec = singleton(stop_expander.expand(run_spec))
 
-        if model.engine == "ul2":
-            mode_tag_expander = ModeTagExpander(value=model.engine)
-            run_spec = singleton(mode_tag_expander.expand(run_spec))
+        if NLG_PREFIX_TAG in model.tags:
+            global_prefix_expander = GlobalPrefixExpander(value="nlg")
+            run_spec = singleton(global_prefix_expander.expand(run_spec))
 
         return run_spec
 

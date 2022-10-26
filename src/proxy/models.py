@@ -29,6 +29,10 @@ ABLATION_MODEL_TAG: str = "ablation"
 # So we cannot use \n as a stop sequence for these models.
 NO_NEWLINES_TAG: str = "no_newlines"
 
+# Some models (e.g., UL2) require a prefix (e.g., [NLG]) in the
+# prompts to indicate the mode before doing inference.
+NLG_PREFIX_TAG: str = "nlg_prefix_tag"
+
 
 @dataclass
 class Model:

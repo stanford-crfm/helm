@@ -182,17 +182,17 @@ class StopRunExpander(RunExpander):
         ]
 
 
-class ModeTagExpander(RunExpander):
-    """For overriding mode tags for specific models."""
+class GlobalPrefixExpander(RunExpander):
+    """For overriding global prefix for specific models."""
 
-    name = "mode_tag"
+    name = "global_prefix"
 
     def __init__(self, value):
         self.value = value
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
-        if self.value == "ul2":
-            mode_tag = "[NLG]"
+        if self.value == "nlg":
+            prefix = "[NLG]"
         else:
             raise Exception(f"Unknown value: {self.value}")
 
@@ -200,7 +200,7 @@ class ModeTagExpander(RunExpander):
             replace(
                 run_spec,
                 name=f"{run_spec.name},{self.name}={self.value}",
-                adapter_spec=replace(run_spec.adapter_spec, mode_tag=mode_tag),
+                adapter_spec=replace(run_spec.adapter_spec, global_prefix=prefix),
             )
         ]
 
@@ -751,7 +751,7 @@ RUN_EXPANDERS = dict(
         InstructionsRunExpander,
         PromptRunExpander,
         StopRunExpander,
-        ModeTagExpander,
+        GlobalPrefixExpander,
         NumTrainTrialsRunExpander,
         MaxTrainInstancesRunExpander,
         NumOutputsRunExpander,

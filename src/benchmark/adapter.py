@@ -42,9 +42,9 @@ class AdapterSpec:
     # Method of adaptation
     method: str
 
-    # Prepend all prompts with this tag.
-    # For example, for UL2, the `mode_tag` is [NLG]
-    mode_tag: str = ""
+    # Prepend all prompts with this string.
+    # For example, it is recommended to prefix all prompts with [NLG] for UL2.
+    global_prefix: str = ""
 
     # Prompt starts with instructions
     instructions: str = ""
@@ -228,8 +228,8 @@ def slimmed_scenario_state(scenario_state: ScenarioState) -> ScenarioState:
 class Prompt:
     """Result of prompt construction."""
 
-    # Mode tag, carried over from `AdapterSpec`
-    mode_tag: str
+    # Global prefix, carried over from `AdapterSpec`
+    global_prefix: str
 
     # Instance prefix, carried over from `AdapterSpec`
     instance_prefix: str
@@ -257,8 +257,8 @@ class Prompt:
         blocks: List[str] = [self.instructions_block] if self.instructions_block else []
         blocks += self.train_instance_blocks + [self.eval_instance_block]
         non_truncated_input: str = self.instance_prefix.join(blocks)
-        if self.mode_tag:
-            non_truncated_input = f"{self.mode_tag} {non_truncated_input}"
+        if self.global_prefix:
+            non_truncated_input = f"{self.global_prefix} {non_truncated_input}"
         return self.truncated_input if self.truncated_input else non_truncated_input
 
     @property
@@ -509,7 +509,7 @@ class Processor:
 
         # Prompt
         prompt = Prompt(
-            mode_tag=self.adapter_spec.mode_tag,
+            global_prefix=self.adapter_spec.global_prefix,
             instructions_block=instructions_block,
             train_instance_blocks=train_instance_blocks,
             eval_instance_block=eval_instance_block,
