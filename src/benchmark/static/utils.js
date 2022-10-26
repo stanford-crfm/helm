@@ -162,6 +162,25 @@ function canonicalizeList(lists) {
   return result;
 }
 
+function sortAndDeduplicate(list, compare) {
+  // Given a list of elements and a compare function, return a new list containing the deduplicated elements in sorted order.
+  // The compare function should have the same specification as that for Array.sort().
+  // Example: list = [2, 1, 3, 2, 5], comp = ((a, b) => a - b) => [1, 2, 3, 5]
+  const sorted = list.slice().sort(compare);
+  const result = [];
+  let prevElem = null;
+  for (const elem of sorted) {
+    if (prevElem !== null) {
+      if (compare(prevElem, elem) === 0) {
+        continue;
+      }
+    }
+    result.push(elem);
+    prevElem = elem;
+  }
+  return result;
+}
+
 function dict(entries) {
   // Make a dictionary (object) out of the key/value `entries`
   const obj = {};
