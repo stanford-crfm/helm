@@ -14,7 +14,7 @@ from common.cache import (
     request_to_key,
 )
 from common.hierarchical_logger import hlog, htrack, htrack_block
-from proxy.clients.together_client import TogetherClient, prepare_text
+from proxy.clients.together_client import TogetherClient
 from proxy.clients.microsoft_client import MicrosoftClient
 
 
