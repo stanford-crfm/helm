@@ -17,10 +17,15 @@ from .client import Client, wrap_request_time, truncate_sequence
 NO_NEWLINE_MODELS = ["together/t5", "together/t0pp", "together/glm", "together/ul2"]
 
 
+# Don't do this for now until we figure out whether <br> is a good substitute for "\n".
+use_br_as_newline = False
+
+
 def prepare_text(x: str, model: str) -> str:
     """Process text before sending to API."""
     if model in NO_NEWLINE_MODELS:
-        x = x.replace("\n", "<br>")
+        if use_br_as_newline:
+            x = x.replace("\n", "<br>")
     return x
 
 
@@ -29,7 +34,8 @@ def fix_text(x: str, model: str) -> str:
     if model in NO_NEWLINE_MODELS:
         x = x.replace("▁", " ")
         x = x.replace("</s>", "")
-        x = x.replace("<br>", "\n")
+        if use_br_as_newline:
+            x = x.replace("<br>", "\n")
     return x
 
 
@@ -43,10 +49,11 @@ class TogetherClient(Client):
 
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
-        # Uses the same parameter names as the OpenAI API: https://beta.openai.com/docs/api-reference/completions
+        # Following the examples from https://github.com/togethercomputer/open-models-api
         return {
-            "engine": request.model_engine,
-            "prompt": request.prompt,
+            "request_type": "language-model-inference",
+            "model": request.model_engine,
+            "prompt": prepare_text(request.prompt, request.model),
             "temperature": request.temperature,
             "n": request.num_completions,
             "max_tokens": request.max_tokens,
@@ -64,14 +71,6 @@ class TogetherClient(Client):
         raw_request = TogetherClient.convert_to_raw_request(request)
         cache_key: Dict = Client.make_cache_key(raw_request, request)
 
-        def tweak_request(raw_request: Dict[str, Any]) -> Dict[str, Any]:
-            # TODO: unify with the logic in export_requests.py
-            raw_request = dict(raw_request)
-            raw_request["prompt"] = prepare_text(raw_request["prompt"], request.model)
-            raw_request["model"] = raw_request.pop("engine")
-            raw_request["request_type"] = "language-model-inference"
-            return raw_request
-
         try:
 
             def do_it():
@@ -83,7 +82,7 @@ class TogetherClient(Client):
                     f"{base_url}/jobs",
                     json={
                         "type": "general",
-                        "payload": tweak_request(raw_request),
+                        "payload": raw_request,
                         "returned_payload": {},
                         "status": "submitted",
                         "source": "dalle",

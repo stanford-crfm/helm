@@ -43,11 +43,6 @@ def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, r
         raw_request: typing.Dict = TogetherClient.convert_to_raw_request(request)
         # Only export requests that we are not in the cache
         if not store.contains(raw_request):
-            # Following the examples from https://github.com/togethercomputer/open-models-api,
-            # add "request_type" and "model" to the request and remove "engine".
-            raw_request["prompt"] = prepare_text(raw_request["prompt"], "together/" + raw_request["engine"])
-            raw_request["model"] = raw_request.pop("engine")
-            raw_request["request_type"] = "language-model-inference"
             request_json: str = request_to_key(raw_request)
             out_file.write(request_json + "\n")
             counts["pending_count"] += 1
