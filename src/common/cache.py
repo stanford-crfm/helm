@@ -116,6 +116,10 @@ class _KeyValueStore(ABC):
         pass
 
     @abstractmethod
+    def contains(self, key: Dict) -> bool:
+        pass
+
+    @abstractmethod
     def get(self, key: Dict) -> Optional[Dict]:
         pass
 
@@ -143,6 +147,9 @@ class _SqliteKeyValueStore(_KeyValueStore):
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         super().__exit__(exc_type, exc_value, traceback)
         self._sqlite_dict.__exit__(exc_type, exc_value, traceback)
+
+    def contains(self, key: Dict) -> bool:
+        return key in self._sqlite_dict
 
     def get(self, key: Dict) -> Optional[Dict]:
         key_string = request_to_key(key)
@@ -185,6 +192,10 @@ class _MongoKeyValueStore(_KeyValueStore):
     def _canonicalize_key(self, key: Dict) -> SON:
         serialized = json.dumps(key, sort_keys=True)
         return json.loads(serialized, object_pairs_hook=SON)
+
+    def contains(self, key: Dict) -> bool:
+        query = {self._REQUEST_KEY: self._canonicalize_key(key)}
+        return self._collection.find_one(query) is not None
 
     def get(self, key: Dict) -> Optional[Dict]:
         query = {self._REQUEST_KEY: self._canonicalize_key(key)}
