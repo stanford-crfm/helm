@@ -2,7 +2,7 @@ import argparse
 import json
 from collections import defaultdict
 import os
-from typing import Dict, List, Tuple
+from typing import Dict
 
 from common.cache import (
     KeyValueStoreCacheConfig,
@@ -43,7 +43,6 @@ def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, re
     # Updates cache with request/result pairs from input jsonl file at `request_results_path`
     with create_key_value_store(cache_config) as store:
         with open(request_results_path, "r") as f:
-            items_to_write: List[Tuple[Dict, Dict]] = []
             for line in f:
                 if len(line.strip()) == 0:
                     continue
@@ -57,30 +56,22 @@ def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, re
                     # and set "engine" to the value of "model".
                     request.pop("request_type", None)
                     request["engine"] = request.pop("model")
-                    items_to_write.append((request, result))
+                    store.put(request, result)
                 elif organization == "microsoft":
                     # Get the value of `completion_index` which is the current count
                     key: str = request_to_key(request)
                     completion_index: int = request_counts[key]
                     request_counts[key] += 1
                     cache_key: dict = {"completion_index": completion_index, **request}
-                    items_to_write.append((cache_key, result))
+                    store.put(cache_key, result)
 
                 count += 1
                 if count > 0 and count % 10_000 == 0:
-                    if not dry_run and items_to_write:
-                        # Write to SQLite
-                        store.multi_put(items_to_write)
-                        items_to_write = []
-
                     hlog(f"Processed {count} entries")
 
         if dry_run:
             hlog(f"--dry-run was set. Skipping writing out {count} entries...")
         else:
-            # Write to SQLite
-            if items_to_write:
-                store.multi_put(items_to_write)
             hlog(f"Wrote {count} entries to cache at {cache_config.cache_stats_key}.")
 
 
