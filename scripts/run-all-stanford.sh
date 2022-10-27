@@ -73,7 +73,7 @@ do
     # Override with passed-in CLI arguments
     # By default, the command will run the RunSpecs listed in src/benchmark/presentation/run_specs.conf
     log_file=$job.log
-    execute "nlprun $default_nlp_run_args --job-name $job --priority high -g 0 --memory 24g
+    execute "nlprun $default_nlp_run_args --job-name $job --priority high -g 0 --memory 64g
     'benchmark-present -n $num_threads --models-to-run $model $default_args $* > $logs_path/$log_file 2>&1'"
     log_paths+=("$work_dir/$logs_path/$log_file")
 

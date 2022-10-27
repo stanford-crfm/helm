@@ -21,6 +21,7 @@ from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
+from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
 
 
@@ -573,7 +574,7 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     )
 
     return RunSpec(
-        name=f"mmlu:subject={subject}",
+        name=f"mmlu:subject={subject},method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -689,7 +690,7 @@ def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -
     )
 
     return RunSpec(
-        name=f"truthful_qa:task={task}",
+        name=f"truthful_qa:task={task},method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -939,7 +940,7 @@ def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
-        name=f"lsat_qa:task={task}",
+        name=f"lsat_qa:task={task},method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -991,7 +992,7 @@ def get_copyright_spec(datatag="pilot", temperature=0.2, max_tokens=1024, num_ou
         adapter_spec=adapter_spec,
         metric_specs=get_copyright_metric_specs({"normalize_by_prefix_length": True})
         + get_generative_harms_metric_specs(),
-        groups=["copyright"],
+        groups=["copyright_code" if datatag in datatag2hash_code else "copyright_text"],
     )
 
 
@@ -1233,7 +1234,7 @@ def get_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE
     metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
-        name=f"blimp:phenomenon={phenomenon}",
+        name=f"blimp:phenomenon={phenomenon},method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -1371,7 +1372,7 @@ def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec
     metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
-        name="legal_support",
+        name=f"legal_support,method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
