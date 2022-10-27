@@ -1,8 +1,9 @@
 import argparse
-from dataclasses import dataclass, replace
 import os
-from collections import defaultdict
 import urllib.parse
+from collections import defaultdict
+from dataclasses import dataclass, replace
+from tqdm import tqdm
 
 import dacite
 from typing import List, Optional, Dict, Any, Tuple, Set
@@ -160,6 +161,7 @@ class Summarizer:
             result.append(slim_instance)
         return result
 
+    @htrack(None)
     def write_slim_per_instance_stats(self) -> None:
         """For each run, load per_instance_stats.json and write per_instance_stats_slim.json."""
         run_specs_path: str = os.path.join(self.run_suite_path, "run_specs.json")
@@ -170,7 +172,7 @@ class Summarizer:
         self.runs: List[Run] = []
         with open(run_specs_path) as f:
             raw_run_specs = json.load(f)
-        for raw_run_spec in raw_run_specs:
+        for raw_run_spec in tqdm(raw_run_specs):
             run_spec = dacite.from_dict(RunSpec, raw_run_spec)
             run_path: str = os.path.join(self.run_suite_path, run_spec.name)
 
@@ -637,6 +639,7 @@ def main():
     summarizer.check_metrics_defined()
     summarizer.write_cost_report()
     summarizer.write_slim_per_instance_stats()
+    hlog("Done.")
 
 
 if __name__ == "__main__":
