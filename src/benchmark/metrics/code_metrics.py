@@ -1,5 +1,6 @@
 """Evaluating source code generation."""
 
+import threading
 from typing import List, Union, Sequence, cast
 import resource
 import multiprocessing
@@ -95,12 +96,15 @@ class APPSMetric(Metric):
                 p.start()
                 p.join(timeout=11)  # Same 'global' timeout used in original APPS codebase.
                 if p.is_alive():
+                    hlog(f"Before kill thread count: {threading.active_count()} exitcode: {p.exitcode}")
                     p.kill()
 
                     # TODO: debugging - remove this later -Tony
                     if p.is_alive():
-                        hlog("WARNING: code process is still alive even after kill!")
-                    p.join(timeout=10)
+                        hlog(f"After kill thread count: {threading.active_count()}")
+                        hlog(f"WARNING: code process is still alive even after kill! exitcode: {p.exitcode}")
+                    p.join(timeout=30)
+                    hlog(f"After second join thread count: {threading.active_count()}. exitcode: {p.exitcode}")
                 if len(shared_list) == 0:
                     # Remark: ideally should consider all tests that failed;
                     # use the average number of tests here for simplicity
