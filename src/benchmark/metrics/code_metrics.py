@@ -103,8 +103,9 @@ class APPSMetric(Metric):
                     if p.is_alive():
                         hlog(f"After kill thread count: {threading.active_count()}")
                         hlog(f"WARNING: code process is still alive even after kill! exitcode: {p.exitcode}")
-                    p.join(timeout=30)
+                    p.join(timeout=60)
                     hlog(f"After second join thread count: {threading.active_count()}. exitcode: {p.exitcode}")
+                    assert not p.is_alive(), "process was still alive"
                 if len(shared_list) == 0:
                     # Remark: ideally should consider all tests that failed;
                     # use the average number of tests here for simplicity
