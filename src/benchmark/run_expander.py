@@ -182,7 +182,7 @@ class StopRunExpander(RunExpander):
         ]
 
 
-class GlobalPrefixExpander(RunExpander):
+class GlobalPrefixRunExpander(RunExpander):
     """For overriding global prefix for specific models."""
 
     name = "global_prefix"
@@ -751,7 +751,7 @@ RUN_EXPANDERS = dict(
         InstructionsRunExpander,
         PromptRunExpander,
         StopRunExpander,
-        GlobalPrefixExpander,
+        GlobalPrefixRunExpander,
         NumTrainTrialsRunExpander,
         MaxTrainInstancesRunExpander,
         NumOutputsRunExpander,

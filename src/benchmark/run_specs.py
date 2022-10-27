@@ -15,7 +15,7 @@ from .adapter import (
     RANKING_WRONG_LABEL,
 )
 from .metrics.metric import MetricSpec
-from .run_expander import RUN_EXPANDERS, GlobalPrefixExpander, StopRunExpander
+from .run_expander import RUN_EXPANDERS, GlobalPrefixRunExpander, StopRunExpander
 from .runner import RunSpec
 from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
@@ -1628,7 +1628,7 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             run_spec = singleton(stop_expander.expand(run_spec))
 
         if NLG_PREFIX_TAG in model.tags:
-            global_prefix_expander = GlobalPrefixExpander(value="nlg")
+            global_prefix_expander = GlobalPrefixRunExpander(value="nlg")
             run_spec = singleton(global_prefix_expander.expand(run_spec))
 
         return run_spec
