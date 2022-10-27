@@ -249,7 +249,13 @@ ALL_MODELS = [
         description="UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5"
         "but trained with a different objective and slightly different scaling knobs.",
         # Does not support echo=True
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
+        tags=[
+            TEXT_MODEL_TAG,
+            LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG,
+            ABLATION_MODEL_TAG,
+            NO_NEWLINES_TAG,
+            NLG_PREFIX_TAG,
+        ],
     ),
     Model(
         group="huggingface",
