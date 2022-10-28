@@ -29,7 +29,7 @@ def fix(mongo_uri: str):
     target_store = create_key_value_store(target_config)
 
     db: MongoClient = MongoClient(mongo_uri)
-    if "request_1" not in db["crfm-models"][target_name].index_information:
+    if "request_1" not in db["crfm-models"][target_name].index_information:  # type: ignore
         db["crfm-models"][target_name].create_index("request", name="request_1", unique=True)
 
     for i, (request, response) in enumerate(source_store.get_all()):
