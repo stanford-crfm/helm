@@ -22,6 +22,6 @@ ln -sf $suite www/benchmark_output/runs/latest || exit 1
 # Set permissions
 chmod -R og=u-w www || exit 1
 
-# Push to server (https://nlp.stanford.edu/helm/benchmarking)
+# Push to server (https://nlp.stanford.edu/helm)
 echo Pushing to server...
-rsync -arvz www/* scdt:/u/apache/htdocs/helm/benchmarking
+rsync -arvz www/* scdt:/u/apache/htdocs/helm/
