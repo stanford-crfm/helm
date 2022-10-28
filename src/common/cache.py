@@ -10,6 +10,7 @@ from sqlitedict import SqliteDict
 from common.general import hlog, htrack
 from proxy.retry import get_retry_decorator
 from bson.son import SON
+from bson.errors import InvalidDocument
 from pymongo import MongoClient, ReplaceOne
 
 try:
@@ -199,16 +200,27 @@ class _MongoKeyValueStore(_KeyValueStore):
 
     def get(self, key: Dict) -> Optional[Dict]:
         query = {self._REQUEST_KEY: self._canonicalize_key(key)}
-        request = self._collection.find_one(query)
-        if request is not None:
-            return request[self._RESPONSE_KEY]
+        document = self._collection.find_one(query)
+        if document is not None:
+            response = document[self._RESPONSE_KEY]
+            if isinstance(response, str):
+                return json.loads(response)
+            else:
+                return response
         return None
 
     def put(self, key: Dict, value: Dict) -> None:
         request = self._canonicalize_key(key)
         document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, value)])
         # The MongoDB collection should have a unique indexed on "request"
-        self._collection.replace_one(filter={self._REQUEST_KEY: request}, replacement=document, upsert=True)
+        try:
+            self._collection.replace_one(filter={self._REQUEST_KEY: request}, replacement=document, upsert=True)
+        except InvalidDocument:
+            # If the document is malformed e.g. because of null bytes in keys, instead store the response as a string.
+            alternate_document = SON([(self._REQUEST_KEY, request), (self._RESPONSE_KEY, json.dumps(value))])
+            self._collection.replace_one(
+                filter={self._REQUEST_KEY: request}, replacement=alternate_document, upsert=True
+            )
 
     def multi_put(self, pairs: List[Tuple[Dict, Dict]]) -> None:
         operations = []
