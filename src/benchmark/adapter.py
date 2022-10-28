@@ -252,7 +252,7 @@ class Processor:
 
         Returns a new list of randomly sampled train instances.
         """
-        # Sample random number (1-5) of in-context examples
+        # Sample random number (1-16) of in-context examples
         max_train_examples: int = min(16, len(all_train_instances))
         max_in_context_examples: int = random.randint(1, max_train_examples)
         num_instances_to_sample: int = min(len(all_train_instances), max_in_context_examples)
@@ -437,7 +437,9 @@ class Processor:
             blocks = []
 
             if self.adapter_spec.instructions:
-                blocks.append(self.adapter_spec.instructions)
+                pass
+                # GPT-FewShot: Exclude instructions for now (could be an ablation)
+                # blocks.append(self.adapter_spec.instructions)
 
             # In-context training instances
             for instance in train_instances:
