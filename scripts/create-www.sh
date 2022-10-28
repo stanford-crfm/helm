@@ -24,4 +24,4 @@ chmod -R og=u-w www || exit 1
 
 # Push to server (https://nlp.stanford.edu/helm)
 echo Pushing to server...
-rsync -arvz www/* scdt:/u/apache/htdocs/helm/
+rsync -arvz www/* /u/apache/htdocs/helm/
