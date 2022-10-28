@@ -41,7 +41,10 @@ def fix(mongo_uri: str):
         db: MongoClient = MongoClient(mongo_uri)
         source_collection = db["crfm-models"][source_name]
         source_collection.drop()
+
         target_collection = db["crfm-models"][target_name]
+        if "request_1" not in target_collection.index_information:  # type: ignore
+            target_collection.create_index("request", name="request_1", unique=True)
         target_collection.rename(source_name)
 
 
