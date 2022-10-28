@@ -1,9 +1,9 @@
 """Evaluating source code generation."""
 
 import threading
-from typing import List, Union, Sequence, cast
-import resource
 import multiprocessing
+from typing import List, Union, Sequence, cast
+
 from common.hierarchical_logger import hlog
 from common.request import RequestResult
 from benchmark.adapter import AdapterSpec, RequestState, ScenarioState
@@ -99,14 +99,10 @@ class APPSMetric(Metric):
                 if p.is_alive():
                     hlog(f"Before kill thread count: {threading.active_count()} exitcode: {p.exitcode}")
                     p.kill()
-
-                    # TODO: debugging - remove this later -Tony
-                    if p.is_alive():
-                        hlog(f"After kill thread count: {threading.active_count()}")
-                        hlog(f"WARNING: code process is still alive even after kill! exitcode: {p.exitcode}")
                     p.join(timeout=60)
                     hlog(f"After second join thread count: {threading.active_count()}. exitcode: {p.exitcode}")
-                    assert not p.is_alive(), "process was still alive"
+                    assert not p.is_alive(), "The code process was still alive even after calling kill."
+
                 if len(shared_list) == 0:
                     # Remark: ideally should consider all tests that failed;
                     # use the average number of tests here for simplicity
