@@ -370,12 +370,12 @@ metrics:
     lower_is_better: true
     description: The average difference between the model's confidence and accuracy, averaged across 10 bins where each bin contains an equal number of points (only computed for classification tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because each bin will have very few examples.
   - name: platt_ece_1_bin
-    display_name: 1-bin Expected Calibration Error (After Platt scaling)
+    display_name: 1-bin Expected Calibration Error (after Platt scaling)
     short_display_name: Platt scaled ECE (1-bin)
     lower_is_better: true
     description: 1-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
   - name: platt_ece_10_bin
-    display_name: 10-bin Expected Calibration Error (After Platt scaling)
+    display_name: 10-bin Expected Calibration Error (after Platt scaling)
     short_display_name: Platt scaled ECE (10-bin)
     lower_is_better: true
     description: 10-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
