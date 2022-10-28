@@ -54,7 +54,8 @@ class APPSMetric(Metric):
         self.timeout = timeout
 
         # Set a memory limit for this process.
-        resource.setrlimit(resource.RLIMIT_AS, (MAXIMUM_MEMORY_BYTES, MAXIMUM_MEMORY_BYTES))
+        # TODO: debugging - remove this later -Chen
+        # resource.setrlimit(resource.RLIMIT_AS, (MAXIMUM_MEMORY_BYTES, MAXIMUM_MEMORY_BYTES))
 
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
