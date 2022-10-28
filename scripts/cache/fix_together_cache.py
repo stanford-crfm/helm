@@ -6,9 +6,9 @@ from common.cache import create_key_value_store, MongoCacheConfig
 from common.hierarchical_logger import hlog, htrack, htrack_block
 
 """
-Fix the Together cache:
-- Adds "request_type": "language-model-inference" to each entry in the cache
-- Rename "engine" to "model": adds "model" and removes "engine"
+Fix the Together cache. For each entry in the cache:
+- Adds "request_type": "language-model-inference"
+- Renames "engine" to "model": adds "model" and removes "engine"
 
 Example usage:
 
