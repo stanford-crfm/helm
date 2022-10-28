@@ -148,36 +148,25 @@ function sortListWithReferenceOrder(list, referenceOrder) {
   list.sort(([a, b]) => getKey(a) - getKey(b));
 }
 
-function canonicalizeList(lists) {
-  // Takes as input a list of lists, and returns the list of unique elements (preserving order).
-  // Example: [1, 2, 3], [2, 3, 4] => [1, 2, 3, 4]
+function canonicalizeList(lists, compare) {
+  // Takes as input a list of lists and optional compare function,
+  // and returns the list of unique elements (preserving order).
+  // compare(a, b) should return 0 if and only if a equals b.
+  // Example: lists = [[1, 2, 3], [2, 3, 4]]
+  //   => [1, 2, 3, 4]
+  // Example: lists = [[1, 2, 3], [2, 3, 4]], compare = (a, b) => a % 2 - b % 2
+  //   => [1, 2]
   const result = [];
   lists.forEach((list) => {
     list.forEach((elem) => {
-      if (result.indexOf(elem) === -1) {
+      const inResult = compare ?
+        result.some((resultElem) => compare(resultElem, elem) === 0) :
+        result.indexOf(elem) >= 0;
+      if (!inResult) {
         result.push(elem);
       }
     });
   });
-  return result;
-}
-
-function sortAndDeduplicate(list, compare) {
-  // Given a list of elements and a compare function, return a new list containing the deduplicated elements in sorted order.
-  // The compare function should have the same specification as that for Array.sort().
-  // Example: list = [2, 1, 3, 2, 5], comp = ((a, b) => a - b) => [1, 2, 3, 5]
-  const sorted = list.slice().sort(compare);
-  const result = [];
-  let prevElem = null;
-  for (const elem of sorted) {
-    if (prevElem !== null) {
-      if (compare(prevElem, elem) === 0) {
-        continue;
-      }
-    }
-    result.push(elem);
-    prevElem = elem;
-  }
   return result;
 }
 

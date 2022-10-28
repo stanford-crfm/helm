@@ -575,10 +575,8 @@ $(function () {
     // Render metrics/stats
     getJSONList(statsPaths, (statsList) => {
       console.log('metrics', statsList);
-      const keys = sortAndDeduplicate(
-        statsList.map((stats) => stats.map((stat) => stat.name)).flat(),
-        metricNameCompare
-      );
+      const keys = canonicalizeList(statsList.map((stats) => stats.map((stat) => stat.name)), metricNameCompare);
+      keys.sort(metricNameCompare);
 
       function update() {
         $stats.empty().append(renderGlobalStats(query, keys, statsList, statsPaths));
