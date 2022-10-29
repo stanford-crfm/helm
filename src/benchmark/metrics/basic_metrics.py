@@ -786,11 +786,12 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
             # estimated as 0, so just directly store that.
             calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(0.0))
             calibration_metrics.append(Stat(MetricName("platt_ece_1_bin")).add(0.0))
-        platt_scaler = cal.get_platt_scaler(np.array(max_probs), np.array(correct))
-        cal_max_probs = platt_scaler(np.array(max_probs))
-        platt_ece_10_bin = cal.get_ece_em(cal_max_probs, correct, num_bins=10)
-        calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(platt_ece_10_bin))
-        platt_ece_1_bin = cal.get_ece(cal_max_probs, correct, num_bins=1)
-        calibration_metrics.append(Stat(MetricName("platt_ece_1_bin")).add(platt_ece_1_bin))
+        else:
+            platt_scaler = cal.get_platt_scaler(np.array(max_probs), np.array(correct))
+            cal_max_probs = platt_scaler(np.array(max_probs))
+            platt_ece_10_bin = cal.get_ece_em(cal_max_probs, correct, num_bins=10)
+            calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(platt_ece_10_bin))
+            platt_ece_1_bin = cal.get_ece(cal_max_probs, correct, num_bins=1)
+            calibration_metrics.append(Stat(MetricName("platt_ece_1_bin")).add(platt_ece_1_bin))
 
     return calibration_metrics
