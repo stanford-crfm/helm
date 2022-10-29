@@ -575,7 +575,7 @@ $(function () {
     // Render metrics/stats
     getJSONList(statsPaths, (statsList) => {
       console.log('metrics', statsList);
-      const keys = canonicalizeList(statsList.map((stats) => stats.map((stat) => stat.name)));
+      const keys = canonicalizeList(statsList.map((stats) => stats.map((stat) => stat.name)), metricNameCompare);
       keys.sort(metricNameCompare);
 
       function update() {
