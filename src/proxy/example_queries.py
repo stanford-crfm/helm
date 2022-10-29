@@ -1,3 +1,4 @@
+import json
 import textwrap
 
 from .query import Query
@@ -139,5 +140,27 @@ example_queries = [
             """
         ),
         environments="",
+    ),
+    Query(
+        prompt="The quick brown fox",
+        settings=dedent(
+            """
+            model: ${model}
+            temperature: 0.3
+            stop_sequences: [\\n]
+            """
+        ),
+        environments=dedent(
+            """
+            model: [
+                "openai/text-davinci-002", "openai/davinci",
+                "ai21/j1-jumbo", "ai21/j1-grande",
+                "anthropic/stanford-online-all-v4-s3",
+                "cohere/xlarge-20220609",
+                "microsoft/TNLGv2_530B",
+                #"together/bloom", "together/opt-175b", "together/glm", "together/ul2", "together/t0pp",
+            ]
+            """
+        ),
     ),
 ]
