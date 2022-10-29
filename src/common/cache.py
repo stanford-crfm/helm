@@ -125,6 +125,10 @@ class KeyValueStore(ABC):
         pass
 
     @abstractmethod
+    def get_all(self) -> Generator[Tuple[Dict, Dict], None, None]:
+        pass
+
+    @abstractmethod
     def put(self, key: Dict, value: Dict) -> None:
         pass
 
@@ -159,6 +163,10 @@ class _SqliteKeyValueStore(KeyValueStore):
             assert isinstance(result, dict)
             return result
         return None
+
+    def get_all(self) -> Generator[Tuple[Dict, Dict], None, None]:
+        for key, value in self._sqlite_dict.items():
+            yield (key, value)
 
     def put(self, key: Dict, value: Dict) -> None:
         key_string = request_to_key(key)
@@ -200,14 +208,23 @@ class _MongoKeyValueStore(KeyValueStore):
 
     def get(self, key: Dict) -> Optional[Dict]:
         query = {self._REQUEST_KEY: self._canonicalize_key(key)}
-        request = self._collection.find_one(query)
-        if request is not None:
-            response = request[self._RESPONSE_KEY]
+        document = self._collection.find_one(query)
+        if document is not None:
+            response = document[self._RESPONSE_KEY]
             if isinstance(response, str):
                 return json.loads(response)
             else:
                 return response
         return None
+
+    def get_all(self) -> Generator[Tuple[Dict, Dict], None, None]:
+        for document in self._collection.find({}):
+            request = document[self._REQUEST_KEY]
+            response = document[self._RESPONSE_KEY]
+            if isinstance(response, str):
+                yield (request, json.loads(response))
+            else:
+                yield (request, response)
 
     def put(self, key: Dict, value: Dict) -> None:
         request = self._canonicalize_key(key)

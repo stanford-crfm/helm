@@ -1,4 +1,5 @@
 import time
+import json
 from abc import ABC, abstractmethod
 from typing import Callable, Any, Dict, List
 
@@ -95,7 +96,7 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
         new_logprob = sum(token.logprob for token in new_tokens)
 
         if print_warning:
-            hlog(f"WARNING: truncate_sequence needs to strip {stop}")
+            hlog(f"WARNING: truncate_sequence needs to strip {json.dumps(stop)}")
 
         sequence = Sequence(text=new_text, logprob=new_logprob, tokens=new_tokens)
 
@@ -110,7 +111,7 @@ def truncate_sequence(sequence: Sequence, request: Request, print_warning: bool 
         # Usually, in our benchmark, max_tokens is active when it's 1, so hopefully this isn't an issue.
         new_text = "".join(token.text for token in new_tokens)
         if not sequence.text.startswith(new_text):
-            hlog(f"WARNING: {sequence.text} does not start with truncated text {new_text}")
+            hlog(f"WARNING: {json.dumps(sequence.text)} does not start with truncated text {json.dumps(new_text)}")
 
         new_logprob = sum(token.logprob for token in new_tokens)
 

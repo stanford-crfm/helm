@@ -52,10 +52,6 @@ def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, re
                 result: Dict = request_and_result["result"]
 
                 if organization == "together":
-                    # Remove extraneous fields ("request_type" and "model") included in the request
-                    # and set "engine" to the value of "model".
-                    request.pop("request_type", None)
-                    request["engine"] = request.pop("model")
                     store.put(request, result)
                 elif organization == "microsoft":
                     # Get the value of `completion_index` which is the current count
@@ -70,7 +66,7 @@ def import_results(cache_config: KeyValueStoreCacheConfig, organization: str, re
                     hlog(f"Processed {count} entries")
 
         if dry_run:
-            hlog(f"--dry-run was set. Skipping writing out {count} entries...")
+            hlog(f"--dry-run was set. Skipping writing out {count} entries.")
         else:
             hlog(f"Wrote {count} entries to cache at {cache_config.cache_stats_key}.")
 
