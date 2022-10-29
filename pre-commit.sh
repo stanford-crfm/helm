@@ -11,6 +11,8 @@ if [ "$valid_version" == "False" ]; then
   exit 1
 fi
 
+# Manually upgrade pip to at least 21.1 to avoid issue #1053
+python -m pip install --upgrade pip
 # Manually install pytorch to avoid pip getting killed: https://stackoverflow.com/a/54329850
 pip install --no-cache-dir --find-links https://download.pytorch.org/whl/torch_stable.html torch==1.12.1+cu113 torchvision==0.13.1+cu113
 # Manually install protobuf to workaround issue: https://github.com/protocolbuffers/protobuf/issues/6550

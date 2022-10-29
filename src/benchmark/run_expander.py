@@ -172,13 +172,36 @@ class StopRunExpander(RunExpander):
         if self.value == "hash":
             stop = "###"
         else:
-            raise Exception("Unknown value: {self.value}")
+            raise Exception(f"Unknown value: {self.value}")
         return [
             replace(
                 run_spec,
                 name=f"{run_spec.name},{self.name}={self.value}",
                 adapter_spec=replace(run_spec.adapter_spec, instance_prefix=f"{stop}\n\n", stop_sequences=[stop]),
             ),
+        ]
+
+
+class GlobalPrefixRunExpander(RunExpander):
+    """For overriding global prefix for specific models."""
+
+    name = "global_prefix"
+
+    def __init__(self, value):
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        if self.value == "nlg":
+            prefix = "[NLG]"
+        else:
+            raise Exception(f"Unknown value: {self.value}")
+
+        return [
+            replace(
+                run_spec,
+                name=f"{run_spec.name},{self.name}={self.value}",
+                adapter_spec=replace(run_spec.adapter_spec, global_prefix=prefix),
+            )
         ]
 
 
@@ -728,6 +751,7 @@ RUN_EXPANDERS = dict(
         InstructionsRunExpander,
         PromptRunExpander,
         StopRunExpander,
+        GlobalPrefixRunExpander,
         NumTrainTrialsRunExpander,
         MaxTrainInstancesRunExpander,
         NumOutputsRunExpander,

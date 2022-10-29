@@ -10,7 +10,8 @@ class T511bWindowService(EncoderDecoderWindowService):
     def max_sequence_length(self) -> int:
         """Return the max sequence length."""
         # From https://arxiv.org/pdf/1910.10683.pdf, "we use a maximum sequence length of 512".
-        return 512
+        # We subtract 1 to account for <extra_id_0> that gets appended to prompts.
+        return 512 - 1
 
     @property
     def end_of_text_token(self) -> str:
