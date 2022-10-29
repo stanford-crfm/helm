@@ -58,7 +58,7 @@ $(function () {
 
   function renderExampleQueries(updateQuery) {
     // Show links for each example query, so when you click on them, they populate the textboxes.
-    const $examplesBlock = $('<div>');
+    const $examplesBlock = $('<div>', {class: 'examples-block'});
     $examplesBlock.append($('<span>').append('Examples:'));
     generalInfo.example_queries.forEach((query, i) => {
       const href = '#';
@@ -82,8 +82,8 @@ $(function () {
     // Render the textboxes for entering the query (which includes the prompt, settings, and environment)
     const $queryBlock = $('<div>', {class: 'block'});
     const $prompt = $('<textarea>', {cols: 90, rows: 7, placeholder: 'Enter prompt'}).val(urlParams.prompt);
-    const $settings = $('<textarea>', {cols: 90, rows: 5, placeholder: 'Enter settings (e.g., model: openai/text-davinci-002 for GPT-3)'}).val(urlParams.settings);
-    const $environments = $('<textarea>', {cols: 90, rows: 3, placeholder: 'Enter environment variables (e.g., city: [Boston, New York])'}).val(urlParams.environments);
+    const $settings = $('<textarea>', {cols: 90, rows: 5, placeholder: 'Enter settings (e.g., model: openai/text-davinci-002 for Instruct GPT-3); click Help at the top to learn more'}).val(urlParams.settings);
+    const $environments = $('<textarea>', {cols: 90, rows: 3, placeholder: 'Enter environment variables (e.g., city: [Boston, New York]); click Help at the top to learn more'}).val(urlParams.environments);
 
     $queryBlock.data('prompt', $prompt);
     $queryBlock.data('settings', $settings);
@@ -212,7 +212,7 @@ $(function () {
     }
     entries.sort((a, b) => b[1] - a[1]);
     function marker(text) { return text === token.text ? ' [selected]' : ''; }
-    return `Candidates for ${token.text} (with logprobs):\n` + entries.map(([text, logprob]) => `${text}: ${logprob}${marker(text)}`).join('\n');
+    return `Candidates for ${token.text} (with logprobs):\n` + entries.map(([text, logprob]) => `${JSON.stringify(text)}: ${logprob}${marker(text)}`).join('\n');
   }
 
   function renderTokens(tokens) {
@@ -236,9 +236,11 @@ $(function () {
     const $result = $('<div>');
     requestResult.completions.forEach((completion) => {
       const $contents = $('<span>', {title: `logprob: ${completion.logprob}`}).append(renderTokens(completion.tokens));
-      const $metadata = $('<span>', {class: 'metadata'}).append(round(completion.logprob, 2));
+      const $metadata = $('<span>', {class: 'metadata'});
+      $metadata.append($('<span>', {title: "Log probability"}).append(round(completion.logprob, 2)));
       if (completion.finish_reason) {
-        $metadata.append($('<span>', {title: 'Generation finished because of this reason.'}, completion.finish_reason.reason));
+        const title = 'Generation finished because of this reason: ' + JSON.stringify(completion.finish_reason);
+        $metadata.append(' ').append($('<span>', {title}).append(completion.finish_reason.reason));
       }
       $result.append($('<div>', {class: 'completion'}).append($metadata).append($contents));
     });
