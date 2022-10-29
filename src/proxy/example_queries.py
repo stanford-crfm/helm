@@ -1,4 +1,3 @@
-import json
 import textwrap
 
 from .query import Query
