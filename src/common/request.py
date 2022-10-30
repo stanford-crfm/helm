@@ -14,7 +14,7 @@ class Request:
     """
 
     # Which model to query
-    model: str = "openai/davinci"
+    model: str = "openai/text-davinci-002"
 
     # Whether to query embedding instead of text response
     embedding: bool = False
