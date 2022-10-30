@@ -771,7 +771,7 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
     calibration_metrics: List[Stat] = []
     assert len(max_probs) == len(correct)
     if len(max_probs) > 0:
-        # We need at least around 300 examples to compute ece_10_bin reliably.
+        # We need at least about 300 examples to compute ece_10_bin reliably.
         ece_10_bin = cal.get_ece_em(max_probs, correct, num_bins=10)
         calibration_metrics.append(Stat(MetricName("ece_10_bin")).add(ece_10_bin))
         ece_1_bin = cal.get_ece(max_probs, correct, num_bins=1)
@@ -782,7 +782,7 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
         # Compute ECE after recalibration.
         if np.sum(correct) == 0 or np.sum(correct) == len(correct):
             # If all examples are correct or incorrect, the platt scaling
-            # optiizer won't work. But our calibration error (post-calibration) will be
+            # optimizer won't work. But our calibration error (post-calibration) will be
             # estimated as 0, so just directly store that.
             calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(0.0))
             calibration_metrics.append(Stat(MetricName("platt_ece_1_bin")).add(0.0))
