@@ -157,7 +157,7 @@ example_queries = [
                 "anthropic/stanford-online-all-v4-s3",
                 "cohere/xlarge-20220609",
                 "microsoft/TNLGv2_530B",
-                #"together/bloom", "together/opt-175b", "together/glm", "together/ul2", "together/t0pp",
+                "together/bloom", "together/opt-175b", "together/glm", "together/ul2", "together/t0pp",
             ]
             """
         ),
