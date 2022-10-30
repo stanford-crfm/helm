@@ -8,6 +8,7 @@ from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
+import re
 
 
 def _longest_common_prefix_length(s1: List[str], s2: List[str], previous_best: Optional[float] = None) -> float:
@@ -75,7 +76,7 @@ class BasicCopyrightMetric(Metric):
     In contrast to model-based semantic similarity evaluation.
     """
 
-    def __init__(self, name: str, normalize_by_prefix_length=False):
+    def __init__(self, name: str, normalize_by_prefix_length=False, normalize_newline_space_tab=False):
         if name not in metric_fns.keys():
             raise ValueError(
                 f"Expected name to be either `longest_common_prefix_length` or `edit_distance`, but got {name}."
@@ -84,6 +85,7 @@ class BasicCopyrightMetric(Metric):
         self.metric_name: MetricName = MetricName(name)
         self.metric_fn = metric_fns[name]
         self.normalize_by_prefix_length = normalize_by_prefix_length
+        self.normalize_newline_space_tab = normalize_newline_space_tab
         self.tokenizer = TreebankWordTokenizer()
 
     def evaluate_generation(
@@ -111,11 +113,17 @@ class BasicCopyrightMetric(Metric):
             raise ValueError(f"Copyright scenario expects a single reference, but found {num_references} references.")
         prefix: str = request_state.instance.input
         reference: str = references[0].output[len(prefix) :]
+        if self.normalize_newline_space_tab:
+            reference = reference.replace("\n", " ").replace("\t", " ")  # Replace newlines and tabs with single space.
+            reference = re.sub(" +", " ", reference)  # Replace multiple spaces with a single space.
 
         result: Optional[float] = None
         request_result: RequestResult = request_state.result
         for sequence in request_result.completions:
             completion: str = sequence.text.strip()
+            if self.normalize_newline_space_tab:
+                completion = completion.replace("\n", " ").replace("\t", " ")
+                completion = re.sub(" +", " ", completion)
 
             # `reference` is the entire remaining book for each instance.
             # Truncate it here to be of the same length as the completion to ensure edit-distance is meaningful.
