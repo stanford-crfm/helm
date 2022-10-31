@@ -33,6 +33,7 @@ def copy_cache(
     range_start: Optional[int] = None,
     range_end: Optional[int] = None,
 ):
+    assert organization != "together"
     if dry_run:
         hlog("Dry run mode, skipping writing to mongo")
     if range_start:
