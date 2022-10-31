@@ -37,7 +37,7 @@ def copy_cache(
             del key["engine"]
             if not dry_run and (not range_start or num_items >= range_start) and not target_cache.contains(key):
                 try:
-                    # target_cache.put(key, value)
+                    target_cache.put(key, value)
                     num_written += 1
                 except Exception as e:
                     hlog(e)
