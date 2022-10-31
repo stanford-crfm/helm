@@ -32,9 +32,9 @@ def copy_cache(
     with _MongoKeyValueStore(mongo_host, collection_name=organization) as target_cache:
         hlog(f"Opening Sqlite cache {cache_path}")
         for key, value in get_all_sqlite_items(cache_path):
-            value["request_type"] = "language-model-inference"
-            value["model"] = value["engine"]
-            del value["engine"]
+            key["request_type"] = "language-model-inference"
+            key["model"] = key["engine"]
+            del key["engine"]
             if not dry_run and (not range_start or num_items >= range_start) and not target_cache.contains(key):
                 try:
                     # target_cache.put(key, value)
