@@ -17,7 +17,7 @@ class Cell:
     href: Optional[str] = None
 
     # Styling
-    style: Dict[str, Any] = None
+    style: Optional[Dict[str, Any]] = None
 
 
 @dataclass(frozen=True)
