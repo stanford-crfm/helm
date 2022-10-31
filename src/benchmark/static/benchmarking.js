@@ -371,7 +371,7 @@ $(function () {
 
     const $promptRow = $('<tr>').append([
       $('<td>').append("prompt"),
-      $('<td>').append(String(request.prompt).replaceAll("\n", "<br>")),
+      $('<td>').append(request.prompt.replaceAll("\n", "<br>")),
     ]);
     $requestTable.append($promptRow);
 
@@ -381,7 +381,9 @@ $(function () {
       }
       const $requestRow = $('<tr>').append([
         $('<td>').append(requestKey),
-        $('<td>').append(String(request[requestKey]).replaceAll("\n", "<br>")),
+        $('<td>').append(
+          typeof request[requestKey] === 'string' ? request[requestKey] : JSON.stringify(request[requestKey])
+        ),
       ]);
       $requestTable.append($requestRow);
     }
