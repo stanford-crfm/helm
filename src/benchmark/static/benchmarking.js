@@ -371,7 +371,7 @@ $(function () {
 
     const $promptRow = $('<tr>').append([
       $('<td>').append("prompt"),
-      $('<td>').append(JSON.stringify(request.prompt)),
+      $('<td>').append(String(request.prompt).replaceAll("\n", "<br>")),
     ]);
     $requestTable.append($promptRow);
 
@@ -381,7 +381,7 @@ $(function () {
       }
       const $requestRow = $('<tr>').append([
         $('<td>').append(requestKey),
-        $('<td>').append(JSON.stringify(request[requestKey])),
+        $('<td>').append(String(request[requestKey]).replaceAll("\n", "<br>")),
       ]);
       $requestTable.append($requestRow);
     }
@@ -438,6 +438,17 @@ $(function () {
           shownStats[key] = true;
         }
       }
+
+      // Create a link for the request made to the API
+      const request = Object.assign({}, requestState.request);
+      const prompt = request.prompt;
+      delete request.prompt;
+      const query = {
+        prompt,
+        settings: JSON.stringify(request),
+        environments: '',
+      };
+      const href = '/static/index.html' + encodeUrlParams(query);
 
       // Render the prediction
       let prefix = '';
@@ -502,7 +513,7 @@ $(function () {
 
       const $request = renderRequest(requestState.request);
       $request.hide();
-      $link = $('<a>', {href: "#"}).append($('<b>').append(description)).click(() => {
+      $link = $('<a>', {href}).append($('<b>').append(description)).click(() => {
         $request.slideToggle();
         return false;
       });
