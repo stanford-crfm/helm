@@ -69,6 +69,17 @@ metric_fns = {
 }
 
 
+def _normalize_newline_space_tab(s: str) -> str:
+    """Remove blank lines and tabs.
+
+    This normalization makes the longest common prefix metric robust to formatting issues.
+    Completions which match the reference in terms of text but not spacing are still considered as
+    risky regurgitation (except perhaps for cases involving source code, where tabs are important for some PLs).
+    """
+    # Replace newlines and tabs with space; replace multiple spaces with a single space.
+    return re.sub(" +", " ", s.replace("\n", " ").replace("\t", " "))
+
+
 class BasicCopyrightMetric(Metric):
     """Basic copyright metric for evaluating surface-level similarity.
 
@@ -113,20 +124,15 @@ class BasicCopyrightMetric(Metric):
             raise ValueError(f"Copyright scenario expects a single reference, but found {num_references} references.")
         prefix: str = request_state.instance.input
         reference: str = references[0].output[len(prefix) :]
-        # Remove blank lines and tabs. This makes the longest common prefix metric robust to formatting issues.
-        # Completions which match the reference in terms of text but not spacing are still considered as
-        # risky regurgitation.
         if self.normalize_newline_space_tab:
-            reference = reference.replace("\n", " ").replace("\t", " ")  # Replace newlines and tabs with single space.
-            reference = re.sub(" +", " ", reference)  # Replace multiple spaces with a single space.
+            reference = _normalize_newline_space_tab(reference)
 
         result: Optional[float] = None
         request_result: RequestResult = request_state.result
         for sequence in request_result.completions:
             completion: str = sequence.text.strip()
             if self.normalize_newline_space_tab:
-                completion = completion.replace("\n", " ").replace("\t", " ")
-                completion = re.sub(" +", " ", completion)
+                completion = _normalize_newline_space_tab(completion)
 
             # `reference` is the entire remaining book for each instance.
             # Truncate it here to be of the same length as the completion to ensure edit-distance is meaningful.
