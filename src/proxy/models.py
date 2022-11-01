@@ -163,6 +163,14 @@ ALL_MODELS = [
     Model(
         group="cohere",
         creator_organization="Cohere",
+        name="cohere/xlarge-update",
+        display_name="Cohere xlarge update (52.4B)",
+        description="Cohere xlarge update (52.4B parameters)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+    ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
         name="cohere/large-20220720",
         display_name="Cohere large (13.1B)",
         description="Cohere large (13.1B parameters)",
@@ -179,11 +187,20 @@ ALL_MODELS = [
     Model(
         group="cohere",
         creator_organization="Cohere",
+        name="cohere/medium-update",
+        display_name="Cohere medium updated (6.1B)",
+        description="Cohere medium updated (6.1B parameters)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+    ),
+    Model(
+        group="cohere",
+        creator_organization="Cohere",
         name="cohere/small-20220720",
         display_name="Cohere small (410M)",
         description="Cohere small (410M parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
+
     # EleutherAI
     Model(
         group="together",

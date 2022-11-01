@@ -91,15 +91,18 @@ class TogetherClient(Client):
 
                 # Poll and wait for job to be finished
                 job_id = response["id"]
-                for t in range(10000000):
+                TIMEOUT = 20
+                for t in range(TIMEOUT):
                     response = requests.get(f"{base_url}/job/{job_id}").json()
                     status = response["status"]
                     hlog(f"TogetherClient: Waiting for job {job_id}, status is {status}, waited {t} seconds")
                     if status == "finished":
                         return response["returned_payload"]["result"]["inference_result"][0]
                     elif status == "failed":
-                        raise Exception(f"TogetherClient request failed: {json.dumps(response)}")
+                        raise RuntimeError(f"TogetherClient request failed: {json.dumps(response)}")
                     time.sleep(1)
+
+                raise RuntimeError(f"TogetherClient request timed out after {TIMEOUT} seconds")
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as e:

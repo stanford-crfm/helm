@@ -155,9 +155,11 @@ example_queries = [
                 "openai/text-davinci-002", "openai/davinci",
                 "ai21/j1-jumbo", "ai21/j1-grande",
                 "anthropic/stanford-online-all-v4-s3",
-                "cohere/xlarge-20220609",
+                "cohere/xlarge-20220609", "cohere/xlarge-update",
                 "microsoft/TNLGv2_530B",
-                "together/bloom", "together/opt-175b", "together/glm", "together/ul2", "together/t0pp",
+                "together/gpt-j-6b", "together/gpt-neox-20b",
+                "together/bloom", "together/opt-175b",
+                "together/glm", "together/ul2", "together/t0pp",
             ]
             """
         ),
