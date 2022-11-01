@@ -200,7 +200,6 @@ ALL_MODELS = [
         description="Cohere small (410M parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
-
     # EleutherAI
     Model(
         group="together",
