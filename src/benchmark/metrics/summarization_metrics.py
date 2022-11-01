@@ -1,7 +1,10 @@
 import numpy as np
+import os
+import pickle
 import spacy
 import subprocess
 import sys
+import tempfile
 from typing import List, Dict
 
 # Need to check spacy module is downloaded before importing DataStatsMetric
@@ -12,6 +15,7 @@ from summ_eval.data_stats_metric import DataStatsMetric
 
 from benchmark.adapter import AdapterSpec, RequestState, ScenarioState
 from common.hierarchical_logger import hlog
+from common.general import ensure_file_downloaded
 from .metric import Metric, MetricResult
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -19,6 +23,11 @@ from .basic_metrics import get_rouge_function
 from .statistic import Stat
 from .summac.model_summac import SummaCZS
 from bert_score import BERTScorer
+
+
+QAFACTEVAL_CODALAB_LINK: str = (
+    "https://worksheets.codalab.org/rest/bundles/0x53c75b87a626443292359403bc544964/contents/blob/"
+)
 
 
 class SummarizationMetric(Metric):
@@ -31,13 +40,14 @@ class SummarizationMetric(Metric):
         4. Faithfulness (SummaC)
     """
 
-    def __init__(self, device="cpu"):
+    def __init__(self, task: str, device: str = "cpu"):
         self.rouge_fns = {
             "rouge_1": get_rouge_function("rouge1"),
             "rouge_2": get_rouge_function("rouge2"),
             "rouge_l": get_rouge_function("rougeL"),
         }
         self.data_stats_metric = DataStatsMetric()
+        self.qafacteval = self._load_qafacteval(task)
 
         if device == "cpu":
             self.compute_faithfulness = False
@@ -50,6 +60,16 @@ class SummarizationMetric(Metric):
             # Need GPU for faithfulness metrics since they are model-based.
             self.compute_faithfulness = True
             self.summac = SummaCZS(granularity="sentence", model_name="vitc", imager_load_cache=False, device=device)
+
+    def _load_qafacteval(self, task: str) -> Dict[str, Dict]:
+        # Load pre-computed QAFactEval scores. Temporary solution -- should be replaced with a docker for the metric.
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target_path: str = os.path.join(tmpdir, "qafacteval.pk")
+            ensure_file_downloaded(source_url=QAFACTEVAL_CODALAB_LINK, target_path=target_path)
+            with open(target_path, "rb") as fin:
+                qafacteval_scores = pickle.load(fin)
+
+        return qafacteval_scores[task]
 
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
@@ -111,6 +131,14 @@ class SummarizationMetric(Metric):
         pred: str = self._remove_braces(request_state.result.completions[0].text.strip())
 
         result: List[Stat] = []
+
+        try:
+            # get qafacteval scores if they exist
+            model_name = adapter_spec.model.replace("/", "_")
+            val = self.qafacteval[model_name][(request_state.instance.id, pred)]
+            result.append(Stat(MetricName("QAFactEval")).add(float(val)))
+        except KeyError:
+            pass
 
         # Compute rouge metrics
         result.extend([Stat(MetricName(name)).add(float(val)) for name, val in self._compute_rouge(refs, pred).items()])
