@@ -362,6 +362,34 @@ $(function () {
     return instanceKeyToDiv;
   }
 
+  function renderRequest(request) {
+    // Render the request made to the API as a table.
+    const $requestTable = $('<table>');
+
+    const $requestTableHeader = $('<h6>').append('Request');
+    $requestTable.append($requestTableHeader);
+
+    const $promptRow = $('<tr>').append([
+      $('<td>').append("prompt"),
+      $('<td>').append(request.prompt.replaceAll("\n", "<br>")),
+    ]);
+    $requestTable.append($promptRow);
+
+    for (let requestKey in request) {
+      if (requestKey === 'prompt') {
+        continue;
+      }
+      const $requestRow = $('<tr>').append([
+        $('<td>').append(requestKey),
+        $('<td>').append(
+          typeof request[requestKey] === 'string' ? request[requestKey] : JSON.stringify(request[requestKey])
+        ),
+      ]);
+      $requestTable.append($requestRow);
+    }
+    return $('<div>').append().append($requestTable);
+  }
+
   function renderPredictions(runSpec, runDisplayName, scenarioState, perInstanceStats, instanceKeyToDiv) {
     // Add the predictions and statistics from `scenarioState` and `perInstanceStats` to the appropriate divs for each instance.
     // Each instance give rises to multiple requests (whose results are in `scenarioState`):
@@ -485,12 +513,19 @@ $(function () {
         description += '{trial ' + requestState.train_trial_index + '}';
       }
 
+      const $request = renderRequest(requestState.request);
+      $request.hide();
+      $link = $('<a>', {href}).append($('<b>').append(description)).click(() => {
+        $request.slideToggle();
+        return false;
+      });
       $instance.append($('<div>')
-        .append($('<a>', {href}).append($('<b>').append(description)))
+        .append($link)
         .append(': ')
         .append(prefix)
         .append(prediction)
         .append($logProb));
+      $instance.append($request);
     });
   }
 
