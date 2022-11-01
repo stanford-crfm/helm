@@ -137,7 +137,7 @@ class SummarizationMetric(Metric):
             model_name = adapter_spec.model.replace("/", "_")
             val = self.qafacteval[model_name][request_state.instance.id]
             result.append(Stat(MetricName("QAFactEval")).add(float(val)))
-        except:
+        except KeyError:
             pass
 
         # Compute rouge metrics
