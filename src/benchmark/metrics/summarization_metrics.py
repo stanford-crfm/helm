@@ -26,7 +26,7 @@ from bert_score import BERTScorer
 
 
 QAFACTEVAL_CODALAB_LINK: str = (
-    "https://worksheets.codalab.org/rest/bundles/0x2c6baf94737d44d4aefb5dbda9e43943/contents/blob/"
+    "https://worksheets.codalab.org/rest/bundles/0x53c75b87a626443292359403bc544964/contents/blob/"
 )
 
 
@@ -135,7 +135,7 @@ class SummarizationMetric(Metric):
         try:
             # get qafacteval scores if they exist
             model_name = adapter_spec.model.replace("/", "_")
-            val = self.qafacteval[model_name][request_state.instance.id]
+            val = self.qafacteval[model_name][(request_state.instance.id, pred)]
             result.append(Stat(MetricName("QAFactEval")).add(float(val)))
         except KeyError:
             pass
