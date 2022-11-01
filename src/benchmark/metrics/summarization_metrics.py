@@ -143,7 +143,10 @@ class SummarizationMetric(Metric):
         return result
 
 
-HUMAN_EVAL_CODALAB_LINK: str = "https://worksheets.codalab.org/rest/bundles/0x8c5eeb13c0bd47b1b4a74791f4a38425/contents/blob/summ_humaneval/{file_name}"
+HUMAN_EVAL_CODALAB_LINK: str = (
+    "https://worksheets.codalab.org/rest/bundles/0x3fb04ae3ae024c369d048f6c2cdf16cb/"
+    "contents/blob/codalab_merged_results/{file_name}"
+)
 
 
 def _paired_bootstrap_test(treatment: list, control: list, nboot: int = 10000):
@@ -174,24 +177,24 @@ class SummarizationHumanEvalAnalyzer:
     3. compute paired bootstrap test for all pairwise model comparison
     """
 
-    def __init__(self, dataset: str, eval_download_path: str):
+    def __init__(self, dataset: str, eval_download_path: str, shots: int):
         self.dataset = dataset
         self.eval_download_path = eval_download_path
+        self.shots = shots
         os.makedirs(eval_download_path, exist_ok=True)
-        self.faithfulness, self.coherence, self.relevance = None, None, None
+        self.load_humaneval_data()
 
     def load_humaneval_data(self):
-        filenames = [f"Batch_{self.dataset}_small_results.csv", f"Batch_{self.dataset}_large_results.csv"]
+        filename = f"{self.dataset}_{self.shots}shots.csv"
 
         tasks_by_id = defaultdict(list)
 
-        for filename in filenames:
-            download_filename = HUMAN_EVAL_CODALAB_LINK.format(file_name=filename)
-            filename = os.path.join(self.eval_download_path, filename)
-            ensure_file_downloaded(source_url=download_filename, target_path=filename)
-            mturk_data = pandas.read_csv(filename)
-            for i, row in mturk_data.iterrows():
-                tasks_by_id[row.HITId].append(row)
+        download_filename = HUMAN_EVAL_CODALAB_LINK.format(file_name=filename)
+        filename = os.path.join(self.eval_download_path, filename)
+        ensure_file_downloaded(source_url=download_filename, target_path=filename)
+        mturk_data = pandas.read_csv(filename)
+        for i, row in mturk_data.iterrows():
+            tasks_by_id[row.HITId].append(row)
 
         self.faithfulness = defaultdict(list)
         for idx, tasks in tasks_by_id.items():
