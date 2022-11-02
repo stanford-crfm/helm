@@ -15,14 +15,15 @@ from .adapter import (
     RANKING_WRONG_LABEL,
 )
 from .metrics.metric import MetricSpec
-from .run_expander import RUN_EXPANDERS, StopRunExpander
+from .run_expander import RUN_EXPANDERS, GlobalPrefixRunExpander, StopRunExpander
 from .runner import RunSpec
 from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
+from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
-from proxy.models import get_model, NO_NEWLINES_TAG
+from proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG
 from common.general import singleton
 
 
@@ -575,7 +576,7 @@ def get_mmlu_spec(subject: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     )
 
     return RunSpec(
-        name=f"mmlu:subject={subject}",
+        name=f"mmlu:subject={subject},method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -691,7 +692,7 @@ def get_truthful_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -
     )
 
     return RunSpec(
-        name=f"truthful_qa:task={task}",
+        name=f"truthful_qa:task={task},method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
@@ -941,7 +942,7 @@ def get_lsat_qa_spec(task: str, method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> Ru
     metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
-        name=f"lsat_qa:task={task}",
+        name=f"lsat_qa:task={task},method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -980,7 +981,14 @@ def get_babi_qa_spec(task: str = "all") -> RunSpec:
     )
 
 
-def get_copyright_spec(datatag="pilot", temperature=0.2, max_tokens=1024, num_outputs=1) -> RunSpec:
+def get_copyright_spec(
+    datatag="pilot",
+    temperature=0.2,
+    max_tokens=1024,
+    num_outputs=1,
+    normalize_by_prefix_length=True,
+    normalize_newline_space_tab=False,
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.copyright_scenario.CopyrightScenario", args=dict(datatag=datatag)
     )
@@ -991,9 +999,14 @@ def get_copyright_spec(datatag="pilot", temperature=0.2, max_tokens=1024, num_ou
         name=f"copyright:datatag={datatag}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_copyright_metric_specs({"normalize_by_prefix_length": True})
+        metric_specs=get_copyright_metric_specs(
+            {
+                "normalize_by_prefix_length": normalize_by_prefix_length,
+                "normalize_newline_space_tab": normalize_newline_space_tab,
+            }
+        )
         + get_generative_harms_metric_specs(),
-        groups=["copyright"],
+        groups=["copyright_code" if datatag in datatag2hash_code else "copyright_text"],
     )
 
 
@@ -1235,7 +1248,7 @@ def get_blimp_spec(phenomenon: str, method: str = ADAPT_MULTIPLE_CHOICE_SEPARATE
     metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
-        name=f"blimp:phenomenon={phenomenon}",
+        name=f"blimp:phenomenon={phenomenon},method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -1259,7 +1272,8 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
         name=f"summarization_xsum:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"device": device}) + get_generative_harms_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"task": "summarization_xsum", "device": device})
+        + get_generative_harms_metric_specs(),
         groups=["summarization_xsum"],
     )
 
@@ -1285,7 +1299,8 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = 
         name=f"summarization_xsum:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"device": device}) + get_generative_harms_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"task": "summarization_xsum_sampled", "device": device})
+        + get_generative_harms_metric_specs(),
         groups=["summarization_xsum"],
     )
 
@@ -1306,7 +1321,8 @@ def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") 
         name=f"summarization_cnndm:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"device": device}) + get_generative_harms_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"task": "summarization_cnndm", "device": device})
+        + get_generative_harms_metric_specs(),
         groups=["summarization_cnndm"],
     )
 
@@ -1373,7 +1389,7 @@ def get_legal_support_spec(method: str = ADAPT_MULTIPLE_CHOICE_JOINT) -> RunSpec
     metric_specs = get_exact_match_metric_specs()
 
     return RunSpec(
-        name="legal_support",
+        name=f"legal_support,method={method}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
@@ -1615,9 +1631,6 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             child_run_spec for parent_run_spec in run_specs for child_run_spec in expander.expand(parent_run_spec)
         ]
 
-    # Model-specific expanders
-    stop_expander = StopRunExpander(value="hash")
-
     def alter_run_spec(run_spec: RunSpec) -> RunSpec:
         model = get_model(run_spec.adapter_spec.model)
         # For models that strip newlines, when we're generating, we need to set
@@ -1626,7 +1639,13 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
             ADAPT_GENERATION,
             ADAPT_MULTIPLE_CHOICE_JOINT,
         ):
-            return singleton(stop_expander.expand(run_spec))
+            stop_expander = StopRunExpander(value="hash")
+            run_spec = singleton(stop_expander.expand(run_spec))
+
+        if NLG_PREFIX_TAG in model.tags:
+            global_prefix_expander = GlobalPrefixRunExpander(value="nlg")
+            run_spec = singleton(global_prefix_expander.expand(run_spec))
+
         return run_spec
 
     run_specs = [alter_run_spec(run_spec) for run_spec in run_specs]

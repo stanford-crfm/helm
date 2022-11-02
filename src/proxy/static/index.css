@@ -6,6 +6,12 @@
   background-color: #f0f0f0;
 }
 
+.examples-block {
+  margin-left: 120px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 .request {
   background-color: #f0f0f0;
   margin-top: 20px;

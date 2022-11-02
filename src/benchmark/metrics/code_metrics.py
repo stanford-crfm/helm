@@ -1,7 +1,8 @@
 """Evaluating source code generation."""
 
+import threading
+import multiprocessing
 from typing import List, Union, Sequence, cast
-import resource
 
 from common.hierarchical_logger import hlog
 from common.request import RequestResult
@@ -39,6 +40,10 @@ METRICS = {
 }
 
 
+def _run_test_wrapper(root: str, test: str, timeout: float, shared_list: list):
+    shared_list.append(code_metrics_helper.run_test(root, test, timeout))
+
+
 class APPSMetric(Metric):
     def __init__(self, names, timeout):
         super(APPSMetric, self).__init__()
@@ -49,7 +54,8 @@ class APPSMetric(Metric):
         self.timeout = timeout
 
         # Set a memory limit for this process.
-        resource.setrlimit(resource.RLIMIT_AS, (MAXIMUM_MEMORY_BYTES, MAXIMUM_MEMORY_BYTES))
+        # TODO: debugging - remove this later -Chen
+        # resource.setrlimit(resource.RLIMIT_AS, (MAXIMUM_MEMORY_BYTES, MAXIMUM_MEMORY_BYTES))
 
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
@@ -81,7 +87,29 @@ class APPSMetric(Metric):
             best_score = 0.0
             for completion in request_result.completions:
                 completion = completion.text.strip()
-                scores = code_metrics_helper.run_test(root=root, test=completion, timeout=self.timeout)  # type: ignore
+
+                # Similar to the logic in https://github.com/hendrycks/apps/blob/main/eval/test_one_solution.py
+                # Running the testing code in a forked process prevents against annoying memory issues.
+                shared_list = multiprocessing.Manager().list()  # Create shared object to hold results.
+                p = multiprocessing.Process(
+                    target=_run_test_wrapper, args=(root, completion, self.timeout, shared_list)
+                )
+                p.start()
+                p.join(timeout=11)  # Same 'global' timeout used in original APPS codebase.
+                if p.is_alive():
+                    hlog(f"Before kill thread count: {threading.active_count()} exitcode: {p.exitcode}")
+                    p.kill()
+                    p.join(timeout=60)
+                    hlog(f"After second join thread count: {threading.active_count()}. exitcode: {p.exitcode}")
+                    assert not p.is_alive(), "The code process was still alive even after calling kill."
+
+                if len(shared_list) == 0:
+                    # Remark: ideally should consider all tests that failed;
+                    # use the average number of tests here for simplicity
+                    avg_number_tests = 21
+                    shared_list = [[-1] * avg_number_tests]
+                scores = shared_list[0]
+
                 scores = _convert_scores(scores)  # Convert list of bool/int to list of ints.
                 this_score = metric_fn(scores)
                 if this_score > best_score:

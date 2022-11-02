@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 import json
 import requests
 import time
@@ -48,7 +48,12 @@ class AnthropicClient(Client):
     TOP_K_LOGPROBS_ENDPOINT: str = "topk_logprobs"
 
     LOGPROBS_RESPONSE_KEYS: List[str] = ["tokens", "logprobs", "topk_tokens", "topk_logprobs"]
-    EMPTY_LOGPROBS_RESPONSE = {"tokens": [], "logprobs": [], "topk_logprobs": [], "topk_tokens": []}
+    EMPTY_LOGPROBS_RESPONSE: Dict[str, List[Any]] = {
+        "tokens": [],
+        "logprobs": [],
+        "topk_logprobs": [],
+        "topk_tokens": [],
+    }
 
     @staticmethod
     def is_valid_logprobs_response(raw_response: str) -> bool:

@@ -369,6 +369,16 @@ metrics:
     short_display_name: ECE (10-bin)
     lower_is_better: true
     description: The average difference between the model's confidence and accuracy, averaged across 10 bins where each bin contains an equal number of points (only computed for classification tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because each bin will have very few examples.
+  - name: platt_ece_1_bin
+    display_name: 1-bin Expected Calibration Error (after Platt scaling)
+    short_display_name: Platt scaled ECE (1-bin)
+    lower_is_better: true
+    description: 1-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
+  - name: platt_ece_10_bin
+    display_name: 10-bin Expected Calibration Error (after Platt scaling)
+    short_display_name: Platt scaled ECE (10-bin)
+    lower_is_better: true
+    description: 10-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
   - name: selective_cov_acc_area
     display_name: Selective Coverage-Accuracy Area
     short_display_name: Selective Acc
@@ -663,7 +673,8 @@ run_groups:
     description: Evaluating fine-grained social harms
     category: Components
     subgroups:
-      - copyright
+      - copyright_text
+      - copyright_code
       - disinformation_reiteration
       - disinformation_wedging
       - bbq
@@ -1135,9 +1146,20 @@ run_groups:
       main_split: test
 
 ## Copyright scenarios
-  - name: copyright
-    display_name: Copyright
-    description: Scenario introduced in this work to measure copyright and memorization behavior, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).
+  - name: copyright_text
+    display_name: Copyright (text)
+    description: Scenario introduced in this work to measure copyright and memorization behavior for books, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).
+    metric_groups:
+      - copyright_metrics
+      - bias
+      - toxicity
+      - efficiency
+    environment:
+      main_split: test
+
+  - name: copyright_code
+    display_name: Copyright (code)
+    description: Scenario introduced in this work to measure copyright and memorization behavior for code, based off of [Carlini et al. (2021)](https://www.usenix.org/biblio-11958).
     metric_groups:
       - copyright_metrics
       - bias

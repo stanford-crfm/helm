@@ -2,7 +2,13 @@ from typing import List, Dict
 
 from common.cache import Cache, CacheConfig
 from common.request import Request, RequestResult, Sequence, Token
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult, TokenizationToken
+from common.tokenization_request import (
+    DecodeRequest,
+    DecodeRequestResult,
+    TokenizationRequest,
+    TokenizationRequestResult,
+    TokenizationToken,
+)
 from .client import Client, wrap_request_time
 
 
@@ -60,7 +66,7 @@ class SimpleClient(Client):
         else:
             raise ValueError("Unknown model")
 
-    def decode(self, request: TokenizationRequest) -> TokenizationRequestResult:
+    def decode(self, request: DecodeRequest) -> DecodeRequestResult:
         raise NotImplementedError
 
     def invoke_model1(self, raw_request: Dict) -> Dict:

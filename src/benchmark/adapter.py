@@ -34,13 +34,17 @@ RANKING_WRONG_LABEL = "No"
 class AdapterSpec:
     """
     Specifies how to take a `Scenario` (a list of `Instance`s) and produce a
-    `ScenarioState` (set of `Request`s ).  Instead of having free-form prompt
+    `ScenarioState` (set of `Request`s ). Instead of having free-form prompt
     hacking, we try to make the process more declarative and systematic.
     Note that an `Instance` could produce many `Request`s (e.g., one for each `Reference`).
     """
 
     # Method of adaptation
     method: str
+
+    # Prepend all prompts with this string.
+    # For example, it is recommended to prefix all prompts with [NLG] for UL2.
+    global_prefix: str = ""
 
     # Prompt starts with instructions
     instructions: str = ""
@@ -224,7 +228,10 @@ def slimmed_scenario_state(scenario_state: ScenarioState) -> ScenarioState:
 class Prompt:
     """Result of prompt construction."""
 
-    # Instance prefix, carried over from the adapter spec
+    # Global prefix, carried over from `AdapterSpec`
+    global_prefix: str
+
+    # Instance prefix, carried over from `AdapterSpec`
     instance_prefix: str
 
     # Instructions for the task
@@ -247,9 +254,11 @@ class Prompt:
     @property
     def text(self) -> str:
         # Text for the prompt, might be truncated
-        blocks = [self.instructions_block] if self.instructions_block else []
+        blocks: List[str] = [self.instructions_block] if self.instructions_block else []
         blocks += self.train_instance_blocks + [self.eval_instance_block]
-        non_truncated_input = self.instance_prefix.join(blocks)
+        non_truncated_input: str = self.instance_prefix.join(blocks)
+        if self.global_prefix:
+            non_truncated_input = f"{self.global_prefix} {non_truncated_input}"
         return self.truncated_input if self.truncated_input else non_truncated_input
 
     @property
@@ -500,6 +509,7 @@ class Processor:
 
         # Prompt
         prompt = Prompt(
+            global_prefix=self.adapter_spec.global_prefix,
             instructions_block=instructions_block,
             train_instance_blocks=train_instance_blocks,
             eval_instance_block=eval_instance_block,

@@ -148,13 +148,21 @@ function sortListWithReferenceOrder(list, referenceOrder) {
   list.sort(([a, b]) => getKey(a) - getKey(b));
 }
 
-function canonicalizeList(lists) {
-  // Takes as input a list of lists, and returns the list of unique elements (preserving order).
-  // Example: [1, 2, 3], [2, 3, 4] => [1, 2, 3, 4]
+function canonicalizeList(lists, compare) {
+  // Takes as input a list of lists and optional compare function,
+  // and returns the list of unique elements (preserving order).
+  // compare(a, b) should return 0 if and only if a equals b.
+  // Example: lists = [[1, 2, 3], [2, 3, 4]]
+  //   => [1, 2, 3, 4]
+  // Example: lists = [[1, 2, 3], [2, 3, 4]], compare = (a, b) => a % 2 - b % 2
+  //   => [1, 2]
   const result = [];
   lists.forEach((list) => {
     list.forEach((elem) => {
-      if (result.indexOf(elem) === -1) {
+      const inResult = compare ?
+        result.some((resultElem) => compare(resultElem, elem) === 0) :
+        result.indexOf(elem) >= 0;
+      if (!inResult) {
         result.push(elem);
       }
     });

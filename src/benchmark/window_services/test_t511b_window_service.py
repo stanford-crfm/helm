@@ -77,7 +77,7 @@ class TestT511bWindowService:
         shutil.rmtree(self.path)
 
     def test_max_request_length(self):
-        assert self.window_service.max_request_length == 512
+        assert self.window_service.max_request_length == 511
 
     def test_encode(self):
         assert self.window_service.encode(TEST_PROMPT).token_values == TestT511bWindowService.TEST_TOKEN_IDS

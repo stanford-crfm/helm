@@ -6,7 +6,7 @@ from typing import List
 from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TEST_SPLIT
 
-datatag2hash = {
+datatag2hash_text = {
     # The "average" book.
     # Very small; 10 examples.
     "pilot": "1NwzDx19uzIwBuw7Lq5CSytG7jIth2wJ-",
@@ -25,11 +25,16 @@ datatag2hash = {
     "popular_books-prefix_length_50.json": "1W_8C6QnISfFkc0tZtKdXKNhoTfgSCrbP",
     "popular_books-prefix_length_125.json": "1RT29rRKNNXKgZBhXNbqevLwR440g44it",
     "popular_books-prefix_length_250.json": "1KcQ3EJGAZO6fSqYXRH5eK122h1hUKZTp",
+    # "Oh, the Places You'll Go!" by Dr. Seuss. Only contains 3 prompts; demo for the followup paper.
+    "oh_the_places": "1KXqhO14HmCGQ67tuu2ECGbTGloTkBvzt",
+}
+datatag2hash_code = {
     # Linux kernel source code.
     "prompt_num_line_1-min_lines_20.json": "1OLFyW5u7govgIw3ztsZ_5yYV0YpGzi-3",
     "prompt_num_line_5-min_lines_20.json": "1YbDvyAv9hT0BaZ5LV6Y-Y8tGezrBnBAT",
     "prompt_num_line_10-min_lines_20.json": "1Y5piYwil7T6n8toT_-d7NWqVZHh9NVxJ",
 }
+datatag2hash = {**datatag2hash_text, **datatag2hash_code}
 
 
 class CopyrightScenario(Scenario):

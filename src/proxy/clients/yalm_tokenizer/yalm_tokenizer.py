@@ -1,5 +1,4 @@
 import torch
-import six
 import sentencepiece as spm
 
 """
@@ -10,7 +9,12 @@ adapted from https://github.com/yandex/YaLM-100B/blob/main/megatron_lm/megatron/
 
 def convert_to_unicode(text):
     """Converts `text` to Unicode (if it's not already), assuming utf-8 input."""
-    return six.ensure_text(text, errors="ignore")
+    if isinstance(text, bytes):
+        return text.decode("utf-8")
+    elif isinstance(text, str):
+        return text
+    else:
+        raise TypeError(f"Unexpected type {type(text)}")
 
 
 class YaLMTokenizer:

@@ -771,7 +771,7 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
     calibration_metrics: List[Stat] = []
     assert len(max_probs) == len(correct)
     if len(max_probs) > 0:
-        # We need at least around 300 examples to compute ece_10_bin reliably.
+        # We need at least about 300 examples to compute ece_10_bin reliably.
         ece_10_bin = cal.get_ece_em(max_probs, correct, num_bins=10)
         calibration_metrics.append(Stat(MetricName("ece_10_bin")).add(ece_10_bin))
         ece_1_bin = cal.get_ece(max_probs, correct, num_bins=1)
@@ -779,4 +779,19 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
         coverage_acc_area, acc_top_10_percentile = cal.get_selective_stats(max_probs, correct)
         calibration_metrics.append(Stat(MetricName("selective_cov_acc_area")).add(coverage_acc_area))
         calibration_metrics.append(Stat(MetricName("selective_acc@10")).add(acc_top_10_percentile))
+        # Compute ECE after recalibration.
+        if np.sum(correct) == 0 or np.sum(correct) == len(correct):
+            # If all examples are correct or incorrect, the platt scaling
+            # optimizer won't work. But our calibration error (post-calibration) will be
+            # estimated as 0, so just directly store that.
+            calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(0.0))
+            calibration_metrics.append(Stat(MetricName("platt_ece_1_bin")).add(0.0))
+        else:
+            platt_scaler = cal.get_platt_scaler(np.array(max_probs), np.array(correct))
+            cal_max_probs = platt_scaler(np.array(max_probs))
+            platt_ece_10_bin = cal.get_ece_em(cal_max_probs, correct, num_bins=10)
+            calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(platt_ece_10_bin))
+            platt_ece_1_bin = cal.get_ece(cal_max_probs, correct, num_bins=1)
+            calibration_metrics.append(Stat(MetricName("platt_ece_1_bin")).add(platt_ece_1_bin))
+
     return calibration_metrics

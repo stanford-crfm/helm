@@ -34,12 +34,17 @@ class Processor:
         num_prompt_tokens: int = window_service.get_num_tokens(text=request.prompt)
         stats.append(Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens))
 
-        # Number of characters in the prompt
-        stats.append(Stat(MetricName("num_prompt_characters")).add(len(request.prompt)))
+        # Number of completions
+        stats.append(Stat(MetricName("num_completions")).add(request.num_completions))
 
         # Maximum number of tokens in the completions
-        # TODO: this is an overestimate since stop sequences can cause early termination.
+        # This is an overestimate of the actual number of output tokens since sequences can early terminate
         stats.append(Stat(MetricName("max_num_output_tokens")).add(request.num_completions * request.max_tokens))
+
+        if request_state.result:
+            # Total number of tokens in the completion
+            num_completion_tokens = sum([len(completion.tokens) for completion in request_state.result.completions])
+            stats.append(Stat(MetricName("num_completion_tokens")).add(num_completion_tokens))
 
         return stats
 
