@@ -735,6 +735,7 @@ class BasicMetric(Metric):
             [
                 Stat(MetricName("max_prob")).add(max_prob),
                 Stat(MetricName("exact_match")).add(float(max(reference_scores) == max(answer_scores))),
+                Stat(MetricName("predicted_index")).add(reference_scores.index(max(reference_scores))),
             ]
         )
         return metrics

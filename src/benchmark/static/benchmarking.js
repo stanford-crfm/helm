@@ -504,7 +504,7 @@ $(function () {
       description += 'Prediction';
 
       // Which reference (for multiple_choice_separate_*)
-      if (requestState.reference_index != null) {
+      if (requestState.reference_index !== undefined) {
         description += '[ref ' + requestState.reference_index + ']';
       }
 
@@ -519,12 +519,25 @@ $(function () {
         $request.slideToggle();
         return false;
       });
-      $instance.append($('<div>')
+      $prediction = $('<div>')
         .append($link)
         .append(': ')
         .append(prefix)
-        .append(prediction)
-        .append($logProb));
+        .append(prediction);
+      if (requestState.reference_index !== undefined) {
+        // For multiple_choice_separate_*, display chosen tag, but don't display logprob
+        const predictedIndexStat = instanceKeyTrialToStats[key] ?
+          instanceKeyTrialToStats[key].find((stat) => stat.name.name === "predicted_index") :
+          undefined;
+        if (predictedIndexStat === undefined) {
+          console.warn("Cannot find predicted index for: ", key);
+        } else if (requestState.reference_index === predictedIndexStat.mean){
+          $prediction.append($("<b>").append(" [chosen]"));
+        }
+      } else {
+        $prediction.append($logProb);
+      }
+      $instance.append($prediction);
       $instance.append($request);
     });
   }
