@@ -1,3 +1,5 @@
+import json
+import pandas
 import numpy as np
 import os
 import pickle
@@ -6,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 from typing import List, Dict
+from collections import defaultdict
 
 # Need to check spacy module is downloaded before importing DataStatsMetric
 if not spacy.util.is_package("en_core_web_sm"):
@@ -164,3 +167,165 @@ class SummarizationMetric(Metric):
             )
 
         return result
+
+
+HUMAN_EVAL_CODALAB_LINK: str = (
+    "https://worksheets.codalab.org/rest/bundles/0x3fb04ae3ae024c369d048f6c2cdf16cb/"
+    "contents/blob/codalab_merged_results/{file_name}"
+)
+
+
+def _paired_bootstrap_test(treatment: list, control: list, nboot: int = 10000):
+    """
+    Computes paired bootstrap test for the Hypothesis: treament > control
+
+    Args:
+        treatment: list of float, representing results of treament (better model results)
+        control: list of float, representing results of control (worse model results)
+        nboot: int, number of bootstraps to perform
+    """
+    treatment = np.array(treatment)
+    control = np.array(control)
+    delta = treatment.mean() - control.mean()
+    sample_idx = np.random.choice(np.arange(len(treatment)), size=(nboot, len(treatment)))
+    boot_treatment = treatment[sample_idx]
+    boot_control = control[sample_idx]
+    diff = boot_treatment.mean(axis=1) - boot_control.mean(axis=1)
+    return (diff > 2 * delta).mean()
+
+
+class SummarizationHumanEvalAnalyzer:
+    """
+    Analyzes the human evaluation data of on summarization datasets
+
+    1. loads human evaluation data from CodaLab
+    2. averages and report {faithfulness, relevance, coherence} scores
+    3. compute paired bootstrap test for all pairwise model comparison
+    """
+
+    def __init__(self, dataset: str, eval_download_path: str, shots: int):
+        self.dataset = dataset
+        self.eval_download_path = eval_download_path
+        self.shots = shots
+        os.makedirs(eval_download_path, exist_ok=True)
+        self.load_humaneval_data()
+
+    def load_humaneval_data(self):
+        filename = f"{self.dataset}_{self.shots}shots.csv"
+
+        tasks_by_id = defaultdict(list)
+
+        download_filename = HUMAN_EVAL_CODALAB_LINK.format(file_name=filename)
+        filename = os.path.join(self.eval_download_path, filename)
+        ensure_file_downloaded(source_url=download_filename, target_path=filename)
+        mturk_data = pandas.read_csv(filename)
+        for i, row in mturk_data.iterrows():
+            tasks_by_id[row.HITId].append(row)
+
+        self.faithfulness = defaultdict(list)
+        for idx, tasks in tasks_by_id.items():
+            scores = []
+            for task in tasks:
+                # Faithfulness is evaluated as a binary choice
+                # False -> not Faithful
+                # True -> Faithful
+                scores.append(1 if task["Answer.consistency.consistent"] else 0)
+            self.faithfulness[task["Input.model_name"]].append(np.mean(scores))
+
+        self.coherence = defaultdict(list)
+        for idx, tasks in tasks_by_id.items():
+            scores = []
+            for task in tasks:
+                # Coherence is evaluated on a 1 to 5 Likert scale.
+                # 1 -> least coherent
+                # 5 -> most coherent
+                for i in range(1, 6):
+                    if task[f"Answer.coherence.cohere_{i}"]:
+                        scores.append(i)
+                        break
+            self.coherence[task["Input.model_name"]].append(np.mean(scores))
+
+        self.relevance = defaultdict(list)
+        for idx, tasks in tasks_by_id.items():
+            scores = []
+            for task in tasks:
+                # Coherence is evaluated on a 1 to 5 Likert scale.
+                # 1 -> least relevant
+                # 5 -> most relevant
+                for i in range(1, 6):
+                    if task[f"Answer.relevance.rel_{i}"]:
+                        scores.append(i)
+                        break
+            self.relevance[task["Input.model_name"]].append(np.mean(scores))
+
+    def _compute_average(self, scores: dict):
+        """
+        Computes average for each entry in a {model_name: score_list} dict
+        """
+        return [(x, np.mean(y)) for x, y in scores.items()]
+
+    def print_summary(self):
+        assert self.faithfulness
+        assert self.coherence
+        assert self.relevance
+
+        print("FAITHFULNESS")
+        for model, score in self._compute_average(self.faithfulness):
+            print(f"{model:40}: {score:.4f}")
+        print("=" * 40)
+
+        print("RELEVANCE")
+        for model, score in self._compute_average(self.relevance):
+            print(f"{model:40}: {score:.4f}")
+        print("=" * 40)
+
+        print("COHERENCE")
+        for model, score in self._compute_average(self.relevance):
+            print(f"{model:40}: {score:.4f}")
+        print("=" * 40)
+
+    def dump_test_result(self, output_file_path: str):
+        """
+        Dumps pair-wise model comparison results (based on paired bootstrap test) into a json file.
+
+        Output format:
+        {
+            "faithfulness":[
+                {"model1": ..., "model2": ..., "p value: ...}
+            ]
+            "relevance": ...,
+            "coherence": ...
+        }
+
+        Args:
+            output_file_path: str, path to the output json file
+        """
+        assert self.faithfulness
+        assert self.coherence
+        assert self.relevance
+
+        output_pvalues = defaultdict(list)
+
+        avg_faithful_scores = self._compute_average(self.faithfulness)
+        sorted_models, _ = zip(*sorted(avg_faithful_scores, key=lambda x: x[1], reverse=True))
+        for i, best_model in enumerate(sorted_models):
+            for other_model in sorted_models[i + 1 :]:
+                p_value = _paired_bootstrap_test(self.faithfulness[best_model], self.faithfulness[other_model])
+                output_pvalues["faithfulness"].append({"model1": best_model, "model2": other_model, "p value": p_value})
+
+        avg_relevance_scores = self._compute_average(self.relevance)
+        sorted_models, _ = zip(*sorted(avg_relevance_scores, key=lambda x: x[1], reverse=True))
+        for i, best_model in enumerate(sorted_models):
+            for other_model in sorted_models[i + 1 :]:
+                p_value = _paired_bootstrap_test(self.relevance[best_model], self.relevance[other_model])
+                output_pvalues["relevance"].append({"model1": best_model, "model2": other_model, "p value": p_value})
+
+        avg_coherence_scores = self._compute_average(self.coherence)
+        sorted_models, _ = zip(*sorted(avg_coherence_scores, key=lambda x: x[1], reverse=True))
+        for i, best_model in enumerate(sorted_models):
+            for other_model in sorted_models[i + 1 :]:
+                p_value = _paired_bootstrap_test(self.coherence[best_model], self.coherence[other_model])
+                output_pvalues["coherence"].append({"model1": best_model, "model2": other_model, "p value": p_value})
+
+        with open(output_file_path, "w") as f:
+            json.dump(dict(output_pvalues), f)
