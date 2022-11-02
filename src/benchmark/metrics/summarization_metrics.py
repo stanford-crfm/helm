@@ -9,7 +9,6 @@ import sys
 import tempfile
 from typing import List, Dict
 from collections import defaultdict
-from common.general import ensure_file_downloaded
 
 # Need to check spacy module is downloaded before importing DataStatsMetric
 if not spacy.util.is_package("en_core_web_sm"):
