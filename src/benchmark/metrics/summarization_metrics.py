@@ -138,6 +138,7 @@ class SummarizationMetric(Metric):
             # get qafacteval scores if they exist
             if self.qa_fact_eval is None:
                 self._load_qafacteval(eval_cache_path)
+            assert self.qa_fact_eval is not None
             model_name = adapter_spec.model.replace("/", "_")
             val = self.qa_fact_eval[model_name][(request_state.instance.id, pred)]
             result.append(Stat(MetricName("QAFactEval")).add(float(val)))
@@ -176,7 +177,7 @@ HUMAN_EVAL_CODALAB_LINK: str = (
 )
 
 
-def _paired_bootstrap_test(treatment: list, control: list, nboot: int = 10000):
+def _paired_bootstrap_test(treatment_list: list, control_list: list, nboot: int = 10000):
     """
     Computes paired bootstrap test for the Hypothesis: treament > control
 
@@ -185,8 +186,8 @@ def _paired_bootstrap_test(treatment: list, control: list, nboot: int = 10000):
         control: list of float, representing results of control (worse model results)
         nboot: int, number of bootstraps to perform
     """
-    treatment = np.array(treatment)
-    control = np.array(control)
+    treatment = np.array(treatment_list)
+    control = np.array(control_list)
     delta = treatment.mean() - control.mean()
     sample_idx = np.random.choice(np.arange(len(treatment)), size=(nboot, len(treatment)))
     boot_treatment = treatment[sample_idx]

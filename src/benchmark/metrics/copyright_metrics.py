@@ -128,6 +128,7 @@ class BasicCopyrightMetric(Metric):
             reference = _normalize_newline_space_tab(reference)
 
         result: Optional[float] = None
+        assert request_state.result is not None
         request_result: RequestResult = request_state.result
         for sequence in request_result.completions:
             completion: str = sequence.text.strip()
