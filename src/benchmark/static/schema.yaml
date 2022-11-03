@@ -73,10 +73,10 @@ metrics:
     description: Number of distinct API requests.
   - name: num_instances
     display_name: '# instances'
-    description: Number of instances.
-  - name: num_in_context_examples
-    display_name: '# in-context'
-    description: Number of in-context (training) examples.
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
   - name: input_truncated
     display_name: truncated
     description: Fraction of instances where the input itself was truncated (implies that there were no in-context examples).

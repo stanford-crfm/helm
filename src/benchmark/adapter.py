@@ -3,6 +3,7 @@ from dataclasses import dataclass, field, replace
 from itertools import cycle
 from typing import List, Dict, Tuple, Optional, Callable
 from collections import defaultdict, OrderedDict
+import re
 
 import numpy as np
 
@@ -27,6 +28,14 @@ ADAPT_RANKING_BINARY = "ranking_binary"
 # TODO: It would be better if we read the following from the adapter spec.
 RANKING_CORRECT_LABEL = "Yes"
 RANKING_WRONG_LABEL = "No"
+
+
+@dataclass(frozen=True)
+class Substitution:
+    """Represents a regular expression search/replace."""
+
+    source: str
+    target: str
 
 
 # TODO: move into separate file
@@ -69,6 +78,9 @@ class AdapterSpec:
 
     # What goes between instruction and in-context example blocks in the constructed prompt
     instance_prefix: str = "\n"
+
+    # List of regular expression substitutions that we perform
+    substitutions: List[Substitution] = field(default_factory=list, hash=False)
 
     # Maximum number of (in-context) training instances to put into the prompt
     max_train_instances: int = 5
@@ -134,12 +146,11 @@ class RequestState:
     # The result of the request (filled in when the request is executed)
     result: Optional[RequestResult]
 
-    # The number of in-context examples used
-    num_in_context_examples: int
+    # Number of training instances (i.e., in-context examples)
+    num_train_instances: int
 
-    # Whether the input of the corresponding Instance was truncated to fit the model's context window for this Request
-    # (input_truncated == True implies num_in_context_examples == 0)
-    input_truncated: bool
+    # Whether the prompt (instructions + test input) is truncated to fit the model's context window.
+    prompt_truncated: bool
 
     # The number of initial tokens that will be ignored when computing language modeling metrics
     num_conditioning_tokens: int = 0
@@ -224,7 +235,7 @@ def slimmed_scenario_state(scenario_state: ScenarioState) -> ScenarioState:
     return replace(scenario_state, request_states=list(map(process_request_state, scenario_state.request_states)))
 
 
-@dataclass
+@dataclass(frozen=True)
 class Prompt:
     """Result of prompt construction."""
 
@@ -233,6 +244,9 @@ class Prompt:
 
     # Instance prefix, carried over from `AdapterSpec`
     instance_prefix: str
+
+    # Substitutions, carried over from `AdapterSpec`
+    substitutions: List[Substitution]
 
     # Instructions for the task
     instructions_block: str
@@ -243,27 +257,41 @@ class Prompt:
     # Evaluation instance
     eval_instance_block: str
 
-    # Set if the input of the corresponding Instance was truncated to fit the
-    # model's context window for this Request
-    # (input_truncated == True implies num_in_context_examples == 0)
-    truncated_input: Optional[str] = None
-
-    # Whether the input it truncated.
-    input_truncated: bool = False
+    # If the prompt (instructions + test input) needs to be truncated to fit the model's context window,
+    # this is the truncated text.
+    truncated_text: Optional[str] = None
 
     @property
     def text(self) -> str:
         # Text for the prompt, might be truncated
-        blocks: List[str] = [self.instructions_block] if self.instructions_block else []
-        blocks += self.train_instance_blocks + [self.eval_instance_block]
-        non_truncated_input: str = self.instance_prefix.join(blocks)
+        if self.truncated_text:
+            return self.truncated_text
+
+        # Construct non-truncated input
+        blocks: List[str] = (
+            ([self.instructions_block] if self.instructions_block else [])
+            + self.train_instance_blocks
+            + [self.eval_instance_block]
+        )
+        non_truncated_text: str = self.instance_prefix.join(blocks)
+
+        # Note: this could be implemented via substitutions.
         if self.global_prefix:
-            non_truncated_input = f"{self.global_prefix} {non_truncated_input}"
-        return self.truncated_input if self.truncated_input else non_truncated_input
+            non_truncated_text = f"{self.global_prefix} {non_truncated_text}"
+
+        # Perform substitutions (e.g., add "<br>" before "\n")
+        for subst in self.substitutions:
+            non_truncated_text = re.sub(subst.source, subst.target, non_truncated_text)
+
+        return non_truncated_text
+
+    @property
+    def truncated(self) -> bool:
+        return self.truncated_text is not None
 
     @property
     def num_train_instances(self) -> int:
-        # Number of in-context examples in the prompt
+        # Number of training instances in the prompt
         return len(self.train_instance_blocks)
 
 
@@ -311,8 +339,8 @@ class Processor:
             output_mapping=None,
             request=request,
             result=None,
-            num_in_context_examples=prompt.num_train_instances,
-            input_truncated=prompt.input_truncated,
+            num_train_instances=prompt.num_train_instances,
+            prompt_truncated=prompt.truncated,
         )
         return [request_state]
 
@@ -340,8 +368,8 @@ class Processor:
             output_mapping=output_mapping,
             request=request,
             result=None,
-            num_in_context_examples=prompt.num_train_instances,
-            input_truncated=prompt.input_truncated,
+            num_train_instances=prompt.num_train_instances,
+            prompt_truncated=prompt.truncated,
         )
         return [request_state]
 
@@ -401,8 +429,8 @@ class Processor:
                     output_mapping=None,
                     request=request,
                     result=None,
-                    num_in_context_examples=prompt.num_train_instances,
-                    input_truncated=prompt.input_truncated,
+                    num_train_instances=prompt.num_train_instances,
+                    prompt_truncated=prompt.truncated,
                 )
                 request_states.append(request_state)
         return request_states
@@ -465,8 +493,8 @@ class Processor:
                 output_mapping=None,
                 request=request,
                 result=None,
-                num_in_context_examples=prompt.num_train_instances,
-                input_truncated=prompt.input_truncated,
+                num_train_instances=prompt.num_train_instances,
+                prompt_truncated=prompt.truncated,
             )
             request_states.append(request_state)
         return request_states
@@ -514,14 +542,23 @@ class Processor:
             train_instance_blocks=train_instance_blocks,
             eval_instance_block=eval_instance_block,
             instance_prefix=self.adapter_spec.instance_prefix,
+            substitutions=self.adapter_spec.substitutions,
         )
 
-        # Adjust prompt length
-        prompt = self.adjust_prompt_length(prompt)
+        # Make prompt fit within the context window
+        prompt = self.make_prompt_fit(prompt)
+
         return prompt
 
-    def adjust_prompt_length(self, prompt: Prompt) -> Prompt:
-        """Adjust the length of the prompt to ensure that it fits in the context window."""
+    def make_prompt_fit(self, prompt: Prompt) -> Prompt:
+        """
+        The prompt consists of instructions, training instances, and the evaluation input.
+        - First, we remove the fewest number of training instances as possible until the prompt fits.
+        - Once we hit zero training instances, then we brutally truncate the
+          prompt from the right (clearly suboptimal, but hopefully that doesn't
+          happen too often).
+        Return the prompt that fits.
+        """
         # Following what was done for MMLU (https://arxiv.org/abs/2009.03300) to handle prompts that
         # exceed the max context length (https://github.com/hendrycks/test/blob/master/evaluate.py#L58),
         # we remove train instances one by one until it fits within the context window or
@@ -540,13 +577,17 @@ class Processor:
                         f"it within the context window."
                     )
                 return prompt
-            prompt.train_instance_blocks.pop()
+            # Remove the last training example
+            prompt = replace(
+                prompt, train_instance_blocks=prompt.train_instance_blocks[: len(prompt.train_instance_blocks) - 1]
+            )
 
         # If removing the in-context example is still not enough, we simply truncate the prompt.
         # Following the default truncation strategy used by HuggingFace, we truncate the text from the right.
-        original_length = len(prompt.text)
-        prompt.truncated_input = self.window_service.truncate_from_right(prompt.text, self.adapter_spec.max_tokens)
-        prompt.input_truncated = len(prompt.text) < original_length
+        text = prompt.text
+        truncated_text = self.window_service.truncate_from_right(text, self.adapter_spec.max_tokens)
+        if len(truncated_text) < len(text):
+            prompt = replace(prompt, truncated_text=truncated_text)
         return prompt
 
     def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
@@ -1038,8 +1079,8 @@ class Adapter:
                 request=request,
                 result=None,
                 num_conditioning_tokens=1 if len(prefix_token) > 0 else 0,
-                num_in_context_examples=self.adapter_spec.max_train_instances,
-                input_truncated=False,
+                num_train_instances=self.adapter_spec.max_train_instances,
+                prompt_truncated=False,
             )
             request_states.append(request_state)
             num_predicted_tokens += first_seq_len
@@ -1085,8 +1126,8 @@ class Adapter:
                     request=request,
                     result=None,
                     num_conditioning_tokens=num_conditioning_tokens,
-                    num_in_context_examples=self.adapter_spec.max_train_instances,
-                    input_truncated=False,
+                    num_train_instances=self.adapter_spec.max_train_instances,
+                    prompt_truncated=False,
                 )
                 request_states.append(request_state)
                 num_predicted_tokens += window_pred_len
