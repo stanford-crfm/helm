@@ -42,8 +42,7 @@ class AdapterSpec:
     # Method of adaptation
     method: str
 
-    # Prepend all prompts with this string.
-    # For example, it is recommended to prefix all prompts with [NLG] for UL2.
+    # Prepend all prompts with this string e.g., mode tags for UL2
     global_prefix: str = ""
 
     # Prompt starts with instructions

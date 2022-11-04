@@ -192,7 +192,7 @@ class GlobalPrefixRunExpander(RunExpander):
 
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         if self.value == "nlg":
-            prefix = "[NLG]"
+            prefix = "[S2S]"
         else:
             raise Exception(f"Unknown value: {self.value}")
 
