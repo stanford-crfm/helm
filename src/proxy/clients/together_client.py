@@ -14,28 +14,10 @@ from common.tokenization_request import (
 from common.hierarchical_logger import hlog
 from .client import Client, wrap_request_time, truncate_sequence
 
-NO_NEWLINE_MODELS = ["together/t5", "together/t0pp", "together/glm", "together/ul2"]
-
-
-# Don't do this for now until we figure out whether <br> is a good substitute for "\n".
-use_br_as_newline = False
-
-
-def prepare_text(x: str, model: str) -> str:
-    """Process text before sending to API."""
-    if model in NO_NEWLINE_MODELS:
-        if use_br_as_newline:
-            x = x.replace("\n", "<br>")
-    return x
-
 
 def fix_text(x: str, model: str) -> str:
     """Fix text that comes back from the API."""
-    if model in NO_NEWLINE_MODELS:
-        x = x.replace("▁", " ")
-        x = x.replace("</s>", "")
-        if use_br_as_newline:
-            x = x.replace("<br>", "\n")
+    x = x.replace("▁", " ")
     return x
 
 
@@ -53,7 +35,7 @@ class TogetherClient(Client):
         return {
             "request_type": "language-model-inference",
             "model": request.model_engine,
-            "prompt": prepare_text(request.prompt, request.model),
+            "prompt": request.prompt,
             "temperature": request.temperature,
             "n": request.num_completions,
             "max_tokens": request.max_tokens,
