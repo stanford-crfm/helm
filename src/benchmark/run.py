@@ -158,7 +158,7 @@ def main():
     args = parser.parse_args()
     validate_args(args)
 
-    auth: Authentication = create_authentication(args)
+    auth: Authentication = Authentication("") if args.skip_instances or args.local else create_authentication(args)
     run_benchmarking(
         args.run_specs,
         auth=auth,
