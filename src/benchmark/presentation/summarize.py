@@ -6,7 +6,7 @@ from dataclasses import dataclass, replace
 from tqdm import tqdm
 
 import dacite
-from typing import List, Optional, Dict, Any, Tuple, Set
+from typing import List, Optional, Dict, Any, Iterable, Tuple, Set
 import json
 
 from common.general import write, ensure_directory_exists, asdict_without_nones, singleton, unique_simplification
@@ -167,7 +167,7 @@ class Summarizer:
         run_specs_path: str = os.path.join(self.run_suite_path, "run_specs.json")
         if not os.path.exists(run_specs_path):
             hlog(f"Summarizer won't run because {run_specs_path} doesn't exist yet. This is expected in a dry run.")
-            return []
+            return
 
         self.runs: List[Run] = []
         with open(run_specs_path) as f:
@@ -341,7 +341,7 @@ class Summarizer:
 
         return tables
 
-    def create_groups_metadata(self) -> List[Table]:
+    def create_groups_metadata(self) -> Dict[str, Dict[str, Any]]:
         """
         Create a table for each RunGroup category, linking to the pages where each one is displayed.
         """
@@ -373,15 +373,18 @@ class Summarizer:
             if aggregate_stat is None:
                 aggregate_stat = replace(stat)  # Important: copy!
             else:
+                assert stat is not None  # Make type-checking happy
                 aggregate_stat.merge(stat)
 
         if aggregate_stat is None:
             return Cell(None)
 
         value = aggregate_stat.mean
-        display_value = round(value, 3) if value else value
+        display_value = str(round(value, 3)) if value is not None else None
         description = aggregate_stat.bare_str()
-        style = CONTAMINATION_STYLES.get(contamination_level, {})
+        style: Dict[str, Any] = {}
+        if contamination_level is not None:
+            style = CONTAMINATION_STYLES.get(contamination_level, style)
         return Cell(value=value, display_value=display_value, description=description, style=style)
 
     def create_group_table(
@@ -455,7 +458,7 @@ class Summarizer:
                 }
             )
 
-        adapter_specs = adapter_to_runs.keys()
+        adapter_specs: Iterable[AdapterSpec] = adapter_to_runs.keys()
         if sort_by_model_order:
             model_order = [model.name for model in ALL_MODELS]
             adapter_specs = sorted(adapter_specs, key=lambda spec: model_order.index(spec.model))
@@ -532,7 +535,7 @@ class Summarizer:
         tables: Dict[str, Table] = {}
         if len(self.group_scenario_adapter_to_runs[group.name]) > 1:
             table = self.create_group_table(
-                title=group.display_name,
+                title=str(group.display_name),
                 adapter_to_runs=self.group_adapter_to_runs[group.name],
                 columns=[(group, metric_group) for metric_group in group.metric_groups],
                 link_to_runs=False,
