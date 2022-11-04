@@ -110,6 +110,12 @@ class InstructionsRunExpander(RunExpander):
                 adapter_spec,
                 instructions="",
             )
+        elif self.value == "expert":
+            adapter_spec = replace(
+                adapter_spec,
+                instructions="I am an expert AI assistant who is here to help you with the following. "
+                + adapter_spec.instructions,
+            )
         else:
             raise Exception("Unknown value: {self.value}")
         return [
@@ -138,12 +144,22 @@ class PromptRunExpander(RunExpander):
                 output_suffix='".\n',
                 stop_sequences=['".'],
             )
-        elif self.value == "qa":
-            adapter_spec = replace(adapter_spec, input_prefix="Q: ", output_prefix="A: ")
         elif self.value == "question_answer":
             adapter_spec = replace(adapter_spec, input_prefix="Question: ", output_prefix="Answer: ")
+        elif self.value == "qa":
+            adapter_spec = replace(adapter_spec, input_prefix="Q: ", output_prefix="A: ")
+        elif self.value == "input_output_html":
+            adapter_spec = replace(
+                adapter_spec,
+                input_prefix="<input>",
+                input_suffix="</input>\n",
+                output_prefix="<output>",
+                output_suffix="</output>\n",
+            )
         elif self.value == "input_output":
             adapter_spec = replace(adapter_spec, input_prefix="Input: ", output_prefix="Output: ")
+        elif self.value == "i_o":
+            adapter_spec = replace(adapter_spec, input_prefix="I: ", output_prefix="O: ")
         else:
             raise Exception("Unknown value: {self.value}")
         return [
