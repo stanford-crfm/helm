@@ -19,6 +19,9 @@ from .adapter import (
 from .window_services.tokenizer_service import TokenizerService
 
 
+DEFAULT_MODEL = "openai/davinci"
+
+
 class TestAdapter:
     def setup_method(self):
         self.path: str = tempfile.mkdtemp()
@@ -40,7 +43,7 @@ class TestAdapter:
 
     def test_construct_prompt(self):
         adapter_spec = AdapterSpec(
-            model="openai/davinci",
+            model=DEFAULT_MODEL,
             method=ADAPT_GENERATION,
             input_prefix="",
             input_suffix="",
@@ -66,7 +69,7 @@ class TestAdapter:
 
     def test_construct_prompt_with_truncation(self):
         adapter_spec = AdapterSpec(
-            model="openai/davinci", method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=100
+            model=DEFAULT_MODEL, method=ADAPT_GENERATION, input_prefix="", output_prefix="", max_tokens=100
         )
         adapter = Adapter(adapter_spec, self.tokenizer_service)
         processor = Processor(adapter_spec, adapter.window_service, train_instances=[], train_trial_index=0)
@@ -86,11 +89,10 @@ class TestAdapter:
         assert prompt_text.count("eval") == 1948
 
     def test_construct_language_modeling_prompt(self):
-        model: str = "openai/davinci"
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
-            model=model,
+            model=DEFAULT_MODEL,
             output_prefix="",
             max_tokens=0,
         )
@@ -110,7 +112,7 @@ class TestAdapter:
         assert num_conditioning_tokens == 1
 
     def test_sample_examples(self):
-        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, max_train_instances=4)
+        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, model=DEFAULT_MODEL, max_train_instances=4)
         adapter = Adapter(adapter_spec, self.tokenizer_service)
         all_train_instances = [
             Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
@@ -130,13 +132,13 @@ class TestAdapter:
         assert examples[3].input == "say yes3"
 
     def test_sample_examples_no_train_instances(self):
-        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, max_train_instances=2)
+        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, model=DEFAULT_MODEL, max_train_instances=2)
         adapter = Adapter(adapter_spec, self.tokenizer_service)
         examples = adapter.sample_examples(all_train_instances=[], seed=0)
         assert len(examples) == 0
 
     def test_sample_examples_greater_max_train_instances(self):
-        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, max_train_instances=10)
+        adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, model=DEFAULT_MODEL, max_train_instances=10)
         adapter = Adapter(adapter_spec, self.tokenizer_service)
         all_train_instances = [
             Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
@@ -148,7 +150,7 @@ class TestAdapter:
         assert len(examples) == 3
 
     def test_sample_examples_without_references(self):
-        adapter_spec = AdapterSpec(method=ADAPT_LANGUAGE_MODELING, max_train_instances=1)
+        adapter_spec = AdapterSpec(method=ADAPT_LANGUAGE_MODELING, model=DEFAULT_MODEL, max_train_instances=1)
         adapter = Adapter(adapter_spec, self.tokenizer_service)
         all_train_instances = [
             Instance("prompt1", references=[]),
@@ -160,11 +162,10 @@ class TestAdapter:
         assert len(examples) == 1
 
     def test_fits_tokens_within_context_window(self):
-        model: str = "openai/davinci"
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
             input_prefix="",
-            model=model,
+            model=DEFAULT_MODEL,
             output_prefix="",
             max_tokens=0,
         )

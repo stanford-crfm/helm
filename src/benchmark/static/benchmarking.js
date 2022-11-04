@@ -371,7 +371,7 @@ $(function () {
 
     const $promptRow = $('<tr>').append([
       $('<td>').append("prompt"),
-      $('<td>').append(request.prompt.replaceAll("\n", "<br>")),
+      $('<td>').append($('<pre>').text(request.prompt)),
     ]);
     $requestTable.append($promptRow);
 
