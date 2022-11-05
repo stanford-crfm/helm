@@ -270,6 +270,7 @@ metrics:
   - name: longest_common_prefix_length
     display_name: Longest common prefix length
     short_display_name: LCS
+    lower_is_better: true
     description: Average length of longest common prefix between model generation and reference.
   - name: edit_distance
     display_name: Edit distance (Levenshtein)
@@ -278,6 +279,7 @@ metrics:
   - name: edit_similarity
     display_name: Edit similarity (Levenshtein)
     short_display_name: Edit sim.
+    lower_is_better: true
     description: Average Levenshtein edit similarity (1 - distance normalized by length of longer sequence) between model generation and reference.
 
   # Bias metrics:
@@ -552,6 +554,8 @@ metric_groups:
       - name: longest_common_prefix_length
         split: ${main_split}
       - name: edit_distance
+        split: ${main_split}
+      - name: edit_similarity
         split: ${main_split}
 
   - name: disinformation_metrics
