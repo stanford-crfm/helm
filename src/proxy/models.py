@@ -63,6 +63,17 @@ class Model:
     # Estimated training co2e cost of this model
     training_co2e_cost: Optional[float] = None
 
+    # Number parameters in the model
+    num_parameters: Optional[int] = None
+
+    # Who has access to the model. Currently models are split into three categories: (a) "public", where model
+    # parameters are publicly available, (b) "commercial", where anyone can query the model though a (potentially paid)
+    # API, and (c) "private", where access is API-based on an invitation-only basis
+    access: Optional[str] = None
+
+    # When was the model released
+    release_date: Optional[str] = None
+
     @property
     def organization(self) -> str:
         """
@@ -90,6 +101,9 @@ ALL_MODELS = [
         display_name="Jurassic Jumbo (178B)",
         description="Jurassic J1-Jumbo (178B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+        num_parameters=178000000000,
+        access="commercial",
+        release_date="2021-08-11",
     ),
     # From AI21: "the new model is a mid-point in terms of size, cost and performance between Jumbo and Large.
     # We also implemented a few tweaks to its training process. Internal benchmarks suggest it can really
@@ -101,6 +115,9 @@ ALL_MODELS = [
         display_name="Jurassic Grande (17B)",
         description="Jurassic J1-Large (17B parameters with a few tweaks to its training process)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+        num_parameters=17000000000,
+        access="commercial",
+        release_date="2022-05-03",
     ),
     Model(
         group="jurassic",
@@ -109,6 +126,9 @@ ALL_MODELS = [
         display_name="Jurassic Large (7.5B)",
         description="Jurassic J1-Large (7.5B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+        num_parameters=7500000000,
+        access="commercial",
+        release_date="2021-08-11",
     ),
     # Anthropic
     Model(
@@ -117,6 +137,10 @@ ALL_MODELS = [
         name="anthropic/stanford-online-all-v4-s3",
         display_name="Anthropic-LM (52B)",
         description="Anthropic model (52B parameters)",
+        # The Anthropic model has limited functionality
+        num_parameters=52000000000,
+        access="private",
+        release_date="2021-12-01",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG, ABLATION_MODEL_TAG],
     ),
     # BigScience
@@ -129,6 +153,9 @@ ALL_MODELS = [
         description="BLOOM (176B parameters) is an autoregressive model similar to GPT-3 trained "
         "on 46 natural languages and 13 programming languages.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        num_parameters=176000000000,
+        access="public",
+        release_date="2022-06-28",
     ),
     Model(
         group="together",
@@ -140,6 +167,9 @@ ALL_MODELS = [
         "specified in natural language prompts.",
         # Does not support echo=True
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
+        num_parameters=11000000000,
+        access="public",
+        release_date="2021-10-15",
     ),
     # Cohere models
     # Model versioning and the possible versions are not documented here:
@@ -167,6 +197,9 @@ ALL_MODELS = [
         display_name="Cohere xlarge update (52.4B)",
         description="Cohere xlarge update (52.4B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+        num_parameters=52400000000,
+        access="commercial",
+        release_date="2022-04-25",
     ),
     Model(
         group="cohere",
@@ -175,6 +208,9 @@ ALL_MODELS = [
         display_name="Cohere large (13.1B)",
         description="Cohere large (13.1B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+        num_parameters=13120000000,
+        access="commercial",
+        release_date="2022-03-29",
     ),
     Model(
         group="cohere",
@@ -191,6 +227,9 @@ ALL_MODELS = [
         display_name="Cohere medium updated (6.1B)",
         description="Cohere medium updated (6.1B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+        num_parameters=6067000000,
+        access="commercial",
+        release_date="2022-03-29",
     ),
     Model(
         group="cohere",
@@ -199,6 +238,9 @@ ALL_MODELS = [
         display_name="Cohere small (410M)",
         description="Cohere small (410M parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
+        num_parameters=409300000,
+        access="commercial",
+        release_date="2022-03-29",
     ),
     # EleutherAI
     Model(
@@ -208,6 +250,9 @@ ALL_MODELS = [
         display_name="GPT-J (6B)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+        num_parameters=6000000000,
+        access="public",
+        release_date="2021-06-04",
     ),
     Model(
         group="together",
@@ -216,6 +261,9 @@ ALL_MODELS = [
         display_name="GPT-NeoX (20B)",
         description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
+        num_parameters=20000000000,
+        access="public",
+        release_date="2022-02-02",
     ),
     # GooseAI supported models
     Model(
@@ -225,6 +273,9 @@ ALL_MODELS = [
         display_name="GPT-NeoX (20B, GooseAI)",
         description="GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTNEO_TOKENIZER_TAG],
+        num_parameters=20000000000,
+        access="public",
+        release_date="2022-02-02",
     ),
     Model(
         group="gooseai",
@@ -233,6 +284,9 @@ ALL_MODELS = [
         display_name="GPT-J (6B, GooseAI)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+        num_parameters=6000000000,
+        access="public",
+        release_date="2021-06-04",
     ),
     # HuggingFace
     Model(
@@ -242,6 +296,9 @@ ALL_MODELS = [
         display_name="GPT-J (6B, HuggingFace)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+        num_parameters=6000000000,
+        access="public",
+        release_date="2021-06-04",
     ),
     # Google
     Model(
@@ -255,6 +312,9 @@ ALL_MODELS = [
         "format.",
         # Does not support echo=True
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
+        num_parameters=11000000000,
+        access="public",
+        release_date="2019-10-23",
     ),
     Model(
         group="together",
@@ -272,6 +332,9 @@ ALL_MODELS = [
             NO_NEWLINES_TAG,
             NLG_PREFIX_TAG,
         ],
+        num_parameters=20000000000,
+        access="public",
+        release_date="2022-05-10",
     ),
     Model(
         group="huggingface",
@@ -291,6 +354,9 @@ ALL_MODELS = [
         description="Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained "
         "transformers that are fully and responsibly shared with interested researchers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
+        num_parameters=175000000000,
+        access="public",
+        release_date="2022-05-02",
     ),
     Model(
         group="together",
@@ -301,6 +367,9 @@ ALL_MODELS = [
         description="Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained "
         "transformers that are fully and responsibly shared with interested researchers.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, OPT_TOKENIZER_TAG],
+        num_parameters=66000000000,
+        access="public",
+        release_date="2022-05-02",
     ),
     # Microsoft/NVIDIA
     Model(
@@ -311,6 +380,9 @@ ALL_MODELS = [
         description="TNLGv2 (530B parameters) autoregressive language model. "
         "It is trained on a filtered subset of the Pile and CommonCrawl.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        num_parameters=530000000000,
+        access="private",
+        release_date="2022-01-28",
     ),
     Model(
         group="microsoft",
@@ -320,6 +392,9 @@ ALL_MODELS = [
         description="TNLGv2 (7B parameters) autoregressive language model. "
         "It is trained on a filtered subset of the Pile and CommonCrawl.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        num_parameters=7000000000,
+        access="private",
+        release_date="2022-01-28",
     ),
     # OpenAI: https://beta.openai.com/docs/engines/gpt-3
     Model(
@@ -329,6 +404,9 @@ ALL_MODELS = [
         display_name="GPT-3 (175B)",
         description="GPT-3 (175B parameters) autoregressive language model.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        num_parameters=175000000000,
+        access="commercial",
+        release_date="2020-05-28",
     ),
     Model(
         group="gpt3",
@@ -337,6 +415,9 @@ ALL_MODELS = [
         display_name="GPT-3 (6.7B)",
         description="GPT-3 (6.7B parameters) autoregressive language model.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        num_parameters=6700000000,
+        access="commercial",
+        release_date="2020-05-28",
     ),
     Model(
         group="gpt3",
@@ -345,6 +426,9 @@ ALL_MODELS = [
         display_name="GPT-3 (1.3B)",
         description="GPT-3 (1.3B parameters) autoregressive language model.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        num_parameters=1300000000,
+        access="commercial",
+        release_date="2020-05-28",
     ),
     Model(
         group="gpt3",
@@ -353,6 +437,9 @@ ALL_MODELS = [
         display_name="GPT-3 (350M)",
         description="GPT-3 (350M parameters) autoregressive language model.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        num_parameters=350000000,
+        access="commercial",
+        release_date="2020-05-28",
     ),
     # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
     #       https://github.com/stanford-crfm/benchmarking/issues/359
@@ -363,6 +450,9 @@ ALL_MODELS = [
         display_name="Davinci Instruct v2",
         description="Davinci from Instruct series, 2nd generation - 4000 max tokens",
         tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        num_parameters=175000000000,
+        access="commercial",
+        release_date="2022-01-27",
     ),
     Model(
         group="gpt3",
@@ -371,6 +461,9 @@ ALL_MODELS = [
         display_name="Davinci Instruct v1",
         description="Davinci from Instruct series, 1st generation",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        num_parameters=175000000000,
+        access="commercial",
+        release_date="2022-01-27",
     ),
     Model(
         group="gpt3",
@@ -379,6 +472,9 @@ ALL_MODELS = [
         display_name="Curie Instruct",
         description="Curie from Instruct series",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        num_parameters=6700000000,
+        access="commercial",
+        release_date="2022-01-27",
     ),
     Model(
         group="gpt3",
@@ -387,6 +483,9 @@ ALL_MODELS = [
         display_name="Babbage Instruct",
         description="Babbage from Instruct series",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        num_parameters=1300000000,
+        access="commercial",
+        release_date="2022-01-27",
     ),
     Model(
         group="gpt3",
@@ -395,6 +494,9 @@ ALL_MODELS = [
         display_name="Ada Instruct",
         description="Ada from Instruct series",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        num_parameters=350000000,
+        access="commercial",
+        release_date="2022-01-27",
     ),
     Model(
         group="codex",
@@ -403,6 +505,9 @@ ALL_MODELS = [
         display_name="Davinci Codex (4000 max tokens)",
         description="Davinci Codex 2nd Generation (for natural language to code) - 4000 max tokens",
         tags=[CODE_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, GPT2_TOKENIZER_TAG],
+        num_parameters=None,
+        access="commercial",
+        release_date=None,
     ),
     Model(
         group="codex",
@@ -411,6 +516,9 @@ ALL_MODELS = [
         display_name="Davinci Codex (2048 max tokens)",
         description="Davinci Codex (for natural language to code) - 2048 max tokens",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        num_parameters=None,
+        access="commercial",
+        release_date=None,
     ),
     Model(
         group="codex",
@@ -419,6 +527,9 @@ ALL_MODELS = [
         display_name="Cushman Codex (2048 max tokens)",
         description="Cushman Codex (for natural language to code) - 2048 max tokens",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
+        num_parameters=None,
+        access="commercial",
+        release_date=None,
     ),
     # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
     Model(
@@ -428,6 +539,7 @@ ALL_MODELS = [
         display_name="GPT-3 (12288-dimension embeddings)",
         description="GPT-3 (12288-dimension embeddings)",
         tags=[EMBEDDING_MODEL_TAG],
+        access="commercial",
     ),
     Model(
         group="gpt3",
@@ -436,6 +548,7 @@ ALL_MODELS = [
         display_name="GPT-3 (4096-dimension embeddings)",
         description="GPT-3 (4096-dimension embeddings)",
         tags=[EMBEDDING_MODEL_TAG],
+        access="commercial",
     ),
     Model(
         group="gpt3",
@@ -444,6 +557,7 @@ ALL_MODELS = [
         display_name="GPT-3 (2048-dimension embeddings)",
         description="GPT-3 (2048-dimension embeddings)",
         tags=[EMBEDDING_MODEL_TAG],
+        access="commercial",
     ),
     Model(
         group="gpt3",
@@ -452,6 +566,7 @@ ALL_MODELS = [
         display_name="GPT-3 (1024-dimension embeddings)",
         description="GPT-3 (1024-dimension embeddings)",
         tags=[EMBEDDING_MODEL_TAG],
+        access="commercial",
     ),
     # Offline models
     Model(
@@ -465,6 +580,9 @@ ALL_MODELS = [
         # Inference with echo=True is not feasible -- in the prompt encoding phase, they use
         # bidirectional attention and do not perform predictions on them.
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
+        num_parameters=130000000000,
+        access="public",
+        release_date="2022-08-04",
     ),
     Model(
         group="together",
@@ -476,6 +594,9 @@ ALL_MODELS = [
         # TODO: change to `FULL_FUNCTIONALITY_TEXT_MODEL_TAG` when we fix the infinite loop in L.M. adaptation
         #       https://github.com/stanford-crfm/benchmarking/issues/738
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG],
+        num_parameters=100000000000,
+        access="public",
+        release_date="2022-06-23",
     ),
     # For debugging
     Model(
