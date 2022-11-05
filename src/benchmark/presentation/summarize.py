@@ -13,7 +13,8 @@ from common.general import write, ensure_directory_exists, asdict_without_nones,
 from common.hierarchical_logger import hlog, htrack
 from benchmark.scenarios.scenario import ScenarioSpec
 from benchmark.adapter import AdapterSpec
-from benchmark.metrics.statistic import Stat
+from benchmark.metrics.metric_name import MetricName
+from benchmark.metrics.statistic import Stat, merge_stat
 from benchmark.runner import RunSpec
 from proxy.models import ALL_MODELS, Model, get_model
 from .table import Cell, Table, Hyperlink, table_to_latex
@@ -60,6 +61,13 @@ def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) ->
     matching_stats = [stat for stat in stats if matcher.matches(stat.name)]
     if len(matching_stats) == 0:
         return None
+
+    if matcher.sub_split is None:  # matcher matches all sub splits so we should aggregate these
+        stats_dict: Dict[MetricName, Stat] = {}
+        for stat in matching_stats:
+            stat = Stat(replace(stat.name, sub_split=None)).merge(stat)
+            merge_stat(stats_dict, stat)
+        matching_stats = list(stats_dict.values())
     return singleton(matching_stats)
 
 
@@ -117,9 +125,10 @@ class Summarizer:
 
     COST_REPORT_FIELDS: List[str] = ["num_prompt_tokens", "num_completion_tokens", "num_completions", "num_requests"]
 
-    def __init__(self, suite: str, output_path: str):
+    def __init__(self, suite: str, output_path: str, debug: bool):
         self.suite: str = suite
         self.run_suite_path: str = os.path.join(output_path, "runs", suite)
+        self.debug: bool = debug
 
         self.schema = read_schema()
         self.contamination = read_contamination()
@@ -362,6 +371,7 @@ class Summarizer:
             return Cell(None)
 
         aggregate_stat: Optional[Stat] = None
+        aggregated_run_specs: List[str] = []  # keep track of which run_specs we aggregate into the cell for debugging
 
         for run in runs:
             stat = get_unique_stat_by_matcher(run.stats, matcher)
@@ -375,13 +385,15 @@ class Summarizer:
             else:
                 assert stat is not None  # Make type-checking happy
                 aggregate_stat.merge(stat)
-
+            aggregated_run_specs.append(run.run_spec.name)
         if aggregate_stat is None:
             return Cell(None)
 
         value = aggregate_stat.mean
         display_value = str(round(value, 3)) if value is not None else None
         description = aggregate_stat.bare_str()
+        if self.debug:
+            description += "\n-- ".join(["\nRun specs:", *aggregated_run_specs])
         style: Dict[str, Any] = {}
         if contamination_level is not None:
             style = CONTAMINATION_STYLES.get(contamination_level, style)
@@ -394,6 +406,7 @@ class Summarizer:
         link_to_runs: bool,
         columns: List[Tuple[RunGroup, str]],  # run_group, metric_group
         sort_by_model_order: bool = True,
+        sub_split: Optional[str] = None,
     ) -> Table:
         """
         Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
@@ -420,6 +433,8 @@ class Summarizer:
             metric_group = self.schema.name_to_metric_group[metric_group_name]
             for metric in metric_group.metrics:
                 matcher = metric.substitute(run_group.environment)
+                if sub_split is not None:
+                    matcher = replace(matcher, sub_split=sub_split)
                 header_field = self.schema.name_to_metric.get(matcher.name)
                 if header_field is None:
                     hlog(f"WARNING: unknown metric name {matcher.name}, skipping")
@@ -554,6 +569,17 @@ class Summarizer:
             )
             tables[scenario_name] = table
 
+        if group.sub_splits is not None:
+            for sub_split in group.sub_splits:
+                table = self.create_group_table(
+                    title=f"{group.display_name} (sub-split: {sub_split})",
+                    adapter_to_runs=self.group_adapter_to_runs[group.name],
+                    columns=[(group, metric_group) for metric_group in group.metric_groups],
+                    link_to_runs=False,
+                    sub_split=sub_split,
+                )
+                tables[f"{group.name}:sub_split={sub_split}"] = table
+
         return tables
 
     def write_groups(self):
@@ -631,10 +657,15 @@ def main():
         help="Name of the suite this run belongs to (default is today's date).",
         required=True,
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Display debugging information.",
+    )
     args = parser.parse_args()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
-    summarizer = Summarizer(suite=args.suite, output_path=args.output_path)
+    summarizer = Summarizer(suite=args.suite, output_path=args.output_path, debug=args.debug)
     summarizer.read_runs()
     summarizer.write_models()
     summarizer.write_runs()

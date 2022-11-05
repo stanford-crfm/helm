@@ -1221,6 +1221,9 @@ run_groups:
       - toxicity
       - bias
       - efficiency
+    sub_splits:
+      - toxic
+      - non-toxic
     environment:
       main_split: test
 

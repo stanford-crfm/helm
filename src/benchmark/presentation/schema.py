@@ -58,13 +58,16 @@ class MetricNameMatcher:
     split: str
 
     # Which sub split to report numbers on (e.g., toxic, non-toxic)
+    # If None, will match all sub splits
     sub_split: Optional[str] = None
 
     # Which perturbation to show (e.g., robustness)
     perturbation_name: Optional[str] = None
 
     def matches(self, metric_name: MetricName) -> bool:
-        if self.name != metric_name.name or self.split != metric_name.split or self.sub_split != metric_name.sub_split:
+        if self.name != metric_name.name or self.split != metric_name.split:
+            return False
+        if self.sub_split is not None and self.sub_split != metric_name.sub_split:
             return False
 
         metric_perturbation_name = metric_name.perturbation and metric_name.perturbation.name
@@ -115,6 +118,9 @@ class RunGroup(Field):
     # display all of its subgroups. This allows us to aggregate runs in different ways without having to explicitly
     # annotate each run. For instance, we can display MMLU with the group "QA" by adding it as a subgroup.
     subgroups: List[str] = field(default_factory=list)
+
+    # Names of subsplits that we want to visualize separately for this group
+    sub_splits: Optional[List[str]] = None
 
     # When displaying the subgroups, should each table show all the metrics for each group (BY_GROUP) or show all the
     # groups for each metric (BY_METRIC)
