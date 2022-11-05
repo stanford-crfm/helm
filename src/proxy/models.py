@@ -137,7 +137,6 @@ ALL_MODELS = [
         name="anthropic/stanford-online-all-v4-s3",
         display_name="Anthropic-LM (52B)",
         description="Anthropic model (52B parameters)",
-        # The Anthropic model has limited functionality
         num_parameters=52000000000,
         access="private",
         release_date="2021-12-01",
