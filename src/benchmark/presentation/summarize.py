@@ -426,7 +426,7 @@ class Summarizer:
                     continue
 
                 header_name = header_field.get_short_display_name()
-                description = header_field.display_name + ": " + header_field.description
+                description = run_group.description + "\n\n" + header_field.display_name + ": " + header_field.description
 
                 if matcher.perturbation_name is not None:
                     perturbation_field = self.schema.name_to_perturbation[matcher.perturbation_name]
@@ -439,7 +439,7 @@ class Summarizer:
                     )
 
                 if num_groups > 1:  # we have multiple groups in the same table, so display the name in the column
-                    header_name = f"{run_group.get_short_display_name()} ({header_field.get_short_display_name()})"
+                    header_name = f"{run_group.get_short_display_name()} - {header_field.get_short_display_name()}"
 
                 header.append(Cell(header_name, description=description))
                 matchers.append(matcher)

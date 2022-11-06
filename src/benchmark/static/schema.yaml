@@ -758,6 +758,7 @@ run_groups:
 
   - name: natural_qa_closedbook
     display_name: NaturalQuestions (closed-book)
+    short_display_name: NaturalQuestions (closed)
     description: The NaturalQuestions [(Kwiatkowski et al., 2019)](https://aclanthology.org/Q19-1026/) benchmark for question answering based on naturally-occurring queries through Google Search. The input does not include the Wikipedia page with the answer.
     metric_groups:
       - accuracy
@@ -773,6 +774,7 @@ run_groups:
 
   - name: natural_qa_openbook_longans
     display_name: NaturalQuestions (open-book)
+    short_display_name: NaturalQuestions (open)
     description: The NaturalQuestions [(Kwiatkowski et al., 2019)](https://aclanthology.org/Q19-1026/) benchmark for question answering based on naturally-occurring queries through Google Search. The input includes the Wikipedia page with the answer.
     metric_groups:
       - accuracy
@@ -788,6 +790,7 @@ run_groups:
 
   - name: quac
     display_name: QuAC (Question Answering in Context)
+    short_display_name: QuAC
     description: The QuAC benchmark for question answering in the context of dialogues [(Choi et al., 2018)](https://aclanthology.org/D18-1241/).
     metric_groups:
       - accuracy
@@ -842,6 +845,7 @@ run_groups:
 
   - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
+    short_display_name: MMLU
     description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://openreview.net/forum?id=d7KBjmI3GmQ).
     metric_groups:
       - accuracy
@@ -856,6 +860,7 @@ run_groups:
 # Information retrieval scenarios
   - name: msmarco_regular
     display_name: MS MARCO (regular track)
+    short_display_name: MS MARCO (reg.)
     description: The MS MARCO benchmark's regular track for passage retrieval in information retrieval [(https://microsoft.github.io/msmarco/)](https://microsoft.github.io/msmarco/).
     metric_groups:
       - accuracy
@@ -870,6 +875,7 @@ run_groups:
 
   - name: msmarco_trec
     display_name: MS MARCO (TREC track)
+    short_display_name: MS MARCO (TREC)
     description: The MS MARCO benchmark's deep learning TREC track for passage retrieval in information retrieval [(https://trec.nist.gov)](https://microsoft.github.io/msmarco/).
     metric_groups:
       - accuracy
@@ -928,6 +934,7 @@ run_groups:
 # Text classification scenarios
   - name: raft
     display_name: RAFT (Real-world Annotated Few-Shot)
+    short_display_name: RAFT
     description: The Real-world annotated few-shot (RAFT) meta-benchmark of 11 real-world text classification tasks [(Alex et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/ca46c1b9512a7a8315fa3c5a946e8265-Abstract-round2.html).
     metric_groups:
       - accuracy
@@ -961,6 +968,7 @@ run_groups:
 # Language modeling
   - name: ice
     display_name: ICE (International Corpus of English)
+    short_display_name: ICE
     description: The International Corpus of English (ICE) drawn from English speakers from various places in the world, initiated by [Greenbaum (1991)](https://www.cambridge.org/core/journals/english-today/article/abs/ice-the-international-corpus-of-english/47808205394C538393C3FD8E62E5E701).
     metric_groups:
       - accuracy
@@ -992,6 +1000,7 @@ run_groups:
 # Minimal pairs
   - name: blimp
     display_name: BLiMP (The Benchmark of Linguistic Minimal Pairs for English)
+    short_display_name: BLiMP
     description: The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design [(Warstadt et al., 2020)](https://aclanthology.org/2020.tacl-1.25/).
     metric_groups:
       - accuracy
