@@ -209,7 +209,7 @@ class Summarizer:
             else:
                 hlog(f"WARNING: {run_path} doesn't have run_spec.json or stats.json, skipping")
 
-        # For each scenario group (e.g., natural_qa), map
+        # For each group (e.g., natural_qa), map
         # (i) scenario spec (e.g., subject=philosophy) [optional] and
         # (ii) adapter spec (e.g., model = openai/davinci)
         # to list of runs

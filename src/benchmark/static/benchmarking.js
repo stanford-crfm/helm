@@ -108,7 +108,7 @@ $(function () {
 
   // Look at logic in `summarize.py`.
   function getMetricNames(scenarioGroup) {
-    // A scenario group defines a list of metric groups, each of which defines the metrics.
+    // A (scenario/run) group defines a list of metric groups, each of which defines the metrics.
     // Just pull the names from those metrics.
     const names = [];
     scenarioGroup.metric_groups.forEach((metricGroupName) => {

@@ -508,6 +508,11 @@ class BasicMetric(Metric):
         prompt: str = request_state.request.prompt
         num_prompt_tokens: int = window_service.get_num_tokens(prompt)
 
+        # Just take the first completion
+        # TODO: don't we need to take into account all the completions, since
+        # the runtime we get (that's used to compute denoised_runtime) is for
+        # generating all of them?
+        # TODO: we should unify this into num_completion_tokens
         sequence = request_state.result.completions[0]
         num_output_tokens: int = len(sequence.tokens)
         # Don't include prompt in number of generated tokens (e.g., for language modeling).

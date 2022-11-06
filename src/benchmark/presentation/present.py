@@ -44,7 +44,7 @@ class AllRunner:
         max_eval_instances: Optional[int],
         num_train_trials: Optional[int],
         models_to_run: Optional[List[str]],
-        scenario_groups_to_run: Optional[List[str]],
+        groups_to_run: Optional[List[str]],
         exit_on_error: bool,
         priority: Optional[int],
         mongo_uri: str,
@@ -62,7 +62,7 @@ class AllRunner:
         self.max_eval_instances: Optional[int] = max_eval_instances
         self.num_train_trials: Optional[int] = num_train_trials
         self.models_to_run: Optional[List[str]] = models_to_run
-        self.scenario_groups_to_run: Optional[List[str]] = scenario_groups_to_run
+        self.groups_to_run: Optional[List[str]] = groups_to_run
         self.exit_on_error: bool = exit_on_error
         self.priority: Optional[int] = priority
         self.mongo_uri = mongo_uri
@@ -97,7 +97,7 @@ class AllRunner:
                     num_train_trials=self.num_train_trials,
                     groups=entry.groups,
                     models_to_run=self.models_to_run,
-                    scenario_groups_to_run=self.scenario_groups_to_run,
+                    groups_to_run=self.groups_to_run,
                     mongo_uri=self.mongo_uri,
                 )
                 run_specs.extend(new_run_specs)
@@ -115,9 +115,9 @@ class AllRunner:
         hlog(f"{len(run_entries.entries)} entries produced into {len(run_specs)} run specs")
 
         # Write out all the `RunSpec`s and models to JSON files
-        # Note: if we are parallelizing over models and scenario groups, this
+        # Note: if we are parallelizing over models and groups, this
         # could get overwritten many times.  Ideally, we would make the file
-        # name specific to models and scenario groups.
+        # name specific to models and groups.
         write(
             os.path.join(suite_dir, "run_specs.json"),
             json.dumps(list(map(dataclasses.asdict, run_specs)), indent=2),
@@ -138,7 +138,7 @@ class AllRunner:
         """
         Print out scripts to run after.
         """
-        # Print out all the models and scenario groups that we're touching.
+        # Print out all the models and groups that we're touching.
         models = set()
         groups = set()
         for run_spec in run_specs:
@@ -146,7 +146,7 @@ class AllRunner:
             for group in run_spec.groups:
                 groups.add(group)
         hlog(f"{len(models)} models: {' '.join(models)}")
-        hlog(f"{len(groups)} scenario groups: {' '.join(groups)}")
+        hlog(f"{len(groups)} groups: {' '.join(groups)}")
 
         # Write wrapper for benchmark-present that can be used through Slurm
         lines = [
@@ -203,10 +203,10 @@ def main():
         default=None,
     )
     parser.add_argument(
-        "--scenario-groups-to-run",
+        "--groups-to-run",
         nargs="+",
-        help="Only RunSpecs with these scenario groups specified. "
-        "If no scenario group is specified, runs with all models.",
+        help="Only RunSpecs with these (scenario) groups specified. "
+        "If no group is specified, runs with all groups.",
         default=None,
     )
     parser.add_argument(
@@ -244,7 +244,7 @@ def main():
         max_eval_instances=args.max_eval_instances,
         num_train_trials=args.num_train_trials,
         models_to_run=args.models_to_run,
-        scenario_groups_to_run=args.scenario_groups_to_run,
+        groups_to_run=args.groups_to_run,
         exit_on_error=args.exit_on_error,
         priority=args.priority,
         mongo_uri=args.mongo_uri,

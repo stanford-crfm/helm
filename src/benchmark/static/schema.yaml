@@ -62,6 +62,10 @@ metrics:
   - name: num_prompt_characters
     display_name: '# prompt chars'
     description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  # TODO: unify num_completion_tokens and num_output_tokens
   - name: num_output_tokens
     display_name: '# output tokens'
     description: Actual number of output tokens.
@@ -569,8 +573,9 @@ run_groups:
 ## Aggregation groups
   - name: question_answering
     display_name: Question answering
-    description: Performance on question answering scenarios
-    category: Generic scenarios
+    description: In question answering, given a question and (optionally, in open-book settings) a passage, the goal is to produce the answer.
+      QA is a general format that captures a wide range of tasks involving varying levels of world and commonsense knowledge and reasoning abilities.
+    category: Core scenarios
     subgroups:
       - mmlu
       - boolq
@@ -584,56 +589,57 @@ run_groups:
 
   - name: information_retrieval
     display_name: Information retrieval
-    description: Performance on downstream information retrieval scenarios
-    category: Generic scenarios
+    description: In information retrieval, given a query and a set of candidate documents, the goal is to produce a ranking of the documents.
+    category: Core scenarios
     subgroups:
       - msmarco_regular
       - msmarco_trec
 
   - name: summarization
     display_name: Summarization
-    description: Performance on downstream summarization scenarios
-    category: Generic scenarios
+    description: In text summarization, given a piece of text (paragraph or document), the goal is to produce a much shorter summary.
+    category: Core scenarios
     subgroups:
       - summarization_cnndm
       - summarization_xsum
 
   - name: sentiment_analysis
     display_name: Sentiment analysis
-    description: Performance on downstream sentiment analysis scenarios
-    category: Generic scenarios
+    description: In sentiment classification, given a text (e.g., movie review), the goal is to predict the sentiment (positive or negative).
+    category: Core scenarios
     subgroups:
         - imdb
 
   - name: toxicity_detection
     display_name: Toxicity detection
-    description: Performance on downstream toxicity detection scenarios
-    category: Generic scenarios
+    description: In toxicity detection, given a text, the goal is to predict whether the text has toxic content.
+    category: Core scenarios
     subgroups:
       - civil_comments
 
   - name: miscellaneous_text_classification
     display_name: Text classification
-    description: Performance on downstream text classification scenarios
-    category: Generic scenarios
+    description: Text classification is a general format that aims to classify text into a set of categories. This includes a wide range of classification tasks where the input is text.
+    category: Core scenarios
     subgroups:
       - raft
 
-  - name: tasks
-    display_name: User-facing tasks
-    description: Performance on various user-facing tasks (e.g., question answering)
-    category: All tasks
-    subgroups:
-      - question_answering
-      - information_retrieval
-      - summarization
-      - sentiment_analysis
-      - toxicity_detection
-      - miscellaneous_text_classification
+  # TODO: not sure why this is necessary since we already have Core scenarios above
+  #- name: tasks
+  #  display_name: tasks
+  #  description: User-facing tasks (e.g., question answering)
+  #  category: All tasks
+  #  subgroups:
+  #    - question_answering
+  #    - information_retrieval
+  #    - summarization
+  #    - sentiment_analysis
+  #    - toxicity_detection
+  #    - miscellaneous_text_classification
 
   - name: language
     display_name: Language
-    description: Evaluate linguistic understanding
+    description: Coverage over different genres and linguistic capabilities.
     category: Components
     subgroups:
       - the_pile
@@ -643,7 +649,7 @@ run_groups:
 
   - name: knowledge
     display_name: Knowledge
-    description: Evaluating world and commonsense knowledge
+    description: World and commonsense knowledge.
     category: Components
     subgroups:
       - natural_qa_closedbook
@@ -655,7 +661,7 @@ run_groups:
 
   - name: reasoning
     display_name: Reasoning
-    description: Evaluating reasoning capabilities
+    description: Reasoning capabilities, both synthetic and real.
     category: Components
     subgroups:
       - synthetic_reasoning
@@ -674,7 +680,7 @@ run_groups:
 
   - name: harms
     display_name: Harms
-    description: Evaluating fine-grained social harms
+    description: Closer analysis of various social harms (e.g., copyright, disinformation, social bias, toxicity).
     category: Components
     subgroups:
       - copyright_text
@@ -695,13 +701,13 @@ run_groups:
 ## Ablation groups
   - name: ablation_in_context
     display_name: In-context examples
-    description: Evaluating model performance when varying the number of in-context examples used
+    description: Vary the number of in-context training examples.
     category: Ablations
     visibility: this_group_only
 
   - name: ablation_multiple_choice
     display_name: Multiple-choice strategy
-    description: Evaluating model performance when changing the way multiple-choice instances are prompted
+    description: Evaluating model performance when changing the adapation strategy for multiple-choice questions.
     category: Ablations
     visibility: this_group_only
 
@@ -718,7 +724,7 @@ run_groups:
     category: Robustness deep dive
     visibility: this_group_only
 
-## Generic scenarios
+## Core scenarios
 # Question answering scenarios
   - name: boolq
     display_name: BoolQ
