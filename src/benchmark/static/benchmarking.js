@@ -547,13 +547,13 @@ $(function () {
       return `benchmark_output/runs/${suite}/${runSpec.name}/stats.json`;
     });
     const perInstanceStatsPaths = runSpecs.map((runSpec) => {
-      return `benchmark_output/runs/${suite}/${runSpec.name}/per_instance_stats_slim.json`;
+      return `benchmark_output/runs/${suite}/${runSpec.name}/per_instance_stats.json`;
     });
     const scenarioPaths = runSpecs.map((runSpec) => {
       return `benchmark_output/runs/${suite}/${runSpec.name}/scenario.json`;
     });
     const scenarioStatePaths = runSpecs.map((runSpec) => {
-      return `benchmark_output/runs/${suite}/${runSpec.name}/scenario_state_slim.json`;
+      return `benchmark_output/runs/${suite}/${runSpec.name}/scenario_state.json`;
     });
     const runSpecPaths = runSpecs.map((runSpec) => {
       return `benchmark_output/runs/${suite}/${runSpec.name}/run_spec.json`;

@@ -177,10 +177,9 @@ class Runner:
         scenario_dict["instances"] = [asdict_without_nones(instance) for instance in scenario_state.instances]
         write(os.path.join(run_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
 
-        # Write scenario state (including a slim version that is much smaller)
-        write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
+        # Write out the slim version of scenario state to scenario_state.json
         write(
-            os.path.join(run_path, "scenario_state_slim.json"),
+            os.path.join(run_path, "scenario_state.json"),
             json.dumps(asdict_without_nones(slimmed_scenario_state(scenario_state)), indent=2),
         )
 
