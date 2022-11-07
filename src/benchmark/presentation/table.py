@@ -38,7 +38,7 @@ class Table:
     # Extra information to show at the bottom
     links: List[Hyperlink] = field(default_factory=list)
 
-    # Optional descrition to show at the top
+    # Optional description to show at the top
     description: Optional[str] = None
 
 
