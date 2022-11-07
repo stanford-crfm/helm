@@ -32,7 +32,7 @@ class AllRunner:
     def __init__(
         self,
         auth: Authentication,
-        conf_path: str,
+        conf_paths: List[str],
         url: str,
         local: bool,
         local_path: str,
@@ -50,7 +50,7 @@ class AllRunner:
         mongo_uri: str,
     ):
         self.auth: Authentication = auth
-        self.conf_path: str = conf_path
+        self.conf_paths: List[str] = conf_paths
         self.url: str = url
         self.local: bool = local
         self.local_path: str = local_path
@@ -73,7 +73,7 @@ class AllRunner:
         runs_dir: str = os.path.join(self.output_path, "runs")
         suite_dir: str = os.path.join(runs_dir, self.suite)
 
-        run_entries = read_run_entries(self.conf_path)
+        run_entries = read_run_entries(self.conf_paths)
 
         for entry in tqdm(run_entries.entries):
             # Filter by priority
@@ -164,7 +164,7 @@ class AllRunner:
                 # Try to match the arguments of `run_benchmarking`
                 # Build arguments
                 present_args = []
-                present_args.append(f"--conf {self.conf_path}")
+                present_args.append(f"--confs {' '.join(self.conf_paths)}")
                 if self.local:
                     present_args.append("--local")
                 present_args.append(f"--num-threads {self.num_threads}")
@@ -192,9 +192,10 @@ def main():
     add_service_args(parser)
     parser.add_argument(
         "-c",
-        "--conf-path",
+        "--conf-paths",
+        nargs="+",
         help="Where to read RunSpecs to run from",
-        default="src/benchmark/presentation/run_specs.conf",
+        default=["src/benchmark/presentation/run_specs.conf"],
     )
     parser.add_argument(
         "--models-to-run",
@@ -231,7 +232,7 @@ def main():
         # `skip_instances` is set, so a valid API key is not necessary.
         # Setting `local` will run and cache everything locally.
         auth=Authentication("") if args.skip_instances or args.local else create_authentication(args),
-        conf_path=args.conf_path,
+        conf_paths=args.conf_paths,
         url=args.server_url,
         local=args.local,
         local_path=args.local_path,
