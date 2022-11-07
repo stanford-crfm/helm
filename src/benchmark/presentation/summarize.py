@@ -436,7 +436,7 @@ class Summarizer:
                     hlog(f"WARNING: unknown metric name {matcher.name}, skipping")
                     continue
 
-                header_name = header_field.get_short_display_name()
+                header_name = header_field.get_short_display_name(arrow=True)
                 description = header_field.display_name + ": " + header_field.description
 
                 if matcher.perturbation_name is not None:
@@ -450,7 +450,7 @@ class Summarizer:
                     )
 
                 if num_groups > 1:  # we have multiple groups in the same table, so display the name in the column
-                    header_name = f"{run_group.get_short_display_name()} ({header_field.get_short_display_name()})"
+                    header_name = f"{run_group.get_short_display_name()} ({header_name})"
 
                 header.append(Cell(header_name, description=description))
                 matchers.append(matcher)
@@ -553,6 +553,8 @@ class Summarizer:
             for scenario_spec in self.group_scenario_adapter_to_runs[subgroup.name]:
                 scenario_name = get_scenario_name(subgroup, scenario_spec)
                 scenario_display_name = dict_to_str(scenario_spec.args)
+                if group.name not in scenario_name:
+                    scenario_display_name = f"{subgroup.display_name} {scenario_display_name}"
                 adapter_to_runs = {}
                 for adapter, runs in self.group_scenario_adapter_to_runs[group.name][scenario_spec].items():
                     filtered_runs = self.filter_runs_by_visibility(runs, group)
