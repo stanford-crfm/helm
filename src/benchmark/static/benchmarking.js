@@ -534,12 +534,8 @@ $(function () {
         .append($link)
         .append(': ')
         .append(prefix)
-        .append(prediction);
-
-      // For multiple_choice_separate_*, skip rendering logProb
-      if (requestState.reference_index === undefined) {
-        $prediction.append($logProb);
-      }
+        .append(prediction)
+        .append($logProb);
       $instance.append($prediction);
       $instance.append($request);
     });
