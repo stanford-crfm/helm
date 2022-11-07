@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 import dacite
 import mako.template
-import yaml
+import yaml  # type: ignore
 
 from common.general import hlog
 from benchmark.metrics.metric_name import MetricName
