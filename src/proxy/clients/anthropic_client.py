@@ -198,6 +198,12 @@ class AnthropicClient(Client):
                         # be included as part of the response for the inference endpoint.
                         logprobs[key] = logprobs[key][-len(tokens) :]
 
+                    if logprobs["tokens"] != tokens:
+                        hlog(
+                            f"WARNING: naive truncation for logprobs did not work."
+                            f"\nRequest:{raw_request}\nExpected: {tokens}\nActual: {logprobs['tokens']}"
+                        )
+
                 return {
                     "text": text,
                     "logprobs": logprobs,
