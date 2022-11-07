@@ -19,6 +19,9 @@ class Cell:
     # Styling
     style: Optional[Dict[str, Any]] = None
 
+    # If the value or display_value is markdown that needs to be interpreted
+    markdown: bool = False
+
 
 @dataclass(frozen=True)
 class Hyperlink:

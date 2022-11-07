@@ -333,7 +333,7 @@ class Summarizer:
                 rows.append(
                     [
                         Cell(group.display_name, href=get_benchmarking_url({"suite": self.suite, "group": group.name})),
-                        Cell(group.description),
+                        Cell(group.description, markdown=True),
                         Cell(num_models),
                     ]
                 )
@@ -426,7 +426,10 @@ class Summarizer:
                     continue
 
                 header_name = header_field.get_short_display_name()
-                description = run_group.description + "\n\n" + header_field.display_name + ": " + header_field.description
+                description = (
+                    (run_group.description + "\n\n" if run_group.description is not None else "") + \
+                    (header_field.display_name + ": " + header_field.description)
+                )
 
                 if matcher.perturbation_name is not None:
                     perturbation_field = self.schema.name_to_perturbation[matcher.perturbation_name]
@@ -636,12 +639,14 @@ def main():
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(suite=args.suite, output_path=args.output_path)
     summarizer.read_runs()
+    summarizer.check_metrics_defined()
+
     summarizer.write_models()
     summarizer.write_runs()
     summarizer.write_groups()
-    summarizer.check_metrics_defined()
     summarizer.write_cost_report()
     summarizer.write_slim_per_instance_stats()
+
     hlog("Done.")
 
 

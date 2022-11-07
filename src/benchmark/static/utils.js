@@ -211,3 +211,7 @@ function substitute(str, environment) {
   }
   return str;
 }
+
+function renderAccess(access) {
+  return $('<span>', {class: 'access-' + access + ' btn'}).append(access);
+}

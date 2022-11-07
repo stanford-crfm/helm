@@ -55,9 +55,7 @@ class Contamination:
 
     def get_point(self, model: str, group: str) -> Optional[ContaminationPoint]:
         """Return the point that matches `group` and `model`."""
-        found_points = [
-            point for point in self.points if group in point.groups and model in point.models
-        ]
+        found_points = [point for point in self.points if group in point.groups and model in point.models]
         # Note: if more than one found, ideally we should take the strongest
         # one, but leaving for now.
         assert len(found_points) <= 1

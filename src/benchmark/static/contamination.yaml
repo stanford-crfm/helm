@@ -12,7 +12,6 @@ points:
 
   - models:
     - together/gpt-j-6b
-    - gooseai/gpt-j-6b
     groups:
     - the_pile
     level: strong
@@ -83,7 +82,6 @@ points:
     - openai/code-davinci-001
     - openai/code-cushman-001
     groups:
-    - natural_qa
     - natural_qa_closedbook
     - natural_qa_openbook_longans
     - hellaswag

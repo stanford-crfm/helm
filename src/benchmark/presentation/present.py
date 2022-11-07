@@ -205,8 +205,7 @@ def main():
     parser.add_argument(
         "--groups-to-run",
         nargs="+",
-        help="Only RunSpecs with these (scenario) groups specified. "
-        "If no group is specified, runs with all groups.",
+        help="Only RunSpecs with these (scenario) groups specified. " "If no group is specified, runs with all groups.",
         default=None,
     )
     parser.add_argument(
