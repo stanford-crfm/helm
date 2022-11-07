@@ -18,16 +18,7 @@ from benchmark.metrics.statistic import Stat, merge_stat
 from benchmark.runner import RunSpec
 from proxy.models import ALL_MODELS, Model, get_model
 from .table import Cell, Table, Hyperlink, table_to_latex
-from .schema import (
-    MetricNameMatcher,
-    RunGroup,
-    read_schema,
-    SCHEMA_YAML_PATH,
-    BY_GROUP,
-    ALL_GROUPS,
-    THIS_GROUP_ONLY,
-    NO_GROUPS,
-)
+from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_PATH, BY_GROUP, THIS_GROUP_ONLY, NO_GROUPS
 from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
 
 """
@@ -194,6 +185,25 @@ class Summarizer:
                 with open(per_instance_stats_slim_path, "w") as output_file:
                     json.dump(self.compute_slim_per_instance_stats(per_instance_stats), output_file)
 
+    def filter_runs_by_visibility(self, runs: List[Run], group: RunGroup):
+        filtered_runs = []
+        for run in runs:
+            included = True
+            for run_group_name in run.run_spec.groups:  # go through the groups of the run to determine visibility
+                run_group = self.schema.name_to_run_group[run_group_name]
+                if run_group.visibility == NO_GROUPS:  # this run should never be visible
+                    included = False
+                    break
+                if run_group.visibility == THIS_GROUP_ONLY:  # this run is part of a group with partial visibility
+                    if run_group.name == group.name:  # if this is the exact group we are visualizing, include for sure
+                        included = True
+                        break
+                    else:  # we won't visualize unless we hit exactly the group with partial visibility
+                        included = False
+            if included:
+                filtered_runs.append(run)
+        return filtered_runs
+
     def read_runs(self):
         """Load the corresponding runs for the run specs in run_specs.json."""
 
@@ -229,26 +239,7 @@ class Summarizer:
         for run in self.runs:
             scenario_spec = run.run_spec.scenario_spec
             adapter_spec = get_method_adapter_spec(run.run_spec.adapter_spec, scenario_spec)
-
-            # organize the groups of the run by visibility in order to decide which groups we should add it to,
-            # for each visibility value (ALL_GROUPS, NO_GROUPS, THIS_GROUP_ONLY) we collect the RunGroups with that
-            # visibility in a list
-            group_names_by_visibility: Dict[str, List[str]] = defaultdict(list)
             for group_name in run.run_spec.groups:
-                if group_name not in self.schema.name_to_run_group:
-                    hlog(f"WARNING: group {group_name} undefined in {SCHEMA_YAML_PATH}")
-                    continue
-                group = self.schema.name_to_run_group[group_name]
-                group_names_by_visibility[group.visibility].append(group_name)
-
-            if len(group_names_by_visibility[NO_GROUPS]) > 0:
-                continue  # this run is part of a hidden group, skip
-            elif group_names_by_visibility[THIS_GROUP_ONLY]:  # if it is part of a group with THIS_GROUP_ONLY visibility
-                relevant_group_names = group_names_by_visibility[THIS_GROUP_ONLY]  # add it to these groups only
-            else:
-                relevant_group_names = group_names_by_visibility[ALL_GROUPS]  # otherwise add it everywhere
-
-            for group_name in relevant_group_names:
                 self.group_adapter_to_runs[group_name][adapter_spec].append(run)
                 self.group_scenario_adapter_to_runs[group_name][scenario_spec][adapter_spec].append(run)
 
@@ -402,6 +393,7 @@ class Summarizer:
     def create_group_table(
         self,
         title: str,
+        group: RunGroup,
         adapter_to_runs: Dict[AdapterSpec, List[Run]],
         link_to_runs: bool,
         columns: List[Tuple[RunGroup, str]],  # run_group, metric_group
@@ -418,7 +410,8 @@ class Summarizer:
         # Figure out what the columns of the table are.
         # Create header (cells to display) and the list of metric name filters
         # (to pull out information later).
-        if not columns:
+        if not columns or not adapter_to_runs:
+            hlog(f"WARNING: table {title}, has no rows or columns, leaving empty")
             return Table("empty", [], [])
 
         header: List[Cell] = []
@@ -523,7 +516,7 @@ class Summarizer:
 
         return Table(title=title, header=header, rows=rows, links=links)
 
-    def create_group_tables_by_metric_group(self, groups: List[RunGroup]) -> Dict[str, Table]:
+    def create_group_tables_by_metric_group(self, main_group: RunGroup, groups: List[RunGroup]) -> Dict[str, Table]:
         tables: Dict[str, Table] = {}
         adapter_to_runs: Dict[AdapterSpec, List[Run]] = defaultdict(list)
         all_metric_groups: List[str] = []
@@ -531,7 +524,9 @@ class Summarizer:
             all_metric_groups.extend(group.metric_groups)
             for adapter_spec, runs in self.group_adapter_to_runs[group.name].items():
                 adapter_spec = get_method_adapter_spec(adapter_spec, runs[0].run_spec.scenario_spec)
-                adapter_to_runs[adapter_spec].extend(runs)
+                filtered_runs = self.filter_runs_by_visibility(runs, main_group)
+                if filtered_runs:
+                    adapter_to_runs[adapter_spec].extend(filtered_runs)
         all_metric_groups = list(dict.fromkeys(all_metric_groups))  # deduplicate while preserving order
 
         if len(adapter_to_runs) > 0:
@@ -539,6 +534,7 @@ class Summarizer:
                 display_name = self.schema.name_to_metric_group[metric_group].get_short_display_name()
                 table = self.create_group_table(
                     title=display_name,
+                    group=main_group,
                     adapter_to_runs=adapter_to_runs,
                     columns=[(group, metric_group) for group in groups],
                     link_to_runs=False,
@@ -546,41 +542,63 @@ class Summarizer:
                 tables[metric_group] = table
         return tables
 
-    def create_group_tables_by_scenario(self, group: RunGroup) -> Dict[str, Table]:
-        tables: Dict[str, Table] = {}
-        if len(self.group_scenario_adapter_to_runs[group.name]) > 1:
-            table = self.create_group_table(
-                title=str(group.display_name),
-                adapter_to_runs=self.group_adapter_to_runs[group.name],
-                columns=[(group, metric_group) for metric_group in group.metric_groups],
-                link_to_runs=False,
-            )
-            tables[group.name] = table
+    def create_group_tables_by_group(self, main_group: RunGroup, subgroups: List[RunGroup]) -> Dict[str, Table]:
+        all_tables: Dict[str, Table] = {}
+        if "contrast" in main_group.name:
+            pass  # breakpoint()
+        for group in subgroups:
+            tables: Dict[str, Table] = {}
+            scenarios_shown = 0
+            # Show the table per scenario
+            for scenario_spec in self.group_scenario_adapter_to_runs[group.name]:
+                scenario_name = get_scenario_name(group, scenario_spec)
+                scenario_display_name = dict_to_str(scenario_spec.args)
+                adapter_to_runs = {}
+                for adapter, runs in self.group_scenario_adapter_to_runs[group.name][scenario_spec].items():
+                    filtered_runs = self.filter_runs_by_visibility(runs, main_group)
+                    if filtered_runs:
+                        adapter_to_runs[adapter] = filtered_runs
+                if adapter_to_runs and group.metric_groups:
+                    table = self.create_group_table(
+                        title=scenario_display_name,
+                        group=group,
+                        adapter_to_runs=adapter_to_runs,
+                        columns=[(group, metric_group) for metric_group in group.metric_groups],
+                        link_to_runs=True,
+                    )
+                    tables[scenario_name] = table
+                    scenarios_shown += 1
 
-        # Show the table per scenario
-        for scenario_spec in self.group_scenario_adapter_to_runs[group.name]:
-            scenario_name = get_scenario_name(group, scenario_spec)
-            scenario_display_name = dict_to_str(scenario_spec.args)
-            table = self.create_group_table(
-                title=scenario_display_name,
-                adapter_to_runs=self.group_scenario_adapter_to_runs[group.name][scenario_spec],
-                columns=[(group, metric_group) for metric_group in group.metric_groups],
-                link_to_runs=True,
-            )
-            tables[scenario_name] = table
+                    if group.sub_splits is not None:
+                        for sub_split in group.sub_splits:
+                            table = self.create_group_table(
+                                title=f"{group.display_name} (sub-split: {sub_split})",
+                                group=group,
+                                adapter_to_runs=self.group_adapter_to_runs[group.name],
+                                columns=[(group, metric_group) for metric_group in group.metric_groups],
+                                link_to_runs=False,
+                                sub_split=sub_split,
+                            )
+                            tables[f"{group.name}:sub_split={sub_split}"] = table
 
-        if group.sub_splits is not None:
-            for sub_split in group.sub_splits:
-                table = self.create_group_table(
-                    title=f"{group.display_name} (sub-split: {sub_split})",
-                    adapter_to_runs=self.group_adapter_to_runs[group.name],
-                    columns=[(group, metric_group) for metric_group in group.metric_groups],
-                    link_to_runs=False,
-                    sub_split=sub_split,
-                )
-                tables[f"{group.name}:sub_split={sub_split}"] = table
+            if scenarios_shown > 1:  # add aggregate table
+                adapter_to_runs = {}
+                for adapter, runs in self.group_adapter_to_runs[group.name].items():
+                    filtered_runs = self.filter_runs_by_visibility(runs, main_group)
+                    if filtered_runs:
+                        adapter_to_runs[adapter] = filtered_runs
+                if adapter_to_runs and group.metric_groups:
+                    table = self.create_group_table(
+                        title=str(group.display_name),
+                        group=group,
+                        adapter_to_runs=adapter_to_runs,
+                        columns=[(group, metric_group) for metric_group in group.metric_groups],
+                        link_to_runs=False,
+                    )
+                    tables = {group.name: table, **tables}  # prepend aggregate table to the dict
+            all_tables.update(tables)
 
-        return tables
+        return all_tables
 
     def write_groups(self):
         """
@@ -614,16 +632,18 @@ class Summarizer:
             # get visualized if they don't have their own metric_groups
             subgroups = self.expand_subgroups(group)
 
+            if group.name == "robustness_contrast_sets":
+                print("BOOM", group.subgroup_display_mode, subgroups)
             if group.subgroup_display_mode == BY_GROUP or len(subgroups) == 1:
                 # Create table aggregating over all scenarios in each group and then expand each scenario (we always do
                 # this when there are no additional subgroups)
-                for subgroup in subgroups:
-                    for table_name, table in self.create_group_tables_by_scenario(subgroup).items():
-                        tables.append(table)
-                        table_names.append(table_name)
+
+                for table_name, table in self.create_group_tables_by_group(group, subgroups).items():
+                    tables.append(table)
+                    table_names.append(table_name)
             else:
                 # Create a table for each metric, showing one subgroup per column for each adapter
-                for table_name, table in self.create_group_tables_by_metric_group(subgroups).items():
+                for table_name, table in self.create_group_tables_by_metric_group(group, subgroups).items():
                     tables.append(table)
                     table_names.append(table_name)
             if len(tables) == 0:

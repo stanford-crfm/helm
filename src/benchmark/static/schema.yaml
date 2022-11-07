@@ -710,7 +710,11 @@ run_groups:
     display_name: Contrast sets
     description: Evaluating equivariance to semantics-altering perturbations
     category: Robustness deep dive
+    subgroup_display_mode: by_group
     visibility: this_group_only
+    subgroups:
+        - imdb
+        - boolq
 
   - name: robustness_individual
     display_name: Robustness to individual perturbations
