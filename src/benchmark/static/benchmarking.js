@@ -860,6 +860,9 @@ $(function () {
 
   function renderCell(cell) {
     let value = cell.display_value || cell.value;
+    if (typeof(value) === 'number') {
+      value = Math.round(value * 1000) / 1000;
+    }
     if (cell.markdown && value) {
       value = renderMarkdown('' + value);
     }

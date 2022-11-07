@@ -42,6 +42,19 @@ class Field:
         return name
 
 
+# Note: also see Model from `models.py` (in the future, possibly unify).
+@dataclass(frozen=True)
+class ModelField(Field):
+    # Who created it (e.g., OpenAI)
+    creator_organization: Optional[str] = None
+
+    # How this model is available (e.g., limited)
+    access: Optional[str] = None
+
+    # Whether we have yet to evaluate this model
+    todo: bool = False
+
+
 @dataclass(frozen=True)
 class MetricNameMatcher:
     """
@@ -141,6 +154,9 @@ class RunGroup(Field):
 @dataclass
 class Schema:
     """Specifies information about what to display on the frontend."""
+
+    # Models
+    models: List[ModelField]
 
     # Adapter fields (e.g., temperature)
     adapter: List[Field]

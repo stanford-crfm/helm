@@ -34,6 +34,7 @@ class Stat:
         return self
 
     def merge(self, other: "Stat") -> "Stat":
+        # Note: don't look at other.name
         self.sum += other.sum
         self.sum_squared += other.sum_squared
         if other.count > 0:

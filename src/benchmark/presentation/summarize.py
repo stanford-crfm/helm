@@ -14,7 +14,7 @@ from common.hierarchical_logger import hlog, htrack
 from benchmark.scenarios.scenario import ScenarioSpec
 from benchmark.adapter import AdapterSpec
 from benchmark.metrics.metric import get_all_stats_by_name
-from benchmark.metrics.statistic import Stat
+from benchmark.metrics.statistic import Stat, merge_stat
 from benchmark.runner import RunSpec
 from proxy.models import ALL_MODELS, Model, get_model
 from .table import Cell, Table, Hyperlink, table_to_latex
@@ -307,6 +307,19 @@ class Summarizer:
         for group in self.schema.run_groups:
             category_to_groups[group.category].append(group)
 
+        def get_cell(stats: List[Stat], compute_mean: bool = False, compute_sum: bool = False) -> Cell:
+            """Render a value."""
+            if len(stats) == 0:
+                return Cell(None)
+            aggregate_stat = replace(stats[0])
+            for stat in stats[1:]:
+                aggregate_stat.merge(stat)
+            if compute_mean:
+                return Cell(aggregate_stat.mean, description=aggregate_stat.bare_str())
+            if compute_sum:
+                return Cell(aggregate_stat.sum, description=aggregate_stat.bare_str())
+            raise Exception("Either specify compute_mean or compute_sum")
+
         tables: List[Table] = []
         for category, groups in category_to_groups.items():
             header = [
@@ -348,10 +361,10 @@ class Summarizer:
                         Cell(group.display_name, href=get_benchmarking_url({"suite": self.suite, "group": group.name})),
                         Cell(group.description, markdown=True),
                         Cell(", ".join(methods)),
-                        Cell(num_instances[0].mean),
-                        Cell(num_references[0].mean),
-                        Cell(sum(stat.mean for stat in num_prompt_tokens)),
-                        Cell(sum(stat.mean for stat in num_completion_tokens)),
+                        get_cell(num_instances, compute_mean=True),
+                        get_cell(num_references, compute_mean=True),
+                        get_cell(num_prompt_tokens, compute_sum=True),
+                        get_cell(num_completion_tokens, compute_sum=True),
                         Cell(len(models)),
                     ]
                 )
@@ -386,7 +399,8 @@ class Summarizer:
             if stat is None:
                 hlog(f"WARNING: {matcher} doesn't match {run.run_spec.name}")
                 continue  # TODO: probably should make a note that stats are missing
-            stat = stat.take_mean()  # Collapse to a single point
+            # Collapse to a single point so we can macro-average over runs
+            stat = stat.take_mean()
 
             if aggregate_stat is None:
                 aggregate_stat = replace(stat)  # Important: copy!
@@ -397,13 +411,13 @@ class Summarizer:
         if aggregate_stat is None:
             return Cell(None)
 
+        # TODO: need to exclude contaminated numbers somehow
         value = aggregate_stat.mean
-        display_value = str(round(value, 3)) if value is not None else None
         description = aggregate_stat.bare_str()
         style: Dict[str, Any] = {}
         if contamination_level is not None:
             style = CONTAMINATION_STYLES.get(contamination_level, style)
-        return Cell(value=value, display_value=display_value, description=description, style=style)
+        return Cell(value=value, description=description, style=style)
 
     def create_group_table(
         self,
@@ -517,6 +531,7 @@ class Summarizer:
                 contamination_level = None
 
             cells = [Cell(display_name + suffix, description=description, href=href)]
+            assert len(group_names) == len(matchers)
             for group_name, matcher in zip(group_names, matchers):
                 group_runs = [run for run in runs if group_name in run.run_spec.groups]
                 cells.append(self.create_cell(group_runs, matcher, contamination_level))

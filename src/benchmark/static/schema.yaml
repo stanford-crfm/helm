@@ -991,7 +991,7 @@ run_groups:
     category: Deep dive
     visibility: this_group_only
 
-### Scenarios
+### Scenarios (the actual scenarios)
 
 # Question answering scenarios
   - name: boolq
@@ -1009,6 +1009,13 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: valid
+    taxonomy:
+      task: question answering
+      domain:
+        what: passages from Wikipedia, questions from search queries
+        who: web users
+        when: 2010s
+        language: English
 
   - name: narrative_qa
     display_name: NarrativeQA
