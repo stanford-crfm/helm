@@ -629,8 +629,6 @@ class Summarizer:
             # get visualized if they don't have their own metric_groups
             subgroups = self.expand_subgroups(group)
 
-            if group.name == "robustness_contrast_sets":
-                print("BOOM", group.subgroup_display_mode, subgroups)
             if group.subgroup_display_mode == BY_GROUP or len(subgroups) == 1:
                 # Create table aggregating over all scenarios in each group and then expand each scenario (we always do
                 # this when there are no additional subgroups)
