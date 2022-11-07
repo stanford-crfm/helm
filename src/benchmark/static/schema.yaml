@@ -139,23 +139,23 @@ models:
 
   # OpenAI: https://beta.openai.com/docs/engines/gpt-3
   - name: openai/davinci
-    display_name: GPT-3 davinci (175B)
-    description: GPT-3 davinci (175B parameters) autoregressive language model.
+    display_name: GPT-3 davinci v1 (175B)
+    description: GPT-3 davinci v1 (175B parameters) autoregressive language model.
     creator_organization: OpenAI
     access: limited
   - name: openai/curie
-    display_name: GPT-3 curie (6.7B)
-    description: GPT-3 curie (6.7B parameters) autoregressive language model.
+    display_name: GPT-3 curie v1 (6.7B)
+    description: GPT-3 curie v1 (6.7B parameters) autoregressive language model.
     creator_organization: OpenAI
     access: limited
   - name: openai/babbage
-    display_name: GPT-3 babbage (1.3B)
-    description: GPT-3 babbage (1.3B parameters) autoregressive language model.
+    display_name: GPT-3 babbage v1 (1.3B)
+    description: GPT-3 babbage v1 (1.3B parameters) autoregressive language model.
     creator_organization: OpenAI
     access: limited
   - name: openai/ada
-    display_name: GPT-3 ada (350M)
-    description: GPT-3 ada (350M parameters) autoregressive language model.
+    display_name: GPT-3 ada v1 (350M)
+    description: GPT-3 ada v1 (350M parameters) autoregressive language model.
     creator_organization: OpenAI
     access: limited
   - name: openai/text-davinci-002
