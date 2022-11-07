@@ -167,6 +167,12 @@ metrics:
     display_name: Valid fraction
     short_display_name: Valid 
     description: Fraction of valid model outputs (as a number).
+  - name: NDCG@10
+    display_name: NDCG@10
+    description: Normalized discounted cumulative gain at 10 in information retrieval.
+  - name: RR@10
+    display_name: RR@10
+    description: Mean reciprocal rank at 10 in information retrieval.
   - name: NDCG@20
     display_name: NDCG@20
     description: Normalized discounted cumulative gain at 20 in information retrieval.
