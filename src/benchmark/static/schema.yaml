@@ -3,24 +3,24 @@
 models:
   # AI21 Labs
   - name: ai21/j1-jumbo
-    display_name: Jurassic-1 Jumbo (178B)
+    display_name: J1-Jumbo v1 (178B)
     description: Jurassic-1 Jumbo (178B parameters) ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
     creator_organization: AI21 Labs
     access: limited
   - name: ai21/j1-large
-    display_name: Jurassic-1 Large (7.5B)
+    display_name: J1-Large v1 (7.5B)
     description: Jurassic-1 Large (7.5B parameters) ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
     creator_organization: AI21 Labs
     access: limited
   - name: ai21/j1-grande
-    display_name: Jurassic-1 Grande (17B)
+    display_name: J1-Grande v1 (17B)
     description: Jurassic-1 Grande (17B parameters) with a "few tweaks" to the training process ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
     creator_organization: AI21 Labs
     access: limited
 
   # Anthropic
   - name: anthropic/stanford-online-all-v4-s3
-    display_name: Anthropic-LM (52B)
+    display_name: Anthropic-LM v4-s3 (52B)
     description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
     creator_organization: Anthropic
     access: restricted
@@ -39,23 +39,23 @@ models:
 
   # Cohere
   - name: cohere/xlarge-20220609
-    display_name: Cohere xlarge-20220609 (52.4B)
-    description: Cohere xlarge-20220609 (52.4B parameters)
+    display_name: Cohere xlarge v20220609 (52.4B)
+    description: Cohere xlarge v20220609 (52.4B parameters)
     creator_organization: Cohere
     access: limited
   - name: cohere/large-20220720
-    display_name: Cohere large-20220720 (13.1B)
-    description: Cohere large-20220720 (13.1B parameters)
+    display_name: Cohere large v20220720 (13.1B)
+    description: Cohere large v20220720 (13.1B parameters)
     creator_organization: Cohere
     access: limited
   - name: cohere/medium-20220720
-    display_name: Cohere medium-20220720 (6.1B)
-    description: Cohere medium-20220720 (6.1B parameters)
+    display_name: Cohere medium v20220720 (6.1B)
+    description: Cohere medium v20220720 (6.1B parameters)
     creator_organization: Cohere
     access: limited
   - name: cohere/small-20220720
-    display_name: Cohere small-20220720 (410M)
-    description: Cohere small (410M parameters)
+    display_name: Cohere small v20220720 (410M)
+    description: Cohere small v20220720 (410M parameters)
     creator_organization: Cohere
     access: limited
 
