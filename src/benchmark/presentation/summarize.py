@@ -16,10 +16,10 @@ from benchmark.adapter import AdapterSpec
 from benchmark.metrics.metric import get_all_stats_by_name
 from benchmark.metrics.statistic import Stat, merge_stat
 from benchmark.runner import RunSpec
-from proxy.models import ALL_MODELS, Model, get_model
 from .table import Cell, Table, Hyperlink, table_to_latex
 from .schema import (
     MetricNameMatcher,
+    ModelField,
     RunGroup,
     read_schema,
     SCHEMA_YAML_PATH,
@@ -99,7 +99,7 @@ def get_method_adapter_spec(adapter_spec: AdapterSpec, scenario_spec: ScenarioSp
     return replace(adapter_spec, instructions=instructions)
 
 
-def get_method_display_name(model: Model, info: Dict[str, Any]) -> str:
+def get_method_display_name(model: ModelField, info: Dict[str, Any]) -> str:
     """
     Return a nice name to display for `adapter_spec` which denotes a method.
     `info` contains the decoding parameters.
@@ -379,8 +379,9 @@ class Summarizer:
         metadata = {}
         for group in self.schema.run_groups:
             metadata[group.name] = {
-                "displayName": group.display_name,
+                "display_name": group.display_name,
                 "description": group.description,
+                "taxonomy": group.taxonomy and asdict_without_nones(group.taxonomy),
             }
         return metadata
 
@@ -496,7 +497,7 @@ class Summarizer:
 
         adapter_specs: List[AdapterSpec] = list(adapter_to_runs.keys())
         if sort_by_model_order:
-            model_order = [model.name for model in ALL_MODELS]
+            model_order = [model.name for model in self.schema.models]
             adapter_specs = list(sorted(adapter_specs, key=lambda spec: model_order.index(spec.model)))
 
         # Pull out only the keys of the method adapter_spec that is needed to
@@ -508,7 +509,7 @@ class Summarizer:
         # Populate the contents of the table
         rows = []
         for adapter_spec, info in zip(adapter_specs, infos):
-            model = get_model(adapter_spec.model)
+            model = self.schema.name_to_model[adapter_spec.model]
             runs = adapter_to_runs[adapter_spec]
             display_name = get_method_display_name(model, info)
 

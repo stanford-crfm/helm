@@ -230,14 +230,22 @@ adapter:
         description: Given the input, the model assigns the sequence a probability.
   - name: instructions
     description: The description of the task that is included at the very beginning of the prompt.
+  - name: global_prefix
+    description: The string that is prepended to the prompt.
   - name: instance_prefix
     description: The string that is included before each instance (e.g., '\n\n').
   - name: input_prefix
     description: The string that is included before each input (e.g., 'Question:').
+  - name: input_suffix
+    description: The string that is included after each input (e.g., '\n').
   - name: reference_prefix
     description: The string that is included before each reference (for multiple-choice questions).
+  - name: reference_suffix
+    description: The string that is included after each reference (for multiple-choice questions).
   - name: output_prefix
     description: The string that is included before the correct answer/predicted output (e.g., 'Answer:').
+  - name: output_suffix
+    description: The string that is included after the correct answer/predicted output (e.g., '\n').
   - name: max_train_instances
     description: Maximum number of training instances to include in the prompt (currently by randomly sampling).
   - name: max_eval_instances
@@ -267,6 +275,9 @@ metrics:
     display_name: '# bytes'
     description: Average number of bytes in the predicted output (for language modeling, the input too).
 
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
   - name: num_train_trials
     display_name: '# trials'
     description: Number of trials, where in each trial we choose an independent, random set of training instances.
@@ -1011,11 +1022,10 @@ run_groups:
       main_split: valid
     taxonomy:
       task: question answering
-      domain:
-        what: passages from Wikipedia, questions from search queries
-        who: web users
-        when: 2010s
-        language: English
+      what: passages from Wikipedia, questions from search queries
+      who: web users
+      when: 2010s
+      language: English
 
   - name: narrative_qa
     display_name: NarrativeQA

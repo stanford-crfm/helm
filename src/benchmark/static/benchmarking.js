@@ -277,13 +277,17 @@ $(function () {
     const $output = $('<div>');
     if (urlParams.group) {
       $.getJSON(`benchmark_output/runs/${suite}/groups_metadata.json`, {}, (response) => {
-        if (response[urlParams.group]) {
-          let groupName = response[urlParams.group].displayName;
+        const group = response[urlParams.group];
+        if (group) {
+          let groupName = group.display_name;
           if (urlParams.subgroup) {
             groupName += " / " + urlParams.subgroup;
           }
           $output.append($('<h3>').append(groupName));
-          $output.append($('<div>').append($('<i>').append(renderMarkdown(response[urlParams.group].description))));
+          $output.append($('<div>').append($('<i>').append(renderMarkdown(group.description))));
+          if (group.taxonomy) {
+            $output.append($('<div>').append(Object.entries(group.taxonomy).map(([k, v]) => `<b>${k}</b>: ${v}`).join(' | ')));
+          }
         }
       });
     } else if (scenario) {

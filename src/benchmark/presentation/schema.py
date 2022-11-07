@@ -116,6 +116,24 @@ NO_GROUPS = "no_groups"
 
 
 @dataclass(frozen=True)
+class TaxonomyInfo:
+    # Task (e.g., question answering)
+    task: str
+
+    # Domain - genre (e.g., Wikipedia)
+    what: str
+
+    # Domain - when it was written (e.g., 2010s)
+    when: str
+
+    # Domain - demographics (e.g., web users)
+    who: str
+
+    # Language (e.g., English)
+    language: str
+
+
+@dataclass(frozen=True)
 class RunGroup(Field):
     """
     Defines information about how a group of runs is displayed.
@@ -150,6 +168,9 @@ class RunGroup(Field):
     # not under "imdb" (and thus is not aggregated with the canonical runs with groups ["imdb"].
     visibility: str = ALL_GROUPS
 
+    # For scenarios
+    taxonomy: Optional[TaxonomyInfo] = None
+
 
 @dataclass
 class Schema:
@@ -174,6 +195,7 @@ class Schema:
     run_groups: List[RunGroup]
 
     def __post_init__(self):
+        self.name_to_model = {model.name: model for model in self.models}
         self.name_to_metric = {metric.name: metric for metric in self.metrics}
         self.name_to_perturbation = {perturbation.name: perturbation for perturbation in self.perturbations}
         self.name_to_metric_group = {metric_group.name: metric_group for metric_group in self.metric_groups}
