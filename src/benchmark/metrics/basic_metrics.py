@@ -657,7 +657,6 @@ class BasicMetric(Metric):
         We define the following metrics:
         - correct_rank: if we sort references by their logprobs, what is the ranking of the first correct reference.
         """
-        # TODO: https://github.com/stanford-crfm/benchmarking/issues/45
 
         @dataclass(frozen=True)
         class ReferenceKey:
@@ -685,7 +684,7 @@ class BasicMetric(Metric):
             num_tokens: int = len(reference_tokens)
             answer_tokens: List[Token] = sequence.tokens[-num_tokens:]
             logprob: float = sum(token.logprob for token in answer_tokens)
-
+            assert not math.isnan(logprob), f"Log probs have NaN for RequestState: {request_state}"
             return ReferenceStat(logprob, num_tokens)
 
         references = reference_request_states[0].instance.references
