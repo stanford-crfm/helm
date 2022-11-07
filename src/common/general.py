@@ -255,7 +255,8 @@ def unique_simplification(items: List[Dict[str, Any]], priority_keys: List[str])
             subkeys = keys[: i + 1]
             subitem = get_subitem(item, subkeys)
             if sum(1 if get_subitem(item2, subkeys) == subitem else 0 for item2 in items) == 1:
-                new_items.append(subitem)
+                item = subitem
                 break
+        new_items.append(item)
 
     return new_items

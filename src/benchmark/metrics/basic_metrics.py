@@ -447,6 +447,7 @@ class BasicMetric(Metric):
         # Gold outputs
         golds = [reference for reference in request_state.instance.references if reference.is_correct]
         assert len(golds) > 0
+        reference_metrics.append(Stat(MetricName("num_references")).add(len(request_state.instance.references)))
 
         # Predicted outputs
         assert request_state.result is not None
@@ -637,8 +638,12 @@ class BasicMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        """Compute the reference metrics and language modeling metrics"""
+        """Compute all metrics."""
         metrics = []
+
+        # Copy from adapter spec
+        metrics.append(Stat(MetricName("num_train_trials")).add(adapter_spec.num_train_trials))
+
         if len(request_state.instance.references) > 0:
             metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
 
