@@ -726,7 +726,9 @@ $(function () {
     const scenarioGroupNames = {};
     topGroups.forEach((group) => {
       group.subgroups.forEach((subgroupName) => {
-        scenarioGroupNames[subgroupName] = true;
+        if (!subgroupName.todo) {
+          scenarioGroupNames[subgroupName] = true;
+        }
       });
     });
     const numScenarios = Object.keys(scenarioGroupNames).length;
@@ -737,7 +739,8 @@ $(function () {
       $group.append($('<a>', {href: groupUrl(group.name), class: 'list-item', title: group.description}).append(groupShortDisplayName(group)));
       $group.append($('<ul>').append(group.subgroups.map((subgroupName) => {
         const subgroup = nameToGroup[subgroupName];
-        const $item = $('<a>', {href: groupUrl(subgroup.name), class: 'list-item', title: subgroup.description}).append(groupShortDisplayName(subgroup));
+        const extra = subgroup.todo ? ' list-item-todo' : '';
+        const $item = $('<a>', {href: groupUrl(subgroup.name), class: 'list-item' + extra, title: subgroup.description}).append(groupShortDisplayName(subgroup));
         return $('<li>').append($item);
       })));
       $result.append($group);

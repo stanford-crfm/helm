@@ -118,19 +118,19 @@ NO_GROUPS = "no_groups"
 @dataclass(frozen=True)
 class TaxonomyInfo:
     # Task (e.g., question answering)
-    task: str
+    task: Optional[str] = None
 
     # Domain - genre (e.g., Wikipedia)
-    what: str
+    what: Optional[str] = None
 
     # Domain - when it was written (e.g., 2010s)
-    when: str
+    when: Optional[str] = None
 
     # Domain - demographics (e.g., web users)
-    who: str
+    who: Optional[str] = None
 
     # Language (e.g., English)
-    language: str
+    language: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -170,6 +170,9 @@ class RunGroup(Field):
 
     # For scenarios
     taxonomy: Optional[TaxonomyInfo] = None
+
+    # Whether we have yet to evaluate this model
+    todo: bool = False
 
 
 @dataclass

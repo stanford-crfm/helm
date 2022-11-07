@@ -409,7 +409,7 @@ metrics:
     display_name: Equivalent
     description: Fraction of model outputs that are mathematically equivalent to the correct reference.
   - name: math_equiv_chain_of_thought
-    display_name: Equivalent
+    display_name: Equivalent (chain of thought)
     description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thoughts prompting.
   - name: exact_match_indicator
     display_name: Exact match (up to specified indicator)
@@ -909,6 +909,14 @@ run_groups:
     category: Core scenarios
     subgroups:
       - raft
+
+  - name: aspirational
+    display_name: Aspirational scenarios
+    description: Scenarios that we should support.
+    category: Core scenarios
+    subgroups:
+      - non_english
+      - real_task_english_dialects
 
   - name: language
     display_name: Language
@@ -1580,3 +1588,21 @@ run_groups:
       - general_information
     environment:
       main_split: test
+
+## Aspirational scenarios
+  - name: non_english
+    display_name: Tasks on non-English domains
+    description: Currently, we only support English.
+    taxonomy:
+      language: non-English
+    todo: true
+
+  - name: real_task_english_dialects
+    display_name: Real tasks on English dialects
+    description: Currently, we have language modeling (TwitterAAE, ICE), but it would be good to support real-world tasks.
+    taxonomy:
+      task: real task
+      language: English dialects
+    todo: true
+
+  # TODO: add more
