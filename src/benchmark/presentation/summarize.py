@@ -14,7 +14,7 @@ from common.hierarchical_logger import hlog, htrack
 from benchmark.scenarios.scenario import ScenarioSpec
 from benchmark.adapter import AdapterSpec
 from benchmark.metrics.metric import get_all_stats_by_name
-from benchmark.metrics.statistic import Stat, merge_stat
+from benchmark.metrics.statistic import Stat
 from benchmark.runner import RunSpec
 from .table import Cell, Table, Hyperlink, table_to_latex
 from .schema import (
