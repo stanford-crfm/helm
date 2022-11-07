@@ -49,12 +49,16 @@ class Stat:
         return f"{self.name}[{self.bare_str()}]"
 
     def bare_str(self):
+        def process(x: float):
+            if int(x) == x:
+                return int(x)
+            return round(x, 3)
         if self.count > 0:
             return (
-                f"min={self.min:.3f}, "
-                f"mean={self.mean:.3f}, "
-                f"max={self.max:.3f}, "
-                f"sum={self.sum:.3f} "
+                f"min={process(self.min)}, "
+                f"mean={process(self.mean)}, "
+                f"max={process(self.max)}, "
+                f"sum={process(self.sum)} "
                 f"({self.count})"
             )
         else:

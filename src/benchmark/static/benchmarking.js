@@ -726,7 +726,7 @@ $(function () {
     const scenarioGroupNames = {};
     topGroups.forEach((group) => {
       group.subgroups.forEach((subgroupName) => {
-        if (!subgroupName.todo) {
+        if (!nameToGroup[subgroupName].todo) {
           scenarioGroupNames[subgroupName] = true;
         }
       });

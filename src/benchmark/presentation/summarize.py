@@ -400,8 +400,6 @@ class Summarizer:
             if stat is None:
                 hlog(f"WARNING: {matcher} doesn't match {run.run_spec.name}")
                 continue  # TODO: probably should make a note that stats are missing
-            # Collapse to a single point so we can macro-average over runs
-            stat = stat.take_mean()
 
             if aggregate_stat is None:
                 aggregate_stat = replace(stat)  # Important: copy!
