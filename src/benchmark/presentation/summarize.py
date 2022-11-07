@@ -110,7 +110,7 @@ def get_method_display_name(model: ModelField, info: Dict[str, Any]) -> str:
     if "model" in info:
         del info["model"]
 
-    return model.display_name + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
+    return (model.display_name or "???") + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
 
 
 class Summarizer:

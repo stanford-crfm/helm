@@ -53,6 +53,7 @@ class Stat:
             if int(x) == x:
                 return int(x)
             return round(x, 3)
+
         if self.count > 0:
             return (
                 f"min={process(self.min)}, "
