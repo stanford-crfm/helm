@@ -873,7 +873,6 @@ $(function () {
 
   function renderTable(table) {
     const $output = $('<div>');
-    // TODO: this doesn't work
     $output.append($('<h3>').append($('<a>', {name: table.title}).append(table.title)));
     const $table = $('<table>', {class: 'query-table results-table'});
     const $header = $('<tr>').append(table.header.map(renderCell));

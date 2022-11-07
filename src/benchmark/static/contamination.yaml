@@ -19,7 +19,6 @@ points:
 
   - models:
     - together/gpt-neox-20b
-    - gooseai/gpt-neox-20b
     groups:
     - the_pile
     level: strong

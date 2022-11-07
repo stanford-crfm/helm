@@ -32,7 +32,7 @@ models:
     creator_organization: BigScience
     access: open
   - name: together/t0pp
-    display_name: T0++ (11B)
+    display_name: T0pp (11B)
     description: T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks specified in natural language prompts ([details](https://huggingface.co/bigscience/T0pp)).
     creator_organization: BigScience
     access: open
@@ -383,7 +383,7 @@ metrics:
     description: Average gometric distance between the model output (as a point) and the correct reference (as a curve).
   - name: percent_valid
     display_name: Valid fraction
-    short_display_name: Valid 
+    short_display_name: Valid
     description: Fraction of valid model outputs (as a number).
   - name: NDCG@20
     display_name: NDCG@20
@@ -801,7 +801,31 @@ metric_groups:
 
 ############################################################
 run_groups:
-## Aggregation groups
+## Top-level
+  - name: core_scenarios
+    display_name: Core scenarios
+    description: Includes all the scenarios where we evaluate all the models.
+    category: Top-level
+    subgroups:
+      - question_answering
+      - information_retrieval
+      - summarization
+      - sentiment_analysis
+      - toxicity_detection
+      - miscellaneous_text_classification
+
+  - name: components
+    display_name: Components
+    description: Where we look at different skills (e.g., language, reasoning, etc.)
+    category: Top-level
+    subgroups:
+      - language
+      - knowledge
+      - reasoning
+      - harms
+      - efficiency
+
+## Core scenarios
   - name: question_answering
     display_name: Question answering
     description: In question answering, given a question and (optionally, in open-book settings) a passage, the goal is to produce the answer.
@@ -854,18 +878,6 @@ run_groups:
     category: Core scenarios
     subgroups:
       - raft
-
-  - name: core_scenarios
-    display_name: Core scenarios
-    description: Includes all the scenarios where we evaluate all the models.
-    category: Top-level
-    subgroups:
-      - question_answering
-      - information_retrieval
-      - summarization
-      - sentiment_analysis
-      - toxicity_detection
-      - miscellaneous_text_classification
 
   - name: language
     display_name: Language
@@ -928,35 +940,39 @@ run_groups:
     subgroups:
       - synthetic_efficiency
 
-## Ablation groups
+### Deep dive
   - name: ablation_in_context
-    display_name: In-context examples
+    display_name: Vary number of in-context examples
     description: Vary the number of in-context training examples.
-    category: Ablations
+    category: Deep dive
     visibility: this_group_only
 
   - name: ablation_multiple_choice
-    display_name: Multiple-choice strategy
-    description: Evaluating model performance when changing the adapation strategy for multiple-choice questions.
-    category: Ablations
+    display_name: Vary multiple-choice strategy
+    description: Vary the adapation strategy for multiple-choice questions.
+    category: Deep dive
     visibility: this_group_only
 
-## Deep dives
+  - name: ablation_prompts
+    display_name: Vary prompting
+    description: Vary the instructions and labels for input/output.
+    category: Deep dive
+    visibility: this_group_only
+
   - name: robustness_contrast_sets
-    display_name: Contrast sets
+    display_name: Robustness to contrast sets
     description: Evaluating equivariance to semantics-altering perturbations
-    category: Robustness deep dive
+    category: Deep dive
     visibility: this_group_only
 
   - name: robustness_individual
-    display_name: Robustness to individual perturbations
-    description: Evaluating robsustness to a single perturbation at a time
-    category: Robustness deep dive
+    display_name: Robustness to single types of perturbations
+    description: Evaluating robsustness to a single perturbation at a time (e.g., typos, synonyms)
+    category: Deep dive
     visibility: this_group_only
 
-    # TODO: add prompting
+### Scenarios
 
-## Core scenarios
 # Question answering scenarios
   - name: boolq
     display_name: BoolQ
