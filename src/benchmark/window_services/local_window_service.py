@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List, Optional
+from typing import List, Optional, cast
 
 from .window_service import WindowService, EncodeResult
 from .tokenizer_service import TokenizerService
@@ -49,9 +49,15 @@ class LocalWindowService(WindowService):
         # For Hugging Face tokenizers, should set `clean_up_tokenization_spaces` to False
         # (https://github.com/huggingface/transformers/issues/17682).
         # If we don't, something like "their 'studio'" becomes "their'studio'" when decoding.
+        token_ints: List[int] = []
+        for token in tokens:
+            assert isinstance(token, int)
+            token_ints.append(token)
         response: DecodeRequestResult = self.service.decode(
             DecodeRequest(
-                [token.value for token in tokens], tokenizer=self.tokenizer_name, clean_up_tokenization_spaces=False
+                token_ints,
+                tokenizer=self.tokenizer_name,
+                clean_up_tokenization_spaces=False,
             )
         )
         return response.text
@@ -63,7 +69,7 @@ class LocalWindowService(WindowService):
         response: TokenizationRequestResult = self.service.tokenize(
             TokenizationRequest(text, tokenizer=self.tokenizer_name)
         )
-        return response.raw_tokens
+        return cast(List[str], response.raw_tokens)
 
     def get_num_tokens(self, text: str) -> int:
         """Tokenizes the text and returns the number of tokens."""
