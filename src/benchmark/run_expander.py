@@ -304,7 +304,6 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "full_functionality_text": get_model_names_with_tag(FULL_FUNCTIONALITY_TEXT_MODEL_TAG),
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
-        "openai/text-davinci-001": ["openai/text-davinci-001"],
         "all": get_all_models(),
         "text": get_all_text_models(),
         "code": get_all_code_models(),
@@ -314,6 +313,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "cohere_tokenizer": get_model_names_with_tag(COHERE_TOKENIZER_TAG),
         "opt_tokenizer": get_model_names_with_tag(OPT_TOKENIZER_TAG),
         "summarization_zs": ["openai/davinci", "openai/curie", "openai/text-davinci-002", "openai/text-curie-001"],
+        "interactive_qa": ["openai/text-davinci-001", "openai/davinci", "ai21/j1-jumbo", "openai/text-babbage-001"],
     }
 
     # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")

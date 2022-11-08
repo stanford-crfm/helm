@@ -786,7 +786,9 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
             calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(0.0))
             calibration_metrics.append(Stat(MetricName("platt_ece_1_bin")).add(0.0))
         else:
-            platt_scaler = cal.get_platt_scaler(np.array(max_probs), np.array(correct))
+            platt_scaler, clf = cal.get_platt_scaler(np.array(max_probs), np.array(correct), get_clf=True)
+            calibration_metrics.append(Stat(MetricName("platt_coef")).add(clf.coef_[0][0]))
+            calibration_metrics.append(Stat(MetricName("platt_intercept")).add(clf.intercept_[0]))
             cal_max_probs = platt_scaler(np.array(max_probs))
             platt_ece_10_bin = cal.get_ece_em(cal_max_probs, correct, num_bins=10)
             calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(platt_ece_10_bin))
