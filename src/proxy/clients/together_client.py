@@ -73,7 +73,7 @@ class TogetherClient(Client):
 
                 # Poll and wait for job to be finished
                 job_id = response["id"]
-                TIMEOUT = 20
+                TIMEOUT = 60
                 for t in range(TIMEOUT):
                     response = requests.get(f"{base_url}/job/{job_id}").json()
                     status = response["status"]

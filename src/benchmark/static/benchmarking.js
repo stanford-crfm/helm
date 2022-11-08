@@ -445,9 +445,20 @@ $(function () {
         return;
       }
 
+      const key = instanceTrialKey(requestState.instance, requestState.train_trial_index);
+      // For multiple_choice_separate_*, only render the request state for the predicted index
+      if (requestState.reference_index !== undefined) {
+        const predictedIndexStat = instanceKeyTrialToStats[key] ?
+          instanceKeyTrialToStats[key].find((stat) => stat.name.name === "predicted_index") :
+          undefined;
+        if (predictedIndexStat === undefined) {
+          console.warn("Cannot find predicted index for: ", key);
+        } else if (requestState.reference_index !== predictedIndexStat.mean) {
+          return;
+        }
+      }
       // Print out instance-level statistics.
       // Show it once for each (instance id, train trial index, perturbation).
-      const key = instanceTrialKey(requestState.instance, requestState.train_trial_index);
       if (!shownStats[key]) {
         const stats = instanceKeyTrialToStats[key];
         if (!stats) {
@@ -521,7 +532,7 @@ $(function () {
       description += 'Prediction';
 
       // Which reference (for multiple_choice_separate_*)
-      if (requestState.reference_index != null) {
+      if (requestState.reference_index !== undefined) {
         description += '[ref ' + requestState.reference_index + ']';
       }
 
@@ -536,12 +547,13 @@ $(function () {
         $request.slideToggle();
         return false;
       });
-      $instance.append($('<div>')
+      $prediction = $('<div>')
         .append($link)
         .append(': ')
         .append(prefix)
         .append(prediction)
-        .append($logProb));
+        .append($logProb);
+      $instance.append($prediction);
       $instance.append($request);
     });
   }

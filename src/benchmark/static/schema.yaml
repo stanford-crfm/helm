@@ -305,10 +305,10 @@ metrics:
     description: Number of distinct API requests.
   - name: num_instances
     display_name: '# eval'
-    description: Number of instances.
-  - name: num_in_context_examples
+    description: Number of evaluation instances.
+  - name: num_train_instances
     display_name: '# train'
-    description: Number of training instances (in-context examples).
+    description: Number of training instances (e.g., in-context examples).
   - name: input_truncated
     display_name: truncated
     description: Fraction of instances where the input itself was truncated (implies that there were no in-context examples).
@@ -399,6 +399,12 @@ metrics:
     display_name: Valid fraction
     short_display_name: Valid
     description: Fraction of valid model outputs (as a number).
+  - name: NDCG@10
+    display_name: NDCG@10
+    description: Normalized discounted cumulative gain at 10 in information retrieval.
+  - name: RR@10
+    display_name: RR@10
+    description: Mean reciprocal rank at 10 in information retrieval.
   - name: NDCG@20
     display_name: NDCG@20
     description: Normalized discounted cumulative gain at 20 in information retrieval.
@@ -613,6 +619,16 @@ metrics:
     short_display_name: Platt-scaled ECE (10-bin)
     lower_is_better: true
     description: 10-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
+  - name: platt_coef
+    display_name: Platt Scaling Coefficient
+    short_display_name: Platt Coef
+    lower_is_better: true
+    description: Coefficient of the Platt scaling classifier (can compare this across tasks).
+  - name: platt_intercept
+    display_name: Platt Scaling Intercept
+    short_display_name: Platt Intercept
+    lower_is_better: true
+    description: Intercept of the Platt scaling classifier (can compare this across tasks).
   - name: selective_cov_acc_area
     display_name: Selective coverage-accuracy area
     short_display_name: Selective Acc

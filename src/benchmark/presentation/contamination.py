@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 import dacite
-import yaml
+import yaml  # type: ignore
 
 from common.hierarchical_logger import htrack, hlog
 from proxy.models import MODEL_NAME_TO_MODEL
