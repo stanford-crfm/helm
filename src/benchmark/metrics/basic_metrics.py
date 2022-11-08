@@ -447,6 +447,7 @@ class BasicMetric(Metric):
         # Gold outputs
         golds = [reference for reference in request_state.instance.references if reference.is_correct]
         assert len(golds) > 0
+        reference_metrics.append(Stat(MetricName("num_references")).add(len(request_state.instance.references)))
 
         # Predicted outputs
         assert request_state.result is not None
@@ -509,6 +510,11 @@ class BasicMetric(Metric):
         prompt: str = request_state.request.prompt
         num_prompt_tokens: int = window_service.get_num_tokens(prompt)
 
+        # Just take the first completion
+        # TODO: don't we need to take into account all the completions, since
+        # the runtime we get (that's used to compute denoised_runtime) is for
+        # generating all of them?
+        # TODO: we should unify this into num_completion_tokens
         sequence = request_state.result.completions[0]
         num_output_tokens: int = len(sequence.tokens)
         # Don't include prompt in number of generated tokens (e.g., for language modeling).
@@ -633,8 +639,12 @@ class BasicMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        """Compute the reference metrics and language modeling metrics"""
+        """Compute all metrics."""
         metrics = []
+
+        # Copy from adapter spec
+        metrics.append(Stat(MetricName("num_train_trials")).add(adapter_spec.num_train_trials))
+
         if len(request_state.instance.references) > 0:
             metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
 

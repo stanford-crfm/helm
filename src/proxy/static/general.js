@@ -28,38 +28,6 @@ function updateBrowserLocation(params) {
   window.history.pushState({}, '', window.location.pathname + encodeUrlParams(params));
 }
 
-function renderTableText(header, rows, renderers) {
-  const lines = [];
-  // Header
-  lines.push(header.join('\t'));
-  // Contents
-  rows.forEach((row, r) => {
-    lines.push(header.map((x) => {
-      const obj = renderers && renderers[x] ? renderers[x](row[x], r) : row[x];
-      const t = typeof(obj);
-      if (obj !== null && typeof(obj) === 'object')
-        return obj.text();
-      return obj;
-    }).join('\t'));
-  });
-  return lines.join('\n') + '\n';
-}
-
-function renderTable(header, rows, renderers) {
-  const $table = $('<table>').addClass('table');
-  // Header
-  $table.append($('<thead>').addClass('thead-default').append($('<tr>').append(header.map((x) => $('<th>').append(x)))));
-  // Contents
-  $table.append($('<tbody>').append(rows.map((row, r) => {
-    return $('<tr>').append(header.map((x) => {
-      return $('<td>').append(renderers && renderers[x] ? renderers[x](row[x], r) : row[x]);
-    }));
-  })));
-  // Enable sorting columns when click on them
-  $table.tablesorter();
-  return $table;
-}
-
 function createCookie(key, value, days) {
   let expires = '';
   if (days) {
@@ -127,4 +95,20 @@ function renderError(e) {
 function helpIcon(help, link) {
   // Show a ?
   return $('<a>', {href: link, target: 'blank_', class: 'help-icon'}).append($('<img>', {src: 'info-icon.png', width: 15, title: help}));
+}
+
+const markdownConverter = new showdown.Converter({optionKey: 'value'});
+function renderMarkdown(markdown) {
+  return markdown && markdownConverter.makeHtml(markdown);
+}
+
+function refreshHashLocation() {
+  // If we request a hash location (URL contains #foo), the problem is #foo
+  // might not exist (since it's generated).  Call this function to jump to the
+  // hash location once all the anchors are generated.
+  if (location.hash) {
+    const hash = location.hash;
+    location.hash = '';
+    location.hash = hash;
+  }
 }

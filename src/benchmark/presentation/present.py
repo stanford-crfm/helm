@@ -32,7 +32,7 @@ class AllRunner:
     def __init__(
         self,
         auth: Authentication,
-        conf_path: str,
+        conf_paths: List[str],
         url: str,
         local: bool,
         local_path: str,
@@ -44,13 +44,13 @@ class AllRunner:
         max_eval_instances: Optional[int],
         num_train_trials: Optional[int],
         models_to_run: Optional[List[str]],
-        scenario_groups_to_run: Optional[List[str]],
+        groups_to_run: Optional[List[str]],
         exit_on_error: bool,
         priority: Optional[int],
         mongo_uri: str,
     ):
         self.auth: Authentication = auth
-        self.conf_path: str = conf_path
+        self.conf_paths: List[str] = conf_paths
         self.url: str = url
         self.local: bool = local
         self.local_path: str = local_path
@@ -62,7 +62,7 @@ class AllRunner:
         self.max_eval_instances: Optional[int] = max_eval_instances
         self.num_train_trials: Optional[int] = num_train_trials
         self.models_to_run: Optional[List[str]] = models_to_run
-        self.scenario_groups_to_run: Optional[List[str]] = scenario_groups_to_run
+        self.groups_to_run: Optional[List[str]] = groups_to_run
         self.exit_on_error: bool = exit_on_error
         self.priority: Optional[int] = priority
         self.mongo_uri = mongo_uri
@@ -73,7 +73,7 @@ class AllRunner:
         runs_dir: str = os.path.join(self.output_path, "runs")
         suite_dir: str = os.path.join(runs_dir, self.suite)
 
-        run_entries = read_run_entries(self.conf_path)
+        run_entries = read_run_entries(self.conf_paths)
 
         for entry in tqdm(run_entries.entries):
             # Filter by priority
@@ -97,7 +97,7 @@ class AllRunner:
                     num_train_trials=self.num_train_trials,
                     groups=entry.groups,
                     models_to_run=self.models_to_run,
-                    scenario_groups_to_run=self.scenario_groups_to_run,
+                    groups_to_run=self.groups_to_run,
                     mongo_uri=self.mongo_uri,
                 )
                 run_specs.extend(new_run_specs)
@@ -115,9 +115,9 @@ class AllRunner:
         hlog(f"{len(run_entries.entries)} entries produced into {len(run_specs)} run specs")
 
         # Write out all the `RunSpec`s and models to JSON files
-        # Note: if we are parallelizing over models and scenario groups, this
+        # Note: if we are parallelizing over models and groups, this
         # could get overwritten many times.  Ideally, we would make the file
-        # name specific to models and scenario groups.
+        # name specific to models and groups.
         write(
             os.path.join(suite_dir, "run_specs.json"),
             json.dumps(list(map(dataclasses.asdict, run_specs)), indent=2),
@@ -138,7 +138,7 @@ class AllRunner:
         """
         Print out scripts to run after.
         """
-        # Print out all the models and scenario groups that we're touching.
+        # Print out all the models and groups that we're touching.
         models = set()
         groups = set()
         for run_spec in run_specs:
@@ -146,7 +146,7 @@ class AllRunner:
             for group in run_spec.groups:
                 groups.add(group)
         hlog(f"{len(models)} models: {' '.join(models)}")
-        hlog(f"{len(groups)} scenario groups: {' '.join(groups)}")
+        hlog(f"{len(groups)} groups: {' '.join(groups)}")
 
         # Write wrapper for benchmark-present that can be used through Slurm
         lines = [
@@ -164,7 +164,7 @@ class AllRunner:
                 # Try to match the arguments of `run_benchmarking`
                 # Build arguments
                 present_args = []
-                present_args.append(f"--conf {self.conf_path}")
+                present_args.append(f"--confs {' '.join(self.conf_paths)}")
                 if self.local:
                     present_args.append("--local")
                 present_args.append(f"--num-threads {self.num_threads}")
@@ -192,9 +192,10 @@ def main():
     add_service_args(parser)
     parser.add_argument(
         "-c",
-        "--conf-path",
+        "--conf-paths",
+        nargs="+",
         help="Where to read RunSpecs to run from",
-        default="src/benchmark/presentation/run_specs.conf",
+        default=["src/benchmark/presentation/run_specs.conf"],
     )
     parser.add_argument(
         "--models-to-run",
@@ -203,10 +204,9 @@ def main():
         default=None,
     )
     parser.add_argument(
-        "--scenario-groups-to-run",
+        "--groups-to-run",
         nargs="+",
-        help="Only RunSpecs with these scenario groups specified. "
-        "If no scenario group is specified, runs with all models.",
+        help="Only RunSpecs with these (scenario) groups specified. " "If no group is specified, runs with all groups.",
         default=None,
     )
     parser.add_argument(
@@ -232,7 +232,7 @@ def main():
         # `skip_instances` is set, so a valid API key is not necessary.
         # Setting `local` will run and cache everything locally.
         auth=Authentication("") if args.skip_instances or args.local else create_authentication(args),
-        conf_path=args.conf_path,
+        conf_paths=args.conf_paths,
         url=args.server_url,
         local=args.local,
         local_path=args.local_path,
@@ -244,7 +244,7 @@ def main():
         max_eval_instances=args.max_eval_instances,
         num_train_trials=args.num_train_trials,
         models_to_run=args.models_to_run,
-        scenario_groups_to_run=args.scenario_groups_to_run,
+        groups_to_run=args.groups_to_run,
         exit_on_error=args.exit_on_error,
         priority=args.priority,
         mongo_uri=args.mongo_uri,

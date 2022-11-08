@@ -1,5 +1,219 @@
 ---
+############################################################
+models:
+  # AI21 Labs
+  - name: ai21/j1-jumbo
+    display_name: J1-Jumbo v1 (178B)
+    description: Jurassic-1 Jumbo (178B parameters) ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
+    creator_organization: AI21 Labs
+    access: limited
+  - name: ai21/j1-large
+    display_name: J1-Large v1 (7.5B)
+    description: Jurassic-1 Large (7.5B parameters) ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
+    creator_organization: AI21 Labs
+    access: limited
+  - name: ai21/j1-grande
+    display_name: J1-Grande v1 (17B)
+    description: Jurassic-1 Grande (17B parameters) with a "few tweaks" to the training process ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
+    creator_organization: AI21 Labs
+    access: limited
 
+  # Anthropic
+  - name: anthropic/stanford-online-all-v4-s3
+    display_name: Anthropic-LM v4-s3 (52B)
+    description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
+    creator_organization: Anthropic
+    access: restricted
+
+  # HuggingFace BigScience
+  - name: together/bloom
+    display_name: BLOOM (176B)
+    description: BLOOM (176B parameters) is an autoregressive model similar to GPT-3 trained by BigScience on 46 natural languages and 13 programming languages ([details](https://bigscience.huggingface.co/blog/bloom)).
+    creator_organization: BigScience
+    access: open
+  - name: together/t0pp
+    display_name: T0pp (11B)
+    description: T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks specified in natural language prompts ([details](https://huggingface.co/bigscience/T0pp)).
+    creator_organization: BigScience
+    access: open
+
+  # Cohere
+  - name: cohere/xlarge-20220609
+    display_name: Cohere xlarge v20220609 (52.4B)
+    description: Cohere xlarge v20220609 (52.4B parameters)
+    creator_organization: Cohere
+    access: limited
+  - name: cohere/large-20220720
+    display_name: Cohere large v20220720 (13.1B)
+    description: Cohere large v20220720 (13.1B parameters)
+    creator_organization: Cohere
+    access: limited
+  - name: cohere/medium-20220720
+    display_name: Cohere medium v20220720 (6.1B)
+    description: Cohere medium v20220720 (6.1B parameters)
+    creator_organization: Cohere
+    access: limited
+  - name: cohere/small-20220720
+    display_name: Cohere small v20220720 (410M)
+    description: Cohere small v20220720 (410M parameters)
+    creator_organization: Cohere
+    access: limited
+
+  # DeepMind
+  - name: deepmind/gopher
+    display_name: Gopher (280B)
+    description: Gopher (540B parameters) ([paper](https://arxiv.org/pdf/2112.11446.pdf)).
+    creator_organization: DeepMind
+    access: closed
+    todo: true
+  - name: deepmind/chilchilla
+    display_name: Chincilla (70B)
+    description: Chincilla (70B parameters) ([paper](https://arxiv.org/pdf/2203.15556.pdf)).
+    creator_organization: DeepMind
+    access: closed
+    todo: true
+
+  # EleutherAI
+  - name: together/gpt-j-6b
+    display_name: GPT-J (6B)
+    description: GPT-J (6B parameters) autoregressive language model trained on The Pile.
+    creator_organization: EleutherAI
+    access: open
+  - name: together/gpt-neox-20b
+    display_name: GPT-NeoX (20B)
+    description: GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.
+    creator_organization: EleutherAI
+    access: open
+
+  # Google
+  - name: together/t5-11b
+    display_name: T5 (11B)
+    description: T5 (11B parameters) is an encoder-decoder model pre-trained on a multi-task mixture of unsupervised and supervised tasks and for which each task is converted into a text-to-text format ([details](https://huggingface.co/docs/transformers/v4.20.1/en/model_doc/t5)).
+    creator_organization: Google
+    access: open
+
+  - name: together/ul2
+    display_name: UL2 (20B)
+    description: UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5 but trained with a different objective and slightly different scaling knobs ([details](https://huggingface.co/google/ul2)).
+    creator_organization: Google
+    access: open
+
+  - name: together/flan-t5
+    display_name: Flan-T5 (11B)
+    description: Flan-T5 (11B parameters) is T5 fine-tuned on 1.8K tasks ([paper](https://arxiv.org/pdf/2210.11416.pdf)).
+    creator_organization: Google
+    access: open
+    todo: true
+
+  - name: google/palm
+    display_name: PaLM (540B)
+    description: Pathways Language Model (540B parameters) is trained using 6144 TPU v4 chips ([details](https://arxiv.org/pdf/2204.02311.pdf)).
+    creator_organization: Google
+    access: closed
+    todo: true
+
+  # Meta
+  - name: together/opt-175b
+    display_name: OPT (175B)
+    description: Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([details](https://arxiv.org/pdf/2205.01068.pdf)).
+    creator_organization: Meta
+    access: open
+
+  - name: together/opt-66b
+    display_name: OPT (66B)
+    description: Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([details](https://arxiv.org/pdf/2205.01068.pdf)).
+    creator_organization: Meta
+    access: open
+
+  # Microsoft/NVIDIA
+  - name: microsoft/TNLGv2_530B
+    display_name: TNLGv2 (530B)
+    description: TNLGv2 (530B parameters) autoregressive language model. It is trained on a filtered subset of the Pile and CommonCrawl.
+    creator_organization: Microsoft/NVIDIA
+    access: restricted
+  - name: microsoft/TNLGv2_7B
+    display_name: TNLGv2 (7B)
+    description: TNLGv2 (7B parameters) autoregressive language model. It is trained on a filtered subset of the Pile and CommonCrawl.
+    creator_organization: Microsoft/NVIDIA
+    access: restricted
+
+  # OpenAI: https://beta.openai.com/docs/engines/gpt-3
+  - name: openai/davinci
+    display_name: GPT-3 davinci v1 (175B)
+    description: GPT-3 davinci v1 (175B parameters) autoregressive language model.
+    creator_organization: OpenAI
+    access: limited
+  - name: openai/curie
+    display_name: GPT-3 curie v1 (6.7B)
+    description: GPT-3 curie v1 (6.7B parameters) autoregressive language model.
+    creator_organization: OpenAI
+    access: limited
+  - name: openai/babbage
+    display_name: GPT-3 babbage v1 (1.3B)
+    description: GPT-3 babbage v1 (1.3B parameters) autoregressive language model.
+    creator_organization: OpenAI
+    access: limited
+  - name: openai/ada
+    display_name: GPT-3 ada v1 (350M)
+    description: GPT-3 ada v1 (350M parameters) autoregressive language model.
+    creator_organization: OpenAI
+    access: limited
+  - name: openai/text-davinci-002
+    display_name: InstructGPT davinci v2 (175B*)
+    description: InstructGPT-style model based on the [InstructGPT paper](https://arxiv.org/pdf/2203.02155.pdf), but the details are unknown.
+    creator_organization: OpenAI
+    access: limited
+  - name: openai/text-davinci-001
+    display_name: InstructGPT davinci v1 (175B*)
+    description: InstructGPT-style model.
+    creator_organization: OpenAI
+    access: limited
+  - name: openai/text-curie-001
+    display_name: InstructGPT curie v1 (6.7B*)
+    description: InstructGPT-style model.
+    creator_organization: OpenAI
+    access: limited
+  - name: openai/text-babbage-001
+    display_name: InstructGPT babbage v1 (1.3B*)
+    description: InstructGPT-style model.
+    creator_organization: OpenAI
+    access: limited
+  - name: openai/text-ada-001
+    display_name: InstructGPT ada v1 (350M*)
+    description: InstructGPT-style model.
+    creator_organization: OpenAI
+    access: limited
+  - name: openai/code-davinci-002
+    display_name: Codex davinci v2
+    description: Codex davinci 2nd generation (code generation).
+    creator_organization: OpenAI
+    access: limited
+  - name: openai/code-davinci-001
+    display_name: Codex davinci v1
+    description: Codex davinci 1st generation (code generation).
+    creator_organization: OpenAI
+    access: limited
+  - name: openai/code-cushman-001
+    display_name: Codex cushman v1
+    description: Codex cushman 1st generation (code generation).
+    creator_organization: OpenAI
+    access: limited
+
+  # Tsinghua
+  - name: together/glm
+    display_name: GLM (130B)
+    description: GLM-130B is an open bilingual (English & Chinese) bidirectional dense model with 130 billion parameters, pre-trained using the algorithm of General Language Model (GLM) ([GitHub](https://github.com/THUDM/GLM-130B)).
+    creator_organization: Tsinghua
+    access: open
+
+  # Yandex
+  - name: together/yalm
+    display_name: YaLM (100B)
+    description: YaLM (100B parameters) is an autoregressive language model trained on English and Russian text ([GitHub](From https://github.com/yandex/YaLM-100B)).
+    creator_organization: Yandex
+    access: open
+
+############################################################
 adapter:
   - name: method
     description: The high-level strategy for converting instances into a prompt for the language model.
@@ -16,14 +230,22 @@ adapter:
         description: Given the input, the model assigns the sequence a probability.
   - name: instructions
     description: The description of the task that is included at the very beginning of the prompt.
+  - name: global_prefix
+    description: The string that is prepended to the prompt.
   - name: instance_prefix
     description: The string that is included before each instance (e.g., '\n\n').
   - name: input_prefix
     description: The string that is included before each input (e.g., 'Question:').
+  - name: input_suffix
+    description: The string that is included after each input (e.g., '\n').
   - name: reference_prefix
     description: The string that is included before each reference (for multiple-choice questions).
+  - name: reference_suffix
+    description: The string that is included after each reference (for multiple-choice questions).
   - name: output_prefix
     description: The string that is included before the correct answer/predicted output (e.g., 'Answer:').
+  - name: output_suffix
+    description: The string that is included after the correct answer/predicted output (e.g., '\n').
   - name: max_train_instances
     description: Maximum number of training instances to include in the prompt (currently by randomly sampling).
   - name: max_eval_instances
@@ -43,7 +265,7 @@ adapter:
   - name: random
     description: Random seed (string), which guarantees reproducibility.
 
-
+############################################################
 metrics:
   # Infrastructure metrics:
   - name: num_perplexity_tokens
@@ -53,6 +275,12 @@ metrics:
     display_name: '# bytes'
     description: Average number of bytes in the predicted output (for language modeling, the input too).
 
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
   - name: estimated_num_tokens_cost
     display_name: 'cost'
     description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
@@ -62,6 +290,10 @@ metrics:
   - name: num_prompt_characters
     display_name: '# prompt chars'
     description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  # TODO: unify num_completion_tokens and num_output_tokens
   - name: num_output_tokens
     display_name: '# output tokens'
     description: Actual number of output tokens.
@@ -72,7 +304,7 @@ metrics:
     display_name: '# requests'
     description: Number of distinct API requests.
   - name: num_instances
-    display_name: '# instances'
+    display_name: '# eval'
     description: Number of evaluation instances.
   - name: num_train_instances
     display_name: '# train'
@@ -165,7 +397,7 @@ metrics:
     description: Average gometric distance between the model output (as a point) and the correct reference (as a curve).
   - name: percent_valid
     display_name: Valid fraction
-    short_display_name: Valid 
+    short_display_name: Valid
     description: Fraction of valid model outputs (as a number).
   - name: NDCG@10
     display_name: NDCG@10
@@ -183,7 +415,7 @@ metrics:
     display_name: Equivalent
     description: Fraction of model outputs that are mathematically equivalent to the correct reference.
   - name: math_equiv_chain_of_thought
-    display_name: Equivalent
+    display_name: Equivalent (chain of thought)
     description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thoughts prompting.
   - name: exact_match_indicator
     display_name: Exact match (up to specified indicator)
@@ -203,13 +435,13 @@ metrics:
     display_name: SummaC
     description: Faithfulness scores based on the SummaC method of [Laban et al. (2022)](https://aclanthology.org/2022.tacl-1.10/).
   - name: summarization_coverage
-    display_name: coverage
+    display_name: Coverage
     description: Extent to which the model-generated summaries are extractive fragments from the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
   - name: summarization_density
-    display_name: density
+    display_name: Density
     description: Extent to which the model-generated summaries are extractive summaries based on the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
   - name: summarization_compression
-    display_name: compression
+    display_name: Compression
     description: Extent to which the model-generated summaries are compressed relative to the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
   - name: BERTScore-P
     display_name: BERTScore (P)
@@ -290,23 +522,23 @@ metrics:
 
   # Bias metrics:
   - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
-    display_name: Stereotypical associations (Race, Profession)
-    short_display_name: Stereotypes (Race)
+    display_name: Stereotypical associations (race, profession)
+    short_display_name: Stereotypes (race)
     lower_is_better: true
     description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
   - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
-    display_name: Stereotypical associations (Gender, Profession)
-    short_display_name: Stereotypes (Gender)
+    display_name: Stereotypical associations (gender, profession)
+    short_display_name: Stereotypes (gender)
     lower_is_better: true
     description: Measures uneven association of gender groups (male, female) with target professions. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
   - name: bias_metric:mode=representation,demographic_category=race
-    display_name: Demographic representation (Race)
-    short_display_name: Representation (Race)
+    display_name: Demographic representation (race)
+    short_display_name: Representation (race)
     lower_is_better: true
     description: Measures uneven representation of racial groups (Asian, Hispanic, White). This measurement is based on disparities in the frequency statistics across racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics).
   - name: bias_metric:mode=representation,demographic_category=gender
-    display_name: Demographic representation (Gender)
-    short_display_name: Representation (Gender)
+    display_name: Demographic representation (gender)
+    short_display_name: Representation (gender)
     lower_is_better: true
     description: Measures uneven representation of gender groups (male, female). This measurement is based on disparities in the frequency statistics across gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
   - name: bbq_metric_ambiguous_bias
@@ -365,7 +597,7 @@ metrics:
 
   # Calibration metrics:
   - name: ece_1_bin
-    display_name: 1-bin Expected Calibration Error
+    display_name: 1-bin expected calibration error
     short_display_name: ECE (1-bin)
     lower_is_better: true
     description: The (absolute value) difference between the model's average confidence and accuracy (only computed for classification tasks).
@@ -373,18 +605,18 @@ metrics:
     display_name: Max prob
     description: Model's average confidence in its prediction (only computed for classification tasks)
   - name: ece_10_bin
-    display_name: 10-bin Expected Calibration Error
+    display_name: 10-bin expected calibration error
     short_display_name: ECE (10-bin)
     lower_is_better: true
     description: The average difference between the model's confidence and accuracy, averaged across 10 bins where each bin contains an equal number of points (only computed for classification tasks). Warning - not reliable for small datasets (e.g., with < 300 examples) because each bin will have very few examples.
   - name: platt_ece_1_bin
-    display_name: 1-bin Expected Calibration Error (after Platt scaling)
-    short_display_name: Platt scaled ECE (1-bin)
+    display_name: 1-bin expected calibration error (after Platt scaling)
+    short_display_name: Platt-scaled ECE (1-bin)
     lower_is_better: true
     description: 1-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
   - name: platt_ece_10_bin
     display_name: 10-bin Expected Calibration Error (after Platt scaling)
-    short_display_name: Platt scaled ECE (10-bin)
+    short_display_name: Platt-scaled ECE (10-bin)
     lower_is_better: true
     description: 10-bin ECE computed after applying Platt scaling to recalibrate the model's predicted probabilities.
   - name: platt_coef
@@ -398,7 +630,7 @@ metrics:
     lower_is_better: true
     description: Intercept of the Platt scaling classifier (can compare this across tasks).
   - name: selective_cov_acc_area
-    display_name: Selective Coverage-Accuracy Area
+    display_name: Selective coverage-accuracy area
     short_display_name: Selective Acc
     description: The area under the coverage-accuracy curve, a standard selective classification metric (only computed for classification tasks).
   - name: selective_acc@10
@@ -406,6 +638,7 @@ metrics:
     short_display_name: Acc@10%
     description: The accuracy for the 10% of predictions that the model is most confident on (only computed for classification tasks).
 
+############################################################
 perturbations:
   - name: robustness
     display_name: Robustness
@@ -440,19 +673,22 @@ perturbations:
       Deterministically substitutes male pronouns with female pronouns and computes the per-instance worst-case
       performance between perturbed and unperturbed versions.
 
+############################################################
 metric_groups:
   - name: accuracy
+    display_name: Accuracy
     metrics:
       - name: ${main_name}
         split: ${main_split}
 
   - name: calibration
+    display_name: Calibration
     metrics:
       - name: ece_10_bin
         split: ${main_split}
 
   - name: calibration_detailed
-    display_name: Detailed calibration
+    display_name: Calibration
     description: Measures how calibrated the model is (how meaningful its uncertainty estimates are).
     metrics:
       - name: max_prob
@@ -467,6 +703,7 @@ metric_groups:
         split: ${main_split}
 
   - name: robustness
+    display_name: Robustness
     metrics:
       - name: ${main_name}
         split: ${main_split}
@@ -485,6 +722,7 @@ metric_groups:
         perturbation_name: synonyms
 
   - name: fairness
+    display_name: Fairness
     metrics:
       - name: ${main_name}
         split: ${main_split}
@@ -506,6 +744,7 @@ metric_groups:
         perturbation_name: gender
 
   - name: bias
+    display_name: Bias
     metrics:
     - name: bias_metric:mode=associations,demographic_category=race,target_category=profession
       split: ${main_split}
@@ -517,11 +756,13 @@ metric_groups:
       split: ${main_split}
 
   - name: toxicity
+    display_name: Toxicity
     metrics:
     - name: toxic_frac
       split: ${main_split}
 
   - name: efficiency
+    display_name: Efficiency
     metrics:
     - name: inference_denoised_runtime
       split: ${main_split}
@@ -539,10 +780,28 @@ metric_groups:
       - name: training_co2_cost
         split: ${main_split}
 
+  - name: general_information
+    display_name: General information
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_in_context_examples
+      split: ${main_split}
+    - name: input_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    # TODO: replace with num_completion_tokens
+    - name: num_output_tokens
+      split: ${main_split}
+    - name: num_train_trials
+      split: ${main_split}
+
   # Special metrics for scenarios with more than 1 main metric
   - name: summarization_metrics
+    display_name: Summarization metrics
     metrics:
-      - name: SummaC
+      - name: summac
         split: ${main_split}
       - name: summarization_coverage
         split: ${main_split}
@@ -552,6 +811,8 @@ metric_groups:
         split: ${main_split}
 
   - name: apps_metrics
+    display_name: APPS metrics
+    description: Metrics used for the APPS code generation benchmark.
     metrics:
       - name: test_avg
         split: ${main_split}
@@ -559,6 +820,8 @@ metric_groups:
         split: ${main_split}
 
   - name: bbq_metrics
+    display_name: BBQ metrics
+    description: Metrics used for the BBQ bias benchmark.
     metrics:
       - name: bbq_metric_ambiguous_bias
         split: ${main_split}
@@ -566,6 +829,7 @@ metric_groups:
         split: ${main_split}
 
   - name: copyright_metrics
+    display_name: Copyright metrics
     metrics:
       - name: longest_common_prefix_length
         split: ${main_split}
@@ -575,18 +839,45 @@ metric_groups:
         split: ${main_split}
 
   - name: disinformation_metrics
+    display_name: Disinformation metrics
     metrics:
       - name: self_bleu
         split: ${main_split}
       - name: monte_carlo_entropy
         split: ${main_split}
 
+############################################################
 run_groups:
-## Aggregation groups
+## Top-level
+  - name: core_scenarios
+    display_name: Core scenarios
+    description: Includes all the scenarios where we evaluate all the models.
+    category: Top-level
+    subgroups:
+      - question_answering
+      - information_retrieval
+      - summarization
+      - sentiment_analysis
+      - toxicity_detection
+      - miscellaneous_text_classification
+
+  - name: components
+    display_name: Components
+    description: Where we look at different skills (e.g., language, reasoning, etc.)
+    category: Top-level
+    subgroups:
+      - language
+      - knowledge
+      - reasoning
+      - harms
+      - efficiency
+
+## Core scenarios
   - name: question_answering
     display_name: Question answering
-    description: Performance on question answering scenarios
-    category: Generic scenarios
+    description: In question answering, given a question and (optionally, in open-book settings) a passage, the goal is to produce the answer.
+      QA is a general format that captures a wide range of tasks involving varying levels of world and commonsense knowledge and reasoning abilities.
+    category: Core scenarios
     subgroups:
       - mmlu
       - boolq
@@ -600,56 +891,52 @@ run_groups:
 
   - name: information_retrieval
     display_name: Information retrieval
-    description: Performance on downstream information retrieval scenarios
-    category: Generic scenarios
+    description: In information retrieval, given a query and a set of candidate documents, the goal is to produce a ranking of the documents.
+    category: Core scenarios
     subgroups:
       - msmarco_regular
       - msmarco_trec
 
   - name: summarization
     display_name: Summarization
-    description: Performance on downstream summarization scenarios
-    category: Generic scenarios
+    description: In text summarization, given a piece of text (paragraph or document), the goal is to produce a much shorter summary.
+    category: Core scenarios
     subgroups:
       - summarization_cnndm
       - summarization_xsum
 
   - name: sentiment_analysis
     display_name: Sentiment analysis
-    description: Performance on downstream sentiment analysis scenarios
-    category: Generic scenarios
+    description: In sentiment classification, given a text (e.g., movie review), the goal is to predict the sentiment (positive or negative).
+    category: Core scenarios
     subgroups:
         - imdb
 
   - name: toxicity_detection
     display_name: Toxicity detection
-    description: Performance on downstream toxicity detection scenarios
-    category: Generic scenarios
+    description: In toxicity detection, given a text, the goal is to predict whether the text has toxic content.
+    category: Core scenarios
     subgroups:
       - civil_comments
 
   - name: miscellaneous_text_classification
     display_name: Text classification
-    description: Performance on downstream text classification scenarios
-    category: Generic scenarios
+    description: Text classification is a general format that aims to classify text into a set of categories. This includes a wide range of classification tasks where the input is text.
+    category: Core scenarios
     subgroups:
       - raft
 
-  - name: tasks
-    display_name: User-facing tasks
-    description: Performance on various user-facing tasks (e.g., question answering)
-    category: All tasks
+  - name: aspirational
+    display_name: Aspirational scenarios
+    description: Scenarios that we should support.
+    category: Core scenarios
     subgroups:
-      - question_answering
-      - information_retrieval
-      - summarization
-      - sentiment_analysis
-      - toxicity_detection
-      - miscellaneous_text_classification
+      - non_english
+      - real_task_english_dialects
 
   - name: language
     display_name: Language
-    description: Evaluate linguistic understanding
+    description: Coverage over different genres (via language modeling) and testing linguistic capabilities.
     category: Components
     subgroups:
       - the_pile
@@ -659,7 +946,7 @@ run_groups:
 
   - name: knowledge
     display_name: Knowledge
-    description: Evaluating world and commonsense knowledge
+    description: World and commonsense knowledge.
     category: Components
     subgroups:
       - natural_qa_closedbook
@@ -671,7 +958,7 @@ run_groups:
 
   - name: reasoning
     display_name: Reasoning
-    description: Evaluating reasoning capabilities
+    description: Reasoning capabilities, both synthetic and real.
     category: Components
     subgroups:
       - synthetic_reasoning
@@ -690,7 +977,7 @@ run_groups:
 
   - name: harms
     display_name: Harms
-    description: Evaluating fine-grained social harms
+    description: Closer analysis of various social harms (e.g., copyright, disinformation, social bias, toxicity).
     category: Components
     subgroups:
       - copyright_text
@@ -708,33 +995,39 @@ run_groups:
     subgroups:
       - synthetic_efficiency
 
-## Ablation groups
+### Deep dive
   - name: ablation_in_context
-    display_name: In-context examples
-    description: Evaluating model performance when varying the number of in-context examples used
-    category: Ablations
+    display_name: Vary number of in-context examples
+    description: Vary the number of in-context training examples.
+    category: Deep dive
     visibility: this_group_only
 
   - name: ablation_multiple_choice
-    display_name: Multiple-choice strategy
-    description: Evaluating model performance when changing the way multiple-choice instances are prompted
-    category: Ablations
+    display_name: Vary multiple-choice strategy
+    description: Vary the adapation strategy for multiple-choice questions.
+    category: Deep dive
     visibility: this_group_only
 
-## Deep dives
+  - name: ablation_prompts
+    display_name: Vary prompting
+    description: Vary the instructions and labels for input/output.
+    category: Deep dive
+    visibility: this_group_only
+
   - name: robustness_contrast_sets
-    display_name: Contrast sets
+    display_name: Robustness to contrast sets
     description: Evaluating equivariance to semantics-altering perturbations
-    category: Robustness deep dive
+    category: Deep dive
     visibility: this_group_only
 
   - name: robustness_individual
-    display_name: Robustness to individual perturbations
-    description: Evaluating robsustness to a single perturbation at a time
-    category: Robustness deep dive
+    display_name: Robustness to single types of perturbations
+    description: Evaluating robsustness to a single perturbation at a time (e.g., typos, synonyms)
+    category: Deep dive
     visibility: this_group_only
 
-## Generic scenarios
+### Scenarios (the actual scenarios)
+
 # Question answering scenarios
   - name: boolq
     display_name: BoolQ
@@ -747,9 +1040,16 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: valid
+    taxonomy:
+      task: question answering
+      what: passages from Wikipedia, questions from search queries
+      who: web users
+      when: 2010s
+      language: English
 
   - name: narrative_qa
     display_name: NarrativeQA
@@ -762,6 +1062,7 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
       main_name: f1_score
       main_split: test
@@ -777,6 +1078,7 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
       main_name: f1_score
       main_split: valid
@@ -792,12 +1094,14 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
       main_name: f1_score
       main_split: valid
 
   - name: quac
     display_name: QuAC (Question Answering in Context)
+    short_display_name: QuAC
     description: The QuAC benchmark for question answering in the context of dialogues [(Choi et al., 2018)](https://aclanthology.org/D18-1241/).
     metric_groups:
       - accuracy
@@ -807,6 +1111,7 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
       main_name: f1_score
       main_split: valid
@@ -820,6 +1125,7 @@ run_groups:
       - robustness
       - fairness
       - efficiency
+      - general_information
     environment:
       main_name: exact_match
       main_split: valid
@@ -833,6 +1139,7 @@ run_groups:
       - robustness
       - fairness
       - efficiency
+      - general_information
     environment:
       main_name: exact_match
       main_split: test
@@ -846,12 +1153,14 @@ run_groups:
       - robustness
       - fairness
       - efficiency
+      - general_information
     environment:
       main_name: exact_match
       main_split: valid
 
   - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
+    short_display_name: MMLU
     description: The Massive Multitask Language Understanding (MMLU) benchmark for knowledge-intensive question answering across 57 domains [(Hendrycks et al., 2021)](https://openreview.net/forum?id=d7KBjmI3GmQ).
     metric_groups:
       - accuracy
@@ -859,6 +1168,7 @@ run_groups:
       - robustness
       - fairness
       - efficiency
+      - general_information
     environment:
       main_name: exact_match
       main_split: test
@@ -866,6 +1176,7 @@ run_groups:
 # Information retrieval scenarios
   - name: msmarco_regular
     display_name: MS MARCO (regular track)
+    short_display_name: MS MARCO (regular)
     description: The MS MARCO benchmark's regular track for passage retrieval in information retrieval [(https://microsoft.github.io/msmarco/)](https://microsoft.github.io/msmarco/).
     metric_groups:
       - accuracy
@@ -874,12 +1185,14 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
-      main_name: RR@10
+      main_name: RR@20
       main_split: valid
 
   - name: msmarco_trec
     display_name: MS MARCO (TREC track)
+    short_display_name: MS MARCO (TREC)
     description: The MS MARCO benchmark's deep learning TREC track for passage retrieval in information retrieval [(https://trec.nist.gov)](https://microsoft.github.io/msmarco/).
     metric_groups:
       - accuracy
@@ -888,8 +1201,9 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
-      main_name: NDCG@10
+      main_name: NDCG@20
       main_split: valid
 
 # Summarization scenarios
@@ -902,6 +1216,7 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
       main_name: rouge_2
       main_split: test
@@ -915,6 +1230,7 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
       main_name: rouge_2
       main_split: test
@@ -931,6 +1247,7 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: valid
@@ -938,6 +1255,7 @@ run_groups:
 # Text classification scenarios
   - name: raft
     display_name: RAFT (Real-world Annotated Few-Shot)
+    short_display_name: RAFT
     description: The Real-world annotated few-shot (RAFT) meta-benchmark of 11 real-world text classification tasks [(Alex et al., 2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/ca46c1b9512a7a8315fa3c5a946e8265-Abstract-round2.html).
     metric_groups:
       - accuracy
@@ -947,6 +1265,7 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: test
@@ -963,6 +1282,7 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: test
@@ -971,10 +1291,12 @@ run_groups:
 # Language modeling
   - name: ice
     display_name: ICE (International Corpus of English)
+    short_display_name: ICE
     description: The International Corpus of English (ICE) drawn from English speakers from various places in the world, initiated by [Greenbaum (1991)](https://www.cambridge.org/core/journals/english-today/article/abs/ice-the-international-corpus-of-english/47808205394C538393C3FD8E62E5E701).
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: bits_per_byte
       main_split: test
@@ -985,6 +1307,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: bits_per_byte
       main_split: test
@@ -995,6 +1318,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: bits_per_byte
       main_split: test
@@ -1002,10 +1326,12 @@ run_groups:
 # Minimal pairs
   - name: blimp
     display_name: BLiMP (The Benchmark of Linguistic Minimal Pairs for English)
+    short_display_name: BLiMP
     description: The Benchmark of Linguistic Minimal Pairs for English (BLiMP) for measuring performance on linguistic phenomena using minimal pair design [(Warstadt et al., 2020)](https://aclanthology.org/2020.tacl-1.25/).
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: exact_match
       main_split: test
@@ -1017,6 +1343,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: test
@@ -1029,6 +1356,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: test
@@ -1039,6 +1367,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: exact_match_indicator
       main_split: test
@@ -1049,6 +1378,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: absolute_value_difference
       main_split: test
@@ -1059,6 +1389,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: test
@@ -1069,6 +1400,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: f1_set_match
       main_split: test
@@ -1076,10 +1408,12 @@ run_groups:
 # Realistic reasoning
   - name: gsm
     display_name: GSM8K (Grade school math word problems)
+    short_display_name: GSM8K
     description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems [(Cobbe et al., 2021)](https://arxiv.org/abs/2110.14168).
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: exact_match_indicator
       main_split: test
@@ -1090,6 +1424,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: math_equiv
       main_split: test
@@ -1100,6 +1435,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: math_equiv_chain_of_thought
       main_split: test
@@ -1110,6 +1446,7 @@ run_groups:
     metric_groups:
       - apps_metrics
       - efficiency
+      - general_information
     environment:
       # We do not include accuracy as it is subsumed by apps
       main_name: test_avg
@@ -1121,6 +1458,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: pass
       main_split: test
@@ -1131,6 +1469,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: test
@@ -1141,6 +1480,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: test
@@ -1151,6 +1491,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: test
@@ -1161,6 +1502,7 @@ run_groups:
     metric_groups:
       - accuracy
       - efficiency
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: test
@@ -1174,6 +1516,7 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
       main_split: test
 
@@ -1185,6 +1528,7 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
       main_split: test
 
@@ -1197,6 +1541,7 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
       main_split: valid
 
@@ -1208,17 +1553,20 @@ run_groups:
       - bias
       - toxicity
       - efficiency
+      - general_information
     environment:
       main_split: valid
 
 ## Bias scenarios
   - name: bbq
     display_name: BBQ (Bias Benchmark for Question Answering)
+    short_display_name: BBQ
     description: The Bias Benchmark for Question Answering (BBQ) for measuring social bias in question answering in ambiguous and unambigous context [(Parrish et al., 2022)](https://aclanthology.org/2022.findings-acl.165/).
     metric_groups:
       - accuracy
       - bbq_metrics
       - efficiency
+      - general_information
     environment:
       main_name: quasi_exact_match
       main_split: test
@@ -1226,11 +1574,13 @@ run_groups:
 ## Toxicity scenarios
   - name: bold
     display_name: BOLD (Bias in Open-Ended Language Generation Dataset)
+    short_display_name: BOLD
     description: The Bias in Open-Ended Language Generation Dataset (BOLD) for measuring biases and toxicity in open-ended language generation [(Dhamala et al., 2021)](https://dl.acm.org/doi/10.1145/3442188.3445924).
     metric_groups:
       - toxicity
       - bias
       - efficiency
+      - general_information
     environment:
       main_split: test
 
@@ -1241,6 +1591,7 @@ run_groups:
       - toxicity
       - bias
       - efficiency
+      - general_information
     environment:
       main_split: test
 
@@ -1250,6 +1601,24 @@ run_groups:
     description: Scenario introduced in this work to better understand inference runtime performance of various models.
     metric_groups:
       - efficiency_detailed
+      - general_information
     environment:
       main_split: test
 
+## Aspirational scenarios
+  - name: non_english
+    display_name: Tasks on non-English domains
+    description: Currently, we only support English.
+    taxonomy:
+      language: non-English
+    todo: true
+
+  - name: real_task_english_dialects
+    display_name: Real tasks on English dialects
+    description: Currently, we have language modeling (TwitterAAE, ICE), but it would be good to support real-world tasks.
+    taxonomy:
+      task: real task
+      language: English dialects
+    todo: true
+
+  # TODO: add more
