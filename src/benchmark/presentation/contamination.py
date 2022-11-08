@@ -4,7 +4,7 @@ import dacite
 import yaml  # type: ignore
 
 from common.hierarchical_logger import htrack, hlog
-from proxy.models import MODEL_NAME_TO_MODEL
+from proxy.models import get_all_models
 from benchmark.presentation.schema import Schema
 
 CONTAMINATION_YAML_PATH: str = "src/benchmark/static/contamination.yaml"
@@ -67,7 +67,7 @@ def validate_contamination(contamination: Contamination, schema: Schema):
     """Make sure models and groups in contamination are defined according to `schema`."""
     for point in contamination.points:
         for model in point.models:
-            if model not in MODEL_NAME_TO_MODEL:
+            if model not in get_all_models():
                 hlog(f"WARNING: model {model} not defined in schema")
         for group in point.groups:
             if group not in schema.name_to_run_group:

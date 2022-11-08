@@ -80,6 +80,7 @@ class Model:
         return self.name.split("/")[1]
 
 
+# TODO: Remove ALL_MODELS and use the model registry instead.
 # For the list of available models, see the following docs:
 # Note that schema.yaml has much of this information now.
 # Over time, we should add more information there.
@@ -490,15 +491,23 @@ ALL_MODELS = [
 ]
 
 
-MODEL_NAME_TO_MODEL: Dict[str, Model] = {model.name: model for model in ALL_MODELS}
+_model_registry: Dict[str, Model] = {}
+
+
+def register_model(model: Model) -> None:
+    key = model.name
+    if key in _model_registry:
+        raise ValueError(f"A model is already registered for model name {key}")
+    _model_registry[key] = model
+
+
+for model in ALL_MODELS:
+    register_model(model)
 
 
 def get_model(model_name: str) -> Model:
     """Get the `Model` given the name."""
-    if model_name not in MODEL_NAME_TO_MODEL:
-        raise ValueError(f"No model with name: {model_name}")
-
-    return MODEL_NAME_TO_MODEL[model_name]
+    return _model_registry[model_name]
 
 
 def get_model_group(model_name: str) -> str:
@@ -509,19 +518,19 @@ def get_model_group(model_name: str) -> str:
 
 def get_all_models() -> List[str]:
     """Get all model names."""
-    return list(MODEL_NAME_TO_MODEL.keys())
+    return list(_model_registry.keys())
 
 
 def get_models_by_organization(organization: str) -> List[str]:
     """
     Gets models by organization e.g., ai21 => ai21/j1-jumbo, ai21/j1-grande, ai21-large.
     """
-    return [model.name for model in ALL_MODELS if model.organization == organization]
+    return [model.name for model in _model_registry.values() if model.organization == organization]
 
 
 def get_model_names_with_tag(tag: str) -> List[str]:
     """Get all the name of the models with tag `tag`."""
-    return [model.name for model in ALL_MODELS if tag in model.tags]
+    return [model.name for model in _model_registry.values() if tag in model.tags]
 
 
 def get_all_text_models() -> List[str]:

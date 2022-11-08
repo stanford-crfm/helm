@@ -1,7 +1,7 @@
 import torch
-from dataclasses import asdict
+from dataclasses import dataclass, asdict
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from common.cache import Cache, CacheConfig
 from common.hierarchical_logger import htrack_block, hlog
@@ -17,18 +17,47 @@ from .client import Client, wrap_request_time, truncate_sequence
 from .huggingface_tokenizer import HuggingFaceTokenizers
 
 
+@dataclass(frozen=True)
+class HuggingFaceModelConfig:
+    model_name: str
+    revision: Optional[str] = None
+
+
+_huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {}
+
+
+def register_huggingface_model(key, config: HuggingFaceModelConfig):
+    if key in _huggingface_model_registry:
+        raise ValueError(f"A HuggingFace model is already registered for key {key}")
+    _huggingface_model_registry[key] = config
+
+
+# Register built-in models
+register_huggingface_model("gpt-j-6b", HuggingFaceModelConfig("EleutherAI/gpt-j-6B"))
+register_huggingface_model("gpt2", HuggingFaceModelConfig("gpt2"))
+
+
+def _get_model_display_name_from_config(config: HuggingFaceModelConfig):
+    if config.revision is not None:
+        return f"{config.model_name}(revision={config.revision})"
+    return config.revision
+
+
 class HuggingFaceServer:
-    def __init__(self, model_name: str):
+    def __init__(self, config: HuggingFaceModelConfig):
         if torch.cuda.is_available():
             hlog("CUDA is available, initializing with a GPU...")
             self.device: str = "cuda:0"
         else:
             self.device = "cpu"
-
-        with htrack_block("Loading model"):
-            self.model = AutoModelForCausalLM.from_pretrained(model_name).to(self.device)
-        with htrack_block("Loading tokenizer"):
-            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model_display_name = _get_model_display_name_from_config(config)
+        hub_kwargs = {}
+        if config.revision is not None:
+            hub_kwargs["revision"] = config.revision
+        with htrack_block(f"Loading model {model_display_name} from HuggingFace"):
+            self.model = AutoModelForCausalLM.from_pretrained(config.model_name, **hub_kwargs).to(self.device)
+        with htrack_block(f"Loading tokenizer {model_display_name} from HuggingFace"):
+            self.tokenizer = AutoTokenizer.from_pretrained(config.model_name, **hub_kwargs)
 
     def serve_request(self, raw_request: Dict[str, Any]):
         encoded_input = self.tokenizer(raw_request["prompt"], return_tensors="pt").to(self.device)
@@ -114,12 +143,11 @@ class HuggingFaceClient(Client):
 
     def get_model_server_instance(self, model_engine) -> HuggingFaceServer:
         if model_engine not in self.model_server_instances:
-            if model_engine == "gpt-j-6b":
-                self.model_server_instances[model_engine] = HuggingFaceServer("EleutherAI/gpt-j-6B")
-            elif model_engine == "gpt2":
-                self.model_server_instances[model_engine] = HuggingFaceServer("gpt2")
-            else:
-                raise Exception("Unknown model!")
+            model_config = _huggingface_model_registry.get(model_engine)
+            if model_config is None:
+                raise ValueError(f"Unknown model engine: {model_engine}")
+            self.model_server_instances[model_engine] = HuggingFaceServer(model_config)
+
         return self.model_server_instances[model_engine]
 
     def make_request(self, request: Request) -> RequestResult:
