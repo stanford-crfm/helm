@@ -458,7 +458,7 @@ class BasicMetric(Metric):
         # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
         # sometimes predict a random letter like 'M'.
         if request_state.output_mapping is not None:
-            preds = [request_state.output_mapping.get(pred) for pred in preds]
+            preds = [request_state.output_mapping[pred] for pred in preds]
 
         # Compute max_prob, the probability that the model assigns to its generated text.
         # Use the log prob of sorted_completions[0], which is the completion with the highest
@@ -493,6 +493,7 @@ class BasicMetric(Metric):
         model. This is the same for each request."""
         assert request_state.result is not None
         # Compute efficiency metrics for inference.
+        assert request_state.result.request_time is not None
         runtime: float = request_state.result.request_time
         batch_size: int = 1
         # For models that perform offline batch inference, effective runtime is batch_request_time, but also

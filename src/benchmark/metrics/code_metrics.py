@@ -41,7 +41,7 @@ METRICS = {
 
 
 def _run_test_wrapper(root: str, test: str, timeout: float, shared_list: list):
-    shared_list.append(code_metrics_helper.run_test(root, test, timeout))
+    shared_list.append(code_metrics_helper.run_test(root, test, timeout))  # type: ignore
 
 
 class APPSMetric(Metric):
@@ -75,6 +75,7 @@ class APPSMetric(Metric):
     ) -> List[Stat]:
         reference = request_state.instance.references[0]
         reference = cast(CodeReference, reference)
+        assert request_state.result is not None
         request_result: RequestResult = request_state.result
         metadata = reference.test_cases
         assert metadata is not None
@@ -85,8 +86,8 @@ class APPSMetric(Metric):
             metric_fn = METRICS[name]
 
             best_score = 0.0
-            for completion in request_result.completions:
-                completion = completion.text.strip()
+            for completion_sequence in request_result.completions:
+                completion = completion_sequence.text.strip()
 
                 # Similar to the logic in https://github.com/hendrycks/apps/blob/main/eval/test_one_solution.py
                 # Running the testing code in a forked process prevents against annoying memory issues.
@@ -107,7 +108,8 @@ class APPSMetric(Metric):
                     # Remark: ideally should consider all tests that failed;
                     # use the average number of tests here for simplicity
                     avg_number_tests = 21
-                    shared_list = [[-1] * avg_number_tests]
+                    shared_list.clear()
+                    shared_list.append([-1] * avg_number_tests)
                 scores = shared_list[0]
 
                 scores = _convert_scores(scores)  # Convert list of bool/int to list of ints.
