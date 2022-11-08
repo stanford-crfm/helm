@@ -81,6 +81,8 @@ class Model:
 
 
 # For the list of available models, see the following docs:
+# Note that schema.yaml has much of this information now.
+# Over time, we should add more information there.
 ALL_MODELS = [
     # AI21: https://studio.ai21.com/pricing
     Model(

@@ -42,6 +42,19 @@ class Field:
         return name
 
 
+# Note: also see Model from `models.py` (in the future, possibly unify).
+@dataclass(frozen=True)
+class ModelField(Field):
+    # Who created it (e.g., OpenAI)
+    creator_organization: Optional[str] = None
+
+    # How this model is available (e.g., limited)
+    access: Optional[str] = None
+
+    # Whether we have yet to evaluate this model
+    todo: bool = False
+
+
 @dataclass(frozen=True)
 class MetricNameMatcher:
     """
@@ -103,6 +116,24 @@ NO_GROUPS = "no_groups"
 
 
 @dataclass(frozen=True)
+class TaxonomyInfo:
+    # Task (e.g., question answering)
+    task: Optional[str] = None
+
+    # Domain - genre (e.g., Wikipedia)
+    what: Optional[str] = None
+
+    # Domain - when it was written (e.g., 2010s)
+    when: Optional[str] = None
+
+    # Domain - demographics (e.g., web users)
+    who: Optional[str] = None
+
+    # Language (e.g., English)
+    language: Optional[str] = None
+
+
+@dataclass(frozen=True)
 class RunGroup(Field):
     """
     Defines information about how a group of runs is displayed.
@@ -137,10 +168,19 @@ class RunGroup(Field):
     # not under "imdb" (and thus is not aggregated with the canonical runs with groups ["imdb"].
     visibility: str = ALL_GROUPS
 
+    # For scenarios
+    taxonomy: Optional[TaxonomyInfo] = None
+
+    # Whether we have yet to evaluate this model
+    todo: bool = False
+
 
 @dataclass
 class Schema:
     """Specifies information about what to display on the frontend."""
+
+    # Models
+    models: List[ModelField]
 
     # Adapter fields (e.g., temperature)
     adapter: List[Field]
@@ -158,6 +198,7 @@ class Schema:
     run_groups: List[RunGroup]
 
     def __post_init__(self):
+        self.name_to_model = {model.name: model for model in self.models}
         self.name_to_metric = {metric.name: metric for metric in self.metrics}
         self.name_to_perturbation = {perturbation.name: perturbation for perturbation in self.perturbations}
         self.name_to_metric_group = {metric_group.name: metric_group for metric_group in self.metric_groups}

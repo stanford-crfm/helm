@@ -34,6 +34,7 @@ setup(
             "benchmark-run=benchmark.run:main",
             "benchmark-present=benchmark.presentation.present:main",
             "benchmark-summarize=benchmark.presentation.summarize:main",
+            "benchmark-server=benchmark.server:main",
             "proxy-server=proxy.server:main",
             "proxy-cli=proxy.cli:main",
         ]

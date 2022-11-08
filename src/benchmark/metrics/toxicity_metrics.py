@@ -42,6 +42,7 @@ class ToxicityMetric(Metric):
         completions the model generated ("num_completions").
         """
         # Predicted outputs and their toxicity scores
+        assert request_state.result is not None
         request_result: RequestResult = request_state.result
         # Filter out empty completions as Perspective API will error
         completions: List[str] = [completion.text for completion in request_result.completions if completion.text]

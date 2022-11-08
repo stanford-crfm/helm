@@ -447,6 +447,7 @@ class BasicMetric(Metric):
         # Gold outputs
         golds = [reference for reference in request_state.instance.references if reference.is_correct]
         assert len(golds) > 0
+        reference_metrics.append(Stat(MetricName("num_references")).add(len(request_state.instance.references)))
 
         # Predicted outputs
         assert request_state.result is not None
@@ -457,7 +458,7 @@ class BasicMetric(Metric):
         # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
         # sometimes predict a random letter like 'M'.
         if request_state.output_mapping is not None:
-            preds = [request_state.output_mapping.get(pred) for pred in preds]
+            preds = [request_state.output_mapping[pred] for pred in preds]
 
         # Compute max_prob, the probability that the model assigns to its generated text.
         # Use the log prob of sorted_completions[0], which is the completion with the highest
@@ -492,6 +493,7 @@ class BasicMetric(Metric):
         model. This is the same for each request."""
         assert request_state.result is not None
         # Compute efficiency metrics for inference.
+        assert request_state.result.request_time is not None
         runtime: float = request_state.result.request_time
         batch_size: int = 1
         # For models that perform offline batch inference, effective runtime is batch_request_time, but also
@@ -508,6 +510,11 @@ class BasicMetric(Metric):
         prompt: str = request_state.request.prompt
         num_prompt_tokens: int = window_service.get_num_tokens(prompt)
 
+        # Just take the first completion
+        # TODO: don't we need to take into account all the completions, since
+        # the runtime we get (that's used to compute denoised_runtime) is for
+        # generating all of them?
+        # TODO: we should unify this into num_completion_tokens
         sequence = request_state.result.completions[0]
         num_output_tokens: int = len(sequence.tokens)
         # Don't include prompt in number of generated tokens (e.g., for language modeling).
@@ -632,8 +639,12 @@ class BasicMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        """Compute the reference metrics and language modeling metrics"""
+        """Compute all metrics."""
         metrics = []
+
+        # Copy from adapter spec
+        metrics.append(Stat(MetricName("num_train_trials")).add(adapter_spec.num_train_trials))
+
         if len(request_state.instance.references) > 0:
             metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
 
@@ -786,7 +797,9 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
             calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(0.0))
             calibration_metrics.append(Stat(MetricName("platt_ece_1_bin")).add(0.0))
         else:
-            platt_scaler = cal.get_platt_scaler(np.array(max_probs), np.array(correct))
+            platt_scaler, clf = cal.get_platt_scaler(np.array(max_probs), np.array(correct), get_clf=True)
+            calibration_metrics.append(Stat(MetricName("platt_coef")).add(clf.coef_[0][0]))
+            calibration_metrics.append(Stat(MetricName("platt_intercept")).add(clf.intercept_[0]))
             cal_max_probs = platt_scaler(np.array(max_probs))
             platt_ece_10_bin = cal.get_ece_em(cal_max_probs, correct, num_bins=10)
             calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(platt_ece_10_bin))
