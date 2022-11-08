@@ -3,6 +3,7 @@ from typing import Dict, List
 from common.request import Request, Sequence
 from proxy.clients.huggingface_client import HuggingFaceClient
 from .ai21_token_counter import AI21TokenCounter
+from .cohere_token_counter import CohereTokenCounter
 from .free_token_counter import FreeTokenCounter
 from .gooseai_token_counter import GooseAITokenCounter
 from .openai_token_counter import OpenAITokenCounter
@@ -26,6 +27,8 @@ class AutoTokenCounter(TokenCounter):
                 token_counter = AI21TokenCounter()
             elif organization == "gooseai":
                 token_counter = GooseAITokenCounter()
+            elif organization == "cohere":
+                token_counter = CohereTokenCounter()
             else:
                 token_counter = FreeTokenCounter()
             self.token_counters[organization] = token_counter
