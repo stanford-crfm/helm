@@ -20,6 +20,7 @@ from proxy.models import (
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
+from benchmark.adapter import Substitution
 
 
 class RunExpander(ABC):
@@ -171,6 +172,39 @@ class PromptRunExpander(RunExpander):
         ]
 
 
+class NewlineRunExpander(RunExpander):
+    """
+    Set the newline delimiter (what's inserted before each newline).
+    """
+
+    name = "newline"
+
+    def __init__(self, value):
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec = run_spec.adapter_spec
+        if self.value == "semicolon":
+            adapter_spec = replace(
+                adapter_spec,
+                substitutions=[Substitution("\n", ";\n")],
+            )
+        elif self.value == "br":
+            adapter_spec = replace(
+                adapter_spec,
+                substitutions=[Substitution("\n", "<br>\n")],
+            )
+        else:
+            raise Exception("Unknown value: {self.value}")
+        return [
+            replace(
+                run_spec,
+                name=f"{run_spec.name},{self.name}={self.value}",
+                adapter_spec=adapter_spec,
+            ),
+        ]
+
+
 class StopRunExpander(RunExpander):
     """
     Set the stop sequence to something (e.g., ###) with new lines.
@@ -187,6 +221,10 @@ class StopRunExpander(RunExpander):
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         if self.value == "hash":
             stop = "###"
+        elif self.value == "semicolon":
+            stop = ";"
+        elif self.value == "br":
+            stop = "<br>"
         else:
             raise Exception(f"Unknown value: {self.value}")
         return [
@@ -766,6 +804,7 @@ RUN_EXPANDERS = dict(
     for expander in [
         InstructionsRunExpander,
         PromptRunExpander,
+        NewlineRunExpander,
         StopRunExpander,
         GlobalPrefixRunExpander,
         NumTrainTrialsRunExpander,

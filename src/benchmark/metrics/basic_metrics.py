@@ -582,17 +582,17 @@ class BasicMetric(Metric):
             for valid_reason in valid_reasons
         ]
 
-    def compute_num_in_context_examples(
+    def compute_truncation_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
-        """Record the number of in-context examples used in the prompt."""
-        return [Stat(MetricName("num_in_context_examples")).add(request_state.num_in_context_examples)]
-
-    def compute_input_truncated(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
-    ) -> List[Stat]:
-        """Record whether the input was truncated to fit the context window."""
-        return [Stat(MetricName("input_truncated")).add(request_state.input_truncated)]
+        """
+        Record the number of training instances used in the prompt and whether
+        even the prompt needed to be truncated (once we hit zero training instances).
+        """
+        return [
+            Stat(MetricName("num_train_instances")).add(request_state.num_train_instances),
+            Stat(MetricName("prompt_truncated")).add(request_state.prompt_truncated),
+        ]
 
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -640,8 +640,7 @@ class BasicMetric(Metric):
         metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
-        metrics.extend(self.compute_num_in_context_examples(adapter_spec, request_state, metric_service))
-        metrics.extend(self.compute_input_truncated(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_truncation_metrics(adapter_spec, request_state, metric_service))
 
         return metrics
 
