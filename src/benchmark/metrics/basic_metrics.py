@@ -582,17 +582,17 @@ class BasicMetric(Metric):
             for valid_reason in valid_reasons
         ]
 
-    def compute_num_in_context_examples(
+    def compute_truncation_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
-        """Record the number of in-context examples used in the prompt."""
-        return [Stat(MetricName("num_in_context_examples")).add(request_state.num_in_context_examples)]
-
-    def compute_input_truncated(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
-    ) -> List[Stat]:
-        """Record whether the input was truncated to fit the context window."""
-        return [Stat(MetricName("input_truncated")).add(request_state.input_truncated)]
+        """
+        Record the number of training instances used in the prompt and whether
+        even the prompt needed to be truncated (once we hit zero training instances).
+        """
+        return [
+            Stat(MetricName("num_train_instances")).add(request_state.num_train_instances),
+            Stat(MetricName("prompt_truncated")).add(request_state.prompt_truncated),
+        ]
 
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -640,8 +640,7 @@ class BasicMetric(Metric):
         metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
-        metrics.extend(self.compute_num_in_context_examples(adapter_spec, request_state, metric_service))
-        metrics.extend(self.compute_input_truncated(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_truncation_metrics(adapter_spec, request_state, metric_service))
 
         return metrics
 
@@ -657,7 +656,6 @@ class BasicMetric(Metric):
         We define the following metrics:
         - correct_rank: if we sort references by their logprobs, what is the ranking of the first correct reference.
         """
-        # TODO: https://github.com/stanford-crfm/benchmarking/issues/45
 
         @dataclass(frozen=True)
         class ReferenceKey:
@@ -685,7 +683,7 @@ class BasicMetric(Metric):
             num_tokens: int = len(reference_tokens)
             answer_tokens: List[Token] = sequence.tokens[-num_tokens:]
             logprob: float = sum(token.logprob for token in answer_tokens)
-
+            assert not math.isnan(logprob), f"Log probs have NaN for RequestState: {request_state}"
             return ReferenceStat(logprob, num_tokens)
 
         references = reference_request_states[0].instance.references
@@ -735,6 +733,7 @@ class BasicMetric(Metric):
             [
                 Stat(MetricName("max_prob")).add(max_prob),
                 Stat(MetricName("exact_match")).add(float(max(reference_scores) == max(answer_scores))),
+                Stat(MetricName("predicted_index")).add(reference_scores.index(max(reference_scores))),
             ]
         )
         return metrics
@@ -771,7 +770,7 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
     calibration_metrics: List[Stat] = []
     assert len(max_probs) == len(correct)
     if len(max_probs) > 0:
-        # We need at least around 300 examples to compute ece_10_bin reliably.
+        # We need at least about 300 examples to compute ece_10_bin reliably.
         ece_10_bin = cal.get_ece_em(max_probs, correct, num_bins=10)
         calibration_metrics.append(Stat(MetricName("ece_10_bin")).add(ece_10_bin))
         ece_1_bin = cal.get_ece(max_probs, correct, num_bins=1)
@@ -782,20 +781,18 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
         # Compute ECE after recalibration.
         if np.sum(correct) == 0 or np.sum(correct) == len(correct):
             # If all examples are correct or incorrect, the platt scaling
-            # optiizer won't work. But our calibration error (post-calibration) will be
+            # optimizer won't work. But our calibration error (post-calibration) will be
             # estimated as 0, so just directly store that.
             calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(0.0))
             calibration_metrics.append(Stat(MetricName("platt_ece_1_bin")).add(0.0))
         else:
-            platt_scaler, clf = cal.get_platt_scaler(np.array(max_probs), np.array(correct),
-                                                     get_clf=True)
-            calibration_metrics.append(Stat(MetricName("platt_coef")).add(clf.coef_[0]))
+            platt_scaler, clf = cal.get_platt_scaler(np.array(max_probs), np.array(correct), get_clf=True)
+            calibration_metrics.append(Stat(MetricName("platt_coef")).add(clf.coef_[0][0]))
             calibration_metrics.append(Stat(MetricName("platt_intercept")).add(clf.intercept_[0]))
             cal_max_probs = platt_scaler(np.array(max_probs))
             platt_ece_10_bin = cal.get_ece_em(cal_max_probs, correct, num_bins=10)
             calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(platt_ece_10_bin))
             platt_ece_1_bin = cal.get_ece(cal_max_probs, correct, num_bins=1)
             calibration_metrics.append(Stat(MetricName("platt_ece_1_bin")).add(platt_ece_1_bin))
-
 
     return calibration_metrics

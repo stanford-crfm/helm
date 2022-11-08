@@ -14,28 +14,10 @@ from common.tokenization_request import (
 from common.hierarchical_logger import hlog
 from .client import Client, wrap_request_time, truncate_sequence
 
-NO_NEWLINE_MODELS = ["together/t5", "together/t0pp", "together/glm", "together/ul2"]
-
-
-# Don't do this for now until we figure out whether <br> is a good substitute for "\n".
-use_br_as_newline = False
-
-
-def prepare_text(x: str, model: str) -> str:
-    """Process text before sending to API."""
-    if model in NO_NEWLINE_MODELS:
-        if use_br_as_newline:
-            x = x.replace("\n", "<br>")
-    return x
-
 
 def fix_text(x: str, model: str) -> str:
     """Fix text that comes back from the API."""
-    if model in NO_NEWLINE_MODELS:
-        x = x.replace("▁", " ")
-        x = x.replace("</s>", "")
-        if use_br_as_newline:
-            x = x.replace("<br>", "\n")
+    x = x.replace("▁", " ")
     return x
 
 
@@ -53,7 +35,7 @@ class TogetherClient(Client):
         return {
             "request_type": "language-model-inference",
             "model": request.model_engine,
-            "prompt": prepare_text(request.prompt, request.model),
+            "prompt": request.prompt,
             "temperature": request.temperature,
             "n": request.num_completions,
             "max_tokens": request.max_tokens,
@@ -91,15 +73,18 @@ class TogetherClient(Client):
 
                 # Poll and wait for job to be finished
                 job_id = response["id"]
-                for t in range(10000000):
+                TIMEOUT = 60
+                for t in range(TIMEOUT):
                     response = requests.get(f"{base_url}/job/{job_id}").json()
                     status = response["status"]
                     hlog(f"TogetherClient: Waiting for job {job_id}, status is {status}, waited {t} seconds")
                     if status == "finished":
                         return response["returned_payload"]["result"]["inference_result"][0]
                     elif status == "failed":
-                        raise Exception(f"TogetherClient request failed: {json.dumps(response)}")
+                        raise RuntimeError(f"TogetherClient request failed: {json.dumps(response)}")
                     time.sleep(1)
+
+                raise RuntimeError(f"TogetherClient request timed out after {TIMEOUT} seconds")
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except RuntimeError as e:

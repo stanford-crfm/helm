@@ -73,10 +73,10 @@ metrics:
     description: Number of distinct API requests.
   - name: num_instances
     display_name: '# instances'
-    description: Number of instances.
-  - name: num_in_context_examples
-    display_name: '# in-context'
-    description: Number of in-context (training) examples.
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
   - name: input_truncated
     display_name: truncated
     description: Fraction of instances where the input itself was truncated (implies that there were no in-context examples).
@@ -167,6 +167,12 @@ metrics:
     display_name: Valid fraction
     short_display_name: Valid 
     description: Fraction of valid model outputs (as a number).
+  - name: NDCG@10
+    display_name: NDCG@10
+    description: Normalized discounted cumulative gain at 10 in information retrieval.
+  - name: RR@10
+    display_name: RR@10
+    description: Mean reciprocal rank at 10 in information retrieval.
   - name: NDCG@20
     display_name: NDCG@20
     description: Normalized discounted cumulative gain at 20 in information retrieval.
@@ -270,6 +276,7 @@ metrics:
   - name: longest_common_prefix_length
     display_name: Longest common prefix length
     short_display_name: LCS
+    lower_is_better: true
     description: Average length of longest common prefix between model generation and reference.
   - name: edit_distance
     display_name: Edit distance (Levenshtein)
@@ -278,6 +285,7 @@ metrics:
   - name: edit_similarity
     display_name: Edit similarity (Levenshtein)
     short_display_name: Edit sim.
+    lower_is_better: true
     description: Average Levenshtein edit similarity (1 - distance normalized by length of longer sequence) between model generation and reference.
 
   # Bias metrics:
@@ -562,6 +570,8 @@ metric_groups:
       - name: longest_common_prefix_length
         split: ${main_split}
       - name: edit_distance
+        split: ${main_split}
+      - name: edit_similarity
         split: ${main_split}
 
   - name: disinformation_metrics

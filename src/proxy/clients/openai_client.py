@@ -1,5 +1,5 @@
 from dataclasses import replace
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import openai
 
@@ -28,6 +28,7 @@ class OpenAIClient(Client):
         self.cache = Cache(cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
+        raw_request: Dict[str, Any]
         if request.embedding:
             raw_request = {
                 "input": request.prompt,

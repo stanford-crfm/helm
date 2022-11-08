@@ -20,6 +20,7 @@ from proxy.models import (
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
+from benchmark.adapter import Substitution
 
 
 class RunExpander(ABC):
@@ -110,6 +111,12 @@ class InstructionsRunExpander(RunExpander):
                 adapter_spec,
                 instructions="",
             )
+        elif self.value == "expert":
+            adapter_spec = replace(
+                adapter_spec,
+                instructions="I am an expert AI assistant who is here to help you with the following. "
+                + adapter_spec.instructions,
+            )
         else:
             raise Exception("Unknown value: {self.value}")
         return [
@@ -138,12 +145,55 @@ class PromptRunExpander(RunExpander):
                 output_suffix='".\n',
                 stop_sequences=['".'],
             )
-        elif self.value == "qa":
-            adapter_spec = replace(adapter_spec, input_prefix="Q: ", output_prefix="A: ")
         elif self.value == "question_answer":
             adapter_spec = replace(adapter_spec, input_prefix="Question: ", output_prefix="Answer: ")
+        elif self.value == "qa":
+            adapter_spec = replace(adapter_spec, input_prefix="Q: ", output_prefix="A: ")
+        elif self.value == "input_output_html":
+            adapter_spec = replace(
+                adapter_spec,
+                input_prefix="<input>",
+                input_suffix="</input>\n",
+                output_prefix="<output>",
+                output_suffix="</output>\n",
+            )
         elif self.value == "input_output":
             adapter_spec = replace(adapter_spec, input_prefix="Input: ", output_prefix="Output: ")
+        elif self.value == "i_o":
+            adapter_spec = replace(adapter_spec, input_prefix="I: ", output_prefix="O: ")
+        else:
+            raise Exception("Unknown value: {self.value}")
+        return [
+            replace(
+                run_spec,
+                name=f"{run_spec.name},{self.name}={self.value}",
+                adapter_spec=adapter_spec,
+            ),
+        ]
+
+
+class NewlineRunExpander(RunExpander):
+    """
+    Set the newline delimiter (what's inserted before each newline).
+    """
+
+    name = "newline"
+
+    def __init__(self, value):
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec = run_spec.adapter_spec
+        if self.value == "semicolon":
+            adapter_spec = replace(
+                adapter_spec,
+                substitutions=[Substitution("\n", ";\n")],
+            )
+        elif self.value == "br":
+            adapter_spec = replace(
+                adapter_spec,
+                substitutions=[Substitution("\n", "<br>\n")],
+            )
         else:
             raise Exception("Unknown value: {self.value}")
         return [
@@ -171,6 +221,10 @@ class StopRunExpander(RunExpander):
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         if self.value == "hash":
             stop = "###"
+        elif self.value == "semicolon":
+            stop = ";"
+        elif self.value == "br":
+            stop = "<br>"
         else:
             raise Exception(f"Unknown value: {self.value}")
         return [
@@ -750,6 +804,7 @@ RUN_EXPANDERS = dict(
     for expander in [
         InstructionsRunExpander,
         PromptRunExpander,
+        NewlineRunExpander,
         StopRunExpander,
         GlobalPrefixRunExpander,
         NumTrainTrialsRunExpander,

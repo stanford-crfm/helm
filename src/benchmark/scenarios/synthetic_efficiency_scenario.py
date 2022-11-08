@@ -5,6 +5,21 @@ from common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, TEST_SPLIT, CORRECT_TAG
 
 
+NUM_INPUT_TOKENS: List[int] = [
+    1,
+    16,
+    32,
+    64,
+    256,
+    512,
+    768,
+    1024,
+    1536,
+    1920,
+]
+NUM_OUTPUT_TOKENS: List[int] = [1, 2, 4, 8, 16, 32, 64]
+
+
 class SyntheticEfficiencyScenario(Scenario):
     """
     This synthetic scenario is intended for conducting efficiency-oriented

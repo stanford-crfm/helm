@@ -981,7 +981,14 @@ def get_babi_qa_spec(task: str = "all") -> RunSpec:
     )
 
 
-def get_copyright_spec(datatag="pilot", temperature=0.2, max_tokens=1024, num_outputs=1) -> RunSpec:
+def get_copyright_spec(
+    datatag="pilot",
+    temperature=0.2,
+    max_tokens=1024,
+    num_outputs=1,
+    normalize_by_prefix_length=True,
+    normalize_newline_space_tab=False,
+) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="benchmark.scenarios.copyright_scenario.CopyrightScenario", args=dict(datatag=datatag)
     )
@@ -992,7 +999,12 @@ def get_copyright_spec(datatag="pilot", temperature=0.2, max_tokens=1024, num_ou
         name=f"copyright:datatag={datatag}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_copyright_metric_specs({"normalize_by_prefix_length": True})
+        metric_specs=get_copyright_metric_specs(
+            {
+                "normalize_by_prefix_length": normalize_by_prefix_length,
+                "normalize_newline_space_tab": normalize_newline_space_tab,
+            }
+        )
         + get_generative_harms_metric_specs(),
         groups=["copyright_code" if datatag in datatag2hash_code else "copyright_text"],
     )
@@ -1260,7 +1272,8 @@ def get_xsum_summarization_spec(temperature: float = 0.3, device: str = "cpu") -
         name=f"summarization_xsum:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"device": device}) + get_generative_harms_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"task": "summarization_xsum", "device": device})
+        + get_generative_harms_metric_specs(),
         groups=["summarization_xsum"],
     )
 
@@ -1286,7 +1299,8 @@ def get_xsum_sampled_summarization_spec(temperature: float = 0.3, device: str = 
         name=f"summarization_xsum:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"device": device}) + get_generative_harms_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"task": "summarization_xsum_sampled", "device": device})
+        + get_generative_harms_metric_specs(),
         groups=["summarization_xsum"],
     )
 
@@ -1307,7 +1321,8 @@ def get_cnndm_summarization_spec(temperature: float = 0.3, device: str = "cpu") 
         name=f"summarization_cnndm:temperature={temperature},device={device}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_summarization_metric_specs({"device": device}) + get_generative_harms_metric_specs(),
+        metric_specs=get_summarization_metric_specs({"task": "summarization_cnndm", "device": device})
+        + get_generative_harms_metric_specs(),
         groups=["summarization_cnndm"],
     )
 

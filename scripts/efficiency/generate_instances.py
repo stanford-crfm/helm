@@ -7,7 +7,7 @@ generated for each distinct tokenizer used.
 
 
 import os
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from common.general import ensure_directory_exists, ensure_file_downloaded, parse_hocon, write
 from common.tokenization_request import (
@@ -15,6 +15,7 @@ from common.tokenization_request import (
     TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
+    TokenizationToken,
 )
 from proxy.clients.client import Client
 from proxy.clients.auto_client import AutoClient
@@ -64,7 +65,7 @@ def get_client(base_path: str = "prod_env"):
 
 def tokenize_text(
     client: AutoClient, tokenizer: str, output_path: str = "synthetic_efficiency_instances", base_path: str = "prod_env"
-):
+) -> Tuple[Dict[str, List[TokenizationToken]], Dict[str, List[str]]]:
     """Tokenizes each book using the requested tokenizer service."""
     sources = {
         "alice": "https://www.gutenberg.org/files/11/11-0.txt",
@@ -74,8 +75,8 @@ def tokenize_text(
         "crime_and_punishment": "https://www.gutenberg.org/files/2554/2554-0.txt",
     }
 
-    tokens: Dict = {}
-    text_chunks: Dict = {}
+    tokens: Dict[str, List[TokenizationToken]] = {}
+    text_chunks: Dict[str, List[str]] = {}
 
     tokenizer_organization: str = tokenizer.split("/")[0]
     ai21_tokenizer: bool = tokenizer_organization == "ai21"
@@ -111,14 +112,15 @@ def tokenize_text(
             tokens[book] += result.tokens
             if ai21_tokenizer:
                 text_chunks[book] += [
-                    result.text[token.text_range.start : token.text_range.end] for token in result.tokens
+                    result.text[token.text_range.start : token.text_range.end]  # type: ignore
+                    for token in result.tokens
                 ]
             i += 1
     return tokens, text_chunks
 
 
 def generate_synthetic_efficiency_instances(
-    tokens: Dict[str, List[int]],
+    tokens: Dict[str, List[TokenizationToken]],
     text_chunks: Dict[str, List[str]],
     client: Client,
     num_instances: int,
@@ -148,7 +150,8 @@ def generate_synthetic_efficiency_instances(
                     per_instance_tokens = text_chunks[books[j]][i * num_prompt_tokens : (i + 1) * num_prompt_tokens]
                 else:
                     per_instance_tokens = [
-                        token.value for token in tokens[books[j]][i * num_prompt_tokens : (i + 1) * num_prompt_tokens]
+                        token.value  # type: ignore
+                        for token in tokens[books[j]][i * num_prompt_tokens : (i + 1) * num_prompt_tokens]
                     ]
 
                 # Iterate on this span of text until we get the right number of tokens
@@ -157,7 +160,7 @@ def generate_synthetic_efficiency_instances(
                     if ai21_tokenizer:
                         prompt = "".join(per_instance_tokens)
                     else:
-                        decode_request: DecodeRequest = DecodeRequest(tokens=per_instance_tokens)
+                        decode_request: DecodeRequest = DecodeRequest(tokens=per_instance_tokens)  # type: ignore
                         decode_result: DecodeRequestResult = client.decode(decode_request)
                         prompt = decode_result.text
 
@@ -177,7 +180,9 @@ def generate_synthetic_efficiency_instances(
                                 if ai21_tokenizer:
                                     per_instance_tokens = text_chunks[books[j]][:2]
                                 else:
-                                    per_instance_tokens = [token.value for token in tokens[books[j]][:2]]
+                                    per_instance_tokens = [
+                                        token.value for token in tokens[books[j]][:2]  # type: ignore
+                                    ]
                             else:
                                 per_instance_tokens.append(per_instance_tokens[-1])
                             temp_num_tokens += 1

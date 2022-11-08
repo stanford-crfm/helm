@@ -362,6 +362,34 @@ $(function () {
     return instanceKeyToDiv;
   }
 
+  function renderRequest(request) {
+    // Render the request made to the API as a table.
+    const $requestTable = $('<table>');
+
+    const $requestTableHeader = $('<h6>').append('Request');
+    $requestTable.append($requestTableHeader);
+
+    const $promptRow = $('<tr>').append([
+      $('<td>').append("prompt"),
+      $('<td>').append($('<pre>').text(request.prompt)),
+    ]);
+    $requestTable.append($promptRow);
+
+    for (let requestKey in request) {
+      if (requestKey === 'prompt') {
+        continue;
+      }
+      const $requestRow = $('<tr>').append([
+        $('<td>').append(requestKey),
+        $('<td>').append(
+          typeof request[requestKey] === 'string' ? request[requestKey] : JSON.stringify(request[requestKey])
+        ),
+      ]);
+      $requestTable.append($requestRow);
+    }
+    return $('<div>').append().append($requestTable);
+  }
+
   function renderPredictions(runSpec, runDisplayName, scenarioState, perInstanceStats, instanceKeyToDiv) {
     // Add the predictions and statistics from `scenarioState` and `perInstanceStats` to the appropriate divs for each instance.
     // Each instance give rises to multiple requests (whose results are in `scenarioState`):
@@ -400,9 +428,20 @@ $(function () {
         return;
       }
 
+      const key = instanceTrialKey(requestState.instance, requestState.train_trial_index);
+      // For multiple_choice_separate_*, only render the request state for the predicted index
+      if (requestState.reference_index !== undefined) {
+        const predictedIndexStat = instanceKeyTrialToStats[key] ?
+          instanceKeyTrialToStats[key].find((stat) => stat.name.name === "predicted_index") :
+          undefined;
+        if (predictedIndexStat === undefined) {
+          console.warn("Cannot find predicted index for: ", key);
+        } else if (requestState.reference_index !== predictedIndexStat.mean) {
+          return;
+        }
+      }
       // Print out instance-level statistics.
       // Show it once for each (instance id, train trial index, perturbation).
-      const key = instanceTrialKey(requestState.instance, requestState.train_trial_index);
       if (!shownStats[key]) {
         const stats = instanceKeyTrialToStats[key];
         if (!stats) {
@@ -476,7 +515,7 @@ $(function () {
       description += 'Prediction';
 
       // Which reference (for multiple_choice_separate_*)
-      if (requestState.reference_index != null) {
+      if (requestState.reference_index !== undefined) {
         description += '[ref ' + requestState.reference_index + ']';
       }
 
@@ -485,12 +524,20 @@ $(function () {
         description += '{trial ' + requestState.train_trial_index + '}';
       }
 
-      $instance.append($('<div>')
-        .append($('<a>', {href}).append($('<b>').append(description)))
+      const $request = renderRequest(requestState.request);
+      $request.hide();
+      $link = $('<a>', {href}).append($('<b>').append(description)).click(() => {
+        $request.slideToggle();
+        return false;
+      });
+      $prediction = $('<div>')
+        .append($link)
         .append(': ')
         .append(prefix)
         .append(prediction)
-        .append($logProb));
+        .append($logProb);
+      $instance.append($prediction);
+      $instance.append($request);
     });
   }
 

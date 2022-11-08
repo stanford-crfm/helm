@@ -1,8 +1,13 @@
+import json
+import pandas
 import numpy as np
+import os
+import pickle
 import spacy
 import subprocess
 import sys
 from typing import List, Dict
+from collections import defaultdict
 
 # Need to check spacy module is downloaded before importing DataStatsMetric
 if not spacy.util.is_package("en_core_web_sm"):
@@ -12,6 +17,7 @@ from summ_eval.data_stats_metric import DataStatsMetric
 
 from benchmark.adapter import AdapterSpec, RequestState, ScenarioState
 from common.hierarchical_logger import hlog
+from common.general import ensure_file_downloaded
 from .metric import Metric, MetricResult
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -19,6 +25,11 @@ from .basic_metrics import get_rouge_function
 from .statistic import Stat
 from .summac.model_summac import SummaCZS
 from bert_score import BERTScorer
+
+
+QAFACTEVAL_CODALAB_LINK: str = (
+    "https://worksheets.codalab.org/rest/bundles/0xf4de83c1f0d34d7999480223e8f5ab87/contents/blob/"
+)
 
 
 class SummarizationMetric(Metric):
@@ -31,13 +42,15 @@ class SummarizationMetric(Metric):
         4. Faithfulness (SummaC)
     """
 
-    def __init__(self, device="cpu"):
+    def __init__(self, task: str, device: str = "cpu"):
         self.rouge_fns = {
             "rouge_1": get_rouge_function("rouge1"),
             "rouge_2": get_rouge_function("rouge2"),
             "rouge_l": get_rouge_function("rougeL"),
         }
         self.data_stats_metric = DataStatsMetric()
+        self.task: str = task
+        self.qa_fact_eval = None
 
         if device == "cpu":
             self.compute_faithfulness = False
@@ -50,6 +63,15 @@ class SummarizationMetric(Metric):
             # Need GPU for faithfulness metrics since they are model-based.
             self.compute_faithfulness = True
             self.summac = SummaCZS(granularity="sentence", model_name="vitc", imager_load_cache=False, device=device)
+
+    def _load_qafacteval(self, eval_cache_path: str):
+        target_path: str = os.path.join(eval_cache_path, "qafacteval.pk")
+        ensure_file_downloaded(source_url=QAFACTEVAL_CODALAB_LINK, target_path=target_path)
+
+        with open(target_path, "rb") as fin:
+            qafacteval_scores = pickle.load(fin)
+
+        self.qa_fact_eval = qafacteval_scores[self.task]
 
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
@@ -112,6 +134,16 @@ class SummarizationMetric(Metric):
 
         result: List[Stat] = []
 
+        try:
+            # get qafacteval scores if they exist
+            if self.qa_fact_eval is None:
+                self._load_qafacteval(eval_cache_path)
+            model_name = adapter_spec.model.replace("/", "_")
+            val = self.qa_fact_eval[model_name][(request_state.instance.id, pred)]
+            result.append(Stat(MetricName("QAFactEval")).add(float(val)))
+        except KeyError:
+            pass
+
         # Compute rouge metrics
         result.extend([Stat(MetricName(name)).add(float(val)) for name, val in self._compute_rouge(refs, pred).items()])
 
@@ -136,3 +168,165 @@ class SummarizationMetric(Metric):
             )
 
         return result
+
+
+HUMAN_EVAL_CODALAB_LINK: str = (
+    "https://worksheets.codalab.org/rest/bundles/0x3fb04ae3ae024c369d048f6c2cdf16cb/"
+    "contents/blob/codalab_merged_results/{file_name}"
+)
+
+
+def _paired_bootstrap_test(treatment: list, control: list, nboot: int = 10000):
+    """
+    Computes paired bootstrap test for the Hypothesis: treament > control
+
+    Args:
+        treatment: list of float, representing results of treament (better model results)
+        control: list of float, representing results of control (worse model results)
+        nboot: int, number of bootstraps to perform
+    """
+    treatment = np.array(treatment)
+    control = np.array(control)
+    delta = treatment.mean() - control.mean()
+    sample_idx = np.random.choice(np.arange(len(treatment)), size=(nboot, len(treatment)))
+    boot_treatment = treatment[sample_idx]
+    boot_control = control[sample_idx]
+    diff = boot_treatment.mean(axis=1) - boot_control.mean(axis=1)
+    return (diff > 2 * delta).mean()
+
+
+class SummarizationHumanEvalAnalyzer:
+    """
+    Analyzes the human evaluation data of on summarization datasets
+
+    1. loads human evaluation data from CodaLab
+    2. averages and report {faithfulness, relevance, coherence} scores
+    3. compute paired bootstrap test for all pairwise model comparison
+    """
+
+    def __init__(self, dataset: str, eval_download_path: str, shots: int):
+        self.dataset = dataset
+        self.eval_download_path = eval_download_path
+        self.shots = shots
+        os.makedirs(eval_download_path, exist_ok=True)
+        self.load_humaneval_data()
+
+    def load_humaneval_data(self):
+        filename = f"{self.dataset}_{self.shots}shots.csv"
+
+        tasks_by_id = defaultdict(list)
+
+        download_filename = HUMAN_EVAL_CODALAB_LINK.format(file_name=filename)
+        filename = os.path.join(self.eval_download_path, filename)
+        ensure_file_downloaded(source_url=download_filename, target_path=filename)
+        mturk_data = pandas.read_csv(filename)
+        for i, row in mturk_data.iterrows():
+            tasks_by_id[row.HITId].append(row)
+
+        self.faithfulness = defaultdict(list)
+        for idx, tasks in tasks_by_id.items():
+            scores = []
+            for task in tasks:
+                # Faithfulness is evaluated as a binary choice
+                # False -> not Faithful
+                # True -> Faithful
+                scores.append(1 if task["Answer.consistency.consistent"] else 0)
+            self.faithfulness[task["Input.model_name"]].append(np.mean(scores))
+
+        self.coherence = defaultdict(list)
+        for idx, tasks in tasks_by_id.items():
+            scores = []
+            for task in tasks:
+                # Coherence is evaluated on a 1 to 5 Likert scale.
+                # 1 -> least coherent
+                # 5 -> most coherent
+                for i in range(1, 6):
+                    if task[f"Answer.coherence.cohere_{i}"]:
+                        scores.append(i)
+                        break
+            self.coherence[task["Input.model_name"]].append(np.mean(scores))
+
+        self.relevance = defaultdict(list)
+        for idx, tasks in tasks_by_id.items():
+            scores = []
+            for task in tasks:
+                # Coherence is evaluated on a 1 to 5 Likert scale.
+                # 1 -> least relevant
+                # 5 -> most relevant
+                for i in range(1, 6):
+                    if task[f"Answer.relevance.rel_{i}"]:
+                        scores.append(i)
+                        break
+            self.relevance[task["Input.model_name"]].append(np.mean(scores))
+
+    def _compute_average(self, scores: dict):
+        """
+        Computes average for each entry in a {model_name: score_list} dict
+        """
+        return [(x, np.mean(y)) for x, y in scores.items()]
+
+    def print_summary(self):
+        assert self.faithfulness
+        assert self.coherence
+        assert self.relevance
+
+        print("FAITHFULNESS")
+        for model, score in self._compute_average(self.faithfulness):
+            print(f"{model:40}: {score:.4f}")
+        print("=" * 40)
+
+        print("RELEVANCE")
+        for model, score in self._compute_average(self.relevance):
+            print(f"{model:40}: {score:.4f}")
+        print("=" * 40)
+
+        print("COHERENCE")
+        for model, score in self._compute_average(self.relevance):
+            print(f"{model:40}: {score:.4f}")
+        print("=" * 40)
+
+    def dump_test_result(self, output_file_path: str):
+        """
+        Dumps pair-wise model comparison results (based on paired bootstrap test) into a json file.
+
+        Output format:
+        {
+            "faithfulness":[
+                {"model1": ..., "model2": ..., "p value: ...}
+            ]
+            "relevance": ...,
+            "coherence": ...
+        }
+
+        Args:
+            output_file_path: str, path to the output json file
+        """
+        assert self.faithfulness
+        assert self.coherence
+        assert self.relevance
+
+        output_pvalues = defaultdict(list)
+
+        avg_faithful_scores = self._compute_average(self.faithfulness)
+        sorted_models, _ = zip(*sorted(avg_faithful_scores, key=lambda x: x[1], reverse=True))
+        for i, best_model in enumerate(sorted_models):
+            for other_model in sorted_models[i + 1 :]:
+                p_value = _paired_bootstrap_test(self.faithfulness[best_model], self.faithfulness[other_model])
+                output_pvalues["faithfulness"].append({"model1": best_model, "model2": other_model, "p value": p_value})
+
+        avg_relevance_scores = self._compute_average(self.relevance)
+        sorted_models, _ = zip(*sorted(avg_relevance_scores, key=lambda x: x[1], reverse=True))
+        for i, best_model in enumerate(sorted_models):
+            for other_model in sorted_models[i + 1 :]:
+                p_value = _paired_bootstrap_test(self.relevance[best_model], self.relevance[other_model])
+                output_pvalues["relevance"].append({"model1": best_model, "model2": other_model, "p value": p_value})
+
+        avg_coherence_scores = self._compute_average(self.coherence)
+        sorted_models, _ = zip(*sorted(avg_coherence_scores, key=lambda x: x[1], reverse=True))
+        for i, best_model in enumerate(sorted_models):
+            for other_model in sorted_models[i + 1 :]:
+                p_value = _paired_bootstrap_test(self.coherence[best_model], self.coherence[other_model])
+                output_pvalues["coherence"].append({"model1": best_model, "model2": other_model, "p value": p_value})
+
+        with open(output_file_path, "w") as f:
+            json.dump(dict(output_pvalues), f)

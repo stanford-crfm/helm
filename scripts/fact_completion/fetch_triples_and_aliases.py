@@ -11,7 +11,7 @@ from pathlib import Path
 from utils import get_batch_files, jsonl_generator, load_seed_relations, save_jsonl
 
 
-def get_arg_parser() -> argparse.Namespace:
+def get_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--processed_wikidata", type=str, help="Path to processed wikidata dump (see simple-wikidata-db)."
