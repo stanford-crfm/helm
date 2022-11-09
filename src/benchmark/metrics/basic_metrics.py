@@ -157,7 +157,17 @@ def prefix_exact_match(gold: str, pred: str) -> float:
     Question: Is there an air force base in anchorage alaska?
     Answer:
 
-    the model outputs up to `max_tokens` number of tokens "Yes, Elmendorf" instead of just "Yes".
+    the model could output up to `max_tokens` number of tokens "Yes, Elmendorf" instead of just "Yes".
+    """
+    if not pred:
+        return 0
+
+    return 1 if pred.strip().startswith(gold.strip()) else 0
+
+
+def quasi_prefix_exact_match(gold: str, pred: str) -> float:
+    """
+    Same thing as `prefix_exact_match` but we normalize the text before checking if the prefix match.
     """
     if not pred:
         return 0
@@ -448,6 +458,7 @@ class BasicMetric(Metric):
             "exact_match": exact_match,
             "quasi_exact_match": quasi_exact_match,
             "prefix_exact_match": prefix_exact_match,
+            "quasi_prefix_exact_match": quasi_prefix_exact_match,
             "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
