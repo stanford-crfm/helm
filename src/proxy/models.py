@@ -165,9 +165,9 @@ ALL_MODELS = [
     Model(
         group="cohere",
         creator_organization="Cohere",
-        name="cohere/xlarge-update",
-        display_name="Cohere xlarge update (52.4B)",
-        description="Cohere xlarge update (52.4B parameters)",
+        name="cohere/xlarge-20221108",
+        display_name="Cohere xlarge - 11/08/2022 update (52.4B)",
+        description="Cohere xlarge - 11/08/2022 update (52.4B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
@@ -189,9 +189,9 @@ ALL_MODELS = [
     Model(
         group="cohere",
         creator_organization="Cohere",
-        name="cohere/medium-update",
-        display_name="Cohere medium updated (6.1B)",
-        description="Cohere medium updated (6.1B parameters)",
+        name="cohere/medium-20221108",
+        display_name="Cohere medium - 11/08/2022 update (6.1B)",
+        description="Cohere medium - 11/08/2022 update (6.1B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, COHERE_TOKENIZER_TAG],
     ),
     Model(
