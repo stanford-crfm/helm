@@ -58,6 +58,16 @@ models:
     description: Cohere small v20220720 (410M parameters)
     creator_organization: Cohere
     access: limited
+  - name: cohere/xlarge-20221108
+    display_name: Cohere xlarge v20221108 (52.4B)
+    description: Cohere xlarge v20221108 (52.4B parameters)
+    creator_organization: Cohere
+    access: limited
+  - name: cohere/medium-20221108
+    display_name: Cohere medium v20221108 (6.1B)
+    description: Cohere medium v20221108 (6.1B parameters)
+    creator_organization: Cohere
+    access: limited
 
   # DeepMind
   - name: deepmind/gopher
