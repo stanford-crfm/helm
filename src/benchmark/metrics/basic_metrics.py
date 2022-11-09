@@ -458,7 +458,7 @@ class BasicMetric(Metric):
         # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
         # sometimes predict a random letter like 'M'.
         if request_state.output_mapping is not None:
-            preds = [request_state.output_mapping[pred] for pred in preds]
+            preds = [request_state.output_mapping.get(pred) for pred in preds]  # type: ignore
 
         # Compute max_prob, the probability that the model assigns to its generated text.
         # Use the log prob of sorted_completions[0], which is the completion with the highest
