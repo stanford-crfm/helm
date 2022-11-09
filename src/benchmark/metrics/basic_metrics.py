@@ -144,6 +144,13 @@ def quasi_exact_match(gold: str, pred: str) -> float:
     return 1 if normalize_text(gold) == normalize_text(pred) else 0
 
 
+def prefix_exact_match(gold: str, pred: str) -> float:
+    if not pred:
+        return 0
+
+    return 1 if normalize_text(pred).startswith(normalize_text(gold)) else 0
+
+
 def f1_score(gold: str, pred: str) -> float:
     ret = f_measure(set(normalize_text(gold).split()), set(normalize_text(pred).split()))
     if ret is None:  # answer is the empty string after normalizing
@@ -426,6 +433,7 @@ class BasicMetric(Metric):
         metric_fn_mapping: Dict[str, Callable] = {
             "exact_match": exact_match,
             "quasi_exact_match": quasi_exact_match,
+            "prefix_exact_match": prefix_exact_match,
             "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
@@ -458,7 +466,7 @@ class BasicMetric(Metric):
         # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
         # sometimes predict a random letter like 'M'.
         if request_state.output_mapping is not None:
-            preds = [request_state.output_mapping[pred] for pred in preds]
+            preds = [request_state.output_mapping.get(pred) for pred in preds]  # type: ignore
 
         # Compute max_prob, the probability that the model assigns to its generated text.
         # Use the log prob of sorted_completions[0], which is the completion with the highest

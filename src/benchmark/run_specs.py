@@ -347,7 +347,7 @@ def get_basic_metric_specs(names: List[str]) -> List[MetricSpec]:
 
 
 def get_exact_match_metric_specs() -> List[MetricSpec]:
-    return get_basic_metric_specs(["exact_match", "quasi_exact_match"])
+    return get_basic_metric_specs(["exact_match", "quasi_exact_match", "prefix_exact_match"])
 
 
 def get_f1_metric_specs() -> List[MetricSpec]:
