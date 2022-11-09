@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Optional, Union
 import json
 import time
 import requests
@@ -46,7 +46,10 @@ class TogetherClient(Client):
             "top_p": request.top_p,
         }
 
-    def __init__(self, cache_config: CacheConfig):
+    def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
+        # TODO: the endpoint currently doesn't require an API key. When an API key is not specified
+        #       in credentials.conf, we rely on offline evaluation only.
+        self.api_key: Optional[str] = api_key
         self.cache = Cache(cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
@@ -56,7 +59,7 @@ class TogetherClient(Client):
         try:
 
             def do_it():
-                # base_url = "https://api.together.xyz/jobs"  # Eventually, move to this
+                # base_url = "https://api.together.xyz/jobs"  # TODO: Eventually, move to this and include API key
                 base_url = "https://planetd.shift.ml"
 
                 # Submit job
@@ -86,7 +89,12 @@ class TogetherClient(Client):
 
                 raise RuntimeError(f"TogetherClient request timed out after {TIMEOUT} seconds")
 
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            def fail():
+                raise RuntimeError(
+                    f"The result has not been uploaded to the cache for the following request: {cache_key}"
+                )
+
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it if self.api_key else fail))
         except RuntimeError as e:
             error: str = f"TogetherClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])

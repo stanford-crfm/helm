@@ -84,7 +84,7 @@ class AutoClient(Client):
                     org_id=org_id,
                 )
             elif organization == "together":
-                client = TogetherClient(cache_config=cache_config)
+                client = TogetherClient(api_key=self.credentials.get("togetherApiKey", None), cache_config=cache_config)
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
             else:
