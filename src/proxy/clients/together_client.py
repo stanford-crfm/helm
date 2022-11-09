@@ -47,6 +47,8 @@ class TogetherClient(Client):
         }
 
     def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
+        # TODO: the endpoint currently doesn't require an API key. When an API key is not specified
+        #       in credentials.conf, we rely on offline evaluation only.
         self.api_key: Optional[str] = api_key
         self.cache = Cache(cache_config)
 
