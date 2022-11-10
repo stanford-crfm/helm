@@ -56,6 +56,9 @@ rouge-score~=0.1.2
 pyext~=0.7
 pytrec_eval==0.5
 sacrebleu~=2.2.1
+# Work around https://github.com/p-lambda/verified_calibration/issues/11
+# TODO: Remove after this issue is resolved
+scikit-learn~=1.1.2
 spacy~=3.2.4
 summ-eval~=0.892
 # End users should install a CUDA version of PyTorch manually if needed
