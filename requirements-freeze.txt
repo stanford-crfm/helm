@@ -46,6 +46,7 @@ huggingface-hub==0.10.0
 icetk==0.0.4
 identify==2.5.6
 idna==3.4
+importlib-resources==5.10.0
 iniconfig==1.1.1
 Jinja2==3.1.2
 jmespath==1.0.1

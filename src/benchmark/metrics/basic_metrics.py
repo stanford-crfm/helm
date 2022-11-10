@@ -11,6 +11,7 @@ import nltk
 import numpy as np
 import scipy
 import calibration as cal
+import importlib_resources as resources
 from nltk.metrics.scores import f_measure
 from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
@@ -43,9 +44,12 @@ try:
 except LookupError:
     nltk.download("punkt")  # Required for rouge
 
-INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/efficiency_data/inference_idealized_runtimes.json"
-INFERENCE_DENOISED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/efficiency_data/inference_denoised_runtimes.json"
-TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/efficiency_data/training_efficiency.json"
+
+EFFICIENCY_DATA_PACKAGE: str = "benchmark.efficiency_data"
+
+INFERENCE_IDEALIZED_RUNTIMES_JSON_FILENAME: str = "inference_idealized_runtimes.json"
+INFERENCE_DENOISED_RUNTIMES_JSON_FILENAME: str = "inference_denoised_runtimes.json"
+TRAINING_EFFICIENCY_JSON_FILENAME: str = "training_efficiency.json"
 
 
 def compute_estimated_time_from_prompt_size_and_num_output_tokens(
@@ -365,17 +369,20 @@ class BasicMetric(Metric):
         # num_prompt_tokens values.
         # Profiling code and logs, and code to fit the regression model is available at
         # https://github.com/stanford-crfm/benchmarking_efficiency.
-        with open(INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH, "r") as f:
-            self.inference_idealized_runtimes_dict = json.load(f)
-        with open(INFERENCE_DENOISED_RUNTIMES_JSON_FILEPATH, "r") as f:
-            self.inference_denoised_runtimes_dict = json.load(f)
+        self.inference_idealized_runtimes_dict = json.load(
+            resources.open_text(EFFICIENCY_DATA_PACKAGE, INFERENCE_IDEALIZED_RUNTIMES_JSON_FILENAME)
+        )
+        self.inference_denoised_runtimes_dict = json.load(
+            resources.open_text(EFFICIENCY_DATA_PACKAGE, INFERENCE_DENOISED_RUNTIMES_JSON_FILENAME)
+        )
 
         # We use estimated emitted CO2 during training (in tons of CO2) as a proxy metric
         # for training efficiency. We use reported metrics where applicable, otherwise
         # we estimate them from runtime information, type and number of hardware accelerators
         # used, region, etc.
-        with open(TRAINING_EFFICIENCY_JSON_FILEPATH, "r") as f:
-            self.training_efficiency_dict = json.load(f)
+        self.training_efficiency_dict = json.load(
+            resources.open_text(EFFICIENCY_DATA_PACKAGE, TRAINING_EFFICIENCY_JSON_FILENAME)
+        )
 
     def __repr__(self):
         return f"BasicMetric({','.join(self.names)})"

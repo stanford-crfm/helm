@@ -48,6 +48,7 @@ sympy~=1.11.1  # For math scenarios
 sentencepiece~=0.1.97
 
 # Metrics
+importlib-resources~=5.10.0
 nltk~=3.7
 scipy~=1.9.1
 uncertainty-calibration~=0.1.3
