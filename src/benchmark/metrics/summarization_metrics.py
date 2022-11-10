@@ -4,7 +4,6 @@ import numpy as np
 import os
 import pickle
 
-import pandas as pd
 import spacy
 import subprocess
 import sys
