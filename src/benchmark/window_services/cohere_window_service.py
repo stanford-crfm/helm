@@ -106,8 +106,8 @@ class CohereWindowService(LocalWindowService):
         """
         token_strings = []
         for token in tokens:
-            assert isinstance(token, str)
-            token_strings.append(token)
+            assert isinstance(token.value, str)
+            token_strings.append(token.value)
         return "".join(token_strings)
 
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:

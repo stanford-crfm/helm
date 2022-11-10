@@ -51,8 +51,8 @@ class LocalWindowService(WindowService):
         # If we don't, something like "their 'studio'" becomes "their'studio'" when decoding.
         token_ints: List[int] = []
         for token in tokens:
-            assert isinstance(token, int)
-            token_ints.append(token)
+            assert isinstance(token.value, int)
+            token_ints.append(token.value)
         response: DecodeRequestResult = self.service.decode(
             DecodeRequest(
                 token_ints,
