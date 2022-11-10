@@ -58,5 +58,6 @@ pytrec_eval==0.5
 sacrebleu~=2.2.1
 spacy~=3.2.4
 summ-eval~=0.892
-torch==1.12.1+cu113  # Summarization metrics
-torchvision==0.13.1+cu113
+# End users should install a CUDA version of PyTorch manually if needed
+torch~=1.12.1  # Summarization metrics
+torchvision~=0.13.1
