@@ -507,7 +507,10 @@ for model in ALL_MODELS:
 
 def get_model(model_name: str) -> Model:
     """Get the `Model` given the name."""
-    return _model_registry[model_name]
+    try:
+        return _model_registry[model_name]
+    except KeyError:
+        raise ValueError(f"No model registered for name {model_name} - " "register a model using register_model()")
 
 
 def get_model_group(model_name: str) -> str:
