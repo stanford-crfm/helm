@@ -7,7 +7,6 @@ import pickle
 import spacy
 import subprocess
 import sys
-import tempfile
 from typing import List, Dict
 from collections import defaultdict
 
@@ -30,7 +29,7 @@ from bert_score import BERTScorer
 
 
 QAFACTEVAL_CODALAB_LINK: str = (
-    "https://worksheets.codalab.org/rest/bundles/0x53c75b87a626443292359403bc544964/contents/blob/"
+    "https://worksheets.codalab.org/rest/bundles/0xf4de83c1f0d34d7999480223e8f5ab87/contents/blob/"
 )
 HUMAN_EVAL_CODALAB_LINK: str = (
     "https://worksheets.codalab.org/rest/bundles/0x3fb04ae3ae024c369d048f6c2cdf16cb/"
@@ -56,7 +55,8 @@ class SummarizationMetric(Metric):
         }
         self.data_stats_metric = DataStatsMetric()
         self.humaneval = self._load_humaneval(task)
-        self.qafacteval = self._load_qafacteval(task)
+        self.task: str = task
+        self.qa_fact_eval = None
 
         if device == "cpu":
             self.compute_faithfulness = False
@@ -70,15 +70,14 @@ class SummarizationMetric(Metric):
             self.compute_faithfulness = True
             self.summac = SummaCZS(granularity="sentence", model_name="vitc", imager_load_cache=False, device=device)
 
-    def _load_qafacteval(self, task: str) -> Dict[str, Dict]:
-        # Load pre-computed QAFactEval scores. Temporary solution -- should be replaced with a docker for the metric.
-        with tempfile.TemporaryDirectory() as tmpdir:
-            target_path: str = os.path.join(tmpdir, "qafacteval.pk")
-            ensure_file_downloaded(source_url=QAFACTEVAL_CODALAB_LINK, target_path=target_path)
-            with open(target_path, "rb") as fin:
-                qafacteval_scores = pickle.load(fin)
+    def _load_qafacteval(self, eval_cache_path: str):
+        target_path: str = os.path.join(eval_cache_path, "qafacteval.pk")
+        ensure_file_downloaded(source_url=QAFACTEVAL_CODALAB_LINK, target_path=target_path)
 
-        return qafacteval_scores[task]
+        with open(target_path, "rb") as fin:
+            qafacteval_scores = pickle.load(fin)
+
+        self.qa_fact_eval = qafacteval_scores[self.task]
 
     def _load_humaneval(self, task: str) -> Dict:
         """
@@ -178,8 +177,11 @@ class SummarizationMetric(Metric):
 
         try:
             # get qafacteval scores if they exist
+            if self.qa_fact_eval is None:
+                self._load_qafacteval(eval_cache_path)
+            assert self.qa_fact_eval is not None
             model_name = adapter_spec.model.replace("/", "_")
-            val = self.qafacteval[model_name][(request_state.instance.id, pred)]
+            val = self.qa_fact_eval[model_name][(request_state.instance.id, pred)]
             result.append(Stat(MetricName("QAFactEval")).add(float(val)))
         except KeyError:
             pass
@@ -219,8 +221,8 @@ def _paired_bootstrap_test(treatment: list, control: list, nboot: int = 10000):
         control: list of float, representing results of control (worse model results)
         nboot: int, number of bootstraps to perform
     """
-    treatment = np.array(treatment)
-    control = np.array(control)
+    treatment = np.array(treatment_list)
+    control = np.array(control_list)
     delta = treatment.mean() - control.mean()
     sample_idx = np.random.choice(np.arange(len(treatment)), size=(nboot, len(treatment)))
     boot_treatment = treatment[sample_idx]

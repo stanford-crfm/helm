@@ -202,7 +202,7 @@ class RankingMetric(Metric):
         assert all([r.model_relevance is not None for r in ranking_objs])
         if rank_limit:
             return {
-                self.get_query_string(r.reference_index): r.model_relevance
+                self.get_query_string(r.reference_index): r.model_relevance  # type: ignore
                 for r in ranking_objs
                 if r.rank and r.rank <= rank_limit
             }
@@ -265,6 +265,7 @@ class RankingMetric(Metric):
                 rank = int(self.get_tag_value(tag))
 
         # Get model completion and the associated log probability
+        assert request_state.result is not None
         model_output, model_logprob = self.get_model_output_logprob(request_state.result)
 
         # Create a RankingObject
@@ -364,7 +365,9 @@ class RankingMetric(Metric):
         #   ranking, which is why we are setting the ranking of an object to be
         #   len(ranking_objects) minus its relevance.
         stats += [
-            Stat(MetricName(f"ref{r.reference_index}_rank")).add(len(ranking_objects) - r.model_relevance)
+            Stat(MetricName(f"ref{r.reference_index}_rank")).add(
+                len(ranking_objects) - r.model_relevance  # type: ignore
+            )
             for r in ranking_objects
         ]
 

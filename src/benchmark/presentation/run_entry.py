@@ -25,10 +25,16 @@ class RunEntries:
     entries: List[RunEntry]
 
 
-def read_run_entries(path: str) -> RunEntries:
+def merge_run_entries(run_entries1: RunEntries, run_entries2: RunEntries):
+    return RunEntries(run_entries1.entries + run_entries2.entries)
+
+
+def read_run_entries(paths: List[str]) -> RunEntries:
     """Read a HOCON file `path` and return the `RunEntry`s."""
-    with open(path) as f:
-        raw = parse_hocon(f.read())
-    run_entries = dacite.from_dict(RunEntries, raw)
+    run_entries = RunEntries([])
+    for path in paths:
+        with open(path) as f:
+            raw = parse_hocon(f.read())
+        run_entries = merge_run_entries(run_entries, dacite.from_dict(RunEntries, raw))
     hlog(f"Read {len(run_entries.entries)} run entries from {path}")
     return run_entries
