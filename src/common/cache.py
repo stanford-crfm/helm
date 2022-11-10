@@ -158,7 +158,7 @@ class _SqliteKeyValueStore(KeyValueStore):
         self._sqlite_dict.__exit__(exc_type, exc_value, traceback)
 
     def contains(self, key: Dict) -> bool:
-        return key in self._sqlite_dict
+        return request_to_key(key) in self._sqlite_dict
 
     def get(self, key: Dict) -> Optional[Dict]:
         key_string = request_to_key(key)
