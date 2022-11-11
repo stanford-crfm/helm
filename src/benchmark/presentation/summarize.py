@@ -231,6 +231,9 @@ class Summarizer:
         for raw_run_spec in raw_run_specs:
             run_spec = dacite.from_dict(RunSpec, raw_run_spec)
             run_path: str = os.path.join(self.run_suite_path, run_spec.name)
+            # if "imdb" not in run_path or "boolq" not in run_path or "mmlu" not in run_path or "
+            if "openai_text" not in run_path:
+                continue
 
             run_spec_path: str = os.path.join(run_path, "run_spec.json")
             stats_path: str = os.path.join(run_path, "stats.json")
@@ -565,7 +568,7 @@ class Summarizer:
 
         return Table(title=title, header=header, rows=rows, links=links, name=name)
 
-    def create_group_tables_by_metric_group(self, groups: List[RunGroup]) -> List[Table]:
+    def create_group_tables_by_metric_group(self, group: RunGroup, subgroups: List[RunGroup]) -> List[Table]:
         tables: List[Table] = []
         adapter_to_runs: Dict[AdapterSpec, List[Run]] = defaultdict(list)
         all_metric_groups: List[str] = []
@@ -610,6 +613,7 @@ class Summarizer:
                 if adapter_to_runs and subgroup.metric_groups:
                     table = self.create_group_table(
                         title=scenario_display_name,
+                        name=scenario_name,
                         adapter_to_runs=adapter_to_runs,
                         columns=[(subgroup, metric_group) for metric_group in subgroup.metric_groups],
                         link_to_runs=True,
@@ -621,6 +625,7 @@ class Summarizer:
                         for sub_split in subgroup.sub_splits:
                             table = self.create_group_table(
                                 title=f"{subgroup.display_name} (sub-split: {sub_split})",
+                                name=f"{subgroup.name}:sub_splut={sub_split}",
                                 adapter_to_runs=self.group_adapter_to_runs[subgroup.name],
                                 columns=[(subgroup, metric_group) for metric_group in subgroup.metric_groups],
                                 link_to_runs=False,
@@ -637,6 +642,7 @@ class Summarizer:
                 if adapter_to_runs and subgroup.metric_groups:
                     table = self.create_group_table(
                         title=str(subgroup.display_name),
+                        name=subgroup.name,
                         adapter_to_runs=adapter_to_runs,
                         columns=[(subgroup, metric_group) for metric_group in subgroup.metric_groups],
                         link_to_runs=False,

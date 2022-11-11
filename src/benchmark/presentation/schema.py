@@ -54,6 +54,12 @@ class ModelField(Field):
     # Whether we have yet to evaluate this model
     todo: bool = False
 
+    # When was the model released
+    release_date: Optional[Str] = None
+
+    # When was the model released
+    num_parameters: Optional[int] = None
+
 
 @dataclass(frozen=True)
 class MetricNameMatcher:
