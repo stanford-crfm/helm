@@ -99,10 +99,16 @@ class SummarizationMetric(Metric):
             with tempfile.TemporaryDirectory() as tmpdir:
                 score_analyzer = SummarizationHumanEvalAnalyzer(dataset, tmpdir, shots=shots)
                 for (model_name, input_id, output_text), score in score_analyzer.faithfulness_full.items():
+                    if isinstance(output_text, float):
+                        output_text = ""
                     all_humaneval_scores[("faithfulness", model_name, input_id, output_text)] = score
                 for (model_name, input_id, output_text), score in score_analyzer.relevance_full.items():
+                    if isinstance(output_text, float):
+                        output_text = ""
                     all_humaneval_scores[("relevance", model_name, input_id, output_text)] = score
                 for (model_name, input_id, output_text), score in score_analyzer.coherence_full.items():
+                    if isinstance(output_text, float):
+                        output_text = ""
                     all_humaneval_scores[("coherence", model_name, input_id, output_text)] = score
         return all_humaneval_scores
 
