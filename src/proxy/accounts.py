@@ -21,6 +21,7 @@ DEFAULT_QUOTAS = {
     "codex": {"daily": 10000},
     "jurassic": {"daily": 10000},
     "gooseai": {"daily": 10000},
+    "cohere": {"daily": 10000},
 }
 
 

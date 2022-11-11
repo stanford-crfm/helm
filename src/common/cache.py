@@ -136,6 +136,10 @@ class KeyValueStore(ABC):
     def multi_put(self, pairs: Iterable[Tuple[Dict, Dict]]) -> None:
         pass
 
+    @abstractmethod
+    def remove(self, key: Dict) -> None:
+        pass
+
 
 class _SqliteKeyValueStore(KeyValueStore):
     """Key value store backed by a SQLite file."""
@@ -176,6 +180,10 @@ class _SqliteKeyValueStore(KeyValueStore):
     def multi_put(self, pairs: Iterable[Tuple[Dict, Dict]]) -> None:
         for key, value in pairs:
             self.put(key, value)
+
+    def remove(self, key: Dict) -> None:
+        del self._sqlite_dict[key]
+        self._sqlite_dict.commit()
 
 
 class _MongoKeyValueStore(KeyValueStore):
@@ -245,6 +253,9 @@ class _MongoKeyValueStore(KeyValueStore):
             operations.append(ReplaceOne({self._REQUEST_KEY: request}, document, upsert=True))
         # Note: unlike put, multi_put does not support documents with null bytes in keys.
         self._collection.bulk_write(operations)
+
+    def remove(self, key: Dict) -> None:
+        self._collection.delete_one(key)
 
 
 def get_all_from_sqlite(path: str) -> Generator[Tuple[Dict, Dict], None, None]:

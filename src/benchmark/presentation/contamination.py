@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 import dacite
-import yaml
+import yaml  # type: ignore
 
 from common.hierarchical_logger import htrack, hlog
 from proxy.models import MODEL_NAME_TO_MODEL
@@ -29,14 +29,14 @@ CONTAMINATION_STYLES = {
 class ContaminationPoint:
     """
     Represents the fact that each model in `models` might have been trained on
-    data in each group in `scenario_groups`.
-    Note this implicitly represents |models| x |scenario_groups| points.
+    data in each group in `groups`.
+    Note this implicitly represents |models| x |groups| points.
     """
 
     # Which models
     models: List[str]
 
-    scenario_groups: List[str]
+    groups: List[str]
 
     # How contaminated (strong or weak)
     level: str
@@ -48,16 +48,14 @@ class ContaminationPoint:
 @dataclass(frozen=True)
 class Contamination:
     """
-    Captures train-test contamination information between models and scenario groups.
+    Captures train-test contamination information between models and groups.
     """
 
     points: List[ContaminationPoint]
 
-    def get_point(self, model: str, scenario_group: str) -> Optional[ContaminationPoint]:
-        """Return the point that matches `scenario_group` and `model`."""
-        found_points = [
-            point for point in self.points if scenario_group in point.scenario_groups and model in point.models
-        ]
+    def get_point(self, model: str, group: str) -> Optional[ContaminationPoint]:
+        """Return the point that matches `group` and `model`."""
+        found_points = [point for point in self.points if group in point.groups and model in point.models]
         # Note: if more than one found, ideally we should take the strongest
         # one, but leaving for now.
         assert len(found_points) <= 1
@@ -66,14 +64,14 @@ class Contamination:
 
 @htrack(None)
 def validate_contamination(contamination: Contamination, schema: Schema):
-    """Make sure models and scenario groups in contamination are defined according to `schema`."""
+    """Make sure models and groups in contamination are defined according to `schema`."""
     for point in contamination.points:
         for model in point.models:
             if model not in MODEL_NAME_TO_MODEL:
                 hlog(f"WARNING: model {model} not defined in schema")
-        for scenario_group in point.scenario_groups:
-            if scenario_group not in schema.name_to_run_group:
-                hlog(f"WARNING: scenario group {scenario_group} not defined in schema")
+        for group in point.groups:
+            if group not in schema.name_to_run_group:
+                hlog(f"WARNING: group {group} not defined in schema")
 
 
 def read_contamination():

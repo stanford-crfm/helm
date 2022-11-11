@@ -18,7 +18,7 @@ pip install --no-cache-dir --find-links https://download.pytorch.org/whl/torch_s
 # Manually install protobuf to workaround issue: https://github.com/protocolbuffers/protobuf/issues/6550
 pip install --no-binary=protobuf protobuf==3.20.1
 # Install all pinned dependencies
-pip install -r requirements.txt
+pip install -r requirements-freeze.txt
 pip install -e .
 pip check
 

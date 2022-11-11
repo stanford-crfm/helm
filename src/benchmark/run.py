@@ -31,7 +31,7 @@ def run_benchmarking(
     num_train_trials: Optional[int] = None,
     groups: Optional[List[str]] = None,
     models_to_run: Optional[List[str]] = None,
-    scenario_groups_to_run: Optional[List[str]] = None,
+    groups_to_run: Optional[List[str]] = None,
     mongo_uri: str = "",
 ) -> List[RunSpec]:
     """Runs RunSpecs given a list of RunSpec descriptions."""
@@ -70,7 +70,7 @@ def run_benchmarking(
         for description in run_spec_descriptions
         for run_spec in construct_run_specs(parse_object_spec(description))
         if (not models_to_run or run_spec.adapter_spec.model in models_to_run)
-        and (not scenario_groups_to_run or any(group in scenario_groups_to_run for group in run_spec.groups))
+        and (not groups_to_run or any(group in groups_to_run for group in run_spec.groups))
     ]
 
     if len(run_specs) == 0:
@@ -158,7 +158,7 @@ def main():
     args = parser.parse_args()
     validate_args(args)
 
-    auth: Authentication = create_authentication(args)
+    auth: Authentication = Authentication("") if args.skip_instances or args.local else create_authentication(args)
     run_benchmarking(
         args.run_specs,
         auth=auth,

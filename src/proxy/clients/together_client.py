@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Optional, Union
 import json
 import time
 import requests
@@ -14,28 +14,10 @@ from common.tokenization_request import (
 from common.hierarchical_logger import hlog
 from .client import Client, wrap_request_time, truncate_sequence
 
-NO_NEWLINE_MODELS = ["together/t5", "together/t0pp", "together/glm", "together/ul2"]
-
-
-# Don't do this for now until we figure out whether <br> is a good substitute for "\n".
-use_br_as_newline = False
-
-
-def prepare_text(x: str, model: str) -> str:
-    """Process text before sending to API."""
-    if model in NO_NEWLINE_MODELS:
-        if use_br_as_newline:
-            x = x.replace("\n", "<br>")
-    return x
-
 
 def fix_text(x: str, model: str) -> str:
     """Fix text that comes back from the API."""
-    if model in NO_NEWLINE_MODELS:
-        x = x.replace("▁", " ")
-        x = x.replace("</s>", "")
-        if use_br_as_newline:
-            x = x.replace("<br>", "\n")
+    x = x.replace("▁", " ")
     return x
 
 
@@ -53,7 +35,7 @@ class TogetherClient(Client):
         return {
             "request_type": "language-model-inference",
             "model": request.model_engine,
-            "prompt": prepare_text(request.prompt, request.model),
+            "prompt": request.prompt,
             "temperature": request.temperature,
             "n": request.num_completions,
             "max_tokens": request.max_tokens,
@@ -64,7 +46,10 @@ class TogetherClient(Client):
             "top_p": request.top_p,
         }
 
-    def __init__(self, cache_config: CacheConfig):
+    def __init__(self, cache_config: CacheConfig, api_key: Optional[str] = None):
+        # TODO: the endpoint currently doesn't require an API key. When an API key is not specified
+        #       in credentials.conf, we rely on offline evaluation only.
+        self.api_key: Optional[str] = api_key
         self.cache = Cache(cache_config)
 
     def make_request(self, request: Request) -> RequestResult:
@@ -74,7 +59,7 @@ class TogetherClient(Client):
         try:
 
             def do_it():
-                # base_url = "https://api.together.xyz/jobs"  # Eventually, move to this
+                # base_url = "https://api.together.xyz/jobs"  # TODO: Eventually, move to this and include API key
                 base_url = "https://planetd.shift.ml"
 
                 # Submit job
@@ -91,7 +76,7 @@ class TogetherClient(Client):
 
                 # Poll and wait for job to be finished
                 job_id = response["id"]
-                TIMEOUT = 20
+                TIMEOUT = 60
                 for t in range(TIMEOUT):
                     response = requests.get(f"{base_url}/job/{job_id}").json()
                     status = response["status"]
@@ -104,7 +89,12 @@ class TogetherClient(Client):
 
                 raise RuntimeError(f"TogetherClient request timed out after {TIMEOUT} seconds")
 
-            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+            def fail():
+                raise RuntimeError(
+                    f"The result has not been uploaded to the cache for the following request: {cache_key}"
+                )
+
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it if self.api_key else fail))
         except RuntimeError as e:
             error: str = f"TogetherClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])

@@ -27,19 +27,20 @@ class Stat:
             x = 1 if x is True else 0
         self.sum += x
         self.sum_squared += x * x
-        self.min = min(self.min, x) if self.count > 0 else x
-        self.max = max(self.max, x) if self.count > 0 else x
+        self.min = min(self.min, x) if self.min is not None else x
+        self.max = max(self.max, x) if self.max is not None else x
         self.count += 1
         self._update_mean_variance_stddev()
         return self
 
     def merge(self, other: "Stat") -> "Stat":
+        # Note: don't look at other.name
         self.sum += other.sum
         self.sum_squared += other.sum_squared
-        if other.count > 0:
-            self.min = min(self.min, other.min) if self.count > 0 else other.min
+        if other.min is not None:
+            self.min = min(self.min, other.min) if self.min is not None else other.min
         if other.max is not None:
-            self.max = max(self.max, other.max) if self.count > 0 else other.max
+            self.max = max(self.max, other.max) if self.max is not None else other.max
         self.count += other.count
         self._update_mean_variance_stddev()
         return self
@@ -48,12 +49,17 @@ class Stat:
         return f"{self.name}[{self.bare_str()}]"
 
     def bare_str(self):
+        def process(x: float):
+            if int(x) == x:
+                return int(x)
+            return round(x, 3)
+
         if self.count > 0:
             return (
-                f"min={self.min:.3f}, "
-                f"mean={self.mean:.3f}, "
-                f"max={self.max:.3f}, "
-                f"sum={self.sum:.3f} "
+                f"min={process(self.min)}, "
+                f"mean={process(self.mean)}, "
+                f"max={process(self.max)}, "
+                f"sum={process(self.sum)} "
                 f"({self.count})"
             )
         else:
