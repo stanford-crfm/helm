@@ -184,7 +184,7 @@ models:
     description: TNLGv2 (6.7B parameters) autoregressive language model. It is trained on a filtered subset of the Pile and CommonCrawl.
     creator_organization: Microsoft/NVIDIA
     access: restricted
-    num_parameters: 7000000000
+    num_parameters: 6700000000
     release_date: 2022-01-28
 
   # OpenAI: https://beta.openai.com/docs/engines/gpt-3
