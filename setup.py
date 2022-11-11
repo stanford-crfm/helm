@@ -10,7 +10,7 @@ def get_requirements(path: str):
 
 
 setup(
-    name="crfm-benchmarking",
+    name="crfm-helm",
     version="0.1.0",
     description="Benchmark for language models",
     long_description="Benchmark for language models",

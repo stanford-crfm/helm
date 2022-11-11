@@ -18,10 +18,10 @@ Using [Anaconda](https://conda.io/projects/conda/en/latest/user-guide/tasks/mana
 
     # Create a virtual environment.
     # Only run this the first time.
-    conda create -n crfm-benchmarking python=3.8 pip
+    conda create -n crfm-helm python=3.8 pip
 
     # Activate the virtual environment.
-    conda activate crfm-benchmarking
+    conda activate crfm-helm
 
 ## Install dependencies
 
