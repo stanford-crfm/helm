@@ -20,6 +20,7 @@ from proxy.models import (
 from .runner import RunSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
+from benchmark.adapter import Substitution
 
 
 class RunExpander(ABC):
@@ -171,6 +172,39 @@ class PromptRunExpander(RunExpander):
         ]
 
 
+class NewlineRunExpander(RunExpander):
+    """
+    Set the newline delimiter (what's inserted before each newline).
+    """
+
+    name = "newline"
+
+    def __init__(self, value):
+        self.value = value
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        adapter_spec = run_spec.adapter_spec
+        if self.value == "semicolon":
+            adapter_spec = replace(
+                adapter_spec,
+                substitutions=[Substitution("\n", ";\n")],
+            )
+        elif self.value == "br":
+            adapter_spec = replace(
+                adapter_spec,
+                substitutions=[Substitution("\n", "<br>\n")],
+            )
+        else:
+            raise Exception("Unknown value: {self.value}")
+        return [
+            replace(
+                run_spec,
+                name=f"{run_spec.name},{self.name}={self.value}",
+                adapter_spec=adapter_spec,
+            ),
+        ]
+
+
 class StopRunExpander(RunExpander):
     """
     Set the stop sequence to something (e.g., ###) with new lines.
@@ -187,6 +221,10 @@ class StopRunExpander(RunExpander):
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         if self.value == "hash":
             stop = "###"
+        elif self.value == "semicolon":
+            stop = ";"
+        elif self.value == "br":
+            stop = "<br>"
         else:
             raise Exception(f"Unknown value: {self.value}")
         return [
@@ -240,6 +278,7 @@ class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
     name = "max_train_instances"
     values_dict = {
         "zero": [0],
+        "one": [1],
         "all": [0, 1, 2, 4, 8, 16],  # Cap at 16 due to limited context length
         "big_bench_few_shot_setting": [0, 1, 2, 3],  # Commonly used few-shot setting in BIG-bench
     }
@@ -266,7 +305,6 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "full_functionality_text": get_model_names_with_tag(FULL_FUNCTIONALITY_TEXT_MODEL_TAG),
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
-        "openai/text-davinci-001": ["openai/text-davinci-001"],
         "all": get_all_models(),
         "text": get_all_text_models(),
         "code": get_all_code_models(),
@@ -276,6 +314,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "cohere_tokenizer": get_model_names_with_tag(COHERE_TOKENIZER_TAG),
         "opt_tokenizer": get_model_names_with_tag(OPT_TOKENIZER_TAG),
         "summarization_zs": ["openai/davinci", "openai/curie", "openai/text-davinci-002", "openai/text-curie-001"],
+        "interactive_qa": ["openai/text-davinci-001", "openai/davinci", "ai21/j1-jumbo", "openai/text-babbage-001"],
     }
 
     # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")
@@ -766,6 +805,7 @@ RUN_EXPANDERS = dict(
     for expander in [
         InstructionsRunExpander,
         PromptRunExpander,
+        NewlineRunExpander,
         StopRunExpander,
         GlobalPrefixRunExpander,
         NumTrainTrialsRunExpander,

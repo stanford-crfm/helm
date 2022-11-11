@@ -19,6 +19,9 @@ class Cell:
     # Styling
     style: Optional[Dict[str, Any]] = None
 
+    # If the value or display_value is markdown that needs to be interpreted
+    markdown: bool = False
+
 
 @dataclass(frozen=True)
 class Hyperlink:
@@ -35,7 +38,10 @@ class Table:
     # Extra information to show at the bottom
     links: List[Hyperlink] = field(default_factory=list)
 
-    # Optional descrition to show at the top
+    # Optional name
+    name: Optional[str] = None
+
+    # Optional description to show at the top
     description: Optional[str] = None
 
 

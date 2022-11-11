@@ -11,6 +11,7 @@ import nltk
 import numpy as np
 import scipy
 import calibration as cal
+import importlib_resources as resources
 from nltk.metrics.scores import f_measure
 from nltk.tokenize import word_tokenize
 from nltk.translate.bleu_score import sentence_bleu
@@ -43,9 +44,12 @@ try:
 except LookupError:
     nltk.download("punkt")  # Required for rouge
 
-INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/efficiency_data/inference_idealized_runtimes.json"
-INFERENCE_DENOISED_RUNTIMES_JSON_FILEPATH: str = "src/benchmark/efficiency_data/inference_denoised_runtimes.json"
-TRAINING_EFFICIENCY_JSON_FILEPATH: str = "src/benchmark/efficiency_data/training_efficiency.json"
+
+EFFICIENCY_DATA_PACKAGE: str = "benchmark.efficiency_data"
+
+INFERENCE_IDEALIZED_RUNTIMES_JSON_FILENAME: str = "inference_idealized_runtimes.json"
+INFERENCE_DENOISED_RUNTIMES_JSON_FILENAME: str = "inference_denoised_runtimes.json"
+TRAINING_EFFICIENCY_JSON_FILENAME: str = "training_efficiency.json"
 
 
 def compute_estimated_time_from_prompt_size_and_num_output_tokens(
@@ -142,6 +146,37 @@ def quasi_exact_match(gold: str, pred: str) -> float:
         return 0
 
     return 1 if normalize_text(gold) == normalize_text(pred) else 0
+
+
+def prefix_exact_match(gold: str, pred: str) -> float:
+    """
+    The `prefix_exact_match` metric is particularly useful in the zero-shot setting, where the model is
+    not given examples of the expected outputs and tends to output more tokens than it should.
+
+    For example, for this zero-shot prompt from BoolQ,
+
+    Passage: Elmendorf Air Force Base (IATA: EDF, ICAO: PAED, FAA LID: EDF) is a United States military facility
+    in Anchorage, the largest city in Alaska. Originally known as Elmendorf Field, it became Elmendorf Air Force
+    Base after World War II, and in 2010 it merged with nearby Fort Richardson to form Joint Base Elmendorf-Richardson.
+    Question: Is there an air force base in anchorage alaska?
+    Answer:
+
+    the model could output up to `max_tokens` number of tokens "Yes, Elmendorf" instead of just "Yes".
+    """
+    if not pred:
+        return 0
+
+    return 1 if pred.strip().startswith(gold.strip()) else 0
+
+
+def quasi_prefix_exact_match(gold: str, pred: str) -> float:
+    """
+    Same thing as `prefix_exact_match` but we normalize the text before checking if the prefix match.
+    """
+    if not pred:
+        return 0
+
+    return 1 if normalize_text(pred).startswith(normalize_text(gold)) else 0
 
 
 def f1_score(gold: str, pred: str) -> float:
@@ -365,17 +400,20 @@ class BasicMetric(Metric):
         # num_prompt_tokens values.
         # Profiling code and logs, and code to fit the regression model is available at
         # https://github.com/stanford-crfm/benchmarking_efficiency.
-        with open(INFERENCE_IDEALIZED_RUNTIMES_JSON_FILEPATH, "r") as f:
-            self.inference_idealized_runtimes_dict = json.load(f)
-        with open(INFERENCE_DENOISED_RUNTIMES_JSON_FILEPATH, "r") as f:
-            self.inference_denoised_runtimes_dict = json.load(f)
+        self.inference_idealized_runtimes_dict = json.load(
+            resources.open_text(EFFICIENCY_DATA_PACKAGE, INFERENCE_IDEALIZED_RUNTIMES_JSON_FILENAME)
+        )
+        self.inference_denoised_runtimes_dict = json.load(
+            resources.open_text(EFFICIENCY_DATA_PACKAGE, INFERENCE_DENOISED_RUNTIMES_JSON_FILENAME)
+        )
 
         # We use estimated emitted CO2 during training (in tons of CO2) as a proxy metric
         # for training efficiency. We use reported metrics where applicable, otherwise
         # we estimate them from runtime information, type and number of hardware accelerators
         # used, region, etc.
-        with open(TRAINING_EFFICIENCY_JSON_FILEPATH, "r") as f:
-            self.training_efficiency_dict = json.load(f)
+        self.training_efficiency_dict = json.load(
+            resources.open_text(EFFICIENCY_DATA_PACKAGE, TRAINING_EFFICIENCY_JSON_FILENAME)
+        )
 
     def __repr__(self):
         return f"BasicMetric({','.join(self.names)})"
@@ -426,6 +464,8 @@ class BasicMetric(Metric):
         metric_fn_mapping: Dict[str, Callable] = {
             "exact_match": exact_match,
             "quasi_exact_match": quasi_exact_match,
+            "prefix_exact_match": prefix_exact_match,
+            "quasi_prefix_exact_match": quasi_prefix_exact_match,
             "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
@@ -447,6 +487,7 @@ class BasicMetric(Metric):
         # Gold outputs
         golds = [reference for reference in request_state.instance.references if reference.is_correct]
         assert len(golds) > 0
+        reference_metrics.append(Stat(MetricName("num_references")).add(len(request_state.instance.references)))
 
         # Predicted outputs
         assert request_state.result is not None
@@ -457,7 +498,7 @@ class BasicMetric(Metric):
         # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
         # sometimes predict a random letter like 'M'.
         if request_state.output_mapping is not None:
-            preds = [request_state.output_mapping.get(pred) for pred in preds]
+            preds = [request_state.output_mapping.get(pred) for pred in preds]  # type: ignore
 
         # Compute max_prob, the probability that the model assigns to its generated text.
         # Use the log prob of sorted_completions[0], which is the completion with the highest
@@ -492,6 +533,7 @@ class BasicMetric(Metric):
         model. This is the same for each request."""
         assert request_state.result is not None
         # Compute efficiency metrics for inference.
+        assert request_state.result.request_time is not None
         runtime: float = request_state.result.request_time
         batch_size: int = 1
         # For models that perform offline batch inference, effective runtime is batch_request_time, but also
@@ -508,6 +550,11 @@ class BasicMetric(Metric):
         prompt: str = request_state.request.prompt
         num_prompt_tokens: int = window_service.get_num_tokens(prompt)
 
+        # Just take the first completion
+        # TODO: don't we need to take into account all the completions, since
+        # the runtime we get (that's used to compute denoised_runtime) is for
+        # generating all of them?
+        # TODO: we should unify this into num_completion_tokens
         sequence = request_state.result.completions[0]
         num_output_tokens: int = len(sequence.tokens)
         # Don't include prompt in number of generated tokens (e.g., for language modeling).
@@ -582,17 +629,17 @@ class BasicMetric(Metric):
             for valid_reason in valid_reasons
         ]
 
-    def compute_num_in_context_examples(
+    def compute_truncation_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
-        """Record the number of in-context examples used in the prompt."""
-        return [Stat(MetricName("num_in_context_examples")).add(request_state.num_in_context_examples)]
-
-    def compute_input_truncated(
-        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
-    ) -> List[Stat]:
-        """Record whether the input was truncated to fit the context window."""
-        return [Stat(MetricName("input_truncated")).add(request_state.input_truncated)]
+        """
+        Record the number of training instances used in the prompt and whether
+        even the prompt needed to be truncated (once we hit zero training instances).
+        """
+        return [
+            Stat(MetricName("num_train_instances")).add(request_state.num_train_instances),
+            Stat(MetricName("prompt_truncated")).add(request_state.prompt_truncated),
+        ]
 
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -632,16 +679,19 @@ class BasicMetric(Metric):
         metric_service: MetricService,
         eval_cache_path: str,
     ) -> List[Stat]:
-        """Compute the reference metrics and language modeling metrics"""
+        """Compute all metrics."""
         metrics = []
+
+        # Copy from adapter spec
+        metrics.append(Stat(MetricName("num_train_trials")).add(adapter_spec.num_train_trials))
+
         if len(request_state.instance.references) > 0:
             metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
 
         metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
         metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
-        metrics.extend(self.compute_num_in_context_examples(adapter_spec, request_state, metric_service))
-        metrics.extend(self.compute_input_truncated(adapter_spec, request_state, metric_service))
+        metrics.extend(self.compute_truncation_metrics(adapter_spec, request_state, metric_service))
 
         return metrics
 
@@ -657,7 +707,6 @@ class BasicMetric(Metric):
         We define the following metrics:
         - correct_rank: if we sort references by their logprobs, what is the ranking of the first correct reference.
         """
-        # TODO: https://github.com/stanford-crfm/benchmarking/issues/45
 
         @dataclass(frozen=True)
         class ReferenceKey:
@@ -685,7 +734,7 @@ class BasicMetric(Metric):
             num_tokens: int = len(reference_tokens)
             answer_tokens: List[Token] = sequence.tokens[-num_tokens:]
             logprob: float = sum(token.logprob for token in answer_tokens)
-
+            assert not math.isnan(logprob), f"Log probs have NaN for RequestState: {request_state}"
             return ReferenceStat(logprob, num_tokens)
 
         references = reference_request_states[0].instance.references
@@ -735,6 +784,7 @@ class BasicMetric(Metric):
             [
                 Stat(MetricName("max_prob")).add(max_prob),
                 Stat(MetricName("exact_match")).add(float(max(reference_scores) == max(answer_scores))),
+                Stat(MetricName("predicted_index")).add(reference_scores.index(max(reference_scores))),
             ]
         )
         return metrics
@@ -787,7 +837,9 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
             calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(0.0))
             calibration_metrics.append(Stat(MetricName("platt_ece_1_bin")).add(0.0))
         else:
-            platt_scaler = cal.get_platt_scaler(np.array(max_probs), np.array(correct))
+            platt_scaler, clf = cal.get_platt_scaler(np.array(max_probs), np.array(correct), get_clf=True)
+            calibration_metrics.append(Stat(MetricName("platt_coef")).add(clf.coef_[0][0]))
+            calibration_metrics.append(Stat(MetricName("platt_intercept")).add(clf.intercept_[0]))
             cal_max_probs = platt_scaler(np.array(max_probs))
             platt_ece_10_bin = cal.get_ece_em(cal_max_probs, correct, num_bins=10)
             calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(platt_ece_10_bin))

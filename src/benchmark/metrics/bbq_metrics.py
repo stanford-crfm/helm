@@ -66,6 +66,7 @@ class BBQMetric(Metric):
             is_negative = NEGATIVE_TAG in reference.tags
             is_ambiguous = AMBIGUOUS_TAG in reference.tags
 
+            assert request_state.result is not None
             request_result: RequestResult = request_state.result
             # Filter out empty completions
             completions: List[str] = [

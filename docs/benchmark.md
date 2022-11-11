@@ -43,9 +43,9 @@ scenarios) in parallel:
     venv/bin/benchmark-summarize --suite $SUITE
 
     # Run a simple Python server to make sure things work at http://localhost:8000
-    sh scripts/benchmark-server.sh
+    benchmark-server
 
-    # Copy all website assets to a `www` directory for static serving.
+    # Copy all website assets to the `www` directory, which can be copied to GitHub pages for static serving.
     sh scripts/create-www.sh $SUITE
 
 This should push to the [public site](https://nlp.stanford.edu/$USER/benchmarking/).

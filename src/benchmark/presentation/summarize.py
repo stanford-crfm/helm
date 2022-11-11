@@ -6,7 +6,7 @@ from dataclasses import dataclass, replace
 from tqdm import tqdm
 
 import dacite
-from typing import List, Optional, Dict, Any, Iterable, Tuple, Set
+from typing import List, Optional, Dict, Any, Tuple, Set
 import json
 
 from common.general import write, ensure_directory_exists, asdict_without_nones, singleton, unique_simplification
@@ -14,11 +14,20 @@ from common.hierarchical_logger import hlog, htrack
 from benchmark.scenarios.scenario import ScenarioSpec
 from benchmark.adapter import AdapterSpec
 from benchmark.metrics.metric_name import MetricName
+from benchmark.metrics.metric import get_all_stats_by_name
 from benchmark.metrics.statistic import Stat, merge_stat
 from benchmark.runner import RunSpec
-from proxy.models import ALL_MODELS, Model, get_model
 from .table import Cell, Table, Hyperlink, table_to_latex
-from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_PATH, BY_GROUP, THIS_GROUP_ONLY, NO_GROUPS
+from .schema import (
+    MetricNameMatcher,
+    ModelField,
+    RunGroup,
+    read_schema,
+    SCHEMA_YAML_PATH,
+    BY_GROUP,
+    THIS_GROUP_ONLY,
+    NO_GROUPS,
+)
 from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
 
 """
@@ -97,7 +106,7 @@ def get_method_adapter_spec(adapter_spec: AdapterSpec, scenario_spec: ScenarioSp
     return replace(adapter_spec, instructions=instructions)
 
 
-def get_method_display_name(model: Model, info: Dict[str, Any]) -> str:
+def get_method_display_name(model: ModelField, info: Dict[str, Any]) -> str:
     """
     Return a nice name to display for `adapter_spec` which denotes a method.
     `info` contains the decoding parameters.
@@ -108,7 +117,7 @@ def get_method_display_name(model: Model, info: Dict[str, Any]) -> str:
     if "model" in info:
         del info["model"]
 
-    return model.display_name + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
+    return (model.display_name or "???") + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
 
 
 class Summarizer:
@@ -232,7 +241,7 @@ class Summarizer:
             else:
                 hlog(f"WARNING: {run_path} doesn't have run_spec.json or stats.json, skipping")
 
-        # For each scenario group (e.g., natural_qa), map
+        # For each group (e.g., natural_qa), map
         # (i) scenario spec (e.g., subject=philosophy) [optional] and
         # (ii) adapter spec (e.g., model = openai/davinci)
         # to list of runs
@@ -281,12 +290,6 @@ class Summarizer:
             json.dumps(models_to_costs, indent=2),
         )
 
-    def write_models(self):
-        write(
-            os.path.join(self.run_suite_path, "models.json"),
-            json.dumps(list(map(asdict_without_nones, ALL_MODELS)), indent=2),
-        )
-
     def write_runs(self):
         write(
             os.path.join(self.run_suite_path, "runs.json"),
@@ -316,29 +319,65 @@ class Summarizer:
         for group in self.schema.run_groups:
             category_to_groups[group.category].append(group)
 
+        def get_cell(stats: List[Stat], compute_mean: bool = False, compute_sum: bool = False) -> Cell:
+            """Render a value."""
+            if len(stats) == 0:
+                return Cell(None)
+            aggregate_stat = replace(stats[0])
+            for stat in stats[1:]:
+                aggregate_stat.merge(stat)
+            if compute_mean:
+                return Cell(aggregate_stat.mean, description=aggregate_stat.bare_str())
+            if compute_sum:
+                return Cell(aggregate_stat.sum, description=aggregate_stat.bare_str())
+            raise Exception("Either specify compute_mean or compute_sum")
+
         tables: List[Table] = []
         for category, groups in category_to_groups.items():
             header = [
                 Cell("Group"),
                 Cell("Description"),
-                Cell("# models"),
+                Cell("Method", description="Adaptation strategy (e.g., generation)"),
+                Cell("# instances", description="Number of instances evaluated on"),
+                Cell("# references", description="Number of references provided per instance"),
+                Cell("# prompt tokens", description="Total number of prompt tokens"),
+                Cell("# completion tokens", description="Total number of completion tokens"),
+                Cell("# models", description="Number of models we're evaluating"),
             ]
             rows: List[List[Cell]] = []
             for group in groups:
-                num_models = len(
-                    set(
-                        adapter_spec.model
-                        for subgroup in self.expand_subgroups(group)
-                        for adapter_spec in self.group_adapter_to_runs[subgroup.name].keys()
-                    )
-                )
-                if num_models == 0:
+                models: Set[str] = set()
+                methods: Set[str] = set()
+                num_instances: List[Stat] = []
+                num_references: List[Stat] = []
+                num_prompt_tokens: List[Stat] = []
+                num_completion_tokens: List[Stat] = []
+
+                # Go over all the matching runs
+                for subgroup in self.expand_subgroups(group):
+                    for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
+                        models.add(adapter_spec.model)
+                        methods.add(adapter_spec.method)
+                        for run in runs:
+                            num_instances.extend(get_all_stats_by_name(run.stats, "num_instances"))
+                            num_references.extend(get_all_stats_by_name(run.stats, "num_references"))
+                            num_prompt_tokens.extend(get_all_stats_by_name(run.stats, "num_prompt_tokens"))
+                            # TODO: replace with num_completion_tokens
+                            num_completion_tokens.extend(get_all_stats_by_name(run.stats, "num_output_tokens"))
+
+                if len(num_instances) == 0:
                     continue
+
                 rows.append(
                     [
                         Cell(group.display_name, href=get_benchmarking_url({"suite": self.suite, "group": group.name})),
-                        Cell(group.description),
-                        Cell(num_models),
+                        Cell(group.description, markdown=True),
+                        Cell(", ".join(methods)),
+                        get_cell(num_instances, compute_mean=True),
+                        get_cell(num_references, compute_mean=True),
+                        get_cell(num_prompt_tokens, compute_sum=True),
+                        get_cell(num_completion_tokens, compute_sum=True),
+                        Cell(len(models)),
                     ]
                 )
             tables.append(Table(title=category, header=header, rows=rows))
@@ -352,8 +391,9 @@ class Summarizer:
         metadata = {}
         for group in self.schema.run_groups:
             metadata[group.name] = {
-                "displayName": group.display_name,
+                "display_name": group.display_name,
                 "description": group.description,
+                "taxonomy": group.taxonomy and asdict_without_nones(group.taxonomy),
             }
         return metadata
 
@@ -373,7 +413,6 @@ class Summarizer:
             if stat is None:
                 hlog(f"WARNING: {matcher} doesn't match {run.run_spec.name}")
                 continue  # TODO: probably should make a note that stats are missing
-            stat = stat.take_mean()  # Collapse to a single point
 
             if aggregate_stat is None:
                 aggregate_stat = replace(stat)  # Important: copy!
@@ -384,18 +423,19 @@ class Summarizer:
         if aggregate_stat is None:
             return Cell(None)
 
+        # TODO: need to exclude contaminated numbers somehow
         value = aggregate_stat.mean
-        display_value = str(round(value, 3)) if value is not None else None
         description = aggregate_stat.bare_str()
         if self.debug:
             description += "\n-- ".join(["\nRun specs:", *aggregated_run_specs])
         style: Dict[str, Any] = {}
         if contamination_level is not None:
             style = CONTAMINATION_STYLES.get(contamination_level, style)
-        return Cell(value=value, display_value=display_value, description=description, style=style)
+        return Cell(value=value, description=description, style=style)
 
     def create_group_table(
         self,
+        name: str,
         title: str,
         adapter_to_runs: Dict[AdapterSpec, List[Run]],
         link_to_runs: bool,
@@ -422,7 +462,8 @@ class Summarizer:
         group_names: List[str] = []  # for each column
         num_groups = len(set(run_group.name for run_group, _ in columns))  # number of unique groups, determines headers
 
-        header.append(Cell("Adapter"))
+        # Column headers
+        header.append(Cell("Model/adapter"))
         for run_group, metric_group_name in columns:
             if metric_group_name not in run_group.metric_groups:
                 continue
@@ -433,11 +474,13 @@ class Summarizer:
                     matcher = replace(matcher, sub_split=sub_split)
                 header_field = self.schema.name_to_metric.get(matcher.name)
                 if header_field is None:
-                    hlog(f"WARNING: unknown metric name {matcher.name}, skipping")
+                    hlog(f"WARNING: metric name {matcher.name} not in schema, skipping")
                     continue
 
                 header_name = header_field.get_short_display_name(arrow=True)
-                description = header_field.display_name + ": " + header_field.description
+                description = (run_group.description + "\n\n" if run_group.description is not None else "") + (
+                    header_field.display_name + ": " + header_field.description
+                )
 
                 if matcher.perturbation_name is not None:
                     perturbation_field = self.schema.name_to_perturbation[matcher.perturbation_name]
@@ -450,7 +493,7 @@ class Summarizer:
                     )
 
                 if num_groups > 1:  # we have multiple groups in the same table, so display the name in the column
-                    header_name = f"{run_group.get_short_display_name()} ({header_name})"
+                    header_name = f"{run_group.get_short_display_name()} - {header_name}"
 
                 header.append(Cell(header_name, description=description))
                 matchers.append(matcher)
@@ -469,19 +512,21 @@ class Summarizer:
                 }
             )
 
-        adapter_specs: Iterable[AdapterSpec] = adapter_to_runs.keys()
+        adapter_specs: List[AdapterSpec] = list(adapter_to_runs.keys())
         if sort_by_model_order:
-            model_order = [model.name for model in ALL_MODELS]
-            adapter_specs = sorted(adapter_specs, key=lambda spec: model_order.index(spec.model))
+            model_order = [model.name for model in self.schema.models]
+            adapter_specs = list(sorted(adapter_specs, key=lambda spec: model_order.index(spec.model)))
 
         # Pull out only the keys of the method adapter_spec that is needed to
         # uniquely identify the method.
         infos = unique_simplification(list(map(asdict_without_nones, adapter_specs)), ["model"])
 
+        assert len(adapter_specs) == len(infos), [adapter_specs, infos]
+
         # Populate the contents of the table
         rows = []
         for adapter_spec, info in zip(adapter_specs, infos):
-            model = get_model(adapter_spec.model)
+            model = self.schema.name_to_model[adapter_spec.model]
             runs = adapter_to_runs[adapter_spec]
             display_name = get_method_display_name(model, info)
 
@@ -504,6 +549,7 @@ class Summarizer:
                 contamination_level = None
 
             cells = [Cell(display_name + suffix, description=description, href=href)]
+            assert len(group_names) == len(matchers)
             for group_name, matcher in zip(group_names, matchers):
                 group_runs = [run for run in runs if group_name in run.run_spec.groups]
                 cells.append(self.create_cell(group_runs, matcher, contamination_level))
@@ -517,10 +563,10 @@ class Summarizer:
                 all_run_spec_names.append(run.run_spec.name)
         links = [Hyperlink(text="all models", href=run_spec_names_to_url(all_run_spec_names))]
 
-        return Table(title=title, header=header, rows=rows, links=links)
+        return Table(title=title, header=header, rows=rows, links=links, name=name)
 
-    def create_group_tables_by_metric_group(self, group: RunGroup, subgroups: List[RunGroup]) -> Dict[str, Table]:
-        tables: Dict[str, Table] = {}
+    def create_group_tables_by_metric_group(self, groups: List[RunGroup]) -> List[Table]:
+        tables: List[Table] = []
         adapter_to_runs: Dict[AdapterSpec, List[Run]] = defaultdict(list)
         all_metric_groups: List[str] = []
         for subgroup in subgroups:
@@ -536,18 +582,19 @@ class Summarizer:
             for metric_group in all_metric_groups:
                 display_name = self.schema.name_to_metric_group[metric_group].get_short_display_name()
                 table = self.create_group_table(
+                    name=metric_group,
                     title=display_name,
                     adapter_to_runs=adapter_to_runs,
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     link_to_runs=False,
                 )
-                tables[metric_group] = table
+                tables.append(table)
         return tables
 
-    def create_group_tables_by_group(self, group: RunGroup, subgroups: List[RunGroup]) -> Dict[str, Table]:
-        all_tables: Dict[str, Table] = {}
+    def create_group_tables_by_group(self, group: RunGroup, subgroups: List[RunGroup]) -> List[Table]:
+        all_tables: List[Table] = []
         for subgroup in subgroups:
-            tables: Dict[str, Table] = {}
+            tables: List[Table] = []
             scenarios_shown = 0
             # Show the table per scenario
             for scenario_spec in self.group_scenario_adapter_to_runs[subgroup.name]:
@@ -567,7 +614,7 @@ class Summarizer:
                         columns=[(subgroup, metric_group) for metric_group in subgroup.metric_groups],
                         link_to_runs=True,
                     )
-                    tables[scenario_name] = table
+                    tables.append(table)
                     scenarios_shown += 1
 
                     if subgroup.sub_splits is not None:
@@ -579,7 +626,7 @@ class Summarizer:
                                 link_to_runs=False,
                                 sub_split=sub_split,
                             )
-                            tables[f"{group.name}:sub_split={sub_split}"] = table
+                            tables.append(table)
 
             if scenarios_shown > 1:  # add aggregate table
                 adapter_to_runs = {}
@@ -594,8 +641,8 @@ class Summarizer:
                         columns=[(subgroup, metric_group) for metric_group in subgroup.metric_groups],
                         link_to_runs=False,
                     )
-                    tables = {subgroup.name: table, **tables}  # prepend aggregate table to the dict
-            all_tables.update(tables)
+                    tables = [table] + tables
+            all_tables.extend(tables)
 
         return all_tables
 
@@ -624,8 +671,7 @@ class Summarizer:
         groups_path = os.path.join(self.run_suite_path, "groups")
         ensure_directory_exists(groups_path)
         for group in self.schema.run_groups:
-            tables = []
-            table_names = []
+            tables: List[Table] = []
 
             # Collect all subgroups, by expanding recursively; intermediate nodes in the implicit subgroup tree will not
             # get visualized if they don't have their own metric_groups
@@ -635,14 +681,12 @@ class Summarizer:
                 # Create table aggregating over all scenarios in each group and then expand each scenario (we always do
                 # this when there are no additional subgroups)
 
-                for table_name, table in self.create_group_tables_by_group(group, subgroups).items():
+                for table in self.create_group_tables_by_group(group, subgroups):
                     tables.append(table)
-                    table_names.append(table_name)
             else:
                 # Create a table for each metric, showing one subgroup per column for each adapter
-                for table_name, table in self.create_group_tables_by_metric_group(group, subgroups).items():
+                for table in self.create_group_tables_by_metric_group(group, subgroups):
                     tables.append(table)
-                    table_names.append(table_name)
             if len(tables) == 0:
                 continue
 
@@ -650,10 +694,10 @@ class Summarizer:
             # Add the latex_path to each table (changes `tables`!)
             base_path = os.path.join(groups_path, "latex")
             ensure_directory_exists(base_path)
-            for table, table_name in zip(tables, table_names):
-                latex_path = os.path.join(base_path, f"{group.name}_{table_name}.tex")
+            for table in tables:
+                latex_path = os.path.join(base_path, f"{group.name}_{table.name}.tex")
                 table.links.append(Hyperlink(text="latex", href=latex_path))
-                write(latex_path, table_to_latex(table, f"{table_name} ({group.name})"))
+                write(latex_path, table_to_latex(table, f"{table.name} ({group.name})"))
 
             # Write JSON file
             write(
@@ -684,12 +728,13 @@ def main():
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(suite=args.suite, output_path=args.output_path, debug=args.debug)
     summarizer.read_runs()
-    summarizer.write_models()
+    summarizer.check_metrics_defined()
+
     summarizer.write_runs()
     summarizer.write_groups()
-    summarizer.check_metrics_defined()
     summarizer.write_cost_report()
     summarizer.write_slim_per_instance_stats()
+
     hlog("Done.")
 
 

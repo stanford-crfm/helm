@@ -8,6 +8,7 @@
 // Look at `schema.py` for the actual schema.
 class Schema {
   constructor(raw) {
+    this.models = raw.models;
     this.adapter = raw.adapter;
     this.metrics = raw.metrics;
     this.perturbations = raw.perturbations;
@@ -51,14 +52,26 @@ $(function () {
 
   /////////////////////////////////// Pages ////////////////////////////////////
 
-  function renderModels(models) {
-    // TODO: show better information, perhaps link to ecosystem graphs
-    const $table = $('<table>', {class: 'query-table'});
-    models.forEach((model) => {
+  function renderModels() {
+    const $table = $('<table>', {class: 'query-table results-table'});
+    const $header = $('<tr>').append([
+      $('<td>').append('Creator'),
+      $('<td>').append('Model'),
+      $('<td>').append('Description'),
+      $('<td>').append('Access'),
+    ]);
+    $table.append($header);
+
+    schema.models.forEach((model) => {
+      const $name = $('<div>').append([
+        $('<div>').append(model.display_name),
+        $('<div>', {class: 'technical-details'}).append(model.name),
+      ]);
       const $row = $('<tr>').append([
-        $('<td>').append(model.display_name),
-        $('<td>').append(model.description),
-        $('<td>').append(model.name),
+        $('<td>').append(model.creator_organization),
+        $('<td>').append($name),
+        $('<td>').append(renderMarkdown(model.description)),
+        $('<td>').append(renderAccess(model.access)),
       ]);
       $table.append($row);
     });
@@ -77,12 +90,12 @@ $(function () {
         window.open(href);
       }
       query = $search.val();
-      renderTable();
+      renderRunsTable();
     });
 
     const $table = $('<table>', {class: 'query-table'});
 
-    function renderTable() {
+    function renderRunsTable() {
       $table.empty();
       const $header = $('<tr>')
           .append($('<td>').append($('<b>').append('Run')))
@@ -101,14 +114,14 @@ $(function () {
       });
     }
 
-    renderTable();
+    renderRunsTable();
 
     return $('<div>').append([$search, $table]);
   }
 
   // Look at logic in `summarize.py`.
   function getMetricNames(scenarioGroup) {
-    // A scenario group defines a list of metric groups, each of which defines the metrics.
+    // A (scenario/run) group defines a list of metric groups, each of which defines the metrics.
     // Just pull the names from those metrics.
     const names = [];
     scenarioGroup.metric_groups.forEach((metricGroupName) => {
@@ -264,18 +277,22 @@ $(function () {
     const $output = $('<div>');
     if (urlParams.group) {
       $.getJSON(`benchmark_output/runs/${suite}/groups_metadata.json`, {}, (response) => {
-        if (response[urlParams.group]) {
-          let groupName = response[urlParams.group].displayName;
+        const group = response[urlParams.group];
+        if (group) {
+          let groupName = group.display_name;
           if (urlParams.subgroup) {
             groupName += " / " + urlParams.subgroup;
           }
           $output.append($('<h3>').append(groupName));
-          $output.append($('<div>').append($('<i>').append(response[urlParams.group].description)));
+          $output.append($('<div>').append($('<i>').append(renderMarkdown(group.description))));
+          if (group.taxonomy) {
+            $output.append($('<div>').append(Object.entries(group.taxonomy).map(([k, v]) => `<b>${k}</b>: ${v}`).join(' | ')));
+          }
         }
       });
     } else if (scenario) {
       $output.append($('<h3>').append(renderScenarioDisplayName(scenario)));
-      $output.append($('<div>').append($('<i>').append(scenario.description)));
+      $output.append($('<div>').append($('<i>').append(renderMarkdown(scenario.description))));
     }
     return $output;
   }
@@ -428,9 +445,20 @@ $(function () {
         return;
       }
 
+      const key = instanceTrialKey(requestState.instance, requestState.train_trial_index);
+      // For multiple_choice_separate_*, only render the request state for the predicted index
+      if (requestState.reference_index !== undefined) {
+        const predictedIndexStat = instanceKeyTrialToStats[key] ?
+          instanceKeyTrialToStats[key].find((stat) => stat.name.name === "predicted_index") :
+          undefined;
+        if (predictedIndexStat === undefined) {
+          console.warn("Cannot find predicted index for: ", key);
+        } else if (requestState.reference_index !== predictedIndexStat.mean) {
+          return;
+        }
+      }
       // Print out instance-level statistics.
       // Show it once for each (instance id, train trial index, perturbation).
-      const key = instanceTrialKey(requestState.instance, requestState.train_trial_index);
       if (!shownStats[key]) {
         const stats = instanceKeyTrialToStats[key];
         if (!stats) {
@@ -504,7 +532,7 @@ $(function () {
       description += 'Prediction';
 
       // Which reference (for multiple_choice_separate_*)
-      if (requestState.reference_index != null) {
+      if (requestState.reference_index !== undefined) {
         description += '[ref ' + requestState.reference_index + ']';
       }
 
@@ -519,12 +547,13 @@ $(function () {
         $request.slideToggle();
         return false;
       });
-      $instance.append($('<div>')
+      $prediction = $('<div>')
         .append($link)
         .append(': ')
         .append(prefix)
         .append(prediction)
-        .append($logProb));
+        .append($logProb);
+      $instance.append($prediction);
       $instance.append($request);
     });
   }
@@ -617,7 +646,7 @@ $(function () {
         $stats.empty().append(renderGlobalStats(query, keys, statsList, statsPaths));
       }
 
-      // Filter 
+      // Filter
       let query = '';
       $statsSearch.keyup((e) => {
         query = $statsSearch.val();
@@ -656,23 +685,217 @@ $(function () {
     return $root;
   }
 
-  function renderLandingPage() {
-    const $intro = $('<div>').append('Welcome to the CRFM benchmarking project!');
-    // TODO: put more content here.
-    return $('<div>').append($intro);
+  function modelUrl(model) {
+    return encodeUrlParams(Object.assign({}, urlParams, {models: 1}));
+  }
+
+  function groupUrl(group) {
+    return encodeUrlParams(Object.assign({}, urlParams, {group}));
+  }
+
+  function metricUrl(group) {
+    // e.g., Calibration
+    return encodeUrlParams(Object.assign({}, urlParams, {group: 'core_scenarios'})) + '#' + group.display_name;
+  }
+
+  function groupShortDisplayName(group) {
+    return group.short_display_name || group.display_name || group.name;
+  }
+
+  function metricDisplayName(metric) {
+    return (metric.display_name || metric.name) + (metric.perturbation_name ? ' (perturbation: ' + metric.perturbation_name + ')' : '');
+  }
+
+  function renderModelList() {
+    const $result = $('<div>', {class: 'col-sm-3'});
+    const models = schema.models;
+    const numModels = models.filter((model) => !model.todo).length;
+    $result.append($('<div>', {class: 'list-header'}).append(`${numModels} models`));
+    models.forEach((model) => {
+      const extra = model.todo ? ' list-item-todo' : '';
+      const display_name = model.creator_organization + ' / ' + model.display_name;
+      const $item = $('<a>', {href: modelUrl(model.name), class: 'list-item' + extra, title: model.description}).append(display_name);
+      $result.append($('<div>').append($item));
+    });
+    return $result;
+  }
+
+  function renderScenarioList() {
+    const $result = $('<div>', {class: 'col-sm-3'});
+
+    const nameToGroup = {};
+    schema.run_groups.forEach((group) => {
+      nameToGroup[group.name] = group;
+    });
+
+    // There are two types of groups we care about:
+    // 1) Top-level groups (e.g., question_answering)
+    // 2) Scenario-level groups (e.g., mmlu)
+    const topGroups = schema.run_groups.filter((group) => {
+      return ['Core scenarios', 'Components'].includes(group.category);
+    });
+
+    const scenarioGroupNames = {};
+    topGroups.forEach((group) => {
+      group.subgroups.forEach((subgroupName) => {
+        if (!nameToGroup[subgroupName].todo) {
+          scenarioGroupNames[subgroupName] = true;
+        }
+      });
+    });
+    const numScenarios = Object.keys(scenarioGroupNames).length;
+
+    $result.append($('<div>', {class: 'list-header'}).append(`${numScenarios} scenarios`));
+    topGroups.forEach((group) => {
+      const $group = $('<div>');
+      $group.append($('<a>', {href: groupUrl(group.name), class: 'list-item', title: group.description}).append(groupShortDisplayName(group)));
+      $group.append($('<ul>').append(group.subgroups.map((subgroupName) => {
+        const subgroup = nameToGroup[subgroupName];
+        const extra = subgroup.todo ? ' list-item-todo' : '';
+        const $item = $('<a>', {href: groupUrl(subgroup.name), class: 'list-item' + extra, title: subgroup.description}).append(groupShortDisplayName(subgroup));
+        return $('<li>').append($item);
+      })));
+      $result.append($group);
+    });
+    return $result;
+  }
+
+  function renderMetricsList() {
+    const $result = $('<div>', {class: 'col-sm-3'});
+
+    // Information about individual metrics
+    const nameToMetric = {};
+    schema.metrics.forEach((metric) => {
+      nameToMetric[metric.name] = metric;
+    });
+
+    // Some metric groups depend on environment variables like ${main_name}
+    // Look at the places where that's being used across the runs.
+    // For each metric group, compute the deduped list of main_names.
+    // Example: accuracy => [quasi_exact_match, f1_score, ...]
+    const metricGroupToMainNames = {};
+    schema.run_groups.forEach((group) => {
+      if (group.metric_groups) {
+        group.metric_groups.forEach((metricGroup) => {
+          if (group.environment.main_name) {
+            const old = metricGroupToMainNames[metricGroup] || [];
+            if (!old.includes(group.environment.main_name)) {
+              metricGroupToMainNames[metricGroup] = old.concat([group.environment.main_name]);
+            }
+          }
+        });
+      }
+    });
+
+    const metricGroups = schema.metric_groups.filter((group) => {
+      // Skip a group if "_detailed" exists.
+      return !schema.metric_groups.some((group2) => group2.name === group.name + '_detailed');
+    }).map((group) => {
+      // Expand the metrics for this metric group
+      const newMetrics = [];
+      group.metrics.forEach((metric) => {
+        if (metric.name === '${main_name}') {
+          (metricGroupToMainNames[group.name.replace('_detailed', '')] || []).forEach((name) => {
+            newMetrics.push(Object.assign({}, metric, {name}));
+          });
+        } else {
+          newMetrics.push(metric);
+        }
+      });
+      return Object.assign({}, group, {metrics: newMetrics});
+    });
+
+    // Count the number of metrics
+    const metricNames = {};
+    metricGroups.forEach((group) => {
+      group.metrics.forEach((metric) => {
+        metricNames[metric.name] = true;
+      });
+    });
+    const numMetrics = Object.keys(metricNames).length;
+
+    $result.append($('<div>', {class: 'list-header'}).append(`${numMetrics} metrics`));
+    metricGroups.forEach((group) => {
+      const $group = $('<div>');
+      $group.append($('<a>', {href: metricUrl(group), class: 'list-item', title: group.description}).append(groupShortDisplayName(group)));
+      $group.append($('<ul>').append(group.metrics.map((metricRef) => {
+        // Get the information from the metric (name, display_name, description)
+        const metric = Object.assign({}, metricRef, nameToMetric[metricRef.name] || metricRef);
+        const $item = $('<a>', {class: 'list-item', title: metric.description}).append(metricDisplayName(metric));
+        return $('<li>').append($item);
+      })));
+      $result.append($group);
+    });
+    return $result;
+  }
+
+  function helmLogo() {
+    return $('<a>', {href: '/'}).append($('<img>', {src: 'helm-logo.png', width: '500px', class: 'mx-auto d-block'}));
+  };
+
+  function button(text, href) {
+    return $('<a>', {href, class: 'main-link btn btn-lg m-5 px-5'}).append(text);
+  }
+
+  function renderMainPage() {
+    const $result = $('<div>', {class: 'row'});
+
+    $result.append($('<div>', {class: 'col-sm-12'}).append(helmLogo()));
+
+    const $paper = button('Paper', 'https://drive.google.com/file/d/1ZNpe28eS159O4WKuP_b4IrUgP4LA5CFj/view');
+    const $code = button('GitHub', 'https://github.com/stanford-crfm/helm');
+    $result.append($('<div>', {class: 'col-sm-12'}).append($('<div>', {class: 'text-center'}).append([$paper, $code])));
+
+    const $description = $('<div>', {class: 'col-sm-6'}).append([
+      'Language models increasingly function as the foundation for almost all language technologies,',
+      ' ',
+      'but their immense capabilities and risks are not well understood.',
+      ' ',
+      'Holistic Evaluation of Language Models (HELM) is an benchmarking effort that lays out the design space of scenarios, metrics, and models.'
+    ]);
+    $description.append($('<ol>').append([
+      $('<li>').append('<b>Incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to measure, making explicit what is missing.'),
+      $('<li>').append('<b>Multi-metric</b>. Rather than isolated metrics such as accuracy, we measure multiple metrics (e.g., accuracy, robustness, calibration, efficiency) for each scenario, allowing analysis of tradeoffs.'),
+      $('<li>').append('<b>Standardization</b>. We evaluate all the models (that we have access to) on the same scenarios using the same adaptation (e.g., prompting) strategy, allowing for fair comparison.'),
+      $('<li>').append('<b>Transparency</b>. All the scenarios, predictions, prompts, code are available for further analysis on this website.'),
+    ]));
+    $result.append([
+      $('<div>', {class: 'col-sm-3'}),
+      $description,
+      $('<div>', {class: 'col-sm-3'}),
+    ]);
+
+    const $models = renderModelList();
+    const $scenarios = renderScenarioList();
+    const $metrics = renderMetricsList();
+    $result.append([
+      $('<div>', {class: 'col-sm-2'}),
+      $models, $scenarios, $metrics,
+      $('<div>', {class: 'col-sm-1'}),
+    ]);
+
+    return $result;
   }
 
   function renderCell(cell) {
-    const value = $('<span>', {title: cell.description}).append(cell.display_value || cell.value);
-    if (cell.style) {
-      value.css(cell.style);
+    let value = cell.display_value || cell.value;
+    if (typeof(value) === 'number') {
+      value = Math.round(value * 1000) / 1000;
     }
-    return $('<td>').append(cell.href ? $('<a>', {href: cell.href}).append(value) : value);
+    if (cell.markdown && value) {
+      value = renderMarkdown('' + value);
+    }
+    const $value = $('<span>', {title: cell.description}).append(value);
+    if (cell.style) {
+      $value.css(cell.style);
+    }
+    const $linkedValue = cell.href ? $('<a>', {href: cell.href}).append($value) : $value;
+    return $('<td>').append($linkedValue);
   }
 
   function renderTable(table) {
     const $output = $('<div>');
-    $output.append($('<h3>').append(table.title));
+    $output.append($('<h3>').append($('<a>', {name: table.title}).append(table.title)));
     const $table = $('<table>', {class: 'query-table results-table'});
     const $header = $('<tr>').append(table.header.map(renderCell));
     $table.append($header);
@@ -713,14 +936,11 @@ $(function () {
   ).then(() => {
     $main.empty();
     if (urlParams.models) {
-      // Show models
-      $.getJSON(`benchmark_output/runs/${suite}/models.json`, {}, (response) => {
-        const models = response;
-        console.log('models', models);
-        $main.append(renderHeader('Models', renderModels(models)));
-      });
+      // Models
+      $main.append(renderHeader('Models', renderModels()));
+      refreshHashLocation();
     } else if (urlParams.runSpec || urlParams.runSpecs || urlParams.runSpecRegex) {
-      // Show a set of run specs (matching a regular expression)
+      // Predictions for a set of run specs (matching a regular expression)
       $.getJSON(`benchmark_output/runs/${suite}/run_specs.json`, {}, (response) => {
         const runSpecs = response;
         console.log('runSpecs', runSpecs);
@@ -745,18 +965,20 @@ $(function () {
         } else {
           $main.append(renderRunsDetailed(matchedRunSpecs));
         }
+        refreshHashLocation();
       });
     } else if (urlParams.runs) {
-      // Search over all runs
-      $.getJSON(`benchmark_output/runs/${suite}/run_specs.json`, {}, (response) => {
-        const runSpecs = response;
+      // All runs (with search)
+      $.getJSON(`benchmark_output/runs/${suite}/run_specs.json`, {}, (runSpecs) => {
         console.log('runSpecs', runSpecs);
         $main.append(renderHeader('Runs', renderRunsOverview(runSpecs)));
       });
     } else if (urlParams.groups) {
       // All groups
-      $.getJSON(`benchmark_output/runs/${suite}/groups.json`, {}, (response) => {
-        $main.append(renderTables(response));
+      $.getJSON(`benchmark_output/runs/${suite}/groups.json`, {}, (tables) => {
+        console.log('groups', tables);
+        $main.append(renderTables(tables));
+        refreshHashLocation();
       });
     } else if (urlParams.group) {
       // Specific group
@@ -764,9 +986,11 @@ $(function () {
         console.log('group', tables);
         $main.append(renderGroupHeader(urlParams.group));
         $main.append(renderTables(tables));
+        refreshHashLocation();
       });
     } else {
-      $main.append(renderLandingPage());
+      // Main landing page
+      $main.append(renderMainPage());
     }
   });
 });
