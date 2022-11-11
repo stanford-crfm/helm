@@ -565,10 +565,13 @@ class Summarizer:
 
         return Table(title=title, header=header, rows=rows, links=links, name=name)
 
-    def create_group_tables_by_metric_group(self, group: RunGroup, subgroups: List[RunGroup]) -> List[Table]:
+    def create_group_tables_by_metric_group(self, group: RunGroup) -> List[Table]:
+        """Create a list of tables but displaying every subgroup. Each tables contains a single metric and subgroups are
+        shown as columns."""
         tables: List[Table] = []
         adapter_to_runs: Dict[AdapterSpec, List[Run]] = defaultdict(list)
         all_metric_groups: List[str] = []
+        subgroups = self.expand_subgroups(group)
         for subgroup in subgroups:
             all_metric_groups.extend(subgroup.metric_groups)
             for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
@@ -591,8 +594,11 @@ class Summarizer:
                 tables.append(table)
         return tables
 
-    def create_group_tables_by_group(self, group: RunGroup, subgroups: List[RunGroup]) -> List[Table]:
+    def create_group_tables_by_subgroup(self, group: RunGroup) -> List[Table]:
+        """Create a list of tables but displaying every subgroup. Each tables contains one group or scenario and shows
+        all the metrics as columns."""
         all_tables: List[Table] = []
+        subgroups = self.expand_subgroups(group)
         for subgroup in subgroups:
             tables: List[Table] = []
             scenarios_shown = 0
@@ -674,22 +680,13 @@ class Summarizer:
         groups_path = os.path.join(self.run_suite_path, "groups")
         ensure_directory_exists(groups_path)
         for group in self.schema.run_groups:
-            tables: List[Table] = []
-
-            # Collect all subgroups, by expanding recursively; intermediate nodes in the implicit subgroup tree will not
-            # get visualized if they don't have their own metric_groups
-            subgroups = self.expand_subgroups(group)
-
-            if group.subgroup_display_mode == BY_GROUP or len(subgroups) == 1:
+            if group.subgroup_display_mode == BY_GROUP or len(self.expand_subgroups(group)) == 1:
                 # Create table aggregating over all scenarios in each group and then expand each scenario (we always do
                 # this when there are no additional subgroups)
-
-                for table in self.create_group_tables_by_group(group, subgroups):
-                    tables.append(table)
+                tables: List[Table] = self.create_group_tables_by_subgroup(group)
             else:
                 # Create a table for each metric, showing one subgroup per column for each adapter
-                for table in self.create_group_tables_by_metric_group(group, subgroups):
-                    tables.append(table)
+                tables: List[Table] = self.create_group_tables_by_metric_group(group)
             if len(tables) == 0:
                 continue
 

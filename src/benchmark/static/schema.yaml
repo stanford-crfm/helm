@@ -982,7 +982,7 @@ run_groups:
     description: In sentiment classification, given a text (e.g., movie review), the goal is to predict the sentiment (positive or negative).
     category: Core scenarios
     subgroups:
-        - imdb
+      - imdb
 
   - name: toxicity_detection
     display_name: Toxicity detection
@@ -1093,8 +1093,8 @@ run_groups:
     subgroup_display_mode: by_group
     visibility: this_group_only
     subgroups:
-        - imdb
-        - boolq
+      - imdb
+      - boolq
 
   - name: robustness_individual
     display_name: Robustness to single types of perturbations
