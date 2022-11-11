@@ -602,6 +602,7 @@ class Summarizer:
         for subgroup in subgroups:
             tables: List[Table] = []
             scenarios_shown = 0
+            columns = [(subgroup, metric_group) for metric_group in subgroup.metric_groups]
             # Show the table per scenario
             for scenario_spec in self.group_scenario_adapter_to_runs[subgroup.name]:
                 scenario_name = get_scenario_name(subgroup, scenario_spec)
@@ -618,7 +619,7 @@ class Summarizer:
                         title=scenario_display_name,
                         name=scenario_name,
                         adapter_to_runs=adapter_to_runs,
-                        columns=[(subgroup, metric_group) for metric_group in subgroup.metric_groups],
+                        columns=columns,
                         link_to_runs=True,
                     )
                     tables.append(table)
@@ -630,7 +631,7 @@ class Summarizer:
                                 title=f"{subgroup.display_name} (sub-split: {sub_split})",
                                 name=f"{subgroup.name}:sub_splut={sub_split}",
                                 adapter_to_runs=self.group_adapter_to_runs[subgroup.name],
-                                columns=[(subgroup, metric_group) for metric_group in subgroup.metric_groups],
+                                columns=columns,
                                 link_to_runs=False,
                                 sub_split=sub_split,
                             )
@@ -647,7 +648,7 @@ class Summarizer:
                         title=str(subgroup.display_name),
                         name=subgroup.name,
                         adapter_to_runs=adapter_to_runs,
-                        columns=[(subgroup, metric_group) for metric_group in subgroup.metric_groups],
+                        columns=columns,
                         link_to_runs=False,
                     )
                     tables = [table] + tables
