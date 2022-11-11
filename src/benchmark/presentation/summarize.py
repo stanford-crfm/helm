@@ -231,9 +231,6 @@ class Summarizer:
         for raw_run_spec in raw_run_specs:
             run_spec = dacite.from_dict(RunSpec, raw_run_spec)
             run_path: str = os.path.join(self.run_suite_path, run_spec.name)
-            # if "imdb" not in run_path or "boolq" not in run_path or "mmlu" not in run_path or "
-            if "openai_text" not in run_path:
-                continue
 
             run_spec_path: str = os.path.join(run_path, "run_spec.json")
             stats_path: str = os.path.join(run_path, "stats.json")

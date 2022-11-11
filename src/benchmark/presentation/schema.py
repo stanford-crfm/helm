@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import date
 from typing import List, Optional, Dict
 import dacite
 import mako.template
@@ -55,7 +56,7 @@ class ModelField(Field):
     todo: bool = False
 
     # When was the model released
-    release_date: Optional[Str] = None
+    release_date: Optional[date] = None
 
     # When was the model released
     num_parameters: Optional[int] = None
