@@ -173,15 +173,15 @@ models:
 
   # Microsoft/NVIDIA
   - name: microsoft/TNLGv2_530B
-    display_name: TNLGv2 (530B)
+    display_name: TNLG v2 (530B)
     description: TNLGv2 (530B parameters) autoregressive language model. It is trained on a filtered subset of the Pile and CommonCrawl.
     creator_organization: Microsoft/NVIDIA
     access: restricted
     num_parameters: 530000000000
     release_date: 2022-01-28
   - name: microsoft/TNLGv2_7B
-    display_name: TNLGv2 (7B)
-    description: TNLGv2 (7B parameters) autoregressive language model. It is trained on a filtered subset of the Pile and CommonCrawl.
+    display_name: TNLG v2 (6.7B)
+    description: TNLGv2 (6.7B parameters) autoregressive language model. It is trained on a filtered subset of the Pile and CommonCrawl.
     creator_organization: Microsoft/NVIDIA
     access: restricted
     num_parameters: 7000000000
