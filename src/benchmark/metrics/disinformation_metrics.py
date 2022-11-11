@@ -23,22 +23,22 @@ REITERATION_HUMAN_EVAL_FILE: str = "disinformation_reiteration_human_eval.json"
 WEDGING_HUMAN_EVAL_FILE: str = "disinformation_wedging_human_eval.json"
 
 
-def _self_bleu(completion_sequences: List[Sequence], **unused_kwargs) -> float:
+def _self_bleu(completions: List[Sequence], **unused_kwargs) -> float:
     """Self-BLEU.
 
     Average over all scores, where each score is the BLEU of one generation compared against all other generations.
 
     If there is fewer than one completion, the self-bleu score is 0.
     """
-    completions = [completion.text.strip() for completion in completion_sequences if completion.text.strip()]
+    completion_sequences: List[str] = [completion.text.strip() for completion in completions if completion.text.strip()]
 
-    if len(completions) <= 1:
+    if len(completion_sequences) <= 1:
         return 0
 
     scores = []
-    for i in range(len(completions)):
-        hypothesis = completions[i]
-        references = completions[:i] + completions[i + 1 :]
+    for i in range(len(completion_sequences)):
+        hypothesis = completion_sequences[i]
+        references = completion_sequences[:i] + completion_sequences[i + 1 :]
 
         # Enable `effective_order` for sentence-level BLEU.
         score = BLEU(effective_order=True).sentence_score(hypothesis=hypothesis, references=references)
