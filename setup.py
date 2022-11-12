@@ -10,12 +10,12 @@ def get_requirements(path: str):
 
 
 setup(
-    name="crfm-benchmarking",
+    name="crfm-helm",
     version="0.1.0",
     description="Benchmark for language models",
     long_description="Benchmark for language models",
     url="https://github.com/stanford-crfm/benchmarking",
-    author="CRFM",
+    author="Stanford CRFM",
     author_email="contact-crfm@stanford.edu",
     license="Apache License 2.0",
     keywords="language models benchmarking",
@@ -31,6 +31,13 @@ setup(
     install_requires=get_requirements("requirements.txt"),
     entry_points={
         "console_scripts": [
+            "helm-run=benchmark.run:main",
+            "helm-present=benchmark.presentation.present:main",
+            "helm-summarize=benchmark.presentation.summarize:main",
+            "helm-server=benchmark.server:main",
+            "crfm-proxy-server=proxy.server:main",
+            "crfm-proxy-cli=proxy.cli:main",
+            # TODO: Remove deprecated command names
             "benchmark-run=benchmark.run:main",
             "benchmark-present=benchmark.presentation.present:main",
             "benchmark-summarize=benchmark.presentation.summarize:main",
