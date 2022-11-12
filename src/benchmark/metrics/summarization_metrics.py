@@ -218,7 +218,7 @@ class SummarizationMetric(Metric):
         return result
 
 
-def _paired_bootstrap_test(treatment: list, control: list, nboot: int = 10000):
+def _paired_bootstrap_test(treatment_list: list, control_list: list, nboot: int = 10000):
     """
     Computes paired bootstrap test for the Hypothesis: treament > control
 
