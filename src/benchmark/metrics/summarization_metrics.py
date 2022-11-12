@@ -7,9 +7,8 @@ import pickle
 import spacy
 import subprocess
 import sys
-from typing import List, Dict
+from typing import List, Dict, Optional
 from collections import defaultdict
-import tempfile
 
 # Need to check spacy module is downloaded before importing DataStatsMetric
 if not spacy.util.is_package("en_core_web_sm"):
@@ -55,9 +54,9 @@ class SummarizationMetric(Metric):
             "rouge_l": get_rouge_function("rougeL"),
         }
         self.data_stats_metric = DataStatsMetric()
-        self.humaneval = self._load_humaneval(task)
         self.task: str = task
-        self.qa_fact_eval = None
+        self.qa_fact_eval: Optional[Dict] = None
+        self.humaneval: Optional[Dict] = None
 
         if device == "cpu":
             self.compute_faithfulness = False
@@ -80,36 +79,35 @@ class SummarizationMetric(Metric):
 
         self.qa_fact_eval = qafacteval_scores[self.task]
 
-    def _load_humaneval(self, task: str) -> Dict:
+    def _load_humaneval(self, eval_cache_path: str) -> Dict:
         """
         Load all human evaluation data cached on CodaLab into a single dictionary
 
         key: (metric_type: str, model_name: str, output_summary: str)
         value: corresponding score: float
         """
-        if "cnndm" in task:
+        if "cnndm" in self.task:
             dataset = "cnndm"
-        elif "xsum" in task:
+        elif "xsum" in self.task:
             dataset = "xsum"
         else:
             raise ValueError
 
         all_humaneval_scores = dict()
         for shots in [0, 5]:
-            with tempfile.TemporaryDirectory() as tmpdir:
-                score_analyzer = SummarizationHumanEvalAnalyzer(dataset, tmpdir, shots=shots)
-                for (model_name, input_id, output_text), score in score_analyzer.faithfulness_full.items():
-                    if isinstance(output_text, float):
-                        output_text = ""
-                    all_humaneval_scores[("faithfulness", model_name, input_id, output_text)] = score
-                for (model_name, input_id, output_text), score in score_analyzer.relevance_full.items():
-                    if isinstance(output_text, float):
-                        output_text = ""
-                    all_humaneval_scores[("relevance", model_name, input_id, output_text)] = score
-                for (model_name, input_id, output_text), score in score_analyzer.coherence_full.items():
-                    if isinstance(output_text, float):
-                        output_text = ""
-                    all_humaneval_scores[("coherence", model_name, input_id, output_text)] = score
+            score_analyzer = SummarizationHumanEvalAnalyzer(dataset, eval_cache_path, shots=shots)
+            for (model_name, input_id, output_text), score in score_analyzer.faithfulness_full.items():
+                if isinstance(output_text, float):
+                    output_text = ""
+                all_humaneval_scores[("faithfulness", model_name, input_id, output_text)] = score
+            for (model_name, input_id, output_text), score in score_analyzer.relevance_full.items():
+                if isinstance(output_text, float):
+                    output_text = ""
+                all_humaneval_scores[("relevance", model_name, input_id, output_text)] = score
+            for (model_name, input_id, output_text), score in score_analyzer.coherence_full.items():
+                if isinstance(output_text, float):
+                    output_text = ""
+                all_humaneval_scores[("coherence", model_name, input_id, output_text)] = score
         return all_humaneval_scores
 
     def evaluate(
@@ -174,6 +172,9 @@ class SummarizationMetric(Metric):
         result: List[Stat] = []
 
         try:
+            if self.humaneval is None:
+                self.humaneval = self._load_humaneval(eval_cache_path)
+
             # get human evaluation scores if they exist
             model_name = adapter_spec.model.replace("/", "_")
             for metric_name in ["faithfulness", "relevance", "coherence"]:
