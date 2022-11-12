@@ -7,16 +7,22 @@ models:
     description: Jurassic-1 Jumbo (178B parameters) ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
     creator_organization: AI21 Labs
     access: limited
+    num_parameters: 178000000000
+    release_date: 2021-08-11
   - name: ai21/j1-large
     display_name: J1-Large v1 (7.5B)
     description: Jurassic-1 Large (7.5B parameters) ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
     creator_organization: AI21 Labs
     access: limited
+    num_parameters: 7500000000
+    release_date: 2021-08-11
   - name: ai21/j1-grande
     display_name: J1-Grande v1 (17B)
     description: Jurassic-1 Grande (17B parameters) with a "few tweaks" to the training process ([docs](https://studio.ai21.com/docs/jurassic1-language-models/), [tech report](https://uploads-ssl.webflow.com/60fd4503684b466578c0d307/61138924626a6981ee09caf6_jurassic_tech_paper.pdf)).
     creator_organization: AI21 Labs
     access: limited
+    num_parameters: 17000000000
+    release_date: 2022-05-03
 
   # Anthropic
   - name: anthropic/stanford-online-all-v4-s3
@@ -24,6 +30,8 @@ models:
     description: A 52B parameter language model, trained using reinforcement learning from human feedback [paper](https://arxiv.org/pdf/2204.05862.pdf).
     creator_organization: Anthropic
     access: restricted
+    num_parameters: 52000000000
+    release_date: 2021-12-01
 
   # HuggingFace BigScience
   - name: together/bloom
@@ -31,11 +39,15 @@ models:
     description: BLOOM (176B parameters) is an autoregressive model similar to GPT-3 trained by BigScience on 46 natural languages and 13 programming languages ([details](https://bigscience.huggingface.co/blog/bloom)).
     creator_organization: BigScience
     access: open
+    num_parameters: 176000000000
+    release_date: 2022-06-28
   - name: together/t0pp
     display_name: T0pp (11B)
     description: T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks specified in natural language prompts ([details](https://huggingface.co/bigscience/T0pp)).
     creator_organization: BigScience
     access: open
+    num_parameters: 11000000000
+    release_date: 2021-10-15
 
   # Cohere
   - name: cohere/xlarge-20220609
@@ -43,31 +55,43 @@ models:
     description: Cohere xlarge v20220609 (52.4B parameters)
     creator_organization: Cohere
     access: limited
+    num_parameters: 52400000000
+    release_date: 2022-06-09
   - name: cohere/large-20220720
     display_name: Cohere large v20220720 (13.1B)
     description: Cohere large v20220720 (13.1B parameters)
     creator_organization: Cohere
     access: limited
+    num_parameters: 13100000000
+    release_date: 2022-07-20
   - name: cohere/medium-20220720
     display_name: Cohere medium v20220720 (6.1B)
     description: Cohere medium v20220720 (6.1B parameters)
     creator_organization: Cohere
     access: limited
+    num_parameters: 6100000000
+    release_date: 2022-07-20
   - name: cohere/small-20220720
     display_name: Cohere small v20220720 (410M)
     description: Cohere small v20220720 (410M parameters)
     creator_organization: Cohere
     access: limited
+    num_parameters: 410000000
+    release_date: 2022-07-20
   - name: cohere/xlarge-20221108
     display_name: Cohere xlarge v20221108 (52.4B)
     description: Cohere xlarge v20221108 (52.4B parameters)
     creator_organization: Cohere
     access: limited
+    num_parameters: 52400000000
+    release_date: 2022-11-08
   - name: cohere/medium-20221108
     display_name: Cohere medium v20221108 (6.1B)
     description: Cohere medium v20221108 (6.1B parameters)
     creator_organization: Cohere
     access: limited
+    num_parameters: 6100000000
+    release_date: 2022-11-08
 
   # DeepMind
   - name: deepmind/gopher
@@ -89,11 +113,15 @@ models:
     description: GPT-J (6B parameters) autoregressive language model trained on The Pile.
     creator_organization: EleutherAI
     access: open
+    num_parameters: 6000000000
+    release_date: 2021-06-04
   - name: together/gpt-neox-20b
     display_name: GPT-NeoX (20B)
     description: GPT-NeoX (20B parameters) autoregressive language model trained on The Pile.
     creator_organization: EleutherAI
     access: open
+    num_parameters: 20000000000
+    release_date: 2022-02-02
 
   # Google
   - name: together/t5-11b
@@ -101,12 +129,16 @@ models:
     description: T5 (11B parameters) is an encoder-decoder model pre-trained on a multi-task mixture of unsupervised and supervised tasks and for which each task is converted into a text-to-text format ([details](https://huggingface.co/docs/transformers/v4.20.1/en/model_doc/t5)).
     creator_organization: Google
     access: open
+    num_parameters: 11000000000
+    release_date: 2019-10-23
 
   - name: together/ul2
     display_name: UL2 (20B)
     description: UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5 but trained with a different objective and slightly different scaling knobs ([details](https://huggingface.co/google/ul2)).
     creator_organization: Google
     access: open
+    num_parameters: 20000000000
+    release_date: 2022-05-10
 
   - name: together/flan-t5
     display_name: Flan-T5 (11B)
@@ -128,24 +160,32 @@ models:
     description: Open Pre-trained Transformers (175B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([details](https://arxiv.org/pdf/2205.01068.pdf)).
     creator_organization: Meta
     access: open
+    num_parameters: 175000000000
+    release_date: 2022-05-02
 
   - name: together/opt-66b
     display_name: OPT (66B)
     description: Open Pre-trained Transformers (66B parameters) is a suite of decoder-only pre-trained transformers that are fully and responsibly shared with interested researchers ([details](https://arxiv.org/pdf/2205.01068.pdf)).
     creator_organization: Meta
     access: open
+    num_parameters: 66000000000
+    release_date: 2022-05-02
 
   # Microsoft/NVIDIA
   - name: microsoft/TNLGv2_530B
-    display_name: TNLGv2 (530B)
+    display_name: TNLG v2 (530B)
     description: TNLGv2 (530B parameters) autoregressive language model. It is trained on a filtered subset of the Pile and CommonCrawl.
     creator_organization: Microsoft/NVIDIA
     access: restricted
+    num_parameters: 530000000000
+    release_date: 2022-01-28
   - name: microsoft/TNLGv2_7B
-    display_name: TNLGv2 (7B)
-    description: TNLGv2 (7B parameters) autoregressive language model. It is trained on a filtered subset of the Pile and CommonCrawl.
+    display_name: TNLG v2 (6.7B)
+    description: TNLGv2 (6.7B parameters) autoregressive language model. It is trained on a filtered subset of the Pile and CommonCrawl.
     creator_organization: Microsoft/NVIDIA
     access: restricted
+    num_parameters: 6700000000
+    release_date: 2022-01-28
 
   # OpenAI: https://beta.openai.com/docs/engines/gpt-3
   - name: openai/davinci
@@ -153,46 +193,64 @@ models:
     description: GPT-3 davinci v1 (175B parameters) autoregressive language model.
     creator_organization: OpenAI
     access: limited
+    num_parameters: 175000000000
+    release_date: 2020-05-28
   - name: openai/curie
     display_name: GPT-3 curie v1 (6.7B)
     description: GPT-3 curie v1 (6.7B parameters) autoregressive language model.
     creator_organization: OpenAI
     access: limited
+    num_parameters: 6700000000
+    release_date: 2020-05-28
   - name: openai/babbage
     display_name: GPT-3 babbage v1 (1.3B)
     description: GPT-3 babbage v1 (1.3B parameters) autoregressive language model.
     creator_organization: OpenAI
     access: limited
+    num_parameters: 1300000000
+    release_date: 2020-05-28
   - name: openai/ada
     display_name: GPT-3 ada v1 (350M)
     description: GPT-3 ada v1 (350M parameters) autoregressive language model.
     creator_organization: OpenAI
     access: limited
+    num_parameters: 350000000
+    release_date: 2020-05-28
   - name: openai/text-davinci-002
     display_name: InstructGPT davinci v2 (175B*)
     description: InstructGPT-style model based on the [InstructGPT paper](https://arxiv.org/pdf/2203.02155.pdf), but the details are unknown.
     creator_organization: OpenAI
     access: limited
+    num_parameters: 175000000000
+    release_date: 2022-01-27
   - name: openai/text-davinci-001
     display_name: InstructGPT davinci v1 (175B*)
     description: InstructGPT-style model.
     creator_organization: OpenAI
     access: limited
+    num_parameters: 175000000000
+    release_date: 2022-01-27
   - name: openai/text-curie-001
     display_name: InstructGPT curie v1 (6.7B*)
     description: InstructGPT-style model.
     creator_organization: OpenAI
     access: limited
+    num_parameters: 6700000000
+    release_date: 2022-01-27
   - name: openai/text-babbage-001
     display_name: InstructGPT babbage v1 (1.3B*)
     description: InstructGPT-style model.
     creator_organization: OpenAI
     access: limited
+    num_parameters: 1300000000
+    release_date: 2022-01-27
   - name: openai/text-ada-001
     display_name: InstructGPT ada v1 (350M*)
     description: InstructGPT-style model.
     creator_organization: OpenAI
     access: limited
+    num_parameters: 350000000
+    release_date: 2022-01-27
   - name: openai/code-davinci-002
     display_name: Codex davinci v2
     description: Codex davinci 2nd generation (code generation).
@@ -215,6 +273,8 @@ models:
     description: GLM-130B is an open bilingual (English & Chinese) bidirectional dense model with 130 billion parameters, pre-trained using the algorithm of General Language Model (GLM) ([GitHub](https://github.com/THUDM/GLM-130B)).
     creator_organization: Tsinghua
     access: open
+    num_parameters: 130000000000
+    release_date: 2022-08-04
 
   # Yandex
   - name: together/yalm
@@ -222,6 +282,8 @@ models:
     description: YaLM (100B parameters) is an autoregressive language model trained on English and Russian text ([GitHub](From https://github.com/yandex/YaLM-100B)).
     creator_organization: Yandex
     access: open
+    num_parameters: 100000000000
+    release_date: 2022-06-23
 
 ############################################################
 adapter:
@@ -918,7 +980,7 @@ run_groups:
     description: In sentiment classification, given a text (e.g., movie review), the goal is to predict the sentiment (positive or negative).
     category: Core scenarios
     subgroups:
-        - imdb
+      - imdb
 
   - name: toxicity_detection
     display_name: Toxicity detection
@@ -1026,7 +1088,11 @@ run_groups:
     display_name: Robustness to contrast sets
     description: Evaluating equivariance to semantics-altering perturbations
     category: Deep dive
+    subgroup_display_mode: by_group
     visibility: this_group_only
+    subgroups:
+      - imdb
+      - boolq
 
   - name: robustness_individual
     display_name: Robustness to single types of perturbations
@@ -1600,6 +1666,9 @@ run_groups:
       - bias
       - efficiency
       - general_information
+    sub_splits:
+      - toxic
+      - non-toxic
     environment:
       main_split: test
 
