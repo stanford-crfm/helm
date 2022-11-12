@@ -58,7 +58,9 @@ class ModelField(Field):
     # When was the model released
     release_date: Optional[date] = None
 
-    # When was the model released
+    # The number of parameters
+    # This should be a string as the number of parameters is usually a round number (175B),
+    # but we set it as an int for plotting purposes.
     num_parameters: Optional[int] = None
 
 

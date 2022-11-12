@@ -125,10 +125,10 @@ class Summarizer:
 
     COST_REPORT_FIELDS: List[str] = ["num_prompt_tokens", "num_completion_tokens", "num_completions", "num_requests"]
 
-    def __init__(self, suite: str, output_path: str, debug: bool):
+    def __init__(self, suite: str, output_path: str, verbose: bool):
         self.suite: str = suite
         self.run_suite_path: str = os.path.join(output_path, "runs", suite)
-        self.debug: bool = debug
+        self.verbose: bool = verbose
 
         self.schema = read_schema()
         self.contamination = read_contamination()
@@ -426,7 +426,7 @@ class Summarizer:
         # TODO: need to exclude contaminated numbers somehow
         value = aggregate_stat.mean
         description = aggregate_stat.bare_str()
-        if self.debug:
+        if self.verbose:
             description += "\n-- ".join(["\nRun specs:", *aggregated_run_specs])
         style: Dict[str, Any] = {}
         if contamination_level is not None:
@@ -566,7 +566,7 @@ class Summarizer:
         return Table(title=title, header=header, rows=rows, links=links, name=name)
 
     def create_group_tables_by_metric_group(self, group: RunGroup) -> List[Table]:
-        """Create a list of tables but displaying every subgroup. Each tables contains a single metric and subgroups are
+        """Create a list of tables but displaying every subgroup. Each table contains a single metric and subgroups are
         shown as columns."""
         tables: List[Table] = []
         adapter_to_runs: Dict[AdapterSpec, List[Run]] = defaultdict(list)
@@ -595,8 +595,8 @@ class Summarizer:
         return tables
 
     def create_group_tables_by_subgroup(self, group: RunGroup) -> List[Table]:
-        """Create a list of tables but displaying every subgroup. Each tables contains one group or scenario and shows
-        all the metrics as columns."""
+        """Creates a list of tables, one for each subgroup (e.g., mmlu).
+        Each table has groups as rows and metrics as columns."""
         all_tables: List[Table] = []
         subgroups = self.expand_subgroups(group)
         for subgroup in subgroups:
@@ -727,7 +727,7 @@ def main():
     args = parser.parse_args()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
-    summarizer = Summarizer(suite=args.suite, output_path=args.output_path, debug=args.debug)
+    summarizer = Summarizer(suite=args.suite, output_path=args.output_path, verbose=args.debug)
     summarizer.read_runs()
     summarizer.check_metrics_defined()
 
