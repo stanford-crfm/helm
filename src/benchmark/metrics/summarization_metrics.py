@@ -3,11 +3,13 @@ import pandas
 import numpy as np
 import os
 import pickle
+
 import spacy
 import subprocess
 import sys
 from typing import List, Dict
 from collections import defaultdict
+import tempfile
 
 # Need to check spacy module is downloaded before importing DataStatsMetric
 if not spacy.util.is_package("en_core_web_sm"):
@@ -30,6 +32,10 @@ from bert_score import BERTScorer
 QAFACTEVAL_CODALAB_LINK: str = (
     "https://worksheets.codalab.org/rest/bundles/0xf4de83c1f0d34d7999480223e8f5ab87/contents/blob/"
 )
+HUMAN_EVAL_CODALAB_LINK: str = (
+    "https://worksheets.codalab.org/rest/bundles/0x3fb04ae3ae024c369d048f6c2cdf16cb/"
+    "contents/blob/codalab_merged_results/{file_name}"
+)
 
 
 class SummarizationMetric(Metric):
@@ -49,6 +55,7 @@ class SummarizationMetric(Metric):
             "rouge_l": get_rouge_function("rougeL"),
         }
         self.data_stats_metric = DataStatsMetric()
+        self.humaneval = self._load_humaneval(task)
         self.task: str = task
         self.qa_fact_eval = None
 
@@ -72,6 +79,38 @@ class SummarizationMetric(Metric):
             qafacteval_scores = pickle.load(fin)
 
         self.qa_fact_eval = qafacteval_scores[self.task]
+
+    def _load_humaneval(self, task: str) -> Dict:
+        """
+        Load all human evaluation data cached on CodaLab into a single dictionary
+
+        key: (metric_type: str, model_name: str, output_summary: str)
+        value: corresponding score: float
+        """
+        if "cnndm" in task:
+            dataset = "cnndm"
+        elif "xsum" in task:
+            dataset = "xsum"
+        else:
+            raise ValueError
+
+        all_humaneval_scores = dict()
+        for shots in [0, 5]:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                score_analyzer = SummarizationHumanEvalAnalyzer(dataset, tmpdir, shots=shots)
+                for (model_name, input_id, output_text), score in score_analyzer.faithfulness_full.items():
+                    if isinstance(output_text, float):
+                        output_text = ""
+                    all_humaneval_scores[("faithfulness", model_name, input_id, output_text)] = score
+                for (model_name, input_id, output_text), score in score_analyzer.relevance_full.items():
+                    if isinstance(output_text, float):
+                        output_text = ""
+                    all_humaneval_scores[("relevance", model_name, input_id, output_text)] = score
+                for (model_name, input_id, output_text), score in score_analyzer.coherence_full.items():
+                    if isinstance(output_text, float):
+                        output_text = ""
+                    all_humaneval_scores[("coherence", model_name, input_id, output_text)] = score
+        return all_humaneval_scores
 
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
@@ -135,6 +174,15 @@ class SummarizationMetric(Metric):
         result: List[Stat] = []
 
         try:
+            # get human evaluation scores if they exist
+            model_name = adapter_spec.model.replace("/", "_")
+            for metric_name in ["faithfulness", "relevance", "coherence"]:
+                val = self.humaneval[(metric_name, model_name, request_state.instance.id, pred)]
+                result.append(Stat(MetricName(f"HumanEval-{metric_name}")).add(float(val)))
+        except KeyError:
+            pass
+
+        try:
             # get qafacteval scores if they exist
             if self.qa_fact_eval is None:
                 self._load_qafacteval(eval_cache_path)
@@ -169,12 +217,6 @@ class SummarizationMetric(Metric):
             )
 
         return result
-
-
-HUMAN_EVAL_CODALAB_LINK: str = (
-    "https://worksheets.codalab.org/rest/bundles/0x3fb04ae3ae024c369d048f6c2cdf16cb/"
-    "contents/blob/codalab_merged_results/{file_name}"
-)
 
 
 def _paired_bootstrap_test(treatment_list: list, control_list: list, nboot: int = 10000):
@@ -225,6 +267,7 @@ class SummarizationHumanEvalAnalyzer:
             tasks_by_id[row.HITId].append(row)
 
         self.faithfulness = defaultdict(list)
+        self.faithfulness_full = dict()
         for idx, tasks in tasks_by_id.items():
             scores = []
             for task in tasks:
@@ -232,9 +275,13 @@ class SummarizationHumanEvalAnalyzer:
                 # False -> not Faithful
                 # True -> Faithful
                 scores.append(1 if task["Answer.consistency.consistent"] else 0)
+            self.faithfulness_full[(task["Input.model_name"], task["Input.id"], task["Input.output_text"])] = np.mean(
+                scores
+            )
             self.faithfulness[task["Input.model_name"]].append(np.mean(scores))
 
         self.coherence = defaultdict(list)
+        self.coherence_full = dict()
         for idx, tasks in tasks_by_id.items():
             scores = []
             for task in tasks:
@@ -245,19 +292,26 @@ class SummarizationHumanEvalAnalyzer:
                     if task[f"Answer.coherence.cohere_{i}"]:
                         scores.append(i)
                         break
+            self.coherence_full[(task["Input.model_name"], task["Input.id"], task["Input.output_text"])] = np.mean(
+                scores
+            )
             self.coherence[task["Input.model_name"]].append(np.mean(scores))
 
         self.relevance = defaultdict(list)
+        self.relevance_full = dict()
         for idx, tasks in tasks_by_id.items():
             scores = []
             for task in tasks:
-                # Coherence is evaluated on a 1 to 5 Likert scale.
+                # Relevance is evaluated on a 1 to 5 Likert scale.
                 # 1 -> least relevant
                 # 5 -> most relevant
                 for i in range(1, 6):
                     if task[f"Answer.relevance.rel_{i}"]:
                         scores.append(i)
                         break
+            self.relevance_full[(task["Input.model_name"], task["Input.id"], task["Input.output_text"])] = np.mean(
+                scores
+            )
             self.relevance[task["Input.model_name"]].append(np.mean(scores))
 
     def _compute_average(self, scores: dict):
