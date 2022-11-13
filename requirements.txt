@@ -43,6 +43,7 @@ google-api-python-client~=2.64.0
 
 # Scenarios
 datasets~=2.5.2  # For math scenarios
+gdown~=4.4.0
 jsonlines~=3.1.0  # Not really needed
 sympy~=1.11.1  # For math scenarios
 sentencepiece~=0.1.97

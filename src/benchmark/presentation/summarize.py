@@ -1,15 +1,20 @@
 import argparse
 import os
 import urllib.parse
+import dacite
+import json
 from collections import defaultdict
 from dataclasses import dataclass, replace
-from tqdm import tqdm
-
-import dacite
 from typing import List, Optional, Dict, Any, Tuple, Set
-import json
 
-from common.general import write, ensure_directory_exists, asdict_without_nones, singleton, unique_simplification
+from common.general import (
+    write,
+    ensure_directory_exists,
+    asdict_without_nones,
+    singleton,
+    unique_simplification,
+    parallel_map,
+)
 from common.hierarchical_logger import hlog, htrack
 from benchmark.scenarios.scenario import ScenarioSpec
 from benchmark.adapter import AdapterSpec
@@ -131,10 +136,11 @@ class Summarizer:
 
     COST_REPORT_FIELDS: List[str] = ["num_prompt_tokens", "num_completion_tokens", "num_completions", "num_requests"]
 
-    def __init__(self, suite: str, output_path: str, verbose: bool):
+    def __init__(self, suite: str, output_path: str, verbose: bool, num_threads: int):
         self.suite: str = suite
         self.run_suite_path: str = os.path.join(output_path, "runs", suite)
         self.verbose: bool = verbose
+        self.num_threads: int = num_threads
 
         self.schema = read_schema()
         self.contamination = read_contamination()
@@ -178,27 +184,31 @@ class Summarizer:
 
     @htrack(None)
     def write_slim_per_instance_stats(self) -> None:
-        """For each run, load per_instance_stats.json and write per_instance_stats_slim.json."""
+        """
+        For each run, load per_instance_stats.json and write per_instance_stats_slim.json.
+        TODO: Move this logic to Runner, so it gets generated during the run
+              https://github.com/stanford-crfm/helm/issues/1119
+        """
         run_specs_path: str = os.path.join(self.run_suite_path, "run_specs.json")
-        if not os.path.exists(run_specs_path):
-            hlog(f"Summarizer won't run because {run_specs_path} doesn't exist yet. This is expected in a dry run.")
-            return
+        assert os.path.exists(run_specs_path), f"{run_specs_path} does not exist."
 
-        self.runs: List[Run] = []
         with open(run_specs_path) as f:
             raw_run_specs = json.load(f)
-        for raw_run_spec in tqdm(raw_run_specs):
+
+        def process(raw_run_spec: Dict):
             run_spec = dacite.from_dict(RunSpec, raw_run_spec)
             run_path: str = os.path.join(self.run_suite_path, run_spec.name)
 
             per_instance_stats_path: str = os.path.join(run_path, "per_instance_stats.json")
             if os.path.exists(per_instance_stats_path):
+                per_instance_stats: List[Dict]
                 with open(per_instance_stats_path) as input_file:
                     per_instance_stats = json.load(input_file)
-                per_instance_stats
                 per_instance_stats_slim_path = f"{per_instance_stats_path[:-len('.json')]}_slim.json"
                 with open(per_instance_stats_slim_path, "w") as output_file:
                     json.dump(self.compute_slim_per_instance_stats(per_instance_stats), output_file)
+
+        parallel_map(process, raw_run_specs, parallelism=self.num_threads)
 
     def filter_runs_by_visibility(self, runs: List[Run], group: RunGroup):
         """Filter the list of runs and only keep runs relevant to this group."""
@@ -726,6 +736,7 @@ def main():
         help="Name of the suite this run belongs to (default is today's date).",
         required=True,
     )
+    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads used to summarize", default=16)
     parser.add_argument(
         "--debug",
         action="store_true",
@@ -739,7 +750,9 @@ def main():
     args = parser.parse_args()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
-    summarizer = Summarizer(suite=args.suite, output_path=args.output_path, verbose=args.debug)
+    summarizer = Summarizer(
+        suite=args.suite, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
+    )
     summarizer.read_runs()
     summarizer.check_metrics_defined()
 
