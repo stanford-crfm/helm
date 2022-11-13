@@ -853,7 +853,7 @@ $(function () {
 
     const $description = $('<div>', {class: 'col-sm-8'}).append([
       'A language model is simply a box that takes in text and produces text:',
-      $('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/language-model-helm.png', width: '600px'})),
+      $('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/language-model-helm.png', width: '600px', style: 'width: 600px; margin-left: 130px'})),
       'Despite their simplicity, language models are increasingly functioning as the foundation for almost all language technologies from question answering to summarization.',
       ' ',
       'But their immense capabilities and risks are not well understood.',
