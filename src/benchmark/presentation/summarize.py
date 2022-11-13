@@ -1,5 +1,6 @@
 import argparse
 import os
+import datetime
 import urllib.parse
 import dacite
 import json
@@ -45,6 +46,19 @@ Usage:
     venv/bin/benchmark-summarize --suite <Name of the suite>
 
 """
+
+
+@dataclass(frozen=True)
+class ExecutiveSummary:
+    """
+    Summary of the output of benchmarking.
+    This is always loaded by the frontend, so keep this small
+    """
+
+    suite: str
+    date: str
+
+    # TODO: later, put model rankings, etc. here
 
 
 @dataclass(frozen=True)
@@ -285,8 +299,23 @@ class Summarizer:
                 )
 
     @htrack(None)
+    def write_executive_summary(self):
+        """Write the executive summary."""
+        date = datetime.date.today().strftime("%Y-%m-%d")
+
+        summary = ExecutiveSummary(
+            suite=self.suite,
+            date=date,
+        )
+        write(
+            os.path.join(self.run_suite_path, "summary.json"),
+            json.dumps(asdict_without_nones(summary), indent=2),
+        )
+
+    @htrack(None)
     def write_cost_report(self):
         """Write out the information we need to calculate costs per model."""
+        # TODO: move to write_executive_summary()
         models_to_costs: Dict[str, Dict[str]] = defaultdict(lambda: defaultdict(int))
         for run in self.runs:
             model: str = run.run_spec.adapter_spec.model
@@ -744,6 +773,7 @@ def main():
     summarizer.read_runs()
     summarizer.check_metrics_defined()
 
+    summarizer.write_executive_summary()
     summarizer.write_runs()
     summarizer.write_groups()
     summarizer.write_cost_report()
