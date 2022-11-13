@@ -229,7 +229,8 @@ def main():
         "--skip-run-specs-json",
         action="store_true",
         default=None,
-        help="Skip generating run_specs.json.",
+        help="Skip generating run_specs.json "
+        "(do this when you're running a subset of the scenarios/models in parallel).",
     )
     add_run_args(parser)
     args = parser.parse_args()
