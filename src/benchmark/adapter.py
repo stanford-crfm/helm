@@ -49,7 +49,7 @@ class AdapterSpec:
     """
 
     # Method of adaptation
-    method: str
+    method: str = ""
 
     # Prepend all prompts with this string.
     # For example, it is recommended to prefix all prompts with [NLG] for UL2.

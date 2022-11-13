@@ -189,6 +189,12 @@ class RunGroup(Field):
     # Whether we have yet to evaluate this model
     todo: bool = False
 
+    # Which adapter_spec fields we should preserve when displaying methods for this group
+    # When we are constructing a table where the rows are methods, what constitutes a "method" is given by the set of
+    # adapter keys. By default, this should just be "model" (e.g., BLOOM), where details like "num_train_instances" are
+    # "marginalized out". However, for ablations, we want to include both "model" and "num_train_instances".
+    adapter_keys_shown: List[str] = field(default_factory=lambda: ["model"])
+
 
 @dataclass
 class Schema:
