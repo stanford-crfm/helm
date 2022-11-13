@@ -47,6 +47,7 @@ class AllRunner:
         groups_to_run: Optional[List[str]],
         exit_on_error: bool,
         priority: Optional[int],
+        skip_run_specs_json: bool,
         mongo_uri: str,
     ):
         self.auth: Authentication = auth
@@ -65,6 +66,7 @@ class AllRunner:
         self.groups_to_run: Optional[List[str]] = groups_to_run
         self.exit_on_error: bool = exit_on_error
         self.priority: Optional[int] = priority
+        self.skip_run_specs_json: bool = skip_run_specs_json
         self.mongo_uri = mongo_uri
 
     @htrack(None)
@@ -118,10 +120,11 @@ class AllRunner:
         # Note: if we are parallelizing over models and groups, this
         # could get overwritten many times.  Ideally, we would make the file
         # name specific to models and groups.
-        write(
-            os.path.join(suite_dir, "run_specs.json"),
-            json.dumps(list(map(dataclasses.asdict, run_specs)), indent=2),
-        )
+        if not self.skip_run_specs_json:
+            write(
+                os.path.join(suite_dir, "run_specs.json"),
+                json.dumps(list(map(dataclasses.asdict, run_specs)), indent=2),
+            )
 
         if self.skip_instances:
             self.write_parallel_commands(suite_dir, run_specs)
@@ -222,6 +225,13 @@ def main():
         help="Run RunSpecs with priority less than or equal to this number. "
         "If a value for --priority is not specified, run on everything",
     )
+    parser.add_argument(
+        "--skip-run-specs-json",
+        action="store_true",
+        default=None,
+        help="Skip generating run_specs.json "
+        "(do this when you're running a subset of the scenarios/models in parallel).",
+    )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)
@@ -247,6 +257,7 @@ def main():
         groups_to_run=args.groups_to_run,
         exit_on_error=args.exit_on_error,
         priority=args.priority,
+        skip_run_specs_json=args.skip_run_specs_json,
         mongo_uri=args.mongo_uri,
     )
 

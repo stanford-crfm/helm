@@ -74,13 +74,13 @@ do
     # By default, the command will run the RunSpecs listed in src/benchmark/presentation/run_specs.conf
     log_file=$job.log
     execute "nlprun $default_nlp_run_args --job-name $job --priority high -g 0 --memory 64g
-    'benchmark-present -n $num_threads --models-to-run $model $default_args $* > $logs_path/$log_file 2>&1'"
+    'benchmark-present --skip-run-specs-json -n $num_threads --models-to-run $model $default_args $* > $logs_path/$log_file 2>&1'"
     log_paths+=("$work_dir/$logs_path/$log_file")
 
     # Run RunSpecs that require a GPU
     log_file=$job.gpu.log
     execute "nlprun $default_nlp_run_args --job-name $job-gpu -g 1 --memory 24g
-    'benchmark-present -n $num_threads --models-to-run $model --conf-path src/benchmark/presentation/run_specs_gpu.conf
+    'benchmark-present --skip-run-specs-json -n $num_threads --models-to-run $model --conf-path src/benchmark/presentation/run_specs_gpu.conf
     $default_args $* > $logs_path/$log_file 2>&1'"
     log_paths+=("$work_dir/$logs_path/$log_file")
 done
@@ -93,6 +93,7 @@ done
 
 # Print out what to run next
 printf "\nRun the following commands once the runs complete:\n"
+# Generates run_specs.json
 command="benchmark-present --skip-instances --models-to-run ${models[@]} $default_args $* > $logs_path/run_all_skip_instances.log 2>&1"
 echo "nlprun $default_nlp_run_args --job-name generate-run-specs-json-$suite --priority high -g 0 --memory 8g '$command'"
 command="benchmark-summarize --suite $suite > $logs_path/summarize.log 2>&1"
