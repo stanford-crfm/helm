@@ -6,8 +6,11 @@ function assert(condition, message) {
 
 function encodeUrlParams(params) {
   let s = '';
-  for (let k in params)
-    s += (s === '' ? '?' : '&') + k + '=' + encodeURIComponent(params[k]);
+  for (let k in params) {
+    if (params[k] != null) {
+      s += (s === '' ? '?' : '&') + k + '=' + encodeURIComponent(params[k]);
+    }
+  }
   return s;
 }
 

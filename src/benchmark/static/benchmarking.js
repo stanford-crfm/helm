@@ -685,6 +685,10 @@ $(function () {
     return $root;
   }
 
+  function rootUrl(model) {
+    return encodeUrlParams({});
+  }
+
   function modelUrl(model) {
     return encodeUrlParams(Object.assign({}, urlParams, {models: 1}));
   }
@@ -830,7 +834,7 @@ $(function () {
   }
 
   function helmLogo() {
-    return $('<a>', {href: '/'}).append($('<img>', {src: 'helm-logo.png', width: '500px', class: 'mx-auto d-block'}));
+    return $('<a>', {href: rootUrl()}).append($('<img>', {src: 'images/helm-logo.png', width: '500px', class: 'mx-auto d-block'}));
   };
 
   function button(text, href) {
@@ -842,27 +846,34 @@ $(function () {
 
     $result.append($('<div>', {class: 'col-sm-12'}).append(helmLogo()));
 
+    const $blog = button('Blog post', 'https://crfm.stanford.edu/blog');
     const $paper = button('Paper', 'https://drive.google.com/file/d/1ZNpe28eS159O4WKuP_b4IrUgP4LA5CFj/view');
     const $code = button('GitHub', 'https://github.com/stanford-crfm/helm');
-    $result.append($('<div>', {class: 'col-sm-12'}).append($('<div>', {class: 'text-center'}).append([$paper, $code])));
+    $result.append($('<div>', {class: 'col-sm-12'}).append($('<div>', {class: 'text-center'}).append([$blog, $paper, $code])));
 
-    const $description = $('<div>', {class: 'col-sm-6'}).append([
-      'Language models increasingly function as the foundation for almost all language technologies,',
+    const $description = $('<div>', {class: 'col-sm-8'}).append([
+      'A language model is simply a box that takes in text and produces text:',
+      $('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/language-model-helm.png', width: '600px', style: 'width: 600px; margin-left: 130px'})),
+      'Despite their simplicity, language models are increasingly functioning as the foundation for almost all language technologies from question answering to summarization.',
       ' ',
-      'but their immense capabilities and risks are not well understood.',
+      'But their immense capabilities and risks are not well understood.',
       ' ',
-      'Holistic Evaluation of Language Models (HELM) is an benchmarking effort that lays out the design space of scenarios, metrics, and models.'
+      'Holistic Evaluation of Language Models (HELM) is a living benchmark that aims to improve the transparency of language models.'
     ]);
+
     $description.append($('<ol>').append([
-      $('<li>').append('<b>Incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to measure, making explicit what is missing.'),
-      $('<li>').append('<b>Multi-metric</b>. Rather than isolated metrics such as accuracy, we measure multiple metrics (e.g., accuracy, robustness, calibration, efficiency) for each scenario, allowing analysis of tradeoffs.'),
-      $('<li>').append('<b>Standardization</b>. We evaluate all the models (that we have access to) on the same scenarios using the same adaptation (e.g., prompting) strategy, allowing for fair comparison.'),
+      $('<li>').append('<b>Incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to measure, making explicit what is missing.')
+               .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/taxonomy-scenarios.png', width: '300px'}))),
+      $('<li>').append('<b>Multi-metric</b>. Rather than isolated metrics such as accuracy, we measure multiple metrics (e.g., accuracy, robustness, calibration, efficiency) for each scenario, allowing analysis of tradeoffs.')
+               .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/scenarios-by-metrics.png', width: '300px'}))),
+      $('<li>').append('<b>Standardization</b>. We evaluate all the models that we could access (see below) on the same scenarios using the same adaptation (e.g., prompting) strategy, allowing for fair comparison.'),
       $('<li>').append('<b>Transparency</b>. All the scenarios, predictions, prompts, code are available for further analysis on this website.'),
     ]));
+
     $result.append([
-      $('<div>', {class: 'col-sm-3'}),
+      $('<div>', {class: 'col-sm-2'}),
       $description,
-      $('<div>', {class: 'col-sm-3'}),
+      $('<div>', {class: 'col-sm-2'}),
     ]);
 
     const $models = renderModelList();
@@ -873,6 +884,25 @@ $(function () {
       $models, $scenarios, $metrics,
       $('<div>', {class: 'col-sm-1'}),
     ]);
+  
+    function organization(src, href, width) {
+      return $('<div>', {class: 'logo-item'}).append($('<a>', {href}).append($('<img>', {src, height: width || 40})));
+    }
+    const $organizations = $('<div>', {class: 'logo-container'}).append([
+      organization('images/organizations/ai21.png', 'https://www.ai21.com/'),
+      organization('images/organizations/anthropic.png', 'https://www.anthropic.com/'),
+      organization('images/organizations/bigscience.png', 'https://bigscience.huggingface.co/', 50),
+      organization('images/organizations/cohere.png', 'https://cohere.ai/'),
+      organization('images/organizations/eleutherai.png', 'https://www.eleuther.ai/', 50),
+      organization('images/organizations/google.png', 'https://ai.facebook.com/'),
+      organization('images/organizations/meta.png', 'https://ai.facebook.com/', 50),
+      organization('images/organizations/microsoft.png', 'https://turing.microsoft.com/'),
+      organization('images/organizations/openai.png', 'https://openai.com/'),
+      organization('images/organizations/tsinghua-keg.png', 'https://keg.cs.tsinghua.edu.cn/', 50),
+      organization('images/organizations/yandex.png', 'https://yandex.com/'),
+      organization('images/organizations/together.png', 'https://together.xyz/', 50),
+    ]);
+    $result.append($organizations);
 
     return $result;
   }
@@ -927,11 +957,17 @@ $(function () {
   //////////////////////////////////////////////////////////////////////////////
 
   const $main = $('#main');
+  const $summary = $('#summary');
   $.when(
     $.get('schema.yaml', {}, (response) => {
       const raw = jsyaml.load(response);
       console.log('schema', raw);
       schema = new Schema(raw);
+    }),
+    $.get(`benchmark_output/runs/${suite}/summary.json`, {}, (response) => {
+      console.log('summary', response);
+      summary = response;
+      $summary.append(`${summary.suite} (last updated ${summary.date})`);
     }),
   ).then(() => {
     $main.empty();
