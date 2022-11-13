@@ -852,7 +852,7 @@ $(function () {
     $result.append($('<div>', {class: 'col-sm-12'}).append($('<div>', {class: 'text-center'}).append([$blog, $paper, $code])));
 
     const $description = $('<div>', {class: 'col-sm-8'}).append([
-      'A language model is simply a box that takes in text and produces text:',
+      'A language model takes in text and produces text:',
       $('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/language-model-helm.png', width: '600px', style: 'width: 600px; margin-left: 130px'})),
       'Despite their simplicity, language models are increasingly functioning as the foundation for almost all language technologies from question answering to summarization.',
       ' ',
@@ -862,11 +862,11 @@ $(function () {
     ]);
 
     $description.append($('<ol>').append([
-      $('<li>').append('<b>Incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to measure, making explicit what is missing.')
+      $('<li>').append('<b>Incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to evaluate, making explicit what is missing.')
                .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/taxonomy-scenarios.png', width: '300px'}))),
-      $('<li>').append('<b>Multi-metric</b>. Rather than isolated metrics such as accuracy, we measure multiple metrics (e.g., accuracy, robustness, calibration, efficiency) for each scenario, allowing analysis of tradeoffs.')
+      $('<li>').append('<b>Multi-metric</b>. Rather than focus on isolated metrics such as accuracy, we simultaneously measure multiple metrics (e.g., accuracy, robustness, calibration, efficiency) for each scenario, allowing analysis of tradeoffs.')
                .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/scenarios-by-metrics.png', width: '300px'}))),
-      $('<li>').append('<b>Standardization</b>. We evaluate all the models that we could access (see below) on the same scenarios using the same adaptation (e.g., prompting) strategy, allowing for fair comparison.'),
+      $('<li>').append('<b>Standardization</b>. We evaluate all the models that we could access (see below) on the same scenarios using the same adaptation (e.g., prompting) strategy, allowing for fair side-by-side comparisons.'),
       $('<li>').append('<b>Transparency</b>. All the scenarios, predictions, prompts, code are available for further analysis on this website.'),
     ]));
 
