@@ -685,6 +685,10 @@ $(function () {
     return $root;
   }
 
+  function rootUrl(model) {
+    return encodeUrlParams({});
+  }
+
   function modelUrl(model) {
     return encodeUrlParams(Object.assign({}, urlParams, {models: 1}));
   }
@@ -830,7 +834,7 @@ $(function () {
   }
 
   function helmLogo() {
-    return $('<a>', {href: '/'}).append($('<img>', {src: 'helm-logo.png', width: '500px', class: 'mx-auto d-block'}));
+    return $('<a>', {href: rootUrl()}).append($('<img>', {src: 'helm-logo.png', width: '500px', class: 'mx-auto d-block'}));
   };
 
   function button(text, href) {

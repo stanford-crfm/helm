@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# != 1 ]; then
-  echo Copy everything into a www directory.
+  echo Copy everything into the www directory.
   echo "Usage: `basename $0` <suite>"
   exit 1
 fi
@@ -22,6 +22,7 @@ ln -sf $suite www/benchmark_output/runs/latest || exit 1
 # Set permissions
 chmod -R og=u-w www || exit 1
 
-# Push to server (https://nlp.stanford.edu/helm)
-echo Pushing to server...
-rsync -arvz www/* /nlp/scr2/htdocs-helm/$suite
+# Make it live
+echo To make the contents of www live, do a git push or run something like:
+echo
+echo rsync -arvz www/ scdt:/nlp/scr2/htdocs-helm/$suite
