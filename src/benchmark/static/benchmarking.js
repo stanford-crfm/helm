@@ -860,6 +860,7 @@ $(function () {
       ' ',
       'Holistic Evaluation of Language Models (HELM) is a living benchmark that aims to improve the transparency of language models.'
     ]);
+
     $description.append($('<ol>').append([
       $('<li>').append('<b>Incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to measure, making explicit what is missing.')
                .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/taxonomy-scenarios.png', width: '300px'}))),
@@ -868,6 +869,7 @@ $(function () {
       $('<li>').append('<b>Standardization</b>. We evaluate all the models that we could access (see below) on the same scenarios using the same adaptation (e.g., prompting) strategy, allowing for fair comparison.'),
       $('<li>').append('<b>Transparency</b>. All the scenarios, predictions, prompts, code are available for further analysis on this website.'),
     ]));
+
     $result.append([
       $('<div>', {class: 'col-sm-2'}),
       $description,
@@ -882,6 +884,25 @@ $(function () {
       $models, $scenarios, $metrics,
       $('<div>', {class: 'col-sm-1'}),
     ]);
+  
+    function organization(src, href, width) {
+      return $('<div>', {class: 'logo-item'}).append($('<a>', {href}).append($('<img>', {src, height: width || 40})));
+    }
+    const $organizations = $('<div>', {class: 'logo-container'}).append([
+      organization('images/organizations/ai21.png', 'https://www.ai21.com/'),
+      organization('images/organizations/anthropic.png', 'https://www.anthropic.com/'),
+      organization('images/organizations/bigscience.png', 'https://bigscience.huggingface.co/', 50),
+      organization('images/organizations/cohere.png', 'https://cohere.ai/'),
+      organization('images/organizations/eleutherai.png', 'https://www.eleuther.ai/', 50),
+      organization('images/organizations/google.png', 'https://ai.facebook.com/'),
+      organization('images/organizations/meta.png', 'https://ai.facebook.com/', 50),
+      organization('images/organizations/microsoft.png', 'https://turing.microsoft.com/'),
+      organization('images/organizations/openai.png', 'https://openai.com/'),
+      organization('images/organizations/tsinghua-keg.png', 'https://keg.cs.tsinghua.edu.cn/', 50),
+      organization('images/organizations/yandex.png', 'https://yandex.com/'),
+      organization('images/organizations/together.png', 'https://together.xyz/', 50),
+    ]);
+    $result.append($organizations);
 
     return $result;
   }
@@ -936,6 +957,7 @@ $(function () {
   //////////////////////////////////////////////////////////////////////////////
 
   const $main = $('#main');
+  const $summary = $('#summary');
   $.when(
     $.get('schema.yaml', {}, (response) => {
       const raw = jsyaml.load(response);
@@ -945,6 +967,7 @@ $(function () {
     $.get(`benchmark_output/runs/${suite}/summary.json`, {}, (response) => {
       console.log('summary', response);
       summary = response;
+      $summary.append(`${summary.suite} (last updated ${summary.date})`);
     }),
   ).then(() => {
     $main.empty();

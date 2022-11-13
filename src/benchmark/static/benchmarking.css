@@ -93,3 +93,15 @@ tr {
   font-style: italic;
   color: gray;
 }
+
+.logo-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  padding: 50px;
+}
+
+.logo-item {
+  margin: auto;
+  padding: 30px;
+}
