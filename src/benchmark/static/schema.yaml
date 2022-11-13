@@ -1684,6 +1684,9 @@ run_groups:
       - general_information
     environment:
       main_split: test
+    adapter_keys_shown:
+      - model
+      - max_tokens
 
 ## Aspirational scenarios
   - name: non_english

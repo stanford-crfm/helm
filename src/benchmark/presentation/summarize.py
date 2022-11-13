@@ -99,6 +99,7 @@ def get_coarse_adapter_spec(
     This is not an easy thing to disentangle, so just try our best
     in a necessarily scenario-specific way.
     """
+    # TODO: clean up this logic a bit
     # Sometimes the instructions contain information about the scenario.
     if scenario_spec and scenario_spec.class_name.endswith(".MMLUScenario"):
         # MMLU: Sync up with logic in `get_mmlu_spec` for constructing the instructions.
@@ -647,7 +648,7 @@ class Summarizer:
                             table = self.create_group_table(
                                 title=f"{subgroup.display_name} (sub-split: {sub_split})",
                                 name=f"{subgroup.name}:sub_splut={sub_split}",
-                                adapter_to_runs=self.group_adapter_to_runs[subgroup.name],
+                                adapter_to_runs=adapter_to_runs,
                                 columns=columns,
                                 link_to_runs=False,
                                 sub_split=sub_split,
@@ -656,10 +657,14 @@ class Summarizer:
 
             if scenarios_shown > 1:  # add aggregate table
                 adapter_to_runs = {}
-                for adapter, runs in self.group_adapter_to_runs[subgroup.name].items():
+                for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
                     filtered_runs = self.filter_runs_by_visibility(runs, group)
+                    coarse_adapter_spec = get_coarse_adapter_spec(
+                        adapter_spec,
+                        adapter_keys_shown=group.adapter_keys_shown,
+                    )
                     if filtered_runs:
-                        adapter_to_runs[adapter] = filtered_runs
+                        adapter_to_runs[coarse_adapter_spec] = filtered_runs
                 if adapter_to_runs and subgroup.metric_groups:
                     table = self.create_group_table(
                         title=str(subgroup.display_name),
