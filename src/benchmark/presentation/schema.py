@@ -189,6 +189,10 @@ class RunGroup(Field):
     # Whether we have yet to evaluate this model
     todo: bool = False
 
+    # Which adapter_spec fields we should preserve in addition to the model name
+    # For instance, when doing prompting ablations we want to show input_prefix, but not in general
+    adapter_keys_shown: List[str] = field(default_factory=list)
+
 
 @dataclass
 class Schema:

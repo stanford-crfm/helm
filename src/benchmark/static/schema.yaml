@@ -1064,6 +1064,8 @@ run_groups:
     category: Components
     subgroups:
       - synthetic_efficiency
+    adapter_keys_shown:
+      - max_tokens
 
 ### Deep dive
   - name: ablation_in_context
