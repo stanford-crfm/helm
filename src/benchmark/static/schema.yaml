@@ -263,7 +263,7 @@ models:
     access: limited
   - name: openai/code-cushman-001
     display_name: Codex cushman v1
-    description: Codex-style model based on the [Codex paper](https://arxiv.org/abs/2107.03374), but the details (including size) are unknown.
+    description: Codex-style model based on the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf), but the details (including size) are unknown.
     creator_organization: OpenAI
     access: limited
 
@@ -1347,7 +1347,7 @@ run_groups:
 # Toxicity detection scenarios
   - name: civil_comments
     display_name: CivilComments
-    description: The CivilComments benchmark for toxicity detection [(Borkan et al., 2019)](https://arxiv.org/abs/1903.04561).
+    description: The CivilComments benchmark for toxicity detection [(Borkan et al., 2019)](https://arxiv.org/pdf/1903.04561.pdf).
     metric_groups:
       - accuracy
       - calibration
@@ -1377,7 +1377,7 @@ run_groups:
 
   - name: the_pile
     display_name: The Pile
-    description: The Pile corpus for measuring lanugage model performance across various domains [(Gao et al., 2020)](https://arxiv.org/abs/2101.00027).
+    description: The Pile corpus for measuring lanugage model performance across various domains [(Gao et al., 2020)](https://arxiv.org/pdf/2101.00027.pdf).
     metric_groups:
       - accuracy
       - efficiency
@@ -1426,7 +1426,7 @@ run_groups:
 # Primitive-focused reasoning
   - name: babi_qa
     display_name: bAbI
-    description: The bAbI benchmark for measuring understanding and reasoning [(Weston et al., 2015)](https://arxiv.org/abs/1502.05698).
+    description: The bAbI benchmark for measuring understanding and reasoning [(Weston et al., 2015)](https://arxiv.org/pdf/1502.05698.pdf).
     metric_groups:
       - accuracy
       - efficiency
@@ -1483,7 +1483,7 @@ run_groups:
   - name: gsm
     display_name: GSM8K (Grade school math word problems)
     short_display_name: GSM8K
-    description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems [(Cobbe et al., 2021)](https://arxiv.org/abs/2110.14168).
+    description: The grade school math word problems dataset (GSM8K) for testing mathematical reasoning on grade-school math problems [(Cobbe et al., 2021)](https://arxiv.org/pdf/2110.14168.pdf).
     metric_groups:
       - accuracy
       - efficiency
@@ -1528,7 +1528,7 @@ run_groups:
 
   - name: code_humaneval
     display_name: HumanEval (Code)
-    description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings [(Chen et al., 2021)](https://arxiv.org/abs/2107.03374).
+    description: The HumanEval benchmark for measuring functional correctness for synthesizing programs from docstrings [(Chen et al., 2021)](https://arxiv.org/pdf/2107.03374.pdf).
     metric_groups:
       - accuracy
       - efficiency
@@ -1550,7 +1550,7 @@ run_groups:
 
   - name: lsat_qa
     display_name: LSAT
-    description: The LSAT benchmark for measuring analytical reasoning on the Law School Admission Test (LSAT; [Zhong et al., 2021](https://arxiv.org/abs/2104.06598)).
+    description: The LSAT benchmark for measuring analytical reasoning on the Law School Admission Test (LSAT; [Zhong et al., 2021](https://arxiv.org/pdf/2104.06598.pdf)).
     metric_groups:
       - accuracy
       - efficiency
