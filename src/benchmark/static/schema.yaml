@@ -1065,6 +1065,7 @@ run_groups:
     subgroups:
       - synthetic_efficiency
     adapter_keys_shown:
+      - model
       - max_tokens
 
 ### Deep dive

@@ -84,7 +84,7 @@ def get_scenario_name(group: RunGroup, scenario_spec: ScenarioSpec):
     return group.name + "_" + dict_to_str(scenario_spec.args).replace(" ", "").replace("/", "_")
 
 
-def get_slim_adapter_spec(
+def get_coarse_adapter_spec(
     adapter_spec: AdapterSpec, scenario_spec: Optional[ScenarioSpec] = None, adapter_keys_shown: List[str] = []
 ) -> AdapterSpec:
     """
@@ -102,18 +102,13 @@ def get_slim_adapter_spec(
     elif scenario_spec and scenario_spec.class_name.endswith(".RAFTScenario"):
         # RAFT scenario has arbitrary instructions, so impossible to remove
         # the scenario information, so remove all of it.
-        instructions = ""
+        instructions = "<scenario specific>"
     else:
         instructions = adapter_spec.instructions
     adapter_spec = replace(adapter_spec, instructions=instructions)
 
     # Create a new adapter_spec, keeping only the model and the keys in adapter_keys_shown
-    adapter_spec_kwargs = {
-        "model": adapter_spec.model,
-        "method": adapter_spec.method if "method" in adapter_keys_shown else "",  # method is a required field
-    }
-    for key in adapter_keys_shown:
-        adapter_spec_kwargs[key] = adapter_spec.__dict__[key]
+    adapter_spec_kwargs = {key: adapter_spec.__dict__[key] for key in adapter_keys_shown}
     return AdapterSpec(**adapter_spec_kwargs)  # type: ignore
 
 
@@ -586,10 +581,10 @@ class Summarizer:
         for subgroup in subgroups:
             all_metric_groups.extend(subgroup.metric_groups)
             for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
-                adapter_spec = get_slim_adapter_spec(adapter_spec, adapter_keys_shown=group.adapter_keys_shown)
+                coarse_adapter_spec = get_coarse_adapter_spec(adapter_spec, adapter_keys_shown=group.adapter_keys_shown)
                 filtered_runs = self.filter_runs_by_visibility(runs, group)
                 if filtered_runs:
-                    adapter_to_runs[adapter_spec].extend(filtered_runs)
+                    adapter_to_runs[coarse_adapter_spec].extend(filtered_runs)
         all_metric_groups = list(dict.fromkeys(all_metric_groups))  # deduplicate while preserving order
 
         if len(adapter_to_runs) > 0:
@@ -607,7 +602,7 @@ class Summarizer:
 
     def create_group_tables_by_subgroup(self, group: RunGroup) -> List[Table]:
         """Creates a list of tables, one for each subgroup (e.g., mmlu).
-        Each table has `adapter_spec`s` as rows and metrics as columns."""
+        Each table has coarsened `adapter_spec`s` as rows and metrics as columns."""
         all_tables: List[Table] = []
         subgroups = self.expand_subgroups(group)
         for subgroup in subgroups:
@@ -620,12 +615,12 @@ class Summarizer:
                 scenario_display_name = dict_to_str(scenario_spec.args)
                 if group.name not in scenario_name:
                     scenario_display_name = f"{subgroup.display_name} {scenario_display_name}"
-                adapter_to_runs = {}
+                adapter_to_runs: Dict[AdapterSpec, List[Run]] = {}
                 for adapter_spec, runs in self.group_scenario_adapter_to_runs[group.name][scenario_spec].items():
                     filtered_runs = self.filter_runs_by_visibility(runs, group)
-                    adapter_spec = get_slim_adapter_spec(adapter_spec, scenario_spec, group.adapter_keys_shown)
+                    coarse_adapter_spec = get_coarse_adapter_spec(adapter_spec, scenario_spec, group.adapter_keys_shown)
                     if filtered_runs:
-                        adapter_to_runs[adapter_spec] = filtered_runs
+                        adapter_to_runs[coarse_adapter_spec] = filtered_runs
                 if adapter_to_runs and subgroup.metric_groups:
                     table = self.create_group_table(
                         title=scenario_display_name,
@@ -737,7 +732,7 @@ def main():
         help="Display debugging information.",
     )
     parser.add_argument(
-        "--no-per-instance-stats",
+        "--skip-slim-per-instance-stats",
         action="store_true",
         help="Don't generate any per-instance stats.",
     )
@@ -751,7 +746,7 @@ def main():
     summarizer.write_runs()
     summarizer.write_groups()
     summarizer.write_cost_report()
-    if not args.no_per_instance_stats:
+    if not args.skip_slim_per_instance_stats:
         summarizer.write_slim_per_instance_stats()
 
     hlog("Done.")
