@@ -36,14 +36,14 @@ models:
   # HuggingFace BigScience
   - name: together/bloom
     display_name: BLOOM (176B)
-    description: BLOOM (176B parameters) is an autoregressive model trained on 46 natural languages and 13 programming languages ([paper](https://arxiv.org/abs/2211.05100)).
+    description: BLOOM (176B parameters) is an autoregressive model trained on 46 natural languages and 13 programming languages ([paper](https://arxiv.org/pdf/2211.05100.pdf)).
     creator_organization: BigScience
     access: open
     num_parameters: 176000000000
     release_date: 2022-06-28
   - name: together/t0pp
     display_name: T0pp (11B)
-    description: T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks specified in natural language prompts ([paper](https://arxiv.org/abs/2110.08207)).
+    description: T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks specified in natural language prompts ([paper](https://arxiv.org/pdf/2110.08207.pdf)).
     creator_organization: BigScience
     access: open
     num_parameters: 11000000000
@@ -117,7 +117,7 @@ models:
     release_date: 2021-06-04
   - name: together/gpt-neox-20b
     display_name: GPT-NeoX (20B)
-    description: GPT-NeoX (20B parameters) autoregressive language model trained on The Pile ([paper](https://arxiv.org/abs/2204.06745)).
+    description: GPT-NeoX (20B parameters) autoregressive language model trained on The Pile ([paper](https://arxiv.org/pdf/2204.06745.pdf)).
     creator_organization: EleutherAI
     access: open
     num_parameters: 20000000000
@@ -126,7 +126,7 @@ models:
   # Google
   - name: together/t5-11b
     display_name: T5 (11B)
-    description: T5 (11B parameters) is an encoder-decoder model trained on a multi-task mixture of unsupervised and supervised tasks and for which each task is converted into a text-to-text format ([paper](https://arxiv.org/abs/1910.10683)).
+    description: T5 (11B parameters) is an encoder-decoder model trained on a multi-task mixture, where each task is converted into a text-to-text format ([paper](https://arxiv.org/pdf/1910.10683.pdf)).
     creator_organization: Google
     access: open
     num_parameters: 11000000000
@@ -134,7 +134,7 @@ models:
 
   - name: together/ul2
     display_name: UL2 (20B)
-    description: UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5 but trained with a different objective and slightly different scaling knobs ([paper](https://arxiv.org/abs/2205.05131)).
+    description: UL2 (20B parameters) is an encoder-decoder model trained on the C4 corpus. It's similar to T5 but trained with a different objective and slightly different scaling knobs ([paper](https://arxiv.org/pdf/2205.05131.pdf)).
     creator_organization: Google
     access: open
     num_parameters: 20000000000
@@ -174,14 +174,14 @@ models:
   # Microsoft/NVIDIA
   - name: microsoft/TNLGv2_530B
     display_name: TNLG v2 (530B)
-    description: TNLG v2 (530B parameters) autoregressive language model trained on a filtered subset of the Pile and CommonCrawl ([paper](https://arxiv.org/abs/2201.11990)).
+    description: TNLG v2 (530B parameters) autoregressive language model trained on a filtered subset of the Pile and CommonCrawl ([paper](https://arxiv.org/pdf/2201.11990.pdf)).
     creator_organization: Microsoft/NVIDIA
     access: closed
     num_parameters: 530000000000
     release_date: 2022-01-28
   - name: microsoft/TNLGv2_7B
     display_name: TNLG v2 (6.7B)
-    description: TNLG v2 (6.7B parameters) autoregressive language model trained on a filtered subset of the Pile and CommonCrawl ([paper](https://arxiv.org/abs/2201.11990)).
+    description: TNLG v2 (6.7B parameters) autoregressive language model trained on a filtered subset of the Pile and CommonCrawl ([paper](https://arxiv.org/pdf/2201.11990.pdf)).
     creator_organization: Microsoft/NVIDIA
     access: closed
     num_parameters: 6700000000
@@ -190,28 +190,28 @@ models:
   # OpenAI: https://beta.openai.com/docs/engines/gpt-3
   - name: openai/davinci
     display_name: GPT-3 davinci v1 (175B)
-    description: GPT-3 davinci v1 (175B parameters) autoregressive language model ([paper](https://arxiv.org/abs/2005.14165)).
+    description: GPT-3 davinci v1 (175B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2020-05-28
   - name: openai/curie
     display_name: GPT-3 curie v1 (6.7B)
-    description: GPT-3 curie v1 (6.7B parameters) autoregressive language model ([paper](https://arxiv.org/abs/2005.14165)).
+    description: GPT-3 curie v1 (6.7B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 6700000000
     release_date: 2020-05-28
   - name: openai/babbage
     display_name: GPT-3 babbage v1 (1.3B)
-    description: GPT-3 babbage v1 (1.3B parameters) autoregressive language model ([paper](https://arxiv.org/abs/2005.14165)).
+    description: GPT-3 babbage v1 (1.3B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 1300000000
     release_date: 2020-05-28
   - name: openai/ada
     display_name: GPT-3 ada v1 (350M)
-    description: GPT-3 ada v1 (350M parameters) autoregressive language model ([paper](https://arxiv.org/abs/2005.14165)).
+    description: GPT-3 ada v1 (350M parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 350000000
@@ -253,12 +253,12 @@ models:
     release_date: 2022-01-27
   - name: openai/code-davinci-002
     display_name: Codex davinci v2
-    description: Codex-style model based on the [Codex paper](https://arxiv.org/abs/2107.03374), but the details (including size) are unknown.
+    description: Codex-style model based on the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf), but the details (including size) are unknown.
     creator_organization: OpenAI
     access: limited
   - name: openai/code-davinci-001
     display_name: Codex davinci v1
-    description: Codex-style model based on the [Codex paper](https://arxiv.org/abs/2107.03374), but the details (including size) are unknown.
+    description: Codex-style model based on the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf), but the details (including size) are unknown.
     creator_organization: OpenAI
     access: limited
   - name: openai/code-cushman-001
@@ -270,7 +270,7 @@ models:
   # Tsinghua
   - name: together/glm
     display_name: GLM (130B)
-    description: GLM (130B parameters) is an open bilingual (English & Chinese) bidirectional dense model that was trained using General Language Model (GLM) procedure ([paper](https://arxiv.org/abs/2210.02414)).
+    description: GLM (130B parameters) is an open bilingual (English & Chinese) bidirectional dense model that was trained using General Language Model (GLM) procedure ([paper](https://arxiv.org/pdf/2210.02414.pdf)).
     creator_organization: Tsinghua
     access: open
     num_parameters: 130000000000
