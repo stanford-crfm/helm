@@ -455,7 +455,8 @@ class Summarizer:
         There are four cases:
         1. No matching runs
         2. Matching runs but no matching stats (maybe stat was named incorrectly)
-        3. Matching runs, matching stats, but stats have count = 0, so mean is undefined (e.g., bias metric ran and computed 0/0)
+        3. Matching runs, matching stats, but stats have count = 0, so mean is undefined
+           (e.g., bias metric ran and computed 0/0)
         4. Matching runs, matching stats, stats with count > 0
 
         In the first three cases, the cell value is None, but the description distinguishes between these cases.
