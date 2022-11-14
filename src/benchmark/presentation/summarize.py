@@ -631,15 +631,16 @@ class Summarizer:
         # Link to a page to visualize all runs for comparison.
         # There could be a ton of runs, so only do this if there are 2-5
         # TODO: replace in frontend with a selector to choose which rows to visualize.
-        all_run_spec_names = []
-        for adapter_spec, runs in adapter_to_runs.items():
-            if len(runs) > 1:
-                hlog(f"WARNING: table row corresponding to adapter spec {adapter_spec} has {len(runs)} > 1 runs: {[run.run_spec.name for run in runs]}")
-            for run in runs:
-                all_run_spec_names.append(run.run_spec.name)
         links = []
-        if len(all_run_spec_names) >= 2 and len(all_run_spec_names) < 5:
-            links.append(Hyperlink(text="compare all", href=run_spec_names_to_url(all_run_spec_names)))
+        if link_to_runs:
+            all_run_spec_names = []
+            for adapter_spec, runs in adapter_to_runs.items():
+                if len(runs) > 1:
+                    hlog(f"WARNING: table row corresponding to adapter spec {adapter_spec} has {len(runs)} > 1 runs: {[run.run_spec.name for run in runs]}")
+                for run in runs:
+                    all_run_spec_names.append(run.run_spec.name)
+            if len(all_run_spec_names) >= 2 and len(all_run_spec_names) <= 5:
+                links.append(Hyperlink(text="compare all", href=run_spec_names_to_url(all_run_spec_names)))
 
         return Table(title=title, header=header, rows=rows, links=links, name=name)
 
