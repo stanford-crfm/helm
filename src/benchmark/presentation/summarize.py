@@ -408,9 +408,10 @@ class Summarizer:
                 # Go over all the matching runs
                 for subgroup in self.expand_subgroups(group):
                     for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
+                        filtered_runs = self.filter_runs_by_visibility(runs, subgroup)
                         models.add(adapter_spec.model)
                         methods.add(adapter_spec.method)
-                        for run in runs:
+                        for run in filtered_runs:
                             num_instances.extend(get_all_stats_by_name(run.stats, "num_instances"))
                             num_references.extend(get_all_stats_by_name(run.stats, "num_references"))
                             num_prompt_tokens.extend(get_all_stats_by_name(run.stats, "num_prompt_tokens"))
@@ -448,7 +449,13 @@ class Summarizer:
             }
         return metadata
 
-    def create_cell(self, runs: List[Run], matcher: MetricNameMatcher, contamination_level: Optional[str]) -> Cell:
+    def create_cell(
+        self,
+        runs: List[Run],
+        matcher: MetricNameMatcher,
+        contamination_level: Optional[str],
+        additional_info: Optional[str],
+    ) -> Cell:
         """
         Use the metric name identified by `matcher` to pull out the stats from
         `runs` and return a representation of the average.
@@ -496,6 +503,8 @@ class Summarizer:
         # TODO: need to exclude contaminated numbers somehow
         value = aggregate_stat.mean
         description = aggregate_stat.bare_str()
+        if additional_info:
+            description += "\n" + additional_info
         if self.verbose:
             description += "\n-- ".join(["\nRun specs:", *aggregated_run_specs])
 
@@ -610,21 +619,24 @@ class Summarizer:
                 href = None
 
             # Render contamination information
-            point = self.contamination.get_point(model.name, run_group.name)
-            if point is not None:
-                suffix = CONTAMINATION_SYMBOLS[point.level]  # Append to name of model
-                description = point.description
-                contamination_level = point.level
+            point = self.contamination.get_point(model.name, columns[0][0].name)
+            if num_groups == 1 and point is not None:  # display contamination information at the adapter level
+                cells = [
+                    Cell(display_name + CONTAMINATION_SYMBOLS[point.level], description=point.description, href=href)
+                ]
             else:
-                suffix = ""
-                description = ""
-                contamination_level = None
-
-            cells = [Cell(display_name + suffix, description=description, href=href)]
+                cells = [Cell(display_name, description="", href=href)]
             assert len(group_names) == len(matchers)
             for group_name, matcher in zip(group_names, matchers):
                 group_runs = [run for run in runs if group_name in run.run_spec.groups]
-                cells.append(self.create_cell(group_runs, matcher, contamination_level))
+                point = self.contamination.get_point(model.name, group_name)
+                if point is not None:
+                    description = CONTAMINATION_SYMBOLS[point.level] + " " + point.description
+                    contamination_level = point.level
+                else:
+                    description = ""
+                    contamination_level = None
+                cells.append(self.create_cell(group_runs, matcher, contamination_level, additional_info=description))
 
             rows.append(cells)
 
