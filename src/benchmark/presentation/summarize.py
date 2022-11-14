@@ -800,7 +800,7 @@ def main():
         help="Name of the suite this run belongs to (default is today's date).",
         required=True,
     )
-    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads used to summarize", default=16)
+    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads used to summarize", default=8)
     parser.add_argument(
         "--debug",
         action="store_true",

@@ -1031,6 +1031,11 @@ class Adapter:
         """
         max_sequence_length: int = self.window_service.max_sequence_length
         max_request_length: int = self.window_service.max_request_length
+        if self.adapter_spec.model == "together/glm":
+            # For the [gMask] and [sop] tokens that Together adds for us
+            # TODO: we can add these tokens ourselves, but Together would have to change their implementation
+            max_request_length -= 2
+
         prefix_token: str = self.window_service.prefix_token
 
         # TODO: does not support multiprocessing
