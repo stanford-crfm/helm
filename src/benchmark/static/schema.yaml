@@ -623,11 +623,23 @@ metrics:
     short_display_name: Stereotypes (race)
     lower_is_better: true
     description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+  - name: bias_metric:mode=associations,demographic_category=race,target_category=adjective
+    display_name: Stereotypical associations (race, adjectives)
+    short_display_name: Stereotypes (race)
+    lower_is_better: true
+    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target adjectives. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
   - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
     display_name: Stereotypical associations (gender, profession)
     short_display_name: Stereotypes (gender)
     lower_is_better: true
     description: Measures uneven association of gender groups (male, female) with target professions. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+  - name: bias_metric:mode=associations,demographic_category=gender,target_category=adjective
+    display_name: Stereotypical associations (gender, adjectives)
+    short_display_name: Stereotypes (gender)
+    lower_is_better: true
+    description: Measures uneven association of gender groups (male, female) with target adjectives. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
   - name: bias_metric:mode=representation,demographic_category=race
     display_name: Demographic representation (race)
     short_display_name: Representation (race)
@@ -638,6 +650,7 @@ metrics:
     short_display_name: Representation (gender)
     lower_is_better: true
     description: Measures uneven representation of gender groups (male, female). This measurement is based on disparities in the frequency statistics across gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
   - name: bbq_metric_ambiguous_bias
     display_name: BBQ (ambiguous)
     lower_is_better: true
@@ -946,7 +959,8 @@ run_groups:
   - name: core_scenarios
     display_name: Core scenarios
     description: Includes all the scenarios where we evaluate all the models.
-    category: Top-level
+    # TODO: Could category just be supergroup everywhere?
+    category: All scenarios
     subgroups:
       - question_answering
       - information_retrieval
@@ -955,10 +969,10 @@ run_groups:
       - toxicity_detection
       - miscellaneous_text_classification
 
-  - name: components
-    display_name: Components
+  - name: targeted_scenarios
+    display_name: Targeted scenarios
     description: Where we look at different skills (e.g., language, reasoning, etc.)
-    category: Top-level
+    category: All scenarios
     subgroups:
       - language
       - knowledge
@@ -1031,7 +1045,7 @@ run_groups:
   - name: language
     display_name: Language
     description: Coverage over different genres (via language modeling) and testing linguistic capabilities.
-    category: Components
+    category: Targeted scenarios
     subgroups:
       - the_pile
       - twitter_aae
@@ -1041,7 +1055,7 @@ run_groups:
   - name: knowledge
     display_name: Knowledge
     description: World and commonsense knowledge.
-    category: Components
+    category: Targeted scenarios
     subgroups:
       - natural_qa_closedbook
       - hellaswag
@@ -1053,7 +1067,7 @@ run_groups:
   - name: reasoning
     display_name: Reasoning
     description: Reasoning capabilities, both synthetic and real.
-    category: Components
+    category: Targeted scenarios
     subgroups:
       - synthetic_reasoning
       - synthetic_reasoning_natural
@@ -1072,7 +1086,7 @@ run_groups:
   - name: harms
     display_name: Harms
     description: Closer analysis of various social harms (e.g., copyright, disinformation, social bias, toxicity).
-    category: Components
+    category: Targeted scenarios
     subgroups:
       - copyright_text
       - copyright_code
@@ -1085,36 +1099,36 @@ run_groups:
   - name: efficiency
     display_name: Efficiency
     description: Evaluating fine-grained training and inference efficiency
-    category: Components
+    category: Targeted scenarios
     subgroups:
       - synthetic_efficiency
     adapter_keys_shown:
       - model
       - max_tokens
 
-### Deep dive
+### Ablations
   - name: ablation_in_context
     display_name: Vary number of in-context examples
     description: Vary the number of in-context training examples.
-    category: Deep dive
+    category: Targeted scenarios
     visibility: this_group_only
 
   - name: ablation_multiple_choice
     display_name: Vary multiple-choice strategy
     description: Vary the adapation strategy for multiple-choice questions.
-    category: Deep dive
+    category: Targeted scenarios
     visibility: this_group_only
 
   - name: ablation_prompts
     display_name: Vary prompting
     description: Vary the instructions and labels for input/output.
-    category: Deep dive
+    category: Targeted scenarios
     visibility: this_group_only
 
   - name: robustness_contrast_sets
     display_name: Robustness to contrast sets
     description: Evaluating equivariance to semantics-altering perturbations
-    category: Deep dive
+    category: Targeted scenarios
     subgroup_display_mode: by_group
     visibility: this_group_only
     subgroups:
@@ -1124,7 +1138,7 @@ run_groups:
   - name: robustness_individual
     display_name: Robustness to single types of perturbations
     description: Evaluating robsustness to a single perturbation at a time (e.g., typos, synonyms)
-    category: Deep dive
+    category: Targeted scenarios
     visibility: this_group_only
 
 ### Scenarios (the actual scenarios)

@@ -16,7 +16,7 @@ from common.general import (
     unique_simplification,
     parallel_map,
 )
-from common.hierarchical_logger import hlog, htrack
+from common.hierarchical_logger import hlog, htrack, htrack_block
 from benchmark.scenarios.scenario import ScenarioSpec
 from benchmark.adapter import AdapterSpec
 from benchmark.metrics.metric_name import MetricName
@@ -81,12 +81,14 @@ def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) ->
     if len(matching_stats) == 0:
         return None
 
-    if matcher.sub_split is None:  # matcher matches all sub splits so we should aggregate these
+    # Matcher matches all sub splits so we should aggregate these
+    if matcher.sub_split is None:
         stats_dict: Dict[MetricName, Stat] = {}
         for stat in matching_stats:
             stat = Stat(replace(stat.name, sub_split=None)).merge(stat)
             merge_stat(stats_dict, stat)
         matching_stats = list(stats_dict.values())
+
     return singleton(matching_stats)
 
 
@@ -383,7 +385,8 @@ class Summarizer:
             header = [
                 Cell("Group"),
                 Cell("Description"),
-                Cell("Method", description="Adaptation strategy (e.g., generation)"),
+                # Synchronize these names with `schema.yaml`
+                Cell("Adaptation method", description="Adaptation strategy (e.g., generation)"),
                 Cell("# instances", description="Number of instances evaluated on"),
                 Cell("# references", description="Number of references provided per instance"),
                 Cell("# prompt tokens", description="Total number of prompt tokens"),
@@ -408,8 +411,7 @@ class Summarizer:
                             num_instances.extend(get_all_stats_by_name(run.stats, "num_instances"))
                             num_references.extend(get_all_stats_by_name(run.stats, "num_references"))
                             num_prompt_tokens.extend(get_all_stats_by_name(run.stats, "num_prompt_tokens"))
-                            # TODO: replace with num_completion_tokens
-                            num_completion_tokens.extend(get_all_stats_by_name(run.stats, "num_output_tokens"))
+                            num_completion_tokens.extend(get_all_stats_by_name(run.stats, "num_completion_tokens"))
 
                 if len(num_instances) == 0:
                     continue
@@ -457,7 +459,13 @@ class Summarizer:
         for run in runs:
             stat = get_unique_stat_by_matcher(run.stats, matcher)
             if stat is None:
-                hlog(f"WARNING: run spec {run.run_spec.name} does not have any stat matched by {matcher}")
+                # Print out near misses to provide a more informative warning
+                near_misses = [stat for stat in run.stats if stat.name.name == matcher.name]
+                hlog(f"WARNING: run spec {run.run_spec.name} does not have any stat matched by {matcher}, {len(near_misses)} near misses matching just the name")
+                if len(near_misses) > 0:
+                    with htrack_block("Near misses"):
+                        for stat in near_misses:
+                            hlog(stat.name)
                 continue
 
             if aggregate_stat is None:

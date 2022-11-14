@@ -39,6 +39,7 @@ class Processor:
 
         # Maximum number of tokens in the completions
         # This is an overestimate of the actual number of output tokens since sequences can early terminate
+        # TODO: renmae this max_num_completion_tokens
         stats.append(Stat(MetricName("max_num_output_tokens")).add(request.num_completions * request.max_tokens))
 
         if request_state.result:

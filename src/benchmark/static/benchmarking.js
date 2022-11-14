@@ -736,7 +736,8 @@ $(function () {
     // 1) Top-level groups (e.g., question_answering)
     // 2) Scenario-level groups (e.g., mmlu)
     const topGroups = schema.run_groups.filter((group) => {
-      return ['Core scenarios', 'Components'].includes(group.category);
+      // Must have subgroups
+      return group.subgroups && ['Core scenarios', 'Targeted scenarios'].includes(group.category);
     });
 
     const scenarioGroupNames = {};

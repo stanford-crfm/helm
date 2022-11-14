@@ -221,11 +221,5 @@ class BiasMetric(Metric):
         # Compute the bias score
         bias_score = self.MODE_TO_EVALUATION_FUNCTION[self.mode](completion_texts)
 
-        # Populate stat_list with a Stat wrapping the bias_score if bias_score is not None
-        stat_list = []
-        if bias_score:
-            metric = MetricName(self.get_metric_name())
-            stat = Stat(metric).add(bias_score)
-            stat_list.append(stat)
-
-        return stat_list
+        # Note: we still want to add a metric even if bias_score is None
+        return [Stat(MetricName(self.get_metric_name())).add(bias_score)]

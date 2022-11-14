@@ -641,6 +641,24 @@ class BasicMetric(Metric):
             Stat(MetricName("prompt_truncated")).add(request_state.prompt_truncated),
         ]
 
+    def compute_all_general_metrics(
+        self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
+    ) -> List[Stat]:
+        """
+        Compute metrics that are common to both `evaluate_generation` and `evaluate_references`.
+        """
+        stats: List[Stat] = []
+
+        # Copy from adapter spec
+        stats.append(Stat(MetricName("num_train_trials")).add(adapter_spec.num_train_trials))
+
+        stats.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
+        stats.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
+        stats.extend(self.compute_truncation_metrics(adapter_spec, request_state, metric_service))
+
+        return stats
+
+
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
@@ -672,6 +690,7 @@ class BasicMetric(Metric):
             Stat(MetricName("num_bytes")).add(num_bytes),
         ]
 
+
     def evaluate_generation(
         self,
         adapter_spec: AdapterSpec,
@@ -680,20 +699,15 @@ class BasicMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         """Compute all metrics."""
-        metrics = []
-
-        # Copy from adapter spec
-        metrics.append(Stat(MetricName("num_train_trials")).add(adapter_spec.num_train_trials))
+        stats: List[Stat] = []
+        stats.extend(self.compute_all_general_metrics(adapter_spec, request_state, metric_service))
 
         if len(request_state.instance.references) > 0:
-            metrics.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
+            stats.extend(self.compute_reference_metrics(adapter_spec, request_state, metric_service))
 
-        metrics.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
-        metrics.extend(self.compute_efficiency_metrics(adapter_spec, request_state, metric_service))
-        metrics.extend(self.compute_finish_reason_metrics(adapter_spec, request_state, metric_service))
-        metrics.extend(self.compute_truncation_metrics(adapter_spec, request_state, metric_service))
+        stats.extend(self.compute_language_modeling_metrics(adapter_spec, request_state, metric_service))
 
-        return metrics
+        return stats
 
     def evaluate_references(
         self,
@@ -703,9 +717,8 @@ class BasicMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
         """
-        Setup: for each reference, we have a model score (log probability) and whether it's correct.
-        We define the following metrics:
-        - correct_rank: if we sort references by their logprobs, what is the ranking of the first correct reference.
+        Perform evaluation when we have made different requests for each reference.
+        For each reference, we have a model score (log probability) and whether it's correct.
         """
 
         @dataclass(frozen=True)
@@ -771,8 +784,8 @@ class BasicMetric(Metric):
 
         answer_scores = [reference_scores[i] for i in answers]
 
-        # Compute efficiency metrics.
-        metrics = self.compute_efficiency_metrics(adapter_spec, request_state, metric_service)
+        stats: List[Stat] = []
+        stats.extend(self.compute_all_general_metrics(adapter_spec, request_state, metric_service))
 
         max_prob = np.max(scipy.special.softmax(reference_scores))
         # TODO: fix the accuracy calculation---it is currently incorrect when there are ties.
@@ -780,14 +793,14 @@ class BasicMetric(Metric):
         # [0.5, 0.5], then this code will say we got the example correct, regardless of what
         # the answer is, because the calculation max(reference_scores) == max(answer_scores)
         # will always return True.
-        metrics.extend(
+        stats.extend(
             [
                 Stat(MetricName("max_prob")).add(max_prob),
                 Stat(MetricName("exact_match")).add(float(max(reference_scores) == max(answer_scores))),
                 Stat(MetricName("predicted_index")).add(reference_scores.index(max(reference_scores))),
             ]
         )
-        return metrics
+        return stats
 
     def derive_stats(self, stats_dict: Dict[MetricName, Stat]) -> List[Stat]:
         """Derive perplexity metrics if applicable. We don't worry about splits and perturbations here."""
@@ -803,7 +816,7 @@ class BasicMetric(Metric):
         return derived_stats
 
 
-def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
+def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]) -> List[Stat]:
     max_probs = []
     correct = []
     for instance_stats in per_instance_stats.values():
@@ -818,32 +831,32 @@ def compute_calibration_metrics(per_instance_stats: Dict[Instance, List[Stat]]):
             assert np.isclose(cur_correct, 1.0) or np.isclose(cur_correct, 0.0)
             correct.append(int(cur_correct))
 
-    calibration_metrics: List[Stat] = []
+    stats: List[Stat] = []
     assert len(max_probs) == len(correct)
     if len(max_probs) > 0:
         # We need at least about 300 examples to compute ece_10_bin reliably.
         ece_10_bin = cal.get_ece_em(max_probs, correct, num_bins=10)
-        calibration_metrics.append(Stat(MetricName("ece_10_bin")).add(ece_10_bin))
+        stats.append(Stat(MetricName("ece_10_bin")).add(ece_10_bin))
         ece_1_bin = cal.get_ece(max_probs, correct, num_bins=1)
-        calibration_metrics.append(Stat(MetricName("ece_1_bin")).add(ece_1_bin))
+        stats.append(Stat(MetricName("ece_1_bin")).add(ece_1_bin))
         coverage_acc_area, acc_top_10_percentile = cal.get_selective_stats(max_probs, correct)
-        calibration_metrics.append(Stat(MetricName("selective_cov_acc_area")).add(coverage_acc_area))
-        calibration_metrics.append(Stat(MetricName("selective_acc@10")).add(acc_top_10_percentile))
+        stats.append(Stat(MetricName("selective_cov_acc_area")).add(coverage_acc_area))
+        stats.append(Stat(MetricName("selective_acc@10")).add(acc_top_10_percentile))
         # Compute ECE after recalibration.
         if np.sum(correct) == 0 or np.sum(correct) == len(correct):
             # If all examples are correct or incorrect, the platt scaling
             # optimizer won't work. But our calibration error (post-calibration) will be
             # estimated as 0, so just directly store that.
-            calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(0.0))
-            calibration_metrics.append(Stat(MetricName("platt_ece_1_bin")).add(0.0))
+            stats.append(Stat(MetricName("platt_ece_10_bin")).add(0.0))
+            stats.append(Stat(MetricName("platt_ece_1_bin")).add(0.0))
         else:
             platt_scaler, clf = cal.get_platt_scaler(np.array(max_probs), np.array(correct), get_clf=True)
-            calibration_metrics.append(Stat(MetricName("platt_coef")).add(clf.coef_[0][0]))
-            calibration_metrics.append(Stat(MetricName("platt_intercept")).add(clf.intercept_[0]))
+            stats.append(Stat(MetricName("platt_coef")).add(clf.coef_[0][0]))
+            stats.append(Stat(MetricName("platt_intercept")).add(clf.intercept_[0]))
             cal_max_probs = platt_scaler(np.array(max_probs))
             platt_ece_10_bin = cal.get_ece_em(cal_max_probs, correct, num_bins=10)
-            calibration_metrics.append(Stat(MetricName("platt_ece_10_bin")).add(platt_ece_10_bin))
+            stats.append(Stat(MetricName("platt_ece_10_bin")).add(platt_ece_10_bin))
             platt_ece_1_bin = cal.get_ece(cal_max_probs, correct, num_bins=1)
-            calibration_metrics.append(Stat(MetricName("platt_ece_1_bin")).add(platt_ece_1_bin))
+            stats.append(Stat(MetricName("platt_ece_1_bin")).add(platt_ece_1_bin))
 
-    return calibration_metrics
+    return stats
