@@ -127,27 +127,63 @@ $(function () {
     scenarioGroup.metric_groups.forEach((metricGroupName) => {
       const metricGroup = schema.metricGroup(metricGroupName);
       metricGroup.metrics.forEach((metric) => {
+        // This function is supposed to return per-instance metrics, so exclude
+        // metrics that mentions perturbations.
+        if (metric.perturbation_name) {
+          return;
+        }
         names.push(substitute(metric.name, scenarioGroup.environment));
       });
     });
     return names;
   }
 
-  function getStatClass(name, value, lowerIsBetter) {
+  let metricJudgements = null;
+  function getMetricJudgements() {
+    // Provide information
+    // Return dictionary {metric name: {wrongThreshold, correctThreshold, lowerIsBetter}}
+    // Example: {exact_match: {wrongThreshold: 0, correctThreshold: 1, lowerIsBetter: true}}
+    // TODO: move the hard-coding into schema.yaml
+    if (metricJudgements) {
+      return metricJudgements;
+    }
+    metricJudgements = {};
+    schema.run_groups.forEach((runGroup) => {
+      const name = runGroup.environment && runGroup.environment.main_name;
+      if (!["bits_per_byte"].includes(name)) {
+        metricJudgements[name] = {wrongThreshold: 0, correctThreshold: 1, lowerIsBetter: false};
+      }
+    });
+    return metricJudgements;
+  }
+
+  function getStatClass(name, value) {
     // Return the CSS class to use if a stat has `value`.
+    const judgements = getMetricJudgements();
+    const judgement = judgements[name];
+    if (!judgement) {
+      return '';
+    }
 
     // Based on `name` determine whether smaller or larger is better.
-    if (lowerIsBetter) {
-      value = 1 - value;
+    if (judgement.lowerIsBetter === false) {
+      if (value >= judgement.correctThreshold) {
+        return 'correct';
+      }
+      if (value <= judgement.wrongThreshold) {
+        return 'wrong';
+      }
     }
 
-    // Assume larger is better for now.
-    if (value === 0) {
-      return 'wrong';
+    if (lowerIsBetter === true) {
+      if (value <= judgement.correctThreshold) {
+        return 'correct';
+      }
+      if (value >= judgement.wrongThreshold) {
+        return 'wrong';
+      }
     }
-    if (value === 1) {
-      return 'correct';
-    }
+
     return '';
   }
 
@@ -166,27 +202,32 @@ $(function () {
       const metricNames = getMetricNames(scenarioGroup);
 
       // Keep only the stats that match the name
-      for (let stat of stats) {
-        if (!metricNames.includes(stat.name.name)) {
+      for (let name of metricNames) {
+        const field = schema.metricsField(name);
+
+        const matchingStats = stats.filter((stat) => stat.name.name === name);
+        if (matchingStats.length === 0) {
+          // Some stats won't be here (calibration, bias) because there is no per-instance version.
           continue;
         }
 
-        const field = schema.metricsField(stat.name.name);
-        list.push($('<span>', {class: getStatClass(stat.name.name, stat.mean, field.lower_is_better)}).append(field.display_name + ': ' + round(stat.mean, 3)));
+        if (matchingStats.length > 1) {
+          // This shouldn't happen...
+          console.warn('Metric', name, 'occurs more than once', matchingStats);
+        }
+
+        const stat = matchingStats[0];
+        const statClass = getStatClass(name, stat.mean);
+        list.push($('<span>', {class: statClass}).append(`${field.display_name}: ${round(stat.mean, 3)}`));
       }
     });
 
     // String the metrics together
     const $stats = $('<div>');
     if (runDisplayName) {
-      $stats.append('[' + runDisplayName + '] ');
+      $stats.append(runDisplayName);
     }
-    list.forEach((item, index) => {
-      if (index > 0) {
-        $stats.append(', ');
-      }
-      $stats.append(item);
-    });
+    $stats.append(renderItems(list));
 
     return $stats;
   }
@@ -257,19 +298,22 @@ $(function () {
 
   function renderRunsHeader(scenario, scenarioPath) {
     const $output = $('<div>');
+
     $output.append(renderGroupHeader(scenario));
-    $links = $('<div>')
+
+    // Links
+    const links = [];
     if (scenario) {
-      $links.append(' ').append($('<a>', {href: scenario.definition_path}).append('[code]'))
+      links.push($('<a>', {href: scenario.definition_path}).append('Code'))
     }
     if (scenarioPath) {
-      $links.append(' ').append($('<a>', {href: scenarioPath}).append('[json]'))
+      links.push($('<a>', {href: scenarioPath}).append('Scenario JSON'));
     }
-    $links
-      .append(' ').append($('<a>', {href: '#adapter'}).append('[adapter]'))
-      .append(' ').append($('<a>', {href: '#instances'}).append('[instances]'))
-      .append(' ').append($('<a>', {href: '#metrics'}).append('[metrics]'));
-    $output.append($links);
+    links.push($('<a>', {href: '#adapter'}).append('Adapter specification'));
+    links.push($('<a>', {href: '#instances'}).append('Instances + predictions'));
+    links.push($('<a>', {href: '#metrics'}).append('All metrics'));
+    $output.append(renderItems(links));
+
     return $output;
   }
 
@@ -425,8 +469,6 @@ $(function () {
 
     // The `perInstanceStats` specifies stats for each instanceKey (instance_id, perturbation) and train_trial_index.
     const instanceKeyTrialToStats = {};
-    // Whether we've already shown the stats
-    const shownStats = {};
     perInstanceStats.forEach((entry) => {
       const key = perInstanceStatsKey(entry);
       instanceKeyTrialToStats[key] = (instanceKeyTrialToStats[key] || []).concat(entry.stats);
@@ -446,6 +488,7 @@ $(function () {
       }
 
       const key = instanceTrialKey(requestState.instance, requestState.train_trial_index);
+
       // For multiple_choice_separate_*, only render the request state for the predicted index
       if (requestState.reference_index !== undefined) {
         const predictedIndexStat = instanceKeyTrialToStats[key] ?
@@ -457,16 +500,14 @@ $(function () {
           return;
         }
       }
+
       // Print out instance-level statistics.
-      // Show it once for each (instance id, train trial index, perturbation).
-      if (!shownStats[key]) {
-        const stats = instanceKeyTrialToStats[key];
-        if (!stats) {
-          console.warn("Cannot find stats for", key, instanceKeyTrialToStats);
-        } else {
-          $instance.append(renderPerInstanceStats(runSpec.groups, stats, runDisplayName));
-          shownStats[key] = true;
-        }
+      // Show it once for each (instance_id, perturbation) and train_trial_index.
+      const stats = instanceKeyTrialToStats[key];
+      if (!stats) {
+        console.warn("Cannot find stats for", key, instanceKeyTrialToStats);
+      } else {
+        $instance.append(renderPerInstanceStats(runSpec.groups, stats, runDisplayName));
       }
 
       // Create a link for the request made to the API
@@ -598,7 +639,7 @@ $(function () {
     $root.append($scenarioInfo);
 
     // Adapter
-    $root.append($('<a>', {name: 'adapter'}).append($('<h5>').append('Adapter')));
+    $root.append($('<a>', {name: 'adapter'}).append($('<h5>').append('Adapter specification')));
     const $adapterSpec = $('<table>');
     if (runSpecs.length > 1) {
       $adapterSpec.append($('<tr>').append($('<td>'))
@@ -607,12 +648,12 @@ $(function () {
     $root.append($('<div>', {class: 'table-container'}).append($adapterSpec));
 
     // Instances
-    $root.append($('<a>', {name: 'instances'}).append($('<h5>').append('Instances')));
+    $root.append($('<a>', {name: 'instances'}).append($('<h5>').append('Instances + predictions')));
     const $instances = $('<div>');
     $root.append($('<div>', {class: 'table-container'}).append($instances));
 
     // Metrics
-    $root.append($('<a>', {name: 'metrics'}).append($('<h5>').append('Metrics')));
+    $root.append($('<a>', {name: 'metrics'}).append($('<h5>').append('All metrics')));
     const $stats = $('<table>');
     const $statsSearch = $('<input>', {type: 'text', size: 40, placeholder: 'Enter keywords to filter metrics'});
     if (runSpecs.length > 1) {
@@ -621,6 +662,12 @@ $(function () {
     $root.append($('<div>', {class: 'table-container'}).append([$statsSearch, $stats]));
 
     // Render adapter specs
+    $adapterSpec.append($('<tr>').append($('<td>')).append(scenarioStatePaths.map((scenarioStatePath, index) => {
+      return $('<td>')
+        .append($('<a>', {href: runSpecPaths[index]}).append('Spec JSON'))
+        .append(' | ')
+        .append($('<a>', {href: scenarioStatePaths[index]}).append('Full JSON'));
+    })));
     const keys = canonicalizeList(runSpecs.map((runSpec) => Object.keys(runSpec.adapter_spec)));
     sortListWithReferenceOrder(keys, schema.adapterFieldNames);
     keys.forEach((key) => {
@@ -633,8 +680,6 @@ $(function () {
       });
       $adapterSpec.append($row);
     });
-    $adapterSpec.append($('<tr>').append($('<td>'))
-      .append(runSpecPaths.map((runSpecPath) => $('<td>').append($('<a>', {href: runSpecPath}).append('JSON')))));
 
     // Render metrics/stats
     getJSONList(statsPaths, (statsList) => {
@@ -658,7 +703,7 @@ $(function () {
 
     // Render scenario instances
     const instanceToDiv = {};  // For each instance
-    getJSONList(scenarioPaths, (scenarios) => {
+    getJSONList(scenarioPaths, (scenarios, index) => {
       console.log('scenarios', scenarios);
 
       const onlyOneScenario = scenarios.length && scenarios.every((scenario) => scenario.definition_path === scenarios[0].definition_path);

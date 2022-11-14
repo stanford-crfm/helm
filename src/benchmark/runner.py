@@ -151,14 +151,11 @@ class Runner:
                     per_instance_stats.extend(metric_result.per_instance_stats)
 
         # Check that there aren't duplicate `Stat`s
+        # Note: doesn't catch near misses.
         metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
-        duplicate_metrics: Dict[MetricName, int] = {
-            metric_name: count
-            for metric_name, count in metric_counts.items()
-            # TODO: remove the metric_name.name != "num_instances" check. See metric.py.
-            if count > 1 and metric_name.name != "num_instances"
-        }
-        assert len(duplicate_metrics) == 0, f"Found duplicate metrics: {duplicate_metrics}"
+        for metric_name, count in metric_counts.items():
+            if count > 1:
+                hlog(f"WARNING: duplicate metric name {metric_name}")
 
         # Print out the number of stats
         hlog(f"Generated {len(stats)} stats.")

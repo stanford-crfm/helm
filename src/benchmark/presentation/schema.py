@@ -94,7 +94,7 @@ class MetricNameMatcher:
         # = None, which then doesn't match the metric matchers defined in
         # `schema.yaml`, which requires splits.
         # TODO: remove this once we put splits in `tokens_metric.py`.
-        if self.name != "num_completion_tokens":
+        if self.name not in ["num_prompt_tokens", "num_completion_tokens"]:
             if self.split != metric_name.split:
                 return False
 
