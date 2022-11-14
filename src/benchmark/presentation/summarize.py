@@ -234,7 +234,10 @@ class Summarizer:
             included = True
             for run_group_name in run.run_spec.groups:  # go through the groups of the run to determine visibility
                 if run_group_name not in self.schema.name_to_run_group:
-                    hlog(f"WARNING: group {run_group_name} mentioned in run spec {run.run_spec.name} but undefined in {SCHEMA_YAML_PATH}, skipping")
+                    hlog(
+                        f"WARNING: group {run_group_name} mentioned in run spec {run.run_spec.name} "
+                        f"but undefined in {SCHEMA_YAML_PATH}, skipping"
+                    )
                     continue
                 run_group = self.schema.name_to_run_group[run_group_name]
                 if run_group.visibility == NO_GROUPS:  # this run should never be visible
@@ -462,7 +465,10 @@ class Summarizer:
             if stat is None:
                 # Print out near misses to provide a more informative warning
                 near_misses = [stat for stat in run.stats if stat.name.name == matcher.name]
-                hlog(f"WARNING: run spec {run.run_spec.name} does not have any stat matched by {matcher}, {len(near_misses)} near misses matching just the name")
+                hlog(
+                    f"WARNING: run spec {run.run_spec.name} does not have any stat matched by {matcher}, "
+                    f"{len(near_misses)} near misses matching just the name"
+                )
                 if len(near_misses) > 0:
                     with htrack_block("Near misses"):
                         for stat in near_misses:

@@ -514,14 +514,11 @@ class BasicMetric(Metric):
         # Add other metrics
         for metric_name in self.names:
             if metric_name in metric_fn_mapping:
-                stats.extend(
-                    compute_metrics_helper(MetricName(metric_name), metric_fn_mapping[metric_name])
-                )
+                stats.extend(compute_metrics_helper(MetricName(metric_name), metric_fn_mapping[metric_name]))
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
 
         return stats
-
 
     def compute_efficiency_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -662,7 +659,6 @@ class BasicMetric(Metric):
 
         return stats
 
-
     def compute_language_modeling_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
     ) -> List[Stat]:
@@ -693,7 +689,6 @@ class BasicMetric(Metric):
             Stat(MetricName("num_perplexity_tokens")).add(num_perplexity_tokens),
             Stat(MetricName("num_bytes")).add(num_bytes),
         ]
-
 
     def evaluate_generation(
         self,
