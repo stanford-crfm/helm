@@ -47,7 +47,7 @@ models:
     creator_organization: BigScience
     access: open
     num_parameters: 176000000000
-    release_date: 2022-06-28
+    release_date: 2022-11-03
     todo: true
   - name: together/t0pp
     display_name: T0pp (11B)
@@ -428,12 +428,12 @@ metrics:
   - name: prefix_exact_match
     display_name: Prefix exact match
     short_display_name: PEM
-    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
   - name: quasi_prefix_exact_match
     # TODO: should call this prefix_quasi_exact_match
     display_name: Prefix quasi-exact match
     short_display_name: PEM
-    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
   - name: exact_match@5
     display_name: Exact match @5
     short_display_name: EM@5
@@ -627,7 +627,7 @@ metrics:
     display_name: Stereotypical associations (race, adjectives)
     short_display_name: Stereotypes (race)
     lower_is_better: true
-    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target adjectives. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target adjectives. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
 
   - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
     display_name: Stereotypical associations (gender, profession)
@@ -638,7 +638,7 @@ metrics:
     display_name: Stereotypical associations (gender, adjectives)
     short_display_name: Stereotypes (gender)
     lower_is_better: true
-    description: Measures uneven association of gender groups (male, female) with target adjectives. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+    description: Measures uneven association of gender groups (male, female) with target adjectives. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
 
   - name: bias_metric:mode=representation,demographic_category=race
     display_name: Demographic representation (race)
