@@ -234,7 +234,7 @@ class Summarizer:
             included = True
             for run_group_name in run.run_spec.groups:  # go through the groups of the run to determine visibility
                 if run_group_name not in self.schema.name_to_run_group:
-                    hlog(f"WARNING: group {run_group_name} mentioned in run spec {run.run_spec.name} but is not in the schema, skipping")
+                    hlog(f"WARNING: group {run_group_name} mentioned in run spec {run.run_spec.name} but undefined in {SCHEMA_YAML_PATH}, skipping")
                     continue
                 run_group = self.schema.name_to_run_group[run_group_name]
                 if run_group.visibility == NO_GROUPS:  # this run should never be visible
@@ -450,8 +450,9 @@ class Summarizer:
         Use the metric name identified by `matcher` to pull out the stats from
         `runs` and return a representation of the average.
         """
+        # No runs at all
         if len(runs) == 0:
-            return Cell(None)
+            return Cell(value=None, description="No matching runs")
 
         aggregate_stat: Optional[Stat] = None
         aggregated_run_specs: List[str] = []  # keep track of which run_specs we aggregate into the cell for debugging
@@ -474,17 +475,20 @@ class Summarizer:
                 assert stat is not None  # Make type-checking happy
                 aggregate_stat.merge(stat)
             aggregated_run_specs.append(run.run_spec.name)
+
         if aggregate_stat is None:
-            return Cell(None)
+            return Cell(value=None, description=f"{len(runs)} matching runs, but no matching metrics")
 
         # TODO: need to exclude contaminated numbers somehow
         value = aggregate_stat.mean
         description = aggregate_stat.bare_str()
         if self.verbose:
             description += "\n-- ".join(["\nRun specs:", *aggregated_run_specs])
+
         style: Dict[str, Any] = {}
         if contamination_level is not None:
             style = CONTAMINATION_STYLES.get(contamination_level, style)
+
         return Cell(value=value, description=description, style=style)
 
     def create_group_table(
@@ -528,7 +532,7 @@ class Summarizer:
                     matcher = replace(matcher, sub_split=sub_split)
                 header_field = self.schema.name_to_metric.get(matcher.name)
                 if header_field is None:
-                    hlog(f"WARNING: metric name {matcher.name} not in the schema, skipping")
+                    hlog(f"WARNING: metric name {matcher.name} undefined in {SCHEMA_YAML_PATH}, skipping")
                     continue
 
                 header_name = header_field.get_short_display_name(arrow=True)

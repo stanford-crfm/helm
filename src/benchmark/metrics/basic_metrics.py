@@ -483,11 +483,11 @@ class BasicMetric(Metric):
             "absolute_value_difference": absolute_value_difference,
         }
 
-        reference_metrics = []
+        stats: List[Stat] = []
+
         # Gold outputs
         golds = [reference for reference in request_state.instance.references if reference.is_correct]
         assert len(golds) > 0
-        reference_metrics.append(Stat(MetricName("num_references")).add(len(request_state.instance.references)))
 
         # Predicted outputs
         assert request_state.result is not None
@@ -509,17 +509,19 @@ class BasicMetric(Metric):
         # high probabilities on having additional spaces (should check this). Also, the sum
         # involves computing the log_prob for many completions which could be intractable.
         max_prob = np.exp(sorted_completions[0].logprob)
-        reference_metrics.append(Stat(MetricName("max_prob")).add(max_prob))
+        stats.append(Stat(MetricName("max_prob")).add(max_prob))
 
-        # Add other metrics.
+        # Add other metrics
         for metric_name in self.names:
             if metric_name in metric_fn_mapping:
-                reference_metrics.extend(
+                stats.extend(
                     compute_metrics_helper(MetricName(metric_name), metric_fn_mapping[metric_name])
                 )
             else:
                 raise NameError(f"{metric_name} is not in the list of metric functions.")
-        return reference_metrics
+
+        return stats
+
 
     def compute_efficiency_metrics(
         self, adapter_spec: AdapterSpec, request_state: RequestState, metric_service: MetricService
@@ -648,6 +650,8 @@ class BasicMetric(Metric):
         Compute metrics that are common to both `evaluate_generation` and `evaluate_references`.
         """
         stats: List[Stat] = []
+
+        stats.append(Stat(MetricName("num_references")).add(len(request_state.instance.references)))
 
         # Copy from adapter spec
         stats.append(Stat(MetricName("num_train_trials")).add(adapter_spec.num_train_trials))

@@ -913,6 +913,9 @@ $(function () {
 
   function renderCell(cell) {
     let value = cell.display_value || cell.value;
+    if (value == null) {
+      value = '-';
+    }
     if (typeof(value) === 'number') {
       value = Math.round(value * 1000) / 1000;
     }
@@ -939,23 +942,29 @@ $(function () {
       $table.append($row);
     });
     $output.append($table);
-    table.links.forEach((link) => {
-      $output.append(' ').append($('<a>', {href: link.href}).append('[' + link.text + ']'));
-    });
+
+    // Links
+    if (table.links.length > 0) {
+      $output.append(renderItems(table.links.map((link) => {
+        return $('<a>', {href: link.href}).append(link.text);
+      })));
+    }
+
     return $output;
   }
 
   function renderTables(tables) {
     const $output = $('<div>');
-    const $links = $('<div>');
-    $output.append($links);
-    tables.forEach((table, index) => {
-      $output.append($('<div>', {class: 'table-container', id: table.title}).append(renderTable(table)));
-      if (index > 0) {
-        $links.append(' | ');
-      }
-      $links.append($('<a>', {href: '#' + table.title}).append(table.title));
-    });
+
+    // Links to tables
+    $output.append(renderItems(tables.map((table) => {
+      return $('<a>', {href: '#' + table.title}).append(table.title);
+    })));
+
+    $output.append(tables.map((table) => {
+      return $('<div>', {class: 'table-container', id: table.title}).append(renderTable(table));
+    }));
+
     return $output;
   }
 
