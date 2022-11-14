@@ -98,10 +98,10 @@ tr {
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
-  padding: 50px;
+  padding: 20px;
 }
 
 .logo-item {
   margin: auto;
-  padding: 30px;
+  padding: 10px;
 }

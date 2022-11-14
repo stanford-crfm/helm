@@ -16,7 +16,7 @@ from common.general import (
     unique_simplification,
     parallel_map,
 )
-from common.hierarchical_logger import hlog, htrack
+from common.hierarchical_logger import hlog, htrack, htrack_block
 from benchmark.scenarios.scenario import ScenarioSpec
 from benchmark.adapter import AdapterSpec
 from benchmark.metrics.metric_name import MetricName
@@ -81,12 +81,14 @@ def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) ->
     if len(matching_stats) == 0:
         return None
 
-    if matcher.sub_split is None:  # matcher matches all sub splits so we should aggregate these
+    # Matcher matches all sub splits so we should aggregate these
+    if matcher.sub_split is None:
         stats_dict: Dict[MetricName, Stat] = {}
         for stat in matching_stats:
             stat = Stat(replace(stat.name, sub_split=None)).merge(stat)
             merge_stat(stats_dict, stat)
         matching_stats = list(stats_dict.values())
+
     return singleton(matching_stats)
 
 
@@ -225,14 +227,17 @@ class Summarizer:
 
         parallel_map(process, raw_run_specs, parallelism=self.num_threads)
 
-    def filter_runs_by_visibility(self, runs: List[Run], group: RunGroup):
+    def filter_runs_by_visibility(self, runs: List[Run], group: RunGroup) -> List[Run]:
         """Filter the list of runs and only keep runs relevant to this group."""
-        filtered_runs = []
+        filtered_runs: List[Run] = []
         for run in runs:
             included = True
             for run_group_name in run.run_spec.groups:  # go through the groups of the run to determine visibility
                 if run_group_name not in self.schema.name_to_run_group:
-                    hlog(f"WARNING: {run_group_name} not in schema")
+                    hlog(
+                        f"WARNING: group {run_group_name} mentioned in run spec {run.run_spec.name} "
+                        f"but undefined in {SCHEMA_YAML_PATH}, skipping"
+                    )
                     continue
                 run_group = self.schema.name_to_run_group[run_group_name]
                 if run_group.visibility == NO_GROUPS:  # this run should never be visible
@@ -383,7 +388,8 @@ class Summarizer:
             header = [
                 Cell("Group"),
                 Cell("Description"),
-                Cell("Method", description="Adaptation strategy (e.g., generation)"),
+                # Synchronize these names with `schema.yaml`
+                Cell("Adaptation method", description="Adaptation strategy (e.g., generation)"),
                 Cell("# instances", description="Number of instances evaluated on"),
                 Cell("# references", description="Number of references provided per instance"),
                 Cell("# prompt tokens", description="Total number of prompt tokens"),
@@ -408,8 +414,7 @@ class Summarizer:
                             num_instances.extend(get_all_stats_by_name(run.stats, "num_instances"))
                             num_references.extend(get_all_stats_by_name(run.stats, "num_references"))
                             num_prompt_tokens.extend(get_all_stats_by_name(run.stats, "num_prompt_tokens"))
-                            # TODO: replace with num_completion_tokens
-                            num_completion_tokens.extend(get_all_stats_by_name(run.stats, "num_output_tokens"))
+                            num_completion_tokens.extend(get_all_stats_by_name(run.stats, "num_completion_tokens"))
 
                 if len(num_instances) == 0:
                     continue
@@ -447,9 +452,18 @@ class Summarizer:
         """
         Use the metric name identified by `matcher` to pull out the stats from
         `runs` and return a representation of the average.
+        There are four cases:
+        1. No matching runs
+        2. Matching runs but no matching stats (maybe stat was named incorrectly)
+        3. Matching runs, matching stats, but stats have count = 0, so mean is undefined
+           (e.g., bias metric ran and computed 0/0)
+        4. Matching runs, matching stats, stats with count > 0
+
+        In the first three cases, the cell value is None, but the description distinguishes between these cases.
         """
+        # No runs at all
         if len(runs) == 0:
-            return Cell(None)
+            return Cell(value=None, description="No matching runs")
 
         aggregate_stat: Optional[Stat] = None
         aggregated_run_specs: List[str] = []  # keep track of which run_specs we aggregate into the cell for debugging
@@ -457,8 +471,17 @@ class Summarizer:
         for run in runs:
             stat = get_unique_stat_by_matcher(run.stats, matcher)
             if stat is None:
-                hlog(f"WARNING: {matcher} doesn't match {run.run_spec.name}")
-                continue  # TODO: probably should make a note that stats are missing
+                # Print out near misses to provide a more informative warning
+                near_misses = [stat for stat in run.stats if stat.name.name == matcher.name]
+                hlog(
+                    f"WARNING: run spec {run.run_spec.name} does not have any stat matched by {matcher}, "
+                    f"{len(near_misses)} near misses matching just the name"
+                )
+                if len(near_misses) > 0:
+                    with htrack_block("Near misses"):
+                        for stat in near_misses:
+                            hlog(stat.name)
+                continue
 
             if aggregate_stat is None:
                 aggregate_stat = replace(stat)  # Important: copy!
@@ -466,17 +489,20 @@ class Summarizer:
                 assert stat is not None  # Make type-checking happy
                 aggregate_stat.merge(stat)
             aggregated_run_specs.append(run.run_spec.name)
+
         if aggregate_stat is None:
-            return Cell(None)
+            return Cell(value=None, description=f"{len(runs)} matching runs, but no matching metrics")
 
         # TODO: need to exclude contaminated numbers somehow
         value = aggregate_stat.mean
         description = aggregate_stat.bare_str()
         if self.verbose:
             description += "\n-- ".join(["\nRun specs:", *aggregated_run_specs])
+
         style: Dict[str, Any] = {}
         if contamination_level is not None:
             style = CONTAMINATION_STYLES.get(contamination_level, style)
+
         return Cell(value=value, description=description, style=style)
 
     def create_group_table(
@@ -520,7 +546,7 @@ class Summarizer:
                     matcher = replace(matcher, sub_split=sub_split)
                 header_field = self.schema.name_to_metric.get(matcher.name)
                 if header_field is None:
-                    hlog(f"WARNING: metric name {matcher.name} not in schema, skipping")
+                    hlog(f"WARNING: metric name {matcher.name} undefined in {SCHEMA_YAML_PATH}, skipping")
                     continue
 
                 header_name = header_field.get_short_display_name(arrow=True)
@@ -742,16 +768,20 @@ class Summarizer:
             if len(tables) == 0:
                 continue
 
-            # Output latex file for each table
-            # Add the latex_path to each table (changes `tables`!)
-            base_path = os.path.join(groups_path, "latex")
-            ensure_directory_exists(base_path)
+            # Output latex and JSON file for each table
+            # Add the latex and JSON path as links to each table (mutates the tables!)
+            ensure_directory_exists(os.path.join(groups_path, "latex"))
+            ensure_directory_exists(os.path.join(groups_path, "json"))
             for table in tables:
-                latex_path = os.path.join(base_path, f"{group.name}_{table.name}.tex")
+                latex_path = os.path.join(groups_path, "latex", f"{group.name}_{table.name}.tex")
                 table.links.append(Hyperlink(text="latex", href=latex_path))
                 write(latex_path, table_to_latex(table, f"{table.name} ({group.name})"))
 
-            # Write JSON file
+                json_path = os.path.join(groups_path, "json", f"{group.name}_{table.name}.json")
+                table.links.append(Hyperlink(text="JSON", href=json_path))
+                write(json_path, json.dumps(asdict_without_nones(table), indent=2))
+
+            # Write master JSON file
             write(
                 os.path.join(groups_path, group.name + ".json"),
                 json.dumps(list(map(asdict_without_nones, tables))),

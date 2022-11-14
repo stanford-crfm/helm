@@ -736,7 +736,8 @@ $(function () {
     // 1) Top-level groups (e.g., question_answering)
     // 2) Scenario-level groups (e.g., mmlu)
     const topGroups = schema.run_groups.filter((group) => {
-      return ['Core scenarios', 'Components'].includes(group.category);
+      // Must have subgroups
+      return group.subgroups && ['Core scenarios', 'Targeted evaluations'].includes(group.category);
     });
 
     const scenarioGroupNames = {};
@@ -852,7 +853,7 @@ $(function () {
     $result.append($('<div>', {class: 'col-sm-12'}).append($('<div>', {class: 'text-center'}).append([$blog, $paper, $code])));
 
     const $description = $('<div>', {class: 'col-sm-8'}).append([
-      'A language model is simply a box that takes in text and produces text:',
+      'A language model takes in text and produces text:',
       $('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/language-model-helm.png', width: '600px', style: 'width: 600px; margin-left: 130px'})),
       'Despite their simplicity, language models are increasingly functioning as the foundation for almost all language technologies from question answering to summarization.',
       ' ',
@@ -861,12 +862,34 @@ $(function () {
       'Holistic Evaluation of Language Models (HELM) is a living benchmark that aims to improve the transparency of language models.'
     ]);
 
+    function organization(src, href, height) {
+      return $('<div>', {class: 'logo-item'}).append($('<a>', {href}).append($('<img>', {src, height})));
+    }
+    const defaultSize = 36;
+    const largerSize = 50;
+    const $organizations = $('<div>', {class: 'logo-container'}).append([
+      organization('images/organizations/ai21.png', 'https://www.ai21.com/', defaultSize),
+      organization('images/organizations/anthropic.png', 'https://www.anthropic.com/', defaultSize),
+      organization('images/organizations/bigscience.png', 'https://bigscience.huggingface.co/', largerSize),
+      organization('images/organizations/cohere.png', 'https://cohere.ai/', defaultSize),
+      organization('images/organizations/eleutherai.png', 'https://www.eleuther.ai/', largerSize),
+      organization('images/organizations/google.png', 'https://ai.facebook.com/', defaultSize),
+      organization('images/organizations/meta.png', 'https://ai.facebook.com/', largerSize),
+      organization('images/organizations/microsoft.png', 'https://turing.microsoft.com/', defaultSize),
+      organization('images/organizations/openai.png', 'https://openai.com/', defaultSize),
+      organization('images/organizations/tsinghua-keg.png', 'https://keg.cs.tsinghua.edu.cn/', largerSize),
+      organization('images/organizations/yandex.png', 'https://yandex.com/', defaultSize),
+      organization('images/organizations/together.png', 'https://together.xyz/', largerSize),
+    ]);
+    $result.append($organizations);
+
     $description.append($('<ol>').append([
-      $('<li>').append('<b>Incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to measure, making explicit what is missing.')
+      $('<li>').append('<b>Incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to evaluate, making explicit what is missing.')
                .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/taxonomy-scenarios.png', width: '300px'}))),
-      $('<li>').append('<b>Multi-metric</b>. Rather than isolated metrics such as accuracy, we measure multiple metrics (e.g., accuracy, robustness, calibration, efficiency) for each scenario, allowing analysis of tradeoffs.')
+      $('<li>').append('<b>Multi-metric</b>. Rather than focus on isolated metrics such as accuracy, we simultaneously measure multiple metrics (e.g., accuracy, robustness, calibration, efficiency) for each scenario, allowing analysis of tradeoffs.')
                .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/scenarios-by-metrics.png', width: '300px'}))),
-      $('<li>').append('<b>Standardization</b>. We evaluate all the models that we could access (see below) on the same scenarios using the same adaptation (e.g., prompting) strategy, allowing for fair comparison.'),
+      $('<li>').append('<b>Standardization</b>. We evaluate all the models that we could access from the following organizations on the same scenarios using the same adaptation (e.g., prompting) strategy, allowing for fair side-by-side comparisons.')
+               .append($organizations),
       $('<li>').append('<b>Transparency</b>. All the scenarios, predictions, prompts, code are available for further analysis on this website.'),
     ]));
 
@@ -884,31 +907,15 @@ $(function () {
       $models, $scenarios, $metrics,
       $('<div>', {class: 'col-sm-1'}),
     ]);
-  
-    function organization(src, href, width) {
-      return $('<div>', {class: 'logo-item'}).append($('<a>', {href}).append($('<img>', {src, height: width || 40})));
-    }
-    const $organizations = $('<div>', {class: 'logo-container'}).append([
-      organization('images/organizations/ai21.png', 'https://www.ai21.com/'),
-      organization('images/organizations/anthropic.png', 'https://www.anthropic.com/'),
-      organization('images/organizations/bigscience.png', 'https://bigscience.huggingface.co/', 50),
-      organization('images/organizations/cohere.png', 'https://cohere.ai/'),
-      organization('images/organizations/eleutherai.png', 'https://www.eleuther.ai/', 50),
-      organization('images/organizations/google.png', 'https://ai.facebook.com/'),
-      organization('images/organizations/meta.png', 'https://ai.facebook.com/', 50),
-      organization('images/organizations/microsoft.png', 'https://turing.microsoft.com/'),
-      organization('images/organizations/openai.png', 'https://openai.com/'),
-      organization('images/organizations/tsinghua-keg.png', 'https://keg.cs.tsinghua.edu.cn/', 50),
-      organization('images/organizations/yandex.png', 'https://yandex.com/'),
-      organization('images/organizations/together.png', 'https://together.xyz/', 50),
-    ]);
-    $result.append($organizations);
 
     return $result;
   }
 
   function renderCell(cell) {
     let value = cell.display_value || cell.value;
+    if (value == null) {
+      value = '-';
+    }
     if (typeof(value) === 'number') {
       value = Math.round(value * 1000) / 1000;
     }
@@ -935,20 +942,30 @@ $(function () {
       $table.append($row);
     });
     $output.append($table);
-    table.links.forEach((link) => {
-      $output.append(' ').append($('<a>', {href: link.href}).append('[' + link.text + ']'));
-    });
+
+    // Links
+    if (table.links.length > 0) {
+      $output.append(renderItems(table.links.map((link) => {
+        return $('<a>', {href: link.href}).append(link.text);
+      })));
+    }
+
     return $output;
   }
 
-  function renderTables(tables) {
+  function renderTables(tables, path) {
     const $output = $('<div>');
-    const $links = $('<div>');
-    $output.append($links);
-    tables.forEach((table) => {
-      $output.append($('<div>', {class: 'table-container', id: table.title}).append(renderTable(table)));
-      $links.append($('<a>', {href: '#' + table.title}).append('[' + table.title + '] '));
-    });
+
+    // Links to tables
+    const $jsonLink = $('<a>', {href: path}).append('JSON');
+    $output.append(renderItems(tables.map((table) => {
+      return $('<a>', {href: '#' + table.title}).append(table.title);
+    }).concat([$jsonLink])));
+
+    $output.append(tables.map((table) => {
+      return $('<div>', {class: 'table-container', id: table.title}).append(renderTable(table));
+    }));
+
     return $output;
   }
 
@@ -1011,17 +1028,19 @@ $(function () {
       });
     } else if (urlParams.groups) {
       // All groups
-      $.getJSON(`benchmark_output/runs/${suite}/groups.json`, {}, (tables) => {
+      const path = `benchmark_output/runs/${suite}/groups.json`;
+      $.getJSON(path, {}, (tables) => {
         console.log('groups', tables);
-        $main.append(renderTables(tables));
+        $main.append(renderTables(tables, path));
         refreshHashLocation();
       });
     } else if (urlParams.group) {
       // Specific group
-      $.getJSON(`benchmark_output/runs/${suite}/groups/${urlParams.group}.json`, {}, (tables) => {
+      const path = `benchmark_output/runs/${suite}/groups/${urlParams.group}.json`;
+      $.getJSON(path, {}, (tables) => {
         console.log('group', tables);
         $main.append(renderGroupHeader(urlParams.group));
-        $main.append(renderTables(tables));
+        $main.append(renderTables(tables, path));
         refreshHashLocation();
       });
     } else {

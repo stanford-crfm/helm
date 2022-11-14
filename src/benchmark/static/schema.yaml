@@ -41,6 +41,14 @@ models:
     access: open
     num_parameters: 176000000000
     release_date: 2022-06-28
+  - name: together/bloomz
+    display_name: BLOOMZ (176B)
+    description: BLOOMZ (176B parameters) is BLOOM that has been fine-tuned on natural language instructions ([details](https://huggingface.co/bigscience/bloomz)).
+    creator_organization: BigScience
+    access: open
+    num_parameters: 176000000000
+    release_date: 2022-11-03
+    todo: true
   - name: together/t0pp
     display_name: T0pp (11B)
     description: T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks specified in natural language prompts ([paper](https://arxiv.org/pdf/2110.08207.pdf)).
@@ -85,6 +93,7 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-11-08
+    todo: true
   - name: cohere/medium-20221108
     display_name: Cohere medium v20221108 (6.1B)
     description: Cohere medium v20221108 (6.1B parameters)
@@ -92,6 +101,7 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
+    todo: true
 
   # DeepMind
   - name: deepmind/gopher
@@ -230,6 +240,7 @@ models:
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-27
+    todo: true
   - name: openai/text-curie-001
     display_name: InstructGPT curie v1 (6.7B*)
     description: InstructGPT-style model based on the [InstructGPT paper](https://arxiv.org/pdf/2203.02155.pdf), but the details are unknown and the size is speculative.
@@ -261,6 +272,7 @@ models:
     description: Codex-style model based on the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf), but the details (including size) are unknown.
     creator_organization: OpenAI
     access: limited
+    todo: true
   - name: openai/code-cushman-001
     display_name: Codex cushman v1
     description: Codex-style model based on the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf), but the details (including size) are unknown.
@@ -318,6 +330,8 @@ adapter:
     description: The string that is included before the correct answer/predicted output (e.g., 'Answer:').
   - name: output_suffix
     description: The string that is included after the correct answer/predicted output (e.g., '\n').
+  - name: substitutions
+    description: A list of regular expression substitutions (e.g., replacing '\n' with ';\n') to perform at the very end on the prompt.
   - name: max_train_instances
     description: Maximum number of training instances to include in the prompt (currently by randomly sampling).
   - name: max_eval_instances
@@ -365,7 +379,6 @@ metrics:
   - name: num_completion_tokens
     display_name: '# completion tokens'
     description: Actual number of completion tokens (over all completions).
-  # TODO: unify num_completion_tokens and num_output_tokens
   - name: num_output_tokens
     display_name: '# output tokens'
     description: Actual number of output tokens.
@@ -381,9 +394,9 @@ metrics:
   - name: num_train_instances
     display_name: '# train'
     description: Number of training instances (e.g., in-context examples).
-  - name: input_truncated
+  - name: prompt_truncated
     display_name: truncated
-    description: Fraction of instances where the input itself was truncated (implies that there were no in-context examples).
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
   - name: finish_reason_length
     display_name: finish b/c length
     description: Fraction of instances where the the output was terminated because of the max tokens limit.
@@ -399,6 +412,9 @@ metrics:
   - name: num_completions
     display_name: '# completions'
     description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
 
   # Accuracy metrics:
   - name: exact_match
@@ -409,6 +425,15 @@ metrics:
     display_name: Quasi-exact match
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
   - name: exact_match@5
     display_name: Exact match @5
     short_display_name: EM@5
@@ -598,11 +623,23 @@ metrics:
     short_display_name: Stereotypes (race)
     lower_is_better: true
     description: Measures uneven association of racial groups (Asian, Hispanic, White) with target professions. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+  - name: bias_metric:mode=associations,demographic_category=race,target_category=adjective
+    display_name: Stereotypical associations (race, adjectives)
+    short_display_name: Stereotypes (race)
+    lower_is_better: true
+    description: Measures uneven association of racial groups (Asian, Hispanic, White) with target adjectives. This measurement is based on cooccurence statistics between the racially-associated names (word list from [Garg et al., 2018](https://www.pnas.org/doi/10.1073/pnas.1720347115); race associations based on US Census statistics) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
   - name: bias_metric:mode=associations,demographic_category=gender,target_category=profession
     display_name: Stereotypical associations (gender, profession)
     short_display_name: Stereotypes (gender)
     lower_is_better: true
     description: Measures uneven association of gender groups (male, female) with target professions. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target professions (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+  - name: bias_metric:mode=associations,demographic_category=gender,target_category=adjective
+    display_name: Stereotypical associations (gender, adjectives)
+    short_display_name: Stereotypes (gender)
+    lower_is_better: true
+    description: Measures uneven association of gender groups (male, female) with target adjectives. This measurement is based on cooccurence statistics between the gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)) and the target adjectives (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
   - name: bias_metric:mode=representation,demographic_category=race
     display_name: Demographic representation (race)
     short_display_name: Representation (race)
@@ -613,6 +650,7 @@ metrics:
     short_display_name: Representation (gender)
     lower_is_better: true
     description: Measures uneven representation of gender groups (male, female). This measurement is based on disparities in the frequency statistics across gender terms (word list from [Bolukbasi et al., 2016](https://papers.nips.cc/paper/2016/hash/a486cd07e4ac3d270571622f4f316ec5-Abstract.html)).
+
   - name: bbq_metric_ambiguous_bias
     display_name: BBQ (ambiguous)
     lower_is_better: true
@@ -855,14 +893,13 @@ metric_groups:
     metrics:
     - name: num_instances
       split: ${main_split}
-    - name: num_in_context_examples
+    - name: num_train_instances
       split: ${main_split}
-    - name: input_truncated
+    - name: prompt_truncated
       split: ${main_split}
     - name: num_prompt_tokens
       split: ${main_split}
-    # TODO: replace with num_completion_tokens
-    - name: num_output_tokens
+    - name: num_completion_tokens
       split: ${main_split}
     - name: num_train_trials
       split: ${main_split}
@@ -922,7 +959,8 @@ run_groups:
   - name: core_scenarios
     display_name: Core scenarios
     description: Includes all the scenarios where we evaluate all the models.
-    category: Top-level
+    # TODO: Could category just be supergroup everywhere?
+    category: All scenarios
     subgroups:
       - question_answering
       - information_retrieval
@@ -931,10 +969,10 @@ run_groups:
       - toxicity_detection
       - miscellaneous_text_classification
 
-  - name: components
-    display_name: Components
+  - name: targeted_scenarios
+    display_name: Targeted evaluations
     description: Where we look at different skills (e.g., language, reasoning, etc.)
-    category: Top-level
+    category: All scenarios
     subgroups:
       - language
       - knowledge
@@ -1007,7 +1045,7 @@ run_groups:
   - name: language
     display_name: Language
     description: Coverage over different genres (via language modeling) and testing linguistic capabilities.
-    category: Components
+    category: Targeted evaluations
     subgroups:
       - the_pile
       - twitter_aae
@@ -1017,7 +1055,7 @@ run_groups:
   - name: knowledge
     display_name: Knowledge
     description: World and commonsense knowledge.
-    category: Components
+    category: Targeted evaluations
     subgroups:
       - natural_qa_closedbook
       - hellaswag
@@ -1029,7 +1067,7 @@ run_groups:
   - name: reasoning
     display_name: Reasoning
     description: Reasoning capabilities, both synthetic and real.
-    category: Components
+    category: Targeted evaluations
     subgroups:
       - synthetic_reasoning
       - synthetic_reasoning_natural
@@ -1048,7 +1086,7 @@ run_groups:
   - name: harms
     display_name: Harms
     description: Closer analysis of various social harms (e.g., copyright, disinformation, social bias, toxicity).
-    category: Components
+    category: Targeted evaluations
     subgroups:
       - copyright_text
       - copyright_code
@@ -1061,36 +1099,36 @@ run_groups:
   - name: efficiency
     display_name: Efficiency
     description: Evaluating fine-grained training and inference efficiency
-    category: Components
+    category: Targeted evaluations
     subgroups:
       - synthetic_efficiency
     adapter_keys_shown:
       - model
       - max_tokens
 
-### Deep dive
+### Ablations
   - name: ablation_in_context
     display_name: Vary number of in-context examples
     description: Vary the number of in-context training examples.
-    category: Deep dive
+    category: Targeted evaluations
     visibility: this_group_only
 
   - name: ablation_multiple_choice
     display_name: Vary multiple-choice strategy
     description: Vary the adapation strategy for multiple-choice questions.
-    category: Deep dive
+    category: Targeted evaluations
     visibility: this_group_only
 
   - name: ablation_prompts
     display_name: Vary prompting
     description: Vary the instructions and labels for input/output.
-    category: Deep dive
+    category: Targeted evaluations
     visibility: this_group_only
 
   - name: robustness_contrast_sets
     display_name: Robustness to contrast sets
     description: Evaluating equivariance to semantics-altering perturbations
-    category: Deep dive
+    category: Targeted evaluations
     subgroup_display_mode: by_group
     visibility: this_group_only
     subgroups:
@@ -1100,7 +1138,7 @@ run_groups:
   - name: robustness_individual
     display_name: Robustness to single types of perturbations
     description: Evaluating robsustness to a single perturbation at a time (e.g., typos, synonyms)
-    category: Deep dive
+    category: Targeted evaluations
     visibility: this_group_only
 
 ### Scenarios (the actual scenarios)
@@ -1392,6 +1430,28 @@ run_groups:
   - name: twitter_aae
     display_name: TwitterAAE
     description: The TwitterAAE corpus of [Blodgett et al. (2016)](https://aclanthology.org/D16-1120/) for measuring language model performance in tweets as a function of speaker dialect.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bits_per_byte
+      main_split: test
+
+  - name: twitter_aae_aa
+    display_name: TwitterAAE (AA)
+    description: The TwitterAAE corpus of [Blodgett et al. (2016)](https://aclanthology.org/D16-1120/) for measuring language model performance on African-American-aligned Tweets.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bits_per_byte
+      main_split: test
+
+  - name: twitter_aae_white
+    display_name: TwitterAAE (white)
+    description: The TwitterAAE corpus of [Blodgett et al. (2016)](https://aclanthology.org/D16-1120/) for measuring language model performance on White-aligned Tweets.
     metric_groups:
       - accuracy
       - efficiency

@@ -215,3 +215,17 @@ function substitute(str, environment) {
 function renderAccess(access) {
   return $('<span>', {class: 'access-' + access + ' btn'}).append(access);
 }
+
+function renderItems(items) {
+  // [1, 2, 3] => "[1 | 2 | 3]"
+  const $result = $('<div>');
+  $result.append('[ ');
+  items.forEach((item, index) => {
+    if (index > 0) {
+      $result.append(' | ');
+    }
+    $result.append(item);
+  });
+  $result.append(' ]');
+  return $result;
+}

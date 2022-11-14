@@ -87,8 +87,18 @@ class MetricNameMatcher:
     perturbation_name: Optional[str] = None
 
     def matches(self, metric_name: MetricName) -> bool:
-        if self.name != metric_name.name or self.split != metric_name.split:
+        if self.name != metric_name.name:
             return False
+
+        # HACK: some metrics are computed in `tokens_metric.py` which has split
+        # = None, which then doesn't match the metric matchers defined in
+        # `schema.yaml`, which requires splits.
+        # TODO: remove this once we put splits in `tokens_metric.py`.
+        if self.name != "num_completion_tokens":
+            if self.split != metric_name.split:
+                return False
+
+        # Optional
         if self.sub_split is not None and self.sub_split != metric_name.sub_split:
             return False
 
@@ -99,6 +109,7 @@ class MetricNameMatcher:
         # If there is a perturbation, only return the worst
         if metric_name.perturbation and metric_name.perturbation.computed_on != PERTURBATION_WORST:
             return False
+
         return True
 
     def substitute(self, environment: Dict[str, str]) -> "MetricNameMatcher":
