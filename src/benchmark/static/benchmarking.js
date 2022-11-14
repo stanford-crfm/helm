@@ -953,13 +953,14 @@ $(function () {
     return $output;
   }
 
-  function renderTables(tables) {
+  function renderTables(tables, path) {
     const $output = $('<div>');
 
     // Links to tables
+    const $jsonLink = $('<a>', {href: path}).append('JSON');
     $output.append(renderItems(tables.map((table) => {
       return $('<a>', {href: '#' + table.title}).append(table.title);
-    })));
+    }).concat([$jsonLink])));
 
     $output.append(tables.map((table) => {
       return $('<div>', {class: 'table-container', id: table.title}).append(renderTable(table));
@@ -1027,17 +1028,19 @@ $(function () {
       });
     } else if (urlParams.groups) {
       // All groups
-      $.getJSON(`benchmark_output/runs/${suite}/groups.json`, {}, (tables) => {
+      const path = `benchmark_output/runs/${suite}/groups.json`;
+      $.getJSON(path, {}, (tables) => {
         console.log('groups', tables);
-        $main.append(renderTables(tables));
+        $main.append(renderTables(tables, path));
         refreshHashLocation();
       });
     } else if (urlParams.group) {
       // Specific group
-      $.getJSON(`benchmark_output/runs/${suite}/groups/${urlParams.group}.json`, {}, (tables) => {
+      const path = `benchmark_output/runs/${suite}/groups/${urlParams.group}.json`;
+      $.getJSON(path, {}, (tables) => {
         console.log('group', tables);
         $main.append(renderGroupHeader(urlParams.group));
-        $main.append(renderTables(tables));
+        $main.append(renderTables(tables, path));
         refreshHashLocation();
       });
     } else {

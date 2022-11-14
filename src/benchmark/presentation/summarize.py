@@ -767,16 +767,20 @@ class Summarizer:
             if len(tables) == 0:
                 continue
 
-            # Output latex file for each table
-            # Add the latex_path to each table (changes `tables`!)
-            base_path = os.path.join(groups_path, "latex")
-            ensure_directory_exists(base_path)
+            # Output latex and JSON file for each table
+            # Add the latex and JSON path as links to each table (mutates the tables!)
+            ensure_directory_exists(os.path.join(groups_path, "latex"))
+            ensure_directory_exists(os.path.join(groups_path, "json"))
             for table in tables:
-                latex_path = os.path.join(base_path, f"{group.name}_{table.name}.tex")
+                latex_path = os.path.join(groups_path, "latex", f"{group.name}_{table.name}.tex")
                 table.links.append(Hyperlink(text="latex", href=latex_path))
                 write(latex_path, table_to_latex(table, f"{table.name} ({group.name})"))
 
-            # Write JSON file
+                json_path = os.path.join(groups_path, "json", f"{group.name}_{table.name}.json")
+                table.links.append(Hyperlink(text="JSON", href=json_path))
+                write(json_path, json.dumps(asdict_without_nones(table), indent=2))
+
+            # Write master JSON file
             write(
                 os.path.join(groups_path, group.name + ".json"),
                 json.dumps(list(map(asdict_without_nones, tables))),
