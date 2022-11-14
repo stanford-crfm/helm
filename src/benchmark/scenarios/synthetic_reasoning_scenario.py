@@ -99,9 +99,9 @@ class SyntheticReasoningScenario(Scenario):
     tags = ["reasoning", "language", "pattern_matching"]
 
     def __init__(self, mode: str, random_seed=42):
-        self.n_train_samples = 5
-        self.n_valid_samples = 50
-        self.n_test_samples = 50
+        self.num_train_instances: int = 1000
+        self.num_val_instances: int = 5000
+        self.num_test_instances: int = 5000
         self.rng = np.random.RandomState(random_seed)
         self.mode = mode
         assert self.mode in ["variable_substitution", "pattern_match", "induction"], f"Unsupported mode: {self.mode}"
