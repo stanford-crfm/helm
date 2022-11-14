@@ -970,7 +970,7 @@ run_groups:
       - miscellaneous_text_classification
 
   - name: targeted_scenarios
-    display_name: Targeted scenarios
+    display_name: Targeted evaluations
     description: Where we look at different skills (e.g., language, reasoning, etc.)
     category: All scenarios
     subgroups:
@@ -1045,7 +1045,7 @@ run_groups:
   - name: language
     display_name: Language
     description: Coverage over different genres (via language modeling) and testing linguistic capabilities.
-    category: Targeted scenarios
+    category: Targeted evaluations
     subgroups:
       - the_pile
       - twitter_aae
@@ -1055,7 +1055,7 @@ run_groups:
   - name: knowledge
     display_name: Knowledge
     description: World and commonsense knowledge.
-    category: Targeted scenarios
+    category: Targeted evaluations
     subgroups:
       - natural_qa_closedbook
       - hellaswag
@@ -1067,7 +1067,7 @@ run_groups:
   - name: reasoning
     display_name: Reasoning
     description: Reasoning capabilities, both synthetic and real.
-    category: Targeted scenarios
+    category: Targeted evaluations
     subgroups:
       - synthetic_reasoning
       - synthetic_reasoning_natural
@@ -1086,7 +1086,7 @@ run_groups:
   - name: harms
     display_name: Harms
     description: Closer analysis of various social harms (e.g., copyright, disinformation, social bias, toxicity).
-    category: Targeted scenarios
+    category: Targeted evaluations
     subgroups:
       - copyright_text
       - copyright_code
@@ -1099,7 +1099,7 @@ run_groups:
   - name: efficiency
     display_name: Efficiency
     description: Evaluating fine-grained training and inference efficiency
-    category: Targeted scenarios
+    category: Targeted evaluations
     subgroups:
       - synthetic_efficiency
     adapter_keys_shown:
@@ -1110,25 +1110,25 @@ run_groups:
   - name: ablation_in_context
     display_name: Vary number of in-context examples
     description: Vary the number of in-context training examples.
-    category: Targeted scenarios
+    category: Targeted evaluations
     visibility: this_group_only
 
   - name: ablation_multiple_choice
     display_name: Vary multiple-choice strategy
     description: Vary the adapation strategy for multiple-choice questions.
-    category: Targeted scenarios
+    category: Targeted evaluations
     visibility: this_group_only
 
   - name: ablation_prompts
     display_name: Vary prompting
     description: Vary the instructions and labels for input/output.
-    category: Targeted scenarios
+    category: Targeted evaluations
     visibility: this_group_only
 
   - name: robustness_contrast_sets
     display_name: Robustness to contrast sets
     description: Evaluating equivariance to semantics-altering perturbations
-    category: Targeted scenarios
+    category: Targeted evaluations
     subgroup_display_mode: by_group
     visibility: this_group_only
     subgroups:
@@ -1138,7 +1138,7 @@ run_groups:
   - name: robustness_individual
     display_name: Robustness to single types of perturbations
     description: Evaluating robsustness to a single perturbation at a time (e.g., typos, synonyms)
-    category: Targeted scenarios
+    category: Targeted evaluations
     visibility: this_group_only
 
 ### Scenarios (the actual scenarios)
