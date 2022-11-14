@@ -23,6 +23,14 @@ class ICEWindowService(LocalWindowService):
         return self.max_sequence_length + 1
 
     @property
+    def max_length_for_language_modeling(self) -> int:
+        """
+        For GLM, we're using the decoder only to do language modeling.
+        We have to account for two special tokens [gMASK] and [sop] when constructing the prompt.
+        """
+        return self.max_request_length - 2
+
+    @property
     def end_of_text_token(self) -> str:
         """The end of text token."""
         # Followed up in https://github.com/THUDM/icetk/issues/1

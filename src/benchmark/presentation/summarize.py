@@ -212,32 +212,16 @@ class Summarizer:
         with open(run_specs_path) as f:
             raw_run_specs = json.load(f)
 
-        def is_valid_json(path: str) -> bool:
-            if not os.path.exists(path):
-                return False
-
-            try:
-                with open(path) as file_to_check:
-                    json.load(file_to_check)
-                    return True
-            except ValueError:
-                return False
-
         def process(raw_run_spec: Dict):
             run_spec = dacite.from_dict(RunSpec, raw_run_spec)
             run_path: str = os.path.join(self.run_suite_path, run_spec.name)
 
             per_instance_stats_path: str = os.path.join(run_path, "per_instance_stats.json")
-            per_instance_stats_slim_path: str = f"{per_instance_stats_path[:-len('.json')]}_slim.json"
-
-            if is_valid_json(per_instance_stats_slim_path):
-                hlog(f"Already found valid json at {per_instance_stats_slim_path}")
-                return
-
             if os.path.exists(per_instance_stats_path):
                 per_instance_stats: List[Dict]
                 with open(per_instance_stats_path) as input_file:
                     per_instance_stats = json.load(input_file)
+                per_instance_stats_slim_path = f"{per_instance_stats_path[:-len('.json')]}_slim.json"
                 with open(per_instance_stats_slim_path, "w") as output_file:
                     json.dump(self.compute_slim_per_instance_stats(per_instance_stats), output_file)
 
@@ -816,7 +800,7 @@ def main():
         help="Name of the suite this run belongs to (default is today's date).",
         required=True,
     )
-    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads used to summarize", default=8)
+    parser.add_argument("-n", "--num-threads", type=int, help="Max number of threads used to summarize", default=16)
     parser.add_argument(
         "--debug",
         action="store_true",

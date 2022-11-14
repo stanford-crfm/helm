@@ -38,6 +38,14 @@ class WindowService(ABC):
         pass
 
     @property
+    def max_length_for_language_modeling(self) -> int:
+        """
+        The max length for language modeling. This is usually the same as `max_request_length`, but for
+        certain models we have to account for special tokens.
+        """
+        return self.max_request_length
+
+    @property
     @abstractmethod
     def end_of_text_token(self) -> str:
         """The end of text token."""

@@ -1030,11 +1030,7 @@ class Adapter:
         https://github.com/EleutherAI/lm_perplexity/blob/main/lm_perplexity/utils.py
         """
         max_sequence_length: int = self.window_service.max_sequence_length
-        max_request_length: int = self.window_service.max_request_length
-        if self.adapter_spec.model == "together/glm":
-            # For the [gMask] and [sop] tokens that Together adds for us
-            # TODO: we can add these tokens ourselves, but Together would have to change their implementation
-            max_request_length -= 2
+        max_request_length: int = self.window_service.max_length_for_language_modeling
 
         prefix_token: str = self.window_service.prefix_token
 
