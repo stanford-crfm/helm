@@ -79,7 +79,16 @@ def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) ->
     """Return the single stat that matches."""
     matching_stats = [stat for stat in stats if matcher.matches(stat.name)]
     if len(matching_stats) == 0:
-        return None
+        # HACK: if we are looking for `quasi_exact_match` and it's not there, try `exact_match` instead
+        # This is necessary for prompting ablations at the moment, since some scenarios normally have quasi_exact_match
+        # as the main metric but multiple_choice_separate_original only generates exact_match
+        if matcher.name == "quasi_exact_match":
+            matcher = replace(matcher, name="exact_match")
+            matching_stats = [stat for stat in stats if matcher.matches(stat.name)]
+            if len(matching_stats) == 0:
+                return None
+        else:
+            return None
 
     # Matcher matches all sub splits so we should aggregate these
     if matcher.sub_split is None:
@@ -232,6 +241,8 @@ class Summarizer:
         filtered_runs: List[Run] = []
         for run in runs:
             included = True
+            if group.visibility == THIS_GROUP_ONLY:  # don't include the canonical runs when looking at, say, ablations
+                included = False
             for run_group_name in run.run_spec.groups:  # go through the groups of the run to determine visibility
                 if run_group_name not in self.schema.name_to_run_group:
                     hlog(
