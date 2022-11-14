@@ -49,13 +49,9 @@ class LocalWindowService(WindowService):
         # For Hugging Face tokenizers, should set `clean_up_tokenization_spaces` to False
         # (https://github.com/huggingface/transformers/issues/17682).
         # If we don't, something like "their 'studio'" becomes "their'studio'" when decoding.
-        token_ints: List[int] = []
-        for token in tokens:
-            assert isinstance(token.value, int)
-            token_ints.append(token.value)
         response: DecodeRequestResult = self.service.decode(
             DecodeRequest(
-                token_ints,
+                [token.value for token in tokens],  # type: ignore
                 tokenizer=self.tokenizer_name,
                 clean_up_tokenization_spaces=False,
             )
