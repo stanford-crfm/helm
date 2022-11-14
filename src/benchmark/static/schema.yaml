@@ -1076,6 +1076,9 @@ run_groups:
     category: Components
     subgroups:
       - synthetic_efficiency
+    adapter_keys_shown:
+      - model
+      - max_tokens
 
 ### Deep dive
   - name: ablation_in_context
@@ -1273,7 +1276,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: RR@20
+      main_name: RR@10
       main_split: valid
 
   - name: msmarco_trec
@@ -1289,7 +1292,7 @@ run_groups:
       - efficiency
       - general_information
     environment:
-      main_name: NDCG@20
+      main_name: NDCG@10
       main_split: valid
 
 # Summarization scenarios
@@ -1693,6 +1696,9 @@ run_groups:
       - general_information
     environment:
       main_split: test
+    adapter_keys_shown:
+      - model
+      - max_tokens
 
 ## Aspirational scenarios
   - name: non_english

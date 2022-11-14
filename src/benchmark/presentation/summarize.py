@@ -103,7 +103,9 @@ def get_scenario_name(group: RunGroup, scenario_spec: ScenarioSpec):
     return group.name + "_" + dict_to_str(scenario_spec.args).replace(" ", "").replace("/", "_")
 
 
-def get_method_adapter_spec(adapter_spec: AdapterSpec, scenario_spec: ScenarioSpec) -> AdapterSpec:
+def get_coarse_adapter_spec(
+    adapter_spec: AdapterSpec, scenario_spec: Optional[ScenarioSpec] = None, adapter_keys_shown: List[str] = []
+) -> AdapterSpec:
     """
     Return an abstraction of an AdapterSpec that corresponds to the method
     (e.g., model, decoding parameters), and not the part that contains
@@ -111,18 +113,23 @@ def get_method_adapter_spec(adapter_spec: AdapterSpec, scenario_spec: ScenarioSp
     This is not an easy thing to disentangle, so just try our best
     in a necessarily scenario-specific way.
     """
+    # TODO: clean up this logic a bit
     # Sometimes the instructions contain information about the scenario.
-    if scenario_spec.class_name.endswith(".MMLUScenario"):
+    if scenario_spec and scenario_spec.class_name.endswith(".MMLUScenario"):
         # MMLU: Sync up with logic in `get_mmlu_spec` for constructing the instructions.
         subject = scenario_spec.args["subject"].replace("_", " ")
         instructions = adapter_spec.instructions.replace(subject, "___")
-    elif scenario_spec.class_name.endswith(".RAFTScenario"):
+    elif scenario_spec and scenario_spec.class_name.endswith(".RAFTScenario"):
         # RAFT scenario has arbitrary instructions, so impossible to remove
         # the scenario information, so remove all of it.
-        instructions = ""
+        instructions = "<scenario specific>"
     else:
         instructions = adapter_spec.instructions
-    return replace(adapter_spec, instructions=instructions)
+    adapter_spec = replace(adapter_spec, instructions=instructions)
+
+    # Create a new adapter_spec, keeping only the model and the keys in adapter_keys_shown
+    adapter_spec_kwargs = {key: adapter_spec.__dict__[key] for key in adapter_keys_shown}
+    return AdapterSpec(**adapter_spec_kwargs)  # type: ignore
 
 
 def get_method_display_name(model: ModelField, info: Dict[str, Any]) -> str:
@@ -275,7 +282,7 @@ class Summarizer:
         )
         for run in self.runs:
             scenario_spec = run.run_spec.scenario_spec
-            adapter_spec = get_method_adapter_spec(run.run_spec.adapter_spec, scenario_spec)
+            adapter_spec = run.run_spec.adapter_spec
             for group_name in run.run_spec.groups:
                 self.group_adapter_to_runs[group_name][adapter_spec].append(run)
                 self.group_scenario_adapter_to_runs[group_name][scenario_spec][adapter_spec].append(run)
@@ -605,8 +612,8 @@ class Summarizer:
         return Table(title=title, header=header, rows=rows, links=links, name=name)
 
     def create_group_tables_by_metric_group(self, group: RunGroup) -> List[Table]:
-        """Create a list of tables but displaying every subgroup. Each table contains a single metric and subgroups are
-        shown as columns."""
+        """Creates a list of tables, one for each metric group (e.g., accuracy, robustness).
+        Each table has `adapter_spec`s as rows and scenarios or groups as columns."""
         tables: List[Table] = []
         adapter_to_runs: Dict[AdapterSpec, List[Run]] = defaultdict(list)
         all_metric_groups: List[str] = []
@@ -614,10 +621,10 @@ class Summarizer:
         for subgroup in subgroups:
             all_metric_groups.extend(subgroup.metric_groups)
             for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
-                adapter_spec = get_method_adapter_spec(adapter_spec, runs[0].run_spec.scenario_spec)
+                coarse_adapter_spec = get_coarse_adapter_spec(adapter_spec, adapter_keys_shown=group.adapter_keys_shown)
                 filtered_runs = self.filter_runs_by_visibility(runs, group)
                 if filtered_runs:
-                    adapter_to_runs[adapter_spec].extend(filtered_runs)
+                    adapter_to_runs[coarse_adapter_spec].extend(filtered_runs)
         all_metric_groups = list(dict.fromkeys(all_metric_groups))  # deduplicate while preserving order
 
         if len(adapter_to_runs) > 0:
@@ -635,7 +642,7 @@ class Summarizer:
 
     def create_group_tables_by_subgroup(self, group: RunGroup) -> List[Table]:
         """Creates a list of tables, one for each subgroup (e.g., mmlu).
-        Each table has groups as rows and metrics as columns."""
+        Each table has coarsened `adapter_spec`s` as rows and metrics as columns."""
         all_tables: List[Table] = []
         subgroups = self.expand_subgroups(group)
         for subgroup in subgroups:
@@ -648,11 +655,12 @@ class Summarizer:
                 scenario_display_name = dict_to_str(scenario_spec.args)
                 if group.name not in scenario_name:
                     scenario_display_name = f"{subgroup.display_name} {scenario_display_name}"
-                adapter_to_runs = {}
-                for adapter, runs in self.group_scenario_adapter_to_runs[group.name][scenario_spec].items():
+                adapter_to_runs: Dict[AdapterSpec, List[Run]] = {}
+                for adapter_spec, runs in self.group_scenario_adapter_to_runs[group.name][scenario_spec].items():
                     filtered_runs = self.filter_runs_by_visibility(runs, group)
+                    coarse_adapter_spec = get_coarse_adapter_spec(adapter_spec, scenario_spec, group.adapter_keys_shown)
                     if filtered_runs:
-                        adapter_to_runs[adapter] = filtered_runs
+                        adapter_to_runs[coarse_adapter_spec] = filtered_runs
                 if adapter_to_runs and subgroup.metric_groups:
                     table = self.create_group_table(
                         title=scenario_display_name,
@@ -669,7 +677,7 @@ class Summarizer:
                             table = self.create_group_table(
                                 title=f"{subgroup.display_name} (sub-split: {sub_split})",
                                 name=f"{subgroup.name}:sub_splut={sub_split}",
-                                adapter_to_runs=self.group_adapter_to_runs[subgroup.name],
+                                adapter_to_runs=adapter_to_runs,
                                 columns=columns,
                                 link_to_runs=False,
                                 sub_split=sub_split,
@@ -678,10 +686,14 @@ class Summarizer:
 
             if scenarios_shown > 1:  # add aggregate table
                 adapter_to_runs = {}
-                for adapter, runs in self.group_adapter_to_runs[subgroup.name].items():
+                for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
                     filtered_runs = self.filter_runs_by_visibility(runs, group)
+                    coarse_adapter_spec = get_coarse_adapter_spec(
+                        adapter_spec,
+                        adapter_keys_shown=group.adapter_keys_shown,
+                    )
                     if filtered_runs:
-                        adapter_to_runs[adapter] = filtered_runs
+                        adapter_to_runs[coarse_adapter_spec] = filtered_runs
                 if adapter_to_runs and subgroup.metric_groups:
                     table = self.create_group_table(
                         title=str(subgroup.display_name),
@@ -764,6 +776,11 @@ def main():
         action="store_true",
         help="Display debugging information.",
     )
+    parser.add_argument(
+        "--skip-slim-per-instance-stats",
+        action="store_true",
+        help="Don't generate any per-instance stats.",
+    )
     args = parser.parse_args()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
@@ -777,7 +794,8 @@ def main():
     summarizer.write_runs()
     summarizer.write_groups()
     summarizer.write_cost_report()
-    summarizer.write_slim_per_instance_stats()
+    if not args.skip_slim_per_instance_stats:
+        summarizer.write_slim_per_instance_stats()
 
     hlog("Done.")
 
