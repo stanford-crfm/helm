@@ -861,12 +861,34 @@ $(function () {
       'Holistic Evaluation of Language Models (HELM) is a living benchmark that aims to improve the transparency of language models.'
     ]);
 
+    function organization(src, href, height) {
+      return $('<div>', {class: 'logo-item'}).append($('<a>', {href}).append($('<img>', {src, height})));
+    }
+    const defaultSize = 36;
+    const largerSize = 50;
+    const $organizations = $('<div>', {class: 'logo-container'}).append([
+      organization('images/organizations/ai21.png', 'https://www.ai21.com/', defaultSize),
+      organization('images/organizations/anthropic.png', 'https://www.anthropic.com/', defaultSize),
+      organization('images/organizations/bigscience.png', 'https://bigscience.huggingface.co/', largerSize),
+      organization('images/organizations/cohere.png', 'https://cohere.ai/', defaultSize),
+      organization('images/organizations/eleutherai.png', 'https://www.eleuther.ai/', largerSize),
+      organization('images/organizations/google.png', 'https://ai.facebook.com/', defaultSize),
+      organization('images/organizations/meta.png', 'https://ai.facebook.com/', largerSize),
+      organization('images/organizations/microsoft.png', 'https://turing.microsoft.com/', defaultSize),
+      organization('images/organizations/openai.png', 'https://openai.com/', defaultSize),
+      organization('images/organizations/tsinghua-keg.png', 'https://keg.cs.tsinghua.edu.cn/', largerSize),
+      organization('images/organizations/yandex.png', 'https://yandex.com/', defaultSize),
+      organization('images/organizations/together.png', 'https://together.xyz/', largerSize),
+    ]);
+    $result.append($organizations);
+
     $description.append($('<ol>').append([
       $('<li>').append('<b>Incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to evaluate, making explicit what is missing.')
                .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/taxonomy-scenarios.png', width: '300px'}))),
       $('<li>').append('<b>Multi-metric</b>. Rather than focus on isolated metrics such as accuracy, we simultaneously measure multiple metrics (e.g., accuracy, robustness, calibration, efficiency) for each scenario, allowing analysis of tradeoffs.')
                .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/scenarios-by-metrics.png', width: '300px'}))),
-      $('<li>').append('<b>Standardization</b>. We evaluate all the models that we could access (see below) on the same scenarios using the same adaptation (e.g., prompting) strategy, allowing for fair side-by-side comparisons.'),
+      $('<li>').append('<b>Standardization</b>. We evaluate all the models that we could access from the following organizations on the same scenarios using the same adaptation (e.g., prompting) strategy, allowing for fair side-by-side comparisons.')
+               .append($organizations),
       $('<li>').append('<b>Transparency</b>. All the scenarios, predictions, prompts, code are available for further analysis on this website.'),
     ]));
 
@@ -884,25 +906,6 @@ $(function () {
       $models, $scenarios, $metrics,
       $('<div>', {class: 'col-sm-1'}),
     ]);
-  
-    function organization(src, href, width) {
-      return $('<div>', {class: 'logo-item'}).append($('<a>', {href}).append($('<img>', {src, height: width || 40})));
-    }
-    const $organizations = $('<div>', {class: 'logo-container'}).append([
-      organization('images/organizations/ai21.png', 'https://www.ai21.com/'),
-      organization('images/organizations/anthropic.png', 'https://www.anthropic.com/'),
-      organization('images/organizations/bigscience.png', 'https://bigscience.huggingface.co/', 50),
-      organization('images/organizations/cohere.png', 'https://cohere.ai/'),
-      organization('images/organizations/eleutherai.png', 'https://www.eleuther.ai/', 50),
-      organization('images/organizations/google.png', 'https://ai.facebook.com/'),
-      organization('images/organizations/meta.png', 'https://ai.facebook.com/', 50),
-      organization('images/organizations/microsoft.png', 'https://turing.microsoft.com/'),
-      organization('images/organizations/openai.png', 'https://openai.com/'),
-      organization('images/organizations/tsinghua-keg.png', 'https://keg.cs.tsinghua.edu.cn/', 50),
-      organization('images/organizations/yandex.png', 'https://yandex.com/'),
-      organization('images/organizations/together.png', 'https://together.xyz/', 50),
-    ]);
-    $result.append($organizations);
 
     return $result;
   }
