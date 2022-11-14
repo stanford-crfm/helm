@@ -99,9 +99,9 @@ class SyntheticReasoningScenario(Scenario):
     tags = ["reasoning", "language", "pattern_matching"]
 
     def __init__(self, mode: str, random_seed=42):
-        self.n_train_samples = 5
-        self.n_valid_samples = 50
-        self.n_test_samples = 50
+        self.num_train_instances: int = 1000
+        self.num_val_instances: int = 5000
+        self.num_test_instances: int = 5000
         self.rng = np.random.RandomState(random_seed)
         self.mode = mode
         assert self.mode in ["variable_substitution", "pattern_match", "induction"], f"Unsupported mode: {self.mode}"
@@ -149,7 +149,7 @@ class SyntheticReasoningScenario(Scenario):
         tokens = ANIMALS + FRUITS
         math_symbols = MATH_SYMBOLS
 
-        for sample_idx in range(self.n_train_samples + self.n_valid_samples + self.n_test_samples):
+        for sample_idx in range(self.num_train_instances + self.num_val_instances + self.num_test_instances):
             # Sample rule symbols
             sampled_rule_symbols = list(self.rng.choice(rule_symbols, size=self.rng.randint(2, 4)))
             sampled_rule_symbols_set = sorted(list(set(sampled_rule_symbols)))  # sorted to make it deterministic
@@ -189,9 +189,9 @@ class SyntheticReasoningScenario(Scenario):
                 src = f"Rules: {all_pattern_string} | Result: {result_string}"
                 tgt = pattern_string
 
-            if sample_idx < self.n_train_samples:
+            if sample_idx < self.num_train_instances:
                 split = TRAIN_SPLIT
-            elif sample_idx < self.n_train_samples + self.n_valid_samples:
+            elif sample_idx < self.num_train_instances + self.num_val_instances:
                 split = VALID_SPLIT
             else:
                 split = TEST_SPLIT
