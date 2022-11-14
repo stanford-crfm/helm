@@ -41,6 +41,14 @@ models:
     access: open
     num_parameters: 176000000000
     release_date: 2022-06-28
+  - name: together/bloomz
+    display_name: BLOOMZ (176B)
+    description: BLOOMZ (176B parameters) is BLOOM that has been fine-tuned on natural language instructions ([details](https://huggingface.co/bigscience/bloomz)).
+    creator_organization: BigScience
+    access: open
+    num_parameters: 176000000000
+    release_date: 2022-06-28
+    todo: true
   - name: together/t0pp
     display_name: T0pp (11B)
     description: T0pp (11B parameters) is an encoder-decoder model trained on a large set of different tasks specified in natural language prompts ([paper](https://arxiv.org/pdf/2110.08207.pdf)).
@@ -85,6 +93,7 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-11-08
+    todo: true
   - name: cohere/medium-20221108
     display_name: Cohere medium v20221108 (6.1B)
     description: Cohere medium v20221108 (6.1B parameters)
@@ -92,6 +101,7 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
+    todo: true
 
   # DeepMind
   - name: deepmind/gopher
@@ -230,6 +240,7 @@ models:
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-27
+    todo: true
   - name: openai/text-curie-001
     display_name: InstructGPT curie v1 (6.7B*)
     description: InstructGPT-style model based on the [InstructGPT paper](https://arxiv.org/pdf/2203.02155.pdf), but the details are unknown and the size is speculative.
@@ -261,6 +272,7 @@ models:
     description: Codex-style model based on the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf), but the details (including size) are unknown.
     creator_organization: OpenAI
     access: limited
+    todo: true
   - name: openai/code-cushman-001
     display_name: Codex cushman v1
     description: Codex-style model based on the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf), but the details (including size) are unknown.
