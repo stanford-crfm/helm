@@ -659,8 +659,8 @@ metrics:
     lower_is_better: true
     description: Average time to process a request to the model based solely on the model architecture (using Megatron-LM).
   - name: inference_denoised_runtime
-    display_name: Idealized denoised runtime (s)
-    short_display_name: Idealized denoised time (s)
+    display_name: Denoised inference runtime (s)
+    short_display_name: Denoised inference time (s)
     lower_is_better: true
     description: Average time to process a request to the model minus performance contention by using profiled runtimes from multiple trials of SyntheticEfficiencyScenario.
   - name: batch_size
