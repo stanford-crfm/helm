@@ -65,6 +65,7 @@ class AI21WindowService(WindowService):
         tokens, normalized_text = self._make_long_tokenization_request(text)
         # The end position of the last token should be the end of the text.
         if len(tokens) > 0:
+            assert tokens[-1].text_range is not None
             assert tokens[-1].text_range.end == len(normalized_text)
 
         return EncodeResult(text=normalized_text, tokens=tokens)
@@ -85,8 +86,12 @@ class AI21WindowService(WindowService):
         # `normalized_text` is necessary for decoding AI21 tokens.
         assert normalized_text, "The AI21 tokenizer needs `normalized_text` for decoding"
         for j in range(len(tokens) - 1):
+            first_text_range = tokens[j].text_range
+            second_text_range = tokens[j + 1].text_range
+            assert first_text_range is not None
+            assert second_text_range is not None
             assert (
-                tokens[j].text_range.end == tokens[j + 1].text_range.start
+                first_text_range.end == second_text_range.start
             ), "The tokens to be decoded must form a substring of `normalized_text`."
 
         token_texts: List[str] = []
@@ -95,17 +100,20 @@ class AI21WindowService(WindowService):
         i: int = 0
         while i < len(tokens):
             # If there are byte tokens, aggregates them to a string
-            if re.match(byte_pattern, tokens[i].value):
+            token_value = tokens[i].value
+            assert isinstance(token_value, str)
+            if re.match(byte_pattern, token_value):
                 bytestring = ""
-                while i < len(tokens) and re.match(byte_pattern, tokens[i].value):
+                while i < len(tokens) and re.match(byte_pattern, token_value):
                     # e.g. <0xE8> -> \xE8
-                    bytestring += "\\" + tokens[i].value[2:-1]
+                    bytestring += "\\" + token_value[2:-1]
                     i += 1
                 # Convert to encoded URI (e.g., %e2%80%99) and decode
                 token_text = unquote(bytestring.replace("\\x", "%"))
             # Not a byte token: retrieves the token text based on text_range.
             else:
                 token: TokenizationToken = tokens[i]
+                assert token.text_range is not None
                 token_text = normalized_text[token.text_range.start : token.text_range.end]
                 i += 1
             token_texts.append(token_text)
@@ -116,7 +124,11 @@ class AI21WindowService(WindowService):
         Tokenizes the text via the /api/tokenize REST endpoint.
         """
         response: TokenizationRequestResult = self._make_tokenization_request(text)
-        return [token.value for token in response.tokens]
+        result = []
+        for token in response.tokens:
+            assert isinstance(token.value, str)
+            result.append(token.value)
+        return result
 
     def get_num_tokens(self, text: str) -> int:
         """Tokenizes the text using the GPT-2 tokenizer and returns the number of tokens."""
@@ -152,7 +164,9 @@ class AI21WindowService(WindowService):
 
         # AI21 uses "_" to represent a single space in their tokens, so we have to build the new text from the
         # original text after truncation using the text ranges of tokens generated from the original text.
+        assert tokens[0].text_range is not None
         first_text_range: TextRange = tokens[0].text_range
+        assert tokens[-1].text_range is not None
         last_text_range: TextRange = tokens[-1].text_range
         start: int = first_text_range.start
         end: int = last_text_range.end
@@ -207,22 +221,25 @@ class AI21WindowService(WindowService):
                 normalized_text_chunk: str
                 chunk_tokens, normalized_text_chunk = chunk_result.tokens, chunk_result.text
                 # Removes the empty tokens introduced by the split.
+                assert chunk_tokens[0].text_range is not None
                 if num_processed_tokens != 0 and chunk_tokens[0].text_range.start == chunk_tokens[0].text_range.end:
                     chunk_tokens = chunk_tokens[1:]
                 else:
                     chunk_tokens = chunk_tokens[:]
 
                 # Shifts the start and end index of each token
-                shifted_tokens: List[TokenizationToken] = [
-                    TokenizationToken(
-                        value=token.value,
-                        text_range=TextRange(
-                            start=token.text_range.start + num_processed_positions,
-                            end=token.text_range.end + num_processed_positions,
-                        ),
+                shifted_tokens: List[TokenizationToken] = []
+                for token in chunk_tokens:
+                    assert token.text_range is not None
+                    shifted_tokens.append(
+                        TokenizationToken(
+                            value=token.value,
+                            text_range=TextRange(
+                                start=token.text_range.start + num_processed_positions,
+                                end=token.text_range.end + num_processed_positions,
+                            ),
+                        )
                     )
-                    for token in chunk_tokens
-                ]
                 all_tokens.extend(shifted_tokens)
                 normalized_text_chunks.append(normalized_text_chunk)
                 num_processed_tokens += token_chunk_size

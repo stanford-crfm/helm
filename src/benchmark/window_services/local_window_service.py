@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List, Optional
+from typing import List, Optional, cast
 
 from .window_service import WindowService, EncodeResult
 from .tokenizer_service import TokenizerService
@@ -51,7 +51,9 @@ class LocalWindowService(WindowService):
         # If we don't, something like "their 'studio'" becomes "their'studio'" when decoding.
         response: DecodeRequestResult = self.service.decode(
             DecodeRequest(
-                [token.value for token in tokens], tokenizer=self.tokenizer_name, clean_up_tokenization_spaces=False
+                [token.value for token in tokens],  # type: ignore
+                tokenizer=self.tokenizer_name,
+                clean_up_tokenization_spaces=False,
             )
         )
         return response.text
@@ -63,7 +65,7 @@ class LocalWindowService(WindowService):
         response: TokenizationRequestResult = self.service.tokenize(
             TokenizationRequest(text, tokenizer=self.tokenizer_name)
         )
-        return response.raw_tokens
+        return cast(List[str], response.raw_tokens)
 
     def get_num_tokens(self, text: str) -> int:
         """Tokenizes the text and returns the number of tokens."""
