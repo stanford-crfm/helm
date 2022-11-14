@@ -336,6 +336,11 @@ class Summarizer:
                 stat_name = stat.name.name
                 if stat_name in Summarizer.COST_REPORT_FIELDS and not stat.name.split:
                     models_to_costs[model][stat_name] += stat.sum
+
+        # Do a second pass to add up the total number of tokens
+        for costs in models_to_costs.values():
+            costs["total_tokens"] = costs["num_prompt_tokens"] + costs["num_completion_tokens"]
+
         write(
             os.path.join(self.run_suite_path, "costs.json"),
             json.dumps(models_to_costs, indent=2),
