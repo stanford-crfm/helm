@@ -403,15 +403,17 @@ $(function () {
         const input = instance.perturbation ? highlightNewWords(instance.input, originalInstance.input) : instance.input;
 
         // Input
-        $instance.append(multilineHtml(input));
+        $instance.append($('<div>').append('Input:'));
+        $instance.append($('<i>').append(multilineHtml(input)));
 
         // References
+        $instance.append($('<div>').append('References:'));
         const $references = $('<ul>');
         instance.references.forEach((reference, referenceIndex) => {
           const originalReference = instance.perturbation && originalInstance.references[referenceIndex];
           const output = instance.perturbation ? highlightNewWords(reference.output, originalReference.output) : reference.output;
           const suffix = reference.tags.length > 0 ? ' ' + ('[' + reference.tags.join(',') + ']').bold() : '';
-          $references.append($('<li>').append(output + suffix));
+          $references.append($('<li>').append([$('<i>').append(output), suffix]));
         });
         $instance.append($references);
       }
