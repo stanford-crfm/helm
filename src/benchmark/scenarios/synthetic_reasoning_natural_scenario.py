@@ -322,9 +322,9 @@ class SRNScenario(Scenario):
         # e.g. "chill" instead of "cold"
         self.use_specific_attributes: bool = difficulty == "hard"
         self.include_intermediates: bool = False
-        self.num_train_instances: int = 5
-        self.num_val_instances: int = 50
-        self.num_test_instances: int = 50
+        self.num_train_instances: int = 1000
+        self.num_val_instances: int = 5000
+        self.num_test_instances: int = 5000
         self.random_seed = random_seed
 
     def generate_problem(self) -> Tuple[List[LanguageRule], LanguageFact, List[LanguageRule], LanguageFact]:
