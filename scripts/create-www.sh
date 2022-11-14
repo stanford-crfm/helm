@@ -16,7 +16,7 @@ rsync -pLrvz --exclude=benchmark_output src/benchmark/static/* www || exit 1
 
 # Copy data
 mkdir -p www/benchmark_output/runs || exit 1
-cp -a benchmark_output/runs/$suite www/benchmark_output/runs || exit 1
+rsync -av --exclude=scenario_state.json --exclude=per_instance_stats.json benchmark_output/runs/$suite www/benchmark_output/runs || exit 1
 ln -sf $suite www/benchmark_output/runs/latest || exit 1
 
 # Set permissions
