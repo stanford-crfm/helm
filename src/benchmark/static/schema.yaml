@@ -330,6 +330,8 @@ adapter:
     description: The string that is included before the correct answer/predicted output (e.g., 'Answer:').
   - name: output_suffix
     description: The string that is included after the correct answer/predicted output (e.g., '\n').
+  - name: substitutions
+    description: A list of regular expression substitutions (e.g., replacing '\n' with ';\n') to perform at the very end on the prompt.
   - name: max_train_instances
     description: Maximum number of training instances to include in the prompt (currently by randomly sampling).
   - name: max_eval_instances
@@ -377,7 +379,6 @@ metrics:
   - name: num_completion_tokens
     display_name: '# completion tokens'
     description: Actual number of completion tokens (over all completions).
-  # TODO: unify num_completion_tokens and num_output_tokens
   - name: num_output_tokens
     display_name: '# output tokens'
     description: Actual number of output tokens.
@@ -393,9 +394,9 @@ metrics:
   - name: num_train_instances
     display_name: '# train'
     description: Number of training instances (e.g., in-context examples).
-  - name: input_truncated
+  - name: prompt_truncated
     display_name: truncated
-    description: Fraction of instances where the input itself was truncated (implies that there were no in-context examples).
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
   - name: finish_reason_length
     display_name: finish b/c length
     description: Fraction of instances where the the output was terminated because of the max tokens limit.
@@ -411,6 +412,9 @@ metrics:
   - name: num_completions
     display_name: '# completions'
     description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
 
   # Accuracy metrics:
   - name: exact_match
@@ -420,6 +424,15 @@ metrics:
   - name: quasi_exact_match
     display_name: Quasi-exact match
     short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
     description: Fraction of instances that the predicted output matches a correct reference up to light processing.
   - name: exact_match@5
     display_name: Exact match @5
@@ -867,14 +880,13 @@ metric_groups:
     metrics:
     - name: num_instances
       split: ${main_split}
-    - name: num_in_context_examples
+    - name: num_train_instances
       split: ${main_split}
-    - name: input_truncated
+    - name: prompt_truncated
       split: ${main_split}
     - name: num_prompt_tokens
       split: ${main_split}
-    # TODO: replace with num_completion_tokens
-    - name: num_output_tokens
+    - name: num_completion_tokens
       split: ${main_split}
     - name: num_train_trials
       split: ${main_split}
@@ -1404,6 +1416,28 @@ run_groups:
   - name: twitter_aae
     display_name: TwitterAAE
     description: The TwitterAAE corpus of [Blodgett et al. (2016)](https://aclanthology.org/D16-1120/) for measuring language model performance in tweets as a function of speaker dialect.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bits_per_byte
+      main_split: test
+
+  - name: twitter_aae_aa
+    display_name: TwitterAAE (AA)
+    description: The TwitterAAE corpus of [Blodgett et al. (2016)](https://aclanthology.org/D16-1120/) for measuring language model performance on African-American-aligned Tweets.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: bits_per_byte
+      main_split: test
+
+  - name: twitter_aae_white
+    display_name: TwitterAAE (white)
+    description: The TwitterAAE corpus of [Blodgett et al. (2016)](https://aclanthology.org/D16-1120/) for measuring language model performance on White-aligned Tweets.
     metric_groups:
       - accuracy
       - efficiency

@@ -225,14 +225,14 @@ class Summarizer:
 
         parallel_map(process, raw_run_specs, parallelism=self.num_threads)
 
-    def filter_runs_by_visibility(self, runs: List[Run], group: RunGroup):
+    def filter_runs_by_visibility(self, runs: List[Run], group: RunGroup) -> List[Run]:
         """Filter the list of runs and only keep runs relevant to this group."""
-        filtered_runs = []
+        filtered_runs: List[Run] = []
         for run in runs:
             included = True
             for run_group_name in run.run_spec.groups:  # go through the groups of the run to determine visibility
                 if run_group_name not in self.schema.name_to_run_group:
-                    hlog(f"WARNING: {run_group_name} not in schema")
+                    hlog(f"WARNING: group {run_group_name} mentioned in run spec {run.run_spec.name} but is not in the schema, skipping")
                     continue
                 run_group = self.schema.name_to_run_group[run_group_name]
                 if run_group.visibility == NO_GROUPS:  # this run should never be visible
@@ -457,8 +457,8 @@ class Summarizer:
         for run in runs:
             stat = get_unique_stat_by_matcher(run.stats, matcher)
             if stat is None:
-                hlog(f"WARNING: {matcher} doesn't match {run.run_spec.name}")
-                continue  # TODO: probably should make a note that stats are missing
+                hlog(f"WARNING: run spec {run.run_spec.name} does not have any stat matched by {matcher}")
+                continue
 
             if aggregate_stat is None:
                 aggregate_stat = replace(stat)  # Important: copy!
@@ -520,7 +520,7 @@ class Summarizer:
                     matcher = replace(matcher, sub_split=sub_split)
                 header_field = self.schema.name_to_metric.get(matcher.name)
                 if header_field is None:
-                    hlog(f"WARNING: metric name {matcher.name} not in schema, skipping")
+                    hlog(f"WARNING: metric name {matcher.name} not in the schema, skipping")
                     continue
 
                 header_name = header_field.get_short_display_name(arrow=True)
