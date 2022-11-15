@@ -646,6 +646,8 @@ class Summarizer:
             assert len(group_names) == len(matchers)
             for group_name, matcher in zip(group_names, matchers):
                 group_runs = [run for run in runs if group_name in run.run_spec.groups]
+                if "babi" in group_name and "task:" not in name:
+                    group_runs = [run for run in group_runs if "task=all" in run.run_spec.name]
                 point = self.contamination.get_point(model.name, group_name)
                 if point is not None:
                     description = CONTAMINATION_SYMBOLS[point.level] + " " + point.description
