@@ -417,7 +417,9 @@ $(function () {
         });
         $instance.append($references);
       }
-
+      $prediction = $('<div>');
+      $prediction.addClass('prediction').text('Loading predictions...');
+      $instance.append($prediction);
       $instances.append($instance);
       instanceKeyToDiv[key] = $instance;
     });
@@ -478,11 +480,15 @@ $(function () {
 
     // For each request state (across all instances)...
     scenarioState.request_states.forEach((requestState) => {
-      const $instance = instanceKeyToDiv[instanceKey(requestState.instance)];
-      if (!$instance) {
+      const $instanceDiv = instanceKeyToDiv[instanceKey(requestState.instance)];
+      if (!$instanceDiv) {
         console.error('Not found: ' + instanceKey(requestState.instance));
         return;
       }
+
+      // Traverse into the prediction div within the instance div
+      const $instance = $instanceDiv.find('.prediction');
+      $instance.empty();
 
       // For adapter method = separate, don't show the calibration requests
       if (requestState.request_mode === 'calibration') {
@@ -637,7 +643,7 @@ $(function () {
     // Setup the basic HTML elements
     const $root = $('<div>');
     const $scenarioInfo = $('<div>', {class: 'scenario-info'});
-    $scenarioInfo.append('Loading...');
+    $scenarioInfo.text('Loading scenario info...');
     $root.append($scenarioInfo);
 
     // Adapter
@@ -651,17 +657,15 @@ $(function () {
 
     // Instances
     $root.append($('<a>', {name: 'instances'}).append($('<h5>').append('Instances + predictions')));
-    const $instances = $('<div>');
-    $root.append($('<div>', {class: 'table-container'}).append($instances));
+    const $instancesContainer = $('<div>');
+    $instancesContainer.addClass('table-container').text('Loading instances...')
+    $root.append($instancesContainer);
 
     // Metrics
     $root.append($('<a>', {name: 'metrics'}).append($('<h5>').append('All metrics')));
-    const $stats = $('<table>');
-    const $statsSearch = $('<input>', {type: 'text', size: 40, placeholder: 'Enter keywords to filter metrics'});
-    if (runSpecs.length > 1) {
-      $stats.append($('<tr>').append($('<td>')).append(runDisplayNames.map((name) => $('<td>').append(name))));
-    }
-    $root.append($('<div>', {class: 'table-container'}).append([$statsSearch, $stats]));
+    const $statsContainer = $('<div>');
+    $statsContainer.addClass('table-container').text('Loading metrics...')
+    $root.append($statsContainer);
 
     // Render adapter specs
     $adapterSpec.append($('<tr>').append($('<td>')).append(scenarioStatePaths.map((scenarioStatePath, index) => {
@@ -686,6 +690,11 @@ $(function () {
     // Render metrics/stats
     getJSONList(statsPaths, (statsList) => {
       console.log('metrics', statsList);
+      const $stats = $('<table>');
+      const $statsSearch = $('<input>', {type: 'text', size: 40, placeholder: 'Enter keywords to filter metrics'});
+      if (runSpecs.length > 1) {
+        $stats.append($('<tr>').append($('<td>')).append(runDisplayNames.map((name) => $('<td>').append(name))));
+      }
       const keys = canonicalizeList(statsList.map((stats) => stats.map((stat) => stat.name)), metricNameCompare);
       keys.sort(metricNameCompare);
 
@@ -701,8 +710,10 @@ $(function () {
       });
 
       update();
+      $statsContainer.empty().append($statsSearch).append($stats);
     }, []);
 
+    // TODO: Get all JSON files in parallel.
     // Render scenario instances
     const instanceToDiv = {};  // For each instance
     getJSONList(scenarioPaths, (scenarios, index) => {
@@ -714,7 +725,9 @@ $(function () {
       $scenarioInfo.empty();
       $scenarioInfo.append(renderRunsHeader(scenario, scenarioPath));
 
+      const $instances = $('<div>');
       const instanceKeyToDiv = renderScenarioInstances(scenarios[0], $instances);
+      $instancesContainer.empty().append($instances);
 
       // Render the model predictions
       getJSONList(scenarioStatePaths, (scenarioStates) => {
@@ -1034,14 +1047,16 @@ $(function () {
       $summary.append(`${summary.suite} (last updated ${summary.date})`);
     }),
   ).then(() => {
-    $main.empty();
     if (urlParams.models) {
       // Models
+      $main.empty()
       $main.append(renderHeader('Models', renderModels()));
       refreshHashLocation();
     } else if (urlParams.runSpec || urlParams.runSpecs || urlParams.runSpecRegex) {
       // Predictions for a set of run specs (matching a regular expression)
+      $main.text('Loading runs...');
       $.getJSON(`benchmark_output/runs/${suite}/run_specs.json`, {}, (response) => {
+        $main.empty();
         const runSpecs = response;
         console.log('runSpecs', runSpecs);
         let matcher;
@@ -1069,22 +1084,28 @@ $(function () {
       });
     } else if (urlParams.runs) {
       // All runs (with search)
+      $main.text('Loading runs...');
       $.getJSON(`benchmark_output/runs/${suite}/run_specs.json`, {}, (runSpecs) => {
+        $main.empty();
         console.log('runSpecs', runSpecs);
         $main.append(renderHeader('Runs', renderRunsOverview(runSpecs)));
       });
     } else if (urlParams.groups) {
       // All groups
+      $main.text('Loading groups...');
       const path = `benchmark_output/runs/${suite}/groups.json`;
       $.getJSON(path, {}, (tables) => {
+        $main.empty();
         console.log('groups', tables);
         $main.append(renderTables(tables, path));
         refreshHashLocation();
       });
     } else if (urlParams.group) {
       // Specific group
+      $main.text('Loading group...');
       const path = `benchmark_output/runs/${suite}/groups/${urlParams.group}.json`;
       $.getJSON(path, {}, (tables) => {
+        $main.empty();
         console.log('group', tables);
         $main.append(renderGroupHeader(urlParams.group));
         $main.append(renderTables(tables, path));
@@ -1092,6 +1113,7 @@ $(function () {
       });
     } else {
       // Main landing page
+      $main.empty()
       $main.append(renderMainPage());
     }
   });
