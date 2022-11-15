@@ -400,20 +400,18 @@ class BasicMetric(Metric):
         # num_prompt_tokens values.
         # Profiling code and logs, and code to fit the regression model is available at
         # https://github.com/stanford-crfm/benchmarking_efficiency.
-        self.inference_idealized_runtimes_dict = json.load(
-            resources.open_text(EFFICIENCY_DATA_PACKAGE, INFERENCE_IDEALIZED_RUNTIMES_JSON_FILENAME)
-        )
-        self.inference_denoised_runtimes_dict = json.load(
-            resources.open_text(EFFICIENCY_DATA_PACKAGE, INFERENCE_DENOISED_RUNTIMES_JSON_FILENAME)
-        )
+        data_package = resources.files(EFFICIENCY_DATA_PACKAGE)
+        with data_package.joinpath(INFERENCE_IDEALIZED_RUNTIMES_JSON_FILENAME).open("r") as f:
+            self.inference_idealized_runtimes_dict = json.load(f)
+        with data_package.joinpath(INFERENCE_DENOISED_RUNTIMES_JSON_FILENAME).open("r") as f:
+            self.inference_denoised_runtimes_dict = json.load(f)
 
         # We use estimated emitted CO2 during training (in tons of CO2) as a proxy metric
         # for training efficiency. We use reported metrics where applicable, otherwise
         # we estimate them from runtime information, type and number of hardware accelerators
         # used, region, etc.
-        self.training_efficiency_dict = json.load(
-            resources.open_text(EFFICIENCY_DATA_PACKAGE, TRAINING_EFFICIENCY_JSON_FILENAME)
-        )
+        with data_package.joinpath(TRAINING_EFFICIENCY_JSON_FILENAME).open("r") as f:
+            self.training_efficiency_dict = json.load(f)
 
     def __repr__(self):
         return f"BasicMetric({','.join(self.names)})"
