@@ -924,11 +924,21 @@ metric_groups:
     metrics:
       - name: summac
         split: ${main_split}
+      - name: QAFactEval
+        split: ${main_split}
+      - name: BERTScore-F
+        split: ${main_split}
       - name: summarization_coverage
         split: ${main_split}
       - name: summarization_density
         split: ${main_split}
       - name: summarization_compression
+        split: ${main_split}
+      - name: HumanEval-faithfulness
+        split: ${main_split}
+      - name: HumanEval-relevance
+        split: ${main_split}
+      - name: HumanEval-coherence
         split: ${main_split}
 
   - name: apps_metrics
