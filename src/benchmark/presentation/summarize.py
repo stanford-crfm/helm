@@ -83,6 +83,7 @@ def get_unique_stat_by_matcher(stats: List[Stat], matcher: MetricNameMatcher) ->
         # This is necessary for prompting ablations at the moment, since some scenarios normally have quasi_exact_match
         # as the main metric but multiple_choice_separate_original only generates exact_match
         if matcher.name == "quasi_exact_match":
+            hlog("WARNING: No quasi_exact_match metric found, looking for exact_match instead")
             matcher = replace(matcher, name="exact_match")
             matching_stats = [stat for stat in stats if matcher.matches(stat.name)]
             if len(matching_stats) == 0:
