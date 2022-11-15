@@ -979,12 +979,18 @@ $(function () {
     if (typeof(value) === 'number') {
       value = Math.round(value * 1000) / 1000;
     }
+    const $value = $('<span>');
     if (cell.markdown && value) {
       value = renderMarkdown('' + value);
+      $value.append(value);
+    } else {
+      $value.text(value);
     }
-    const $value = $('<span>', {title: cell.description}).append(value);
     if (cell.style) {
       $value.css(cell.style);
+    }
+    if (cell.description) {
+      $value.attr("title", cell.description)
     }
     const $linkedValue = cell.href ? $('<a>', {href: cell.href}).append($value) : $value;
     return $('<td>').append($linkedValue);
