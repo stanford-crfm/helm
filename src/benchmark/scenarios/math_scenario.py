@@ -328,6 +328,7 @@ class MATHScenario(Scenario):
     tags = ["knowledge", "reasoning"]
 
     subjects_mapping = {
+        "all": "All",
         "number_theory": "Number Theory",
         "intermediate_algebra": "Intermediate Algebra",
         "algebra": "Algebra",
@@ -341,10 +342,10 @@ class MATHScenario(Scenario):
     def __init__(
         self, subject: str, level: str, use_official_examples: bool = False, use_chain_of_thought: bool = False
     ):
-        self.subject = subject
-        self.level = level
-        self.use_official_examples = use_official_examples
-        self.use_chain_of_thought = use_chain_of_thought
+        self.subject: str = MATHScenario.subjects_mapping[subject]
+        self.level: str = f"Level {level}"
+        self.use_official_examples: bool = use_official_examples
+        self.use_chain_of_thought: bool = use_chain_of_thought
         if use_chain_of_thought:
             assert not use_official_examples, "Cannot use official examples when use_chain_of_thought is True."
 
@@ -391,12 +392,17 @@ class MATHScenario(Scenario):
                 dataset[TRAIN_SPLIT] = [{"problem": problem, "answer": answer} for problem, answer in train_instances]
 
             else:
+                # TODO: this logic only filters by difficulty level.
+                #       Merge this https://github.com/stanford-crfm/helm/pull/1137 in later
                 data_split = [ex for ex in data[split_name]]
                 dataset_split = group_by_key(data_split, "type")
-                dataset[split] = dataset_split[MATHScenario.subjects_mapping[self.subject]]
+                dataset[split] = dataset_split[self.subject]
                 dataset_split = group_by_key(data_split, "level")
-                dataset[split] = dataset_split[f"Level {self.level}"]
+                dataset[split] = dataset_split[self.level]
+
                 for ex in dataset[split]:
+                    assert ex["level"] == self.level, f"Example with invalid level: {ex}"
+
                     if self.use_chain_of_thought:
                         answer = ex["solution"]
                     else:

@@ -1,13 +1,16 @@
 from dataclasses import dataclass
 from typing import List, Optional
 import dacite
+import importlib_resources as resources
 import yaml  # type: ignore
 
 from common.hierarchical_logger import htrack, hlog
 from proxy.models import MODEL_NAME_TO_MODEL
 from benchmark.presentation.schema import Schema
 
-CONTAMINATION_YAML_PATH: str = "src/benchmark/static/contamination.yaml"
+
+CONTAMINATION_YAML_PACKAGE: str = "benchmark.static"
+CONTAMINATION_YAML_FILENAME: str = "contamination.yaml"
 
 # Contamination levels
 CONTAMINATION_LEVEL_WEAK = "weak"
@@ -75,7 +78,8 @@ def validate_contamination(contamination: Contamination, schema: Schema):
 
 
 def read_contamination():
-    hlog(f"Reading contamination information from {CONTAMINATION_YAML_PATH}...")
-    with open(CONTAMINATION_YAML_PATH) as f:
+    hlog(f"Reading contamination information from {CONTAMINATION_YAML_FILENAME}...")
+    contamination_path = resources.files(CONTAMINATION_YAML_PACKAGE).joinpath(CONTAMINATION_YAML_FILENAME)
+    with contamination_path.open("r") as f:
         raw = yaml.safe_load(f)
     return dacite.from_dict(Contamination, raw)
