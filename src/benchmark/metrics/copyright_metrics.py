@@ -17,7 +17,7 @@ from .statistic import Stat
 def _longest_common_prefix_length(s1: np.ndarray, s2: np.ndarray, previous_best: Optional[float] = None) -> float:
     min_len = min(len(s1), len(s2))
     s1, s2 = s1[:min_len], s2[:min_len]
-    nonzeros, = np.cumprod(s1 == s2).nonzero()  # Get indices (inclusive) up to which s1 and s2 are the same.
+    (nonzeros,) = np.cumprod(s1 == s2).nonzero()  # Get indices (inclusive) up to which s1 and s2 are the same.
     result = np.max(nonzeros) + 1 if len(nonzeros) > 0 else 0
     return result if previous_best is None else max(previous_best, result)
 
