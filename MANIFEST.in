@@ -1,1 +1,2 @@
+recursive-include src/benchmark/static/ *.png
 include requirements.txt

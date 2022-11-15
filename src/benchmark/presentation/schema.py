@@ -4,12 +4,16 @@ from typing import List, Optional, Dict
 import dacite
 import mako.template
 import yaml  # type: ignore
+import importlib_resources as resources
 
 from common.general import hlog
 from benchmark.metrics.metric_name import MetricName
 from benchmark.augmentations.perturbation_description import PERTURBATION_WORST
 
-SCHEMA_YAML_PATH: str = "src/benchmark/static/schema.yaml"
+
+SCHEMA_YAML_PACKAGE: str = "benchmark.static"
+SCHEMA_YAML_FILENAME: str = "schema.yaml"
+
 UP_ARROW = "\u2191"
 DOWN_ARROW = "\u2193"
 
@@ -233,7 +237,8 @@ class Schema:
 
 
 def read_schema():
-    hlog(f"Reading schema from {SCHEMA_YAML_PATH}...")
-    with open(SCHEMA_YAML_PATH) as f:
+    hlog(f"Reading schema from {SCHEMA_YAML_FILENAME}...")
+    schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_YAML_FILENAME)
+    with schema_path.open("r") as f:
         raw = yaml.safe_load(f)
     return dacite.from_dict(Schema, raw)

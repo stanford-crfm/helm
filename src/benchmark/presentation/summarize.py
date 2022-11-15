@@ -29,7 +29,7 @@ from .schema import (
     ModelField,
     RunGroup,
     read_schema,
-    SCHEMA_YAML_PATH,
+    SCHEMA_YAML_FILENAME,
     BY_GROUP,
     THIS_GROUP_ONLY,
     NO_GROUPS,
@@ -248,7 +248,7 @@ class Summarizer:
                 if run_group_name not in self.schema.name_to_run_group:
                     hlog(
                         f"WARNING: group {run_group_name} mentioned in run spec {run.run_spec.name} "
-                        f"but undefined in {SCHEMA_YAML_PATH}, skipping"
+                        f"but undefined in {SCHEMA_YAML_FILENAME}, skipping"
                     )
                     continue
                 run_group = self.schema.name_to_run_group[run_group_name]
@@ -318,7 +318,7 @@ class Summarizer:
         for metric_name, run_spec_names in metric_name_to_run_spec_names.items():
             if metric_name not in defined_metric_names:
                 hlog(
-                    f"WARNING: metric name {metric_name} undefined in {SCHEMA_YAML_PATH} "
+                    f"WARNING: metric name {metric_name} undefined in {SCHEMA_YAML_FILENAME} "
                     f"but appears in {len(run_spec_names)} run specs, including {run_spec_names[0]}"
                 )
 
@@ -572,7 +572,7 @@ class Summarizer:
                     matcher = replace(matcher, sub_split=sub_split)
                 header_field = self.schema.name_to_metric.get(matcher.name)
                 if header_field is None:
-                    hlog(f"WARNING: metric name {matcher.name} undefined in {SCHEMA_YAML_PATH}, skipping")
+                    hlog(f"WARNING: metric name {matcher.name} undefined in {SCHEMA_YAML_FILENAME}, skipping")
                     continue
 
                 header_name = header_field.get_short_display_name(arrow=True)
