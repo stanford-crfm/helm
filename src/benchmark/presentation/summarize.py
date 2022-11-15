@@ -26,7 +26,6 @@ from benchmark.runner import RunSpec
 from .table import Cell, Table, Hyperlink, table_to_latex
 from .schema import (
     MetricNameMatcher,
-    ModelField,
     RunGroup,
     read_schema,
     SCHEMA_YAML_PATH,
@@ -144,7 +143,7 @@ def get_coarse_adapter_spec(
     return AdapterSpec(**adapter_spec_kwargs)  # type: ignore
 
 
-def get_method_display_name(model: ModelField, info: Dict[str, Any]) -> str:
+def get_method_display_name(model_display_name: Optional[str], info: Dict[str, Any]) -> str:
     """
     Return a nice name to display for `adapter_spec` which denotes a method.
     `info` contains the decoding parameters.
@@ -155,7 +154,7 @@ def get_method_display_name(model: ModelField, info: Dict[str, Any]) -> str:
     if "model" in info:
         del info["model"]
 
-    return (model.display_name or "???") + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
+    return (model_display_name or "???") + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
 
 
 class Summarizer:
@@ -612,8 +611,16 @@ class Summarizer:
 
         adapter_specs: List[AdapterSpec] = list(adapter_to_runs.keys())
         if sort_by_model_order:
+            # Sort models by the order defined in the schema.
+            # Models not defined in the schema will be sorted alphabetically and
+            # placed before models in defined the schema.
             model_order = [model.name for model in self.schema.models]
-            adapter_specs = list(sorted(adapter_specs, key=lambda spec: model_order.index(spec.model)))
+
+            def _adapter_spec_sort_key(spec):
+                index = model_order.index(spec.model) if spec.model in model_order else -1
+                return (index, spec.model)
+
+            adapter_specs = list(sorted(adapter_specs, key=_adapter_spec_sort_key))
 
         # Pull out only the keys of the method adapter_spec that is needed to
         # uniquely identify the method.
@@ -624,9 +631,19 @@ class Summarizer:
         # Populate the contents of the table
         rows = []
         for adapter_spec, info in zip(adapter_specs, infos):
-            model = self.schema.name_to_model[adapter_spec.model]
+            model_name = adapter_spec.model
+
+            # Get the model display name from the schema.
+            # Fall back to using the model name as the model display name if the model is not
+            # defined in the schema.
+            model_display_name = (
+                self.schema.name_to_model[model_name].display_name
+                if model_name in self.schema.name_to_model
+                else model_name
+            )
+
             runs = adapter_to_runs[adapter_spec]
-            display_name = get_method_display_name(model, info)
+            display_name = get_method_display_name(model_display_name, info)
 
             # Link to all the runs under this model
             if link_to_runs:
@@ -636,7 +653,7 @@ class Summarizer:
                 href = None
 
             # Render contamination information
-            point = self.contamination.get_point(model.name, columns[0][0].name)
+            point = self.contamination.get_point(model_name, columns[0][0].name)
             if num_groups == 1 and point is not None:  # display contamination information at the adapter level
                 cells = [
                     Cell(display_name + CONTAMINATION_SYMBOLS[point.level], description=point.description, href=href)
@@ -646,7 +663,7 @@ class Summarizer:
             assert len(group_names) == len(matchers)
             for group_name, matcher in zip(group_names, matchers):
                 group_runs = [run for run in runs if group_name in run.run_spec.groups]
-                point = self.contamination.get_point(model.name, group_name)
+                point = self.contamination.get_point(model_name, group_name)
                 if point is not None:
                     description = CONTAMINATION_SYMBOLS[point.level] + " " + point.description
                     contamination_level = point.level
