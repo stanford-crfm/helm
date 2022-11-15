@@ -29,6 +29,9 @@ class PerspectiveAPIClient:
 
     ORGANIZATION = "perspectiveapi"
 
+    # Maximum allowed text length by Perspective API
+    MAX_TEXT_LENGTH: int = 20_480
+
     @staticmethod
     def create_request_body(text: str, attributes: List[str], languages: List[str]) -> Dict:
         """Create an API request for a given text."""
@@ -102,7 +105,9 @@ class PerspectiveAPIClient:
                 for text in set(request.text_batch):
                     batch_request.add(
                         request=client.comments().analyze(
-                            body=PerspectiveAPIClient.create_request_body(text, request.attributes, request.languages)
+                            body=PerspectiveAPIClient.create_request_body(
+                                text[: PerspectiveAPIClient.MAX_TEXT_LENGTH], request.attributes, request.languages
+                            )
                         ),
                         request_id=text,
                         callback=callback,
