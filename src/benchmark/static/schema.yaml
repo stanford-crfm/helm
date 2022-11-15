@@ -1114,18 +1114,50 @@ run_groups:
     description: Vary the number of in-context training examples.
     category: Targeted evaluations
     visibility: this_group_only
+    subgroups:
+      - natural_qa_openbook_longans
+      - summarization_cnndm
+      - imdb
+      - civil_comments
+    adapter_keys_shown:
+      - model
+      - max_train_instances
 
   - name: ablation_multiple_choice
     display_name: Vary multiple-choice strategy
     description: Vary the adapation strategy for multiple-choice questions.
     category: Targeted evaluations
     visibility: this_group_only
+    subgroups:
+      - hellaswag
+      - openbookqa
+      - truthful_qa
+      - mmlu
+      - blimp
+      - legal_support
+      - lsat_qa
+      - bbq
+    adapter_keys_shown:
+      - model
+      - method
 
   - name: ablation_prompts
     display_name: Vary prompting
     description: Vary the instructions and labels for input/output.
     category: Targeted evaluations
     visibility: this_group_only
+    subgroups:
+      - natural_qa_openbook_longans
+      - summarization_cnndm
+      - imdb
+      - civil_comments
+    adapter_keys_shown:
+      - model
+      - instructions
+      - input_prefix
+      - input_suffix
+      - output_prefix
+      - output_suffix
 
   - name: robustness_contrast_sets
     display_name: Robustness to contrast sets
