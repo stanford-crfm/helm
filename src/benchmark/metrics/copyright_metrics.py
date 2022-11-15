@@ -137,8 +137,8 @@ class BasicCopyrightMetric(Metric):
             # Truncate it here to be of the same length as the completion to ensure edit-distance is meaningful.
             truncated_reference: str = reference[: len(completion)]
 
-            completion_tokens: List[str] = self.tokenizer.tokenize(completion)
-            truncated_reference_tokens: List[str] = self.tokenizer.tokenize(truncated_reference)
+            completion_tokens = self.tokenizer.tokenize(completion)
+            truncated_reference_tokens = self.tokenizer.tokenize(truncated_reference)
 
             # Exploit numpy SIMD for efficiency on CPUs.
             completion_tokens = np.array(completion_tokens)
