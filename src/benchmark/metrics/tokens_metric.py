@@ -5,8 +5,6 @@ from common.general import parallel_map
 from common.request import Request
 from benchmark.adapter import ScenarioState, RequestState
 from benchmark.metrics.statistic import Stat, merge_stat
-from benchmark.window_services.window_service import WindowService
-from benchmark.window_services.window_service_factory import WindowServiceFactory
 from .metric import Metric, MetricResult, PerInstanceStats
 from .metric_name import MetricName
 from .metric_service import MetricService

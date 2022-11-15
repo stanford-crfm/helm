@@ -637,7 +637,8 @@ class Summarizer:
             for adapter_spec, runs in adapter_to_runs.items():
                 if len(runs) > 1:
                     hlog(
-                        f"WARNING: table row corresponding to adapter spec {adapter_spec} has {len(runs)} > 1 runs: {[run.run_spec.name for run in runs]}"
+                        f"WARNING: table row corresponding to adapter spec {adapter_spec} has {len(runs)} > 1 runs:"
+                        f" {[run.run_spec.name for run in runs]}"
                     )
                 for run in runs:
                     all_run_spec_names.append(run.run_spec.name)

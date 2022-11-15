@@ -3,7 +3,7 @@ import os
 import typing
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import List
 
 from benchmark.metrics.metric_name import MetricName
 from common.general import ensure_directory_exists, write, asdict_without_nones
