@@ -22,6 +22,8 @@ def _longest_common_prefix_length(s1: np.ndarray, s2: np.ndarray, previous_best:
     return result if previous_best is None else max(previous_best, result)
 
 
+# There's no great way to algorithmically reduce the O(mn) *sequential* time complexity of computing the edit distance.
+# We simply jit here to remove the Python overhead.
 @numba.njit
 def _edit_distance_helper(s1: np.ndarray, s2: np.ndarray, similarity_mat: np.ndarray) -> float:
     l1, l2 = len(s1), len(s2)
@@ -43,7 +45,7 @@ def _edit_distance_helper(s1: np.ndarray, s2: np.ndarray, similarity_mat: np.nda
 
 
 def _edit_distance(s1: np.ndarray, s2: np.ndarray, previous_best: Optional[float] = None) -> float:
-    similarity_mat: np.ndarray = s1[:, None] == s2[None, :]
+    similarity_mat: np.ndarray = s1[:, None] == s2[None, :]  # Speed up this through vectorization.
     result = _edit_distance_helper(s1, s2, similarity_mat)
     return result if previous_best is None else min(previous_best, result)
 
