@@ -5,8 +5,6 @@ from common.general import parallel_map
 from common.request import Request
 from benchmark.adapter import ScenarioState, RequestState
 from benchmark.metrics.statistic import Stat, merge_stat
-from benchmark.window_services.window_service import WindowService
-from benchmark.window_services.window_service_factory import WindowServiceFactory
 from .metric import Metric, MetricResult, PerInstanceStats
 from .metric_name import MetricName
 from .metric_service import MetricService
@@ -27,25 +25,15 @@ class Processor:
 
         # Estimated cost in terms of number of tokens
         estimate_num_tokens_cost: int = self.token_cost_estimator.estimate_tokens(request, self.metric_service)
+        # TODO: replace with "estimated_num_tokens" - is this for prompt or completion
         stats.append(Stat(MetricName("estimated_num_tokens_cost")).add(estimate_num_tokens_cost))
 
-        # Number of tokens in the prompt
-        window_service: WindowService = WindowServiceFactory.get_window_service(request.model, self.metric_service)
-        num_prompt_tokens: int = window_service.get_num_tokens(text=request.prompt)
-        stats.append(Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens))
-
-        # Number of completions
         stats.append(Stat(MetricName("num_completions")).add(request.num_completions))
 
         # Maximum number of tokens in the completions
         # This is an overestimate of the actual number of output tokens since sequences can early terminate
         # TODO: rename this to max_num_completion_tokens
         stats.append(Stat(MetricName("max_num_output_tokens")).add(request.num_completions * request.max_tokens))
-
-        if request_state.result:
-            # Total number of tokens in the completion
-            num_completion_tokens = sum([len(completion.tokens) for completion in request_state.result.completions])
-            stats.append(Stat(MetricName("num_completion_tokens")).add(num_completion_tokens))
 
         return stats
 

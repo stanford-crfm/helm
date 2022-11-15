@@ -1,45 +1,39 @@
-from common.request import RequestResult
-from nltk.tokenize.treebank import TreebankWordTokenizer
+import re
 from typing import List, Optional
+
+import numba
+import numpy as np
+from nltk.tokenize.treebank import TreebankWordTokenizer
 
 from benchmark.adapter import AdapterSpec, RequestState
 from benchmark.scenarios.scenario import Reference
+from common.request import RequestResult
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
-import re
 
 
-def _longest_common_prefix_length(s1: List[str], s2: List[str], previous_best: Optional[float] = None) -> float:
-    result = min_len = min(len(s1), len(s2))
-    for i in range(min_len):
-        if s1[i] != s2[i]:
-            result = i
-            break
-    if previous_best is not None:
-        return max(previous_best, result)
-    return result
+def _longest_common_prefix_length(s1: np.ndarray, s2: np.ndarray, previous_best: Optional[float] = None) -> float:
+    min_len = min(len(s1), len(s2))
+    s1, s2 = s1[:min_len], s2[:min_len]
+    (nonzeros,) = np.cumprod(s1 == s2).nonzero()  # Get indices (inclusive) up to which s1 and s2 are the same.
+    result = np.max(nonzeros) + 1 if len(nonzeros) > 0 else 0
+    return result if previous_best is None else max(previous_best, result)
 
 
-def _edit_distance(s1: List[str], s2: List[str], previous_best: Optional[float] = None) -> float:
-    """Compute the Levenshtein distance between two sequences of tokens.
-
-    Edit distance is really an umbrella term. We focus on the Levenshtein distance.
-    Dynamic programming implementation with memoization.
-    """
+# There's no great way to algorithmically reduce the O(mn) *sequential* time complexity of computing the edit distance.
+# We simply jit here to remove the Python overhead.
+@numba.njit
+def _edit_distance_helper(s1: np.ndarray, s2: np.ndarray, similarity_mat: np.ndarray) -> float:
     l1, l2 = len(s1), len(s2)
-    distance_grid = [[0 for _ in range(l2 + 1)] for _ in range(l1 + 1)]  # l1 x l2 grid.
-
-    for i in range(l1 + 1):
-        distance_grid[i][0] = i
-
-    for j in range(l2 + 1):
-        distance_grid[0][j] = j
+    distance_grid = np.zeros((l1 + 1, l2 + 1))
+    distance_grid[:, 0] = np.arange(l1 + 1)
+    distance_grid[0, :] = np.arange(l2 + 1)
 
     for i in range(1, l1 + 1):
         for j in range(1, l2 + 1):
-            if s1[i - 1] == s2[j - 1]:  # Don't get bitten by off-by-one!
+            if similarity_mat[i - 1, j - 1]:
                 distance_grid[i][j] = distance_grid[i - 1][j - 1]
             else:
                 distance_grid[i][j] = 1 + min(
@@ -47,12 +41,16 @@ def _edit_distance(s1: List[str], s2: List[str], previous_best: Optional[float] 
                     distance_grid[i - 1][j],  # Remove from s2.
                     distance_grid[i - 1][j - 1],  # Replace.
                 )
-    if previous_best is not None:
-        return min(distance_grid[l1][l2], previous_best)
     return distance_grid[l1][l2]
 
 
-def _edit_similarity(s1: List[str], s2: List[str], previous_best: Optional[float] = None) -> float:
+def _edit_distance(s1: np.ndarray, s2: np.ndarray, previous_best: Optional[float] = None) -> float:
+    similarity_mat: np.ndarray = s1[:, None] == s2[None, :]  # Speed up this through vectorization.
+    result = _edit_distance_helper(s1, s2, similarity_mat)
+    return result if previous_best is None else min(previous_best, result)
+
+
+def _edit_similarity(s1: np.ndarray, s2: np.ndarray, previous_best: Optional[float] = None) -> float:
     """"""
     edist = _edit_distance(s1, s2)  # Don't feed `previous_best`!
 
@@ -139,8 +137,13 @@ class BasicCopyrightMetric(Metric):
             # Truncate it here to be of the same length as the completion to ensure edit-distance is meaningful.
             truncated_reference: str = reference[: len(completion)]
 
-            completion_tokens: List[str] = self.tokenizer.tokenize(completion)
-            truncated_reference_tokens: List[str] = self.tokenizer.tokenize(truncated_reference)
+            completion_tokens = self.tokenizer.tokenize(completion)
+            truncated_reference_tokens = self.tokenizer.tokenize(truncated_reference)
+
+            # Exploit numpy SIMD for efficiency on CPUs.
+            completion_tokens = np.array(completion_tokens)
+            truncated_reference_tokens = np.array(truncated_reference_tokens)
+
             result = self.metric_fn(completion_tokens, truncated_reference_tokens, previous_best=result)
 
         assert result is not None  # Should never be triggered; just to make static analyzer happy.

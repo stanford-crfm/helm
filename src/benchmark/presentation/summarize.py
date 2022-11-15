@@ -657,12 +657,22 @@ class Summarizer:
 
             rows.append(cells)
 
-        # Link to all runs under all models (to compare models)
-        all_run_spec_names = []
-        for runs in adapter_to_runs.values():
-            for run in runs:
-                all_run_spec_names.append(run.run_spec.name)
-        links = [Hyperlink(text="all models", href=run_spec_names_to_url(all_run_spec_names))]
+        # Link to a page to visualize all runs for comparison.
+        # There could be a ton of runs, so only do this if there are 2-5
+        # TODO: replace in frontend with a selector to choose which rows to visualize.
+        links = []
+        if link_to_runs:
+            all_run_spec_names = []
+            for adapter_spec, runs in adapter_to_runs.items():
+                if len(runs) > 1:
+                    hlog(
+                        f"WARNING: table row corresponding to adapter spec {adapter_spec} has {len(runs)} > 1 runs:"
+                        f" {[run.run_spec.name for run in runs]}"
+                    )
+                for run in runs:
+                    all_run_spec_names.append(run.run_spec.name)
+            if len(all_run_spec_names) >= 2 and len(all_run_spec_names) <= 5:
+                links.append(Hyperlink(text="compare all", href=run_spec_names_to_url(all_run_spec_names)))
 
         return Table(title=title, header=header, rows=rows, links=links, name=name)
 
@@ -774,13 +784,13 @@ class Summarizer:
         # Write out index file with all the groups and basic stats
         write(
             os.path.join(self.run_suite_path, "groups.json"),
-            json.dumps(list(map(asdict_without_nones, self.create_index_tables()))),
+            json.dumps(list(map(asdict_without_nones, self.create_index_tables())), indent=2),
         )
 
         # Write out metadata file for all groups
         write(
             os.path.join(self.run_suite_path, "groups_metadata.json"),
-            json.dumps(self.create_groups_metadata()),
+            json.dumps(self.create_groups_metadata(), indent=2),
         )
 
         # Write out a separate JSON for each group
@@ -803,7 +813,7 @@ class Summarizer:
             ensure_directory_exists(os.path.join(groups_path, "json"))
             for table in tables:
                 latex_path = os.path.join(groups_path, "latex", f"{group.name}_{table.name}.tex")
-                table.links.append(Hyperlink(text="latex", href=latex_path))
+                table.links.append(Hyperlink(text="LaTeX", href=latex_path))
                 write(latex_path, table_to_latex(table, f"{table.name} ({group.name})"))
 
                 json_path = os.path.join(groups_path, "json", f"{group.name}_{table.name}.json")
@@ -813,7 +823,7 @@ class Summarizer:
             # Write master JSON file
             write(
                 os.path.join(groups_path, group.name + ".json"),
-                json.dumps(list(map(asdict_without_nones, tables))),
+                json.dumps(list(map(asdict_without_nones, tables)), indent=2),
             )
 
 

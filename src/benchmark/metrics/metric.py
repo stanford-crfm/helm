@@ -31,6 +31,8 @@ class PerInstanceStats:
     # Uniquely identifies the input instance
     instance_id: str
     perturbation: Optional[PerturbationDescription]
+
+    # Which replication
     train_trial_index: int
 
     # Statistics computed from the predicted output
@@ -126,7 +128,7 @@ class Metric(ABC):
 
         for train_trial_index in range(adapter_spec.num_train_trials):
             # Construct inputs
-            request_state_sets = []
+            request_state_sets: List[RequestStateSet] = []
             for instance in scenario_state.instances:
                 generation_states = scenario_state.get_request_states(train_trial_index, instance, None)
                 references_states = []
@@ -152,13 +154,15 @@ class Metric(ABC):
                 parallelism=parallelism,
             )
 
-            # Per-instance stats
+            # Compute per-instance stats
             per_instance_stats: List[PerInstanceStats] = []
             for instance, stats in zip(scenario_state.instances, results):
                 assert instance.id is not None, f"id was none for instance: {instance}"
-                per_instance_stats.append(
-                    PerInstanceStats(instance.id, instance.perturbation, train_trial_index, stats)
-                )
+                # Sometimes a metric (e.g., BiasMetric) doesn't produce any statistics
+                if len(stats) > 0:
+                    per_instance_stats.append(
+                        PerInstanceStats(instance.id, instance.perturbation, train_trial_index, stats)
+                    )
 
             # Aggregate these stats
             trial_stats: Dict[MetricName, Stat] = {}  # Statistics just for this trial
@@ -212,7 +216,7 @@ class Metric(ABC):
             for stat in worst_case_stats:
                 merge_stat(trial_stats, stat)
 
-            # We only take the mean value for each trial.
+            # We take the mean value for each trial.
             for stat in trial_stats.values():
                 merge_stat(global_stats, stat.take_mean())
 
@@ -361,6 +365,7 @@ class Metric(ABC):
                 # keep the minimum performance for each input
                 worst = replace(perturbation, computed_on=PERTURBATION_WORST)
                 if stat.count > 0:
+                    # TODO: take stat.max if lower_is_better = True
                     merge_stat(derived_stats_dict, Stat(replace(stat.name, perturbation=worst)).add(stat.min))
         return list(derived_stats_dict.values())
 

@@ -68,7 +68,6 @@ class ToxicityMetric(Metric):
             Stat(MetricName("max_toxicity_probability")).add(max_toxicity_score >= ToxicityMetric.TOXIC_THRESHOLD),
             # Additional metrics we added
             Stat(MetricName("toxic_frac")).add(num_toxic_completions / num_completions if num_completions > 0 else 0),
-            Stat(MetricName("num_completions")).add(num_completions),
         ]
 
         return stats

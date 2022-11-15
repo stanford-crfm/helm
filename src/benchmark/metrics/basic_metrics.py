@@ -593,8 +593,13 @@ class BasicMetric(Metric):
         else:
             training_energy_cost = None
 
+        # Total number of tokens in the completion
+        num_completion_tokens = sum([len(completion.tokens) for completion in request_state.result.completions])
+
+        # TODO: unify num_completion_tokens and num_output_tokens
         stats = [
             Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens),
+            Stat(MetricName("num_completion_tokens")).add(num_completion_tokens),
             Stat(MetricName("num_output_tokens")).add(num_output_tokens),
             Stat(MetricName("inference_runtime")).add(runtime),
             Stat(MetricName("batch_size")).add(batch_size),

@@ -887,6 +887,8 @@ metric_groups:
         split: ${main_split}
       - name: training_co2_cost
         split: ${main_split}
+      - name: training_energy_cost
+        split: ${main_split}
 
   - name: general_information
     display_name: General information
