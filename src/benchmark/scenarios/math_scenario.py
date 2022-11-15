@@ -1,6 +1,6 @@
 import collections
 import typing
-from typing import List, Optional
+from typing import Dict, List, Optional
 from datasets import load_dataset, DatasetDict
 
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
@@ -341,10 +341,10 @@ class MATHScenario(Scenario):
     def __init__(
         self, subject: str, level: str, use_official_examples: bool = False, use_chain_of_thought: bool = False
     ):
-        self.subject = subject
-        self.level = level
-        self.use_official_examples = use_official_examples
-        self.use_chain_of_thought = use_chain_of_thought
+        self.subject: str = MATHScenario.subjects_mapping[subject]
+        self.level: str = f"Level {level}"
+        self.use_official_examples: bool = use_official_examples
+        self.use_chain_of_thought: bool = use_chain_of_thought
         if use_chain_of_thought:
             assert not use_official_examples, "Cannot use official examples when use_chain_of_thought is True."
 
@@ -391,25 +391,30 @@ class MATHScenario(Scenario):
                 dataset[TRAIN_SPLIT] = [{"problem": problem, "answer": answer} for problem, answer in train_instances]
 
             else:
-                data_split = [ex for ex in data[split_name]]
-                dataset_split = group_by_key(data_split, "type")
-                dataset[split] = dataset_split[MATHScenario.subjects_mapping[self.subject]]
-                dataset_split = group_by_key(data_split, "level")
-                dataset[split] = dataset_split[f"Level {self.level}"]
-                for ex in dataset[split]:
+                examples: List[Dict[str, str]] = [example for example in data[split_name]]  # Filter by split
+                examples = group_by_key(examples, "type")[self.subject]  # Filter by type or subject
+                examples = group_by_key(examples, "level")[self.level]  # Filter by level
+                dataset[split] = examples
+
+                for example in dataset[split]:
+                    # Sanity check that we filtered correctly
+                    assert (
+                        example["type"] == self.subject and example["level"] == self.level
+                    ), f"Wrong example was included after filtering: {example}"
+
                     if self.use_chain_of_thought:
-                        answer = ex["solution"]
+                        answer = example["solution"]
                     else:
-                        maybe_answer = get_answer(ex["solution"])
+                        maybe_answer = get_answer(example["solution"])
                         if maybe_answer is None:
                             continue
                         answer = maybe_answer
-                    ex["answer"] = answer
+                    example["answer"] = answer
 
-            for ex in dataset[split]:
+            for example in dataset[split]:
                 instance = Instance(
-                    input=ex["problem"],
-                    references=[Reference(output=ex["answer"], tags=[CORRECT_TAG])],
+                    input=example["problem"],
+                    references=[Reference(output=example["answer"], tags=[CORRECT_TAG])],
                     split=split,
                 )
                 instances.append(instance)
