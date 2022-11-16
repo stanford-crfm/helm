@@ -20,13 +20,6 @@ def serve_benchmark_output(filename):
     return response
 
 
-@app.get("/json-urls-root.js")
-def serve_json_urls_root():
-    """Override base URL for benchmark_output JSON files for local development."""
-    response = static_file("json-urls-root.local.js", root=app.config["helm.staticpath"])
-    return response
-
-
 @app.get("/")
 @app.get("/<filename:path>")
 def serve_static(filename="index.html"):

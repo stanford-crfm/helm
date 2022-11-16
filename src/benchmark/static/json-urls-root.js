@@ -1,3 +1,2 @@
-// Base URL for benchmark_output JSON files for production
-// TODO: Change this
+// Base URL for benchmark_output JSON files
 const BENCHMARK_OUTPUT_BASE_URL = "benchmark_output";
