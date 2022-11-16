@@ -549,9 +549,10 @@ class BasicMetric(Metric):
 
         # Total number of tokens in the completion.
         num_completion_tokens: int = sum([len(completion.tokens) for completion in request_state.result.completions])
-        # Assume that tokens for different completions are generated sequentially (instead of batched).
-        num_output_tokens: int = num_completion_tokens
         # Don't include prompt in number of generated tokens (e.g., for language modeling).
+        # Assume that tokens for different completions are generated sequentially (instead of batched) when
+        # computing num_output_tokens (for the purpose of runtime estimation).
+        num_output_tokens: int = num_completion_tokens
         if request_state.request.echo_prompt:
             # num_prompt_tokens > num_output_tokens can happen if tokenizer doesn't round trip.
             if num_prompt_tokens <= num_output_tokens:
@@ -588,7 +589,6 @@ class BasicMetric(Metric):
         else:
             training_energy_cost = None
 
-        # TODO: unify num_completion_tokens and num_output_tokens.
         stats = [
             Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens),
             Stat(MetricName("num_completion_tokens")).add(num_completion_tokens),
