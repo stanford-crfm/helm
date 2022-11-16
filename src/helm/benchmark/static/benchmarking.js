@@ -78,6 +78,47 @@ $(function () {
     return $table;
   }
 
+  function renderScenarios() {
+    const $table = $('<table>', {class: 'query-table results-table'});
+
+    const $header = $('<tr>').append([
+      $('<td>').append('Scenario'),
+      $('<td>').append('Task'),
+      $('<td>').append('What'),
+      $('<td>').append('When'),
+      $('<td>').append('Who'),
+      $('<td>').append('Language'),
+      $('<td>').append('Description'),
+    ]);
+    $table.append($header);
+
+    schema.run_groups.forEach((group) => {
+      if (group.category) {
+        return;
+      }
+      const $name = $('<div>').append([
+        $('<div>').append(group.display_name),
+        $('<div>', {class: 'technical-details'}).append(group.name),
+      ]);
+      const task = group.taxonomy && group.taxonomy.task;
+      const what = group.taxonomy && group.taxonomy.what;
+      const who = group.taxonomy && group.taxonomy.who;
+      const when = group.taxonomy && group.taxonomy.when;
+      const language = group.taxonomy && group.taxonomy.language;
+      const $row = $('<tr>').append([
+        $('<td>').append($name),
+        $('<td>').append(task),
+        $('<td>').append(what),
+        $('<td>').append(who),
+        $('<td>').append(when),
+        $('<td>').append(language),
+        $('<td>').append(renderMarkdown(group.description)),
+      ]);
+      $table.append($row);
+    });
+    return $table;
+  }
+
   function renderRunsOverview(runSpecs) {
     let query = '';
     const $search = $('<input>', {type: 'text', size: 40, placeholder: 'Enter regex query (enter to open all)'});
@@ -1065,6 +1106,11 @@ $(function () {
       // Models
       $main.empty()
       $main.append(renderHeader('Models', renderModels()));
+      refreshHashLocation();
+    } else if (urlParams.scenarios) {
+      // Models
+      $main.empty()
+      $main.append(renderHeader('Scenarios', renderScenarios()));
       refreshHashLocation();
     } else if (urlParams.runSpec || urlParams.runSpecs || urlParams.runSpecRegex) {
       // Predictions for a set of run specs (matching a regular expression)

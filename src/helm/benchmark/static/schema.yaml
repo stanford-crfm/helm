@@ -150,7 +150,7 @@ models:
     num_parameters: 20000000000
     release_date: 2022-05-10
 
-  - name: together/flan-t5
+  - name: together/flan-t5-xxl
     display_name: Flan-T5 (11B)
     description: Flan-T5 (11B parameters) is T5 fine-tuned on 1.8K tasks ([paper](https://arxiv.org/pdf/2210.11416.pdf)).
     creator_organization: Google
@@ -180,6 +180,15 @@ models:
     access: open
     num_parameters: 66000000000
     release_date: 2022-05-02
+
+  - name: together/galatica-120b
+    display_name: Galatica (120B)
+    description: Galatica (120B parameters) is trained on 48 million papers, textbooks, lectures notes, compounds and proteins, scientific websites, etc. ([paper](https://galactica.org/static/paper.pdf)).
+    creator_organization: Meta
+    access: open
+    num_parameters: 120000000000
+    release_date: 2022-11-15
+    todo: true
 
   # Microsoft/NVIDIA
   - name: microsoft/TNLGv2_530B
@@ -1237,6 +1246,12 @@ run_groups:
     environment:
       main_name: f1_score
       main_split: test
+    taxonomy:
+      task: question answering
+      what: passages are books and movie scripts, questions are unknown
+      who: unknown
+      when: unknown
+      language: English
 
   - name: natural_qa_closedbook
     display_name: NaturalQuestions (closed-book)
@@ -1253,6 +1268,12 @@ run_groups:
     environment:
       main_name: f1_score
       main_split: valid
+    taxonomy:
+      task: question answering
+      what: passages from Wikipedia, questions from search queries
+      who: web users
+      when: 2010s
+      language: English
 
   - name: natural_qa_openbook_longans
     display_name: NaturalQuestions (open-book)
@@ -1269,6 +1290,12 @@ run_groups:
     environment:
       main_name: f1_score
       main_split: valid
+    taxonomy:
+      task: question answering
+      what: passages from Wikipedia, questions from search queries
+      who: web users
+      when: 2010s
+      language: English
 
   - name: quac
     display_name: QuAC (Question Answering in Context)
