@@ -67,7 +67,7 @@ models:
     release_date: 2022-06-09
   - name: cohere/large-20220720
     display_name: Cohere large v20220720 (13.1B)
-    description: Cohere large v20220720 (13.1B parameters), which is deprecated by Cohere as of November 08, 2022.
+    description: Cohere large v20220720 (13.1B parameters), which is deprecated by Cohere as of December 2, 2022.
     creator_organization: Cohere
     access: limited
     num_parameters: 13100000000
@@ -81,7 +81,7 @@ models:
     release_date: 2022-07-20
   - name: cohere/small-20220720
     display_name: Cohere small v20220720 (410M)
-    description: Cohere small v20220720 (410M parameters), which is deprecated by Cohere as of November 08, 2022.
+    description: Cohere small v20220720 (410M parameters), which is deprecated by Cohere as of December 2, 2022.
     creator_organization: Cohere
     access: limited
     num_parameters: 410000000
