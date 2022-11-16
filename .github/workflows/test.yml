@@ -47,13 +47,13 @@ jobs:
       - run: ./pre-commit-venv.sh
       - name: Run tests
         # Skip ICE tokenizer tests. GHA is having trouble downloading ice_text.model.
-        run: venv/bin/pytest --ignore src/benchmark/window_services/test_ice_window_service.py --ignore src/proxy/clients/test_ice_tokenizer_client.py
+        run: venv/bin/pytest --ignore src/helm/benchmark/window_services/test_ice_window_service.py --ignore src/helm/proxy/clients/test_ice_tokenizer_client.py
         env:
           TEST: ${{ matrix.test }}
           VERSION: ${{ github.head_ref || 'main' }}
       - name: Run entire pipeline quickly without any data
         # Checking RunSpecs with openai/davinci should be comprehensive enough
-        run: venv/bin/benchmark-present --suite test -m 100 --skip-instances --models-to-run openai/davinci --exit-on-error
+        run: venv/bin/helm-run --suite test -m 100 --skip-instances --models-to-run openai/davinci --exit-on-error
 
   ci:
     name: All CI tasks complete

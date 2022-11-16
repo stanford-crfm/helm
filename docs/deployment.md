@@ -109,7 +109,7 @@ If everything looks okay:
 
     # Hit ctrl-c to kill the existing process
     # Restart the server
-    sudo venv/bin/proxy-server -p 443 --ssl-key-file /home/ssl/private.key --ssl-cert-file /home/ssl/crfm-models.crt --workers 16 &> server.log
+    sudo venv/bin/crfm-proxy-server -p 443 --ssl-key-file /home/ssl/private.key --ssl-cert-file /home/ssl/crfm-models.crt --workers 16 &> server.log
 
     # Exit the screen session: ctrl-ad
 

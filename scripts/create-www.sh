@@ -12,7 +12,7 @@ echo Copying suite $suite into www...
 
 # Copy code (note: follow symlinks)
 mkdir -p www || exit 1
-rsync -pLrvz --exclude=benchmark_output src/benchmark/static/* www || exit 1
+rsync -pLrvz --exclude=benchmark_output src/helm/benchmark/static/* www || exit 1
 
 # Copy data
 mkdir -p www/benchmark_output/runs || exit 1

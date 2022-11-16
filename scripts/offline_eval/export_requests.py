@@ -5,17 +5,17 @@ import typing
 from collections import Counter
 from dacite import from_dict
 
-from common.request import Request
-from common.cache import (
+from helm.common.request import Request
+from helm.common.cache import (
     KeyValueStoreCacheConfig,
     MongoCacheConfig,
     SqliteCacheConfig,
     create_key_value_store,
     request_to_key,
 )
-from common.hierarchical_logger import hlog, htrack, htrack_block
-from proxy.clients.together_client import TogetherClient
-from proxy.clients.microsoft_client import MicrosoftClient
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.proxy.clients.together_client import TogetherClient
+from helm.proxy.clients.microsoft_client import MicrosoftClient
 
 
 """
