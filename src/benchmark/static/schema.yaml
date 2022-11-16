@@ -913,7 +913,7 @@ metric_groups:
       split: ${main_split}
     - name: num_prompt_tokens
       split: ${main_split}
-    - name: num_completion_tokens
+    - name: num_output_tokens
       split: ${main_split}
     - name: num_train_trials
       split: ${main_split}

@@ -539,7 +539,7 @@ class BasicMetric(Metric):
             runtime = request_state.result.batch_request_time
             batch_size = request_state.result.batch_size
 
-        # Compute total number of prompt and output tokens (in first sequence).
+        # Compute total number of prompt and output tokens.
         # Fetch the right `Tokenizer` depending on the model defined in `AdapterSpec`
         # and calculate the number of tokens in the prompt.
         tokenizer_service: TokenizerService = metric_service
@@ -547,14 +547,12 @@ class BasicMetric(Metric):
         prompt: str = request_state.request.prompt
         num_prompt_tokens: int = window_service.get_num_tokens(prompt)
 
-        # Just take the first completion
-        # TODO: don't we need to take into account all the completions, since
-        # the runtime we get (that's used to compute denoised_runtime) is for
-        # generating all of them?
-        # TODO: we should unify this into num_completion_tokens
-        sequence = request_state.result.completions[0]
-        num_output_tokens: int = len(sequence.tokens)
+        # Total number of tokens in the completion.
+        num_completion_tokens: int = sum([len(completion.tokens) for completion in request_state.result.completions])
         # Don't include prompt in number of generated tokens (e.g., for language modeling).
+        # Assume that tokens for different completions are generated sequentially (instead of batched) when
+        # computing num_output_tokens (for the purpose of runtime estimation).
+        num_output_tokens: int = num_completion_tokens
         if request_state.request.echo_prompt:
             # num_prompt_tokens > num_output_tokens can happen if tokenizer doesn't round trip.
             if num_prompt_tokens <= num_output_tokens:
@@ -591,10 +589,6 @@ class BasicMetric(Metric):
         else:
             training_energy_cost = None
 
-        # Total number of tokens in the completion
-        num_completion_tokens = sum([len(completion.tokens) for completion in request_state.result.completions])
-
-        # TODO: unify num_completion_tokens and num_output_tokens
         stats = [
             Stat(MetricName("num_prompt_tokens")).add(num_prompt_tokens),
             Stat(MetricName("num_completion_tokens")).add(num_completion_tokens),
