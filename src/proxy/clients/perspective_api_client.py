@@ -28,7 +28,9 @@ class PerspectiveAPIClient:
     """
 
     ORGANIZATION = "perspectiveapi"
-    MAX_TEXT_LENGTH: int = 15_000  # Cap text at 15,000 characters long before sending the request
+
+    # Maximum allowed text length by Perspective API
+    MAX_TEXT_LENGTH: int = 20_480
 
     @staticmethod
     def create_request_body(text: str, attributes: List[str], languages: List[str]) -> Dict:
