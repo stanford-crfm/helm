@@ -23,6 +23,6 @@ ln -sf $suite www/benchmark_output/runs/latest || exit 1
 chmod -R og=u-w www || exit 1
 
 # Make it live
-echo To make the contents of www live, do a git push or run something like:
-echo
-echo rsync -arvz www/ /nlp/scr2/htdocs-helm/$suite
+echo "Publishing to https://nlp.stanford.edu/helm/current"
+rsync -arvz www/* /nlp/scr2/htdocs-helm/$suite
+echo "Done."
