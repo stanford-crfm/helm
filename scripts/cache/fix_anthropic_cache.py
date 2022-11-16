@@ -5,10 +5,10 @@ from typing import Dict, List
 
 from sqlitedict import SqliteDict
 
-from common.cache import key_to_request, request_to_key, SqliteCacheConfig
-from common.general import parse_hocon
-from common.hierarchical_logger import hlog, htrack
-from proxy.clients.anthropic_client import AnthropicClient
+from helm.common.cache import key_to_request, request_to_key, SqliteCacheConfig
+from helm.common.general import parse_hocon
+from helm.common.hierarchical_logger import hlog, htrack
+from helm.proxy.clients.anthropic_client import AnthropicClient
 
 """
 Fix the Anthropic cache with one of two commands:

@@ -9,21 +9,21 @@ generated for each distinct tokenizer used.
 import os
 from typing import Dict, List, Tuple
 
-from common.general import ensure_directory_exists, ensure_file_downloaded, parse_hocon, write
-from common.tokenization_request import (
+from helm.common.general import ensure_directory_exists, ensure_file_downloaded, parse_hocon, write
+from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
     DecodeRequest,
     DecodeRequestResult,
     TokenizationToken,
 )
-from proxy.clients.client import Client
-from proxy.clients.auto_client import AutoClient
-from proxy.services.service import (
+from helm.proxy.clients.client import Client
+from helm.proxy.clients.auto_client import AutoClient
+from helm.proxy.services.service import (
     CREDENTIALS_FILE,
     CACHE_DIR,
 )
-from benchmark.scenarios.synthetic_efficiency_scenario import NUM_INPUT_TOKENS
+from helm.benchmark.scenarios.synthetic_efficiency_scenario import NUM_INPUT_TOKENS
 
 MAX_ITERS = 5
 

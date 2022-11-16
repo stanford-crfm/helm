@@ -31,19 +31,11 @@ setup(
     install_requires=get_requirements("requirements.txt"),
     entry_points={
         "console_scripts": [
-            "helm-run=benchmark.run:main",
-            "helm-present=benchmark.presentation.present:main",
-            "helm-summarize=benchmark.presentation.summarize:main",
-            "helm-server=benchmark.server:main",
-            "crfm-proxy-server=proxy.server:main",
-            "crfm-proxy-cli=proxy.cli:main",
-            # TODO: Remove deprecated command names
-            "benchmark-run=benchmark.run:main",
-            "benchmark-present=benchmark.presentation.present:main",
-            "benchmark-summarize=benchmark.presentation.summarize:main",
-            "benchmark-server=benchmark.server:main",
-            "proxy-server=proxy.server:main",
-            "proxy-cli=proxy.cli:main",
+            "helm-run=helm.benchmark.presentation.present:main",
+            "helm-summarize=helm.benchmark.presentation.summarize:main",
+            "helm-server=helm.benchmark.server:main",
+            "crfm-proxy-server=helm.proxy.server:main",
+            "crfm-proxy-cli=helm.proxy.cli:main",
         ]
     },
     zip_safe=False,
