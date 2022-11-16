@@ -320,7 +320,7 @@ $(function () {
   function renderGroupHeader(scenario) {
     const $output = $('<div>');
     if (urlParams.group) {
-      $.getJSON(`benchmark_output/runs/${suite}/groups_metadata.json`, {}, (response) => {
+      $.getJSON(groupsMetadataJsonUrl(suite), {}, (response) => {
         const group = response[urlParams.group];
         if (group) {
           let groupName = group.display_name;
@@ -622,19 +622,19 @@ $(function () {
 
     // Paths (parallel arrays corresponding to `runSpecs`)
     const statsPaths = runSpecs.map((runSpec) => {
-      return `benchmark_output/runs/${suite}/${runSpec.name}/stats.json`;
+      return statsJsonUrl(suite, runSpec.name);
     });
     const perInstanceStatsPaths = runSpecs.map((runSpec) => {
-      return `benchmark_output/runs/${suite}/${runSpec.name}/per_instance_stats_slim.json`;
+      return perInstanceStatsJsonUrl(suite, runSpec.name);
     });
     const scenarioPaths = runSpecs.map((runSpec) => {
-      return `benchmark_output/runs/${suite}/${runSpec.name}/scenario.json`;
+      return scenarioJsonUrl(suite, runSpec.name);
     });
     const scenarioStatePaths = runSpecs.map((runSpec) => {
-      return `benchmark_output/runs/${suite}/${runSpec.name}/scenario_state_slim.json`;
+      return scenarioStateJsonUrl(suite, runSpec.name);
     });
     const runSpecPaths = runSpecs.map((runSpec) => {
-      return `benchmark_output/runs/${suite}/${runSpec.name}/run_spec.json`;
+      return runSpecJsonUrl(suite, runSpec.name);
     });
 
     // Figure out short names for the runs based on where they differ
@@ -1047,7 +1047,7 @@ $(function () {
       console.log('schema', raw);
       schema = new Schema(raw);
     }),
-    $.get(`benchmark_output/runs/${suite}/summary.json`, {}, (response) => {
+    $.get(summaryJsonUrl(suite), {}, (response) => {
       console.log('summary', response);
       summary = response;
       $summary.append(`${summary.suite} (last updated ${summary.date})`);
@@ -1061,7 +1061,7 @@ $(function () {
     } else if (urlParams.runSpec || urlParams.runSpecs || urlParams.runSpecRegex) {
       // Predictions for a set of run specs (matching a regular expression)
       $main.text('Loading runs...');
-      $.getJSON(`benchmark_output/runs/${suite}/run_specs.json`, {}, (response) => {
+      $.getJSON(runSpecsJsonUrl(suite), {}, (response) => {
         $main.empty();
         const runSpecs = response;
         console.log('runSpecs', runSpecs);
@@ -1091,7 +1091,7 @@ $(function () {
     } else if (urlParams.runs) {
       // All runs (with search)
       $main.text('Loading runs...');
-      $.getJSON(`benchmark_output/runs/${suite}/run_specs.json`, {}, (runSpecs) => {
+      $.getJSON(runSpecsJsonUrl(suite), {}, (runSpecs) => {
         $main.empty();
         console.log('runSpecs', runSpecs);
         $main.append(renderHeader('Runs', renderRunsOverview(runSpecs)));
@@ -1099,7 +1099,7 @@ $(function () {
     } else if (urlParams.groups) {
       // All groups
       $main.text('Loading groups...');
-      const path = `benchmark_output/runs/${suite}/groups.json`;
+      const path = groupsJsonUrl(suite);
       $.getJSON(path, {}, (tables) => {
         $main.empty();
         console.log('groups', tables);
@@ -1109,7 +1109,7 @@ $(function () {
     } else if (urlParams.group) {
       // Specific group
       $main.text('Loading group...');
-      const path = `benchmark_output/runs/${suite}/groups/${urlParams.group}.json`;
+      const path = groupJsonUrl(suite, urlParams.group);
       $.getJSON(path, {}, (tables) => {
         $main.empty();
         console.log('group', tables);
