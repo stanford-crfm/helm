@@ -1,7 +1,7 @@
 import argparse
 
-from common.cache import create_key_value_store, MongoCacheConfig
-from common.hierarchical_logger import hlog, htrack
+from helm.common.cache import create_key_value_store, MongoCacheConfig
+from helm.common.hierarchical_logger import hlog, htrack
 
 """
 Removes Together API entries from cache.

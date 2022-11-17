@@ -4,14 +4,14 @@ The dry run results will be outputted to benchmark_output/runs/together.
 
 Usage:
 
-  bash scripts/generate-together-requests.sh <Any additional CLI arguments for benchmark-present>
+  bash scripts/generate-together-requests.sh <Any additional CLI arguments for helm-run>
 
   e.g.,
   bash scripts/generate-together-requests.sh --max-eval-instances 1000 --priority 2 --local
 
 To kill a running process:
 
-  ps -A | grep benchmark-present
+  ps -A | grep helm-run
   kill <pid>
 '
 
@@ -40,7 +40,7 @@ do
     logfile="${logfile// /_}"   # Replace spaces
 
     # Override with passed-in CLI arguments
-    # By default, the command will run the RunSpecs listed in src/benchmark/presentation/run_specs.conf
+    # By default, the command will run the RunSpecs listed in src/helm/benchmark/presentation/run_specs.conf
     # and output results to `benchmark_output/runs/together`.
-    execute "benchmark-present --suite together --dry-run --models-to-run $model $* &> dryrun_$logfile.log &"
+    execute "helm-run --suite together --dry-run --models-to-run $model $* &> dryrun_$logfile.log &"
 done
