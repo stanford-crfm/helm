@@ -166,7 +166,8 @@ class Summarizer:
     LOGPROBS_ISSUE_MODELS: Set[str] = {
         "anthropic/stanford-online-all-v4-s3",
         "ai21/j1-jumbo",
-        "ai21/j1-grande" "ai21/j1-large",
+        "ai21/j1-grande",
+        "ai21/j1-large",
     }
     LOGPROBS_ISSUE_METRICS: Set[str] = {
         # MSMARCO metrics
@@ -494,7 +495,7 @@ class Summarizer:
         matcher: MetricNameMatcher,
         contamination_level: Optional[str],
         additional_info: Optional[str],
-        obfuscate_value: bool = False,
+        hide_value: bool = False,
     ) -> Cell:
         """
         Use the metric name identified by `matcher` to pull out the stats from
@@ -541,7 +542,7 @@ class Summarizer:
             return Cell(value=None, description=f"{len(runs)} matching runs, but no matching metrics")
 
         # TODO: need to exclude contaminated numbers somehow
-        value: Optional[float] = None if obfuscate_value else aggregate_stat.mean
+        value: Optional[float] = None if hide_value else aggregate_stat.mean
         description = aggregate_stat.bare_str()
         if additional_info:
             description += "\n" + additional_info
@@ -703,7 +704,7 @@ class Summarizer:
                 # HACK: we want to hide stats for the following model-metric combinations:
                 # 1. Calibration metrics + AI21/Anthropic
                 # 2. MSMARCO metrics + AI21/Anthropic
-                obfuscate_value: bool = (
+                hide_value: bool = (
                     model_name in Summarizer.LOGPROBS_ISSUE_MODELS and matcher.name in Summarizer.LOGPROBS_ISSUE_METRICS
                 )
                 cells.append(
@@ -712,7 +713,7 @@ class Summarizer:
                         matcher,
                         contamination_level,
                         additional_info=description,
-                        obfuscate_value=obfuscate_value,
+                        hide_value=hide_value,
                     )
                 )
 
