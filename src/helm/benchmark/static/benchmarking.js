@@ -739,6 +739,10 @@ $(function () {
     // Render metrics/stats
     getJSONList(statsPaths, (statsList) => {
       console.log('metrics', statsList);
+      if (statsList.length && statsList.every((stat) => stat.length === 0)) {
+        $statsContainer.empty().text("Metrics are currently unavailable. Please try again later.")
+        return;
+      }
       const $stats = $('<table>');
       const $statsSearch = $('<input>', {type: 'text', size: 40, placeholder: 'Enter keywords to filter metrics'});
       if (runSpecs.length > 1) {
@@ -767,6 +771,10 @@ $(function () {
     const instanceToDiv = {};  // For each instance
     getJSONList(scenarioPaths, (scenarios, index) => {
       console.log('scenarios', scenarios);
+      if (scenarios.length && scenarios.every((scenario) => scenario === undefined)) {
+        $instancesContainer.empty().text("Instances and predictions are currently unavailable. Please try again later.")
+        return;
+      }
 
       const onlyOneScenario = scenarios.length && scenarios.every((scenario) => scenario.definition_path === scenarios[0].definition_path);
       const scenario = onlyOneScenario ? scenarios[0] : null;

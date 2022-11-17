@@ -127,7 +127,6 @@ function getJSONList(paths, callback, defaultValue) {
   }, (error) => {
     console.error('Failed to load / parse:', paths.filter((path) => !(path in responses)));
     console.error(error.responseText);
-    JSON.parse(error.responseText);
     callback(paths.map((path) => responses[path] || defaultValue));
   });
 }
