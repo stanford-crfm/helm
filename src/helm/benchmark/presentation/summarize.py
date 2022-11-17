@@ -32,6 +32,7 @@ from .schema import (
     BY_GROUP,
     THIS_GROUP_ONLY,
     NO_GROUPS,
+    DOWN_ARROW,
 )
 from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
 
@@ -161,6 +162,30 @@ class Summarizer:
     """Summarize the benchmark results in JSON files to be displayed in the UI."""
 
     COST_REPORT_FIELDS: List[str] = ["num_prompt_tokens", "num_completion_tokens", "num_completions", "num_requests"]
+
+    # We need to hide stats for these model-metric combinations
+    LOGPROBS_ISSUE_MODELS: Set[str] = {
+        "anthropic/stanford-online-all-v4-s3",
+        "ai21/j1-jumbo",
+        "ai21/j1-grande",
+        "ai21/j1-large",
+    }
+    LOGPROBS_ISSUE_METRICS: Set[str] = {
+        # MSMARCO metrics
+        "NDCG@10",
+        "RR@10",
+        "NDCG@20",
+        "RR@20",
+        # Calibration metrics
+        "ece_1_bin",
+        "ece_10_bin",
+        "platt_ece_1_bin",
+        "platt_ece_10_bin",
+        "platt_coef",
+        "platt_intercept",
+        "selective_cov_acc_area",
+        "selective_acc@10",
+    }
 
     def __init__(self, suite: str, output_path: str, verbose: bool, num_threads: int, omit_suite_from_urls: bool):
         self.suite: str = suite
@@ -474,6 +499,7 @@ class Summarizer:
         matcher: MetricNameMatcher,
         contamination_level: Optional[str],
         additional_info: Optional[str],
+        hide_value: bool = False,
     ) -> Cell:
         """
         Use the metric name identified by `matcher` to pull out the stats from
@@ -520,7 +546,7 @@ class Summarizer:
             return Cell(value=None, description=f"{len(runs)} matching runs, but no matching metrics")
 
         # TODO: need to exclude contaminated numbers somehow
-        value = aggregate_stat.mean
+        value: Optional[float] = None if hide_value else aggregate_stat.mean
         description = aggregate_stat.bare_str()
         if additional_info:
             description += "\n" + additional_info
@@ -542,6 +568,7 @@ class Summarizer:
         columns: List[Tuple[RunGroup, str]],  # run_group, metric_group
         sort_by_model_order: bool = True,
         sub_split: Optional[str] = None,
+        bold_columns: bool = True,
     ) -> Table:
         """
         Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
@@ -635,7 +662,7 @@ class Summarizer:
         # Populate the contents of the table
         rows = []
         for adapter_spec, info in zip(adapter_specs, infos):
-            model_name = adapter_spec.model
+            model_name: str = adapter_spec.model
 
             # Get the model display name from the schema.
             # Fall back to using the model name as the model display name if the model is not
@@ -671,6 +698,7 @@ class Summarizer:
                 # version and not the default aggregation across a sparse set of tasks, e.g., `task: {all, 3, 15, 19}`
                 if "babi" in group_name and "task:" not in name:
                     group_runs = [run for run in group_runs if "task=all" in run.run_spec.name]
+
                 point = self.contamination.get_point(model_name, group_name)
                 if point is not None:
                     description = CONTAMINATION_SYMBOLS[point.level] + " " + point.description
@@ -678,7 +706,22 @@ class Summarizer:
                 else:
                     description = ""
                     contamination_level = None
-                cells.append(self.create_cell(group_runs, matcher, contamination_level, additional_info=description))
+
+                # HACK: we want to hide stats for the following model-metric combinations:
+                # 1. Calibration metrics + AI21/Anthropic
+                # 2. MSMARCO metrics + AI21/Anthropic
+                hide_value: bool = (
+                    model_name in Summarizer.LOGPROBS_ISSUE_MODELS and matcher.name in Summarizer.LOGPROBS_ISSUE_METRICS
+                )
+                cells.append(
+                    self.create_cell(
+                        group_runs,
+                        matcher,
+                        contamination_level,
+                        additional_info=description,
+                        hide_value=hide_value,
+                    )
+                )
 
             rows.append(cells)
 
@@ -699,7 +742,22 @@ class Summarizer:
             if len(all_run_spec_names) >= 2 and len(all_run_spec_names) <= 5:
                 links.append(Hyperlink(text="compare all", href=run_spec_names_to_url(all_run_spec_names)))
 
-        return Table(title=title, header=header, rows=rows, links=links, name=name)
+        table = Table(title=title, header=header, rows=rows, links=links, name=name)
+        if bold_columns:
+            for i in range(1, len(header)):
+                # TODO: handle lower_is_better in a cleaner way
+                lower_is_better = DOWN_ARROW in header[i].value
+                values = [float(row[i].value) for row in rows if row[i].value is not None]
+                if not values:
+                    continue
+                best = min(values) if lower_is_better else max(values)
+                for row in rows:
+                    cell = row[i]
+                    if cell.value is not None and cell.value == best:
+                        bold_style = cell.style.copy() if cell.style is not None else {}
+                        bold_style["font-weight"] = "bold"
+                        row[i] = replace(cell, style=bold_style)
+        return table
 
     def create_group_tables_by_metric_group(self, group: RunGroup) -> List[Table]:
         """Creates a list of tables, one for each metric group (e.g., accuracy, robustness).
@@ -766,7 +824,7 @@ class Summarizer:
                         for sub_split in subgroup.sub_splits:
                             table = self.create_group_table(
                                 title=f"{subgroup.display_name} (sub-split: {sub_split})",
-                                name=f"{subgroup.name}:sub_splut={sub_split}",
+                                name=f"{subgroup.name}:sub_split={sub_split}",
                                 adapter_to_runs=adapter_to_runs,
                                 columns=columns,
                                 link_to_runs=False,
