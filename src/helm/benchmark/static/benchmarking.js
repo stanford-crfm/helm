@@ -78,6 +78,47 @@ $(function () {
     return $table;
   }
 
+  function renderScenarios() {
+    const $table = $('<table>', {class: 'query-table results-table'});
+
+    const $header = $('<tr>').append([
+      $('<td>').append('Scenario'),
+      $('<td>').append('Task'),
+      $('<td>').append('What'),
+      $('<td>').append('When'),
+      $('<td>').append('Who'),
+      $('<td>').append('Language'),
+      $('<td>').append('Description'),
+    ]);
+    $table.append($header);
+
+    schema.run_groups.forEach((group) => {
+      if (group.category) {
+        return;
+      }
+      const $name = $('<div>').append([
+        $('<div>').append(group.display_name),
+        $('<div>', {class: 'technical-details'}).append(group.name),
+      ]);
+      const task = group.taxonomy && group.taxonomy.task;
+      const what = group.taxonomy && group.taxonomy.what;
+      const who = group.taxonomy && group.taxonomy.who;
+      const when = group.taxonomy && group.taxonomy.when;
+      const language = group.taxonomy && group.taxonomy.language;
+      const $row = $('<tr>').append([
+        $('<td>').append($name),
+        $('<td>').append(task),
+        $('<td>').append(what),
+        $('<td>').append(who),
+        $('<td>').append(when),
+        $('<td>').append(language),
+        $('<td>').append(renderMarkdown(group.description)),
+      ]);
+      $table.append($row);
+    });
+    return $table;
+  }
+
   function renderRunsOverview(runSpecs) {
     let query = '';
     const $search = $('<input>', {type: 'text', size: 40, placeholder: 'Enter regex query (enter to open all)'});
@@ -330,7 +371,13 @@ $(function () {
           $output.append($('<h3>').append(groupName));
           $output.append($('<div>').append($('<i>').append(renderMarkdown(group.description))));
           if (group.taxonomy) {
-            $output.append($('<div>').append(Object.entries(group.taxonomy).map(([k, v]) => `<b>${k}</b>: ${v}`).join(' | ')));
+            const $rows = Object.entries(group.taxonomy).map(([k, v]) => {
+              return $('<tr>').append([
+                $('<td>').append(`<b>${k}</b>`),
+                $('<td>').append(v),
+              ]);
+            });
+            $output.append($('<table>', {class: 'taxonomy-table'}).append($rows));
           }
         }
       });
@@ -404,18 +451,20 @@ $(function () {
 
         // Input
         $instance.append($('<div>').append('Input:'));
-        $instance.append($('<i>').append(multilineHtml(input)));
+        $instance.append($('<div>', {class: 'instance-input'}).append(multilineHtml(input)));
 
         // References
-        $instance.append($('<div>').append('References:'));
-        const $references = $('<ul>');
-        instance.references.forEach((reference, referenceIndex) => {
-          const originalReference = instance.perturbation && originalInstance.references[referenceIndex];
-          const output = instance.perturbation ? highlightNewWords(reference.output, originalReference.output) : reference.output;
-          const suffix = reference.tags.length > 0 ? ' ' + ('[' + reference.tags.join(',') + ']').bold() : '';
-          $references.append($('<li>').append([$('<i>').append(output), suffix]));
-        });
-        $instance.append($references);
+        if (instance.references.length > 0) {
+          $instance.append($('<div>').append(instance.references.length === 1 ? 'Reference:' : 'References:'));
+          const $references = $('<ul>');
+          instance.references.forEach((reference, referenceIndex) => {
+            const originalReference = instance.perturbation && originalInstance.references[referenceIndex];
+            const output = instance.perturbation ? highlightNewWords(reference.output, originalReference.output) : reference.output;
+            const suffix = reference.tags.length > 0 ? ' ' + ('[' + reference.tags.join(',') + ']').bold() : '';
+            $references.append($('<li>').append([$('<span>', {class: 'instance-reference'}).append(output), suffix]));
+          });
+          $instance.append($references);
+        }
       }
       $prediction = $('<div>');
       $prediction.addClass('prediction').text('Loading predictions...');
@@ -944,13 +993,13 @@ $(function () {
     $result.append($organizations);
 
     $description.append($('<ol>').append([
-      $('<li>').append('<b>Incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to evaluate, making explicit what is missing.')
+      $('<li>').append('<b>Broad coverage and recognition of incompleteness</b>. We define a taxonomy over the scenarios we would ideally like to evaluate, select scenarios and metrics to cover the space and make explicit what is missing.')
                .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/taxonomy-scenarios.png', width: '300px'}))),
-      $('<li>').append('<b>Multi-metric</b>. Rather than focus on isolated metrics such as accuracy, we simultaneously measure multiple metrics (e.g., accuracy, robustness, calibration, efficiency) for each scenario, allowing analysis of tradeoffs.')
+      $('<li>').append('<b>Multi-metric measurement</b>. Rather than focus on isolated metrics such as accuracy, we simultaneously measure multiple metrics (e.g., accuracy, robustness, calibration, efficiency) for each scenario, allowing analysis of tradeoffs.')
                .append($('<div>', {class: 'text-center'}).append($('<img>', {src: 'images/scenarios-by-metrics.png', width: '300px'}))),
-      $('<li>').append('<b>Standardization</b>. We evaluate all the models that we could access from the following organizations on the same scenarios using the same adaptation (e.g., prompting) strategy, allowing for fair side-by-side comparisons.')
+      $('<li>').append('<b>Standardization</b>. We evaluate all the models that we have access to on the same scenarios with the same adaptation strategy (e.g., prompting), allowing for controlled comparisons. Thanks to all the companies for providing API access to the limited-access and closed models and <a href="https://together.xyz">Together</a> for providing the infrastructure to run the open models.')
                .append($organizations),
-      $('<li>').append('<b>Transparency</b>. All the scenarios, predictions, prompts, code are available for further analysis on this website.'),
+      $('<li>').append('<b>Transparency</b>. All the scenarios, predictions, prompts, code are available for further analysis on this website. We invite you to click below to explore!'),
     ]));
 
     $result.append([
@@ -1057,6 +1106,11 @@ $(function () {
       // Models
       $main.empty()
       $main.append(renderHeader('Models', renderModels()));
+      refreshHashLocation();
+    } else if (urlParams.scenarios) {
+      // Models
+      $main.empty()
+      $main.append(renderHeader('Scenarios', renderScenarios()));
       refreshHashLocation();
     } else if (urlParams.runSpec || urlParams.runSpecs || urlParams.runSpecRegex) {
       // Predictions for a set of run specs (matching a regular expression)
