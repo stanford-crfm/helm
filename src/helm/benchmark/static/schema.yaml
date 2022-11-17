@@ -1587,6 +1587,12 @@ run_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
+    taxonomy:
+      task: language modeling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English, code
 
   - name: twitter_aae
     display_name: TwitterAAE
@@ -1598,6 +1604,12 @@ run_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
+    taxonomy:
+      task: language modeling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English (AAE-aligned and White-aligned)
 
   - name: twitter_aae_aa
     display_name: TwitterAAE (AA)
@@ -1609,6 +1621,12 @@ run_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
+    taxonomy:
+      task: language modeling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English (AAE-aligned)
 
   - name: twitter_aae_white
     display_name: TwitterAAE (white)
@@ -1620,6 +1638,12 @@ run_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
+    taxonomy:
+      task: language modeling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English (White-aligned)
 
 # Minimal pairs
   - name: blimp
@@ -1633,6 +1657,12 @@ run_groups:
     environment:
       main_name: exact_match
       main_split: test
+    taxonomy:
+      task: grammaticality
+      what: constructed minimal pair sentences
+      who: linguists
+      when: 2019
+      language: English
 
 ## Knowledge scenarios
   - name: wikifact
@@ -1645,6 +1675,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: knowledge base completion
+      what: entity-relation-entity triples in natural language form
+      who: automatically generated from templates
+      when: "?"
+      language: structured English
 
 ## Reasoning scenarios
 # Primitive-focused reasoning

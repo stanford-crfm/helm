@@ -96,8 +96,9 @@ $(function () {
       if (group.category) {
         return;
       }
+      const href = groupUrl(group.name);
       const $name = $('<div>').append([
-        $('<div>').append(group.display_name),
+        $('<div>').append($('<a>', {href}).append(group.display_name)),
         $('<div>', {class: 'technical-details'}).append(group.name),
       ]);
       const task = group.taxonomy && group.taxonomy.task;
@@ -799,11 +800,11 @@ $(function () {
   }
 
   function modelUrl(model) {
-    return encodeUrlParams(Object.assign({}, urlParams, {models: 1}));
+    return encodeUrlParams(Object.assign({}, urlParams, {scenarios: null, models: 1}));
   }
 
   function groupUrl(group) {
-    return encodeUrlParams(Object.assign({}, urlParams, {group}));
+    return encodeUrlParams(Object.assign({}, urlParams, {scenarios: null, group}));
   }
 
   function metricUrl(group) {
