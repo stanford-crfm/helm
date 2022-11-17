@@ -709,7 +709,7 @@ class Summarizer:
                 for row in rows:
                     cell = row[i]
                     if cell.value is not None and cell.value == best:
-                        bold_style = cell.style.copy()
+                        bold_style = cell.style.copy() if cell.style is not None else {}
                         bold_style["font-weight"] = "bold"
                         row[i] = replace(cell, style=bold_style)
         return table
