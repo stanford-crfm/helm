@@ -699,9 +699,8 @@ class Summarizer:
 
         table = Table(title=title, header=header, rows=rows, links=links, name=name)
         if bold_columns:
-            for i in range(len(header)):
-                if i == 0:
-                    continue
+            for i in range(1, len(header)):
+                # TODO: handle lower_is_better in a cleaner way
                 lower_is_better = DOWN_ARROW in header[i].value
                 values = [float(row[i].value) for row in rows if row[i].value is not None]
                 if not values:
