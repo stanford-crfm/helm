@@ -463,7 +463,7 @@ class Summarizer:
 
                 rows.append(
                     [
-                        Cell(group.display_name, href=get_benchmarking_url({"suite": self.suite, "group": group.name})),
+                        Cell(group.display_name, href=get_benchmarking_url({"group": group.name})),
                         Cell(group.description, markdown=True),
                         Cell(", ".join(methods)),
                         get_cell(num_instances, compute_mean=True),
@@ -629,7 +629,6 @@ class Summarizer:
         def run_spec_names_to_url(run_spec_names: List[str]) -> str:
             return get_benchmarking_url(
                 {
-                    "suite": self.suite,
                     "group": run_group.name,
                     "subgroup": title,
                     "runSpecs": json.dumps(run_spec_names),
