@@ -956,8 +956,8 @@ $(function () {
 
     $result.append($('<div>', {class: 'col-sm-12'}).append(helmLogo()));
 
-    const $blog = button('Blog post', 'https://crfm.stanford.edu/blog');
-    const $paper = button('Paper', 'https://drive.google.com/file/d/1ZNpe28eS159O4WKuP_b4IrUgP4LA5CFj/view');
+    const $blog = button('Blog post', 'https://crfm.stanford.edu/2022/11/17/helm.html');
+    const $paper = button('Paper', 'https://arxiv.org/pdf/2211.09110.pdf');
     const $code = button('GitHub', 'https://github.com/stanford-crfm/helm');
     $result.append($('<div>', {class: 'col-sm-12'}).append($('<div>', {class: 'text-center'}).append([$blog, $paper, $code])));
 
@@ -982,13 +982,14 @@ $(function () {
       organization('images/organizations/bigscience.png', 'https://bigscience.huggingface.co/', largerSize),
       organization('images/organizations/cohere.png', 'https://cohere.ai/', defaultSize),
       organization('images/organizations/eleutherai.png', 'https://www.eleuther.ai/', largerSize),
-      organization('images/organizations/google.png', 'https://ai.facebook.com/', defaultSize),
+      organization('images/organizations/google.png', 'https://ai.google/', defaultSize),
       organization('images/organizations/meta.png', 'https://ai.facebook.com/', largerSize),
       organization('images/organizations/microsoft.png', 'https://turing.microsoft.com/', defaultSize),
+      organization('images/organizations/nvidia.png', 'https://www.nvidia.com/en-us/research/machine-learning-artificial-intelligence/', largerSize),
       organization('images/organizations/openai.png', 'https://openai.com/', defaultSize),
       organization('images/organizations/tsinghua-keg.png', 'https://keg.cs.tsinghua.edu.cn/', largerSize),
       organization('images/organizations/yandex.png', 'https://yandex.com/', defaultSize),
-      organization('images/organizations/together.png', 'https://together.xyz/', largerSize),
+      organization('images/organizations/together.png', 'https://together.xyz/', defaultSize),
     ]);
     $result.append($organizations);
 

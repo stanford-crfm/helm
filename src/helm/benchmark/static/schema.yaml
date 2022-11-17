@@ -991,7 +991,7 @@ run_groups:
 ## Top-level
   - name: core_scenarios
     display_name: Core scenarios
-    description: Includes all the scenarios where we evaluate all the models.
+    description: The scenarios where we evaluate all the models.
     # TODO: Could category just be supergroup everywhere?
     category: All scenarios
     subgroups:
@@ -1004,7 +1004,7 @@ run_groups:
 
   - name: targeted_scenarios
     display_name: Targeted evaluations
-    description: Where we look at different skills (e.g., language, reasoning, etc.)
+    description: Deep dive into different skills (e.g., language, knowledge, reasoning, etc.) and risks (e.g., disinformation, memorization/copyright).
     category: All scenarios
     subgroups:
       - language
@@ -1249,8 +1249,8 @@ run_groups:
     taxonomy:
       task: question answering
       what: passages are books and movie scripts, questions are unknown
-      who: unknown
-      when: unknown
+      who: "?"
+      when: "?"
       language: English
 
   - name: natural_qa_closedbook
@@ -1313,6 +1313,12 @@ run_groups:
     environment:
       main_name: f1_score
       main_split: valid
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
 
   - name: hellaswag
     display_name: HellaSwag
@@ -1327,6 +1333,12 @@ run_groups:
     environment:
       main_name: exact_match
       main_split: valid
+    taxonomy:
+      task: question answering
+      what: commonsense reasoning
+      who: "?"
+      when: "?"
+      language: English
 
   - name: openbookqa
     display_name: OpenbookQA
@@ -1341,6 +1353,12 @@ run_groups:
     environment:
       main_name: exact_match
       main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
 
   - name: truthful_qa
     display_name: TruthfulQA
@@ -1355,6 +1373,12 @@ run_groups:
     environment:
       main_name: exact_match
       main_split: valid
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
 
   - name: mmlu
     display_name: MMLU (Massive Multitask Language Understanding)
@@ -1370,6 +1394,12 @@ run_groups:
     environment:
       main_name: exact_match
       main_split: test
+    taxonomy:
+      task: question answering
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
 
 # Information retrieval scenarios
   - name: msmarco_regular
@@ -1387,6 +1417,12 @@ run_groups:
     environment:
       main_name: RR@10
       main_split: valid
+    taxonomy:
+      task: information retrieval
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
 
   - name: msmarco_trec
     display_name: MS MARCO (TREC track)
@@ -1403,6 +1439,12 @@ run_groups:
     environment:
       main_name: NDCG@10
       main_split: valid
+    taxonomy:
+      task: information retrieval
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
 
 # Summarization scenarios
   - name: summarization_cnndm
@@ -1418,6 +1460,12 @@ run_groups:
     environment:
       main_name: rouge_2
       main_split: test
+    taxonomy:
+      task: summarization
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
 
   - name: summarization_xsum
     display_name: XSUM
@@ -1432,6 +1480,12 @@ run_groups:
     environment:
       main_name: rouge_2
       main_split: test
+    taxonomy:
+      task: summarization
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
 
 # Sentiment analysis scenarios
   - name: imdb
@@ -1449,6 +1503,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: valid
+    taxonomy:
+      task: sentiment analysis
+      what: movie reviews
+      who: "?"
+      when: "?"
+      language: English
 
 # Text classification scenarios
   - name: raft
@@ -1467,6 +1527,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: text classification
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
 
 # Toxicity detection scenarios
   - name: civil_comments
@@ -1484,6 +1550,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: toxicity classification
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English
 
 ## Language scenarios
 # Language modeling
@@ -1498,6 +1570,12 @@ run_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
+    taxonomy:
+      task: language modeling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English varieties
 
   - name: the_pile
     display_name: The Pile
