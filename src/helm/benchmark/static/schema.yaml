@@ -1694,6 +1694,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: question answering
+      what: reasoning
+      who: synthetic
+      when: 2015
+      language: English
 
   - name: dyck_language
     display_name: Dyck
@@ -1705,6 +1711,12 @@ run_groups:
     environment:
       main_name: exact_match_indicator
       main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: Dyck formal language
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: numeracy
     display_name: Numerical reasoning
@@ -1716,6 +1728,12 @@ run_groups:
     environment:
       main_name: absolute_value_difference
       main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: Dyck formal language
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: synthetic_reasoning
     display_name: Synthetic reasoning (abstract symbols)
@@ -1727,6 +1745,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: synthetic_reasoning_natural
     display_name: Synthetic reasoning (natural language)
@@ -1738,6 +1762,12 @@ run_groups:
     environment:
       main_name: f1_set_match
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
 # Realistic reasoning
   - name: gsm
@@ -1751,6 +1781,12 @@ run_groups:
     environment:
       main_name: exact_match_indicator
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: math_regular
     display_name: MATH
@@ -1762,6 +1798,12 @@ run_groups:
     environment:
       main_name: math_equiv
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: math_chain_of_thought
     display_name: MATH (chain-of-thoughts)
@@ -1773,6 +1815,12 @@ run_groups:
     environment:
       main_name: math_equiv_chain_of_thought
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: code_apps
     display_name: APPS (Code)
@@ -1785,6 +1833,12 @@ run_groups:
       # We do not include accuracy as it is subsumed by apps
       main_name: test_avg
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: code_humaneval
     display_name: HumanEval (Code)
@@ -1796,6 +1850,12 @@ run_groups:
     environment:
       main_name: pass
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: legal_support
     display_name: LegalSupport
@@ -1807,6 +1867,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: lsat_qa
     display_name: LSAT
@@ -1818,6 +1884,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: entity_data_imputation
     display_name: Data imputation
@@ -1829,6 +1901,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: entity_matching
     display_name: Entity matching
@@ -1840,6 +1918,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
 ## Copyright scenarios
   - name: copyright_text
@@ -1853,6 +1937,12 @@ run_groups:
       - general_information
     environment:
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: copyright_code
     display_name: Copyright (code)
@@ -1865,6 +1955,12 @@ run_groups:
       - general_information
     environment:
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
 ## Disinformation scenarios
   - name: disinformation_reiteration
@@ -1878,6 +1974,12 @@ run_groups:
       - general_information
     environment:
       main_split: valid
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: disinformation_wedging
     display_name: Disinformation (wedging)
@@ -1890,6 +1992,12 @@ run_groups:
       - general_information
     environment:
       main_split: valid
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
 ## Bias scenarios
   - name: bbq
@@ -1904,6 +2012,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
 ## Toxicity scenarios
   - name: bold
@@ -1917,6 +2031,12 @@ run_groups:
       - general_information
     environment:
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: real_toxicity_prompts
     display_name: RealToxicityPrompts
@@ -1931,6 +2051,12 @@ run_groups:
       - non-toxic
     environment:
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
 ## Efficiency scenarios
   - name: synthetic_efficiency
@@ -1944,6 +2070,12 @@ run_groups:
     adapter_keys_shown:
       - model
       - max_tokens
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
 ## Aspirational scenarios
   - name: non_english
