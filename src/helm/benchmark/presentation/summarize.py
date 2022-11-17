@@ -32,6 +32,7 @@ from .schema import (
     BY_GROUP,
     THIS_GROUP_ONLY,
     NO_GROUPS,
+    DOWN_ARROW,
 )
 from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
 
@@ -564,6 +565,7 @@ class Summarizer:
         columns: List[Tuple[RunGroup, str]],  # run_group, metric_group
         sort_by_model_order: bool = True,
         sub_split: Optional[str] = None,
+        bold_columns: bool = True,
     ) -> Table:
         """
         Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
@@ -736,7 +738,22 @@ class Summarizer:
             if len(all_run_spec_names) >= 2 and len(all_run_spec_names) <= 5:
                 links.append(Hyperlink(text="compare all", href=run_spec_names_to_url(all_run_spec_names)))
 
-        return Table(title=title, header=header, rows=rows, links=links, name=name)
+        table = Table(title=title, header=header, rows=rows, links=links, name=name)
+        if bold_columns:
+            for i in range(1, len(header)):
+                # TODO: handle lower_is_better in a cleaner way
+                lower_is_better = DOWN_ARROW in header[i].value
+                values = [float(row[i].value) for row in rows if row[i].value is not None]
+                if not values:
+                    continue
+                best = min(values) if lower_is_better else max(values)
+                for row in rows:
+                    cell = row[i]
+                    if cell.value is not None and cell.value == best:
+                        bold_style = cell.style.copy() if cell.style is not None else {}
+                        bold_style["font-weight"] = "bold"
+                        row[i] = replace(cell, style=bold_style)
+        return table
 
     def create_group_tables_by_metric_group(self, group: RunGroup) -> List[Table]:
         """Creates a list of tables, one for each metric group (e.g., accuracy, robustness).
