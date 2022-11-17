@@ -162,6 +162,29 @@ class Summarizer:
 
     COST_REPORT_FIELDS: List[str] = ["num_prompt_tokens", "num_completion_tokens", "num_completions", "num_requests"]
 
+    # We need to hide stats for these model-metric combinations
+    LOGPROBS_ISSUE_MODELS: Set[str] = {
+        "anthropic/stanford-online-all-v4-s3",
+        "ai21/j1-jumbo",
+        "ai21/j1-grande" "ai21/j1-large",
+    }
+    LOGPROBS_ISSUE_METRICS: Set[str] = {
+        # MSMARCO metrics
+        "NDCG@10",
+        "RR@10",
+        "NDCG@20",
+        "RR@20",
+        # Calibration metrics
+        "ece_1_bin",
+        "ece_10_bin",
+        "platt_ece_1_bin",
+        "platt_ece_10_bin",
+        "platt_coef",
+        "platt_intercept",
+        "selective_cov_acc_area",
+        "selective_acc@10",
+    }
+
     def __init__(self, suite: str, output_path: str, verbose: bool, num_threads: int):
         self.suite: str = suite
         self.run_suite_path: str = os.path.join(output_path, "runs", suite)
@@ -471,6 +494,7 @@ class Summarizer:
         matcher: MetricNameMatcher,
         contamination_level: Optional[str],
         additional_info: Optional[str],
+        obfuscate_value: bool = False,
     ) -> Cell:
         """
         Use the metric name identified by `matcher` to pull out the stats from
@@ -517,7 +541,7 @@ class Summarizer:
             return Cell(value=None, description=f"{len(runs)} matching runs, but no matching metrics")
 
         # TODO: need to exclude contaminated numbers somehow
-        value = aggregate_stat.mean
+        value: Optional[float] = None if obfuscate_value else aggregate_stat.mean
         description = aggregate_stat.bare_str()
         if additional_info:
             description += "\n" + additional_info
@@ -631,7 +655,7 @@ class Summarizer:
         # Populate the contents of the table
         rows = []
         for adapter_spec, info in zip(adapter_specs, infos):
-            model_name = adapter_spec.model
+            model_name: str = adapter_spec.model
 
             # Get the model display name from the schema.
             # Fall back to using the model name as the model display name if the model is not
@@ -667,6 +691,7 @@ class Summarizer:
                 # version and not the default aggregation across a sparse set of tasks, e.g., `task: {all, 3, 15, 19}`
                 if "babi" in group_name and "task:" not in name:
                     group_runs = [run for run in group_runs if "task=all" in run.run_spec.name]
+
                 point = self.contamination.get_point(model_name, group_name)
                 if point is not None:
                     description = CONTAMINATION_SYMBOLS[point.level] + " " + point.description
@@ -674,7 +699,22 @@ class Summarizer:
                 else:
                     description = ""
                     contamination_level = None
-                cells.append(self.create_cell(group_runs, matcher, contamination_level, additional_info=description))
+
+                # HACK: we want to hide stats for the following model-metric combinations:
+                # 1. Calibration metrics + AI21/Anthropic
+                # 2. MSMARCO metrics + AI21/Anthropic
+                obfuscate_value: bool = (
+                    model_name in Summarizer.LOGPROBS_ISSUE_MODELS and matcher.name in Summarizer.LOGPROBS_ISSUE_METRICS
+                )
+                cells.append(
+                    self.create_cell(
+                        group_runs,
+                        matcher,
+                        contamination_level,
+                        additional_info=description,
+                        obfuscate_value=obfuscate_value,
+                    )
+                )
 
             rows.append(cells)
 
@@ -762,7 +802,7 @@ class Summarizer:
                         for sub_split in subgroup.sub_splits:
                             table = self.create_group_table(
                                 title=f"{subgroup.display_name} (sub-split: {sub_split})",
-                                name=f"{subgroup.name}:sub_splut={sub_split}",
+                                name=f"{subgroup.name}:sub_split={sub_split}",
                                 adapter_to_runs=adapter_to_runs,
                                 columns=columns,
                                 link_to_runs=False,
