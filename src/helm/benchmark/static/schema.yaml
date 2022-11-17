@@ -762,7 +762,7 @@ metrics:
 perturbations:
   - name: robustness
     display_name: Robustness
-    description: Computes worst case over different robustness perturbations (typos and synonyms).
+    description: Computes worst case over different robustness perturbations (misspellings, formatting, contrast sets).
   - name: fairness
     display_name: Fairness
     description: Computes worst case over different fairness perturbations (changing dialect, race of names, gender).
