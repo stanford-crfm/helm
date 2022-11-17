@@ -627,12 +627,13 @@ class Summarizer:
         run_group = columns[0][0]
 
         def run_spec_names_to_url(run_spec_names: List[str]) -> str:
-            url_params = {
-                "group": run_group.name,
-                "subgroup": title,
-                "runSpecs": json.dumps(run_spec_names),
-            }
-            return get_benchmarking_url(url_params)
+            return get_benchmarking_url(
+                {
+                    "group": run_group.name,
+                    "subgroup": title,
+                    "runSpecs": json.dumps(run_spec_names),
+                }
+            )
 
         adapter_specs: List[AdapterSpec] = list(adapter_to_runs.keys())
         if sort_by_model_order:
@@ -931,10 +932,7 @@ def main():
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(
-        suite=args.suite,
-        output_path=args.output_path,
-        verbose=args.debug,
-        num_threads=args.num_threads,
+        suite=args.suite, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
     )
     summarizer.read_runs()
     summarizer.check_metrics_defined()
