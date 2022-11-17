@@ -105,3 +105,18 @@ tr {
   margin: auto;
   padding: 10px;
 }
+
+.instance-input {
+  font-style: italic;
+  background-color: #f5f5f5;
+  margin-left: 20px;
+}
+
+.instance-reference {
+  font-style: italic;
+  background-color: #f5f5f5;
+}
+
+.taxonomy-table {
+  margin: 10px;
+}
