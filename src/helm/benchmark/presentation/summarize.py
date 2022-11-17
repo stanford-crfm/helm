@@ -162,11 +162,12 @@ class Summarizer:
 
     COST_REPORT_FIELDS: List[str] = ["num_prompt_tokens", "num_completion_tokens", "num_completions", "num_requests"]
 
-    def __init__(self, suite: str, output_path: str, verbose: bool, num_threads: int):
+    def __init__(self, suite: str, output_path: str, verbose: bool, num_threads: int, omit_suite_from_urls: bool):
         self.suite: str = suite
         self.run_suite_path: str = os.path.join(output_path, "runs", suite)
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
+        self.omit_suite_from_urls: bool = omit_suite_from_urls
 
         self.schema = read_schema()
         self.contamination = read_contamination()
@@ -435,10 +436,12 @@ class Summarizer:
 
                 if len(num_instances) == 0:
                     continue
-
+                url_params = {"suite": self.suite, "group": group.name}
+                if self.omit_suite_from_urls:
+                    del url_params["suite"]
                 rows.append(
                     [
-                        Cell(group.display_name, href=get_benchmarking_url({"suite": self.suite, "group": group.name})),
+                        Cell(group.display_name, href=get_benchmarking_url(url_params)),
                         Cell(group.description, markdown=True),
                         Cell(", ".join(methods)),
                         get_cell(num_instances, compute_mean=True),
@@ -600,14 +603,15 @@ class Summarizer:
         run_group = columns[0][0]
 
         def run_spec_names_to_url(run_spec_names: List[str]) -> str:
-            return get_benchmarking_url(
-                {
-                    "suite": self.suite,
-                    "group": run_group.name,
-                    "subgroup": title,
-                    "runSpecs": json.dumps(run_spec_names),
-                }
-            )
+            url_params = {
+                "suite": self.suite,
+                "group": run_group.name,
+                "subgroup": title,
+                "runSpecs": json.dumps(run_spec_names),
+            }
+            if self.omit_suite_from_urls:
+                del url_params["suite"]
+            return get_benchmarking_url(url_params)
 
         adapter_specs: List[AdapterSpec] = list(adapter_to_runs.keys())
         if sort_by_model_order:
@@ -871,11 +875,20 @@ def main():
         action="store_true",
         help="Don't generate any per-instance stats.",
     )
+    parser.add_argument(
+        "--omit-suite-from-urls",
+        action="store_true",
+        help="Don't put the suite in the run spec URLs.",
+    )
     args = parser.parse_args()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(
-        suite=args.suite, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
+        suite=args.suite,
+        output_path=args.output_path,
+        verbose=args.debug,
+        num_threads=args.num_threads,
+        omit_suite_from_urls=args.omit_suite_from_urls,
     )
     summarizer.read_runs()
     summarizer.check_metrics_defined()
