@@ -1,5 +1,8 @@
-Welcome!  This repository contains all the assets for the CRFM benchmarking
-project, which includes the following features:
+[comment]: <> (When using the img tag, which allows us to specify size, src has to be a URL.)
+<img src="https://github.com/stanford-crfm/helm/raw/main/src/helm/benchmark/static/images/helm-logo.png" alt=""  width="800"/>
+
+Welcome!  This repository contains all the assets for [Holistic Evaluation of Language Models](https://arxiv.org/abs/2211.09110), 
+which includes the following features:
 
 - Collection of datasets in a standard format (e.g., NaturalQuestions)
 - Collection of models accessible via a unified API (e.g., GPT-3, MT-NLG, OPT, BLOOM)
