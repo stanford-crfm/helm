@@ -328,7 +328,6 @@ class MATHScenario(Scenario):
     tags = ["knowledge", "reasoning"]
 
     subjects_mapping = {
-        "all": "All",
         "number_theory": "Number Theory",
         "intermediate_algebra": "Intermediate Algebra",
         "algebra": "Algebra",
