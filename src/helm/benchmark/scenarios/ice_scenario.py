@@ -130,6 +130,8 @@ class ICEScenario(Scenario):
     chosen to eliminate (save for the speaker annotations in the spoken texts).
 
     Here is a spoken text example (from ICE India):
+
+    ```
     <|endoftext|><$A>
 
     He says one minute
@@ -147,8 +149,11 @@ class ICEScenario(Scenario):
 
     I gave it you no
     ...
+    ```
 
     Here is a written text example (from ICE-USA):
+
+    ```
     <|endoftext|>The U.S. Mint:
 
 
@@ -161,6 +166,7 @@ class ICEScenario(Scenario):
     you use daily - pennies, nickels, dimes, quarters and dollars.
      In addition, the U.S. Mint also issues annual proof and uncirculated
     ...
+    ```
 
     Each subset contains exactly 500 texts and maintains a standardized distribution across categories.
     One notable exception to this distribution is the USA subset, for which the spoken texts

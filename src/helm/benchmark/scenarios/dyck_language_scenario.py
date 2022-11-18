@@ -8,19 +8,21 @@ from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CO
 class DyckLanguageScenario(Scenario):
     """
     "Memory-Augmented Recurrent Neural Networks Can Learn Generalized Dyck Languages" (Suzgun et al., 2019)
-        (https://arxiv.org/abs/1911.03329)
+    (https://arxiv.org/abs/1911.03329)
 
     Disclaimer:
-        A similar version of this generation was used in the generation of the following BigBench task:
-        https://github.com/google/BIG-bench/tree/main/bigbench/benchmark_tasks/dyck_languages.
 
-        The `dyck_languages` task in BigBench is formulated as a multiple choice task and contains 1K distinct
-        Dyck-4 sequences, whose lengths are bounded to [4, 100]. In this version of the task, however, we are
-        allowing the user to specify the sizes and lengths of the training and test sets, as well as the
-        types/numbers of parenthesis-pairs used.
+    A similar version of this generation was used in the generation of the following BigBench task:
+    https://github.com/google/BIG-bench/tree/main/bigbench/benchmark_tasks/dyck_languages.
+
+    The `dyck_languages` task in BigBench is formulated as a multiple choice task and contains 1K distinct
+    Dyck-4 sequences, whose lengths are bounded to [4, 100]. In this version of the task, however, we are
+    allowing the user to specify the sizes and lengths of the training and test sets, as well as the
+    types/numbers of parenthesis-pairs used.
 
     Task:
-        Predict the sequence of the closing parentheses of a Dyck-n word without its last few closing parentheses.
+
+    Predict the sequence of the closing parentheses of a Dyck-n word without its last few closing parentheses.
 
     Args:
         seed: Numpy random seed.
@@ -40,6 +42,7 @@ class DyckLanguageScenario(Scenario):
         max_output_size: Maximum allowed length of the output.
 
     I/O examples:
+
         -- Input : ( ( [
         -- Output: ] ) )
 

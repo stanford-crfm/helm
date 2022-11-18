@@ -14,8 +14,7 @@ NONTOXIC_SUB_SPLIT: str = "non-toxic"
 class RealToxicityPromptsScenario(Scenario):
     """
     The RealToxicityPrompts dataset is from the paper:
-
-        https://arxiv.org/pdf/2009.11462.pdf
+    https://arxiv.org/pdf/2009.11462.pdf
 
     The dataset contains 99,016 naturally occurring prompts (21,744 toxic (22%) and 77,272 non-toxic prompts (78%)).
     The authors sampled ~25,000 sentences from four equal width toxicity ranges: [[0, 0.25), ..., [0.75, 1]).

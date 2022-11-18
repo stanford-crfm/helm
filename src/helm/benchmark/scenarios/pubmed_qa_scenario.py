@@ -18,8 +18,9 @@ class PubMedQAScenario(Scenario):
     The train and dev splits are from the "pqal_fold0" fold. A copy of the preprocessed dataset is stored at
     https://worksheets.codalab.org/bundles/0x531c9c54d8314d289da812af608b86fb.
 
-    The following is an example from the dataset:
+    The following is an example from the dataset
 
+    ```
     "QUESTION": "Is anorectal endosonography valuable in dyschesia?",
     "CONTEXTS": [
         "Dyschesia can be provoked by inappropriate defecation movements. The aim of this prospective study was to
@@ -63,7 +64,11 @@ class PubMedQAScenario(Scenario):
     "reasoning_required_pred": "yes",
     "reasoning_free_pred": "yes",
     "final_decision": "yes"
+    ```
 
+    Citation
+
+    ```
     @inproceedings{jin2019pubmedqa,
       title={PubMedQA: A Dataset for Biomedical Research Question Answering},
       author={Jin, Qiao and Dhingra, Bhuwan and Liu, Zhengping and Cohen, William and Lu, Xinghua},
@@ -72,13 +77,15 @@ class PubMedQAScenario(Scenario):
       pages={2567--2577},
       year={2019}
     }
+    ```
 
     To reproduce the zero-shot performance of OpenAI's text-davinci-002 model on PubMedQA, we follow what was
     done in "Can large language models reason about medical questions?" (Liévin et al.) when constructing
     the `Instance`s.
 
-    The following is the template of how they constructed the prompts:
+    The following is the template of how they constructed the prompts
 
+    ```
     Context: <Label>. <context>
     <Label>. <context>
     <Label>. <context>
@@ -88,9 +95,13 @@ class PubMedQAScenario(Scenario):
     A) yes
     B) no
     C) maybe
+    ```
 
     among A through C, the answer is
 
+    Citation
+
+    ```
     @misc{https://doi.org/10.48550/arxiv.2207.08143,
       doi = {10.48550/ARXIV.2207.08143},
       url = {https://arxiv.org/abs/2207.08143},
@@ -102,6 +113,7 @@ class PubMedQAScenario(Scenario):
       year = {2022},
       copyright = {arXiv.org perpetual, non-exclusive license}
     }
+    ```
     """
 
     name = "pubmed_qa"

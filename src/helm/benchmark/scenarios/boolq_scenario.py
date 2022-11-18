@@ -9,15 +9,16 @@ from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, C
 class BoolQScenario(Scenario):
     """
     The BoolQ dataset is from the paper:
-        https://arxiv.org/abs/1905.10044
+    https://arxiv.org/abs/1905.10044
 
     Original repository can be found at:
-        https://github.com/google-research-datasets/boolean-questions
+    https://github.com/google-research-datasets/boolean-questions
 
     BoolQ is a QA dataset containing 15942 (9427 training, 3270 dev, 3245 test) boolean (Yes/No) questions.
     Each sample contains a passage, a question and an answer that are generated in an unconstrained/unprompted setting.
 
-    We prompt models using the following format:
+    We prompt models using the following format
+
         <passage>
         Question: <question>?
         Answer:
@@ -26,6 +27,7 @@ class BoolQScenario(Scenario):
             <answer>
 
     Using an example from the training dataset, we have
+
         Context: Epsom railway station serves the town of Epsom in Surrey. It is located off Waterloo Road and is
         less than two minutes' walk from the High Street.
         It is not in the London Oyster card zone unlike Epsom Downs or Tattenham Corner stations.
@@ -37,10 +39,10 @@ class BoolQScenario(Scenario):
             Yes
 
     We also integrate contrast sets for this dataset from the paper:
-        https://arxiv.org/abs/2004.02709
+    https://arxiv.org/abs/2004.02709
 
     Original repository can be found at:
-        https://github.com/allenai/contrast-sets
+    https://github.com/allenai/contrast-sets
 
     Each sample contains the original <passage, question, answer> triplet, and the human-perturbed version
     i.e. <passage, perturbed question, perturbed answer>.
@@ -50,6 +52,8 @@ class BoolQScenario(Scenario):
     For more details, see the original paper, Appendix B.9.
 
     An example instance of a perturbation (from the original paper):
+
+    ```
     The Fate of the Furious premiered in Berlin on April 4, 2017, and was theatrically released in the
     United States on April 14, 2017, playing in 3D, IMAX 3D and 4DX internationally. . . A spinoff film starring
     Johnson and Statham’s characters is scheduled for release in August 2019, while the ninth and tenth films are
@@ -60,6 +64,7 @@ class BoolQScenario(Scenario):
     perturbed question: is “Fate and the Furious” the first of multiple movies?
     perturbed answer: Yes
     perturbation strategy: adjective change.
+    ```
     """
 
     name = "boolq"
@@ -67,7 +72,10 @@ class BoolQScenario(Scenario):
     tags = ["question_answering"]
 
     def __init__(self, only_contrast=False):
-        """only_contrast: Produce only inputs that have a contrast version."""
+        """
+        Args:
+          only_contrast: Produce only inputs that have a contrast version.
+        """
         self.only_contrast = only_contrast
 
     def get_context(self, passage: str, question: str) -> str:

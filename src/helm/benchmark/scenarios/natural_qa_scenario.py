@@ -28,10 +28,10 @@ SPLITS = {"train": TRAIN_SPLIT, "val": VALID_SPLIT}
 class NaturalQAScenario(Scenario):
     """
     The NaturalQA dataset is from the paper:
-        https://ai.google/research/pubs/pub47761
+    https://ai.google/research/pubs/pub47761
 
     Original repository can be found at:
-        https://github.com/google-research-datasets/natural-questions
+    https://github.com/google-research-datasets/natural-questions
 
     This scenario is adapted from https://huggingface.co/datasets/natural_questions
 
@@ -48,15 +48,17 @@ class NaturalQAScenario(Scenario):
     answer during training, and the set of all possible answers during validation.
 
     We consider three modes of this scenario:
-    (1) closed book: No context provided
-    (2) open book w/ wiki document: The entire wiki document is used as context
-    (3) open book w/ long answer: Only the long answer marked by the annotators is
+
+    1. closed book: No context provided
+    2. open book w/ wiki document: The entire wiki document is used as context
+    3. open book w/ long answer: Only the long answer marked by the annotators is
         provided as the context.
 
     The motivation to consider (3) is that the entire wiki document may not fit into
     the language model's context window.
 
     Concretely, we prompt models using the following format:
+
         (Optional) Title: <title_1>
         (Optional) Context: <context text_1>
         Question: <question_1>
@@ -74,14 +76,23 @@ class NaturalQAScenario(Scenario):
             <answer>
 
     Example (mode:closed):
+
+    ```
     Question: how many customers does edf have in the uk
     Answer: '5.7 million'
 
     Question: who is the largest supermarket chain in the uk
-    Reference:
+    ```
+
+    Reference
+
+    ```
     ['Tesco', 'Aldi']
+    ```
 
     Example (mode:open_longans)
+
+    ```
     Context: A dissenting opinion (or dissent) is an opinion in a legal case in certain legal
     systems written by one or more judges expressing disagreement with the majority opinion
     of the court which gives rise to its judgment. When not necessarily
@@ -103,11 +114,17 @@ class NaturalQAScenario(Scenario):
     relationships – through each of their four very different, individual perspectives.
 
     Question: where does sex and the city take place
-    Reference:
+    ```
+
+    Reference
+
+    ```
     ['New York City']
+    ```
 
     Example (mode:wiki)
 
+    ```
     Title: Upstream (petroleum industry)
 
     Context: Upstream ( petroleum industry ) - wikipedia  Upstream ( petroleum industry )  Jump to :
@@ -130,9 +147,13 @@ class NaturalQAScenario(Scenario):
     performing at MMRBQ 2016 , Camden NJ May 21 , 2016 ...
 
     Question: who is the lead singer of collective soul
-    Reference:
-    ['Ed Roland']
+    ```
 
+    Reference
+
+    ```
+    ['Ed Roland']
+    ```
     """
 
     name = "natural_qa"
