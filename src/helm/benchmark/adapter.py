@@ -892,26 +892,30 @@ class Adapter:
         unlabeled_instances: List[Instance] = []
         label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
 
+        # Bucket instances by their labels: label -> Instance0, Instance1,...
         for instance in all_train_instances:
             if instance.first_correct_reference:
                 label_to_instances[instance.first_correct_reference.output].append(instance)
             else:
                 unlabeled_instances.append(instance)
 
-        # Sort the labels by the number of Instances that belong to them
-        sorted_labels: List[str] = [
-            key for key, _ in sorted(label_to_instances.items(), key=lambda x: len(x[1]), reverse=True)
-        ]
-        labels_iterable = cycle(sorted_labels)
+        # Group instances that have the same label counts: count -> Instance0, Instance1,...
+        label_counts_to_instances: Dict[int, List[Instance]] = defaultdict(list)
+        for instances in label_to_instances.values():
+            label_counts_to_instances[len(instances)].extend(instances)
+
+        # Sort the counts
+        sorted_counts: List[int] = sorted(label_counts_to_instances.keys(), reverse=True)
+        counts_iterable = cycle(sorted_counts)
 
         examples: List[Instance] = []
         while num_instances_to_sample > 0:
-            next_label: Optional[str] = next(labels_iterable, None)
-            if not next_label:
+            next_count: Optional[int] = next(counts_iterable, None)
+            if not next_count:
                 break
 
-            instances: List[Instance] = label_to_instances[next_label]
-            # If there are no Instances to sample for this particular label, skip it.
+            instances = label_counts_to_instances[next_count]
+            # If there are no Instances to sample for this particular count, skip it.
             if len(instances) == 0:
                 continue
 

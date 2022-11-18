@@ -161,6 +161,19 @@ class TestAdapter:
         examples = adapter.sample_examples(all_train_instances, seed=0)
         assert len(examples) == 1
 
+    def test_sample_examples_open_ended_generation(self):
+        adapter_spec = AdapterSpec(model=DEFAULT_MODEL, max_train_instances=3)
+        adapter = Adapter(adapter_spec, self.tokenizer_service)
+
+        all_train_instances: List[Instance] = [
+            Instance(f"prompt{i}", references=[Reference(f"reference{i}", tags=[CORRECT_TAG])]) for i in range(1, 10)
+        ]
+        seed0_examples: List[Instance] = adapter.sample_examples(all_train_instances, seed=0)
+        seed1_examples: List[Instance] = adapter.sample_examples(all_train_instances, seed=1)
+
+        assert len(seed0_examples) == len(seed1_examples) == 3
+        assert seed0_examples != seed1_examples, "Expect selected examples differ when changing the seed"
+
     def test_fits_tokens_within_context_window(self):
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,
