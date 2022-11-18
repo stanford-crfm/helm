@@ -1,11 +1,11 @@
 import getpass
 
-from common.authentication import Authentication
-from common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
-from common.request import Request, RequestResult
-from common.tokenization_request import TokenizationRequest, TokenizationRequestResult
-from proxy.accounts import Account
-from proxy.services.remote_service import RemoteService
+from helm.common.authentication import Authentication
+from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
+from helm.common.request import Request, RequestResult
+from helm.common.tokenization_request import TokenizationRequest, TokenizationRequestResult
+from helm.proxy.accounts import Account
+from helm.proxy.services.remote_service import RemoteService
 
 # An example of how to use the request API.
 api_key = getpass.getpass(prompt="Enter a valid API key: ")

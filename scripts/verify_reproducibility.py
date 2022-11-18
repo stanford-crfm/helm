@@ -4,7 +4,7 @@ import shutil
 import subprocess
 from typing import List, Optional
 
-from common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 
 """
 Verifies that the Scenario construction and generation of prompts are
@@ -34,7 +34,7 @@ def do_dry_run(
     hlog(f"Deleted old results at path: {output_path}.")
 
     command: List[str] = [
-        "benchmark-present",
+        "helm-run",
         f"--suite={dryrun_suite}",
         f"--conf-path={conf_path}",
         f"--max-eval-instances={max_eval_instances}",
@@ -126,7 +126,7 @@ if __name__ == "__main__":
         "--conf-path",
         type=str,
         help="Where to read RunSpecs to run from",
-        default="src/benchmark/presentation/run_specs.conf",
+        default="src/helm/benchmark/presentation/run_specs.conf",
     )
     parser.add_argument(
         "--models-to-run",
