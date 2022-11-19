@@ -769,7 +769,10 @@ $(function () {
     // TODO: Get all JSON files in parallel.
     // Render scenario instances
     const instanceToDiv = {};  // For each instance
-    getJSONList(scenarioPaths, (scenarios, index) => {
+    const scenariosPromise = getJSONList(scenarioPaths);
+    const scenarioStatesPromise = getJSONList(scenarioStatePaths);
+    const perInstanceStatsPromise = getJSONList(perInstanceStatsPaths);
+    const instanceKeyToDivPromise = scenariosPromise.then((scenarios) => {
       console.log('scenarios', scenarios);
       if (scenarios.length && scenarios.every((scenario) => scenario === undefined)) {
         $instancesContainer.empty().text("Instances and predictions are currently unavailable. Please try again later.")
@@ -785,20 +788,16 @@ $(function () {
       const $instances = $('<div>');
       const instanceKeyToDiv = renderScenarioInstances(scenarios[0], $instances);
       $instancesContainer.empty().append($instances);
-
-      // Render the model predictions
-      getJSONList(scenarioStatePaths, (scenarioStates) => {
-        console.log('scenarioStates', scenarioStates);
-        getJSONList(perInstanceStatsPaths, (perInstanceStats) => {
-          console.log('perInstanceStats', perInstanceStats);
-          // For each run / model...
-          runSpecs.forEach((runSpec, index) => {
-            renderPredictions(runSpec, runDisplayNames[index], scenarioStates[index], perInstanceStats[index], instanceKeyToDiv);
-          });
-        });
+      return instanceKeyToDiv;
+    });
+    $.when(scenarioStatesPromise, perInstanceStatsPromise, instanceKeyToDivPromise).then((scenarioStates, perInstanceStats, instanceKeyToDiv) => {
+      console.log('scenarioStates', scenarioStates);
+      console.log('perInstanceStats', perInstanceStats);
+      // For each run / model...
+      runSpecs.forEach((runSpec, index) => {
+        renderPredictions(runSpec, runDisplayNames[index], scenarioStates[index], perInstanceStats[index], instanceKeyToDiv);
       });
     });
-
     return $root;
   }
 
