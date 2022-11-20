@@ -23,6 +23,13 @@ models:
     access: limited
     num_parameters: 17000000000
     release_date: 2022-05-03
+  - name: ai21/j1-grande-v2-beta
+    display_name: J1-Grande v2 beta (17B)
+    description: Jurassic-1 Grande v2 beta (17B parameters)
+    creator_organization: AI21 Labs
+    access: limited
+    num_parameters: 17000000000
+    release_date: 2022-10-28
 
   # Anthropic
   - name: anthropic/stanford-online-all-v4-s3
