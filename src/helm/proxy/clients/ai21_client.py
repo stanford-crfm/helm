@@ -110,6 +110,7 @@ class AI21Client(Client):
             # e.g. "▁burying"(0,8) -> 8 - 0 = 8; "▁burying"(0,7) -> 7 - 0 = 7
             text_length: int = raw["textRange"]["end"] - raw["textRange"]["start"]
             # "topTokens" can be None when sending a request with topKReturn=0
+            # AI21 sends unscaled logprobs as `raw_logprob` so use this instead of `logprob`.
             top_logprobs: Dict[str, float] = dict(
                 (fix_text(x["token"], first), x["raw_logprob"]) for x in raw["topTokens"] or []
             )
