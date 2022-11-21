@@ -1091,7 +1091,7 @@ run_groups:
 
   - name: language
     display_name: Language
-    description: Coverage over different genres (via language modeling) and testing linguistic capabilities.
+    description: Targeted evaluation of linguistic capabilities.
     category: Targeted evaluations
     subgroups:
       - the_pile
@@ -1101,7 +1101,7 @@ run_groups:
 
   - name: knowledge
     display_name: Knowledge
-    description: World and commonsense knowledge.
+    description: Targeted evaluation of knowledge (e.g. factual, cultural, commonsense).
     category: Targeted evaluations
     subgroups:
       - natural_qa_closedbook
@@ -1113,7 +1113,7 @@ run_groups:
 
   - name: reasoning
     display_name: Reasoning
-    description: Reasoning capabilities, both synthetic and real.
+    description: Targeted evaluation of reasoning capabilities (e.g. mathematical, hierarchical).
     category: Targeted evaluations
     subgroups:
       - synthetic_reasoning
@@ -1132,7 +1132,7 @@ run_groups:
 
   - name: harms
     display_name: Harms
-    description: Closer analysis of various social harms (e.g., copyright, disinformation, social bias, toxicity).
+    description: Targeted evaluation of social harms (e.g., copyright, disinformation, social bias, toxicity).
     category: Targeted evaluations
     subgroups:
       - copyright_text
@@ -1145,7 +1145,7 @@ run_groups:
 
   - name: efficiency
     display_name: Efficiency
-    description: Evaluating fine-grained training and inference efficiency
+    description: Targeted evaluation of training and inference efficiency.
     category: Targeted evaluations
     subgroups:
       - synthetic_efficiency
