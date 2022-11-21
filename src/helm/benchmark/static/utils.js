@@ -120,15 +120,25 @@ function renderHeader(header, body) {
 function getJSONList(paths, callback, defaultValue) {
   // Fetch the JSON files `paths`, and pass the list of results into `callback`.
   const responses = {};
+  const deferred = $.Deferred();
   $.when(
     ...paths.map((path) => $.getJSON(path, {}, (response) => { responses[path] = response; })),
   ).then(() => {
-    callback(paths.map((path) => responses[path] || defaultValue));
+    const result = paths.map((path) => responses[path] || defaultValue);
+    if (callback) {
+      callback(result);
+    }
+    deferred.resolve(result);
   }, (error) => {
     console.error('Failed to load / parse:', paths.filter((path) => !(path in responses)));
     console.error(error.responseText);
-    callback(paths.map((path) => responses[path] || defaultValue));
+    const result = paths.map((path) => responses[path] || defaultValue);
+    if (callback) {
+      callback(result);
+    }
+    deferred.resolve(result);
   });
+  return deferred.promise()
 }
 
 function getLast(l) {

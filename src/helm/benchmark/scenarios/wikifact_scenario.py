@@ -104,12 +104,15 @@ class WIKIFactScenario(Scenario):
     Fact Completion task using knowledge from WikiData.
     Data constructed using the dump at https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
 
-    We prompt models using the following format:
+    We prompt models using the following format
+
         Input sequence:
             <subject> <predicate>
         Output Sequence (Target completion):
             <object>
+
     Using an example from the training dataset, we have
+
         Doug Eckerty is an instance of human
         Chegerd, Khash is an instance of village
         S. George Ellsworth is an instance of

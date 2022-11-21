@@ -27,14 +27,18 @@ class EntityMatchingScenario(Scenario):
     A negative and positive example are below. Note that there are no newlines for a single row. We
     only add new lines between each row.
 
-    Input: Row A: title: adobe creative suite cs3 design premium upsell [ mac ] | manufacturer: adobe price: 1599.0
-           Row B: title: 19600061dm adobe creative suite 3 production premium media tlp download mac world
-           | manufacturer: nan price: 20.97
+    Input
+
+        Row A: title: adobe creative suite cs3 design premium upsell [ mac ] | manufacturer: adobe price: 1599.0
+        Row B: title: 19600061dm adobe creative suite 3 production premium media tlp download mac world
+        | manufacturer: nan price: 20.97
 
     Reference [CORRECT]: No
 
-    Input: Row A: title: adobe creative suite cs3 web premium upgrade [ mac ] | manufacturer: adobe price: 499.0
-           Row B: title: adobe cs3 web premium upgrade | manufacturer: nan price: 517.99
+    Input
+
+        Row A: title: adobe creative suite cs3 web premium upgrade [ mac ] | manufacturer: adobe price: 499.0
+        Row B: title: adobe cs3 web premium upgrade | manufacturer: nan price: 517.99
 
     Reference [CORRECT]: Yes
 

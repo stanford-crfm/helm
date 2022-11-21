@@ -11,14 +11,15 @@ class MMLUScenario(Scenario):
     """
     The Massive Multitask Language Understanding benchmark from this paper:
 
-        https://arxiv.org/pdf/2009.03300.pdf
+    - https://arxiv.org/pdf/2009.03300.pdf
 
     Code is adapted from:
 
-        https://github.com/hendrycks/test/blob/master/evaluate.py
-        https://github.com/EleutherAI/lm-evaluation-harness/blob/master/lm_eval/tasks/hendrycks_test.py
+    - https://github.com/hendrycks/test/blob/master/evaluate.py
+    - https://github.com/EleutherAI/lm-evaluation-harness/blob/master/lm_eval/tasks/hendrycks_test.py
 
-    We prompt models using the following format:
+    We prompt models using the following format
+
         <input>                  # train
         A. <reference>
         B. <reference>
@@ -36,6 +37,7 @@ class MMLUScenario(Scenario):
         Answer:
 
     For example (from mmlu:anatomy), we have:
+
         The pleura
         A. have no sensory innervation.
         B. are separated by a 2 mm space.

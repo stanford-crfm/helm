@@ -51,37 +51,40 @@ def get_raft_instructions(subset: str, cache_dir=None):
 class RAFTScenario(Scenario):
     """
     RAFT: A Real-World Few-Shot Text Classification Benchmark
-        https://arxiv.org/abs/2109.14076
+    https://arxiv.org/abs/2109.14076
 
     Official website for RAFT dataset:
-        https://raft.elicit.org/
+    https://raft.elicit.org/
 
     Dataset summary:
-        https://huggingface.co/datasets/ought/raft/blob/main/README.md
+    https://huggingface.co/datasets/ought/raft/blob/main/README.md
 
     Prompts are adapted from:
-        https://github.com/oughtinc/raft-baselines/tree/master/example_prompts
+    https://github.com/oughtinc/raft-baselines/tree/master/example_prompts
 
     Subsets:
-        ade_corpus_v2
-        banking_77
-        neurips_impact_statement_risks
-        one_stop_english
-        overruling
-        semiconductor_org_types
-        systematic_review_inclusion
-        tai_safety_research
-        terms_of_service
-        tweet_eval_hate
-        twitter_complaints
 
-    Prompt format:
-    Sentence: <sentence>
-    Label: <label>
+    - ade_corpus_v2
+    - banking_77
+    - neurips_impact_statement_risks
+    - one_stop_english
+    - overruling
+    - semiconductor_org_types
+    - systematic_review_inclusion
+    - tai_safety_research
+    - terms_of_service
+    - tweet_eval_hate
+    - twitter_complaints
+
+    Prompt format
+
+        Sentence: <sentence>
+        Label: <label>
 
     Examples from ADE corpus (adverse drug effect):
-    Sentence: No regional side effects were noted.
-    Label: not ADE-related
+
+        Sentence: No regional side effects were noted.
+        Label: not ADE-related
     """
 
     name = "raft"

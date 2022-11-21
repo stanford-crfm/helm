@@ -17,12 +17,13 @@ from .scenario import (
 class BabiQAScenario(Scenario):
     """
     The bAbI dataset is from the paper:
-        https://arxiv.org/abs/1502.05698
+    https://arxiv.org/abs/1502.05698
 
     Original repository can be found at:
-        https://github.com/facebookarchive/bAbI-tasks
+    https://github.com/facebookarchive/bAbI-tasks
 
     bAbi is a QA dataset containing 20 reasoning tasks:
+
     1. Single supporting fact
     2. Two supporting facts
     3. Three supporting facts 12%
@@ -44,10 +45,11 @@ class BabiQAScenario(Scenario):
     19. Path finding
     20. Motivation (Why did he go to the kitchen?)
 
-    each sample contains a passage (an ordered list of facts), a question and
+    Each sample contains a passage (an ordered list of facts), a question and
     an answer that are generated in an unconstrained/unprompted setting.
 
-    We prompt models using the following format:
+    We prompt models using the following format
+
         Input sequence:
             Passage: <passage>
             Question: <question>
@@ -56,7 +58,8 @@ class BabiQAScenario(Scenario):
         Output Sequence (Target completion):
             <answer>
 
-    Using an example from the training dataset, we have
+    Using an example from the training dataset, we have:
+
             Mary moved to the bathroom.
             John went to the hallway.
             Daniel went back to the hallway.

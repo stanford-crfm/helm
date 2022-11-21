@@ -284,43 +284,46 @@ class MATHScenario(Scenario):
     The MATH dataset from the paper
     "Measuring Mathematical Problem Solving With the MATH Dataset"
     by Hendrycks et al. (2021):
-
-        https://arxiv.org/pdf/2103.03874.pdf
+    https://arxiv.org/pdf/2103.03874.pdf
 
     Example input, using official examples:
 
-        Given a mathematics problem, determine the answer. Simplify your answer as much as possible.
-        ###
-        Problem: What is $\left(\frac{7}{8}\right)^3 \cdot \left(\frac{7}{8}\right)^{-3}$?
-        Answer: $1$
-        ###
-        Problem: In how many ways can 4 books be selected from a shelf of 6 books if the order in which the books are selected does not matter?
-        Answer: $15$
-        ###
-        Problem: Find the distance between the points $(2,1,-4)$ and $(5,8,-3).$
-        Answer: $\sqrt{59}$
-        ###
-        Problem: The faces of an octahedral die are labeled with digits $1$ through $8$. What is the probability, expressed as a common fraction, of rolling a sum of $15$ with a pair of such octahedral dice?
-        Answer: $\frac{1}{32}$
-        ###
-        Problem: The first three terms of an arithmetic sequence are 1, 10 and 19, respectively. What is the value of the 21st term?
-        Answer: $181$
-        ###
-        Problem: Calculate $6 \cdot 8\frac{1}{3}
-        Answer: $50$
-        ###
-        Problem: When the binary number $100101110010_2$ is divided by 4, what is the remainder (give your answer in base 10)?
-        Answer: $2$
-        ###
-        Problem: How many zeros are at the end of the product 25 $\times$ 240?
-        Answer: $3$
-        ###
-        Problem: What is $\dbinom{n}{n}$ for any positive integer $n$?
-        Answer: $
+    ```
+    Given a mathematics problem, determine the answer. Simplify your answer as much as possible.
+    ###
+    Problem: What is $\left(\frac{7}{8}\right)^3 \cdot \left(\frac{7}{8}\right)^{-3}$?
+    Answer: $1$
+    ###
+    Problem: In how many ways can 4 books be selected from a shelf of 6 books if the order in which the books are selected does not matter?
+    Answer: $15$
+    ###
+    Problem: Find the distance between the points $(2,1,-4)$ and $(5,8,-3).$
+    Answer: $\sqrt{59}$
+    ###
+    Problem: The faces of an octahedral die are labeled with digits $1$ through $8$. What is the probability, expressed as a common fraction, of rolling a sum of $15$ with a pair of such octahedral dice?
+    Answer: $\frac{1}{32}$
+    ###
+    Problem: The first three terms of an arithmetic sequence are 1, 10 and 19, respectively. What is the value of the 21st term?
+    Answer: $181$
+    ###
+    Problem: Calculate $6 \cdot 8\frac{1}{3}
+    Answer: $50$
+    ###
+    Problem: When the binary number $100101110010_2$ is divided by 4, what is the remainder (give your answer in base 10)?
+    Answer: $2$
+    ###
+    Problem: How many zeros are at the end of the product 25 $\times$ 240?
+    Answer: $3$
+    ###
+    Problem: What is $\dbinom{n}{n}$ for any positive integer $n$?
+    Answer: $
+    ```
 
-    Example expected output:
-        1$
+    Example expected output
 
+    ```
+    1$
+    ```
     """  # noqa
 
     name = "MATH"

@@ -15,12 +15,12 @@ CODALAB_URI_TEMPLATE: str = (
 class TwitterAAEScenario(Scenario):
     """
     The TwitterAAE corpus from this paper:
-
-        https://aclanthology.org/D16-1120.pdf
+    https://aclanthology.org/D16-1120.pdf
 
     Our AA and white datasets are different from the AA-aligned and white-aligned corpora in the paper.
 
     Specificaly, we derive the datasets in two steps:
+
     1. Select the 830,000 tweets with the highest AA proportions and 7.3 million tweets with the highest
     white proportions from the source dataset.
     2. Randomly sample 50,000 tweets from each demographic subset as our test set.

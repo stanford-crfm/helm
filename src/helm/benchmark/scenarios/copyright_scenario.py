@@ -41,8 +41,9 @@ class CopyrightScenario(Scenario):
     """Test the risk of disqualifying for fair use via data extraction attack.
 
     Each instance in this scenario contains
-        1) a randomly sampled prefix from the bookcorpus, and
-        2) the entire remaining book.
+
+    1. a randomly sampled prefix from the bookcorpus, and
+    2. the entire remaining book.
 
     Methodology adapted from
         Carlini, Nicholas, et al.

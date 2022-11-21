@@ -17,9 +17,11 @@ class BIGBenchScenario(Scenario):
 
     `BigBenchScenario` currently only supports JSON tasks and not programmatic tasks.
     See https://github.com/google/BIG-bench#creating-a-programmatic-task for more information.
+
     The following is a comprehensive list of the JSON tasks and programmatic tasks:
     https://github.com/google/BIG-bench/blob/main/bigbench/benchmark_tasks/keywords_to_tasks.md#json.
 
+    ```
     @misc{https://doi.org/10.48550/arxiv.2206.04615,
       doi = {10.48550/ARXIV.2206.04615},
       url = {https://arxiv.org/abs/2206.04615},
@@ -29,6 +31,7 @@ class BIGBenchScenario(Scenario):
       year = {2022},
       copyright = {arXiv.org perpetual, non-exclusive license}
     }
+    ```
     """
 
     name = "big_bench"

@@ -10,8 +10,7 @@ from .scenario import CORRECT_TAG, Reference, Scenario, Instance, TEST_SPLIT
 class BLiMPScenario(Scenario):
     """
     The BLiMP linguistic knowledge evaluation suite from this paper:
-
-        https://aclanthology.org/2020.tacl-1.25.pdf
+    https://aclanthology.org/2020.tacl-1.25.pdf
 
     BLiMP evaluates the linguistic knowledge of language models in terms of syntax, morphology,
     and semantics. The dataset covers 12 linguistic phenomena and 67 paradigms. There are 1000

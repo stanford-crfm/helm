@@ -9,20 +9,25 @@ from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, C
 class NewsQAScenario(Scenario):
     """
     The NewsQA dataset is from the paper:
-        https://arxiv.org/abs/1611.09830
+    https://arxiv.org/abs/1611.09830
+
     Original repository can be found at:
-        https://github.com/Maluuba/newsqa
+    https://github.com/Maluuba/newsqa
+
     Note: The training dataset cannot be directly shared due to copyright issues, and needs to be downloaded by
     following the instructions in the repo above. These instructions are duplicated here for
     convenience.
+
     1. Clone the repo (https://github.com/Maluuba/newsqa)
     2. Download the data from (https://msropendata.com/datasets/939b1042-6402-4697-9c15-7a28de7e1321).
     You need to create a login account to download this data.
     3. Download the CNN stories tar file from "https://cs.nyu.edu/~kcho/DMQA/"
     4. Create the conda environment using the command (conda create --name newsqa python=2.7 "pandas>=0.19.2")
     5. Install the requirements (conda activate newsqa && pip install --requirement requirements.txt)
+
     This should result in the creation of the file (combined-newsqa-data-v1.json) in the repo
     which is used in this scenario.
+
     NewsQA is a QA dataset containing 12,744 stories,
     and over 119,633 question-answer pairs. There are 92549 training qa pairs,
     5166 qas in the dev set, and 5126 in the test set.
@@ -30,7 +35,8 @@ class NewsQAScenario(Scenario):
     the goal is answer questions with answers consisting of spans of text from the corresponding articles.
     All of the questions and answers are written by crowd sourced human annotators.
     For more details, see https://arxiv.org/abs/1611.09830.
-    More concretely, we prompt models using the following format:
+
+    More concretely, we prompt models using the following format
 
         Passage: <news article>
         Question: <question>
@@ -40,14 +46,22 @@ class NewsQAScenario(Scenario):
     model needs to answer "No Answer". While this behavior might be tricky to
     learn in the few-shot setting, we still include these examples in the
     scenario.
+
     Using an example from the training dataset, we have:
+
+    ```
     NEW DELHI, India (CNN) -- A high court in northern India on Friday acquitted a wealthy businessman
     facing the death sentence for the killing of a teen in a case dubbed 'the house of horrors.'
     Moninder Singh Pandher was sentenced to death by a lower court in February...
     Question: Who was sentenced to death in February?
     Answer:
-    References:
+    ```
+
+    References
+
+    ```
     ['Moninder Singh Pandher']
+    ```
     """
 
     name = "newsqa"
