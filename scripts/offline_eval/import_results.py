@@ -4,14 +4,14 @@ from collections import defaultdict
 import os
 from typing import Dict
 
-from common.cache import (
+from helm.common.cache import (
     KeyValueStoreCacheConfig,
     MongoCacheConfig,
     SqliteCacheConfig,
     create_key_value_store,
     request_to_key,
 )
-from common.hierarchical_logger import hlog, htrack
+from helm.common.hierarchical_logger import hlog, htrack
 
 
 """

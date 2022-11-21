@@ -2,8 +2,8 @@ import argparse
 
 from pymongo import MongoClient
 
-from common.cache import create_key_value_store, MongoCacheConfig
-from common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.common.cache import create_key_value_store, MongoCacheConfig
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 
 """
 Fix the Together cache. For each entry in the cache:

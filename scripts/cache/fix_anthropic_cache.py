@@ -1,11 +1,12 @@
 import argparse
 import time
-from typing import Dict
+from typing import Dict, List
 
-from common.cache import create_key_value_store, MongoCacheConfig
-from common.general import parse_hocon
-from common.hierarchical_logger import hlog, htrack
-from proxy.clients.anthropic_client import AnthropicClient
+from helm.common.cache import create_key_value_store, MongoCacheConfig
+from helm.common.general import parse_hocon
+from helm.common.hierarchical_logger import hlog, htrack
+from helm.proxy.clients.anthropic_client import AnthropicClient
+
 
 """
 Adds log probs for all entries in the Anthropic cache.
@@ -35,14 +36,22 @@ def add_logprobs(mongo_uri: str, credentials_path: str):
             if "logprobs" in response:
                 continue
 
+            # We've renamed "logprobs" to "logprobs
             # Compute log probs for all the entries where echo_prompt=False
             if request["echo_prompt"]:
                 response["logprobs"] = response.pop("logprobs_response", None)
             else:
-                response["logprobs"] = client.make_logprobs_request(
+                logprobs_response = response.pop("logprobs_response", None)
+                tokens: List[str] = logprobs_response["tokens"]
+                logprobs = client.make_logprobs_request(
                     request["prompt"] + response["text"], top_k_per_token=request["k"], model_engine=request["engine"]
                 )
-                response.pop("logprobs_response", None)
+                for key in AnthropicClient.LOGPROBS_RESPONSE_KEYS:
+                    # This is a naive approach where we just take the last k tokens and log probs,
+                    # where k is the number of tokens in the completion. Ideally, log probs would
+                    # be included as part of the response for the inference endpoint.
+                    logprobs[key] = logprobs[key][-len(tokens):]
+                response["logprobs"] = logprobs
                 response.pop("skipped_logprobs_request", None)
 
             request_time: float = time.time() - start

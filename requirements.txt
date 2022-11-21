@@ -1,157 +1,68 @@
-absl-py==1.2.0
-aiohttp==3.8.3
-aiosignal==1.2.0
-async-timeout==4.0.2
-attrs==22.1.0
-bert-score==0.3.11
-black==22.10.0
-blanc==0.2.7
-blis==0.7.8
-boto3==1.24.89
-botocore==1.27.89
-bottle==0.12.23
-cachetools==5.2.0
-catalogue==2.0.8
-certifi==2022.9.24
-cfgv==3.3.1
-charset-normalizer==2.1.1
-click==8.0.4
-colorama==0.4.5
-contourpy==1.0.5
-cycler==0.11.0
-cymem==2.0.6
-Cython==0.29.32
-dacite==1.6.0
-datasets==2.5.2
-dill==0.3.5.1
-distlib==0.3.6
-emoji==2.1.0
-et-xmlfile==1.1.0
-filelock==3.8.0
-flake8==5.0.4
-fonttools==4.37.4
-frozenlist==1.3.1
-fsspec==2022.8.2
-gevent==21.12.0
-gin-config==0.5.0
-google-api-core==2.10.1
-google-api-python-client==2.64.0
-google-auth==2.12.0
-google-auth-httplib2==0.1.0
-googleapis-common-protos==1.56.4
-greenlet==1.1.3
-gunicorn==20.1.0
-httplib2==0.20.4
-huggingface-hub==0.10.0
-icetk==0.0.4
-identify==2.5.6
-idna==3.4
-iniconfig==1.1.1
-Jinja2==3.1.2
-jmespath==1.0.1
-joblib==1.2.0
-jsonlines==3.1.0
-kiwisolver==1.4.4
-langcodes==3.3.0
-lxml==4.9.1
-Mako==1.2.3
-MarkupSafe==2.1.1
-matplotlib==3.6.0
-mccabe==0.7.0
-moverscore==1.0.3
-mpmath==1.2.1
-multidict==6.0.2
-multiprocess==0.70.13
-murmurhash==1.0.8
-mypy==0.982
-mypy-extensions==0.4.3
-networkx==2.8.7
-nltk==3.7
-nodeenv==1.7.0
-numpy==1.23.3
-openai==0.23.1
-openpyxl==3.0.10
-packaging==21.3
-pandas==1.5.0
-pandas-stubs==1.5.0.221003
-parameterized==0.8.1
-pathspec==0.10.1
-pathy==0.6.2
-Pillow==9.2.0
-platformdirs==2.5.2
-pluggy==1.0.0
-portalocker==2.5.1
-pre-commit==2.20.0
-preshed==3.0.7
-protobuf==3.20.1
-psutil==5.9.2
-py==1.11.0
-pyarrow==9.0.0
-pyasn1==0.4.8
-pyasn1-modules==0.2.8
-pycodestyle==2.9.1
-pydantic==1.8.2
-pyemd==0.5.1
-pyext==0.7
-pyflakes==2.5.0
-pyhocon==0.3.59
-pymongo==4.2.0
-pyparsing==2.4.7
-pytest==7.1.3
-python-dateutil==2.8.2
-pytorch-pretrained-bert==0.6.2
+# This file includes the minimal list of direct dependencies.
+# requirements.txt includes all pinned direct and transitive dependencies.
+# Only edit this file, not requirements.txt directly.
+# After editing, run the following to pin the dependencies to particular
+# versions:
+#
+#   pip freeze | xargs pip uninstall -y
+#   pip install -r requirements.txt
+#   pip freeze | grep -v en-core-web-sm > requirements-freeze.txt
+#
+# Also update the versions in the manual installation steps in pre-commit.sh.
+#
+# Check that everything works because the versions might be upgraded.
+
+# Development
+pytest~=7.1.3
+black~=22.10.0
+mypy~=0.982
+pre-commit~=2.20.0
+flake8~=5.0.4
+
+# Common
+zstandard~=0.18.0
+tqdm~=4.64.1
+pyhocon~=0.3.59
+dacite~=1.6.0
+
+# Proxy
+bottle~=0.12.23
+gunicorn~=20.1.0
+Mako~=1.2.3
+# sqlitedict==2.0.0 is slow! https://github.com/RaRe-Technologies/sqlitedict/issues/152
+# Keep the version at 1.7.0.
+sqlitedict~=1.7.0
+pymongo~=4.2.0
+retrying~=1.3.3
+websocket-client~=1.3.2 # For Anthropic
+openai~=0.23.1
+transformers~=4.22.2  # For HuggingFace tokenizer
+icetk~=0.0.4
+protobuf==3.20.1  # Can't use 4.21.0 due to backward incompatibility
+google-api-python-client~=2.64.0
+
+# Scenarios
+datasets~=2.5.2  # For math scenarios
+gdown~=4.4.0
+jsonlines~=3.1.0  # Not really needed
+sympy~=1.11.1  # For math scenarios
+sentencepiece~=0.1.97
+numba~=0.56.4
+
+# Metrics
+importlib-resources~=5.10.0
+nltk~=3.7
+scipy~=1.9.1
+uncertainty-calibration~=0.1.3
+rouge-score~=0.1.2
+pyext~=0.7
 pytrec_eval==0.5
-pytz==2022.4
-PyYAML==6.0
-regex==2022.9.13
-requests==2.28.1
-responses==0.18.0
-retrying==1.3.3
-rouge-score==0.1.2
-rsa==4.9
-s3transfer==0.6.0
-sacrebleu==2.2.1
-sacremoses==0.0.53
-scikit-learn==1.1.2
-scipy==1.9.1
-sentencepiece==0.1.97
-six==1.16.0
-sklearn==0.0
-smart-open==5.2.1
-spacy==3.2.4
-spacy-legacy==3.0.10
-spacy-loggers==1.0.3
-sqlitedict==1.7.0
-srsly==2.4.4
-stanza==1.4.2
-summ-eval==0.892
-sympy==1.11.1
-tabulate==0.9.0
-thinc==8.0.17
-threadpoolctl==3.1.0
-tokenizers==0.12.1
-toml==0.10.2
-tomli==2.0.1
-torch==1.12.1+cu113
-torchvision==0.13.1+cu113
-tqdm==4.64.1
-transformers==4.22.2
-typer==0.4.2
-types-pytz==2022.4.0.0
-types-redis==4.3.21.1
-types-requests==2.28.11.2
-types-tabulate==0.9.0.0
-types-urllib3==1.26.25
-typing==3.7.4.3
-typing_extensions==4.4.0
-uncertainty-calibration==0.1.2
-uritemplate==4.1.1
-urllib3==1.26.12
-virtualenv==20.16.5
-wasabi==0.10.1
-websocket-client==1.3.2
-xxhash==3.0.0
-yarl==1.8.1
-zope.event==4.5.0
-zope.interface==5.4.0
-zstandard==0.18.0
+sacrebleu~=2.2.1
+# Work around https://github.com/p-lambda/verified_calibration/issues/11
+# TODO: Remove after this issue is resolved
+scikit-learn~=1.1.2
+spacy~=3.2.4
+summ-eval~=0.892
+# End users should install a CUDA version of PyTorch manually if needed
+torch~=1.12.1  # Summarization metrics
+torchvision~=0.13.1
