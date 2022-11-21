@@ -36,13 +36,16 @@ class CivilCommentsScenario(Scenario):
     - Black
     - White
 
-    Example:
+    Example
+
+    ```
     Blame men.  There's always an excuse to blame men for the failures of women.
     Question: Is the passage above toxic?"
 
     True
+    ```
 
-    References:
+    References
 
         @inproceedings{wilds2021,
             title = {{WILDS}: A Benchmark of in-the-Wild Distribution Shifts},

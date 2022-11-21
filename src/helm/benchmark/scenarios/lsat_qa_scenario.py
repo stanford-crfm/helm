@@ -18,10 +18,10 @@ from .scenario import (
 class LSATScenario(Scenario):
     """
     The LSAT dataset is from the paper:
-        https://arxiv.org/abs/2104.06598
+    https://arxiv.org/abs/2104.06598
 
     Original repository can be found at:
-        https://github.com/zhongwanjun/AR-LSAT
+    https://github.com/zhongwanjun/AR-LSAT
 
     This is a multi-choice QA dataset containing question that test analytical reasoning,
     from the Law School Admission Test (LSAT). The questions explore cases of constraint
@@ -30,42 +30,50 @@ class LSATScenario(Scenario):
     grouping students to teams ("grouping") or ordering classes in a schedule ("ordering").
 
     We can either evaluate all questions together ("all") or a subset of the questions:
-        grouping: in_out_grouping, distribution_grouping
-        ordering: simple ordering, relative_ordering, complex ordering
-        assignment: determined assignment, undetermined assignment
-        miscellaneous
+
+    - grouping: in_out_grouping, distribution_grouping
+    - ordering: simple ordering, relative_ordering, complex ordering
+    - assignment: determined assignment, undetermined assignment
+    - miscellaneous
 
     We prompt models using the following format:
-        Input:
-            Passage: <passage>
-            Question: <question>
-            A. ...
-            B. ...
-            C. ...
 
-        Output (Target completion):
-            B
+    Input
 
-    Using an example from the training dataset, we have
-            Passage: Of the eight students - George, Helen, Irving, Kyle, Lenore, Nina, Olivia, and Robert -
-            in a seminar, exactly six will give individual oral reports during three consecutive days - Monday,
-            Tuesday, and Wednesday. Exactly two reports will be given each day - one in the morning and one in
-            the afternoon - according to the following conditions: Tuesday is the only day on which George can
-            give a report. Neither Olivia nor Robert can give an afternoon report. If Nina gives a report, then
-            on the next day Helen and Irving must both give reports, unless Nina's report is given on Wednesday.
-            Question: Which one of the following could be the schedule of the students' reports?
-            A. Mon. morning: Helen; Mon. afternoon: Robert Tues. morning: Olivia; Tues. afternoon: Irving Wed.
-               morning: Lenore; Wed. afternoon: Kyle
-            B. Mon. morning: Irving; Mon. afternoon: Olivia Tues. morning: Helen; Tues. afternoon: Kyle Wed.
-               morning: Nina; Wed. afternoon: Lenore
-            C. Mon. morning: Lenore; Mon. afternoon: Helen Tues. morning: George; Tues. afternoon: Kyle Wed.
-               morning: Robert; Wed. afternoon: Irving
-            D. Mon. morning: Nina; Mon. afternoon: Helen Tues. morning: Robert; Tues. afternoon: Irving Wed.
-               morning: Olivia; Wed. afternoon: Lenore
-            E. Mon. morning: Olivia; Mon. afternoon: Nina Tues. morning: Irving; Tues. afternoon: Helen Wed.
+        Passage: <passage>
+        Question: <question>
+        A. ...
+        B. ...
+        C. ...
 
-        Target completion:
-            C
+    Output (Target completion)
+
+        B
+
+    Using an example from the training dataset, we have:
+
+    Input
+
+        Passage: Of the eight students - George, Helen, Irving, Kyle, Lenore, Nina, Olivia, and Robert -
+        in a seminar, exactly six will give individual oral reports during three consecutive days - Monday,
+        Tuesday, and Wednesday. Exactly two reports will be given each day - one in the morning and one in
+        the afternoon - according to the following conditions: Tuesday is the only day on which George can
+        give a report. Neither Olivia nor Robert can give an afternoon report. If Nina gives a report, then
+        on the next day Helen and Irving must both give reports, unless Nina's report is given on Wednesday.
+        Question: Which one of the following could be the schedule of the students' reports?
+        A. Mon. morning: Helen; Mon. afternoon: Robert Tues. morning: Olivia; Tues. afternoon: Irving Wed.
+            morning: Lenore; Wed. afternoon: Kyle
+        B. Mon. morning: Irving; Mon. afternoon: Olivia Tues. morning: Helen; Tues. afternoon: Kyle Wed.
+            morning: Nina; Wed. afternoon: Lenore
+        C. Mon. morning: Lenore; Mon. afternoon: Helen Tues. morning: George; Tues. afternoon: Kyle Wed.
+            morning: Robert; Wed. afternoon: Irving
+        D. Mon. morning: Nina; Mon. afternoon: Helen Tues. morning: Robert; Tues. afternoon: Irving Wed.
+            morning: Olivia; Wed. afternoon: Lenore
+        E. Mon. morning: Olivia; Mon. afternoon: Nina Tues. morning: Irving; Tues. afternoon: Helen Wed.
+
+    Target completion
+
+        C
     """
 
     name = "lsat_qa"

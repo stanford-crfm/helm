@@ -8,9 +8,8 @@ from .mmlu_scenario import MMLUScenario
 
 class InteractiveQAMMLUScenario(MMLUScenario):
     """
-    The Massive Multitask Language Understanding benchmark from this paper:
-
-        https://arxiv.org/pdf/2009.03300.pdf
+    The Massive Multitask Language Understanding benchmark from this paper
+    https://arxiv.org/pdf/2009.03300.pdf
 
     For InteractiveQA, we used a small subset of the original test set.
     """

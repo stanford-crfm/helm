@@ -10,10 +10,10 @@ from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, C
 class QuACScenario(Scenario):
     """
     The QuAC dataset is from the paper:
-        https://arxiv.org/abs/1808.07036
+    https://arxiv.org/abs/1808.07036
 
     The original webpage is:
-        http://quac.ai/
+    http://quac.ai/
 
     QuAC is a QA dataset based on student-teacher dialogue. The student is shown
     the title and first paragraph of a Wikipedia page and tries to learn
@@ -33,6 +33,7 @@ class QuACScenario(Scenario):
     the maximum F1 score of the model with respect to any of these answers.
 
     Concretely, we prompt models using the following format:
+
         Title: <title>
         Background: <first wiki paragraph>
         Section: <section title>
@@ -57,7 +58,9 @@ class QuACScenario(Scenario):
     learn in the few-shot setting, we still include these examples in the
     scenario.
 
-    Example:
+    Example
+
+    ```
     Title: Augusto Pinochet
 
     Background: Augusto Jose Ramon Pinochet Ugarte (; Spanish: [au'gusto
@@ -85,10 +88,14 @@ class QuACScenario(Scenario):
 
     Question: Is there something else interesting to know?
     Answer:
+    ```
 
-    Reference:
+    Reference
+
+    ```
     ["It is notable that in all the declarations of Pinochet's men, nobody has
     mentioned the creators of the new Chilean society and state,"]
+    ```
 
     """
 

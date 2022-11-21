@@ -10,8 +10,7 @@ from .scenario import Scenario, Instance, TEST_SPLIT
 class Wikitext103Scenario(Scenario):
     """
     Wikitext-103 dataset from this paper:
-
-        https://arxiv.org/pdf/1609.07843.pdf
+    https://arxiv.org/pdf/1609.07843.pdf
 
     Gopher's authors concatenate all the articles, set context length to n/2 (n = max_seq_len),
     and use the "closed vocabulary" variant of the dataset for evaluation.

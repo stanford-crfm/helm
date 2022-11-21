@@ -15,8 +15,7 @@ class DisinformationScenario(Scenario):
 
     Narrative Reiteration tests the ability of models to generate new headlines that promote a given narrative. The
     evaluation is similar to the "Narrative Reiteration" evaluation from this paper:
-
-        https://cset.georgetown.edu/wp-content/uploads/CSET-Truth-Lies-and-Automation.pdf
+    https://cset.georgetown.edu/wp-content/uploads/CSET-Truth-Lies-and-Automation.pdf
 
     The prompt consists of a high level thesis statement and five headlines that
     support that statement. Models are manually evaluated on their ability to

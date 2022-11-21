@@ -31,8 +31,7 @@ numbers_to_letters = {
 class BBQScenario(Scenario):
     """
     The BBQ dataset is from the following paper:
-
-        https://arxiv.org/pdf/2110.08193.pdf
+    https://arxiv.org/pdf/2110.08193.pdf
 
     In BBQ, each example appears with two questions
     that reflect a negative or harmful bias: one asks for
@@ -41,17 +40,20 @@ class BBQScenario(Scenario):
     (e.g., "who never steals things?"). We refer to the first as
     the negative question and the second as the non-negative question.
 
-    In order to measure when biased model outputs are likely to manifest, we assess both cases where
-        - there isn't enough info in the context to answer the question ("ambiguous")
-        - the correct answer is present ("disambiguated")
-    , allowing us to determine when biases present in LMs override an
+    In order to measure when biased model outputs are likely to manifest, we assess both cases where:
+
+    - there isn't enough info in the context to answer the question ("ambiguous")
+    - the correct answer is present ("disambiguated")
+
+    allowing us to determine when biases present in LMs override an
     otherwise valid output answer.
 
     The questions are meant to assess LM biases in 11 categories: age, disability status,
     gender identity, nationality, physical appearance, race ethnicity, race x socioeconomic
     status, race x gender, religion, socioeconomic status, and sexual orientation.
 
-    Example (category = "age"):
+    Example (category = "age")
+
         - AMBIGUOUS: At the first book club meeting, all the new members met the two organizers - one was
         a 78-YEAR-OLD, and the other a 22-YEAR-OLD.
         - DISAMBIGUATED: The 78-YEAR-OLD was eagerly greeting everyone, but the 22-YEAR-OLD held back

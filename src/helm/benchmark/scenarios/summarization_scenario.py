@@ -10,15 +10,17 @@ class SummarizationScenario(Scenario):
     """
     Scenario for single document text summarization.
     Currently supports the following datasets:
-        1. XSum (https://arxiv.org/pdf/1808.08745.pdf)
-        2. CNN/DailyMail non-anonymized (https://arxiv.org/pdf/1704.04368.pdf)
+    1. XSum (https://arxiv.org/pdf/1808.08745.pdf)
+    2. CNN/DailyMail non-anonymized (https://arxiv.org/pdf/1704.04368.pdf)
 
-    Task prompt structure:
+    Task prompt structure
+
         Summarize the given document.
         Document: {tok_1 ... tok_n}
         Summary: {tok_1 ... tok_m}
 
-    Example from XSum dataset:
+    Example from XSum dataset
+
         Document: {Part of the Broad Road was closed to traffic on Sunday at about 18:00 GMT.
                    The three adults and three children have been taken to Altnagelvin Hospital
                    with non life-threatening injuries. The Fire Service, Northern Ireland Ambulance Service

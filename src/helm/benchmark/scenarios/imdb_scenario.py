@@ -8,12 +8,13 @@ from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, V
 class IMDBScenario(Scenario):
     """
     The IMDb dataset is from the paper:
-        https://ai.stanford.edu/~amaas/data/sentiment/
+    https://ai.stanford.edu/~amaas/data/sentiment/
 
     IMDb is a text classification dataset containing 25,000 training reviews and 25,000 test reviews.
     Each sample contains a sentence with its corresponding sentiment (0: Negative, 1: Positive)
 
-    We prompt models using the following format:
+    We prompt models using the following format
+
         <passage>
         Sentiment:
 
@@ -21,6 +22,8 @@ class IMDBScenario(Scenario):
             <sentiment> (<sentiment>:Positive or Negative)
 
     Using an example from the training dataset, we have
+
+    ```
     Very good drama although it appeared to have a few blank areas leaving the viewers
     to fill in the action for themselves.
     I can imagine life being this way for someone who can neither read nor write.
@@ -29,9 +32,9 @@ class IMDBScenario(Scenario):
     typically, drops out of school, a jackass husband who takes the nest egg and buys beer with it.
     2 thumbs up.
     Sentiment:
-
     Target completion:
         Positive
+    ```
 
     The IMDB dataset has a contrast set, whose examples happen to be in the original train split. We thus
     assign all examples with valid contrast sets to the validation split, in addition to those
@@ -43,7 +46,10 @@ class IMDBScenario(Scenario):
     tags = ["sentiment_classification"]
 
     def __init__(self, only_contrast=False):
-        """only_contrast: Produce only inputs that have a contrast version."""
+        """
+        Args:
+            only_contrast: Produce only inputs that have a contrast version.
+        """
         self.only_contrast = only_contrast
 
     def get_split_instances(self, split: str, path: str, contrast_map: dict) -> List[Instance]:

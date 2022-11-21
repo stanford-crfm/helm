@@ -13,8 +13,7 @@ from .scenario import Scenario, Instance, TEST_SPLIT
 class ThePileScenario(Scenario):
     """
     The Pile corpus from this paper:
-
-        https://arxiv.org/pdf/2101.00027.pdf
+    https://arxiv.org/pdf/2101.00027.pdf
     """
 
     name = "the_pile"
