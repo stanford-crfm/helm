@@ -1004,7 +1004,7 @@ run_groups:
 
   - name: targeted_evaluations
     display_name: Targeted evaluations
-    description: Targeted evaluation into different skills (e.g., knowledge, reasoning, etc.) and risks (e.g., disinformation, memorization/copyright).
+    description: Targeted evaluation of specific skills (e.g., knowledge, reasoning) and risks (e.g., disinformation, memorization/copyright).
     category: All scenarios
     subgroups:
       - language
@@ -1965,47 +1965,47 @@ run_groups:
     display_name: Biomedical scenarios
     description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
     taxonomy:
-      what: Biomedical text (e.g. biomedicine papers)
+      what: Biomedical text (e.g., biomedicine papers)
     todo: true
 
   - name: clinical_scenarios
     display_name: Clinical scenarios
     description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
     taxonomy:
-      what: Clincal text (e.g. clinical notes)
+      what: Clincal text (e.g., clinical notes)
     todo: true
 
   - name: financial_scenarios
     display_name: Financial scenarios
     description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
     taxonomy:
-      what: Financial text (e.g. financial reports)
+      what: Financial text (e.g., financial reports)
     todo: true
 
   - name: customer_service_scenarios
     display_name: Customer services scenarios
     description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
     taxonomy:
-      what: Customer service text (e.g. customer service chat logs)
+      what: Customer service text (e.g., customer service chat logs)
     todo: true
 
   - name: educational_scenarios
     display_name: Educational scenarios
     description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
     taxonomy:
-      what: Text from educational contexts (e.g. student-teacher interactions)
+      what: Text from educational contexts (e.g., student-teacher interactions)
     todo: true
 
   - name: very_recent_scenarios
     display_name: Very recent scenarios
-    description: Currently, we implement scenarios using standard NLP datasets. However, to test temporal generalization as the world and language change, we should implement scenarios with very recent data (e.g. current world events) like StreamingQA.
+    description: Currently, we implement scenarios using standard NLP datasets. However, to test temporal generalization as the world and language change, we should implement scenarios with very recent data (e.g., current world events) like StreamingQA.
     taxonomy:
       when: present
     todo: true
 
   - name: historical_scenarios
     display_name: Scenarios involving historic data
-    description: Currently, we implement scenarios using standard NLP datasets, which predominantly are from post-Internet and contemporary society. However, to test temporal generalization for using models in the digital humanities for historic data, we should implement scenarios with significantly older data (e.g. text from 1800s).
+    description: Currently, we implement scenarios using standard NLP datasets, which predominantly are from post-Internet and contemporary society. However, to test temporal generalization for using models in the digital humanities for historic data, we should implement scenarios with significantly older data (e.g., text from 1800s).
     taxonomy:
       when: distant past
     todo: true
@@ -2020,7 +2020,7 @@ run_groups:
 
   - name: non_US_demographics
     display_name: Scenarios involving data from marginalized demographics in non-US English-speaking regions 
-    description: Currently, we ensure some coverage of language based on US-centric demographic groups, including marginalized groups. We should implement scenarios to ensure coverage of other socially-relevant groups beyond US demographics (e.g. caste in India).
+    description: Currently, we ensure some coverage of language based on US-centric demographic groups, including marginalized groups. We should implement scenarios to ensure coverage of other socially-relevant groups beyond US demographics (e.g., caste in India).
     taxonomy:
       who: relevant demographics in non-US English-speaking regions
       language: English
@@ -2036,7 +2036,7 @@ run_groups:
 
   - name: user_facing_tasks_english_dialects
     display_name: Scenarios with user-facing tasks on English dialects
-    description: Currently, evaluate performance on English dialects via language modeling (e.g. TwitterAAE, ICE), but it would be good to implement user-facing tasks for these dialects.
+    description: Currently, evaluate performance on English dialects via language modeling (e.g., TwitterAAE, ICE), but it would be good to implement user-facing tasks for these dialects.
     taxonomy:
       task: user-facing tasks
       language: English dialects
