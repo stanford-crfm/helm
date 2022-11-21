@@ -1074,7 +1074,6 @@ run_groups:
     subgroups:
       - data_to_text_generation
       - fact_verification
-      - fact_verification
       - copy_writing
       - story_generation
       - biomedical_scenarios
@@ -1930,13 +1929,6 @@ run_groups:
     description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement data-to-text generation. Could be implemented via WebNLG, E2E, ToTTo, etc.
     taxonomy:
       task: data-to-text generation
-    todo: true
-
-  - name: fact_verification
-    display_name: Fact verification 
-    description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement fact verification. Could be implemented via FEVER.
-    taxonomy:
-      task: fact verification
     todo: true
 
   - name: fact_verification
