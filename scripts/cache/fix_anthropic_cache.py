@@ -42,17 +42,18 @@ def add_logprobs(mongo_uri: str, credentials_path: str, dry_run: bool):
                 # We've renamed "logprobs_response" to "logprobs
                 response["logprobs"] = logprobs_response
             else:
+                tokens: List[str] = logprobs_response["tokens"]
+
                 # Compute log probs for all the entries where echo_prompt=False
                 # Send and time how long the logprobs request takes. Add the time to `request_time`
                 start: float = time.time()
                 logprobs = client.make_logprobs_request(
-                    request["q"] + response["text"], top_k_per_token=request["k"], model_engine=request["engine"]
+                    request["q"] + "".join(tokens), top_k_per_token=request["k"], model_engine=request["engine"]
                 )
                 request_time: float = time.time() - start
                 response["request_time"] += request_time
                 process_time = request_time
 
-                tokens: List[str] = logprobs_response["tokens"]
                 for key in AnthropicClient.LOGPROBS_RESPONSE_KEYS:
                     # This is a naive approach where we just take the last k tokens and log probs,
                     # where k is the number of tokens in the completion. Ideally, log probs would
