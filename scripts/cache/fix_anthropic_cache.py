@@ -45,7 +45,7 @@ def add_logprobs(mongo_uri: str, credentials_path: str, dry_run: bool):
                 # Send and time how long the logprobs request takes. Add the time to `request_time`
                 start: float = time.time()
                 logprobs = client.make_logprobs_request(
-                    request["prompt"] + response["text"], top_k_per_token=request["k"], model_engine=request["engine"]
+                    request["q"] + response["text"], top_k_per_token=request["k"], model_engine=request["engine"]
                 )
                 request_time: float = time.time() - start
                 response["request_time"] += request_time
