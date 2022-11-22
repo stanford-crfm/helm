@@ -1,4 +1,5 @@
 import argparse
+import json
 import time
 from typing import Dict, List
 
@@ -39,7 +40,7 @@ def add_logprobs(mongo_uri: str, credentials_path: str, dry_run: bool):
             process_time: float
             if request["echo_prompt"]:
                 process_time = 0
-                response["logprobs"] = response.pop("logprobs_response", None)
+                response["logprobs"] = json.loads(response.pop("logprobs_response", None))
             else:
                 # Send and time how long the logprobs request takes. Add the time to `request_time`
                 start: float = time.time()
