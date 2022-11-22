@@ -5,13 +5,15 @@ theme:
     highlightjs: false
 plugins:
     - search
+    - macros:
+        module_name: docs/mkdocs_macros
     - mkdocstrings:
-            handlers:
-                python:
-                    show_root_heading: true
-                    show_signature_annotations: true
-                    show_bases: false
-                    show_source: false
+        handlers:
+            python:
+                show_root_heading: true
+                show_signature_annotations: true
+                show_bases: false
+                show_source: false
 extra_css:
     - docstrings.css
 markdown_extensions:
