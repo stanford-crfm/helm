@@ -35,13 +35,14 @@ def add_logprobs(mongo_uri: str, credentials_path: str, dry_run: bool):
                 hlog(f"This entry was already updated: {response}")
                 continue
 
-            # We've renamed "logprobs_response" to "logprobs
-            # Compute log probs for all the entries where echo_prompt=False
             process_time: float
+            logprobs_response = json.loads(response.pop("logprobs_response", None))
             if request["echo_prompt"]:
                 process_time = 0
-                response["logprobs"] = json.loads(response.pop("logprobs_response", None))
+                # We've renamed "logprobs_response" to "logprobs
+                response["logprobs"] = logprobs_response
             else:
+                # Compute log probs for all the entries where echo_prompt=False
                 # Send and time how long the logprobs request takes. Add the time to `request_time`
                 start: float = time.time()
                 logprobs = client.make_logprobs_request(
@@ -51,7 +52,6 @@ def add_logprobs(mongo_uri: str, credentials_path: str, dry_run: bool):
                 response["request_time"] += request_time
                 process_time = request_time
 
-                logprobs_response = response.pop("logprobs_response", None)
                 tokens: List[str] = logprobs_response["tokens"]
                 for key in AnthropicClient.LOGPROBS_RESPONSE_KEYS:
                     # This is a naive approach where we just take the last k tokens and log probs,
