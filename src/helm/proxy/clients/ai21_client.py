@@ -26,6 +26,9 @@ class AI21Client(Client):
     https://studio.ai21.com/docs/api/
     """
 
+    COMPLETION_URL_TEMPLATE: str = "https://api.ai21.com/studio/v1/{model}/complete"
+    EXPERIMENTAL_COMPLETION_URL_TEMPLATE: str = "https://api.ai21.com/studio/v1/experimental/{model}/complete"
+
     @staticmethod
     def handle_failed_request(api_type: str, response: Dict):
         error_message: str = f"AI21 {api_type} API error -"
@@ -57,8 +60,13 @@ class AI21Client(Client):
         }
 
         def do_it():
+            url_template: str = (
+                AI21Client.EXPERIMENTAL_COMPLETION_URL_TEMPLATE
+                if request.model_engine == "j1-grande-v2-beta"
+                else AI21Client.COMPLETION_URL_TEMPLATE
+            )
             response = requests.post(
-                f"https://api.ai21.com/studio/v1/{request.model_engine}/complete",
+                url_template.format(model=request.model_engine),
                 headers={"Authorization": f"Bearer {self.api_key}"},
                 json=raw_request,
             ).json()
@@ -102,15 +110,16 @@ class AI21Client(Client):
             # e.g. "▁burying"(0,8) -> 8 - 0 = 8; "▁burying"(0,7) -> 7 - 0 = 7
             text_length: int = raw["textRange"]["end"] - raw["textRange"]["start"]
             # "topTokens" can be None when sending a request with topKReturn=0
+            # AI21 sends unscaled logprobs as `raw_logprob` so use this instead of `logprob`.
             top_logprobs: Dict[str, float] = dict(
-                (fix_text(x["token"], first), x["logprob"]) for x in raw["topTokens"] or []
+                (fix_text(x["token"], first), x["raw_logprob"]) for x in raw["topTokens"] or []
             )
 
             return Token(
                 # Text should not be longer than text_length. Since "▁" is always inserted
                 # in the beginning, we truncate the text from the right.
                 text=fix_text(raw["generatedToken"]["token"], first)[-text_length:] if text_length else "",
-                logprob=raw["generatedToken"]["logprob"],
+                logprob=raw["generatedToken"]["raw_logprob"],
                 top_logprobs=top_logprobs,
             )
 
