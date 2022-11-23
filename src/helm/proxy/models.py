@@ -101,7 +101,15 @@ ALL_MODELS = [
         creator_organization="AI21 Labs",
         name="ai21/j1-grande",
         display_name="Jurassic Grande (17B)",
-        description="Jurassic J1-Large (17B parameters with a few tweaks to its training process)",
+        description="Jurassic J1-Grande (17B parameters with a few tweaks to its training process)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+    ),
+    Model(
+        group="jurassic",
+        creator_organization="AI21 Labs",
+        name="ai21/j1-grande-v2-beta",
+        display_name="Jurassic Grande v2 beta (17B)",
+        description="Jurassic J1-Grande v2 beta (17B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     Model(

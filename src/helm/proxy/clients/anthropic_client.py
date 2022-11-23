@@ -108,7 +108,7 @@ class AnthropicClient(Client):
             if request.max_tokens == 0:
                 return {
                     "text": request.prompt,
-                    "logprobs_response": self.make_logprobs_request(
+                    "logprobs": self.make_logprobs_request(
                         request.prompt, request.top_k_per_token, request.model_engine
                     ),
                     "stop_reason": "length",  # Set `stop_reason` to "length" because max_tokens is 0
@@ -188,12 +188,32 @@ class AnthropicClient(Client):
                 # Anthropic doesn't support echoing the prompt, so we have to manually prepend the completion
                 # with the prompt when `echo_prompt` is True.
                 text: str = request.prompt + response["completion"] if request.echo_prompt else response["completion"]
+                logprobs = self.make_logprobs_request(
+                    request.prompt + response["completion"], request.top_k_per_token, request.model_engine
+                )
+
+                check_logprobs: bool = False
+                if not request.echo_prompt:
+                    for key in AnthropicClient.LOGPROBS_RESPONSE_KEYS:
+                        # This is a naive approach where we just take the last k tokens and log probs,
+                        # where k is the number of tokens in the completion. Ideally, log probs would
+                        # be included as part of the response for the inference endpoint.
+                        logprobs[key] = logprobs[key][-len(tokens) :]
+
+                    if logprobs["tokens"] != tokens:
+                        # This is a known limitation with the Anthropic API. For now keep track of the
+                        # entries with the mismatch.
+                        hlog(
+                            f"WARNING: naive truncation for logprobs did not work."
+                            f"\nRequest:{raw_request}\nExpected: {tokens}\nActual: {logprobs['tokens']}"
+                        )
+                        check_logprobs = True
+
                 return {
                     "text": text,
-                    "logprobs_response": self.make_logprobs_request(
-                        text, request.top_k_per_token, request.model_engine
-                    ),
+                    "logprobs": logprobs,
                     "stop_reason": stop_reason,
+                    "check_logprobs": check_logprobs,
                 }
 
         # Since Anthropic doesn't support multiple completions, we have to manually call it multiple times,
@@ -226,7 +246,7 @@ class AnthropicClient(Client):
 
             sequence_logprob: float = 0
             tokens: List[Token] = []
-            log_probs: Dict = json.loads(response["logprobs_response"])
+            log_probs: Dict[str, List[Any]] = response["logprobs"]
 
             for text, token_logprob, all_logprobs, all_tokens in zip(
                 log_probs["tokens"], log_probs["logprobs"], log_probs["topk_logprobs"], log_probs["topk_tokens"]
@@ -262,13 +282,13 @@ class AnthropicClient(Client):
             embedding=[],
         )
 
-    def make_logprobs_request(self, text: str, top_k_per_token: int, model_engine: str) -> str:
+    def make_logprobs_request(self, text: str, top_k_per_token: int, model_engine: str) -> Dict[str, List[Any]]:
         """
         Get the token log probs and top candidates for a given text using the endpoint: topk_logprobs.
         """
         # Sending an empty string results in 'non cancel Cannot evaluate top logprobs of empty string' error
         if len(text) == 0:
-            return json.dumps(AnthropicClient.EMPTY_LOGPROBS_RESPONSE)
+            return AnthropicClient.EMPTY_LOGPROBS_RESPONSE
 
         raw_response: str
 
@@ -290,7 +310,7 @@ class AnthropicClient(Client):
 
         if not AnthropicClient.is_valid_logprobs_response(raw_response):
             raise AnthropicRequestError(f"Invalid logprobs response: {raw_response}")
-        return raw_response
+        return json.loads(raw_response)
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         raise NotImplementedError("Use the HuggingFaceClient to tokenize.")
