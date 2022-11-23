@@ -14,7 +14,6 @@ from helm.common.general import (
     asdict_without_nones,
     singleton,
     unique_simplification,
-    parallel_map,
 )
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.benchmark.scenarios.scenario import ScenarioSpec
@@ -211,55 +210,6 @@ class Summarizer:
             run_spec=run_spec,
             stats=stats,
         )
-
-    def compute_slim_per_instance_stats(self, per_instance_stats: List[Dict]) -> List[Dict]:
-        """Given per instance stats, output a slim version for the frontend."""
-        result = []
-        for instance in per_instance_stats:
-            slim_instance = {}
-            # Unfortunately we can't pre-compute the instance key because
-            # Python's JSON serialization is slightly different from JavaScript's.
-            slim_instance["instance_id"] = instance["instance_id"]
-            if "perturbation" in instance:
-                slim_instance["perturbation"] = instance["perturbation"]
-            slim_instance["train_trial_index"] = instance["train_trial_index"]
-            slim_instance["stats"] = []
-            for stat in instance["stats"]:
-                slim_stat = {}
-                slim_stat["name"] = {"name": stat["name"]["name"]}
-                if "mean" in stat:
-                    slim_stat["mean"] = stat["mean"]
-                slim_instance["stats"].append(slim_stat)
-            result.append(slim_instance)
-        return result
-
-    @htrack(None)
-    def write_slim_per_instance_stats(self) -> None:
-        """
-        For each run, load per_instance_stats.json and write per_instance_stats_slim.json.
-        TODO: Move this logic to Runner, so it gets generated during the run
-              https://github.com/stanford-crfm/helm/issues/1119
-        """
-        run_specs_path: str = os.path.join(self.run_suite_path, "run_specs.json")
-        assert os.path.exists(run_specs_path), f"{run_specs_path} does not exist."
-
-        with open(run_specs_path) as f:
-            raw_run_specs = json.load(f)
-
-        def process(raw_run_spec: Dict):
-            run_spec = dacite.from_dict(RunSpec, raw_run_spec)
-            run_path: str = os.path.join(self.run_suite_path, run_spec.name)
-
-            per_instance_stats_path: str = os.path.join(run_path, "per_instance_stats.json")
-            if os.path.exists(per_instance_stats_path):
-                per_instance_stats: List[Dict]
-                with open(per_instance_stats_path) as input_file:
-                    per_instance_stats = json.load(input_file)
-                per_instance_stats_slim_path = f"{per_instance_stats_path[:-len('.json')]}_slim.json"
-                with open(per_instance_stats_slim_path, "w") as output_file:
-                    json.dump(self.compute_slim_per_instance_stats(per_instance_stats), output_file)
-
-        parallel_map(process, raw_run_specs, parallelism=self.num_threads)
 
     def filter_runs_by_visibility(self, runs: List[Run], group: RunGroup) -> List[Run]:
         """Filter the list of runs and only keep runs relevant to this group."""
@@ -921,11 +871,6 @@ def main():
         action="store_true",
         help="Display debugging information.",
     )
-    parser.add_argument(
-        "--skip-slim-per-instance-stats",
-        action="store_true",
-        help="Don't generate any per-instance stats.",
-    )
     args = parser.parse_args()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
@@ -939,9 +884,6 @@ def main():
     summarizer.write_runs()
     summarizer.write_groups()
     summarizer.write_cost_report()
-    if not args.skip_slim_per_instance_stats:
-        summarizer.write_slim_per_instance_stats()
-
     hlog("Done.")
 
 

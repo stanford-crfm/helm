@@ -3,7 +3,7 @@ import os
 import typing
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import List
+from typing import Dict, List
 
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.common.general import ensure_directory_exists, write, asdict_without_nones
@@ -184,9 +184,35 @@ class Runner:
         write(
             os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in stats], indent=2)
         )
+        all_per_instances_stats: List[Dict] = list(map(asdict_without_nones, per_instance_stats))
         write(
             os.path.join(run_path, "per_instance_stats.json"),
-            json.dumps(list(map(asdict_without_nones, per_instance_stats)), indent=2),
+            json.dumps(all_per_instances_stats, indent=2),
+        )
+        write(
+            os.path.join(run_path, "per_instance_stats_slim.json"),
+            json.dumps(self.compute_slim_per_instance_stats(all_per_instances_stats)),
         )
 
         cache_stats.print_status()
+
+    def compute_slim_per_instance_stats(self, per_instance_stats: List[Dict]) -> List[Dict]:
+        """Given per instance stats, output a slim version for the frontend."""
+        result = []
+        for instance in per_instance_stats:
+            slim_instance = {}
+            # Unfortunately we can't pre-compute the instance key because
+            # Python's JSON serialization is slightly different from JavaScript's.
+            slim_instance["instance_id"] = instance["instance_id"]
+            if "perturbation" in instance:
+                slim_instance["perturbation"] = instance["perturbation"]
+            slim_instance["train_trial_index"] = instance["train_trial_index"]
+            slim_instance["stats"] = []
+            for stat in instance["stats"]:
+                slim_stat = {}
+                slim_stat["name"] = {"name": stat["name"]["name"]}
+                if "mean" in stat:
+                    slim_stat["mean"] = stat["mean"]
+                slim_instance["stats"].append(slim_stat)
+            result.append(slim_instance)
+        return result
