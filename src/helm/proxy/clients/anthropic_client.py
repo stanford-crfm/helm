@@ -191,6 +191,8 @@ class AnthropicClient(Client):
                 logprobs = self.make_logprobs_request(
                     request.prompt + response["completion"], request.top_k_per_token, request.model_engine
                 )
+
+                check_logprobs: bool = False
                 if not request.echo_prompt:
                     for key in AnthropicClient.LOGPROBS_RESPONSE_KEYS:
                         # This is a naive approach where we just take the last k tokens and log probs,
@@ -199,15 +201,19 @@ class AnthropicClient(Client):
                         logprobs[key] = logprobs[key][-len(tokens) :]
 
                     if logprobs["tokens"] != tokens:
+                        # This is a known limitation with the Anthropic API. For now keep track of the
+                        # entries with the mismatch.
                         hlog(
                             f"WARNING: naive truncation for logprobs did not work."
                             f"\nRequest:{raw_request}\nExpected: {tokens}\nActual: {logprobs['tokens']}"
                         )
+                        check_logprobs = True
 
                 return {
                     "text": text,
                     "logprobs": logprobs,
                     "stop_reason": stop_reason,
+                    "check_logprobs": check_logprobs,
                 }
 
         # Since Anthropic doesn't support multiple completions, we have to manually call it multiple times,

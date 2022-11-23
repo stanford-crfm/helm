@@ -60,6 +60,7 @@ def add_logprobs(mongo_uri: str, credentials_path: str, dry_run: bool):
                     # be included as part of the response for the inference endpoint.
                     logprobs[key] = logprobs[key][-len(tokens) :]
                 response["logprobs"] = logprobs
+                response["check_logprobs"] = tokens != logprobs["tokens"]
                 response.pop("skipped_logprobs_request", None)
 
             hlog(f"Processed entry #{i + 1} ({process_time:.2f}s)")
