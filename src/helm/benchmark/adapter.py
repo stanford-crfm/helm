@@ -865,7 +865,7 @@ class Adapter:
     def sample_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
         """
         Sample a random set of train instances to use as examples by following the steps below:
-        1. Sort the class labels i.e., correct References by the number of Instances that belong to the
+        1. Sort the class labels (i.e., correct References) by the number of Instances that belong to the
            class so more common labels are included in the in-context examples. Break ties by shuffling.
         2. Keep sampling one train Instance from each class in the order established in step 1, until
            there are k examples.
