@@ -912,7 +912,7 @@ class Adapter:
             end_count: int = len(label_to_instances[sorted_labels[end]])
 
             if current_count != end_count or end == len(sorted_labels) - 1:
-                # We've reached the end of the window of labels that have the same number of Instances.
+                # Shuffle now that we're at the end of the window of labels that have the same number of Instances.
                 to_shuffle: List[str] = sorted_labels[start:end]
                 random.shuffle(to_shuffle)
                 sorted_labels[start:end] = to_shuffle
