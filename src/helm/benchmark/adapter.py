@@ -865,7 +865,8 @@ class Adapter:
     def sample_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
         """
         Sample a random set of train instances to use as examples by following the steps below:
-        1. Sort the class labels (correct References) by the number of Instances that belong to the class.
+        1. Sort the class labels i.e., correct References by the number of Instances that belong to the
+           class so more common labels are included in the in-context examples. Break ties by shuffling.
         2. Keep sampling one train Instance from each class in the order established in step 1, until
            there are k examples.
         3. If we run out of examples to sample, sample the rest from the Instances that do not have
@@ -877,9 +878,7 @@ class Adapter:
                 Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
                 Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
                 Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
-
             The following instances would be selected:
-
                 Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])])
                 Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])])
 
@@ -892,30 +891,42 @@ class Adapter:
         unlabeled_instances: List[Instance] = []
         label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
 
-        # Bucket instances by their labels: label -> Instance0, Instance1,...
         for instance in all_train_instances:
             if instance.first_correct_reference:
                 label_to_instances[instance.first_correct_reference.output].append(instance)
             else:
                 unlabeled_instances.append(instance)
 
-        # Group instances that have the same label counts: count -> Instance0, Instance1,...
-        label_counts_to_instances: Dict[int, List[Instance]] = defaultdict(list)
-        for instances in label_to_instances.values():
-            label_counts_to_instances[len(instances)].extend(instances)
+        # Sort the labels by the number of Instances that belong to them
+        sorted_labels: List[str] = [
+            key for key, _ in sorted(label_to_instances.items(), key=lambda x: len(x[1]), reverse=True)
+        ]
 
-        # Sort the counts
-        sorted_counts: List[int] = sorted(label_counts_to_instances.keys(), reverse=True)
-        counts_iterable = cycle(sorted_counts)
+        # Break ties by randomly shuffling labels that have the same number of Instances
+        start: int = 0
+        end: int = 0
+        while start < len(sorted_labels) and end < len(sorted_labels):
+            current_count: int = len(label_to_instances[sorted_labels[start]])
+            end_count: int = len(label_to_instances[sorted_labels[end]])
+
+            if current_count != end_count or end == len(sorted_labels) - 1:
+                # We've reached the end of the window of labels that have the same number of Instances.
+                to_shuffle: List[str] = sorted_labels[start:end]
+                random.shuffle(to_shuffle)
+                sorted_labels[start:end] = to_shuffle
+                start = end
+            end += 1
+
+        labels_iterable = cycle(sorted_labels)
 
         examples: List[Instance] = []
         while num_instances_to_sample > 0:
-            next_count: Optional[int] = next(counts_iterable, None)
-            if not next_count:
+            next_label: Optional[str] = next(labels_iterable, None)
+            if not next_label:
                 break
 
-            instances = label_counts_to_instances[next_count]
-            # If there are no Instances to sample for this particular count, skip it.
+            instances: List[Instance] = label_to_instances[next_label]
+            # If there are no Instances to sample for this particular label, skip it.
             if len(instances) == 0:
                 continue
 
