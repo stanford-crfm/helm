@@ -878,7 +878,9 @@ class Adapter:
                 Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])]),
                 Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
                 Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])]),
+
             The following instances would be selected:
+
                 Instance("say yes", references=[Reference("yes", tags=[CORRECT_TAG])])
                 Instance("say no", references=[Reference("no", tags=[CORRECT_TAG])])
 
