@@ -172,7 +172,44 @@ class TestAdapter:
         seed1_examples: List[Instance] = adapter.sample_examples(all_train_instances, seed=1)
 
         assert len(seed0_examples) == len(seed1_examples) == 3
-        assert seed0_examples != seed1_examples, "Expect selected examples differ when changing the seed"
+        assert seed0_examples != seed1_examples, "Examples should differ when changing the seed"
+
+    def test_sample_examples_open_ended_generation_stress(self):
+        adapter_spec = AdapterSpec(model=DEFAULT_MODEL, max_train_instances=5)
+        adapter = Adapter(adapter_spec, self.tokenizer_service)
+
+        all_train_instances: List[Instance] = [
+            Instance("prompt3", references=[Reference("reference3", tags=[CORRECT_TAG])]),
+            Instance("prompt3", references=[Reference("reference3", tags=[CORRECT_TAG])]),
+            Instance("prompt1", references=[Reference("reference1", tags=[CORRECT_TAG])]),
+            Instance("prompt1", references=[Reference("reference1", tags=[CORRECT_TAG])]),
+            Instance("prompt1", references=[Reference("reference1", tags=[CORRECT_TAG])]),
+            Instance("prompt2", references=[Reference("reference2", tags=[CORRECT_TAG])]),
+            Instance("prompt2", references=[Reference("reference2", tags=[CORRECT_TAG])]),
+        ]
+        # Add prompt4,..,prompt100
+        for i in range(4, 100):
+            all_train_instances.append(
+                Instance(f"prompt{i}", references=[Reference(f"reference{i}", tags=[CORRECT_TAG])]),
+            )
+
+        previous_train_instances: List[List[Instance]] = []
+        for seed in range(10):
+            train_instances = adapter.sample_examples(all_train_instances, seed=seed)
+            # Ensure calling the method with the same seed again picks the same train Instances
+            assert train_instances == adapter.sample_examples(all_train_instances, seed=seed)
+
+            assert len(train_instances) == 5
+            assert train_instances[0].input == "prompt1", "prompt1 Instance had the most common label: reference1"
+            assert train_instances[1].input in ["prompt2", "prompt3"]
+            assert train_instances[2].input in ["prompt2", "prompt3"]
+            assert train_instances[3].input not in ["prompt1", "prompt2", "prompt3"]
+            assert train_instances[4].input not in ["prompt1", "prompt2", "prompt3"]
+
+            # Ensure we haven't seen the same in-context examples before from previous seeds
+            for other_train_instances in previous_train_instances:
+                assert train_instances != other_train_instances, "Examples should differ when changing the seed"
+            previous_train_instances.append(train_instances)
 
     def test_fits_tokens_within_context_window(self):
         adapter_spec = AdapterSpec(
