@@ -902,7 +902,7 @@ class Adapter:
         # Build Instance counts to labels
         instances: List[Instance]
         counts_to_labels: Dict[int, List[str]] = defaultdict(list)
-        for label, instances in label_to_instances.items():
+        for label, instances in sorted(label_to_instances.items()):
             counts_to_labels[len(instances)].append(label)
 
         sorted_labels: List[str] = []
