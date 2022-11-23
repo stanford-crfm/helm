@@ -1074,7 +1074,7 @@ run_groups:
     subgroups:
       - data_to_text_generation
       - fact_verification
-      - copy_writing
+      - copywriting
       - story_generation
       - biomedical_scenarios
       - clinical_scenarios
@@ -1938,11 +1938,11 @@ run_groups:
       task: fact verification
     todo: true
 
-  - name: copy_writing
-    display_name: Copy writing 
-    description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement tasks that have not been historically studied in the NLP research community like (ad) copy writing.
+  - name: copywriting
+    display_name: Copywriting 
+    description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement tasks that have not been historically studied in the NLP research community like (ad) copywriting.
     taxonomy:
-      task: copy writing
+      task: copywriting
     todo: true
 
   - name: story_generation
