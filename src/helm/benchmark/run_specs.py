@@ -209,7 +209,6 @@ def get_completion_adapter_spec(
     )
 
 
-# TODO: come up with a better name -Tony
 def get_generation_adapter_spec(
     instructions: str = "",
     input_noun: Optional[str] = None,

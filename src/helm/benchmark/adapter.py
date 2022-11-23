@@ -865,7 +865,8 @@ class Adapter:
     def sample_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
         """
         Sample a random set of train instances to use as examples by following the steps below:
-        1. Sort the class labels (correct References) by the number of Instances that belong to the class.
+        1. Sort the class labels (i.e., correct References) by the number of Instances that belong to the
+           class so more common labels are included in the in-context examples. Break ties by shuffling.
         2. Keep sampling one train Instance from each class in the order established in step 1, until
            there are k examples.
         3. If we run out of examples to sample, sample the rest from the Instances that do not have
@@ -898,19 +899,28 @@ class Adapter:
             else:
                 unlabeled_instances.append(instance)
 
-        # Sort the labels by the number of Instances that belong to them
-        sorted_labels: List[str] = [
-            key for key, _ in sorted(label_to_instances.items(), key=lambda x: len(x[1]), reverse=True)
-        ]
-        labels_iterable = cycle(sorted_labels)
+        # Build Instance counts to labels
+        instances: List[Instance]
+        counts_to_labels: Dict[int, List[str]] = defaultdict(list)
+        for label, instances in sorted(label_to_instances.items()):
+            counts_to_labels[len(instances)].append(label)
 
+        sorted_labels: List[str] = []
+        # Sort the labels by the number of Instances that belong to them
+        for count in sorted(counts_to_labels, reverse=True):
+            labels: List[str] = counts_to_labels[count]
+            # Break ties by randomly shuffling labels that have the same number of Instances
+            random.shuffle(labels)
+            sorted_labels.extend(labels)
+
+        labels_iterable = cycle(sorted_labels)
         examples: List[Instance] = []
         while num_instances_to_sample > 0:
             next_label: Optional[str] = next(labels_iterable, None)
             if not next_label:
                 break
 
-            instances: List[Instance] = label_to_instances[next_label]
+            instances = label_to_instances[next_label]
             # If there are no Instances to sample for this particular label, skip it.
             if len(instances) == 0:
                 continue
