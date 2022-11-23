@@ -899,35 +899,28 @@ class Adapter:
             else:
                 unlabeled_instances.append(instance)
 
+        # Build Instance counts to labels
+        instances: List[Instance]
+        counts_to_labels: Dict[int, List[str]] = defaultdict(list)
+        for label, instances in label_to_instances.items():
+            counts_to_labels[len(instances)].append(label)
+
+        sorted_labels: List[str] = []
         # Sort the labels by the number of Instances that belong to them
-        sorted_labels: List[str] = [
-            key for key, _ in sorted(label_to_instances.items(), key=lambda x: len(x[1]), reverse=True)
-        ]
-
-        # Break ties by randomly shuffling labels that have the same number of Instances
-        start: int = 0
-        end: int = 0
-        while start < len(sorted_labels) and end < len(sorted_labels):
-            current_count: int = len(label_to_instances[sorted_labels[start]])
-            end_count: int = len(label_to_instances[sorted_labels[end]])
-
-            if current_count != end_count or end == len(sorted_labels) - 1:
-                # Shuffle now that we're at the end of the window of labels that have the same number of Instances.
-                to_shuffle: List[str] = sorted_labels[start:end]
-                random.shuffle(to_shuffle)
-                sorted_labels[start:end] = to_shuffle
-                start = end
-            end += 1
+        for count in sorted(counts_to_labels, reverse=True):
+            labels: List[str] = counts_to_labels[count]
+            # Break ties by randomly shuffling labels that have the same number of Instances
+            random.shuffle(labels)
+            sorted_labels.extend(labels)
 
         labels_iterable = cycle(sorted_labels)
-
         examples: List[Instance] = []
         while num_instances_to_sample > 0:
             next_label: Optional[str] = next(labels_iterable, None)
             if not next_label:
                 break
 
-            instances: List[Instance] = label_to_instances[next_label]
+            instances = label_to_instances[next_label]
             # If there are no Instances to sample for this particular label, skip it.
             if len(instances) == 0:
                 continue
