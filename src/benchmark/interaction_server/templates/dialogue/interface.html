@@ -65,12 +65,13 @@
 											 selected: 'selectedUtterances' in this.currentQuestion && this.currentQuestion.selectedUtterances.includes(index), 
 											 positive: 'turnAnnotations' in this.currentQuestion && this.currentQuestion.turnAnnotations[index] === 'positive', 
 											 negative: 'turnAnnotations' in this.currentQuestion && this.currentQuestion.turnAnnotations[index] === 'negative', 
-											 turnlevel: currentQuestion.type==='turn-binary' || currentQuestion.type==='turn-ternary' }, ]"
+											 turnlevel: currentQuestion.type==='turn-binary' || currentQuestion.type==='turn-ternary' || (currentQuestion.type=='combo' && currentQuestion.turn !== null)}, ]"
 							 v-for="(utterance, index) in utterances">
 						<div class='speech-bubble-gutter'>
 							<input v-if="currentQuestion.type=='turn-binary' && utterance.speaker=='bot'" type="checkbox" @click="toggleSelectedUtterance(index);"
-																																														:checked="this.currentQuestion.selectedUtterances.includes(index)">
-							<div v-if="currentQuestion.type=='turn-ternary' && utterance.speaker=='bot'" class="ternary-btn-group btn-group" role="group" aria-label="Basic radio toggle button group">
+																																										:checked="this.currentQuestion.selectedUtterances.includes(index)">
+							<input v-if="(currentQuestion.type=='combo' && currentQuestion.turn !== null && typeof(currentQuestion.turn) !== 'undefined') && utterance.speaker=='bot'" type="checkbox" @click="toggleSelectedUtterance(index);"
+																																										:checked="this.currentQuestion.selectedUtterances.includes(index)">																																					<div v-if="currentQuestion.type=='turn-ternary' && utterance.speaker=='bot'" class="ternary-btn-group btn-group" role="group" aria-label="Basic radio toggle button group">
 								<label class="btn" :class="this.currentQuestion.turnAnnotations[index]==='positive'? 'btn-success': 'btn-outline-success'"><i class="bi bi-emoji-smile"></i>
 									<input type="radio" class="btn-check" name="turn-{{index}}" autocomplete="off" @click="ternaryLabel(index, 'positive');">
 								</label>
@@ -136,10 +137,36 @@
 								<input v-model='currentQuestion.answer' id="{currentQuestion.tag}"
 																												name="{currentQuestion.tag}" rows="5" cols="33"> </textarea>
 							</template>
-
+							<div class="combo" v-else-if="currentQuestion.type=='combo'">
+								<div>
+									<label class='instruction' for="{{currentQuestion.tag}}-likert"> {{currentQuestion.likert.text}} </label>
+									<select class="form-select" id="{{currentQuestion.tag}}-likert" name="{{currentQuestion.tag}}-likert">
+									<option disabled value="">Please select one</option>
+									<option v-for="option in currentQuestion.likert.options">{{option}}</option>
+									</select>
+								</div>
+								<div v-if="currentQuestion.turn !== null && typeof(currentQuestion.turn) !== 'undefined'">
+									<header class='instruction' for="{{currentQuestion.tag}}-turn">Which responses from the bot influenced your rating?</header>
+									<div class="form-check" >
+										<input class="form-check-input" type="checkbox" id="{{currentQuestion.tag}}-turn"
+																																		name="{{currentQuestion.tag}}-turn" :checked="currentQuestion.notaUtterance"
+																																		@change="toggleNotaUtterance">
+										<label class="form-check-label" for="{{currentQuestion.tag}}-turn">None of the utterances</label>	
+									</div>
+								</div>
+								<div class="multi-select" v-if="currentQuestion.why !== null && typeof(currentQuestion.why) !== 'undefined'">
+									<header class='instruction' for="{{currentQuestion.tag}}-why">Which of the following was the most important factor in your rating?</header>
+									<div v-for="option in currentQuestion.why.options">
+									<span>
+									<input class="form-check-input" id="{{currentQuestion.tag}}-why-{{option}}" type="checkbox" name="{{currentQuestion.tag}}-why"margin-right=10px
+									@click="toggleSelectedReason(option);" :checked="this.currentQuestion.selectedReasons.includes(option)">
+                    				<label class="form-check-label" id="{{currentQuestion.tag}}-why-{{option}}" margin-left=10px>{{option}}</label>
+									</span>
+									</div>
+								</div>
+							</div>
 						</div>
-						<div class="error" v-if="error">Answers successfully submitted. Survey completion
-							code: {{code}}</div>
+						<div class="error" v-if="error">{{error}}</div>
 						<div class="success" v-if="success && !optedout">Answers successfully submitted. Survey completion
 							code: {{code}}</div>
 						<div class="success" v-if="success && optedout">You have successfully opted out. Survey completion
@@ -161,7 +188,7 @@
 				<div class="form-row">
 					<a class="opt-out" data-toggle="modal" data-target="#consentModal"> Read IRB consent background </a>
 					&nbsp;
-					<a class="opt-out" @click="optout()">Out out of the study </a>
+					<a class="opt-out" @click="optout()">Opt out of the study </a>
 				</div>
 			</div>
 		</div>

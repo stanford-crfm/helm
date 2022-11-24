@@ -6,6 +6,55 @@ const ChatBox = {
 		var questions =
 			[	
 				{
+					tag: "test-combo-all",
+					type: "combo",
+					text: "",
+					likert: {	
+						text: "How much do you agree with the following statement: 'The chatbot did enough to keep the conversation going'",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
+					},
+					turn: true,
+					why: {
+						options: ["the bot was responsive to me", "the bot shared information", "the bot asked the right questions",
+								  "the bot was unresponsive to me", "the bot gave close-ended answers", "the bot did not ask enough questions", 
+								  "the bot asked the wrong questions"]
+					}
+				},
+				{
+					tag: "test-combo-turn",
+					type: "combo",
+					text: "",
+					likert: {	
+						text: "How much do agree with the following statement: 'The chatbot let me talk about what I wanted'",
+						options: ["1 - Strongly disagree", "2 - Somewhat disagree", "3 - Neutral", "4 - Somewhat agree", "5 - Strongly agree"]
+					},
+					turn: true
+				},
+				{
+					tag: "test-combo-why",
+					type: "combo",
+					text: "",
+					likert: {	
+						text: "Did the chatbot seem interested in you?",
+						options: ["1 - Not enough", "2 - The right amount", "3 - Too much"]
+					},
+					why: {
+						options: ["the bot asked personal questions", "the bot listened to me", "the bot gave specific responses",
+						"the bot did not ask enough personal questions", "the bot did not listen to me", "the bot gave generic responses"]
+					}
+				},
+				{
+					tag: "test-combo-likert",
+					type: "combo",
+
+					text: "",
+					likert: {	
+						text: "Did the chatbot share about itself?",
+						options: ["1 - Not enough", "2 - The right amount", "3 - Too much"]
+					}
+				}
+				/*
+				{
 					tag: "email",
 					text: "What is your email address?",
 					type: "freeForm",
@@ -30,7 +79,6 @@ const ChatBox = {
 					text: "What questions would you have liked to be asked?",
 					type: "freeForm",
 				}
-				/*
 				{
 					tag: "workerID",
 					text: "Please enter your Mechanical Turk WorkerID for payment processing",
@@ -123,6 +171,15 @@ const ChatBox = {
 			} else if (question.type === "turn-ternary"){
 				question.notaUtterance = false;
 				question.turnAnnotations = [];
+				/* TO DO: Add initialization for new type of question */
+			} else if (question.type === "combo") {
+				if (question.turn !== null && typeof(question.turn) !== 'undefined') {
+					question.selectedUtterances = [];
+					question.notaUtterance = false;
+				}
+				if (question.why !== null && typeof(question.why) !== 'undefined') {
+					question.selectedReasons = [];
+				}
 			}
 
 		}
@@ -150,9 +207,10 @@ const ChatBox = {
 			if (this.currentQuestionIdx < 0) {
 				return {
 					tag: "Dummy",
-					text: "Dummy",
+					text: "Dummy", 
 					type: "Dummy",
 					selectedUtterances: [],
+					selectedReasons: [],
 					notaUtterance: false,
 					rating: ""
 				}
@@ -205,12 +263,22 @@ const ChatBox = {
 			this.newUtterance = "";
 		},
 		toggleSelectedUtterance: function (idx) {
-			if (this.isConversationOver && this.currentQuestionIdx > -1 && this.currentQuestion.type === "turn-binary") {
+			if (this.isConversationOver && this.currentQuestionIdx > -1 && (this.currentQuestion.type === "turn-binary" ||
+				(this.currentQuestion.type === "combo" && this.currentQuestion.turn !== null 
+				&& typeof(this.currentQuestion.turn) !== 'undefined'))) {
 				//if(!"selectedUtterances" in this.currentQuestion) {this.currentQuestion.selectedUtterances=[]}
+				console.log("Toggling selected utterances");
 				this.currentQuestion.selectedUtterances = _.xor(this.currentQuestion.selectedUtterances, [idx])
 				if (this.currentQuestion.selectedUtterances.length > 0) {
 					this.currentQuestion.notaUtterance = false;
 				}
+			}
+		},
+		toggleSelectedReason: function (option) {
+			if (this.isConversationOver && this.currentQuestionIdx > -1 && this.currentQuestion.type === "combo"
+				&& this.currentQuestion.why !== null && typeof(this.currentQuestion.why) !== 'undefined') {
+				console.log("Toggling selected reasons");
+				this.currentQuestion.selectedReasons = _.xor(this.currentQuestion.selectedReasons, [option])
 			}
 		},
 		ternaryLabel: function (idx, label) {
@@ -224,7 +292,8 @@ const ChatBox = {
 		toggleNotaUtterance: function (event) {
 			this.currentQuestion.notaUtterance = !this.currentQuestion.notaUtterance;
 			console.log(this.currentQuestion.notaUtterance);
-			if (this.currentQuestion.type === 'turn-binary'){
+			if (this.currentQuestion.type === 'turn-binary' || (this.currentQuestion.type === 'combo'
+				&& this.currentQuestion.turn !== null && typeof(this.currentQuestion.turn) !== 'undefined')){
 				this.currentQuestion.selectedUtterances = [];
 			}
 			else if (this.currentQuestion.type === 'turn-ternary'){
@@ -237,7 +306,7 @@ const ChatBox = {
 			}
 		},
 		prepSurvey: function (response) {
-			this.addDatasetQuestion(response);
+			/* this.addDatasetQuestion(response); */
 			this.initSurveyResponses();
 			this.isConversationOver = true;
 			this.currentQuestionIdx = 0;
@@ -254,7 +323,6 @@ const ChatBox = {
 			})
 				.then(function (response) {
 					that.prepSurvey(response)
-					that.success = true;
 					that.error = false;
 					console.log("success");
 				})
@@ -269,10 +337,15 @@ const ChatBox = {
 			for (let question of this.questions) {
 				if (question.type === "likert") {
 					question.rating = "";
-				} else if (question.type === "turn-binary") {
+				} else if (question.type === "turn-binary" || (question.type === "combo" &&
+					question.turn !== null && typeof(question.turn) !== 'undefined')) {
 					question.selectedUtterances = [];
 					question.notaUtterance = false;
-				} else if (question.type === "turn-ternary"){
+				} else if (question.type === "combo" && question.why !== null
+						   && typeof(question.why) !== 'undefined') {
+					question.selectedReasons = [];
+				}
+				else if (question.type === "turn-ternary"){
 					question.notaUtterance = false;
 					var that = this;
 					this.utterances.forEach(function (utt, idx){
@@ -349,6 +422,21 @@ const ChatBox = {
 				if (this.currentQuestion.selectedUtterances.length === 0 && !this.currentQuestion.notaUtterance) {
 					this.error = "Either select one or more utterances or check 'None of the utterances'";
 					return false;
+				}
+				return true;
+			}
+			else if (this.currentQuestion.type === "combo") {
+				if (this.currentQuestion.turn !== null && typeof(this.currentQuestion.turn) !== 'undefined') {
+					if (this.currentQuestion.selectedUtterances.length === 0 && !this.currentQuestion.notaUtterance) {
+						this.error = "Either select one or more utterances or check 'None of the utterances'";
+						return false;
+					}
+				}
+				if (this.currentQuestion.why !== null && typeof(this.currentQuestion.why) !== 'undefined') {
+					if (this.currentQuestion.selectedReasons.length === 0) {
+						this.error = "Select at least one reason";
+						return false;
+					}
 				}
 				return true;
 			}
