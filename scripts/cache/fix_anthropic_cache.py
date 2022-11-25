@@ -1,12 +1,13 @@
 import argparse
 import json
 import time
-from typing import Dict, List
+from typing import Any, Callable, Dict, List
 
 from helm.common.cache import create_key_value_store, MongoCacheConfig
 from helm.common.general import parse_hocon
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.proxy.clients.anthropic_client import AnthropicClient
+from helm.proxy.retry import get_retry_decorator
 
 
 """
@@ -18,6 +19,25 @@ Example usage:
 """
 
 DEFAULT_TOP_K: int = 1
+
+
+def retry_if_request_failed(result: Any) -> bool:
+    if type(result) is not dict:
+        hlog(f"Unexpected response: {result}")
+
+    return type(result) is not dict
+
+
+retry_request: Callable = get_retry_decorator(
+    "Request", max_attempts=10, wait_exponential_multiplier_seconds=5, retry_on_result=retry_if_request_failed
+)
+
+
+@retry_request
+def make_logprobs_request_with_retry(
+    client: AnthropicClient, text: str, top_k_per_token: int, model_engine: str
+) -> Dict[str, List[str]]:
+    return client.make_logprobs_request(text, top_k_per_token, model_engine)
 
 
 @htrack("Updating Anthropic cache with logprobs.")
@@ -47,8 +67,11 @@ def add_logprobs(mongo_uri: str, credentials_path: str, dry_run: bool):
                 # Compute log probs for all the entries where echo_prompt=False
                 # Send and time how long the logprobs request takes. Add the time to `request_time`
                 start: float = time.time()
-                logprobs = client.make_logprobs_request(
-                    request["q"] + "".join(tokens), top_k_per_token=request["k"], model_engine=request["engine"]
+                logprobs = make_logprobs_request_with_retry(
+                    client,
+                    text=request["q"] + "".join(tokens),
+                    top_k_per_token=request["k"],
+                    model_engine=request["engine"],
                 )
                 request_time: float = time.time() - start
                 response["request_time"] += request_time
