@@ -80,8 +80,9 @@ helm-server
 Open a browser and go to http://localhost:8000/ to view the visualization. You should see a similar view as [live website for the paper](https://crfm.stanford.edu/helm/v1.0/), but for the data from your benchmark runs. The website has three main sections:
 
 - **Models** contains a list of available models.
-- **Groups** contains results from the runs, organized into groups and categories of groups.
-- **Runs** contains a searchable list of runs.
+- **Scenarios** contains a list of available scenarios.
+- **Results** contains results from the runs, organized into groups and categories of groups.
+- **Raw Runs** contains a searchable list of runs.
 
 ## Other Tips
 

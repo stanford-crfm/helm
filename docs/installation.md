@@ -10,10 +10,10 @@ Using [Virtualenv](https://docs.python.org/3/library/venv.html#creating-virtual-
 # Create a virtual environment.
 # Only run this the first time.
 python3 -m pip install virtualenv
-python3 -m virtualenv -p python3 crfm_helm
+python3 -m virtualenv -p python3 helm-venv
 
 # Activate the virtual environment.
-source crfm_helm/bin/activate
+source helm-venv/bin/activate
 ```
 
 Using [Anaconda](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html):
