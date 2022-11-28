@@ -109,7 +109,8 @@ class BasicCopyrightMetric(Metric):
         Result is based on number of tokens produced with `nltk.tokenize.TreebankWordTokenizer`.
         When there are multiple generations, return the length of the longest.
 
-        Example:
+        **Example:**
+
             input: A
             generations: [A A B C, A M D]
             reference: A A D

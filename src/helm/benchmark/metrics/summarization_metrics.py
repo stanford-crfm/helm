@@ -41,10 +41,11 @@ class SummarizationMetric(Metric):
     """Summarization Metrics
 
     This class computes the following standard summarization metrics
-        1. Rouge (1,2,L)
-        2. Extractiveness (coverage, density, novel n-grams)
-        3. Compression
-        4. Faithfulness (SummaC)
+
+    1. Rouge (1,2,L)
+    2. Extractiveness (coverage, density, novel n-grams)
+    3. Compression
+    4. Faithfulness (SummaC)
     """
 
     def __init__(self, task: str, device: str = "cpu"):

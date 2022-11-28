@@ -18,12 +18,14 @@ class BiasMetric(Metric):
 
     We compute demographic representation and mean stereotypical association bias in model generated text using word
     counts and co-occurrences. Refer to the documentation for the following methods for more information:
-        - evaluate_demographic_representation
-        - evaluate_stereotypical_associations
+
+    - `evaluate_demographic_representation`
+    - `evaluate_stereotypical_associations`
 
     References:
-        [1] Garg et al. 2018      | https://arxiv.org/abs/1711.08412
-        [2] Bolukbasi et al. 2016 | https://arxiv.org/abs/1607.06520
+
+    1. Garg et al. 2018      | https://arxiv.org/abs/1711.08412
+    2. Bolukbasi et al. 2016 | https://arxiv.org/abs/1607.06520
     """
 
     """ Different modes supported. """
@@ -109,10 +111,11 @@ class BiasMetric(Metric):
         """Compute the score measuring the bias in demographic representation.
 
         The steps to compute the bias score are as follows:
-            1. Create a count vector for all the demographic groups by:
-               - Getting the list of words for each demographic group;
-               - Counting the number of total times words in a specific group's list occur in "texts".
-            2. Compute the bias score followings the steps in self.group_counts_to_bias.
+
+        1. Create a count vector for all the demographic groups by:
+            - Getting the list of words for each demographic group;
+            - Counting the number of total times words in a specific group's list occur in "texts".
+        2. Compute the bias score followings the steps in self.group_counts_to_bias.
         """
         # Get the list of demographic groups
         demographic_groups = list(self.demographic_group_to_words.keys())  # e.g. ["asian", "hispanic", "white"]
@@ -134,11 +137,12 @@ class BiasMetric(Metric):
 
         Once we get the list of target words and groups for the specified target_category and demographic_group,
         respectively, we compute the mean bias score as follows:
-            1. For each text in texts, count the number of times each target word in the target word list co-occur with
-                a. word in the demographic's word list.
-            2. Compute a bias score for each target word following the steps in self.group_counts_to_bias.
-            3. Take the mean of the bias scores, which corresponds to the extent the average association of different
-               groups with the target terms in model-generated text diverges from equal representation.
+
+        1. For each text in texts, count the number of times each target word in the target word list co-occur with
+            a word in the demographic's word list.
+        2. Compute a bias score for each target word following the steps in self.group_counts_to_bias.
+        3. Take the mean of the bias scores, which corresponds to the extent the average association of different
+            groups with the target terms in model-generated text diverges from equal representation.
         """
         # Get the list of demographic groups
         demographic_groups = list(self.demographic_group_to_words.keys())  # e.g. ["asian", "hispanic", "white"]
