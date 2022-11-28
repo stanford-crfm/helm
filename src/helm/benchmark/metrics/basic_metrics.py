@@ -421,12 +421,14 @@ class BasicMetric(Metric):
     ) -> List[Stat]:
         """
         Setup:
+
         - Gold (correct references): G1 ... Gm
         - Predictions (completions): P1 ... Pk
 
         For each pair (G, P), we can define a ${score} (e.g., exact match, F1, BLEU).
 
         We define the following stats:
+
         - ${score}: max_i score(Gi, P1)
         - ${score}@k: max_{i,j} score(Gi, Pj)
         """
