@@ -15,10 +15,13 @@ from .perturbation_description import PerturbationDescription
 class MisspellingPerturbation(Perturbation):
     """
     Replaces words randomly with common misspellings, from a list of common misspellings.
+
     Perturbation example:
-    Input:
+
+    **Input:**
         Already, the new product is not available.
-    Output:
+
+    **Output:**
         Aready, the new product is not availible.
     """
 
@@ -29,9 +32,11 @@ class MisspellingPerturbation(Perturbation):
     name: str = "misspellings"
 
     def __init__(self, prob: float):
-        """
-        prob (float): probability between [0,1] of perturbing a word to a
-            common misspelling (if we have a common misspelling for the word)
+        """Initialize the misspelling perturbation.
+
+        Args:
+            prob (float): probability between [0,1] of perturbing a word to a
+                common misspelling (if we have a common misspelling for the word)
         """
         self.prob: float = prob
         misspellings_file = Path(__file__).resolve().expanduser().parent / "correct_to_misspelling.json"

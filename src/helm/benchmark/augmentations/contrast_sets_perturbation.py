@@ -11,13 +11,14 @@ from .perturbation import Perturbation
 class ContrastSetsPerturbation(Perturbation):
     """
     Contrast Sets are from this paper (currently supported for the BoolQ and IMDB scenarios):
-        https://arxiv.org/abs/2004.02709
+    https://arxiv.org/abs/2004.02709
 
     Original repository can be found at:
-        https://github.com/allenai/contrast-sets
+    https://github.com/allenai/contrast-sets
 
     An example instance of a perturbation for the BoolQ dataset:
 
+    ```
     The Fate of the Furious premiered in Berlin on April 4, 2017, and was theatrically released in the United States on
     April 14, 2017, playing in 3D, IMAX 3D and 4DX internationally. . . A spinoff film starring Johnson and Statham’s
     characters is scheduled for release in August 2019, while the ninth and tenth films are scheduled for releases on
@@ -28,9 +29,11 @@ class ContrastSetsPerturbation(Perturbation):
     perturbed question: is “Fate and the Furious” the first of multiple movies?
     perturbed answer: yes
     perturbation strategy: adjective change.
+    ```
 
-    An example instance of a perturbation for the IMDB dataset(from the original paper):
+    An example instance of a perturbation for the IMDB dataset (from the original paper):
 
+    ```
     Orginal instance: Hardly one to be faulted for his ambition or his vision, it is genuinely unexpected, then, to see
     all Park’s effort add up to so very little. . . .  The premise is promising, gags are copious and offbeat humour
     abounds but it all fails miserably to create any meaningful connection with the audience.
@@ -41,6 +44,7 @@ class ContrastSetsPerturbation(Perturbation):
     hilarious and offbeat humour abounds, and it creates a deep connection with the
     audience.
     Sentiment: positive
+    ```
     """
 
     name: str = "contrast_sets"

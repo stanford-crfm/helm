@@ -18,15 +18,18 @@ class SynonymPerturbation(Perturbation):
     """
     Synonyms. For implementation details, see
     https://github.com/GEM-benchmark/NL-Augmenter/blob/main/nlaugmenter/transformations/synonym_substitution/transformation.py
+
     This perturbation adds noise to a text source by randomly inserting synonyms of randomly selected
     words excluding punctuations and stopwords.
     The space of synonyms depends on WordNet and could be limited. The transformation might introduce
     non-grammatical segments.
 
     Perturbation example:
-    Input:
+
+    **Input:**
         This was a good movie, would watch again.
-    Output:
+
+    **Output:**
         This was a dependable movie, would determine again.
     """
 
