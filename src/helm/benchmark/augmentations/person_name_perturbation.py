@@ -81,8 +81,7 @@ class PersonNamePerturbation(Perturbation):
 
             https://worksheets.codalab.org/rest/bundles/0xa65e8f9a107c44f198eb4ad356bbda34/contents/blob/
 
-        The available categories in our default file and their values are as
-        follows:
+        The **available categories** in our default file and their values are as follows:
 
             If person_name_type == "last_name":
 

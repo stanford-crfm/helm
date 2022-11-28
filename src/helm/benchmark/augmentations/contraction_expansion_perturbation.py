@@ -97,9 +97,11 @@ class ContractionPerturbation(Perturbation):
     Replaces each expansion with its contracted version.
 
     Perturbation example:
-    Input:
+
+    **Input:**
         She is a doctor, and I am a student
-    Output:
+
+    **Output:**
         She's a doctor, and I'm a student
     """
 
@@ -135,9 +137,11 @@ class ExpansionPerturbation(Perturbation):
     Replaces each contraction with its expanded version.
 
     Perturbation example:
-    Input:
+
+    **Input:**
         She's a doctor, and I'm a student
-    Output:
+
+    **Output:**
         She is a doctor, and I am a student
     """
 
