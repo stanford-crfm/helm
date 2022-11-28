@@ -1,4 +1,4 @@
-# Setup
+# Developer Setup
 
 ## Set up the Python virtual environment
 
