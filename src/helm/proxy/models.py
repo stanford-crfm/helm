@@ -369,6 +369,14 @@ ALL_MODELS = [
     Model(
         group="gpt3",
         creator_organization="OpenAI",
+        name="openai/text-davinci-003",
+        display_name="Davinci Instruct v3",
+        description="Davinci from Instruct series, 3rd generation - 4000 max tokens",
+        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
         name="openai/text-davinci-002",
         display_name="Davinci Instruct v2",
         description="Davinci from Instruct series, 2nd generation - 4000 max tokens",

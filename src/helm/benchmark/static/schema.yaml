@@ -242,6 +242,13 @@ models:
     access: limited
     num_parameters: 350000000
     release_date: 2020-05-28
+  - name: openai/text-davinci-003
+    display_name: InstructGPT davinci v3 (175B*)
+    description: InstructGPT-style model based on the [InstructGPT paper](https://arxiv.org/pdf/2203.02155.pdf), but the details are unknown.
+    creator_organization: OpenAI
+    access: limited
+    num_parameters: 175000000000
+    release_date: 2022-11-28
   - name: openai/text-davinci-002
     display_name: InstructGPT davinci v2 (175B*)
     description: InstructGPT-style model based on the [InstructGPT paper](https://arxiv.org/pdf/2203.02155.pdf), but the details are unknown.
