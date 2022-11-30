@@ -15,6 +15,7 @@ from .statistic import Stat
 
 
 def _longest_common_prefix_length(s1: np.ndarray, s2: np.ndarray, previous_best: Optional[float] = None) -> float:
+    """Compute the length of the longest common prefix."""
     min_len = min(len(s1), len(s2))
     s1, s2 = s1[:min_len], s2[:min_len]
     (nonzeros,) = np.cumprod(s1 == s2).nonzero()  # Get indices (inclusive) up to which s1 and s2 are the same.
@@ -45,13 +46,26 @@ def _edit_distance_helper(s1: np.ndarray, s2: np.ndarray, similarity_mat: np.nda
 
 
 def _edit_distance(s1: np.ndarray, s2: np.ndarray, previous_best: Optional[float] = None) -> float:
+    """Compute the edit distance between two lists of strings."""
+    # Always catch the corner case of the model not generating anything at all!
+    l1, l2 = len(s1), len(s2)
+    min_len, max_len = min(l1, l2), max(l1, l2)
+    if min_len == 0:
+        return max_len
+
     similarity_mat: np.ndarray = s1[:, None] == s2[None, :]  # Speed up this through vectorization.
     result = _edit_distance_helper(s1, s2, similarity_mat)
     return result if previous_best is None else min(previous_best, result)
 
 
 def _edit_similarity(s1: np.ndarray, s2: np.ndarray, previous_best: Optional[float] = None) -> float:
-    """"""
+    """Compute the edit similarity between two lists of strings.
+
+    Edit similarity is also used in the paper
+        Lee, Katherine, et al.
+        "Deduplicating training data makes language models better."
+        arXiv preprint arXiv:2107.06499 (2021).
+    """
     edist = _edit_distance(s1, s2)  # Don't feed `previous_best`!
 
     # Some models can return an empty completion e.g., openai/text-davinci-002
