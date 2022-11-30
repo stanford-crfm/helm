@@ -13,46 +13,46 @@ class Request:
     various APIs (e.g., GPT-3, Jurassic).
     """
 
-    # Which model to query
     model: str = "openai/text-davinci-002"
+    """Which model to query"""
 
-    # Whether to query embedding instead of text response
     embedding: bool = False
+    """Whether to query embedding instead of text response"""
 
-    # What prompt do condition the language model on
     prompt: str = ""
+    """What prompt do condition the language model on"""
 
-    # Temperature parameter that governs diversity
     temperature: float = 1.0
+    """Temperature parameter that governs diversity"""
 
-    # Generate this many completions (by sampling from the model)
     num_completions: int = 1
+    """Generate this many completions (by sampling from the model)"""
 
-    # Take this many highest probability candidates per token in the completion
     top_k_per_token: int = 1
+    """Take this many highest probability candidates per token in the completion"""
 
-    # Maximum number of tokens to generate (per completion)
     max_tokens: int = 100
+    """Maximum number of tokens to generate (per completion)"""
 
-    # Stop generating once we hit one of these strings.
     stop_sequences: List[str] = field(default_factory=list)
+    """Stop generating once we hit one of these strings."""
 
-    # Should `prompt` be included as a prefix of each completion? (e.g., for
-    # evaluating perplexity of the prompt)
     echo_prompt: bool = False
+    """Should `prompt` be included as a prefix of each completion? (e.g., for
+    evaluating perplexity of the prompt)"""
 
-    # Same from tokens that occupy this probability mass (nucleus sampling)
     top_p: float = 1
+    """Same from tokens that occupy this probability mass (nucleus sampling)"""
 
-    # Penalize repetition (OpenAI only)
     presence_penalty: float = 0
+    """Penalize repetition (OpenAI only)"""
 
-    # Penalize repetition (OpenAI only)
     frequency_penalty: float = 0
+    """Penalize repetition (OpenAI only)"""
 
-    # Used to control randomness. Expect different responses for the same
-    # request but with different values for `random`.
     random: Optional[str] = None
+    """Used to control randomness. Expect different responses for the same
+    request but with different values for `random`."""
 
     @property
     def model_organization(self) -> str:
@@ -132,35 +132,34 @@ class Sequence:
 class RequestResult:
     """What comes back due to a `Request`."""
 
-    # Whether the request was successful
     success: bool
+    """Whether the request was successful"""
 
-    # List of floats
-    # Fixed dimensional embedding corresponding to the entire prompt
     embedding: List[float]
+    """Fixed dimensional embedding corresponding to the entire prompt"""
 
-    # List of completion
     completions: List[Sequence]
+    """List of completion"""
 
-    # Whether the request was actually cached
     cached: bool
+    """Whether the request was actually cached"""
 
-    # How long did the request take?
     request_time: Optional[float] = None
+    """How long did the request take?"""
 
-    # When was the request sent?
-    # We keep track of when the request was made because the underlying model or inference procedure backing the API
-    # might change over time. The integer represents the current time in seconds since the Epoch (January 1, 1970).
     request_datetime: Optional[int] = None
+    """When was the request sent?
+    We keep track of when the request was made because the underlying model or inference procedure backing the API
+    might change over time. The integer represents the current time in seconds since the Epoch (January 1, 1970)."""
 
-    # If `success` is false, what was the error?
     error: Optional[str] = None
+    """If `success` is false, what was the error?"""
 
-    # Batch size (`TogetherClient` only)
     batch_size: Optional[int] = None
+    """Batch size (`TogetherClient` only)"""
 
-    # How long it took to process the batch? (`TogetherClient` only)
     batch_request_time: Optional[float] = None
+    """How long it took to process the batch? (`TogetherClient` only)"""
 
     def render_lines(self) -> List[str]:
         output = [

@@ -31,12 +31,11 @@ class PerInstanceStats:
     # Uniquely identifies the input instance
     instance_id: str
     perturbation: Optional[PerturbationDescription]
-
-    # Which replication
     train_trial_index: int
+    """Which replication"""
 
-    # Statistics computed from the predicted output
     stats: List[Stat]
+    """Statistics computed from the predicted output"""
 
 
 @dataclass

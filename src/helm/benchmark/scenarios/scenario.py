@@ -93,11 +93,11 @@ class Reference:
     multiple-choice exam).
     """
 
-    # The output text
     output: str
+    """The output text"""
 
-    # Extra metadata (e.g., whether it's correct/factual/toxic)
     tags: List[str]
+    """Extra metadata (e.g., whether it's correct/factual/toxic)"""
 
     @property
     def is_correct(self) -> bool:
@@ -115,29 +115,29 @@ class Instance:
     Note: `eq=False` means that we hash by the identity.
     """
 
-    # The input text
     input: str  # TODO: eventually, we want to replace this with the Input defined above
+    """The input text"""
 
-    # References that helps us evaluate
     references: List[Reference]
+    """References that helps us evaluate"""
 
-    # Split (e.g., train, valid, test)
     split: Optional[str] = None
+    """Split (e.g., train, valid, test)"""
 
-    # Sub split (e.g. toxic, non-toxic)
     sub_split: Optional[str] = None
+    """Sub split (e.g. toxic, non-toxic)"""
 
-    # Used to group Instances that were created from a particular Instance through data augmentation
     id: Optional[str] = None
+    """Used to group Instances that were created from a particular Instance through data augmentation"""
 
-    # Description of the Perturbation that was applied when creating this Instance
     perturbation: Optional[PerturbationDescription] = None
+    """Description of the Perturbation that was applied when creating this Instance"""
 
-    # Perturbed input as defined by contrast sets (if available)
     contrast_inputs: Optional[List[str]] = None
+    """Perturbed input as defined by contrast sets (if available)"""
 
-    # References for the perturbed input above (if available)
     contrast_references: Optional[List[List[Reference]]] = None
+    """References for the perturbed input above (if available)"""
 
     @property
     def first_correct_reference(self) -> Optional[Reference]:
@@ -173,18 +173,18 @@ class Scenario(ABC):
     the heavy lifting.
     """
 
-    # Short unique identifier of the scenario
     name: str
+    """Short unique identifier of the scenario"""
 
-    # Description of the scenario (task, data)
     description: str
+    """Description of the scenario (task, data)"""
 
-    # Extra metadata (e.g., whether this is a question answering or commonsense task)
     tags: List[str]
+    """Extra metadata (e.g., whether this is a question answering or commonsense task)"""
 
-    # Where downloaded data is cached (to be set by the `Runner`)
     # TODO: ideally would pass this into `get_instances` to not have to mutate.
     output_path: str
+    """Where downloaded data is cached (to be set by the `Runner`)"""
 
     def get_definition_path(self) -> str:
         """Return where the scenario subclass for `self` is defined."""

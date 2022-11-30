@@ -10,10 +10,14 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          show_root_heading: true
-          show_signature_annotations: true
-          show_bases: false
-          show_source: false
+          options:
+            show_root_heading: true
+            show_signature_annotations: true
+            show_bases: false
+            show_source: false
+            show_root_full_path: false
+            show_if_no_docstring: true
+            members_order: source
 extra_css:
   - docstrings.css
 markdown_extensions:
