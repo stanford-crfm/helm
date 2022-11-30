@@ -35,6 +35,7 @@ from .schema import (
     DOWN_ARROW,
 )
 from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
+from .efficiency import read_efficiency
 
 """
 Reads the output of the benchmark runs and produces:
@@ -196,6 +197,7 @@ class Summarizer:
         self.schema = read_schema()
         self.contamination = read_contamination()
         validate_contamination(self.contamination, self.schema)
+        self.efficiency = read_efficiency()
 
     def read_run(self, run_path: str) -> Run:
         """Load the `Run` object from `run_path`."""
@@ -678,14 +680,19 @@ class Summarizer:
             else:
                 href = None
 
-            # Render contamination information
+            # Render contamination and efficiency information
             point = self.contamination.get_point(model_name, columns[0][0].name)
             if num_groups == 1 and point is not None:  # display contamination information at the adapter level
                 cells = [
                     Cell(display_name + CONTAMINATION_SYMBOLS[point.level], description=point.description, href=href)
                 ]
             else:
-                cells = [Cell(display_name, description="", href=href)]
+                # Get efficiency information (efficiency group will never be contaminated)
+                point = self.efficiency.get_point(model_name, columns[0][0].name)
+                if num_groups == 1 and point is not None:
+                    cells = [Cell(display_name, description=point.description, href=href)]
+                else:
+                    cells = [Cell(display_name, description="", href=href)]
             assert len(group_names) == len(matchers)
             for group_name, matcher in zip(group_names, matchers):
                 group_runs = [run for run in runs if group_name in run.run_spec.groups]
