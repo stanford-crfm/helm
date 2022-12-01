@@ -1,4 +1,4 @@
-# Code structure
+# Code Structure
 
 Here's a birds-eye view of how the benchmarking process interacts with the main
 classes (see `benchmark`):
