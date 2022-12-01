@@ -124,36 +124,36 @@ class RequestState:
     able to understand the `Request` and its `RequestResult`.
     """
 
-    # Which instance we're evaluating
     instance: Instance
+    """Which instance we're evaluating"""
 
-    # Which reference of the instance we're evaluating (if any)
     reference_index: Optional[int]
+    """Which reference of the instance we're evaluating (if any)"""
 
-    # Which request mode ("original" or "calibration") of the instance we're evaluating (if any)
-    # (for ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED)
     request_mode: Optional[str]
+    """Which request mode ("original" or "calibration") of the instance we're evaluating (if any)
+    (for ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED)"""
 
-    # Which training set this request is for
     train_trial_index: int
+    """Which training set this request is for"""
 
-    # How to map the completion text back to a real output (e.g., for multiple choice, "B" => "the second choice")
     output_mapping: Optional[Dict[str, str]]
+    """How to map the completion text back to a real output (e.g., for multiple choice, "B" => "the second choice")"""
 
-    # The request that is actually made
     request: Request
+    """The request that is actually made"""
 
-    # The result of the request (filled in when the request is executed)
     result: Optional[RequestResult]
+    """The result of the request (filled in when the request is executed)"""
 
-    # Number of training instances (i.e., in-context examples)
     num_train_instances: int
+    """Number of training instances (i.e., in-context examples)"""
 
-    # Whether the prompt (instructions + test input) is truncated to fit the model's context window.
     prompt_truncated: bool
+    """Whether the prompt (instructions + test input) is truncated to fit the model's context window."""
 
-    # The number of initial tokens that will be ignored when computing language modeling metrics
     num_conditioning_tokens: int = 0
+    """The number of initial tokens that will be ignored when computing language modeling metrics"""
 
     def render_lines(self) -> List[str]:
         output = [f"train_trial_index: {self.train_trial_index}"]
