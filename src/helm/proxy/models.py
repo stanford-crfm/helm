@@ -3,6 +3,7 @@ from typing import List, Dict, Optional
 
 # Different modalities
 TEXT_MODEL_TAG: str = "text"
+IMAGE_MODEL_TAG: str = "image"
 CODE_MODEL_TAG: str = "code"
 EMBEDDING_MODEL_TAG: str = "embedding"
 
@@ -120,6 +121,42 @@ ALL_MODELS = [
         description="Jurassic J1-Large (7.5B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
+    # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
+    # TODO: Follow up on the number of parameters. Exact sizes are not available on their website.
+    Model(
+        group="luminous",
+        creator_organization="Aleph Alpha",
+        name="AlephAlpha/luminous-base",
+        display_name="Luminous Base",
+        description="Luminous Base",
+        tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="luminous",
+        creator_organization="Aleph Alpha",
+        name="AlephAlpha/luminous-extended",
+        display_name="Luminous Extended",
+        description="Luminous Extended",
+        tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="luminous",
+        creator_organization="Aleph Alpha",
+        name="AlephAlpha/luminous-supreme",
+        display_name="Luminous Supreme",
+        description="Luminous Supreme",
+        # Does not support multimodality
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    # TODO: coming soon. Uncomment out the following when Luminous World is released.
+    # Model(
+    #     group="luminous",
+    #     creator_organization="Aleph Alpha",
+    #     name="AlephAlpha/luminous-world",
+    #     display_name="Luminous World",
+    #     description="Luminous World",
+    #     tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    # ),
     # Anthropic
     Model(
         group="anthropic",

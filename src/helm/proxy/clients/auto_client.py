@@ -16,6 +16,7 @@ from helm.common.tokenization_request import (
 from helm.proxy.retry import retry_request
 from .client import Client
 from .ai21_client import AI21Client
+from .aleph_alpha_client import AlephAlphaClient
 from .anthropic_client import AnthropicClient
 from .cohere_client import CohereClient
 from .together_client import TogetherClient
@@ -61,6 +62,8 @@ class AutoClient(Client):
                 client = OpenAIClient(
                     api_key=self.credentials["openaiApiKey"], cache_config=cache_config, org_id=org_id
                 )
+            elif organization == "AlephAlpha":
+                client = AlephAlphaClient(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
             elif organization == "ai21":
                 client = AI21Client(api_key=self.credentials["ai21ApiKey"], cache_config=cache_config)
             elif organization == "cohere":
@@ -136,6 +139,8 @@ class AutoClient(Client):
                 "openai",
             ]:
                 client = HuggingFaceClient(cache_config=cache_config)
+            elif organization == "AlephAlpha":
+                client = AlephAlphaClient(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
             elif organization == "TsinghuaKEG":
                 client = ICETokenizerClient(cache_config=cache_config)
             elif organization == "Yandex":
