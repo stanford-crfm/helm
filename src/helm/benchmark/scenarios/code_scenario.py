@@ -269,6 +269,7 @@ class CodeScenario(Scenario):
     tags = ["Reasoning", "Code Generation"]
 
     def __init__(self, dataset: str):
+        super().__init__()
         self.dataset = dataset
 
         self.human_eval_hparams = dict(num_train_instances=0, num_val_instances=0, num_test_instances=164)

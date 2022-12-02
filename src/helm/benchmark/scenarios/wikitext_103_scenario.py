@@ -23,9 +23,6 @@ class Wikitext103Scenario(Scenario):
     description = "The WikiText language modeling dataset containing over 103 million words"
     tags = ["language_modeling"]
 
-    def __init__(self):
-        pass
-
     def get_instances(self) -> List[Instance]:
         # Download the raw data
         data_path = os.path.join(self.output_path, "data")

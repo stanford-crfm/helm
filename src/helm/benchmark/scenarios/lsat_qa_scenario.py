@@ -81,6 +81,7 @@ class LSATScenario(Scenario):
     tags = ["question_answering"]
 
     def __init__(self, task):
+        super().__init__()
         question_types = {
             "grouping": ["in/out grouping", "distribution grouping"],
             "ordering": ["simple ordering", "relative ordering", "complex ordering"],

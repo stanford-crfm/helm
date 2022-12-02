@@ -40,6 +40,7 @@ class CommonSenseScenario(Scenario):
     tags = ["knowledge", "multiple_choice"]
 
     def __init__(self, dataset):
+        super().__init__()
         self.dataset = dataset
         assert self.dataset in ["hellaswag", "openbookqa", "commonsenseqa", "piqa", "siqa"]
 

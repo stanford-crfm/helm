@@ -92,6 +92,7 @@ class RAFTScenario(Scenario):
     tags = ["text_classification", "robustness"]
 
     def __init__(self, subset: str, random_seed=42):
+        super().__init__()
         assert subset in SUBSETS, "Unknown subset: {}".format(subset)
         self.subset = subset
         self.random_seed = random_seed

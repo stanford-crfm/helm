@@ -43,6 +43,7 @@ class SyntheticEfficiencyScenario(Scenario):
     tags: List[str] = []
 
     def __init__(self, num_prompt_tokens: int, num_instances: int, tokenizer: str):
+        super().__init__()
         self.num_prompt_tokens: int = num_prompt_tokens
         self.num_instances: int = num_instances
         self.tokenizer: str = tokenizer

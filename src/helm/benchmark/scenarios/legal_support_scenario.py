@@ -51,9 +51,6 @@ class LegalSupportScenario(Scenario):
     description = "Binary multiple choice question dataset for legal argumentative reasoning."
     tags = ["question_answering", "law"]
 
-    def __init__(self):
-        pass
-
     def get_instances(self) -> List[Instance]:
         data_path: str = os.path.join(self.output_path, "data")
         ensure_file_downloaded(

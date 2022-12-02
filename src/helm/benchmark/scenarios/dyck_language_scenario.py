@@ -73,6 +73,7 @@ class DyckLanguageScenario(Scenario):
         max_output_size: int = 3,
         seed: int = 42,
     ):
+        super().__init__()
         if not (prob_p > 0 and prob_q > 0 and (prob_p + prob_q) < 1):
             raise ValueError("It must be the case that 0 < prob_p, prob_q < 1 and 0 < prob_p + prob_q < 1.")
 

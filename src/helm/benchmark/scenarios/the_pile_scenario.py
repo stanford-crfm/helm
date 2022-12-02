@@ -21,6 +21,7 @@ class ThePileScenario(Scenario):
     tags = ["language_modeling"]
 
     def __init__(self, subset: str):
+        super().__init__()
         self.pile_subsets = {
             "ArXiv",
             "BookCorpus2",

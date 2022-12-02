@@ -60,6 +60,7 @@ class MMLUScenario(Scenario):
     tags = ["knowledge", "multiple_choice"]
 
     def __init__(self, subject: str):
+        super().__init__()
         self.subject: str = subject
 
     def download_mmlu(self, path: str):
