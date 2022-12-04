@@ -1,10 +1,7 @@
 from abc import abstractmethod
-from typing import List, Optional
 
 from .local_window_service import LocalWindowService
 from .tokenizer_service import TokenizerService
-from .window_service import EncodeResult
-from helm.common.tokenization_request import TokenizationRequest, TokenizationToken, DecodeRequest
 
 
 class LuminousWindowService(LocalWindowService):
@@ -44,55 +41,6 @@ class LuminousWindowService(LocalWindowService):
         TODO: echo doesn't seem to be supported.
         """
         return self.end_of_text_token
-
-    def encode(self, text: str, truncation: bool = False, max_length: Optional[int] = None) -> EncodeResult:
-        """
-        Encodes the input text to tokens.
-        """
-        if max_length is None:
-            max_length = self.max_request_length
-
-        response = self.service.tokenize(
-            TokenizationRequest(
-                text,
-                tokenizer=self.tokenizer_name,
-                encode=True,
-                truncation=truncation,
-                max_length=max_length,
-            )
-        )
-        return EncodeResult(text=text, tokens=response.tokens)
-
-    def get_num_tokens(self, text: str) -> int:
-        """Tokenizes the text and returns the number of tokens."""
-        return len(self.encode(text).tokens)
-
-    def decode(self, tokens: List[TokenizationToken], normalized_text: Optional[str] = None) -> str:
-        """
-        Decodes the token ids to text.
-        """
-        response = self.service.decode(
-            DecodeRequest(
-                tokens=[token.value for token in tokens],  # type: ignore
-                tokenizer=self.tokenizer_name,
-            )
-        )
-        return response.text
-
-    def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
-        """
-        Checks if the given text fits within the context window given by `max_request_length`
-        taking to account the expected completion length (defaults to 0).
-        """
-        return self.get_num_tokens(text) + expected_completion_token_length <= self.max_request_length
-
-    def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
-        """
-        Truncates text from the right to fit within the context window given by `max_request_length`
-        minus the expected completion length (defaults to 0).
-        """
-        max_length: int = self.max_request_length - expected_completion_token_length
-        return self.decode(self.encode(text, truncation=True, max_length=max_length).tokens)
 
 
 class LuminousBaseWindowService(LuminousWindowService):
