@@ -52,7 +52,7 @@ class AlephAlphaClient(Client):
             "frequency_penalty": request.frequency_penalty,
             "n": request.num_completions,
             "stop_sequences": request.stop_sequences,
-            "log_probs": 0,  # Log probs of generated tokens are returned if set to 0
+            "log_probs": request.top_k_per_token,
             "tokens": True,  # Setting to True returns individual tokens of the completion
         }
 
@@ -103,7 +103,12 @@ class AlephAlphaClient(Client):
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
         """Make a request following https://docs.aleph-alpha.com/api/tokenize."""
-        raw_request = {"model": request.tokenizer_name, "prompt": request.text, "tokens": True, "token_ids": True}
+        raw_request = {
+            "model": request.tokenizer_name,
+            "prompt": request.text,
+            "tokens": True,
+            "token_ids": True,
+        }
 
         try:
 
