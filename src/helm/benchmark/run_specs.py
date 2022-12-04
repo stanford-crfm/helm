@@ -23,6 +23,7 @@ from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
+from .scenarios.lextreme_scenario import get_lextreme_instructions
 from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG
 from helm.common.general import singleton
 
@@ -1578,6 +1579,27 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
         groups=["pubmed_qa"],
     )
 
+def get_lextreme_spec(subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.lextreme_scenario.LEXTREMEScenario",
+        args={"subset": subset},
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=get_lextreme_instructions(subset),
+        input_noun=None,
+        output_noun="Label",
+        max_tokens=30,  # at most ~50 characters per label
+    )
+
+    return RunSpec(
+        name=f"lextreme:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_f1_metric_specs(),
+        groups=["lextreme"],
+    )
+
 
 ############################################################
 
@@ -1626,6 +1648,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "ice": get_ice_spec,
     "big_bench": get_big_bench_spec,
     "pubmed_qa": get_pubmed_qa_spec,
+    "lextreme": get_lextreme_spec,
 }
 
 
