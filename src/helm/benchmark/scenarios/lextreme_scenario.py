@@ -269,9 +269,8 @@ class LEXTREMEScenario(Scenario):
 
 if __name__ == '__main__':
     """
-    python -m helm.benchmark.scenarios.lextreme
+    python -m helm.benchmark.scenarios.lextreme_scenario
     """
-    scenario = LEXTREMEScenario()
-    instances = scenario.get_instances('legalnero')
+    scenario = LEXTREMEScenario('legalnero')
+    instances = scenario.get_instances()
     print(instances[0])
-    print(type(instances))
