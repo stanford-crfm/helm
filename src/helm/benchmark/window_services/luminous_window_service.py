@@ -16,21 +16,22 @@ class LuminousWindowService(LocalWindowService):
 
     @property
     def max_sequence_length(self) -> int:
-        return self.max_request_length
+        """
+        From https://docs.aleph-alpha.com/api/complete, "the summed number of tokens of prompt
+        and maximum_tokens..may not exceed 2048 tokens." Confirmed it's 2048 for the Luminous
+        models currently available.
+        """
+        return 2048
 
     @property
     def max_request_length(self) -> int:
-        """
-        The max request length according to https://docs.aleph-alpha.com/api/complete.
-        TODO: double check if this is only for the completion (not including the prompt).
-        """
-        return 2048
+        return self.max_sequence_length
 
     @property
     def end_of_text_token(self) -> str:
         """
         The end of text token.
-        TODO: echo doesn't seem to be supported.
+        TODO: Setting to empty string for now as echo doesn't seem to be supported.
         """
         return ""
 
@@ -38,7 +39,6 @@ class LuminousWindowService(LocalWindowService):
     def prefix_token(self) -> str:
         """
         The prefix token.
-        TODO: echo doesn't seem to be supported.
         """
         return self.end_of_text_token
 

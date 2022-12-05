@@ -129,7 +129,8 @@ ALL_MODELS = [
         name="AlephAlpha/luminous-base",
         display_name="Luminous Base",
         description="Luminous Base",
-        tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="luminous",
@@ -137,7 +138,8 @@ ALL_MODELS = [
         name="AlephAlpha/luminous-extended",
         display_name="Luminous Extended",
         description="Luminous Extended",
-        tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="luminous",
@@ -145,8 +147,8 @@ ALL_MODELS = [
         name="AlephAlpha/luminous-supreme",
         display_name="Luminous Supreme",
         description="Luminous Supreme",
-        # Does not support multimodality
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        # Does not support multimodality and echo
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # TODO: coming soon. Uncomment out the following when Luminous World is released.
     # Model(
@@ -155,7 +157,7 @@ ALL_MODELS = [
     #     name="AlephAlpha/luminous-world",
     #     display_name="Luminous World",
     #     description="Luminous World",
-    #     tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+    #     tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
     # ),
     # Anthropic
     Model(
