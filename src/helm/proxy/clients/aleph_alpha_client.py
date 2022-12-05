@@ -40,7 +40,7 @@ class AlephAlphaClient(Client):
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request following https://docs.aleph-alpha.com/api/complete."""
-        # TODO: echo seems to be not supported. Follow up on this.
+        # TODO: echo is not supported. Follow up on this.
         raw_request = {
             "model": request.model_engine,
             "prompt": request.prompt,
