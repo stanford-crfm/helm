@@ -31,7 +31,7 @@ class LuminousWindowService(LocalWindowService):
     def end_of_text_token(self) -> str:
         """
         The end of text token.
-        TODO: Setting to empty string for now as echo doesn't seem to be supported.
+        TODO: Setting to empty string for now as echo is not supported.
         """
         return ""
 
