@@ -733,6 +733,10 @@ class TokenizerRunExpander(ScenarioSpecRunExpander):
         "together/t5-11b": ["google/t5"],
         "together/ul2": ["google/ul2"],
         "together/glm": ["tsinghua/glm"],
+        "AlephAlpha/luminous-base": ["AlephAlpha/luminous-base"],
+        "AlephAlpha/luminous-extended": ["AlephAlpha/luminous-extended"],
+        "AlephAlpha/luminous-supreme": ["AlephAlpha/luminous-supreme"],
+        "AlephAlpha/luminous-world": ["AlephAlpha/luminous-world"],
     }
     model_tags_and_tokenizers = [
         (GPT2_TOKENIZER_TAG, "huggingface/gpt2"),

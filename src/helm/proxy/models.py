@@ -3,6 +3,7 @@ from typing import List, Dict, Optional
 
 # Different modalities
 TEXT_MODEL_TAG: str = "text"
+IMAGE_MODEL_TAG: str = "image"
 CODE_MODEL_TAG: str = "code"
 EMBEDDING_MODEL_TAG: str = "embedding"
 
@@ -120,6 +121,44 @@ ALL_MODELS = [
         description="Jurassic J1-Large (7.5B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
+    # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
+    Model(
+        group="luminous",
+        creator_organization="Aleph Alpha",
+        name="AlephAlpha/luminous-base",
+        display_name="Luminous Base (13B)",
+        description="Luminous Base (13B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="luminous",
+        creator_organization="Aleph Alpha",
+        name="AlephAlpha/luminous-extended",
+        display_name="Luminous Extended (30B)",
+        description="Luminous Extended (30B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="luminous",
+        creator_organization="Aleph Alpha",
+        name="AlephAlpha/luminous-supreme",
+        display_name="Luminous Supreme (70B)",
+        description="Luminous Supreme (70B parameters)",
+        # Does not support echo.
+        # TODO: images will be supported in the near future. Add IMAGE_MODEL_TAG.
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    # TODO: coming soon. Uncomment out the following when Luminous World is released.
+    # Model(
+    #     group="luminous",
+    #     creator_organization="Aleph Alpha",
+    #     name="AlephAlpha/luminous-world",
+    #     display_name="Luminous World",
+    #     description="Luminous World",
+    #     tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    # ),
     # Anthropic
     Model(
         group="anthropic",

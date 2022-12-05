@@ -2,6 +2,12 @@ from helm.proxy.models import get_model, get_model_names_with_tag, Model, WIDER_
 from .ai21_window_service import AI21WindowService
 from .anthropic_window_service import AnthropicWindowService
 from .cohere_window_service import CohereWindowService
+from .luminous_window_service import (
+    LuminousBaseWindowService,
+    LuminousExtendedWindowService,
+    LuminousSupremeWindowService,
+    LuminousWorldWindowService,
+)
 from .openai_window_service import OpenAIWindowService
 from .wider_openai_window_service import WiderOpenAIWindowService
 from .mt_nlg_window_service import MTNLGWindowService
@@ -28,12 +34,24 @@ class WindowServiceFactory:
         """
         model: Model = get_model(model_name)
         organization: str = model.organization
+        engine: str = model.engine
 
         window_service: WindowService
         if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
             window_service = WiderOpenAIWindowService(service)
         elif organization == "openai" or organization == "simple":
             window_service = OpenAIWindowService(service)
+        elif organization == "AlephAlpha":
+            if engine == "luminous-base":
+                window_service = LuminousBaseWindowService(service)
+            elif engine == "luminous-extended":
+                window_service = LuminousExtendedWindowService(service)
+            elif engine == "luminous-supreme":
+                window_service = LuminousSupremeWindowService(service)
+            elif engine == "luminous-world":
+                window_service = LuminousWorldWindowService(service)
+            else:
+                raise ValueError(f"Unhandled Aleph Alpha model: {engine}")
         elif organization == "microsoft":
             window_service = MTNLGWindowService(service)
         elif organization == "anthropic":
