@@ -39,22 +39,22 @@ models:
     creator_organization: Aleph Alpha
     access: limited
     num_parameters: 13000000000
-    # TODO: get exact release data
-    release_date: 2022
+    # TODO: get exact release date
+    release_date: 2022-01-01
   - name: AlephAlpha/luminous-extended
     display_name: Luminous Extended (30B)
     description: Luminous Extended (30B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
     creator_organization: Aleph Alpha
     access: limited
     num_parameters: 30000000000
-    release_date: 2022
+    release_date: 2022-01-01
   - name: AlephAlpha/luminous-supreme
     display_name: Luminous Supreme (70B)
     description: Luminous Supreme (70B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
     creator_organization: Aleph Alpha
     access: limited
     num_parameters: 70000000000
-    release_date: 2022
+    release_date: 2022-01-01
 
   # Anthropic
   - name: anthropic/stanford-online-all-v4-s3
