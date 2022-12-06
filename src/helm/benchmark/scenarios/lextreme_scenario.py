@@ -1,8 +1,9 @@
 import random
+from pathlib import Path
 from typing import List
 
 import datasets
-from datasets import load_dataset, get_dataset_config_names
+from datasets import load_dataset
 
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT
 
@@ -29,6 +30,32 @@ task_code_mapping = {
     'mapa_ner_coarse_grained': 'NER',
     'mapa_ner_fine_grained': 'NER',
 }
+
+task_max_train_instances_mapping = {
+    'brazilian_court_decisions_judgment': 4,  # ~ max 1024 tokens
+    'brazilian_court_decisions_unanimity': 4,  # ~ max 1024 tokens
+    'german_argument_mining': 5,  # ~ max 256 tokens
+    'greek_legal_code_chapter_level': 1,  # ~ max 4096 tokens
+    'greek_legal_code_subject_level': 1,  # ~ max 4096 tokens
+    'greek_legal_code_volume_level': 1,  # ~ max 4096 tokens
+    'swiss_judgment_prediction': 2,  # ~ max 2048 tokens
+    'online_terms_of_service_unfairness_levels': 5,  # ~ max 256 tokens
+    'online_terms_of_service_clause_topics': 5,  # ~ max 256 tokens
+    'covid19_emergency_event': 5,  # ~ max 256 tokens
+    'multi_eurlex_level_1': 1,  # ~ max 4096 tokens
+    'multi_eurlex_level_2': 1,  # ~ max 4096 tokens
+    'multi_eurlex_level_3': 1,  # ~ max 4096 tokens
+    'greek_legal_ner': 5,  # ~ max 512 tokens
+    'legalnero': 5,  # ~ max 512 tokens
+    'lener_br': 5,  # ~ max 512 tokens
+    'mapa_ner_coarse_grained': 5,  # ~ max 512 tokens
+    'mapa_ner_fine_grained': 5,  # ~ max 512 tokens
+}
+
+
+def get_lextreme_max_train_instances(subset):
+    return task_max_train_instances_mapping[subset]
+
 
 instructions = {
     "SLTC": "Predict the label of the following text:",
@@ -83,6 +110,7 @@ class LEXTREMEScenario(Scenario):
 
     dataset_name = "joelito/lextreme"
     max_number_of_wrong_answers = 30
+    mltc_no_label_name = 'No Label'
 
     ner_class_mapping = {
         "leber_br": [
@@ -194,35 +222,37 @@ class LEXTREMEScenario(Scenario):
     }
 
     def __init__(self, subset: str):
-        assert subset in task_code_mapping.keys(), f"Unknown subset: {subset}"
-        self.subset = subset
+        assert subset in list(task_code_mapping.keys()) + ["all"], f"Unknown subset: {subset}"
+        self.subsets = [subset] if subset != "all" else list(task_code_mapping.keys())
+        self.random: random.Random = random.Random(42)
 
     def get_instances_for_subset(self, config: str) -> List[Instance]:
         task_code = task_code_mapping[config]
         # Load dataset
-        dataset = load_dataset(self.dataset_name, config)
+        cache_dir = str(Path(self.output_path) / "data")
+        dataset = load_dataset(self.dataset_name, config, cache_dir=cache_dir)
 
         if task_code == 'SLTC':
             class_label = dataset['train'].features["label"]
             label_classes = class_label.names
-        if task_code in ['MLTC']:
+        elif task_code == 'MLTC':
             # construct the label classes
             label_classes = set()
             for split in self.splits_mapping.values():
                 for example in dataset[split]:
                     label_classes |= set(example["label"])  # add all new labels to the set
-            label_classes = sorted(list(label_classes))
-        if task_code == 'NER':
+            label_classes = sorted(list(map(str, label_classes)))  # convert everything to a string
+        elif task_code == 'NER':
             label_classes = self.ner_class_mapping[config]
 
         def generate_instance(example, split: str):
-            # TODO implement this also for NER and test that it works for MLTC
+            # get correct labels
             if task_code == 'SLTC':
                 correct_label = class_label.int2str(example['label'])  # get label name for correct label
                 correct_labels = correct_label if isinstance(correct_label, list) else [correct_label]
-            if task_code == 'MLTC':
-                correct_labels = example['label']  # here we don't have any mapping to label names
-            if task_code == 'NER':
+            elif task_code == 'MLTC':
+                correct_labels = list(map(str, example['label']))  # here we don't have any mapping to label names
+            elif task_code == 'NER':
                 correct_labels = [label_classes[label] for label in example['label']]
 
             # construct wrong references
@@ -232,7 +262,7 @@ class LEXTREMEScenario(Scenario):
                     if label_name not in correct_labels:
                         wrong_reference = Reference(output=label_name, tags=[])  # Wrong output
                         wrong_references.append(wrong_reference)
-            if task_code == 'NER':
+            elif task_code == 'NER':
                 if len(set(correct_labels)) > 1:  # make sure that the correct labels are not only 'O's
                     for label_name in label_classes:
                         if label_name not in correct_labels and label_name != 'O':
@@ -241,21 +271,33 @@ class LEXTREMEScenario(Scenario):
                             wrong_reference = Reference(output=",".join(new_labels), tags=[])  # Wrong output
                             wrong_references.append(wrong_reference)
 
-            random.shuffle(wrong_references)  # shuffle wrong references
+            wrong_references = reduce_wrong_reference_count(wrong_references)
 
-            if len(wrong_references) > self.max_number_of_wrong_answers:
-                # if there are too many wrong references, only take a subset
-                wrong_references = wrong_references[:self.max_number_of_wrong_answers]
+            if task_code == 'MLTC':  # special case for multilabel classification tasks
+                if correct_labels:  # if we have a correct label
+                    # add the no_label to the wrong references
+                    # IMPORTANT: add it after the reduce_wrong_reference_count call, to make sure the no label is always there
+                    wrong_references.append(Reference(output=self.mltc_no_label_name, tags=[]))
+                else:  # if we don't have a correct label
+                    # add the no_label to the correct labels
+                    correct_labels = [self.mltc_no_label_name]
 
             # construct correct references and input
             if task_code in ['SLTC', 'MLTC']:
                 input_text = example['input']
                 correct_references = [Reference(output=correct_label, tags=[CORRECT_TAG])
-                                      for correct_label in correct_labels]
-            if task_code == 'NER':
+                                      for correct_label in correct_labels]  # for MLTC we have multiple correct ones
+            elif task_code == 'NER':
                 correct_references = [Reference(output=",".join(correct_labels), tags=[CORRECT_TAG])]
                 input_text = ','.join(example['input'])
             return Instance(input=input_text, references=wrong_references + correct_references, split=split)
+
+        def reduce_wrong_reference_count(wrong_references):
+            self.random.shuffle(wrong_references)  # shuffle wrong references
+            if len(wrong_references) > self.max_number_of_wrong_answers:
+                # if there are too many wrong references, only take a subset
+                wrong_references = wrong_references[:self.max_number_of_wrong_answers]
+            return wrong_references
 
         def generate_instances(split: str):
             split_dataset = dataset[self.splits_mapping[split]]
@@ -264,13 +306,7 @@ class LEXTREMEScenario(Scenario):
         return generate_instances(TRAIN_SPLIT) + generate_instances(VALID_SPLIT) + generate_instances(TEST_SPLIT)
 
     def get_instances(self) -> List[Instance]:
-        return self.get_instances_for_subset(self.subset)
-
-
-if __name__ == '__main__':
-    """
-    python -m helm.benchmark.scenarios.lextreme_scenario
-    """
-    scenario = LEXTREMEScenario('legalnero')
-    instances = scenario.get_instances()
-    print(instances[0])
+        instances = []
+        for subset in self.subsets:
+            instances.extend(self.get_instances_for_subset(subset))
+        return instances

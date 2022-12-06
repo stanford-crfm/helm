@@ -1590,6 +1590,7 @@ def get_lextreme_spec(subset: str) -> RunSpec:
         input_noun=None,
         output_noun="Label",
         max_tokens=30,  # at most ~50 characters per label
+        max_train_instances=get_lextreme_max_train_instances(subset),  # in some subsets the input is very long
     )
 
     return RunSpec(
