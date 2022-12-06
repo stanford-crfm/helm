@@ -1661,7 +1661,7 @@ run_groups:
       task: grammaticality
       what: constructed minimal pair sentences
       who: linguists
-      when: 2019
+      when: "2019"
       language: English
 
 ## Knowledge scenarios
@@ -1698,7 +1698,7 @@ run_groups:
       task: question answering
       what: reasoning
       who: synthetic
-      when: 2015
+      when: "2015"
       language: English
 
   - name: dyck_language
