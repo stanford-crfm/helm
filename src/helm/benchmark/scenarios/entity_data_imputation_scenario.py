@@ -26,7 +26,7 @@ class EntityDataImputationScenario(Scenario):
 
     An example is
 
-    Input: title: adobe creative suite cs3 design premium upsell [ mac ] | price: 1599.0 | manufacturer:
+        Input: title: adobe creative suite cs3 design premium upsell [ mac ] | price: 1599.0 | manufacturer:
 
     Reference [CORRECT]: adobe
 

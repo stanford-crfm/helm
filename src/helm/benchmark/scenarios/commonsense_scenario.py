@@ -19,20 +19,20 @@ class CommonSenseScenario(Scenario):
     """
     Unified interface for all CommonSense scenarios.
 
-    The "HellaSwag" benchmark from this paper:
-        https://arxiv.org/pdf/1905.07830.pdf
+    - The "HellaSwag" benchmark from this paper:
+      https://arxiv.org/pdf/1905.07830.pdf
 
-    The "OpenBookQA" benchmark from this paper:
-        https://aclanthology.org/D18-1260.pdf
+    - The "OpenBookQA" benchmark from this paper:
+      https://aclanthology.org/D18-1260.pdf
 
-    The "CommonSenseQA" benchmark from this paper:
-        https://arxiv.org/pdf/1811.00937.pdf
+    - The "CommonSenseQA" benchmark from this paper:
+      https://arxiv.org/pdf/1811.00937.pdf
 
-    The "PIQA" benchmark from this paper:
-        https://arxiv.org/pdf/1911.11641.pdf
+    - The "PIQA" benchmark from this paper:
+      https://arxiv.org/pdf/1911.11641.pdf
 
-    The "SIQA" benchmark from this paper:
-        https://arxiv.org/pdf/1904.09728.pdf
+    - The "SIQA" benchmark from this paper:
+      https://arxiv.org/pdf/1904.09728.pdf
     """
 
     name = "commonsense"

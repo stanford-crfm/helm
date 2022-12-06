@@ -19,10 +19,10 @@ from .scenario import (
 class NarrativeQAScenario(Scenario):
     """
     The NarrativeQA dataset is from the paper:
-        https://arxiv.org/abs/1712.07040
+    https://arxiv.org/abs/1712.07040
 
     Original repository can be found at:
-        https://github.com/deepmind/narrativeqa
+    https://github.com/deepmind/narrativeqa
 
     This scenario is adapted from https://huggingface.co/datasets/narrativeqa
 
@@ -38,7 +38,8 @@ class NarrativeQAScenario(Scenario):
     Since there are multiple questions per document and we are unlikely to test every single one,
     we randomly sample one question per document.
 
-    More concretely, we prompt models using the following format:
+    More concretely, we prompt models using the following format
+
         <story summary>
         Question: <question>
         Answer:
@@ -47,16 +48,26 @@ class NarrativeQAScenario(Scenario):
             <answer>
 
     Using an example from the training dataset, we have
+
+    ```
     Summary: Mark Hunter (Slater), a high school student in a sleepy suburb of Phoenix, Arizona,
     starts an FM pirate radio station that broadcasts from the basement of his parents' house.
     Mark is a loner, an outsider, whose only outlet for his teenage angst and aggression is his ...
     Question: Who is Mark Hunter?
     Answer:
+    ```
 
-        Target completion:
-            A loner and outsider student with a radio station.
-            or
-            He is a high school student in Phoenix.
+    Target completion:
+
+    ```
+    A loner and outsider student with a radio station.
+    ```
+
+    or
+
+    ```
+    He is a high school student in Phoenix.
+    ```
     """
 
     name = "narrativeqa"

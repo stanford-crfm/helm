@@ -26,6 +26,11 @@ class TokenizationRequest:
         """Example: 'huggingface/gpt2' => 'huggingface'"""
         return self.tokenizer.split("/")[0]
 
+    @property
+    def tokenizer_name(self):
+        """Example: 'huggingface/gpt2' => 'gpt2'"""
+        return self.tokenizer.split("/")[1]
+
 
 @dataclass(frozen=True)
 class TextRange:
@@ -98,6 +103,11 @@ class DecodeRequest:
     def tokenizer_organization(self):
         """Example: 'huggingface/gpt2' => 'huggingface'"""
         return self.tokenizer.split("/")[0]
+
+    @property
+    def tokenizer_name(self):
+        """Example: 'huggingface/gpt2' => 'gpt2'"""
+        return self.tokenizer.split("/")[1]
 
 
 @dataclass(frozen=True)

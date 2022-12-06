@@ -3,6 +3,7 @@ from typing import List, Dict, Optional
 
 # Different modalities
 TEXT_MODEL_TAG: str = "text"
+IMAGE_MODEL_TAG: str = "image"
 CODE_MODEL_TAG: str = "code"
 EMBEDDING_MODEL_TAG: str = "embedding"
 
@@ -101,7 +102,15 @@ ALL_MODELS = [
         creator_organization="AI21 Labs",
         name="ai21/j1-grande",
         display_name="Jurassic Grande (17B)",
-        description="Jurassic J1-Large (17B parameters with a few tweaks to its training process)",
+        description="Jurassic J1-Grande (17B parameters with a few tweaks to its training process)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
+    ),
+    Model(
+        group="jurassic",
+        creator_organization="AI21 Labs",
+        name="ai21/j1-grande-v2-beta",
+        display_name="Jurassic Grande v2 beta (17B)",
+        description="Jurassic J1-Grande v2 beta (17B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
     Model(
@@ -112,6 +121,44 @@ ALL_MODELS = [
         description="Jurassic J1-Large (7.5B parameters)",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, AI21_TOKENIZER_TAG],
     ),
+    # Aleph Alpha's Luminous models: https://docs.aleph-alpha.com/docs/introduction/luminous
+    Model(
+        group="luminous",
+        creator_organization="Aleph Alpha",
+        name="AlephAlpha/luminous-base",
+        display_name="Luminous Base (13B)",
+        description="Luminous Base (13B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="luminous",
+        creator_organization="Aleph Alpha",
+        name="AlephAlpha/luminous-extended",
+        display_name="Luminous Extended (30B)",
+        description="Luminous Extended (30B parameters)",
+        # Does not support echo
+        tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    Model(
+        group="luminous",
+        creator_organization="Aleph Alpha",
+        name="AlephAlpha/luminous-supreme",
+        display_name="Luminous Supreme (70B)",
+        description="Luminous Supreme (70B parameters)",
+        # Does not support echo.
+        # TODO: images will be supported in the near future. Add IMAGE_MODEL_TAG.
+        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    ),
+    # TODO: coming soon. Uncomment out the following when Luminous World is released.
+    # Model(
+    #     group="luminous",
+    #     creator_organization="Aleph Alpha",
+    #     name="AlephAlpha/luminous-world",
+    #     display_name="Luminous World",
+    #     description="Luminous World",
+    #     tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+    # ),
     # Anthropic
     Model(
         group="anthropic",
@@ -358,6 +405,14 @@ ALL_MODELS = [
     ),
     # TODO: text-davinci-002 supports insertion. Support insertion in our framework.
     #       https://github.com/stanford-crfm/benchmarking/issues/359
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
+        name="openai/text-davinci-003",
+        display_name="Davinci Instruct v3",
+        description="Davinci from Instruct series, 3rd generation - 4000 max tokens",
+        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
     Model(
         group="gpt3",
         creator_organization="OpenAI",

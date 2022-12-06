@@ -798,12 +798,11 @@ class Summarizer:
                 scenario_display_name = dict_to_str(scenario_spec.args)
                 if group.name not in scenario_name:
                     scenario_display_name = f"{subgroup.display_name} {scenario_display_name}"
-                adapter_to_runs: Dict[AdapterSpec, List[Run]] = {}
+                adapter_to_runs: Dict[AdapterSpec, List[Run]] = defaultdict(list)
                 for adapter_spec, runs in self.group_scenario_adapter_to_runs[group.name][scenario_spec].items():
                     filtered_runs = self.filter_runs_by_visibility(runs, group)
                     coarse_adapter_spec = get_coarse_adapter_spec(adapter_spec, scenario_spec, group.adapter_keys_shown)
-                    if filtered_runs:
-                        adapter_to_runs[coarse_adapter_spec] = filtered_runs
+                    adapter_to_runs[coarse_adapter_spec].extend(filtered_runs)
                 if adapter_to_runs and subgroup.metric_groups:
                     table = self.create_group_table(
                         title=scenario_display_name,
@@ -828,15 +827,14 @@ class Summarizer:
                             tables.append(table)
 
             if scenarios_shown > 1:  # add aggregate table
-                adapter_to_runs = {}
+                adapter_to_runs = defaultdict(list)
                 for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
                     filtered_runs = self.filter_runs_by_visibility(runs, group)
                     coarse_adapter_spec = get_coarse_adapter_spec(
                         adapter_spec,
                         adapter_keys_shown=group.adapter_keys_shown,
                     )
-                    if filtered_runs:
-                        adapter_to_runs[coarse_adapter_spec] = filtered_runs
+                    adapter_to_runs[coarse_adapter_spec].extend(filtered_runs)
                 if adapter_to_runs and subgroup.metric_groups:
                     table = self.create_group_table(
                         title=str(subgroup.display_name),

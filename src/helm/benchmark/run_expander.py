@@ -214,7 +214,8 @@ class StopRunExpander(RunExpander):
 
     def __init__(self, value):
         """
-        `value` is either the actual value to use or a lookup into the values dict.
+        Args:
+            value(str): Either the actual value to use or a lookup into the values dict.
         """
         self.value = value
 
@@ -633,8 +634,11 @@ class DataAugmentationRunExpander(RunExpander):
     """
     Applies a list of data augmentations, where the list of data augmentations
     is given by a name (see the keys to `PERTURBATION_SPECS_DICT` above).
-    For example:
+
+    **Example:**
+
         data_augmentation=all
+
     Note that some names map to a single data augmentation with multiple
     perturbations (e.g., all), and others map to a list of data augmentations
     each with one perturbation (e.g., misspelling_sweep).
@@ -643,7 +647,9 @@ class DataAugmentationRunExpander(RunExpander):
     name = "data_augmentation"
 
     def __init__(self, value):
-        """`value` is a comma-separated list of perturbations."""
+        """
+        Args:
+            value (str): Comma-separated list of perturbations."""
         self.value = value
 
         if self.value not in PERTURBATION_SPECS_DICT:
@@ -727,6 +733,10 @@ class TokenizerRunExpander(ScenarioSpecRunExpander):
         "together/t5-11b": ["google/t5"],
         "together/ul2": ["google/ul2"],
         "together/glm": ["tsinghua/glm"],
+        "AlephAlpha/luminous-base": ["AlephAlpha/luminous-base"],
+        "AlephAlpha/luminous-extended": ["AlephAlpha/luminous-extended"],
+        "AlephAlpha/luminous-supreme": ["AlephAlpha/luminous-supreme"],
+        "AlephAlpha/luminous-world": ["AlephAlpha/luminous-world"],
     }
     model_tags_and_tokenizers = [
         (GPT2_TOKENIZER_TAG, "huggingface/gpt2"),
@@ -744,7 +754,8 @@ class TokenizerRunExpander(ScenarioSpecRunExpander):
 
     def __init__(self, value):
         """
-        `value` is either the actual value to use or a lookup into the values dict.
+        Args:
+            value (str): Either the actual value to use or a lookup into the values dict.
         """
         self.name = type(self).name
         if value in type(self).values_dict:
@@ -783,7 +794,8 @@ class NumOutputTokensRunExpander(RunExpander):
 
     def __init__(self, value):
         """
-        `value` is either the actual value to use or a lookup into the values dict.
+        Args:
+            value (str): Either the actual value to use or a lookup into the values dict.
         """
         self.name = type(self).name
         self.adapter_spec_name = type(self).adapter_spec_name

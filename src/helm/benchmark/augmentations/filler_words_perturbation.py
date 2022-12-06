@@ -35,9 +35,11 @@ class FillerWordsPerturbation(Perturbation):
     """
     Randomly inserts filler words and phrases in the sentence.
     Perturbation example:
-    Input:
+
+    **Input:**
         The quick brown fox jumps over the lazy dog.
-    Output:
+
+    **Output:**
         The quick brown fox jumps over probably the lazy dog.
 
     """

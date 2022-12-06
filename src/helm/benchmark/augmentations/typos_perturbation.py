@@ -9,14 +9,17 @@ class TyposPerturbation(Perturbation):
     """
     Typos. For implementation details, see
     https://github.com/GEM-benchmark/NL-Augmenter/tree/main/transformations/butter_fingers_perturbation
+
     Replaces each random letters with nearby keys on a querty keyboard.
     We modified the keyboard mapping compared to the NL-augmenter augmentations so that: a) only distance-1 keys are
     used for replacement, b) the original letter is no longer an option, c) removed special characters (e.g., commas).
 
     Perturbation example:
-    Input:
+
+    **Input:**
         After their marriage, she started a close collaboration with Karvelas.
-    Output:
+
+    **Output:**
         Aftrr theif marriage, she started a close collaboration with Karcelas.
     """
 

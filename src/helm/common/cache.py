@@ -189,6 +189,9 @@ class _SqliteKeyValueStore(KeyValueStore):
 class _MongoKeyValueStore(KeyValueStore):
     """Key value store backed by a MongoDB database."""
 
+    # The number of documents to return per batch.
+    _BATCH_SIZE: int = 8
+
     _REQUEST_KEY = "request"
     _RESPONSE_KEY = "response"
 
@@ -226,7 +229,7 @@ class _MongoKeyValueStore(KeyValueStore):
         return None
 
     def get_all(self) -> Generator[Tuple[Dict, Dict], None, None]:
-        for document in self._collection.find({}):
+        for document in self._collection.find({}).batch_size(self._BATCH_SIZE):
             request = document[self._REQUEST_KEY]
             response = document[self._RESPONSE_KEY]
             if isinstance(response, str):

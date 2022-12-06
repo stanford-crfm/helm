@@ -23,6 +23,38 @@ models:
     access: limited
     num_parameters: 17000000000
     release_date: 2022-05-03
+  - name: ai21/j1-grande-v2-beta
+    display_name: J1-Grande v2 beta (17B)
+    description: Jurassic-1 Grande v2 beta (17B parameters)
+    creator_organization: AI21 Labs
+    access: limited
+    num_parameters: 17000000000
+    release_date: 2022-10-28
+
+  #  Aleph Alpha
+  # TODO: add Luminous World when it's released
+  - name: AlephAlpha/luminous-base
+    display_name: Luminous Base (13B)
+    description: Luminous Base (13B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
+    creator_organization: Aleph Alpha
+    access: limited
+    num_parameters: 13000000000
+    # TODO: get exact release date
+    release_date: 2022-01-01
+  - name: AlephAlpha/luminous-extended
+    display_name: Luminous Extended (30B)
+    description: Luminous Extended (30B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
+    creator_organization: Aleph Alpha
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2022-01-01
+  - name: AlephAlpha/luminous-supreme
+    display_name: Luminous Supreme (70B)
+    description: Luminous Supreme (70B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
+    creator_organization: Aleph Alpha
+    access: limited
+    num_parameters: 70000000000
+    release_date: 2022-01-01
 
   # Anthropic
   - name: anthropic/stanford-online-all-v4-s3
@@ -33,7 +65,7 @@ models:
     num_parameters: 52000000000
     release_date: 2021-12-01
 
-  # HuggingFace BigScience
+  # BigScience
   - name: together/bloom
     display_name: BLOOM (176B)
     description: BLOOM (176B parameters) is an autoregressive model trained on 46 natural languages and 13 programming languages ([paper](https://arxiv.org/pdf/2211.05100.pdf)).
@@ -110,9 +142,9 @@ models:
     creator_organization: DeepMind
     access: closed
     todo: true
-  - name: deepmind/chilchilla
-    display_name: Chincilla (70B)
-    description: Chincilla (70B parameters) ([paper](https://arxiv.org/pdf/2203.15556.pdf)).
+  - name: deepmind/chinchilla
+    display_name: Chinchilla (70B)
+    description: Chinchilla (70B parameters) ([paper](https://arxiv.org/pdf/2203.15556.pdf)).
     creator_organization: DeepMind
     access: closed
     todo: true
@@ -181,9 +213,9 @@ models:
     num_parameters: 66000000000
     release_date: 2022-05-02
 
-  - name: together/galatica-120b
-    display_name: Galatica (120B)
-    description: Galatica (120B parameters) is trained on 48 million papers, textbooks, lectures notes, compounds and proteins, scientific websites, etc. ([paper](https://galactica.org/static/paper.pdf)).
+  - name: together/galactica-120b
+    display_name: Galactica (120B)
+    description: Galactica (120B parameters) is trained on 48 million papers, textbooks, lectures notes, compounds and proteins, scientific websites, etc. ([paper](https://galactica.org/static/paper.pdf)).
     creator_organization: Meta
     access: open
     num_parameters: 120000000000
@@ -235,6 +267,13 @@ models:
     access: limited
     num_parameters: 350000000
     release_date: 2020-05-28
+  - name: openai/text-davinci-003
+    display_name: InstructGPT davinci v3 (175B*)
+    description: InstructGPT-style model based on the [InstructGPT paper](https://arxiv.org/pdf/2203.02155.pdf), but the details are unknown.
+    creator_organization: OpenAI
+    access: limited
+    num_parameters: 175000000000
+    release_date: 2022-11-28
   - name: openai/text-davinci-002
     display_name: InstructGPT davinci v2 (175B*)
     description: InstructGPT-style model based on the [InstructGPT paper](https://arxiv.org/pdf/2203.02155.pdf), but the details are unknown.
@@ -1002,9 +1041,9 @@ run_groups:
       - toxicity_detection
       - miscellaneous_text_classification
 
-  - name: targeted_scenarios
+  - name: targeted_evaluations
     display_name: Targeted evaluations
-    description: Deep dive into different skills (e.g., language, knowledge, reasoning, etc.) and risks (e.g., disinformation, memorization/copyright).
+    description: Targeted evaluation of specific skills (e.g., knowledge, reasoning) and risks (e.g., disinformation, memorization/copyright).
     category: All scenarios
     subgroups:
       - language
@@ -1072,12 +1111,25 @@ run_groups:
     description: Scenarios that we should support.
     category: Core scenarios
     subgroups:
+      - data_to_text_generation
+      - fact_verification
+      - copywriting
+      - story_generation
+      - biomedical_scenarios
+      - clinical_scenarios
+      - financial_scenarios
+      - customer_service_scenarios
+      - educational_scenarios
+      - very_recent_scenarios
+      - historical_scenarios
+      - not_native_English_speaker
+      - non_US_demographics
       - non_english
-      - real_task_english_dialects
+      - user_facing_tasks_english_dialects
 
   - name: language
     display_name: Language
-    description: Coverage over different genres (via language modeling) and testing linguistic capabilities.
+    description: Targeted evaluation of linguistic capabilities.
     category: Targeted evaluations
     subgroups:
       - the_pile
@@ -1087,7 +1139,7 @@ run_groups:
 
   - name: knowledge
     display_name: Knowledge
-    description: World and commonsense knowledge.
+    description: Targeted evaluation of knowledge (e.g. factual, cultural, commonsense).
     category: Targeted evaluations
     subgroups:
       - natural_qa_closedbook
@@ -1099,7 +1151,7 @@ run_groups:
 
   - name: reasoning
     display_name: Reasoning
-    description: Reasoning capabilities, both synthetic and real.
+    description: Targeted evaluation of reasoning capabilities (e.g. mathematical, hierarchical).
     category: Targeted evaluations
     subgroups:
       - synthetic_reasoning
@@ -1118,7 +1170,7 @@ run_groups:
 
   - name: harms
     display_name: Harms
-    description: Closer analysis of various social harms (e.g., copyright, disinformation, social bias, toxicity).
+    description: Targeted evaluation of social harms (e.g., copyright, disinformation, social bias, toxicity).
     category: Targeted evaluations
     subgroups:
       - copyright_text
@@ -1131,7 +1183,7 @@ run_groups:
 
   - name: efficiency
     display_name: Efficiency
-    description: Evaluating fine-grained training and inference efficiency
+    description: Targeted evaluation of training and inference efficiency.
     category: Targeted evaluations
     subgroups:
       - synthetic_efficiency
@@ -1575,7 +1627,7 @@ run_groups:
       what: "?"
       who: "?"
       when: "?"
-      language: English varieties
+      language: English varieties from different nations
 
   - name: the_pile
     display_name: The Pile
@@ -2078,19 +2130,113 @@ run_groups:
       language: synthetic
 
 ## Aspirational scenarios
+# Task coverage
+  - name: data_to_text_generation
+    display_name: Data-to-text generation 
+    description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement data-to-text generation. Could be implemented via WebNLG, E2E, ToTTo, etc.
+    taxonomy:
+      task: data-to-text generation
+    todo: true
+
+  - name: fact_verification
+    display_name: Fact verification 
+    description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement fact verification. Could be implemented via FEVER.
+    taxonomy:
+      task: fact verification
+    todo: true
+
+  - name: copywriting
+    display_name: Copywriting 
+    description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement tasks that have not been historically studied in the NLP research community like (ad) copywriting.
+    taxonomy:
+      task: copywriting
+    todo: true
+
+  - name: story_generation
+    display_name: Story generation
+    description: Currently, we prioritize user-facing tasks in our core scenarios, but don't implement more creative and interactive tasks like story generation.
+    taxonomy:
+      task: story generation
+    todo: true
+
+# Domain coverage
+  - name: biomedical_scenarios
+    display_name: Biomedical scenarios
+    description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
+    taxonomy:
+      what: Biomedical text (e.g., biomedicine papers)
+    todo: true
+
+  - name: clinical_scenarios
+    display_name: Clinical scenarios
+    description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
+    taxonomy:
+      what: Clincal text (e.g., clinical notes)
+    todo: true
+
+  - name: financial_scenarios
+    display_name: Financial scenarios
+    description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
+    taxonomy:
+      what: Financial text (e.g., financial reports)
+    todo: true
+
+  - name: customer_service_scenarios
+    display_name: Customer services scenarios
+    description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
+    taxonomy:
+      what: Customer service text (e.g., customer service chat logs)
+    todo: true
+
+  - name: educational_scenarios
+    display_name: Educational scenarios
+    description: Currently, we implement scenarios from common domains in NLP research, neglecting various domains where language technologies could provide significant value.
+    taxonomy:
+      what: Text from educational contexts (e.g., student-teacher interactions)
+    todo: true
+
+  - name: very_recent_scenarios
+    display_name: Very recent scenarios
+    description: Currently, we implement scenarios using standard NLP datasets. However, to test temporal generalization as the world and language change, we should implement scenarios with very recent data (e.g., current world events) like StreamingQA.
+    taxonomy:
+      when: present
+    todo: true
+
+  - name: historical_scenarios
+    display_name: Scenarios involving historic data
+    description: Currently, we implement scenarios using standard NLP datasets, which predominantly are from post-Internet and contemporary society. However, to test temporal generalization for using models in the digital humanities for historic data, we should implement scenarios with significantly older data (e.g., text from 1800s).
+    taxonomy:
+      when: distant past
+    todo: true
+
+  - name: not_native_English_speaker
+    display_name: Scenarios involving non-native speakers
+    description: Currently, we implement scenarios of an unknown composition of native and non-native English speakers. We should implement scenarios to ensure coverage of language from non-native English speakers.
+    taxonomy:
+      who: non-native English speakers
+      language: English
+    todo: true
+
+  - name: non_US_demographics
+    display_name: Scenarios involving data from marginalized demographics in non-US English-speaking regions 
+    description: Currently, we ensure some coverage of language based on US-centric demographic groups, including marginalized groups. We should implement scenarios to ensure coverage of other socially-relevant groups beyond US demographics (e.g., caste in India).
+    taxonomy:
+      who: relevant demographics in non-US English-speaking regions
+      language: English
+    todo: true
+
+# Language coverage
   - name: non_english
-    display_name: Tasks on non-English domains
-    description: Currently, we only support English.
+    display_name: Scenarios for languages beyond English.
+    description: Currently, we only implement English scenarios.
     taxonomy:
       language: non-English
     todo: true
 
-  - name: real_task_english_dialects
-    display_name: Real tasks on English dialects
-    description: Currently, we have language modeling (TwitterAAE, ICE), but it would be good to support real-world tasks.
+  - name: user_facing_tasks_english_dialects
+    display_name: Scenarios with user-facing tasks on English dialects
+    description: Currently, evaluate performance on English dialects via language modeling (e.g., TwitterAAE, ICE), but it would be good to implement user-facing tasks for these dialects.
     taxonomy:
-      task: real task
+      task: user-facing tasks
       language: English dialects
     todo: true
-
-  # TODO: add more

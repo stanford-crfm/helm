@@ -1,33 +1,32 @@
-import numpy as np
-from typing import List, Dict, Tuple
-
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
-
 """Synthetic Reasoning Scenario.
 
 We define 3 synthetic reasoning tasks, "pattern matching", "variable substitution", "induction".
 All 3 tasks build on three components: a pattern string, a substitution dictionary and the final result.
 As an example, we have:
 
-Rule: A + B = B + A.
-Substitution dictionary: {"A":"apple", "B":"peach"}
-Result: "apple + peach = peach + apple"
+    Rule: A + B = B + A.
+    Substitution dictionary: {"A":"apple", "B":"peach"}
+    Result: "apple + peach = peach + apple"
 
 The model hence is asked to do the following three tasks:
 
-Pattern matching:
-    Input: 4 pattern strings, and a result string.
-    Output: the matched pattern string.
-
-Variable substitution:
-    Input: A pattern string, a substitution dictionary.
-    Output: the result string.
-
-Induction:
-    Input: Two result string that are induced by the same pattern string.
-    Output: the pattern string.
+- Pattern matching:
+    - Input: 4 pattern strings, and a result string.
+    - Output: the matched pattern string.
+- Variable substitution:
+    - Input: A pattern string, a substitution dictionary.
+    - Output: the result string.
+- Induction:
+    - Input: Two result string that are induced by the same pattern string.
+    - Output: the pattern string.
 
 """
+
+import numpy as np
+from typing import List, Dict, Tuple
+
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+
 
 ANIMALS = ["zebra", "cobra", "stork", "penguin", "shark", "lion", "buffalo", "whale", "seal", "eagle", "horse", "rat"]
 FRUITS = ["apple", "peach", "watermelon", "banana", "grape", "kiwi", "pear", "strawberry", "blueberry", "blackberry"]

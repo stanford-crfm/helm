@@ -29,12 +29,10 @@ class Utterance:
 class EmpatheticDialoguesScenario(Scenario):
     """
     The Empathetic Dialogues dataset from this paper:
-
-        https://arxiv.org/abs/1811.00207
+    https://arxiv.org/abs/1811.00207
 
     Code is adapted from:
-
-       https://github.com/facebookresearch/EmpatheticDialogues
+    https://github.com/facebookresearch/EmpatheticDialogues
     """
 
     name = "empatheticdialogues"

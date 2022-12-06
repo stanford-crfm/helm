@@ -1,6 +1,6 @@
 import collections
 import typing
-from typing import List, Optional
+from typing import Dict, List, Optional
 from datasets import load_dataset, DatasetDict
 
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
@@ -284,43 +284,46 @@ class MATHScenario(Scenario):
     The MATH dataset from the paper
     "Measuring Mathematical Problem Solving With the MATH Dataset"
     by Hendrycks et al. (2021):
-
-        https://arxiv.org/pdf/2103.03874.pdf
+    https://arxiv.org/pdf/2103.03874.pdf
 
     Example input, using official examples:
 
-        Given a mathematics problem, determine the answer. Simplify your answer as much as possible.
-        ###
-        Problem: What is $\left(\frac{7}{8}\right)^3 \cdot \left(\frac{7}{8}\right)^{-3}$?
-        Answer: $1$
-        ###
-        Problem: In how many ways can 4 books be selected from a shelf of 6 books if the order in which the books are selected does not matter?
-        Answer: $15$
-        ###
-        Problem: Find the distance between the points $(2,1,-4)$ and $(5,8,-3).$
-        Answer: $\sqrt{59}$
-        ###
-        Problem: The faces of an octahedral die are labeled with digits $1$ through $8$. What is the probability, expressed as a common fraction, of rolling a sum of $15$ with a pair of such octahedral dice?
-        Answer: $\frac{1}{32}$
-        ###
-        Problem: The first three terms of an arithmetic sequence are 1, 10 and 19, respectively. What is the value of the 21st term?
-        Answer: $181$
-        ###
-        Problem: Calculate $6 \cdot 8\frac{1}{3}
-        Answer: $50$
-        ###
-        Problem: When the binary number $100101110010_2$ is divided by 4, what is the remainder (give your answer in base 10)?
-        Answer: $2$
-        ###
-        Problem: How many zeros are at the end of the product 25 $\times$ 240?
-        Answer: $3$
-        ###
-        Problem: What is $\dbinom{n}{n}$ for any positive integer $n$?
-        Answer: $
+    ```
+    Given a mathematics problem, determine the answer. Simplify your answer as much as possible.
+    ###
+    Problem: What is $\left(\frac{7}{8}\right)^3 \cdot \left(\frac{7}{8}\right)^{-3}$?
+    Answer: $1$
+    ###
+    Problem: In how many ways can 4 books be selected from a shelf of 6 books if the order in which the books are selected does not matter?
+    Answer: $15$
+    ###
+    Problem: Find the distance between the points $(2,1,-4)$ and $(5,8,-3).$
+    Answer: $\sqrt{59}$
+    ###
+    Problem: The faces of an octahedral die are labeled with digits $1$ through $8$. What is the probability, expressed as a common fraction, of rolling a sum of $15$ with a pair of such octahedral dice?
+    Answer: $\frac{1}{32}$
+    ###
+    Problem: The first three terms of an arithmetic sequence are 1, 10 and 19, respectively. What is the value of the 21st term?
+    Answer: $181$
+    ###
+    Problem: Calculate $6 \cdot 8\frac{1}{3}
+    Answer: $50$
+    ###
+    Problem: When the binary number $100101110010_2$ is divided by 4, what is the remainder (give your answer in base 10)?
+    Answer: $2$
+    ###
+    Problem: How many zeros are at the end of the product 25 $\times$ 240?
+    Answer: $3$
+    ###
+    Problem: What is $\dbinom{n}{n}$ for any positive integer $n$?
+    Answer: $
+    ```
 
-    Example expected output:
-        1$
+    Example expected output
 
+    ```
+    1$
+    ```
     """  # noqa
 
     name = "MATH"
@@ -328,7 +331,6 @@ class MATHScenario(Scenario):
     tags = ["knowledge", "reasoning"]
 
     subjects_mapping = {
-        "all": "All",
         "number_theory": "Number Theory",
         "intermediate_algebra": "Intermediate Algebra",
         "algebra": "Algebra",
@@ -392,30 +394,30 @@ class MATHScenario(Scenario):
                 dataset[TRAIN_SPLIT] = [{"problem": problem, "answer": answer} for problem, answer in train_instances]
 
             else:
-                # TODO: this logic only filters by difficulty level.
-                #       Merge this https://github.com/stanford-crfm/helm/pull/1137 in later
-                data_split = [ex for ex in data[split_name]]
-                dataset_split = group_by_key(data_split, "type")
-                dataset[split] = dataset_split[self.subject]
-                dataset_split = group_by_key(data_split, "level")
-                dataset[split] = dataset_split[self.level]
+                examples: List[Dict[str, str]] = [example for example in data[split_name]]  # Filter by split
+                examples = group_by_key(examples, "type")[self.subject]  # Filter by type or subject
+                examples = group_by_key(examples, "level")[self.level]  # Filter by level
+                dataset[split] = examples
 
-                for ex in dataset[split]:
-                    assert ex["level"] == self.level, f"Example with invalid level: {ex}"
+                for example in dataset[split]:
+                    # Sanity check that we filtered correctly
+                    assert (
+                        example["type"] == self.subject and example["level"] == self.level
+                    ), f"Wrong example was included after filtering: {example}"
 
                     if self.use_chain_of_thought:
-                        answer = ex["solution"]
+                        answer = example["solution"]
                     else:
-                        maybe_answer = get_answer(ex["solution"])
+                        maybe_answer = get_answer(example["solution"])
                         if maybe_answer is None:
                             continue
                         answer = maybe_answer
-                    ex["answer"] = answer
+                    example["answer"] = answer
 
-            for ex in dataset[split]:
+            for example in dataset[split]:
                 instance = Instance(
-                    input=ex["problem"],
-                    references=[Reference(output=ex["answer"], tags=[CORRECT_TAG])],
+                    input=example["problem"],
+                    references=[Reference(output=example["answer"], tags=[CORRECT_TAG])],
                     split=split,
                 )
                 instances.append(instance)

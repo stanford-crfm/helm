@@ -23,16 +23,28 @@ class LegalSupportScenario(Scenario):
 
     Using an example from the test dataset, we have
 
-    Input: Rather, we hold the uniform rule is ... that of 'good moral character". Courts have also endorsed
+    Input:
+
+    ```
+    Rather, we hold the uniform rule is ... that of 'good moral character". Courts have also endorsed
     using federal, instead of state, standards to interpret federal laws regulating immigration.
+    ```
 
-    Reference [CORRECT]: Interpreting "adultery” for the purpose of eligibility for voluntary departure,
+    Reference [CORRECT]:
+
+    ```
+    Interpreting "adultery” for the purpose of eligibility for voluntary departure,
     and holding that "the appropriate approach is the application of a uniform federal standard."
+    ```
 
-    Reference: Using state law to define "adultery” in the absence of a federal definition, and suggesting that
+    Reference
+
+    ```
+    Using state law to define "adultery” in the absence of a federal definition, and suggesting that
     arguably, Congress intended to defer to the state in which an alien chooses to live for the precise
     definition ... for it is that particular community which has the greatest interest in its residents moral
     character.
+    ```
     """
 
     name = "legal_support"

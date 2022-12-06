@@ -6,7 +6,7 @@ from .perturbation_description import PerturbationDescription
 
 class LowerCasePerturbation(Perturbation):
     """
-    Simpe perturbation turning input and references into lowercase.
+    Simple perturbation turning input and references into lowercase.
     """
 
     name: str = "lowercase"

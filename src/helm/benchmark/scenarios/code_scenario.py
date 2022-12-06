@@ -9,6 +9,7 @@ HumanEval is a small dataset of human written test cases. Each instance has
 taken from the dataset:
 
 1) prompt:
+
     from typing import List
 
 
@@ -22,6 +23,7 @@ taken from the dataset:
         '''
 
 2) canonical_solution:
+
     for idx, elem in enumerate(numbers):
         for idx2, elem2 in enumerate(numbers):
             if idx != idx2:
@@ -32,6 +34,7 @@ taken from the dataset:
     return False
 
 3) test cases:
+
     def check(candidate):
         assert candidate([1.0, 2.0, 3.9, 4.0, 5.0, 2.2], 0.3) == True
         assert candidate([1.0, 2.0, 3.9, 4.0, 5.0, 2.2], 0.05) == False
