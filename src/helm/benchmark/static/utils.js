@@ -99,10 +99,10 @@ function renderPerturbationName(schema, perturbationName) {
   return schema.perturbationsField(perturbationName).display_name;
 }
 
-function renderScenarioDisplayName(scenario) {
+function renderScenarioDisplayName(scenario, scenario_spec) {
   // Describe the scenario
   const name = scenario.name; // e.g. mmlu
-  const args = scenario.scenario_spec.args; // e.g., {subject: 'philosophy'}
+  const args = scenario_spec.args; // e.g., {subject: 'philosophy'}
   if (Object.keys(args).length > 0) {
     return name + ' (' + renderDict(args) + ')';
   } else {

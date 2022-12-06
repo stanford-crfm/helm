@@ -337,10 +337,10 @@ $(function () {
     return text.split(' ').map((word) => origWords[word] ? word : '<u>' + word + '</u>').join(' ');
   }
 
-  function renderRunsHeader(scenario, scenarioPath) {
+  function renderRunsHeader(scenario, scenarioPath, scenarioSpec) {
     const $output = $('<div>');
 
-    $output.append(renderGroupHeader(scenario));
+    $output.append(renderScenarioHeader(scenario, scenarioSpec));
 
     // Links
     const links = [];
@@ -358,33 +358,35 @@ $(function () {
     return $output;
   }
 
-  function renderGroupHeader(scenario) {
+  function renderGroupHeader() {
     const $output = $('<div>');
-    if (urlParams.group) {
-      $.getJSON(groupsMetadataJsonUrl(suite), {}, (response) => {
-        const group = response[urlParams.group];
-        if (group) {
-          let groupName = group.display_name;
-          if (urlParams.subgroup) {
-            groupName += " / " + urlParams.subgroup;
-          }
-          $output.append($('<h3>').append(groupName));
-          $output.append($('<div>').append($('<i>').append(renderMarkdown(group.description))));
-          if (group.taxonomy) {
-            const $rows = Object.entries(group.taxonomy).map(([k, v]) => {
-              return $('<tr>').append([
-                $('<td>').append(`<b>${k}</b>`),
-                $('<td>').append(v),
-              ]);
-            });
-            $output.append($('<table>', {class: 'taxonomy-table'}).append($rows));
-          }
+    $.getJSON(groupsMetadataJsonUrl(suite), {}, (response) => {
+      const group = response[urlParams.group];
+      if (group) {
+        let groupName = group.display_name;
+        if (urlParams.subgroup) {
+          groupName += " / " + urlParams.subgroup;
         }
-      });
-    } else if (scenario) {
-      $output.append($('<h3>').append(renderScenarioDisplayName(scenario)));
-      $output.append($('<div>').append($('<i>').append(renderMarkdown(scenario.description))));
-    }
+        $output.append($('<h3>').append(groupName));
+        $output.append($('<div>').append($('<i>').append(renderMarkdown(group.description))));
+        if (group.taxonomy) {
+          const $rows = Object.entries(group.taxonomy).map(([k, v]) => {
+            return $('<tr>').append([
+              $('<td>').append(`<b>${k}</b>`),
+              $('<td>').append(v),
+            ]);
+          });
+          $output.append($('<table>', {class: 'taxonomy-table'}).append($rows));
+        }
+      }
+    });
+    return $output;
+  }
+
+  function renderScenarioHeader(scenario, scenarioSpec) {
+    const $output = $('<div>');
+    $output.append($('<h3>').append(renderScenarioDisplayName(scenario, scenarioSpec)));
+    $output.append($('<div>').append($('<i>').append(renderMarkdown(scenario.description))));
     return $output;
   }
 
@@ -401,7 +403,7 @@ $(function () {
     return JSON.stringify([instance.id, instance.perturbation || 'original', trainTrialIndex]);
   }
 
-  function renderScenarioInstances(scenario, $instances) {
+  function renderScenarioInstances(instances, $instances) {
     // Render all the instances in a scenario, outputting to $instances.
     // Return a mapping from instance key to the div where
     // we're rendering the instance, so that we can put the predictions in the
@@ -410,13 +412,13 @@ $(function () {
 
     // Keep track of the original (unperturbed) instances
     const id2originalInstance = {};
-    scenario.instances.forEach((instance) => {
+    instances.forEach((instance) => {
       if (!instance.perturbation) {
         id2originalInstance[instance.id] = instance;
       }
     });
 
-    scenario.instances.forEach((instance) => {
+    instances.forEach((instance) => {
       const key = instanceKey(instance);
       if (key in instanceKeyToDiv) {
         console.warn(`Two instances with the same key ${key}, skipping`, instance);
@@ -766,33 +768,24 @@ $(function () {
       $statsContainer.empty().append($statsSearch).append($stats);
     }, []);
 
-    // TODO: Get all JSON files in parallel.
-    // Render scenario instances
-    const instanceToDiv = {};  // For each instance
-    const scenariosPromise = getJSONList(scenarioPaths);
+    // Render scenario header
+    const scenarioPath = scenarioJsonUrl(suite, runSpecs[0].name);
+    $.get(scenarioPath, {}, (scenario) => {
+      console.log('scenario', scenario);
+      $scenarioInfo.empty().append(renderRunsHeader(scenario, scenarioPath, runSpecs[0].scenario_spec));
+    });
+
+    // Render scenario instances and predictions
     const scenarioStatesPromise = getJSONList(scenarioStatePaths);
     const perInstanceStatsPromise = getJSONList(perInstanceStatsPaths);
-    const instanceKeyToDivPromise = scenariosPromise.then((scenarios) => {
-      console.log('scenarios', scenarios);
-      if (scenarios.length && scenarios.every((scenario) => scenario === undefined)) {
-        $instancesContainer.empty().text("Instances and predictions are currently unavailable. Please try again later.")
-        return;
-      }
-
-      const onlyOneScenario = scenarios.length && scenarios.every((scenario) => scenario.definition_path === scenarios[0].definition_path);
-      const scenario = onlyOneScenario ? scenarios[0] : null;
-      const scenarioPath = onlyOneScenario ? scenarioPaths[0] : null;
-      $scenarioInfo.empty();
-      $scenarioInfo.append(renderRunsHeader(scenario, scenarioPath));
-
-      const $instances = $('<div>');
-      const instanceKeyToDiv = renderScenarioInstances(scenarios[0], $instances);
-      $instancesContainer.empty().append($instances);
-      return instanceKeyToDiv;
-    });
-    $.when(scenarioStatesPromise, perInstanceStatsPromise, instanceKeyToDivPromise).then((scenarioStates, perInstanceStats, instanceKeyToDiv) => {
+    $.when(scenarioStatesPromise, perInstanceStatsPromise).then((scenarioStates, perInstanceStats) => {
       console.log('scenarioStates', scenarioStates);
       console.log('perInstanceStats', perInstanceStats);
+      const $instances = $('<div>');
+      const instances = scenarioStates[0].request_states.map((request_state) => request_state.instance);
+      const instanceKeyToDiv = renderScenarioInstances(instances, $instances);
+      $instancesContainer.empty().append($instances);
+
       // For each run / model...
       runSpecs.forEach((runSpec, index) => {
         renderPredictions(runSpec, runDisplayNames[index], scenarioStates[index], perInstanceStats[index], instanceKeyToDiv);
@@ -1175,7 +1168,7 @@ $(function () {
       $.getJSON(path, {}, (tables) => {
         $main.empty();
         console.log('group', tables);
-        $main.append(renderGroupHeader(urlParams.group));
+        $main.append(renderGroupHeader());
         $main.append(renderTables(tables, path));
         refreshHashLocation();
       });
