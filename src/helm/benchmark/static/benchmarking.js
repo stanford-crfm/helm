@@ -537,7 +537,6 @@ $(function () {
 
       // Traverse into the prediction div within the instance div
       const $instance = $instanceDiv.find('.prediction');
-      $instance.empty();
 
       // For adapter method = separate, don't show the calibration requests
       if (requestState.request_mode === 'calibration') {
