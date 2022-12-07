@@ -174,19 +174,19 @@ class Scenario(ABC):
     the heavy lifting.
     """
 
-    # Set by the Scenario subclass."""
+    # Set by the Scenario subclass.
     name: str = field(init=False)
     """Short unique identifier of the scenario"""
 
-    # Set by the Scenario subclass."""
+    # Set by the Scenario subclass.
     description: str = field(init=False)
     """Description of the scenario (task, data)"""
 
-    # Set by the Scenario subclass."""
+    # Set by the Scenario subclass.
     tags: List[str] = field(init=False)
     """Extra metadata (e.g., whether this is a question answering or commonsense task)"""
 
-    # Set by Runner."""
+    # Set by Runner.
     # TODO: ideally would pass this into `get_instances` to not have to mutate.
     output_path: str = field(init=False, default="")
     """Where downloaded data is cached (to be set by the `Runner`)"""
