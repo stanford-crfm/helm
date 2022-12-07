@@ -74,9 +74,6 @@ class NarrativeQAScenario(Scenario):
     description = "Question answering using summaries of books/movie scripts."
     tags = ["question_answering"]
 
-    def __init__(self):
-        pass
-
     def get_context(self, summary: str, question: str) -> str:
         """
         We follow the format from https://arxiv.org/abs/2005.14165.

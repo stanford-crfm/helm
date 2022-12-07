@@ -31,6 +31,7 @@ class TwitterAAEScenario(Scenario):
     tags = ["bias", "language_modeling"]
 
     def __init__(self, demographic: str = "aa"):
+        super().__init__()
         assert demographic in ["aa", "white"], f"Unsupported demographic: {demographic}"
         self.demographic: str = demographic
 

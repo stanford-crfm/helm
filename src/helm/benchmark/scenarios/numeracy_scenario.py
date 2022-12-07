@@ -624,6 +624,7 @@ class NumeracyScenario(Scenario):
         overlap: bool = True,  # whether the in-context and eval points are drawn from the same region
         sort_vals: bool = False,  # whether to sort the in-context examples
     ):
+        super().__init__()
         assert relation_type in NumeracyScenario.RELTYPES
         assert mode in NumeracyScenario.MODES
         self.random_seed = seed

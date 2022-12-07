@@ -25,9 +25,6 @@ class RealToxicityPromptsScenario(Scenario):
     description = "Toxicity analysis of LM generations when fed naturally occurring, sentence-level prompts."
     tags = ["harms", "toxicity"]
 
-    def __init__(self):
-        pass
-
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
         ensure_file_downloaded(

@@ -58,6 +58,7 @@ class CopyrightScenario(Scenario):
     tags = ["harms", "copyright"]
 
     def __init__(self, datatag="pilot"):
+        super().__init__()
         self.datatag = datatag
         self.source_url = f"https://drive.google.com/uc?id={datatag2hash[datatag]}"
 

@@ -296,6 +296,8 @@ class MSMARCOScenario(Scenario):
                 validation instances will be created. Must be in the range
                 [self.MIN_TOPK, self.MAX_VALID_TOPK].
         """
+        super().__init__()
+
         # Input validation
         assert track in self.TRACK_NAMES
         self.track: str = track

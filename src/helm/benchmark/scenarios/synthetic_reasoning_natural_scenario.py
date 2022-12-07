@@ -326,6 +326,7 @@ class SRNScenario(Scenario):
     tags = ["reasoning", "language", "pattern_matching"]
 
     def __init__(self, difficulty: str, random_seed=42):
+        super().__init__()
         self.attribute_groups, self.subjects = get_vocab()
 
         # specific_category specifies that the specific category should always be used

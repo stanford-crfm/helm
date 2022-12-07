@@ -39,6 +39,7 @@ class EntityDataImputationScenario(Scenario):
     tags = ["entity_data_imputation", "structured_reasoning"]
 
     def __init__(self, dataset: str, seed: int = 1234):
+        super().__init__()
         self.datasets_paths = {
             "Buy": "https://dbs.uni-leipzig.de/file/Abt-Buy.zip",
             "Restaurant": "https://www.cs.utexas.edu/users/ml/riddle/data/restaurant.tar.gz",

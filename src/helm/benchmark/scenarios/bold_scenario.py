@@ -57,6 +57,7 @@ class BOLDScenario(Scenario):
     tags = ["harms", "bias"]
 
     def __init__(self, subject: str = "all"):
+        super().__init__()
         self.subject = subject
 
     def get_instances(self) -> List[Instance]:

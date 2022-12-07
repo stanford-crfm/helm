@@ -103,9 +103,6 @@ class QuACScenario(Scenario):
     description = "Question answering from dialog prompts."
     tags = ["question_answering"]
 
-    def __init__(self):
-        pass
-
     def create_prompt(self, sample: dict) -> Tuple[str, List[str]]:
         """
         Given an example in dataset format, create the prompt and the list of

@@ -34,9 +34,6 @@ class GSM8KScenario(Scenario):
     description = "Grade school math dataset with 8.5K examples (GSM8K)."
     tags = ["reasoning", "math"]
 
-    def __init__(self):
-        pass
-
     def get_instances(self) -> List[Instance]:
         splits = {"train": TRAIN_SPLIT, "test": TEST_SPLIT}
         base_url = "https://raw.githubusercontent.com/openai/grade-school-math/master/grade_school_math/data/"

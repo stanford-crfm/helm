@@ -187,6 +187,7 @@ class ICEScenario(Scenario):
     tags = ["language_modeling", "harms", "fairness"]
 
     def __init__(self, subset: Union[str, None] = None, gender: Union[str, None] = None, category="all"):
+        super().__init__()
         if subset:
             self.subset = [ICESubset(subset)]
         else:

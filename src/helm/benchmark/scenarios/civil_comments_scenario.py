@@ -86,6 +86,7 @@ class CivilCommentsScenario(Scenario):
     }
 
     def __init__(self, demographic: str):
+        super().__init__()
         assert (
             demographic == CivilCommentsScenario.ALL_DEMOGRAPHICS or demographic in CivilCommentsScenario.DEMOGRAPHICS
         ), f"Invalid demographic: {demographic}"

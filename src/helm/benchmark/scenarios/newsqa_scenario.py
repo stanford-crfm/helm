@@ -68,9 +68,6 @@ class NewsQAScenario(Scenario):
     description = "Question answering using news articles."
     tags = ["question_answering"]
 
-    def __init__(self):
-        pass
-
     def create_prompt(self, sample: dict) -> Tuple[str, List[str]]:
         """
         Given an sample from the dataset, create the prompt and the list of

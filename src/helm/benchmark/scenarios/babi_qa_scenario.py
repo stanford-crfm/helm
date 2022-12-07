@@ -80,6 +80,7 @@ class BabiQAScenario(Scenario):
     tags = ["question_answering"]
 
     def __init__(self, task):
+        super().__init__()
         all_tasks = list(range(1, 21))
         if task == "all":
             self.tasks = all_tasks
