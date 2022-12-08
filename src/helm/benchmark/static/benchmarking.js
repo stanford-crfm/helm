@@ -228,38 +228,17 @@ $(function () {
     return '';
   }
 
-  function renderPerInstanceStats(groups, stats, runDisplayName) {
+  function renderPredictionStats(metricNames, stats, runDisplayName) {
     // This is used to render per-instance stats.
     // Groups specifies which metric names we should display.
     // Pull these out from stats and render them.
     const list = [];
 
-    // Look for the default metrics for the group
-    schema.run_groups.forEach((scenarioGroup) => {
-      if (!groups.includes(scenarioGroup.name)) {
-        return;
-      }
-
-      const metricNames = getMetricNames(scenarioGroup);
-
-      // Keep only the stats that match the name
-      for (let name of metricNames) {
-        const field = schema.metricsField(name);
-
-        const matchingStats = stats.filter((stat) => stat.name.name === name);
-        if (matchingStats.length === 0) {
-          // Some stats won't be here (calibration, bias) because there is no per-instance version.
-          continue;
-        }
-
-        if (matchingStats.length > 1) {
-          // This shouldn't happen...
-          console.warn('Metric', name, 'occurs more than once', matchingStats);
-        }
-
-        const stat = matchingStats[0];
-        const statClass = getStatClass(name, stat.mean);
-        list.push($('<span>', {class: statClass}).append(`${field.display_name}: ${round(stat.mean, 3)}`));
+    metricNames.forEach((metricName) => {
+      const metricValue = stats[metricName];
+      if (metricValue !== undefined) {
+        const statClass = getStatClass(metricName, metricValue);
+        list.push($('<span>', {class: statClass}).append(`${metricName}: ${round(metricValue, 3)}`));
       }
     });
 
@@ -395,12 +374,18 @@ $(function () {
     return JSON.stringify([instance.id, instance.perturbation || 'original']);
   }
 
-  function perInstanceStatsKey(entry) {
-    return JSON.stringify([entry.instance_id, entry.perturbation || 'original', entry.train_trial_index]);
-  }
-
   function instanceTrialKey(instance, trainTrialIndex) {
     return JSON.stringify([instance.id, instance.perturbation || 'original', trainTrialIndex]);
+  }
+
+
+  function predictionInstanceKey(prediction) {
+    // The (instance id, perturbation) should be enough to uniquely identify the instance.
+    return JSON.stringify([prediction.instance_id, prediction.perturbation || 'original']);
+  }
+
+  function predictionInstanceTrialKey(prediction) {
+    return JSON.stringify([prediction.instance_id, prediction.perturbation || 'original', prediction.train_trial_index]);
   }
 
   function renderScenarioInstances(instances, $instances) {
@@ -468,8 +453,8 @@ $(function () {
           $instance.append($references);
         }
       }
-      $prediction = $('<div>');
-      $prediction.addClass('prediction').text('Loading predictions...');
+      $loading = $('<span>').addClass('loading').text('Loading predictions...')
+      $prediction = $('<div>').addClass('prediction').append($loading);
       $instance.append($prediction);
       $instances.append($instance);
       instanceKeyToDiv[key] = $instance;
@@ -506,7 +491,7 @@ $(function () {
     return $('<div>').append().append($requestTable);
   }
 
-  function renderPredictions(runSpec, runDisplayName, scenarioState, perInstanceStats, instanceKeyToDiv) {
+  function renderPredictions(runSpec, runDisplayName, predictions, instanceKeyToDiv) {
     // Add the predictions and statistics from `scenarioState` and `perInstanceStats` to the appropriate divs for each instance.
     // Each instance give rises to multiple requests (whose results are in `scenarioState`):
     //
@@ -520,104 +505,74 @@ $(function () {
     // - for adapter method = multiple_choice_separate_original, have one request per reference
     // - for adapter method = multiple_choice_separate_calibrated, have two requests per reference
     const method = runSpec.adapter_spec.method;
-    const numTrainTrials = scenarioState.request_states.reduce((m, request_state) => Math.max(m, request_state.train_trial_index), -1) + 1;
+    const numTrainTrials = predictions.reduce((m, prediction) => Math.max(m, prediction.train_trial_index), -1) + 1;
 
-    // The `perInstanceStats` specifies stats for each instanceKey (instance_id, perturbation) and train_trial_index.
-    const instanceKeyTrialToStats = {};
-    perInstanceStats.forEach((entry) => {
-      const key = perInstanceStatsKey(entry);
-      instanceKeyTrialToStats[key] = (instanceKeyTrialToStats[key] || []).concat(entry.stats);
+
+    // Look for the default metrics for the group
+    let metricNames = [];
+    schema.run_groups.forEach((runGroup) => {
+      if (!runSpec.groups.includes(runGroup.name)) {
+        return;
+      }
+      metricNames = metricNames.concat(getMetricNames(runGroup));
     });
 
     // For each request state (across all instances)...
-    scenarioState.request_states.forEach((requestState) => {
-      const $instanceDiv = instanceKeyToDiv[instanceKey(requestState.instance)];
+    predictions.forEach((prediction) => {
+      const $instanceDiv = instanceKeyToDiv[predictionInstanceKey(prediction)];
       if (!$instanceDiv) {
-        console.error('Not found: ' + instanceKey(requestState.instance));
+        console.error('Not found: ' + predictionInstanceKey(prediction));
         return;
       }
 
       // Traverse into the prediction div within the instance div
       const $instance = $instanceDiv.find('.prediction');
+      $instance.find('.loading').remove();
 
       // For adapter method = separate, don't show the calibration requests
-      if (requestState.request_mode === 'calibration') {
+      if (prediction.request_mode === 'calibration') {
         return;
       }
 
-      const key = instanceTrialKey(requestState.instance, requestState.train_trial_index);
+      const key = predictionInstanceTrialKey(prediction);
 
       // For multiple_choice_separate_*, only render the request state for the predicted index
-      if (requestState.reference_index !== undefined) {
-        const predictedIndexStat = instanceKeyTrialToStats[key] ?
-          instanceKeyTrialToStats[key].find((stat) => stat.name.name === "predicted_index") :
-          undefined;
-        if (predictedIndexStat === undefined) {
+      if (prediction.reference_index !== undefined) {
+        predictedIndex = prediction.stats["predicted_index"];
+        if (predictedIndex === undefined) {
           console.warn("Cannot find predicted index for: ", key);
-        } else if (requestState.reference_index !== predictedIndexStat.mean) {
+        } else if (prediction.reference_index !== predictedIndex) {
           return;
         }
       }
 
       // Print out instance-level statistics.
       // Show it once for each (instance_id, perturbation) and train_trial_index.
-      const stats = instanceKeyTrialToStats[key];
-      if (!stats) {
-        console.warn("Cannot find stats for", key, instanceKeyTrialToStats);
-      } else {
-        $instance.append(renderPerInstanceStats(runSpec.groups, stats, runDisplayName));
-      }
-
-      // Create a link for the request made to the API
-      const request = Object.assign({}, requestState.request);
-      const prompt = request.prompt;
-      delete request.prompt;
-      const query = {
-        prompt,
-        settings: JSON.stringify(request),
-        environments: '',
-      };
-      const href = '/static/index.html' + encodeUrlParams(query);
+      $instance.append(renderPredictionStats(metricNames, prediction.stats, runDisplayName));
 
       // Render the prediction
-      let prefix = '';
-      let prediction = $('<i>').append('(empty)');
+      // TODO: Escape the HTML in predictedText properly
       const $logProb = $('<span>');
-      if (requestState.result) {
-        // Assume there is only one completion
-        const completion = requestState.result.completions[0];
-        prediction = completion.text.trim();
-
-        // For adapter method = joint
-        if (requestState.output_mapping) {
-          prediction = requestState.output_mapping[prediction] || prediction + ' (not mappable)';
+      let predictedText = prediction.predicted_text.trim();
+      if (method === "multiple_choice_joint") {
+        if (prediction.mapped_output !== undefined) {
+          predictedText = truncateMiddle(prediction.mapped_output.trim(), 30);
+        } else {
+          predictedText = truncateMiddle(predictedText, 30) + '<span style="color: gray"> (unmapped)</span>';
         }
-
-        if (method.startsWith('multiple_choice_separate_')) {
-          // For adapter method = separate, prediction starts with the prompt, strip it out
-          if (prediction.startsWith(requestState.instance.input)) {
-            prefix = '...';
-            prediction = prediction.substring(requestState.instance.input.length).trim();
-          }
-        } else if (method === 'language_modeling') {
-          // For language modeling, first token is just padding, so strip it out
-          const firstToken = completion.tokens[0];
-          if (Object.keys(firstToken.top_logprobs).length === 0) {
-            if (!prediction.startsWith(firstToken.text)) {
-              console.warning("Prediction doesn't start with first token", prediction, firstToken, completion);
-            } else {
-              prediction = prediction.substring(firstToken.text.length);
-            }
-          }
-
-          // Prediction is a chunk of the input that's already rendered above,
-          // so we just need to show the beginning and end of the chunk.
-          // Ideally, we whould show all the tokens and color-code their
-          // probabilities.
-          prediction = truncateMiddle(prediction, 30);
+      } else if (method.startsWith('multiple_choice_separate_')) {
+        // For adapter method = separate, prediction starts with the prompt, strip it out
+        const predictedTextPrefixToHide = prediction.predicted_text_prefix_to_hide.trim();
+        if (predictedText.startsWith(predictedTextPrefixToHide)) {
+          predictedText = '<span style="color: lightgray">...</span> ' + truncateMiddle(predictedText.substring(predictedTextPrefixToHide.length).trim(), 30);
         }
-
-        $logProb.append(' ').append($('<span>', {class: 'logprob'}).append('(' + round(completion.logprob, 3) + ')'));
+      } else if (method === 'language_modeling') {
+        // For language modeling, first token is just padding, so strip it out
+        const predictedTextPrefixToHide = prediction.predicted_text_prefix_to_hide.trim();
+        if (!predictedText.startsWith(predictedTextPrefixToHide)) {
+          console.warning("Prediction doesn't start with first token", predictedText, predictedTextPrefixToHide);
+          predictedText = truncateMiddle(predictedText.substring(predictedTextPrefixToHide.length).trim(), 30);
+        }
       }
 
       // Describe the prediction
@@ -631,29 +586,28 @@ $(function () {
       description += 'Prediction';
 
       // Which reference (for multiple_choice_separate_*)
-      if (requestState.reference_index !== undefined) {
-        description += '[ref ' + requestState.reference_index + ']';
+      if (prediction.reference_index !== undefined) {
+        description += '[ref ' + prediction.reference_index + ']';
       }
 
       // If there are multiple trials
       if (numTrainTrials > 1) {
-        description += '{trial ' + requestState.train_trial_index + '}';
+        description += '{trial ' + prediction.train_trial_index + '}';
       }
 
-      const $request = renderRequest(requestState.request);
-      $request.hide();
-      $link = $('<a>', {href}).append($('<b>').append(description)).click(() => {
+      // const $request = renderRequest(requestState.request);
+      // $request.hide();
+      $link = $('<a>', {href: '#'}).append($('<b>').append(description)).click(() => {
         $request.slideToggle();
         return false;
       });
-      $prediction = $('<div>')
+      const $prediction = $('<div>')
         .append($link)
         .append(': ')
-        .append(prefix)
-        .append(prediction)
+        .append(predictedText)
         .append($logProb);
       $instance.append($prediction);
-      $instance.append($request);
+      // $instance.append($request);
     });
   }
 
@@ -674,17 +628,14 @@ $(function () {
     const statsPaths = runSpecs.map((runSpec) => {
       return statsJsonUrl(suite, runSpec.name);
     });
-    const perInstanceStatsPaths = runSpecs.map((runSpec) => {
-      return perInstanceStatsJsonUrl(suite, runSpec.name);
-    });
-    const scenarioPaths = runSpecs.map((runSpec) => {
-      return scenarioJsonUrl(suite, runSpec.name);
-    });
     const scenarioStatePaths = runSpecs.map((runSpec) => {
       return scenarioStateJsonUrl(suite, runSpec.name);
     });
     const runSpecPaths = runSpecs.map((runSpec) => {
       return runSpecJsonUrl(suite, runSpec.name);
+    });
+    const predictionsPaths = runSpecs.map((runSpec) => {
+      return predictionsJsonUrl(suite, runSpec.name);
     });
 
     // Figure out short names for the runs based on where they differ
@@ -775,19 +726,20 @@ $(function () {
     });
 
     // Render scenario instances and predictions
-    const scenarioStatesPromise = getJSONList(scenarioStatePaths);
-    const perInstanceStatsPromise = getJSONList(perInstanceStatsPaths);
-    $.when(scenarioStatesPromise, perInstanceStatsPromise).then((scenarioStates, perInstanceStats) => {
-      console.log('scenarioStates', scenarioStates);
-      console.log('perInstanceStats', perInstanceStats);
+    const instancesPath = instancesJsonUrl(suite, runSpecs[0].name);
+    const instancesPromise = $.getJSON(instancesPath, {});
+    const instanceKeyToDivPromise = instancesPromise.then((instances) => {
+      console.log('instances', instances);
       const $instances = $('<div>');
-      const instances = scenarioStates[0].request_states.map((request_state) => request_state.instance);
-      const instanceKeyToDiv = renderScenarioInstances(instances, $instances);
       $instancesContainer.empty().append($instances);
-
+      return renderScenarioInstances(instances, $instances);
+    })
+    const predictionsPromise = getJSONList(predictionsPaths);
+    $.when(predictionsPromise, instanceKeyToDivPromise).then((predictions, instanceKeyToDiv) => {
+      console.log('predictions', predictions);
       // For each run / model...
       runSpecs.forEach((runSpec, index) => {
-        renderPredictions(runSpec, runDisplayNames[index], scenarioStates[index], perInstanceStats[index], instanceKeyToDiv);
+        renderPredictions(runSpec, runDisplayNames[index], predictions[index], instanceKeyToDiv);
       });
     });
     return $root;
