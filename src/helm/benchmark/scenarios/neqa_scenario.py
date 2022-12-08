@@ -43,14 +43,13 @@ class NeQAScenario(Scenario):
 
     def download_dataset(self):
         # Download the raw data
-        data_path = os.path.join(self.output_path, "data")
-        ensure_directory_exists(data_path)
+        ensure_directory_exists(self.output_path)
         # TODO: update the link in the future
         url = "https://raw.githubusercontent.com/yuhui-zh15/NeQA/main/final_submission/cache/final_submission.jsonl"
-        ensure_file_downloaded(source_url=url, target_path=os.path.join(data_path, "neqa.jsonl"))
+        ensure_file_downloaded(source_url=url, target_path=os.path.join(self.output_path, "neqa.jsonl"))
 
     def load_dataset(self) -> List[List[str]]:
-        file_path = os.path.join(self.output_path, "data", "neqa.jsonl")
+        file_path = os.path.join(self.output_path, "neqa.jsonl")
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
 
