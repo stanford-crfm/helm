@@ -64,7 +64,6 @@ def run_benchmarking(
     run_specs: List[RunSpec],
     auth: Authentication,
     url: str,
-    local: bool,
     local_path: str,
     num_threads: int,
     output_path: str,
@@ -81,7 +80,6 @@ def run_benchmarking(
     execution_spec = ExecutionSpec(
         auth=auth,
         url=url,
-        local=local,
         local_path=local_path,
         parallelism=num_threads,
         dry_run=dry_run,
@@ -154,11 +152,6 @@ def add_run_args(parser: argparse.ArgumentParser):
         type=str,
         help="Name of the suite this run belongs to (default is today's date).",
         required=True,
-    )
-    parser.add_argument(
-        "--local",
-        action="store_true",
-        help="If true, bypasses the proxy server and runs everything locally",
     )
     parser.add_argument(
         "--local-path",
@@ -276,7 +269,6 @@ def main():
         run_specs=run_specs,
         auth=auth,
         url=args.server_url,
-        local=args.local,
         local_path=args.local_path,
         num_threads=args.num_threads,
         output_path=args.output_path,

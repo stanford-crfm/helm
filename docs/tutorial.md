@@ -22,12 +22,11 @@ entries: [
 We will now use `helm-run` to execute the runs that have been specified in this run spec configuration file. Run this command:
 
 ```
-helm-run --conf-paths run_specs.conf --local --suite v1 --max-eval-instances 10
+helm-run --conf-paths run_specs.conf --suite v1 --max-eval-instances 10
 ```
 
 The meaning of the additional arguments are as follows:
 
-- `--local` specifies not to use the Stanford CRFM API. You should always use `--local` unless you are a Stanford CRFM API user.
 - `--suite` specifies a subdirectory under the output directory in which all the output will be placed.
 - `--max-eval-instances` limits evaluation to only the first *N* inputs (i.e. instances) from the benchmark.
 
