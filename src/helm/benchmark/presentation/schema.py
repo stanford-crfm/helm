@@ -236,7 +236,7 @@ class Schema:
         self.name_to_run_group = {run_group.name: run_group for run_group in self.run_groups}
 
 
-def read_schema():
+def read_schema() -> Schema:
     hlog(f"Reading schema from {SCHEMA_YAML_FILENAME}...")
     schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_YAML_FILENAME)
     with schema_path.open("r") as f:
