@@ -659,6 +659,27 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
     )
 
 
+def get_neqa_spec(method: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.neqa_scenario.NeQAScenario",
+        args={},
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=method,
+        instructions="The following are multiple choice questions (with answers) about common sense.",
+        input_noun="Question",
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name=f"neqa:method={method}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+    )
+
+
 def get_quac_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.quac_scenario.QuACScenario", args={})
 
@@ -1591,6 +1612,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "msmarco": get_msmarco_spec,
     "narrative_qa": get_narrativeqa_spec,
     "commonsense": get_commonsense_spec,
+    "neqa": get_neqa_spec,
     "lsat_qa": get_lsat_qa_spec,
     "quac": get_quac_spec,
     "wikifact": get_wikifact_spec,

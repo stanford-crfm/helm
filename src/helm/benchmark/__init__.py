@@ -6,6 +6,7 @@ from .scenarios import mmlu_scenario  # noqa
 from .scenarios import interactive_qa_mmlu_scenario  # noqa
 from .scenarios import msmarco_scenario  # noqa
 from .scenarios import commonsense_scenario  # noqa
+from .scenarios import neqa_scenario  # noqa
 from .scenarios import twitter_aae_scenario  # noqa
 from .scenarios import real_toxicity_prompts_scenario  # noqa
 from .scenarios import math_scenario  # noqa
