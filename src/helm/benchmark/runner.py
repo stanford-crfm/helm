@@ -9,6 +9,7 @@ from helm.benchmark.augmentations.perturbation import PerturbationDescription
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.common.general import ensure_directory_exists, write, asdict_without_nones
 from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.cache import cache_stats
 from .augmentations.data_augmenter import DataAugmenterSpec
 from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance, with_instance_ids
 from .adapter import AdapterSpec, Adapter, RequestState, ScenarioState, slimmed_scenario_state
@@ -61,10 +62,12 @@ class SlimPrediction:
     Captures a unit of evaluation for displaying in the web frontend.
     """
 
-    # Uniquely identifies the input instance
+    # (instance_id, perturbation, train_trial_index) is a unique key for this prediction.
     instance_id: str
+    """ID of the Instance"""
 
     perturbation: Optional[PerturbationDescription]
+    """Description of the Perturbation that was applied"""
 
     train_trial_index: int
     """Which replication"""
@@ -72,8 +75,8 @@ class SlimPrediction:
     predicted_text: str
     """Prediction text"""
 
-    predicted_text_prefix_to_hide: Optional[str]
-    """The prefix that should be stripped from the prediction text before displaying"""
+    truncated_predicted_text: Optional[str]
+    """The truncated prediction text, if truncation is required by the Adapter method."""
 
     mapped_output: Optional[str]
     """The mapped output, if an output mapping exists and the prediction can be mapped"""
@@ -270,8 +273,8 @@ class Runner:
                     perturbation=request_state.instance.perturbation,
                     train_trial_index=request_state.train_trial_index,
                     predicted_text=predicted_text,
-                    predicted_text_prefix_to_hide=self._compute_predicted_text_prefix_to_hide(
-                        request_state, run_spec.adapter_spec
+                    truncated_predicted_text=self._truncate_predicted_text(
+                        predicted_text, request_state, run_spec.adapter_spec
                     ),
                     mapped_output=mapped_output,
                     reference_index=request_state.reference_index,
@@ -282,18 +285,25 @@ class Runner:
             os.path.join(run_path, "predictions.json"),
             json.dumps(list(map(asdict_without_nones, predictions)), indent=2),
         )
+        cache_stats.print_status()
 
-    def _compute_predicted_text_prefix_to_hide(
-        self, request_state: RequestState, adapter_spec: AdapterSpec
+    def _truncate_predicted_text(
+        self, predicted_text: str, request_state: RequestState, adapter_spec: AdapterSpec
     ) -> Optional[str]:
         method = adapter_spec.method
+        prefix = ""
         if method.startswith("multiple_choice_separate_"):
-            return request_state.instance.input
+            prefix = request_state.instance.input
         elif method == "language_modeling":
             if request_state.result is not None and request_state.result.completions:
                 tokens = request_state.result.completions[0].tokens
                 if tokens:
                     first_token = tokens[0]
                     if not first_token.top_logprobs:
-                        return first_token.text
+                        prefix = first_token.text
+        if prefix:
+            predicted_text = predicted_text.strip()
+            prefix = prefix.strip()
+            if predicted_text.startswith(prefix):
+                return predicted_text[len(prefix) :].strip()
         return None
