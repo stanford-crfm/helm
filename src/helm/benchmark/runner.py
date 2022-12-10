@@ -235,7 +235,7 @@ class Runner:
             for metric_name_matcher in metric_groups_by_name[metric_group_name].metrics
             if not metric_name_matcher.perturbation_name
         )
-        if run_spec.adapter_spec.method == "multiple_choice_joint":
+        if run_spec.adapter_spec.method.startswith("multiple_choice_separate_"):
             metric_names_from_schema.add("predicted_index")
 
         stats_by_trial: Dict[Tuple[str, Optional[PerturbationDescription], int], Dict[str, float]] = defaultdict(dict)
