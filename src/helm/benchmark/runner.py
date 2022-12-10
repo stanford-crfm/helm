@@ -301,6 +301,8 @@ class Runner:
                     first_token = tokens[0]
                     if not first_token.top_logprobs:
                         prefix = first_token.text
+                    else:
+                        hlog("WARNING: top_logprobs was not empty, skipping predicted_text truncation")
         if prefix:
             predicted_text = predicted_text.strip()
             prefix = prefix.strip()
