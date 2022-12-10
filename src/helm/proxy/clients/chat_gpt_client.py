@@ -33,6 +33,9 @@ class ChatGPTClient(Client):
         self._lock = FileLock(lock_file_path, timeout=ChatGPTClient.REQUEST_TIMEOUT_SECONDS)
 
     def make_request(self, request: Request) -> RequestResult:
+        def fix_token_text(text: str):
+            return text.replace("Ġ", " ")
+
         completions: List[Sequence] = []
         all_cached = True
         request_time = 0
@@ -68,15 +71,13 @@ class ChatGPTClient(Client):
                 # We're assuming ChatGPT uses the GPT-2 tokenizer.
                 TokenizationRequest(text, tokenizer="huggingface/gpt2")
             )
-            completion = Sequence(
-                text=response["message"],
-                # Log probs are not currently not supported by the ChatGPT, so set to 0 for now.
-                logprob=0,
-                tokens=[
-                    Token(text=str(text).replace("Ġ", " "), logprob=0, top_logprobs={})
-                    for text in tokenization_result.raw_tokens
-                ],
-            )
+
+            # Log probs are not currently not supported by the ChatGPT, so set to 0 for now.
+            tokens: List[Token] = [
+                Token(text=fix_token_text(str(text)), logprob=0, top_logprobs={})
+                for text in tokenization_result.raw_tokens
+            ]
+            completion = Sequence(text=response["message"], logprob=0, tokens=tokens)
             completions.append(truncate_sequence(completion, request))  # Truncate the text by stop sequences
             request_time += response["request_time"]
             request_datetime = request_datetime or response["request_datetime"]
