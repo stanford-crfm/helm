@@ -326,6 +326,13 @@ models:
     description: Codex-style model based on the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf), but the details (including size) are unknown.
     creator_organization: OpenAI
     access: limited
+  - name: openai/chat-gpt
+    display_name: ChatGPT
+    description: Sibling model to InstructGPT which interacts in a conversational way. See [OpenAI's announcement](https://openai.com/blog/chatgpt/). The size of the model is unknown.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2022-11-30
+    todo: true
 
   # Tsinghua
   - name: together/glm
