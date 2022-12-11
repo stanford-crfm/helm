@@ -169,6 +169,35 @@ def prefix_exact_match(gold: str, pred: str) -> float:
     return 1 if pred.strip().startswith(gold.strip()) else 0
 
 
+def suffix_exact_match(gold: str, pred: str) -> float:
+    """
+    The `suffix_exact_match` metric is particularly useful in the few-shot chain-of-thought setting, where the model is
+    expected to output the explanation first then output answer.
+
+    For example, for this few-shot chain-of-thought prompt from NeQA,
+
+    Question: If a cat has a body temp that is below average, it isn't in
+    A. danger
+    B. safe ranges
+    Answer: Let's think step-by-step.
+    First, let's answer non-negated question: "If a cat has a body temp that is below average, it is in?"
+    For this non-negated question, we have A.
+    Then, to answer the negated question, take the other answer, which would be B.
+    So the answer is B.
+
+    Question: As the barometer reading goes lower there is not a greater chance of
+    A. sunshine
+    B. getting wet
+    Answer:
+
+    The model could output up to `max_tokens` number of tokens including explanation and answer instead of just answer.
+    """
+    if not pred:
+        return 0
+
+    return 1 if pred.strip().endswith(gold.strip()) else 0
+
+
 def quasi_prefix_exact_match(gold: str, pred: str) -> float:
     """
     Same thing as `prefix_exact_match` but we normalize the text before checking if the prefix match.
@@ -177,6 +206,15 @@ def quasi_prefix_exact_match(gold: str, pred: str) -> float:
         return 0
 
     return 1 if normalize_text(pred).startswith(normalize_text(gold)) else 0
+
+
+def quasi_suffix_exact_match(gold: str, pred: str) -> float:
+    """
+    Same thing as `suffix_exact_match` but we normalize the text before checking if the suffix match.
+    """
+    if not pred:
+        return 0
+    return 1 if normalize_text(pred).endswith(normalize_text(gold)) else 0
 
 
 def f1_score(gold: str, pred: str) -> float:
@@ -465,7 +503,9 @@ class BasicMetric(Metric):
             "exact_match": exact_match,
             "quasi_exact_match": quasi_exact_match,
             "prefix_exact_match": prefix_exact_match,
+            "suffix_exact_match": suffix_exact_match,
             "quasi_prefix_exact_match": quasi_prefix_exact_match,
+            "quasi_suffix_exact_match": quasi_suffix_exact_match,
             "exact_match_indicator": exact_match_indicator,
             "exact_set_match": exact_set_match,
             "iou_set_match": iou_set_match,
@@ -498,7 +538,8 @@ class BasicMetric(Metric):
         # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
         # sometimes predict a random letter like 'M'.
         if request_state.output_mapping is not None:
-            preds = [request_state.output_mapping.get(pred) for pred in preds]  # type: ignore
+            output_mapping_reversed = {v: k for k, v in request_state.output_mapping.items()}
+            golds = [replace(gold, output=output_mapping_reversed.get(gold.output)) for gold in golds]
 
         # Compute max_prob, the probability that the model assigns to its generated text.
         # Use the log prob of sorted_completions[0], which is the completion with the highest

@@ -347,17 +347,16 @@ class Processor:
     def adapt_multiple_choice_joint(self, eval_instance: Instance) -> List[RequestState]:
         prompt = self.construct_prompt(self.train_instances, eval_instance, include_output=False, reference_index=None)
         output_mapping = dict(
-            (self.get_reference_prefix("A", reference_index), reference.output)
+            (f"answer is {self.get_reference_prefix('A', reference_index)}.", reference.output)
             for reference_index, reference in enumerate(eval_instance.references)
         )
         request = Request(
             model=self.adapter_spec.model,
             prompt=prompt.text,
-            num_completions=1,
-            top_k_per_token=self.adapter_spec.num_outputs,
-            temperature=0,
-            max_tokens=1,
-            stop_sequences=[],
+            num_completions=self.adapter_spec.num_outputs,
+            temperature=self.adapter_spec.temperature,
+            max_tokens=self.adapter_spec.max_tokens,
+            stop_sequences=self.adapter_spec.stop_sequences,
             random=self.adapter_spec.random,
         )
         request_state = RequestState(

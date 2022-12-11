@@ -64,9 +64,9 @@ def get_multiple_choice_joint_adapter_spec(
         output_suffix="\n",
         max_train_instances=max_train_instances,
         num_outputs=1,
-        max_tokens=5,
+        max_tokens=200,
         temperature=0.0,
-        stop_sequences=["\n"],
+        stop_sequences=["\n\n"],
         **kwargs,
     )
 
@@ -347,7 +347,14 @@ def get_basic_metric_specs(names: List[str]) -> List[MetricSpec]:
 
 def get_exact_match_metric_specs() -> List[MetricSpec]:
     return get_basic_metric_specs(
-        ["exact_match", "quasi_exact_match", "prefix_exact_match", "quasi_prefix_exact_match"]
+        [
+            "exact_match",
+            "quasi_exact_match",
+            "prefix_exact_match",
+            "suffix_exact_match",
+            "quasi_prefix_exact_match",
+            "quasi_suffix_exact_match",
+        ]
     )
 
 
@@ -659,21 +666,28 @@ def get_commonsense_spec(dataset: str, method: str) -> RunSpec:
     )
 
 
-def get_neqa_spec(method: str) -> RunSpec:
+def get_neqa_spec(cot: str) -> RunSpec:
+    if cot == "true":
+        instructions = "The following are multiple choice questions (with answers) about common sense.\n\nQuestion: If a cat has a body temp that is below average, it isn't in\nA. danger\nB. safe ranges\nAnswer: Let's think step-by-step.\nFirst, let's answer non-negated question: \"If a cat has a body temp that is below average, it is in?\"\nFor this non-negated question, we have A.\nThen, to answer the negated question, take the other answer, which would be B.\nSo the answer is B.\n\nQuestion: As the barometer reading goes lower there is not a greater chance of\nA. sunshine\nB. getting wet\nAnswer: Let's think step-by-step.\nFirst, let's answer non-negated question: \"As the barometer reading goes lower there is a greater chance of?\"\nFor this non-negated question, we have B.\nThen, to answer the negated question, take the other answer, which would be A.\nSo the answer is A.\n\nQuestion: Coral is a type of living organism which cannot be identified in\nA. saltwater locations that are open\nB. any where with liquid\nAnswer: Let's think step-by-step.\nFirst, let's answer non-negated question: \"Coral is a type of living organism which can be identified in?\"\nFor this non-negated question, we have A.\nThen, to answer the negated question, take the other answer, which would be B.\nSo the answer is B."  # noqa: E501
+    elif cot == "false":
+        instructions = "The following are multiple choice questions (with answers) about common sense.\n\nQuestion: If a cat has a body temp that is below average, it isn't in\nA. danger\nB. safe ranges\nAnswer: The answer is B.\n\nQuestion: As the barometer reading goes lower there is not a greater chance of\nA. sunshine\nB. getting wet\nAnswer: The answer is A.\n\nQuestion: Coral is a type of living organism which cannot be identified in\nA. saltwater locations that are open\nB. any where with liquid\nAnswer: The answer is B."  # noqa: E501
+    else:
+        raise ValueError(f"Invalid cot: {cot}")
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.neqa_scenario.NeQAScenario",
         args={},
     )
 
     adapter_spec = get_multiple_choice_adapter_spec(
-        method=method,
-        instructions="The following are multiple choice questions (with answers) about common sense.",
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions=instructions,
         input_noun="Question",
         output_noun="Answer",
     )
 
     return RunSpec(
-        name=f"neqa:method={method}",
+        name=f"neqa:cot={cot}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),
