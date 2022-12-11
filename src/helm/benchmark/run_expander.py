@@ -306,6 +306,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "full_functionality_text": get_model_names_with_tag(FULL_FUNCTIONALITY_TEXT_MODEL_TAG),
         "ai21/j1-jumbo": ["ai21/j1-jumbo"],
         "openai/curie": ["openai/curie"],
+        "openai/chat-gpt": ["openai/chat-gpt"],
         "all": get_all_models(),
         "text": get_all_text_models(),
         "code": get_all_code_models(),

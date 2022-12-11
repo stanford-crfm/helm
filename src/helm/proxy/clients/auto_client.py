@@ -18,6 +18,7 @@ from .client import Client
 from .ai21_client import AI21Client
 from .aleph_alpha_client import AlephAlphaClient
 from .anthropic_client import AnthropicClient
+from .chat_gpt_client import ChatGPTClient
 from .cohere_client import CohereClient
 from .together_client import TogetherClient
 from .goose_ai_client import GooseAIClient
@@ -58,9 +59,26 @@ class AutoClient(Client):
             cache_config: CacheConfig = self._build_cache_config(organization)
 
             if organization == "openai":
+                # TODO: add ChatGPT to the OpenAIClient when it's supported.
+                #       We're using a separate client for now since we're using an unofficial Python library.
+                # Must pass in email and password to use the full functionality of the API
+                # See https://github.com/acheong08/ChatGPT/wiki/Setup for more information.
+                chat_gpt_client: ChatGPTClient = ChatGPTClient(
+                    email=self.credentials.get("openaiEmail", ""),
+                    password=self.credentials.get("openaiPassword", ""),
+                    lock_file_path=os.path.join(self.cache_path, "ChatGPT.lock"),
+                    # TODO: use `cache_config` above. Since this feature is still experimental,
+                    #       save queries and responses in a separate collection.
+                    cache_config=self._build_cache_config("ChatGPT"),
+                    tokenizer_client=self.get_tokenizer_client("huggingface"),
+                )
+
                 org_id = self.credentials.get("openaiOrgId", None)
                 client = OpenAIClient(
-                    api_key=self.credentials["openaiApiKey"], cache_config=cache_config, org_id=org_id
+                    api_key=self.credentials["openaiApiKey"],
+                    cache_config=cache_config,
+                    chat_gpt_client=chat_gpt_client,
+                    org_id=org_id,
                 )
             elif organization == "AlephAlpha":
                 client = AlephAlphaClient(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)

@@ -477,6 +477,16 @@ ALL_MODELS = [
         description="Cushman Codex (for natural language to code) - 2048 max tokens",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
+    # ChatGPT - https://openai.com/blog/chatgpt
+    Model(
+        group="gpt3",
+        creator_organization="OpenAI",
+        name="openai/chat-gpt",
+        display_name="ChatGPT",
+        description="Sibling model to InstructGPT which interacts in a conversational way",
+        # TODO: The max context length is unknown. Assume it's the same length as Davinci Instruct for now.
+        tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
     # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings
     Model(
         group="gpt3",
