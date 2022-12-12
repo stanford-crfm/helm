@@ -47,7 +47,7 @@ $(function () {
   const urlParams = decodeUrlParams(window.location.search);
 
   // Extract the name of the suite from the URL parameters. Default to "latest" if none is specified.
-  const suite = "suite" in urlParams ? urlParams.suite : "latest";
+  const suite = "suite" in urlParams ? urlParams.suite : "v1.0";
   console.log(`Suite: ${suite}`);
 
   /////////////////////////////////// Pages ////////////////////////////////////
@@ -96,8 +96,9 @@ $(function () {
       if (group.category) {
         return;
       }
+      const href = groupUrl(group.name);
       const $name = $('<div>').append([
-        $('<div>').append(group.display_name),
+        $('<div>').append($('<a>', {href}).append(group.display_name)),
         $('<div>', {class: 'technical-details'}).append(group.name),
       ]);
       const task = group.taxonomy && group.taxonomy.task;
@@ -798,11 +799,11 @@ $(function () {
   }
 
   function modelUrl(model) {
-    return encodeUrlParams(Object.assign({}, urlParams, {models: 1}));
+    return encodeUrlParams(Object.assign({}, urlParams, {scenarios: null, models: 1}));
   }
 
   function groupUrl(group) {
-    return encodeUrlParams(Object.assign({}, urlParams, {group}));
+    return encodeUrlParams(Object.assign({}, urlParams, {scenarios: null, group}));
   }
 
   function metricUrl(group) {
