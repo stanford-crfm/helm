@@ -253,6 +253,29 @@ class Runner:
             assert request_state.instance.id is not None
             assert request_state.result is not None
 
+            # For the multiple_choice_separate_calibrated adapter method,
+            # only keep the original prediction and discard the calibration prediction.
+            if (
+                run_spec.adapter_spec.method.startswith("multiple_choice_separate_calibrated")
+                and request_state.request_mode == "calibration"
+            ):
+                continue
+
+            stats_key = (
+                request_state.instance.id,
+                request_state.instance.perturbation,
+                request_state.train_trial_index,
+            )
+            trial_stats: Dict[str, float] = stats_by_trial[stats_key]
+            # For the multiple_choice_separate_* adapter methods,
+            # only keep the prediction for the chosen reference and discard the rest.
+            if (
+                run_spec.adapter_spec.method.startswith("multiple_choice_separate_")
+                and "predicted_index" in trial_stats
+                and trial_stats["predicted_index"] != request_state.reference_index
+            ):
+                continue
+
             predicted_text = (
                 request_state.result.completions[0].text
                 if request_state.result is not None or request_state.result.completions
@@ -262,11 +285,6 @@ class Runner:
                 request_state.output_mapping.get(predicted_text.strip()) if request_state.output_mapping else None
             )
 
-            stats_key = (
-                request_state.instance.id,
-                request_state.instance.perturbation,
-                request_state.train_trial_index,
-            )
             predictions.append(
                 SlimPrediction(
                     instance_id=request_state.instance.id,
@@ -278,7 +296,7 @@ class Runner:
                     ),
                     mapped_output=mapped_output,
                     reference_index=request_state.reference_index,
-                    stats=stats_by_trial[stats_key],
+                    stats=trial_stats,
                 )
             )
         write(
