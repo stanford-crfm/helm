@@ -110,6 +110,7 @@ class BLiMPScenario(Scenario):
     }
 
     def __init__(self, phenomenon: str):
+        super().__init__()
         assert phenomenon in self.phenomenon_to_paradigms, f"Unsupported phenomenon: {phenomenon}"
         self.phenomenon: str = phenomenon
 

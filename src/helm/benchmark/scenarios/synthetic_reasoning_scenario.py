@@ -98,6 +98,7 @@ class SyntheticReasoningScenario(Scenario):
     tags = ["reasoning", "language", "pattern_matching"]
 
     def __init__(self, mode: str, random_seed=42):
+        super().__init__()
         self.num_train_instances: int = 1000
         self.num_val_instances: int = 5000
         self.num_test_instances: int = 5000

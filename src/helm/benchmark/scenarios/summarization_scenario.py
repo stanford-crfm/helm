@@ -60,6 +60,7 @@ class SummarizationScenario(Scenario):
                             truncated to doc_max_length tokens.
                             NOTE: Currently uses whitespace tokenization.
         """
+        super().__init__()
         if dataset_name not in ["xsum", "xsum-sampled", "cnn-dm"]:
             raise Exception(f"Uknown dataset_name: {dataset_name}")
         self.dataset_name = dataset_name

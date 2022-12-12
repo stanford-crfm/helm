@@ -72,6 +72,7 @@ class BIGBenchScenario(Scenario):
             return json.load(f)
 
     def __init__(self, task: str, subtask: str):
+        super().__init__()
         self.task: str = task
         self.subtask: str = subtask
 

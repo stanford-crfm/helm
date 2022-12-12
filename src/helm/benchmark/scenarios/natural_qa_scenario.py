@@ -161,6 +161,7 @@ class NaturalQAScenario(Scenario):
     tags = ["question_answering"]
 
     def __init__(self, mode: str):
+        super().__init__()
         self.context_mode = mode
         assert self.context_mode in ["openbook_wiki", "openbook_longans", "closedbook"]
 

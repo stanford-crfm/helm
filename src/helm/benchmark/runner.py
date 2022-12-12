@@ -167,12 +167,8 @@ class Runner:
         # Output benchmarking information and results to files
         write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
 
-        # Write out scenario (along with additional information)
-        scenario_dict = asdict_without_nones(scenario)
-        scenario_dict["scenario_spec"] = asdict_without_nones(run_spec.scenario_spec)
-        scenario_dict["definition_path"] = scenario.get_definition_path()
-        scenario_dict["instances"] = [asdict_without_nones(instance) for instance in scenario_state.instances]
-        write(os.path.join(run_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
+        # Write out scenario
+        write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
 
         # Write scenario state (including a slim version that is much smaller)
         write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))

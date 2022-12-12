@@ -122,9 +122,6 @@ class PubMedQAScenario(Scenario):
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["yes", "no", "maybe"]
 
-    def __init__(self):
-        pass
-
     def get_instances(self) -> List[Instance]:
         data_path: str = os.path.join(self.output_path, "data")
         ensure_directory_exists(data_path)

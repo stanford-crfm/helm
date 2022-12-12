@@ -52,6 +52,7 @@ class EntityMatchingScenario(Scenario):
     tags = ["entity_matching", "structured_reasoning"]
 
     def __init__(self, dataset: str):
+        super().__init__()
         self.em_datasets_paths = {
             "Beer": "Structured/Beer",
             "iTunes_Amazon": "Structured/iTunes-Amazon",

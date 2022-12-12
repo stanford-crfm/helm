@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from typing import List, Optional, Tuple
 import re
 import inspect
@@ -162,6 +162,7 @@ class Instance:
         return info
 
 
+# TODO(#1212): Scenario should not be a dataclass.
 @dataclass  # type: ignore
 class Scenario(ABC):
     """
@@ -173,26 +174,31 @@ class Scenario(ABC):
     the heavy lifting.
     """
 
-    name: str
+    # Set by the Scenario subclass.
+    name: str = field(init=False)
     """Short unique identifier of the scenario"""
 
-    description: str
+    # Set by the Scenario subclass.
+    description: str = field(init=False)
     """Description of the scenario (task, data)"""
 
-    tags: List[str]
+    # Set by the Scenario subclass.
+    tags: List[str] = field(init=False)
     """Extra metadata (e.g., whether this is a question answering or commonsense task)"""
 
+    # Set by Runner.
     # TODO: ideally would pass this into `get_instances` to not have to mutate.
-    output_path: str
+    output_path: str = field(init=False, default="")
     """Where downloaded data is cached (to be set by the `Runner`)"""
 
-    def get_definition_path(self) -> str:
-        """Return where the scenario subclass for `self` is defined."""
+    definition_path: str = field(init=False)
+    """Where the scenario subclass for `self` is defined."""
+
+    def __post_init__(self) -> None:
         # Assume `/.../src/helm/benchmark/...`
         path = inspect.getfile(type(self))
         # Strip out prefix in absolute path and replace with GitHub link.
-        path = re.sub(r"^.*\/src/", "https://github.com/stanford-crfm/helm/blob/main/src/", path)
-        return path
+        self.definition_path = re.sub(r"^.*\/src/", "https://github.com/stanford-crfm/helm/blob/main/src/", path)
 
     @abstractmethod
     def get_instances(self) -> List[Instance]:

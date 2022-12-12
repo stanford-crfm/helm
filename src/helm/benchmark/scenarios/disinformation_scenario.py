@@ -31,6 +31,7 @@ class DisinformationScenario(Scenario):
     tags = ["harms", "disinformation"]
 
     def __init__(self, capability: str = "reiteration", topic: Optional[str] = None):
+        super().__init__()
         self.capability = capability
         self.topic = topic
 

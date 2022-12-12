@@ -50,6 +50,7 @@ class IMDBScenario(Scenario):
         Args:
             only_contrast: Produce only inputs that have a contrast version.
         """
+        super().__init__()
         self.only_contrast = only_contrast
 
     def get_split_instances(self, split: str, path: str, contrast_map: dict) -> List[Instance]:

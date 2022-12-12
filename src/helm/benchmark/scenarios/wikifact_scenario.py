@@ -125,6 +125,7 @@ class WIKIFactScenario(Scenario):
     tags = ["knowledge", "generation"]
 
     def __init__(self, subject: str):
+        super().__init__()
         self.subject = subject
         assert subject in name2Pid
 

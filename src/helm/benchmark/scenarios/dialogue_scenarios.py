@@ -40,6 +40,7 @@ class EmpatheticDialoguesScenario(Scenario):
     tags = ["interaction", "dialogue"]
 
     def __init__(self, *args):
+        super().__init__()
         pass
 
     def download_data(self):

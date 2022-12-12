@@ -76,6 +76,7 @@ class BoolQScenario(Scenario):
         Args:
           only_contrast: Produce only inputs that have a contrast version.
         """
+        super().__init__()
         self.only_contrast = only_contrast
 
     def get_context(self, passage: str, question: str) -> str:

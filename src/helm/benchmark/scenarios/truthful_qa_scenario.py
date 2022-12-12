@@ -60,6 +60,7 @@ class TruthfulQAScenario(Scenario):
     DATASET_FILE_NAME = "TruthfulQA.csv"
 
     def __init__(self, task):
+        super().__init__()
         self.task = task
         assert self.task in self.TASK_NAMES
 
