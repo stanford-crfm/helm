@@ -29,6 +29,7 @@ from .schema import (
     RunGroup,
     read_schema,
     SCHEMA_YAML_FILENAME,
+    ALL_GROUPS,
     BY_GROUP,
     THIS_GROUP_ONLY,
     NO_GROUPS,
@@ -268,6 +269,7 @@ class Summarizer:
             included = True
             if group.visibility == THIS_GROUP_ONLY:  # don't include the canonical runs when looking at, say, ablations
                 included = False
+
             for run_group_name in run.run_spec.groups:  # go through the groups of the run to determine visibility
                 if run_group_name not in self.schema.name_to_run_group:
                     hlog(
@@ -275,18 +277,29 @@ class Summarizer:
                         f"but undefined in {SCHEMA_YAML_FILENAME}, skipping"
                     )
                     continue
+
                 run_group = self.schema.name_to_run_group[run_group_name]
                 if run_group.visibility == NO_GROUPS:  # this run should never be visible
                     included = False
                     break
-                if run_group.visibility == THIS_GROUP_ONLY:  # this run is part of a group with partial visibility
+                elif run_group.visibility == THIS_GROUP_ONLY:  # this run is part of a group with partial visibility
                     if run_group.name == group.name:  # if this is the exact group we are visualizing, include for sure
                         included = True
                         break
                     else:  # we won't visualize unless we hit exactly the group with partial visibility
                         included = False
+                elif run_group.visibility == ALL_GROUPS:
+                    included = True
+                    break
+
             if included:
                 filtered_runs.append(run)
+
+        if len(filtered_runs) < len(runs):
+            hlog(
+                f"For RunGroup: {group}, filtered out {len(runs) - len(filtered_runs)} runs. "
+                f"Remaining runs: {','.join([run.run_spec.name for run in filtered_runs])}"
+            )
         return filtered_runs
 
     def read_runs(self):
