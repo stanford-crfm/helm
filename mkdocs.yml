@@ -34,11 +34,11 @@ nav:
     - 'tutorial.md'
     - 'benchmark.md'
     - 'proxy-server.md'
+    - 'website.md'
   - 'Reference':
     - 'models.md'
     - 'metrics.md'
     - 'perturbations.md'
-    - 'run_expanders.md'
     - 'scenarios.md'
     - 'schemas.md'
   - 'Developer Guide':

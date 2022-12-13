@@ -34,6 +34,12 @@ def main():
     parser.add_argument(
         "-o", "--output-path", type=str, help="The location of the output path", default="benchmark_output"
     )
+    parser.add_argument(
+        "--print-static-assets-path",
+        action="store_true",
+        default=None,
+        help="Prints the path to the static assets and exits.",
+    )
     args = parser.parse_args()
 
     # Determine the location of the static directory.
@@ -42,6 +48,10 @@ def main():
     resource_path = resources.files("helm.benchmark.static").joinpath("index.html")
     with resources.as_file(resource_path) as resource_filename:
         static_path = str(resource_filename.parent)
+
+    if args.print_static_assets_path:
+        print(static_path)
+        return
 
     app.config["helm.staticpath"] = static_path
     app.config["helm.outputpath"] = path.abspath(args.output_path)
