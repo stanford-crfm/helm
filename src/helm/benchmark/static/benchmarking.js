@@ -50,6 +50,8 @@ $(function () {
   const suite = "suite" in urlParams ? urlParams.suite : "v1.0";
   console.log(`Suite: ${suite}`);
 
+  // Array of String containing RunSpec names for which
+  // the JSON for displaying requests has been loaded.
   const runSpecsNamesWithLoadedRequests = [];
 
   /////////////////////////////////// Pages ////////////////////////////////////
@@ -469,16 +471,6 @@ $(function () {
     runSpecsNamesWithLoadedRequests.push(runSpec.name);
     $.getJSON(scenarioStateJsonUrl(suite, runSpec.name), {}, (scenarioState) => {
       scenarioState.request_states.forEach((requestState) => {
-        // For the adapter method multiple_choice_separate_calibrated,
-        // only show the original requests and skip the rest
-        if (requestState.request_mode == "calibration") {
-          return;
-        }
-        // For the adapter methods multiple_choice_separate_*,
-        // only show the requests for the chosen reference and skip the rest
-        if (predictedIndex !== undefined && predictedIndex !== requestState.reference_index) {
-          return;
-        }
         $request = instanceKeyToDiv[requestStateInstanceKey(requestState)]
           .find('.request')
           .eq(requestState.train_trial_index);
