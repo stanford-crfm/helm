@@ -281,7 +281,9 @@ class Metric(ABC):
 
             # Use trial index of 0 here since we run only one trial for LM
             assert request_state.instance.id is not None
-            all_per_instance_stats.append(PerInstanceStats(request_state.instance.id, None, 0, request_stats))
+            all_per_instance_stats.append(
+                PerInstanceStats(request_state.instance.id, request_state.instance.perturbation, 0, request_stats)
+            )
 
             for stat in request_stats:
                 merge_stat(trial_stats, stat)
