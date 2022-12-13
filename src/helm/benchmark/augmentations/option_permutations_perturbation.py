@@ -4,7 +4,7 @@ from random import Random
 from typing import Sequence, Optional
 import numpy as np
 
-from benchmark.scenarios.scenario import Instance, Reference
+from helm.benchmark.scenarios.scenario import Instance, Reference
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 

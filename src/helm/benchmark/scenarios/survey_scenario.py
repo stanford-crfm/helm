@@ -8,8 +8,7 @@ from nltk import pos_tag
 import numpy as np
 import pandas as pd
 
-from common.general import ensure_file_downloaded
-from common.hierarchical_logger import hlog
+from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
 
 
@@ -51,10 +50,8 @@ class SurveyScenario(Scenario):
             else:
                 csv_path: str = os.path.join(data_path, f"{self.survey_type}.csv")
                     
-            if not os.path.exists(csv_path):
-                hlog(f"{csv_path} doesn't exist, skipping")
-
-            hlog(f"Reading {csv_path}")
+            ensure_directory_exists(csv_path)
+            
             df = pd.read_csv(csv_path, sep="\t")
             df["options"] = df.apply(lambda x: eval(x["options"]), axis=1)
 
