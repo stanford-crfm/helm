@@ -110,6 +110,7 @@ def get_multiple_choice_adapter_spec(
     empty_input: bool = False,
     num_outputs: int = 5,
     list_options_suffix: bool = False,
+    sample_train: bool = True,
     **kwargs,
 ):
     """
@@ -123,6 +124,7 @@ def get_multiple_choice_adapter_spec(
             max_train_instances,
             num_outputs=num_outputs,
             list_options_suffix=list_options_suffix,
+            sample_train=sample_train,
             **kwargs,
         )
     elif method in {ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL, ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED}:
@@ -631,39 +633,38 @@ def get_survey_spec(
     k: str,
     survey_type: str,
     list_options: str,
+    train_type: str = "None",
     instruction_type: str = "None",
+    num_train_trials: str = "1",
     method: str = ADAPT_MULTIPLE_CHOICE_JOINT,
 ) -> RunSpec:
     scenario_spec = ScenarioSpec(
-        class_name="benchmark.scenarios.survey_scenario.SurveyScenario", args={"survey_type": survey_type}
+        class_name="benchmark.scenarios.survey_scenario.SurveyScenario", args={"survey_type": survey_type, "train_type": train_type}
     )
 
     if instruction_type == "None":
         instruction = f""
-    elif instruction_type == "Simple":
-        instruction = (
-            f"Please read the following multiple-choice question carefully and select ONE of the listed options."
-        )
-    elif instruction_type == "Templatel":
+    elif instruction_type == "Options":
+        instruction = f"Please read the following multiple-choice question carefully and select ONE of the listed options."
+    elif instruction_type == "Template":
         instruction = f"Please read the multiple-choice question below carefully and select ONE of the listed options. Here is an examples of the format:\n\n"
         instruction += "Question: Question_1\nA. Option_1\nB. Option_2\nC. Option_3\nAnswer: C\n\n"
-    elif instruction_type == "Template":
-        instruction = f"Please read the multiple-choice question below carefully and select ONE of the listed options. Here are two examples of the format:\n\n"
-        instruction += "Question: Question_1\nA. Option_1\nB. Option_2\nC. Option_3\nAnswer: A\n\n"
-        instruction += "Question: Question_2\nA. Option_1\nB. Option_2\nC. Option_3\nD. Option_4\nAnswer: B"
 
     adapter_spec = get_multiple_choice_adapter_spec(
         method=method,
         instructions=instruction,
         input_noun="Question",
         output_noun="Answer",
-        max_train_instances=0,
+        max_train_instances=0 if train_type == "None" else 1,
         num_outputs=int(k),
+        num_train_trials=1 if train_type == "None" else int(num_train_trials),
+        sample_train=(train_type == "None"), 
         list_options_suffix=(list_options == "True"),
+        list_options_prefix=(list_options == "Prefix")
     )
 
     return RunSpec(
-        name=f"surveys:survey_type={survey_type},k={k},list_options={list_options},instruction_type={instruction_type}",
+        name=f"surveys:survey_type={survey_type},k={k},train_type={train_type},list_options={list_options},instruction_type={instruction_type}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_exact_match_metric_specs(),

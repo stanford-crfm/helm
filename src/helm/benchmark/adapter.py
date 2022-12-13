@@ -78,6 +78,9 @@ class AdapterSpec:
 
     # Whether to list options as part of the output suffix for mcqs
     list_options_suffix: bool = False
+        
+    # Whether to list options as part of the instruction for mcqs
+    list_options_prefix: bool = False
 
     # What goes between instruction and in-context example blocks in the constructed prompt
     instance_prefix: str = "\n"
@@ -99,6 +102,9 @@ class AdapterSpec:
     # Number of trials, where in each trial we choose an independent, random
     # set of training instances.  Used to compute error bars.
     num_train_trials: int = 1
+        
+    # Sample train examples or use deterministic
+    sample_train: bool = True
 
     # Decoding parameters (inherited by `Request`)
 
@@ -507,16 +513,22 @@ class Processor:
 
         # Instruction text
         instructions_block = self.adapter_spec.instructions
+        
 
         # Text for in-context training instances
         train_instance_blocks = [
-            example_prompt_constructor(inst, include_output=True, reference_index=None) for inst in train_instances
+            example_prompt_constructor(inst, include_output=True, reference_index=None)[0] for inst in train_instances
         ]
 
         # Example text
-        eval_instance_block = example_prompt_constructor(
+        eval_instance_block, prefix_keys = example_prompt_constructor(
             eval_instance, include_output=include_output, reference_index=reference_index
         )
+        
+        if self.adapter_spec.list_options_prefix:
+            assert 'select ONE of the listed options.' in instructions_block
+            instructions_block = instructions_block.replace('select ONE of the listed options.',
+                                                                         f'select ONE of the options {"/".join(prefix_keys)}.')
 
         # Prompt
         prompt = Prompt(
@@ -579,12 +591,12 @@ class Processor:
 
         # Input
         result = self.adapter_spec.input_prefix + instance.input + self.adapter_spec.input_suffix
+        prefix_key = []
 
         # References (optionally) and output
         if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
             # If multiple choice, include the references
             output = "n/a"
-            prefix_key = []
             for reference_index, reference in enumerate(instance.references):
                 prefix = self.get_reference_prefix(self.adapter_spec.reference_prefix, reference_index)
                 prefix_key.append(prefix.replace(".", "").strip())
@@ -607,9 +619,11 @@ class Processor:
             result += self.adapter_spec.output_prefix.rstrip()
 
         if self.adapter_spec.list_options_suffix:
-            result += f" (among the options {prefix_key[0]} through {prefix_key[-1]}):"
+            suffix = "/".join(prefix_key)
+            result += f" (choose one of {suffix}):"
+            #result += f" (choose one of the options {prefix_key[0]} through {prefix_key[-1]}):"
 
-        return result
+        return result, prefix_key
 
     def construct_example_prompt_ranking_binary(
         self, instance: Instance, include_output: bool, reference_index: Optional[int]
@@ -819,7 +833,10 @@ class Adapter:
         eval_instances: List[Instance],
         parallelism: int,
     ) -> List[RequestState]:
-        train_instances: List[Instance] = self.sample_examples(all_train_instances, seed=train_trial_index)
+        train_instances: List[Instance] = self.sample_examples(all_train_instances, 
+                                                               seed=train_trial_index, 
+                                                               sample_train=self.adapter_spec.sample_train)
+            
 
         # Create request_states
         processor = Processor(
@@ -851,7 +868,7 @@ class Adapter:
             all_request_states.extend(result)
         return [request_state for result in results for request_state in result]
 
-    def sample_examples(self, all_train_instances: List[Instance], seed: int) -> List[Instance]:
+    def sample_examples(self, all_train_instances: List[Instance], seed: int, sample_train: bool=True) -> List[Instance]:
         """
         Sample a random set of train instances to use as examples by following the steps below:
         1. Sort the class labels (i.e., correct References) by the number of Instances that belong to the
@@ -875,6 +892,7 @@ class Adapter:
 
         Returns a new list of randomly sampled train instances.
         """
+                
         # Fix the random seed for reproducibility
         random.seed(seed)
         num_instances_to_sample: int = min(len(all_train_instances), self.adapter_spec.max_train_instances)
@@ -882,45 +900,39 @@ class Adapter:
         unlabeled_instances: List[Instance] = []
         label_to_instances: Dict[str, List[Instance]] = defaultdict(list)
 
-        for instance in all_train_instances:
-            if instance.first_correct_reference:
-                label_to_instances[instance.first_correct_reference.output].append(instance)
-            else:
-                unlabeled_instances.append(instance)
+        if not sample_train:
+            examples = all_train_instances[seed:seed+num_instances_to_sample]
+        else:
+            for instance in all_train_instances:
+                if instance.first_correct_reference:
+                    label_to_instances[instance.first_correct_reference.output].append(instance)
+                else:
+                    unlabeled_instances.append(instance)
 
-        # Build Instance counts to labels
-        instances: List[Instance]
-        counts_to_labels: Dict[int, List[str]] = defaultdict(list)
-        for label, instances in sorted(label_to_instances.items()):
-            counts_to_labels[len(instances)].append(label)
+            # Sort the labels by the number of Instances that belong to them
+            sorted_labels: List[str] = [
+                key for key, _ in sorted(label_to_instances.items(), key=lambda x: len(x[1]), reverse=True)
+            ]
+            labels_iterable = cycle(sorted_labels)
 
-        sorted_labels: List[str] = []
-        # Sort the labels by the number of Instances that belong to them
-        for count in sorted(counts_to_labels, reverse=True):
-            labels: List[str] = counts_to_labels[count]
-            # Break ties by randomly shuffling labels that have the same number of Instances
-            random.shuffle(labels)
-            sorted_labels.extend(labels)
+            examples: List[Instance] = []
+            while num_instances_to_sample > 0:
+                next_label: Optional[str] = next(labels_iterable, None)
+                if not next_label:
+                    break
 
-        labels_iterable = cycle(sorted_labels)
-        examples: List[Instance] = []
-        while num_instances_to_sample > 0:
-            next_label: Optional[str] = next(labels_iterable, None)
-            if not next_label:
-                break
+                instances: List[Instance] = label_to_instances[next_label]
+                # If there are no Instances to sample for this particular label, skip it.
+                if len(instances) == 0:
+                    continue
 
-            instances = label_to_instances[next_label]
-            # If there are no Instances to sample for this particular label, skip it.
-            if len(instances) == 0:
-                continue
+                # Randomly sample without replacement
+                examples.append(instances.pop(random.randrange(len(instances))))
+                num_instances_to_sample -= 1
 
-            # Randomly sample without replacement
-            examples.append(instances.pop(random.randrange(len(instances))))
-            num_instances_to_sample -= 1
-
-        # If we ran out of Instances with correct References, sample the rest from
-        # the pool of Instances without any References
-        examples += random.sample(unlabeled_instances, num_instances_to_sample)
+            # If we ran out of Instances with correct References, sample the rest from
+            # the pool of Instances without any References
+            examples += random.sample(unlabeled_instances, num_instances_to_sample)
         return examples
 
     def fits_tokens_within_context_window(

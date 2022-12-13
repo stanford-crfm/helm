@@ -18,9 +18,10 @@ class SurveyScenario(Scenario):
     description = "Surveys"
     tags = ["multiple_choice"]
 
-    def __init__(self, survey_type: str):
+    def __init__(self, survey_type: str, train_type: str):
         self.survey_type: str = survey_type
-
+        self.train_type: str = train_type
+            
     def get_instances(self) -> List[Instance]:
         # Download the raw data
         data_path: str = os.path.join(self.output_path, "data")
@@ -40,23 +41,31 @@ class SurveyScenario(Scenario):
             "test": TEST_SPLIT,
         }
 
-        csv_path: str = os.path.join(data_path, f"{self.survey_type}.csv")
+        
+        for split in ["dev", "test"]:
+            
+            
+            if split == "dev":
+                if self.train_type == "None": continue
+                csv_path: str = os.path.join(data_path, f"{self.train_type}.csv")
+            else:
+                csv_path: str = os.path.join(data_path, f"{self.survey_type}.csv")
+                    
+            if not os.path.exists(csv_path):
+                hlog(f"{csv_path} doesn't exist, skipping")
 
-        if not os.path.exists(csv_path):
-            hlog(f"{csv_path} doesn't exist, skipping")
+            hlog(f"Reading {csv_path}")
+            df = pd.read_csv(csv_path, sep="\t")
+            df["options"] = df.apply(lambda x: eval(x["options"]), axis=1)
 
-        hlog(f"Reading {csv_path}")
-        df = pd.read_csv(csv_path, sep="\t")
-        df["options"] = df.apply(lambda x: eval(x["options"]), axis=1)
-
-        for split in ["test"]:
-
-            for question, answers in zip(df["question"], df["options"]):
+            for qidx, (question, answers) in enumerate(zip(df["question"], df["options"])):
 
                 prefixes = list(string.ascii_uppercase)
                 assert len(prefixes) >= len(answers)
                 answers_dict = dict(zip(prefixes, answers))
-                correct_answer = answers[0]  # Ignore, there is no correct answer
+                # Ignore, there is no correct answer
+                correct_answer = answers[0] if split == "test" \
+                                else df['correct'][qidx]  
 
                 def answer_to_reference(answer):
                     return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
