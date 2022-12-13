@@ -39,7 +39,7 @@ class WindowServiceFactory:
         window_service: WindowService
         if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
             window_service = WiderOpenAIWindowService(service)
-        elif organization == "openai" or organization == "simple":
+        elif organization == "openai" or organization == "simple" or organization == "google":
             window_service = OpenAIWindowService(service)
         elif organization == "AlephAlpha":
             if engine == "luminous-base":
