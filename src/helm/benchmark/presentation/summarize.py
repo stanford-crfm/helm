@@ -151,16 +151,16 @@ def get_method_display_name(model_display_name: Optional[str], info: Dict[str, A
     return (model_display_name or "???") + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
 
 
-def compute_row_win_rates(table: Table) -> List[Optional[float]]:
+def compute_average_row_win_rates(table: Table) -> List[Optional[float]]:
     """
-    Computes the average win rate of each row across columns. That is, for a given row, if we pick a random column and
-    another random row, what is the probability that is row has a better value.
-    Returns a list of average win rates, one per row, with None if a row was never meaningfully comparable.
+    Computes the average win rate of each row across columns. For a given row r1, if we pick another row r2 and column
+    c1 uniformly at random, what is the probability that r1c1 is better that r2c1? We skip columns where "better" is
+    ambiguous or less than 2 values are non-null.
+    Returns a list of average win rates, one per row, with None if a row was never meaningfully comparable (i.e., all
+    non-null values of the row are in columns we skip).
     """
     win_rates_per_row: List[List[float]] = [[] for _ in table.rows]
     for i, header_cell in enumerate(table.header):
-        if i == 0:
-            continue
         lower_is_better = header_cell.lower_is_better
         if lower_is_better is None:  # column does not have a meaningful ordering
             continue
@@ -173,6 +173,8 @@ def compute_row_win_rates(table: Table) -> List[Optional[float]]:
             win_rate = wins / (len(values) - 1)  # normalize to [0, 1]
             win_rates_per_row[j].append(win_rate)
 
+    # Note: the logic up to here is somewhat general as it simply computes win rates across columns for each row.
+    # Here, we simply average these win rates but we might want some more involved later (e.g., weighted average).
     average_win_rates: List[Optional[float]] = []
     for win_rates in win_rates_per_row:
         if len(win_rates) == 0:
@@ -779,11 +781,14 @@ class Summarizer:
 
         if add_win_rate:
             # add overall win rate as the second column
-            win_rates = compute_row_win_rates(table)
+            win_rates = compute_average_row_win_rates(table)
+            AVERAGE_WIN_RATE_COLUMN = 1
             description = "How many models this model outperform on average (over columns)."
-            table.header.insert(1, HeaderCell("Average win rate", description=description, lower_is_better=False))
+            table.header.insert(
+                AVERAGE_WIN_RATE_COLUMN, HeaderCell("Average win rate", description=description, lower_is_better=False)
+            )
             for row, win_rate in zip(table.rows, win_rates):
-                row.insert(1, Cell(win_rate))
+                row.insert(AVERAGE_WIN_RATE_COLUMN, Cell(win_rate))
 
         if bold_columns:
             for i, header_cell in enumerate(table.header):
