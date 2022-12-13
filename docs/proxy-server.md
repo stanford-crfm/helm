@@ -1,4 +1,4 @@
-# Proxy access to language models
+# Proxy Access to Language Models
 
 We provide a single unified entry point into accessing large language models
 (e.g., GPT-3, Jurassic).  This provides both a web interface and a REST API.
@@ -19,7 +19,7 @@ models you have access to.
 
 To start a local server (go to `http://localhost:1959` to try it out):
 
-    venv/bin/proxy-server
+    venv/bin/crfm-proxy-server
 
 When starting the server for the first time, the server will create an admin account 
 with the API key: `root`.
@@ -30,4 +30,4 @@ default admin account.
 
 Bypass the added security that restricts multithreading by running:
 
-    OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES venv/bin/proxy-server
+    OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES venv/bin/crfm-proxy-server

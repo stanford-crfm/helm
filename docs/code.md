@@ -1,4 +1,4 @@
-# Code structure
+# Code Structure
 
 Here's a birds-eye view of how the benchmarking process interacts with the main
 classes (see `benchmark`):
@@ -64,7 +64,7 @@ In order to implement new scenarios:
    `__init__` function even if it is simply `pass`.
 7. Define a function `get_specname_spec` in `run_specs.py` to retrieve a `ScenarioSpec` 
    for your scenario using a class name corresponding to the Python path of 
-   the class (e.g. `benchmark.scenarios.your_scenario.YourScenario`) and any 
+   the class (e.g. `helm.benchmark.scenarios.your_scenario.YourScenario`) and any 
    arguments which must be passed as a dictionary of `args`.
 8. Have the `get_specname_spec` function retrieve an `AdapterSpec` for your
    scenario specifying the type of language model generation which must be 
@@ -81,10 +81,10 @@ In order to implement new scenarios:
    and `groups`. 
 12. Add the scenario to `__init__.py`
 13. Attempt to run your task with
-    `venv/bin/benchmark-run -r yourscenarioname:arg=value` where 
+    `venv/bin/helm-run -r yourscenarioname:arg=value` where 
     `yourscenarioname` matches the `name` specified in YourScenario
 14. Add the spec to dictionary `CANONICAL_RUN_SPEC_FUNCS` in `run_specs.py`.
-15. Update `src/proxy/static/contamination.yaml` with models that we trained on your scenario (i.e. contaminated).
+15. Update `src/helm/proxy/static/contamination.yaml` with models that we trained on your scenario (i.e. contaminated).
 
 
 ## Adding new metrics
@@ -113,7 +113,7 @@ example:
     data_augmenter_spec = DataAugmenterSpec(
         perturbation_specs=[
             PerturbationSpec(
-                class_name="benchmark.augmentations.perturbation.ExtraSpacePerturbation",
+                class_name="helm.benchmark.augmentations.perturbation.ExtraSpacePerturbation",
                 args={"num_spaces": 5},
             )
         ],
@@ -138,12 +138,12 @@ multiple perturbations and applying it onto a single instance.
 
 ### Adding a new perturbation
 
-To add a new perturbation to the framework, create a new file at `src/benchmark/augmentations` with the name
+To add a new perturbation to the framework, create a new file at `src/helm/benchmark/augmentations` with the name
 `<Name of perturbation>_perturbation.py` e.g., `typo_perturbation.py`. Inside the file, create a new class
 (name it `<Name of the perturbation>Perturbation` e.g., `TypoPerturbation`)
 that extends the abstract class `Perturbation` and implement the `perturb` method which
 takes in text and outputs the perturbed text.
-Add your new perturbation to `src/benchmark/__init__.py`.
+Add your new perturbation to `src/helm/benchmark/__init__.py`.
 Add a test for the new perturbation in `test_perturbation.py`.
 
 ## Supporting new Hugging Face tokenizers

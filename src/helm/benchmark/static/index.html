@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Holistic Evaluation of Language Models (HELM)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="benchmarking.css">
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <nav class="navbar navbar-expand-sm navbar-light bg-faded">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-content" aria-controls="nav-content" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+            <a class="nav-link active" href="https://crfm.stanford.edu"><img src="images/crfm-logo.png" width="100"/></a>
+        <div class="collapse navbar-collapse" id="nav-content">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link active" href="?"><img src="images/helm-logo-simple.png" width="80"/></a></li>
+            <li class="nav-item"><a class="nav-link active" href="?models=1">Models</a></li>
+            <li class="nav-item"><a class="nav-link active" href="?scenarios=1">Scenarios</a></li>
+            <li class="nav-item"><a class="nav-link active" href="?groups=1">Results</a></li>
+            <li class="nav-item"><a class="nav-link active" href="?runs=1">Raw runs</a></li>
+          </ul>
+        </div>
+
+        <div class="text-right" id="summary" style="white-space: nowrap">
+        </div>
+      </nav>
+
+      <div class="row">
+        <div class="col-sm-12" id="main">
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.29.0/js/jquery.tablesorter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.0.3/showdown.min.js"></script>
+    <script src="general.js"></script>
+    <script src="utils.js"></script>
+    <script src="json-urls-root.js"></script>
+    <script src="json-urls.js"></script>
+    <script src="benchmarking.js"></script>
+  </body>
+</html>

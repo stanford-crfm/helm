@@ -1,0 +1,3 @@
+recursive-include src/helm/benchmark/efficiency_data/ *.json
+recursive-include src/helm/benchmark/static/ *.css *.html *.js *.png *.yaml
+include requirements.txt

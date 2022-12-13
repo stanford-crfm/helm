@@ -5,13 +5,17 @@ import typing
 from collections import Counter
 from dacite import from_dict
 
-from sqlitedict import SqliteDict
-
-from common.request import Request
-from common.cache import request_to_key
-from common.hierarchical_logger import hlog, htrack, htrack_block
-from proxy.clients.together_client import TogetherClient
-from proxy.clients.microsoft_client import MicrosoftClient
+from helm.common.request import Request
+from helm.common.cache import (
+    KeyValueStoreCacheConfig,
+    MongoCacheConfig,
+    SqliteCacheConfig,
+    create_key_value_store,
+    request_to_key,
+)
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block
+from helm.proxy.clients.together_client import TogetherClient
+from helm.proxy.clients.microsoft_client import MicrosoftClient
 
 
 """
@@ -29,7 +33,7 @@ Usage:
 
 
 @htrack("Generating jsonl file with list of raw requests")
-def export_requests(organization: str, run_suite_path: str, output_path: str):
+def export_requests(cache_config: KeyValueStoreCacheConfig, organization: str, run_suite_path: str, output_path: str):
     """
     Given a run suite folder, generates a jsonl file at `output_path` with raw queries
     where each line represents a single request.
@@ -37,14 +41,8 @@ def export_requests(organization: str, run_suite_path: str, output_path: str):
 
     def process_together_request(request: Request):
         raw_request: typing.Dict = TogetherClient.convert_to_raw_request(request)
-        cache_key: str = request_to_key(raw_request)
-
         # Only export requests that we are not in the cache
-        if cache_key not in cache:
-            # Following the examples from https://github.com/togethercomputer/open-models-api,
-            # add "request_type" and "model" to the request and remove "engine".
-            raw_request["model"] = raw_request.pop("engine")
-            raw_request["request_type"] = "language-model-inference"
+        if not store.contains(raw_request):
             request_json: str = request_to_key(raw_request)
             out_file.write(request_json + "\n")
             counts["pending_count"] += 1
@@ -60,10 +58,10 @@ def export_requests(organization: str, run_suite_path: str, output_path: str):
             # request + 'completion_index` is in our cache. However, when we write out the
             # requests for offline batch evaluation, we should exclude `completion_index`
             # and write out the JSON for the same request `num_completion` times.
-            cache_key: str = request_to_key({"completion_index": completion_index, **raw_request})
+            cache_key: typing.Dict = {"completion_index": completion_index, **raw_request}
 
             # Only export requests that we are not in the cache
-            if cache_key not in cache:
+            if not store.contains(cache_key):
                 request_json: str = request_to_key(raw_request)
                 out_file.write(request_json + "\n")
                 counts["pending_count"] += 1
@@ -74,7 +72,7 @@ def export_requests(organization: str, run_suite_path: str, output_path: str):
 
     # Go through all the valid run folders, pull requests from the scenario_state.json files
     # and write them out to the jsonl file at path `output_path`.
-    with SqliteDict(f"prod_env/cache/{organization}.sqlite") as cache:
+    with create_key_value_store(cache_config) as store:
         with open(output_path, "w") as out_file:
             for run_dir in os.listdir(run_suite_path):
                 run_path: str = os.path.join(run_suite_path, run_dir)
@@ -122,11 +120,30 @@ def export_requests(organization: str, run_suite_path: str, output_path: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        "--cache-dir", type=str, help="For a SQLite cache, directory for the .sqlite files containing the cache"
+    )
+    parser.add_argument(
+        "--mongo-uri",
+        type=str,
+        help=(
+            "For a MongoDB cache, Mongo URI to copy items to. "
+            "Example format: mongodb://[username:password@]host1[:port1]/dbname"
+        ),
+    )
+    parser.add_argument(
         "organization", type=str, help="Organization to export requests for", choices=["microsoft", "together"]
     )
     parser.add_argument("run_suite_path", type=str, help="Path to run path.")
     parser.add_argument("--output-path", type=str, default="requests.jsonl", help="Path to jsonl file.")
     args = parser.parse_args()
 
-    export_requests(args.organization, args.run_suite_path, args.output_path)
+    if (args.cache_dir and args.mongo_uri) or (not args.cache_dir and not args.mongo_uri):
+        raise ValueError("Exactly one of --cache-dir or --mongo-uri should be specified")
+    cache_config: KeyValueStoreCacheConfig
+    if args.cache_dir:
+        cache_config = SqliteCacheConfig(os.path.join(args.cache_dir, f"{args.organization}.sqlite"))
+    elif args.mongo_uri:
+        cache_config = MongoCacheConfig(args.mongo_uri, args.organization)
+
+    export_requests(cache_config, args.organization, args.run_suite_path, args.output_path)
     hlog("Done.")

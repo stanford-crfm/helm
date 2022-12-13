@@ -11,12 +11,20 @@ if [ "$valid_version" == "False" ]; then
   exit 1
 fi
 
-# Manually install pytorch to avoid pip getting killed: https://stackoverflow.com/a/54329850
-pip install --no-cache-dir --find-links https://download.pytorch.org/whl/torch_stable.html torch==1.12.1+cu113 torchvision==0.13.1+cu113
+# Manually upgrade pip to at least 21.1 to avoid issue #1053
+python -m pip install --upgrade pip
+# If this package is already installed under the deprecated name, uninstall it.
+# TODO: Remove this after 2022-12-01
+pip uninstall -y crfm-benchmarking
+# On Mac OS, skip installing pytorch with CUDA because CUDA is not supported
+if [[ $OSTYPE != 'darwin'* ]]; then
+  # Manually install pytorch to avoid pip getting killed: https://stackoverflow.com/a/54329850
+  pip install --no-cache-dir --find-links https://download.pytorch.org/whl/torch_stable.html torch==1.12.1+cu113 torchvision==0.13.1+cu113
+fi
 # Manually install protobuf to workaround issue: https://github.com/protocolbuffers/protobuf/issues/6550
 pip install --no-binary=protobuf protobuf==3.20.1
 # Install all pinned dependencies
-pip install -r requirements.txt
+pip install -r requirements-freeze.txt
 pip install -e .
 pip check
 

@@ -1,0 +1,46 @@
+site_name: CRFM HELM
+repo_url: https://github.com/stanford-crfm/helm/
+edit_uri: blob/main/docs/
+theme:
+  name: readthedocs
+  highlightjs: false
+plugins:
+  - search
+  - macros:
+      module_name: docs/mkdocs_macros
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_root_heading: true
+            show_signature_annotations: true
+            show_bases: false
+            show_source: false
+            show_root_full_path: false
+            show_if_no_docstring: true
+            members_order: source
+  - include-markdown
+extra_css:
+  - docstrings.css
+markdown_extensions:
+  - pymdownx.magiclink
+watch:
+  - src
+nav:
+  - 'Home': 'index.md'
+  - 'User Guide':
+    - 'installation.md'
+    - 'quick_start.md'
+    - 'tutorial.md'
+    - 'benchmark.md'
+    - 'proxy-server.md'
+  - 'Reference':
+    - 'models.md'
+    - 'metrics.md'
+    - 'perturbations.md'
+    - 'run_expanders.md'
+    - 'scenarios.md'
+    - 'schemas.md'
+  - 'Developer Guide':
+    - 'developer_setup.md'
+    - 'code.md'

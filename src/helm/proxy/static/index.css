@@ -1,0 +1,57 @@
+.warning {
+  color: red;
+}
+
+.active {
+  background-color: #f0f0f0;
+}
+
+.examples-block {
+  margin-left: 120px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.request {
+  background-color: #f0f0f0;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.completion {
+  border: solid 1px;
+  border-color: #c0c0c0;
+  padding: 3px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.completion:hover {
+  background-color: #e8e8e8;
+}
+
+.metadata {
+  float: right;
+  font-style: italic;
+}
+
+.token:hover {
+  background-color: lightgreen;
+}
+
+.block {
+  margin: 15px;
+  padding: 15px;
+  border: solid 1px;
+  border-color: lightgray;
+}
+
+td {
+  text-align: left;
+  vertical-align: top;
+}
+
+.help-icon {
+  margin-left: 3px;
+  margin-right: 3px;
+}

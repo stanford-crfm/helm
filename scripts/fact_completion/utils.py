@@ -56,7 +56,7 @@ def get_batch_files(fdir: Path) -> List[str]:
     Returns:
         List[str]: filepaths for files in fdir
     """
-    return list(fdir.iterdir())
+    return [str(path) for path in fdir.iterdir()]
 
 
 def create_dir(out_dir):
