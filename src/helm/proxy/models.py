@@ -410,7 +410,8 @@ ALL_MODELS = [
         creator_organization="OpenAI",
         name="openai/text-davinci-003",
         display_name="text-davinci-003",
-        description="text-davinci-003 model that involves reinforcement learning (PPO) with reward models to adapt text-davinci-002",
+        description="text-davinci-003 model that involves reinforcement learning (PPO) with reward models."
+        "Derived from text-davinci-002.",
         tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
@@ -418,7 +419,8 @@ ALL_MODELS = [
         creator_organization="OpenAI",
         name="openai/text-davinci-002",
         display_name="text-davinci-002",
-        description="text-davinci-002 model that involves supervised fine-tuning on human-written demonstrations to adapt code-davinci-002",
+        description="text-davinci-002 model that involves supervised fine-tuning on human-written demonstrations."
+        "Derived from code-davinci-002.",
         tags=[TEXT_MODEL_TAG, WIDER_CONTEXT_WINDOW_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     Model(
