@@ -227,7 +227,9 @@ class Runner:
         metric_names_from_schema: Set[str] = set(
             metric_name_matcher.substitute(run_groups_by_name[run_group_name].environment).name
             for run_group_name in run_spec.groups
+            if run_group_name in run_groups_by_name
             for metric_group_name in run_groups_by_name[run_group_name].metric_groups
+            if metric_group_name in metric_groups_by_name
             for metric_name_matcher in metric_groups_by_name[metric_group_name].metrics
             if not metric_name_matcher.perturbation_name
         )
