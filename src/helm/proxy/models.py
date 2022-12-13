@@ -474,7 +474,7 @@ ALL_MODELS = [
         creator_organization="OpenAI",
         name="openai/code-cushman-001",
         display_name="Codex code-cushman-001 (12B)",
-        description="Codex model that is a stronger stronger, multilingual version",
+        description="Codex model that is a stronger, multilingual version of the Codex (12B) model in the paper.",
         tags=[CODE_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # ChatGPT - https://openai.com/blog/chatgpt
