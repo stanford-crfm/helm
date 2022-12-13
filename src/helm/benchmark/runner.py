@@ -249,7 +249,8 @@ class Runner:
         predictions = []
         for request_state in scenario_state.request_states:
             assert request_state.instance.id is not None
-            assert request_state.result is not None
+            if request_state.result is None:
+                continue
 
             # For the multiple_choice_separate_calibrated adapter method,
             # only keep the original prediction and discard the calibration prediction.
