@@ -1071,10 +1071,20 @@ $(function () {
     return $tableHeader;
   }
 
+  /**
+   * Returns a jQuery <tbody> element that contains the rows in the given table.
+   * @param {Object} table - The table to render. Should conform to the Python Table
+   *     dataclass schema.
+   * @param {number} [sortColumnIndex] - If set and >= 0, the index of the column to
+   *     sort by.
+   * @param {string} [sortOrder] - If set, determines whether to sort in ascending or
+   *     descending order. Should be either "asc" or "desc". If unset, defaults to
+   *     "asc".
+   */
   function renderTableBody(table, sortColumnIndex, sortOrder) {
     $tableBody = $("<tbody>");
     const rows = table.rows.slice();
-    if (sortColumnIndex >= 0) {
+    if (sortColumnIndex !== undefined && sortColumnIndex >= 0) {
       rows.sort((row0, row1) => {
         const cellValues = [row0, row1].map((row) => {
           const cellValue = row[sortColumnIndex].value;
