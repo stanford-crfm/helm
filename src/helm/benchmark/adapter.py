@@ -9,7 +9,7 @@ import numpy as np
 
 from helm.common.general import serialize, indent_lines, format_text_lines, parallel_map, flatten_list
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
-from helm.common.request import Request, RequestResult, Sequence
+from helm.common.request import Request, RequestResult
 from helm.common.tokenization_request import TokenizationToken
 from .scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS, CORRECT_TAG
 from .window_services.window_service import WindowService, EncodeResult
@@ -213,26 +213,6 @@ class ScenarioState:
         self, train_trial_index: int, instance: Instance, reference_index: Optional[int]
     ) -> List[RequestState]:
         return self.request_state_map.get((train_trial_index, instance, reference_index), [])
-
-
-def slimmed_scenario_state(scenario_state: ScenarioState) -> ScenarioState:
-    """
-    Return a version of `scenario_state` where all `tokens` deep inside are truncated to save memory.
-    """
-
-    def process_sequence(sequence: Sequence) -> Sequence:
-        # Keep only first two tokens (useful for language modeling)
-        return replace(sequence, tokens=sequence.tokens[:2])
-
-    def process_request_result(request_result: RequestResult) -> RequestResult:
-        return replace(request_result, completions=list(map(process_sequence, request_result.completions)))
-
-    def process_request_state(request_state: RequestState) -> RequestState:
-        if request_state.result is None:
-            return request_state
-        return replace(request_state, result=process_request_result(request_state.result))
-
-    return replace(scenario_state, request_states=list(map(process_request_state, scenario_state.request_states)))
 
 
 @dataclass(frozen=True)
