@@ -548,11 +548,6 @@ $(function () {
       const $instance = $instanceDiv.find('.prediction');
       $instance.find('.loading').remove();
 
-      // For adapter method = separate, don't show the calibration requests
-      if (prediction.request_mode === 'calibration') {
-        return;
-      }
-
       const key = predictionInstanceTrialKey(prediction);
 
       // For multiple_choice_separate_*, only render the request state for the predicted index
