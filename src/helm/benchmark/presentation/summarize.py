@@ -589,7 +589,8 @@ class Summarizer:
         # Column headers
         header.append(Cell("Model/adapter"))
         for run_group, metric_group_name in columns:
-            if metric_group_name not in run_group.metric_groups:
+            # check if at least the basic version of a metric group is evaluated (e.g., "bias" for "bias_detailed")
+            if metric_group_name.replace("_detailed", "") not in run_group.metric_groups:
                 continue
             metric_group = self.schema.name_to_metric_group[metric_group_name]
             for metric in metric_group.metrics:
@@ -759,16 +760,27 @@ class Summarizer:
         Each table has `adapter_spec`s as rows and scenarios or groups as columns."""
         tables: List[Table] = []
         adapter_to_runs: Dict[AdapterSpec, List[Run]] = defaultdict(list)
-        all_metric_groups: List[str] = []
         subgroups = self.expand_subgroups(group)
         for subgroup in subgroups:
-            all_metric_groups.extend(subgroup.metric_groups)
             for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
                 coarse_adapter_spec = get_coarse_adapter_spec(adapter_spec, adapter_keys_shown=group.adapter_keys_shown)
                 filtered_runs = self.filter_runs_by_visibility(runs, group)
                 if filtered_runs:
                     adapter_to_runs[coarse_adapter_spec].extend(filtered_runs)
-        all_metric_groups = list(dict.fromkeys(all_metric_groups))  # deduplicate while preserving order
+
+        all_metric_groups: List[str] = []
+        if group.metric_groups:  # if the group specifies the metric groups, use them
+            all_metric_groups = group.metric_groups
+        else:  # otherwise, collect them from subgroups
+            for subgroup in subgroups:
+                all_metric_groups.extend(subgroup.metric_groups)
+            # deduplicate, remove basic metric group if we include the detailed one, remove hidden metric groups
+            all_metric_groups = [
+                metric_group
+                for metric_group in dict.fromkeys(all_metric_groups)
+                if f"{metric_group}_detailed" not in all_metric_groups
+                and metric_group not in group.subgroup_metric_groups_hidden
+            ]
 
         if len(adapter_to_runs) > 0:
             for metric_group in all_metric_groups:

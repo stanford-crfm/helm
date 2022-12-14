@@ -1198,6 +1198,20 @@ run_groups:
       - model
       - max_tokens
 
+  - name: calibration
+    display_name: Calibration
+    description: Extended calibration metrics.
+    category: Targeted evaluations
+    subgroups:
+      - imdb
+      - mmlu
+    metric_groups:
+      - calibration_detailed
+      - accuracy
+    environment:  # need to specify an environment for metric placeholders ("none" won't match anything)
+      main_name: none
+      main_split: none
+
 ### Ablations
   - name: ablation_in_context
     display_name: Vary number of in-context examples
@@ -1212,6 +1226,9 @@ run_groups:
     adapter_keys_shown:
       - model
       - max_train_instances
+    subgroup_metric_groups_hidden:
+      - robustness
+      - fairness
 
   - name: ablation_multiple_choice
     display_name: Vary multiple-choice strategy

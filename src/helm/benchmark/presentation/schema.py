@@ -176,6 +176,9 @@ class RunGroup(Field):
     # groups for each metric (BY_METRIC)
     subgroup_display_mode: str = BY_METRIC
 
+    # Any subgroup metric groups we want to hide (e.g., robustness when running without perturbations)
+    subgroup_metric_groups_hidden: List[str] = field(default_factory=list)
+
     # Defines variables that are substituted in any of the metrics
     environment: Dict[str, str] = field(default_factory=dict)
 
