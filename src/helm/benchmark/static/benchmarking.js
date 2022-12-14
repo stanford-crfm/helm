@@ -1046,17 +1046,73 @@ $(function () {
     return $('<td>').append($linkedValue);
   }
 
+  function renderTableHeader(table) {
+    const $tableHeader = $('<thead>');
+    const $row = $('<tr>').append(table.header.map((cell, index) => {
+      $cell = renderCell(cell);
+      // Use the arrow characters to determine the sort order
+      // Ideally the schema would be used instead, but the schema is not available here
+      const sortOrder = cell.value.includes("\u2191") ? "desc" :
+        (cell.value.includes("\u2193") ? "asc" : "");
+      if (sortOrder) {
+        const $sortLink = $("<a>", {"href": "#"}).append("sort").click(() => {
+          $table = $tableHeader.parent('table');
+          $table.find('tbody').remove();
+          $table.append(renderTableBody(table, index, sortOrder));
+          return false;
+        });
+        $cell
+          .append(" [&nbsp;")
+          .append($sortLink)
+          .append("&nbsp;]");
+      }
+      return $cell;
+    }));
+    $tableHeader.append($row);
+    return $tableHeader;
+  }
+
+  /**
+   * Returns a jQuery <tbody> element that contains the rows in the given table.
+   * @param {Object} table - The table to render. Should conform to the Python Table
+   *     dataclass schema.
+   * @param {number} [sortColumnIndex] - If set and >= 0, the index of the column to
+   *     sort by.
+   * @param {string} [sortOrder] - If set, determines whether to sort in ascending or
+   *     descending order. Should be either "asc" or "desc". If unset, defaults to
+   *     "asc".
+   */
+  function renderTableBody(table, sortColumnIndex, sortOrder) {
+    $tableBody = $("<tbody>");
+    const rows = table.rows.slice();
+    if (sortColumnIndex !== undefined && sortColumnIndex >= 0) {
+      rows.sort((row0, row1) => {
+        const cellValues = [row0, row1].map((row) => {
+          const cellValue = row[sortColumnIndex].value;
+          return cellValue !== undefined ? cellValue :
+            // Missing values are always last in the sort order
+            (sortOrder === "desc" ? -Infinity : Infinity);
+        });
+        // Handle Infinity === Infinity or -Infinity === -Infinity
+        return cellValues[0] === cellValues[1] ? 0 :
+          (sortOrder === 'desc' ? 
+            cellValues[1] - cellValues[0] :
+            cellValues[0] - cellValues[1]);
+      });
+    }
+    rows.forEach((row) => {
+      const $row = $('<tr>').append(row.map(renderCell));
+      $tableBody.append($row);
+    });
+    return $tableBody;
+  }
+
   function renderTable(table) {
     const $output = $('<div>');
     $output.append($('<h3>').append($('<a>', {name: table.title}).append(table.title)));
     const $table = $('<table>', {class: 'query-table results-table'});
-    const $header = $('<tr>').append(table.header.map(renderCell));
-    $table.append($header);
-
-    table.rows.forEach((row) => {
-      const $row = $('<tr>').append(row.map(renderCell));
-      $table.append($row);
-    });
+    $table.append(renderTableHeader(table));
+    $table.append(renderTableBody(table));
     $output.append($table);
 
     // Links
