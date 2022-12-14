@@ -25,12 +25,20 @@ class ChatGPTClient(Client):
     def __init__(
         self, email: str, password: str, lock_file_path: str, cache_config: CacheConfig, tokenizer_client: Client
     ):
-        self.chat_bot = Chatbot({"email": email, "password": password}, debug=True)
+        self.email: str = email
+        self.password: str = password
+        # Initialize `Chatbot` when we're ready to make the request
+        self.chat_bot: Optional[Chatbot] = None
         self.tokenizer_client: Client = tokenizer_client
         self.cache = Cache(cache_config)
 
         # Since we want a brand new chat session per request, only allow a single request at a time.
         self._lock = FileLock(lock_file_path, timeout=ChatGPTClient.REQUEST_TIMEOUT_SECONDS)
+
+    def _get_chat_bot_client(self) -> Chatbot:
+        if self.chat_bot is None:
+            self.chat_bot = Chatbot({"email": self.email, "password": self.password}, debug=True)
+        return self.chat_bot
 
     def make_request(self, request: Request) -> RequestResult:
         def fix_token_text(text: str):
@@ -47,10 +55,11 @@ class ChatGPTClient(Client):
 
                 def do_it():
                     with self._lock:
-                        self.chat_bot.refresh_session()
-                        result: Dict[str, Any] = self.chat_bot.get_chat_response(request.prompt, output="text")
+                        chat_bot: Chatbot = self._get_chat_bot_client()
+                        chat_bot.refresh_session()
+                        result: Dict[str, Any] = chat_bot.get_chat_response(request.prompt, output="text")
                         assert "message" in result, f"Invalid response: {result}"
-                        self.chat_bot.reset_chat()
+                        chat_bot.reset_chat()
                         return result
 
                 raw_request: Dict[str, Any] = {
