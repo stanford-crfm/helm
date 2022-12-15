@@ -61,9 +61,8 @@ def run_benchmarking(
 
         # Append groups
         if groups is not None:
-            all_groups: List[str] = run_spec.groups + groups
-            groups_name: str = "" if len(all_groups) == 0 else f",groups={'-'.join(sorted(all_groups))}"
-            run_spec = replace(run_spec, name=run_spec.name + groups_name, groups=all_groups)
+            groups_name: str = "" if len(groups) == 0 else f",groups={'-'.join(sorted(groups))}"
+            run_spec = replace(run_spec, name=run_spec.name + groups_name, groups=run_spec.groups + groups)
 
         return run_spec
 
