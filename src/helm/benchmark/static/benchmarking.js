@@ -385,8 +385,8 @@ $(function () {
     return JSON.stringify([prediction.instance_id, prediction.perturbation || 'original', prediction.train_trial_index]);
   }
 
-  function requestStateInstanceKey(requestState) {
-    return JSON.stringify([requestState.instance.id, requestState.instance.perturbation || 'original']);
+  function displayRequestInstanceKey(displayRequest) {
+    return JSON.stringify([displayRequest.instance_id, displayRequest.perturbation || 'original']);
   }
 
   function renderScenarioInstances(instances, $instances) {
@@ -469,12 +469,12 @@ $(function () {
       return;
     }
     runSpecsNamesWithLoadedRequests.push(runSpec.name);
-    $.getJSON(scenarioStateJsonUrl(suite, runSpec.name), {}, (scenarioState) => {
-      scenarioState.request_states.forEach((requestState) => {
-        $request = instanceKeyToDiv[requestStateInstanceKey(requestState)]
+    $.getJSON(requestsJsonUrl(suite, runSpec.name), {}, (displayRequests) => {
+      displayRequests.forEach((displayRequest) => {
+        $request = instanceKeyToDiv[displayRequestInstanceKey(displayRequest)]
           .find('.request')
-          .eq(requestState.train_trial_index);
-        $request.empty().append(renderRequest(requestState.request));
+          .eq(displayRequest.train_trial_index);
+        $request.empty().append(renderRequest(displayRequest.request));
       });
     });
   }
