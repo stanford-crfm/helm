@@ -39,7 +39,7 @@ class AutoClient(Client):
         self.cache_path = cache_path
         self.mongo_uri = mongo_uri
         self.clients: Dict[str, Client] = {}
-        self.tokenizer_client: Dict[str, Client] = {}
+        self.tokenizer_clients: Dict[str, Client] = {}
         huggingface_cache_config = self._build_cache_config("huggingface")
         self.huggingface_client = HuggingFaceClient(huggingface_cache_config)
         hlog(f"AutoClient: cache_path = {cache_path}")
