@@ -42,5 +42,5 @@ function instancesJsonUrl(suite, runSpecName) {
 }
 
 function predictionsJsonUrl(suite, runSpecName) {
-  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/${runSpecName}/predictions.json`;
+  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/${runSpecName}/display_predictions.json`;
 }

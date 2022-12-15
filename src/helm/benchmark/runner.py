@@ -1,25 +1,23 @@
 import json
 import os
 import typing
-from collections import Counter, defaultdict
+from collections import Counter
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Tuple, cast
+from typing import List
 
-from helm.benchmark.augmentations.perturbation import PerturbationDescription
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.common.general import ensure_directory_exists, write, asdict_without_nones
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.cache import cache_stats
 from .augmentations.data_augmenter import DataAugmenterSpec
 from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance, with_instance_ids
-from .adapter import AdapterSpec, Adapter, RequestState, ScenarioState
+from .adapter import AdapterSpec, Adapter, ScenarioState
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
 from .metrics.metric_service import MetricService
 from .metrics.metric import Metric, MetricSpec, MetricResult, PerInstanceStats, create_metric, Stat
 from .metrics.tokens_metric import TokensMetric
 from .window_services.tokenizer_service import TokenizerService
-from helm.benchmark.presentation.schema import read_schema
 
 
 @dataclass(frozen=True)
@@ -54,38 +52,6 @@ class RunSpec:
         """
         # TODO: Don't mutate name! clean this up before passing it into the constructor here
         object.__setattr__(self, "name", self.name.replace(os.path.sep, "_"))
-
-
-@dataclass(frozen=True)
-class SlimPrediction:
-    """
-    Captures a unit of evaluation for displaying in the web frontend.
-    """
-
-    # (instance_id, perturbation, train_trial_index) is a unique key for this prediction.
-    instance_id: str
-    """ID of the Instance"""
-
-    perturbation: Optional[PerturbationDescription]
-    """Description of the Perturbation that was applied"""
-
-    train_trial_index: int
-    """Which replication"""
-
-    predicted_text: str
-    """Prediction text"""
-
-    truncated_predicted_text: Optional[str]
-    """The truncated prediction text, if truncation is required by the Adapter method."""
-
-    mapped_output: Optional[str]
-    """The mapped output, if an output mapping exists and the prediction can be mapped"""
-
-    reference_index: Optional[int]
-    """Which reference of the instance we're evaluating (if any)"""
-
-    stats: Dict[str, float]
-    """Statistics computed from the predicted output"""
 
 
 class Runner:
@@ -215,114 +181,4 @@ class Runner:
             json.dumps(list(map(asdict_without_nones, per_instance_stats)), indent=2),
         )
 
-        write(
-            os.path.join(run_path, "instances.json"),
-            json.dumps([asdict_without_nones(instance) for instance in scenario_state.instances], indent=2),
-        )
-
-        schema = read_schema()
-        metric_groups_by_name = {metric_group.name: metric_group for metric_group in schema.metric_groups}
-        run_groups_by_name = {run_group.name: run_group for run_group in schema.run_groups}
-
-        metric_names_from_schema: Set[str] = set(
-            metric_name_matcher.substitute(run_groups_by_name[run_group_name].environment).name
-            for run_group_name in run_spec.groups
-            if run_group_name in run_groups_by_name
-            for metric_group_name in run_groups_by_name[run_group_name].metric_groups
-            if metric_group_name in metric_groups_by_name
-            for metric_name_matcher in metric_groups_by_name[metric_group_name].metrics
-            if not metric_name_matcher.perturbation_name
-        )
-        if run_spec.adapter_spec.method.startswith("multiple_choice_separate_"):
-            metric_names_from_schema.add("predicted_index")
-
-        stats_by_trial: Dict[Tuple[str, Optional[PerturbationDescription], int], Dict[str, float]] = defaultdict(dict)
-        for original_stats in per_instance_stats:
-            stats_dict: Dict[str, float] = {
-                original_stat.name.name: cast(float, original_stat.mean)
-                for original_stat in original_stats.stats
-                if original_stat.name.name in metric_names_from_schema
-            }
-            key = (original_stats.instance_id, original_stats.perturbation, original_stats.train_trial_index)
-            stats_by_trial[key].update(stats_dict)
-
-        predictions = []
-        for request_state in scenario_state.request_states:
-            assert request_state.instance.id is not None
-            if request_state.result is None:
-                continue
-
-            # For the multiple_choice_separate_calibrated adapter method,
-            # only keep the original prediction and discard the calibration prediction.
-            if (
-                run_spec.adapter_spec.method.startswith("multiple_choice_separate_calibrated")
-                and request_state.request_mode == "calibration"
-            ):
-                continue
-
-            stats_key = (
-                request_state.instance.id,
-                request_state.instance.perturbation,
-                request_state.train_trial_index,
-            )
-            trial_stats: Dict[str, float] = stats_by_trial[stats_key]
-            # For the multiple_choice_separate_* adapter methods,
-            # only keep the prediction for the chosen reference and discard the rest.
-            if (
-                run_spec.adapter_spec.method.startswith("multiple_choice_separate_")
-                and "predicted_index" in trial_stats
-                and trial_stats["predicted_index"] != request_state.reference_index
-            ):
-                continue
-
-            predicted_text = (
-                request_state.result.completions[0].text
-                if request_state.result is not None or request_state.result.completions
-                else None
-            )
-            mapped_output = (
-                request_state.output_mapping.get(predicted_text.strip()) if request_state.output_mapping else None
-            )
-
-            predictions.append(
-                SlimPrediction(
-                    instance_id=request_state.instance.id,
-                    perturbation=request_state.instance.perturbation,
-                    train_trial_index=request_state.train_trial_index,
-                    predicted_text=predicted_text,
-                    truncated_predicted_text=self._truncate_predicted_text(
-                        predicted_text, request_state, run_spec.adapter_spec
-                    ),
-                    mapped_output=mapped_output,
-                    reference_index=request_state.reference_index,
-                    stats=trial_stats,
-                )
-            )
-        write(
-            os.path.join(run_path, "predictions.json"),
-            json.dumps(list(map(asdict_without_nones, predictions)), indent=2),
-        )
         cache_stats.print_status()
-
-    def _truncate_predicted_text(
-        self, predicted_text: str, request_state: RequestState, adapter_spec: AdapterSpec
-    ) -> Optional[str]:
-        method = adapter_spec.method
-        prefix = ""
-        if method.startswith("multiple_choice_separate_"):
-            prefix = request_state.instance.input
-        elif method == "language_modeling":
-            if request_state.result is not None and request_state.result.completions:
-                tokens = request_state.result.completions[0].tokens
-                if tokens:
-                    first_token = tokens[0]
-                    if not first_token.top_logprobs:
-                        prefix = first_token.text
-                    else:
-                        hlog("WARNING: top_logprobs was not empty, skipping predicted_text truncation")
-        if prefix:
-            predicted_text = predicted_text.strip()
-            prefix = prefix.strip()
-            if predicted_text.startswith(prefix):
-                return predicted_text[len(prefix) :].strip()
-        return None
