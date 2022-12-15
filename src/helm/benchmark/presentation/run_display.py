@@ -2,11 +2,17 @@ from collections import defaultdict
 from dataclasses import dataclass
 import os
 import json
-from typing import Any, Dict, List, Optional, Set, Tuple, cast
+from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, cast
 
 import dacite
 
-from helm.benchmark.adapter import AdapterSpec, RequestState, ScenarioState
+from helm.benchmark.adapter import (
+    AdapterSpec,
+    RequestState,
+    ScenarioState,
+    ADAPT_MUPLTIPLE_CHOICE_METHODS,
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
+)
 from helm.benchmark.augmentations.dialect_perturbation import DialectPerturbation
 from helm.benchmark.augmentations.extra_space_perturbation import ExtraSpacePerturbation
 from helm.benchmark.augmentations.filler_words_perturbation import FillerWordsPerturbation
@@ -25,6 +31,7 @@ from helm.common.hierarchical_logger import htrack
 from helm.common.request import Request
 
 
+# TODO(#1251): Add proper class registration
 _PERTURBATION_NAME_TO_DESCRIPTION = {
     DialectPerturbation.name: DialectPerturbation.Description,
     ExtraSpacePerturbation.name: ExtraSpacePerturbation.Description,
@@ -42,9 +49,6 @@ def _deserialize_perturbation_description(raw_perturbation_description: Dict[Any
     """Convert a raw dictionary to a PerturbationDescription.
     This uses the name field to look up the correct PerturbationDescription subclass to output.
     """
-    # This is brittle because it it will fail on new PerturbationDescription subclasses
-    # that don't get added to _PERTURBATION_NAME_TO_DESCRIPTION
-    # TODO: Move this to a common utilities library, and add proper class registration
     factory = _PERTURBATION_NAME_TO_DESCRIPTION.get(raw_perturbation_description["name"], PerturbationDescription)
     return factory(**raw_perturbation_description)
 
@@ -130,7 +134,7 @@ def _truncate_predicted_text(
 ) -> Optional[str]:
     method = adapter_spec.method
     prefix = ""
-    if method.startswith("multiple_choice_separate_"):
+    if method in ADAPT_MUPLTIPLE_CHOICE_METHODS:
         prefix = request_state.instance.input
     elif method == "language_modeling":
         if request_state.result is not None and request_state.result.completions:
@@ -140,11 +144,38 @@ def _truncate_predicted_text(
                 if not first_token.top_logprobs:
                     prefix = first_token.text
     if prefix:
-        predicted_text = predicted_text.strip()
-        prefix = prefix.strip()
+        predicted_text = predicted_text
+        prefix = prefix
         if predicted_text.startswith(prefix):
-            return predicted_text[len(prefix) :].strip()
+            return predicted_text[len(prefix) :]
     return None
+
+
+def _get_metric_names_for_group(run_group_name: str, schema: Schema) -> Set[str]:
+    metric_groups_by_name = {metric_group.name: metric_group for metric_group in schema.metric_groups}
+    run_groups_by_name = {run_group.name: run_group for run_group in schema.run_groups}
+
+    result: Set[str] = set()
+    run_group = run_groups_by_name.get(run_group_name)
+    if run_group is None:
+        return result
+
+    for metric_group_name in run_group.metric_groups:
+        metric_group = metric_groups_by_name.get(metric_group_name)
+        if metric_group is None:
+            continue
+        for metric_name_matcher in metric_group.metrics:
+            if metric_name_matcher.perturbation_name:
+                continue
+            result.add(metric_name_matcher.substitute(run_group.environment).name)
+    return result
+
+
+def _get_metric_names_for_groups(run_group_names: Iterable[str], schema: Schema) -> Set[str]:
+    result: Set[str] = set()
+    for run_group_name in run_group_names:
+        result.update(_get_metric_names_for_group(run_group_name, schema))
+    return result
 
 
 @htrack(None)
@@ -162,39 +193,29 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
     Writes:
 
     - List[Instance] to `instances.json`
-    - List[DisplayPrediction] to `predictions.json`
-    - List[DisplayRequest] to `requests.json`
+    - List[DisplayPrediction] to `display_predictions.json`
+    - List[DisplayRequest] to `display_requests.json`
     """
     scenario_state = _read_scenario_state(run_path)
     per_instance_stats = _read_per_instance_stats(run_path)
 
-    metric_groups_by_name = {metric_group.name: metric_group for metric_group in schema.metric_groups}
-    run_groups_by_name = {run_group.name: run_group for run_group in schema.run_groups}
+    metric_names = _get_metric_names_for_groups(run_spec.groups, schema)
 
-    metric_names_from_schema: Set[str] = set(
-        metric_name_matcher.substitute(run_groups_by_name[run_group_name].environment).name
-        for run_group_name in run_spec.groups
-        if run_group_name in run_groups_by_name
-        for metric_group_name in run_groups_by_name[run_group_name].metric_groups
-        if metric_group_name in metric_groups_by_name
-        for metric_name_matcher in metric_groups_by_name[metric_group_name].metrics
-        if not metric_name_matcher.perturbation_name
-    )
-    if run_spec.adapter_spec.method.startswith("multiple_choice_separate_"):
-        metric_names_from_schema.add("predicted_index")
+    if run_spec.adapter_spec.method in ADAPT_MUPLTIPLE_CHOICE_METHODS:
+        metric_names.add("predicted_index")
 
     stats_by_trial: Dict[Tuple[str, Optional[PerturbationDescription], int], Dict[str, float]] = defaultdict(dict)
     for original_stats in per_instance_stats:
         stats_dict: Dict[str, float] = {
             original_stat.name.name: cast(float, original_stat.mean)
             for original_stat in original_stats.stats
-            if original_stat.name.name in metric_names_from_schema
+            if original_stat.name.name in metric_names
         }
         key = (original_stats.instance_id, original_stats.perturbation, original_stats.train_trial_index)
         stats_by_trial[key].update(stats_dict)
 
-    predictions = []
-    requests = []
+    predictions: List[DisplayPrediction] = []
+    requests: List[DisplayRequest] = []
     for request_state in scenario_state.request_states:
         assert request_state.instance.id is not None
         if request_state.result is None:
@@ -203,7 +224,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
         # For the multiple_choice_separate_calibrated adapter method,
         # only keep the original prediction and discard the calibration prediction.
         if (
-            run_spec.adapter_spec.method.startswith("multiple_choice_separate_calibrated")
+            run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED
             and request_state.request_mode == "calibration"
         ):
             continue
@@ -217,7 +238,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
         # For the multiple_choice_separate_* adapter methods,
         # only keep the prediction for the chosen reference and discard the rest.
         if (
-            run_spec.adapter_spec.method.startswith("multiple_choice_separate_")
+            run_spec.adapter_spec.method in ADAPT_MUPLTIPLE_CHOICE_METHODS
             and "predicted_index" in trial_stats
             and trial_stats["predicted_index"] != request_state.reference_index
         ):
@@ -226,7 +247,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
         predicted_text = (
             request_state.result.completions[0].text
             if request_state.result is not None or request_state.result.completions
-            else None
+            else ""
         )
         mapped_output = (
             request_state.output_mapping.get(predicted_text.strip()) if request_state.output_mapping else None
@@ -258,10 +279,10 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
         json.dumps([asdict_without_nones(instance) for instance in scenario_state.instances], indent=2),
     )
     write(
-        os.path.join(run_path, "predictions.json"),
+        os.path.join(run_path, "display_predictions.json"),
         json.dumps(list(map(asdict_without_nones, predictions)), indent=2),
     )
     write(
-        os.path.join(run_path, "requests.json"),
+        os.path.join(run_path, "display_requests.json"),
         json.dumps(list(map(asdict_without_nones, requests)), indent=2),
     )
