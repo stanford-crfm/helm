@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
 import os
 import json
@@ -8,7 +8,6 @@ import dacite
 
 from helm.benchmark.adapter import (
     AdapterSpec,
-    RequestState,
     ScenarioState,
     ADAPT_MUPLTIPLE_CHOICE_METHODS,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
@@ -111,38 +110,40 @@ class DisplayRequest:
     most relevant request e.g. the request for the chosen cohice for multiple choice questions."""
 
 
+@htrack(None)
 def _read_scenario_state(run_path: str) -> ScenarioState:
     scenario_state_path: str = os.path.join(run_path, "scenario_state.json")
     if not os.path.exists(scenario_state_path):
         raise ValueError(f"Could not load ScenarioState from {scenario_state_path}")
     with open(scenario_state_path) as f:
         raw_scenario_state = json.load(f)
-        return dacite.from_dict(ScenarioState, raw_scenario_state, config=_DACITE_CONFIG)
+        return raw_scenario_state
+        # return dacite.from_dict(ScenarioState, raw_scenario_state, config=_DACITE_CONFIG)
 
 
+@htrack(None)
 def _read_per_instance_stats(run_path: str) -> List[PerInstanceStats]:
     per_instance_stats_path: str = os.path.join(run_path, "per_instance_stats.json")
     if not os.path.exists(per_instance_stats_path):
         raise ValueError(f"Could not load PerInstanceStats from {per_instance_stats_path}")
     with open(per_instance_stats_path) as f:
         raw_per_instance_stats = json.load(f)
-        return [dacite.from_dict(PerInstanceStats, r, config=_DACITE_CONFIG) for r in raw_per_instance_stats]
+        return raw_per_instance_stats
+        # return [_deserialize_per_instance_stats(r) for r in raw_per_instance_stats]
 
 
-def _truncate_predicted_text(
-    predicted_text: str, request_state: RequestState, adapter_spec: AdapterSpec
-) -> Optional[str]:
+def _truncate_predicted_text(predicted_text: str, request_state: Dict, adapter_spec: AdapterSpec) -> Optional[str]:
     method = adapter_spec.method
     prefix = ""
     if method in ADAPT_MUPLTIPLE_CHOICE_METHODS:
-        prefix = request_state.instance.input
+        prefix = request_state["instance"]["input"]
     elif method == "language_modeling":
-        if request_state.result is not None and request_state.result.completions:
-            tokens = request_state.result.completions[0].tokens
+        if "result" in request_state and "completions" in request_state["result"]:
+            tokens = request_state["result"]["completions"][0]["tokens"]
             if tokens:
                 first_token = tokens[0]
-                if not first_token.top_logprobs:
-                    prefix = first_token.text
+                if not first_token.get("top_logprobs"):
+                    prefix = first_token["text"]
     if prefix:
         predicted_text = predicted_text
         prefix = prefix
@@ -207,32 +208,46 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
     stats_by_trial: Dict[Tuple[str, Optional[PerturbationDescription], int], Dict[str, float]] = defaultdict(dict)
     for original_stats in per_instance_stats:
         stats_dict: Dict[str, float] = {
-            original_stat.name.name: cast(float, original_stat.mean)
-            for original_stat in original_stats.stats
-            if original_stat.name.name in metric_names
+            original_stat["name"]["name"]: cast(float, original_stat["mean"])
+            for original_stat in original_stats["stats"]
+            if original_stat["name"]["name"] in metric_names
         }
-        key = (original_stats.instance_id, original_stats.perturbation, original_stats.train_trial_index)
+
+        key = (
+            original_stats["instance_id"],
+            _deserialize_perturbation_description(original_stats["perturbation"])
+            if "perturbation" in original_stats
+            else None,
+            original_stats["train_trial_index"],
+        )
         stats_by_trial[key].update(stats_dict)
 
+    instance_id_to_instance: Dict[Tuple[str, Optional[PerturbationDescription]], Dict] = OrderedDict()
     predictions: List[DisplayPrediction] = []
     requests: List[DisplayRequest] = []
-    for request_state in scenario_state.request_states:
-        assert request_state.instance.id is not None
-        if request_state.result is None:
+
+    for request_state in scenario_state["request_states"]:
+        assert "id" in request_state["instance"]["id"]
+        if "result" not in request_state:
             continue
 
         # For the multiple_choice_separate_calibrated adapter method,
         # only keep the original prediction and discard the calibration prediction.
         if (
             run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED
-            and request_state.request_mode == "calibration"
+            and request_state["request_mode"] == "calibration"
         ):
             continue
 
+        perturbation = (
+            _deserialize_perturbation_description(request_state["instance"]["perturbation"])
+            if "instance" in request_state and "perturbation" in request_state["instance"]
+            else None
+        )
         stats_key = (
-            request_state.instance.id,
-            request_state.instance.perturbation,
-            request_state.train_trial_index,
+            request_state["instance"]["id"],
+            perturbation,
+            request_state["train_trial_index"],
         )
         trial_stats: Dict[str, float] = stats_by_trial[stats_key]
         # For the multiple_choice_separate_* adapter methods,
@@ -240,43 +255,46 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
         if (
             run_spec.adapter_spec.method in ADAPT_MUPLTIPLE_CHOICE_METHODS
             and "predicted_index" in trial_stats
-            and trial_stats["predicted_index"] != request_state.reference_index
+            and trial_stats["predicted_index"] != request_state["reference_index"]
         ):
             continue
 
         predicted_text = (
-            request_state.result.completions[0].text
-            if request_state.result is not None or request_state.result.completions
+            request_state["result"]["completions"][0]["text"]
+            if "result" in request_state
+            and "completions" in request_state["result"]
+            and request_state["result"]["completions"]
             else ""
         )
         mapped_output = (
-            request_state.output_mapping.get(predicted_text.strip()) if request_state.output_mapping else None
+            request_state["output_mapping"].get(predicted_text.strip()) if "output_mapping" in request_state else None
         )
 
+        instance_id_to_instance[(cast(str, request_state["instance"]["id"]), perturbation)] = request_state["instance"]
         predictions.append(
             DisplayPrediction(
-                instance_id=request_state.instance.id,
-                perturbation=request_state.instance.perturbation,
-                train_trial_index=request_state.train_trial_index,
+                instance_id=request_state["instance"]["id"],
+                perturbation=perturbation,
+                train_trial_index=request_state["train_trial_index"],
                 predicted_text=predicted_text,
                 truncated_predicted_text=_truncate_predicted_text(predicted_text, request_state, run_spec.adapter_spec),
                 mapped_output=mapped_output,
-                reference_index=request_state.reference_index,
+                reference_index=request_state.get("reference_index"),
                 stats=trial_stats,
             )
         )
         requests.append(
             DisplayRequest(
-                instance_id=request_state.instance.id,
-                perturbation=request_state.instance.perturbation,
-                train_trial_index=request_state.train_trial_index,
-                request=request_state.request,
+                instance_id=request_state["instance"]["id"],
+                perturbation=perturbation,
+                train_trial_index=request_state["train_trial_index"],
+                request=request_state["request"],
             )
         )
 
     write(
         os.path.join(run_path, "instances.json"),
-        json.dumps([asdict_without_nones(instance) for instance in scenario_state.instances], indent=2),
+        json.dumps(list(instance_id_to_instance.values()), indent=2),
     )
     write(
         os.path.join(run_path, "display_predictions.json"),
