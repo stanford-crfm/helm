@@ -221,7 +221,7 @@ $(function () {
       }
     }
 
-    if (lowerIsBetter === true) {
+    if (judgement.lowerIsBetter === true) {
       if (value <= judgement.correctThreshold) {
         return 'correct';
       }
