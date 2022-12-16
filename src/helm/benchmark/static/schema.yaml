@@ -919,6 +919,14 @@ metric_groups:
         split: ${main_split}
       - name: selective_acc@10
         split: ${main_split}
+      - name: platt_ece_1_bin
+        split: ${main_split}
+      - name: platt_ece_10_bin
+        split: ${main_split}
+      - name: platt_coef
+        split: ${main_split}
+      - name: platt_intercept
+        split: ${main_split}
 
   - name: robustness
     display_name: Robustness
@@ -1246,8 +1254,10 @@ run_groups:
     description: Extended calibration metrics.
     category: Targeted evaluations
     subgroups:
-      - imdb
       - mmlu
+      - imdb
+      - raft
+      - civil_comments
     metric_groups:
       - calibration_detailed
       - accuracy
