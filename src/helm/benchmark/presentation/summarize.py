@@ -955,11 +955,6 @@ def main():
         action="store_true",
         help="Display debugging information.",
     )
-    parser.add_argument(
-        "--skip-slim-per-instance-stats",
-        action="store_true",
-        help="Don't generate any per-instance stats.",
-    )
     args = parser.parse_args()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
