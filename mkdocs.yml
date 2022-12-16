@@ -19,6 +19,10 @@ plugins:
             show_root_full_path: false
             show_if_no_docstring: true
             members_order: source
+            merge_init_into_class: true
+            docstring_options:
+              ignore_init_summary: true
+
   - include-markdown
 extra_css:
   - docstrings.css
@@ -38,7 +42,6 @@ nav:
     - 'models.md'
     - 'metrics.md'
     - 'perturbations.md'
-    - 'run_expanders.md'
     - 'scenarios.md'
     - 'schemas.md'
   - 'Developer Guide':
