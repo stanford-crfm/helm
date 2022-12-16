@@ -7,7 +7,7 @@ from typing import List
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
-from .scenario import Scenario, Instance, TEST_SPLIT
+from .scenario import Scenario, Instance, TEST_SPLIT, TextInput
 
 
 class ThePileScenario(Scenario):
@@ -97,7 +97,7 @@ class ThePileScenario(Scenario):
             reader = csv.reader(f)
             for row in reader:
                 instance = Instance(
-                    input=row[0],
+                    input=TextInput(row[0]),
                     references=[],
                     split=TEST_SPLIT,
                 )

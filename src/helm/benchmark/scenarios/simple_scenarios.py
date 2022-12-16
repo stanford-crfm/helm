@@ -1,7 +1,7 @@
 import random
 from typing import List
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, TextInput
 
 
 class Simple1Scenario(Scenario):
@@ -35,14 +35,14 @@ class Simple1Scenario(Scenario):
 
         def generate_instance(split: str):
             """Generate a random instance with `tags`."""
-            tokens = generate_seq()
-            input = " ".join(tokens)
-            output = random.choice(tokens)
+            tokens: List[str] = generate_seq()
+            input: str = " ".join(tokens)
+            output: str = random.choice(tokens)
             references = [
                 Reference(output=output, tags=[CORRECT_TAG]),  # Correct output
                 Reference(output="-1", tags=[]),  # Wrong output
             ]
-            return Instance(input=input, references=references, split=split)
+            return Instance(input=TextInput(input), references=references, split=split)
 
         def generate_instances(num_instances: int, split: str):
             return [generate_instance(split) for _ in range(num_instances)]

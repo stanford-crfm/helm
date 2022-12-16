@@ -56,7 +56,7 @@ from typing import List, Dict, Iterable, Optional, cast
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
 from .code_scenario_helper import run as run_reindent
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, TextInput
 
 
 class CodeReference(Reference):
@@ -94,7 +94,7 @@ def _read_and_preprocess_human_eval(
             split = TEST_SPLIT
 
         instance = CodeInstance(
-            input=problems[task_id]["prompt"],
+            input=TextInput(problems[task_id]["prompt"]),
             references=[
                 CodeReference(
                     output=problems[task_id]["canonical_solution"],
@@ -211,7 +211,7 @@ def _read_and_preprocess_apps(target_path: str) -> List[CodeInstance]:
                 answer_type=answer_type,
             )
             instance = CodeInstance(
-                input=prompt,
+                input=TextInput(prompt),
                 references=[
                     CodeReference(output=solution, tags=[CORRECT_TAG], test_cases=data) for solution in solutions
                 ],

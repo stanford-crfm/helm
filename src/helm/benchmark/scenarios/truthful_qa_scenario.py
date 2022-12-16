@@ -3,7 +3,7 @@ import os
 from typing import List, Dict, Any
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, VALID_SPLIT, TRAIN_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, VALID_SPLIT, TRAIN_SPLIT, CORRECT_TAG, TextInput
 
 
 class TruthfulQAScenario(Scenario):
@@ -122,14 +122,14 @@ class TruthfulQAScenario(Scenario):
             for dt in data:
                 if self.task == self.MULTIPLE_CHOICE_SINGLE_ANSWER:
                     # Format the fields of the question
-                    question = dt["question"].strip()
-                    best_answer = format_str(dt["best_answer"])
-                    incorrect_answers = split_multiple_answer_string(dt["incorrect_answers"])
+                    question: str = dt["question"].strip()
+                    best_answer: str = format_str(dt["best_answer"])
+                    incorrect_answers: List[str] = split_multiple_answer_string(dt["incorrect_answers"])
 
                     # Prepare the instance
                     references = get_references(best_answer, incorrect_answers)
                     instance = Instance(
-                        input=question,
+                        input=TextInput(question),
                         references=references,
                         split=split,
                     )

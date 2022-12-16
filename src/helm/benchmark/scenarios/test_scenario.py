@@ -1,5 +1,5 @@
 from helm.benchmark.run_specs import get_scenario_spec_tiny
-from .scenario import create_scenario, Scenario
+from .scenario import create_scenario, Scenario, TextInput
 
 
 class TestScenario:
@@ -34,3 +34,10 @@ class TestScenario:
             '  reference []: "-1"',
             "}",
         ]
+
+
+def test_text_input_equality():
+    input1 = TextInput("input1")
+    assert input1 == input1
+    assert input1 == TextInput("input1")
+    assert input1 != TextInput("input2")

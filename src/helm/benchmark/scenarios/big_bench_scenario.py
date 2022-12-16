@@ -5,7 +5,7 @@ from typing import List, Dict
 from urllib.parse import urljoin
 
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT
+from .scenario import Scenario, Instance, Reference, TextInput, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT
 
 
 class BIGBenchScenario(Scenario):
@@ -158,6 +158,6 @@ class BIGBenchScenario(Scenario):
             else:
                 split = VALID_SPLIT
 
-            instances.append(Instance(example["input"], references, split=split))
+            instances.append(Instance(TextInput(example["input"]), references, split=split))
 
         return instances

@@ -25,8 +25,7 @@ The model hence is asked to do the following three tasks:
 import numpy as np
 from typing import List, Dict, Tuple
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
-
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, TextInput
 
 ANIMALS = ["zebra", "cobra", "stork", "penguin", "shark", "lion", "buffalo", "whale", "seal", "eagle", "horse", "rat"]
 FRUITS = ["apple", "peach", "watermelon", "banana", "grape", "kiwi", "pear", "strawberry", "blueberry", "blackberry"]
@@ -171,6 +170,8 @@ class SyntheticReasoningScenario(Scenario):
             result_string = " ".join(result)
             pattern_string = " ".join(pattern)
 
+            src: str
+            tgt: str
             if self.mode == "induction":
                 result_string_2 = " ".join(result_2)
                 src = f"Two results: {result_string} | {result_string_2}"
@@ -188,16 +189,20 @@ class SyntheticReasoningScenario(Scenario):
                 all_pattern_string = " | ".join(all_patterns)
                 src = f"Rules: {all_pattern_string} | Result: {result_string}"
                 tgt = pattern_string
+            else:
+                raise ValueError(f"Invalid mode: {self.mode}")
 
+            split: str
             if sample_idx < self.num_train_instances:
                 split = TRAIN_SPLIT
             elif sample_idx < self.num_train_instances + self.num_val_instances:
                 split = VALID_SPLIT
             else:
                 split = TEST_SPLIT
+
             instance = Instance(
-                input=src,
-                references=[Reference(output=str(tgt), tags=[CORRECT_TAG])],
+                input=TextInput(src),
+                references=[Reference(output=tgt, tags=[CORRECT_TAG])],
                 split=split,
             )
             instances.append(instance)

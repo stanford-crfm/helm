@@ -3,7 +3,7 @@ import pickle
 
 from typing import List, Optional
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, TextInput
 
 
 class SummarizationScenario(Scenario):
@@ -68,7 +68,7 @@ class SummarizationScenario(Scenario):
         self.sampling_max_length = sampling_max_length
         self.doc_max_length = doc_max_length
 
-    def _clean_and_truncate(self, text: str, max_length: Optional[int] = None):
+    def _clean_and_truncate(self, text: str, max_length: Optional[int] = None) -> str:
         text = text.replace("\n", " ")
         return " ".join(text.split()[:max_length])
 
@@ -130,8 +130,8 @@ class SummarizationScenario(Scenario):
 
         for split_name, split in splits.items():
             for example in dataset[split_name]:
-                article = self._clean_and_truncate(example[article_key], self.doc_max_length)
-                summary = self._clean_and_truncate(example[summary_key])
+                article: str = self._clean_and_truncate(example[article_key], self.doc_max_length)
+                summary: str = self._clean_and_truncate(example[summary_key])
 
                 if split_name == "train":
                     art_len = len(article.split())
@@ -144,7 +144,11 @@ class SummarizationScenario(Scenario):
                             continue
 
                 instances.append(
-                    Instance(input=article, references=[Reference(output=summary, tags=[CORRECT_TAG])], split=split)
+                    Instance(
+                        input=TextInput(article),
+                        references=[Reference(output=summary, tags=[CORRECT_TAG])],
+                        split=split,
+                    )
                 )
 
         return instances

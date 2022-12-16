@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import List, Dict
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT
+from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT, TextInput
 
 PROMPT_SETTINGS_URL = "https://www.dropbox.com/s/a5cyevryzw8rt4f/prompt_construction_settings.json?dl=0"
 
@@ -124,9 +124,9 @@ class RAFTScenario(Scenario):
         for split, subset in dataset_splits.items():
             for x in subset:
                 assert fields is not None, "Field ordering not loaded"
-                prompt = "\n".join([f"{field}: {x[field]}" for field in fields])
+                prompt: str = "\n".join([f"{field}: {x[field]}" for field in fields])
                 instance = Instance(
-                    input=prompt,
+                    input=TextInput(prompt),
                     references=[Reference(output=class_label_to_string(x["Label"]), tags=[CORRECT_TAG])],
                     split=split,
                 )

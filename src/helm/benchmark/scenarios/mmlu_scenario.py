@@ -4,7 +4,7 @@ from typing import Dict, List
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, TextInput
 
 
 class MMLUScenario(Scenario):
@@ -86,7 +86,7 @@ class MMLUScenario(Scenario):
                     return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
 
                 instance = Instance(
-                    input=question,
+                    input=TextInput(question),
                     references=list(map(answer_to_reference, answers)),
                     split=split,
                 )

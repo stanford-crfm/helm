@@ -1,9 +1,19 @@
 import json
 import os
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, PassageQuestionInput
+from .scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    CORRECT_TAG,
+    PassageQuestionInput,
+    TextInput,
+    Input,
+)
 
 
 class BoolQScenario(Scenario):
@@ -79,7 +89,7 @@ class BoolQScenario(Scenario):
         super().__init__()
         self.only_contrast = only_contrast
 
-    def get_context(self, passage: str, question: str) -> str:
+    def get_context(self, passage: str, question: str) -> TextInput:
         """
         We follow the format from https://arxiv.org/abs/2005.14165.
         For more details, see Figure G.29: Formatted dataset example for BoolQ.
@@ -87,7 +97,7 @@ class BoolQScenario(Scenario):
         question = question.strip().capitalize()
         assert question[-1] != "?"
         question += "?"
-        return PassageQuestionInput(passage=passage, question=question).to_text()
+        return PassageQuestionInput(passage=passage, question=question).to_text_input()
 
     def get_split_instances(self, split: str, path: str, contrast_map: dict) -> List[Instance]:
         split_instances: List[Instance] = []
@@ -100,9 +110,10 @@ class BoolQScenario(Scenario):
                 answer: bool = triplet["answer"]
 
                 correct_answer: str = "Yes" if answer else "No"
-                context: str = self.get_context(passage, question)
+                input: TextInput = self.get_context(passage, question)
 
-                contrast_inputs, contrast_references = None, None
+                contrast_inputs: Optional[List[Input]] = None
+                contrast_references: Optional[List[List[Reference]]] = None
                 if question in contrast_map:
                     assert correct_answer == contrast_map[question]["original_answer"]
                     contrast_inputs = [
@@ -116,7 +127,7 @@ class BoolQScenario(Scenario):
                     continue
 
                 instance: Instance = Instance(
-                    input=context,
+                    input=input,
                     references=[Reference(output=correct_answer, tags=[CORRECT_TAG])],
                     split=split,
                     contrast_inputs=contrast_inputs,

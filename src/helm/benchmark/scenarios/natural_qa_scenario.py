@@ -10,7 +10,16 @@ from helm.common.hierarchical_logger import htrack_block, hlog
 from typing import List, Dict
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists, asdict_without_nones
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, PassageQuestionInput
+from .scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    CORRECT_TAG,
+    PassageQuestionInput,
+    TextInput,
+)
 
 
 @dataclass(frozen=True)
@@ -219,26 +228,25 @@ class NaturalQAScenario(Scenario):
         )
 
     def create_instance(self, instance: RawInstance, split: str) -> Instance:
-        question = instance.question.capitalize()
+        question: str = instance.question.capitalize()
         if question[-1] != "?":
             question += "?"
 
-        prompt = ""
-        ans_idx = random.randint(0, len(instance.short_answers) - 1)
+        input: TextInput
+        ans_idx: int = random.randint(0, len(instance.short_answers) - 1)
+
         if self.context_mode == "closedbook":
-            prompt = question
-        else:
-            if self.context_mode == "openbook_wiki":
-                context = instance.document
-            elif self.context_mode == "openbook_longans":
-                context = instance.long_answers[ans_idx]
-            else:
-                raise Exception(f"Invalid context mode: {self.context_mode}")
-            prompt = PassageQuestionInput(passage=context, question=question).to_text(
+            input = TextInput(question)
+        elif self.context_mode == "openbook_wiki":
+            input = PassageQuestionInput(passage=instance.document, question=question).to_text_input(
+                passage_prefix="Title: {instance.title}\n\nPassage: ", separator="\n\n"
+            )
+        elif self.context_mode == "openbook_longans":
+            input = PassageQuestionInput(passage=instance.long_answers[ans_idx], question=question).to_text_input(
                 passage_prefix="Passage: ", separator="\n\n"
             )
-            if self.context_mode == "openbook_wiki":
-                prompt = f"Title: {instance.title}\n\n" + prompt
+        else:
+            raise Exception(f"Invalid context mode: {self.context_mode}")
 
         if split == "train":
             answers = instance.short_answers[ans_idx : ans_idx + 1]
@@ -247,7 +255,7 @@ class NaturalQAScenario(Scenario):
             answers = list(dict.fromkeys(instance.short_answers))
 
         return Instance(
-            input=prompt,
+            input=input,
             references=[Reference(output=ans, tags=[CORRECT_TAG]) for ans in answers],
             split=SPLITS[split],
         )

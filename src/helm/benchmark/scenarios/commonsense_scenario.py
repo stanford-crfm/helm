@@ -12,6 +12,7 @@ from .scenario import (
     VALID_SPLIT,
     TEST_SPLIT,
     CORRECT_TAG,
+    TextInput,
 )
 
 
@@ -250,7 +251,7 @@ class CommonSenseScenario(Scenario):
 
         for question_id, (question, answers, correct_answer, split) in enumerate(data):
             instance = Instance(
-                input=question,
+                input=TextInput(question),
                 references=list(map(answer_to_reference, answers)),
                 split=splits[split],
             )

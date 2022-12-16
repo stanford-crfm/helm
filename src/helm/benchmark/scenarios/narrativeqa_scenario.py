@@ -13,6 +13,7 @@ from .scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
     PassageQuestionInput,
+    TextInput,
 )
 
 
@@ -74,14 +75,14 @@ class NarrativeQAScenario(Scenario):
     description = "Question answering using summaries of books/movie scripts."
     tags = ["question_answering"]
 
-    def get_context(self, summary: str, question: str) -> str:
+    def get_context(self, summary: str, question: str) -> TextInput:
         """
         We follow the format from https://arxiv.org/abs/2005.14165.
         For more details, see the examples in Appendix G.
         """
         if question[-1] != "?":
             question = question + "?"
-        return PassageQuestionInput(passage=summary, question=question).to_text()
+        return PassageQuestionInput(passage=summary, question=question).to_text_input()
 
     def get_split_instances(self, summaries_file: str, qaps_file: str, split_name: str, split: str) -> List[Instance]:
         """
@@ -123,10 +124,9 @@ class NarrativeQAScenario(Scenario):
             question: str = row["question"]
             answer1: str = row["answer1"]
             answer2: str = row["answer2"]
-            context: str = self.get_context(summary.strip(), question.strip())
 
             instance: Instance = Instance(
-                input=context,
+                input=self.get_context(summary.strip(), question.strip()),
                 references=[
                     Reference(output=answer1, tags=[CORRECT_TAG]),
                     Reference(output=answer2, tags=[CORRECT_TAG]),

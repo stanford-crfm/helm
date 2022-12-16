@@ -67,7 +67,7 @@ from copy import copy
 from typing import List, Dict, Literal, Tuple
 from dataclasses import dataclass
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, TextInput
 
 
 @dataclass(frozen=True)
@@ -374,7 +374,7 @@ class SRNScenario(Scenario):
             else:
                 split = TEST_SPLIT
             instance = Instance(
-                input=question,
+                input=TextInput(question),
                 references=[Reference(output=str(target_fact), tags=[CORRECT_TAG])],
                 split=split,
             )

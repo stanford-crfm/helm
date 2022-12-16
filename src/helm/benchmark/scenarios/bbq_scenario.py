@@ -233,7 +233,7 @@ class BBQScenario(Scenario):
                 curr_split = TEST_SPLIT
 
             instance: Instance = Instance(
-                input=PassageQuestionInput(passage=context, question=question).to_text(),
+                input=PassageQuestionInput(passage=context, question=question).to_text_input(),
                 references=list(map(answer_to_reference, answers)),
                 split=curr_split,
             )

@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, TextInput
 
 
 @dataclass(frozen=True)
@@ -110,7 +110,7 @@ class EmpatheticDialoguesScenario(Scenario):
 
                 instances.append(
                     Instance(
-                        input=prompt_cols[0],
+                        input=TextInput(prompt_cols[0]),
                         references=references,
                         split=splits[split],
                         sub_split=prompt_cols[1],

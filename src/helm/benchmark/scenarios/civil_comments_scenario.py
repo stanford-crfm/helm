@@ -117,8 +117,9 @@ class CivilCommentsScenario(Scenario):
                 expected_output = "False"
                 sub_split = "non-toxic"
 
+            passage_question_input = PassageQuestionInput(str(row["comment_text"]), "Is the passage above toxic?")
             instance = Instance(
-                input=PassageQuestionInput(str(row["comment_text"]), question="Is the passage above toxic?").to_text(),
+                input=passage_question_input.to_text_input(),
                 references=[Reference(output=expected_output, tags=[CORRECT_TAG])],
                 split=CivilCommentsScenario.SPLIT_MAPPING[str(row["split"])],
                 sub_split=sub_split,

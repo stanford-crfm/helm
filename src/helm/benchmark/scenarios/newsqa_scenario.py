@@ -3,7 +3,16 @@ import json
 import random
 from typing import Dict, List, Tuple
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, PassageQuestionInput
+from .scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    CORRECT_TAG,
+    PassageQuestionInput,
+    TextInput,
+)
 
 
 class NewsQAScenario(Scenario):
@@ -68,7 +77,7 @@ class NewsQAScenario(Scenario):
     description = "Question answering using news articles."
     tags = ["question_answering"]
 
-    def create_prompt(self, sample: dict) -> Tuple[str, List[str]]:
+    def process_example(self, sample: dict) -> Tuple[TextInput, List[str]]:
         """
         Given an sample from the dataset, create the prompt and the list of
         correct references.
@@ -76,13 +85,12 @@ class NewsQAScenario(Scenario):
         passage = sample["text"]
         all_questions = sample["questions"]
         question = random.sample(all_questions, 1)[0]
-        prompt = PassageQuestionInput(passage=passage, question=question["q"]).to_text(separator="\n\n")
-        # generate set of valid answers
-        answers = []
+        prompt = PassageQuestionInput(passage=passage, question=question["q"]).to_text_input(separator="\n\n")
 
         # add the answer with consensus
         # two checks below since the key "noAnswer" is not always present in the dictionary question["consensus"],
         # and when it is present it is not always True
+        answers: List[str] = []
         if ("noAnswer" in question["consensus"].keys()) and (question["consensus"]["noAnswer"] is True):
             answers.append("No Answer")
         else:
@@ -144,7 +152,7 @@ class NewsQAScenario(Scenario):
 
         clean_samples: List[Dict] = self.cleaned_samples(all_samples)
         for sample in clean_samples:
-            prompt, answers = self.create_prompt(sample)
+            prompt, answers = self.process_example(sample)
             split = "train" if sample["type"] == "train" else "valid"
             instance = Instance(
                 input=prompt,

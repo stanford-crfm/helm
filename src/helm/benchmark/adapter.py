@@ -11,7 +11,7 @@ from helm.common.general import serialize, indent_lines, format_text_lines, para
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.request import Request, RequestResult
 from helm.common.tokenization_request import TokenizationToken
-from .scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS, CORRECT_TAG
+from .scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS, CORRECT_TAG, TextInput
 from .window_services.window_service import WindowService, EncodeResult
 from .window_services.window_service_factory import WindowServiceFactory
 from .window_services.tokenizer_service import TokenizerService
@@ -384,7 +384,7 @@ class Processor:
                 elif request_mode == "calibration":
                     # For calibration purpose, we compute the logprobs of the reference
                     # without train instances and the input question.
-                    eval_instance_calibration = replace(eval_instance, input="Answer:")
+                    eval_instance_calibration = replace(eval_instance, input=TextInput("Answer:"))
                     prompt = self.construct_prompt(
                         [],
                         eval_instance_calibration,
@@ -577,7 +577,8 @@ class Processor:
         # TODO: The conditions below can be broken down into different "construct_example_prompt" functions.
 
         # Input
-        result = self.adapter_spec.input_prefix + instance.input + self.adapter_spec.input_suffix
+        # TODO: handle this -Tony
+        result = self.adapter_spec.input_prefix + instance.input.text + self.adapter_spec.input_suffix
 
         # References (optionally) and output
         if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
@@ -638,7 +639,8 @@ class Processor:
             reference_text = self.adapter_spec.reference_prefix + reference.output + self.adapter_spec.reference_suffix
 
             # Construct the question piece (e.g. "\nQuery: ...\n")
-            query_text = self.adapter_spec.input_prefix + instance.input + self.adapter_spec.input_suffix
+            # TODO: handle this -Tony
+            query_text = self.adapter_spec.input_prefix + instance.input.text + self.adapter_spec.input_suffix
 
             # Construct the answer piece (e.g. "\nPrompt: Does the passage above answer the question?\nAnswer: ")
             # If include_output flag is set, answer is appended (e.g. "...\n")
@@ -1027,7 +1029,8 @@ class Adapter:
 
         # TODO: does not support multiprocessing
         def process(instance: Instance) -> List[RequestState]:
-            encode_result: EncodeResult = self.window_service.encode(instance.input)
+            # TODO: handle this  -Tony
+            encode_result: EncodeResult = self.window_service.encode(instance.input.text)
             tokens: List[TokenizationToken] = encode_result.tokens
             text: str = encode_result.text
 

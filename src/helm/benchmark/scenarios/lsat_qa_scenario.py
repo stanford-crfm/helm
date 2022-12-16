@@ -124,14 +124,17 @@ class LSATScenario(Scenario):
                             question = q["question"]
                             options = q["options"]
                             answer = ord(q["answer"]) - ord("A")
-                            context = PassageQuestionInput(passage=passage, question=question).to_text()
 
                             references: List[Reference] = []
                             for index, option in enumerate(options):
                                 tags = [CORRECT_TAG] if index == answer else []
                                 references.append(Reference(output=option, tags=tags))
 
-                            instance: Instance = Instance(input=context, references=references, split=splits[split])
+                            instance: Instance = Instance(
+                                input=PassageQuestionInput(passage=passage, question=question).to_text_input(),
+                                references=references,
+                                split=splits[split],
+                            )
                             instances.append(instance)
 
         return instances

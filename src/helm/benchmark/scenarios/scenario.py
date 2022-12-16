@@ -51,24 +51,20 @@ def unpack_tag(tag: str) -> Tuple[str, str]:
 
 class Input(ABC):
     """
-    The text corresponding to the input of an Instance. We want to subclass this for structure inputs (e.g., QA).
+    The input of an `Instance`. Subclass this for structured inputs (e.g., passage + question)
+    or multimodalities (e.g., image + text).
     """
 
-    @abstractmethod
-    def to_text(self):
-        pass
+    pass
 
 
 @dataclass(frozen=True)
-class RawInput(Input):
+class TextInput(Input):
     """
     Contains a single text string.
     """
 
     text: str
-
-    def to_text(self):
-        return self.text
 
 
 @dataclass(frozen=True)
@@ -80,8 +76,10 @@ class PassageQuestionInput(Input):
     passage: str
     question: str
 
-    def to_text(self, passage_prefix: str = "", question_prefix: str = "Question: ", separator: str = "\n"):
-        return f"{passage_prefix}{self.passage}{separator}{question_prefix}{self.question}"
+    def to_text_input(
+        self, passage_prefix: str = "", question_prefix: str = "Question: ", separator: str = "\n"
+    ) -> TextInput:
+        return TextInput(f"{passage_prefix}{self.passage}{separator}{question_prefix}{self.question}")
 
 
 @dataclass(frozen=True)
@@ -115,8 +113,8 @@ class Instance:
     Note: `eq=False` means that we hash by the identity.
     """
 
-    input: str  # TODO: eventually, we want to replace this with the Input defined above
-    """The input text"""
+    input: Input
+    """The input"""
 
     references: List[Reference]
     """References that helps us evaluate"""
@@ -133,7 +131,7 @@ class Instance:
     perturbation: Optional[PerturbationDescription] = None
     """Description of the Perturbation that was applied when creating this Instance"""
 
-    contrast_inputs: Optional[List[str]] = None
+    contrast_inputs: Optional[List[Input]] = None
     """Perturbed input as defined by contrast sets (if available)"""
 
     contrast_references: Optional[List[List[Reference]]] = None
