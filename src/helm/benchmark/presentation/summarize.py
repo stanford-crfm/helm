@@ -25,7 +25,16 @@ from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.runner import RunSpec
 from .table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
-from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_FILENAME, BY_GROUP, THIS_GROUP_ONLY, NO_GROUPS
+from .schema import (
+    MetricNameMatcher,
+    RunGroup,
+    read_schema,
+    SCHEMA_YAML_FILENAME,
+    BY_GROUP,
+    THIS_GROUP_ONLY,
+    NO_GROUPS,
+    UP_ARROW,
+)
 from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
 from .run_display import write_run_display_json
 
@@ -577,13 +586,13 @@ class Summarizer:
                 if sub_split is not None:
                     matcher = replace(matcher, sub_split=sub_split)
                 header_field = self.schema.name_to_metric.get(matcher.name)
+                if header_field is None:
+                    hlog(f"WARNING: metric name {matcher.name} undefined in {SCHEMA_YAML_FILENAME}, skipping")
+                    continue
                 metadata = {
                     "metric": header_field.get_short_display_name(),
                     "run_group": run_group.get_short_display_name(),
                 }
-                if header_field is None:
-                    hlog(f"WARNING: metric name {matcher.name} undefined in {SCHEMA_YAML_FILENAME}, skipping")
-                    continue
 
                 header_name = header_field.get_short_display_name(arrow=True)
                 description = (run_group.description + "\n\n" if run_group.description is not None else "") + (
@@ -737,7 +746,8 @@ class Summarizer:
             AVERAGE_WIN_RATE_COLUMN = 1
             description = "How many models this model outperform on average (over columns)."
             table.header.insert(
-                AVERAGE_WIN_RATE_COLUMN, HeaderCell("Average win rate", description=description, lower_is_better=False)
+                AVERAGE_WIN_RATE_COLUMN,
+                HeaderCell(f"Average win rate {UP_ARROW}", description=description, lower_is_better=False),
             )
             for row, win_rate in zip(table.rows, win_rates):
                 row.insert(AVERAGE_WIN_RATE_COLUMN, Cell(win_rate))
