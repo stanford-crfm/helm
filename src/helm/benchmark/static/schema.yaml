@@ -919,6 +919,14 @@ metric_groups:
         split: ${main_split}
       - name: selective_acc@10
         split: ${main_split}
+      - name: platt_ece_1_bin
+        split: ${main_split}
+      - name: platt_ece_10_bin
+        split: ${main_split}
+      - name: platt_coef
+        split: ${main_split}
+      - name: platt_intercept
+        split: ${main_split}
 
   - name: robustness
     display_name: Robustness
@@ -1241,6 +1249,22 @@ run_groups:
       - model
       - max_tokens
 
+  - name: calibration
+    display_name: Calibration
+    description: Extended calibration metrics.
+    category: Targeted evaluations
+    subgroups:
+      - mmlu
+      - imdb
+      - raft
+      - civil_comments
+    metric_groups:
+      - calibration_detailed
+      - accuracy
+    environment:  # need to specify an environment for metric placeholders ("none" won't match anything)
+      main_name: none
+      main_split: none
+
 ### Ablations
   - name: ablation_in_context
     display_name: Vary number of in-context examples
@@ -1255,6 +1279,9 @@ run_groups:
     adapter_keys_shown:
       - model
       - max_train_instances
+    subgroup_metric_groups_hidden:
+      - robustness
+      - fairness
 
   - name: ablation_multiple_choice
     display_name: Vary multiple-choice strategy

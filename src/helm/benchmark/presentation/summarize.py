@@ -25,7 +25,16 @@ from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.runner import RunSpec
 from .table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
-from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_FILENAME, BY_GROUP, THIS_GROUP_ONLY, NO_GROUPS
+from .schema import (
+    MetricNameMatcher,
+    RunGroup,
+    read_schema,
+    SCHEMA_YAML_FILENAME,
+    BY_GROUP,
+    THIS_GROUP_ONLY,
+    NO_GROUPS,
+    UP_ARROW,
+)
 from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
 from .run_display import write_run_display_json
 
@@ -568,7 +577,8 @@ class Summarizer:
         # Column headers
         header.append(HeaderCell("Model/adapter"))
         for run_group, metric_group_name in columns:
-            if metric_group_name not in run_group.metric_groups:
+            # check if at least the basic version of a metric group is evaluated (e.g., "bias" for "bias_detailed")
+            if metric_group_name.replace("_detailed", "") not in run_group.metric_groups:
                 continue
             metric_group = self.schema.name_to_metric_group[metric_group_name]
             for metric in metric_group.metrics:
@@ -576,13 +586,13 @@ class Summarizer:
                 if sub_split is not None:
                     matcher = replace(matcher, sub_split=sub_split)
                 header_field = self.schema.name_to_metric.get(matcher.name)
+                if header_field is None:
+                    hlog(f"WARNING: metric name {matcher.name} undefined in {SCHEMA_YAML_FILENAME}, skipping")
+                    continue
                 metadata = {
                     "metric": header_field.get_short_display_name(),
                     "run_group": run_group.get_short_display_name(),
                 }
-                if header_field is None:
-                    hlog(f"WARNING: metric name {matcher.name} undefined in {SCHEMA_YAML_FILENAME}, skipping")
-                    continue
 
                 header_name = header_field.get_short_display_name(arrow=True)
                 description = (run_group.description + "\n\n" if run_group.description is not None else "") + (
@@ -736,7 +746,8 @@ class Summarizer:
             AVERAGE_WIN_RATE_COLUMN = 1
             description = "How many models this model outperform on average (over columns)."
             table.header.insert(
-                AVERAGE_WIN_RATE_COLUMN, HeaderCell("Average win rate", description=description, lower_is_better=False)
+                AVERAGE_WIN_RATE_COLUMN,
+                HeaderCell(f"Average win rate {UP_ARROW}", description=description, lower_is_better=False),
             )
             for row, win_rate in zip(table.rows, win_rates):
                 row.insert(AVERAGE_WIN_RATE_COLUMN, Cell(win_rate))
@@ -763,16 +774,27 @@ class Summarizer:
         Each table has `adapter_spec`s as rows and scenarios or groups as columns."""
         tables: List[Table] = []
         adapter_to_runs: Dict[AdapterSpec, List[Run]] = defaultdict(list)
-        all_metric_groups: List[str] = []
         subgroups = self.expand_subgroups(group)
         for subgroup in subgroups:
-            all_metric_groups.extend(subgroup.metric_groups)
             for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
                 coarse_adapter_spec = get_coarse_adapter_spec(adapter_spec, adapter_keys_shown=group.adapter_keys_shown)
                 filtered_runs = self.filter_runs_by_visibility(runs, group)
                 if filtered_runs:
                     adapter_to_runs[coarse_adapter_spec].extend(filtered_runs)
-        all_metric_groups = list(dict.fromkeys(all_metric_groups))  # deduplicate while preserving order
+
+        all_metric_groups: List[str] = []
+        if group.metric_groups:  # if the group specifies the metric groups, use them
+            all_metric_groups = group.metric_groups
+        else:  # otherwise, collect them from subgroups
+            for subgroup in subgroups:
+                all_metric_groups.extend(subgroup.metric_groups)
+            # deduplicate, remove basic metric group if we include the detailed one, remove hidden metric groups
+            all_metric_groups = [
+                metric_group
+                for metric_group in dict.fromkeys(all_metric_groups)
+                if f"{metric_group}_detailed" not in all_metric_groups
+                and metric_group not in group.subgroup_metric_groups_hidden
+            ]
 
         if len(adapter_to_runs) > 0:
             for metric_group in all_metric_groups:
