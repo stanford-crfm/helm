@@ -37,12 +37,13 @@ class Field:
     # Description of the field
     description: Optional[str] = None
 
-    # Whether a lower vaue for this field corresponds to a better model (e.g., False for accuracy, True for perplexity)
-    lower_is_better: bool = False
+    # Whether a lower vaue for this field corresponds to a better model
+    # (e.g., False for accuracy, True for perplexity, None for num_trials)
+    lower_is_better: Optional[bool] = None
 
     def get_short_display_name(self, arrow: bool = False) -> str:
         name = self.short_display_name or self.display_name or self.name
-        if arrow:
+        if arrow and self.lower_is_better is not None:
             name += " " + (DOWN_ARROW if self.lower_is_better else UP_ARROW)
         return name
 

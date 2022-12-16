@@ -24,6 +24,18 @@ class Cell:
 
 
 @dataclass(frozen=True)
+class HeaderCell(Cell):
+    """Contains additional information about the contents of a column"""
+
+    # How values in this column should be interpreted.
+    # True means lower is better, False means higher is better, and None means that comparisons are not meaningful.
+    lower_is_better: Optional[bool] = None
+
+    # Information about the column contents to allow postprocessing (e.g., plots) without relying on the text format.
+    metadata: Dict[str, str] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
 class Hyperlink:
     text: str
     href: str
@@ -32,7 +44,7 @@ class Hyperlink:
 @dataclass(frozen=True)
 class Table:
     title: str
-    header: List[Cell]
+    header: List[HeaderCell]
     rows: List[List[Cell]]
 
     # Extra information to show at the bottom
