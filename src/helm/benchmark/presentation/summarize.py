@@ -14,6 +14,7 @@ from helm.common.general import (
     write,
     ensure_directory_exists,
     asdict_without_nones,
+    parallel_map,
     singleton,
     unique_simplification,
 )
@@ -930,8 +931,10 @@ class Summarizer:
             )
 
     def write_run_display_json(self) -> None:
-        for run in self.runs:
+        def process(run: Run) -> None:
             write_run_display_json(run.run_path, run.run_spec, self.schema)
+
+        parallel_map(process, self.runs, parallelism=self.num_threads)
 
 
 @htrack(None)

@@ -8,7 +8,6 @@ import dacite
 
 from helm.benchmark.adapter import (
     AdapterSpec,
-    ScenarioState,
     ADAPT_MUPLTIPLE_CHOICE_METHODS,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
 )
@@ -22,10 +21,9 @@ from helm.benchmark.augmentations.perturbation_description import PerturbationDe
 from helm.benchmark.augmentations.space_perturbation import SpacePerturbation
 from helm.benchmark.augmentations.synonym_perturbation import SynonymPerturbation
 from helm.benchmark.augmentations.typos_perturbation import TyposPerturbation
-from helm.benchmark.metrics.metric import PerInstanceStats
 from helm.benchmark.presentation.schema import Schema
 from helm.benchmark.runner import RunSpec
-from helm.common.general import write, asdict_without_nones
+from helm.common.general import asdict_without_nones, write
 from helm.common.hierarchical_logger import htrack
 from helm.common.request import Request
 
@@ -110,26 +108,22 @@ class DisplayRequest:
     most relevant request e.g. the request for the chosen cohice for multiple choice questions."""
 
 
-@htrack(None)
-def _read_scenario_state(run_path: str) -> ScenarioState:
+def _read_scenario_state(run_path: str) -> Dict:
     scenario_state_path: str = os.path.join(run_path, "scenario_state.json")
     if not os.path.exists(scenario_state_path):
         raise ValueError(f"Could not load ScenarioState from {scenario_state_path}")
     with open(scenario_state_path) as f:
         raw_scenario_state = json.load(f)
         return raw_scenario_state
-        # return dacite.from_dict(ScenarioState, raw_scenario_state, config=_DACITE_CONFIG)
 
 
-@htrack(None)
-def _read_per_instance_stats(run_path: str) -> List[PerInstanceStats]:
+def _read_per_instance_stats(run_path: str) -> List[Dict]:
     per_instance_stats_path: str = os.path.join(run_path, "per_instance_stats.json")
     if not os.path.exists(per_instance_stats_path):
         raise ValueError(f"Could not load PerInstanceStats from {per_instance_stats_path}")
     with open(per_instance_stats_path) as f:
         raw_per_instance_stats = json.load(f)
         return raw_per_instance_stats
-        # return [_deserialize_per_instance_stats(r) for r in raw_per_instance_stats]
 
 
 def _truncate_predicted_text(predicted_text: str, request_state: Dict, adapter_spec: AdapterSpec) -> Optional[str]:
