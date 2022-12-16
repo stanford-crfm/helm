@@ -35,7 +35,7 @@ tr {
   border-width: 1px 0;
 }
 
-.results-table tr:first-child {
+.results-table thead tr {
   background-color: #f9f9f9;
 }
 
