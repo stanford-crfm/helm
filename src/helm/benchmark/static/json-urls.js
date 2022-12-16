@@ -30,7 +30,7 @@ function scenarioJsonUrl(suite, runSpecName) {
 }
 
 function scenarioStateJsonUrl(suite, runSpecName) {
-  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/${runSpecName}/scenario_state_slim.json`;
+  return `${BENCHMARK_OUTPUT_BASE_URL}/runs/${suite}/${runSpecName}/scenario_state.json`;
 }
 
 function statsJsonUrl(suite, runSpecName) {
