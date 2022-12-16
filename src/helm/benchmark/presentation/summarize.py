@@ -201,12 +201,7 @@ class Summarizer:
     COST_REPORT_FIELDS: List[str] = ["num_prompt_tokens", "num_completion_tokens", "num_completions", "num_requests"]
 
     # We need to hide stats for these model-metric combinations
-    LOGPROBS_ISSUE_MODELS: Set[str] = {
-        "anthropic/stanford-online-all-v4-s3",
-        "ai21/j1-jumbo",
-        "ai21/j1-grande",
-        "ai21/j1-large",
-    }
+    LOGPROBS_ISSUE_MODELS: Set[str] = {"anthropic/stanford-online-all-v4-s3"}
     LOGPROBS_ISSUE_METRICS: Set[str] = {
         # MSMARCO metrics
         "NDCG@10",
