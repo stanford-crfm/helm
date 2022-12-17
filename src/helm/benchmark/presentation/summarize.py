@@ -950,6 +950,11 @@ def main():
         action="store_true",
         help="Display debugging information.",
     )
+    parser.add_argument(
+        "--skip-write-run-display-json",
+        action="store_true",
+        help="Skip write_run_display_json",
+    )
     args = parser.parse_args()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
@@ -963,7 +968,9 @@ def main():
     summarizer.write_runs()
     summarizer.write_groups()
     summarizer.write_cost_report()
-    summarizer.write_run_display_json()
+
+    if not args.skip_write_run_display_json:
+        summarizer.write_run_display_json()
 
     hlog("Done.")
 
