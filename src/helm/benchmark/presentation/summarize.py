@@ -980,6 +980,8 @@ def main():
     args = parser.parse_args()
     sharding: Optional[SlurmSharding] = None
     if args.num_shards:
+        if not args.skip_aggregations_json:
+            raise ValueError("--skip_aggregations_json must be set when using sharding")
         sharding = SlurmSharding(args.num_shards)
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
