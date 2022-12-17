@@ -23,7 +23,7 @@ from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
-from .scenarios.lextreme_scenario import get_lextreme_instructions
+from .scenarios.lextreme_scenario import get_lextreme_instructions, get_lextreme_max_train_instances
 from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG
 from helm.common.general import singleton
 
