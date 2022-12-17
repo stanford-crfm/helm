@@ -239,14 +239,14 @@ models:
   # OpenAI: https://beta.openai.com/docs/engines/gpt-3
   - name: openai/davinci
     display_name: GPT-3 davinci v1 (175B)
-    description: GPT-3 davinci v1 (175B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf),[docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    description: GPT-3 davinci v1 (175B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2020-05-28
   - name: openai/curie
     display_name: GPT-3 curie v1 (6.7B)
-    description: GPT-3 curie v1 (6.7B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf),[docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    description: GPT-3 curie v1 (6.7B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 6700000000
