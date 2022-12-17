@@ -14,6 +14,7 @@ from helm.common.general import (
     write,
     ensure_directory_exists,
     asdict_without_nones,
+    parallel_map,
     singleton,
     unique_simplification,
 )
@@ -925,8 +926,10 @@ class Summarizer:
             )
 
     def write_run_display_json(self) -> None:
-        for run in self.runs:
+        def process(run: Run) -> None:
             write_run_display_json(run.run_path, run.run_spec, self.schema)
+
+        parallel_map(process, self.runs, parallelism=self.num_threads)
 
 
 @htrack(None)
@@ -947,6 +950,11 @@ def main():
         action="store_true",
         help="Display debugging information.",
     )
+    parser.add_argument(
+        "--skip-write-run-display-json",
+        action="store_true",
+        help="Skip write_run_display_json",
+    )
     args = parser.parse_args()
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
@@ -960,7 +968,9 @@ def main():
     summarizer.write_runs()
     summarizer.write_groups()
     summarizer.write_cost_report()
-    summarizer.write_run_display_json()
+
+    if not args.skip_write_run_display_json:
+        summarizer.write_run_display_json()
 
     hlog("Done.")
 
