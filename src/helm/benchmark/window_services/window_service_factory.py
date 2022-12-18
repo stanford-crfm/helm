@@ -52,6 +52,7 @@ class WindowServiceFactory:
                 window_service = LuminousWorldWindowService(service)
             else:
                 raise ValueError(f"Unhandled Aleph Alpha model: {engine}")
+            window_service = OpenAIWindowService(service)
         elif organization == "microsoft":
             window_service = MTNLGWindowService(service)
         elif organization == "anthropic":

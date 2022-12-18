@@ -3,6 +3,7 @@ from typing import Dict
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import Request
 from .ai21_token_cost_estimator import AI21TokenCostEstimator
+from .aleph_alpha_token_cost_estimator import AlephAlphaTokenCostEstimator
 from .cohere_token_cost_estimator import CohereTokenCostEstimator
 from .free_token_cost_estimator import FreeTokenCostEstimator
 from .gooseai_token_cost_estimator import GooseAITokenCostEstimator
@@ -29,6 +30,8 @@ class AutoTokenCostEstimator(TokenCostEstimator):
                 token_cost_estimator = CohereTokenCostEstimator()
             elif organization == "gooseai":
                 token_cost_estimator = GooseAITokenCostEstimator()
+            elif organization == "AlephAlpha":
+                token_cost_estimator = AlephAlphaTokenCostEstimator()
             else:
                 token_cost_estimator = FreeTokenCostEstimator()
             self._token_cost_estimators[organization] = token_cost_estimator
