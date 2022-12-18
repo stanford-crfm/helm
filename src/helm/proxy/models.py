@@ -129,7 +129,7 @@ ALL_MODELS = [
         display_name="Luminous Base (13B)",
         description="Luminous Base (13B parameters)",
         # Does not support echo
-        tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="luminous",
@@ -138,7 +138,7 @@ ALL_MODELS = [
         display_name="Luminous Extended (30B)",
         description="Luminous Extended (30B parameters)",
         # Does not support echo
-        tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, IMAGE_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     Model(
         group="luminous",
@@ -148,7 +148,7 @@ ALL_MODELS = [
         description="Luminous Supreme (70B parameters)",
         # Does not support echo.
         # TODO: images will be supported in the near future. Add IMAGE_MODEL_TAG.
-        tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG],
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
     ),
     # TODO: coming soon. Uncomment out the following when Luminous World is released.
     # Model(
