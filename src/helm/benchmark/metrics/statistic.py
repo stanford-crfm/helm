@@ -13,9 +13,9 @@ class Stat:
     count: int = 0
     sum: float = 0
     sum_squared: float = 0
-    min: Optional[float] = None
-    max: Optional[float] = None
-    mean: Optional[float] = None
+    min: float = 0
+    max: float = 0
+    mean: float = 0
     variance: Optional[float] = None
     stddev: Optional[float] = None
 

@@ -195,6 +195,15 @@ def compute_average_row_win_rates(table: Table) -> List[Optional[float]]:
     return average_win_rates
 
 
+class Sharding:
+    def __init__(self, shard_id: int, num_shards: int):
+        self.shard_id: int = shard_id
+        self.num_shards: int = num_shards
+
+    def should_run(self, run_spec_name: str):
+        return hash(run_spec_name) % self.num_shards == self.shard_id
+
+
 class Summarizer:
     """Summarize the benchmark results in JSON files to be displayed in the UI."""
 
@@ -219,11 +228,12 @@ class Summarizer:
         "selective_acc@10",
     }
 
-    def __init__(self, suite: str, output_path: str, verbose: bool, num_threads: int):
+    def __init__(self, suite: str, output_path: str, verbose: bool, num_threads: int, sharding: Optional[Sharding]):
         self.suite: str = suite
         self.run_suite_path: str = os.path.join(output_path, "runs", suite)
         self.verbose: bool = verbose
         self.num_threads: int = num_threads
+        self.sharding: Optional[Sharding] = sharding
 
         self.schema = read_schema()
         self.contamination = read_contamination()
@@ -929,7 +939,12 @@ class Summarizer:
         def process(run: Run) -> None:
             write_run_display_json(run.run_path, run.run_spec, self.schema)
 
-        parallel_map(process, self.runs, parallelism=self.num_threads)
+        runs: List[Run]
+        if self.sharding:
+            runs = [run for run in self.runs if self.sharding.should_run(run.run_spec.name)]
+        else:
+            runs = self.runs
+        parallel_map(process, runs, parallelism=self.num_threads)
 
 
 @htrack(None)
@@ -955,19 +970,52 @@ def main():
         action="store_true",
         help="Skip write_run_display_json",
     )
+    parser.add_argument(
+        "--skip-aggregations-json",
+        action="store_true",
+        help="Skip write_executive_summary, write_runs, write_groups and write_cost_report",
+    )
+    parser.add_argument(
+        "--num-shards",
+        type=int,
+        help="Number of shards for sharding write_executive_summary using Slurm job arrays: `sbatch --array=...`",
+    )
+    parser.add_argument(
+        "--shard-id",
+        type=int,
+        help="Shard ID",
+    )
     args = parser.parse_args()
+
+    sharding: Optional[Sharding] = None
+    if args.shard_id is not None:
+        if not args.num_shards:
+            raise ValueError("--num-shards must be set when using sharding")
+    if args.num_shards:
+        if args.shard_id is None:
+            raise ValueError("--shard-id must be set when using sharding")
+        if args.shard_id >= args.num_shards:
+            raise ValueError("--shard-id must be < --num_shards")
+        if not args.skip_aggregations_json:
+            raise ValueError("--skip-aggregations-json must be set when using sharding")
+        sharding = Sharding(args.shard_id, args.num_shards)
 
     # Output JSON files summarizing the benchmark results which will be loaded in the web interface
     summarizer = Summarizer(
-        suite=args.suite, output_path=args.output_path, verbose=args.debug, num_threads=args.num_threads
+        suite=args.suite,
+        output_path=args.output_path,
+        verbose=args.debug,
+        num_threads=args.num_threads,
+        sharding=sharding,
     )
     summarizer.read_runs()
     summarizer.check_metrics_defined()
 
-    summarizer.write_executive_summary()
-    summarizer.write_runs()
-    summarizer.write_groups()
-    summarizer.write_cost_report()
+    if not args.skip_aggregations_json:
+        summarizer.write_executive_summary()
+        summarizer.write_runs()
+        summarizer.write_groups()
+        summarizer.write_cost_report()
 
     if not args.skip_write_run_display_json:
         summarizer.write_run_display_json()

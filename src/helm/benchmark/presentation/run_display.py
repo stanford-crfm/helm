@@ -24,7 +24,7 @@ from helm.benchmark.augmentations.typos_perturbation import TyposPerturbation
 from helm.benchmark.presentation.schema import Schema
 from helm.benchmark.runner import RunSpec
 from helm.common.general import asdict_without_nones, write
-from helm.common.hierarchical_logger import htrack
+from helm.common.hierarchical_logger import htrack, hlog
 from helm.common.request import Request
 
 
@@ -191,6 +191,12 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
     - List[DisplayPrediction] to `display_predictions.json`
     - List[DisplayRequest] to `display_requests.json`
     """
+    if os.path.exists(os.path.join(run_path, "display_predictions.json")) and os.path.exists(
+        os.path.join(run_path, "display_requests.json")
+    ):
+        hlog(f"Display JSON alrady exists in {run_path}, skipping")
+        return
+
     scenario_state = _read_scenario_state(run_path)
     per_instance_stats = _read_per_instance_stats(run_path)
 
@@ -204,7 +210,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
         stats_dict: Dict[str, float] = {
             original_stat["name"]["name"]: cast(float, original_stat["mean"])
             for original_stat in original_stats["stats"]
-            if original_stat["name"]["name"] in metric_names
+            if original_stat["name"]["name"] in metric_names and "mean" in original_stat
         }
 
         key = (
