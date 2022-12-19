@@ -3,6 +3,7 @@ import os
 import datetime
 import urllib.parse
 import dacite
+import hashlib
 import json
 from collections import defaultdict
 from dataclasses import dataclass, replace
@@ -201,7 +202,7 @@ class Sharding:
         self.num_shards: int = num_shards
 
     def should_run(self, run_spec_name: str):
-        return hash(run_spec_name) % self.num_shards == self.shard_id
+        return int(hashlib.sha256(run_spec_name.encode()).hexdigest(), 16) % self.num_shards == self.shard_id
 
 
 class Summarizer:
@@ -293,6 +294,8 @@ class Summarizer:
         self.runs: List[Run] = []
         with open(run_specs_path) as f:
             raw_run_specs = json.load(f)
+        if self.sharding:
+            raw_run_specs = [r for r in raw_run_specs if self.sharding.should_run(r["name"])]
         for raw_run_spec in tqdm(raw_run_specs):
             run_spec = dacite.from_dict(RunSpec, raw_run_spec)
             run_path: str = os.path.join(self.run_suite_path, run_spec.name)
@@ -940,12 +943,7 @@ class Summarizer:
         def process(run: Run) -> None:
             write_run_display_json(run.run_path, run.run_spec, self.schema)
 
-        runs: List[Run]
-        if self.sharding:
-            runs = [run for run in self.runs if self.sharding.should_run(run.run_spec.name)]
-        else:
-            runs = self.runs
-        parallel_map(process, runs, parallelism=self.num_threads)
+        parallel_map(process, self.runs, parallelism=self.num_threads)
 
 
 @htrack(None)
@@ -1010,7 +1008,7 @@ def main():
         sharding=sharding,
     )
     summarizer.read_runs()
-    summarizer.check_metrics_defined()
+    # summarizer.check_metrics_defined()
 
     if not args.skip_aggregations_json:
         summarizer.write_executive_summary()
