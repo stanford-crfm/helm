@@ -196,6 +196,8 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
     ):
         hlog(f"Display JSON alrady exists in {run_path}, skipping")
         return
+    if "msmarco" in run_path:
+        hlog(f"Skipping MSMARCO run path {run_path}")
 
     scenario_state = _read_scenario_state(run_path)
     per_instance_stats = _read_per_instance_stats(run_path)
