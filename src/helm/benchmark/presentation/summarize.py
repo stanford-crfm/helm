@@ -36,7 +36,7 @@ from .schema import (
     NO_GROUPS,
     UP_ARROW,
 )
-from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
+from .contamination import read_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
 from .run_display import write_run_display_json
 
 """
@@ -237,7 +237,7 @@ class Summarizer:
 
         self.schema = read_schema()
         self.contamination = read_contamination()
-        validate_contamination(self.contamination, self.schema)
+        # validate_contamination(self.contamination, self.schema)
 
     def read_run(self, run_path: str) -> Run:
         """Load the `Run` object from `run_path`."""
