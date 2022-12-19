@@ -36,7 +36,7 @@ from .schema import (
     NO_GROUPS,
     UP_ARROW,
 )
-from .contamination import read_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
+from .contamination import CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES, Contamination
 from .run_display import write_run_display_json
 
 """
@@ -236,7 +236,7 @@ class Summarizer:
         self.sharding: Optional[Sharding] = sharding
 
         self.schema = read_schema()
-        self.contamination = read_contamination()
+        self.contamination: Optional[Contamination] = None
         # validate_contamination(self.contamination, self.schema)
 
     def read_run(self, run_path: str) -> Run:
@@ -686,6 +686,7 @@ class Summarizer:
                 href = None
 
             # Render contamination information
+            assert self.contamination is not None
             point = self.contamination.get_point(model_name, columns[0][0].name)
             if num_groups == 1 and point is not None:  # display contamination information at the adapter level
                 cells = [
