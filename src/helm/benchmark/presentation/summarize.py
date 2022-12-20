@@ -6,6 +6,7 @@ import dacite
 import json
 from collections import defaultdict
 from dataclasses import dataclass, replace
+from statistics import mean, median
 from typing import List, Optional, Dict, Any, Tuple, Set
 
 from tqdm import tqdm
@@ -36,7 +37,13 @@ from .schema import (
     NO_GROUPS,
     UP_ARROW,
 )
-from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
+from .contamination import (
+    read_contamination,
+    validate_contamination,
+    CONTAMINATION_SYMBOLS,
+    CONTAMINATION_STYLES,
+    CONTAMINATION_LEVEL_STRONG,
+)
 from .run_display import write_run_display_json
 
 """
@@ -161,14 +168,17 @@ def get_method_display_name(model_display_name: Optional[str], info: Dict[str, A
     return (model_display_name or "???") + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
 
 
-def compute_average_row_win_rates(table: Table) -> List[Optional[float]]:
+def compute_aggregate_row_win_rates(table: Table, aggregation: str = "mean") -> List[Optional[float]]:
     """
-    Computes the average win rate of each row across columns. For a given row r1, if we pick another row r2 and column
-    c1 uniformly at random, what is the probability that r1c1 is better that r2c1? We skip columns where "better" is
-    ambiguous or less than 2 values are non-null.
-    Returns a list of average win rates, one per row, with None if a row was never meaningfully comparable (i.e., all
+    Computes the aggregate win rate of each row across columns. For a given row r1 and column c1, the win rate of r1 wrt
+    to c1 corresponds to: if we pick another row r2 uniformly at random, what is the probability that r1c1 is better
+    that r2c1?
+    `aggregation` determines how we aggregate win rates across columns, currently can be "mean" or "median".
+    We skip columns where "better" is ambiguous or less than 2 values are non-null.
+    Returns a list of aggregate win rates, one per row, with None if a row was never meaningfully comparable (i.e., all
     non-null values of the row are in columns we skip).
     """
+    assert aggregation in ["mean", "median"]
     win_rates_per_row: List[List[float]] = [[] for _ in table.rows]
     for i, header_cell in enumerate(table.header):
         lower_is_better = header_cell.lower_is_better
@@ -176,7 +186,14 @@ def compute_average_row_win_rates(table: Table) -> List[Optional[float]]:
             continue
 
         # sort row indices by cell value and then compute the number of wins as the index in the sorted list
-        values = [(row[i].value, j) for j, row in enumerate(table.rows) if row[i].value is not None]
+        def is_cell_valid(cell: Cell) -> bool:  # ignore cells which are strongly contaminated or have no value
+            if cell.value is None:
+                return False
+            if cell.description and CONTAMINATION_SYMBOLS[CONTAMINATION_LEVEL_STRONG] in cell.description:
+                return False
+            return True
+
+        values = [(row[i].value, j) for j, row in enumerate(table.rows) if is_cell_valid(row[i])]
         if len(values) < 2:  # don't rank a single model
             continue
         for wins, (v, j) in enumerate(sorted(values, reverse=lower_is_better)):
@@ -185,14 +202,15 @@ def compute_average_row_win_rates(table: Table) -> List[Optional[float]]:
 
     # Note: the logic up to here is somewhat general as it simply computes win rates across columns for each row.
     # Here, we simply average these win rates but we might want some more involved later (e.g., weighted average).
-    average_win_rates: List[Optional[float]] = []
+    aggregate_win_rates: List[Optional[float]] = []
     for win_rates in win_rates_per_row:
         if len(win_rates) == 0:
-            average_win_rates.append(None)
+            aggregate_win_rates.append(None)
         else:
-            average_win_rates.append(sum(win_rates) / len(win_rates))
+            aggregate = mean(win_rates) if aggregation == "mean" else median(win_rates)
+            aggregate_win_rates.append(aggregate)
 
-    return average_win_rates
+    return aggregate_win_rates
 
 
 class Summarizer:
@@ -738,15 +756,20 @@ class Summarizer:
 
         if add_win_rate:
             # add overall win rate as the second column
-            win_rates = compute_average_row_win_rates(table)
-            AVERAGE_WIN_RATE_COLUMN = 1
+            WIN_RATE_AGGREGATION = "median"
+            win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
+            AGGREGATE_WIN_RATE_COLUMN = 1
             description = "How many models this model outperform on average (over columns)."
             table.header.insert(
-                AVERAGE_WIN_RATE_COLUMN,
-                HeaderCell(f"Average win rate {UP_ARROW}", description=description, lower_is_better=False),
+                AGGREGATE_WIN_RATE_COLUMN,
+                HeaderCell(
+                    f"{WIN_RATE_AGGREGATION.capitalize()} win rate {UP_ARROW}",
+                    description=description,
+                    lower_is_better=False,
+                ),
             )
             for row, win_rate in zip(table.rows, win_rates):
-                row.insert(AVERAGE_WIN_RATE_COLUMN, Cell(win_rate))
+                row.insert(AGGREGATE_WIN_RATE_COLUMN, Cell(win_rate))
 
         if bold_columns:
             for i, header_cell in enumerate(table.header):
