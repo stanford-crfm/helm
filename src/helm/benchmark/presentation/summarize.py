@@ -756,7 +756,7 @@ class Summarizer:
 
         if add_win_rate:
             # add overall win rate as the second column
-            WIN_RATE_AGGREGATION = "median"
+            WIN_RATE_AGGREGATION = "mean"
             win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
             AGGREGATE_WIN_RATE_COLUMN = 1
             description = "How many models this model outperform on average (over columns)."
