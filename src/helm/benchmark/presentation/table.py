@@ -22,6 +22,9 @@ class Cell:
     # If the value or display_value is markdown that needs to be interpreted
     markdown: bool = False
 
+    # How much train-test contamination affects the cell's value (`contamination.CONTAMINATION_LEVEL_{WEAK/STRONG}`)
+    contamination_level: Optional[str] = None
+
 
 @dataclass(frozen=True)
 class HeaderCell(Cell):
