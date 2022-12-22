@@ -141,7 +141,8 @@ class LEXTREMEScenario(Scenario):
             'I-LOC',
             'B-PER',
             'I-PER',
-        ], "greek_legal_ner": [
+        ],
+        "greek_legal_ner": [
             'O',
             'B-ORG',
             'I-ORG',
@@ -159,7 +160,8 @@ class LEXTREMEScenario(Scenario):
             'I-LOCATION-UNK',
             'B-LOCATION-NAT',
             'I-LOCATION-NAT'
-        ], "mapa_course": [
+        ],
+        "mapa_course": [
             'O',
             'B-ORGANISATION',
             'I-ORGANISATION',
@@ -173,7 +175,8 @@ class LEXTREMEScenario(Scenario):
             'I-AMOUNT',
             'B-TIME',
             'I-TIME'
-        ], "mapa_fine": [
+        ],
+        "mapa_fine": [
             'O',
             'B-BUILDING',
             'I-BUILDING',
