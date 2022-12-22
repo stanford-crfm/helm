@@ -996,10 +996,10 @@ $(function () {
     if (typeof(value) === 'number') {
       value = Math.round(value * 1000) / 1000;
     }
-    if (cell.lower_is_better===true) {
+    if (cell.lower_is_better === true) {
         value += ' \u2193';  // DOWN_ARROW
     }
-    if (cell.lower_is_better===false) {
+    if (cell.lower_is_better === false) {
         value += ' \u2191';  // UP_ARROW
     }
     const $value = $('<span>');
@@ -1023,8 +1023,8 @@ $(function () {
     const $tableHeader = $('<thead>');
     const $row = $('<tr>').append(table.header.map((cell, index) => {
       $cell = renderCell(cell);
-      const sortOrder = cell.lower_is_better===false ? "desc" :
-        (cell.lower_is_better===true ? "asc" : "");
+      const sortOrder = cell.lower_is_better === false ? "desc" :
+        (cell.lower_is_better === true ? "asc" : "");
       if (sortOrder) {
         const $sortLink = $("<a>", {"href": "#"}).append("sort").click(() => {
           $table = $tableHeader.parent('table');
