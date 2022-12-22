@@ -996,6 +996,12 @@ $(function () {
     if (typeof(value) === 'number') {
       value = Math.round(value * 1000) / 1000;
     }
+    if (cell.lower_is_better===true) {
+        value += ' \u2193';  // DOWN_ARROW
+    }
+    if (cell.lower_is_better===false) {
+        value += ' \u2191';  // UP_ARROW
+    }
     const $value = $('<span>');
     if (cell.markdown && value) {
       value = renderMarkdown('' + value);
@@ -1017,10 +1023,8 @@ $(function () {
     const $tableHeader = $('<thead>');
     const $row = $('<tr>').append(table.header.map((cell, index) => {
       $cell = renderCell(cell);
-      // Use the arrow characters to determine the sort order
-      // Ideally the schema would be used instead, but the schema is not available here
-      const sortOrder = cell.value.includes("\u2191") ? "desc" :
-        (cell.value.includes("\u2193") ? "asc" : "");
+      const sortOrder = cell.lower_is_better===false ? "desc" :
+        (cell.lower_is_better===true ? "asc" : "");
       if (sortOrder) {
         const $sortLink = $("<a>", {"href": "#"}).append("sort").click(() => {
           $table = $tableHeader.parent('table');
@@ -1111,7 +1115,6 @@ $(function () {
   //////////////////////////////////////////////////////////////////////////////
   //                                   Main                                   //
   //////////////////////////////////////////////////////////////////////////////
-
   const $main = $('#main');
   const $summary = $('#summary');
   $.when(

@@ -27,16 +27,8 @@ from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.runner import RunSpec
 from .table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
-from .schema import (
-    MetricNameMatcher,
-    RunGroup,
-    read_schema,
-    SCHEMA_YAML_FILENAME,
-    BY_GROUP,
-    THIS_GROUP_ONLY,
-    NO_GROUPS,
-    UP_ARROW,
-)
+from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_FILENAME, BY_GROUP, THIS_GROUP_ONLY, NO_GROUPS
+
 from .contamination import (
     read_contamination,
     validate_contamination,
@@ -189,7 +181,7 @@ def compute_aggregate_row_win_rates(table: Table, aggregation: str = "mean") -> 
         def is_cell_valid(cell: Cell) -> bool:  # ignore cells which are strongly contaminated or have no value
             if cell.value is None:
                 return False
-            if cell.description and CONTAMINATION_SYMBOLS[CONTAMINATION_LEVEL_STRONG] in cell.description:
+            if cell.contamination_level and cell.contamination_level == CONTAMINATION_LEVEL_STRONG:
                 return False
             return True
 
@@ -555,7 +547,7 @@ class Summarizer:
         if contamination_level is not None:
             style = CONTAMINATION_STYLES.get(contamination_level, style)
 
-        return Cell(value=value, description=description, style=style)
+        return Cell(value=value, description=description, style=style, contamination_level=contamination_level)
 
     def create_group_table(
         self,
@@ -608,7 +600,7 @@ class Summarizer:
                     "run_group": run_group.get_short_display_name(),
                 }
 
-                header_name = header_field.get_short_display_name(arrow=True)
+                header_name = header_field.get_short_display_name()
                 description = (run_group.description + "\n\n" if run_group.description is not None else "") + (
                     header_field.display_name + ": " + header_field.description
                 )
@@ -763,7 +755,7 @@ class Summarizer:
             table.header.insert(
                 AGGREGATE_WIN_RATE_COLUMN,
                 HeaderCell(
-                    f"{WIN_RATE_AGGREGATION.capitalize()} win rate {UP_ARROW}",
+                    f"{WIN_RATE_AGGREGATION.capitalize()} win rate",
                     description=description,
                     lower_is_better=False,
                 ),
