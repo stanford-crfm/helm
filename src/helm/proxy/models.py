@@ -84,6 +84,7 @@ class Model:
 # For the list of available models, see the following docs:
 # Note that schema.yaml has much of this information now.
 # Over time, we should add more information there.
+
 ALL_MODELS = [
     # AI21: https://studio.ai21.com/pricing
     Model(
@@ -522,7 +523,16 @@ ALL_MODELS = [
         description="GPT-3 (1024-dimension embeddings)",
         tags=[EMBEDDING_MODEL_TAG],
     ),
-    # Offline models
+    # Together
+    Model(
+        group="together",
+        creator_organization="Together",
+        name="together/Together-gpt-JT-6B-v1",
+        display_name="GPT-JT (6B)",
+        description="GPT-JT (6B parameters) is a fork of GPT-J",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+    ),
+    # Tsinghua
     Model(
         group="together",
         creator_organization="Tsinghua KEG",
@@ -535,6 +545,7 @@ ALL_MODELS = [
         # bidirectional attention and do not perform predictions on them.
         tags=[TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, ABLATION_MODEL_TAG, NO_NEWLINES_TAG],
     ),
+    # Yandex
     Model(
         group="together",
         creator_organization="Yandex",
@@ -555,7 +566,6 @@ ALL_MODELS = [
         description="Copy last tokens (for debugging)",
     ),
 ]
-
 
 MODEL_NAME_TO_MODEL: Dict[str, Model] = {model.name: model for model in ALL_MODELS}
 
