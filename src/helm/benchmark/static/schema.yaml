@@ -338,7 +338,7 @@ models:
     description: GPT-JT (6B parameters) is a fork of GPT-J ([blog post](https://www.together.xyz/blog/releasing-v1-of-gpt-jt-powered-by-open-source-ai)).
     creator_organization: Together
     access: open
-    num_parameters: 6000000000
+    num_parameters: 6700000000
     release_date: 2022-11-29
     todo: true
 
