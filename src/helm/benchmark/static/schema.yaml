@@ -1825,6 +1825,21 @@ run_groups:
       main_name: f1_score
       main_split: test
 
+  - name: lex_glue
+    display_name: LexGLUE
+    description: A Benchmark Dataset for Legal Language Understanding in English
+    metric_groups:
+      - accuracy
+      - calibration
+      - robustness
+      - fairness
+      - bias
+      - efficiency
+      - general_information
+    environment:
+      main_name: f1_score
+      main_split: test
+
   - name: entity_data_imputation
     display_name: Data imputation
     description: Scenario from [Mei et al. (2021)](https://ieeexplore.ieee.org/document/9458712/) that tests the ability to impute missing entities in a data table.

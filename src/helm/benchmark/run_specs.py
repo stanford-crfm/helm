@@ -17,6 +17,7 @@ from .adapter import (
 from .metrics.metric import MetricSpec
 from .run_expander import RUN_EXPANDERS, GlobalPrefixRunExpander, StopRunExpander
 from .runner import RunSpec
+from .scenarios.lex_glue_scenario import get_lex_glue_max_train_instances, get_lex_glue_instructions
 from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
@@ -1601,6 +1602,28 @@ def get_lextreme_spec(subset: str) -> RunSpec:
         groups=["lextreme"],
     )
 
+def get_lex_glue_spec(subset: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.lex_glue_scenario.LexGLUEScenario",
+        args={"subset": subset},
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions=get_lex_glue_instructions(subset),
+        input_noun=None,
+        output_noun="Label",
+        max_tokens=30,  # at most ~50 characters per label
+        max_train_instances=get_lex_glue_max_train_instances(subset),  # in some subsets the input is very long
+    )
+
+    return RunSpec(
+        name=f"lex_glue:subset={subset}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_f1_metric_specs(),
+        groups=["lex_glue"],
+    )
+
 
 ############################################################
 
@@ -1650,6 +1673,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "big_bench": get_big_bench_spec,
     "pubmed_qa": get_pubmed_qa_spec,
     "lextreme": get_lextreme_spec,
+    "lex_glue": get_lex_glue_spec,
 }
 
 
