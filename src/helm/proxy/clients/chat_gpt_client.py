@@ -1,9 +1,10 @@
 from typing import Any, Dict, List, Optional
 
 from filelock import FileLock
-from revChatGPT.revChatGPT import Chatbot
+from revChatGPT.ChatGPT import Chatbot
 
 from helm.common.cache import Cache, CacheConfig
+from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request, RequestResult, Sequence, Token
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -18,15 +19,13 @@ class ChatGPTClient(Client):
     """
     Client for OpenAI's ChatGPT (https://openai.com/blog/chatgpt).
     We use the unofficial ChatGPT Python client: https://github.com/acheong08/ChatGPT.
+    The client requires Chrome or Chromium installed.
     """
 
     REQUEST_TIMEOUT_SECONDS: int = 10 * 60  # 10 minutes
 
-    def __init__(
-        self, email: str, password: str, lock_file_path: str, cache_config: CacheConfig, tokenizer_client: Client
-    ):
-        self.email: str = email
-        self.password: str = password
+    def __init__(self, session_token: str, lock_file_path: str, cache_config: CacheConfig, tokenizer_client: Client):
+        self.session_token: str = session_token
         # Initialize `Chatbot` when we're ready to make the request
         self.chat_bot: Optional[Chatbot] = None
         self.tokenizer_client: Client = tokenizer_client
@@ -37,7 +36,7 @@ class ChatGPTClient(Client):
 
     def _get_chat_bot_client(self) -> Chatbot:
         if self.chat_bot is None:
-            self.chat_bot = Chatbot({"email": self.email, "password": self.password}, debug=True)
+            self.chat_bot = Chatbot({"session_token": self.session_token})
         return self.chat_bot
 
     def make_request(self, request: Request) -> RequestResult:
@@ -57,8 +56,9 @@ class ChatGPTClient(Client):
                     with self._lock:
                         chat_bot: Chatbot = self._get_chat_bot_client()
                         chat_bot.refresh_session()
-                        result: Dict[str, Any] = chat_bot.get_chat_response(request.prompt, output="text")
+                        result: Dict[str, Any] = chat_bot.ask(request.prompt)
                         assert "message" in result, f"Invalid response: {result}"
+                        hlog(f"Response: {result['message']}")
                         chat_bot.reset_chat()
                         return result
 

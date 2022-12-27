@@ -48,6 +48,7 @@ class AutoClient(Client):
     def _build_cache_config(self, organization: str) -> CacheConfig:
         if self.mongo_uri:
             return MongoCacheConfig(self.mongo_uri, collection_name=organization)
+
         client_cache_path: str = os.path.join(self.cache_path, f"{organization}.sqlite")
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return SqliteCacheConfig(client_cache_path)
@@ -65,8 +66,7 @@ class AutoClient(Client):
                 # Must pass in email and password to use the full functionality of the API
                 # See https://github.com/acheong08/ChatGPT/wiki/Setup for more information.
                 chat_gpt_client: ChatGPTClient = ChatGPTClient(
-                    email=self.credentials.get("openaiEmail", ""),
-                    password=self.credentials.get("openaiPassword", ""),
+                    session_token=self.credentials.get("chatGPTSessionToken", ""),
                     lock_file_path=os.path.join(self.cache_path, "ChatGPT.lock"),
                     # TODO: use `cache_config` above. Since this feature is still experimental,
                     #       save queries and responses in a separate collection.
