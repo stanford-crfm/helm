@@ -63,8 +63,7 @@ class AutoClient(Client):
             if organization == "openai":
                 # TODO: add ChatGPT to the OpenAIClient when it's supported.
                 #       We're using a separate client for now since we're using an unofficial Python library.
-                # Must pass in email and password to use the full functionality of the API
-                # See https://github.com/acheong08/ChatGPT/wiki/Setup for more information.
+                # See https://github.com/acheong08/ChatGPT/wiki/Setup on how to get a valid session token.
                 chat_gpt_client: ChatGPTClient = ChatGPTClient(
                     session_token=self.credentials.get("chatGPTSessionToken", ""),
                     lock_file_path=os.path.join(self.cache_path, "ChatGPT.lock"),
