@@ -19,7 +19,7 @@ class ChatGPTClient(Client):
     """
     Client for OpenAI's ChatGPT (https://openai.com/blog/chatgpt).
     We use the unofficial ChatGPT Python client: https://github.com/acheong08/ChatGPT.
-    The client requires Chrome or Chromium installed.
+    See https://github.com/acheong08/ChatGPT/wiki/Setup for the setup. The client requires Chrome or Chromium installed.
     """
 
     REQUEST_TIMEOUT_SECONDS: int = 10 * 60  # 10 minutes
