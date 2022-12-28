@@ -1,3 +1,4 @@
+import time
 from typing import Any, Dict, List, Optional
 
 from filelock import FileLock
@@ -23,6 +24,7 @@ class ChatGPTClient(Client):
     """
 
     REQUEST_TIMEOUT_SECONDS: int = 10 * 60  # 10 minutes
+    SECONDS_BETWEEN_REQUESTS: int = 1 * 60  # 1 minute
 
     def __init__(self, session_token: str, lock_file_path: str, cache_config: CacheConfig, tokenizer_client: Client):
         self.session_token: str = session_token
@@ -69,6 +71,11 @@ class ChatGPTClient(Client):
                 }
                 cache_key = Client.make_cache_key(raw_request, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+                if not cached:
+                    # Add some sleep between requests to attempt to hit the rate limit.
+                    # The rate limit seems to be ~60 requests/hour
+                    hlog("Made a request. Sleeping...")
+                    time.sleep(ChatGPTClient.SECONDS_BETWEEN_REQUESTS)
             except Exception as e:
                 error: str = f"ChatGPT error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
