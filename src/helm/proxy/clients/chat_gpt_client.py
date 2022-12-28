@@ -2,7 +2,6 @@ import time
 from typing import Any, Dict, List, Optional
 
 from filelock import FileLock
-from revChatGPT.ChatGPT import Chatbot
 
 from helm.common.cache import Cache, CacheConfig
 from helm.common.hierarchical_logger import hlog
@@ -29,14 +28,17 @@ class ChatGPTClient(Client):
     def __init__(self, session_token: str, lock_file_path: str, cache_config: CacheConfig, tokenizer_client: Client):
         self.session_token: str = session_token
         # Initialize `Chatbot` when we're ready to make the request
-        self.chat_bot: Optional[Chatbot] = None
+        self.chat_bot = None
         self.tokenizer_client: Client = tokenizer_client
         self.cache = Cache(cache_config)
 
         # Since we want a brand new chat session per request, only allow a single request at a time.
         self._lock = FileLock(lock_file_path, timeout=ChatGPTClient.REQUEST_TIMEOUT_SECONDS)
 
-    def _get_chat_bot_client(self) -> Chatbot:
+    def _get_chat_bot_client(self):
+        # Import when needed. This library breaks GHA pipeline.
+        from revChatGPT.ChatGPT import Chatbot
+
         if self.chat_bot is None:
             self.chat_bot = Chatbot({"session_token": self.session_token})
         return self.chat_bot
@@ -56,7 +58,7 @@ class ChatGPTClient(Client):
 
                 def do_it():
                     with self._lock:
-                        chat_bot: Chatbot = self._get_chat_bot_client()
+                        chat_bot = self._get_chat_bot_client()
                         chat_bot.refresh_session()
                         result: Dict[str, Any] = chat_bot.ask(request.prompt)
                         assert "message" in result, f"Invalid response: {result}"
