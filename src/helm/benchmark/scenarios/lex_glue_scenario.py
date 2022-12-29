@@ -36,14 +36,25 @@ def get_lex_glue_max_train_instances(subset):
 
 
 instructions = {
-    "SLTC": "Predict the label of the following text:",
-    "MLTC": "Predict the label (possibly multiple) of the following text:",
-    "QA": "Predict the index of the holding that fits in the context at <HOLDING>:"
+    "ecthr_a": "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
+               "Predict the articles of the ECtHR that were violated (if any).",
+    "ecthr_b": "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
+               "Predict the articles of ECtHR that were allegedly violated (considered by the court).",
+    "scotus": "In this task, you are given a case heard at the Supreme Court of the United States (SCOTUS). "
+              "Predict the relevant issue area.",
+    "eurlex": "In this task, you are given an EU law document published in the EUR-Lex portal. "
+              "Predict the relevant EuroVoc concepts.",
+    "ledgar": "In this task, you are given a contract provision from contracts obtained from US Securities and Exchange Commission (SEC) filings."
+              "Predict the main topic.",
+    "unfair_tos": "In this task, you are given a sentence from a Terms of Service (ToS) document from on-line platforms. "
+                  "Predict the types of unfair contractual terms",
+    "case_hold": "In this task, you are given an excerpt from a court decision, containing a reference to a particular case, while the holding statement is masked out. "
+                 "Predict the index of the holding statement fitting in the context at <HOLDING> from a selection of five choices.",
 }
 
 
 def get_lex_glue_instructions(subset):
-    return instructions[task_code_mapping[subset]]
+    return instructions[subset]
 
 
 class LexGLUEScenario(Scenario):

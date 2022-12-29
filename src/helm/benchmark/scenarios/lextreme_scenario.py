@@ -58,14 +58,71 @@ def get_lextreme_max_train_instances(subset):
 
 
 instructions = {
-    "SLTC": "Predict the label of the following text:",
-    "MLTC": "Predict the label (possibly multiple) of the following text:",
-    "NER": "Predict the NER labels (comma separated) of the following text (comma separated words):"
+    "brazilian_court_decisions_judgment": "In this task, you are given the case description from a decision heard at the State Supreme Court of Alagoas (Brazil). "
+                                          "Predict the judgment of the case "
+                                          "(no: The appeal was denied, "
+                                          "partial: For partially favourable decisions, "
+                                          "yes: For fully favourable decisions)",
+    "brazilian_court_decisions_unanimity": "In this task, you are given the case description from a decision heard at the State Supreme Court of Alagoas (Brazil). "
+                                           "Predict the unanimity of the case (unanimity, not-unanimity, not_determined)",
+    "german_argument_mining": "In this task, you are given sentences from German court decisions. "
+                              "Predict the major component of German Urteilsstil "
+                              "(conclusion: Overall result, "
+                              "definition: Abstract legal facts and consequences, "
+                              "subsumption: Determination sentence / Concrete facts, "
+                              "other: Anything else)",
+    "greek_legal_code_chapter_level": "In this task, you are given a Greek legislative document. "
+                                      "Predict the chapter level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+    "greek_legal_code_subject_level": "In this task, you are given a Greek legislative document. "
+                                      "Predict the subject level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+    "greek_legal_code_volume_level": "In this task, you are given a Greek legislative document. "
+                                      "Predict the volume level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+    "swiss_judgment_prediction": "In this task, you are given the facts description from a decision heard at the Swiss Federal Supreme Court. "
+                                 "Predict the judgment of the case (approval or dismissal)",
+    "online_terms_of_service_unfairness_levels": "In this task, you are given a sentence from a Terms of Service (ToS) document. "
+                                                 "Predict the unfairness level of the sentence (potentially_unfair, clearly_unfair, clearly_fair, untagged)",
+    "online_terms_of_service_clause_topics": "In this task, you are given a sentence from a Terms of Service (ToS) document. "
+                                             "Predict the clause topics of the sentence "
+                                             "(a: Arbitration, "
+                                             "ch: Unilateral change, "
+                                             "cr: Content removal, "
+                                             "j: Jurisdiction, "
+                                             "law: Choice of law, "
+                                             "ltd: Limitation of liability, "
+                                             "ter: Unilateral termination, "
+                                             "use: Contract by using, "
+                                             "pinc: Privacy included)",
+    "covid19_emergency_event": "In this task, you are given a sentence from a European legislative document. "
+                               "Predict the applicable measurements against COVID-19 "
+                               "(event1: State of Emergency, "
+                               "event2: Restrictions of fundamental rights and civil liberties, "
+                               "event3: Restrictions of daily liberties, "
+                               "event4: Closures / lockdown, "
+                               "event5: Suspension of international cooperation and commitments, "
+                               "event6: Police mobilization, "
+                               "event7: Army mobilization, "
+                               "event8: Government oversight)",
+    "multi_eurlex_level_1": "In this task, you are given a document from an EU law. "
+                            "Predict the level 1 concept in the EUROVOC taxonomy.",
+    "multi_eurlex_level_2": "In this task, you are given a document from an EU law. "
+                            "Predict the level 2 concept in the EUROVOC taxonomy.",
+    "multi_eurlex_level_3": "In this task, you are given a document from an EU law. "
+                            "Predict the level 3 concept in the EUROVOC taxonomy.",
+    "greek_legal_ner": "In this task, you are given a sentence from Greek legislation. "
+                 "Predict the named entity type for each token.",
+    "legalnero": "In this task, you are given a sentence from Romanian legislation. "
+                 "Predict the named entity type for each token.",
+    "lener_br": "In this task, you are given a sentence from Brazilian legal documents (court decisions and legislation). "
+                 "Predict the named entity type for each token.",
+    "mapa_ner_coarse_grained": "In this task, you are given a sentence from the EUR-Lex database. "
+                               "Predict the coarse grained named entity type for each token.",
+    "mapa_ner_fine_grained": "In this task, you are given a sentence from the EUR-Lex database. "
+                               "Predict the fine grained named entity type for each token.",
 }
 
 
 def get_lextreme_instructions(subset):
-    return instructions[task_code_mapping[subset]]
+    return instructions[subset]
 
 
 class LEXTREMEScenario(Scenario):
