@@ -1,3 +1,4 @@
+import ast
 import random
 from pathlib import Path
 from typing import List
@@ -76,32 +77,32 @@ INSTRUCTIONS = {
     "greek_legal_code_subject_level": "In this task, you are given a Greek legislative document. "
                                       "Predict the subject level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
     "greek_legal_code_volume_level": "In this task, you are given a Greek legislative document. "
-                                      "Predict the volume level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+                                     "Predict the volume level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
     "swiss_judgment_prediction": "In this task, you are given the facts description from a decision heard at the Swiss Federal Supreme Court. "
                                  "Predict the judgment of the case (approval or dismissal)",
     "online_terms_of_service_unfairness_levels": "In this task, you are given a sentence from a Terms of Service (ToS) document. "
                                                  "Predict the unfairness level of the sentence (potentially_unfair, clearly_unfair, clearly_fair, untagged)",
     "online_terms_of_service_clause_topics": "In this task, you are given a sentence from a Terms of Service (ToS) document. "
                                              "Predict the clause topics of the sentence "
-                                             "(a: Arbitration, "
-                                             "ch: Unilateral change, "
-                                             "cr: Content removal, "
-                                             "j: Jurisdiction, "
-                                             "law: Choice of law, "
-                                             "ltd: Limitation of liability, "
-                                             "ter: Unilateral termination, "
-                                             "use: Contract by using, "
-                                             "pinc: Privacy included)",
+                                             "(0: Arbitration, "
+                                             "1: Unilateral change, "
+                                             "2: Content removal, "
+                                             "3: Jurisdiction, "
+                                             "4: Choice of law, "
+                                             "5: Limitation of liability, "
+                                             "6: Unilateral termination, "
+                                             "7: Contract by using, "
+                                             "8: Privacy included)",
     "covid19_emergency_event": "In this task, you are given a sentence from a European legislative document. "
                                "Predict the applicable measurements against COVID-19 "
-                               "(event1: State of Emergency, "
-                               "event2: Restrictions of fundamental rights and civil liberties, "
-                               "event3: Restrictions of daily liberties, "
-                               "event4: Closures / lockdown, "
-                               "event5: Suspension of international cooperation and commitments, "
-                               "event6: Police mobilization, "
-                               "event7: Army mobilization, "
-                               "event8: Government oversight)",
+                               "(0: State of Emergency, "
+                               "1: Restrictions of fundamental rights and civil liberties, "
+                               "2: Restrictions of daily liberties, "
+                               "3: Closures / lockdown, "
+                               "4: Suspension of international cooperation and commitments, "
+                               "5: Police mobilization, "
+                               "6: Army mobilization, "
+                               "7: Government oversight)",
     "multi_eurlex_level_1": "In this task, you are given a document from an EU law. "
                             "Predict the level 1 concept in the EUROVOC taxonomy.",
     "multi_eurlex_level_2": "In this task, you are given a document from an EU law. "
@@ -109,15 +110,15 @@ INSTRUCTIONS = {
     "multi_eurlex_level_3": "In this task, you are given a document from an EU law. "
                             "Predict the level 3 concept in the EUROVOC taxonomy.",
     "greek_legal_ner": "In this task, you are given a sentence from Greek legislation. "
-                 "Predict the named entity type for each token.",
+                       "Predict the named entity type for each token.",
     "legalnero": "In this task, you are given a sentence from Romanian legislation. "
                  "Predict the named entity type for each token.",
     "lener_br": "In this task, you are given a sentence from Brazilian legal documents (court decisions and legislation). "
-                 "Predict the named entity type for each token.",
+                "Predict the named entity type for each token.",
     "mapa_ner_coarse_grained": "In this task, you are given a sentence from the EUR-Lex database. "
                                "Predict the coarse grained named entity type for each token.",
     "mapa_ner_fine_grained": "In this task, you are given a sentence from the EUR-Lex database. "
-                               "Predict the fine grained named entity type for each token.",
+                             "Predict the fine grained named entity type for each token.",
 }
 
 
@@ -346,11 +347,16 @@ class LEXTREMEScenario(Scenario):
             # construct correct references and input
             if task_code in ['SLTC', 'MLTC']:
                 input_text = example['input']
+                if 'multi_eurlex' in config:
+                    input_text = ast.literal_eval(input_text)
+                    assert isinstance(input_text, dict)
+                    languages = list(input_text.keys())
+                    input_text = input_text[self.random.choice(languages)]  # just choose a random language
                 correct_references = [Reference(output=correct_label, tags=[CORRECT_TAG])
                                       for correct_label in correct_labels]  # for MLTC we have multiple correct ones
             elif task_code == 'NER':
-                correct_references = [Reference(output=self.delimiter.join(correct_labels), tags=[CORRECT_TAG])]
                 input_text = ','.join(example['input'])
+                correct_references = [Reference(output=self.delimiter.join(correct_labels), tags=[CORRECT_TAG])]
             return Instance(input=input_text, references=wrong_references + correct_references, split=split)
 
         def reduce_wrong_reference_count(wrong_references):
