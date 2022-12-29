@@ -10,7 +10,7 @@ from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, V
 # SLTC: Single Class Text Classification
 # MLTC: Multi Class Text Classification
 # NER: Named Entity Recognition
-task_code_mapping = {
+TASK_CODE_MAPPING = {
     'brazilian_court_decisions_judgment': 'SLTC',
     'brazilian_court_decisions_unanimity': 'SLTC',
     'german_argument_mining': 'SLTC',
@@ -31,7 +31,7 @@ task_code_mapping = {
     'mapa_ner_fine_grained': 'NER',
 }
 
-task_max_train_instances_mapping = {
+TASK_MAX_TRAIN_INSTANCES_MAPPING = {
     'brazilian_court_decisions_judgment': 4,  # ~ max 1024 tokens
     'brazilian_court_decisions_unanimity': 4,  # ~ max 1024 tokens
     'german_argument_mining': 5,  # ~ max 256 tokens
@@ -54,10 +54,10 @@ task_max_train_instances_mapping = {
 
 
 def get_lextreme_max_train_instances(subset):
-    return task_max_train_instances_mapping[subset]
+    return TASK_MAX_TRAIN_INSTANCES_MAPPING[subset]
 
 
-instructions = {
+INSTRUCTIONS = {
     "brazilian_court_decisions_judgment": "In this task, you are given the case description from a decision heard at the State Supreme Court of Alagoas (Brazil). "
                                           "Predict the judgment of the case "
                                           "(no: The appeal was denied, "
@@ -122,7 +122,7 @@ instructions = {
 
 
 def get_lextreme_instructions(subset):
-    return instructions[subset]
+    return INSTRUCTIONS[subset]
 
 
 class LEXTREMEScenario(Scenario):
@@ -283,12 +283,12 @@ class LEXTREMEScenario(Scenario):
     }
 
     def __init__(self, subset: str):
-        assert subset in list(task_code_mapping.keys()) + ["all"], f"Unknown subset: {subset}"
-        self.subsets = [subset] if subset != "all" else list(task_code_mapping.keys())
+        assert subset in list(TASK_CODE_MAPPING.keys()) + ["all"], f"Unknown subset: {subset}"
+        self.subsets = [subset] if subset != "all" else list(TASK_CODE_MAPPING.keys())
         self.random: random.Random = random.Random(42)
 
     def get_instances_for_subset(self, config: str) -> List[Instance]:
-        task_code = task_code_mapping[config]
+        task_code = TASK_CODE_MAPPING[config]
         # Load dataset
         cache_dir = str(Path(self.output_path) / "data")
         dataset = load_dataset(self.dataset_name, config, cache_dir=cache_dir)

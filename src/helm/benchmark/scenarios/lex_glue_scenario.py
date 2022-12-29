@@ -10,7 +10,7 @@ from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, V
 # SLTC: Single Class Text Classification
 # MLTC: Multi Class Text Classification
 # QA: Question Answering
-task_code_mapping = {
+TASK_CODE_MAPPING = {
     'ecthr_a': 'MLTC',
     'ecthr_b': 'MLTC',
     'scotus': 'SLTC',
@@ -20,7 +20,7 @@ task_code_mapping = {
     'case_hold': 'QA',
 }
 
-task_max_train_instances_mapping = {
+TASK_MAX_TRAIN_INSTANCES_MAPPING = {
     'ecthr_a': 1,  # ~ max 4096 tokens
     'ecthr_b': 1,  # ~ max 4096 tokens
     'scotus': 1,  # ~ max 8192 tokens
@@ -32,10 +32,10 @@ task_max_train_instances_mapping = {
 
 
 def get_lex_glue_max_train_instances(subset):
-    return task_max_train_instances_mapping[subset]
+    return TASK_MAX_TRAIN_INSTANCES_MAPPING[subset]
 
 
-instructions = {
+INSTRUCTIONS = {
     "ecthr_a": "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
                "Predict the articles of the ECtHR that were violated (if any).",
     "ecthr_b": "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
@@ -54,7 +54,7 @@ instructions = {
 
 
 def get_lex_glue_instructions(subset):
-    return instructions[subset]
+    return INSTRUCTIONS[subset]
 
 
 class LexGLUEScenario(Scenario):
@@ -105,12 +105,12 @@ class LexGLUEScenario(Scenario):
     delimiter = "|"  # we choose the pipe as a delimiter because it is very unlikely to occur in the data
 
     def __init__(self, subset: str):
-        assert subset in list(task_code_mapping.keys()) + ["all"], f"Unknown subset: {subset}"
-        self.subsets = [subset] if subset != "all" else list(task_code_mapping.keys())
+        assert subset in list(TASK_CODE_MAPPING.keys()) + ["all"], f"Unknown subset: {subset}"
+        self.subsets = [subset] if subset != "all" else list(TASK_CODE_MAPPING.keys())
         self.random: random.Random = random.Random(42)
 
     def get_instances_for_subset(self, config: str) -> List[Instance]:
-        task_code = task_code_mapping[config]
+        task_code = TASK_CODE_MAPPING[config]
         # Load dataset
         cache_dir = str(Path(self.output_path) / "data")
         dataset = load_dataset(self.dataset_name, config, cache_dir=cache_dir)
