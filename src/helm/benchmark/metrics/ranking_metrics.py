@@ -9,7 +9,7 @@ from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
-from ..adapter import AdapterSpec, RequestState, CORRECT_TAG, ADAPT_RANKING_BINARY
+from helm.benchmark.adaptation.adapter import AdapterSpec, RequestState, CORRECT_TAG, ADAPT_RANKING_BINARY
 from ..scenarios.scenario import unpack_tag
 
 

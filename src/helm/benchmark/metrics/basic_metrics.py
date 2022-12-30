@@ -19,7 +19,7 @@ from rouge_score import rouge_scorer
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Token, Sequence
-from helm.benchmark.adapter import (
+from helm.benchmark.adaptation.adapter import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_RANKING_BINARY,

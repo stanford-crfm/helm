@@ -1,7 +1,7 @@
 from typing import List
 
 from helm.common.request import RequestResult
-from helm.benchmark.adapter import AdapterSpec, RequestState
+from helm.benchmark.adaptation.adapter import AdapterSpec, RequestState
 from helm.benchmark.scenarios.numeracy_scenario import (  # noqa
     NumeracyScenario,
     Polynomial,

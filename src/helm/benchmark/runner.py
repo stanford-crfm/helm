@@ -11,7 +11,7 @@ from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.cache import cache_stats
 from .augmentations.data_augmenter import DataAugmenterSpec
 from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance, with_instance_ids
-from .adapter import AdapterSpec, Adapter, ScenarioState
+from helm.benchmark.adaptation.adapter import AdapterSpec, Adapter, ScenarioState
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
 from .metrics.metric_service import MetricService

@@ -10,7 +10,7 @@ from helm.benchmark.augmentations.perturbation_description import (
     PERTURBATION_ORIGINAL,
     PERTURBATION_WORST,
 )
-from helm.benchmark.adapter import (
+from helm.benchmark.adaptation.adapter import (
     AdapterSpec,
     ScenarioState,
     RequestState,

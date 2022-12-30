@@ -6,7 +6,7 @@ from typing import List, Union, Sequence, cast
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import RequestResult
-from helm.benchmark.adapter import AdapterSpec, RequestState, ScenarioState
+from helm.benchmark.adaptation.adapter import AdapterSpec, RequestState, ScenarioState
 from helm.benchmark.scenarios.code_scenario import CodeReference
 from . import code_metrics_helper
 from .metric import Metric, MetricResult

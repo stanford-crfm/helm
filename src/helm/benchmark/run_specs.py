@@ -3,7 +3,7 @@ from typing import Any, Callable, List, Dict, Optional, Set
 
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.object_spec import ObjectSpec
-from .adapter import (
+from helm.benchmark.adaptation.adapter import (
     AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE_JOINT,

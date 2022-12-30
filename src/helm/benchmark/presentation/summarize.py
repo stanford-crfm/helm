@@ -21,7 +21,7 @@ from helm.common.general import (
 )
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.benchmark.scenarios.scenario import ScenarioSpec
-from helm.benchmark.adapter import AdapterSpec
+from helm.benchmark.adaptation.adapter import AdapterSpec
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat

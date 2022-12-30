@@ -16,7 +16,7 @@ if not spacy.util.is_package("en_core_web_sm"):
 
 from summ_eval.data_stats_metric import DataStatsMetric
 
-from helm.benchmark.adapter import AdapterSpec, RequestState, ScenarioState
+from helm.benchmark.adaptation.adapter import AdapterSpec, RequestState, ScenarioState
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
 from .metric import Metric, MetricResult

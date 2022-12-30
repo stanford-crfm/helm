@@ -6,7 +6,7 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, cast
 
 import dacite
 
-from helm.benchmark.adapter import (
+from helm.benchmark.adaptation.adapter import (
     AdapterSpec,
     ADAPT_MULTIPLE_CHOICE_METHODS,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,

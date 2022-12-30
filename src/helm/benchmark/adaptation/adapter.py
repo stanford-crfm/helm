@@ -11,10 +11,10 @@ from helm.common.general import serialize, indent_lines, format_text_lines, para
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.common.request import Request, RequestResult
 from helm.common.tokenization_request import TokenizationToken
-from .scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS, CORRECT_TAG, Input
-from .window_services.window_service import WindowService, EncodeResult
-from .window_services.window_service_factory import WindowServiceFactory
-from .window_services.tokenizer_service import TokenizerService
+from helm.benchmark.scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS, CORRECT_TAG, Input
+from helm.benchmark.window_services.window_service import WindowService, EncodeResult
+from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
+from helm.benchmark.window_services.tokenizer_service import TokenizerService
 
 # Methods of adaptation
 ADAPT_LANGUAGE_MODELING = "language_modeling"

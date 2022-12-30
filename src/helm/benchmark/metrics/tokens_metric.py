@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from helm.common.general import parallel_map
 from helm.common.request import Request
-from helm.benchmark.adapter import ScenarioState, RequestState
+from helm.benchmark.adaptation.adapter import ScenarioState, RequestState
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from .metric import Metric, MetricResult, PerInstanceStats
 from .metric_name import MetricName

@@ -5,8 +5,9 @@ from typing import List
 from helm.common.authentication import Authentication
 from helm.common.tokenization_request import TokenizationToken
 from helm.proxy.services.server_service import ServerService
-from .scenarios.scenario import CORRECT_TAG, create_scenario, Instance, Reference, Input
-from .run_specs import get_scenario_spec1, get_adapter_spec1
+from helm.benchmark.scenarios.scenario import CORRECT_TAG, create_scenario, Instance, Reference, Input
+from helm.benchmark.run_specs import get_scenario_spec1, get_adapter_spec1
+from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from .adapter import (
     ADAPT_GENERATION,
     ADAPT_LANGUAGE_MODELING,
@@ -16,7 +17,6 @@ from .adapter import (
     Prompt,
     Processor,
 )
-from .window_services.tokenizer_service import TokenizerService
 
 
 DEFAULT_MODEL = "openai/davinci"

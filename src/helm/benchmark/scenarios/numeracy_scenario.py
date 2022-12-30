@@ -1,6 +1,6 @@
 # flake8: noqa
 from collections import defaultdict
-from dataclasses import dataclass, InitVar, field
+from dataclasses import dataclass, field
 from itertools import combinations_with_replacement, product
 import math
 from math import comb  # type: ignore
@@ -10,9 +10,9 @@ import random
 import sympy
 from sympy import Symbol, Poly, diff
 from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
-from typing import List, Optional, Tuple, Dict, Union
+from typing import List, Optional, Tuple, Dict
 
-from helm.benchmark.adapter import AdapterSpec, Adapter, ADAPT_GENERATION
+from helm.benchmark.adaptation.adapter import AdapterSpec, ADAPT_GENERATION
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.common.authentication import Authentication
 from helm.proxy.services.server_service import ServerService
