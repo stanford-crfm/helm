@@ -5,7 +5,8 @@ import numba
 import numpy as np
 from nltk.tokenize.treebank import TreebankWordTokenizer
 
-from helm.benchmark.adaptation.adapter import AdapterSpec, RequestState
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.scenarios.scenario import Reference
 from helm.common.request import RequestResult
 from .metric import Metric

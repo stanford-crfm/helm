@@ -7,10 +7,10 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, cast
 import dacite
 
 from helm.benchmark.adaptation.adapter import (
-    AdapterSpec,
     ADAPT_MULTIPLE_CHOICE_METHODS,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
 )
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.augmentations.dialect_perturbation import DialectPerturbation
 from helm.benchmark.augmentations.extra_space_perturbation import ExtraSpacePerturbation
 from helm.benchmark.augmentations.filler_words_perturbation import FillerWordsPerturbation

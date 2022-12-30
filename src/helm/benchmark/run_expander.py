@@ -18,7 +18,7 @@ from helm.proxy.models import (
     ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
-from .adaptation.adapter import Substitution
+from helm.benchmark.adaptation.adapter_spec import Substitution
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
 

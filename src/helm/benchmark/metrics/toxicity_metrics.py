@@ -2,7 +2,8 @@ from typing import List
 
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.request import RequestResult
-from helm.benchmark.adaptation.adapter import AdapterSpec, RequestState
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService

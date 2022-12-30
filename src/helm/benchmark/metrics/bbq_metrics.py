@@ -1,7 +1,7 @@
 from typing import List
 
 from helm.common.request import RequestResult
-from helm.benchmark.adaptation.adapter import RequestState
+from helm.benchmark.adaptation.request_state import RequestState
 from .metric import Metric
 from .metric_name import MetricName
 from .statistic import Stat

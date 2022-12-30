@@ -3,14 +3,16 @@ from typing import Callable, Dict, List, Tuple, Optional
 
 import pytrec_eval
 
+from helm.benchmark.adaptation.adapter import ADAPT_RANKING_BINARY
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.scenarios.scenario import unpack_tag, CORRECT_TAG
 from helm.common.request import RequestResult
 from helm.common.general import binarize_dict
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService
 from .statistic import Stat
-from helm.benchmark.adaptation.adapter import AdapterSpec, RequestState, CORRECT_TAG, ADAPT_RANKING_BINARY
-from ..scenarios.scenario import unpack_tag
 
 
 @dataclass

@@ -4,7 +4,6 @@ from typing import Any, Callable, List, Dict, Optional, Set
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.object_spec import ObjectSpec
 from helm.benchmark.adaptation.adapter import (
-    AdapterSpec,
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
@@ -14,6 +13,7 @@ from helm.benchmark.adaptation.adapter import (
     RANKING_CORRECT_LABEL,
     RANKING_WRONG_LABEL,
 )
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .metrics.metric import MetricSpec
 from .run_expander import RUN_EXPANDERS, GlobalPrefixRunExpander, StopRunExpander
 from .runner import RunSpec

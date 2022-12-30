@@ -13,11 +13,10 @@ from .adapter import (
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE_JOINT,
     Adapter,
-    AdapterSpec,
-    Prompt,
     Processor,
 )
-
+from helm.benchmark.adaptation.prompt import Prompt
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 
 DEFAULT_MODEL = "openai/davinci"
 

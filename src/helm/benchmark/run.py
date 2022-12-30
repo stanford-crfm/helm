@@ -7,7 +7,7 @@ from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
-from helm.benchmark.adaptation.adapter import AdapterSpec
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
 from .run_specs import construct_run_specs

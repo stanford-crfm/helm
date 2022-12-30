@@ -9,7 +9,8 @@ from sacrebleu.metrics import BLEU
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.request import RequestResult, Sequence
-from helm.benchmark.adaptation.adapter import AdapterSpec, RequestState
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .metric import Metric
 from .metric_name import MetricName
 from .metric_service import MetricService

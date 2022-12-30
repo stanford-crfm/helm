@@ -23,9 +23,9 @@ from helm.benchmark.adaptation.adapter import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_RANKING_BINARY,
-    AdapterSpec,
-    RequestState,
 )
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.benchmark.window_services.tokenizer_service import TokenizerService

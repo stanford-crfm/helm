@@ -8,7 +8,8 @@ from helm.common.authentication import Authentication
 from helm.proxy.services.remote_service import RemoteService
 from helm.proxy.services.server_service import ServerService
 from helm.proxy.services.service import Service
-from .adaptation.adapter import RequestState, ScenarioState
+from helm.benchmark.adaptation.scenario_state import ScenarioState
+from helm.benchmark.adaptation.request_state import RequestState
 
 
 class ExecutorError(Exception):
