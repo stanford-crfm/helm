@@ -45,8 +45,8 @@ class DistanceMetric(Metric):
         """
         references = request_state.instance.references
         _, rel_str, relation_type = map(lambda _: _.output, references)
-        input = request_state.instance.input
-        datapoint_input = input.split("\n")[-1]
+        input_text: str = request_state.instance.input.text
+        datapoint_input = input_text.split("\n")[-1]
         val = list(map(int, datapoint_input.split(NumeracyScenario.delimiter)))
 
         distance_func = globals()[f"distance_{relation_type}"]

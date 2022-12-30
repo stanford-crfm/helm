@@ -135,7 +135,7 @@ class BasicCopyrightMetric(Metric):
         num_references: int = len(references)
         if num_references != 1:
             raise ValueError(f"Copyright scenario expects a single reference, but found {num_references} references.")
-        prefix: str = request_state.instance.input
+        prefix: str = request_state.instance.input.text
         reference: str = references[0].output[len(prefix) :]
         if self.normalize_newline_space_tab:
             reference = _normalize_newline_space_tab(reference)

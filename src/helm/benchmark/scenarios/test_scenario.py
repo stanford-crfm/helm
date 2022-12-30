@@ -36,7 +36,7 @@ class TestScenario:
         ]
 
 
-def test_text_input_equality():
+def test_input_equality():
     input1 = Input("input1")
     assert input1 == input1
     assert input1 == Input("input1")

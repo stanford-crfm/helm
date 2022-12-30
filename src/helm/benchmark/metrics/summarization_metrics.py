@@ -149,7 +149,7 @@ class SummarizationMetric(Metric):
         p, r, f = self.bert_scorer.score([pred], [refs])
         return {"BERTScore-P": p[0].item(), "BERTScore-R": r[0].item(), "BERTScore-F": f[0].item()}
 
-    def _remove_braces(self, text):
+    def _remove_braces(self, text: str):
         if text.startswith("{"):
             text = text[1:]
         if text.endswith("}"):
@@ -165,7 +165,7 @@ class SummarizationMetric(Metric):
     ) -> List[Stat]:
 
         refs: List[str] = [self._remove_braces(x.output) for x in request_state.instance.references]
-        inp: str = self._remove_braces(request_state.instance.input)
+        inp: str = self._remove_braces(request_state.instance.input.text)
 
         assert request_state.result is not None
         pred: str = self._remove_braces(request_state.result.completions[0].text.strip())

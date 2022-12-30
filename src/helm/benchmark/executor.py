@@ -1,7 +1,7 @@
 from typing import Optional
 from dataclasses import dataclass, replace
 
-from helm.common.general import format_text, parallel_map
+from helm.common.general import parallel_map
 from helm.common.hierarchical_logger import htrack, hlog
 from helm.common.request import RequestResult
 from helm.common.authentication import Authentication
@@ -9,7 +9,6 @@ from helm.proxy.services.remote_service import RemoteService
 from helm.proxy.services.server_service import ServerService
 from helm.proxy.services.service import Service
 from .adapter import RequestState, ScenarioState
-from .scenarios.scenario import Instance
 
 
 class ExecutorError(Exception):
