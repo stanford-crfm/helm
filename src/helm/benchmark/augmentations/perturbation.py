@@ -5,7 +5,7 @@ from typing import List, Optional
 
 
 from .perturbation_description import PerturbationDescription
-from helm.benchmark.scenarios.scenario import Instance, Reference
+from helm.benchmark.scenarios.scenario import Input, Instance, Reference
 from helm.common.object_spec import ObjectSpec, create_object
 
 
@@ -46,7 +46,7 @@ class Perturbation(ABC):
         # All the perturbed Instances generated from a single Instance should have the same ID.
         return replace(
             instance,
-            input=self.perturb(instance.input, rng),
+            input=Input(self.perturb(instance.input.text, rng)),
             references=references,
             perturbation=description,
         )
