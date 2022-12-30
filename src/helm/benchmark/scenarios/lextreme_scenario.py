@@ -172,7 +172,7 @@ class LEXTREMEScenario(Scenario):
     delimiter = "|"  # we choose the pipe as a delimiter because it is very unlikely to occur in the data
 
     ner_class_mapping = {
-        "leber_br": [
+        "lener_br": [
             "O",
             "B-ORGANIZACAO",
             "I-ORGANIZACAO",
