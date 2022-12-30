@@ -1,7 +1,7 @@
 import random
 from typing import List
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, TextInput
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input
 
 
 class Simple1Scenario(Scenario):
@@ -42,7 +42,7 @@ class Simple1Scenario(Scenario):
                 Reference(output=output, tags=[CORRECT_TAG]),  # Correct output
                 Reference(output="-1", tags=[]),  # Wrong output
             ]
-            return Instance(input=TextInput(input), references=references, split=split)
+            return Instance(input=Input(input), references=references, split=split)
 
         def generate_instances(num_instances: int, split: str):
             return [generate_instance(split) for _ in range(num_instances)]

@@ -3,7 +3,7 @@ import os
 from typing import List, Dict, Any
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, VALID_SPLIT, TRAIN_SPLIT, CORRECT_TAG, TextInput
+from .scenario import Scenario, Instance, Reference, VALID_SPLIT, TRAIN_SPLIT, CORRECT_TAG, Input
 
 
 class TruthfulQAScenario(Scenario):
@@ -129,7 +129,7 @@ class TruthfulQAScenario(Scenario):
                     # Prepare the instance
                     references = get_references(best_answer, incorrect_answers)
                     instance = Instance(
-                        input=TextInput(question),
+                        input=Input(question),
                         references=references,
                         split=split,
                     )

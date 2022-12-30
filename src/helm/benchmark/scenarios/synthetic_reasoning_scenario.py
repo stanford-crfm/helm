@@ -25,7 +25,7 @@ The model hence is asked to do the following three tasks:
 import numpy as np
 from typing import List, Dict, Tuple
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, TextInput
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input
 
 ANIMALS = ["zebra", "cobra", "stork", "penguin", "shark", "lion", "buffalo", "whale", "seal", "eagle", "horse", "rat"]
 FRUITS = ["apple", "peach", "watermelon", "banana", "grape", "kiwi", "pear", "strawberry", "blueberry", "blackberry"]
@@ -201,7 +201,7 @@ class SyntheticReasoningScenario(Scenario):
                 split = TEST_SPLIT
 
             instance = Instance(
-                input=TextInput(src),
+                input=Input(src),
                 references=[Reference(output=tgt, tags=[CORRECT_TAG])],
                 split=split,
             )

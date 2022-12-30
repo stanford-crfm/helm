@@ -18,7 +18,7 @@ from .scenario import (
     VALID_SPLIT,
     CORRECT_TAG,
     PassageQuestionInput,
-    TextInput,
+    Input,
 )
 
 
@@ -232,18 +232,21 @@ class NaturalQAScenario(Scenario):
         if question[-1] != "?":
             question += "?"
 
-        input: TextInput
+        input: Input
         ans_idx: int = random.randint(0, len(instance.short_answers) - 1)
 
         if self.context_mode == "closedbook":
-            input = TextInput(question)
+            input = Input(question)
         elif self.context_mode == "openbook_wiki":
-            input = PassageQuestionInput(passage=instance.document, question=question).to_text_input(
-                passage_prefix="Title: {instance.title}\n\nPassage: ", separator="\n\n"
+            input = PassageQuestionInput(
+                passage=instance.document,
+                question=question,
+                passage_prefix=f"Title: {instance.title}\n\nPassage: ",
+                separator="\n\n",
             )
         elif self.context_mode == "openbook_longans":
-            input = PassageQuestionInput(passage=instance.long_answers[ans_idx], question=question).to_text_input(
-                passage_prefix="Passage: ", separator="\n\n"
+            input = PassageQuestionInput(
+                passage=instance.long_answers[ans_idx], question=question, passage_prefix="Passage: ", separator="\n\n"
             )
         else:
             raise Exception(f"Invalid context mode: {self.context_mode}")
@@ -265,7 +268,6 @@ class NaturalQAScenario(Scenario):
         Helper for generating instances for the given splits.
         Args:
             target_file (str): Data file.
-            split (dict): Which splits to partition the data into.
 
         Returns:
             List[Instance]: Instances from file partitioned uniformly across splits.

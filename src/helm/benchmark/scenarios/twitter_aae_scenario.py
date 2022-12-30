@@ -4,7 +4,7 @@ from typing import List
 
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, TEST_SPLIT, TextInput
+from .scenario import Scenario, Instance, TEST_SPLIT, Input
 
 CODALAB_URI_TEMPLATE: str = (
     "https://worksheets.codalab.org/rest/bundles/0x31485f8c37ad481fb9f4e9bf7ccff6e5/contents/blob/"
@@ -52,7 +52,7 @@ class TwitterAAEScenario(Scenario):
             for row in reader:
                 # Example: ["Click Clack Motha Fucka I ain't tryin to hear Nothin!"]
                 tweet: str = row[0]
-                instance = Instance(input=TextInput(tweet), references=[], split=TEST_SPLIT)
+                instance = Instance(input=Input(tweet), references=[], split=TEST_SPLIT)
                 instances.append(instance)
 
         return instances

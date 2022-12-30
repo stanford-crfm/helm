@@ -4,7 +4,7 @@ from typing import Dict, List, Tuple
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, TextInput
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input
 
 
 class EntityMatchingScenario(Scenario):
@@ -135,7 +135,7 @@ class EntityMatchingScenario(Scenario):
                 label = "Yes" if pair["label"] else "No"
 
                 instance = Instance(
-                    input=TextInput(input),
+                    input=Input(input),
                     references=[Reference(output=label, tags=[CORRECT_TAG])],
                     split=split,
                 )

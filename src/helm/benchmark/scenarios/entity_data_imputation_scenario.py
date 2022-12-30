@@ -5,7 +5,7 @@ from typing import List, Tuple
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, TextInput
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input
 
 
 class EntityDataImputationScenario(Scenario):
@@ -139,7 +139,7 @@ class EntityDataImputationScenario(Scenario):
                 input: str = f"{res}. {col_to_impute}?"
                 label = str(row[col_to_impute])
                 instance = Instance(
-                    input=TextInput(input), references=[Reference(output=label, tags=[CORRECT_TAG])], split=split
+                    input=Input(input), references=[Reference(output=label, tags=[CORRECT_TAG])], split=split
                 )
                 instances.append(instance)
 

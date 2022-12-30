@@ -2,7 +2,7 @@ import os
 from typing import List, Dict
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TextInput
+from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, Input
 
 
 class IMDBScenario(Scenario):
@@ -81,7 +81,7 @@ class IMDBScenario(Scenario):
                         continue
 
                     instance: Instance = Instance(
-                        input=TextInput(prompt),
+                        input=Input(prompt),
                         references=[Reference(output=label_id, tags=[CORRECT_TAG])],
                         split=instance_split,
                         contrast_inputs=contrast_inputs,

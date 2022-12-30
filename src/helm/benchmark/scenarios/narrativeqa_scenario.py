@@ -8,12 +8,10 @@ from .scenario import (
     Scenario,
     Instance,
     Reference,
-    TRAIN_SPLIT,
-    VALID_SPLIT,
+    ALL_SPLITS,
     CORRECT_TAG,
-    TEST_SPLIT,
+    Input,
     PassageQuestionInput,
-    TextInput,
 )
 
 
@@ -75,23 +73,23 @@ class NarrativeQAScenario(Scenario):
     description = "Question answering using summaries of books/movie scripts."
     tags = ["question_answering"]
 
-    def get_context(self, summary: str, question: str) -> TextInput:
+    @staticmethod
+    def get_context(summary: str, question: str) -> Input:
         """
         We follow the format from https://arxiv.org/abs/2005.14165.
         For more details, see the examples in Appendix G.
         """
         if question[-1] != "?":
             question = question + "?"
-        return PassageQuestionInput(passage=summary, question=question).to_text_input()
+        return PassageQuestionInput(passage=summary, question=question)
 
-    def get_split_instances(self, summaries_file: str, qaps_file: str, split_name: str, split: str) -> List[Instance]:
+    def get_split_instances(self, summaries_file: str, qaps_file: str, split: str) -> List[Instance]:
         """
         Helper for generating instances for a split.
         Args:
             summaries_file (str): File path for summaries (summaries.csv)
             qaps_file (str): File path for the question answer pairs (qaps.csv)
             split (str): Split (one of "train", "valid" or "test")
-            tags (List[str]): Desired tags for the instances.
 
         Returns:
             List[Instance]: Instances for the specified split
@@ -102,7 +100,7 @@ class NarrativeQAScenario(Scenario):
         with open(summaries_file, encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                if row["set"] != split_name:
+                if row["set"] != split:
                     continue
                 split_summaries[row["document_id"]] = row
 
@@ -110,7 +108,7 @@ class NarrativeQAScenario(Scenario):
         with open(qaps_file, encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                if row["set"] != split_name:
+                if row["set"] != split:
                     continue
                 document_id: str = row["document_id"]
                 if document_id in doc_id_to_question_rows:
@@ -141,8 +139,6 @@ class NarrativeQAScenario(Scenario):
         data_path = os.path.join(self.output_path, "data")
         ensure_directory_exists(data_path)
 
-        splits = {"train": TRAIN_SPLIT, "valid": VALID_SPLIT, "test": TEST_SPLIT}
-
         repo_url: str = "https://github.com/deepmind/narrativeqa/archive/master.zip"
         repo_path: str = os.path.join(data_path, "narrativeqa-master")
 
@@ -154,11 +150,7 @@ class NarrativeQAScenario(Scenario):
 
         random.seed(0)  # we randomly pick one question per document
         instances: List[Instance] = []
-        for split_name, split in splits.items():
-            instances.extend(
-                self.get_split_instances(
-                    summaries_file=summaries_file, qaps_file=qaps_file, split_name=split_name, split=split
-                )
-            )
+        for split in ALL_SPLITS:
+            instances.extend(self.get_split_instances(summaries_file=summaries_file, qaps_file=qaps_file, split=split))
 
         return instances

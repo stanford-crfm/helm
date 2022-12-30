@@ -79,6 +79,14 @@ class BabiQAScenario(Scenario):
     description = "Question answering dataset with reasoning questions."
     tags = ["question_answering"]
 
+    @staticmethod
+    def process_path(path: str) -> str:
+        """Turn a path string (task 19) from the original format 's,w' to a verbal model-friendly format 'south west'"""
+        steps: List[str] = path.split(",")
+        directions = {"s": "south", "n": "north", "e": "east", "w": "west"}
+        path = " ".join([directions[step] for step in steps])
+        return path
+
     def __init__(self, task):
         super().__init__()
         all_tasks = list(range(1, 21))
@@ -88,13 +96,6 @@ class BabiQAScenario(Scenario):
             task = int(task)
             assert task in all_tasks
             self.tasks = [task]
-
-    def process_path(self, path: str) -> str:
-        """Turn a path string (task 19) from the original format 's,w' to a verbal model-friendly format 'south west'"""
-        steps: List[str] = path.split(",")
-        directions = {"s": "south", "n": "north", "e": "east", "w": "west"}
-        path = " ".join([directions[step] for step in steps])
-        return path
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
@@ -129,7 +130,7 @@ class BabiQAScenario(Scenario):
                                 answer = self.process_path(answer)
 
                             instance: Instance = Instance(
-                                input=PassageQuestionInput("".join(story), question).to_text_input(separator=""),
+                                input=PassageQuestionInput(passage="".join(story), question=question),
                                 references=[Reference(output=answer, tags=[CORRECT_TAG])],
                                 split=splits[split],
                             )

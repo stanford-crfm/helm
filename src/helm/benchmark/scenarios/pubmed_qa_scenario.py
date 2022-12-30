@@ -163,8 +163,8 @@ class PubMedQAScenario(Scenario):
                     # Following Liévin et al., prepend the question with the provided context.
                     # Examples can be found here: https://vlievin.github.io/medical-reasoning/samples/pubmedqa.html.
                     question: str = example["QUESTION"]
-                    prompt = PassageQuestionInput(passage=background, question=question + "\n").to_text_input(
-                        passage_prefix="Context: ", separator="\n\n"
+                    prompt = PassageQuestionInput(
+                        passage=background, question=question + "\n", passage_prefix="Context: ", separator="\n\n"
                     )
                     instance: Instance = Instance(input=prompt, references=references, split=split)
                     instances.append(instance)

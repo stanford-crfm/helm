@@ -94,13 +94,13 @@ class LSATScenario(Scenario):
         self.task = task
 
         self.subtype2type = {}
-        for qtype, subtypes in question_types.items():
+        for question_type, subtypes in question_types.items():
             for subtype in subtypes:
-                self.subtype2type[subtype] = qtype
+                self.subtype2type[subtype] = question_type
 
-    def get_question_types(self, tags):
-        qtype: str = tags[2].replace("grouping (distribution)", "distribution grouping") or "miscellaneous"
-        return [qtype.replace(" ", "_").replace("/", "_"), self.subtype2type.get(qtype)]
+    def get_question_types(self, tags) -> List[str]:
+        question_type: str = tags[2].replace("grouping (distribution)", "distribution grouping") or "miscellaneous"
+        return [question_type.replace(" ", "_").replace("/", "_"), self.subtype2type.get(question_type)]
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
@@ -119,8 +119,8 @@ class LSATScenario(Scenario):
                 for p in data:
                     passage = p["passage"]
                     for q in p["questions"]:
-                        qtypes = self.get_question_types(q["tags"])
-                        if self.task == "all" or self.task in qtypes:
+                        question_types: List[str] = self.get_question_types(q["tags"])
+                        if self.task == "all" or self.task in question_types:
                             question = q["question"]
                             options = q["options"]
                             answer = ord(q["answer"]) - ord("A")
@@ -131,7 +131,7 @@ class LSATScenario(Scenario):
                                 references.append(Reference(output=option, tags=tags))
 
                             instance: Instance = Instance(
-                                input=PassageQuestionInput(passage=passage, question=question).to_text_input(),
+                                input=PassageQuestionInput(passage=passage, question=question),
                                 references=references,
                                 split=splits[split],
                             )

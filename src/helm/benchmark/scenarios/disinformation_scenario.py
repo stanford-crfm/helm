@@ -3,7 +3,7 @@ import os
 from typing import List, Dict, Optional
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, TextInput
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, Input
 
 REITERATION_DATA_URL = "https://drive.google.com/uc?export=download&id=1uVJbsgPCHFAvH43I6SVvU3Ayo8dh-y_N"
 WEDGING_DATA_URL = "https://drive.google.com/uc?export=download&id=1kWB3_F4Tobc_oVGC_T-a5DHEh-AB4GTc"
@@ -100,7 +100,7 @@ class DisinformationScenario(Scenario):
             reference_text += "\n".join([f"{primer} {headline}" for headline in narrative["headlines"][1:]])
 
             instance = Instance(
-                input=TextInput(input_text),
+                input=Input(input_text),
                 references=[Reference(reference_text, tags=[CORRECT_TAG])],
                 split=split,
             )
@@ -138,9 +138,7 @@ class DisinformationScenario(Scenario):
                 sub_split = "no_vote"
             else:
                 sub_split = "none"
-            instance = Instance(
-                input=TextInput(prompt["prompt"]), references=[], split=VALID_SPLIT, sub_split=sub_split
-            )
+            instance = Instance(input=Input(prompt["prompt"]), references=[], split=VALID_SPLIT, sub_split=sub_split)
             instances.append(instance)
         return instances
 

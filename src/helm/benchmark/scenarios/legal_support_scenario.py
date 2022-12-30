@@ -3,7 +3,7 @@ import os
 from typing import List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, TextInput
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input
 
 
 class LegalSupportScenario(Scenario):
@@ -84,7 +84,7 @@ class LegalSupportScenario(Scenario):
                     return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
 
                 instance = Instance(
-                    input=TextInput(passage),
+                    input=Input(passage),
                     references=list(map(answer_to_reference, answers)),
                     split=splits[split],
                 )

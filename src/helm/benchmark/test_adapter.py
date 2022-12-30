@@ -5,7 +5,7 @@ from typing import List
 from helm.common.authentication import Authentication
 from helm.common.tokenization_request import TokenizationToken
 from helm.proxy.services.server_service import ServerService
-from .scenarios.scenario import CORRECT_TAG, create_scenario, Instance, Reference, TextInput
+from .scenarios.scenario import CORRECT_TAG, create_scenario, Instance, Reference, Input
 from .run_specs import get_scenario_spec1, get_adapter_spec1
 from .adapter import (
     ADAPT_GENERATION,
@@ -55,9 +55,9 @@ class TestAdapter:
         processor = Processor(adapter_spec, adapter.window_service, train_instances=[], train_trial_index=0)
         correct_reference = Reference(output="", tags=[CORRECT_TAG])
         train_instances: List[Instance] = [
-            Instance(input=TextInput("train"), references=[correct_reference]) for _ in range(2049)
+            Instance(input=Input("train"), references=[correct_reference]) for _ in range(2049)
         ]
-        eval_instances = Instance(input=TextInput("eval"), references=[])
+        eval_instances = Instance(input=Input("eval"), references=[])
         prompt: Prompt = processor.construct_prompt(
             train_instances, eval_instances, include_output=False, reference_index=None
         )
@@ -77,9 +77,9 @@ class TestAdapter:
         processor = Processor(adapter_spec, adapter.window_service, train_instances=[], train_trial_index=0)
         correct_reference = Reference(output="", tags=[CORRECT_TAG])
         train_instances: List[Instance] = [
-            Instance(input=TextInput("train"), references=[correct_reference]) for _ in range(100)
+            Instance(input=Input("train"), references=[correct_reference]) for _ in range(100)
         ]
-        eval_instances = Instance(input=TextInput("eval" * 2049), references=[])
+        eval_instances = Instance(input=Input("eval" * 2049), references=[])
         prompt: Prompt = processor.construct_prompt(
             train_instances, eval_instances, include_output=False, reference_index=None
         )
@@ -119,11 +119,11 @@ class TestAdapter:
         adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, model=DEFAULT_MODEL, max_train_instances=4)
         adapter = Adapter(adapter_spec, self.tokenizer_service)
         all_train_instances = [
-            Instance(TextInput("say no"), references=[Reference("no", tags=[CORRECT_TAG])]),
-            Instance(TextInput("say yes1"), references=[Reference("yes", tags=[CORRECT_TAG])]),
-            Instance(TextInput("say yes2"), references=[Reference("yes", tags=[CORRECT_TAG])]),
-            Instance(TextInput("say yes3"), references=[Reference("yes", tags=[CORRECT_TAG])]),
-            Instance(TextInput("say yes4"), references=[Reference("yes", tags=[CORRECT_TAG])]),
+            Instance(Input("say no"), references=[Reference("no", tags=[CORRECT_TAG])]),
+            Instance(Input("say yes1"), references=[Reference("yes", tags=[CORRECT_TAG])]),
+            Instance(Input("say yes2"), references=[Reference("yes", tags=[CORRECT_TAG])]),
+            Instance(Input("say yes3"), references=[Reference("yes", tags=[CORRECT_TAG])]),
+            Instance(Input("say yes4"), references=[Reference("yes", tags=[CORRECT_TAG])]),
         ]
 
         examples = adapter.sample_examples(all_train_instances, seed=0)
@@ -145,9 +145,9 @@ class TestAdapter:
         adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, model=DEFAULT_MODEL, max_train_instances=10)
         adapter = Adapter(adapter_spec, self.tokenizer_service)
         all_train_instances = [
-            Instance(TextInput("say no"), references=[Reference("no", tags=[CORRECT_TAG])]),
-            Instance(TextInput("say yes"), references=[Reference("yes", tags=[CORRECT_TAG])]),
-            Instance(TextInput("say yes"), references=[Reference("yes", tags=[CORRECT_TAG])]),
+            Instance(Input("say no"), references=[Reference("no", tags=[CORRECT_TAG])]),
+            Instance(Input("say yes"), references=[Reference("yes", tags=[CORRECT_TAG])]),
+            Instance(Input("say yes"), references=[Reference("yes", tags=[CORRECT_TAG])]),
         ]
 
         examples = adapter.sample_examples(all_train_instances, seed=0)
@@ -157,9 +157,9 @@ class TestAdapter:
         adapter_spec = AdapterSpec(method=ADAPT_LANGUAGE_MODELING, model=DEFAULT_MODEL, max_train_instances=1)
         adapter = Adapter(adapter_spec, self.tokenizer_service)
         all_train_instances = [
-            Instance(TextInput("prompt1"), references=[]),
-            Instance(TextInput("prompt2"), references=[]),
-            Instance(TextInput("prompt3"), references=[]),
+            Instance(Input("prompt1"), references=[]),
+            Instance(Input("prompt2"), references=[]),
+            Instance(Input("prompt3"), references=[]),
         ]
 
         examples = adapter.sample_examples(all_train_instances, seed=0)
@@ -170,7 +170,7 @@ class TestAdapter:
         adapter = Adapter(adapter_spec, self.tokenizer_service)
 
         all_train_instances: List[Instance] = [
-            Instance(TextInput(f"prompt{i}"), references=[Reference(f"reference{i}", tags=[CORRECT_TAG])])
+            Instance(Input(f"prompt{i}"), references=[Reference(f"reference{i}", tags=[CORRECT_TAG])])
             for i in range(1, 10)
         ]
         seed0_examples: List[Instance] = adapter.sample_examples(all_train_instances, seed=0)
@@ -184,18 +184,18 @@ class TestAdapter:
         adapter = Adapter(adapter_spec, self.tokenizer_service)
 
         all_train_instances: List[Instance] = [
-            Instance(TextInput("prompt3"), references=[Reference("reference3", tags=[CORRECT_TAG])]),
-            Instance(TextInput("prompt3"), references=[Reference("reference3", tags=[CORRECT_TAG])]),
-            Instance(TextInput("prompt1"), references=[Reference("reference1", tags=[CORRECT_TAG])]),
-            Instance(TextInput("prompt1"), references=[Reference("reference1", tags=[CORRECT_TAG])]),
-            Instance(TextInput("prompt1"), references=[Reference("reference1", tags=[CORRECT_TAG])]),
-            Instance(TextInput("prompt2"), references=[Reference("reference2", tags=[CORRECT_TAG])]),
-            Instance(TextInput("prompt2"), references=[Reference("reference2", tags=[CORRECT_TAG])]),
+            Instance(Input("prompt3"), references=[Reference("reference3", tags=[CORRECT_TAG])]),
+            Instance(Input("prompt3"), references=[Reference("reference3", tags=[CORRECT_TAG])]),
+            Instance(Input("prompt1"), references=[Reference("reference1", tags=[CORRECT_TAG])]),
+            Instance(Input("prompt1"), references=[Reference("reference1", tags=[CORRECT_TAG])]),
+            Instance(Input("prompt1"), references=[Reference("reference1", tags=[CORRECT_TAG])]),
+            Instance(Input("prompt2"), references=[Reference("reference2", tags=[CORRECT_TAG])]),
+            Instance(Input("prompt2"), references=[Reference("reference2", tags=[CORRECT_TAG])]),
         ]
         # Add prompt4,..,prompt100
         for i in range(4, 100):
             all_train_instances.append(
-                Instance(TextInput(f"prompt{i}"), references=[Reference(f"reference{i}", tags=[CORRECT_TAG])]),
+                Instance(Input(f"prompt{i}"), references=[Reference(f"reference{i}", tags=[CORRECT_TAG])]),
             )
 
         previous_train_instances: List[List[Instance]] = []

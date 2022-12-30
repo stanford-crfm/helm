@@ -4,7 +4,7 @@ import json
 
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded, flatten_list
 from helm.common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, TextInput
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input
 
 Pid2name = {
     "P136": "genre",
@@ -166,7 +166,7 @@ class WIKIFactScenario(Scenario):
                     return Reference(output=answer.strip(), tags=[CORRECT_TAG])
 
                 instance = Instance(
-                    input=TextInput(question),
+                    input=Input(question),
                     references=list(map(answer_to_reference, answers)),
                     split=splits[split],
                 )

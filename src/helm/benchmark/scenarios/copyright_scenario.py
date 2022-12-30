@@ -4,7 +4,7 @@ import tqdm
 from typing import List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TEST_SPLIT, TextInput
+from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TEST_SPLIT, Input
 
 datatag2hash_text = {
     # The "average" book.
@@ -75,7 +75,7 @@ class CopyrightScenario(Scenario):
         for prefix, prefix_to_end in tqdm.tqdm(data["data"].items(), desc="load instances"):
             instances.append(
                 Instance(
-                    input=TextInput(prefix),
+                    input=Input(prefix),
                     references=[Reference(output=prefix_to_end, tags=[CORRECT_TAG])],
                     split=TEST_SPLIT,
                 ),

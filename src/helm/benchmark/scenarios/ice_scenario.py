@@ -4,7 +4,7 @@ from typing import List, Union
 from enum import Enum
 import pandas as pd
 
-from .scenario import Scenario, Instance, TEST_SPLIT, TextInput
+from .scenario import Scenario, Instance, TEST_SPLIT, Input
 
 
 class ICESubset(Enum):
@@ -449,7 +449,7 @@ class ICEScenario(Scenario):
                     preprocessed_texts = [self.preprocess_text(text, KEEP_TAGS)]
 
                 for t in preprocessed_texts:
-                    instances.append(Instance(input=TextInput(t), references=[], split=TEST_SPLIT))
+                    instances.append(Instance(input=Input(t), references=[], split=TEST_SPLIT))
 
                     if debug_cap and len(instances) >= debug_cap:
                         return instances

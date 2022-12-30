@@ -4,7 +4,7 @@ import random
 from typing import List, Tuple
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, TextInput
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, Input
 
 
 class QuACScenario(Scenario):
@@ -158,7 +158,7 @@ class QuACScenario(Scenario):
             prompt, answers = self.create_prompt(sample)
 
             instance = Instance(
-                input=TextInput(prompt),
+                input=Input(prompt),
                 references=[Reference(output=ans, tags=[CORRECT_TAG]) for ans in answers],
                 split=split,
             )

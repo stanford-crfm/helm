@@ -49,19 +49,10 @@ def unpack_tag(tag: str) -> Tuple[str, str]:
     return key, value
 
 
-class Input(ABC):
-    """
-    The input of an `Instance`. Subclass this for structured inputs (e.g., passage + question)
-    or multimodalities (e.g., image + text).
-    """
-
-    pass
-
-
 @dataclass(frozen=True)
-class TextInput(Input):
+class Input:
     """
-    Contains a single text string.
+    The input of an `Instance`.
     """
 
     text: str
@@ -70,16 +61,18 @@ class TextInput(Input):
 @dataclass(frozen=True)
 class PassageQuestionInput(Input):
     """
-    Passage-question pair used for question answering scenarios.
+    Passage-question pair used for question answering Scenarios.
     """
 
-    passage: str
-    question: str
-
-    def to_text_input(
-        self, passage_prefix: str = "", question_prefix: str = "Question: ", separator: str = "\n"
-    ) -> TextInput:
-        return TextInput(f"{passage_prefix}{self.passage}{separator}{question_prefix}{self.question}")
+    def __init__(
+        self,
+        passage: str,
+        question: str,
+        passage_prefix: str = "",
+        question_prefix: str = "Question: ",
+        separator: str = "\n",
+    ):
+        super().__init__(f"{passage_prefix}{passage}{separator}{question_prefix}{question}")
 
 
 @dataclass(frozen=True)
@@ -146,7 +139,7 @@ class Instance:
         return None
 
     def render_lines(self) -> List[str]:
-        info = [f"input: {format_text(self.input)}"]
+        info = [f"input: {format_text(self.input.text)}"]
         if self.sub_split:
             info.append(f"sub_split: {format_text(self.sub_split)}")
         if self.id:

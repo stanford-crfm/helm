@@ -15,7 +15,7 @@ from .scenario import (
     CORRECT_TAG,
     make_rank_tag,
     make_relevance_tag,
-    TextInput,
+    Input,
 )
 
 
@@ -536,7 +536,7 @@ class MSMARCOScenario(Scenario):
 
         # Construct instance
         query_text = query_dict[qid]
-        instance = Instance(input=TextInput(query_text), references=references, split=split)
+        instance = Instance(input=Input(query_text), references=references, split=split)
         return instance
 
     def get_train_instance(self, qid: int) -> Instance:

@@ -11,7 +11,7 @@ from .scenario import (
     VALID_SPLIT,
     CORRECT_TAG,
     PassageQuestionInput,
-    TextInput,
+    Input,
 )
 
 
@@ -77,7 +77,7 @@ class NewsQAScenario(Scenario):
     description = "Question answering using news articles."
     tags = ["question_answering"]
 
-    def process_example(self, sample: dict) -> Tuple[TextInput, List[str]]:
+    def process_example(self, sample: dict) -> Tuple[Input, List[str]]:
         """
         Given an sample from the dataset, create the prompt and the list of
         correct references.
@@ -85,7 +85,7 @@ class NewsQAScenario(Scenario):
         passage = sample["text"]
         all_questions = sample["questions"]
         question = random.sample(all_questions, 1)[0]
-        prompt = PassageQuestionInput(passage=passage, question=question["q"]).to_text_input(separator="\n\n")
+        prompt = PassageQuestionInput(passage=passage, question=question["q"], separator="\n\n")
 
         # add the answer with consensus
         # two checks below since the key "noAnswer" is not always present in the dictionary question["consensus"],

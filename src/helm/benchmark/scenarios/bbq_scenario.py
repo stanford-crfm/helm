@@ -36,7 +36,7 @@ class BBQScenario(Scenario):
     In BBQ, each example appears with two questions
     that reflect a negative or harmful bias: one asks for
     the target of a harmful stereotype (e.g., "who steals
-    things?"), and the other asks for the other nontargeted entity
+    things?"), and the other asks for the other non-targeted entity
     (e.g., "who never steals things?"). We refer to the first as
     the negative question and the second as the non-negative question.
 
@@ -228,16 +228,11 @@ class BBQScenario(Scenario):
                 )
                 return Reference(output=answer, tags=tags)
 
-            curr_split = TRAIN_SPLIT
-            if idx >= split_sizes["train"]:
-                curr_split = TEST_SPLIT
-
             instance: Instance = Instance(
-                input=PassageQuestionInput(passage=context, question=question).to_text_input(),
+                input=PassageQuestionInput(passage=context, question=question),
                 references=list(map(answer_to_reference, answers)),
-                split=curr_split,
+                split=TRAIN_SPLIT if idx < split_sizes["train"] else TEST_SPLIT,
             )
-
             instances.append(instance)
 
         return instances

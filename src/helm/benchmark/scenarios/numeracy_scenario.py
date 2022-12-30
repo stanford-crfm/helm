@@ -16,7 +16,7 @@ from helm.benchmark.adapter import AdapterSpec, Adapter, ADAPT_GENERATION
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.common.authentication import Authentication
 from helm.proxy.services.server_service import ServerService
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, TextInput
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input
 
 
 # TODO: we shouldn't create an Adapter and TokenizerService in a scenario
@@ -694,7 +694,7 @@ class NumeracyScenario(Scenario):
                     Reference(output=solution, tags=[SOLUTION_TAG]),
                     Reference(output=self.relation_type, tags=[CLASS_TAG]),
                 ]
-                instance = Instance(input=TextInput(input), references=references, split=split)
+                instance = Instance(input=Input(input), references=references, split=split)
                 instances.append(instance)
             return instances
 

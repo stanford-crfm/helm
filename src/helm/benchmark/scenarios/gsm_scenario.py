@@ -3,7 +3,7 @@ import os
 from typing import List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT, TextInput
+from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT, Input
 
 
 class GSM8KScenario(Scenario):
@@ -46,7 +46,7 @@ class GSM8KScenario(Scenario):
                 for example in reader:  # Each example is a dictionary with a 'question' and 'answer' key
                     instances.append(
                         Instance(
-                            input=TextInput(example["question"]),
+                            input=Input(example["question"]),
                             references=[
                                 Reference(
                                     output=example["answer"].replace("####", "The answer is").replace("\n", " ") + ".",
