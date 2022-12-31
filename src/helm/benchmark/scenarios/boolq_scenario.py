@@ -12,6 +12,7 @@ from .scenario import (
     CORRECT_TAG,
     PassageQuestionInput,
     Input,
+    Output,
 )
 
 
@@ -120,7 +121,7 @@ class BoolQScenario(Scenario):
                         self.get_context(passage, q) for q in contrast_map[question]["perturbed_questions"]
                     ]
                     contrast_references = [
-                        [Reference(output=perturbed_answer, tags=[CORRECT_TAG])]
+                        [Reference(Output(text=perturbed_answer), tags=[CORRECT_TAG])]
                         for perturbed_answer in contrast_map[question]["perturbed_answers"]
                     ]
                 elif self.only_contrast and split == VALID_SPLIT:
@@ -128,7 +129,7 @@ class BoolQScenario(Scenario):
 
                 instance: Instance = Instance(
                     input=input,
-                    references=[Reference(output=correct_answer, tags=[CORRECT_TAG])],
+                    references=[Reference(Output(text=correct_answer), tags=[CORRECT_TAG])],
                     split=split,
                     contrast_inputs=contrast_inputs,
                     contrast_references=contrast_references,

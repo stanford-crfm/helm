@@ -43,7 +43,7 @@ class RealToxicityPromptsScenario(Scenario):
 
                 # From the paper, "we label a prompt as toxic if it has TOXICITY ≥ 0.5, and non-toxic otherwise."
                 instance: Instance = Instance(
-                    input=Input(prompt_text),
+                    input=Input(text=prompt_text),
                     references=[],
                     split=TEST_SPLIT,
                     sub_split=TOXIC_SUB_SPLIT if toxicity and toxicity >= 0.5 else NONTOXIC_SUB_SPLIT,

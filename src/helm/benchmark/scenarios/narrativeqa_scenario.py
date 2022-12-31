@@ -12,6 +12,7 @@ from .scenario import (
     CORRECT_TAG,
     Input,
     PassageQuestionInput,
+    Output,
 )
 
 
@@ -126,8 +127,8 @@ class NarrativeQAScenario(Scenario):
             instance: Instance = Instance(
                 input=self.get_context(summary.strip(), question.strip()),
                 references=[
-                    Reference(output=answer1, tags=[CORRECT_TAG]),
-                    Reference(output=answer2, tags=[CORRECT_TAG]),
+                    Reference(Output(text=answer1), tags=[CORRECT_TAG]),
+                    Reference(Output(text=answer2), tags=[CORRECT_TAG]),
                 ],
                 split=split,
             )

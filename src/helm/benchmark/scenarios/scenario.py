@@ -76,6 +76,15 @@ class PassageQuestionInput(Input):
 
 
 @dataclass(frozen=True)
+class Output:
+    """
+    The output of a `Reference`.
+    """
+
+    text: str
+
+
+@dataclass(frozen=True)
 class Reference:
     """
     A `Reference` specifies a possible output and how good/bad it is.  This
@@ -84,8 +93,8 @@ class Reference:
     multiple-choice exam).
     """
 
-    output: str
-    """The output text"""
+    output: Output
+    """The output"""
 
     tags: List[str]
     """Extra metadata (e.g., whether it's correct/factual/toxic)"""
@@ -95,7 +104,7 @@ class Reference:
         return CORRECT_TAG in self.tags
 
     def render_lines(self) -> List[str]:
-        return [f"reference {format_tags(self.tags)}: {format_text(self.output)}"]
+        return [f"reference {format_tags(self.tags)}: {format_text(self.output.text)}"]
 
 
 @dataclass(frozen=True, eq=False)

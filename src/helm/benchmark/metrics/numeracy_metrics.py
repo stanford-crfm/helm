@@ -45,7 +45,7 @@ class DistanceMetric(Metric):
         2. percent valid metric in range [0., 1.] of completions that are a valid number, ignoring commas.
         """
         references = request_state.instance.references
-        _, rel_str, relation_type = map(lambda _: _.output, references)
+        _, rel_str, relation_type = map(lambda _: _.output.text, references)
         input_text: str = request_state.instance.input.text
         datapoint_input = input_text.split("\n")[-1]
         val = list(map(int, datapoint_input.split(NumeracyScenario.delimiter)))

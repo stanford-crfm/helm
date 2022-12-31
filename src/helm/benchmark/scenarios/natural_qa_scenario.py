@@ -19,6 +19,7 @@ from .scenario import (
     CORRECT_TAG,
     PassageQuestionInput,
     Input,
+    Output,
 )
 
 
@@ -236,7 +237,7 @@ class NaturalQAScenario(Scenario):
         ans_idx: int = random.randint(0, len(instance.short_answers) - 1)
 
         if self.context_mode == "closedbook":
-            input = Input(question)
+            input = Input(text=question)
         elif self.context_mode == "openbook_wiki":
             input = PassageQuestionInput(
                 passage=instance.document,
@@ -259,7 +260,7 @@ class NaturalQAScenario(Scenario):
 
         return Instance(
             input=input,
-            references=[Reference(output=ans, tags=[CORRECT_TAG]) for ans in answers],
+            references=[Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in answers],
             split=SPLITS[split],
         )
 

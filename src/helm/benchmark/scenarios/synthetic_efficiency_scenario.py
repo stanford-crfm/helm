@@ -2,7 +2,7 @@ import os
 from typing import List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TEST_SPLIT, CORRECT_TAG, Input
+from .scenario import Scenario, Instance, Reference, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 NUM_INPUT_TOKENS: List[int] = [
     1,
@@ -80,8 +80,8 @@ class SyntheticEfficiencyScenario(Scenario):
             with open(data_path, "r") as f:
                 prompt: str = f.read()
                 instance = Instance(
-                    input=Input(prompt),
-                    references=[Reference(output="", tags=[CORRECT_TAG])],
+                    input=Input(text=prompt),
+                    references=[Reference(Output(text=""), tags=[CORRECT_TAG])],
                     split=TEST_SPLIT,
                 )
                 instances.append(instance)

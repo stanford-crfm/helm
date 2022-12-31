@@ -14,7 +14,7 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
-from helm.benchmark.scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS, CORRECT_TAG, Input
+from helm.benchmark.scenarios.scenario import Instance, TRAIN_SPLIT, EVAL_SPLITS, CORRECT_TAG, Input, Reference
 from helm.benchmark.window_services.window_service import WindowService, EncodeResult
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
@@ -86,8 +86,8 @@ class Processor:
 
     def adapt_multiple_choice_joint(self, eval_instance: Instance) -> List[RequestState]:
         prompt = self.construct_prompt(self.train_instances, eval_instance, include_output=False, reference_index=None)
-        output_mapping = dict(
-            (self.get_reference_prefix("A", reference_index), reference.output)
+        output_mapping: Dict[str, str] = dict(
+            (self.get_reference_prefix("A", reference_index), reference.output.text)
             for reference_index, reference in enumerate(eval_instance.references)
         )
         request = Request(
@@ -142,7 +142,7 @@ class Processor:
                 elif request_mode == "calibration":
                     # For calibration purpose, we compute the logprobs of the reference
                     # without train instances and the input question.
-                    eval_instance_calibration = replace(eval_instance, input=Input("Answer:"))
+                    eval_instance_calibration = replace(eval_instance, input=Input(text="Answer:"))
                     prompt = self.construct_prompt(
                         [],
                         eval_instance_calibration,
@@ -335,25 +335,26 @@ class Processor:
         # TODO: The conditions below can be broken down into different "construct_example_prompt" functions.
 
         # Input
-        result = self.adapter_spec.input_prefix + instance.input.text + self.adapter_spec.input_suffix
+        result: str = self.adapter_spec.input_prefix + instance.input.text + self.adapter_spec.input_suffix
 
         # References (optionally) and output
+        output: str
         if self.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT:
             # If multiple choice, include the references
             output = "n/a"
             for reference_index, reference in enumerate(instance.references):
                 prefix = self.get_reference_prefix(self.adapter_spec.reference_prefix, reference_index)
-                result += prefix + reference.output + self.adapter_spec.reference_suffix
+                result += prefix + reference.output.text + self.adapter_spec.reference_suffix
                 if reference.is_correct and output == "n/a":
                     output = self.get_reference_prefix("A", reference_index)
         else:
             if reference_index is None:
                 # Put only the correct reference as the output
-                correct_reference = instance.first_correct_reference
-                output = correct_reference.output if correct_reference is not None else "n/a"
+                correct_reference: Optional[Reference] = instance.first_correct_reference
+                output = correct_reference.output.text if correct_reference is not None else "n/a"
             else:
                 reference = instance.references[reference_index]
-                output = reference.output
+                output = reference.output.text
 
         if include_output:
             result += self.adapter_spec.output_prefix + output + self.adapter_spec.output_suffix
@@ -387,20 +388,22 @@ class Processor:
             raise ValueError(f"Unknown split, expected one of: {[TRAIN_SPLIT] + EVAL_SPLITS}")
 
         # Create example blocks
-        example_blocks = []
+        example_blocks: List[str] = []
         for index in reference_indices:
             # Get reference
-            reference = instance.references[index]
+            reference: Reference = instance.references[index]
 
             # Construct the passage piece (e.g. "\nPassage: ...\n")
-            reference_text = self.adapter_spec.reference_prefix + reference.output + self.adapter_spec.reference_suffix
+            reference_text: str = (
+                self.adapter_spec.reference_prefix + reference.output.text + self.adapter_spec.reference_suffix
+            )
 
             # Construct the question piece (e.g. "\nQuery: ...\n")
-            query_text = self.adapter_spec.input_prefix + instance.input.text + self.adapter_spec.input_suffix
+            query_text: str = self.adapter_spec.input_prefix + instance.input.text + self.adapter_spec.input_suffix
 
             # Construct the answer piece (e.g. "\nPrompt: Does the passage above answer the question?\nAnswer: ")
             # If include_output flag is set, answer is appended (e.g. "...\n")
-            output_text = self.adapter_spec.output_prefix
+            output_text: str = self.adapter_spec.output_prefix
             if include_output:
                 ir_label = RANKING_CORRECT_LABEL if CORRECT_TAG in reference.tags else RANKING_WRONG_LABEL
                 output_text += ir_label + self.adapter_spec.output_suffix
@@ -408,12 +411,11 @@ class Processor:
                 output_text = output_text.rstrip()
 
             # Construct text blocks
-            example_block = reference_text + query_text + output_text
+            example_block: str = reference_text + query_text + output_text
             example_blocks.append(example_block)
 
         # Combine the request texts and return
-        example_text = self.adapter_spec.instance_prefix.join(example_blocks)
-        return example_text
+        return self.adapter_spec.instance_prefix.join(example_blocks)
 
     def get_reference_prefix(self, prefix: str, i: int) -> str:
         """
@@ -635,7 +637,7 @@ class Adapter:
 
         for instance in all_train_instances:
             if instance.first_correct_reference:
-                label_to_instances[instance.first_correct_reference.output].append(instance)
+                label_to_instances[instance.first_correct_reference.output.text].append(instance)
             else:
                 unlabeled_instances.append(instance)
 

@@ -440,16 +440,15 @@ class ICEScenario(Scenario):
                     with open(os.path.join(corpus_path, filename), "r", encoding="iso-8859-1") as f:
                         text = f.read()
 
-                preprocessed_texts = []
-
+                preprocessed_texts: List[str]
                 if subset == ICESubset.EAST_AFRICA:
-                    texts = re.split("[WS]\\d[A-F]\\d{3}[A-Z]*[KT]\n", text)
+                    texts: List[str] = re.split("[WS]\\d[A-F]\\d{3}[A-Z]*[KT]\n", text)
                     preprocessed_texts = [self.preprocess_text(t, KEEP_TAGS) for t in texts if len(t) > 0]
                 else:
                     preprocessed_texts = [self.preprocess_text(text, KEEP_TAGS)]
 
                 for t in preprocessed_texts:
-                    instances.append(Instance(input=Input(t), references=[], split=TEST_SPLIT))
+                    instances.append(Instance(Input(text=t), references=[], split=TEST_SPLIT))
 
                     if debug_cap and len(instances) >= debug_cap:
                         return instances

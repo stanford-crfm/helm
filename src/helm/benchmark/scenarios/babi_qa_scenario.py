@@ -11,6 +11,7 @@ from .scenario import (
     TEST_SPLIT,
     CORRECT_TAG,
     PassageQuestionInput,
+    Output,
 )
 
 
@@ -112,7 +113,6 @@ class BabiQAScenario(Scenario):
             for split in splits:
                 split_path: str = f"{data_path}/tasks_1-20_v1-2/en-valid/qa{task}_{split}.txt"
                 with open(split_path, "r") as f:
-
                     facts = list(f)
                     story: List[str] = []
                     for fact in facts:
@@ -131,7 +131,7 @@ class BabiQAScenario(Scenario):
 
                             instance: Instance = Instance(
                                 input=PassageQuestionInput(passage="".join(story), question=question),
-                                references=[Reference(output=answer, tags=[CORRECT_TAG])],
+                                references=[Reference(Output(text=answer), tags=[CORRECT_TAG])],
                                 split=splits[split],
                             )
                             instances.append(instance)

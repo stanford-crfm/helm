@@ -12,6 +12,7 @@ from .scenario import (
     TEST_SPLIT,
     CORRECT_TAG,
     PassageQuestionInput,
+    Output,
 )
 
 
@@ -128,7 +129,7 @@ class LSATScenario(Scenario):
                             references: List[Reference] = []
                             for index, option in enumerate(options):
                                 tags = [CORRECT_TAG] if index == answer else []
-                                references.append(Reference(output=option, tags=tags))
+                                references.append(Reference(Output(text=option), tags=tags))
 
                             instance: Instance = Instance(
                                 input=PassageQuestionInput(passage=passage, question=question),

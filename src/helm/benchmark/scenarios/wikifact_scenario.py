@@ -1,12 +1,12 @@
 import os
-from typing import List
+from typing import List, Dict
 import json
 
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded, flatten_list
 from helm.common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
-Pid2name = {
+PID_TO_NAME = {
     "P136": "genre",
     "P1303": "instrument",
     "P50": "author",
@@ -95,7 +95,7 @@ Pid2name = {
     "P361": "part_of",
 }
 
-name2Pid = {v: k for k, v in Pid2name.items()}
+NAME_TO_PID: Dict[str, str] = {v: k for k, v in PID_TO_NAME.items()}
 
 
 class WIKIFactScenario(Scenario):
@@ -125,8 +125,8 @@ class WIKIFactScenario(Scenario):
 
     def __init__(self, subject: str):
         super().__init__()
-        self.subject = subject
-        assert subject in name2Pid
+        self.subject: str = subject
+        assert subject in NAME_TO_PID, f"Invalid subject: {subject}"
 
     def get_instances(self) -> List[Instance]:
         # Download the raw data
@@ -156,17 +156,17 @@ class WIKIFactScenario(Scenario):
                 all_raw_data = f.readlines()
             for line in all_raw_data:
                 raw_data = json.loads(line)
-                if raw_data["property"] != name2Pid[self.subject]:
+                if raw_data["property"] != NAME_TO_PID[self.subject]:
                     continue
 
                 question: str = raw_data["template"]
                 answers: List[str] = flatten_list(raw_data["result_names"])
 
-                def answer_to_reference(answer) -> Reference:
-                    return Reference(output=answer.strip(), tags=[CORRECT_TAG])
+                def answer_to_reference(answer: str) -> Reference:
+                    return Reference(Output(text=answer.strip()), tags=[CORRECT_TAG])
 
                 instance = Instance(
-                    input=Input(question),
+                    input=Input(text=question),
                     references=list(map(answer_to_reference, answers)),
                     split=splits[split],
                 )

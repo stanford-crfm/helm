@@ -13,6 +13,7 @@ from .scenario import (
     TEST_SPLIT,
     CORRECT_TAG,
     Input,
+    Output,
 )
 
 
@@ -246,12 +247,12 @@ class CommonSenseScenario(Scenario):
 
         instances: List[Instance] = []
 
-        def answer_to_reference(answer):
-            return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
+        def answer_to_reference(answer: str) -> Reference:
+            return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
 
         for question_id, (question, answers, correct_answer, split) in enumerate(data):
             instance = Instance(
-                input=Input(question),
+                input=Input(text=question),
                 references=list(map(answer_to_reference, answers)),
                 split=splits[split],
             )

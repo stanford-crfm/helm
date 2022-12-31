@@ -2,7 +2,7 @@ import os
 from typing import List, Dict
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, Input
+from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, Input, Output
 
 
 class IMDBScenario(Scenario):
@@ -71,18 +71,17 @@ class IMDBScenario(Scenario):
                     contrast_inputs, contrast_references = None, None
 
                     if context in contrast_map:
-
                         contrast_inputs = [contrast_map[context]["contrast_input"]]
                         contrast_references = [
-                            [Reference(output=contrast_map[context]["contrast_answer"], tags=[CORRECT_TAG])]
+                            [Reference(Output(text=contrast_map[context]["contrast_answer"]), tags=[CORRECT_TAG])]
                         ]
                         instance_split = VALID_SPLIT  # we want to evaluate on contrast sets
                     elif self.only_contrast and split == VALID_SPLIT:
                         continue
 
                     instance: Instance = Instance(
-                        input=Input(prompt),
-                        references=[Reference(output=label_id, tags=[CORRECT_TAG])],
+                        input=Input(text=prompt),
+                        references=[Reference(Output(text=label_id), tags=[CORRECT_TAG])],
                         split=instance_split,
                         contrast_inputs=contrast_inputs,
                         contrast_references=contrast_references,

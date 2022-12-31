@@ -3,7 +3,7 @@ import pickle
 
 from typing import List, Optional
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 class SummarizationScenario(Scenario):
@@ -145,8 +145,8 @@ class SummarizationScenario(Scenario):
 
                 instances.append(
                     Instance(
-                        input=Input(article),
-                        references=[Reference(output=summary, tags=[CORRECT_TAG])],
+                        input=Input(text=article),
+                        references=[Reference(Output(text=summary), tags=[CORRECT_TAG])],
                         split=split,
                     )
                 )

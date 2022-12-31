@@ -13,6 +13,7 @@ from .scenario import (
     PassageQuestionInput,
     Reference,
     Scenario,
+    Output,
 )
 
 
@@ -119,7 +120,7 @@ class CivilCommentsScenario(Scenario):
 
             instance = Instance(
                 input=PassageQuestionInput(str(row["comment_text"]), "Is the passage above toxic?"),
-                references=[Reference(output=expected_output, tags=[CORRECT_TAG])],
+                references=[Reference(Output(text=expected_output), tags=[CORRECT_TAG])],
                 split=CivilCommentsScenario.SPLIT_MAPPING[str(row["split"])],
                 sub_split=sub_split,
             )

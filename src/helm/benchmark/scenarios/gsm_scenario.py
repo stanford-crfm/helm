@@ -3,7 +3,7 @@ import os
 from typing import List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT, Input
+from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, TEST_SPLIT, Input, Output
 
 
 class GSM8KScenario(Scenario):
@@ -38,21 +38,19 @@ class GSM8KScenario(Scenario):
         splits = {"train": TRAIN_SPLIT, "test": TEST_SPLIT}
         base_url = "https://raw.githubusercontent.com/openai/grade-school-math/master/grade_school_math/data/"
         instances: List[Instance] = []
+
         for split, split_tag in splits.items():  # Iterate over the splits
             source_url: str = f"{base_url}/{split}.jsonl"
             data_path: str = os.path.join(self.output_path, f"gsm_data_{split}")
             ensure_file_downloaded(source_url=source_url, target_path=data_path)
+
             with jsonlines.open(data_path) as reader:
                 for example in reader:  # Each example is a dictionary with a 'question' and 'answer' key
+                    answer: str = example["answer"].replace("####", "The answer is").replace("\n", " ") + "."
                     instances.append(
                         Instance(
-                            input=Input(example["question"]),
-                            references=[
-                                Reference(
-                                    output=example["answer"].replace("####", "The answer is").replace("\n", " ") + ".",
-                                    tags=[CORRECT_TAG],
-                                )
-                            ],
+                            input=Input(text=example["question"]),
+                            references=[Reference(Output(text=answer), tags=[CORRECT_TAG])],
                             split=split_tag,  # Must assign split tag to instance.
                         ),
                     )

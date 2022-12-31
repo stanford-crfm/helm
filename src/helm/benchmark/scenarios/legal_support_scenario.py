@@ -3,7 +3,7 @@ import os
 from typing import List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 class LegalSupportScenario(Scenario):
@@ -81,10 +81,10 @@ class LegalSupportScenario(Scenario):
                 correct_answer: str = answers_dict[correct_choice]
 
                 def answer_to_reference(answer: str):
-                    return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
+                    return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
 
                 instance = Instance(
-                    input=Input(passage),
+                    input=Input(text=passage),
                     references=list(map(answer_to_reference, answers)),
                     split=splits[split],
                 )

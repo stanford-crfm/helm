@@ -12,6 +12,7 @@ from .scenario import (
     CORRECT_TAG,
     PassageQuestionInput,
     Input,
+    Output,
 )
 
 
@@ -98,7 +99,8 @@ class NewsQAScenario(Scenario):
             end_point = question["consensus"]["e"]
             answer_text = sample["text"][start_point:end_point]
             answers.append(answer_text)
-        # adding other crowdworker answers
+
+        # add the other crowd worker answers
         for answer in question["answers"]:
             if "noAnswer" in answer["sourcerAnswers"][0].keys():
                 answer_text = "No Answer"
@@ -156,7 +158,7 @@ class NewsQAScenario(Scenario):
             split = "train" if sample["type"] == "train" else "valid"
             instance = Instance(
                 input=prompt,
-                references=[Reference(output=ans, tags=[CORRECT_TAG]) for ans in answers],
+                references=[Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in answers],
                 split=splits[split],
             )
             file_instances.append(instance)

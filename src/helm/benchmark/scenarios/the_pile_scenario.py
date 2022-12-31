@@ -97,7 +97,7 @@ class ThePileScenario(Scenario):
             reader = csv.reader(f)
             for row in reader:
                 instance = Instance(
-                    input=Input(row[0]),
+                    input=Input(text=row[0]),
                     references=[],
                     split=TEST_SPLIT,
                 )

@@ -37,11 +37,13 @@ class TestScenario:
 
 
 def test_input_equality():
-    input1 = Input("input1")
+    input1 = Input(text="input1")
     assert input1 == input1
-    assert input1 == Input("input1")
-    assert input1 != Input("input2")
+    assert input1 == Input(text="input1")
+    assert input1 != Input(text="input2")
 
 
 def test_passage_question_input():
-    assert PassageQuestionInput("Short passage", "question?").text == "Short passage\nQuestion: question?"
+    assert (
+        PassageQuestionInput(passage="Short passage", question="question?").text == "Short passage\nQuestion: question?"
+    )

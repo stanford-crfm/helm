@@ -52,7 +52,7 @@ class TwitterAAEScenario(Scenario):
             for row in reader:
                 # Example: ["Click Clack Motha Fucka I ain't tryin to hear Nothin!"]
                 tweet: str = row[0]
-                instance = Instance(input=Input(tweet), references=[], split=TEST_SPLIT)
+                instance = Instance(input=Input(text=tweet), references=[], split=TEST_SPLIT)
                 instances.append(instance)
 
         return instances

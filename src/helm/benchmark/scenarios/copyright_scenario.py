@@ -4,7 +4,7 @@ import tqdm
 from typing import List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TEST_SPLIT, Input
+from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TEST_SPLIT, Input, Output
 
 datatag2hash_text = {
     # The "average" book.
@@ -63,7 +63,7 @@ class CopyrightScenario(Scenario):
         self.source_url = f"https://drive.google.com/uc?id={datatag2hash[datatag]}"
 
     def get_instances(self) -> List[Instance]:
-        target_path = os.path.join(self.output_path, f"{self.datatag}.json")
+        target_path: str = os.path.join(self.output_path, f"{self.datatag}.json")
         ensure_file_downloaded(self.source_url, target_path)
 
         with open(target_path, "r") as f:
@@ -71,12 +71,12 @@ class CopyrightScenario(Scenario):
             data = json.load(f)
 
         # Read all the instances
-        instances = []
+        instances: List[Instance] = []
         for prefix, prefix_to_end in tqdm.tqdm(data["data"].items(), desc="load instances"):
             instances.append(
                 Instance(
-                    input=Input(prefix),
-                    references=[Reference(output=prefix_to_end, tags=[CORRECT_TAG])],
+                    input=Input(text=prefix),
+                    references=[Reference(Output(text=prefix_to_end), tags=[CORRECT_TAG])],
                     split=TEST_SPLIT,
                 ),
             )

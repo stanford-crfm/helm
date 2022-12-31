@@ -70,7 +70,7 @@ class Wikitext103Scenario(Scenario):
             ):
                 # Create an instance and append it to instances
                 if document_buffer:
-                    instance = Instance(input=Input("".join(document_buffer)), references=[], split=TEST_SPLIT)
+                    instance = Instance(Input(text="".join(document_buffer)), references=[], split=TEST_SPLIT)
                     instances.append(instance)
                 document_buffer = lines[i : i + 3]
                 i += 3
@@ -79,7 +79,7 @@ class Wikitext103Scenario(Scenario):
                 i += 1
         # Add the last instance to instances
         if document_buffer:
-            instance = Instance(input=Input("".join(document_buffer)), references=[], split=TEST_SPLIT)
+            instance = Instance(Input(text="".join(document_buffer)), references=[], split=TEST_SPLIT)
             instances.append(instance)
 
         # The test set of Wikitext-103 contains 60 articles

@@ -7,7 +7,7 @@ from pathlib import Path
 from random import Random
 from typing import Dict, List, Optional, Set
 
-from helm.benchmark.scenarios.scenario import Input, Instance, Reference
+from helm.benchmark.scenarios.scenario import Input, Instance, Reference, Output
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists, match_case
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
@@ -315,8 +315,10 @@ class PersonNamePerturbation(Perturbation):
             references = [
                 replace(
                     reference,
-                    output=self.perturb_with_persistency(
-                        reference.output, rng, name_substitution_mapping, skipped_tokens
+                    output=Output(
+                        text=self.perturb_with_persistency(
+                            reference.output.text, rng, name_substitution_mapping, skipped_tokens
+                        )
                     ),
                     tags=reference.tags,
                 )
@@ -326,7 +328,7 @@ class PersonNamePerturbation(Perturbation):
         return replace(
             instance,
             input=Input(
-                self.perturb_with_persistency(instance.input.text, rng, name_substitution_mapping, skipped_tokens)
+                text=self.perturb_with_persistency(instance.input.text, rng, name_substitution_mapping, skipped_tokens)
             ),
             references=references,
             perturbation=self.description,
