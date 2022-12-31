@@ -6,8 +6,8 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, cast
 
 import dacite
 
-from helm.benchmark.adaptation.adapter import (
-    ADAPT_MULTIPLE_CHOICE_METHODS,
+from helm.benchmark.adaptation.adapters.adapter_factory import (
+    ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
 )
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
@@ -129,7 +129,7 @@ def _read_per_instance_stats(run_path: str) -> List[Dict]:
 def _truncate_predicted_text(predicted_text: str, request_state: Dict, adapter_spec: AdapterSpec) -> Optional[str]:
     method = adapter_spec.method
     prefix = ""
-    if method in ADAPT_MULTIPLE_CHOICE_METHODS:
+    if method in ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS:
         prefix = request_state["instance"]["input"]
     elif method == "language_modeling":
         if "result" in request_state and "completions" in request_state["result"]:
@@ -196,7 +196,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
 
     metric_names = _get_metric_names_for_groups(run_spec.groups, schema)
 
-    if run_spec.adapter_spec.method in ADAPT_MULTIPLE_CHOICE_METHODS:
+    if run_spec.adapter_spec.method in ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS:
         metric_names.add("predicted_index")
 
     stats_by_trial: Dict[Tuple[str, Optional[PerturbationDescription], int], Dict[str, float]] = defaultdict(dict)
@@ -247,7 +247,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
         # For the multiple_choice_separate_* adapter methods,
         # only keep the prediction for the chosen reference and discard the rest.
         if (
-            run_spec.adapter_spec.method in ADAPT_MULTIPLE_CHOICE_METHODS
+            run_spec.adapter_spec.method in ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS
             and "predicted_index" in trial_stats
             and trial_stats["predicted_index"] != request_state["reference_index"]
         ):

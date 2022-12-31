@@ -3,16 +3,15 @@ from typing import Any, Callable, List, Dict, Optional, Set
 
 from helm.common.hierarchical_logger import hlog, htrack
 from helm.common.object_spec import ObjectSpec
-from helm.benchmark.adaptation.adapter import (
+from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_LANGUAGE_MODELING,
     ADAPT_MULTIPLE_CHOICE_JOINT,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_GENERATION,
     ADAPT_RANKING_BINARY,
-    RANKING_CORRECT_LABEL,
-    RANKING_WRONG_LABEL,
 )
+from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .metrics.metric import MetricSpec
 from .run_expander import RUN_EXPANDERS, GlobalPrefixRunExpander, StopRunExpander
@@ -370,8 +369,8 @@ def get_msmarco_metric_specs(track: str, rank: Optional[int] = None) -> List[Met
             args={
                 "method": ADAPT_RANKING_BINARY,
                 "measure_names": measure_names,
-                "correct_output": RANKING_CORRECT_LABEL,
-                "wrong_output": RANKING_WRONG_LABEL,
+                "correct_output": BinaryRankingAdapter.RANKING_CORRECT_LABEL,
+                "wrong_output": BinaryRankingAdapter.RANKING_WRONG_LABEL,
                 "rank": rank,
                 "multiple_relevance_values": multiple_relevance_values,
             },

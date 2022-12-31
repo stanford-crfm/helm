@@ -3,7 +3,7 @@ from typing import Callable, Dict, List, Tuple, Optional
 
 import pytrec_eval
 
-from helm.benchmark.adaptation.adapter import ADAPT_RANKING_BINARY
+from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_RANKING_BINARY
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.scenarios.scenario import unpack_tag, CORRECT_TAG, Reference

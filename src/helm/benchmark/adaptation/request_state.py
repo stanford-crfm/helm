@@ -45,6 +45,10 @@ class RequestState:
     num_conditioning_tokens: int = 0
     """The number of initial tokens that will be ignored when computing language modeling metrics"""
 
+    def __post_init__(self):
+        if self.request_mode:
+            assert self.request_mode in ["original", "calibration"], f"Invalid request_mode: {self.request_mode}"
+
     def render_lines(self) -> List[str]:
         output = [f"train_trial_index: {self.train_trial_index}"]
         if self.reference_index:

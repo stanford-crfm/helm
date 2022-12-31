@@ -12,7 +12,7 @@ from sympy import Symbol, Poly, diff
 from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
 from typing import List, Optional, Tuple, Dict
 
-from helm.benchmark.adaptation.adapter import ADAPT_GENERATION
+from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_GENERATION
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.common.authentication import Authentication

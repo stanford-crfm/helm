@@ -10,7 +10,7 @@ from helm.benchmark.augmentations.perturbation_description import (
     PERTURBATION_ORIGINAL,
     PERTURBATION_WORST,
 )
-from helm.benchmark.adaptation.adapter import ADAPT_LANGUAGE_MODELING
+from helm.benchmark.adaptation.adapters.adapter_factory import ADAPT_LANGUAGE_MODELING
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
