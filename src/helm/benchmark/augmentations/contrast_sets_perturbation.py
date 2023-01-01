@@ -34,7 +34,7 @@ class ContrastSetsPerturbation(Perturbation):
     An example instance of a perturbation for the IMDB dataset (from the original paper):
 
     ```
-    Orginal instance: Hardly one to be faulted for his ambition or his vision, it is genuinely unexpected, then, to see
+    Original instance: Hardly one to be faulted for his ambition or his vision, it is genuinely unexpected, then, to see
     all Park’s effort add up to so very little. . . .  The premise is promising, gags are copious and offbeat humour
     abounds but it all fails miserably to create any meaningful connection with the audience.
     Sentiment: negative

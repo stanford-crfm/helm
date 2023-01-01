@@ -1,5 +1,5 @@
 import os
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from helm.common.general import ensure_file_downloaded
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, Input, Output
@@ -53,27 +53,27 @@ class IMDBScenario(Scenario):
         super().__init__()
         self.only_contrast = only_contrast
 
-    def get_split_instances(self, split: str, path: str, contrast_map: dict) -> List[Instance]:
-
+    def get_split_instances(self, split: str, path: str, contrast_map: Dict[str, Dict[str, str]]) -> List[Instance]:
         label_to_classname: Dict[str, str] = {"pos": "Positive", "neg": "Negative"}
         split_instances: List[Instance] = []
 
         for class_name, label_id in label_to_classname.items():
             split_path_label: str = os.path.join(path, class_name)
             all_file_name = os.listdir(split_path_label)
-            for each_filename in all_file_name:
-                sentence_path = os.path.join(split_path_label, each_filename)
-                with open(sentence_path, "r") as f:
-                    context = f.read().strip()
-                    prompt = context
+            for file in all_file_name:
+                with open(os.path.join(split_path_label, file), "r") as f:
+                    context: str = f.read().strip()
+                    prompt: str = context
 
-                    instance_split = split
-                    contrast_inputs, contrast_references = None, None
+                    instance_split: str = split
+                    contrast_inputs: Optional[List[Input]] = None
+                    contrast_references: Optional[List[List[Reference]]] = None
 
                     if context in contrast_map:
-                        contrast_inputs = [contrast_map[context]["contrast_input"]]
+                        contrast_example: Dict[str, str] = contrast_map[context]
+                        contrast_inputs = [Input(text=contrast_example["contrast_input"])]
                         contrast_references = [
-                            [Reference(Output(text=contrast_map[context]["contrast_answer"]), tags=[CORRECT_TAG])]
+                            [Reference(Output(text=contrast_example["contrast_answer"]), tags=[CORRECT_TAG])]
                         ]
                         instance_split = VALID_SPLIT  # we want to evaluate on contrast sets
                     elif self.only_contrast and split == VALID_SPLIT:
