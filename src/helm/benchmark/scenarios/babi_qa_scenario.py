@@ -130,7 +130,7 @@ class BabiQAScenario(Scenario):
                                 answer = self.process_path(answer)
 
                             instance: Instance = Instance(
-                                input=PassageQuestionInput(passage="".join(story), question=question),
+                                input=PassageQuestionInput(passage="".join(story), question=question, separator=""),
                                 references=[Reference(Output(text=answer), tags=[CORRECT_TAG])],
                                 split=splits[split],
                             )
