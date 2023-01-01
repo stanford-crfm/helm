@@ -138,10 +138,9 @@ class DisinformationScenario(Scenario):
             else:
                 sub_split = "none"
 
-            instance = Instance(
-                input=Input(text=prompt["prompt"]), references=[], split=VALID_SPLIT, sub_split=sub_split
+            instances.append(
+                Instance(Input(text=prompt["prompt"]), references=[], split=VALID_SPLIT, sub_split=sub_split)
             )
-            instances.append(instance)
 
         return instances
 

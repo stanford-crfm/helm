@@ -99,7 +99,7 @@ class LSATScenario(Scenario):
             for subtype in subtypes:
                 self.subtype2type[subtype] = question_type
 
-    def get_question_types(self, tags) -> List[str]:
+    def get_question_types(self, tags: List[str]) -> List[str]:
         question_type: str = tags[2].replace("grouping (distribution)", "distribution grouping") or "miscellaneous"
         return [question_type.replace(" ", "_").replace("/", "_"), self.subtype2type.get(question_type)]
 

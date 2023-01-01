@@ -80,7 +80,7 @@ class LegalSupportScenario(Scenario):
                 answers_dict = dict(zip(["a", "b"], answers))
                 correct_answer: str = answers_dict[correct_choice]
 
-                def answer_to_reference(answer: str):
+                def answer_to_reference(answer: str) -> Reference:
                     return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
 
                 instance = Instance(
