@@ -139,7 +139,7 @@ class EntityDataImputationScenario(Scenario):
                 input: str = f"{res}. {col_to_impute}?"
                 label = str(row[col_to_impute])
                 instance = Instance(
-                    input=Input(text=input), references=[Reference(Output(text=label), tags=[CORRECT_TAG])], split=split
+                    Input(text=input), references=[Reference(Output(text=label), tags=[CORRECT_TAG])], split=split
                 )
                 instances.append(instance)
 
