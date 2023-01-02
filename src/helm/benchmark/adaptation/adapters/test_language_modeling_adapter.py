@@ -1,24 +1,12 @@
-import shutil
-import tempfile
 from typing import List
 
-from helm.common.authentication import Authentication
 from helm.common.tokenization_request import TokenizationToken
-from helm.proxy.services.server_service import ServerService
-from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_LANGUAGE_MODELING
+from .test_adapter import TestAdapter
 
 
-class TestLanguageModelingAdapter:
-    def setup_method(self):
-        self.path: str = tempfile.mkdtemp()
-        service = ServerService(base_path=self.path, root_mode=True)
-        self.tokenizer_service = TokenizerService(service, Authentication("test"))
-
-    def teardown_method(self, _):
-        shutil.rmtree(self.path)
-
+class TestLanguageModelingAdapter(TestAdapter):
     def test_construct_language_modeling_prompt(self):
         adapter_spec = AdapterSpec(
             method=ADAPT_LANGUAGE_MODELING,

@@ -1,26 +1,14 @@
-import shutil
-import tempfile
 from typing import List
 
-from helm.common.authentication import Authentication
-from helm.proxy.services.server_service import ServerService
 from helm.benchmark.scenarios.scenario import CORRECT_TAG, create_scenario, Instance, Reference, Input, Output
 from helm.benchmark.run_specs import get_scenario_spec1, get_adapter_spec1
-from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.adaptation.prompt import Prompt
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_GENERATION
+from .test_adapter import TestAdapter
 
 
-class TestGenerationAdapter:
-    def setup_method(self):
-        self.path: str = tempfile.mkdtemp()
-        service = ServerService(base_path=self.path, root_mode=True)
-        self.tokenizer_service = TokenizerService(service, Authentication("test"))
-
-    def teardown_method(self, _):
-        shutil.rmtree(self.path)
-
+class TestGenerationAdapter(TestAdapter):
     def test_adapt(self):
         scenario = create_scenario(get_scenario_spec1())
         adapter_spec = get_adapter_spec1()

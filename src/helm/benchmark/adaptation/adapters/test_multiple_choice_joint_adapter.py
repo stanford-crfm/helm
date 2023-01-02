@@ -1,23 +1,10 @@
-import shutil
-import tempfile
-
 from helm.benchmark.scenarios.scenario import Instance, Input, Output, Reference, CORRECT_TAG
-from helm.common.authentication import Authentication
-from helm.proxy.services.server_service import ServerService
-from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .adapter_factory import AdapterFactory, ADAPT_MULTIPLE_CHOICE_JOINT
+from .test_adapter import TestAdapter
 
 
-class TestMultipleChoiceJointAdapter:
-    def setup_method(self):
-        self.path: str = tempfile.mkdtemp()
-        service = ServerService(base_path=self.path, root_mode=True)
-        self.tokenizer_service = TokenizerService(service, Authentication("test"))
-
-    def teardown_method(self, _):
-        shutil.rmtree(self.path)
-
+class TestMultipleChoiceJointAdapter(TestAdapter):
     def test_sample_examples(self):
         adapter_spec = AdapterSpec(method=ADAPT_MULTIPLE_CHOICE_JOINT, model="openai/ada", max_train_instances=4)
         adapter = AdapterFactory.get_adapter(adapter_spec, self.tokenizer_service)
