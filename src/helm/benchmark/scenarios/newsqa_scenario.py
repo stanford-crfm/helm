@@ -100,7 +100,7 @@ class NewsQAScenario(Scenario):
             answer_text = sample["text"][start_point:end_point]
             answers.append(answer_text)
 
-        # add the other crowd worker answers
+        # add the other crowdworker answers
         for answer in question["answers"]:
             if "noAnswer" in answer["sourcerAnswers"][0].keys():
                 answer_text = "No Answer"
