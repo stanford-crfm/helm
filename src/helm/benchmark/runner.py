@@ -106,7 +106,7 @@ class Runner:
         run_path: str = os.path.join(self.runs_path, run_spec.name)
         ensure_directory_exists(run_path)
 
-        # Initialize the adapter
+        # Fetch and initialize the Adapter based on the `AdapterSpec`.
         adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
 
         instances: List[Instance]
@@ -118,8 +118,8 @@ class Runner:
             # Give each instance a unique ID
             instances = with_instance_ids(instances)
 
-            # Sample only as many as we need
-            instances = adapter.sample_instances(instances)
+            # Get the instances necessary for this run.
+            instances = adapter.get_run_instances(instances)
 
             # Data preprocessing
             instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(

@@ -40,9 +40,11 @@ class Adapter(ABC):
         """
         pass
 
-    def sample_instances(self, instances: List[Instance]) -> List[Instance]:
+    def get_run_instances(self, instances: List[Instance]) -> List[Instance]:
         """
-        Leave the train instances alone. For the eval instances, keep at most `max_eval_instances`.
+        Get the instances necessary for this run:
+        Train instances (split=train): keep all (if any) for in-context learning
+        Eval instances (split=valid or test): keep at most `max_eval_instances` specified in `AdapterSpec` by sampling
         Return the resulting train and eval instances.
         """
         all_train_instances: List[Instance] = [instance for instance in instances if instance.split == TRAIN_SPLIT]
