@@ -241,29 +241,29 @@ models:
 
   # OpenAI: https://beta.openai.com/docs/engines/gpt-3
   - name: openai/davinci
-    display_name: GPT-3 davinci v1 (175B)
-    description: GPT-3 davinci v1 (175B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    display_name: davinci (175B)
+    description: Original GPT-3 (175B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2020-05-28
   - name: openai/curie
-    display_name: GPT-3 curie v1 (6.7B)
-    description: GPT-3 curie v1 (6.7B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    display_name: curie (6.7B)
+    description: Original GPT-3 (6.7B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 6700000000
     release_date: 2020-05-28
   - name: openai/babbage
-    display_name: GPT-3 babbage v1 (1.3B)
-    description: GPT-3 babbage v1 (1.3B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    display_name: babbage (1.3B)
+    description: Original GPT-3 (1.3B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 1300000000
     release_date: 2020-05-28
   - name: openai/ada
-    display_name: GPT-3 ada v1 (350M)
-    description: GPT-3 ada v1 (350M parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
+    display_name: ada (350M)
+    description: Original GPT-3 (350M parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 350000000
@@ -323,7 +323,7 @@ models:
     access: limited
     todo: true
   - name: openai/code-cushman-001
-    display_name: Codex code-cushman-001 (12B)
+    display_name: code-cushman-001 (12B)
     description: Codex-style model that is a stronger, multilingual version of the Codex (12B) model in the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf).
     creator_organization: OpenAI
     access: limited
