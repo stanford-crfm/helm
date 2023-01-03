@@ -47,7 +47,7 @@ $(function () {
   const urlParams = decodeUrlParams(window.location.search);
 
   // Extract the name of the suite from the URL parameters. Default to "latest" if none is specified.
-  const suite = "suite" in urlParams ? urlParams.suite : "v1.0";
+  const suite = "suite" in urlParams ? urlParams.suite : "latest";
   console.log(`Suite: ${suite}`);
 
   // Array of String containing RunSpec names for which
@@ -221,7 +221,7 @@ $(function () {
       }
     }
 
-    if (lowerIsBetter === true) {
+    if (judgement.lowerIsBetter === true) {
       if (value <= judgement.correctThreshold) {
         return 'correct';
       }
