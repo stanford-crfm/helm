@@ -241,7 +241,7 @@ $(function () {
       if (metricValue !== undefined) {
         const displayName = schema.metricsField(metricName).display_name;
         const statClass = getStatClass(metricName, metricValue);
-        list.push($('<span>', {class: statClass}).append(`${displayName}: ${round(metricValue, 3)}`));
+        list.push($('<span>', {class: statClass}).text(`${displayName}: ${round(metricValue, 3)}`));
       }
     });
 
@@ -381,10 +381,6 @@ $(function () {
     return JSON.stringify([prediction.instance_id, prediction.perturbation || 'original']);
   }
 
-  function predictionInstanceTrialKey(prediction) {
-    return JSON.stringify([prediction.instance_id, prediction.perturbation || 'original', prediction.train_trial_index]);
-  }
-
   function displayRequestInstanceKey(displayRequest) {
     return JSON.stringify([displayRequest.instance_id, displayRequest.perturbation || 'original']);
   }
@@ -430,7 +426,7 @@ $(function () {
         header = '...with perturbation: ' + renderPerturbation(instance.perturbation);
       }
 
-      $instance.append($('<b>').append(header));
+      $instance.append($('<b>').text(header));
 
       // We can hide the inputs and outputs to focus on the predictions
       if (!urlParams.hideInputOutput) {
@@ -438,24 +434,23 @@ $(function () {
         const input = instance.perturbation ? highlightNewWords(instance.input, originalInstance.input) : instance.input;
 
         // Input
-        $instance.append($('<div>').append('Input:'));
-        $instance.append($('<div>', {class: 'instance-input'}).append(multilineHtml(input)));
+        $instance.append($('<div>').text('Input:'));
+        $instance.append($('<div>', {class: 'instance-input'}).html(multilineHtml(input)));
 
         // References
         if (instance.references.length > 0) {
-          $instance.append($('<div>').append(instance.references.length === 1 ? 'Reference:' : 'References:'));
+          $instance.append($('<div>').text(instance.references.length === 1 ? 'Reference:' : 'References:'));
           const $references = $('<ul>');
           instance.references.forEach((reference, referenceIndex) => {
             const originalReference = instance.perturbation && originalInstance.references[referenceIndex];
             const output = instance.perturbation ? highlightNewWords(reference.output, originalReference.output) : reference.output;
             const suffix = reference.tags.length > 0 ? ' ' + ('[' + reference.tags.join(',') + ']').bold() : '';
-            $references.append($('<li>').append([$('<span>', {class: 'instance-reference'}).append(output), suffix]));
+            $references.append($('<li>').append([$('<span>', {class: 'instance-reference'}).text(output), suffix]));
           });
           $instance.append($references);
         }
       }
-      $loading = $('<span>').addClass('loading').text('Loading predictions...')
-      $prediction = $('<div>').addClass('prediction').append($loading);
+      $prediction = $('<div>', {class: 'prediction'});
       $instance.append($prediction);
       $instances.append($instance);
       instanceKeyToDiv[key] = $instance;
@@ -546,9 +541,6 @@ $(function () {
 
       // Traverse into the prediction div within the instance div
       const $instance = $instanceDiv.find('.prediction');
-      $instance.find('.loading').remove();
-
-      const key = predictionInstanceTrialKey(prediction);
 
       // For multiple_choice_separate_*, only render the request state for the predicted index
       const predictedIndex = prediction.stats["predicted_index"];
@@ -564,7 +556,6 @@ $(function () {
 
       // Render the prediction
       // TODO: Escape the HTML in predictedText properly
-      const $logProb = $('<span>');
       let predictedText = prediction.predicted_text.trim();
       if (method === "multiple_choice_joint") {
         if (prediction.mapped_output !== undefined) {
@@ -618,10 +609,8 @@ $(function () {
         return false;
       });
       const $prediction = $('<div>')
-        .append($link)
-        .append(': ')
-        .append(predictedText)
-        .append($logProb);
+        .text(': ' + predictedText)
+        .prepend($link);
       $instance.append($prediction);
       $instance.append($request);
     });
@@ -744,19 +733,18 @@ $(function () {
     // Render scenario instances and predictions
     const instancesPath = instancesJsonUrl(suite, runSpecs[0].name);
     const instancesPromise = $.getJSON(instancesPath, {});
-    const instanceKeyToDivPromise = instancesPromise.then((instances) => {
-      console.log('instances', instances);
-      const $instances = $('<div>');
-      $instancesContainer.empty().append($instances);
-      return renderScenarioInstances(instances, $instances);
-    })
     const predictionsPromise = getJSONList(predictionsPaths);
-    $.when(predictionsPromise, instanceKeyToDivPromise).then((predictions, instanceKeyToDiv) => {
+    $.when(instancesPromise, predictionsPromise).then((instancesResult, predictions) => {
+      const instances = instancesResult[0];
+      console.log('instances', instances);
       console.log('predictions', predictions);
+      const $instances = $('<div>');
+      const instanceKeyToDiv = renderScenarioInstances(instances, $instances);
       // For each run / model...
       runSpecs.forEach((runSpec, index) => {
         renderPredictions(runSpec, runDisplayNames[index], predictions[index], instanceKeyToDiv);
       });
+      $instancesContainer.empty().append($instances);
     });
     return $root;
   }
