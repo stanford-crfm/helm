@@ -1079,7 +1079,6 @@ $(function () {
     rows.forEach((row) => {
       const $cells = row.map(renderCell);
       if (sortColumnIndex !== undefined) {
-        console.log(sortColumnIndex)
         $cells[sortColumnIndex].addClass("table-sort-column")
       }
       const $row = $('<tr>').append($cells);
