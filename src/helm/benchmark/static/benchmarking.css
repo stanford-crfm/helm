@@ -120,3 +120,11 @@ tr {
 .taxonomy-table {
   margin: 10px;
 }
+
+thead .table-sort-column {
+  background-color: #abd9d9;
+}
+
+tbody .table-sort-column {
+  background-color: #c0f2f2;
+}
