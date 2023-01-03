@@ -1019,23 +1019,28 @@ $(function () {
     return $('<td>').append($linkedValue);
   }
 
-  function renderTableHeader(table) {
+  function renderTableHeader(table, sortColumnIndex) {
     const $tableHeader = $('<thead>');
     const $row = $('<tr>').append(table.header.map((cell, index) => {
-      $cell = renderCell(cell);
+      const $cell = renderCell(cell);
       const sortOrder = cell.lower_is_better === false ? "desc" :
         (cell.lower_is_better === true ? "asc" : "");
       if (sortOrder) {
         const $sortLink = $("<a>", {"href": "#"}).append("sort").click(() => {
-          $table = $tableHeader.parent('table');
+          const $table = $tableHeader.parent('table');
           $table.find('tbody').remove();
           $table.append(renderTableBody(table, index, sortOrder));
+          $cell.parent().find('td').removeClass('table-sort-column');
+          $cell.addClass('table-sort-column');
           return false;
         });
         $cell
           .append(" [&nbsp;")
           .append($sortLink)
           .append("&nbsp;]");
+      }
+      if (sortColumnIndex === index) {
+        $cell.addClass('table-sort-column');
       }
       return $cell;
     }));
@@ -1072,7 +1077,11 @@ $(function () {
       });
     }
     rows.forEach((row) => {
-      const $row = $('<tr>').append(row.map(renderCell));
+      const $cells = row.map(renderCell);
+      if (sortColumnIndex !== undefined) {
+        $cells[sortColumnIndex].addClass("table-sort-column")
+      }
+      const $row = $('<tr>').append($cells);
       $tableBody.append($row);
     });
     return $tableBody;
@@ -1082,8 +1091,15 @@ $(function () {
     const $output = $('<div>');
     $output.append($('<h3>').append($('<a>', {name: table.title}).append(table.title)));
     const $table = $('<table>', {class: 'query-table results-table'});
-    $table.append(renderTableHeader(table));
-    $table.append(renderTableBody(table));
+    let sortColumnIndex = undefined;
+    for (let i = 0; i < table.header.length; i++) {
+      if (table.header[i].lower_is_better !== undefined) {
+        sortColumnIndex = i;
+        break;
+      }
+    }
+    $table.append(renderTableHeader(table, sortColumnIndex));
+    $table.append(renderTableBody(table, sortColumnIndex));
     $output.append($table);
 
     // Links
