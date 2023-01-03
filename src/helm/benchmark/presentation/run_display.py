@@ -204,7 +204,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
         stats_dict: Dict[str, float] = {
             original_stat["name"]["name"]: cast(float, original_stat["mean"])
             for original_stat in original_stats["stats"]
-            if original_stat["name"]["name"] in metric_names
+            if original_stat["name"]["name"] in metric_names and "mean" in original_stat
         }
 
         key = (
