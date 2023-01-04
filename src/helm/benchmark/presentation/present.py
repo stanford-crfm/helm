@@ -225,13 +225,6 @@ def main():
         help="Run RunSpecs with priority less than or equal to this number. "
         "If a value for --priority is not specified, run on everything",
     )
-    parser.add_argument(
-        "--skip-run-specs-json",
-        action="store_true",
-        default=None,
-        help="Skip generating run_specs.json "
-        "(do this when you're running a subset of the scenarios/models in parallel).",
-    )
     add_run_args(parser)
     args = parser.parse_args()
     validate_args(args)

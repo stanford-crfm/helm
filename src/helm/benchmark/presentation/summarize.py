@@ -283,28 +283,19 @@ class Summarizer:
         return filtered_runs
 
     def read_runs(self):
-        """Load the corresponding runs for the run specs in run_specs.json."""
-
-        run_specs_path: str = os.path.join(self.run_suite_path, "run_specs.json")
-        if not os.path.exists(run_specs_path):
-            hlog(f"Summarizer won't run because {run_specs_path} doesn't exist yet. This is expected in a dry run.")
-            return []
-
+        """Load the runs in the run suite path."""
         self.runs: List[Run] = []
-        with open(run_specs_path) as f:
-            raw_run_specs = json.load(f)
-        for raw_run_spec in tqdm(raw_run_specs):
-            run_spec = dacite.from_dict(RunSpec, raw_run_spec)
-            run_path: str = os.path.join(self.run_suite_path, run_spec.name)
-
-            run_spec_path: str = os.path.join(run_path, "run_spec.json")
-            stats_path: str = os.path.join(run_path, "stats.json")
-
-            if os.path.exists(run_spec_path) and os.path.exists(stats_path):
-                run = self.read_run(run_path)
-                self.runs.append(run)
-            else:
-                hlog(f"WARNING: {run_path} doesn't have run_spec.json or stats.json, skipping")
+        # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
+        # so filter them out by checking if they contain ":", which only run subdirectories should have
+        run_dir_names = sorted([p for p in os.listdir(self.run_suite_path) if ":" in p])
+        for run_dir_name in tqdm(run_dir_names):
+            run_spec_path: str = os.path.join(self.run_suite_path, run_dir_name, "run_spec.json")
+            stats_path: str = os.path.join(self.run_suite_path, run_dir_name, "stats.json")
+            if not os.path.exists(run_spec_path) or not os.path.exists(stats_path):
+                hlog(f"WARNING: {run_dir_name} doesn't have run_spec.json or stats.json, skipping")
+                continue
+            run_path: str = os.path.join(self.run_suite_path, run_dir_name)
+            self.runs.append(self.read_run(run_path))
 
         # For each group (e.g., natural_qa), map
         # (i) scenario spec (e.g., subject=philosophy) [optional] and
@@ -379,6 +370,12 @@ class Summarizer:
         write(
             os.path.join(self.run_suite_path, "runs.json"),
             json.dumps(list(map(asdict_without_nones, self.runs)), indent=2),
+        )
+
+    def write_run_specs(self):
+        write(
+            os.path.join(self.run_suite_path, "run_specs.json"),
+            json.dumps(list(map(asdict_without_nones, [run.run_spec for run in self.runs])), indent=2),
         )
 
     def expand_subgroups(self, group: RunGroup) -> List[RunGroup]:
@@ -981,6 +978,7 @@ def main():
 
     summarizer.write_executive_summary()
     summarizer.write_runs()
+    summarizer.write_run_specs()
     summarizer.write_groups()
     summarizer.write_cost_report()
 
