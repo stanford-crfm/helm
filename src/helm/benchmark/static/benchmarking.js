@@ -233,28 +233,6 @@ $(function () {
     return '';
   }
 
-  function renderPredictionStats(metricNames, stats, runDisplayName) {
-    const list = [];
-
-    metricNames.forEach((metricName) => {
-      const metricValue = stats[metricName];
-      if (metricValue !== undefined) {
-        const displayName = schema.metricsField(metricName).display_name;
-        const statClass = getStatClass(metricName, metricValue);
-        list.push($('<span>', {class: statClass}).text(`${displayName}: ${round(metricValue, 3)}`));
-      }
-    });
-
-    // String the metrics together
-    const $stats = $('<div>');
-    if (runDisplayName) {
-      $stats.append(runDisplayName);
-    }
-    $stats.append(renderItems(list));
-
-    return $stats;
-  }
-
   function metricNameCompare(k1, k2) {
     const splitCompare = (k1.split || '').localeCompare(k2.split || '');
     if (splitCompare !== 0) {
@@ -316,7 +294,7 @@ $(function () {
     origText.split(' ').forEach((word) => {
       origWords[word] = true;
     });
-    return text.split(' ').map((word) => origWords[word] ? word : '<u>' + word + '</u>').join(' ');
+    return text.split(' ').map((word) => !word.trim() || origWords[word] ? word : '<u>' + word + '</u>').join(' ');
   }
 
   function renderRunsHeader(scenario, scenarioPath, scenarioSpec) {
@@ -385,6 +363,71 @@ $(function () {
     return JSON.stringify([displayRequest.instance_id, displayRequest.perturbation || 'original']);
   }
 
+
+  Handlebars.registerHelper('highlightNewWords', function (perturbed, unperturbed) {
+    return new Handlebars.SafeString(
+      highlightNewWords(perturbed, unperturbed)
+    );
+  });
+
+  Handlebars.registerHelper('join', function (strings, separator) {
+    return strings.join(separator);
+  });
+
+  Handlebars.registerHelper('pluralize', function (quantity, singular, plural) {
+    return quantity === 1 ? singular : plural;
+  });
+
+  const instanceTemplate = Handlebars.compile(`
+    {{#with instance}}
+      {{#if perturbation}}
+        <br>
+      {{else}}
+        <hr>
+      {{/if}}
+      <div class="instance">
+        <div>
+          <strong>
+            Instance {{id}} [split: {{split}}]
+            {{#if perturbation}}
+              ...with perturbation: {{perturbation.name}}
+            {{/if}}
+          </strong>
+        </div>
+        {{#unless ../hideInputOutput}}
+          {{#if input}}
+            <div>Input:</div>
+            <div class="instance-input">
+              {{~#if perturbation~}}
+                {{highlightNewWords input ../unperturbedInstance.input}}
+              {{~else~}}
+                {{input}}
+              {{~/if~}}
+            </div>
+          {{/if}}
+          {{#if references}}
+            <div>{{pluralize references.length "Reference" "References"}}:</div>
+            <ul>
+              {{#each references}}
+                <li>
+                  <span class="instance-reference">
+                    {{~#if ../perturbation~}}
+                      {{highlightNewWords output (lookup (lookup ../../unperturbedInstance.references @index) "output")}}
+                    {{~else~}}
+                      {{output}}
+                    {{~/if~}}
+                  </span>
+                  {{#if tags}} <strong>[{{join tags ","}}]</strong>{{/if}}
+                </li>
+              {{/each}}
+            </ul>
+          {{/if}}
+        {{/unless}}
+        <div class="predictions"></div>
+      </div>
+    {{/with}}
+  `);
+
   function renderScenarioInstances(instances, $instances) {
     // Render all the instances in a scenario, outputting to $instances.
     // Return a mapping from instance key to the div where
@@ -399,63 +442,20 @@ $(function () {
         id2originalInstance[instance.id] = instance;
       }
     });
-
+    let instancesHtml = "";
+    let keys = [];
     instances.forEach((instance) => {
       const key = instanceKey(instance);
-      if (key in instanceKeyToDiv) {
-        console.warn(`Two instances with the same key ${key}, skipping`, instance);
-        return;
-      }
-
-      // Assume original version (no perturbation shows up first)
-      if (!instance.perturbation) {
-        $instances.append($('<hr>'));
-      } else {
-        $instances.append($('<br>'));
-      }
-
-      const $instance = $('<div>');
-
-      // For perturbations of an instance, highlight the diff between the unperturbed instance with the same ID
-      const originalInstance = id2originalInstance[instance.id];
-
-      let header;
-      if (!instance.perturbation) {
-        header = `Instance ${instance.id} [split: ${instance.split}]`;
-      } else {
-        header = '...with perturbation: ' + renderPerturbation(instance.perturbation);
-      }
-
-      $instance.append($('<b>').text(header));
-
-      // We can hide the inputs and outputs to focus on the predictions
-      if (!urlParams.hideInputOutput) {
-        $instance.append('<br>');
-        const input = instance.perturbation ? highlightNewWords(instance.input, originalInstance.input) : instance.input;
-
-        // Input
-        $instance.append($('<div>').text('Input:'));
-        $instance.append($('<div>', {class: 'instance-input'}).html(multilineHtml(input)));
-
-        // References
-        if (instance.references.length > 0) {
-          $instance.append($('<div>').text(instance.references.length === 1 ? 'Reference:' : 'References:'));
-          const $references = $('<ul>');
-          instance.references.forEach((reference, referenceIndex) => {
-            const originalReference = instance.perturbation && originalInstance.references[referenceIndex];
-            const output = instance.perturbation ? highlightNewWords(reference.output, originalReference.output) : reference.output;
-            const suffix = reference.tags.length > 0 ? ' ' + ('[' + reference.tags.join(',') + ']').bold() : '';
-            $references.append($('<li>').append([$('<span>', {class: 'instance-reference'}).text(output), suffix]));
-          });
-          $instance.append($references);
-        }
-      }
-      $prediction = $('<div>', {class: 'prediction'});
-      $instance.append($prediction);
-      $instances.append($instance);
-      instanceKeyToDiv[key] = $instance;
+      instancesHtml += instanceTemplate({
+        instance,
+        'unperturbedInstance': id2originalInstance[instance.id],
+        'hideInputOutput': urlParams.hideInputOutput
+      });
+      keys.push(key);
     });
-
+    $instances.html(instancesHtml);
+    const $divs = $instances.find(".instance");
+    keys.forEach((key, index) => {instanceKeyToDiv[key] = $divs.eq(index)});
     return instanceKeyToDiv;
   }
 
@@ -483,7 +483,7 @@ $(function () {
 
     const $promptRow = $('<tr>').append([
       $('<td>').append("prompt"),
-      $('<td>').append($('<pre>').text(request.prompt)),
+      $('<td class="prompt">').text(request.prompt),
     ]);
     $requestTable.append($promptRow);
 
@@ -502,7 +502,41 @@ $(function () {
     return $('<div>').append().append($requestTable);
   }
 
-  function renderPredictions(runSpec, runDisplayName, predictions, instanceKeyToDiv) {
+  Handlebars.registerHelper("joinEach", function(context, separator, options) {
+    return context.map(options.fn).join(separator);
+  });
+
+  const predictionTemplate = Handlebars.compile(`
+    {{#if metrics}}
+      <div>
+        [
+        {{#joinEach metrics " | " }}
+          <span{{#if class}} class="{{class}}"{{/if}}>
+            {{~name}}: {{value~}}
+          </span>
+        {{/joinEach}}
+        ]
+      </div>
+    {{/if}}
+    <div class="prediction">
+      <strong><a href="#" class="load-requests">
+        Prediction
+        {{~#if runDisplayName~}}
+          [{{runDisplayName}}]
+        {{~/if~}}
+        {{~#if prediction.reference_index~}}
+          [ref {{prediction.reference_index}}]
+        {{~/if~}}
+        {{~#if numTrainTrials~}}
+          \{trial {{prediction.train_trial_index~}} \}
+        {{~/if~}}
+      </a></strong>:
+      {{{predictedText}}}
+    </div>
+    <div class="request" style="display: none">Loading...</div>
+  `);
+
+  function renderPredictions(runSpec, runDisplayName, predictions, instanceKeyToDiv, $instances) {
     // Add the predictions and statistics from `scenarioState` and `perInstanceStats` to the appropriate divs for each instance.
     // Each instance give rises to multiple requests (whose results are in `scenarioState`):
     //
@@ -540,7 +574,7 @@ $(function () {
       }
 
       // Traverse into the prediction div within the instance div
-      const $instance = $instanceDiv.find('.prediction');
+      const $instance = $instanceDiv.find('.predictions');
 
       // For multiple_choice_separate_*, only render the request state for the predicted index
       const predictedIndex = prediction.stats["predicted_index"];
@@ -549,10 +583,6 @@ $(function () {
           prediction.reference_index !== predictedIndex) {
         return;
       }
-
-      // Print out instance-level statistics.
-      // Show it once for each (instance_id, perturbation) and train_trial_index.
-      $instance.append(renderPredictionStats(metricNames, prediction.stats, runDisplayName));
 
       // Render the prediction
       // TODO: Escape the HTML in predictedText properly
@@ -580,39 +610,27 @@ $(function () {
           predictedText = truncateMiddle(predictedText, 30)
         }
       }
-
-      // Describe the prediction
-      let description = '';
-
-      // If there are multiple runs
-      if (runDisplayName) {
-        description += '[' + runDisplayName + '] ';
-      }
-
-      description += 'Prediction';
-
-      // Which reference (for multiple_choice_separate_*)
-      if (prediction.reference_index !== undefined) {
-        description += '[ref ' + prediction.reference_index + ']';
-      }
-
-      // If there are multiple trials
-      if (numTrainTrials > 1) {
-        description += '{trial ' + prediction.train_trial_index + '}';
-      }
-
-      const $request = $('<div>').addClass('request').text('Loading request...');
-      $request.hide();
-      $link = $('<a>', {href: '#'}).append($('<b>').append(description)).click(() => {
-        loadAndRenderRequests(runSpec, instanceKeyToDiv, predictedIndex);
-        $request.slideToggle();
-        return false;
+      const metrics = [];
+      metricNames.forEach((metricName) => {
+        const metricValue = prediction.stats[metricName];
+        if (metricValue !== undefined) {
+          const displayName = schema.metricsField(metricName).display_name;
+          const statClass = getStatClass(metricName, metricValue);
+          metrics.push({'name': displayName, 'value': metricValue, 'class': statClass})
+        }
       });
-      const $prediction = $('<div>')
-        .text(': ' + predictedText)
-        .prepend($link);
-      $instance.append($prediction);
-      $instance.append($request);
+      $instance.append(predictionTemplate({
+        runDisplayName,
+        prediction,
+        predictedText,
+        numTrainTrials,
+        metrics,
+      }));
+    });
+    $instances.find("a.load-requests").click((event) => {
+      $(event.target).closest('.prediction').next('.request').slideToggle();
+      loadAndRenderRequests(runSpec, instanceKeyToDiv);
+      return false;
     });
   }
 
@@ -742,7 +760,7 @@ $(function () {
       const instanceKeyToDiv = renderScenarioInstances(instances, $instances);
       // For each run / model...
       runSpecs.forEach((runSpec, index) => {
-        renderPredictions(runSpec, runDisplayNames[index], predictions[index], instanceKeyToDiv);
+        renderPredictions(runSpec, runDisplayNames[index], predictions[index], instanceKeyToDiv, $instances);
       });
       $instancesContainer.empty().append($instances);
     });

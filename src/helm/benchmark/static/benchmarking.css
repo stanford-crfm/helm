@@ -110,11 +110,13 @@ tr {
   font-style: italic;
   background-color: #f5f5f5;
   margin-left: 20px;
+  white-space: pre-wrap;
 }
 
 .instance-reference {
   font-style: italic;
   background-color: #f5f5f5;
+  white-space: pre-wrap;
 }
 
 .taxonomy-table {
@@ -127,4 +129,10 @@ thead .table-sort-column {
 
 tbody .table-sort-column {
   background-color: #fff2cc;
+}
+
+.prompt {
+  font-style: italic;
+  background-color: #f5f5f5;
+  white-space: pre-wrap;
 }
