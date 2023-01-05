@@ -308,7 +308,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "openai/curie": ["openai/curie"],
         "chat_run": ["openai/chat-gpt", "openai/text-davinci-003"],  # Compare ChatGPT to text-davinci-003
         "all": get_all_models(),
-        "all_language": get_all_text_models() + get_all_code_models(),
+        "text_code": get_all_text_models() + get_all_code_models(),
         "text": get_all_text_models(),
         "code": get_all_code_models(),
         "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),
