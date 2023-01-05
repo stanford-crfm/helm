@@ -245,7 +245,7 @@ class LEXTREMEScenario(Scenario):
             'B-LOCATION-NAT',
             'I-LOCATION-NAT'
         ],
-        "mapa_course": [
+        "mapa_coarse": [
             'O',
             'B-ORGANISATION',
             'I-ORGANISATION',
