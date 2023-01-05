@@ -17,14 +17,16 @@ from .adapter import (
 from .metrics.metric import MetricSpec
 from .run_expander import RUN_EXPANDERS, GlobalPrefixRunExpander, StopRunExpander
 from .runner import RunSpec
-from .scenarios.lex_glue_scenario import get_lex_glue_max_train_instances, get_lex_glue_instructions
+from .scenarios.lex_glue_scenario import get_lex_glue_max_train_instances, get_lex_glue_instructions, \
+    get_lex_glue_max_tokens
 from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
-from .scenarios.lextreme_scenario import get_lextreme_instructions, get_lextreme_max_train_instances
+from .scenarios.lextreme_scenario import get_lextreme_instructions, get_lextreme_max_train_instances, \
+    get_lextreme_max_tokens
 from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG
 from helm.common.general import singleton
 
@@ -1588,9 +1590,9 @@ def get_lextreme_spec(subset: str) -> RunSpec:
 
     adapter_spec = get_generation_adapter_spec(
         instructions=get_lextreme_instructions(subset),
-        input_noun=None,
-        output_noun="Label",
-        max_tokens=30,  # at most ~50 characters per label
+        input_noun="Passage",
+        output_noun="Answer",
+        max_tokens=get_lextreme_max_tokens(subset),
         max_train_instances=get_lextreme_max_train_instances(subset),  # in some subsets the input is very long
     )
 
@@ -1610,9 +1612,9 @@ def get_lex_glue_spec(subset: str) -> RunSpec:
 
     adapter_spec = get_generation_adapter_spec(
         instructions=get_lex_glue_instructions(subset),
-        input_noun=None,
-        output_noun="Label",
-        max_tokens=30,  # at most ~50 characters per label
+        input_noun="Passage",
+        output_noun="Answer",
+        max_tokens=get_lex_glue_max_tokens(subset),
         max_train_instances=get_lex_glue_max_train_instances(subset),  # in some subsets the input is very long
     )
 

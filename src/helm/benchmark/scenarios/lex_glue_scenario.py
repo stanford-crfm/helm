@@ -35,6 +35,21 @@ def get_lex_glue_max_train_instances(subset):
     return TASK_MAX_TRAIN_INSTANCES_MAPPING[subset]
 
 
+TASK_MAX_TOKENS_MAPPING = {
+    'ecthr_a': 20,  # sequence of numbers
+    'ecthr_b': 20,  # sequence of numbers
+    'scotus': 5,  # one number
+    'eurlex': 20,  # sequence of numbers
+    'ledgar': 20,  # multiple words
+    'unfair_tos': 20,  # sequence of numbers
+    'case_hold': 5,  # one number
+}
+
+
+def get_lex_glue_max_tokens(subset):
+    return TASK_MAX_TOKENS_MAPPING[subset]
+
+
 INSTRUCTIONS = {
     "ecthr_a": "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
                "Predict the articles of the ECtHR that were violated (if any).",

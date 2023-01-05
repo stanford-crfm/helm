@@ -28,8 +28,8 @@ TASK_CODE_MAPPING = {
     'greek_legal_ner': 'NER',
     'legalnero': 'NER',
     'lener_br': 'NER',
-    'mapa_ner_coarse_grained': 'NER',
-    'mapa_ner_fine_grained': 'NER',
+    'mapa_coarse': 'NER',
+    'mapa_fine': 'NER',
 }
 
 TASK_MAX_TRAIN_INSTANCES_MAPPING = {
@@ -49,13 +49,39 @@ TASK_MAX_TRAIN_INSTANCES_MAPPING = {
     'greek_legal_ner': 5,  # ~ max 512 tokens
     'legalnero': 5,  # ~ max 512 tokens
     'lener_br': 5,  # ~ max 512 tokens
-    'mapa_ner_coarse_grained': 5,  # ~ max 512 tokens
-    'mapa_ner_fine_grained': 5,  # ~ max 512 tokens
+    'mapa_coarse': 5,  # ~ max 512 tokens
+    'mapa_fine': 5,  # ~ max 512 tokens
 }
 
 
 def get_lextreme_max_train_instances(subset):
     return TASK_MAX_TRAIN_INSTANCES_MAPPING[subset]
+
+
+TASK_MAX_TOKENS_MAPPING = {
+    'brazilian_court_decisions_judgment': 5,  # one word
+    'brazilian_court_decisions_unanimity': 5,  # one word
+    'german_argument_mining': 5,  # one word
+    'greek_legal_code_chapter': 20,  # few non-ASCII words
+    'greek_legal_code_subject': 20,  # few non-ASCII words
+    'greek_legal_code_volume': 20,  # few non-ASCII words
+    'swiss_judgment_prediction': 5,  # one word
+    'online_terms_of_service_unfairness_levels': 10,  # two words
+    'online_terms_of_service_clause_topics': 10,  # max two words
+    'covid19_emergency_event': 10,  # max two words
+    'multi_eurlex_level_1': 10,  # max two words
+    'multi_eurlex_level_2': 10,  # max two words
+    'multi_eurlex_level_3': 10,  # max two words
+    'greek_legal_ner': 430,  # num NER labels: max 2593, 99% 215, 95% 101 ==> 215 * 2 = 430
+    'legalnero': 788,  # num NER labels: max 737, 99% 394, 95% 103 ==> 394 * 2 = 788
+    'lener_br': 338,  # num NER labels: max 654, 99% 169, 95% 100 ==> 169 * 2 = 338
+    'mapa_coarse': 274,  # num NER labels: max 367, 99% 137, 95% 83 ==> 137 * 2 = 274
+    'mapa_fine': 274,  # num NER labels: max 367, 99% 137, 95% 83 ==> 137 * 2 = 274
+}
+
+
+def get_lextreme_max_tokens(subset):
+    return TASK_MAX_TOKENS_MAPPING[subset]
 
 
 INSTRUCTIONS = {
@@ -115,10 +141,10 @@ INSTRUCTIONS = {
                  "Predict the named entity type for each token.",
     "lener_br": "In this task, you are given a sentence from Brazilian legal documents (court decisions and legislation). "
                 "Predict the named entity type for each token.",
-    "mapa_ner_coarse_grained": "In this task, you are given a sentence from the EUR-Lex database. "
-                               "Predict the coarse grained named entity type for each token.",
-    "mapa_ner_fine_grained": "In this task, you are given a sentence from the EUR-Lex database. "
-                             "Predict the fine grained named entity type for each token.",
+    "mapa_coarse": "In this task, you are given a sentence from the EUR-Lex database. "
+                   "Predict the coarse grained named entity type for each token.",
+    "mapa_fine": "In this task, you are given a sentence from the EUR-Lex database. "
+                 "Predict the fine grained named entity type for each token.",
 }
 
 
