@@ -15,9 +15,9 @@ TASK_CODE_MAPPING = {
     'brazilian_court_decisions_judgment': 'SLTC',
     'brazilian_court_decisions_unanimity': 'SLTC',
     'german_argument_mining': 'SLTC',
-    'greek_legal_code_chapter_level': 'SLTC',
-    'greek_legal_code_subject_level': 'SLTC',
-    'greek_legal_code_volume_level': 'SLTC',
+    'greek_legal_code_chapter': 'SLTC',
+    'greek_legal_code_subject': 'SLTC',
+    'greek_legal_code_volume': 'SLTC',
     'swiss_judgment_prediction': 'SLTC',
     'online_terms_of_service_unfairness_levels': 'SLTC',
     'online_terms_of_service_clause_topics': 'MLTC',
@@ -36,9 +36,9 @@ TASK_MAX_TRAIN_INSTANCES_MAPPING = {
     'brazilian_court_decisions_judgment': 4,  # ~ max 1024 tokens
     'brazilian_court_decisions_unanimity': 4,  # ~ max 1024 tokens
     'german_argument_mining': 5,  # ~ max 256 tokens
-    'greek_legal_code_chapter_level': 1,  # ~ max 4096 tokens
-    'greek_legal_code_subject_level': 1,  # ~ max 4096 tokens
-    'greek_legal_code_volume_level': 1,  # ~ max 4096 tokens
+    'greek_legal_code_chapter': 1,  # ~ max 4096 tokens
+    'greek_legal_code_subject': 1,  # ~ max 4096 tokens
+    'greek_legal_code_volume': 1,  # ~ max 4096 tokens
     'swiss_judgment_prediction': 2,  # ~ max 2048 tokens
     'online_terms_of_service_unfairness_levels': 5,  # ~ max 256 tokens
     'online_terms_of_service_clause_topics': 5,  # ~ max 256 tokens
@@ -72,12 +72,12 @@ INSTRUCTIONS = {
                               "definition: Abstract legal facts and consequences, "
                               "subsumption: Determination sentence / Concrete facts, "
                               "other: Anything else)",
-    "greek_legal_code_chapter_level": "In this task, you are given a Greek legislative document. "
-                                      "Predict the chapter level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
-    "greek_legal_code_subject_level": "In this task, you are given a Greek legislative document. "
-                                      "Predict the subject level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
-    "greek_legal_code_volume_level": "In this task, you are given a Greek legislative document. "
-                                     "Predict the volume level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+    "greek_legal_code_chapter": "In this task, you are given a Greek legislative document. "
+                                "Predict the chapter level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+    "greek_legal_code_subject": "In this task, you are given a Greek legislative document. "
+                                "Predict the subject level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+    "greek_legal_code_volume": "In this task, you are given a Greek legislative document. "
+                               "Predict the volume level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
     "swiss_judgment_prediction": "In this task, you are given the facts description from a decision heard at the Swiss Federal Supreme Court. "
                                  "Predict the judgment of the case (approval or dismissal)",
     "online_terms_of_service_unfairness_levels": "In this task, you are given a sentence from a Terms of Service (ToS) document. "
