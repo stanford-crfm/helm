@@ -1,9 +1,9 @@
 from dataclasses import replace
 
 from random import Random
-from typing import Sequence, Optional
+from typing import List, Optional
 
-from helm.benchmark.scenarios.scenario import Instance, Reference
+from helm.benchmark.scenarios.scenario import Instance, Reference, Input
 from .perturbation_description import PerturbationDescription
 from .perturbation import Perturbation
 
@@ -34,7 +34,7 @@ class ContrastSetsPerturbation(Perturbation):
     An example instance of a perturbation for the IMDB dataset (from the original paper):
 
     ```
-    Orginal instance: Hardly one to be faulted for his ambition or his vision, it is genuinely unexpected, then, to see
+    Original instance: Hardly one to be faulted for his ambition or his vision, it is genuinely unexpected, then, to see
     all Park’s effort add up to so very little. . . .  The premise is promising, gags are copious and offbeat humour
     abounds but it all fails miserably to create any meaningful connection with the audience.
     Sentiment: negative
@@ -66,18 +66,18 @@ class ContrastSetsPerturbation(Perturbation):
         """
         rng: Random = self.get_rng(instance, seed)
 
-        perturbed_instance: str = instance.input
-        perturbed_references: Sequence[Reference] = instance.references
+        perturbed_input: Input = instance.input
+        perturbed_references: List[Reference] = instance.references
 
         if instance.contrast_inputs is not None and instance.contrast_references is not None:
             perturb_index: int = rng.choice(range(len(instance.contrast_inputs)))
-            perturbed_instance = instance.contrast_inputs[perturb_index]
+            perturbed_input = instance.contrast_inputs[perturb_index]
             perturbed_references = instance.contrast_references[perturb_index]
 
-        description = replace(self.description, seed=seed)
+        description: PerturbationDescription = replace(self.description, seed=seed)
         return replace(
             instance,
-            input=perturbed_instance,
+            input=perturbed_input,
             references=perturbed_references,
             perturbation=description,
         )

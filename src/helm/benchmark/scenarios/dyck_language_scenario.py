@@ -2,7 +2,7 @@ import numpy as np
 import random
 from typing import List, Tuple
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 class DyckLanguageScenario(Scenario):
@@ -200,8 +200,8 @@ class DyckLanguageScenario(Scenario):
                 output = " " + output
                 i += 1
                 instance = Instance(
-                    input=input,
-                    references=[Reference(output=output, tags=[CORRECT_TAG])],
+                    input=Input(text=input),
+                    references=[Reference(Output(text=output), tags=[CORRECT_TAG])],
                     split=split,
                 )
                 instances.append(instance)

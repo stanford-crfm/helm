@@ -19,17 +19,17 @@ from rouge_score import rouge_scorer
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Token, Sequence
-from helm.benchmark.adapter import (
+from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_ORIGINAL,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
     ADAPT_RANKING_BINARY,
-    AdapterSpec,
-    RequestState,
 )
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.window_services.window_service import WindowService
 from helm.benchmark.window_services.window_service_factory import WindowServiceFactory
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
-from helm.benchmark.scenarios.scenario import CORRECT_TAG, Instance
+from helm.benchmark.scenarios.scenario import CORRECT_TAG, Instance, Reference
 from helm.benchmark.scenarios.math_scenario import is_equiv, is_equiv_chain_of_thought
 from helm.benchmark.scenarios.code_scenario import CodeReference
 from . import code_metrics_helper
@@ -441,19 +441,23 @@ class BasicMetric(Metric):
             if name.name == "pass":  # Calculate pass@k for HumanEval from CodeScenario.
                 score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
                 code_golds = cast(List[CodeReference], golds)
-                results = [score_func((gold.output, gold.test_cases), pred) for gold in code_golds for pred in preds]
+                results = [
+                    score_func((gold.output.text, gold.test_cases), pred) for gold in code_golds for pred in preds
+                ]
                 _len, _sum = len(results), int(sum(results))  # Cast to int to make type match.
                 score_1 = pass_at_k_estimator(_len, _sum, 1)
                 score_k = pass_at_k_estimator(_len, _sum, adapter_spec.num_outputs)
             elif name.name == "code_eval_acc":
                 score_func = cast(Callable[[Tuple[str, Optional[Dict]], str], float], score_func)  # Make mypy happy.
                 code_golds = cast(List[CodeReference], golds)
-                score_1 = max(score_func((gold.output, gold.test_cases), preds[0]) for gold in code_golds)
-                score_k = max(score_func((gold.output, gold.test_cases), pred) for gold in code_golds for pred in preds)
+                score_1 = max(score_func((gold.output.text, gold.test_cases), preds[0]) for gold in code_golds)
+                score_k = max(
+                    score_func((gold.output.text, gold.test_cases), pred) for gold in code_golds for pred in preds
+                )
             else:
                 score_func = cast(Callable[[str, str], float], score_func)  # Make mypy happy.
-                score_1 = max(score_func(gold.output, preds[0]) for gold in golds)
-                score_k = max(score_func(gold.output, pred) for gold in golds for pred in preds)
+                score_1 = max(score_func(gold.output.text, preds[0]) for gold in golds)
+                score_k = max(score_func(gold.output.text, pred) for gold in golds for pred in preds)
 
             metrics = [Stat(name).add(score_1)]  # score_1 corresponds using one prediction
             if adapter_spec.num_outputs != 1:
@@ -486,13 +490,13 @@ class BasicMetric(Metric):
         stats: List[Stat] = []
 
         # Gold outputs
-        golds = [reference for reference in request_state.instance.references if reference.is_correct]
+        golds: List[Reference] = [reference for reference in request_state.instance.references if reference.is_correct]
         assert len(golds) > 0
 
         # Predicted outputs
         assert request_state.result is not None
-        sorted_completions = sorted(request_state.result.completions, key=lambda x: -x.logprob)
-        preds = [completion.text.strip() for completion in sorted_completions]
+        sorted_completions: List[Sequence] = sorted(request_state.result.completions, key=lambda x: -x.logprob)
+        preds: List[str] = [completion.text.strip() for completion in sorted_completions]
 
         # Apply mapping if exists (e.g., for multiple-choice questions A -> Boston, B -> New York)
         # Note: If 'A' and 'B' were the only possible choices, smaller language models like GPT-2 would
@@ -737,7 +741,7 @@ class BasicMetric(Metric):
 
             reference_index = request_state.reference_index
             sequence: Sequence = request_state.result.completions[0]
-            reference: str = request_state.instance.references[reference_index].output
+            reference: str = request_state.instance.references[reference_index].output.text
 
             # Find the span of the completion that matches the reference.
             # Prepend a space because there should always be a space before reference in the prompt.

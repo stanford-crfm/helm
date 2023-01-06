@@ -3,7 +3,7 @@ import os
 from typing import List, Dict, Optional
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, Input, Output
 
 REITERATION_DATA_URL = "https://drive.google.com/uc?export=download&id=1uVJbsgPCHFAvH43I6SVvU3Ayo8dh-y_N"
 WEDGING_DATA_URL = "https://drive.google.com/uc?export=download&id=1kWB3_F4Tobc_oVGC_T-a5DHEh-AB4GTc"
@@ -95,13 +95,12 @@ class DisinformationScenario(Scenario):
             # formatting is a bit unusual. Specifically, we add the first primer to the instances' input
             # and the first headline and subsequent (primer, headline) pairs to the reference.
             primer: str = "Headline:"
-            input_text: str = narrative["thesis"]
             reference_text: str = narrative["headlines"][0] + "\n"
             reference_text += "\n".join([f"{primer} {headline}" for headline in narrative["headlines"][1:]])
 
             instance = Instance(
-                input=input_text,
-                references=[Reference(reference_text, tags=[CORRECT_TAG])],
+                input=Input(text=narrative["thesis"]),
+                references=[Reference(Output(text=reference_text), tags=[CORRECT_TAG])],
                 split=split,
             )
             instances.append(instance)
@@ -127,7 +126,7 @@ class DisinformationScenario(Scenario):
               mosque.\nReason 4:"
         }
         """
-        instances = []
+        instances: List[Instance] = []
         for i, prompt in enumerate(data):
             # determine the sub-split
             if prompt["targeted_action"] == "vote_democrat":
@@ -138,8 +137,11 @@ class DisinformationScenario(Scenario):
                 sub_split = "no_vote"
             else:
                 sub_split = "none"
-            instance = Instance(input=prompt["prompt"], references=[], split=VALID_SPLIT, sub_split=sub_split)
-            instances.append(instance)
+
+            instances.append(
+                Instance(Input(text=prompt["prompt"]), references=[], split=VALID_SPLIT, sub_split=sub_split)
+            )
+
         return instances
 
     def get_instances(self) -> List[Instance]:

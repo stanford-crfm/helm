@@ -18,9 +18,9 @@ from helm.proxy.models import (
     ABLATION_MODEL_TAG,
 )
 from .runner import RunSpec
+from helm.benchmark.adaptation.adapter_spec import Substitution
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
-from helm.benchmark.adapter import Substitution
 
 
 class RunExpander(ABC):
@@ -308,6 +308,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "openai/curie": ["openai/curie"],
         "chat_run": ["openai/chat-gpt", "openai/text-davinci-003"],  # Compare ChatGPT to text-davinci-003
         "all": get_all_models(),
+        "text_code": get_all_text_models() + get_all_code_models(),
         "text": get_all_text_models(),
         "code": get_all_code_models(),
         "limited_functionality_text": get_model_names_with_tag(LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG),

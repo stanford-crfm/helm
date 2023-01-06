@@ -53,8 +53,9 @@ class AutoClient(Client):
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return SqliteCacheConfig(client_cache_path)
 
-    def get_client(self, organization: str) -> Client:
+    def get_client(self, request: Request) -> Client:
         """Return a client based on `organization`, creating it if necessary."""
+        organization: str = request.model_organization
         client: Optional[Client] = self.clients.get(organization)
 
         if client is None:
@@ -125,7 +126,7 @@ class AutoClient(Client):
             return client.make_request(request)
 
         organization: str = request.model_organization
-        client: Client = self.get_client(organization)
+        client: Client = self.get_client(request)
 
         try:
             return make_request_with_retry(client=client, request=request)
