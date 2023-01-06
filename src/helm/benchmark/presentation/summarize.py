@@ -286,8 +286,8 @@ class Summarizer:
         """Load the runs in the run suite path."""
         self.runs: List[Run] = []
         # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
-        # so filter them out by checking if they contain ":", which only run subdirectories should have
-        run_dir_names = sorted([p for p in os.listdir(self.run_suite_path) if ":" in p])
+        # so filter them out.
+        run_dir_names = sorted([p for p in os.listdir(self.run_suite_path) if p != "eval_cache" and p != "groups"])
         for run_dir_name in tqdm(run_dir_names):
             run_spec_path: str = os.path.join(self.run_suite_path, run_dir_name, "run_spec.json")
             stats_path: str = os.path.join(self.run_suite_path, run_dir_name, "stats.json")
