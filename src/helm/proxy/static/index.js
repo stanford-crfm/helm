@@ -242,7 +242,12 @@ $(function () {
         const title = 'Generation finished because of this reason: ' + JSON.stringify(completion.finish_reason);
         $metadata.append(' ').append($('<span>', {title}).append(completion.finish_reason.reason));
       }
-      $result.append($('<div>', {class: 'completion'}).append($metadata).append($contents));
+      $completion = $('<div>', {class: 'completion'}).append($metadata).append($contents);
+      if (completion.file_path) {;
+        const image_url = '/output/' + completion.file_path.split('/').slice(-2).join('/');
+        $completion.append($('<img>', {src: image_url}));
+      }
+      $result.append($completion);
     });
     $result.append($('<i>').append(renderTime(requestResult.request_time)));
     return $result;
