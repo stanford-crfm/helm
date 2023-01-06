@@ -1080,14 +1080,17 @@ $(function () {
     $output.append($('<h3>').append($('<a>', {name: table.title}).append(table.title)));
     const $table = $('<table>', {class: 'query-table results-table'});
     let sortColumnIndex = undefined;
+    let sortOrder = undefined;
     for (let i = 0; i < table.header.length; i++) {
       if (table.header[i].lower_is_better !== undefined) {
         sortColumnIndex = i;
+        sortOrder = table.header[i].lower_is_better === false ? "desc" :
+          (table.header[i].lower_is_better === true ? "asc" : undefined);
         break;
       }
     }
     $table.append(renderTableHeader(table, sortColumnIndex));
-    $table.append(renderTableBody(table, sortColumnIndex));
+    table.append(renderTableBody(table, sortColumnIndex, sortOrder));
     $output.append($table);
 
     // Links
