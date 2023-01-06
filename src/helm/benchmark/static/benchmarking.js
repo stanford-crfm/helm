@@ -364,17 +364,17 @@ $(function () {
   }
 
 
-  Handlebars.registerHelper('highlightNewWords', function (perturbed, unperturbed) {
+  Handlebars.registerHelper('highlightNewWords', (perturbed, unperturbed) => {
     return new Handlebars.SafeString(
       highlightNewWords(perturbed, unperturbed)
     );
   });
 
-  Handlebars.registerHelper('join', function (strings, separator) {
+  Handlebars.registerHelper('join', (strings, separator) => {
     return strings.join(separator);
   });
 
-  Handlebars.registerHelper('pluralize', function (quantity, singular, plural) {
+  Handlebars.registerHelper('pluralize', (quantity, singular, plural) => {
     return quantity === 1 ? singular : plural;
   });
 
@@ -443,7 +443,7 @@ $(function () {
       }
     });
     let instancesHtml = "";
-    let keys = [];
+    const keys = [];
     instances.forEach((instance) => {
       const key = instanceKey(instance);
       instancesHtml += instanceTemplate({
@@ -455,7 +455,13 @@ $(function () {
     });
     $instances.html(instancesHtml);
     const $divs = $instances.find(".instance");
-    keys.forEach((key, index) => {instanceKeyToDiv[key] = $divs.eq(index)});
+    if (keys.length !== $divs.length) {
+      console.error(
+        "Could not map instance keys to divs because "+
+        "keys length (" + keys.length + ") !== divs length (" + $divs.length + ")");
+    } else {
+      keys.forEach((key, index) => {instanceKeyToDiv[key] = $divs.eq(index)});
+    }
     return instanceKeyToDiv;
   }
 
@@ -502,7 +508,7 @@ $(function () {
     return $('<div>').append().append($requestTable);
   }
 
-  Handlebars.registerHelper("joinEach", function(context, separator, options) {
+  Handlebars.registerHelper("joinEach", (context, separator, options) => {
     return context.map(options.fn).join(separator);
   });
 
