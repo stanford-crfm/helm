@@ -4,7 +4,7 @@ from typing import Dict, Optional
 
 from retrying import RetryError, Attempt
 
-from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
+from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig, request_to_key
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request, TextToImageRequest, RequestResult
 from helm.common.tokenization_request import (
@@ -60,16 +60,19 @@ class AutoClient(Client):
     def get_client(self, request: Request) -> Client:
         """Return a client based on `Request`, creating it if necessary."""
         organization: str = request.model_organization
-        client: Optional[Client] = self.clients.get(organization)
+        is_text_to_image_request: bool = isinstance(request, TextToImageRequest)
+        key: str = request_to_key({"organization": organization, "is_text_to_image": is_text_to_image_request})
+        client: Optional[Client] = self.clients.get(key)
         file_cache_path: str = os.path.join(self.cache_path, self.OUTPUT_FILES_DIR_NAME, organization)
 
         if client is None:
+            # At this point, it's the first request for this client, so need to initialize the client.
             cache_config: CacheConfig = self._build_cache_config(organization)
 
             if organization == "openai":
                 org_id: Optional[str] = self.credentials.get("openaiOrgId", None)
 
-                if isinstance(request, TextToImageRequest):
+                if is_text_to_image_request:
                     client = DALLE2Client(
                         api_key=self.credentials["openaiApiKey"],
                         cache_config=cache_config,
@@ -120,7 +123,7 @@ class AutoClient(Client):
                 )
             elif organization == "together":
                 together_api_key: Optional[str] = self.credentials.get("togetherApiKey", None)
-                if isinstance(request, TextToImageRequest):
+                if is_text_to_image_request:
                     client = TogetherVisionClient(cache_config, file_cache_path, api_key=together_api_key)
                 else:
                     client = TogetherClient(cache_config, api_key=together_api_key)
@@ -128,7 +131,9 @@ class AutoClient(Client):
                 client = SimpleClient(cache_config=cache_config)
             else:
                 raise ValueError(f"Unknown organization: {organization}")
-            self.clients[organization] = client
+
+            # Cache the client
+            self.clients[key] = client
         return client
 
     def make_request(self, request: Request) -> RequestResult:
