@@ -16,6 +16,7 @@ from helm.proxy.models import (
     GPTJ_TOKENIZER_TAG,
     GPTNEO_TOKENIZER_TAG,
     ABLATION_MODEL_TAG,
+    TEXT_TO_IMAGE_MODEL_TAG,
 )
 from .runner import RunSpec
 from helm.benchmark.adaptation.adapter_spec import Substitution
@@ -318,6 +319,7 @@ class ModelRunExpander(ReplaceValueRunExpander):
         "opt_tokenizer": get_model_names_with_tag(OPT_TOKENIZER_TAG),
         "summarization_zs": ["openai/davinci", "openai/curie", "openai/text-davinci-002", "openai/text-curie-001"],
         "interactive_qa": ["openai/text-davinci-001", "openai/davinci", "ai21/j1-jumbo", "openai/text-babbage-001"],
+        "text_to_image": get_model_names_with_tag(TEXT_TO_IMAGE_MODEL_TAG),
     }
 
     # For each of the keys above (e.g., "text"), create a corresponding ablation (e.g., "ablation_text")

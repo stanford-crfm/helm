@@ -18,10 +18,11 @@ import bottle
 
 from helm.common.authentication import Authentication
 from helm.common.hierarchical_logger import hlog
-from helm.common.request import Request
+from helm.common.request import Request, TextToImageRequest
 from helm.common.perspective_api_request import PerspectiveAPIRequest
 from helm.common.tokenization_request import TokenizationRequest, DecodeRequest
 from .accounts import Account
+from .models import is_text_to_image_model
 from .services.server_service import ServerService
 from .query import Query
 
@@ -148,7 +149,10 @@ def handle_query():
 def handle_request():
     def perform(args):
         auth = Authentication(**json.loads(args["auth"]))
-        request = Request(**json.loads(args["request"]))
+        raw_request = json.loads(args["request"])
+        request = from_dict(
+            TextToImageRequest if is_text_to_image_model(raw_request["model"]) else Request, data=raw_request
+        )
         return dataclasses.asdict(service.make_request(auth, request))
 
     return safe_call(perform)

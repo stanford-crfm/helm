@@ -21,6 +21,8 @@ from .t0pp_window_service import T0ppWindowService
 from .t511b_window_service import T511bWindowService
 from .ul2_window_service import UL2WindowService
 from .yalm_window_service import YaLMWindowService
+from .stable_diffusion_window_service import StableDiffusionWindowService
+from .dalle2_window_service import DALLE2WindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
 
@@ -40,7 +42,10 @@ class WindowServiceFactory:
         if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
             window_service = WiderOpenAIWindowService(service)
         elif organization == "openai" or organization == "simple":
-            window_service = OpenAIWindowService(service)
+            if engine == "DALL-E2":
+                window_service = DALLE2WindowService(service)
+            else:
+                window_service = OpenAIWindowService(service)
         elif organization == "AlephAlpha":
             if engine == "luminous-base":
                 window_service = LuminousBaseWindowService(service)
@@ -82,6 +87,8 @@ class WindowServiceFactory:
             window_service = CohereWindowService(service)
         elif organization == "ai21":
             window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
+        elif model_name == "together/StableDiffusion":
+            window_service = StableDiffusionWindowService(service)
         else:
             raise ValueError(f"Unhandled model name: {model_name}")
 

@@ -51,6 +51,7 @@ sentencepiece~=0.1.97
 numba~=0.56.4
 
 # Metrics
+clean-fid~=0.1.35
 importlib-resources~=5.10.0
 nltk~=3.7
 scipy~=1.9.1

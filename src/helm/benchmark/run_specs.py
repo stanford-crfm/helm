@@ -12,7 +12,7 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_RANKING_BINARY,
 )
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec, TextToImageAdapterSpec
 from .metrics.metric import MetricSpec
 from .run_expander import RUN_EXPANDERS, GlobalPrefixRunExpander, StopRunExpander
 from .runner import RunSpec
@@ -304,6 +304,27 @@ def get_summarization_adapter_spec(num_sents: int, **kwargs) -> AdapterSpec:
     )
 
 
+def get_image_generation_adapter_spec(
+    num_outputs: int = 1,
+    guidance_scale: float = 7.0,
+    image_width: Optional[int] = None,
+    image_height: Optional[int] = None,
+) -> AdapterSpec:
+    return TextToImageAdapterSpec(
+        method=ADAPT_GENERATION,
+        input_prefix="",
+        input_suffix="",
+        output_prefix="",
+        output_suffix="",
+        max_train_instances=0,
+        num_outputs=num_outputs,
+        max_tokens=0,
+        guidance_scale=guidance_scale,
+        width=image_width,
+        height=image_height,
+    )
+
+
 ############################################################
 # Examples of scenario and adapter specs
 
@@ -477,6 +498,13 @@ def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
     else:  # APPS.
         args: Dict[str, Any] = {"names": ["test_avg", "strict_acc"], "timeout": timeout}
         return [MetricSpec(class_name="helm.benchmark.code_metrics.APPSMetric", args=args)]
+
+
+# vHELM metrics
+
+
+def get_fid_metric_specs() -> List[MetricSpec]:
+    return [MetricSpec(class_name="helm.benchmark.fid_metric.FIDMetric", args={})]
 
 
 ############################################################
@@ -1578,7 +1606,28 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
     )
 
 
+# vHELM run specs
+
+
+def get_mscoco_spec(text_to_image=False) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mscoco_scenario.MSCOCOScenario", args={"text_to_image": text_to_image}
+    )
+
+    # TODO: handle text_to_image=False
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
+
+    return RunSpec(
+        name=f"mscoco:text_to_image={text_to_image}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_fid_metric_specs(),
+        groups=["mscoco"],
+    )
+
+
 ############################################################
+
 
 CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "simple1": get_simple1_spec,
@@ -1625,6 +1674,8 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "ice": get_ice_spec,
     "big_bench": get_big_bench_spec,
     "pubmed_qa": get_pubmed_qa_spec,
+    # vHELM
+    "mscoco": get_mscoco_spec,
 }
 
 

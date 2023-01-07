@@ -15,6 +15,7 @@ catalogue==2.0.8
 certifi==2022.9.24
 cfgv==3.3.1
 charset-normalizer==2.1.1
+clean-fid==0.1.35
 click==8.0.4
 colorama==0.4.5
 contourpy==1.0.5

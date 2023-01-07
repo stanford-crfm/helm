@@ -6,7 +6,7 @@ from retrying import RetryError, Attempt
 
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig
 from helm.common.hierarchical_logger import hlog
-from helm.common.request import Request, RequestResult
+from helm.common.request import Request, TextToImageRequest, RequestResult
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -29,10 +29,14 @@ from .microsoft_client import MicrosoftClient
 from .perspective_api_client import PerspectiveAPIClient
 from .yalm_tokenizer_client import YaLMTokenizerClient
 from .simple_client import SimpleClient
+from .dalle2_client import DALLE2Client
+from .together_vision_client import TogetherVisionClient
 
 
 class AutoClient(Client):
     """Automatically dispatch to the proper `Client` based on the organization."""
+
+    OUTPUT_FILES_DIR_NAME: str = "output"
 
     def __init__(self, credentials: Dict[str, str], cache_path: str, mongo_uri: str = ""):
         self.credentials = credentials
@@ -54,33 +58,42 @@ class AutoClient(Client):
         return SqliteCacheConfig(client_cache_path)
 
     def get_client(self, request: Request) -> Client:
-        """Return a client based on `organization`, creating it if necessary."""
+        """Return a client based on `Request`, creating it if necessary."""
         organization: str = request.model_organization
         client: Optional[Client] = self.clients.get(organization)
+        file_cache_path: str = os.path.join(self.cache_path, self.OUTPUT_FILES_DIR_NAME, organization)
 
         if client is None:
             cache_config: CacheConfig = self._build_cache_config(organization)
 
             if organization == "openai":
-                # TODO: add ChatGPT to the OpenAIClient when it's supported.
-                #       We're using a separate client for now since we're using an unofficial Python library.
-                # See https://github.com/acheong08/ChatGPT/wiki/Setup on how to get a valid session token.
-                chat_gpt_client: ChatGPTClient = ChatGPTClient(
-                    session_token=self.credentials.get("chatGPTSessionToken", ""),
-                    lock_file_path=os.path.join(self.cache_path, "ChatGPT.lock"),
-                    # TODO: use `cache_config` above. Since this feature is still experimental,
-                    #       save queries and responses in a separate collection.
-                    cache_config=self._build_cache_config("ChatGPT"),
-                    tokenizer_client=self.get_tokenizer_client("huggingface"),
-                )
+                org_id: Optional[str] = self.credentials.get("openaiOrgId", None)
 
-                org_id = self.credentials.get("openaiOrgId", None)
-                client = OpenAIClient(
-                    api_key=self.credentials["openaiApiKey"],
-                    cache_config=cache_config,
-                    chat_gpt_client=chat_gpt_client,
-                    org_id=org_id,
-                )
+                if isinstance(request, TextToImageRequest):
+                    client = DALLE2Client(
+                        api_key=self.credentials["openaiApiKey"],
+                        cache_config=cache_config,
+                        file_cache_path=file_cache_path,
+                        org_id=org_id,
+                    )
+                else:
+                    # TODO: add ChatGPT to the OpenAIClient when it's supported.
+                    #       We're using a separate client for now since we're using an unofficial Python library.
+                    # See https://github.com/acheong08/ChatGPT/wiki/Setup on how to get a valid session token.
+                    chat_gpt_client: ChatGPTClient = ChatGPTClient(
+                        session_token=self.credentials.get("chatGPTSessionToken", ""),
+                        lock_file_path=os.path.join(self.cache_path, "ChatGPT.lock"),
+                        # TODO: use `cache_config` above. Since this feature is still experimental,
+                        #       save queries and responses in a separate collection.
+                        cache_config=self._build_cache_config("ChatGPT"),
+                        tokenizer_client=self.get_tokenizer_client("huggingface"),
+                    )
+                    client = OpenAIClient(
+                        api_key=self.credentials["openaiApiKey"],
+                        cache_config=cache_config,
+                        chat_gpt_client=chat_gpt_client,
+                        org_id=org_id,
+                    )
             elif organization == "AlephAlpha":
                 client = AlephAlphaClient(api_key=self.credentials["alephAlphaKey"], cache_config=cache_config)
             elif organization == "ai21":
@@ -106,7 +119,11 @@ class AutoClient(Client):
                     org_id=org_id,
                 )
             elif organization == "together":
-                client = TogetherClient(api_key=self.credentials.get("togetherApiKey", None), cache_config=cache_config)
+                together_api_key: Optional[str] = self.credentials.get("togetherApiKey", None)
+                if isinstance(request, TextToImageRequest):
+                    client = TogetherVisionClient(cache_config, file_cache_path, api_key=together_api_key)
+                else:
+                    client = TogetherClient(cache_config, api_key=together_api_key)
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
             else:

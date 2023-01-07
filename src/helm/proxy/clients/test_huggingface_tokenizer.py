@@ -45,3 +45,6 @@ class TestHuggingFaceTokenizers:
         token_ids = tokenizer.encode(eos_token)
         assert singleton(token_ids) == 50256
         assert tokenizer.decode(token_ids) == eos_token
+
+    def test_get_clip_tokenizer(self):
+        TestHuggingFaceTokenizers.verify_get_tokenizer("openai/clip-vit-large-patch14", 50)

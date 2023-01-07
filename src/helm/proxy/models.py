@@ -6,6 +6,7 @@ TEXT_MODEL_TAG: str = "text"
 IMAGE_MODEL_TAG: str = "image"
 CODE_MODEL_TAG: str = "code"
 EMBEDDING_MODEL_TAG: str = "embedding"
+TEXT_TO_IMAGE_MODEL_TAG: str = "text_to_image"
 
 # Some model APIs have limited functionalities
 FULL_FUNCTIONALITY_TEXT_MODEL_TAG: str = "full_functionality_text"
@@ -565,6 +566,23 @@ ALL_MODELS = [
         display_name="Simple Model 1",
         description="Copy last tokens (for debugging)",
     ),
+    # Text-to-image models
+    Model(
+        group="text_to_image",
+        creator_organization="OpenAI",
+        name="openai/DALL-E2",
+        display_name="DALL-E 2",
+        description="A model that can create realistic images and art from a description in natural language",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG],
+    ),
+    Model(
+        group="text_to_image",
+        creator_organization="Stability AI",
+        name="together/StableDiffusion",
+        display_name="Stable Diffusion",
+        description="A latent text-to-image diffusion model",
+        tags=[TEXT_TO_IMAGE_MODEL_TAG],
+    ),
 ]
 
 MODEL_NAME_TO_MODEL: Dict[str, Model] = {model.name: model for model in ALL_MODELS}
@@ -609,3 +627,8 @@ def get_all_text_models() -> List[str]:
 def get_all_code_models() -> List[str]:
     """Get all code model names."""
     return get_model_names_with_tag(CODE_MODEL_TAG)
+
+
+def is_text_to_image_model(model_name: str) -> bool:
+    model: Model = get_model(model_name)
+    return TEXT_TO_IMAGE_MODEL_TAG in model.tags

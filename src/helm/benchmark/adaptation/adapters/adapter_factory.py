@@ -1,9 +1,10 @@
 from typing import List
 
-from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec, TextToImageAdapterSpec
 from helm.benchmark.window_services.tokenizer_service import TokenizerService
 from .adapter import Adapter
 from .generation_adapter import GenerationAdapter
+from .image_generation_adapter import ImageGenerationAdapter
 from .language_modeling_adapter import LanguageModelingAdapter
 from .multiple_choice_joint_adapter import MultipleChoiceJointAdapter
 from .multiple_choice_separate_adapter import MultipleChoiceSeparateAdapter
@@ -34,7 +35,10 @@ class AdapterFactory:
         adapter: Adapter
 
         if method == ADAPT_GENERATION:
-            adapter = GenerationAdapter(adapter_spec, tokenizer_service)
+            if isinstance(adapter_spec, TextToImageAdapterSpec):
+                adapter = ImageGenerationAdapter(adapter_spec, tokenizer_service)
+            else:
+                adapter = GenerationAdapter(adapter_spec, tokenizer_service)
         elif method == ADAPT_LANGUAGE_MODELING:
             adapter = LanguageModelingAdapter(adapter_spec, tokenizer_service)
         elif method == ADAPT_MULTIPLE_CHOICE_JOINT:

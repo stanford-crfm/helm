@@ -56,6 +56,10 @@ class Input:
     """
 
     text: str
+    """The text of the input (e.g, passage to summarize, text for sentiment analysis, etc.)"""
+
+    file_path: Optional[str] = None
+    """Optional input file path (e.g., path to an image for visual QA, path to an audio file, etc.)"""
 
 
 @dataclass(frozen=True)
@@ -82,6 +86,10 @@ class Output:
     """
 
     text: str
+    """The text of the output (e.g, possible answers for multiple choice QA, ideal summary, etc.)"""
+
+    file_path: Optional[str] = None
+    """Optional output file path (e.g., path to gold image/audio/video for multimodal generation)"""
 
 
 @dataclass(frozen=True)

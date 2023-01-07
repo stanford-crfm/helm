@@ -22,6 +22,7 @@ DEFAULT_QUOTAS = {
     "jurassic": {"daily": 10000},
     "gooseai": {"daily": 10000},
     "cohere": {"daily": 10000},
+    "text_to_image": {"daily": 10},  # In terms of the number of generated images
 }
 
 

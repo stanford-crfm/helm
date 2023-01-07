@@ -84,3 +84,25 @@ class AdapterSpec:
 
     # Random string (used concretely to bypass cache / see diverse results)
     random: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class TextToImageAdapterSpec(AdapterSpec):
+    """
+    Specifies how to take a `Scenario` (a list of `Instance`s) and produce a
+    `ScenarioState` (set of `Request`s ). On top of the fields in `AdapterSpec`,
+    contains additional fields for evaluating text-to-image models
+    """
+
+    # How much importance is given to your prompt when generating images:
+    # 0 -> completely random image
+    # Lower values -> creative images
+    # Higher values -> image that follows prompt more precisely
+    # TODO: similar to `temperature`, figure out a good default value
+    guidance_scale: float = 7.0
+
+    # The width of the image. Generates images with the default size when unspecified.
+    width: Optional[int] = None
+
+    # The height of the image. Generates images with the default size when unspecified.
+    height: Optional[int] = None
