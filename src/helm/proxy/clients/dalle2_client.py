@@ -66,7 +66,7 @@ class DALLE2Client(OpenAIClient):
             cache_key = Client.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.error.OpenAIError as e:
-            error: str = f"OpenAI error: {e}"
+            error: str = f"DALL-E 2 error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [

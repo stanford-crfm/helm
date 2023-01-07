@@ -68,7 +68,11 @@ def synthesize_request(prompt: str, settings: str, environment: Dict[str, str]) 
     request: Dict[str, Any] = {}
     request["prompt"] = substitute_text(prompt, environment)
     request.update(parse_hocon(substitute_text(settings, environment)))
-    return TextToImageRequest(**request) if is_text_to_image_model(request["model"]) else Request(**request)
+    return (
+        TextToImageRequest(**request)
+        if "model" in request and is_text_to_image_model(request["model"])
+        else Request(**request)
+    )
 
 
 class Service(ABC):
