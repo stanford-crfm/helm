@@ -1609,16 +1609,13 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
 # vHELM run specs
 
 
-def get_mscoco_spec(text_to_image=False) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.mscoco_scenario.MSCOCOScenario", args={"text_to_image": text_to_image}
-    )
+def get_mscoco_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mscoco_scenario.MSCOCOScenario", args={})
 
-    # TODO: handle text_to_image=False
     adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
 
     return RunSpec(
-        name=f"mscoco:text_to_image={text_to_image}",
+        name="mscoco",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=get_fid_metric_specs(),

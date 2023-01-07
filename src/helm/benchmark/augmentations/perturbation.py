@@ -53,7 +53,8 @@ class Perturbation(ABC):
 
     def perturb_reference(self, reference: Reference, rng: Random) -> Reference:
         """Generates a new Reference by perturbing the output and tagging the Reference."""
-        return replace(reference, output=Output(text=self.perturb(reference.output.text, rng)), tags=reference.tags)
+        perturbed_output = Output(text=self.perturb(reference.output.text, rng), file_path=reference.output.file_path)
+        return replace(reference, output=perturbed_output, tags=reference.tags)
 
     @abstractmethod
     def perturb(self, text: str, rng: Random) -> str:

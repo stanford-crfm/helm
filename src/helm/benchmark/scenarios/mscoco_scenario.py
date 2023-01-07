@@ -32,10 +32,6 @@ class MSCOCOScenario(Scenario):
     description = "Microsoft COCO: Common Objects in Context"
     tags = ["text-to-image", "image-to-text"]
 
-    def __init__(self, text_to_image: bool):
-        super().__init__()
-        self.text_to_image: bool = text_to_image
-
     def get_instances(self) -> List[Instance]:
         # Download the annotations which contains the image IDs, filenames and captions
         data_path: str = os.path.join(self.output_path, "data")
@@ -69,20 +65,11 @@ class MSCOCOScenario(Scenario):
                 image_path: str = image_id_to_path[image_id]
                 captions: List[str] = image_id_to_captions[image_id]
 
-                if self.text_to_image:
-                    # Text-to-image
-                    for caption in captions:
-                        instance = Instance(
-                            Input(text=caption),
-                            references=[Reference(Output(text="", file_path=image_path), tags=[CORRECT_TAG])],
-                            split=helm_split,
-                        )
-                        instances.append(instance)
-                else:
-                    # Image-to-text (caption generation)
+                for caption in captions:
+                    # Create an instance for each caption of the image
                     instance = Instance(
-                        Input(text="", file_path=image_path),
-                        references=[Reference(Output(text=caption), tags=[CORRECT_TAG]) for caption in captions],
+                        Input(text=caption),
+                        references=[Reference(Output(text="", file_path=image_path), tags=[CORRECT_TAG])],
                         split=helm_split,
                     )
                     instances.append(instance)
