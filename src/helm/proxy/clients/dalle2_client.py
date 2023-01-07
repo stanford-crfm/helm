@@ -19,6 +19,7 @@ from .openai_client import OpenAIClient
 class DALLE2Client(OpenAIClient):
     MAX_PROMPT_LENGTH: int = 1000
     VALID_IMAGE_DIMENSIONS: List[int] = [256, 512, 1024]
+    DEFAULT_IMAGE_SIZE_STR: str = "512x512"
 
     def __init__(
         self,
@@ -31,7 +32,10 @@ class DALLE2Client(OpenAIClient):
         self.file_cache: FileCache = FileCache(file_cache_path, "png")
 
     def make_request(self, request: Request) -> RequestResult:
-        def get_size_str(w: int, h: int) -> str:
+        def get_size_str(w: Optional[int], h: Optional[int]) -> str:
+            if w is None or h is None:
+                return self.DEFAULT_IMAGE_SIZE_STR
+
             assert w == h, "The DALL-E 2 API only supports generating square images."
             assert w in self.VALID_IMAGE_DIMENSIONS, "Valid dimensions are 256x256, 512x512, or 1024x1024 pixels."
             return f"{w}x{h}"
@@ -44,10 +48,9 @@ class DALLE2Client(OpenAIClient):
         raw_request: Dict[str, Any] = {
             "prompt": request.prompt,
             "n": request.num_completions,
+            "size": get_size_str(request.width, request.height),
             "response_format": "b64_json",  # Always set to b64_json as URLs are only valid for an hour
         }
-        if request.width and request.height:
-            raw_request["size"] = get_size_str(request.width, request.height)
 
         try:
 

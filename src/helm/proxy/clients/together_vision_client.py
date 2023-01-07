@@ -21,6 +21,9 @@ class TogetherVisionClient(TogetherClient):
     Client for image generation via the Together API.
     """
 
+    DEFAULT_IMAGE_HEIGHT: int = 512
+    DEFAULT_IMAGE_WIDTH: int = 512
+
     def __init__(self, cache_config: CacheConfig, file_cache_path: str, api_key: Optional[str] = None):
         super().__init__(cache_config, api_key)
         self.file_cache: FileCache = FileCache(file_cache_path, "png")
@@ -37,6 +40,13 @@ class TogetherVisionClient(TogetherClient):
             "n": request.num_completions,
             "guidance_scale": request.guidance_scale,
         }
+        if request.width and request.height:
+            raw_request["width"] = request.width
+            raw_request["height"] = request.height
+        else:
+            raw_request["width"] = self.DEFAULT_IMAGE_WIDTH
+            raw_request["height"] = self.DEFAULT_IMAGE_HEIGHT
+
         cache_key: Dict = Client.make_cache_key(raw_request, request)
 
         try:
