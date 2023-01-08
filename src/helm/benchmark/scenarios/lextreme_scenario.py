@@ -93,12 +93,14 @@ def get_lextreme_max_tokens(subset):
 
 
 INSTRUCTIONS = {
-    "brazilian_court_decisions_judgment": "In this task, you are given the case description from a decision heard at the State Supreme Court of Alagoas (Brazil). "
+    "brazilian_court_decisions_judgment": "In this task, you are given the case description "
+    "from a decision heard at the State Supreme Court of Alagoas (Brazil). "
     "Predict the judgment of the case "
     "(no: The appeal was denied, "
     "partial: For partially favourable decisions, "
     "yes: For fully favourable decisions)",
-    "brazilian_court_decisions_unanimity": "In this task, you are given the case description from a decision heard at the State Supreme Court of Alagoas (Brazil). "
+    "brazilian_court_decisions_unanimity": "In this task, you are given the case description "
+    "from a decision heard at the State Supreme Court of Alagoas (Brazil). "
     "Predict the unanimity of the case (unanimity, not-unanimity, not_determined)",
     "german_argument_mining": "In this task, you are given sentences from German court decisions. "
     "Predict the major component of German Urteilsstil "
@@ -107,16 +109,22 @@ INSTRUCTIONS = {
     "subsumption: Determination sentence / Concrete facts, "
     "other: Anything else)",
     "greek_legal_code_chapter": "In this task, you are given a Greek legislative document. "
-    "Predict the chapter level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+    "Predict the chapter level category of the "
+    "'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
     "greek_legal_code_subject": "In this task, you are given a Greek legislative document. "
-    "Predict the subject level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+    "Predict the subject level category of the "
+    "'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
     "greek_legal_code_volume": "In this task, you are given a Greek legislative document. "
-    "Predict the volume level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
-    "swiss_judgment_prediction": "In this task, you are given the facts description from a decision heard at the Swiss Federal Supreme Court. "
+    "Predict the volume level category of the "
+    "'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+    "swiss_judgment_prediction": "In this task, you are given the facts description "
+    "from a decision heard at the Swiss Federal Supreme Court. "
     "Predict the judgment of the case (approval or dismissal)",
-    "online_terms_of_service_unfairness_levels": "In this task, you are given a sentence from a Terms of Service (ToS) document. "
+    "online_terms_of_service_unfairness_levels": "In this task, you are given a sentence "
+    "from a Terms of Service (ToS) document. "
     "Predict the unfairness level of the sentence (potentially_unfair, clearly_unfair, clearly_fair, untagged)",
-    "online_terms_of_service_clause_topics": "In this task, you are given a sentence from a Terms of Service (ToS) document. "
+    "online_terms_of_service_clause_topics": "In this task, you are given a sentence "
+    "from a Terms of Service (ToS) document. "
     "Predict the clause topics of the sentence "
     "(0: Arbitration, "
     "1: Unilateral change, "
@@ -147,7 +155,8 @@ INSTRUCTIONS = {
     "Predict the named entity type for each token.",
     "legalnero": "In this task, you are given a sentence from Romanian legislation. "
     "Predict the named entity type for each token.",
-    "lener_br": "In this task, you are given a sentence from Brazilian legal documents (court decisions and legislation). "
+    "lener_br": "In this task, you are given a sentence "
+    "from Brazilian legal documents (court decisions and legislation). "
     "Predict the named entity type for each token.",
     "mapa_coarse": "In this task, you are given a sentence from the EUR-Lex database. "
     "Predict the coarse grained named entity type for each token.",
@@ -372,7 +381,7 @@ class LEXTREMEScenario(Scenario):
             if task_code == TaskType.MLTC:  # special case for multilabel classification tasks
                 if correct_labels:  # if we have a correct label
                     # add the no_label to the wrong references
-                    # IMPORTANT: add it after the reduce_wrong_reference_count call, to make sure the no label is always there
+                    # IMPORTANT: add it after reduce_wrong_reference_count, to make sure the no label is always there
                     wrong_references.append(Reference(output=self.mltc_no_label_name, tags=[]))
                 else:  # if we don't have a correct label
                     # add the no_label to the correct labels

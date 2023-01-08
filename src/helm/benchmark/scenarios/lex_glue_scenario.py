@@ -57,11 +57,14 @@ INSTRUCTIONS = {
     "Predict the relevant issue area.",
     "eurlex": "In this task, you are given an EU law document published in the EUR-Lex portal. "
     "Predict the relevant EuroVoc concepts.",
-    "ledgar": "In this task, you are given a contract provision from contracts obtained from US Securities and Exchange Commission (SEC) filings."
+    "ledgar": "In this task, you are given a contract provision "
+    "from contracts obtained from US Securities and Exchange Commission (SEC) filings."
     "Predict the main topic.",
-    "unfair_tos": "In this task, you are given a sentence from a Terms of Service (ToS) document from on-line platforms. "
+    "unfair_tos": "In this task, you are given a sentence "
+    "from a Terms of Service (ToS) document from on-line platforms. "
     "Predict the types of unfair contractual terms",
-    "case_hold": "In this task, you are given an excerpt from a court decision, containing a reference to a particular case, while the holding statement is masked out. "
+    "case_hold": "In this task, you are given an excerpt from a court decision, "
+    "containing a reference to a particular case, while the holding statement is masked out. "
     "Predict the index of the holding statement fitting in the context at <HOLDING> from a selection of five choices.",
 }
 
@@ -87,7 +90,8 @@ class LexGLUEScenario(Scenario):
         Unfair Contractual Term Type:
 
         Target completion:
-            <sentence> (<sentence>:"Limitation of liability", "Unilateral termination", "Unilateral change", "Content removal", "Contract by using", "Choice of law", "Jurisdiction", "Arbitration")
+            <sentence> (<sentence>:"Limitation of liability", "Unilateral termination", "Unilateral change",
+                        "Content removal", "Contract by using", "Choice of law", "Jurisdiction", "Arbitration")
 
     Using an example from the training dataset, we have
 
@@ -159,7 +163,7 @@ class LexGLUEScenario(Scenario):
             if task_code == TaskType.MLTC:  # special case for multilabel classification tasks
                 if correct_labels:  # if we have a correct label
                     # add the no_label to the wrong references
-                    # IMPORTANT: add it after the reduce_wrong_reference_count call, to make sure the no label is always there
+                    # IMPORTANT: add it after reduce_wrong_reference_count, to make sure the no label is always there
                     wrong_references.append(Reference(output=self.mltc_no_label_name, tags=[]))
                 else:  # if we don't have a correct label
                     # add the no_label to the correct labels
