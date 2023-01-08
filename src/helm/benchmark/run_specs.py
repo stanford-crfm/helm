@@ -17,16 +17,22 @@ from .adapter import (
 from .metrics.metric import MetricSpec
 from .run_expander import RUN_EXPANDERS, GlobalPrefixRunExpander, StopRunExpander
 from .runner import RunSpec
-from .scenarios.lex_glue_scenario import get_lex_glue_max_train_instances, get_lex_glue_instructions, \
-    get_lex_glue_max_tokens
+from .scenarios.lex_glue_scenario import (
+    get_lex_glue_max_train_instances,
+    get_lex_glue_instructions,
+    get_lex_glue_max_tokens,
+)
 from .scenarios.scenario import ScenarioSpec
 from .scenarios.big_bench_scenario import BIGBenchScenario
 from .scenarios.msmarco_scenario import MSMARCOScenario
 from .scenarios.numeracy_scenario import get_numeracy_adapter_spec, RELTYPE_INFO
 from .scenarios.copyright_scenario import datatag2hash_code
 from .scenarios.raft_scenario import get_raft_instructions
-from .scenarios.lextreme_scenario import get_lextreme_instructions, get_lextreme_max_train_instances, \
-    get_lextreme_max_tokens
+from .scenarios.lextreme_scenario import (
+    get_lextreme_instructions,
+    get_lextreme_max_train_instances,
+    get_lextreme_max_tokens,
+)
 from helm.proxy.models import get_model, NO_NEWLINES_TAG, NLG_PREFIX_TAG
 from helm.common.general import singleton
 
@@ -1582,6 +1588,7 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
         groups=["pubmed_qa"],
     )
 
+
 def get_lextreme_spec(subset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.lextreme_scenario.LEXTREMEScenario",
@@ -1603,6 +1610,7 @@ def get_lextreme_spec(subset: str) -> RunSpec:
         metric_specs=get_f1_metric_specs(),
         groups=["lextreme"],
     )
+
 
 def get_lex_glue_spec(subset: str) -> RunSpec:
     scenario_spec = ScenarioSpec(

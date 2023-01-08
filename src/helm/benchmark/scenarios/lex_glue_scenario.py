@@ -9,23 +9,23 @@ from .lextreme_scenario import TaskType
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT
 
 TASK_CODE_MAPPING = {
-    'ecthr_a': TaskType.MLTC,
-    'ecthr_b': TaskType.MLTC,
-    'scotus': TaskType.SLTC,
-    'eurlex': TaskType.MLTC,
-    'ledgar': TaskType.SLTC,
-    'unfair_tos': TaskType.MLTC,
-    'case_hold': TaskType.QA,
+    "ecthr_a": TaskType.MLTC,
+    "ecthr_b": TaskType.MLTC,
+    "scotus": TaskType.SLTC,
+    "eurlex": TaskType.MLTC,
+    "ledgar": TaskType.SLTC,
+    "unfair_tos": TaskType.MLTC,
+    "case_hold": TaskType.QA,
 }
 
 TASK_MAX_TRAIN_INSTANCES_MAPPING = {
-    'ecthr_a': 1,  # ~ max 4096 tokens
-    'ecthr_b': 1,  # ~ max 4096 tokens
-    'scotus': 1,  # ~ max 8192 tokens
-    'eurlex': 5,  # ~ max 512 tokens
-    'ledgar': 5,  # ~ max 512 tokens
-    'unfair_tos': 5,  # ~ max 128 tokens
-    'case_hold': 5,  # ~ max 512 tokens
+    "ecthr_a": 1,  # ~ max 4096 tokens
+    "ecthr_b": 1,  # ~ max 4096 tokens
+    "scotus": 1,  # ~ max 8192 tokens
+    "eurlex": 5,  # ~ max 512 tokens
+    "ledgar": 5,  # ~ max 512 tokens
+    "unfair_tos": 5,  # ~ max 128 tokens
+    "case_hold": 5,  # ~ max 512 tokens
 }
 
 
@@ -34,13 +34,13 @@ def get_lex_glue_max_train_instances(subset):
 
 
 TASK_MAX_TOKENS_MAPPING = {
-    'ecthr_a': 20,  # sequence of numbers
-    'ecthr_b': 20,  # sequence of numbers
-    'scotus': 5,  # one number
-    'eurlex': 20,  # sequence of numbers
-    'ledgar': 20,  # multiple words
-    'unfair_tos': 20,  # sequence of numbers
-    'case_hold': 5,  # one number
+    "ecthr_a": 20,  # sequence of numbers
+    "ecthr_b": 20,  # sequence of numbers
+    "scotus": 5,  # one number
+    "eurlex": 20,  # sequence of numbers
+    "ledgar": 20,  # multiple words
+    "unfair_tos": 20,  # sequence of numbers
+    "case_hold": 5,  # one number
 }
 
 
@@ -50,19 +50,19 @@ def get_lex_glue_max_tokens(subset):
 
 INSTRUCTIONS = {
     "ecthr_a": "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
-               "Predict the articles of the ECtHR that were violated (if any).",
+    "Predict the articles of the ECtHR that were violated (if any).",
     "ecthr_b": "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
-               "Predict the articles of ECtHR that were allegedly violated (considered by the court).",
+    "Predict the articles of ECtHR that were allegedly violated (considered by the court).",
     "scotus": "In this task, you are given a case heard at the Supreme Court of the United States (SCOTUS). "
-              "Predict the relevant issue area.",
+    "Predict the relevant issue area.",
     "eurlex": "In this task, you are given an EU law document published in the EUR-Lex portal. "
-              "Predict the relevant EuroVoc concepts.",
+    "Predict the relevant EuroVoc concepts.",
     "ledgar": "In this task, you are given a contract provision from contracts obtained from US Securities and Exchange Commission (SEC) filings."
-              "Predict the main topic.",
+    "Predict the main topic.",
     "unfair_tos": "In this task, you are given a sentence from a Terms of Service (ToS) document from on-line platforms. "
-                  "Predict the types of unfair contractual terms",
+    "Predict the types of unfair contractual terms",
     "case_hold": "In this task, you are given an excerpt from a court decision, containing a reference to a particular case, while the holding statement is masked out. "
-                 "Predict the index of the holding statement fitting in the context at <HOLDING> from a selection of five choices.",
+    "Predict the index of the holding statement fitting in the context at <HOLDING> from a selection of five choices.",
 }
 
 
@@ -109,12 +109,12 @@ class LexGLUEScenario(Scenario):
     splits_mapping = {
         TRAIN_SPLIT: datasets.Split.TRAIN,
         VALID_SPLIT: datasets.Split.VALIDATION,
-        TEST_SPLIT: datasets.Split.TEST
+        TEST_SPLIT: datasets.Split.TEST,
     }
 
     dataset_name = "lex_glue"
     max_number_of_wrong_answers = 30
-    mltc_no_label_name = 'No Label'
+    mltc_no_label_name = "No Label"
     delimiter = "|"  # we choose the pipe as a delimiter because it is very unlikely to occur in the data
 
     def __init__(self, subset: str):
@@ -129,7 +129,7 @@ class LexGLUEScenario(Scenario):
         dataset = load_dataset(self.dataset_name, config, cache_dir=cache_dir)
 
         if task_code in [TaskType.SLTC, TaskType.QA]:
-            class_label = dataset['train'].features["label"]
+            class_label = dataset["train"].features["label"]
             label_classes = class_label.names
         elif task_code == TaskType.MLTC:
             # construct the label classes
@@ -142,10 +142,10 @@ class LexGLUEScenario(Scenario):
         def generate_instance(example, split: str):
             # get correct labels
             if task_code in [TaskType.SLTC, TaskType.QA]:
-                correct_label = class_label.int2str(example['label'])  # get label name for correct label
+                correct_label = class_label.int2str(example["label"])  # get label name for correct label
                 correct_labels = correct_label if isinstance(correct_label, list) else [correct_label]
             elif task_code == TaskType.MLTC:
-                correct_labels = list(map(str, example['labels']))  # here we don't have any mapping to label names
+                correct_labels = list(map(str, example["labels"]))  # here we don't have any mapping to label names
 
             # construct wrong references
             wrong_references = []
@@ -167,23 +167,24 @@ class LexGLUEScenario(Scenario):
 
             # construct correct references and input
             if task_code in [TaskType.SLTC, TaskType.MLTC]:
-                input_text = example['text']
-                if 'ecthr' in config:
+                input_text = example["text"]
+                if "ecthr" in config:
                     input_text = " ".join(input_text)
             elif task_code == TaskType.QA:
-                endings = [f"{i}: {end}" for i, end in enumerate(example['endings'])]
-                input_text = example['context'] + " Holdings: " + " ".join(endings)
+                endings = [f"{i}: {end}" for i, end in enumerate(example["endings"])]
+                input_text = example["context"] + " Holdings: " + " ".join(endings)
 
             # construct correct references
-            correct_references = [Reference(output=correct_label, tags=[CORRECT_TAG])
-                                  for correct_label in correct_labels]  # for MLTC we have multiple correct ones
+            correct_references = [
+                Reference(output=correct_label, tags=[CORRECT_TAG]) for correct_label in correct_labels
+            ]  # for MLTC we have multiple correct ones
             return Instance(input=input_text, references=wrong_references + correct_references, split=split)
 
         def reduce_wrong_reference_count(wrong_references):
             self.random.shuffle(wrong_references)  # shuffle wrong references
             if len(wrong_references) > self.max_number_of_wrong_answers:
                 # if there are too many wrong references, only take a subset
-                wrong_references = wrong_references[:self.max_number_of_wrong_answers]
+                wrong_references = wrong_references[: self.max_number_of_wrong_answers]
             return wrong_references
 
         def generate_instances(split: str):

@@ -20,45 +20,45 @@ class TaskType(StrEnum):
 
 
 TASK_CODE_MAPPING = {
-    'brazilian_court_decisions_judgment': TaskType.SLTC,
-    'brazilian_court_decisions_unanimity': TaskType.SLTC,
-    'german_argument_mining': TaskType.SLTC,
-    'greek_legal_code_chapter': TaskType.SLTC,
-    'greek_legal_code_subject': TaskType.SLTC,
-    'greek_legal_code_volume': TaskType.SLTC,
-    'swiss_judgment_prediction': TaskType.SLTC,
-    'online_terms_of_service_unfairness_levels': TaskType.SLTC,
-    'online_terms_of_service_clause_topics': TaskType.MLTC,
-    'covid19_emergency_event': TaskType.MLTC,
-    'multi_eurlex_level_1': TaskType.MLTC,
-    'multi_eurlex_level_2': TaskType.MLTC,
-    'multi_eurlex_level_3': TaskType.MLTC,
-    'greek_legal_ner': 'NER',
-    'legalnero': 'NER',
-    'lener_br': 'NER',
-    'mapa_coarse': 'NER',
-    'mapa_fine': 'NER',
+    "brazilian_court_decisions_judgment": TaskType.SLTC,
+    "brazilian_court_decisions_unanimity": TaskType.SLTC,
+    "german_argument_mining": TaskType.SLTC,
+    "greek_legal_code_chapter": TaskType.SLTC,
+    "greek_legal_code_subject": TaskType.SLTC,
+    "greek_legal_code_volume": TaskType.SLTC,
+    "swiss_judgment_prediction": TaskType.SLTC,
+    "online_terms_of_service_unfairness_levels": TaskType.SLTC,
+    "online_terms_of_service_clause_topics": TaskType.MLTC,
+    "covid19_emergency_event": TaskType.MLTC,
+    "multi_eurlex_level_1": TaskType.MLTC,
+    "multi_eurlex_level_2": TaskType.MLTC,
+    "multi_eurlex_level_3": TaskType.MLTC,
+    "greek_legal_ner": "NER",
+    "legalnero": "NER",
+    "lener_br": "NER",
+    "mapa_coarse": "NER",
+    "mapa_fine": "NER",
 }
 
 TASK_MAX_TRAIN_INSTANCES_MAPPING = {
-    'brazilian_court_decisions_judgment': 4,  # ~ max 1024 tokens
-    'brazilian_court_decisions_unanimity': 4,  # ~ max 1024 tokens
-    'german_argument_mining': 5,  # ~ max 256 tokens
-    'greek_legal_code_chapter': 1,  # ~ max 4096 tokens
-    'greek_legal_code_subject': 1,  # ~ max 4096 tokens
-    'greek_legal_code_volume': 1,  # ~ max 4096 tokens
-    'swiss_judgment_prediction': 2,  # ~ max 2048 tokens
-    'online_terms_of_service_unfairness_levels': 5,  # ~ max 256 tokens
-    'online_terms_of_service_clause_topics': 5,  # ~ max 256 tokens
-    'covid19_emergency_event': 5,  # ~ max 256 tokens
-    'multi_eurlex_level_1': 1,  # ~ max 4096 tokens
-    'multi_eurlex_level_2': 1,  # ~ max 4096 tokens
-    'multi_eurlex_level_3': 1,  # ~ max 4096 tokens
-    'greek_legal_ner': 5,  # ~ max 512 tokens
-    'legalnero': 5,  # ~ max 512 tokens
-    'lener_br': 5,  # ~ max 512 tokens
-    'mapa_coarse': 5,  # ~ max 512 tokens
-    'mapa_fine': 5,  # ~ max 512 tokens
+    "brazilian_court_decisions_judgment": 4,  # ~ max 1024 tokens
+    "brazilian_court_decisions_unanimity": 4,  # ~ max 1024 tokens
+    "german_argument_mining": 5,  # ~ max 256 tokens
+    "greek_legal_code_chapter": 1,  # ~ max 4096 tokens
+    "greek_legal_code_subject": 1,  # ~ max 4096 tokens
+    "greek_legal_code_volume": 1,  # ~ max 4096 tokens
+    "swiss_judgment_prediction": 2,  # ~ max 2048 tokens
+    "online_terms_of_service_unfairness_levels": 5,  # ~ max 256 tokens
+    "online_terms_of_service_clause_topics": 5,  # ~ max 256 tokens
+    "covid19_emergency_event": 5,  # ~ max 256 tokens
+    "multi_eurlex_level_1": 1,  # ~ max 4096 tokens
+    "multi_eurlex_level_2": 1,  # ~ max 4096 tokens
+    "multi_eurlex_level_3": 1,  # ~ max 4096 tokens
+    "greek_legal_ner": 5,  # ~ max 512 tokens
+    "legalnero": 5,  # ~ max 512 tokens
+    "lener_br": 5,  # ~ max 512 tokens
+    "mapa_coarse": 5,  # ~ max 512 tokens
+    "mapa_fine": 5,  # ~ max 512 tokens
 }
 
 
@@ -67,24 +67,24 @@ def get_lextreme_max_train_instances(subset):
 
 
 TASK_MAX_TOKENS_MAPPING = {
-    'brazilian_court_decisions_judgment': 5,  # one word
-    'brazilian_court_decisions_unanimity': 5,  # one word
-    'german_argument_mining': 5,  # one word
-    'greek_legal_code_chapter': 20,  # few non-ASCII words
-    'greek_legal_code_subject': 20,  # few non-ASCII words
-    'greek_legal_code_volume': 20,  # few non-ASCII words
-    'swiss_judgment_prediction': 5,  # one word
-    'online_terms_of_service_unfairness_levels': 10,  # two words
-    'online_terms_of_service_clause_topics': 10,  # max two words
-    'covid19_emergency_event': 10,  # max two words
-    'multi_eurlex_level_1': 10,  # max two words
-    'multi_eurlex_level_2': 10,  # max two words
-    'multi_eurlex_level_3': 10,  # max two words
-    'greek_legal_ner': 430,  # num NER labels: max 2593, 99% 215, 95% 101 ==> 215 * 2 = 430
-    'legalnero': 788,  # num NER labels: max 737, 99% 394, 95% 103 ==> 394 * 2 = 788
-    'lener_br': 338,  # num NER labels: max 654, 99% 169, 95% 100 ==> 169 * 2 = 338
-    'mapa_coarse': 274,  # num NER labels: max 367, 99% 137, 95% 83 ==> 137 * 2 = 274
-    'mapa_fine': 274,  # num NER labels: max 367, 99% 137, 95% 83 ==> 137 * 2 = 274
+    "brazilian_court_decisions_judgment": 5,  # one word
+    "brazilian_court_decisions_unanimity": 5,  # one word
+    "german_argument_mining": 5,  # one word
+    "greek_legal_code_chapter": 20,  # few non-ASCII words
+    "greek_legal_code_subject": 20,  # few non-ASCII words
+    "greek_legal_code_volume": 20,  # few non-ASCII words
+    "swiss_judgment_prediction": 5,  # one word
+    "online_terms_of_service_unfairness_levels": 10,  # two words
+    "online_terms_of_service_clause_topics": 10,  # max two words
+    "covid19_emergency_event": 10,  # max two words
+    "multi_eurlex_level_1": 10,  # max two words
+    "multi_eurlex_level_2": 10,  # max two words
+    "multi_eurlex_level_3": 10,  # max two words
+    "greek_legal_ner": 430,  # num NER labels: max 2593, 99% 215, 95% 101 ==> 215 * 2 = 430
+    "legalnero": 788,  # num NER labels: max 737, 99% 394, 95% 103 ==> 394 * 2 = 788
+    "lener_br": 338,  # num NER labels: max 654, 99% 169, 95% 100 ==> 169 * 2 = 338
+    "mapa_coarse": 274,  # num NER labels: max 367, 99% 137, 95% 83 ==> 137 * 2 = 274
+    "mapa_fine": 274,  # num NER labels: max 367, 99% 137, 95% 83 ==> 137 * 2 = 274
 }
 
 
@@ -94,65 +94,65 @@ def get_lextreme_max_tokens(subset):
 
 INSTRUCTIONS = {
     "brazilian_court_decisions_judgment": "In this task, you are given the case description from a decision heard at the State Supreme Court of Alagoas (Brazil). "
-                                          "Predict the judgment of the case "
-                                          "(no: The appeal was denied, "
-                                          "partial: For partially favourable decisions, "
-                                          "yes: For fully favourable decisions)",
+    "Predict the judgment of the case "
+    "(no: The appeal was denied, "
+    "partial: For partially favourable decisions, "
+    "yes: For fully favourable decisions)",
     "brazilian_court_decisions_unanimity": "In this task, you are given the case description from a decision heard at the State Supreme Court of Alagoas (Brazil). "
-                                           "Predict the unanimity of the case (unanimity, not-unanimity, not_determined)",
+    "Predict the unanimity of the case (unanimity, not-unanimity, not_determined)",
     "german_argument_mining": "In this task, you are given sentences from German court decisions. "
-                              "Predict the major component of German Urteilsstil "
-                              "(conclusion: Overall result, "
-                              "definition: Abstract legal facts and consequences, "
-                              "subsumption: Determination sentence / Concrete facts, "
-                              "other: Anything else)",
+    "Predict the major component of German Urteilsstil "
+    "(conclusion: Overall result, "
+    "definition: Abstract legal facts and consequences, "
+    "subsumption: Determination sentence / Concrete facts, "
+    "other: Anything else)",
     "greek_legal_code_chapter": "In this task, you are given a Greek legislative document. "
-                                "Predict the chapter level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+    "Predict the chapter level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
     "greek_legal_code_subject": "In this task, you are given a Greek legislative document. "
-                                "Predict the subject level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+    "Predict the subject level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
     "greek_legal_code_volume": "In this task, you are given a Greek legislative document. "
-                               "Predict the volume level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
+    "Predict the volume level category of the 'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
     "swiss_judgment_prediction": "In this task, you are given the facts description from a decision heard at the Swiss Federal Supreme Court. "
-                                 "Predict the judgment of the case (approval or dismissal)",
+    "Predict the judgment of the case (approval or dismissal)",
     "online_terms_of_service_unfairness_levels": "In this task, you are given a sentence from a Terms of Service (ToS) document. "
-                                                 "Predict the unfairness level of the sentence (potentially_unfair, clearly_unfair, clearly_fair, untagged)",
+    "Predict the unfairness level of the sentence (potentially_unfair, clearly_unfair, clearly_fair, untagged)",
     "online_terms_of_service_clause_topics": "In this task, you are given a sentence from a Terms of Service (ToS) document. "
-                                             "Predict the clause topics of the sentence "
-                                             "(0: Arbitration, "
-                                             "1: Unilateral change, "
-                                             "2: Content removal, "
-                                             "3: Jurisdiction, "
-                                             "4: Choice of law, "
-                                             "5: Limitation of liability, "
-                                             "6: Unilateral termination, "
-                                             "7: Contract by using, "
-                                             "8: Privacy included)",
+    "Predict the clause topics of the sentence "
+    "(0: Arbitration, "
+    "1: Unilateral change, "
+    "2: Content removal, "
+    "3: Jurisdiction, "
+    "4: Choice of law, "
+    "5: Limitation of liability, "
+    "6: Unilateral termination, "
+    "7: Contract by using, "
+    "8: Privacy included)",
     "covid19_emergency_event": "In this task, you are given a sentence from a European legislative document. "
-                               "Predict the applicable measurements against COVID-19 "
-                               "(0: State of Emergency, "
-                               "1: Restrictions of fundamental rights and civil liberties, "
-                               "2: Restrictions of daily liberties, "
-                               "3: Closures / lockdown, "
-                               "4: Suspension of international cooperation and commitments, "
-                               "5: Police mobilization, "
-                               "6: Army mobilization, "
-                               "7: Government oversight)",
+    "Predict the applicable measurements against COVID-19 "
+    "(0: State of Emergency, "
+    "1: Restrictions of fundamental rights and civil liberties, "
+    "2: Restrictions of daily liberties, "
+    "3: Closures / lockdown, "
+    "4: Suspension of international cooperation and commitments, "
+    "5: Police mobilization, "
+    "6: Army mobilization, "
+    "7: Government oversight)",
     "multi_eurlex_level_1": "In this task, you are given a document from an EU law. "
-                            "Predict the level 1 concept in the EUROVOC taxonomy.",
+    "Predict the level 1 concept in the EUROVOC taxonomy.",
     "multi_eurlex_level_2": "In this task, you are given a document from an EU law. "
-                            "Predict the level 2 concept in the EUROVOC taxonomy.",
+    "Predict the level 2 concept in the EUROVOC taxonomy.",
     "multi_eurlex_level_3": "In this task, you are given a document from an EU law. "
-                            "Predict the level 3 concept in the EUROVOC taxonomy.",
+    "Predict the level 3 concept in the EUROVOC taxonomy.",
     "greek_legal_ner": "In this task, you are given a sentence from Greek legislation. "
-                       "Predict the named entity type for each token.",
+    "Predict the named entity type for each token.",
     "legalnero": "In this task, you are given a sentence from Romanian legislation. "
-                 "Predict the named entity type for each token.",
+    "Predict the named entity type for each token.",
     "lener_br": "In this task, you are given a sentence from Brazilian legal documents (court decisions and legislation). "
-                "Predict the named entity type for each token.",
+    "Predict the named entity type for each token.",
     "mapa_coarse": "In this task, you are given a sentence from the EUR-Lex database. "
-                   "Predict the coarse grained named entity type for each token.",
+    "Predict the coarse grained named entity type for each token.",
     "mapa_fine": "In this task, you are given a sentence from the EUR-Lex database. "
-                 "Predict the fine grained named entity type for each token.",
+    "Predict the fine grained named entity type for each token.",
 }
 
 
@@ -197,12 +197,12 @@ class LEXTREMEScenario(Scenario):
     splits_mapping = {
         TRAIN_SPLIT: datasets.Split.TRAIN,
         VALID_SPLIT: datasets.Split.VALIDATION,
-        TEST_SPLIT: datasets.Split.TEST
+        TEST_SPLIT: datasets.Split.TEST,
     }
 
     dataset_name = "joelito/lextreme"
     max_number_of_wrong_answers = 30
-    mltc_no_label_name = 'No Label'
+    mltc_no_label_name = "No Label"
     delimiter = "|"  # we choose the pipe as a delimiter because it is very unlikely to occur in the data
 
     ner_class_mapping = {
@@ -222,98 +222,98 @@ class LEXTREMEScenario(Scenario):
             "I-JURISPRUDENCIA",
         ],
         "legalnero": [
-            'O',
-            'B-TIME',
-            'I-TIME',
-            'B-LEGAL',
-            'I-LEGAL',
-            'B-ORG',
-            'I-ORG',
-            'B-LOC',
-            'I-LOC',
-            'B-PER',
-            'I-PER',
+            "O",
+            "B-TIME",
+            "I-TIME",
+            "B-LEGAL",
+            "I-LEGAL",
+            "B-ORG",
+            "I-ORG",
+            "B-LOC",
+            "I-LOC",
+            "B-PER",
+            "I-PER",
         ],
         "greek_legal_ner": [
-            'O',
-            'B-ORG',
-            'I-ORG',
-            'B-GPE',
-            'I-GPE',
-            'B-LEG-REFS',
-            'I-LEG-REFS',
-            'B-PUBLIC-DOCS',
-            'I-PUBLIC-DOCS',
-            'B-PERSON',
-            'I-PERSON',
-            'B-FACILITY',
-            'I-FACILITY',
-            'B-LOCATION-UNK',
-            'I-LOCATION-UNK',
-            'B-LOCATION-NAT',
-            'I-LOCATION-NAT'
+            "O",
+            "B-ORG",
+            "I-ORG",
+            "B-GPE",
+            "I-GPE",
+            "B-LEG-REFS",
+            "I-LEG-REFS",
+            "B-PUBLIC-DOCS",
+            "I-PUBLIC-DOCS",
+            "B-PERSON",
+            "I-PERSON",
+            "B-FACILITY",
+            "I-FACILITY",
+            "B-LOCATION-UNK",
+            "I-LOCATION-UNK",
+            "B-LOCATION-NAT",
+            "I-LOCATION-NAT",
         ],
         "mapa_coarse": [
-            'O',
-            'B-ORGANISATION',
-            'I-ORGANISATION',
-            'B-ADDRESS',
-            'I-ADDRESS',
-            'B-DATE',
-            'I-DATE',
-            'B-PERSON',
-            'I-PERSON',
-            'B-AMOUNT',
-            'I-AMOUNT',
-            'B-TIME',
-            'I-TIME'
+            "O",
+            "B-ORGANISATION",
+            "I-ORGANISATION",
+            "B-ADDRESS",
+            "I-ADDRESS",
+            "B-DATE",
+            "I-DATE",
+            "B-PERSON",
+            "I-PERSON",
+            "B-AMOUNT",
+            "I-AMOUNT",
+            "B-TIME",
+            "I-TIME",
         ],
         "mapa_fine": [
-            'O',
-            'B-BUILDING',
-            'I-BUILDING',
-            'B-CITY',
-            'I-CITY',
-            'B-COUNTRY',
-            'I-COUNTRY',
-            'B-PLACE',
-            'I-PLACE',
-            'B-TERRITORY',
-            'I-TERRITORY',
-            'I-UNIT',
-            'B-UNIT',
-            'B-VALUE',
-            'I-VALUE',
-            'B-YEAR',
-            'I-YEAR',
-            'B-STANDARD ABBREVIATION',
-            'I-STANDARD ABBREVIATION',
-            'B-MONTH',
-            'I-MONTH',
-            'B-DAY',
-            'I-DAY',
-            'B-AGE',
-            'I-AGE',
-            'B-ETHNIC CATEGORY',
-            'I-ETHNIC CATEGORY',
-            'B-FAMILY NAME',
-            'I-FAMILY NAME',
-            'B-INITIAL NAME',
-            'I-INITIAL NAME',
-            'B-MARITAL STATUS',
-            'I-MARITAL STATUS',
-            'B-PROFESSION',
-            'I-PROFESSION',
-            'B-ROLE',
-            'I-ROLE',
-            'B-NATIONALITY',
-            'I-NATIONALITY',
-            'B-TITLE',
-            'I-TITLE',
-            'B-URL',
-            'I-URL',
-            'B-TYPE',
-            'I-TYPE',
+            "O",
+            "B-BUILDING",
+            "I-BUILDING",
+            "B-CITY",
+            "I-CITY",
+            "B-COUNTRY",
+            "I-COUNTRY",
+            "B-PLACE",
+            "I-PLACE",
+            "B-TERRITORY",
+            "I-TERRITORY",
+            "I-UNIT",
+            "B-UNIT",
+            "B-VALUE",
+            "I-VALUE",
+            "B-YEAR",
+            "I-YEAR",
+            "B-STANDARD ABBREVIATION",
+            "I-STANDARD ABBREVIATION",
+            "B-MONTH",
+            "I-MONTH",
+            "B-DAY",
+            "I-DAY",
+            "B-AGE",
+            "I-AGE",
+            "B-ETHNIC CATEGORY",
+            "I-ETHNIC CATEGORY",
+            "B-FAMILY NAME",
+            "I-FAMILY NAME",
+            "B-INITIAL NAME",
+            "I-INITIAL NAME",
+            "B-MARITAL STATUS",
+            "I-MARITAL STATUS",
+            "B-PROFESSION",
+            "I-PROFESSION",
+            "B-ROLE",
+            "I-ROLE",
+            "B-NATIONALITY",
+            "I-NATIONALITY",
+            "B-TITLE",
+            "I-TITLE",
+            "B-URL",
+            "I-URL",
+            "B-TYPE",
+            "I-TYPE",
         ],
     }
 
@@ -329,7 +329,7 @@ class LEXTREMEScenario(Scenario):
         dataset = load_dataset(self.dataset_name, config, cache_dir=cache_dir)
 
         if task_code == TaskType.SLTC:
-            class_label = dataset['train'].features["label"]
+            class_label = dataset["train"].features["label"]
             label_classes = class_label.names
         elif task_code == TaskType.MLTC:
             # construct the label classes
@@ -338,18 +338,18 @@ class LEXTREMEScenario(Scenario):
                 for example in dataset[split]:
                     label_classes |= set(example["label"])  # add all new labels to the set
             label_classes = sorted(list(map(str, label_classes)))  # convert everything to a string
-        elif task_code == 'NER':
+        elif task_code == "NER":
             label_classes = self.ner_class_mapping[config]
 
         def generate_instance(example, split: str):
             # get correct labels
             if task_code == TaskType.SLTC:
-                correct_label = class_label.int2str(example['label'])  # get label name for correct label
+                correct_label = class_label.int2str(example["label"])  # get label name for correct label
                 correct_labels = correct_label if isinstance(correct_label, list) else [correct_label]
             elif task_code == TaskType.MLTC:
-                correct_labels = list(map(str, example['label']))  # here we don't have any mapping to label names
-            elif task_code == 'NER':
-                correct_labels = [label_classes[label] for label in example['label']]
+                correct_labels = list(map(str, example["label"]))  # here we don't have any mapping to label names
+            elif task_code == "NER":
+                correct_labels = [label_classes[label] for label in example["label"]]
 
             # construct wrong references
             wrong_references = []
@@ -358,12 +358,12 @@ class LEXTREMEScenario(Scenario):
                     if label_name not in correct_labels:
                         wrong_reference = Reference(output=label_name, tags=[])  # Wrong output
                         wrong_references.append(wrong_reference)
-            elif task_code == 'NER':
+            elif task_code == "NER":
                 if len(set(correct_labels)) > 1:  # make sure that the correct labels are not only 'O's
                     for label_name in label_classes:
-                        if label_name not in correct_labels and label_name != 'O':
+                        if label_name not in correct_labels and label_name != "O":
                             # just replace the non-'O' labels with the new label_name for a fake example
-                            new_labels = [label_name if label != 'O' else label for label in correct_labels]
+                            new_labels = [label_name if label != "O" else label for label in correct_labels]
                             wrong_reference = Reference(output=self.delimiter.join(new_labels), tags=[])  # Wrong output
                             wrong_references.append(wrong_reference)
 
@@ -380,16 +380,17 @@ class LEXTREMEScenario(Scenario):
 
             # construct correct references and input
             if task_code in [TaskType.SLTC, TaskType.MLTC]:
-                input_text = example['input']
-                if 'multi_eurlex' in config:
+                input_text = example["input"]
+                if "multi_eurlex" in config:
                     input_text = ast.literal_eval(input_text)
                     assert isinstance(input_text, dict)
                     languages = list(input_text.keys())
                     input_text = input_text[self.random.choice(languages)]  # just choose a random language
-                correct_references = [Reference(output=correct_label, tags=[CORRECT_TAG])
-                                      for correct_label in correct_labels]  # for MLTC we have multiple correct ones
-            elif task_code == 'NER':
-                input_text = ','.join(example['input'])
+                correct_references = [
+                    Reference(output=correct_label, tags=[CORRECT_TAG]) for correct_label in correct_labels
+                ]  # for MLTC we have multiple correct ones
+            elif task_code == "NER":
+                input_text = ",".join(example["input"])
                 correct_references = [Reference(output=self.delimiter.join(correct_labels), tags=[CORRECT_TAG])]
             return Instance(input=input_text, references=wrong_references + correct_references, split=split)
 
@@ -397,7 +398,7 @@ class LEXTREMEScenario(Scenario):
             self.random.shuffle(wrong_references)  # shuffle wrong references
             if len(wrong_references) > self.max_number_of_wrong_answers:
                 # if there are too many wrong references, only take a subset
-                wrong_references = wrong_references[:self.max_number_of_wrong_answers]
+                wrong_references = wrong_references[: self.max_number_of_wrong_answers]
             return wrong_references
 
         def generate_instances(split: str):
