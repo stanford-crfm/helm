@@ -160,4 +160,22 @@ example_queries = [
             """
         ),
     ),
+    # Text-to-image example
+    Query(
+        prompt="A chicken flying over the moon",
+        settings=dedent(
+            """
+            model: ${model}
+            num_completions: 2
+            guidance_scale: 7
+            height: 256
+            width: 256
+            """
+        ),
+        environments=dedent(
+            """
+            model: [openai/DALL-E2, together/StableDiffusion]
+            """
+        ),
+    ),
 ]

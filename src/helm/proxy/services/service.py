@@ -29,6 +29,8 @@ class GeneralInfo:
     version: str
     example_queries: List[Query]
     all_models: List[Model]
+    all_text_code_models: List[Model]
+    all_text_to_image_models: List[Model]
 
 
 def expand_environments(environments: Dict[str, List[str]]):

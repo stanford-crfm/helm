@@ -568,19 +568,20 @@ ALL_MODELS = [
     ),
     # Text-to-image models
     Model(
-        group="text_to_image",
+        group="dall_e",
         creator_organization="OpenAI",
         name="openai/DALL-E2",
-        display_name="DALL-E 2",
-        description="A model that can create realistic images and art from a description in natural language",
+        display_name="DALL-E 2 (3.5B)",
+        description="DALL-E 2 (3.5B parameters) is a model that can create realistic images and art "
+        "from a description in natural language.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG],
     ),
     Model(
-        group="text_to_image",
+        group="together_vision",
         creator_organization="Stability AI",
         name="together/StableDiffusion",
-        display_name="Stable Diffusion",
-        description="A latent text-to-image diffusion model",
+        display_name="Stable Diffusion (890M)",
+        description="Stable Diffusion (890M parameters) is a latent text-to-image diffusion model.",
         tags=[TEXT_TO_IMAGE_MODEL_TAG],
     ),
 ]
@@ -617,6 +618,11 @@ def get_models_by_organization(organization: str) -> List[str]:
 def get_model_names_with_tag(tag: str) -> List[str]:
     """Get all the name of the models with tag `tag`."""
     return [model.name for model in ALL_MODELS if tag in model.tags]
+
+
+def get_models_with_tag(tag: str) -> List[Model]:
+    """Get all models with tag `tag`."""
+    return [model for model in ALL_MODELS if tag in model.tags]
 
 
 def get_all_text_models() -> List[str]:

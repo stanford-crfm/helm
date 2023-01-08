@@ -16,7 +16,14 @@ from helm.common.hierarchical_logger import hlog
 from helm.proxy.accounts import Accounts, Account
 from helm.proxy.clients.auto_client import AutoClient
 from helm.proxy.example_queries import example_queries
-from helm.proxy.models import ALL_MODELS, get_model_group
+from helm.proxy.models import (
+    ALL_MODELS,
+    CODE_MODEL_TAG,
+    TEXT_MODEL_TAG,
+    TEXT_TO_IMAGE_MODEL_TAG,
+    get_model_group,
+    get_models_with_tag,
+)
 from helm.proxy.query import Query, QueryResult
 from helm.proxy.retry import retry_request
 from helm.proxy.token_counters.auto_token_counter import AutoTokenCounter
@@ -55,7 +62,13 @@ class ServerService(Service):
         self.perspective_api_client = self.client.get_toxicity_classifier_client()
 
     def get_general_info(self) -> GeneralInfo:
-        return GeneralInfo(version=VERSION, example_queries=example_queries, all_models=ALL_MODELS)
+        return GeneralInfo(
+            version=VERSION,
+            example_queries=example_queries,
+            all_models=ALL_MODELS,
+            all_text_code_models=get_models_with_tag(TEXT_MODEL_TAG) + get_models_with_tag(CODE_MODEL_TAG),
+            all_text_to_image_models=get_models_with_tag(TEXT_TO_IMAGE_MODEL_TAG),
+        )
 
     def expand_query(self, query: Query) -> QueryResult:
         """Turn the `query` into requests."""

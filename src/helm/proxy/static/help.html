@@ -74,6 +74,23 @@
             </li>
           </ul>
 
+          <h4>For text-to-image models</h4>
+          <ul>
+            <li>
+              Here is how to <b>query</b> text-to-image models:
+              <ul>
+                <li><tt>prompt</tt>: text we want to feed to the text-to-image model.</li>
+                <li><tt>num_completions</tt>: the number of images to generate.</li>
+                <li><tt>guidance_scale</tt>: a non-negative number determining how much importance is given to the prompt when generating images. Higher values will generate images that follow more closely to the prompt. Currently only supported for Stable Diffusion.</li>
+                <li><tt>width</tt>: width of the generated image. The model will generate images with the model's default dimensions when unspecified.</li>
+                <li><tt>height</tt>: height of the generated image. The model will generate images with the model's default dimensions when unspecified.</li>
+                <li><tt>model</tt>: which text-to-image model to query; options are:
+                  <div id="help-text-to-image-models" />
+                </li>
+              </ul>
+            </li>
+          </ul>
+
           <h2><a name="quotas">Quotas</a></h2>
           <p>
             For each model group (e.g., <tt>gpt3</tt>) and time granularity

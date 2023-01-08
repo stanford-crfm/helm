@@ -70,7 +70,7 @@ class Request:
 @dataclass(frozen=True)
 class TextToImageRequest(Request):
     """
-    A `ImageOptions` has additional fields that specifies how to query
+    A `TextToImageRequest` has additional fields that specifies how to query
     a text-to-image model (given a prompt, generate an image). It is the unified
     representation for communicating with various text-to-image APIs.
     """
@@ -79,15 +79,17 @@ class TextToImageRequest(Request):
     """Which model to query"""
 
     guidance_scale: float = 7.0
-    """How much importance is given to your prompt when generating images"""
+    """A non-negative number determining how much importance is given to the prompt
+    when generating images. Higher values will generate images that follow more
+    closely to the prompt. Currently only supported for Stable Diffusion."""
 
     width: Optional[int] = None
-    """Image width. The model will generate images with the default
-    dimensions when unspecified."""
+    """Width of the generated image. The model will generate images with the model's
+    default dimensions when unspecified."""
 
     height: Optional[int] = None
-    """Image height. The model will generate images with the default
-    dimensions when unspecified."""
+    """Height of the generated image. The model will generate images with the model's
+    default dimensions when unspecified."""
 
 
 @dataclass(frozen=True)
