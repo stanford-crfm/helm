@@ -8,23 +8,31 @@ from datasets import load_dataset
 
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT
 
-# SLTC: Single Class Text Classification
-# MLTC: Multi Class Text Classification
-# NER: Named Entity Recognition
+
+from enum import StrEnum
+
+
+class TaskType(StrEnum):
+    SLTC = "SingleLabelTextClassification"
+    MLTC = "MultiLabelTextClassification"
+    NER = "NamedEntityRecognition"
+    QA = "QuestionAnswering"
+
+
 TASK_CODE_MAPPING = {
-    'brazilian_court_decisions_judgment': 'SLTC',
-    'brazilian_court_decisions_unanimity': 'SLTC',
-    'german_argument_mining': 'SLTC',
-    'greek_legal_code_chapter': 'SLTC',
-    'greek_legal_code_subject': 'SLTC',
-    'greek_legal_code_volume': 'SLTC',
-    'swiss_judgment_prediction': 'SLTC',
-    'online_terms_of_service_unfairness_levels': 'SLTC',
-    'online_terms_of_service_clause_topics': 'MLTC',
-    'covid19_emergency_event': 'MLTC',
-    'multi_eurlex_level_1': 'MLTC',
-    'multi_eurlex_level_2': 'MLTC',
-    'multi_eurlex_level_3': 'MLTC',
+    'brazilian_court_decisions_judgment': TaskType.SLTC,
+    'brazilian_court_decisions_unanimity': TaskType.SLTC,
+    'german_argument_mining': TaskType.SLTC,
+    'greek_legal_code_chapter': TaskType.SLTC,
+    'greek_legal_code_subject': TaskType.SLTC,
+    'greek_legal_code_volume': TaskType.SLTC,
+    'swiss_judgment_prediction': TaskType.SLTC,
+    'online_terms_of_service_unfairness_levels': TaskType.SLTC,
+    'online_terms_of_service_clause_topics': TaskType.MLTC,
+    'covid19_emergency_event': TaskType.MLTC,
+    'multi_eurlex_level_1': TaskType.MLTC,
+    'multi_eurlex_level_2': TaskType.MLTC,
+    'multi_eurlex_level_3': TaskType.MLTC,
     'greek_legal_ner': 'NER',
     'legalnero': 'NER',
     'lener_br': 'NER',
@@ -320,10 +328,10 @@ class LEXTREMEScenario(Scenario):
         cache_dir = str(Path(self.output_path) / "data")
         dataset = load_dataset(self.dataset_name, config, cache_dir=cache_dir)
 
-        if task_code == 'SLTC':
+        if task_code == TaskType.SLTC:
             class_label = dataset['train'].features["label"]
             label_classes = class_label.names
-        elif task_code == 'MLTC':
+        elif task_code == TaskType.MLTC:
             # construct the label classes
             label_classes = set()
             for split in self.splits_mapping.values():
@@ -335,17 +343,17 @@ class LEXTREMEScenario(Scenario):
 
         def generate_instance(example, split: str):
             # get correct labels
-            if task_code == 'SLTC':
+            if task_code == TaskType.SLTC:
                 correct_label = class_label.int2str(example['label'])  # get label name for correct label
                 correct_labels = correct_label if isinstance(correct_label, list) else [correct_label]
-            elif task_code == 'MLTC':
+            elif task_code == TaskType.MLTC:
                 correct_labels = list(map(str, example['label']))  # here we don't have any mapping to label names
             elif task_code == 'NER':
                 correct_labels = [label_classes[label] for label in example['label']]
 
             # construct wrong references
             wrong_references = []
-            if task_code in ['SLTC', 'MLTC']:
+            if task_code in [TaskType.SLTC, TaskType.MLTC]:
                 for label_name in label_classes:
                     if label_name not in correct_labels:
                         wrong_reference = Reference(output=label_name, tags=[])  # Wrong output
@@ -361,7 +369,7 @@ class LEXTREMEScenario(Scenario):
 
             wrong_references = reduce_wrong_reference_count(wrong_references)
 
-            if task_code == 'MLTC':  # special case for multilabel classification tasks
+            if task_code == TaskType.MLTC:  # special case for multilabel classification tasks
                 if correct_labels:  # if we have a correct label
                     # add the no_label to the wrong references
                     # IMPORTANT: add it after the reduce_wrong_reference_count call, to make sure the no label is always there
@@ -371,7 +379,7 @@ class LEXTREMEScenario(Scenario):
                     correct_labels = [self.mltc_no_label_name]
 
             # construct correct references and input
-            if task_code in ['SLTC', 'MLTC']:
+            if task_code in [TaskType.SLTC, TaskType.MLTC]:
                 input_text = example['input']
                 if 'multi_eurlex' in config:
                     input_text = ast.literal_eval(input_text)

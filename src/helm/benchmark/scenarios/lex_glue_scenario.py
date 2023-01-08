@@ -5,19 +5,17 @@ from typing import List
 import datasets
 from datasets import load_dataset
 
+from .lextreme_scenario import TaskType
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT
 
-# SLTC: Single Class Text Classification
-# MLTC: Multi Class Text Classification
-# QA: Question Answering
 TASK_CODE_MAPPING = {
-    'ecthr_a': 'MLTC',
-    'ecthr_b': 'MLTC',
-    'scotus': 'SLTC',
-    'eurlex': 'MLTC',
-    'ledgar': 'SLTC',
-    'unfair_tos': 'MLTC',
-    'case_hold': 'QA',
+    'ecthr_a': TaskType.MLTC,
+    'ecthr_b': TaskType.MLTC,
+    'scotus': TaskType.SLTC,
+    'eurlex': TaskType.MLTC,
+    'ledgar': TaskType.SLTC,
+    'unfair_tos': TaskType.MLTC,
+    'case_hold': TaskType.QA,
 }
 
 TASK_MAX_TRAIN_INSTANCES_MAPPING = {
@@ -130,10 +128,10 @@ class LexGLUEScenario(Scenario):
         cache_dir = str(Path(self.output_path) / "data")
         dataset = load_dataset(self.dataset_name, config, cache_dir=cache_dir)
 
-        if task_code in ['SLTC', 'QA']:
+        if task_code in [TaskType.SLTC, TaskType.QA]:
             class_label = dataset['train'].features["label"]
             label_classes = class_label.names
-        elif task_code == 'MLTC':
+        elif task_code == TaskType.MLTC:
             # construct the label classes
             label_classes = set()
             for split in self.splits_mapping.values():
@@ -143,10 +141,10 @@ class LexGLUEScenario(Scenario):
 
         def generate_instance(example, split: str):
             # get correct labels
-            if task_code in ['SLTC', 'QA']:
+            if task_code in [TaskType.SLTC, TaskType.QA]:
                 correct_label = class_label.int2str(example['label'])  # get label name for correct label
                 correct_labels = correct_label if isinstance(correct_label, list) else [correct_label]
-            elif task_code == 'MLTC':
+            elif task_code == TaskType.MLTC:
                 correct_labels = list(map(str, example['labels']))  # here we don't have any mapping to label names
 
             # construct wrong references
@@ -158,7 +156,7 @@ class LexGLUEScenario(Scenario):
 
             wrong_references = reduce_wrong_reference_count(wrong_references)
 
-            if task_code == 'MLTC':  # special case for multilabel classification tasks
+            if task_code == TaskType.MLTC:  # special case for multilabel classification tasks
                 if correct_labels:  # if we have a correct label
                     # add the no_label to the wrong references
                     # IMPORTANT: add it after the reduce_wrong_reference_count call, to make sure the no label is always there
@@ -168,11 +166,11 @@ class LexGLUEScenario(Scenario):
                     correct_labels = [self.mltc_no_label_name]
 
             # construct correct references and input
-            if task_code in ['SLTC', 'MLTC']:
+            if task_code in [TaskType.SLTC, TaskType.MLTC]:
                 input_text = example['text']
                 if 'ecthr' in config:
                     input_text = " ".join(input_text)
-            elif task_code == 'QA':
+            elif task_code == TaskType.QA:
                 endings = [f"{i}: {end}" for i, end in enumerate(example['endings'])]
                 input_text = example['context'] + " Holdings: " + " ".join(endings)
 
