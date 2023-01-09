@@ -570,7 +570,7 @@ ALL_MODELS = [
     Model(
         group="dall_e",
         creator_organization="OpenAI",
-        name="openai/DALL-E2",
+        name="openai/dalle-2",
         display_name="DALL-E 2 (3.5B)",
         description="DALL-E 2 (3.5B parameters) is a model that can create realistic images and art "
         "from a description in natural language.",
