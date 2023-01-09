@@ -1672,6 +1672,22 @@ def get_mscoco_spec() -> RunSpec:
     )
 
 
+def get_relational_understanding_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.relational_understanding_scenario.RelationalUnderstandingScenario", args={}
+    )
+
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
+
+    return RunSpec(
+        name="relational_understanding",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=[],
+        groups=["relational_understanding"],
+    )
+
+
 ############################################################
 
 
@@ -1725,6 +1741,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "draw_bench": get_draw_bench_spec,
     "i2p": get_i2p_spec,
     "mscoco": get_mscoco_spec,
+    "relational_understanding": get_relational_understanding_spec,
 }
 
 

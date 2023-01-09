@@ -49,6 +49,7 @@ from .scenarios import demographic_stereotypes_scenario  # noqa
 from .scenarios import draw_bench_scenario  # noqa
 from .scenarios import i2p_scenario  # noqa
 from .scenarios import mscoco_scenario  # noqa
+from .scenarios import relational_understanding_scenario  # noqa
 
 # Metrics
 from .metrics import basic_metrics  # noqa
