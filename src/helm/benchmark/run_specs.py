@@ -1639,6 +1639,23 @@ def get_draw_bench_spec(category: str) -> RunSpec:
     )
 
 
+def get_demographic_stereotypes(category: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.demographic_stereotypes_scenario.DemographicStereotypesScenario",
+        args={"category": category},
+    )
+
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
+
+    return RunSpec(
+        name=f"demographic_stereotypes:category={category}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=[],
+        groups=["demographic_stereotypes"],
+    )
+
+
 ############################################################
 
 
@@ -1688,6 +1705,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "big_bench": get_big_bench_spec,
     "pubmed_qa": get_pubmed_qa_spec,
     # vHELM
+    "demographic_stereotypes": get_demographic_stereotypes,
     "draw_bench": get_draw_bench_spec,
     "mscoco": get_mscoco_spec,
 }
