@@ -2,6 +2,10 @@
 
 ## [Upcoming]
 
+- Add changes for the upcoming release here
+
+## [v0.2.0]
+
 ### Models
 
 - Added Aeph Alpha's Luminous models (#1215)
@@ -16,9 +20,19 @@
 ### Frontend
 
 - Reduced frontend JSON file sizes (#1185)
-- Added table sorting in frontend
+- Added table sorting in frontend (#832)
 - Fixed frontend bugs for certain adapter methods (#1236, #1237)
 - Fixed frontend bugs for runs with multiple trials (#1211)
+
+### Adaptation
+
+- Improved sampling of in-context examples (#1172)
+- Internal refactor (#1280)
+
+## Result summarization
+
+- Added average win-rate computation for model-v-scenario tables.
+- Added additional calibration metrics as a "Targeted evaluation"
 
 ### Misc
 
@@ -28,5 +42,6 @@
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.1.0...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.2.0...HEAD
+[v0.2.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.2.0
 [v0.1.0]: https://github.com/stanford-crfm/helm/releases/tag/v0.1.0
