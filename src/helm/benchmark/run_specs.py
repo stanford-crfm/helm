@@ -1609,17 +1609,20 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
 # vHELM run specs
 
 
-def get_mscoco_spec() -> RunSpec:
-    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mscoco_scenario.MSCOCOScenario", args={})
+def get_demographic_stereotypes(category: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.demographic_stereotypes_scenario.DemographicStereotypesScenario",
+        args={"category": category},
+    )
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
 
     return RunSpec(
-        name="mscoco",
+        name=f"demographic_stereotypes:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_fid_metric_specs(),
-        groups=["mscoco"],
+        metric_specs=[],
+        groups=["demographic_stereotypes"],
     )
 
 
@@ -1639,20 +1642,17 @@ def get_draw_bench_spec(category: str) -> RunSpec:
     )
 
 
-def get_demographic_stereotypes(category: str) -> RunSpec:
-    scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.demographic_stereotypes_scenario.DemographicStereotypesScenario",
-        args={"category": category},
-    )
+def get_mscoco_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mscoco_scenario.MSCOCOScenario", args={})
 
     adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
 
     return RunSpec(
-        name=f"demographic_stereotypes:category={category}",
+        name="mscoco",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=[],
-        groups=["demographic_stereotypes"],
+        metric_specs=get_fid_metric_specs(),
+        groups=["mscoco"],
     )
 
 
