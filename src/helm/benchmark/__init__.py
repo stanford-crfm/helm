@@ -47,6 +47,7 @@ from .scenarios import pubmed_qa_scenario  # noqa
 # vHELM
 from .scenarios import demographic_stereotypes_scenario  # noqa
 from .scenarios import draw_bench_scenario  # noqa
+from .scenarios import i2p_scenario  # noqa
 from .scenarios import mscoco_scenario  # noqa
 
 # Metrics
