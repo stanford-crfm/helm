@@ -9,10 +9,10 @@ import dacite
 from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS,
     ADAPT_MULTIPLE_CHOICE_SEPARATE_CALIBRATED,
-    RequestState,
-    ScenarioState,
 )
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.augmentations.dialect_perturbation import DialectPerturbation
 from helm.benchmark.augmentations.extra_space_perturbation import ExtraSpacePerturbation
 from helm.benchmark.augmentations.filler_words_perturbation import FillerWordsPerturbation
@@ -136,7 +136,7 @@ def _truncate_predicted_text(
     method = adapter_spec.method
     prefix = ""
     if method in ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS:
-        prefix = request_state.instance.input
+        prefix = request_state.instance.input.text
     elif method == "language_modeling":
         if request_state.result is not None and request_state.result.completions:
             tokens = request_state.result.completions[0].tokens
