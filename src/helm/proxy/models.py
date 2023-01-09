@@ -527,7 +527,7 @@ ALL_MODELS = [
     Model(
         group="together",
         creator_organization="Together",
-        name="together/Together-gpt-JT-6B-v1",
+        name="together/gpt-jt-6b-v1",
         display_name="GPT-JT (6B)",
         description="GPT-JT (6B parameters) is a fork of GPT-J",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],

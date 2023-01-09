@@ -31,7 +31,8 @@ class TogetherClient(Client):
         # Following the examples from https://github.com/togethercomputer/open-models-api
         return {
             "request_type": "language-model-inference",
-            "model": request.model_engine,
+            # TODO: the Together API expects "together/" in the model name
+            "model": request.model,
             "prompt": request.prompt,
             "temperature": request.temperature,
             "n": request.num_completions,
