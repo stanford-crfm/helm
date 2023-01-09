@@ -43,6 +43,9 @@ from .scenarios import entity_matching_scenario  # noqa
 from .scenarios import entity_data_imputation_scenario  # noqa
 from .scenarios import big_bench_scenario  # noqa
 from .scenarios import pubmed_qa_scenario  # noqa
+
+# vHELM
+from .scenarios import draw_bench_scenario  # noqa
 from .scenarios import mscoco_scenario  # noqa
 
 # Metrics

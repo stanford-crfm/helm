@@ -1623,6 +1623,22 @@ def get_mscoco_spec() -> RunSpec:
     )
 
 
+def get_draw_bench_spec(category: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.draw_bench_scenario.DrawBenchScenario", args={"category": category}
+    )
+
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
+
+    return RunSpec(
+        name=f"draw_bench:category={category}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=[],
+        groups=["draw_bench"],
+    )
+
+
 ############################################################
 
 
@@ -1672,6 +1688,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "big_bench": get_big_bench_spec,
     "pubmed_qa": get_pubmed_qa_spec,
     # vHELM
+    "draw_bench": get_draw_bench_spec,
     "mscoco": get_mscoco_spec,
 }
 
