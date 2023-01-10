@@ -1114,7 +1114,7 @@ $(function () {
       }
     }
     $table.append(renderTableHeader(table, sortColumnIndex));
-    table.append(renderTableBody(table, sortColumnIndex, sortOrder));
+    $table.append(renderTableBody(table, sortColumnIndex, sortOrder));
     $output.append($table);
 
     // Links
