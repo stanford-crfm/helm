@@ -14,6 +14,8 @@ class FileCache:
         a formatted string to print out what the animal says
     file_extension: str
         The types of file we're storing in the cache (e.g., png, jpg, mp4, etc.).
+    binary_mode: bool
+        Whether to write in binary mode (default is True).
     """
 
     def __init__(self, base_path: str, file_extension: str, binary_mode: bool = True):
