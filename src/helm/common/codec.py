@@ -51,7 +51,7 @@ def _build_converter() -> cattrs.Converter:
             for field in dataclasses.fields(cls)
             if typing.get_origin(field.type) == Union and type(None) in typing.get_args(field.type)
             # For optional fields with a non-None default value, do not replace a missing value
-            # with None because the non-None default value should be used instead.
+            # with None.
             and (field.default == dataclasses.MISSING or field.default is None)
             and field.default_factory == dataclasses.MISSING
         ]
@@ -81,6 +81,13 @@ def _build_converter() -> cattrs.Converter:
 
         return structure
 
+    converter.register_structure_hook_factory(
+        lambda cls: bool(get_dataclass_optional_fields_without_default(cls)), make_omit_nones_dict_structure_fn
+    )
+    converter.register_unstructure_hook_factory(
+        lambda cls: bool(get_dataclass_optional_fields_without_default(cls)), make_omit_nones_dict_unstructure_fn
+    )
+
     # Handle the use of the name field in PerturbationDescription to determine the subclass.
     base_perturbation_description_structure_fn: StructureFn = make_omit_nones_dict_structure_fn(PerturbationDescription)
     perturbation_name_to_base_structure_fn: Dict[str, StructureFn] = {
@@ -98,14 +105,7 @@ def _build_converter() -> cattrs.Converter:
         )
         return structure(raw_dict, cls)
 
-    # Register all the hooks
     converter.register_structure_hook(PerturbationDescription, structure_perturbation_description)
-    converter.register_structure_hook_factory(
-        lambda cls: bool(get_dataclass_optional_fields_without_default(cls)), make_omit_nones_dict_structure_fn
-    )
-    converter.register_unstructure_hook_factory(
-        lambda cls: bool(get_dataclass_optional_fields_without_default(cls)), make_omit_nones_dict_unstructure_fn
-    )
 
     return converter
 
