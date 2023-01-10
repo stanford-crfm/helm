@@ -42,7 +42,7 @@ class WindowServiceFactory:
         if model_name in get_model_names_with_tag(WIDER_CONTEXT_WINDOW_TAG):
             window_service = WiderOpenAIWindowService(service)
         elif organization == "openai" or organization == "simple":
-            if engine == "DALL-E2":
+            if engine == "dalle-2":
                 window_service = DALLE2WindowService(service)
             else:
                 window_service = OpenAIWindowService(service)
