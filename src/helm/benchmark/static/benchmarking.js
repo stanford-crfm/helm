@@ -399,9 +399,9 @@ $(function () {
             <div>Input:</div>
             <div class="instance-input">
               {{~#if perturbation~}}
-                {{highlightNewWords input ../unperturbedInstance.input}}
+                {{highlightNewWords input.text ../unperturbedInstance.input.text}}
               {{~else~}}
-                {{input}}
+                {{input.text}}
               {{~/if~}}
             </div>
           {{/if}}
@@ -412,9 +412,9 @@ $(function () {
                 <li>
                   <span class="instance-reference">
                     {{~#if ../perturbation~}}
-                      {{highlightNewWords output (lookup (lookup ../../unperturbedInstance.references @index) "output")}}
+                      {{highlightNewWords output.text (lookup (lookup (lookup ../../unperturbedInstance.references @index) "output") "text")}}
                     {{~else~}}
-                      {{output}}
+                      {{output.text}}
                     {{~/if~}}
                   </span>
                   {{#if tags}} <strong>[{{join tags ","}}]</strong>{{/if}}
