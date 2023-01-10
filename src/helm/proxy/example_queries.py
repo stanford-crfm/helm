@@ -167,9 +167,10 @@ example_queries = [
             """
             model: ${model}
             num_completions: 2
-            guidance_scale: 7
             height: 256
             width: 256
+            guidance_scale: 7.5
+            steps: 50
             """
         ),
         environments=dedent(

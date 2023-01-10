@@ -24,6 +24,9 @@ class TogetherVisionClient(TogetherClient):
     DEFAULT_IMAGE_HEIGHT: int = 512
     DEFAULT_IMAGE_WIDTH: int = 512
 
+    DEFAULT_GUIDANCE_SCALE: float = 7.5
+    DEFAULT_STEPS: int = 50
+
     def __init__(self, cache_config: CacheConfig, file_cache_path: str, api_key: Optional[str] = None):
         super().__init__(cache_config, api_key)
         self.file_cache: FileCache = FileCache(file_cache_path, "png")
@@ -31,21 +34,24 @@ class TogetherVisionClient(TogetherClient):
     def make_request(self, request: Request) -> RequestResult:
         assert isinstance(request, TextToImageRequest)
         # Following https://docs.together.xyz/en/api
-        # TODO: are there other parameters for StableDiffusion?
         # TODO: support the four different SafeStableDiffusion configurations
         raw_request = {
             "request_type": "image-model-inference",
             "model": request.model_engine,
             "prompt": request.prompt,
             "n": request.num_completions,
-            "guidance_scale": request.guidance_scale,
+            "guidance_scale": request.guidance_scale
+            if request.guidance_scale is not None
+            else self.DEFAULT_GUIDANCE_SCALE,
+            "steps": request.steps if request.steps is not None else self.DEFAULT_STEPS,
         }
-        if request.width and request.height:
-            raw_request["width"] = request.width
-            raw_request["height"] = request.height
-        else:
+
+        if request.width is None or request.height is None:
             raw_request["width"] = self.DEFAULT_IMAGE_WIDTH
             raw_request["height"] = self.DEFAULT_IMAGE_HEIGHT
+        else:
+            raw_request["width"] = request.width
+            raw_request["height"] = request.height
 
         cache_key: Dict = Client.make_cache_key(raw_request, request)
 

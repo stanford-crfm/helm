@@ -306,9 +306,10 @@ def get_summarization_adapter_spec(num_sents: int, **kwargs) -> AdapterSpec:
 
 def get_image_generation_adapter_spec(
     num_outputs: int = 1,
-    guidance_scale: float = 7.0,
     image_width: Optional[int] = None,
     image_height: Optional[int] = None,
+    guidance_scale: Optional[float] = None,
+    steps: Optional[int] = None,
 ) -> AdapterSpec:
     return TextToImageAdapterSpec(
         method=ADAPT_GENERATION,
@@ -319,9 +320,10 @@ def get_image_generation_adapter_spec(
         max_train_instances=0,
         num_outputs=num_outputs,
         max_tokens=0,
-        guidance_scale=guidance_scale,
         width=image_width,
         height=image_height,
+        guidance_scale=guidance_scale,
+        steps=steps,
     )
 
 

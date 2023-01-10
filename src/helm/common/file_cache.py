@@ -16,10 +16,11 @@ class FileCache:
         The types of file we're storing in the cache (e.g., png, jpg, mp4, etc.).
     """
 
-    def __init__(self, base_path: str, file_extension: str):
+    def __init__(self, base_path: str, file_extension: str, binary_mode: bool = True):
         ensure_directory_exists(base_path)
         self.base_path: str = base_path
         self.file_extension: str = file_extension
+        self.binary_mode: bool = binary_mode
 
     def store(self, compute: Callable) -> str:
         """
@@ -27,7 +28,7 @@ class FileCache:
         Returns the file path.
         """
         file_path: str = self._generate_unique_file_path()
-        with open(file_path, "wb") as f:
+        with open(file_path, "wb" if self.binary_mode else "w") as f:
             f.write(compute())
 
         return file_path

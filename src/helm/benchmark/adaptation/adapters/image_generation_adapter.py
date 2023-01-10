@@ -24,9 +24,10 @@ class ImageGenerationAdapter(GenerationAdapter):
             model=self.adapter_spec.model,
             prompt=prompt.text,
             num_completions=self.adapter_spec.num_outputs,
-            guidance_scale=self.adapter_spec.guidance_scale,
             width=self.adapter_spec.width,
             height=self.adapter_spec.height,
+            guidance_scale=self.adapter_spec.guidance_scale,
+            steps=self.adapter_spec.steps,
             max_tokens=0,
             random=self.adapter_spec.random,
         )
