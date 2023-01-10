@@ -3,10 +3,10 @@ import shutil
 import tempfile
 import unittest
 
-from helm.common.file_cache import FileCache
+from .local_file_cache import LocalFileCache
 
 
-class TestFileCache(unittest.TestCase):
+class TestLocalFileCache(unittest.TestCase):
     def setup_method(self, _):
         self.path: str = tempfile.mkdtemp()
 
@@ -14,12 +14,12 @@ class TestFileCache(unittest.TestCase):
         shutil.rmtree(self.path)
 
     def test_get(self):
-        cache = FileCache(self.path, file_extension="text")
-        file_path1: str = cache.store(lambda: b"hello.")
+        cache = LocalFileCache(self.path, file_extension="text", binary_mode=False)
+        file_path1: str = cache.store(lambda: "hello.")
 
         # Verify the contents of the file
         with open(file_path1, "r") as f:
             assert f.read() == "hello."
 
-        cache.store(lambda: b"bye.")
+        cache.store(lambda: "bye.")
         assert len(os.listdir(self.path)) == 2

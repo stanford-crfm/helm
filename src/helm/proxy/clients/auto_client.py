@@ -5,6 +5,8 @@ from typing import Dict, Optional
 from retrying import RetryError, Attempt
 
 from helm.common.cache import CacheConfig, MongoCacheConfig, SqliteCacheConfig, request_to_key
+from helm.common.file_caches.file_cache import FileCache
+from helm.common.file_caches.local_file_cache import LocalFileCache
 from helm.common.hierarchical_logger import hlog
 from helm.common.request import Request, TextToImageRequest, RequestResult
 from helm.common.tokenization_request import (
@@ -63,7 +65,10 @@ class AutoClient(Client):
         is_text_to_image_request: bool = isinstance(request, TextToImageRequest)
         key: str = request_to_key({"organization": organization, "is_text_to_image": is_text_to_image_request})
         client: Optional[Client] = self.clients.get(key)
-        file_cache_path: str = os.path.join(self.cache_path, self.OUTPUT_FILES_DIR_NAME, organization)
+
+        # Initialize `FileCache` for text-to-image model APIs
+        local_file_cache_path: str = os.path.join(self.cache_path, self.OUTPUT_FILES_DIR_NAME, organization)
+        file_cache: FileCache = LocalFileCache(local_file_cache_path, file_extension="png", binary_mode=True)
 
         if client is None:
             # At this point, it's the first request for this client, so need to initialize the client.
@@ -76,7 +81,7 @@ class AutoClient(Client):
                     client = DALLE2Client(
                         api_key=self.credentials["openaiApiKey"],
                         cache_config=cache_config,
-                        file_cache_path=file_cache_path,
+                        file_cache=file_cache,
                         org_id=org_id,
                     )
                 else:
@@ -124,7 +129,7 @@ class AutoClient(Client):
             elif organization == "together":
                 together_api_key: Optional[str] = self.credentials.get("togetherApiKey", None)
                 if is_text_to_image_request:
-                    client = TogetherVisionClient(cache_config, file_cache_path, api_key=together_api_key)
+                    client = TogetherVisionClient(cache_config, file_cache, api_key=together_api_key)
                 else:
                     client = TogetherClient(cache_config, api_key=together_api_key)
             elif organization == "simple":

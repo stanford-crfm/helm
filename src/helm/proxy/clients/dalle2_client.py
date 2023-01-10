@@ -4,7 +4,7 @@ import base64
 import openai
 
 from helm.common.cache import CacheConfig
-from helm.common.file_cache import FileCache
+from helm.common.file_caches.file_cache import FileCache
 from helm.common.request import Request, RequestResult, Sequence, TextToImageRequest
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -25,11 +25,11 @@ class DALLE2Client(OpenAIClient):
         self,
         api_key: str,
         cache_config: CacheConfig,
-        file_cache_path: str,
+        file_cache: FileCache,
         org_id: Optional[str] = None,
     ):
         super().__init__(api_key, cache_config, org_id=org_id)
-        self.file_cache: FileCache = FileCache(file_cache_path, "png")
+        self.file_cache: FileCache = file_cache
 
     def make_request(self, request: Request) -> RequestResult:
         def get_size_str(w: Optional[int], h: Optional[int]) -> str:
@@ -64,6 +64,7 @@ class DALLE2Client(OpenAIClient):
                 for image in result["data"]:
                     # Write out the image to a file and save the path
                     image["file_path"] = self.file_cache.store(lambda: base64.b64decode(image["b64_json"]))
+                    image.pop("b64_json", None)
                 return result
 
             cache_key = Client.make_cache_key(raw_request, request)

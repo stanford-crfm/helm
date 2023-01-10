@@ -3,7 +3,7 @@ import base64
 import requests
 
 from helm.common.cache import CacheConfig
-from helm.common.file_cache import FileCache
+from helm.common.file_caches.file_cache import FileCache
 from helm.common.request import Request, RequestResult, Sequence, TextToImageRequest
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -27,9 +27,9 @@ class TogetherVisionClient(TogetherClient):
     DEFAULT_GUIDANCE_SCALE: float = 7.5
     DEFAULT_STEPS: int = 50
 
-    def __init__(self, cache_config: CacheConfig, file_cache_path: str, api_key: Optional[str] = None):
+    def __init__(self, cache_config: CacheConfig, file_cache: FileCache, api_key: Optional[str] = None):
         super().__init__(cache_config, api_key)
-        self.file_cache: FileCache = FileCache(file_cache_path, "png")
+        self.file_cache: FileCache = file_cache
 
     def make_request(self, request: Request) -> RequestResult:
         assert isinstance(request, TextToImageRequest)
@@ -63,8 +63,8 @@ class TogetherVisionClient(TogetherClient):
 
                 for choice in result["output"]["choices"]:
                     # Write out the image to a file and save the path
-                    file_path: str = self.file_cache.store(lambda: base64.b64decode(choice["image_base64"]))
-                    choice["file_path"] = file_path
+                    choice["file_path"] = self.file_cache.store(lambda: base64.b64decode(choice["image_base64"]))
+                    choice.pop("image_base64", None)
                 return result["output"]
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))

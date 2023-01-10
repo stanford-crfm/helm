@@ -2,27 +2,13 @@ import os
 from typing import Callable
 
 from helm.common.general import ensure_directory_exists, generate_unique_id
+from .file_cache import FileCache
 
 
-class FileCache:
-    """
-    Cache to store files on disk.
-
-    Attributes
-    ----------
-    base_path: str
-        a formatted string to print out what the animal says
-    file_extension: str
-        The types of file we're storing in the cache (e.g., png, jpg, mp4, etc.).
-    binary_mode: bool
-        Whether to write in binary mode (default is True).
-    """
-
+class LocalFileCache(FileCache):
     def __init__(self, base_path: str, file_extension: str, binary_mode: bool = True):
+        super().__init__(base_path, file_extension, binary_mode)
         ensure_directory_exists(base_path)
-        self.base_path: str = base_path
-        self.file_extension: str = file_extension
-        self.binary_mode: bool = binary_mode
 
     def store(self, compute: Callable) -> str:
         """
@@ -40,7 +26,7 @@ class FileCache:
 
         def generate_one() -> str:
             file_name: str = f"{generate_unique_id()}.{self.file_extension}"
-            return os.path.join(self.base_path, file_name)
+            return os.path.join(self.location, file_name)
 
         file_path: str
         while True:
