@@ -31,8 +31,8 @@
 
 ## Result summarization
 
-- Added average win-rate computation for model-v-scenario tables.
-- Added additional calibration metrics as a "Targeted evaluation"
+- Added average win-rate computation for model-v-scenario tables (#1240)
+- Added additional calibration metrics as a "Targeted evaluation" (#1247)
 
 ### Misc
 
