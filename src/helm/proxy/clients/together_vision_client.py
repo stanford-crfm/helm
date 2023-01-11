@@ -59,7 +59,7 @@ class TogetherVisionClient(TogetherClient):
 
             def do_it():
                 result = requests.post(self.INFERENCE_ENDPOINT, json=raw_request).json()
-                assert "output" in result, f"Invalid response: {result}"
+                assert "output" in result, f"Invalid response: {result} from prompt: {request.prompt}"
 
                 for choice in result["output"]["choices"]:
                     # Write out the image to a file and save the path

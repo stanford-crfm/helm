@@ -59,7 +59,7 @@ class DALLE2Client(OpenAIClient):
                 openai.api_key = self.api_key
                 openai.api_base = self.api_base
                 result = openai.Image.create(**raw_request)
-                assert "data" in result, f"Invalid response: {result}"
+                assert "data" in result, f"Invalid response: {result} from prompt: {request.prompt}"
 
                 for image in result["data"]:
                     # Write out the image to a file and save the path
