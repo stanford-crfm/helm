@@ -37,6 +37,7 @@
 ### Misc
 
 - Added documentation to Read the Docs (#1159, #1164)
+- Breaking schema change: `input` of `Instance` and `output` of `Reference` are now objects (#1280)
 
 ## [v0.1.0] - 2022-11-17
 
