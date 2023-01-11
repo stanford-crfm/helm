@@ -537,7 +537,7 @@ $(function () {
           \{trial {{prediction.train_trial_index~}} \}
         {{~/if~}}
       </a></strong>:
-      {{{predictedText}}}
+      {{{outputHTMLElement}}}
     </div>
     <div class="request" style="display: none">Loading...</div>
   `);
@@ -591,31 +591,34 @@ $(function () {
       }
 
       // Render the prediction
-      // TODO: Escape the HTML in predictedText properly
-      let predictedText = prediction.predicted_text.trim();
-      if (method === "multiple_choice_joint") {
+      let outputHTMLElement = prediction.predicted_text.trim();
+      if (prediction.base64_images.length > 0) {
+        outputHTMLElement = ''
+        prediction.base64_images.forEach(image => outputHTMLElement += `<img src="data:image;base64,${image}">`);
+      } else if (method === "multiple_choice_joint") {
         if (prediction.mapped_output !== undefined) {
-          predictedText = truncateMiddle(prediction.mapped_output.trim(), 30);
+          outputHTMLElement = truncateMiddle(prediction.mapped_output.trim(), 30);
         } else {
-          predictedText = truncateMiddle(predictedText, 30) + '<span style="color: gray"> (unmapped)</span>';
+          outputHTMLElement = truncateMiddle(outputHTMLElement, 30) + '<span style="color: gray"> (unmapped)</span>';
         }
       } else if (method.startsWith('multiple_choice_separate_')) {
         // For adapter method = separate, prediction starts with the prompt, strip it out
         if (prediction.truncated_predicted_text !== undefined) {
-          predictedText = '<span style="color: lightgray">...</span> ' + truncateMiddle(prediction.truncated_predicted_text.trim(), 30);
+          outputHTMLElement = '<span style="color: lightgray">...</span> ' + truncateMiddle(prediction.truncated_predicted_text.trim(), 30);
         } else {
-          console.warn("Prompt was not stripped from predicted text", predictedText);
-          predictedText = truncateMiddle(predictedText, 30);
+          console.warn("Prompt was not stripped from predicted text", outputHTMLElement);
+          outputHTMLElement = truncateMiddle(outputHTMLElement, 30);
         }
       } else if (method === 'language_modeling') {
         // For language modeling, first token is just padding, so strip it out
         if (prediction.truncated_predicted_text !== undefined) {
-          predictedText = truncateMiddle(prediction.truncated_predicted_text.trim(), 30);
+          outputHTMLElement = truncateMiddle(prediction.truncated_predicted_text.trim(), 30);
         } else {
-          console.warn("First token was not stripped from predicted text", predictedText);
-          predictedText = truncateMiddle(predictedText, 30)
+          console.warn("First token was not stripped from predicted text", outputHTMLElement);
+          outputHTMLElement = truncateMiddle(outputHTMLElement, 30)
         }
       }
+
       const metrics = [];
       metricNames.forEach((metricName) => {
         const metricValue = prediction.stats[metricName];
@@ -628,7 +631,7 @@ $(function () {
       $instance.append(predictionTemplate({
         runDisplayName,
         prediction,
-        predictedText,
+        outputHTMLElement,
         numTrainTrials,
         metrics,
       }));

@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import shlex
@@ -286,3 +287,9 @@ def safe_symlink(src: str, dest: str) -> None:
 
     if not os.path.exists(dest):
         os.symlink(src, dest)
+
+
+def encode_base64(image_path) -> str:
+    """Returns the base64 representation of an image file."""
+    with open(image_path, "rb") as f:
+        return base64.b64encode(f.read()).decode("ascii")

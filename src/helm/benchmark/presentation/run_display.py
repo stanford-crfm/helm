@@ -27,7 +27,7 @@ from helm.benchmark.metrics.metric import PerInstanceStats
 from helm.benchmark.presentation.schema import Schema
 from helm.benchmark.runner import RunSpec
 from helm.benchmark.scenarios.scenario import Instance
-from helm.common.general import asdict_without_nones, write
+from helm.common.general import asdict_without_nones, write, encode_base64
 from helm.common.hierarchical_logger import htrack
 from helm.common.request import Request
 
@@ -78,6 +78,9 @@ class DisplayPrediction:
 
     truncated_predicted_text: Optional[str]
     """The truncated prediction text, if truncation is required by the Adapter method."""
+
+    base64_images: List[str]
+    """Images in base64."""
 
     mapped_output: Optional[str]
     """The mapped output, if an output mapping exists and the prediction can be mapped"""
@@ -263,6 +266,14 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
         instance_id_to_instance[
             (request_state.instance.id, request_state.instance.perturbation)
         ] = request_state.instance
+
+        # Process images and include if they exist
+        images: List[str] = [
+            encode_base64(completion.file_path)
+            for completion in request_state.result.completions
+            if completion.file_path is not None
+        ]
+
         predictions.append(
             DisplayPrediction(
                 instance_id=request_state.instance.id,
@@ -270,6 +281,7 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
                 train_trial_index=request_state.train_trial_index,
                 predicted_text=predicted_text,
                 truncated_predicted_text=_truncate_predicted_text(predicted_text, request_state, run_spec.adapter_spec),
+                base64_images=images,
                 mapped_output=mapped_output,
                 reference_index=request_state.reference_index,
                 stats=trial_stats,

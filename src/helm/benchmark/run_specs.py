@@ -1617,7 +1617,7 @@ def get_demographic_stereotypes(category: str) -> RunSpec:
         args={"category": category},
     )
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=10)
 
     return RunSpec(
         name=f"demographic_stereotypes:category={category}",
@@ -1633,7 +1633,7 @@ def get_draw_bench_spec(category: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.draw_bench_scenario.DrawBenchScenario", args={"category": category}
     )
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=5)
 
     return RunSpec(
         name=f"draw_bench:category={category}",
@@ -1649,7 +1649,7 @@ def get_i2p_spec(category: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.i2p_scenario.I2PScenario", args={"category": category}
     )
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=10)
 
     return RunSpec(
         name=f"i2p:category={category}",
@@ -1663,7 +1663,7 @@ def get_i2p_spec(category: str) -> RunSpec:
 def get_mscoco_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mscoco_scenario.MSCOCOScenario", args={})
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=10)
 
     return RunSpec(
         name="mscoco",
@@ -1679,7 +1679,7 @@ def get_relational_understanding_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.relational_understanding_scenario.RelationalUnderstandingScenario", args={}
     )
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=5)
 
     return RunSpec(
         name="relational_understanding",
