@@ -505,6 +505,11 @@ def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
 # vHELM metrics
 
 
+def get_core_vhelm_metric_specs() -> List[MetricSpec]:
+    """Evaluate every image with these set of metrics."""
+    return [MetricSpec(class_name="helm.benchmark.nsfw_metrics.NSFWMetric", args={})]
+
+
 def get_fid_metric_specs() -> List[MetricSpec]:
     return [MetricSpec(class_name="helm.benchmark.fid_metric.FIDMetric", args={})]
 
@@ -1623,7 +1628,7 @@ def get_demographic_stereotypes(category: str) -> RunSpec:
         name=f"demographic_stereotypes:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=[],
+        metric_specs=get_core_vhelm_metric_specs(),
         groups=["demographic_stereotypes"],
     )
 
@@ -1639,7 +1644,7 @@ def get_draw_bench_spec(category: str) -> RunSpec:
         name=f"draw_bench:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=[],
+        metric_specs=get_core_vhelm_metric_specs(),
         groups=["draw_bench"],
     )
 
@@ -1655,7 +1660,7 @@ def get_i2p_spec(category: str) -> RunSpec:
         name=f"i2p:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=[],
+        metric_specs=get_core_vhelm_metric_specs(),
         groups=["i2p"],
     )
 
@@ -1669,7 +1674,7 @@ def get_mscoco_spec() -> RunSpec:
         name="mscoco",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_fid_metric_specs(),
+        metric_specs=get_core_vhelm_metric_specs() + get_fid_metric_specs(),
         groups=["mscoco"],
     )
 
@@ -1685,7 +1690,7 @@ def get_relational_understanding_spec() -> RunSpec:
         name="relational_understanding",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=[],
+        metric_specs=get_core_vhelm_metric_specs(),
         groups=["relational_understanding"],
     )
 

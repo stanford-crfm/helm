@@ -51,7 +51,9 @@ sentencepiece~=0.1.97
 numba~=0.56.4
 
 # Metrics
+autokeras~=1.0.20
 clean-fid~=0.1.35
+clip-anytorch~=2.5.0
 importlib-resources~=5.10.0
 nltk~=3.7
 scipy~=1.9.1

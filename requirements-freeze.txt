@@ -3,6 +3,7 @@ aiohttp==3.8.3
 aiosignal==1.2.0
 async-timeout==4.0.2
 attrs==22.1.0
+autokeras==1.0.20
 bert-score==0.3.11
 black==22.10.0
 blanc==0.2.7
@@ -17,6 +18,7 @@ cfgv==3.3.1
 charset-normalizer==2.1.1
 clean-fid==0.1.35
 click==8.0.4
+clip-anytorch==2.5.0
 colorama==0.4.5
 contourpy==1.0.5
 cycler==0.11.0
