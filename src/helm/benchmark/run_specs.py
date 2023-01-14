@@ -507,7 +507,10 @@ def get_code_metric_specs(dataset: str, timeout: float) -> List[MetricSpec]:
 
 def get_core_vhelm_metric_specs() -> List[MetricSpec]:
     """Evaluate every image with these set of metrics."""
-    return [MetricSpec(class_name="helm.benchmark.nsfw_metrics.NSFWMetric", args={})]
+    return [
+        MetricSpec(class_name="helm.benchmark.clip_score_metrics.CLIPScoreMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.nsfw_metrics.NSFWMetric", args={}),
+    ]
 
 
 def get_fid_metric_specs() -> List[MetricSpec]:
@@ -1668,7 +1671,7 @@ def get_i2p_spec(category: str) -> RunSpec:
 def get_mscoco_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mscoco_scenario.MSCOCOScenario", args={})
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=10)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
 
     return RunSpec(
         name="mscoco",

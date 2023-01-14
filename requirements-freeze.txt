@@ -139,6 +139,7 @@ tokenizers==0.12.1
 toml==0.10.2
 tomli==2.0.1
 torch==1.12.1+cu113
+torchmetrics==0.11.0
 torchvision==0.13.1+cu113
 tqdm==4.64.1
 transformers==4.22.2

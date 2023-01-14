@@ -12,6 +12,7 @@ class MSCOCOScenario(Scenario):
     Microsoft COCO (MS-COCO) is a large-scale object detection, segmentation, and captioning dataset.
     It has 330K images with over 200K of them labeled.  According to https://cocodataset.org/#download,
     the 2017 version of the dataset has 118K images in the train split and 5K images in the val split.
+    # TODO: use the 2014 version which has larger validation set
 
     Each image also has five captions. For example, image #335111 has the following five captions:
         1. a row of bikes on the sidewalk, 2 on the ground.

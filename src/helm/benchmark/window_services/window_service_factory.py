@@ -21,7 +21,7 @@ from .t0pp_window_service import T0ppWindowService
 from .t511b_window_service import T511bWindowService
 from .ul2_window_service import UL2WindowService
 from .yalm_window_service import YaLMWindowService
-from .stable_diffusion_window_service import StableDiffusionWindowService
+from .clip_window_service import CLIPWindowService
 from .dalle2_window_service import DALLE2WindowService
 from .window_service import WindowService
 from .tokenizer_service import TokenizerService
@@ -88,7 +88,7 @@ class WindowServiceFactory:
         elif organization == "ai21":
             window_service = AI21WindowService(service=service, gpt2_window_service=GPT2WindowService(service))
         elif model_name == "together/StableDiffusion":
-            window_service = StableDiffusionWindowService(service)
+            window_service = CLIPWindowService(service)
         else:
             raise ValueError(f"Unhandled model name: {model_name}")
 
