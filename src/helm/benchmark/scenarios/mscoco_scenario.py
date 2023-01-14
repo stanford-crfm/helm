@@ -10,9 +10,9 @@ from .scenario import Scenario, Instance, Input, Output, Reference, CORRECT_TAG,
 class MSCOCOScenario(Scenario):
     """
     Microsoft COCO (MS-COCO) is a large-scale object detection, segmentation, and captioning dataset.
-    It has 330K images with over 200K of them labeled.  According to https://cocodataset.org/#download,
-    the 2017 version of the dataset has 118K images in the train split and 5K images in the val split.
-    # TODO: use the 2014 version which has larger validation set
+    It has 330K images, with over 200K of them labeled. We use the 2014 version of the dataset instead
+    of the 2017 version because of the larger validation set. According to https://cocodataset.org/#download,
+    the 2014 version has 83K images in the train split and 41K in the val split.
 
     Each image also has five captions. For example, image #335111 has the following five captions:
         1. a row of bikes on the sidewalk, 2 on the ground.
@@ -25,12 +25,12 @@ class MSCOCOScenario(Scenario):
     Website: https://cocodataset.org/#home
     """
 
-    ANNOTATIONS_DOWNLOAD_URL: str = "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
-    SPLIT_DOWNLOAD_URL_TEMPLATE: str = "http://images.cocodataset.org/zips/{split}2017.zip"
+    ANNOTATIONS_DOWNLOAD_URL: str = "http://images.cocodataset.org/annotations/annotations_trainval2014.zip"
+    SPLIT_DOWNLOAD_URL_TEMPLATE: str = "http://images.cocodataset.org/zips/{split}2014.zip"
     COCO_SPLIT_TO_HELM_SPLIT: Dict[str, str] = {"train": TRAIN_SPLIT, "val": VALID_SPLIT}
 
     name = "mscoco"
-    description = "Microsoft COCO: Common Objects in Context"
+    description = "Microsoft COCO: Common Objects in Context. Paper: https://arxiv.org/abs/1405.0312"
     tags = ["text-to-image", "image-to-text"]
 
     def get_instances(self) -> List[Instance]:
@@ -46,7 +46,7 @@ class MSCOCOScenario(Scenario):
             ensure_file_downloaded(source_url=split_url, target_path=split_path, unpack=True)
 
             # Read the metadata for the split
-            metadata_path: str = os.path.join(data_path, f"captions_{coco_split}2017.json")
+            metadata_path: str = os.path.join(data_path, f"captions_{coco_split}2014.json")
             with open(metadata_path, "r") as f:
                 metadata: Dict[str, Any] = json.load(f)
 
