@@ -5,6 +5,8 @@ from torchmetrics.multimodal import CLIPScore
 from torchvision import transforms
 import torch
 
+from helm.common.gpu_utils import get_torch_device
+
 _ = torch.manual_seed(42)
 
 
@@ -31,9 +33,10 @@ class CLIPScorer:
             "openai/clip-vit-large-patch14",
         ] = "openai/clip-vit-large-patch14",
     ):
-        self._metric = CLIPScore(model_name_or_path=model_name)
+        self._metric = CLIPScore(model_name_or_path=model_name).to(get_torch_device())
 
     def compute_score(self, caption: str, image_path: str) -> float:
         image: Image = Image.open(image_path)
-        score: float = self._metric(transforms.ToTensor()(image), caption).detach().item()
+        image_tensor: torch.Tensor = transforms.ToTensor()(image).to(get_torch_device())
+        score: float = self._metric(image_tensor, caption).detach().item()
         return score
