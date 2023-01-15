@@ -509,6 +509,7 @@ def get_core_vhelm_metric_specs() -> List[MetricSpec]:
     """Evaluate every image with these set of metrics."""
     return [
         MetricSpec(class_name="helm.benchmark.clip_score_metrics.CLIPScoreMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.efficiency_metrics.EfficiencyMetric", args={}),
         MetricSpec(class_name="helm.benchmark.nsfw_metrics.NSFWMetric", args={}),
     ]
 
