@@ -71,3 +71,4 @@ summ-eval~=0.892
 torch~=1.12.1  # Summarization metrics
 torchmetrics~=0.11.0
 torchvision~=0.13.1
+torch-fidelity~=0.3.0
