@@ -768,7 +768,8 @@ class TokenizerRunExpander(ScenarioSpecRunExpander):
     def expand(self, run_spec: RunSpec) -> List[RunSpec]:
         # Find right tokenizer given model.
         if isinstance(self.all_values, dict):
-            self.values = self.all_values[run_spec.adapter_spec.model]
+            model: str = run_spec.adapter_spec.model
+            self.values = self.all_values[model] if model in self.all_values else []
         else:
             self.values = self.all_values
         return super().expand(run_spec)
