@@ -1689,6 +1689,22 @@ def get_i2p_spec(category: str) -> RunSpec:
     )
 
 
+def get_mental_disorders_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.mental_disorders_scenario.MentalDisordersScenario", args={}
+    )
+
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=5)
+
+    return RunSpec(
+        name="mental_disorders",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_core_vhelm_metric_specs(),
+        groups=["mental_disorders"],
+    )
+
+
 def get_mscoco_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.mscoco_scenario.MSCOCOScenario", args={})
 
@@ -1802,6 +1818,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "demographic_stereotypes": get_demographic_stereotypes_spec,
     "draw_bench": get_draw_bench_spec,
     "i2p": get_i2p_spec,
+    "mental_disorders": get_mental_disorders_spec,
     "mscoco": get_mscoco_spec,
     "parti_prompts": get_parti_prompts_spec,
     "radiology": get_radiology_spec,
