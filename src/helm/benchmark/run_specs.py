@@ -1623,6 +1623,23 @@ def get_pubmed_qa_spec(prompt_answer_choices: str) -> RunSpec:
 # vHELM run specs
 
 
+def get_common_syntactic_processes_spec(phenomenon: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.common_syntactic_processes_scenario.CommonSyntacticProcessesScenario",
+        args={"phenomenon": phenomenon},
+    )
+
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=10)
+
+    return RunSpec(
+        name=f"common_syntactic_processes:phenomenon={phenomenon}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_core_vhelm_metric_specs(),
+        groups=["common_syntactic_processes"],
+    )
+
+
 def get_demographic_stereotypes_spec(category: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.demographic_stereotypes_scenario.DemographicStereotypesScenario",
@@ -1767,6 +1784,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "big_bench": get_big_bench_spec,
     "pubmed_qa": get_pubmed_qa_spec,
     # vHELM
+    "common_syntactic_processes": get_common_syntactic_processes_spec,
     "demographic_stereotypes": get_demographic_stereotypes_spec,
     "draw_bench": get_draw_bench_spec,
     "i2p": get_i2p_spec,
