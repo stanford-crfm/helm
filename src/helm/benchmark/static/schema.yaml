@@ -92,6 +92,13 @@ models:
     num_parameters: 11000000000
     release_date: 2021-10-15
 
+  # BigCode
+  - name: huggingface/santacoder
+    display_name: SantaCoder (1.1B)
+    description: SantaCoder (1.1B parameters) model trained on the Python, Java, and JavaScript subset of The Stack (v1.1) ([model card](https://huggingface.co/bigcode/santacoder)).
+    creator_organization: BigCode
+    access: open
+
   # Cohere
   - name: cohere/xlarge-20220609
     display_name: Cohere xlarge v20220609 (52.4B)
