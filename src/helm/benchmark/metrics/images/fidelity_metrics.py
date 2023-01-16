@@ -6,7 +6,7 @@ import shutil
 import torch
 import torch_fidelity
 
-from helm.common.general import ensure_directory_exists, generate_unique_id, get_file_name, safe_symlink
+from helm.common.general import copy_image, ensure_directory_exists, generate_unique_id, get_file_name
 from helm.common.request import RequestResult
 from helm.benchmark.scenarios.scenario import Instance
 from helm.benchmark.adaptation.scenario_state import ScenarioState
@@ -19,7 +19,8 @@ from helm.benchmark.metrics.metric_service import MetricService
 class FidelityMetric(Metric):
     """
     Frechet Inception Distance (FID) is a measure of similarity between two sets of images.
-    Inception Score (IS) measures quality and diversity of images. Requires large number of samples.
+    Inception Score (IS) measures quality and diversity of images.
+    Both metrics require a large number of samples to compute.
 
     @misc{obukhov2020torchfidelity,
       author={Anton Obukhov and Maximilian Seitzer and Po-Wei Wu and Semen Zhydenko and Jonathan Kyl
@@ -34,6 +35,10 @@ class FidelityMetric(Metric):
     }
     """
 
+    # The Stable Diffusion paper (https://arxiv.org/abs/2112.10752) computed FID with 256x256 images
+    IMAGE_WIDTH: int = 256
+    IMAGE_HEIGHT: int = 256
+
     def __repr__(self):
         return "FidelityMetric()"
 
@@ -44,9 +49,7 @@ class FidelityMetric(Metric):
         eval_cache_path: str,
         parallelism: int,
     ) -> MetricResult:
-        # TODO: resize images both to 256 * 256 -Tony
         # The library requires the two sets of images to be in two separate directories.
-        # Gather the images by relying on symlinks.
         generated_images_path: str = os.path.join(eval_cache_path, generate_unique_id())
         ensure_directory_exists(generated_images_path)
         gold_images_path: str = os.path.join(eval_cache_path, generate_unique_id())
@@ -55,13 +58,13 @@ class FidelityMetric(Metric):
         for request_state in tqdm(scenario_state.request_states):
             assert request_state.result is not None
             request_result: RequestResult = request_state.result
+            dest_path: str
 
             # Gather the model-generated images
             for image in request_result.completions:
                 assert image.file_path is not None
-                safe_symlink(
-                    src=image.file_path, dest=os.path.join(generated_images_path, get_file_name(image.file_path))
-                )
+                dest_path = os.path.join(generated_images_path, get_file_name(image.file_path))
+                copy_image(image.file_path, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
 
             # Gather the gold images
             instance: Instance = request_state.instance
@@ -71,7 +74,8 @@ class FidelityMetric(Metric):
 
                 assert reference.output.file_path is not None
                 file_path: str = reference.output.file_path
-                safe_symlink(src=file_path, dest=os.path.join(gold_images_path, get_file_name(file_path)))
+                dest_path = os.path.join(gold_images_path, get_file_name(file_path))
+                copy_image(file_path, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
 
         metrics_dict: Dict[str, float] = torch_fidelity.calculate_metrics(
             input1=generated_images_path,
@@ -79,13 +83,10 @@ class FidelityMetric(Metric):
             isc=True,
             fid=True,
             cuda=torch.cuda.is_available(),
-            save_cpu_ram=True,
+            save_cpu_ram=not torch.cuda.is_available(),
         )
-        import pdb
 
-        pdb.set_trace()
-
-        # Clean up the symlinks and delete the temp directories
+        # Delete the directories with the resized images
         shutil.rmtree(generated_images_path)
         shutil.rmtree(gold_images_path)
 

@@ -515,7 +515,10 @@ def get_core_vhelm_metric_specs() -> List[MetricSpec]:
 
 
 def get_fid_metric_specs() -> List[MetricSpec]:
-    return [MetricSpec(class_name="helm.benchmark.fid_metric.FIDMetric", args={})]
+    return [
+        # MetricSpec(class_name="helm.benchmark.fid_metric.FIDMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.fidelity_metrics.FidelityMetric", args={}),
+    ]
 
 
 ############################################################
@@ -1678,7 +1681,7 @@ def get_mscoco_spec() -> RunSpec:
         name="mscoco",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs() + get_fid_metric_specs(),
+        metric_specs=get_fid_metric_specs() + get_core_vhelm_metric_specs(),
         groups=["mscoco"],
     )
 

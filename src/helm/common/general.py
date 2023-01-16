@@ -2,6 +2,7 @@ import base64
 import json
 import os
 import shlex
+import shutil
 import subprocess
 import uuid
 import zstandard
@@ -11,6 +12,7 @@ from tqdm import tqdm
 
 import pyhocon
 from dataclasses import asdict, is_dataclass
+from PIL import Image
 
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 
@@ -293,3 +295,16 @@ def encode_base64(image_path) -> str:
     """Returns the base64 representation of an image file."""
     with open(image_path, "rb") as f:
         return base64.b64encode(f.read()).decode("ascii")
+
+
+def copy_image(src: str, dest: str, width: Optional[int], height: Optional[int]):
+    """
+    Copies the image file from `src` path to `dest` path. If dimensions `width` and `height`
+    are specified, resizes the image before copying.
+    """
+    if width is not None and height is not None:
+        image = Image.open(src)
+        resized_image = image.resize((width, height), Image.ANTIALIAS)
+        resized_image.save(dest)
+    else:
+        shutil.copy(src, dest)
