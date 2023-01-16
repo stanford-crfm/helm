@@ -1719,6 +1719,20 @@ def get_parti_prompts_spec(category: str) -> RunSpec:
     )
 
 
+def get_radiology_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.radiology_scenario.RadiologyScenario", args={})
+
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=5)
+
+    return RunSpec(
+        name="radiology",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_core_vhelm_metric_specs(),
+        groups=["radiology"],
+    )
+
+
 def get_relational_understanding_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.relational_understanding_scenario.RelationalUnderstandingScenario", args={}
@@ -1790,6 +1804,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "i2p": get_i2p_spec,
     "mscoco": get_mscoco_spec,
     "parti_prompts": get_parti_prompts_spec,
+    "radiology": get_radiology_spec,
     "relational_understanding": get_relational_understanding_spec,
 }
 
