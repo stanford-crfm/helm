@@ -58,22 +58,22 @@ def get_lex_glue_max_tokens(subset):
 
 INSTRUCTIONS = {
     ECTHR_A: "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
-             "Predict the articles of the ECtHR that were violated (if any).",
+    "Predict the articles of the ECtHR that were violated (if any).",
     ECTHR_B: "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
-             "Predict the articles of ECtHR that were allegedly violated (considered by the court).",
+    "Predict the articles of ECtHR that were allegedly violated (considered by the court).",
     SCOTUS: "In this task, you are given a case heard at the Supreme Court of the United States (SCOTUS). "
-            "Predict the relevant issue area.",
+    "Predict the relevant issue area.",
     EURLEX: "In this task, you are given an EU law document published in the EUR-Lex portal. "
-            "Predict the relevant EuroVoc concepts.",
+    "Predict the relevant EuroVoc concepts.",
     LEDGAR: "In this task, you are given a contract provision "
-            "from contracts obtained from US Securities and Exchange Commission (SEC) filings."
-            "Predict the main topic.",
+    "from contracts obtained from US Securities and Exchange Commission (SEC) filings."
+    "Predict the main topic.",
     UNFAIR_TOS: "In this task, you are given a sentence "
-                "from a Terms of Service (ToS) document from on-line platforms. "
-                "Predict the types of unfair contractual terms",
+    "from a Terms of Service (ToS) document from on-line platforms. "
+    "Predict the types of unfair contractual terms",
     CASE_HOLD: "In this task, you are given an excerpt from a court decision, "
-               "containing a reference to a particular case, while the holding statement is masked out. "
-               "Predict the index of the holding statement fitting in the context at <HOLDING> from a selection of five choices.",
+    "containing a reference to a particular case, while the holding statement is masked out. "
+    "Predict the index of the holding statement fitting in the context at <HOLDING> from a selection of five choices.",
 }
 
 
