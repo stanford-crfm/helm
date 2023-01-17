@@ -17,6 +17,13 @@ from PIL import Image
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 
 
+def get_helm_cache_path():
+    """Gets the local cache path."""
+    path: str = ".helm_cache"
+    ensure_directory_exists(path)
+    return path
+
+
 def singleton(items: List):
     """Ensure there's only one item in `items` and return it."""
     if len(items) != 1:

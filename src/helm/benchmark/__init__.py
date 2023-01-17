@@ -72,6 +72,7 @@ from .metrics.images import efficiency_metrics  # noqa
 from .metrics.images import fid_metric  # noqa
 from .metrics.images import fidelity_metrics  # noqa
 from .metrics.images import nsfw_metrics  # noqa
+from .metrics.images import watermark_metrics  # noqa
 
 # Perturbations for data augmentation
 from .augmentations.extra_space_perturbation import ExtraSpacePerturbation  # noqa

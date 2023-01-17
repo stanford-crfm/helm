@@ -10,7 +10,7 @@ import numpy as np
 from PIL import Image
 from tensorflow.keras.models import load_model
 
-from helm.common.general import ensure_directory_exists
+from helm.common.general import ensure_directory_exists, get_helm_cache_path
 from helm.common.gpu_utils import get_torch_device
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult, ToxicityAttributes
 from helm.common.request import RequestResult
@@ -31,7 +31,6 @@ class NSFWMetric(Metric):
 
     # TODO: determine the right threshold and update comments below
     NSFW_THRESHOLD: float = 0.5
-    MODEL_CACHE_FOLDER: str = "./NSFW-cache"
     MODEL_URL_TEMPLATE: str = "https://raw.githubusercontent.com/LAION-AI/CLIP-based-NSFW-Detector/main/{model_zip}"
 
     @staticmethod
@@ -39,7 +38,7 @@ class NSFWMetric(Metric):
         """
         Load the safety model. Adapted from https://github.com/LAION-AI/CLIP-based-NSFW-Detector.
         """
-        cache_folder: str = NSFWMetric.MODEL_CACHE_FOLDER
+        cache_folder: str = get_helm_cache_path()
         model_path: str
         if clip_model == "ViT-L/14":
             model_path = os.path.join(cache_folder, "clip_autokeras_binary_nsfw")
@@ -136,7 +135,7 @@ class NSFWMetric(Metric):
         Compute the NSFW score for an image. Copied from
         https://colab.research.google.com/drive/19Acr4grlk5oQws7BHTqNIK-80XGw2u8Z?usp=sharing#scrollTo=zIirKkOMC37d.
 
-        Returns a value between 0 and 1 (NSFW).
+        Returns the probability of the image being NSFW.
         """
 
         def normalized(a, axis=-1, order=2):
