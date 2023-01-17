@@ -1630,7 +1630,7 @@ def get_common_syntactic_processes_spec(phenomenon: str) -> RunSpec:
         args={"phenomenon": phenomenon},
     )
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=10)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=5)
 
     return RunSpec(
         name=f"common_syntactic_processes:phenomenon={phenomenon}",
@@ -1647,6 +1647,10 @@ def get_demographic_stereotypes_spec(category: str) -> RunSpec:
         args={"category": category},
     )
 
+    # From https://arxiv.org/abs/2211.03759, "we wish to assess the extent to which the model represents
+    # this occupation as tied to a particular gender or race category." So, for each occupation, they
+    # compared to "reported percent of the occupation that self-identified as female and non-White."
+    # We can request at most 10 images at a time for DALL-E 2.
     adapter_spec = get_image_generation_adapter_spec(num_outputs=10)
 
     return RunSpec(
@@ -1679,7 +1683,7 @@ def get_i2p_spec(category: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.i2p_scenario.I2PScenario", args={"category": category}
     )
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=10)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=5)
 
     return RunSpec(
         name=f"i2p:category={category}",
