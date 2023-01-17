@@ -19,46 +19,64 @@ class TaskType(StrEnum):
     QA = "QuestionAnswering"
 
 
+BRAZILIAN_COURT_DECISIONS_JUDGMENT = "brazilian_court_decisions_judgment"
+BRAZILIAN_COURT_DECISIONS_UNANIMITY = "brazilian_court_decisions_unanimity"
+GERMAN_ARGUMENT_MINING = "german_argument_mining"
+GREEK_LEGAL_CODE_CHAPTER = "greek_legal_code_chapter"
+GREEK_LEGAL_CODE_SUBJECT = "greek_legal_code_subject"
+GREEK_LEGAL_CODE_VOLUME = "greek_legal_code_volume"
+SWISS_JUDGMENT_PREDICTION = "swiss_judgment_prediction"
+ONLINE_TERMS_OF_SERVICE_UNFAIRNESS_LEVELS = "online_terms_of_service_unfairness_levels"
+ONLINE_TERMS_OF_SERVICE_CLAUSE_TOPICS = "online_terms_of_service_clause_topics"
+COVID19_EMERGENCY_EVENT = "covid19_emergency_event"
+MULTI_EURLEX_LEVEL_1 = "multi_eurlex_level_1"
+MULTI_EURLEX_LEVEL_2 = "multi_eurlex_level_2"
+MULTI_EURLEX_LEVEL_3 = "multi_eurlex_level_3"
+GREEK_LEGAL_NER = "greek_legal_ner"
+LEGALNERO = "legalnero"
+LENER_BR = "lener_br"
+MAPA_COARSE = "mapa_coarse"
+MAPA_FINE = "mapa_fine"
 TASK_CODE_MAPPING = {
-    "brazilian_court_decisions_judgment": TaskType.SLTC,
-    "brazilian_court_decisions_unanimity": TaskType.SLTC,
-    "german_argument_mining": TaskType.SLTC,
-    "greek_legal_code_chapter": TaskType.SLTC,
-    "greek_legal_code_subject": TaskType.SLTC,
-    "greek_legal_code_volume": TaskType.SLTC,
-    "swiss_judgment_prediction": TaskType.SLTC,
-    "online_terms_of_service_unfairness_levels": TaskType.SLTC,
-    "online_terms_of_service_clause_topics": TaskType.MLTC,
-    "covid19_emergency_event": TaskType.MLTC,
-    "multi_eurlex_level_1": TaskType.MLTC,
-    "multi_eurlex_level_2": TaskType.MLTC,
-    "multi_eurlex_level_3": TaskType.MLTC,
-    "greek_legal_ner": "NER",
-    "legalnero": "NER",
-    "lener_br": "NER",
-    "mapa_coarse": "NER",
-    "mapa_fine": "NER",
+    BRAZILIAN_COURT_DECISIONS_JUDGMENT: TaskType.SLTC,
+    BRAZILIAN_COURT_DECISIONS_UNANIMITY: TaskType.SLTC,
+    GERMAN_ARGUMENT_MINING: TaskType.SLTC,
+    GREEK_LEGAL_CODE_CHAPTER: TaskType.SLTC,
+    GREEK_LEGAL_CODE_SUBJECT: TaskType.SLTC,
+    GREEK_LEGAL_CODE_VOLUME: TaskType.SLTC,
+    SWISS_JUDGMENT_PREDICTION: TaskType.SLTC,
+    ONLINE_TERMS_OF_SERVICE_UNFAIRNESS_LEVELS: TaskType.SLTC,
+    ONLINE_TERMS_OF_SERVICE_CLAUSE_TOPICS: TaskType.MLTC,
+    COVID19_EMERGENCY_EVENT: TaskType.MLTC,
+    MULTI_EURLEX_LEVEL_1: TaskType.MLTC,
+    MULTI_EURLEX_LEVEL_2: TaskType.MLTC,
+    MULTI_EURLEX_LEVEL_3: TaskType.MLTC,
+    GREEK_LEGAL_NER: "NER",
+    LEGALNERO: "NER",
+    LENER_BR: "NER",
+    MAPA_COARSE: "NER",
+    MAPA_FINE: "NER",
 }
 
 TASK_MAX_TRAIN_INSTANCES_MAPPING = {
-    "brazilian_court_decisions_judgment": 4,  # ~ max 1024 tokens
-    "brazilian_court_decisions_unanimity": 4,  # ~ max 1024 tokens
-    "german_argument_mining": 5,  # ~ max 256 tokens
-    "greek_legal_code_chapter": 1,  # ~ max 4096 tokens
-    "greek_legal_code_subject": 1,  # ~ max 4096 tokens
-    "greek_legal_code_volume": 1,  # ~ max 4096 tokens
-    "swiss_judgment_prediction": 2,  # ~ max 2048 tokens
-    "online_terms_of_service_unfairness_levels": 5,  # ~ max 256 tokens
-    "online_terms_of_service_clause_topics": 5,  # ~ max 256 tokens
-    "covid19_emergency_event": 5,  # ~ max 256 tokens
-    "multi_eurlex_level_1": 1,  # ~ max 4096 tokens
-    "multi_eurlex_level_2": 1,  # ~ max 4096 tokens
-    "multi_eurlex_level_3": 1,  # ~ max 4096 tokens
-    "greek_legal_ner": 5,  # ~ max 512 tokens
-    "legalnero": 5,  # ~ max 512 tokens
-    "lener_br": 5,  # ~ max 512 tokens
-    "mapa_coarse": 5,  # ~ max 512 tokens
-    "mapa_fine": 5,  # ~ max 512 tokens
+    BRAZILIAN_COURT_DECISIONS_JUDGMENT: 4,  # ~ max 1024 tokens
+    BRAZILIAN_COURT_DECISIONS_UNANIMITY: 4,  # ~ max 1024 tokens
+    GERMAN_ARGUMENT_MINING: 5,  # ~ max 256 tokens
+    GREEK_LEGAL_CODE_CHAPTER: 1,  # ~ max 4096 tokens
+    GREEK_LEGAL_CODE_SUBJECT: 1,  # ~ max 4096 tokens
+    GREEK_LEGAL_CODE_VOLUME: 1,  # ~ max 4096 tokens
+    SWISS_JUDGMENT_PREDICTION: 2,  # ~ max 2048 tokens
+    ONLINE_TERMS_OF_SERVICE_UNFAIRNESS_LEVELS: 5,  # ~ max 256 tokens
+    ONLINE_TERMS_OF_SERVICE_CLAUSE_TOPICS: 5,  # ~ max 256 tokens
+    COVID19_EMERGENCY_EVENT: 5,  # ~ max 256 tokens
+    MULTI_EURLEX_LEVEL_1: 1,  # ~ max 4096 tokens
+    MULTI_EURLEX_LEVEL_2: 1,  # ~ max 4096 tokens
+    MULTI_EURLEX_LEVEL_3: 1,  # ~ max 4096 tokens
+    GREEK_LEGAL_NER: 5,  # ~ max 512 tokens
+    LEGALNERO: 5,  # ~ max 512 tokens
+    LENER_BR: 5,  # ~ max 512 tokens
+    MAPA_COARSE: 5,  # ~ max 512 tokens
+    MAPA_FINE: 5,  # ~ max 512 tokens
 }
 
 
@@ -67,24 +85,24 @@ def get_lextreme_max_train_instances(subset):
 
 
 TASK_MAX_TOKENS_MAPPING = {
-    "brazilian_court_decisions_judgment": 5,  # one word
-    "brazilian_court_decisions_unanimity": 5,  # one word
-    "german_argument_mining": 5,  # one word
-    "greek_legal_code_chapter": 20,  # few non-ASCII words
-    "greek_legal_code_subject": 20,  # few non-ASCII words
-    "greek_legal_code_volume": 20,  # few non-ASCII words
-    "swiss_judgment_prediction": 5,  # one word
-    "online_terms_of_service_unfairness_levels": 10,  # two words
-    "online_terms_of_service_clause_topics": 10,  # max two words
-    "covid19_emergency_event": 10,  # max two words
-    "multi_eurlex_level_1": 10,  # max two words
-    "multi_eurlex_level_2": 10,  # max two words
-    "multi_eurlex_level_3": 10,  # max two words
-    "greek_legal_ner": 430,  # num NER labels: max 2593, 99% 215, 95% 101 ==> 215 * 2 = 430
-    "legalnero": 788,  # num NER labels: max 737, 99% 394, 95% 103 ==> 394 * 2 = 788
-    "lener_br": 338,  # num NER labels: max 654, 99% 169, 95% 100 ==> 169 * 2 = 338
-    "mapa_coarse": 274,  # num NER labels: max 367, 99% 137, 95% 83 ==> 137 * 2 = 274
-    "mapa_fine": 274,  # num NER labels: max 367, 99% 137, 95% 83 ==> 137 * 2 = 274
+    BRAZILIAN_COURT_DECISIONS_JUDGMENT: 5,  # one word
+    BRAZILIAN_COURT_DECISIONS_UNANIMITY: 5,  # one word
+    GERMAN_ARGUMENT_MINING: 5,  # one word
+    GREEK_LEGAL_CODE_CHAPTER: 20,  # few non-ASCII words
+    GREEK_LEGAL_CODE_SUBJECT: 20,  # few non-ASCII words
+    GREEK_LEGAL_CODE_VOLUME: 20,  # few non-ASCII words
+    SWISS_JUDGMENT_PREDICTION: 5,  # one word
+    ONLINE_TERMS_OF_SERVICE_UNFAIRNESS_LEVELS: 10,  # two words
+    ONLINE_TERMS_OF_SERVICE_CLAUSE_TOPICS: 10,  # max two words
+    COVID19_EMERGENCY_EVENT: 10,  # max two words
+    MULTI_EURLEX_LEVEL_1: 10,  # max two words
+    MULTI_EURLEX_LEVEL_2: 10,  # max two words
+    MULTI_EURLEX_LEVEL_3: 10,  # max two words
+    GREEK_LEGAL_NER: 430,  # num NER labels: max 2593, 99% 215, 95% 101 ==> 215 * 2 = 430
+    LEGALNERO: 788,  # num NER labels: max 737, 99% 394, 95% 103 ==> 394 * 2 = 788
+    LENER_BR: 338,  # num NER labels: max 654, 99% 169, 95% 100 ==> 169 * 2 = 338
+    MAPA_COARSE: 274,  # num NER labels: max 367, 99% 137, 95% 83 ==> 137 * 2 = 274
+    MAPA_FINE: 274,  # num NER labels: max 367, 99% 137, 95% 83 ==> 137 * 2 = 274
 }
 
 
@@ -93,37 +111,37 @@ def get_lextreme_max_tokens(subset):
 
 
 INSTRUCTIONS = {
-    "brazilian_court_decisions_judgment": "In this task, you are given the case description "
+    BRAZILIAN_COURT_DECISIONS_JUDGMENT: "In this task, you are given the case description "
     "from a decision heard at the State Supreme Court of Alagoas (Brazil). "
     "Predict the judgment of the case "
     "(no: The appeal was denied, "
     "partial: For partially favourable decisions, "
     "yes: For fully favourable decisions)",
-    "brazilian_court_decisions_unanimity": "In this task, you are given the case description "
+    BRAZILIAN_COURT_DECISIONS_UNANIMITY: "In this task, you are given the case description "
     "from a decision heard at the State Supreme Court of Alagoas (Brazil). "
     "Predict the unanimity of the case (unanimity, not-unanimity, not_determined)",
-    "german_argument_mining": "In this task, you are given sentences from German court decisions. "
+    GERMAN_ARGUMENT_MINING: "In this task, you are given sentences from German court decisions. "
     "Predict the major component of German Urteilsstil "
     "(conclusion: Overall result, "
     "definition: Abstract legal facts and consequences, "
     "subsumption: Determination sentence / Concrete facts, "
     "other: Anything else)",
-    "greek_legal_code_chapter": "In this task, you are given a Greek legislative document. "
+    GREEK_LEGAL_CODE_CHAPTER: "In this task, you are given a Greek legislative document. "
     "Predict the chapter level category of the "
     "'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
-    "greek_legal_code_subject": "In this task, you are given a Greek legislative document. "
+    GREEK_LEGAL_CODE_SUBJECT: "In this task, you are given a Greek legislative document. "
     "Predict the subject level category of the "
     "'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
-    "greek_legal_code_volume": "In this task, you are given a Greek legislative document. "
+    GREEK_LEGAL_CODE_VOLUME: "In this task, you are given a Greek legislative document. "
     "Predict the volume level category of the "
     "'Permanent Greek Legislation Code - Raptarchis (Ραπτάρχης)' the document belongs to.",
-    "swiss_judgment_prediction": "In this task, you are given the facts description "
+    SWISS_JUDGMENT_PREDICTION: "In this task, you are given the facts description "
     "from a decision heard at the Swiss Federal Supreme Court. "
     "Predict the judgment of the case (approval or dismissal)",
-    "online_terms_of_service_unfairness_levels": "In this task, you are given a sentence "
+    ONLINE_TERMS_OF_SERVICE_UNFAIRNESS_LEVELS: "In this task, you are given a sentence "
     "from a Terms of Service (ToS) document. "
     "Predict the unfairness level of the sentence (potentially_unfair, clearly_unfair, clearly_fair, untagged)",
-    "online_terms_of_service_clause_topics": "In this task, you are given a sentence "
+    ONLINE_TERMS_OF_SERVICE_CLAUSE_TOPICS: "In this task, you are given a sentence "
     "from a Terms of Service (ToS) document. "
     "Predict the clause topics of the sentence "
     "(0: Arbitration, "
@@ -135,7 +153,7 @@ INSTRUCTIONS = {
     "6: Unilateral termination, "
     "7: Contract by using, "
     "8: Privacy included)",
-    "covid19_emergency_event": "In this task, you are given a sentence from a European legislative document. "
+    COVID19_EMERGENCY_EVENT: "In this task, you are given a sentence from a European legislative document. "
     "Predict the applicable measurements against COVID-19 "
     "(0: State of Emergency, "
     "1: Restrictions of fundamental rights and civil liberties, "
@@ -145,22 +163,22 @@ INSTRUCTIONS = {
     "5: Police mobilization, "
     "6: Army mobilization, "
     "7: Government oversight)",
-    "multi_eurlex_level_1": "In this task, you are given a document from an EU law. "
+    MULTI_EURLEX_LEVEL_1: "In this task, you are given a document from an EU law. "
     "Predict the level 1 concept in the EUROVOC taxonomy.",
-    "multi_eurlex_level_2": "In this task, you are given a document from an EU law. "
+    MULTI_EURLEX_LEVEL_2: "In this task, you are given a document from an EU law. "
     "Predict the level 2 concept in the EUROVOC taxonomy.",
-    "multi_eurlex_level_3": "In this task, you are given a document from an EU law. "
+    MULTI_EURLEX_LEVEL_3: "In this task, you are given a document from an EU law. "
     "Predict the level 3 concept in the EUROVOC taxonomy.",
-    "greek_legal_ner": "In this task, you are given a sentence from Greek legislation. "
+    GREEK_LEGAL_NER: "In this task, you are given a sentence from Greek legislation. "
     "Predict the named entity type for each token.",
-    "legalnero": "In this task, you are given a sentence from Romanian legislation. "
+    LEGALNERO: "In this task, you are given a sentence from Romanian legislation. "
     "Predict the named entity type for each token.",
-    "lener_br": "In this task, you are given a sentence "
+    LENER_BR: "In this task, you are given a sentence "
     "from Brazilian legal documents (court decisions and legislation). "
     "Predict the named entity type for each token.",
-    "mapa_coarse": "In this task, you are given a sentence from the EUR-Lex database. "
+    MAPA_COARSE: "In this task, you are given a sentence from the EUR-Lex database. "
     "Predict the coarse grained named entity type for each token.",
-    "mapa_fine": "In this task, you are given a sentence from the EUR-Lex database. "
+    MAPA_FINE: "In this task, you are given a sentence from the EUR-Lex database. "
     "Predict the fine grained named entity type for each token.",
 }
 
@@ -215,7 +233,7 @@ class LEXTREMEScenario(Scenario):
     delimiter = "|"  # we choose the pipe as a delimiter because it is very unlikely to occur in the data
 
     ner_class_mapping = {
-        "lener_br": [
+        LENER_BR: [
             "O",
             "B-ORGANIZACAO",
             "I-ORGANIZACAO",
@@ -230,7 +248,7 @@ class LEXTREMEScenario(Scenario):
             "B-JURISPRUDENCIA",
             "I-JURISPRUDENCIA",
         ],
-        "legalnero": [
+        LEGALNERO: [
             "O",
             "B-TIME",
             "I-TIME",
@@ -243,7 +261,7 @@ class LEXTREMEScenario(Scenario):
             "B-PER",
             "I-PER",
         ],
-        "greek_legal_ner": [
+        GREEK_LEGAL_NER: [
             "O",
             "B-ORG",
             "I-ORG",
@@ -262,7 +280,7 @@ class LEXTREMEScenario(Scenario):
             "B-LOCATION-NAT",
             "I-LOCATION-NAT",
         ],
-        "mapa_coarse": [
+        MAPA_COARSE: [
             "O",
             "B-ORGANISATION",
             "I-ORGANISATION",
@@ -277,7 +295,7 @@ class LEXTREMEScenario(Scenario):
             "B-TIME",
             "I-TIME",
         ],
-        "mapa_fine": [
+        MAPA_FINE: [
             "O",
             "B-BUILDING",
             "I-BUILDING",

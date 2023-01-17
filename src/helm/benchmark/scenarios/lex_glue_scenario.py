@@ -8,24 +8,32 @@ from datasets import load_dataset
 from .lextreme_scenario import TaskType
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT
 
+ECTHR_A = "ecthr_a"
+ECTHR_B = "ecthr_b"
+SCOTUS = "scotus"
+EURLEX = "eurlex"
+LEDGAR = "ledgar"
+UNFAIR_TOS = "unfair_tos"
+CASE_HOLD = "case_hold"
+
 TASK_CODE_MAPPING = {
-    "ecthr_a": TaskType.MLTC,
-    "ecthr_b": TaskType.MLTC,
-    "scotus": TaskType.SLTC,
-    "eurlex": TaskType.MLTC,
-    "ledgar": TaskType.SLTC,
-    "unfair_tos": TaskType.MLTC,
-    "case_hold": TaskType.QA,
+    ECTHR_A: TaskType.MLTC,
+    ECTHR_B: TaskType.MLTC,
+    SCOTUS: TaskType.SLTC,
+    EURLEX: TaskType.MLTC,
+    LEDGAR: TaskType.SLTC,
+    UNFAIR_TOS: TaskType.MLTC,
+    CASE_HOLD: TaskType.QA,
 }
 
 TASK_MAX_TRAIN_INSTANCES_MAPPING = {
-    "ecthr_a": 1,  # ~ max 4096 tokens
-    "ecthr_b": 1,  # ~ max 4096 tokens
-    "scotus": 1,  # ~ max 8192 tokens
-    "eurlex": 5,  # ~ max 512 tokens
-    "ledgar": 5,  # ~ max 512 tokens
-    "unfair_tos": 5,  # ~ max 128 tokens
-    "case_hold": 5,  # ~ max 512 tokens
+    ECTHR_A: 1,  # ~ max 4096 tokens
+    ECTHR_B: 1,  # ~ max 4096 tokens
+    SCOTUS: 1,  # ~ max 8192 tokens
+    EURLEX: 5,  # ~ max 512 tokens
+    LEDGAR: 5,  # ~ max 512 tokens
+    UNFAIR_TOS: 5,  # ~ max 128 tokens
+    CASE_HOLD: 5,  # ~ max 512 tokens
 }
 
 
@@ -34,13 +42,13 @@ def get_lex_glue_max_train_instances(subset):
 
 
 TASK_MAX_TOKENS_MAPPING = {
-    "ecthr_a": 20,  # sequence of numbers
-    "ecthr_b": 20,  # sequence of numbers
-    "scotus": 5,  # one number
-    "eurlex": 20,  # sequence of numbers
-    "ledgar": 20,  # multiple words
-    "unfair_tos": 20,  # sequence of numbers
-    "case_hold": 5,  # one number
+    ECTHR_A: 20,  # sequence of numbers
+    ECTHR_B: 20,  # sequence of numbers
+    SCOTUS: 5,  # one number
+    EURLEX: 20,  # sequence of numbers
+    LEDGAR: 20,  # multiple words
+    UNFAIR_TOS: 20,  # sequence of numbers
+    CASE_HOLD: 5,  # one number
 }
 
 
@@ -49,23 +57,23 @@ def get_lex_glue_max_tokens(subset):
 
 
 INSTRUCTIONS = {
-    "ecthr_a": "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
-    "Predict the articles of the ECtHR that were violated (if any).",
-    "ecthr_b": "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
-    "Predict the articles of ECtHR that were allegedly violated (considered by the court).",
-    "scotus": "In this task, you are given a case heard at the Supreme Court of the United States (SCOTUS). "
-    "Predict the relevant issue area.",
-    "eurlex": "In this task, you are given an EU law document published in the EUR-Lex portal. "
-    "Predict the relevant EuroVoc concepts.",
-    "ledgar": "In this task, you are given a contract provision "
-    "from contracts obtained from US Securities and Exchange Commission (SEC) filings."
-    "Predict the main topic.",
-    "unfair_tos": "In this task, you are given a sentence "
-    "from a Terms of Service (ToS) document from on-line platforms. "
-    "Predict the types of unfair contractual terms",
-    "case_hold": "In this task, you are given an excerpt from a court decision, "
-    "containing a reference to a particular case, while the holding statement is masked out. "
-    "Predict the index of the holding statement fitting in the context at <HOLDING> from a selection of five choices.",
+    ECTHR_A: "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
+             "Predict the articles of the ECtHR that were violated (if any).",
+    ECTHR_B: "In this task, you are given the facts from a case heard at the European Court of Human Rights (ECtHR). "
+             "Predict the articles of ECtHR that were allegedly violated (considered by the court).",
+    SCOTUS: "In this task, you are given a case heard at the Supreme Court of the United States (SCOTUS). "
+            "Predict the relevant issue area.",
+    EURLEX: "In this task, you are given an EU law document published in the EUR-Lex portal. "
+            "Predict the relevant EuroVoc concepts.",
+    LEDGAR: "In this task, you are given a contract provision "
+            "from contracts obtained from US Securities and Exchange Commission (SEC) filings."
+            "Predict the main topic.",
+    UNFAIR_TOS: "In this task, you are given a sentence "
+                "from a Terms of Service (ToS) document from on-line platforms. "
+                "Predict the types of unfair contractual terms",
+    CASE_HOLD: "In this task, you are given an excerpt from a court decision, "
+               "containing a reference to a particular case, while the holding statement is masked out. "
+               "Predict the index of the holding statement fitting in the context at <HOLDING> from a selection of five choices.",
 }
 
 
