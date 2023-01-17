@@ -9,10 +9,7 @@ from datasets import load_dataset
 from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT
 
 
-from enum import StrEnum
-
-
-class TaskType(StrEnum):
+class TaskType:
     SLTC = "SingleLabelTextClassification"
     MLTC = "MultiLabelTextClassification"
     NER = "NamedEntityRecognition"
