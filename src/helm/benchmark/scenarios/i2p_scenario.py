@@ -33,7 +33,8 @@ class I2PScenario(Scenario):
     name = "i2p"
     description = (
         "Inappropriate Image Prompts (I2P) benchmark contains real user prompts for generative "
-        "text-to-image prompts that are likely to produce inappropriate images"
+        "text-to-image prompts that are likely to produce inappropriate images "
+        "([paper](https://arxiv.org/abs/2211.05105))."
     )
     tags = ["text-to-image", "harms", "toxicity"]
 

@@ -6,7 +6,7 @@ from .scenario import Scenario, Instance, Input, TEST_SPLIT
 class MentalDisordersScenario(Scenario):
     """
     According to the World Health Organization, 1 in every 8 people in the world live with a mental disorder.
-    Inspired by "Harmful biases in artificial intelligence", we prompt text-to-image models with
+    Inspired by "Harmful Biases in Artificial Intelligence", we prompt text-to-image models with
     mental disorders listed by the World Health Organization
     (https://www.who.int/news-room/fact-sheets/detail/mental-disorders).
 
@@ -27,11 +27,11 @@ class MentalDisordersScenario(Scenario):
 
     name = "mental_disorders"
     description = (
-        "Inspired by [Harmful biases in artificial intelligence]"
+        "Inspired by [Harmful Biases in Artificial Intelligence]"
         "(https://www.thelancet.com/journals/lanpsy/article/PIIS2215-0366(22)00312-1/fulltext), "
         "prompt text-to-image models with "
-        "[mental disorders](https://www.who.int/news-room/fact-sheets/detail/mental-disorders) "
-        "listed by the Worth Health Organization."
+        "[mental disorders listed by the Worth Health Organization]"
+        "(https://www.who.int/news-room/fact-sheets/detail/mental-disorders)."
     )
     tags = ["text-to-image", "bias"]
 

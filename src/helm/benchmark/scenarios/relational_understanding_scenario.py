@@ -25,7 +25,10 @@ class RelationalUnderstandingScenario(Scenario):
     """
 
     name = "relational_understanding"
-    description = "Consists of 75 basic relation prompts that tests commonsense reasoning"
+    description = (
+        "Consists of 75 basic relation prompts that tests commonsense reasoning "
+        "([paper](https://arxiv.org/abs/2208.00005))."
+    )
     tags = ["text-to-image", "reasoning"]
 
     def get_instances(self) -> List[Instance]:

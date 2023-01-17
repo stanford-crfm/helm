@@ -39,7 +39,10 @@ class DrawBenchScenario(Scenario):
     ALL_CATEGORY: str = "all"
 
     name = "draw_bench"
-    description = "A comprehensive and challenging benchmark for text-to-image models."
+    description = (
+        "A comprehensive and challenging benchmark for text-to-image models, used to evaluate Imagen "
+        "([paper](https://arxiv.org/abs/2205.11487))."
+    )
     tags = ["text-to-image"]
 
     def __init__(self, category: str):

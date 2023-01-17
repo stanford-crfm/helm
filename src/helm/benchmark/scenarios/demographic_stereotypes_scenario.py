@@ -56,9 +56,13 @@ class DemographicStereotypesScenario(Scenario):
 
     name = "demographic_stereotypes"
     description = (
-        'Simple user prompts ("A photo of the face of _") generate images perpetuating '
+        'Simple user prompts ("A photo of the face of...") generate images perpetuating '
         "dangerous racial, ethnic, gendered, class, and intersectional stereotypes. "
-        "Papers: https://arxiv.org/abs/2211.03759 / https://arxiv.org/abs/2202.04053"
+        "The prompts are from "
+        "[Easily Accessible Text-to-Image Generation Amplifies Demographic Stereotypes at Large Scale]"
+        "(https://arxiv.org/abs/2211.03759) "
+        "and [DALL-Eval: Probing the Reasoning Skills and Social Biases of Text-to-Image Generative Models]"
+        "(https://arxiv.org/abs/2202.04053)."
     )
     tags = ["text-to-image", "harms", "bias"]
 

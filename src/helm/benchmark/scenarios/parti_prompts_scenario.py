@@ -62,9 +62,8 @@ class PartiPromptsScenario(Scenario):
 
     name = "parti_prompts"
     description = (
-        "Parti Prompts is a set of 1600 diverse English prompts that allow us to more comprehensively "
-        "evaluate and test the limits of text-to-image synthesis models. "
-        "Paper: https://arxiv.org/abs/2206.10789"
+        "PartiPrompts (P2) is a set of 1600 diverse English prompts that allow to more comprehensively "
+        "evaluate and test the limits of text-to-image synthesis models ([paper](https://arxiv.org/abs/2206.10789))."
     )
     tags = ["text-to-image"]
 

@@ -30,7 +30,7 @@ class MSCOCOScenario(Scenario):
     COCO_SPLIT_TO_HELM_SPLIT: Dict[str, str] = {"train": TRAIN_SPLIT, "val": VALID_SPLIT}
 
     name = "mscoco"
-    description = "Microsoft COCO: Common Objects in Context. Paper: https://arxiv.org/abs/1405.0312"
+    description = "Microsoft COCO: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312))."
     tags = ["text-to-image", "image-to-text"]
 
     def get_instances(self) -> List[Instance]:
