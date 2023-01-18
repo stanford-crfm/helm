@@ -29,6 +29,10 @@ class EfficiencyMetric(Metric):
         assert request_state.result is not None
         request_result: RequestResult = request_state.result
 
+        # Models like DALL-E 2 can skip generating images for prompts that violate their content policy
+        if not request_result.completions[0].file_path:
+            return []
+
         stats: List[Stat] = [
             Stat(MetricName("prompt_length")).add(len(prompt)),
             Stat(MetricName("inference_runtime")).add(request_result.request_time),

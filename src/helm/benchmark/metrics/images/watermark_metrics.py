@@ -34,7 +34,10 @@ class WatermarkMetric(Metric):
         # Gather the images
         image_paths: List[str] = []
         for completion in request_result.completions:
-            assert completion.file_path is not None
+            # Models like DALL-E 2 can skip generating images for prompts that violate their content policy
+            if completion.file_path is None:
+                return []
+
             image_paths.append(completion.file_path)
 
         # Batch process the images and detect if they have watermarks

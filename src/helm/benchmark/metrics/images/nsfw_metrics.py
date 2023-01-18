@@ -114,7 +114,9 @@ class NSFWMetric(Metric):
         num_nsfw_images: int = 0
         nsfw_scores: List[float] = []
         for completion in request_result.completions:
-            assert completion.file_path is not None
+            if completion.file_path is None:
+                continue
+
             nsfw_score: float = self._compute_nsfw_score(completion.file_path)
             nsfw_scores.append(nsfw_score)
             if nsfw_score >= self.NSFW_THRESHOLD:

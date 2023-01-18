@@ -27,6 +27,7 @@ from .goose_ai_client import GooseAIClient
 from .huggingface_client import HuggingFaceClient
 from .ice_tokenizer_client import ICETokenizerClient
 from .openai_client import OpenAIClient
+from .moderation_api_client import ModerationAPIClient
 from .microsoft_client import MicrosoftClient
 from .perspective_api_client import PerspectiveAPIClient
 from .yalm_tokenizer_client import YaLMTokenizerClient
@@ -82,6 +83,7 @@ class AutoClient(Client):
                         api_key=self.credentials["openaiApiKey"],
                         cache_config=cache_config,
                         file_cache=file_cache,
+                        moderation_api_client=self.get_moderation_api_client(),
                         org_id=org_id,
                     )
                 else:
@@ -242,3 +244,8 @@ class AutoClient(Client):
         """Get the toxicity classifier client. We currently only support Perspective API."""
         cache_config: CacheConfig = self._build_cache_config("perspectiveapi")
         return PerspectiveAPIClient(self.credentials.get("perspectiveApiKey", ""), cache_config)
+
+    def get_moderation_api_client(self) -> ModerationAPIClient:
+        """Get the ModerationAPI client."""
+        cache_config: CacheConfig = self._build_cache_config("ModerationAPI")
+        return ModerationAPIClient(self.credentials.get("openaiApiKey", ""), cache_config)

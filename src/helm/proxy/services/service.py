@@ -5,6 +5,7 @@ from typing import Dict, List, Tuple, Any
 
 from helm.common.general import parse_hocon
 from helm.common.perspective_api_request import PerspectiveAPIRequestResult, PerspectiveAPIRequest
+from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.tokenization_request import (
     TokenizationRequest,
     TokenizationRequestResult,
@@ -106,6 +107,11 @@ class Service(ABC):
     @abstractmethod
     def get_toxicity_scores(self, auth: Authentication, request: PerspectiveAPIRequest) -> PerspectiveAPIRequestResult:
         """Get toxicity scores for a batch of text."""
+        pass
+
+    @abstractmethod
+    def get_moderation_results(self, auth: Authentication, request: ModerationAPIRequest) -> ModerationAPIRequestResult:
+        """Get OpenAI's moderation results for some text."""
         pass
 
     @abstractmethod

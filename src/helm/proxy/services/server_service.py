@@ -4,6 +4,7 @@ from typing import List
 
 from helm.common.authentication import Authentication
 from helm.common.general import ensure_directory_exists, parse_hocon
+from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -60,6 +61,7 @@ class ServerService(Service):
         self.token_counter = AutoTokenCounter(self.client.huggingface_client)
         self.accounts = Accounts(accounts_path, root_mode=root_mode)
         self.perspective_api_client = self.client.get_toxicity_classifier_client()
+        self.moderation_api_client = self.client.get_moderation_api_client()
 
     def get_general_info(self) -> GeneralInfo:
         return GeneralInfo(
@@ -120,6 +122,14 @@ class ServerService(Service):
 
         self.accounts.authenticate(auth)
         return get_toxicity_scores_with_retry(request)
+
+    def get_moderation_results(self, auth: Authentication, request: ModerationAPIRequest) -> ModerationAPIRequestResult:
+        @retry_request
+        def get_moderation_results_with_retry(request: ModerationAPIRequest) -> ModerationAPIRequestResult:
+            return self.moderation_api_client.get_moderation_results(request)
+
+        self.accounts.authenticate(auth)
+        return get_moderation_results_with_retry(request)
 
     def create_account(self, auth: Authentication) -> Account:
         """Creates a new account."""

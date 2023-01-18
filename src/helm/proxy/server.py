@@ -18,6 +18,7 @@ import bottle
 
 from helm.common.authentication import Authentication
 from helm.common.hierarchical_logger import hlog
+from helm.common.moderations_api_request import ModerationAPIRequest
 from helm.common.request import Request, TextToImageRequest
 from helm.common.perspective_api_request import PerspectiveAPIRequest
 from helm.common.tokenization_request import TokenizationRequest, DecodeRequest
@@ -190,6 +191,16 @@ def handle_toxicity_request():
         auth = Authentication(**json.loads(args["auth"]))
         request = PerspectiveAPIRequest(**json.loads(args["request"]))
         return dataclasses.asdict(service.get_toxicity_scores(auth, request))
+
+    return safe_call(perform)
+
+
+@app.get("/api/moderation")
+def handle_moderation_request():
+    def perform(args):
+        auth = Authentication(**json.loads(args["auth"]))
+        request = ModerationAPIRequest(**json.loads(args["request"]))
+        return dataclasses.asdict(service.get_moderation_results(auth, request))
 
     return safe_call(perform)
 

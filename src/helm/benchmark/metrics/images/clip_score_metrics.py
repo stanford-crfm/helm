@@ -41,9 +41,9 @@ class CLIPScoreMetric(Metric):
 
         scores: List[float] = []
         for image in request_result.completions:
-            assert image.file_path is not None
-            clip_score: float = self._clip_scorer.compute_score(prompt, image.file_path)
-            scores.append(clip_score)
+            if image.file_path is not None:
+                clip_score: float = self._clip_scorer.compute_score(prompt, image.file_path)
+                scores.append(clip_score)
 
         stats: List[Stat] = [
             Stat(MetricName("expected_clip_score")).add(mean(scores) if len(scores) > 0 else 0),

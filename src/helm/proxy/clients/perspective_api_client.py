@@ -27,8 +27,6 @@ class PerspectiveAPIClient:
     Source: https://developers.perspectiveapi.com/s/docs
     """
 
-    ORGANIZATION = "perspectiveapi"
-
     # Maximum allowed text length by Perspective API
     MAX_TEXT_LENGTH: int = 20_480
 

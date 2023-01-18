@@ -12,6 +12,7 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
+from .moderation_api_client import ModerationAPIClient
 from .client import Client, wrap_request_time
 from .openai_client import OpenAIClient
 
@@ -20,16 +21,22 @@ class DALLE2Client(OpenAIClient):
     MAX_PROMPT_LENGTH: int = 1000
     VALID_IMAGE_DIMENSIONS: List[int] = [256, 512, 1024]
     DEFAULT_IMAGE_SIZE_STR: str = "512x512"
+    CONTENT_POLICY_VIOLATED: str = (
+        "The prompt violates OpenAI's content policy. "
+        "See https://labs.openai.com/policies/content-policy for more information."
+    )
 
     def __init__(
         self,
         api_key: str,
         cache_config: CacheConfig,
         file_cache: FileCache,
+        moderation_api_client: ModerationAPIClient,
         org_id: Optional[str] = None,
     ):
         super().__init__(api_key, cache_config, org_id=org_id)
         self.file_cache: FileCache = file_cache
+        self.moderation_api_client: ModerationAPIClient = moderation_api_client
 
     def make_request(self, request: Request) -> RequestResult:
         def get_size_str(w: Optional[int], h: Optional[int]) -> str:
@@ -43,6 +50,19 @@ class DALLE2Client(OpenAIClient):
         assert isinstance(request, TextToImageRequest)
         assert len(request.prompt) <= self.MAX_PROMPT_LENGTH, "The maximum length of the prompt is 1000 characters."
         assert 1 <= request.num_completions <= 10, "`num_completions` must be between 1 and 10."
+
+        # Use the Moderation API to check if the prompt violates OpenAI's content policy before generating images
+        if self.moderation_api_client.will_be_flagged(request.prompt):
+            no_image = Sequence(
+                text="", logprob=0, tokens=[], file_path=None, finish_reason={"reason": self.CONTENT_POLICY_VIOLATED}
+            )
+            return RequestResult(
+                success=True,
+                cached=False,
+                request_time=0,
+                completions=[no_image] * request.num_completions,
+                embedding=[],
+            )
 
         # https://beta.openai.com/docs/api-reference/images/create#images/create-response_format
         raw_request: Dict[str, Any] = {

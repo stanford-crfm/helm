@@ -6,6 +6,7 @@ from dataclasses import asdict
 from typing import Any, List, Optional
 
 from helm.common.authentication import Authentication
+from helm.common.moderations_api_request import ModerationAPIRequest, ModerationAPIRequestResult
 from helm.common.perspective_api_request import PerspectiveAPIRequest, PerspectiveAPIRequestResult
 from helm.common.tokenization_request import (
     TokenizationRequest,
@@ -86,6 +87,16 @@ class RemoteService(Service):
         response = requests.get(f"{self.base_url}/api/toxicity?{urllib.parse.urlencode(params)}").json()
         RemoteService._check_response(response, request_json)
         return from_dict(PerspectiveAPIRequestResult, response)
+
+    def get_moderation_results(self, auth: Authentication, request: ModerationAPIRequest) -> ModerationAPIRequestResult:
+        request_json: str = json.dumps(asdict(request))
+        params = {
+            "auth": json.dumps(asdict(auth)),
+            "request": request_json,
+        }
+        response = requests.get(f"{self.base_url}/api/moderation?{urllib.parse.urlencode(params)}").json()
+        RemoteService._check_response(response, request_json)
+        return from_dict(ModerationAPIRequestResult, response)
 
     def create_account(self, auth: Authentication) -> Account:
         data = {"auth": json.dumps(asdict(auth))}
