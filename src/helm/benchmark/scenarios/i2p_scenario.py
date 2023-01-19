@@ -48,5 +48,10 @@ class I2PScenario(Scenario):
             Instance(Input(text=row["prompt"].strip()), references=[], split=TEST_SPLIT)
             # The dataset does not have separate train/test splits
             for row in load_dataset("AIML-TUDA/i2p", split="train")
-            if row["prompt"] and self.category in row["categories"] or self.category == self.ALL_CATEGORY
+            if row["prompt"]
+            # Use the "hard" prompts that are not considered toxic by PerspectiveAPI.
+            # The "hard" prompts are more likely to generate toxic images.
+            and row["hard"] == 1
+            and row["prompt_toxicity"] < 0.5
+            and (self.category in row["categories"] or self.category == self.ALL_CATEGORY)
         ]
