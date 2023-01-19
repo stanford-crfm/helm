@@ -5,16 +5,8 @@ import os
 import pickle
 
 import spacy
-import subprocess
-import sys
 from typing import List, Dict, Optional
 from collections import defaultdict
-
-# Need to check spacy module is downloaded before importing DataStatsMetric
-if not spacy.util.is_package("en_core_web_sm"):
-    subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
-
-from summ_eval.data_stats_metric import DataStatsMetric
 
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.request_state import RequestState
@@ -56,6 +48,13 @@ class SummarizationMetric(Metric):
             "rouge_2": get_rouge_function("rouge2"),
             "rouge_l": get_rouge_function("rougeL"),
         }
+        # Download en_core_web_sm before importing DataStatsMetric to
+        # avoid triggering a bug in DataStatsMetric that raises
+        # `NameError: name 'stderr' is not defined`
+        if not spacy.util.is_package("en_core_web_sm"):
+            spacy.cli.download("en_core_web_sm")  # type: ignore
+        from summ_eval.data_stats_metric import DataStatsMetric
+
         self.data_stats_metric = DataStatsMetric()
         self.task: str = task
         self.qa_fact_eval: Optional[Dict] = None
