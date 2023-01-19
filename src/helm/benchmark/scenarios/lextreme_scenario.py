@@ -1,7 +1,7 @@
 import ast
 import random
 from pathlib import Path
-from typing import List
+from typing import List, Any
 
 import datasets
 from datasets import load_dataset
@@ -350,7 +350,7 @@ class LEXTREMEScenario(Scenario):
         task_code = TASK_CODE_MAPPING[config]
         # Load dataset
         cache_dir = str(Path(self.output_path) / "data")
-        dataset = load_dataset(self.dataset_name, config, cache_dir=cache_dir)
+        dataset: Any = load_dataset(self.dataset_name, config, cache_dir=cache_dir)
 
         if task_code == TaskType.SLTC:
             class_label = dataset["train"].features["label"]

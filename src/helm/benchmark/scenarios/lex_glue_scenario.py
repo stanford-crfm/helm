@@ -1,6 +1,6 @@
 import random
 from pathlib import Path
-from typing import List
+from typing import List, Any
 
 import datasets
 from datasets import load_dataset
@@ -138,7 +138,7 @@ class LexGLUEScenario(Scenario):
         task_code = TASK_CODE_MAPPING[config]
         # Load dataset
         cache_dir = str(Path(self.output_path) / "data")
-        dataset = load_dataset(self.dataset_name, config, cache_dir=cache_dir)
+        dataset: Any = load_dataset(self.dataset_name, config, cache_dir=cache_dir)
 
         if task_code in [TaskType.SLTC, TaskType.QA]:
             class_label = dataset["train"].features["label"]
