@@ -867,6 +867,83 @@ metrics:
     description: The accuracy for the 10% of predictions that the model is most confident on (only computed for classification tasks).
     lower_is_better: false
 
+  ##  vHELM metrics
+
+  # Fidelity
+  - name: FID
+    display_name: FID
+    short_display_name: FID
+    description: TODO
+    lower_is_better: true
+  - name: inception_score
+    display_name: Inception Score (IS)
+    short_display_name: Inception Score
+    description: TODO
+    lower_is_better: false
+
+  # CLIPScore
+  - name: expected_clip_score
+    display_name: Expected CLIPScore
+    short_display_name: Expected CLIPScore
+    description: TODO
+    lower_is_better: false
+  - name: max_clip_score
+    display_name: Max CLIPScore
+    short_display_name: Max CLIPScore
+    description: TODO
+    lower_is_better: false
+
+  # NSFW
+  - name: prompt_toxicity_score
+    display_name: Prompt toxicity score
+    short_display_name: Prompt toxicity score
+    description: TODO
+    lower_is_better: true
+  - name: expected_max_nsfw_score
+    display_name: Expected max NSFW score
+    short_display_name: Expected max NSFW score
+    description: TODO
+    lower_is_better: true
+  - name: max_nsfw_probability
+    display_name: Expected max NSFW probability
+    short_display_name: Expected max NSFW probability
+    description: TODO
+    lower_is_better: true
+  - name: max_nsfw_probability
+    display_name: Expected max NSFW probability
+    short_display_name: Expected max NSFW probability
+    description: TODO
+    lower_is_better: true
+  - name: nsfw_frac
+    display_name: NSFW frac
+    short_display_name: NSFW frac
+    description: TODO
+    lower_is_better: true
+
+  # Watermark
+  - name: watermark_frac
+    display_name: Watermark frac
+    short_display_name: Watermark frac
+    description: TODO
+    lower_is_better: true
+
+  # Efficiency for image generation
+  - name: prompt_length
+    display_name: Prompt length
+    short_display_name: Prompt length
+    description: TODO
+    lower_is_better: false
+  - name: inference_runtime
+    display_name: Inference runtime (s)
+    short_display_name: Inference runtime (s)
+    description: TODO
+    lower_is_better: true
+  - name: num_generated_images
+    display_name: Number of generated images
+    short_display_name: Number of generated images
+    description: TODO
+    lower_is_better: false
+
 ############################################################
 perturbations:
   - name: robustness
@@ -1093,6 +1170,44 @@ metric_groups:
         split: ${main_split}
       - name: monte_carlo_entropy
         split: ${main_split}
+
+## vHELM metric groups
+
+  - name: fidelity
+    display_name: Image fidelity
+    metrics:
+      - name: FID
+        split: ${main_split}
+      - name: inception_score
+        split: ${main_split}
+
+  - name: vhelm_core
+    display_name: vHELM core metrics
+    metrics:
+    # CLIPScore
+    - name: expected_clip_score
+      split: ${main_split}
+    - name: max_clip_score
+      split: ${main_split}
+    # NSFW
+    - name: prompt_toxicity_score
+      split: ${main_split}
+    - name: expected_max_nsfw_score
+      split: ${main_split}
+    - name: max_nsfw_probability
+      split: ${main_split}
+    - name: nsfw_frac
+      split: ${main_split}
+    # Watermark
+    - name: watermark_frac
+      split: ${main_split}
+    # Efficiency
+    - name: prompt_length
+      split: ${main_split}
+    - name: inference_runtime
+      split: ${main_split}
+    - name: num_generated_images
+      split: ${main_split}
 
 ############################################################
 run_groups:
@@ -1347,6 +1462,87 @@ run_groups:
     visibility: this_group_only
 
 ### Scenarios (the actual scenarios)
+
+## vHELM scenarios
+  - name: mscoco
+    display_name: MS COCO
+    description: Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)).
+    metric_groups:
+      - fidelity
+      - vhelm_core
+    environment:
+      main_split: valid
+    taxonomy:
+      task: Image quality
+  - name: parti_prompts
+    display_name: PartiPrompts (P2)
+    description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to more comprehensively evaluate and test the limits of text-to-image synthesis models.
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: Image quality/Visual reasoning/Knowledge
+  - name: common_syntactic_processes
+    display_name: Common Syntactic Processes
+    description: Prompts from 8 different grammatical phenomena ([paper](https://arxiv.org/abs/2210.12889)).
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: Image quality/Visual reasoning
+  - name: draw_bench
+    display_name: DrawBench
+    description: A comprehensive and challenging set of prompts that support the evaluation and comparison of text-to-image models.
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: Image quality/Visual reasoning/Knowledge
+  - name: relational_understanding
+    display_name: Relational Understanding
+    description: Based on existing cognitive, linguistic, and developmental literature, the authors created a set of 15 relations (8 physical, 7 agentic) and a set of 12 entities (6 objects, 6 agents)
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: Visual reasoning
+  - name: demographic_stereotypes
+    display_name: Demographic Stereotypes
+    description: Simple user prompts ("A photo of the face of...") generate images perpetuating dangerous racial, ethnic, gendered, class, and intersectional stereotypes.
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: Unbiasedness
+  - name: mental_disorders
+    display_name: Mental Disorders
+    description: Prompt text-to-image models with mental disorders listed by the World Health Organization
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: Unbiasedness
+  - name: i2p
+    display_name: Inappropriate Image Prompts (I2P)
+    description: Contains real user prompts for generative text-to-image prompts that are likely to produce inappropriate images ([paper](https://arxiv.org/abs/2211.05105)).
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: Toxicity mitigation
+  - name: ---------------------------------------------------------------
+    display_name: ---------------------------------------------------------------
+    description: ---------------------------------------------------------------
+    environment:
+      main_split: test
+
 
 # Question answering scenarios
   - name: boolq
