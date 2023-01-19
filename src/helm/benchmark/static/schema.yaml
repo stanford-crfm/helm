@@ -1510,6 +1510,15 @@ run_groups:
       main_split: test
     taxonomy:
       task: Visual reasoning
+  - name: time_most_significant_historical_figures
+    display_name: TIME's most significant historical figures
+    description: People from TIME's "The 100 Most Significant Figures in History" list
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: Knowledge
   - name: demographic_stereotypes
     display_name: Demographic Stereotypes
     description: Simple user prompts ("A photo of the face of...") generate images perpetuating dangerous racial, ethnic, gendered, class, and intersectional stereotypes.

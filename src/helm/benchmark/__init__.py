@@ -54,6 +54,7 @@ from .scenarios import mscoco_scenario  # noqa
 from .scenarios import parti_prompts_scenario  # noqa
 from .scenarios import radiology_scenario  # noqa
 from .scenarios import relational_understanding_scenario  # noqa
+from .scenarios import time_most_significant_historical_figures_scenario  # noqa
 
 # Metrics
 from .metrics import basic_metrics  # noqa
