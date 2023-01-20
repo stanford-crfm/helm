@@ -9,6 +9,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import RequestResult
 from .clip_scorer import CLIPScorer
+from .images_utils import is_blacked_out_image
 
 
 class GenderMetric(Metric):
@@ -39,7 +40,7 @@ class GenderMetric(Metric):
         is_female_results: List[bool] = [
             self._is_photo_of_female(image.file_path)
             for image in request_result.completions
-            if image.file_path is not None
+            if image.file_path is not None and not is_blacked_out_image(image.file_path)
         ]
 
         stats: List[Stat] = [

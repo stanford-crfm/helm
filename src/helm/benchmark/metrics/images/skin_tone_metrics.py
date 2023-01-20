@@ -10,6 +10,7 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import RequestResult
+from .images_utils import is_blacked_out_image
 
 
 class SkinToneMetric(Metric):
@@ -134,7 +135,7 @@ class SkinToneMetric(Metric):
         mst_counts: Dict[str, int] = {get_mst_key(i): 0 for i in range(1, 11)}
         mst_counts[self.MST_UNKNOWN_KEY] = 0
         for image in request_result.completions:
-            if image.file_path is None:
+            if image.file_path is None or is_blacked_out_image(image.file_path):
                 continue
 
             mst_key: str = get_mst_key(skin_tone=self.get_monk_skin_tone(image.file_path))

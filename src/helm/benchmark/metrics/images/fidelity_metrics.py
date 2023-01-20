@@ -14,6 +14,7 @@ from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import Metric, MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
+from .images_utils import is_blacked_out_image
 
 
 class FidelityMetric(Metric):
@@ -62,9 +63,9 @@ class FidelityMetric(Metric):
 
             # Gather the model-generated images
             for image in request_result.completions:
-                assert image.file_path is not None
-                dest_path = os.path.join(generated_images_path, get_file_name(image.file_path))
-                copy_image(image.file_path, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
+                if image.file_path is not None and not is_blacked_out_image(image.file_path):
+                    dest_path = os.path.join(generated_images_path, get_file_name(image.file_path))
+                    copy_image(image.file_path, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
 
             # Gather the gold images
             instance: Instance = request_state.instance

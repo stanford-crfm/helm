@@ -1,3 +1,4 @@
+from statistics import mean
 from typing import List
 
 from helm.common.request import RequestResult
@@ -41,10 +42,8 @@ class WatermarkMetric(Metric):
             image_paths.append(completion.file_path)
 
         # Batch process the images and detect if they have watermarks
-        num_images: int = len(image_paths)
         has_watermarks: List[bool] = self._watermark_detector.has_watermark(image_paths)
-        num_watermark_images: int = sum(has_watermarks)
         stats: List[Stat] = [
-            Stat(MetricName("watermark_frac")).add(num_watermark_images / num_images if num_images > 0 else 0)
+            Stat(MetricName("watermark_frac")).add(mean(has_watermarks) if len(has_watermarks) > 0 else 0)
         ]
         return stats

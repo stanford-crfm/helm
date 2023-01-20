@@ -10,6 +10,7 @@ from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.window_services.clip_window_service import CLIPWindowService
 from .clip_scorer import CLIPScorer
+from .images_utils import is_blacked_out_image
 
 
 class CLIPScoreMetric(Metric):
@@ -41,7 +42,7 @@ class CLIPScoreMetric(Metric):
 
         scores: List[float] = []
         for image in request_result.completions:
-            if image.file_path is not None:
+            if image.file_path is not None and not is_blacked_out_image(image.file_path):
                 clip_score: float = self._clip_scorer.compute_score(prompt, image.file_path)
                 scores.append(clip_score)
 
