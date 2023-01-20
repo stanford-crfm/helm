@@ -72,6 +72,7 @@ from .metrics.images import clip_score_metrics  # noqa
 from .metrics.images import efficiency_metrics  # noqa
 from .metrics.images import fid_metric  # noqa
 from .metrics.images import fidelity_metrics  # noqa
+from .metrics.images import filter_metrics  # noqa
 from .metrics.images import gender_metrics  # noqa
 from .metrics.images import nsfw_metrics  # noqa
 from .metrics.images import skin_tone_metrics  # noqa
