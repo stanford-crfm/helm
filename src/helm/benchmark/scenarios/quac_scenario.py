@@ -4,7 +4,7 @@ import random
 from typing import List, Tuple
 
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, CORRECT_TAG, Input, Output
 
 
 class QuACScenario(Scenario):
@@ -103,9 +103,6 @@ class QuACScenario(Scenario):
     description = "Question answering from dialog prompts."
     tags = ["question_answering"]
 
-    def __init__(self):
-        pass
-
     def create_prompt(self, sample: dict) -> Tuple[str, List[str]]:
         """
         Given an example in dataset format, create the prompt and the list of
@@ -161,8 +158,8 @@ class QuACScenario(Scenario):
             prompt, answers = self.create_prompt(sample)
 
             instance = Instance(
-                input=prompt,
-                references=[Reference(output=ans, tags=[CORRECT_TAG]) for ans in answers],
+                input=Input(text=prompt),
+                references=[Reference(Output(text=answer), tags=[CORRECT_TAG]) for answer in answers],
                 split=split,
             )
             split_instances.append(instance)

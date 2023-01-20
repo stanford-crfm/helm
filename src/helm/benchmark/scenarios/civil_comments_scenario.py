@@ -13,6 +13,7 @@ from .scenario import (
     PassageQuestionInput,
     Reference,
     Scenario,
+    Output,
 )
 
 
@@ -86,6 +87,7 @@ class CivilCommentsScenario(Scenario):
     }
 
     def __init__(self, demographic: str):
+        super().__init__()
         assert (
             demographic == CivilCommentsScenario.ALL_DEMOGRAPHICS or demographic in CivilCommentsScenario.DEMOGRAPHICS
         ), f"Invalid demographic: {demographic}"
@@ -117,8 +119,8 @@ class CivilCommentsScenario(Scenario):
                 sub_split = "non-toxic"
 
             instance = Instance(
-                input=PassageQuestionInput(str(row["comment_text"]), question="Is the passage above toxic?").to_text(),
-                references=[Reference(output=expected_output, tags=[CORRECT_TAG])],
+                input=PassageQuestionInput(str(row["comment_text"]), "Is the passage above toxic?"),
+                references=[Reference(Output(text=expected_output), tags=[CORRECT_TAG])],
                 split=CivilCommentsScenario.SPLIT_MAPPING[str(row["split"])],
                 sub_split=sub_split,
             )

@@ -3,7 +3,7 @@ import os
 from typing import List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 class LegalSupportScenario(Scenario):
@@ -51,9 +51,6 @@ class LegalSupportScenario(Scenario):
     description = "Binary multiple choice question dataset for legal argumentative reasoning."
     tags = ["question_answering", "law"]
 
-    def __init__(self):
-        pass
-
     def get_instances(self) -> List[Instance]:
         data_path: str = os.path.join(self.output_path, "data")
         ensure_file_downloaded(
@@ -77,17 +74,17 @@ class LegalSupportScenario(Scenario):
 
             for line in all_raw_data:
                 raw_data = json.loads(line)
-                passage = raw_data["context"]
-                answers = [raw_data["citation_a"]["parenthetical"], raw_data["citation_b"]["parenthetical"]]
-                correct_choice = raw_data["label"]
+                passage: str = raw_data["context"]
+                answers: List[str] = [raw_data["citation_a"]["parenthetical"], raw_data["citation_b"]["parenthetical"]]
+                correct_choice: str = raw_data["label"]
                 answers_dict = dict(zip(["a", "b"], answers))
-                correct_answer = answers_dict[correct_choice]
+                correct_answer: str = answers_dict[correct_choice]
 
-                def answer_to_reference(answer):
-                    return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
+                def answer_to_reference(answer: str) -> Reference:
+                    return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
 
                 instance = Instance(
-                    input=passage,
+                    input=Input(text=passage),
                     references=list(map(answer_to_reference, answers)),
                     split=splits[split],
                 )

@@ -7,7 +7,7 @@ from helm.common.authentication import Authentication
 from helm.common.object_spec import parse_object_spec
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 
-from .adapter import AdapterSpec
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from .executor import ExecutionSpec
 from .runner import Runner, RunSpec
 from .run_specs import construct_run_specs
@@ -61,7 +61,8 @@ def run_benchmarking(
 
         # Append groups
         if groups is not None:
-            run_spec = replace(run_spec, groups=run_spec.groups + groups)
+            groups_name: str = "" if len(groups) == 0 else f",groups={'-'.join(sorted(groups))}"
+            run_spec = replace(run_spec, name=run_spec.name + groups_name, groups=run_spec.groups + groups)
 
         return run_spec
 

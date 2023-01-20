@@ -2,7 +2,7 @@ import numpy as np
 import random
 from typing import List, Tuple
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 class DyckLanguageScenario(Scenario):
@@ -73,6 +73,7 @@ class DyckLanguageScenario(Scenario):
         max_output_size: int = 3,
         seed: int = 42,
     ):
+        super().__init__()
         if not (prob_p > 0 and prob_q > 0 and (prob_p + prob_q) < 1):
             raise ValueError("It must be the case that 0 < prob_p, prob_q < 1 and 0 < prob_p + prob_q < 1.")
 
@@ -199,8 +200,8 @@ class DyckLanguageScenario(Scenario):
                 output = " " + output
                 i += 1
                 instance = Instance(
-                    input=input,
-                    references=[Reference(output=output, tags=[CORRECT_TAG])],
+                    input=Input(text=input),
+                    references=[Reference(Output(text=output), tags=[CORRECT_TAG])],
                     split=split,
                 )
                 instances.append(instance)

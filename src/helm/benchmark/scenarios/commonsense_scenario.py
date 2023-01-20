@@ -12,6 +12,8 @@ from .scenario import (
     VALID_SPLIT,
     TEST_SPLIT,
     CORRECT_TAG,
+    Input,
+    Output,
 )
 
 
@@ -40,6 +42,7 @@ class CommonSenseScenario(Scenario):
     tags = ["knowledge", "multiple_choice"]
 
     def __init__(self, dataset):
+        super().__init__()
         self.dataset = dataset
         assert self.dataset in ["hellaswag", "openbookqa", "commonsenseqa", "piqa", "siqa"]
 
@@ -244,12 +247,12 @@ class CommonSenseScenario(Scenario):
 
         instances: List[Instance] = []
 
-        def answer_to_reference(answer):
-            return Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
+        def answer_to_reference(answer: str) -> Reference:
+            return Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
 
         for question_id, (question, answers, correct_answer, split) in enumerate(data):
             instance = Instance(
-                input=question,
+                input=Input(text=question),
                 references=list(map(answer_to_reference, answers)),
                 split=splits[split],
             )

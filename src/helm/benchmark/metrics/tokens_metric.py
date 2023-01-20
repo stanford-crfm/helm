@@ -3,7 +3,8 @@ from dataclasses import dataclass
 
 from helm.common.general import parallel_map
 from helm.common.request import Request
-from helm.benchmark.adapter import ScenarioState, RequestState
+from helm.benchmark.adaptation.scenario_state import ScenarioState
+from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from .metric import Metric, MetricResult, PerInstanceStats
 from .metric_name import MetricName
@@ -68,8 +69,13 @@ class TokensMetric(Metric):
 
         # Per-instance
         per_instance_stats = [
-            PerInstanceStats(cast(str, instance.id), None, 0, stats)
-            for instance, stats in zip(scenario_state.instances, results)
+            PerInstanceStats(
+                cast(str, request_state.instance.id),
+                request_state.instance.perturbation,
+                request_state.train_trial_index,
+                stats,
+            )
+            for request_state, stats in zip(scenario_state.request_states, results)
         ]
 
         # Aggregate

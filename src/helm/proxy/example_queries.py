@@ -152,14 +152,10 @@ example_queries = [
         environments=dedent(
             """
             model: [
-                "openai/text-davinci-002", "openai/davinci",
-                "ai21/j1-jumbo", "ai21/j1-grande",
-                "anthropic/stanford-online-all-v4-s3",
-                "cohere/xlarge-20220609", "cohere/xlarge-update",
-                "microsoft/TNLGv2_530B",
-                "together/gpt-j-6b", "together/gpt-neox-20b",
-                "together/bloom", "together/opt-175b",
-                "together/glm", "together/ul2", "together/t0pp",
+                "openai/davinci", "openai/text-davinci-002",
+                "openai/text-davinci-003", "ai21/j1-grande-v2-beta",
+                "together/gpt-j-6b", "together/gpt-jt-6b-v1",
+                "together/bloom", "together/opt-175b"
             ]
             """
         ),

@@ -13,7 +13,7 @@
 # Check that everything works because the versions might be upgraded.
 
 # Development
-pytest~=7.1.3
+pytest~=7.2.0
 black~=22.10.0
 mypy~=0.982
 pre-commit~=2.20.0
@@ -35,11 +35,12 @@ sqlitedict~=1.7.0
 pymongo~=4.2.0
 retrying~=1.3.3
 websocket-client~=1.3.2 # For Anthropic
-openai~=0.23.1
+openai~=0.25.0
 transformers~=4.22.2  # For HuggingFace tokenizer
 icetk~=0.0.4
-protobuf==3.20.1  # Can't use 4.21.0 due to backward incompatibility
+protobuf~=3.20.2  # Can't use 4.21.0 due to backward incompatibility
 google-api-python-client~=2.64.0
+revChatGPT~=0.1.1
 
 # Scenarios
 datasets~=2.5.2  # For math scenarios

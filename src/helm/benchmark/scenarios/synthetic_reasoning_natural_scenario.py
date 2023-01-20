@@ -67,7 +67,7 @@ from copy import copy
 from typing import List, Dict, Literal, Tuple
 from dataclasses import dataclass
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 @dataclass(frozen=True)
@@ -326,6 +326,7 @@ class SRNScenario(Scenario):
     tags = ["reasoning", "language", "pattern_matching"]
 
     def __init__(self, difficulty: str, random_seed=42):
+        super().__init__()
         self.attribute_groups, self.subjects = get_vocab()
 
         # specific_category specifies that the specific category should always be used
@@ -372,9 +373,10 @@ class SRNScenario(Scenario):
                 split = VALID_SPLIT
             else:
                 split = TEST_SPLIT
+
             instance = Instance(
-                input=question,
-                references=[Reference(output=str(target_fact), tags=[CORRECT_TAG])],
+                input=Input(text=question),
+                references=[Reference(Output(text=str(target_fact)), tags=[CORRECT_TAG])],
                 split=split,
             )
             instances.append(instance)

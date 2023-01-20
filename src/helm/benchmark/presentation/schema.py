@@ -14,9 +14,6 @@ from helm.benchmark.augmentations.perturbation_description import PERTURBATION_W
 SCHEMA_YAML_PACKAGE: str = "helm.benchmark.static"
 SCHEMA_YAML_FILENAME: str = "schema.yaml"
 
-UP_ARROW = "\u2191"
-DOWN_ARROW = "\u2193"
-
 
 @dataclass(frozen=True)
 class Field:
@@ -37,13 +34,12 @@ class Field:
     # Description of the field
     description: Optional[str] = None
 
-    # Whether a lower vaue for this field corresponds to a better model (e.g., False for accuracy, True for perplexity)
-    lower_is_better: bool = False
+    # Whether a lower vaue for this field corresponds to a better model
+    # (e.g., False for accuracy, True for perplexity, None for num_trials)
+    lower_is_better: Optional[bool] = None
 
-    def get_short_display_name(self, arrow: bool = False) -> str:
+    def get_short_display_name(self) -> str:
         name = self.short_display_name or self.display_name or self.name
-        if arrow:
-            name += " " + (DOWN_ARROW if self.lower_is_better else UP_ARROW)
         return name
 
 
@@ -176,6 +172,9 @@ class RunGroup(Field):
     # groups for each metric (BY_METRIC)
     subgroup_display_mode: str = BY_METRIC
 
+    # Any subgroup metric groups we want to hide (e.g., robustness when running without perturbations)
+    subgroup_metric_groups_hidden: List[str] = field(default_factory=list)
+
     # Defines variables that are substituted in any of the metrics
     environment: Dict[str, str] = field(default_factory=dict)
 
@@ -236,7 +235,7 @@ class Schema:
         self.name_to_run_group = {run_group.name: run_group for run_group in self.run_groups}
 
 
-def read_schema():
+def read_schema() -> Schema:
     hlog(f"Reading schema from {SCHEMA_YAML_FILENAME}...")
     schema_path = resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_YAML_FILENAME)
     with schema_path.open("r") as f:

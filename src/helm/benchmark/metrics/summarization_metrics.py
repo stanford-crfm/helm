@@ -16,7 +16,9 @@ if not spacy.util.is_package("en_core_web_sm"):
 
 from summ_eval.data_stats_metric import DataStatsMetric
 
-from helm.benchmark.adapter import AdapterSpec, RequestState, ScenarioState
+from helm.benchmark.adaptation.scenario_state import ScenarioState
+from helm.benchmark.adaptation.request_state import RequestState
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
 from .metric import Metric, MetricResult
@@ -149,7 +151,7 @@ class SummarizationMetric(Metric):
         p, r, f = self.bert_scorer.score([pred], [refs])
         return {"BERTScore-P": p[0].item(), "BERTScore-R": r[0].item(), "BERTScore-F": f[0].item()}
 
-    def _remove_braces(self, text):
+    def _remove_braces(self, text: str) -> str:
         if text.startswith("{"):
             text = text[1:]
         if text.endswith("}"):
@@ -164,8 +166,8 @@ class SummarizationMetric(Metric):
         eval_cache_path: str,
     ) -> List[Stat]:
 
-        refs: List[str] = [self._remove_braces(x.output) for x in request_state.instance.references]
-        inp: str = self._remove_braces(request_state.instance.input)
+        refs: List[str] = [self._remove_braces(ref.output.text) for ref in request_state.instance.references]
+        inp: str = self._remove_braces(request_state.instance.input.text)
 
         assert request_state.result is not None
         pred: str = self._remove_braces(request_state.result.completions[0].text.strip())

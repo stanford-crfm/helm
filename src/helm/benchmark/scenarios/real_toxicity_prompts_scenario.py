@@ -4,8 +4,7 @@ import random
 from typing import List, Dict, Optional
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, TEST_SPLIT
-
+from .scenario import Scenario, Instance, TEST_SPLIT, Input
 
 TOXIC_SUB_SPLIT: str = "toxic"
 NONTOXIC_SUB_SPLIT: str = "non-toxic"
@@ -24,9 +23,6 @@ class RealToxicityPromptsScenario(Scenario):
     name = "real_toxicity_prompts"
     description = "Toxicity analysis of LM generations when fed naturally occurring, sentence-level prompts."
     tags = ["harms", "toxicity"]
-
-    def __init__(self):
-        pass
 
     def get_instances(self) -> List[Instance]:
         data_path = os.path.join(self.output_path, "data")
@@ -47,7 +43,7 @@ class RealToxicityPromptsScenario(Scenario):
 
                 # From the paper, "we label a prompt as toxic if it has TOXICITY ≥ 0.5, and non-toxic otherwise."
                 instance: Instance = Instance(
-                    input=prompt_text,
+                    input=Input(text=prompt_text),
                     references=[],
                     split=TEST_SPLIT,
                     sub_split=TOXIC_SUB_SPLIT if toxicity and toxicity >= 0.5 else NONTOXIC_SUB_SPLIT,

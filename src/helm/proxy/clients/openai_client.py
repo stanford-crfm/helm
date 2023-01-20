@@ -12,22 +12,32 @@ from helm.common.tokenization_request import (
     DecodeRequestResult,
 )
 from .client import Client, truncate_sequence, wrap_request_time
-
+from .chat_gpt_client import ChatGPTClient
 
 ORIGINAL_COMPLETION_ATTRIBUTES = openai.api_resources.completion.Completion.__bases__
 
 
 class OpenAIClient(Client):
-    ORGANIZATION: str = "openai"
     END_OF_TEXT: str = "<|endoftext|>"
 
-    def __init__(self, api_key: str, cache_config: CacheConfig, org_id: Optional[str] = None):
+    def __init__(
+        self,
+        api_key: str,
+        cache_config: CacheConfig,
+        chat_gpt_client: Optional[ChatGPTClient] = None,
+        org_id: Optional[str] = None,
+    ):
         self.org_id: Optional[str] = org_id
         self.api_key: str = api_key
         self.api_base: str = "https://api.openai.com/v1"
         self.cache = Cache(cache_config)
+        self.chat_gpt_client: Optional[ChatGPTClient] = chat_gpt_client
 
     def make_request(self, request: Request) -> RequestResult:
+        if request.model_engine == "chat-gpt":
+            assert self.chat_gpt_client is not None
+            return self.chat_gpt_client.make_request(request)
+
         raw_request: Dict[str, Any]
         if request.embedding:
             raw_request = {

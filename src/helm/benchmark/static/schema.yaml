@@ -31,6 +31,34 @@ models:
     num_parameters: 17000000000
     release_date: 2022-10-28
 
+  #  Aleph Alpha
+  # TODO: add Luminous World when it's released
+  - name: AlephAlpha/luminous-base
+    display_name: Luminous Base (13B)
+    description: Luminous Base (13B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
+    creator_organization: Aleph Alpha
+    access: limited
+    num_parameters: 13000000000
+    # TODO: get exact release date
+    release_date: 2022-01-01
+    todo: true
+  - name: AlephAlpha/luminous-extended
+    display_name: Luminous Extended (30B)
+    description: Luminous Extended (30B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
+    creator_organization: Aleph Alpha
+    access: limited
+    num_parameters: 30000000000
+    release_date: 2022-01-01
+    todo: true
+  - name: AlephAlpha/luminous-supreme
+    display_name: Luminous Supreme (70B)
+    description: Luminous Supreme (70B parameters) ([docs](https://docs.aleph-alpha.com/docs/introduction/luminous/)
+    creator_organization: Aleph Alpha
+    access: limited
+    num_parameters: 70000000000
+    release_date: 2022-01-01
+    todo: true
+
   # Anthropic
   - name: anthropic/stanford-online-all-v4-s3
     display_name: Anthropic-LM v4-s3 (52B)
@@ -100,7 +128,6 @@ models:
     access: limited
     num_parameters: 52400000000
     release_date: 2022-11-08
-    todo: true
   - name: cohere/medium-20221108
     display_name: Cohere medium v20221108 (6.1B)
     description: Cohere medium v20221108 (6.1B parameters)
@@ -108,7 +135,6 @@ models:
     access: limited
     num_parameters: 6100000000
     release_date: 2022-11-08
-    todo: true
 
   # DeepMind
   - name: deepmind/gopher
@@ -215,92 +241,109 @@ models:
 
   # OpenAI: https://beta.openai.com/docs/engines/gpt-3
   - name: openai/davinci
-    display_name: GPT-3 davinci v1 (175B)
-    description: GPT-3 davinci v1 (175B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf)).
+    display_name: davinci (175B)
+    description: Original GPT-3 (175B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2020-05-28
   - name: openai/curie
-    display_name: GPT-3 curie v1 (6.7B)
-    description: GPT-3 curie v1 (6.7B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf)).
+    display_name: curie (6.7B)
+    description: Original GPT-3 (6.7B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 6700000000
     release_date: 2020-05-28
   - name: openai/babbage
-    display_name: GPT-3 babbage v1 (1.3B)
-    description: GPT-3 babbage v1 (1.3B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf)).
+    display_name: babbage (1.3B)
+    description: Original GPT-3 (1.3B parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 1300000000
     release_date: 2020-05-28
   - name: openai/ada
-    display_name: GPT-3 ada v1 (350M)
-    description: GPT-3 ada v1 (350M parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf)).
+    display_name: ada (350M)
+    description: Original GPT-3 (350M parameters) autoregressive language model ([paper](https://arxiv.org/pdf/2005.14165.pdf), [docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 350000000
     release_date: 2020-05-28
   - name: openai/text-davinci-003
-    display_name: InstructGPT davinci v3 (175B*)
-    description: InstructGPT-style model based on the [InstructGPT paper](https://arxiv.org/pdf/2203.02155.pdf), but the details are unknown.
+    display_name: text-davinci-003
+    description: text-davinci-003 model that involves reinforcement learning (PPO) with reward models. Derived from text-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2022-11-28
   - name: openai/text-davinci-002
-    display_name: InstructGPT davinci v2 (175B*)
-    description: InstructGPT-style model based on the [InstructGPT paper](https://arxiv.org/pdf/2203.02155.pdf), but the details are unknown.
+    display_name: text-davinci-002
+    description: text-davinci-002 model that involves supervised fine-tuning on human-written demonstrations. Derived from code-davinci-002 ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-27
   - name: openai/text-davinci-001
-    display_name: InstructGPT davinci v1 (175B*)
-    description: InstructGPT-style model based on the [InstructGPT paper](https://arxiv.org/pdf/2203.02155.pdf), but the details are unknown and the size is speculative.
+    display_name: text-davinci-001
+    description: text-davinci-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 175000000000
     release_date: 2022-01-27
     todo: true
   - name: openai/text-curie-001
-    display_name: InstructGPT curie v1 (6.7B*)
-    description: InstructGPT-style model based on the [InstructGPT paper](https://arxiv.org/pdf/2203.02155.pdf), but the details are unknown and the size is speculative.
+    display_name: text-curie-001
+    description: text-curie-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 6700000000
     release_date: 2022-01-27
   - name: openai/text-babbage-001
-    display_name: InstructGPT babbage v1 (1.3B*)
-    description: InstructGPT-style model based on the [InstructGPT paper](https://arxiv.org/pdf/2203.02155.pdf), but the details are unknown and the size is speculative.
+    display_name: text-babbage-001
+    description: text-babbage-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 1300000000
     release_date: 2022-01-27
   - name: openai/text-ada-001
-    display_name: InstructGPT ada v1 (350M*)
-    description: InstructGPT-style model based on the [InstructGPT paper](https://arxiv.org/pdf/2203.02155.pdf), but the details are unknown and the size is speculative.
+    display_name: text-ada-001
+    description: text-ada-001 model that involves supervised fine-tuning on human-written demonstrations ([docs](https://beta.openai.com/docs/model-index-for-researchers)).
     creator_organization: OpenAI
     access: limited
     num_parameters: 350000000
     release_date: 2022-01-27
   - name: openai/code-davinci-002
-    display_name: Codex davinci v2
-    description: Codex-style model based on the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf), but the details (including size) are unknown.
+    display_name: code-davinci-002
+    description: Codex-style model that is designed for pure code-completion tasks ([docs](https://beta.openai.com/docs/models/codex)).
     creator_organization: OpenAI
     access: limited
   - name: openai/code-davinci-001
-    display_name: Codex davinci v1
-    description: Codex-style model based on the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf), but the details (including size) are unknown.
+    display_name: code-davinci-001
+    description: code-davinci-001 model
     creator_organization: OpenAI
     access: limited
     todo: true
   - name: openai/code-cushman-001
-    display_name: Codex cushman v1
-    description: Codex-style model based on the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf), but the details (including size) are unknown.
+    display_name: code-cushman-001 (12B)
+    description: Codex-style model that is a stronger, multilingual version of the Codex (12B) model in the [Codex paper](https://arxiv.org/pdf/2107.03374.pdf).
     creator_organization: OpenAI
     access: limited
+  - name: openai/chat-gpt
+    display_name: ChatGPT
+    description: Sibling model to InstructGPT which interacts in a conversational way. See [OpenAI's announcement](https://openai.com/blog/chatgpt/). The size of the model is unknown.
+    creator_organization: OpenAI
+    access: limited
+    release_date: 2022-11-30
+    todo: true
+
+  # Together
+  - name: together/Together-gpt-JT-6B-v1
+    display_name: GPT-JT (6B)
+    description: GPT-JT (6B parameters) is a fork of GPT-J ([blog post](https://www.together.xyz/blog/releasing-v1-of-gpt-jt-powered-by-open-source-ai)).
+    creator_organization: Together
+    access: open
+    num_parameters: 6700000000
+    release_date: 2022-11-29
+    todo: true
 
   # Tsinghua
   - name: together/glm
@@ -444,35 +487,43 @@ metrics:
     display_name: Exact match
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
   - name: quasi_exact_match
     display_name: Quasi-exact match
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
   - name: prefix_exact_match
     display_name: Prefix exact match
     short_display_name: PEM
     description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
   - name: quasi_prefix_exact_match
     # TODO: should call this prefix_quasi_exact_match
     display_name: Prefix quasi-exact match
     short_display_name: PEM
     description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
   - name: exact_match@5
     display_name: Exact match @5
     short_display_name: EM@5
     description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference exactly.
+    lower_is_better: false
   - name: quasi_exact_match@5
     display_name: Quasi-exact match @5
     short_display_name: EM@5
     description: Fraction of instances where at least one predicted output among the top 5 matches a correct reference up to light processing.
+    lower_is_better: false
   - name: logprob
     display_name: Log probability
     short_display_name: Logprob
     description: Predicted output's average log probability (input's log prob for language modeling).
+    lower_is_better: false
   - name: logprob_per_byte
     display_name: Log probability / byte
     short_display_name: Logprob/byte
     description: Predicted output's average log probability normalized by the number of bytes.
+    lower_is_better: false
   - name: bits_per_byte
     display_name: Bits/byte
     short_display_name: BPB
@@ -486,25 +537,32 @@ metrics:
   - name: rouge_1
     display_name: ROUGE-1
     description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 1-gram overlap.
+    lower_is_better: false
   - name: rouge_2
     display_name: ROUGE-2
     description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on 2-gram overlap.
+    lower_is_better: false
   - name: rouge_l
     display_name: ROUGE-L
     description: Average ROUGE score [(Lin, 2004)](https://aclanthology.org/W04-1013/) based on longest common subsequence overlap.
+    lower_is_better: false
   - name: bleu_1
     display_name: BLEU-1
     description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 1-gram overlap.
+    lower_is_better: false
   - name: bleu_4
     display_name: BLEU-4
     description: Average BLEU score [(Papineni et al., 2002)](https://aclanthology.org/P02-1040/) based on 4-gram overlap.
+    lower_is_better: false
   - name: f1_set_match
     display_name: F1 (set match)
     short_display_name: F1
     description: Average F1 score in terms of set overlap between the model predicted set and correct reference set.
+    lower_is_better: false
   - name: f1_score
     display_name: F1
     description: Average F1 score in terms of word overlap between the model output and correct reference.
+    lower_is_better: false
   - name: absolute_value_difference
     display_name: Absolute difference
     short_display_name: Diff.
@@ -519,44 +577,56 @@ metrics:
     display_name: Valid fraction
     short_display_name: Valid
     description: Fraction of valid model outputs (as a number).
+    lower_is_better: false
   - name: NDCG@10
     display_name: NDCG@10
     description: Normalized discounted cumulative gain at 10 in information retrieval.
+    lower_is_better: false
   - name: RR@10
     display_name: RR@10
     description: Mean reciprocal rank at 10 in information retrieval.
+    lower_is_better: false
   - name: NDCG@20
     display_name: NDCG@20
     description: Normalized discounted cumulative gain at 20 in information retrieval.
+    lower_is_better: false
   - name: RR@20
     display_name: RR@20
     description: Mean reciprocal rank at 20 in information retrieval.
+    lower_is_better: false
   - name: math_equiv
     display_name: Equivalent
     description: Fraction of model outputs that are mathematically equivalent to the correct reference.
+    lower_is_better: false
   - name: math_equiv_chain_of_thought
     display_name: Equivalent (chain of thought)
     description: Fraction of model outputs that are mathematically equivalent to the correct reference when using chain-of-thoughts prompting.
+    lower_is_better: false
   - name: exact_match_indicator
     display_name: Exact match (up to specified indicator)
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference exactly, ignoring text preceding the specified indicator.
+    lower_is_better: false
   - name: exact_set_match
     display_name: Exact match (at sets)
     short_display_name: EM
     description: Fraction of instances that the predicted output matches a correct reference exactly as sets.
+    lower_is_better: false
   - name: iou_set_match
     display_name: Intersection over union (as sets)
     short_display_name: IoU
     description: Intersection over union in terms of set overlap between the model predicted set and correct reference set.
+    lower_is_better: false
 
   # Summarization metrics
   - name: summac
     display_name: SummaC
     description: Faithfulness scores based on the SummaC method of [Laban et al. (2022)](https://aclanthology.org/2022.tacl-1.10/).
+    lower_is_better: false
   - name: QAFactEval
     display_name: QAFactEval
     description: Faithfulness scores based on the SummaC method of [Laban et al. (2022)](https://aclanthology.org/2022.tacl-1.10/).
+    lower_is_better: false
   - name: summarization_coverage
     display_name: Coverage
     description: Extent to which the model-generated summaries are extractive fragments from the source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).
@@ -569,37 +639,47 @@ metrics:
   - name: BERTScore-P
     display_name: BERTScore (P)
     description: Average BERTScore precision [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
   - name: BERTScore-R
     display_name: BERTScore (R)
     description: Average BERTScore recall [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
   - name: BERTScore-F
     display_name: BERTScore (F1)
     description: Average BERTScore F1 [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference summary.
+    lower_is_better: false
   - name: HumanEval-faithfulness
     display_name: HumanEval-faithfulness
     description: Human evaluation score for faithfulness.
+    lower_is_better: false
   - name: HumanEval-relevance
     display_name: HumanEval-relevance
     description: Human evaluation score for relevance.
+    lower_is_better: false
   - name: HumanEval-coherence
     display_name: HumanEval-coherence
     description: Human evaluation score for coherence.
+    lower_is_better: false
 
   #  Code metrics
   - name: code_eval_acc
     display_name: Correctness
     short_display_name: Correctness
     description: Fraction of instances that the model output evaluates to the correct answer.
+    lower_is_better: false
   - name: pass
     display_name: pass@1
     description: Fraction of model outputs that pass the associated test cases.
+    lower_is_better: false
   - name: test_avg
     display_name: 'Avg. # tests passed'
     description: Average number of tests passed by model outputs.
+    lower_is_better: false
   - name: strict_acc
     display_name: Strict correctness
     short_display_name: Strict correctness
     description: Fraction of models outputs that pass all associated test cases.
+    lower_is_better: false
 
   # Disinformation metrics (measure diversity):
   - name: self_bleu
@@ -646,6 +726,7 @@ metrics:
     display_name: Edit distance (Levenshtein)
     short_display_name: Edit dist.
     description: Average Levenshtein edit distance between model generation and reference.
+    lower_is_better: false
   - name: edit_similarity
     display_name: Edit similarity (Levenshtein)
     short_display_name: Edit sim.
@@ -749,6 +830,7 @@ metrics:
   - name: max_prob
     display_name: Max prob
     description: Model's average confidence in its prediction (only computed for classification tasks)
+    lower_is_better: false
   - name: ece_10_bin
     display_name: 10-bin expected calibration error
     short_display_name: ECE (10-bin)
@@ -768,18 +850,22 @@ metrics:
     display_name: Platt Scaling Coefficient
     short_display_name: Platt Coef
     description: Coefficient of the Platt scaling classifier (can compare this across tasks).
+    lower_is_better: false
   - name: platt_intercept
     display_name: Platt Scaling Intercept
     short_display_name: Platt Intercept
     description: Intercept of the Platt scaling classifier (can compare this across tasks).
+    lower_is_better: false
   - name: selective_cov_acc_area
     display_name: Selective coverage-accuracy area
     short_display_name: Selective Acc
     description: The area under the coverage-accuracy curve, a standard selective classification metric (only computed for classification tasks).
+    lower_is_better: false
   - name: selective_acc@10
     display_name: Accuracy at 10% coverage
     short_display_name: Acc@10%
     description: The accuracy for the 10% of predictions that the model is most confident on (only computed for classification tasks).
+    lower_is_better: false
 
 ############################################################
 perturbations:
@@ -843,6 +929,14 @@ metric_groups:
       - name: selective_cov_acc_area
         split: ${main_split}
       - name: selective_acc@10
+        split: ${main_split}
+      - name: platt_ece_1_bin
+        split: ${main_split}
+      - name: platt_ece_10_bin
+        split: ${main_split}
+      - name: platt_coef
+        split: ${main_split}
+      - name: platt_intercept
         split: ${main_split}
 
   - name: robustness
@@ -1166,6 +1260,22 @@ run_groups:
       - model
       - max_tokens
 
+  - name: calibration
+    display_name: Calibration
+    description: Extended calibration metrics.
+    category: Targeted evaluations
+    subgroups:
+      - mmlu
+      - imdb
+      - raft
+      - civil_comments
+    metric_groups:
+      - calibration_detailed
+      - accuracy
+    environment:  # need to specify an environment for metric placeholders ("none" won't match anything)
+      main_name: none
+      main_split: none
+
 ### Ablations
   - name: ablation_in_context
     display_name: Vary number of in-context examples
@@ -1180,6 +1290,9 @@ run_groups:
     adapter_keys_shown:
       - model
       - max_train_instances
+    subgroup_metric_groups_hidden:
+      - robustness
+      - fairness
 
   - name: ablation_multiple_choice
     display_name: Vary multiple-choice strategy
@@ -1614,6 +1727,12 @@ run_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
+    taxonomy:
+      task: language modeling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English, code
 
   - name: twitter_aae
     display_name: TwitterAAE
@@ -1625,6 +1744,12 @@ run_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
+    taxonomy:
+      task: language modeling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English (AAE-aligned and White-aligned)
 
   - name: twitter_aae_aa
     display_name: TwitterAAE (AA)
@@ -1636,6 +1761,12 @@ run_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
+    taxonomy:
+      task: language modeling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English (AAE-aligned)
 
   - name: twitter_aae_white
     display_name: TwitterAAE (white)
@@ -1647,6 +1778,12 @@ run_groups:
     environment:
       main_name: bits_per_byte
       main_split: test
+    taxonomy:
+      task: language modeling
+      what: "?"
+      who: "?"
+      when: "?"
+      language: English (White-aligned)
 
 # Minimal pairs
   - name: blimp
@@ -1660,6 +1797,12 @@ run_groups:
     environment:
       main_name: exact_match
       main_split: test
+    taxonomy:
+      task: grammaticality
+      what: constructed minimal pair sentences
+      who: linguists
+      when: "2019"
+      language: English
 
 ## Knowledge scenarios
   - name: wikifact
@@ -1672,6 +1815,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: knowledge base completion
+      what: entity-relation-entity triples in natural language form
+      who: automatically generated from templates
+      when: "?"
+      language: structured English
 
 ## Reasoning scenarios
 # Primitive-focused reasoning
@@ -1685,6 +1834,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: question answering
+      what: reasoning
+      who: synthetic
+      when: "2015"
+      language: English
 
   - name: dyck_language
     display_name: Dyck
@@ -1696,6 +1851,12 @@ run_groups:
     environment:
       main_name: exact_match_indicator
       main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: Dyck formal language
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: numeracy
     display_name: Numerical reasoning
@@ -1707,6 +1868,12 @@ run_groups:
     environment:
       main_name: absolute_value_difference
       main_split: test
+    taxonomy:
+      task: next-word prediction
+      what: Dyck formal language
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: synthetic_reasoning
     display_name: Synthetic reasoning (abstract symbols)
@@ -1718,6 +1885,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: synthetic_reasoning_natural
     display_name: Synthetic reasoning (natural language)
@@ -1729,6 +1902,12 @@ run_groups:
     environment:
       main_name: f1_set_match
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
 # Realistic reasoning
   - name: gsm
@@ -1742,6 +1921,12 @@ run_groups:
     environment:
       main_name: exact_match_indicator
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: math_regular
     display_name: MATH
@@ -1753,6 +1938,12 @@ run_groups:
     environment:
       main_name: math_equiv
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: math_chain_of_thought
     display_name: MATH (chain-of-thoughts)
@@ -1764,6 +1955,12 @@ run_groups:
     environment:
       main_name: math_equiv_chain_of_thought
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: code_apps
     display_name: APPS (Code)
@@ -1776,6 +1973,12 @@ run_groups:
       # We do not include accuracy as it is subsumed by apps
       main_name: test_avg
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: code_humaneval
     display_name: HumanEval (Code)
@@ -1787,6 +1990,12 @@ run_groups:
     environment:
       main_name: pass
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: legal_support
     display_name: LegalSupport
@@ -1798,6 +2007,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: lsat_qa
     display_name: LSAT
@@ -1809,6 +2024,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: lextreme
     display_name: LEXTREME
@@ -1844,6 +2065,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: entity_matching
     display_name: Entity matching
@@ -1855,6 +2082,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
 ## Copyright scenarios
   - name: copyright_text
@@ -1868,6 +2101,12 @@ run_groups:
       - general_information
     environment:
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: copyright_code
     display_name: Copyright (code)
@@ -1880,6 +2119,12 @@ run_groups:
       - general_information
     environment:
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
 ## Disinformation scenarios
   - name: disinformation_reiteration
@@ -1893,6 +2138,12 @@ run_groups:
       - general_information
     environment:
       main_split: valid
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: disinformation_wedging
     display_name: Disinformation (wedging)
@@ -1905,6 +2156,12 @@ run_groups:
       - general_information
     environment:
       main_split: valid
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
 ## Bias scenarios
   - name: bbq
@@ -1919,6 +2176,12 @@ run_groups:
     environment:
       main_name: quasi_exact_match
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
 ## Toxicity scenarios
   - name: bold
@@ -1932,6 +2195,12 @@ run_groups:
       - general_information
     environment:
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
   - name: real_toxicity_prompts
     display_name: RealToxicityPrompts
@@ -1946,6 +2215,12 @@ run_groups:
       - non-toxic
     environment:
       main_split: test
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
 ## Efficiency scenarios
   - name: synthetic_efficiency
@@ -1959,6 +2234,12 @@ run_groups:
     adapter_keys_shown:
       - model
       - max_tokens
+    taxonomy:
+      task: "?"
+      what: n/a
+      who: n/a
+      when: n/a
+      language: synthetic
 
 ## Aspirational scenarios
 # Task coverage

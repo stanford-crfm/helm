@@ -3,7 +3,7 @@ import typing
 from typing import Dict, List, Optional
 from datasets import load_dataset, DatasetDict
 
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 def remove_boxed(string: str) -> Optional[str]:
@@ -344,6 +344,7 @@ class MATHScenario(Scenario):
     def __init__(
         self, subject: str, level: str, use_official_examples: bool = False, use_chain_of_thought: bool = False
     ):
+        super().__init__()
         self.subject: str = MATHScenario.subjects_mapping[subject]
         self.level: str = f"Level {level}"
         self.use_official_examples: bool = use_official_examples
@@ -416,8 +417,8 @@ class MATHScenario(Scenario):
 
             for example in dataset[split]:
                 instance = Instance(
-                    input=example["problem"],
-                    references=[Reference(output=example["answer"], tags=[CORRECT_TAG])],
+                    input=Input(text=example["problem"]),
+                    references=[Reference(Output(text=example["answer"]), tags=[CORRECT_TAG])],
                     split=split,
                 )
                 instances.append(instance)

@@ -15,6 +15,8 @@ from .scenario import (
     CORRECT_TAG,
     make_rank_tag,
     make_relevance_tag,
+    Input,
+    Output,
 )
 
 
@@ -296,6 +298,8 @@ class MSMARCOScenario(Scenario):
                 validation instances will be created. Must be in the range
                 [self.MIN_TOPK, self.MAX_VALID_TOPK].
         """
+        super().__init__()
+
         # Input validation
         assert track in self.TRACK_NAMES
         self.track: str = track
@@ -510,11 +514,9 @@ class MSMARCOScenario(Scenario):
         if rank:
             tags.append(make_rank_tag(rank=rank))  # Top-k rank
 
-        # Get document text
-        document_text = self.document_dict[docid]
-
-        # Create the reference
-        reference = Reference(output=document_text, tags=tags)
+        # Create the reference with the document
+        document_text: str = self.document_dict[docid]
+        reference = Reference(Output(text=document_text), tags=tags)
         return reference
 
     def create_instance(self, qid: int, split: str, docids: List[int]) -> Instance:
@@ -531,10 +533,7 @@ class MSMARCOScenario(Scenario):
             reference = self.create_reference(docid, gold, rel, rank)
             references.append(reference)
 
-        # Construct instance
-        query_text = query_dict[qid]
-        instance = Instance(input=query_text, references=references, split=split)
-        return instance
+        return Instance(Input(text=query_dict[qid]), references=references, split=split)
 
     def get_train_instance(self, qid: int) -> Instance:
         """Create and return a train instance for the given qid.

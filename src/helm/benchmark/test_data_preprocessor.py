@@ -40,6 +40,6 @@ def test_data_preprocessor_with_data_augmentation():
     # by verifying that the instances with the perturbation tag are perturbed
     for instance in instances:
         if instance.perturbation and instance.perturbation.name == "extra_space":
-            assert " " * 5 in instance.input
+            assert " " * 5 in instance.input.text
         else:
-            assert " " * 5 not in instance.input
+            assert " " * 5 not in instance.input.text

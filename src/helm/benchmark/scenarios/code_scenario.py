@@ -56,7 +56,7 @@ from typing import List, Dict, Iterable, Optional, cast
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
 from .code_scenario_helper import run as run_reindent
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 class CodeReference(Reference):
@@ -94,13 +94,13 @@ def _read_and_preprocess_human_eval(
             split = TEST_SPLIT
 
         instance = CodeInstance(
-            input=problems[task_id]["prompt"],
+            input=Input(text=problems[task_id]["prompt"]),
             references=[
                 CodeReference(
-                    output=problems[task_id]["canonical_solution"],
+                    output=Output(text=problems[task_id]["canonical_solution"]),
                     test_cases=problems[task_id],
                     tags=[CORRECT_TAG],
-                ),
+                )
             ],
             split=split,
         )
@@ -211,9 +211,10 @@ def _read_and_preprocess_apps(target_path: str) -> List[CodeInstance]:
                 answer_type=answer_type,
             )
             instance = CodeInstance(
-                input=prompt,
+                input=Input(text=prompt),
                 references=[
-                    CodeReference(output=solution, tags=[CORRECT_TAG], test_cases=data) for solution in solutions
+                    CodeReference(output=Output(text=solution), tags=[CORRECT_TAG], test_cases=data)
+                    for solution in solutions
                 ],
                 split=split_tag,
                 metadata=data,
@@ -269,6 +270,7 @@ class CodeScenario(Scenario):
     tags = ["Reasoning", "Code Generation"]
 
     def __init__(self, dataset: str):
+        super().__init__()
         self.dataset = dataset
 
         self.human_eval_hparams = dict(num_train_instances=0, num_val_instances=0, num_test_instances=164)

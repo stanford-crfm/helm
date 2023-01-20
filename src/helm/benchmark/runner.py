@@ -5,15 +5,18 @@ from collections import Counter
 from dataclasses import dataclass, field
 from typing import List
 
-from helm.benchmark.metrics.metric_name import MetricName
 from helm.common.general import ensure_directory_exists, write, asdict_without_nones
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.cache import cache_stats
 from .augmentations.data_augmenter import DataAugmenterSpec
 from .scenarios.scenario import Scenario, ScenarioSpec, create_scenario, Instance, with_instance_ids
-from .adapter import AdapterSpec, Adapter, ScenarioState, slimmed_scenario_state
+from .adaptation.adapters.adapter import Adapter
+from .adaptation.adapters.adapter_factory import AdapterFactory
+from .adaptation.scenario_state import ScenarioState
+from .adaptation.adapter_spec import AdapterSpec
 from .data_preprocessor import DataPreprocessor
 from .executor import ExecutionSpec, Executor
+from .metrics.metric_name import MetricName
 from .metrics.metric_service import MetricService
 from .metrics.metric import Metric, MetricSpec, MetricResult, PerInstanceStats, create_metric, Stat
 from .metrics.tokens_metric import TokensMetric
@@ -103,7 +106,8 @@ class Runner:
         run_path: str = os.path.join(self.runs_path, run_spec.name)
         ensure_directory_exists(run_path)
 
-        adapter = Adapter(run_spec.adapter_spec, self.tokenizer_service)
+        # Fetch and initialize the Adapter based on the `AdapterSpec`.
+        adapter: Adapter = AdapterFactory.get_adapter(run_spec.adapter_spec, self.tokenizer_service)
 
         instances: List[Instance]
         if not self.skip_instances:
@@ -114,8 +118,8 @@ class Runner:
             # Give each instance a unique ID
             instances = with_instance_ids(instances)
 
-            # Sample only as many as we need
-            instances = adapter.sample_instances(instances)
+            # Get the instances necessary for this run.
+            instances = adapter.get_run_instances(instances)
 
             # Data preprocessing
             instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
@@ -167,19 +171,11 @@ class Runner:
         # Output benchmarking information and results to files
         write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
 
-        # Write out scenario (along with additional information)
-        scenario_dict = asdict_without_nones(scenario)
-        scenario_dict["scenario_spec"] = asdict_without_nones(run_spec.scenario_spec)
-        scenario_dict["definition_path"] = scenario.get_definition_path()
-        scenario_dict["instances"] = [asdict_without_nones(instance) for instance in scenario_state.instances]
-        write(os.path.join(run_path, "scenario.json"), json.dumps(scenario_dict, indent=2))
+        # Write out scenario
+        write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
 
-        # Write scenario state (including a slim version that is much smaller)
+        # Write scenario state
         write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
-        write(
-            os.path.join(run_path, "scenario_state_slim.json"),
-            json.dumps(asdict_without_nones(slimmed_scenario_state(scenario_state)), indent=2),
-        )
 
         write(
             os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in stats], indent=2)

@@ -5,7 +5,7 @@ from typing import List, Tuple
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 class EntityDataImputationScenario(Scenario):
@@ -39,6 +39,7 @@ class EntityDataImputationScenario(Scenario):
     tags = ["entity_data_imputation", "structured_reasoning"]
 
     def __init__(self, dataset: str, seed: int = 1234):
+        super().__init__()
         self.datasets_paths = {
             "Buy": "https://dbs.uni-leipzig.de/file/Abt-Buy.zip",
             "Restaurant": "https://www.cs.utexas.edu/users/ml/riddle/data/restaurant.tar.gz",
@@ -137,7 +138,9 @@ class EntityDataImputationScenario(Scenario):
                 res: str = self.serialize_row(row, columns_for_serialize)
                 input: str = f"{res}. {col_to_impute}?"
                 label = str(row[col_to_impute])
-                instance = Instance(input=input, references=[Reference(output=label, tags=[CORRECT_TAG])], split=split)
+                instance = Instance(
+                    Input(text=input), references=[Reference(Output(text=label), tags=[CORRECT_TAG])], split=split
+                )
                 instances.append(instance)
 
         return instances

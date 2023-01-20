@@ -6,35 +6,37 @@ import dacite
 import json
 from collections import defaultdict
 from dataclasses import dataclass, replace
+from statistics import mean, median
 from typing import List, Optional, Dict, Any, Tuple, Set
+
+from tqdm import tqdm
 
 from helm.common.general import (
     write,
     ensure_directory_exists,
     asdict_without_nones,
+    parallel_map,
     singleton,
     unique_simplification,
-    parallel_map,
 )
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 from helm.benchmark.scenarios.scenario import ScenarioSpec
-from helm.benchmark.adapter import AdapterSpec
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric import get_all_stats_by_name
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.runner import RunSpec
-from .table import Cell, Table, Hyperlink, table_to_latex
-from .schema import (
-    MetricNameMatcher,
-    RunGroup,
-    read_schema,
-    SCHEMA_YAML_FILENAME,
-    BY_GROUP,
-    THIS_GROUP_ONLY,
-    NO_GROUPS,
-    DOWN_ARROW,
+from .table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
+from .schema import MetricNameMatcher, RunGroup, read_schema, SCHEMA_YAML_FILENAME, BY_GROUP, THIS_GROUP_ONLY, NO_GROUPS
+
+from .contamination import (
+    read_contamination,
+    validate_contamination,
+    CONTAMINATION_SYMBOLS,
+    CONTAMINATION_STYLES,
+    CONTAMINATION_LEVEL_STRONG,
 )
-from .contamination import read_contamination, validate_contamination, CONTAMINATION_SYMBOLS, CONTAMINATION_STYLES
+from .run_display import write_run_display_json
 
 """
 Reads the output of the benchmark runs and produces:
@@ -158,18 +160,58 @@ def get_method_display_name(model_display_name: Optional[str], info: Dict[str, A
     return (model_display_name or "???") + (f" [{dict_to_str(info)}]" if len(info) > 0 else "")
 
 
+def compute_aggregate_row_win_rates(table: Table, aggregation: str = "mean") -> List[Optional[float]]:
+    """
+    Computes the aggregate win rate of each row across columns. For a given row r1 and column c1, the win rate of r1 wrt
+    to c1 corresponds to: if we pick another row r2 uniformly at random, what is the probability that r1c1 is better
+    that r2c1?
+    `aggregation` determines how we aggregate win rates across columns, currently can be "mean" or "median".
+    We skip columns where "better" is ambiguous or less than 2 values are non-null.
+    Returns a list of aggregate win rates, one per row, with None if a row was never meaningfully comparable (i.e., all
+    non-null values of the row are in columns we skip).
+    """
+    assert aggregation in ["mean", "median"]
+    win_rates_per_row: List[List[float]] = [[] for _ in table.rows]
+    for i, header_cell in enumerate(table.header):
+        lower_is_better = header_cell.lower_is_better
+        if lower_is_better is None:  # column does not have a meaningful ordering
+            continue
+
+        # sort row indices by cell value and then compute the number of wins as the index in the sorted list
+        def is_cell_valid(cell: Cell) -> bool:  # ignore cells which are strongly contaminated or have no value
+            if cell.value is None:
+                return False
+            if cell.contamination_level and cell.contamination_level == CONTAMINATION_LEVEL_STRONG:
+                return False
+            return True
+
+        values = [(row[i].value, j) for j, row in enumerate(table.rows) if is_cell_valid(row[i])]
+        if len(values) < 2:  # don't rank a single model
+            continue
+        for wins, (v, j) in enumerate(sorted(values, reverse=lower_is_better)):
+            win_rate = wins / (len(values) - 1)  # normalize to [0, 1]
+            win_rates_per_row[j].append(win_rate)
+
+    # Note: the logic up to here is somewhat general as it simply computes win rates across columns for each row.
+    # Here, we simply average these win rates but we might want some more involved later (e.g., weighted average).
+    aggregate_win_rates: List[Optional[float]] = []
+    for win_rates in win_rates_per_row:
+        if len(win_rates) == 0:
+            aggregate_win_rates.append(None)
+        else:
+            aggregate = mean(win_rates) if aggregation == "mean" else median(win_rates)
+            aggregate_win_rates.append(aggregate)
+
+    return aggregate_win_rates
+
+
 class Summarizer:
     """Summarize the benchmark results in JSON files to be displayed in the UI."""
 
     COST_REPORT_FIELDS: List[str] = ["num_prompt_tokens", "num_completion_tokens", "num_completions", "num_requests"]
 
     # We need to hide stats for these model-metric combinations
-    LOGPROBS_ISSUE_MODELS: Set[str] = {
-        "anthropic/stanford-online-all-v4-s3",
-        "ai21/j1-jumbo",
-        "ai21/j1-grande",
-        "ai21/j1-large",
-    }
+    LOGPROBS_ISSUE_MODELS: Set[str] = {"anthropic/stanford-online-all-v4-s3"}
     LOGPROBS_ISSUE_METRICS: Set[str] = {
         # MSMARCO metrics
         "NDCG@10",
@@ -212,55 +254,6 @@ class Summarizer:
             stats=stats,
         )
 
-    def compute_slim_per_instance_stats(self, per_instance_stats: List[Dict]) -> List[Dict]:
-        """Given per instance stats, output a slim version for the frontend."""
-        result = []
-        for instance in per_instance_stats:
-            slim_instance = {}
-            # Unfortunately we can't pre-compute the instance key because
-            # Python's JSON serialization is slightly different from JavaScript's.
-            slim_instance["instance_id"] = instance["instance_id"]
-            if "perturbation" in instance:
-                slim_instance["perturbation"] = instance["perturbation"]
-            slim_instance["train_trial_index"] = instance["train_trial_index"]
-            slim_instance["stats"] = []
-            for stat in instance["stats"]:
-                slim_stat = {}
-                slim_stat["name"] = {"name": stat["name"]["name"]}
-                if "mean" in stat:
-                    slim_stat["mean"] = stat["mean"]
-                slim_instance["stats"].append(slim_stat)
-            result.append(slim_instance)
-        return result
-
-    @htrack(None)
-    def write_slim_per_instance_stats(self) -> None:
-        """
-        For each run, load per_instance_stats.json and write per_instance_stats_slim.json.
-        TODO: Move this logic to Runner, so it gets generated during the run
-              https://github.com/stanford-crfm/helm/issues/1119
-        """
-        run_specs_path: str = os.path.join(self.run_suite_path, "run_specs.json")
-        assert os.path.exists(run_specs_path), f"{run_specs_path} does not exist."
-
-        with open(run_specs_path) as f:
-            raw_run_specs = json.load(f)
-
-        def process(raw_run_spec: Dict):
-            run_spec = dacite.from_dict(RunSpec, raw_run_spec)
-            run_path: str = os.path.join(self.run_suite_path, run_spec.name)
-
-            per_instance_stats_path: str = os.path.join(run_path, "per_instance_stats.json")
-            if os.path.exists(per_instance_stats_path):
-                per_instance_stats: List[Dict]
-                with open(per_instance_stats_path) as input_file:
-                    per_instance_stats = json.load(input_file)
-                per_instance_stats_slim_path = f"{per_instance_stats_path[:-len('.json')]}_slim.json"
-                with open(per_instance_stats_slim_path, "w") as output_file:
-                    json.dump(self.compute_slim_per_instance_stats(per_instance_stats), output_file)
-
-        parallel_map(process, raw_run_specs, parallelism=self.num_threads)
-
     def filter_runs_by_visibility(self, runs: List[Run], group: RunGroup) -> List[Run]:
         """Filter the list of runs and only keep runs relevant to this group."""
         filtered_runs: List[Run] = []
@@ -290,28 +283,19 @@ class Summarizer:
         return filtered_runs
 
     def read_runs(self):
-        """Load the corresponding runs for the run specs in run_specs.json."""
-
-        run_specs_path: str = os.path.join(self.run_suite_path, "run_specs.json")
-        if not os.path.exists(run_specs_path):
-            hlog(f"Summarizer won't run because {run_specs_path} doesn't exist yet. This is expected in a dry run.")
-            return []
-
+        """Load the runs in the run suite path."""
         self.runs: List[Run] = []
-        with open(run_specs_path) as f:
-            raw_run_specs = json.load(f)
-        for raw_run_spec in raw_run_specs:
-            run_spec = dacite.from_dict(RunSpec, raw_run_spec)
-            run_path: str = os.path.join(self.run_suite_path, run_spec.name)
-
-            run_spec_path: str = os.path.join(run_path, "run_spec.json")
-            stats_path: str = os.path.join(run_path, "stats.json")
-
-            if os.path.exists(run_spec_path) and os.path.exists(stats_path):
-                run = self.read_run(run_path)
-                self.runs.append(run)
-            else:
-                hlog(f"WARNING: {run_path} doesn't have run_spec.json or stats.json, skipping")
+        # run_suite_path can contain subdirectories that are not runs (e.g. eval_cache, groups)
+        # so filter them out.
+        run_dir_names = sorted([p for p in os.listdir(self.run_suite_path) if p != "eval_cache" and p != "groups"])
+        for run_dir_name in tqdm(run_dir_names):
+            run_spec_path: str = os.path.join(self.run_suite_path, run_dir_name, "run_spec.json")
+            stats_path: str = os.path.join(self.run_suite_path, run_dir_name, "stats.json")
+            if not os.path.exists(run_spec_path) or not os.path.exists(stats_path):
+                hlog(f"WARNING: {run_dir_name} doesn't have run_spec.json or stats.json, skipping")
+                continue
+            run_path: str = os.path.join(self.run_suite_path, run_dir_name)
+            self.runs.append(self.read_run(run_path))
 
         # For each group (e.g., natural_qa), map
         # (i) scenario spec (e.g., subject=philosophy) [optional] and
@@ -388,6 +372,12 @@ class Summarizer:
             json.dumps(list(map(asdict_without_nones, self.runs)), indent=2),
         )
 
+    def write_run_specs(self):
+        write(
+            os.path.join(self.run_suite_path, "run_specs.json"),
+            json.dumps(list(map(asdict_without_nones, [run.run_spec for run in self.runs])), indent=2),
+        )
+
     def expand_subgroups(self, group: RunGroup) -> List[RunGroup]:
         """Given a RunGroup, collect a list of its subgroups by traversing the subgroup tree."""
 
@@ -427,15 +417,15 @@ class Summarizer:
         tables: List[Table] = []
         for category, groups in category_to_groups.items():
             header = [
-                Cell("Group"),
-                Cell("Description"),
+                HeaderCell("Group"),
+                HeaderCell("Description"),
                 # Synchronize these names with `schema.yaml`
-                Cell("Adaptation method", description="Adaptation strategy (e.g., generation)"),
-                Cell("# instances", description="Number of instances evaluated on"),
-                Cell("# references", description="Number of references provided per instance"),
-                Cell("# prompt tokens", description="Total number of prompt tokens"),
-                Cell("# completion tokens", description="Total number of completion tokens"),
-                Cell("# models", description="Number of models we're evaluating"),
+                HeaderCell("Adaptation method", description="Adaptation strategy (e.g., generation)"),
+                HeaderCell("# instances", description="Number of instances evaluated on"),
+                HeaderCell("# references", description="Number of references provided per instance"),
+                HeaderCell("# prompt tokens", description="Total number of prompt tokens"),
+                HeaderCell("# completion tokens", description="Total number of completion tokens"),
+                HeaderCell("# models", description="Number of models we're evaluating"),
             ]
             rows: List[List[Cell]] = []
             for group in groups:
@@ -554,7 +544,7 @@ class Summarizer:
         if contamination_level is not None:
             style = CONTAMINATION_STYLES.get(contamination_level, style)
 
-        return Cell(value=value, description=description, style=style)
+        return Cell(value=value, description=description, style=style, contamination_level=contamination_level)
 
     def create_group_table(
         self,
@@ -566,6 +556,7 @@ class Summarizer:
         sort_by_model_order: bool = True,
         sub_split: Optional[str] = None,
         bold_columns: bool = True,
+        add_win_rate: bool = False,
     ) -> Table:
         """
         Create a table for where each row is an adapter (for which we have a set of runs) and columns are pairs of
@@ -581,15 +572,16 @@ class Summarizer:
             hlog(f"WARNING: table {title}, has no rows or columns, leaving empty")
             return Table("empty", [], [])
 
-        header: List[Cell] = []
+        header: List[HeaderCell] = []
         matchers: List[MetricNameMatcher] = []
         group_names: List[str] = []  # for each column
         num_groups = len(set(run_group.name for run_group, _ in columns))  # number of unique groups, determines headers
 
         # Column headers
-        header.append(Cell("Model/adapter"))
+        header.append(HeaderCell("Model/adapter"))
         for run_group, metric_group_name in columns:
-            if metric_group_name not in run_group.metric_groups:
+            # check if at least the basic version of a metric group is evaluated (e.g., "bias" for "bias_detailed")
+            if metric_group_name.replace("_detailed", "") not in run_group.metric_groups:
                 continue
             metric_group = self.schema.name_to_metric_group[metric_group_name]
             for metric in metric_group.metrics:
@@ -600,8 +592,12 @@ class Summarizer:
                 if header_field is None:
                     hlog(f"WARNING: metric name {matcher.name} undefined in {SCHEMA_YAML_FILENAME}, skipping")
                     continue
+                metadata = {
+                    "metric": header_field.get_short_display_name(),
+                    "run_group": run_group.get_short_display_name(),
+                }
 
-                header_name = header_field.get_short_display_name(arrow=True)
+                header_name = header_field.get_short_display_name()
                 description = (run_group.description + "\n\n" if run_group.description is not None else "") + (
                     header_field.display_name + ": " + header_field.description
                 )
@@ -615,11 +611,19 @@ class Summarizer:
                         + ": "
                         + (perturbation_field.description or "???")
                     )
+                    metadata["perturbation"] = perturbation_field.get_short_display_name()
 
                 if num_groups > 1:  # we have multiple groups in the same table, so display the name in the column
                     header_name = f"{run_group.get_short_display_name()} - {header_name}"
 
-                header.append(Cell(header_name, description=description))
+                header.append(
+                    HeaderCell(
+                        header_name,
+                        description=description,
+                        lower_is_better=header_field.lower_is_better,
+                        metadata=metadata,
+                    )
+                )
                 matchers.append(matcher)
                 group_names.append(run_group.name)
 
@@ -738,15 +742,34 @@ class Summarizer:
                 links.append(Hyperlink(text="compare all", href=run_spec_names_to_url(all_run_spec_names)))
 
         table = Table(title=title, header=header, rows=rows, links=links, name=name)
+
+        if add_win_rate:
+            # add overall win rate as the second column
+            WIN_RATE_AGGREGATION = "mean"
+            win_rates = compute_aggregate_row_win_rates(table, aggregation=WIN_RATE_AGGREGATION)
+            AGGREGATE_WIN_RATE_COLUMN = 1
+            description = "How many models this model outperform on average (over columns)."
+            table.header.insert(
+                AGGREGATE_WIN_RATE_COLUMN,
+                HeaderCell(
+                    f"{WIN_RATE_AGGREGATION.capitalize()} win rate",
+                    description=description,
+                    lower_is_better=False,
+                ),
+            )
+            for row, win_rate in zip(table.rows, win_rates):
+                row.insert(AGGREGATE_WIN_RATE_COLUMN, Cell(win_rate))
+
         if bold_columns:
-            for i in range(1, len(header)):
-                # TODO: handle lower_is_better in a cleaner way
-                lower_is_better = DOWN_ARROW in header[i].value
+            for i, header_cell in enumerate(table.header):
+                lower_is_better = header_cell.lower_is_better
+                if lower_is_better is None:
+                    continue
                 values = [float(row[i].value) for row in rows if row[i].value is not None]
                 if not values:
                     continue
                 best = min(values) if lower_is_better else max(values)
-                for row in rows:
+                for row in table.rows:
                     cell = row[i]
                     if cell.value is not None and cell.value == best:
                         bold_style = cell.style.copy() if cell.style is not None else {}
@@ -759,16 +782,27 @@ class Summarizer:
         Each table has `adapter_spec`s as rows and scenarios or groups as columns."""
         tables: List[Table] = []
         adapter_to_runs: Dict[AdapterSpec, List[Run]] = defaultdict(list)
-        all_metric_groups: List[str] = []
         subgroups = self.expand_subgroups(group)
         for subgroup in subgroups:
-            all_metric_groups.extend(subgroup.metric_groups)
             for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
                 coarse_adapter_spec = get_coarse_adapter_spec(adapter_spec, adapter_keys_shown=group.adapter_keys_shown)
                 filtered_runs = self.filter_runs_by_visibility(runs, group)
                 if filtered_runs:
                     adapter_to_runs[coarse_adapter_spec].extend(filtered_runs)
-        all_metric_groups = list(dict.fromkeys(all_metric_groups))  # deduplicate while preserving order
+
+        all_metric_groups: List[str] = []
+        if group.metric_groups:  # if the group specifies the metric groups, use them
+            all_metric_groups = group.metric_groups
+        else:  # otherwise, collect them from subgroups
+            for subgroup in subgroups:
+                all_metric_groups.extend(subgroup.metric_groups)
+            # deduplicate, remove basic metric group if we include the detailed one, remove hidden metric groups
+            all_metric_groups = [
+                metric_group
+                for metric_group in dict.fromkeys(all_metric_groups)
+                if f"{metric_group}_detailed" not in all_metric_groups
+                and metric_group not in group.subgroup_metric_groups_hidden
+            ]
 
         if len(adapter_to_runs) > 0:
             for metric_group in all_metric_groups:
@@ -779,6 +813,7 @@ class Summarizer:
                     adapter_to_runs=adapter_to_runs,
                     columns=[(subgroup, metric_group) for subgroup in subgroups],
                     link_to_runs=False,
+                    add_win_rate=True,
                 )
                 tables.append(table)
         return tables
@@ -902,6 +937,12 @@ class Summarizer:
                 json.dumps(list(map(asdict_without_nones, tables)), indent=2),
             )
 
+    def write_run_display_json(self) -> None:
+        def process(run: Run) -> None:
+            write_run_display_json(run.run_path, run.run_spec, self.schema)
+
+        parallel_map(process, self.runs, parallelism=self.num_threads)
+
 
 @htrack(None)
 def main():
@@ -922,9 +963,9 @@ def main():
         help="Display debugging information.",
     )
     parser.add_argument(
-        "--skip-slim-per-instance-stats",
+        "--skip-write-run-display-json",
         action="store_true",
-        help="Don't generate any per-instance stats.",
+        help="Skip write_run_display_json",
     )
     args = parser.parse_args()
 
@@ -937,10 +978,12 @@ def main():
 
     summarizer.write_executive_summary()
     summarizer.write_runs()
+    summarizer.write_run_specs()
     summarizer.write_groups()
     summarizer.write_cost_report()
-    if not args.skip_slim_per_instance_stats:
-        summarizer.write_slim_per_instance_stats()
+
+    if not args.skip_write_run_display_json:
+        summarizer.write_run_display_json()
 
     hlog("Done.")
 

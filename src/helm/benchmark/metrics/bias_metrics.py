@@ -6,7 +6,7 @@ from nltk.tokenize import word_tokenize
 import numpy as np
 
 from helm.common.request import RequestResult, Sequence
-from helm.benchmark.adapter import RequestState
+from helm.benchmark.adaptation.request_state import RequestState
 from .statistic import Stat
 from .metric import Metric
 from .metric_name import MetricName

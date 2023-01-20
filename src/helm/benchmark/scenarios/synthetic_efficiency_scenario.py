@@ -2,8 +2,7 @@ import os
 from typing import List
 
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TEST_SPLIT, CORRECT_TAG
-
+from .scenario import Scenario, Instance, Reference, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 NUM_INPUT_TOKENS: List[int] = [
     1,
@@ -43,6 +42,7 @@ class SyntheticEfficiencyScenario(Scenario):
     tags: List[str] = []
 
     def __init__(self, num_prompt_tokens: int, num_instances: int, tokenizer: str):
+        super().__init__()
         self.num_prompt_tokens: int = num_prompt_tokens
         self.num_instances: int = num_instances
         self.tokenizer: str = tokenizer
@@ -80,8 +80,8 @@ class SyntheticEfficiencyScenario(Scenario):
             with open(data_path, "r") as f:
                 prompt: str = f.read()
                 instance = Instance(
-                    input=prompt,
-                    references=[Reference(output="", tags=[CORRECT_TAG])],
+                    input=Input(text=prompt),
+                    references=[Reference(Output(text=""), tags=[CORRECT_TAG])],
                     split=TEST_SPLIT,
                 )
                 instances.append(instance)

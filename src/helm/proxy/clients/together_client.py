@@ -1,6 +1,4 @@
 from typing import List, Dict, Any, Optional, Union
-import json
-import time
 import requests
 
 from helm.common.cache import Cache, CacheConfig
@@ -11,7 +9,6 @@ from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
 )
-from helm.common.hierarchical_logger import hlog
 from .client import Client, wrap_request_time, truncate_sequence
 
 
@@ -27,14 +24,15 @@ class TogetherClient(Client):
     checks if the request/result is cached. We return the result if it's in the cache. Otherwise, we return an error.
     """
 
-    ORGANIZATION: str = "together"
+    INFERENCE_ENDPOINT: str = "https://staging.together.xyz/api/inference"
 
     @staticmethod
     def convert_to_raw_request(request: Request) -> Dict:
         # Following the examples from https://github.com/togethercomputer/open-models-api
         return {
             "request_type": "language-model-inference",
-            "model": request.model_engine,
+            # TODO: the Together API expects "together/" in the model name
+            "model": request.model,
             "prompt": request.prompt,
             "temperature": request.temperature,
             "n": request.num_completions,
@@ -59,35 +57,9 @@ class TogetherClient(Client):
         try:
 
             def do_it():
-                # base_url = "https://api.together.xyz/jobs"  # TODO: Eventually, move to this and include API key
-                base_url = "https://planetd.shift.ml"
-
-                # Submit job
-                response = requests.post(
-                    f"{base_url}/jobs",
-                    json={
-                        "type": "general",
-                        "payload": raw_request,
-                        "returned_payload": {},
-                        "status": "submitted",
-                        "source": "dalle",
-                    },
-                ).json()
-
-                # Poll and wait for job to be finished
-                job_id = response["id"]
-                TIMEOUT = 60
-                for t in range(TIMEOUT):
-                    response = requests.get(f"{base_url}/job/{job_id}").json()
-                    status = response["status"]
-                    hlog(f"TogetherClient: Waiting for job {job_id}, status is {status}, waited {t} seconds")
-                    if status == "finished":
-                        return response["returned_payload"]["result"]["inference_result"][0]
-                    elif status == "failed":
-                        raise RuntimeError(f"TogetherClient request failed: {json.dumps(response)}")
-                    time.sleep(1)
-
-                raise RuntimeError(f"TogetherClient request timed out after {TIMEOUT} seconds")
+                result = requests.post(TogetherClient.INFERENCE_ENDPOINT, json=raw_request).json()
+                assert "output" in result, f"Invalid response: {result}"
+                return result["output"]
 
             def fail():
                 raise RuntimeError(
@@ -146,7 +118,7 @@ class TogetherClient(Client):
             return RequestResult(
                 success=True,
                 cached=cached,
-                request_time=request_time,
+                request_time=response["raw_compute_time"] if "raw_compute_time" in response else request_time,
                 completions=completions,
                 embedding=[],
             )

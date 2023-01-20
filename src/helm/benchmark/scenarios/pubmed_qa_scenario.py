@@ -3,7 +3,7 @@ import os
 from typing import Dict, List
 
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
-from .scenario import Scenario, Instance, ALL_SPLITS, CORRECT_TAG, Reference, PassageQuestionInput
+from .scenario import Scenario, Instance, ALL_SPLITS, CORRECT_TAG, Reference, PassageQuestionInput, Output
 
 
 class PubMedQAScenario(Scenario):
@@ -122,9 +122,6 @@ class PubMedQAScenario(Scenario):
 
     POSSIBLE_ANSWER_CHOICES: List[str] = ["yes", "no", "maybe"]
 
-    def __init__(self):
-        pass
-
     def get_instances(self) -> List[Instance]:
         data_path: str = os.path.join(self.output_path, "data")
         ensure_directory_exists(data_path)
@@ -159,15 +156,15 @@ class PubMedQAScenario(Scenario):
                     correct_answer: str = example["final_decision"]
                     assert correct_answer in PubMedQAScenario.POSSIBLE_ANSWER_CHOICES
                     references: List[Reference] = [
-                        Reference(output=answer, tags=[CORRECT_TAG] if answer == correct_answer else [])
+                        Reference(Output(text=answer), tags=[CORRECT_TAG] if answer == correct_answer else [])
                         for answer in PubMedQAScenario.POSSIBLE_ANSWER_CHOICES
                     ]
 
                     # Following Liévin et al., prepend the question with the provided context.
                     # Examples can be found here: https://vlievin.github.io/medical-reasoning/samples/pubmedqa.html.
                     question: str = example["QUESTION"]
-                    prompt = PassageQuestionInput(passage=background, question=question + "\n").to_text(
-                        passage_prefix="Context: ", separator="\n\n"
+                    prompt = PassageQuestionInput(
+                        passage=background, question=question + "\n", passage_prefix="Context: ", separator="\n\n"
                     )
                     instance: Instance = Instance(input=prompt, references=references, split=split)
                     instances.append(instance)

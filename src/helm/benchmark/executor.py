@@ -1,15 +1,15 @@
 from typing import Optional
 from dataclasses import dataclass, replace
 
-from helm.common.general import format_text, parallel_map
+from helm.common.general import parallel_map
 from helm.common.hierarchical_logger import htrack, hlog
 from helm.common.request import RequestResult
 from helm.common.authentication import Authentication
 from helm.proxy.services.remote_service import RemoteService
 from helm.proxy.services.server_service import ServerService
 from helm.proxy.services.service import Service
-from .adapter import RequestState, ScenarioState
-from .scenarios.scenario import Instance
+from helm.benchmark.adaptation.scenario_state import ScenarioState
+from helm.benchmark.adaptation.request_state import RequestState
 
 
 class ExecutorError(Exception):
@@ -71,35 +71,6 @@ class Executor:
         if self.execution_spec.dry_run:
             hlog("Skipped execution.")
             return scenario_state
-
-        def render_request_state(state: RequestState) -> str:
-            def format_instance(instance: Instance) -> str:
-                metadata_str: str = (
-                    f"[split={instance.split}, sub_split={instance.sub_split}, "
-                    f"id={instance.id}, perturbation={instance.perturbation}]"
-                )
-                return f"{metadata_str} {format_text(instance.input[:100])}"
-
-            instance: Instance = state.instance
-            gold_output: Optional[str] = None
-            if instance.first_correct_reference is not None:
-                gold_output = instance.first_correct_reference.output
-
-            pred_output: Optional[str] = None
-            if state.result is not None:
-                pred_output = state.result.completions[0].text
-
-            if state.output_mapping is not None and pred_output is not None:
-                pred_output = state.output_mapping.get(pred_output.strip())
-
-            correct_str = "CORRECT" if gold_output == pred_output else "WRONG"
-            # Truncate pred_output for a better visualization
-            if pred_output is not None:
-                pred_output = pred_output[:100]
-            return (
-                f"{format_instance(instance)} => {format_text(str(gold_output))}, "
-                + f"predicted {format_text(str(pred_output))} [{correct_str}]"
-            )
 
         # Do it!
         request_states = parallel_map(

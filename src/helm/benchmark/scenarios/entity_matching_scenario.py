@@ -4,7 +4,7 @@ from typing import Dict, List, Tuple
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG
+from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
 
 
 class EntityMatchingScenario(Scenario):
@@ -52,6 +52,7 @@ class EntityMatchingScenario(Scenario):
     tags = ["entity_matching", "structured_reasoning"]
 
     def __init__(self, dataset: str):
+        super().__init__()
         self.em_datasets_paths = {
             "Beer": "Structured/Beer",
             "iTunes_Amazon": "Structured/iTunes-Amazon",
@@ -128,14 +129,14 @@ class EntityMatchingScenario(Scenario):
         for split, example_df in labeled_examples.items():
             hlog(f"Processing {split} with {example_df.shape[0]} rows")
             for _, pair in example_df.iterrows():
-                resA = self.serialize_row(pair, column_mapA)
-                resB = self.serialize_row(pair, column_mapB)
-                input = f"Product A is {resA}. Product B is {resB}. Are A and B the same?"
-                label = "Yes" if pair["label"] else "No"
+                resA: str = self.serialize_row(pair, column_mapA)
+                resB: str = self.serialize_row(pair, column_mapB)
+                input: str = f"Product A is {resA}. Product B is {resB}. Are A and B the same?"
+                label: str = "Yes" if pair["label"] else "No"
 
                 instance = Instance(
-                    input=input,
-                    references=[Reference(output=label, tags=[CORRECT_TAG])],
+                    input=Input(text=input),
+                    references=[Reference(Output(text=label), tags=[CORRECT_TAG])],
                     split=split,
                 )
 

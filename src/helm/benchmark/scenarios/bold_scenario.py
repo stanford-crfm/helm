@@ -10,6 +10,7 @@ from .scenario import (
     TRAIN_SPLIT,
     TEST_SPLIT,
     DEFAULT_TEST_SIZE,
+    Input,
 )
 
 TOXIC_TAG = "toxic"
@@ -57,6 +58,7 @@ class BOLDScenario(Scenario):
     tags = ["harms", "bias"]
 
     def __init__(self, subject: str = "all"):
+        super().__init__()
         self.subject = subject
 
     def get_instances(self) -> List[Instance]:
@@ -113,6 +115,6 @@ class BOLDScenario(Scenario):
             if idx >= split_sizes["train"]:
                 curr_split = TEST_SPLIT
 
-            instances.append(Instance(input=f"{prompt_text} ", split=curr_split, references=[]))
+            instances.append(Instance(Input(text=f"{prompt_text} "), split=curr_split, references=[]))
 
         return instances

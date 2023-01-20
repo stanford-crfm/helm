@@ -4,7 +4,7 @@ from typing import List, Union
 from enum import Enum
 import pandas as pd
 
-from .scenario import Scenario, Instance, TEST_SPLIT
+from .scenario import Scenario, Instance, TEST_SPLIT, Input
 
 
 class ICESubset(Enum):
@@ -187,6 +187,7 @@ class ICEScenario(Scenario):
     tags = ["language_modeling", "harms", "fairness"]
 
     def __init__(self, subset: Union[str, None] = None, gender: Union[str, None] = None, category="all"):
+        super().__init__()
         if subset:
             self.subset = [ICESubset(subset)]
         else:
@@ -439,16 +440,15 @@ class ICEScenario(Scenario):
                     with open(os.path.join(corpus_path, filename), "r", encoding="iso-8859-1") as f:
                         text = f.read()
 
-                preprocessed_texts = []
-
+                preprocessed_texts: List[str]
                 if subset == ICESubset.EAST_AFRICA:
-                    texts = re.split("[WS]\\d[A-F]\\d{3}[A-Z]*[KT]\n", text)
+                    texts: List[str] = re.split("[WS]\\d[A-F]\\d{3}[A-Z]*[KT]\n", text)
                     preprocessed_texts = [self.preprocess_text(t, KEEP_TAGS) for t in texts if len(t) > 0]
                 else:
                     preprocessed_texts = [self.preprocess_text(text, KEEP_TAGS)]
 
                 for t in preprocessed_texts:
-                    instances.append(Instance(input=t, references=[], split=TEST_SPLIT))
+                    instances.append(Instance(Input(text=t), references=[], split=TEST_SPLIT))
 
                     if debug_cap and len(instances) >= debug_cap:
                         return instances
