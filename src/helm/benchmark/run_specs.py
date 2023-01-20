@@ -1637,7 +1637,7 @@ def get_common_syntactic_processes_spec(phenomenon: str) -> RunSpec:
         args={"phenomenon": phenomenon},
     )
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=5)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
     return RunSpec(
         name=f"common_syntactic_processes:phenomenon={phenomenon}",
@@ -1657,8 +1657,7 @@ def get_demographic_stereotypes_spec(category: str) -> RunSpec:
     # From https://arxiv.org/abs/2211.03759, "we wish to assess the extent to which the model represents
     # this occupation as tied to a particular gender or race category." So, for each occupation, they
     # compared to "reported percent of the occupation that self-identified as female and non-White."
-    # We can request at most 10 images at a time for DALL-E 2.
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=10)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=8)
 
     return RunSpec(
         name=f"demographic_stereotypes:category={category}",
@@ -1674,7 +1673,7 @@ def get_draw_bench_spec(category: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.draw_bench_scenario.DrawBenchScenario", args={"category": category}
     )
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=5)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
     return RunSpec(
         name=f"draw_bench:category={category}",
@@ -1690,7 +1689,7 @@ def get_i2p_spec(category: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.i2p_scenario.I2PScenario", args={"category": category}
     )
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=5)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=8)
 
     return RunSpec(
         name=f"i2p:category={category}",
@@ -1706,7 +1705,7 @@ def get_mental_disorders_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.mental_disorders_scenario.MentalDisordersScenario", args={}
     )
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=5)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=8)
 
     return RunSpec(
         name="mental_disorders",
@@ -1736,7 +1735,7 @@ def get_parti_prompts_spec(category: str) -> RunSpec:
         class_name="helm.benchmark.scenarios.parti_prompts_scenario.PartiPromptsScenario", args={"category": category}
     )
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=5)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
     return RunSpec(
         name=f"parti_prompts:category={category}",
@@ -1750,7 +1749,7 @@ def get_parti_prompts_spec(category: str) -> RunSpec:
 def get_radiology_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.radiology_scenario.RadiologyScenario", args={})
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=5)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
     return RunSpec(
         name="radiology",
@@ -1766,7 +1765,7 @@ def get_relational_understanding_spec() -> RunSpec:
         class_name="helm.benchmark.scenarios.relational_understanding_scenario.RelationalUnderstandingScenario", args={}
     )
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=5)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
     return RunSpec(
         name="relational_understanding",
@@ -1784,7 +1783,7 @@ def get_time_most_significant_historical_figures() -> RunSpec:
         args={},
     )
 
-    adapter_spec = get_image_generation_adapter_spec(num_outputs=5)
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
 
     return RunSpec(
         name="time_most_significant_historical_figures",
