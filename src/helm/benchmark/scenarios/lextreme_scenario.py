@@ -414,7 +414,7 @@ class LEXTREMEScenario(Scenario):
                     Reference(output=correct_label, tags=[CORRECT_TAG]) for correct_label in correct_labels
                 ]  # for MLTC we have multiple correct ones
             elif task_code == "NER":
-                input_text = ",".join(example["input"])
+                input_text = self.delimiter.join(example["input"])
                 correct_references = [Reference(output=self.delimiter.join(correct_labels), tags=[CORRECT_TAG])]
             return Instance(input=input_text, references=wrong_references + correct_references, split=split)
 

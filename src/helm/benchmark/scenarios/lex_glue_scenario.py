@@ -127,7 +127,6 @@ class LexGLUEScenario(Scenario):
     dataset_name = "lex_glue"
     max_number_of_wrong_answers = 30
     mltc_no_label_name = "No Label"
-    delimiter = "|"  # we choose the pipe as a delimiter because it is very unlikely to occur in the data
 
     def __init__(self, subset: str):
         assert subset in list(TASK_CODE_MAPPING.keys()) + ["all"], f"Unknown subset: {subset}"
