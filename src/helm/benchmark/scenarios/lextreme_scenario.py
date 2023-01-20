@@ -227,7 +227,7 @@ class LEXTREMEScenario(Scenario):
     dataset_name = "joelito/lextreme"
     max_number_of_wrong_answers = 30
     mltc_no_label_name = "No Label"
-    delimiter = "|"  # we choose the pipe as a delimiter because it is very unlikely to occur in the data
+    delimiter = '" "'  # we choose quotes and whitespace as a delimiter because this is what worked for gpt3
 
     ner_class_mapping = {
         LENER_BR: [
@@ -388,7 +388,9 @@ class LEXTREMEScenario(Scenario):
                         if label_name not in correct_labels and label_name != "O":
                             # just replace the non-'O' labels with the new label_name for a fake example
                             new_labels = [label_name if label != "O" else label for label in correct_labels]
-                            wrong_reference = Reference(output=self.delimiter.join(new_labels), tags=[])  # Wrong output
+                            wrong_reference = Reference(
+                                output='"' + self.delimiter.join(new_labels) + '"', tags=[]
+                            )  # Wrong output
                             wrong_references.append(wrong_reference)
 
             wrong_references = reduce_wrong_reference_count(wrong_references)
@@ -414,8 +416,8 @@ class LEXTREMEScenario(Scenario):
                     Reference(output=correct_label, tags=[CORRECT_TAG]) for correct_label in correct_labels
                 ]  # for MLTC we have multiple correct ones
             elif task_code == "NER":
-                input_text = self.delimiter.join(example["input"])
-                correct_references = [Reference(output=self.delimiter.join(correct_labels), tags=[CORRECT_TAG])]
+                input_text = '"' + self.delimiter.join(example["input"]) + '"'
+                correct_references = [Reference(output=" ".join(correct_labels), tags=[CORRECT_TAG])]
             return Instance(input=input_text, references=wrong_references + correct_references, split=split)
 
         def reduce_wrong_reference_count(wrong_references):
