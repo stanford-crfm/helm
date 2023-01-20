@@ -6,7 +6,7 @@ from typing import List, Any
 import datasets
 from datasets import load_dataset
 
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT
+from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, Output, Input
 
 
 class TaskType:
@@ -380,7 +380,7 @@ class LEXTREMEScenario(Scenario):
             if task_code in [TaskType.SLTC, TaskType.MLTC]:
                 for label_name in label_classes:
                     if label_name not in correct_labels:
-                        wrong_reference = Reference(output=label_name, tags=[])  # Wrong output
+                        wrong_reference = Reference(output=Output(label_name), tags=[])  # Wrong output
                         wrong_references.append(wrong_reference)
             elif task_code == "NER":
                 if len(set(correct_labels)) > 1:  # make sure that the correct labels are not only 'O's
@@ -389,7 +389,7 @@ class LEXTREMEScenario(Scenario):
                             # just replace the non-'O' labels with the new label_name for a fake example
                             new_labels = [label_name if label != "O" else label for label in correct_labels]
                             wrong_reference = Reference(
-                                output='"' + self.delimiter.join(new_labels) + '"', tags=[]
+                                output=Output('"' + self.delimiter.join(new_labels) + '"'), tags=[]
                             )  # Wrong output
                             wrong_references.append(wrong_reference)
 
@@ -399,7 +399,7 @@ class LEXTREMEScenario(Scenario):
                 if correct_labels:  # if we have a correct label
                     # add the no_label to the wrong references
                     # IMPORTANT: add it after reduce_wrong_reference_count, to make sure the no label is always there
-                    wrong_references.append(Reference(output=self.mltc_no_label_name, tags=[]))
+                    wrong_references.append(Reference(output=Output(self.mltc_no_label_name), tags=[]))
                 else:  # if we don't have a correct label
                     # add the no_label to the correct labels
                     correct_labels = [self.mltc_no_label_name]
@@ -413,12 +413,12 @@ class LEXTREMEScenario(Scenario):
                     languages = list(input_text.keys())
                     input_text = input_text[self.random.choice(languages)]  # just choose a random language
                 correct_references = [
-                    Reference(output=correct_label, tags=[CORRECT_TAG]) for correct_label in correct_labels
+                    Reference(output=Output(correct_label), tags=[CORRECT_TAG]) for correct_label in correct_labels
                 ]  # for MLTC we have multiple correct ones
             elif task_code == "NER":
                 input_text = '"' + self.delimiter.join(example["input"]) + '"'
-                correct_references = [Reference(output=" ".join(correct_labels), tags=[CORRECT_TAG])]
-            return Instance(input=input_text, references=wrong_references + correct_references, split=split)
+                correct_references = [Reference(output=Output(" ".join(correct_labels)), tags=[CORRECT_TAG])]
+            return Instance(input=Input(input_text), references=wrong_references + correct_references, split=split)
 
         def reduce_wrong_reference_count(wrong_references):
             self.random.shuffle(wrong_references)  # shuffle wrong references

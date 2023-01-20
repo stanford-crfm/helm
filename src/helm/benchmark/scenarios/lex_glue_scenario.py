@@ -6,7 +6,7 @@ import datasets
 from datasets import load_dataset
 
 from .lextreme_scenario import TaskType
-from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT
+from .scenario import Scenario, Instance, Reference, CORRECT_TAG, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, Input, Output
 
 ECTHR_A = "ecthr_a"
 ECTHR_B = "ecthr_b"
@@ -162,7 +162,7 @@ class LexGLUEScenario(Scenario):
             wrong_references = []
             for label_name in label_classes:
                 if label_name not in correct_labels:
-                    wrong_reference = Reference(output=label_name, tags=[])  # Wrong output
+                    wrong_reference = Reference(output=Output(label_name), tags=[])  # Wrong output
                     wrong_references.append(wrong_reference)
 
             wrong_references = reduce_wrong_reference_count(wrong_references)
@@ -171,7 +171,7 @@ class LexGLUEScenario(Scenario):
                 if correct_labels:  # if we have a correct label
                     # add the no_label to the wrong references
                     # IMPORTANT: add it after reduce_wrong_reference_count, to make sure the no label is always there
-                    wrong_references.append(Reference(output=self.mltc_no_label_name, tags=[]))
+                    wrong_references.append(Reference(output=Output(self.mltc_no_label_name), tags=[]))
                 else:  # if we don't have a correct label
                     # add the no_label to the correct labels
                     correct_labels = [self.mltc_no_label_name]
@@ -187,9 +187,9 @@ class LexGLUEScenario(Scenario):
 
             # construct correct references
             correct_references = [
-                Reference(output=correct_label, tags=[CORRECT_TAG]) for correct_label in correct_labels
+                Reference(output=Output(correct_label), tags=[CORRECT_TAG]) for correct_label in correct_labels
             ]  # for MLTC we have multiple correct ones
-            return Instance(input=input_text, references=wrong_references + correct_references, split=split)
+            return Instance(input=Input(input_text), references=wrong_references + correct_references, split=split)
 
         def reduce_wrong_reference_count(wrong_references):
             self.random.shuffle(wrong_references)  # shuffle wrong references
