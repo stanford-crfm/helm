@@ -129,6 +129,7 @@ class LexGLUEScenario(Scenario):
     mltc_no_label_name = "No Label"
 
     def __init__(self, subset: str):
+        super().__init__()
         assert subset in list(TASK_CODE_MAPPING.keys()) + ["all"], f"Unknown subset: {subset}"
         self.subsets = [subset] if subset != "all" else list(TASK_CODE_MAPPING.keys())
         self.random: random.Random = random.Random(42)
