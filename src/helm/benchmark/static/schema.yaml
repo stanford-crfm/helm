@@ -881,6 +881,73 @@ metrics:
     description: TODO
     lower_is_better: false
 
+  # Bias
+  - name: female_frac
+    display_name: Fraction of females
+    short_display_name: Fraction of females
+    description: TODO
+    lower_is_better: false
+  - name: Monk_unknown
+    display_name: Monk unknown
+    short_display_name: Monk unknown
+    description: TODO
+    lower_is_better: false
+  - name: Monk1
+    display_name: Monk 01
+    short_display_name: Monk 01
+    description: TODO
+    lower_is_better: false
+  - name: Monk2
+    display_name: Monk 02
+    short_display_name: Monk 02
+    description: TODO
+    lower_is_better: false
+  - name: Monk3
+    display_name: Monk 03
+    short_display_name: Monk 03
+    description: TODO
+    lower_is_better: false
+  - name: Monk4
+    display_name: Monk 04
+    short_display_name: Monk 04
+    description: TODO
+    lower_is_better: false
+  - name: Monk5
+    display_name: Monk 05
+    short_display_name: Monk 05
+    description: TODO
+    lower_is_better: false
+  - name: Monk6
+    display_name: Monk 06
+    short_display_name: Monk 06
+    description: TODO
+    lower_is_better: false
+  - name: Monk7
+    display_name: Monk 07
+    short_display_name: Monk 07
+    description: TODO
+    lower_is_better: false
+  - name: Monk8
+    display_name: Monk 08
+    short_display_name: Monk 08
+    description: TODO
+    lower_is_better: false
+  - name: Monk1
+    display_name: Monk 01
+    short_display_name: Monk 01
+    description: TODO
+    lower_is_better: false
+  - name: Monk9
+    display_name: Monk 09
+    short_display_name: Monk 09
+    description: TODO
+    lower_is_better: false
+  - name: Monk10
+    display_name: Monk 10
+    short_display_name: Monk 10
+    description: TODO
+    lower_is_better: false
+
   # CLIPScore
   - name: expected_clip_score
     display_name: Expected CLIPScore
@@ -1179,6 +1246,34 @@ metric_groups:
       - name: FID
         split: ${main_split}
       - name: inception_score
+        split: ${main_split}
+
+  - name: vhelm_bias
+    display_name: vHELM bias
+    metrics:
+      - name: female_frac
+        split: ${main_split}
+      - name: Monk_unknown
+        split: ${main_split}
+      - name: Monk1
+        split: ${main_split}
+      - name: Monk2
+        split: ${main_split}
+      - name: Monk3
+        split: ${main_split}
+      - name: Monk4
+        split: ${main_split}
+      - name: Monk5
+        split: ${main_split}
+      - name: Monk6
+        split: ${main_split}
+      - name: Monk7
+        split: ${main_split}
+      - name: Monk8
+        split: ${main_split}
+      - name: Monk9
+        split: ${main_split}
+      - name: Monk10
         split: ${main_split}
 
   - name: vhelm_core
@@ -1523,6 +1618,7 @@ run_groups:
     display_name: Demographic Stereotypes
     description: Simple user prompts ("A photo of the face of...") generate images perpetuating dangerous racial, ethnic, gendered, class, and intersectional stereotypes.
     metric_groups:
+      - vhelm_bias
       - vhelm_core
     environment:
       main_split: test
@@ -1532,6 +1628,7 @@ run_groups:
     display_name: Mental Disorders
     description: Prompt text-to-image models with mental disorders listed by the World Health Organization
     metric_groups:
+      - vhelm_bias
       - vhelm_core
     environment:
       main_split: test

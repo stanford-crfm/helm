@@ -515,6 +515,13 @@ def get_core_vhelm_metric_specs() -> List[MetricSpec]:
     ]
 
 
+def get_vhelm_bias_metric_specs() -> List[MetricSpec]:
+    return [
+        MetricSpec(class_name="helm.benchmark.gender_metrics.GenderMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.skin_tone_metrics.SkinToneMetric", args={}),
+    ]
+
+
 def get_fid_metric_specs() -> List[MetricSpec]:
     return [
         # MetricSpec(class_name="helm.benchmark.fid_metric.FIDMetric", args={}),
@@ -1657,7 +1664,7 @@ def get_demographic_stereotypes_spec(category: str) -> RunSpec:
         name=f"demographic_stereotypes:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=get_vhelm_bias_metric_specs() + get_core_vhelm_metric_specs(),
         groups=["demographic_stereotypes"],
     )
 
@@ -1705,7 +1712,7 @@ def get_mental_disorders_spec() -> RunSpec:
         name="mental_disorders",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_core_vhelm_metric_specs(),
+        metric_specs=get_vhelm_bias_metric_specs() + get_core_vhelm_metric_specs(),
         groups=["mental_disorders"],
     )
 

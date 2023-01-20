@@ -76,6 +76,7 @@ nodeenv==1.7.0
 numba==0.56.4
 numpy==1.23.3
 openai==0.25.0
+opencv-python==4.7.0.68
 openpyxl==3.0.10
 packaging==21.3
 pandas==1.5.0
