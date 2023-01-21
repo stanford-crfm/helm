@@ -5,6 +5,8 @@ from collections import Counter
 from dataclasses import dataclass, field
 from typing import List
 
+from tqdm import tqdm
+
 from helm.common.general import ensure_directory_exists, write, asdict_without_nones
 from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.cache import cache_stats
@@ -68,14 +70,12 @@ class Runner:
         execution_spec: ExecutionSpec,
         output_path: str,
         suite: str,
-        run_specs: List[RunSpec],
         skip_instances: bool,
     ):
         self.executor = Executor(execution_spec)
         self.dry_run: bool = execution_spec.dry_run
         self.tokenizer_service = TokenizerService(self.executor.service, execution_spec.auth)
         self.metric_service = MetricService(self.executor.service, execution_spec.auth)
-        self.run_specs: List[RunSpec] = run_specs
         self.skip_instances: bool = skip_instances
 
         ensure_directory_exists(output_path)
@@ -90,8 +90,8 @@ class Runner:
         self.eval_cache_path: str = os.path.join(self.runs_path, "eval_cache")
         ensure_directory_exists(self.eval_cache_path)
 
-    def run_all(self):
-        for run_spec in self.run_specs:
+    def run_all(self, run_specs: List[RunSpec]):
+        for run_spec in tqdm(run_specs):
             with htrack_block(f"Running {run_spec.name}"):
                 self.run_one(run_spec)
 
