@@ -105,16 +105,16 @@ class FidelityMetric(Metric):
                 )
                 fid: float = metrics_dict["frechet_inception_distance"]
                 inception_score: float = metrics_dict["inception_score_mean"]
-                stats.extend([
-                    Stat(MetricName("FID" + f"_{perturbation_name}" if perturbation_name else "")).add(fid),
-                    Stat(MetricName("inception_score" + f"_{perturbation_name}" if perturbation_name else "")).add(
-                        inception_score if not math.isnan(inception_score) else 0
-                    ),
-                ])
-            except AssertionError as e:
-                hlog(
-                    f"Error occurred when computing fidelity metrics for perturbation: {perturbation_name} Error: {e}"
+                stats.extend(
+                    [
+                        Stat(MetricName("FID" + f"_{perturbation_name}" if perturbation_name else "")).add(fid),
+                        Stat(MetricName("inception_score" + f"_{perturbation_name}" if perturbation_name else "")).add(
+                            inception_score if not math.isnan(inception_score) else 0
+                        ),
+                    ]
                 )
+            except AssertionError as e:
+                hlog(f"Error occurred when computing fidelity metrics for perturbation: {perturbation_name} Error: {e}")
 
             shutil.rmtree(generated_images_path)
 
