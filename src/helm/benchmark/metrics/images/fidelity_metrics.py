@@ -1,13 +1,15 @@
 from tqdm import tqdm
-from typing import Dict, List
+from typing import Dict, List, Set, Optional
+import math
 import os
 import shutil
 
 import torch
 import torch_fidelity
 
-from helm.common.general import copy_image, ensure_directory_exists, generate_unique_id, get_file_name
+from helm.common.general import copy_image, ensure_directory_exists, generate_unique_id, get_file_name, hlog
 from helm.common.request import RequestResult
+from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.scenarios.scenario import Instance
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.statistic import Stat
@@ -50,25 +52,18 @@ class FidelityMetric(Metric):
         eval_cache_path: str,
         parallelism: int,
     ) -> MetricResult:
-        # The library requires the two sets of images to be in two separate directories.
-        generated_images_path: str = os.path.join(eval_cache_path, generate_unique_id())
-        ensure_directory_exists(generated_images_path)
+        dest_path: str
+        unique_perturbations: Set[Optional[PerturbationDescription]] = set()
+
         gold_images_path: str = os.path.join(eval_cache_path, generate_unique_id())
         ensure_directory_exists(gold_images_path)
 
+        # The library requires the gold and generated images to be in two separate directories.
+        # Gather the gold images and the unique perturbations
         for request_state in tqdm(scenario_state.request_states):
-            assert request_state.result is not None
-            request_result: RequestResult = request_state.result
-            dest_path: str
-
-            # Gather the model-generated images
-            for image in request_result.completions:
-                if image.file_path is not None and not is_blacked_out_image(image.file_path):
-                    dest_path = os.path.join(generated_images_path, get_file_name(image.file_path))
-                    copy_image(image.file_path, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
-
-            # Gather the gold images
             instance: Instance = request_state.instance
+            unique_perturbations.add(instance.perturbation)
+
             for reference in instance.references:
                 if not reference.is_correct:
                     continue
@@ -78,21 +73,52 @@ class FidelityMetric(Metric):
                 dest_path = os.path.join(gold_images_path, get_file_name(file_path))
                 copy_image(file_path, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
 
-        metrics_dict: Dict[str, float] = torch_fidelity.calculate_metrics(
-            input1=generated_images_path,
-            input2=gold_images_path,
-            isc=True,
-            fid=True,
-            cuda=torch.cuda.is_available(),
-            save_cpu_ram=not torch.cuda.is_available(),
-        )
+        # Compute the FID for each perturbation group
+        stats: List[Stat] = []
+        for perturbation in unique_perturbations:
+            perturbation_name: str = "" if perturbation is None else perturbation.name
+            generated_images_path: str = os.path.join(eval_cache_path, generate_unique_id())
+            ensure_directory_exists(generated_images_path)
 
-        # Delete the directories with the resized images
-        shutil.rmtree(generated_images_path)
+            for request_state in tqdm(scenario_state.request_states):
+                if request_state.instance.perturbation != perturbation:
+                    continue
+
+                assert request_state.result is not None
+                request_result: RequestResult = request_state.result
+
+                # Gather the model-generated images
+                for image in request_result.completions:
+                    if image.file_path is not None and not is_blacked_out_image(image.file_path):
+                        dest_path = os.path.join(generated_images_path, get_file_name(image.file_path))
+                        copy_image(image.file_path, dest_path, width=self.IMAGE_WIDTH, height=self.IMAGE_HEIGHT)
+
+            # The torch_fidelity library fails when there are too few images (i.e., `max_eval_instances` is small).
+            try:
+                metrics_dict: Dict[str, float] = torch_fidelity.calculate_metrics(
+                    input1=generated_images_path,
+                    input2=gold_images_path,
+                    isc=True,
+                    fid=True,
+                    cuda=torch.cuda.is_available(),
+                    save_cpu_ram=not torch.cuda.is_available(),
+                )
+                fid: float = metrics_dict["frechet_inception_distance"]
+                inception_score: float = metrics_dict["inception_score_mean"]
+                stats.extend([
+                    Stat(MetricName("FID" + f"_{perturbation_name}" if perturbation_name else "")).add(fid),
+                    Stat(MetricName("inception_score" + f"_{perturbation_name}" if perturbation_name else "")).add(
+                        inception_score if not math.isnan(inception_score) else 0
+                    ),
+                ])
+            except AssertionError as e:
+                hlog(
+                    f"Error occurred when computing fidelity metrics for perturbation: {perturbation_name} Error: {e}"
+                )
+
+            shutil.rmtree(generated_images_path)
+
+        # Delete the gold images directory
         shutil.rmtree(gold_images_path)
 
-        stats: List[Stat] = [
-            Stat(MetricName("FID")).add(metrics_dict["frechet_inception_distance"]),
-            Stat(MetricName("inception_score")).add(metrics_dict["inception_score_mean"]),
-        ]
         return MetricResult(aggregated_stats=stats, per_instance_stats=[])

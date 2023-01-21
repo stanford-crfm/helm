@@ -493,6 +493,11 @@ FAIRNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [
     ),
 ]
 
+VHELM_FAIRNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [
+    dialect(prob=1.0, source_class="SAE", target_class="AAVE"),
+    gender(mode="terms", prob=1.0, source_class="male", target_class="female"),
+]
+
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     # Robustness
     "extra_space": {"extra_space2": [extra_space(num_spaces=2)]},
@@ -620,6 +625,7 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "robustness": {"robustness": ROBUSTNESS_PERTURBATION_SPECS},
     "fairness": {"fairness": FAIRNESS_PERTURBATION_SPECS},
     "canonical": {"canonical": ROBUSTNESS_PERTURBATION_SPECS + FAIRNESS_PERTURBATION_SPECS},
+    "vhelm": {"canonical": ROBUSTNESS_PERTURBATION_SPECS + VHELM_FAIRNESS_PERTURBATION_SPECS},
     "robustness_all": {
         "robustness_all": [
             *contract_and_expand(),
