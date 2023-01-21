@@ -10,19 +10,19 @@ We will run two runs using the `mmlu` scenario on the `huggingface/gpt-2` model.
 
 To run this benchmark using the HELM command-line tools, we need to specify **run spec descriptions** that describes the desired runs. For this example, the run spec descriptions are `mmlu:subject=anatomy,model=huggingface/gpt-2` (for anatomy) and `mmlu:subject=philosophy,model=huggingface/gpt-2` (for philosophy).
 
-Next, we need to create a **run spec configuration file** contining these run spec descriptions. A run spec configuration file is a text file containing `RunEntries` serialized to JSON, where each entry in `RunEntries` contains a run spec description. The `description` field of each entry should be a **run spec description**. Create a text file named `run_spec.conf` with the following contents:
+Next, we need to create a **run spec configuration file** contining these run spec descriptions. A run spec configuration file is a text file containing `RunEntries` serialized to JSON, where each entry in `RunEntries` contains a run spec description. The `description` field of each entry should be a **run spec description**. Create a text file named `run_specs.conf` with the following contents:
 
 ```
 entries: [
-  {description: "mmlu:subject=anatomy,model=huggingface_gpt-2", priority: 1},
-  {description: "mmlu:subject=philosophy,model=huggingface_gpt-2", priority: 1},
+  {description: "mmlu:subject=anatomy,model=huggingface/gpt2", priority: 1},
+  {description: "mmlu:subject=philosophy,model=huggingface/gpt2", priority: 1},
 ]
 ```
 
 We will now use `helm-run` to execute the runs that have been specified in this run spec configuration file. Run this command:
 
 ```
-helm-run --run-specs run_spec.conf --local --suite v1 --max-eval-instances 10
+helm-run --conf-paths run_specs.conf --local --suite v1 --max-eval-instances 10
 ```
 
 The meaning of the additional arguments are as follows:
