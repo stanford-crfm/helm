@@ -1735,6 +1735,22 @@ def get_mscoco_spec() -> RunSpec:
     )
 
 
+def get_paint_skills_spec(skill: str) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.paint_skills_scenario.PaintSkillsScenario", args={"skill": skill}
+    )
+
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
+
+    return RunSpec(
+        name=f"paint_skills:skill={skill}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_core_vhelm_metric_specs(),
+        groups=["paint_skills"],
+    )
+
+
 def get_parti_prompts_spec(category: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.parti_prompts_scenario.PartiPromptsScenario", args={"category": category}
@@ -1854,6 +1870,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "i2p": get_i2p_spec,
     "mental_disorders": get_mental_disorders_spec,
     "mscoco": get_mscoco_spec,
+    "paint_skills": get_paint_skills_spec,
     "parti_prompts": get_parti_prompts_spec,
     "radiology": get_radiology_spec,
     "relational_understanding": get_relational_understanding_spec,

@@ -1675,6 +1675,15 @@ run_groups:
       main_split: test
     taxonomy:
       task: Visual reasoning
+  - name: paint_skills
+    display_name: PaintSkills
+    description: A compositional diagnostic dataset an evaluation toolkit that measures visual reasoning skills ([paper](https://arxiv.org/abs/2202.04053)).
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: valid
+    taxonomy:
+      task: Visual reasoning
   - name: time_most_significant_historical_figures
     display_name: TIME's most significant historical figures
     description: People from TIME's "The 100 Most Significant Figures in History" list

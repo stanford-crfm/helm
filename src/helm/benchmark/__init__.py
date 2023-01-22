@@ -51,6 +51,7 @@ from .scenarios import draw_bench_scenario  # noqa
 from .scenarios import i2p_scenario  # noqa
 from .scenarios import mental_disorders_scenario  # noqa
 from .scenarios import mscoco_scenario  # noqa
+from .scenarios import paint_skills_scenario  # noqa
 from .scenarios import parti_prompts_scenario  # noqa
 from .scenarios import radiology_scenario  # noqa
 from .scenarios import relational_understanding_scenario  # noqa
