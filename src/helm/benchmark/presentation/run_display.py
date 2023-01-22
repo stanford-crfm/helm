@@ -23,6 +23,7 @@ from helm.benchmark.augmentations.perturbation_description import PerturbationDe
 from helm.benchmark.augmentations.space_perturbation import SpacePerturbation
 from helm.benchmark.augmentations.synonym_perturbation import SynonymPerturbation
 from helm.benchmark.augmentations.typos_perturbation import TyposPerturbation
+from helm.benchmark.augmentations.translate_perturbation import TranslatePerturbation
 from helm.benchmark.metrics.metric import PerInstanceStats
 from helm.benchmark.presentation.schema import Schema
 from helm.benchmark.runner import RunSpec
@@ -43,6 +44,7 @@ _PERTURBATION_NAME_TO_DESCRIPTION = {
     SpacePerturbation.name: SpacePerturbation.Description,
     SynonymPerturbation.name: SynonymPerturbation.Description,
     TyposPerturbation.name: TyposPerturbation.Description,
+    TranslatePerturbation.name: TranslatePerturbation.Description,
 }
 
 

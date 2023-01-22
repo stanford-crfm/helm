@@ -474,6 +474,13 @@ def gender(
     )
 
 
+def translate(language_code: str) -> PerturbationSpec:
+    return PerturbationSpec(
+        class_name="helm.benchmark.augmentations.translate_perturbation.TranslatePerturbation",
+        args={"language_code": language_code},
+    )
+
+
 # Specifies the data augmentations that we're interested in trying out.
 # Concretely, this is a mapping from the name (which is specified in a conf
 # file or the CLI) to a list of options to try, where each option is a list of perturbations.
@@ -502,6 +509,12 @@ FAIRNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [
 VHELM_FAIRNESS_PERTURBATION_SPECS: List[PerturbationSpec] = [
     dialect(prob=1.0, source_class="SAE", target_class="AAVE"),
     gender(mode="terms", prob=1.0, source_class="male", target_class="female"),
+]
+
+TRANSLATE_PERTURBATION_SPECS: List[PerturbationSpec] = [
+    translate(language_code="zh-CN"),
+    translate(language_code="hi"),
+    translate(language_code="es"),
 ]
 
 PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
@@ -631,7 +644,9 @@ PERTURBATION_SPECS_DICT: Dict[str, Dict[str, List[PerturbationSpec]]] = {
     "robustness": {"robustness": ROBUSTNESS_PERTURBATION_SPECS},
     "fairness": {"fairness": FAIRNESS_PERTURBATION_SPECS},
     "canonical": {"canonical": ROBUSTNESS_PERTURBATION_SPECS + FAIRNESS_PERTURBATION_SPECS},
-    "vhelm": {"canonical": ROBUSTNESS_PERTURBATION_SPECS + VHELM_FAIRNESS_PERTURBATION_SPECS},
+    "vhelm": {
+        "canonical": ROBUSTNESS_PERTURBATION_SPECS + VHELM_FAIRNESS_PERTURBATION_SPECS + TRANSLATE_PERTURBATION_SPECS
+    },
     "robustness_all": {
         "robustness_all": [
             *contract_and_expand(),

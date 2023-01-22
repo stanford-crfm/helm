@@ -40,6 +40,7 @@ transformers~=4.22.2  # For HuggingFace tokenizer
 icetk~=0.0.4
 protobuf~=3.20.2  # Can't use 4.21.0 due to backward incompatibility
 google-api-python-client~=2.64.0
+google-cloud-translate~=2.0.1
 revChatGPT~=0.1.1
 
 # Scenarios

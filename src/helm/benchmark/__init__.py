@@ -92,3 +92,4 @@ from .augmentations.mild_mix_perturbation import MildMixPerturbation  # noqa
 from .augmentations.dialect_perturbation import DialectPerturbation  # noqa
 from .augmentations.person_name_perturbation import PersonNamePerturbation  # noqa
 from .augmentations.gender_perturbation import GenderPerturbation  # noqa
+from .augmentations.translate_perturbation import TranslatePerturbation  # noqa

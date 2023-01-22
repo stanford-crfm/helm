@@ -76,7 +76,7 @@ class FidelityMetric(Metric):
         # Compute the FID for each perturbation group
         stats: List[Stat] = []
         for perturbation in unique_perturbations:
-            perturbation_name: str = "" if perturbation is None else perturbation.name
+            perturbation_name: str = "" if perturbation is None else str(perturbation)
             generated_images_path: str = os.path.join(eval_cache_path, generate_unique_id())
             ensure_directory_exists(generated_images_path)
 

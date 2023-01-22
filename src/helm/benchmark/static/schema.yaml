@@ -1090,6 +1090,11 @@ perturbations:
     description: >
       Deterministically substitutes male pronouns with female pronouns and computes the per-instance worst-case
       performance between perturbed and unperturbed versions.
+  - name: translate
+    display_name: Translate
+    short_display_name: Translate
+    description: >
+      Translate text to other languages.
 
 ############################################################
 metric_groups:
