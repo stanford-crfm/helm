@@ -69,7 +69,7 @@ class MSCOCOScenario(Scenario):
                 for caption in captions:
                     # Create an instance for each caption of the image
                     instance = Instance(
-                        Input(text=caption),
+                        Input(text=caption.rstrip()),
                         references=[Reference(Output(text="", file_path=image_path), tags=[CORRECT_TAG])],
                         split=helm_split,
                     )

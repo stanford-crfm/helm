@@ -19,7 +19,7 @@ from helm.proxy.models import (
     TEXT_TO_IMAGE_MODEL_TAG,
 )
 from .runner import RunSpec
-from helm.benchmark.adaptation.adapter_spec import Substitution
+from helm.benchmark.adaptation.adapter_spec import Substitution, TextToImageAdapterSpec
 from .augmentations.perturbation import PerturbationSpec
 from .augmentations.data_augmenter import DataAugmenterSpec
 
@@ -162,6 +162,12 @@ class PromptRunExpander(RunExpander):
             adapter_spec = replace(adapter_spec, input_prefix="Input: ", output_prefix="Output: ")
         elif self.value == "i_o":
             adapter_spec = replace(adapter_spec, input_prefix="I: ", output_prefix="O: ")
+        elif self.value == "monet":
+            assert isinstance(adapter_spec, TextToImageAdapterSpec)
+            adapter_spec = replace(adapter_spec, medium="painting", modifications=["Monet style"])
+        elif self.value == "photorealistic":
+            assert isinstance(adapter_spec, TextToImageAdapterSpec)
+            adapter_spec = replace(adapter_spec, medium="photo", modifications=["realistic", "8K"])
         else:
             raise Exception("Unknown value: {self.value}")
         return [

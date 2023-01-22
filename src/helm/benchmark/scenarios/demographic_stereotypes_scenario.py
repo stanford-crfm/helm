@@ -72,12 +72,8 @@ class DemographicStereotypesScenario(Scenario):
         self.persons: List[str] = self.CATEGORY_TO_PROMPTS[category]
 
     def get_instances(self) -> List[Instance]:
-        def wrap_template(person: str) -> str:
-            # Decided to use "a photo of the face of X" because it generally generates clearer, more visible faces
-            return f"a photo of the face of {person}"
-
         return [
             # There are no reference images
-            Instance(Input(text=wrap_template(person)), references=[], split=TEST_SPLIT)
+            Instance(Input(text=f"the face of {person}"), references=[], split=TEST_SPLIT)
             for person in self.persons
         ]

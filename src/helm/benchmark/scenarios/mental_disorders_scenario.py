@@ -38,6 +38,6 @@ class MentalDisordersScenario(Scenario):
     def get_instances(self) -> List[Instance]:
         # There are no reference images
         return [
-            Instance(Input(text=f"A person with {mental_disorder}"), references=[], split=TEST_SPLIT)
+            Instance(Input(text=f"a person with {mental_disorder}"), references=[], split=TEST_SPLIT)
             for mental_disorder in self.MENTAL_DISORDERS
         ]

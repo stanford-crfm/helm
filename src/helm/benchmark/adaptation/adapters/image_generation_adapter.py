@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from helm.benchmark.adaptation.adapter_spec import TextToImageAdapterSpec
 from helm.benchmark.adaptation.prompt import Prompt
@@ -12,7 +12,7 @@ class ImageGenerationAdapter(GenerationAdapter):
     """
     For image generation, the text-to-image model will generate the output for prompt:
 
-        <instructions><input_prefix><input><output_prefix>
+        a <medium> of <input>, <modifications[0]>, <modifications[1]>,..., <modifications[n]>
     """
 
     def generate_requests(self, eval_instance: Instance) -> List[RequestState]:
@@ -43,3 +43,12 @@ class ImageGenerationAdapter(GenerationAdapter):
             prompt_truncated=prompt.truncated,
         )
         return [request_state]
+
+    def construct_example_prompt(self, instance: Instance, include_output: bool, reference_index: Optional[int]) -> str:
+        """Returns a single example of the text-to-image prompt"""
+        assert isinstance(self.adapter_spec, TextToImageAdapterSpec)
+        medium: str = f"a {self.adapter_spec.medium} of " if self.adapter_spec.medium is not None else ""
+        modifications: str = (
+            "" if len(self.adapter_spec.modifications) == 0 else f", {', '.join(self.adapter_spec.modifications)}"
+        )
+        return medium + instance.input.text + modifications
