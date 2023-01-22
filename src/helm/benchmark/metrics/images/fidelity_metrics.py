@@ -103,14 +103,16 @@ class FidelityMetric(Metric):
                     cuda=torch.cuda.is_available(),
                     save_cpu_ram=not torch.cuda.is_available(),
                 )
+
+                metric_suffix: str = f"_{perturbation_name}" if perturbation_name else ""
                 fid: float = metrics_dict["frechet_inception_distance"]
                 inception_score: float = metrics_dict["inception_score_mean"]
+                if math.isnan(inception_score):
+                    inception_score = 0
                 stats.extend(
                     [
-                        Stat(MetricName("FID" + f"_{perturbation_name}" if perturbation_name else "")).add(fid),
-                        Stat(MetricName("inception_score" + f"_{perturbation_name}" if perturbation_name else "")).add(
-                            inception_score if not math.isnan(inception_score) else 0
-                        ),
+                        Stat(MetricName("FID" + metric_suffix)).add(fid),
+                        Stat(MetricName("inception_score" + metric_suffix)).add(inception_score),
                     ]
                 )
             except AssertionError as e:
