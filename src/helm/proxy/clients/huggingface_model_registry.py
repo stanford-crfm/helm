@@ -1,0 +1,81 @@
+from typing import Dict, Optional
+from dataclasses import dataclass
+import re
+from helm.common.hierarchical_logger import hlog
+from helm.proxy.models import (
+    Model,
+    MODEL_NAME_TO_MODEL,
+    TEXT_MODEL_TAG,
+    FULL_FUNCTIONALITY_TEXT_MODEL_TAG,
+)
+
+
+@dataclass(frozen=True)
+class HuggingFaceModelConfig:
+    namespace: Optional[str]
+    """Name of the group or user that owns the model. e.g. 'stanford-crfm'"""
+
+    model_name: str
+    """Name of the model. Does not include the namespace. e.g. 'pubmed-gpt2'"""
+
+    revision: Optional[str]
+    """Revision of the model to use e.g. 'main'"""
+
+    @property
+    def model_id(self) -> str:
+        # Get the model ID.
+        #
+        # Examples: "gpt2", "stanford-crfm/pubmedgpt"
+        if self.namespace:
+            return f"{self.namespace}/{self.model_name}"
+        return self.model_name
+
+    @staticmethod
+    def from_string(raw: str) -> "HuggingFaceModelConfig":
+        # Parses a string in the format "[namespace/]model_name[#revision]".
+        pattern = r"((?P<namespace>[^/#]+)/)?(?P<model_name>[^/#]+)(#(?P<revision>[^/#]+))?"
+        match = re.fullmatch(pattern, raw)
+        if not match:
+            raise ValueError(f"Could not parse model name: '{raw}'; Expected format: [namespace/]model_name[#revision]")
+        model_name = match.group("model_name")
+        assert model_name
+        return HuggingFaceModelConfig(
+            namespace=match.group("namespace"), model_name=model_name, revision=match.group("revision")
+        )
+
+
+_huggingface_model_registry: Dict[str, HuggingFaceModelConfig] = {}
+
+
+def register_huggingface_model_config(raw_model_config: str) -> HuggingFaceModelConfig:
+    """Parses a string in the format '[namespace/]model_name[#revision]'"""
+    config = HuggingFaceModelConfig.from_string(raw_model_config)
+    if config.model_id in _huggingface_model_registry:
+        raise ValueError(f"A HuggingFace model is already registered for model_id {config.model_id}")
+    _huggingface_model_registry[config.model_id] = config
+
+    # HELM model names require a namespace
+    if not config.namespace:
+        raise Exception("Registration of HuggingFace models without a namespace is not supported")
+    helm_model_name = config.model_id
+    model = MODEL_NAME_TO_MODEL.get(helm_model_name)
+    if not model:
+        description = f"HuggingFace model {config.model_id}"
+        if config.revision:
+            description += f" at revision {config.revision}"
+        model = Model(
+            group=config.namespace,
+            name=helm_model_name,
+            display_name=config.model_id,
+            creator_organization=config.namespace,
+            description=description,
+            tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG],
+        )
+        MODEL_NAME_TO_MODEL[helm_model_name] = model
+    hlog(f"Registered HuggingFace model: {model} config: {config}")
+    return config
+
+
+def get_huggingface_model_config(model_id: str) -> Optional[HuggingFaceModelConfig]:
+    """Returns a HuggingFaceModelConfig for the model_id."""
+    return _huggingface_model_registry.get(model_id)

@@ -30,6 +30,7 @@ from .microsoft_client import MicrosoftClient
 from .perspective_api_client import PerspectiveAPIClient
 from .yalm_tokenizer_client import YaLMTokenizerClient
 from .simple_client import SimpleClient
+from helm.proxy.clients.huggingface_model_registry import get_huggingface_model_config
 
 
 class AutoClient(Client):
@@ -54,15 +55,17 @@ class AutoClient(Client):
         # TODO: Allow setting CacheConfig.follower_cache_path from a command line flag.
         return SqliteCacheConfig(client_cache_path)
 
-    def get_client(self, request: Request) -> Client:
-        """Return a client based on `organization`, creating it if necessary."""
-        organization: str = request.model_organization
-        client: Optional[Client] = self.clients.get(organization)
+    def _get_client(self, model: str) -> Client:
+        """Return a client based on the model, creating it if necessary."""
+        client: Optional[Client] = self.clients.get(model)
 
         if client is None:
+            organization: str = model.split("/")[0]
             cache_config: CacheConfig = self._build_cache_config(organization)
 
-            if organization == "openai":
+            if get_huggingface_model_config(model):
+                client = HuggingFaceClient(cache_config=cache_config)
+            elif organization == "openai":
                 # TODO: add ChatGPT to the OpenAIClient when it's supported.
                 #       We're using a separate client for now since we're using an unofficial Python library.
                 # See https://github.com/acheong08/ChatGPT/wiki/Setup on how to get a valid session token.
@@ -72,7 +75,7 @@ class AutoClient(Client):
                     # TODO: use `cache_config` above. Since this feature is still experimental,
                     #       save queries and responses in a separate collection.
                     cache_config=self._build_cache_config("ChatGPT"),
-                    tokenizer_client=self.get_tokenizer_client("huggingface"),
+                    tokenizer_client=self._get_tokenizer_client("huggingface"),
                 )
 
                 org_id = self.credentials.get("openaiOrgId", None)
@@ -113,13 +116,13 @@ class AutoClient(Client):
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
             else:
-                raise ValueError(f"Unknown organization: {organization}")
-            self.clients[organization] = client
+                raise ValueError(f"Could not find client for model: {model}")
+            self.clients[model] = client
         return client
 
     def make_request(self, request: Request) -> RequestResult:
         """
-        Dispatch based on the organization in the name of the model (e.g., openai/davinci).
+        Dispatch based on the the name of the model (e.g., openai/davinci).
         Retries if request fails.
         """
 
@@ -128,28 +131,30 @@ class AutoClient(Client):
         def make_request_with_retry(client: Client, request: Request) -> RequestResult:
             return client.make_request(request)
 
-        organization: str = request.model_organization
-        client: Client = self.get_client(request)
+        client: Client = self._get_client(request.model)
 
         try:
             return make_request_with_retry(client=client, request=request)
         except RetryError as e:
             last_attempt: Attempt = e.last_attempt
             retry_error: str = (
-                f"Failed to make request to {organization} after retrying {last_attempt.attempt_number} times"
+                f"Failed to make request to {request.model} after retrying {last_attempt.attempt_number} times"
             )
             hlog(retry_error)
 
             # Notify our user that we failed to make the request even after retrying.
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
-    def get_tokenizer_client(self, organization: str) -> Client:
-        """Return a client based on `organization`, creating it if necessary."""
-        client: Optional[Client] = self.tokenizer_clients.get(organization)
+    def _get_tokenizer_client(self, tokenizer: str) -> Client:
+        """Return a client based on the tokenizer, creating it if necessary."""
+        organization: str = tokenizer.split("/")[0]
+        client: Optional[Client] = self.tokenizer_clients.get(tokenizer)
 
         if client is None:
             cache_config: CacheConfig = self._build_cache_config(organization)
-            if organization in [
+            if get_huggingface_model_config(tokenizer):
+                client = HuggingFaceClient(cache_config=cache_config)
+            elif organization in [
                 "anthropic",
                 "bigscience",
                 "bigcode",
@@ -175,19 +180,18 @@ class AutoClient(Client):
             elif organization == "simple":
                 client = SimpleClient(cache_config=cache_config)
             else:
-                raise ValueError(f"Unknown organization: {organization}")
-            self.tokenizer_clients[organization] = client
+                raise ValueError(f"Could not find tokenizer client for model: {tokenizer}")
+            self.tokenizer_clients[tokenizer] = client
         return client
 
     def tokenize(self, request: TokenizationRequest) -> TokenizationRequestResult:
-        """Tokenizes based on the organization in the name of the tokenizer (e.g., huggingface/gpt2)."""
+        """Tokenizes based on the name of the tokenizer (e.g., huggingface/gpt2)."""
 
         @retry_request
         def tokenize_with_retry(client: Client, request: TokenizationRequest) -> TokenizationRequestResult:
             return client.tokenize(request)
 
-        organization: str = request.tokenizer_organization
-        client: Client = self.get_tokenizer_client(organization)
+        client: Client = self._get_tokenizer_client(request.tokenizer)
 
         try:
             return tokenize_with_retry(client=client, request=request)
@@ -198,14 +202,13 @@ class AutoClient(Client):
             return replace(last_attempt.value, error=f"{retry_error}. Error: {last_attempt.value.error}")
 
     def decode(self, request: DecodeRequest) -> DecodeRequestResult:
-        """Decodes based on the organization in the name of the tokenizer (e.g., huggingface/gpt2)."""
+        """Decodes based on the the name of the tokenizer (e.g., huggingface/gpt2)."""
 
         @retry_request
         def decode_with_retry(client: Client, request: DecodeRequest) -> DecodeRequestResult:
             return client.decode(request)
 
-        organization: str = request.tokenizer_organization
-        client: Client = self.get_tokenizer_client(organization)
+        client: Client = self._get_tokenizer_client(request.tokenizer)
 
         try:
             return decode_with_retry(client=client, request=request)
