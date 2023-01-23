@@ -1797,7 +1797,7 @@ def get_relational_understanding_spec() -> RunSpec:
     )
 
 
-def get_time_most_significant_historical_figures() -> RunSpec:
+def get_time_most_significant_historical_figures_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.time_most_significant_historical_figures_scenario."
         "TIMEMostSignificantHistoricalFigures",
@@ -1812,6 +1812,20 @@ def get_time_most_significant_historical_figures() -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=get_core_vhelm_metric_specs(),
         groups=["time_most_significant_historical_figures"],
+    )
+
+
+def get_winoground_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.winoground_scenario.WinogroundScenario", args={})
+
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=4)
+
+    return RunSpec(
+        name="winoground",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_core_vhelm_metric_specs(),
+        groups=["winoground"],
     )
 
 
@@ -1874,7 +1888,8 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "parti_prompts": get_parti_prompts_spec,
     "radiology": get_radiology_spec,
     "relational_understanding": get_relational_understanding_spec,
-    "time_most_significant_historical_figures": get_time_most_significant_historical_figures,
+    "time_most_significant_historical_figures": get_time_most_significant_historical_figures_spec,
+    "winoground": get_winoground_spec,
 }
 
 

@@ -1684,6 +1684,15 @@ run_groups:
       main_split: valid
     taxonomy:
       task: Visual reasoning
+  - name: winoground
+    display_name: Winoground
+    description: Winoground is a novel task and dataset for evaluating the ability of vision and language models to conduct visio-linguistic compositional reasoning ([paper](https://arxiv.org/abs/2204.03162)).
+    metric_groups:
+      - vhelm_core
+    environment:
+      main_split: test
+    taxonomy:
+      task: Visual reasoning
   - name: time_most_significant_historical_figures
     display_name: TIME's most significant historical figures
     description: People from TIME's "The 100 Most Significant Figures in History" list

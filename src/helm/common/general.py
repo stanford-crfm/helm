@@ -304,7 +304,7 @@ def encode_base64(image_path) -> str:
         return base64.b64encode(f.read()).decode("ascii")
 
 
-def copy_image(src: str, dest: str, width: Optional[int], height: Optional[int]):
+def copy_image(src: str, dest: str, width: Optional[int] = None, height: Optional[int] = None):
     """
     Copies the image file from `src` path to `dest` path. If dimensions `width` and `height`
     are specified, resizes the image before copying.
