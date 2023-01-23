@@ -287,11 +287,28 @@ ALL_MODELS = [
     # HuggingFace
     Model(
         group="huggingface",
+        creator_organization="OpenAI",
+        name="huggingface/gpt2",
+        display_name="GPT-2 (1.5B)",
+        description="GPT-2 (1.5B parameters)",
+        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface",
         creator_organization="EleutherAI",
         name="huggingface/gpt-j-6b",
         display_name="GPT-J (6B, HuggingFace)",
         description="GPT-J (6B parameters) autoregressive language model trained on The Pile.",
         tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPTJ_TOKENIZER_TAG],
+    ),
+    Model(
+        group="huggingface",
+        creator_organization="BigCode",
+        name="huggingface/santacoder",
+        display_name="SantaCoder (1.1B)",
+        description="SantaCoder (1.1B parameters) model trained on the Python, Java, and "
+        "JavaScript subset of The Stack (v1.1).",
+        tags=[CODE_MODEL_TAG],
     ),
     # Google
     Model(
@@ -322,14 +339,6 @@ ALL_MODELS = [
             NO_NEWLINES_TAG,
             NLG_PREFIX_TAG,
         ],
-    ),
-    Model(
-        group="huggingface",
-        creator_organization="OpenAI",
-        name="huggingface/gpt2",
-        display_name="GPT-2 (1.5B)",
-        description="GPT-2 (1.5B parameters)",
-        tags=[TEXT_MODEL_TAG, FULL_FUNCTIONALITY_TEXT_MODEL_TAG, GPT2_TOKENIZER_TAG],
     ),
     # OPT
     Model(
