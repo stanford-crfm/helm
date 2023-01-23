@@ -739,6 +739,7 @@ class TokenizerRunExpander(ScenarioSpecRunExpander):
         "AlephAlpha/luminous-extended": ["AlephAlpha/luminous-extended"],
         "AlephAlpha/luminous-supreme": ["AlephAlpha/luminous-supreme"],
         "AlephAlpha/luminous-world": ["AlephAlpha/luminous-world"],
+        "huggingface/santacoder": ["bigcode/santacoder"],
     }
     model_tags_and_tokenizers = [
         (GPT2_TOKENIZER_TAG, "huggingface/gpt2"),
