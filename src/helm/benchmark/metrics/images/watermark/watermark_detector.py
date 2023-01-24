@@ -68,7 +68,7 @@ class WatermarkDetector:
 
         result: List[bool] = []
         with torch.no_grad():
-            pred = self._model(torch.stack(images))
+            pred = self._model(torch.stack(images).to(get_torch_device()))
             syms = F.softmax(pred, dim=1).detach().cpu().numpy().tolist()
             for i, sym in enumerate(syms):
                 watermark_prob, clear_prob = sym
