@@ -1,4 +1,4 @@
-# Using HuggingFace Models
+# Hugging Face Model Hub Integration
 
 HELM can be used to evaluate models on [Hugging Face Model Hub](https://huggingface.co/models).
 
