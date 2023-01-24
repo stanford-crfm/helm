@@ -1652,6 +1652,20 @@ def get_common_syntactic_processes_spec(phenomenon: str) -> RunSpec:
     )
 
 
+def get_cub200_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.cub200_scenario.CUB200Scenario", args={})
+
+    adapter_spec = get_image_generation_adapter_spec(num_outputs=1)
+
+    return RunSpec(
+        name="cub200",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_fid_metric_specs() + get_core_vhelm_metric_specs(),
+        groups=["cub200"],
+    )
+
+
 def get_demographic_stereotypes_spec(category: str) -> RunSpec:
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.demographic_stereotypes_scenario.DemographicStereotypesScenario",
@@ -1879,6 +1893,7 @@ CANONICAL_RUN_SPEC_FUNCS: Dict[str, Callable[..., RunSpec]] = {
     "pubmed_qa": get_pubmed_qa_spec,
     # vHELM
     "common_syntactic_processes": get_common_syntactic_processes_spec,
+    "cub200": get_cub200_spec,
     "demographic_stereotypes": get_demographic_stereotypes_spec,
     "draw_bench": get_draw_bench_spec,
     "i2p": get_i2p_spec,

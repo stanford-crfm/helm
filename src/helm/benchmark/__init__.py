@@ -46,6 +46,7 @@ from .scenarios import pubmed_qa_scenario  # noqa
 
 # vHELM
 from .scenarios import common_syntactic_processes_scenario  # noqa
+from .scenarios import cub200_scenario  # noqa
 from .scenarios import demographic_stereotypes_scenario  # noqa
 from .scenarios import draw_bench_scenario  # noqa
 from .scenarios import i2p_scenario  # noqa
