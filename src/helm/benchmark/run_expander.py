@@ -167,7 +167,9 @@ class PromptRunExpander(RunExpander):
             adapter_spec = replace(adapter_spec, medium="painting", modifications=["Monet style"])
         elif self.value == "photorealistic":
             assert isinstance(adapter_spec, TextToImageAdapterSpec)
-            adapter_spec = replace(adapter_spec, medium="photo", modifications=["realistic", "8K"])
+            adapter_spec = replace(
+                adapter_spec, medium="photo", modifications=["hyperrealistic", "intricate", "high resolution"]
+            )
         else:
             raise Exception("Unknown value: {self.value}")
         return [
