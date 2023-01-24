@@ -282,6 +282,16 @@ class NumTrainTrialsRunExpander(ReplaceValueRunExpander):
     }
 
 
+class MaxEvalInstancesRunExpander(ReplaceValueRunExpander):
+    """For varying number of val/text examples."""
+
+    name = "max_eval_instances"
+    values_dict = {
+        "vhelm_default": [100],
+        "vhelm_fid": [30_000],
+    }
+
+
 class MaxTrainInstancesRunExpander(ReplaceValueRunExpander):
     """For getting learning curves."""
 
@@ -858,6 +868,7 @@ RUN_EXPANDERS = dict(
         StopRunExpander,
         GlobalPrefixRunExpander,
         NumTrainTrialsRunExpander,
+        MaxEvalInstancesRunExpander,
         MaxTrainInstancesRunExpander,
         NumOutputsRunExpander,
         ModelRunExpander,
