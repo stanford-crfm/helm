@@ -9,8 +9,9 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.window_services.clip_window_service import CLIPWindowService
-from .clip_scorer import CLIPScorer
-from .images_utils import is_blacked_out_image
+from helm.common.images_utils import is_blacked_out_image
+from .clip_scorers.clip_scorer import CLIPScorer
+from .clip_scorers.multilingual_clip_scorer import MultilingualCLIPScorer
 
 
 class CLIPScoreMetric(Metric):
@@ -22,6 +23,7 @@ class CLIPScoreMetric(Metric):
 
     def __init__(self):
         self._clip_scorer = CLIPScorer()
+        self._multilingual_clip_scorer = MultilingualCLIPScorer()
 
     def __repr__(self):
         return "CLIPScoreMetric()"
@@ -41,13 +43,24 @@ class CLIPScoreMetric(Metric):
         prompt: str = CLIPWindowService(metric_service).truncate_from_right(request_state.request.prompt)
 
         scores: List[float] = []
+        multilingual_clip_scores: List[float] = []
+
         for image in request_result.completions:
             if image.file_path is not None and not is_blacked_out_image(image.file_path):
                 clip_score: float = self._clip_scorer.compute_score(prompt, image.file_path)
                 scores.append(clip_score)
 
+                clip_score = self._multilingual_clip_scorer.compute_score(prompt, image.file_path)
+                multilingual_clip_scores.append(clip_score)
+
         stats: List[Stat] = [
             Stat(MetricName("expected_clip_score")).add(mean(scores) if len(scores) > 0 else 0),
             Stat(MetricName("max_clip_score")).add(max(scores) if len(scores) > 0 else 0),
+            Stat(MetricName("expected_clip_score_multilingual")).add(
+                mean(multilingual_clip_scores) if len(multilingual_clip_scores) > 0 else 0
+            ),
+            Stat(MetricName("max_clip_score_multilingual")).add(
+                max(multilingual_clip_scores) if len(multilingual_clip_scores) > 0 else 0
+            ),
         ]
         return stats

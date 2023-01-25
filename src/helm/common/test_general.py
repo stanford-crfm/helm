@@ -7,6 +7,7 @@ from helm.common.general import (
     format_split,
     get_file_name,
     unique_simplification,
+    is_url,
 )
 
 
@@ -58,3 +59,8 @@ def test_unique_simplification():
 
 def test_get_file_name():
     assert get_file_name("/path/to/image.png") == "image.png"
+
+
+def test_is_url():
+    assert is_url("https://crfm.stanford.edu")
+    assert not is_url("/some/path")

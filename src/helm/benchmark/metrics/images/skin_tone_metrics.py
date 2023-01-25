@@ -10,7 +10,7 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import RequestResult
-from .images_utils import is_blacked_out_image
+from helm.common.images_utils import is_blacked_out_image
 
 
 class SkinToneMetric(Metric):

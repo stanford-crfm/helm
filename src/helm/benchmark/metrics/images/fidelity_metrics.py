@@ -7,7 +7,7 @@ import shutil
 import torch
 import torch_fidelity
 
-from helm.common.general import copy_image, ensure_directory_exists, generate_unique_id, get_file_name, hlog
+from helm.common.general import ensure_directory_exists, generate_unique_id, get_file_name, hlog
 from helm.common.request import RequestResult
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.benchmark.scenarios.scenario import Instance
@@ -16,7 +16,7 @@ from helm.benchmark.metrics.statistic import Stat
 from helm.benchmark.metrics.metric import Metric, MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
-from .images_utils import is_blacked_out_image
+from helm.common.images_utils import is_blacked_out_image, copy_image
 
 
 class FidelityMetric(Metric):

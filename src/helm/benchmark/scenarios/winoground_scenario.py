@@ -3,7 +3,8 @@ import os
 
 from datasets import load_dataset
 
-from helm.common.general import copy_image, get_file_name
+from helm.common.general import get_file_name
+from helm.common.images_utils import copy_image
 from .scenario import Scenario, Instance, Input, Output, Reference, CORRECT_TAG, TEST_SPLIT
 
 

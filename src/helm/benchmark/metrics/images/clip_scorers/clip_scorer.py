@@ -6,11 +6,13 @@ from torchvision import transforms
 import torch
 
 from helm.common.gpu_utils import get_torch_device
+from helm.common.images_utils import open_image
+from .base_clip_scorer import BaseCLIPScorer
 
 _ = torch.manual_seed(42)
 
 
-class CLIPScorer:
+class CLIPScorer(BaseCLIPScorer):
     """
     CLIPScore is a reference free metric that can be used to evaluate the correlation between an image
     caption and the content of the image. It has been found to be highly correlated with human judgement.
@@ -33,10 +35,11 @@ class CLIPScorer:
             "openai/clip-vit-large-patch14",
         ] = "openai/clip-vit-large-patch14",
     ):
-        self._metric = CLIPScore(model_name_or_path=model_name).to(get_torch_device())
+        self._device: torch.device = get_torch_device()
+        self._metric = CLIPScore(model_name_or_path=model_name).to(self._device)
 
-    def compute_score(self, caption: str, image_path: str) -> float:
-        image: Image = Image.open(image_path)
-        image_tensor: torch.Tensor = transforms.ToTensor()(image).to(get_torch_device())
+    def compute_score(self, caption: str, image_location: str) -> float:
+        image: Image = open_image(image_location)
+        image_tensor: torch.Tensor = transforms.ToTensor()(image).to(self._device)
         score: float = self._metric(image_tensor, caption).detach().item()
         return score

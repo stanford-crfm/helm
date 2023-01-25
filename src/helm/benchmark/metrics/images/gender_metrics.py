@@ -8,8 +8,8 @@ from helm.benchmark.metrics.metric import Metric
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import RequestResult
-from .clip_scorer import CLIPScorer
-from .images_utils import is_blacked_out_image
+from helm.benchmark.metrics.images.clip_scorers.clip_scorer import CLIPScorer
+from helm.common.images_utils import is_blacked_out_image
 
 
 class GenderMetric(Metric):

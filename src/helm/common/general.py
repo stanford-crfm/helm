@@ -1,9 +1,8 @@
-import base64
 import json
 import os
 import shlex
-import shutil
 import subprocess
+import urllib
 import uuid
 import zstandard
 from typing import Any, Callable, Dict, List, Optional, TypeVar
@@ -12,7 +11,6 @@ from tqdm import tqdm
 
 import pyhocon
 from dataclasses import asdict, is_dataclass
-from PIL import Image
 
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block
 
@@ -298,20 +296,6 @@ def safe_symlink(src: str, dest: str) -> None:
         os.symlink(src, dest)
 
 
-def encode_base64(image_path) -> str:
-    """Returns the base64 representation of an image file."""
-    with open(image_path, "rb") as f:
-        return base64.b64encode(f.read()).decode("ascii")
-
-
-def copy_image(src: str, dest: str, width: Optional[int] = None, height: Optional[int] = None):
-    """
-    Copies the image file from `src` path to `dest` path. If dimensions `width` and `height`
-    are specified, resizes the image before copying.
-    """
-    if width is not None and height is not None:
-        image = Image.open(src)
-        resized_image = image.resize((width, height), Image.ANTIALIAS)
-        resized_image.save(dest)
-    else:
-        shutil.copy(src, dest)
+def is_url(location: str) -> bool:
+    """Return True if `location` is a url. False otherwise."""
+    return urllib.parse.urlparse(location).scheme in ["http", "https"]

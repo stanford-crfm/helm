@@ -56,6 +56,7 @@ autokeras~=1.0.20
 clean-fid~=0.1.35
 clip-anytorch~=2.5.0
 importlib-resources~=5.10.0
+multilingual-clip~=1.0.10
 nltk~=3.7
 scipy~=1.9.1
 uncertainty-calibration~=0.1.3

@@ -67,6 +67,7 @@ mccabe==0.7.0
 moverscore==1.0.3
 mpmath==1.2.1
 multidict==6.0.2
+multilingual-clip==1.0.10
 multiprocess==0.70.13
 murmurhash==1.0.8
 mypy==0.982

@@ -28,7 +28,8 @@ from helm.benchmark.metrics.metric import PerInstanceStats
 from helm.benchmark.presentation.schema import Schema
 from helm.benchmark.runner import RunSpec
 from helm.benchmark.scenarios.scenario import Instance
-from helm.common.general import asdict_without_nones, write, encode_base64
+from helm.common.general import asdict_without_nones, write
+from helm.common.images_utils import encode_base64
 from helm.common.hierarchical_logger import htrack
 from helm.common.request import Request
 
