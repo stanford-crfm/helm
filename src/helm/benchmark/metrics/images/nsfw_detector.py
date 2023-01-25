@@ -6,11 +6,11 @@ import autokeras as ak
 import torch
 import clip
 import numpy as np
-from PIL import Image
 from tensorflow.keras.models import load_model
 
 from helm.common.general import ensure_directory_exists, get_helm_cache_path
 from helm.common.gpu_utils import get_torch_device
+from helm.common.images_utils import open_image
 
 
 class NSFWDetector:
@@ -60,12 +60,12 @@ class NSFWDetector:
         self._clip_model, self._preprocess = clip.load("ViT-L/14", device=get_torch_device())
         self._nsfw_detector = self.load_safety_model()
 
-    def is_nsfw(self, image_path: str) -> bool:
+    def is_nsfw(self, image_location: str) -> bool:
         """Returns True if the image at `image_path` is NSFW. False otherwise."""
-        nsfw_score: float = self.compute_nsfw_score(image_path)
+        nsfw_score: float = self.compute_nsfw_score(image_location)
         return nsfw_score >= self.NSFW_THRESHOLD
 
-    def compute_nsfw_score(self, image_path) -> float:
+    def compute_nsfw_score(self, image_location: str) -> float:
         """
         Computes the NSFW score for an image. Adapted from
         https://colab.research.google.com/drive/19Acr4grlk5oQws7BHTqNIK-80XGw2u8Z?usp=sharing#scrollTo=zIirKkOMC37d.
@@ -78,7 +78,7 @@ class NSFWDetector:
             l2[l2 == 0] = 1
             return a / np.expand_dims(l2, axis)
 
-        image = self._preprocess(Image.open(image_path)).unsqueeze(0).to(get_torch_device())
+        image = self._preprocess(open_image(image_location)).unsqueeze(0).to(get_torch_device())
         with torch.no_grad():
             image_features = self._clip_model.encode_image(image)
         emb = np.asarray(normalized(image_features.detach().cpu()))

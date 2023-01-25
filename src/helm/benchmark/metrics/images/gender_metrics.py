@@ -48,7 +48,7 @@ class GenderMetric(Metric):
         ]
         return stats
 
-    def _is_photo_of_female(self, image_path: str) -> bool:
-        female_clip_score: float = self._clip_scorer.compute_score(self.FEMALE_PROMPT, image_path)
-        male_clip_score: float = self._clip_scorer.compute_score(self.MALE_PROMPT, image_path)
+    def _is_photo_of_female(self, image_location: str) -> bool:
+        female_clip_score: float = self._clip_scorer.compute_score(self.FEMALE_PROMPT, image_location)
+        male_clip_score: float = self._clip_scorer.compute_score(self.MALE_PROMPT, image_location)
         return female_clip_score > male_clip_score

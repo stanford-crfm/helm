@@ -4,6 +4,7 @@ import base64
 import openai
 
 from helm.common.cache import CacheConfig
+from helm.common.general import hlog
 from helm.common.file_caches.file_cache import FileCache
 from helm.common.request import Request, RequestResult, Sequence, TextToImageRequest
 from helm.common.tokenization_request import (
@@ -26,6 +27,11 @@ class DALLE2Client(OpenAIClient):
         "See https://labs.openai.com/policies/content-policy for more information."
     )
 
+    PROMPT_FLAGGED_ERROR: str = (
+        "Your request was rejected as a result of our safety system. "
+        "Your prompt may contain text that is not allowed by our safety system."
+    )
+
     def __init__(
         self,
         api_key: str,
@@ -39,6 +45,18 @@ class DALLE2Client(OpenAIClient):
         self.moderation_api_client: ModerationAPIClient = moderation_api_client
 
     def make_request(self, request: Request) -> RequestResult:
+        def get_content_policy_violated_result():
+            no_image = Sequence(
+                text="", logprob=0, tokens=[], file_path=None, finish_reason={"reason": self.CONTENT_POLICY_VIOLATED}
+            )
+            return RequestResult(
+                success=True,
+                cached=False,
+                request_time=0,
+                completions=[no_image] * request.num_completions,
+                embedding=[],
+            )
+
         def get_size_str(w: Optional[int], h: Optional[int]) -> str:
             if w is None or h is None:
                 return self.DEFAULT_IMAGE_SIZE_STR
@@ -53,16 +71,7 @@ class DALLE2Client(OpenAIClient):
 
         # Use the Moderation API to check if the prompt violates OpenAI's content policy before generating images
         if self.moderation_api_client.will_be_flagged(request.prompt):
-            no_image = Sequence(
-                text="", logprob=0, tokens=[], file_path=None, finish_reason={"reason": self.CONTENT_POLICY_VIOLATED}
-            )
-            return RequestResult(
-                success=True,
-                cached=False,
-                request_time=0,
-                completions=[no_image] * request.num_completions,
-                embedding=[],
-            )
+            return get_content_policy_violated_result()
 
         # https://beta.openai.com/docs/api-reference/images/create#images/create-response_format
         raw_request: Dict[str, Any] = {
@@ -90,8 +99,15 @@ class DALLE2Client(OpenAIClient):
             cache_key = Client.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.error.OpenAIError as e:
-            error: str = f"DALL-E 2 error: {e}"
-            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+            if str(e) == self.PROMPT_FLAGGED_ERROR:
+                # Some requests fail even if we check the prompt against the moderation API.
+                # For example, "black" in Spanish (negro) causes requests to DALL-E to fail even
+                # though the prompt does not get flagged by the Moderation API.
+                hlog(f"Failed safety check: {request.prompt}")
+                return get_content_policy_violated_result()
+            else:
+                error: str = f"DALL-E 2 error: {e}"
+                return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions: List[Sequence] = [
             Sequence(text="", logprob=0, tokens=[], file_path=generated_image["file_path"])

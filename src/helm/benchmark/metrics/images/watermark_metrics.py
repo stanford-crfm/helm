@@ -33,16 +33,16 @@ class WatermarkMetric(Metric):
         request_result: RequestResult = request_state.result
 
         # Gather the images
-        image_paths: List[str] = []
-        for completion in request_result.completions:
+        image_locations: List[str] = []
+        for image in request_result.completions:
             # Models like DALL-E 2 can skip generating images for prompts that violate their content policy
-            if completion.file_path is None:
+            if image.file_path is None:
                 return []
 
-            image_paths.append(completion.file_path)
+            image_locations.append(image.file_path)
 
         # Batch process the images and detect if they have watermarks
-        has_watermarks: List[bool] = self._watermark_detector.has_watermark(image_paths)
+        has_watermarks: List[bool] = self._watermark_detector.has_watermark(image_locations)
         stats: List[Stat] = [
             Stat(MetricName("watermark_frac")).add(mean(has_watermarks) if len(has_watermarks) > 0 else 0)
         ]

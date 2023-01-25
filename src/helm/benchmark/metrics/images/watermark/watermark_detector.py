@@ -6,11 +6,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data
-from PIL import Image
 from torchvision import transforms as T
 
 from helm.common.general import get_helm_cache_path, ensure_file_downloaded, hlog
 from helm.common.gpu_utils import get_torch_device
+from helm.common.images_utils import open_image
 
 
 class WatermarkDetector:
@@ -52,9 +52,9 @@ class WatermarkDetector:
     def __init__(self):
         self._model = self.load_model()
 
-    def has_watermark(self, image_paths: List[str]) -> List[bool]:
+    def has_watermark(self, image_locations: List[str]) -> List[bool]:
         """
-        Returns a list of booleans indicating whether each image (given by `image_paths`)
+        Returns a list of booleans indicating whether each image (given by `image_locations`)
         contains a watermark or not.
         """
         # Preprocess images (resize and normalize)
@@ -62,8 +62,9 @@ class WatermarkDetector:
         preprocessing = T.Compose(
             [T.Resize((256, 256)), T.ToTensor(), T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
         )
-        for path in image_paths:
-            image = preprocessing(Image.open(path).convert("RGB"))
+        for location in image_locations:
+            # Location can be a file path or a URL
+            image = preprocessing(open_image(location).convert("RGB"))
             images.append(image)
 
         result: List[bool] = []
@@ -73,6 +74,6 @@ class WatermarkDetector:
             for i, sym in enumerate(syms):
                 watermark_prob, clear_prob = sym
                 if watermark_prob > self.WATERMARK_THRESHOLD:
-                    hlog(f"Image at {image_paths[i]} has a watermark with {watermark_prob} probability.")
+                    hlog(f"Image at {image_locations[i]} has a watermark with {watermark_prob} probability.")
                 result.append(watermark_prob >= self.WATERMARK_THRESHOLD)
         return result

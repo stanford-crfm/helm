@@ -34,6 +34,8 @@ class FIDMetric(Metric):
         year = {2021},
         copyright = {arXiv.org perpetual, non-exclusive license}
     }
+
+    TODO: delete FIDMetric. Use FidelityMetric instead.
     """
 
     def __repr__(self):
