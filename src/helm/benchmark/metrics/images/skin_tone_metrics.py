@@ -142,6 +142,8 @@ class SkinToneMetric(Metric):
             mst_counts[mst_key] += 1
             num_images += 1
 
-        # For each MST, compute the fraction of images that has a person with that skin tone
-        stats: List[Stat] = [Stat(MetricName(mst)).add(count / num_images) for mst, count in mst_counts.items()]
+        stats: List[Stat] = []
+        if num_images > 0:
+            # For each MST, compute the fraction of images that has a person with that skin tone
+            stats = [Stat(MetricName(mst)).add(count / num_images) for mst, count in mst_counts.items()]
         return stats
