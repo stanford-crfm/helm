@@ -44,3 +44,4 @@ nav:
   - 'Developer Guide':
     - 'developer_setup.md'
     - 'code.md'
+    - 'adding_new_models.md'
