@@ -1,10 +1,7 @@
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
 import os
-import json
 from typing import Dict, Iterable, List, Optional, Set, Tuple
-
-import dacite
 
 from helm.benchmark.adaptation.adapters.adapter_factory import (
     ADAPT_MULTIPLE_CHOICE_SEPARATE_METHODS,
@@ -13,48 +10,15 @@ from helm.benchmark.adaptation.adapters.adapter_factory import (
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
-from helm.benchmark.augmentations.dialect_perturbation import DialectPerturbation
-from helm.benchmark.augmentations.extra_space_perturbation import ExtraSpacePerturbation
-from helm.benchmark.augmentations.filler_words_perturbation import FillerWordsPerturbation
-from helm.benchmark.augmentations.gender_perturbation import GenderPerturbation
-from helm.benchmark.augmentations.misspelling_perturbation import MisspellingPerturbation
-from helm.benchmark.augmentations.person_name_perturbation import PersonNamePerturbation
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
-from helm.benchmark.augmentations.space_perturbation import SpacePerturbation
-from helm.benchmark.augmentations.synonym_perturbation import SynonymPerturbation
-from helm.benchmark.augmentations.typos_perturbation import TyposPerturbation
 from helm.benchmark.metrics.metric import PerInstanceStats
 from helm.benchmark.presentation.schema import Schema
 from helm.benchmark.runner import RunSpec
 from helm.benchmark.scenarios.scenario import Instance
-from helm.common.general import asdict_without_nones, write
+from helm.common.general import write
 from helm.common.hierarchical_logger import htrack
 from helm.common.request import Request
-
-
-# TODO(#1251): Add proper class registration
-_PERTURBATION_NAME_TO_DESCRIPTION = {
-    DialectPerturbation.name: DialectPerturbation.Description,
-    ExtraSpacePerturbation.name: ExtraSpacePerturbation.Description,
-    FillerWordsPerturbation.name: FillerWordsPerturbation.Description,
-    GenderPerturbation.name: GenderPerturbation.Description,
-    MisspellingPerturbation.name: MisspellingPerturbation.Description,
-    PersonNamePerturbation.name: PersonNamePerturbation.Description,
-    SpacePerturbation.name: SpacePerturbation.Description,
-    SynonymPerturbation.name: SynonymPerturbation.Description,
-    TyposPerturbation.name: TyposPerturbation.Description,
-}
-
-
-def _deserialize_perturbation_description(raw_perturbation_description: Dict) -> PerturbationDescription:
-    """Convert a raw dictionary to a PerturbationDescription.
-    This uses the name field to look up the correct PerturbationDescription subclass to output.
-    """
-    factory = _PERTURBATION_NAME_TO_DESCRIPTION.get(raw_perturbation_description["name"], PerturbationDescription)
-    return factory(**raw_perturbation_description)
-
-
-_DACITE_CONFIG = dacite.Config(type_hooks={PerturbationDescription: _deserialize_perturbation_description})
+from helm.common.codec import from_json, to_json
 
 
 @dataclass(frozen=True)
@@ -117,8 +81,7 @@ def _read_scenario_state(run_path: str) -> ScenarioState:
     if not os.path.exists(scenario_state_path):
         raise ValueError(f"Could not load ScenarioState from {scenario_state_path}")
     with open(scenario_state_path) as f:
-        raw_scenario_state = json.load(f)
-        return dacite.from_dict(ScenarioState, raw_scenario_state, config=_DACITE_CONFIG)
+        return from_json(f.read(), ScenarioState)
 
 
 def _read_per_instance_stats(run_path: str) -> List[PerInstanceStats]:
@@ -126,8 +89,7 @@ def _read_per_instance_stats(run_path: str) -> List[PerInstanceStats]:
     if not os.path.exists(per_instance_stats_path):
         raise ValueError(f"Could not load PerInstanceStats from {per_instance_stats_path}")
     with open(per_instance_stats_path) as f:
-        raw_per_instance_stats = json.load(f)
-        return [dacite.from_dict(PerInstanceStats, r, config=_DACITE_CONFIG) for r in raw_per_instance_stats]
+        return from_json(f.read(), List[PerInstanceStats])
 
 
 def _truncate_predicted_text(
@@ -286,13 +248,10 @@ def write_run_display_json(run_path: str, run_spec: RunSpec, schema: Schema):
 
     write(
         os.path.join(run_path, "instances.json"),
-        json.dumps(list(map(asdict_without_nones, instance_id_to_instance.values())), indent=2),
+        to_json(list(instance_id_to_instance.values())),
     )
-    write(
-        os.path.join(run_path, "display_predictions.json"),
-        json.dumps(list(map(asdict_without_nones, predictions)), indent=2),
-    )
+    write(os.path.join(run_path, "display_predictions.json"), to_json(predictions))
     write(
         os.path.join(run_path, "display_requests.json"),
-        json.dumps(list(map(asdict_without_nones, requests)), indent=2),
+        to_json(requests),
     )
