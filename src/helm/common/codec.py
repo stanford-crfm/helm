@@ -43,6 +43,8 @@ def _build_converter() -> cattrs.Converter:
     converter = cattrs.Converter()
 
     # Handle omission of Nones in JSON.
+    # To improve readability and reduce storage space, if a field value is None and the field
+    # has no default value or a None default value, the field is omitted in the serialized JSON.
     def get_dataclass_optional_fields_without_default(cls: Type[T]) -> List[str]:
         if not dataclasses.is_dataclass(cls):
             return []
